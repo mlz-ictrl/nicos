@@ -23,7 +23,8 @@
 # *****************************************************************************
 
 """
-The connection handler for the execution daemon, handling the protocol commands.
+The connection handler for the execution daemon, handling the protocol
+commands.
 """
 
 import os
@@ -129,9 +130,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     """
     This class is the SocketServer "request handler" implementation for the
     daemon server.  One instance of this class is created for every control
-    connection (not event connections) from a client.  When the event connection
-    is opened, the `event_sender` method of the existing instance is spawned as
-    a new thread.
+    connection (not event connections) from a client.  When the event
+    connection is opened, the `event_sender` method of the existing instance
+    is spawned as a new thread.
 
     The `handle` method reads commands from the client, dispatches them to
     methods of the same name, and writes the responses back.
@@ -175,8 +176,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         try:
             self.event_queue.put(stop_queue, False)
         except queue.Full:
-            # the event queue has already overflown because the event sender was
-            # already closed; so we can ignore this
+            # the event queue has already overflown because the event sender
+            # was already closed; so we can ignore this
             pass
         server.unregister_handler(self.ident)
         self.log.debug('handler unregistered')
@@ -224,7 +225,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             raise CloseConnection
 
     def check_host(self):
-        """Match the connecting host against the daemon's trusted hosts list."""
+        """Match the connecting host against the daemon's list of
+        trusted hosts.
+        """
         for allowed in self.daemon.trustedhosts:
             for possible in self.clientnames:
                 if allowed == possible:
@@ -253,10 +256,11 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         """Handle a single connection."""
+        ip = self.client_address[0]
         try:
-            host, aliases, addrlist = socket.gethostbyaddr(self.client_address[0])
+            host, aliases, addrlist = socket.gethostbyaddr(ip)
         except socket.herror:
-            self.clientnames = [self.client_address[0]]
+            self.clientnames = [ip]
         else:
             self.clientnames = [host] + aliases + addrlist
         self.log.debug('connection from %s' % self.clientnames)
@@ -338,7 +342,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             command, data = self.read()
             command_wrappers[command](self, data)
 
-    # -- Event thread entry point ----------------------------------------------
+    # -- Event thread entry point ---------------------------------------------
 
     def event_sender(self, sock):
         """Take events from the handler instance's event queue and send them
@@ -374,7 +378,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         # also close the main connection if not already done
         closeSocket(self.sock)
 
-    # -- Script control commands ------------------------------------------------
+    # -- Script control commands ----------------------------------------------
 
     @command(needscript=False)
     def start(self, name, code):
@@ -446,7 +450,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
            `nicos.protocols.daemon`:
 
            * BREAK_AFTER_LINE - pause after current scan/line in the script
-           * BREAK_AFTER_STEP - pause after scan point/breakpoint with level "2"
+           * BREAK_AFTER_STEP - pause after scanpoint/breakpoint with level "2"
            * BREAK_NOW - pause in the middle of counting
         :returns: ok or error (e.g. if script is already paused)
         """
@@ -518,9 +522,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     def emergency(self):
         """Stop the script unconditionally and run emergency stop functions.
 
-        This throws an exception into the thread running the script, so that the
-        script is interrupted as soon as possible.  However, finalizers with
-        "try-finally" are still run and can e.g. record count results.
+        This throws an exception into the thread running the script, so that
+        the script is interrupted as soon as possible.  However, finalizers
+        with "try-finally" are still run and can e.g. record count results.
 
         :returns: ok or error
         """
@@ -544,7 +548,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.controller.set_continue(('emergency stop', 5, self.user.name))
         self.write(ACK)
 
-    # -- Asynchronous script interaction ---------------------------------------
+    # -- Asynchronous script interaction --------------------------------------
 
     @command(needcontrol=True, name='exec')
     def exec_(self, cmd):
@@ -614,7 +618,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         matches = sorted(set(self.controller.complete_line(line, lastword)))
         self.write(STX, matches)
 
-    # -- Runtime information commands ------------------------------------------
+    # -- Runtime information commands -----------------------------------------
 
     @command()
     def getversion(self):
@@ -662,7 +666,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """Return the last *n* messages.
 
         :param n: number of messages to transfer or '*' for all messages
-        :returns: list of messages (each message being a list of logging fields)
+        :returns: list of messages (each message being a list of logging
+           fields)
         """
         if n == '*':
             self.write(STX, self.daemon._messages)
@@ -689,7 +694,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         if not session.cache:
             self.write(STX, [])
-        history = session.cache.history('', key, float(fromtime), float(totime))
+        history = session.cache.history('', key, float(fromtime),
+                                        float(totime))
         self.write(STX, history)
 
     @command()
@@ -718,7 +724,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         self.write(STX, self.controller.current_location(True))
 
-    # -- Watch expression commands ---------------------------------------------
+    # -- Watch expression commands --------------------------------------------
 
     @command(needcontrol=True)
     def watch(self, vallist):
@@ -766,7 +772,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 self.controller.remove_watch_expression(val)
         self.write(ACK)
 
-    # -- Data interface commands -----------------------------------------------
+    # -- Data interface commands ----------------------------------------------
 
     @command()
     def getdataset(self, index):
@@ -790,15 +796,15 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             except (IndexError, AttributeError, ConfigurationError):
                 self.write(STX, None)
 
-    # -- Miscellaneous commands ------------------------------------------------
+    # -- Miscellaneous commands -----------------------------------------------
 
     @command(needcontrol=True)
     def debug(self, code):
         """Start a pdb session in the script thread context.  Experimental!
 
         The daemon is put into debug mode.  Replies to pdb queries can be given
-        using the "debuginput" command.  Stopping the debugging (with "q" at the
-        pdb prompt or finishing the script) will exit debug mode.
+        using the "debuginput" command.  Stopping the debugging (with "q" at
+        the pdb prompt or finishing the script) will exit debug mode.
 
         :param code: code to start in debug mode
         :returns: ack or error
