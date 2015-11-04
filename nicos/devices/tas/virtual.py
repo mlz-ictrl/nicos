@@ -73,8 +73,11 @@ class VirtualTasDetector(Measurable):
             self._counting_started += (currenttime() - self._pause_time)
         return True
 
-    def doStop(self):
+    def doFinish(self):
         self._counting_started = 0
+
+    def doStop(self):
+        self.doFinish()
 
     def doStatus(self, maxage=0):
         if 't' in self._lastpreset and self.realtime:
@@ -85,7 +88,7 @@ class VirtualTasDetector(Measurable):
     def doRead(self, maxage=0):
         return self._lastresult
 
-    def doSave(self, exception=False):
+    def doSave(self):
         from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
         taspos = self._attached_tas.read(0)

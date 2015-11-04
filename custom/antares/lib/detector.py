@@ -73,12 +73,6 @@ class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
 
         Andor2LimaCCD.doStart(self, **preset)
 
-    def doSave(self, exception=False):
-        # do not try to save ccd image in case of stopping
-        if exception:
-            return
-        Andor2LimaCCD.doSave(self, exception)
-
 
 class AntaresNeo(UsesFastshutter, Andor3LimaCCD):
     """
@@ -88,9 +82,3 @@ class AntaresNeo(UsesFastshutter, Andor3LimaCCD):
     def doStart(self, **preset):
         self.openFastshutter()
         Andor3LimaCCD.doStart(self, **preset)
-
-    def doSave(self, exception=False):
-        # do not try to save ccd image in case of stopping
-        if exception:
-            return
-        Andor3LimaCCD.doSave(self, exception)

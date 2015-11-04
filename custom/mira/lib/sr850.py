@@ -113,6 +113,9 @@ class Amplifier(TacoDevice, Measurable):
         Theta = degrees(atan2(Y, X))
         return [X, Y, R, Theta]
 
+    def doFinish(self):
+        pass
+
     def doStop(self):
         pass
 

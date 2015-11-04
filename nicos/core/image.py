@@ -197,14 +197,6 @@ class ImageSink(Device):
         """
         return None
 
-    def updateLiveImage(self, imageinfo, image):
-        """Update live image.  The difference between this and `updateImage()`
-        is that this method should be called with a greater frequency.
-
-        Useful sinks that implement live displays.
-        """
-        return None
-
     def saveImage(self, imageinfo, image):
         """Save the given image content.
 
@@ -238,7 +230,7 @@ class ImageProducer(DeviceMixinBase):
     parameters = {
         'subdir': Param('Detector specific subdirectory name for the image '
                         'files',
-                        type=subdir, mandatory=True, settable=True),
+                        type=subdir, mandatory=False, settable=True),
         'lastfilename': Param('Last written file by this detector',
                               type=str, default='', settable=True),
     }
@@ -247,7 +239,6 @@ class ImageProducer(DeviceMixinBase):
     _header = None
     _saved = False
 
-    need_clear = False
     # either None or an ImageType instance, can also be made a property if
     # variable
     imagetype = None
@@ -256,8 +247,6 @@ class ImageProducer(DeviceMixinBase):
         """Should prepare an Image file."""
         self._saved = False
         self.log.debug('prepareImageFile(%r)' % dataset)
-        if self.need_clear:
-            self.clearImage()
         imageinfos = []
         imagetype = self.imagetype
         for ff in self._attached_fileformats:
@@ -337,20 +326,6 @@ class ImageProducer(DeviceMixinBase):
             for imageinfo in self._imageinfos:
                 imageinfo.filesaver.updateImage(imageinfo, image)
 
-    def updateLiveImage(self, image=Ellipsis):
-        """Update live image.  The difference between this and `updateImage()`
-        is that this method should be called with a greater frequency.
-
-        If no image is specified, try to fetch one using self.readImage.
-        If that returns a valid image, distribute to all ImageInfos.
-        """
-        if image is Ellipsis:
-            image = self.readImage()
-        self.log.debug('updateLiveImage(%20r)' % image)
-        if image is not None:
-            for imageinfo in self._imageinfos:
-                imageinfo.filesaver.updateLiveImage(imageinfo, image)
-
     def saveImage(self, image=Ellipsis):
         """Save the given image content."""
         # trigger saving the image
@@ -392,21 +367,12 @@ class ImageProducer(DeviceMixinBase):
             self._saved = True
         self._header = None
 
-    def doSave(self, exception=False):
+    def doSave(self):
         self.saveImage()
 
     #
     # HW-specific 'Hooks'
     #
-
-    def clearImage(self):
-        """Clear the last Image from the HW and prepare the acquisition of a
-        new one.
-
-        This is called before the detector is counting and is intended to be
-        used an image-plate like detectors.
-        """
-        pass
 
     def readImage(self):
         """Read and returns the current/intermediate image from the HW.

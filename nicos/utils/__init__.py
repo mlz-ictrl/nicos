@@ -1056,6 +1056,17 @@ def clamp(value, minval, maxval):
     return min(max(value, minval), maxval)
 
 
+def uniq(lst):
+    """Return a list with unique elements (but preserved order)."""
+    new = []
+    seen = set()
+    for item in lst:
+        if item not in seen:
+            new.append(item)
+            seen.add(item)
+    return new
+
+
 def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     """ Wrapper: Try a call and retry it on an exception
 

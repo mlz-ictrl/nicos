@@ -30,30 +30,27 @@ from PyTango import DevState
 
 from nicos import session
 from nicos.utils import updateFileCounter
-from nicos.core import Moveable, Measurable, SIMULATION, waitForStatus, status
+from nicos.core import Moveable, SIMULATION, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.vendor.lima import Andor2LimaCCD
-from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
+from nicos.core.params import Attach, Param, Override, oneof, tupleof
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
-from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, \
-    SeqSleep, SeqMethod
-from nicos.core.image import ImageProducer, ImageType
+from nicos.devices.generic.detector import Detector, PassiveChannel, \
+    ImageChannelMixin
+from nicos.core.image import ImageType
 from nicos.jcns.shutter import Shutter
 
 
-class ImagePlateBase(PyTangoDevice):
-    """Basic Tango Device for MAATEL Image Plate Detectors."""
+class ImagePlateDrum(PyTangoDevice, Moveable):
+    """ImagePlateDrum implements erasing, moving to expo position and readout
+    for MAATEL Image Plate Detectors.
+    """
 
     DEFAULT_URL_FMT = "tango://%s/EMBL/Microdiff/General#dbase=no"
 
     tango_status_mapping = dict(PyTangoDevice.tango_status_mapping)
     tango_status_mapping[DevState.STANDBY] = status.OK
     tango_status_mapping[DevState.ALARM] = status.ERROR
-
-
-class ImagePlateDrum(ImagePlateBase, Moveable):
-    """ImagePlateDrum implements erasing, moving to expo position and readout
-    for MAATEL Image Plate Detectors."""
 
     POS_ERASE = "erase"
     POS_EXPO = "expo"
@@ -129,13 +126,13 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
     def doStatus(self, maxage=0):
         # Workaround for status changes from busy to another state although the
         # operation has _not_ been completed.
-        st, msg = ImagePlateBase.doStatus(self, maxage)
+        st, msg = PyTangoDevice.doStatus(self, maxage)
         if self._lastStatus == status.BUSY and st != status.BUSY:
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
                            "Check again after a short delay."
                            % (status.BUSY, st))
             time.sleep(5)
-            st, msg = ImagePlateBase.doStatus(self, 0)
+            st, msg = PyTangoDevice.doStatus(self, 0)
             self.log.debug("doStatus: recheck result: %d" % st)
         self._lastStatus = st
         return st, msg
@@ -186,7 +183,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         self._dev.ErasureDuration = value
 
 
-class ImagePlateDetector(ImageProducer, MeasureSequencer):
+class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     """Represents the client to a MAATEL Image Plate Detector."""
 
     MAP_SHAPE = {
@@ -196,21 +193,13 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
     }
 
     attached_devices = {
-        "imgdrum": Attach("Image Plate Detector Drum "
-                          "control device.", Moveable),
-        "gammashutter": Attach("Gamma shutter", Moveable),
-        "photoshutter": Attach("Photo shutter", Moveable),
+        "imgdrum":      Attach("Image Plate Detector Drum "
+                               "control device.", ImagePlateDrum),
     }
 
     parameters = {
         "erase": Param("Erase image plate on next start?", type=bool,
                        settable=True, mandatory=False, default=True),
-        "ctrl_gammashutter": Param("Control gamma shutter?",
-                                   type=bool, settable=True,
-                                   mandatory=False, default=True),
-        "ctrl_photoshutter": Param("Control photo shutter?",
-                                   type=bool, settable=True,
-                                   mandatory=False, default=True),
         "roi": Param("Region of interest",
                      type=tupleof(int, int, int, int),
                      default=(0, 0, 0, 0),
@@ -224,130 +213,24 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
                       category="general"),
         "readout_millis": Param("Timeout in ms for the readout.",
                                 type=int, settable=True, default=60000),
-        "exposure_time": Param("Default exposure time in seconds",
-                               type=float, settable=True, default=30.)
     }
 
     def doInit(self, mode):
-        self._t = None
-        self.imagetype = ImageType(
-            ImagePlateDetector.MAP_SHAPE[self.pixelsize],
-            numpy.uint16)
-
-    def _check_shutter(self):
-        # TODO: reduce code duplication
-        if (self.ctrl_photoshutter and
-                self._attached_photoshutter.read() == Shutter.CLOSED):
-            raise InvalidValueError(self, 'photo shutter not open after '
-                                    'exposure, check safety system')
-        if (self.ctrl_gammashutter and
-                self._attached_gammashutter.read() == Shutter.CLOSED):
-            raise InvalidValueError(self, 'gamma shutter not open after '
-                                    'exposure, check safety system')
-
-    def _generateSequence(self, expoTime, prepare=False, *args, **kwargs):
-        seq = []
-        if prepare:
-            # close shutter
-            if self.ctrl_photoshutter:
-                seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
-            if self.ctrl_gammashutter:
-                seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
-            # erase and expo position
-            if self.erase:
-                seq.append(SeqDev(self._attached_imgdrum,
-                                  ImagePlateDrum.POS_ERASE))
-            seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_EXPO))
-        if expoTime > 0:
-            # open shutter
-            if self.ctrl_gammashutter:
-                seq.append(SeqDev(self._attached_gammashutter, Shutter.OPEN))
-            if self.ctrl_photoshutter:
-                seq.append(SeqDev(self._attached_photoshutter, Shutter.OPEN))
-            # count
-            seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
-            # check if shutter closed during measurement
-            seq.append(SeqMethod(self, '_check_shutter'))
-            # close shutter
-            if self.ctrl_photoshutter:
-                seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
-            if self.ctrl_gammashutter:
-                seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
-            # start readout
-            seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_READ))
-        return seq
-
-    def _runFailed(self, step, action, exception):
-        self.log.debug("RUNFAILED: %s" % action)
-        self.log.debug("     args: %s" % action.args)
-        self.log.debug("   device: %s" % action.dev)
-        if action.dev == self._attached_imgdrum:
-            self.log.warning("%s failed.\n"
-                             "Exception was:\n\n"
-                             "%s\n\n"
-                             "Retrying." % (action, exception))
-            return 3
-        else:
-            raise exception
-
-    def doSetPreset(self, **preset):
-        if "t" in preset:
-            self._t = preset["t"]
+        self.imagetype = ImageType(self.MAP_SHAPE[self.pixelsize],
+                                   numpy.uint16)
 
     def doPrepare(self):
-        if self._seq_is_running():
-            raise MoveError(self, 'sequence is still running')
-        # reset sequence status
-        MeasureSequencer.doReset(self)
-        self._startSequence(self._generateSequence(expoTime=False,
-                                                   prepare=True))
-        # workaround: insert short delay for status changes because waiting
-        #             for preparation has been finished failed sometimes.
-        # waitForStatus in nicos.core.scan.Scan (preparePoint) accidentally
-        # returned immediately.
-        time.sleep(5)
+        # erase and expo position
+        if self.erase:
+            self._attached_imgdrum.maw(ImagePlateDrum.POS_ERASE)
+        self._attached_imgdrum.maw(ImagePlateDrum.POS_EXPO)
 
-    def doStart(self):
-        waitForStatus(self, ignore_errors=True)
-        expoTime = self._t if self._t is not None else self.exposure_time
-        self._t = None
-        self._startSequence(self._generateSequence(expoTime))
-
-    def doRead(self, maxage=0):
-        return self.lastfilename
-
-    def doStop(self):
-        # TODO: reduce code duplication
-        self.log.debug('Stopping image plate')
-        MeasureSequencer.doStop(self)
-        try:
-            self._seq_thread.join()
-        except AttributeError:
-            pass
-        self._attached_imgdrum.stop()
-
-    def valueInfo(self):
-        return Value(self.name + ".file", type="info", fmtstr="%s"),
-
-    def doSave(self, exception=False):
-        # TODO: reduce code duplication
-        if exception:
-            exp = session.experiment
-            if self._mode != SIMULATION:
-                lastimagepath = os.path.join(exp.proposalpath,
-                                             exp.lastimagefile)
-                if (os.path.isfile(lastimagepath) and
-                        os.path.getsize(lastimagepath) == 0):
-                    self.log.debug("Remove empty file: %s" % exp.lastimagefile)
-                    os.unlink(lastimagepath)
-                updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
-            else:
-                # only in sim-mode, see nicos.devices.experiment.Experiment
-                exp._lastimage = (exp._lastimage or exp.lastimage) - 1
-        else:
-            ImageProducer.doSave(self, exception)
+    def readLiveImage(self):
+        return None  # cannot read while exposing!
 
     def readFinalImage(self):
+        # start readout
+        self._attached_imgdrum.maw(ImagePlateDrum.POS_READ)
         narray = None
         timeout = self._attached_imgdrum._dev.get_timeout_millis()
         self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
@@ -375,43 +258,15 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
 
     def doWritePixelsize(self, value):
         self._attached_imgdrum._dev.PixelSize = value
-        self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[value],
-                                   numpy.uint16)
+        self.imagetype = ImageType(self.MAP_SHAPE[value], numpy.uint16)
 
     def doWriteFile(self, value):
         self._attached_imgdrum._dev.ImageFile = value
 
 
-class Andor2LimaCCDFPGA(Andor2LimaCCD):
-    """Andor2LimaCCD Photoshutter control extension by FPGATimerChannel
-    device."""
+class BiodiffDetector(Detector):
 
     attached_devices = {
-        "timer": Attach("ZEA-2 counter card timer channel, "
-                        "photoshutter control", Measurable),
-    }
-
-    # needed for SeqDev in MeasureSequencer -> Andor2LimaCCDDetector
-    def isAllowed(self):
-        return (True, '')
-
-    def doSetPreset(self, **preset):
-        if "t" in preset:
-            self._attached_timer.preselection = preset["t"]
-        Andor2LimaCCD.doSetPreset(self, **preset)
-
-    def doStart(self):
-        self._attached_timer.start()
-        Andor2LimaCCD.doStart(self)
-
-
-class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
-    """Andor2LimaCCD shutter control extension. Controls instrument shutters
-    gammashutter, photoshutter and the camera shutter itself using a
-    FPGATimerChannel device."""
-
-    attached_devices = {
-        "ccd": Attach("Andor CCD camera", Measurable),
         "gammashutter": Attach("Gamma shutter", Moveable),
         "photoshutter": Attach("Photo shutter", Moveable),
     }
@@ -425,15 +280,23 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
                                    default=True),
     }
 
-    parameter_overrides = {
-        "subdir": Override(mandatory=False, settable=False),
-    }
+    def doPrepare(self):
+        # close shutter
+        if self.ctrl_photoshutter:
+            self._attached_photoshutter.maw(Shutter.CLOSED)
+        if self.ctrl_gammashutter:
+            self._attached_gammashutter.maw(Shutter.CLOSED)
+        Detector.doPrepare(self)
 
-    def doInit(self, mode):
-        self.imagetype = self._attached_ccd.imagetype
+    def doStart(self):
+        # open shutter
+        if self.ctrl_gammashutter:
+            self._attached_gammashutter.maw(Shutter.OPEN)
+        if self.ctrl_photoshutter:
+            self._attached_photoshutter.maw(Shutter.OPEN)
+        Detector.doStart(self)
 
     def _check_shutter(self):
-        # TODO: reduce code duplication
         if (self.ctrl_photoshutter and
                 self._attached_photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
@@ -443,80 +306,32 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
-    def doPrepare(self):
-        if self._seq_is_running():
-            raise MoveError(self, 'sequence is still running')
-        # reset sequence status
-        MeasureSequencer.doReset(self)
-
-    def _generateSequence(self, *args, **kwargs):
-        seq = []
-        # open shutter
-        if self.ctrl_gammashutter:
-            seq.append(SeqDev(self._attached_gammashutter, Shutter.OPEN))
-        if self.ctrl_photoshutter:
-            seq.append(SeqDev(self._attached_photoshutter, Shutter.OPEN))
-        # count
-        seq.append(SeqMethod(self._attached_ccd, 'start'))
-        seq.append(SeqMethod(self._attached_ccd, 'wait'))
-        # check if shutter closed during measurement
-        seq.append(SeqMethod(self, '_check_shutter'))
+    def doFinish(self):
+        Detector.doFinish(self)
+        self._check_shutter()
         # close shutter
         if self.ctrl_photoshutter:
-            seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
+            self._attached_photoshutter.maw(Shutter.CLOSED)
         if self.ctrl_gammashutter:
-            seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
-        return seq
+            self._attached_gammashutter.maw(Shutter.CLOSED)
 
     def doStop(self):
-        # TODO: reduce code duplication
-        self.log.debug('Stopping CCD')
-        MeasureSequencer.doStop(self)
-        try:
-            self._seq_thread.join()
-        except AttributeError:
-            pass
-        self._attached_ccd.stop()
-
-    def doSave(self, exception=False):
-        # TODO: reduce code duplication
-        if exception:
-            exp = session.experiment
-            if self._mode != SIMULATION:
-                lastimagepath = os.path.join(exp.proposalpath,
-                                             exp.lastimagefile)
-                if (os.path.isfile(lastimagepath) and
-                        os.path.getsize(lastimagepath) == 0):
-                    self.log.debug("Remove empty file: %s" % exp.lastimagefile)
-                    os.unlink(lastimagepath)
-                updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
-            else:
-                # only in sim-mode, see nicos.devices.experiment.Experiment
-                exp._lastimage = (exp._lastimage or exp.lastimage) - 1
+        Detector.doStop(self)
+        # close shutter
+        if self.ctrl_photoshutter:
+            self._attached_photoshutter.maw(Shutter.CLOSED)
+        if self.ctrl_gammashutter:
+            self._attached_gammashutter.maw(Shutter.CLOSED)
+        # remove last empty file on errors
+        exp = session.experiment
+        if self._mode != SIMULATION:
+            lastimagepath = os.path.join(exp.proposalpath,
+                                         exp.lastimagefile)
+            if (os.path.isfile(lastimagepath) and
+                    os.path.getsize(lastimagepath) == 0):
+                self.log.debug("Remove empty file: %s" % exp.lastimagefile)
+                os.unlink(lastimagepath)
+            updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
         else:
-            ImageProducer.doSave(self, exception)
-
-    def valueInfo(self):
-        return Value(self.name + ".file", type="info", fmtstr="%s"),
-
-    # -- act as a proxy class for ImageProducer calls ----------------------
-
-    def doReadLastfilename(self):
-        return self._attached_ccd.lastfilename
-
-    def doWriteLastfilename(self, value):
-        self._attached_ccd.lastfilename = value
-
-    def doReadSubdir(self):
-        return self._attached_ccd.subdir
-
-    def readFinalImage(self):
-        return self._attached_ccd.readFinalImage()
-
-    # -- act as a proxy class for a Measurable, e.g. Andor2LimaCCDFPGA -----
-
-    def doRead(self, maxage=0):
-        return self._attached_ccd.lastfilename
-
-    def doSetPreset(self, **preset):
-        self._attached_ccd.doSetPreset(**preset)
+            # only in sim-mode, see nicos.devices.experiment.Experiment
+            exp._lastimage = (exp._lastimage or exp.lastimage) - 1

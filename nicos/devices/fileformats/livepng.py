@@ -94,7 +94,7 @@ class PNGLiveFileFormat(ImageSink):
     def prepareImage(self, imageinfo, subdir=''):
         imageinfo.filename = 'png@%s' % session.experiment.lastimage
 
-    def updateLiveImage(self, imageinfo, image):
+    def updateImage(self, imageinfo, image):
         if currenttime() - self._last_saved > self.interval:
             self.saveImage(imageinfo, image)
 

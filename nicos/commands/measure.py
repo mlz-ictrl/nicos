@@ -109,6 +109,7 @@ def _count(detlist, preset, result, dataset=None):
                     det.duringMeasureHook(looptime - starttime)
                 if det.isCompleted():
                     try:
+                        det.finish()
                         det.save()
                     except Exception:
                         det.log.exception('error saving measurement data')
@@ -146,8 +147,8 @@ def _count(detlist, preset, result, dataset=None):
                                 exc=True)
         for det in detset:
             try:
-                det.stop()
-                det.save(exception=True)
+                if det.stop():
+                    det.save()
             except Exception:
                 det.log.exception('error saving measurement data', exc=True)
         result.extend(sum((det.read() for det in detlist), []))

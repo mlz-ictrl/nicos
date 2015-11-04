@@ -47,7 +47,7 @@ class LiveViewSink(ImageSink):
         # hardcoded live name
         imageinfo.filename = 'live@%s' % session.experiment.lastimage
 
-    def updateLiveImage(self, imageinfo, image):
+    def updateImage(self, imageinfo, image):
         if len(image.shape) == 2:
             resX, resY = image.shape
             resZ = 1
@@ -59,7 +59,7 @@ class LiveViewSink(ImageSink):
                                time.time() - imageinfo.begintime, buffer(image.astype('<u4')))
 
     def saveImage(self, imageinfo, image):
-        self.updateLiveImage(imageinfo, image)
+        self.updateImage(imageinfo, image)
 
     def finalizeImage(self, imageinfo):
         pass

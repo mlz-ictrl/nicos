@@ -153,10 +153,14 @@ devices = dict(
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
 
-    card    = device('devices.generic.VirtualCounterCard'),
+    ctr      = device('devices.generic.VirtualCounter',
+                      lowlevel = True,
+                      type = 'counter',
+                      countrate = 120,
+                      fmtstr = '%d',
+                     ),
 
-    det     = device('devices.generic.VirtualCounter',
-                     card = 'card',
-                     type = 'counter',
-                     ismaster = True),
+    det      = device('devices.generic.Detector',
+                      counters = ['ctr'],
+                     ),
 )

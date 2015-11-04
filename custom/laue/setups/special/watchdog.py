@@ -25,7 +25,7 @@ watchlist = [
           precondtime = 600,
           message = 'Reactor power too low',
           type = 'critical',
-          action = 'abort()',
+          action = 'stop()',
           gracetime = 300,
          ),
 ]

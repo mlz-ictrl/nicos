@@ -200,7 +200,7 @@ class PGAAPanel(Panel):
         self.update()
 
     def on_detOff_clicked(self):
-        # detector.stop()
+        # detector.finish()
         self.update()
 
     @pyqtSlot()

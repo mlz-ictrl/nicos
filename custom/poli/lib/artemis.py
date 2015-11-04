@@ -47,7 +47,7 @@ class ArtemisCapture(Measurable):
         return [self._lastfile]
 
     def valueInfo(self):
-        return Value(self.name + '.file', type='info', fmtstr='%s'),
+        return Value(self.name + '.file', type='filename', fmtstr='%s'),
 
     def doSetPreset(self, **preset):
         if 't' in preset:
@@ -58,8 +58,11 @@ class ArtemisCapture(Measurable):
         self._lastfile = ''
         self._started = time.time()
 
-    def doStop(self):
+    def doFinish(self):
         self._started = 0
+
+    def doStop(self):
+        self.doFinish()
 
     def doIsCompleted(self):
         newset = set(os.listdir(self.datapath))

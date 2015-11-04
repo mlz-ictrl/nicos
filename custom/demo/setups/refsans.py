@@ -283,13 +283,22 @@ devices = dict(
                               description = 'Sends image data to LiveViewWidget',
                              ),
 
-    det     = device('devices.generic.virtual.Virtual2DDetector',
-                     description = 'Virtual 2D detector',
-                     fileformats = ['LiveViewFileSink'], # 'BerSANSFileSaver', 'RAWFileSaver'
-                     distance = None, # 'det_pos1',
-                     collimation = None, # 'guide',
-                     subdir = '2ddata',
-                    ),
+    det_time = device('devices.generic.virtual.VirtualTimer',
+                      description = 'demo timer',
+                     ),
+    det_img  = device('devices.generic.virtual.VirtualImage',
+                      description = 'demo 2D detector',
+                      distance = None,
+                      collimation = None,
+                     ),
+    det      = device('devices.generic.detector.Detector',
+                      description = 'demo 2D detector',
+                      fileformats = ['BerSANSFileSaver', 'RAWFileSaver',
+                                     'LiveViewFileSink', 'LivePNGSink', 'LivePNGSinkLog'],
+                      timers = ['det_timer'],
+                      images = ['det_img'],
+                      subdir = '2ddata',
+    )
 )
 
 startupcode = '''

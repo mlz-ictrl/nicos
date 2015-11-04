@@ -33,15 +33,15 @@ from math import exp, atan
 import numpy as np
 
 from nicos import session
+from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
+    Override, none_or, oneof, tupleof, floatrange, Moveable, \
+    Value, ImageType, SIMULATION, POLLER, Attach, HasWindowTimeout
+from nicos.core.constants import MASTER
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
-from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
-    none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageProducer, ImageType, SIMULATION, POLLER, Attach, Device, HasWindowTimeout
-from nicos.core.constants import MASTER
-
 from nicos.devices.abstract import Motor, Coder
-from nicos.devices.generic.detector import Channel
+from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
+    ImageChannelMixin
 
 
 class VirtualMotor(HasOffset, Motor):
@@ -150,67 +150,37 @@ class VirtualCoder(HasOffset, Coder):
         pass
 
 
-class VirtualCounterCard(Device):
-    """A virtual counter card device that coordinates multiple channels."""
-
-    def doInit(self, mode):
-        self._channels = []
-        self._masters = {}
-
-    def addChannel(self, ch):
-        self._channels.append(ch)
-        self._masters[ch] = False
-
-    def started(self, ch):
-        self._masters[ch] = ch.ismaster
-
-    def finished(self, ch):
-        if self._masters[ch]:
-            for _ch in self._channels:
-                if _ch != ch:
-                    ch.stop()
-
-
-class VirtualChannel(Channel):
-    """A channel of a virtual detector card a la FRM-II detector card, which has
-    a number of counter channels and one timer channel.
-    """
+class VirtualChannel(ActiveChannel):
+    """A virtual detector channel."""
     parameters = {
         'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
                            settable=True, default=(status.OK, 'idle')),
     }
 
-    parameter_overrides = {
-        'preselection': Override(default=0,),
-    }
-
-    attached_devices = {
-        'card': Attach('virtual card', VirtualCounterCard,),
-    }
-
     _delay = 0.1
     _thread = None
 
     def doInit(self, mode):
-        self._finish = True
+        self._stopflag = False
         if mode == MASTER:
             self.curvalue = 0
-        self._attached_card.addChannel(self)
-        if self.curstatus[0] < status.OK:  # clean up old status values
-            self._setROParam('curstatus', (status.OK, ''))
 
-    def doStop(self):
-        if self._thread is not None and self._thread.isAlive():
-            self._do_stop()
+    def doStart(self):
+        self._stopflag = False
+        self.curvalue = 0
+        self.curstatus = (status.BUSY, 'counting')
+        self._thread = createThread('%s %s' % (self.__class__.__name__, self),
+                                    self._counting)
+
+    def doFinish(self):
+        if self._thread and self._thread.isAlive():
+            self._stopflag = True
         else:
             self.curstatus = (status.OK, 'idle')
 
-    def _do_stop(self):
-        if not self._finish:
-            self._finish = True
-            self._attached_card.finished(self)
-            self.curstatus = (status.OK, 'idle')
+    def doStop(self):
+        self.doFinish()
 
     def doStatus(self, maxage=0):
         return self.curstatus
@@ -218,34 +188,29 @@ class VirtualChannel(Channel):
     def doRead(self, maxage=0):
         return self.curvalue
 
+    def doShutdown(self):
+        if self._thread:
+            self.doStop()
+
 
 class VirtualTimer(VirtualChannel):
     """A virtual timer channel for use together with
-    `nicos.devices.generic.detector.MultiChannelDetector`.
+    `nicos.devices.generic.detector.Detector`.
     """
 
-    def doStart(self):
-        if self._finish:
-            self.curvalue = 0
-            self._attached_card.started(self)
-            self._finish = False
-            self.curstatus = (status.BUSY, 'counting')
-            self._thread = createThread('virtual timer %s' % self,
-                                        self.__counting)
+    parameter_overrides = {
+        'unit': Override(default='s'),
+    }
 
-    def doSetPreset(self, **preset):
-        if 't' in preset:
-            self.preselection = preset['t']
-            # self.ismaster = True
+    is_timer = True
 
-    def __counting(self):
+    def _counting(self):
         self.log.debug('timing to %.3f' % (self.preselection,))
         finish_at = time.time() + self.preselection
         try:
-            while not self._finish:
+            while not self._stopflag:
                 if self.ismaster and time.time() >= finish_at:
                     self.curvalue = self.preselection
-                    self._do_stop()
                     break
                 time.sleep(self._base_loop_delay)
                 self.curvalue += self._base_loop_delay
@@ -258,23 +223,16 @@ class VirtualTimer(VirtualChannel):
             return [self.preselection]
         return [random.randint(0, 1000)]
 
-    def doReadUnit(self):
-        return 's'
-
     def valueInfo(self):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
     def doTime(self, preset):
         return self.preselection if self.ismaster else 0
 
-    def doShutdown(self):
-        if self._thread:
-            self.doStop()
-
 
 class VirtualCounter(VirtualChannel):
     """A virtual counter channel for use together with
-    `nicos.devices.generic.detector.MultiChannelDetector`.
+    `nicos.devices.generic.detector.Detector`.
     """
 
     parameters = {
@@ -285,32 +243,17 @@ class VirtualCounter(VirtualChannel):
     }
 
     parameter_overrides = {
-        'fmtstr':      Override(default='%d'),
+        'unit': Override(default='cts'),
     }
 
-    def doStart(self):
-        if self._finish:
-            self.curvalue = 0
-            self._attached_card.started(self)
-            self._finish = False
-            self.curstatus = (status.BUSY, 'virtual counting')
-            self._thread = createThread('virtual counter %s' % self,
-                                        self.__counting)
-
-    def doSetPreset(self, **preset):
-        if 'm' in preset:
-            self.preselection = preset['m']
-            # self.ismaster = True
-
-    def __counting(self):
+    def _counting(self):
         self.log.debug('counting to %d cts with %d cts/s' %
                        (self.preselection, self.countrate))
         try:
             rate = abs(self.countrate)
-            while not self._finish:
+            while not self._stopflag:
                 if self.ismaster and self.curvalue >= self.preselection:
                     self.curvalue = self.preselection
-                    self._do_stop()
                     break
                 time.sleep(self._base_loop_delay)
                 self.curvalue += int(random.randint(int(rate * 0.9), rate) *
@@ -324,19 +267,9 @@ class VirtualCounter(VirtualChannel):
             return [self.preselection]
         return [random.randint(0, self.countrate)]
 
-    def doReadUnit(self):
-        return 'cts'
-
     def valueInfo(self):
         return Value(self.name, unit='cts', errors='sqrt', type=self.type,
                      fmtstr='%d'),
-
-    def presetInfo(self):
-        return ('m',)
-
-    def doShutdown(self):
-        if self._thread:
-            self.doStop()
 
 
 class VirtualTemperature(VirtualMotor):
@@ -644,19 +577,15 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             timestamp = t
 
 
-class Virtual2DDetector(ImageProducer, Measurable):
+class VirtualImage(ImageChannelMixin, PassiveChannel):
     """A virtual 2-dimensional detector that generates a direct beam and
-    four peaks of scattering intensity."""
+    four peaks of scattering intensity.
+    """
 
     attached_devices = {
         'distance':    Attach('The detector distance for simulation', Moveable,
                               optional=True),
         'collimation': Attach('The collimation', Readable, optional=True),
-    }
-
-    parameters = {
-        'lastcounts': Param('Current total number of counts', settable=True,
-                            type=int),
     }
 
     imagetype = ImageType((128, 128), '<u4')
@@ -666,66 +595,55 @@ class Virtual2DDetector(ImageProducer, Measurable):
     _stopflag = False
     _timer = None
 
-    def doSetPreset(self, **preset):
-        self._lastpreset = preset
+    def doPrepare(self):
+        self.readresult = [0]
+        self._buf = self._generate(0).astype('<u4')
 
     def doStart(self):
         self._last_update = 0
-        t = self._lastpreset.get('t', 1)
         self._timer = Timer()
-        self._timer.start(t)
+        self._timer.start()
         if self._mythread:
             self._stopflag = True
             self._mythread.join()
-        self._mythread = createThread('virtual detector %s' % self,
-                                      self._run, args=(t,))
+        self._mythread = createThread('virtual detector %s' % self, self._run)
 
-    def _run(self,  maxtime):
+    def _run(self):
         try:
-
-            def f_update(tmr, self):  # correct signature!
-                array = self._generate(tmr.elapsed_time()).astype('<u4')
+            while not self._stopflag:
+                elapsed = self._timer.elapsed_time()
+                self.log.debug('update image: elapsed = %.1f' % elapsed)
+                array = self._generate(elapsed).astype('<u4')
                 self._buf = array
-                self.lastcounts = array.sum()
-                self.updateImage(array)
-                if self._stopflag:
-                    raise ValueError  # any will do
-            self._timer.wait(1, f_update, self)
+                self.readresult = [array.sum()]
+                time.sleep(self._base_loop_delay)
         finally:
             self._stopflag = False
             self._mythread = None
             self._remaining = None
 
-    def doStop(self):
+    def doFinish(self):
         self._stopflag = True
+
+    def doStop(self):
+        self.doFinish()
 
     def doStatus(self,  maxage=0):
         if self._stopflag or self._mythread:
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 
-    def duringMeasureHook(self, elapsed):
-        if elapsed > self._last_update + 1:
-            self.updateLiveImage()
-            self._last_update = elapsed
-
-    def readImage(self):
-        return self._buf
+    def readLiveImage(self):
+        if self._timer.elapsed_time() > self._last_update + 1:
+            self._last_update = self._timer.elapsed_time()
+            return self._buf
 
     def readFinalImage(self):
         return self._buf
 
-    def clearImage(self):
-        self._buf = self._generate(0).astype('<u4')
-        self.lastcounts = 0
-
-    def doRead(self, maxage=0):
-        return [self.lastcounts, self.lastfilename]
-
     def valueInfo(self):
-        return (Value(self.name + '.sum', unit='cts', type='counter',
-                      errors='sqrt', fmtstr='%d'),
-                Value(self.name + '.file', type='info', fmtstr='%s'))
+        return Value(self.name + '.sum', unit='cts', type='counter',
+                     errors='sqrt', fmtstr='%d'),
 
     def _generate(self, t):
         dst = (self._attached_distance.read() * 5) if self._attached_distance \

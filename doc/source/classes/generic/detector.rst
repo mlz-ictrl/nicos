@@ -3,8 +3,13 @@ Detector classes
 
 .. module:: nicos.devices.generic.detector
 
-.. autoclass:: Channel()
+.. autoclass:: PassiveChannel()
+.. autoclass:: ActiveChannel()
 
-.. autoclass:: MultiChannelDetector()
+.. autoclass:: ImageChannelMixin()
+.. autoclass:: TimerChannelMixin()
+.. autoclass:: CounterChannelMixin()
+
+.. autoclass:: Detector()
 
 .. autoclass:: DetectorForecast()

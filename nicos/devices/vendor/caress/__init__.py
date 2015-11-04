@@ -46,12 +46,12 @@ from nicos import session
 from nicos.core import DeviceMixinBase, Param, Override, status, HasOffset, \
     Value, absolute_path, SIMULATION, POLLER
 from nicos.devices.abstract import Motor as BaseMotor
-from nicos.devices.generic.detector import Channel as BaseChannel, \
-    MultiChannelDetector as BaseMultiChannelDetector
+from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
+    CounterChannelMixin
 
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, ProgrammingError, InvalidValueError
-from nicos.utils import readFileCounter, updateFileCounter
+
 
 CORBA_DEVICE = 500
 
@@ -323,7 +323,7 @@ class Motor(HasOffset, CARESSDevice, BaseMotor):
         pass
 
 
-class Channel(CARESSDevice, BaseChannel):
+class Channel(CARESSDevice, ActiveChannel):
 
     parameters = {
         'runnumber': Param('Run number',
@@ -379,9 +379,12 @@ class Channel(CARESSDevice, BaseChannel):
             if result[0] != 0:
                 raise NicosError(self, 'Could not start the module')
 
-    def doStop(self):
+    def doFinish(self):
         self._break(0)
         self._break(1)
+
+    def doStop(self):
+        self.doFinish()
 
     def _break(self, kind=0):
         if hasattr(self._caressObject, 'stop_module'):
@@ -434,38 +437,13 @@ class Channel(CARESSDevice, BaseChannel):
         pass
 
 
-class Counter(Channel):
-
-    def doInit(self, mode):
-        Channel.doInit(self, mode)
-
-    def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt', type='counter',
-                     fmtstr='%d'),
-
-    def doReadUnit(self):
-        return 'cts'
-
-
-class Timer(Channel):
-
-    def doInit(self, mode):
-        Channel.doInit(self, mode)
+class Timer(TimerChannelMixin, Channel):
 
     def doRead(self, maxage=0):
-        return self._read()[1] / 500.
-
-    def valueInfo(self):
-        return Value(self.name, unit='s', type='time', fmtstr='%.2f', ),
-
-    def doReadUnit(self):
-        return 's'
+        return [self._read()[1] / 500.]
 
 
-class MultiChannelDetector(BaseMultiChannelDetector):
+class Counter(CounterChannelMixin, Channel):
 
-    def doSave(self, exception=False):
-        # the CARESS detector device has to be stopped explicitly
-        # Since the count calls save it looked the best way to call the stop
-        # at this point
-        self.doStop()
+    def doRead(self, maxage=0):
+        return [self._read()[1]]

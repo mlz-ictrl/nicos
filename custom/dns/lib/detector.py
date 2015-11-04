@@ -23,15 +23,17 @@
 #
 # *****************************************************************************
 
+from time import sleep
+
 import numpy
 
-from nicos.core import Measurable, Value, waitForStatus, SIMULATION
-from nicos.core.image import ImageProducer, ImageType
+from nicos.core import Value, SIMULATION
+from nicos.core.image import ImageType
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange
 from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
-from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod, \
-    SeqSleep
-from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
+    Detector
+from nicos.devices.tango import PyTangoDevice
 
 
 P_TIME = 't'
@@ -42,33 +44,11 @@ P_MON_SF = 'mon0sf'
 P_MON_NSF = 'mon0nsf'
 
 
-class FlipperPresets(Measurable):
-
-    attached_devices = {
-        'flipper': Attach('Spin flipper device which will be read out '
-                          'with respect to setting presets.', BaseFlipper),
-    }
-
-    def doStart(self):
-        raise NotImplementedError('Please provide an implementation for '
-                                  'doStart.')
-
-    def doStop(self):
-        raise NotImplementedError('Please provide an implementation for '
-                                  'doStop.')
-
-
-class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
+class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     """Basic Tango Device for TofDetector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
     TOFMODE = ['notof', 'tof']
-
-    attached_devices = {
-        'expshutter': Attach('Experiment shutter device', NamedDigitalOutput),
-        'timer':      Attach('ZEA-2 counter card timer channel', Measurable),
-        'monitor':    Attach('ZEA-2 counter card monitor channel', Measurable),
-    }
 
     parameters = {
         'detshape':     Param('Shape of tof detector', type=dictof(str, int)),
@@ -92,35 +72,32 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
                                    numpy.uint32)
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
-        self._last_counter = self._attached_timer
 
-    def _generateSequence(self, *args, **kwargs):
-        seq = []
-        seq.append(SeqMethod(self._dev, 'Clear'))
-        seq.append(SeqMethod(PyTangoDevice, '_hw_wait', self))
+    def doPrepare(self):
+        self._dev.Clear()
+        PyTangoDevice._hw_wait(self)
         self.log.debug("Detector cleared")
-        seq.append(SeqMethod(self._dev, 'Prepare'))
-        seq.append(SeqMethod(PyTangoDevice, '_hw_wait', self))
-        seq.append(SeqMethod(self._dev, 'Start'))
+        self._dev.Prepare()
+
+    def doStart(self):
+        start, end = self.readchannels
+        self.readresult = [0] * (end - start + 1)
+        self._dev.Start()
         self.log.debug("Detector started")
-        seq.append(SeqMethod(self._last_counter, 'start'))
-        self.log.debug("Counter started")
-        seq.append(SeqMethod(self._last_counter, 'wait'))
-        seq.append(SeqMethod(self._dev, 'Stop'))
-        seq.append(SeqSleep(0.2))
-        seq.append(SeqMethod(PyTangoDevice, '_hw_wait', self))
-        return seq
 
-    def presetInfo(self):
-        return (P_TIME, P_MON)
+    def doFinish(self):
+        self._dev.Stop()
+        sleep(0.2)
+        PyTangoDevice._hw_wait(self)
 
-    def doSetPreset(self, **preset):
-        if P_MON in preset:
-            self._attached_monitor.preselection = preset[P_MON]
-            self._last_counter = self._attached_monitor
-        elif P_TIME in preset:
-            self._attached_timer.preselection = preset[P_TIME]
-            self._last_counter = self._attached_timer
+    def doStop(self):
+        self._dev.Stop()
+
+    def doPause(self):
+        self.doFinish()
+
+    def doResume(self):
+        self.doStart()
 
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
@@ -162,60 +139,32 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
             dshape[self.STRSHAPE[i]] = shvalue[i+2]
         return dshape
 
-    def doStart(self):
-        waitForStatus(self, ignore_errors=True)
-        self._startSequence(self._generateSequence())
-
-    def doPause(self):
-        self._last_counter.pause()
-        self.log.debug("Tof Detector pause")
-
-    def doResume(self):
-        self._last_counter.resume()
-        self.log.debug("Tof Detector resume")
-
-    def doStop(self):
-        self._last_counter.stop()
-        self._dev.Stop()
-        self.log.debug("Tof Detector stop")
-
-    def doRead(self, maxage=0):
-        res = None
-        array = self._dev.value.tolist()
-        start, end = self.readchannels
-        res = array[start:end+1]
-        tval = self._attached_timer.read()
-        mval = self._attached_monitor.read()
-        return tval + mval + res
-
     def valueInfo(self):
         start, end = self.readchannels
-        return self._attached_timer.valueInfo() + \
-            self._attached_monitor.valueInfo() + \
-            tuple(Value("chan-%d" % i, unit="cts", errors="sqrt",
-                        type="counter", fmtstr="%d")
-                  for i in range(start, end + 1))
-
-    def readImage(self):
-        # get current data array from detector
-        return numpy.array(self._dev.value).reshape(int(self.detshape['t']),
-                                                    int(self.detshape['x']))
+        return tuple(Value("chan-%d" % i, unit="cts", errors="sqrt",
+                           type="counter", fmtstr="%d")
+                     for i in range(start, end + 1))
 
     def readFinalImage(self):
-        # get final data at end of measurement
         self.log.debug("Tof Detector read final image")
-        return self.readImage()
+        start, end = self.readchannels
+        # get current data array from detector
+        array = self._dev.value
+        self.readresult = list(array[start:end+1])
+        return numpy.asarray(array).reshape(int(self.detshape['t']),
+                                            int(self.detshape['x']))
 
-    # use the correct status (would inherit from PyTangoDevice otherwise)
-    def doStatus(self, maxage=0):
-        return MeasureSequencer.doStatus(self, maxage)
-
-    def doReset(self):
-        MeasureSequencer.doReset(self)
+    def readLiveImage(self):
+        pass  # could return live data
 
 
-class TofDetector(TofDetectorBase, FlipperPresets):
-    """TofDetector supporting different presets for spin flipper on or off."""
+class DNSDetector(Detector):
+    """Detector supporting different presets for spin flipper on or off."""
+
+    attached_devices = {
+        'flipper': Attach('Spin flipper device which will be read out '
+                          'with respect to setting presets.', BaseFlipper),
+    }
 
     def doTime(self, preset):
         if P_TIME in preset:
@@ -227,8 +176,8 @@ class TofDetector(TofDetectorBase, FlipperPresets):
         return 0  # no preset that we can estimate found
 
     def presetInfo(self):
-        return TofDetectorBase.presetInfo(self) + (P_TIME_SF, P_TIME_NSF,
-                                                   P_MON_SF, P_MON_NSF)
+        return Detector.presetInfo(self) + (P_TIME_SF, P_TIME_NSF,
+                                                     P_MON_SF, P_MON_NSF)
 
     def doSetPreset(self, **preset):
         if P_MON_SF in preset and P_MON_NSF in preset:
@@ -236,26 +185,25 @@ class TofDetector(TofDetectorBase, FlipperPresets):
                 m = preset[P_MON_SF]
             else:
                 m = preset[P_MON_NSF]
-            self._attached_monitor.preselection = m
-            self._last_counter = self._attached_monitor
+            new_preset = {P_MON: m}
         elif P_MON_SF in preset or P_MON_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
                              '%s and %s or only %s.' %
                              (P_MON_SF, P_MON_NSF, P_MON))
+            return
         elif P_TIME_SF in preset and P_TIME_NSF in preset:
             if self._attached_flipper.read() == ON:
                 t = preset[P_TIME_SF]
             else:
                 t = preset[P_TIME_NSF]
-            self._attached_timer.preselection = t
-            self._last_counter = self._attached_timer
+            new_preset = {P_TIME: t}
         elif P_TIME_SF in preset or P_TIME_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
                              '%s and %s or only %s.' %
                              (P_TIME_SF, P_TIME_NSF, P_TIME))
+            return
         elif P_MON in preset:
-            self._attached_monitor.preselection = preset[P_MON]
-            self._last_counter = self._attached_monitor
+            new_preset = {P_MON: preset[P_MON]}
         elif P_TIME in preset:
-            self._attached_timer.preselection = preset[P_TIME]
-            self._last_counter = self._attached_timer
+            new_preset = {P_TIME: preset[P_TIME]}
+        Detector.doSetPreset(self, **new_preset)

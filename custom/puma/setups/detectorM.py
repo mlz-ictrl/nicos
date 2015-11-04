@@ -61,9 +61,9 @@ devices = dict(
 #                      fmtstr = '%d',
 #                     ),
 
-    det      = device('devices.generic.MultiChannelDetector',
+    det      = device('devices.generic.Detector',
                       description = 'Puma detector QMesydaq device (3 counters)',
-                      timer  = 'timer',
+                      timers = ['timer'],
                       monitors = ['mon1'],
                       counters = ['det1', 'det2', 'det3'],
                       maxage = 1,

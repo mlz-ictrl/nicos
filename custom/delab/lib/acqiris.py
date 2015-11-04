@@ -38,8 +38,9 @@ try:
 except ImportError:
     omniORB = None
 
-from nicos.core import Param, Override, Value, status, oneof, SIMULATION
-from nicos.devices.generic.detector import Channel as BaseChannel
+from nicos.core import Param, status, SIMULATION
+from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
+    CounterChannelMixin
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
@@ -63,7 +64,7 @@ OFF_LINE = 0
 ON_LINE = 1
 
 
-class Channel(BaseChannel):
+class Channel(ActiveChannel):
     """The Acqiris detector device.
 
     The Acqiris detector server is a CORBA based CARESS device server.
@@ -84,12 +85,6 @@ class Channel(BaseChannel):
                              type=str, mandatory=True,
                              # default='acqirishzb',
                              ),
-    }
-
-    parameter_overrides = {
-        'mode': Override(type=oneof('normal', 'preselection'),
-                         default='preselection',
-                         settable=True,),
     }
 
     def _initORB(self, args):
@@ -216,13 +211,16 @@ class Channel(BaseChannel):
         if result[0] != CARESS.OK:
             raise NicosError(self, 'Could not resume the device')
 
-    def doStop(self):
+    def doFinish(self):
         # Implementation of the acqiris hardware driver says that the kind 1
         # stops the detector
         if not self.isCompleted():
             result = self._caressObject.stop_module(1, self._cid)
             if result != (CARESS.OK, DONE):
                 raise NicosError(self, 'Could not stop the module')
+
+    def doStop(self):
+        self.doFinish()
 
     def _reset(self):
         result = self._caressObject.load_module(RESETMODULE, self._cid,
@@ -243,7 +241,7 @@ class Channel(BaseChannel):
 
     def doRead(self, maxage=0):
         result = self._read()
-        return result[1]._v
+        return [result[1]._v]
 
     def doStatus(self, maxage=0):
         state = self._read()[0]
@@ -261,7 +259,7 @@ class Channel(BaseChannel):
         updateFileCounter(self.counterfile, value)
 
 
-class Timer(Channel):
+class Timer(TimerChannelMixin, Channel):
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -271,14 +269,8 @@ class Timer(Channel):
         self._initObject(TIMER_ID)
         self._init('timer')
 
-    def valueInfo(self):
-        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
-    def doReadUnit(self):
-        return 's'
-
-
-class Counter(Channel):
+class Counter(CounterChannelMixin, Channel):
 
     parameters = {
         'config': Param('Channel and trigger configuration',
@@ -299,17 +291,9 @@ class Counter(Channel):
                 content = content_file.read()
                 self.config = content
 
-        result = self._caressObject.loadblock_module(SPECIALLOAD, self._cid,
-                                                     1, len(self.config),
-                                                     CARESS.Value(s=self.config)
-                                                     )
+        result = self._caressObject.loadblock_module(
+            SPECIALLOAD, self._cid, 1, len(self.config),
+            CARESS.Value(s=self.config))
         self.log.debug('Load block module: %r' % (result,))
         if result != (CARESS.OK, LOADED):
             raise ConfigurationError(self, 'Could not load block module')
-
-    def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt', type='counter',
-                     fmtstr='%d'),
-
-    def doReadUnit(self):
-        return 'cts'

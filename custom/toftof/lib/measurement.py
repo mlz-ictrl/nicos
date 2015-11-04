@@ -81,7 +81,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
     }
 
     def valueInfo(self):
-        return Value('filename', type='info'),
+        return Value('filename', type='filename'),
 
     def presetInfo(self):
         return ['info', 't', 'm']
@@ -116,7 +116,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._devicelogs = {}
 
     def doSetPreset(self, **preset):
-        self._attached_counter.stop()
+        self._attached_counter.finish()
         self._attached_counter.setPreset(**preset)
         self._curtitle = preset.get('info', '')
         if 'm' in preset:
@@ -135,7 +135,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
     def doStart(self):
         self._isStopped = False
         ctr = self._attached_counter
-        # ctr.stop()
+        # ctr.finish()
 
         try:
             rc = session.getDevice(self.rc)
@@ -471,16 +471,19 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self.laststats = [meastime, moncounts, countsum, monrate, detrate,
                           monrate_inst, detrate_inst, ]
 
-    def doStop(self):
-        self._attached_counter.stop()
+    def doFinish(self):
+        self._attached_counter.finish()
         self._isStopped = True
         self._measuring = False
         self._closeDeviceLogs()
 
+    def doStop(self):
+        self.doFinish()
+
     def doReset(self):
         self._attached_counter.reset()
 
-    def doSave(self, exception=False):
+    def doSave(self):
         _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
         monrate = moncounts / meastime
         detrate = countsum / meastime

@@ -834,6 +834,9 @@ class Detector(PyTangoDevice, Measurable):
     def doStart(self):
         self._dev.Start()
 
+    def doFinish(self):
+        self._dev.Stop()
+
     def doStop(self):
         self._dev.Stop()
 
@@ -926,9 +929,6 @@ class TofDetector(ImageProducer, Detector):
         if self._dev.syncMode == 'time':
             return self._dev.syncValue - self.doRead(0)[0]
         return None
-
-    def clearImage(self):
-        self._dev.Clear()
 
     def readImage(self):
         res = self._dev.value.tolist()

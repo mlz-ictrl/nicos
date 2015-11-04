@@ -260,7 +260,11 @@ def stop(*devlist):
 
     def stopdev(dev):
         try:
-            dev.stop()
+            if isinstance(dev, Measurable):
+                if dev.stop():
+                    dev.save()
+            else:
+                dev.stop()
             if not stop_all:
                 dev.log.info('stopped')
         except AccessError:
@@ -279,6 +283,28 @@ def stop(*devlist):
     if stop_all:
         printinfo('all devices stopped')
     return
+
+
+@usercommand
+@helparglist('[dev, ...]')
+@spmsyntax(Multi(Dev(Measurable)))
+@parallel_safe
+def finish(*devlist):
+    """Finish data acquisition for one or more detectors.
+
+    If not device is given, finish all running detectors.
+
+    Examples:
+
+    >>> finish()
+    """
+    if not devlist:
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], Measurable)]
+    for dev in devlist:
+        dev.finish()
+        dev.log.info('finished')
 
 
 @usercommand

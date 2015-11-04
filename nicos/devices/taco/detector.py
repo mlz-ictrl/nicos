@@ -29,23 +29,17 @@ import IOCommon
 import TACOStates
 from IO import Timer, Counter
 
-from nicos.core import Param, Override, Value, oneof, oneofdict, status
+from nicos.core import Param, UsageError, oneofdict
 from nicos.devices.taco.core import TacoDevice
-from nicos.devices.generic.detector import Channel, MultiChannelDetector
+from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
+    CounterChannelMixin
 
 
-class FRMChannel(TacoDevice, Channel):
-    """Base class for one channel of the FRM-II counter card.
+class BaseChannel(TacoDevice):
+    """Base class for channels using the Taco Counter and Timer interfaces."""
 
-    Use one of the concrete classes `FRMTimerChannel` or `FRMCounterChannel`.
-    """
-
-    parameter_overrides = {
-        'mode': Override(type=oneofdict(
-            {IOCommon.MODE_NORMAL: 'normal',
-             IOCommon.MODE_RATEMETER: 'ratemeter',
-             IOCommon.MODE_PRESELECTION: 'preselection'})),
-    }
+    def doPrepare(self):
+        self._taco_guard(self._dev.clear)
 
     def doStart(self):
         self._taco_guard(self._dev.start)
@@ -56,11 +50,14 @@ class FRMChannel(TacoDevice, Channel):
     def doResume(self):
         self._taco_guard(self._dev.resume)
 
+    def doFinish(self):
+        self._taco_guard(self._dev.stop)
+
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
     def doRead(self, maxage=0):
-        return self._taco_guard(self._dev.read)
+        return [self._taco_guard(self._dev.read)]
 
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
@@ -71,13 +68,31 @@ class FRMChannel(TacoDevice, Channel):
         return self._taco_guard(self._dev.preselection)
 
     def doWritePreselection(self, value):
+        self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.setPreselection, value)
 
     def doReadIsmaster(self):
         return self._taco_guard(self._dev.isMaster)
 
     def doWriteIsmaster(self, value):
+        self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.enableMaster, value)
+
+
+class FRMChannel(BaseChannel, ActiveChannel):
+    """Base class for one channel of the FRM-II counter card.
+
+    Use one of the concrete classes `FRMTimerChannel` or `FRMCounterChannel`.
+    """
+
+    parameters = {
+        'mode':  Param('Channel mode: normal, ratemeter, or preselection',
+                       type=oneofdict(
+                           {IOCommon.MODE_NORMAL: 'normal',
+                            IOCommon.MODE_RATEMETER: 'ratemeter',
+                            IOCommon.MODE_PRESELECTION: 'preselection'}),
+                       default='preselection', settable=True),
+    }
 
     def doReadMode(self):
         modes = {IOCommon.MODE_NORMAL: 'normal',
@@ -95,69 +110,26 @@ class FRMChannel(TacoDevice, Channel):
                  'preselection': IOCommon.MODE_PRESELECTION}
         self._taco_guard(self._dev.setMode, modes[value])
 
-    def doPrepare(self):
-        self._taco_guard(self._dev.clear)
+    def doWriteIsmaster(self, value):
+        if self.mode == 'ratemeter':
+            if value:
+                raise UsageError(self, 'ratemeter channel cannot be master')
+            return
+        self._taco_guard(self._dev.stop)
+        self.mode = 'preselection' if value else 'normal'
+        self._taco_guard(self._dev.enableMaster, value)
 
 
-class FRMTimerChannel(FRMChannel):
+class FRMTimerChannel(TimerChannelMixin, FRMChannel):
     taco_class = Timer
 
-    def doReadUnit(self):
-        return 's'
-
-    def valueInfo(self):
-        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
-
-    def doTime(self, preset):
-        if self.ismaster:
-            return self.preselection
-        else:
-            return 0
-
-    def doSimulate(self, preset):
-        if self.ismaster:
-            return [self.preselection]
-        return [0.0]
-
-    def doEstimateTime(self, elapsed):
-        if self.ismaster and self.doStatus()[0] == status.BUSY:
-            return self.preselection - elapsed
-        return None
+    def doRead(self, maxage=0):
+        return [self._taco_guard(self._dev.read)]
 
 
-class FRMCounterChannel(FRMChannel):
+class FRMCounterChannel(CounterChannelMixin, FRMChannel):
     taco_class = Counter
-
-    parameters = {
-        'type': Param('Type of channel: monitor or counter',
-                      type=oneof('monitor', 'counter'), mandatory=True),
-    }
 
     def doRead(self, maxage=0):
         # convert long to int if it fits
-        return int(self._taco_guard(self._dev.read))
-
-    def doReadUnit(self):
-        return 'cts'
-
-    def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt',
-                     type=self.type, fmtstr='%d'),
-
-    def doSimulate(self, preset):
-        if self.ismaster:
-            return [int(self.preselection)]
-        return [0]
-
-    def doEstimateTime(self, elapsed):
-        if self.ismaster and self.doStatus()[0] == status.BUSY:
-            counted = self.doRead()
-            # only estimated if we have more than 3% or at least 100 counts
-            if counted > 100 or counted > 0.03 * self.preselection:
-                if 0 <= counted <= self.preselection:
-                    return (self.preselection - counted) * elapsed / float(counted)
-        return None
-
-
-# backwards compatibility alias
-FRMDetector = MultiChannelDetector
+        return [int(self._taco_guard(self._dev.read))]

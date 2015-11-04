@@ -56,8 +56,11 @@ class DSPec(Measurable):
         time.sleep(self.startsleeptime)
         self._attached_set_ready.move(1)
 
-    def doStop(self):
+    def doFinish(self):
         self._attached_set_ready.move(1)
+
+    def doStop(self):
+        self.doFinish()
 
     def doPreset(self, **preset):
         pass

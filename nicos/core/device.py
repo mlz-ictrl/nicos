@@ -1669,6 +1669,7 @@ class Measurable(Waitable):
     * doRead(maxage)
     * doSetPreset(**preset)
     * doStart()
+    * doFinish()
     * doStop()
 
     Subclasses *can* implement:
@@ -1678,7 +1679,7 @@ class Measurable(Waitable):
     * doResume()
     * doTime(**preset)
     * doSimulate(**preset)
-    * doSave(exception)
+    * doSave()
     * doPrepare()
 
     Subclass *can* override:
@@ -1808,23 +1809,46 @@ class Measurable(Waitable):
         return False
 
     @usermethod
-    def stop(self):
-        """Stop measurement now.
+    def finish(self):
+        """Finish the measurement now.  This should do nothing if the
+        measurement was already finished.
 
         This operation is forbidden in slave mode.
 
-        .. method:: doStop()
+        Called by `.count` for all detectors at the end of a counting.  If
+        *exception* is true, the counting was stopped due to an exception.
+
+        .. method:: doFinish()
 
            This method must be present and is called to actually stop the
            measurement.
+        """
+        if self._mode == SLAVE:
+            raise ModeError(self, 'finish not possible in slave mode')
+        elif self._sim_active:
+            return
+        self.doFinish()
 
-        The `stop` method will return the device status after stopping.
+    @usermethod
+    def stop(self):
+        """Stop (abort) the measurement now.  Can return True to still attempt
+        a save() afterwards.
+
+        This operation is forbidden in slave mode.
+
+        Called by `.count` if an exception occurs, or if the user calls the
+        `stop()` command (possibly by using the immediate stop button).
+
+        .. method:: doStop()
+
+           This method must be present and is called to actually abort the
+           measurement.
         """
         if self._mode == SLAVE:
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
             return
-        self.doStop()
+        return self.doStop()
 
     @usermethod
     def read(self, maxage=None):
@@ -1854,25 +1878,26 @@ class Measurable(Waitable):
            will be called before start counting and e.g. for scans before
            moving to the next scan point.
 
+        Preparation can be done in the background if the device status reflects
+        that fact (i.e. the device is BUSY until the preparation is done).
         """
         if not self._sim_active:
             if hasattr(self, 'doPrepare'):
                 return self.doPrepare()
 
-    def save(self, exception=False):
+    def save(self):
         """Save the current measurement, if necessary.
 
-        Called by `.count` for all detectors at the end of a counting.  If
-        *exception* is true, the counting was stopped due to an exception.
+        Called by `.count` for all detectors at the end of a counting.
 
-        .. method:: doSave(exception=False)
+        .. method:: doSave()
 
            This method can be implemented if the detector needs to save data.
         """
         if self._sim_active:
             return
         if hasattr(self, 'doSave'):
-            self.doSave(exception)
+            self.doSave()
 
     def info(self):
         """Automatically add device status (if not OK).  Does not add the

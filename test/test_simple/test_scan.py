@@ -117,13 +117,9 @@ def test_scan():
 
 def test_scan2():
     m = session.getDevice('motor')
-    ctr = session.getDevice('ctr4')
+    det = session.getDevice('det')
     mm = session.getDevice('manual')
     mm.move(0)
-
-    # when counting only on the counter device, it has to be set as
-    # the master channel once
-    ctr.ismaster = True
 
     session.experiment.setDetectors([session.getDevice('det')])
 
@@ -131,17 +127,18 @@ def test_scan2():
         session.experiment.setEnvironment([])
 
         # scan with different detectors
-        scan(m, [0, 1], ctr, m=1)
+        scan(m, [0, 1], det, m=1)
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0.], [1.]]
-        assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 1
-        assert dataset.ynames == ['ctr4']
+        # 2 points, 4 detector channels
+        assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 4
+        assert dataset.ynames == ['timer', 'mon1', 'ctr1', 'ctr2']
 
         # scan with multistep
-        scan(m, [0, 1], ctr, manual=[3, 4])
+        scan(m, [0, 1], det, manual=[3, 4])
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0.], [1.]]
-        assert dataset.ynames == ['ctr4_manual_3', 'ctr4_manual_4']
+        assert dataset.ynames[::4] == ['timer_manual_3', 'timer_manual_4']
 
     finally:
         session.experiment.envlist = []
@@ -274,7 +271,7 @@ def test_contscan():
 def test_manualscan():
     mot = session.getDevice('motor')
     c = session.getDevice('coder')
-    ctr = session.getDevice('ctr4')
+    det = session.getDevice('det')
     mm = session.getDevice('manual')
     mm.move(0)
 
@@ -287,28 +284,27 @@ def test_manualscan():
 
     # with multistep; also test random stopping of the detector
     for i in range(1, 7):
-        Timer(0.05 * i, ctr.stop).start()
-    with manualscan(mot, c, ctr, 'manscan', manual=[0, 1]):
+        Timer(0.05 * i, det.finish).start()
+    with manualscan(mot, c, det, 'manscan', manual=[0, 1]):
         for i in range(3):
             mot.maw(i)
             count()
     dataset = session.experiment._last_datasets[-1]
     assert dataset.scaninfo.startswith('manscan')
     assert dataset.xresults == [[0., 0.], [1., 1.], [2., 2.]]
-    assert dataset.ynames == ['ctr4_manual_0', 'ctr4_manual_1']
+    assert dataset.ynames[::4] == ['timer_manual_0', 'timer_manual_1']
 
 
 def test_specialscans():
     m = session.getDevice('motor')
-    ctr = session.getDevice('ctr4')
-    # force master to enable quick count
-    ctr.ismaster = True
-    checkoffset(m, 10, 0.05, 3, ctr)
+    det = session.getDevice('det')
+
+    checkoffset(m, 10, 0.05, 3, det, m=10)
 
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.55
-    checkalign((1, 0, 0), 0.05, 2, ctr, accuracy=0.1)
+    checkalign((1, 0, 0), 0.05, 2, det, accuracy=0.1)
 
     dataset = session.experiment._last_datasets[-1]
     uid = dataset.uid

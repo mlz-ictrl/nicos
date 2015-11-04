@@ -114,10 +114,13 @@ class TofCounter(TacoDevice, Measurable):
         self._taco_guard(self._monitor.start)
         self._taco_guard(self._timer.start)
 
-    def doStop(self):
+    def doFinish(self):
         self._taco_guard(self._dev.deviceOn)
         self._taco_guard(self._timer.deviceOn)
         self._taco_guard(self._monitor.deviceOn)
+
+    def doStop(self):
+        self.doFinish()
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceStatus)

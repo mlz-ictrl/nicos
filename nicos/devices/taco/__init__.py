@@ -28,7 +28,7 @@ from nicos.devices.taco.axis import Axis, HoveringAxis
 from nicos.devices.taco.coder import Coder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
-     FRMCounterChannel, FRMDetector
+     FRMCounterChannel
 from nicos.devices.taco.io import AnalogInput, AnalogOutput, DigitalInput, \
      NamedDigitalInput, PartialDigitalInput, DigitalOutput, \
      NamedDigitalOutput, PartialDigitalOutput, BitsDigitalOutput, \

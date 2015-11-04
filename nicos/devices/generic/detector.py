@@ -19,59 +19,192 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Generic 0-D channel detector classes for NICOS."""
+"""Generic detector and channel classes for NICOS."""
 
-from nicos.core import Measurable, Readable, Param, Override, oneof, status, \
-    Attach, ProgrammingError
+from nicos.core import Attach, ConfigurationError, DeviceMixinBase, \
+    ImageProducer, ImageType, Measurable, Override, Param, Readable, \
+    UsageError, Value, listof, multiStatus, status, oneof
+from nicos.utils import uniq
 
 
-class Channel(Measurable):
-    """Abstract base class for one channel of a counter card.
+class PassiveChannel(Measurable):
+    """Abstract base class for one channel of a aggregate detector.
 
-    Concrete implementations for TACO counter cards can be found in
-    `nicos.devices.taco.detector`.
-    Concrete implementations for QMesyDAQ counters can be found in
-    `nicos.devices.vendor.qmesydaq`.
+    Passive channels cannot stop the measurement.
     """
 
     parameters = {
-        'mode':         Param('Channel mode: normal, ratemeter, or preselection',
-                              type=oneof('normal', 'ratemeter', 'preselection'),
-                              default='preselection', settable=True),
-        'ismaster':     Param('If this channel is a master', type=bool,
-                              settable=True),
-        'preselection': Param('Preselection for this channel', settable=True),
+        'ismaster': Param('If this channel is a master', type=bool),
     }
 
     # methods to be implemented in concrete subclasses
 
     def doSetPreset(self, **preset):
-        raise ProgrammingError(self, 'Channel.setPreset should not be called')
+        raise UsageError(self, 'This channel cannot be used as a detector')
 
     def doStart(self):
+        pass
+
+    def doFinish(self):
         pass
 
     def doStop(self):
         pass
 
     def doRead(self, maxage=0):
-        return 0
+        return []
+
+    def valueInfo(self):
+        return ()
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
 
 
-class MultiChannelDetector(Measurable):
-    """Standard counter type detector using multiple synchronized channels."""
+class ActiveChannel(PassiveChannel):
+    """Abstract base class for channels that can (but don't need to) end the
+    measurement.
+    """
+
+    parameters = {
+        'preselection': Param('Preset value for this channel', type=float,
+                              settable=True),
+    }
+
+    parameter_overrides = {
+        'ismaster': Override(settable=True),
+    }
+
+    # set to True to get a simplified doEstimateTime
+    is_timer = False
+
+    def doRead(self, maxage=0):
+        raise NotImplementedError('implement doRead')
+
+    def valueInfo(self):
+        raise NotImplementedError('implement valueInfo')
+
+    def doEstimateTime(self, elapsed):
+        if not self.ismaster or self.doStatus()[0] != status.BUSY:
+            return None
+        if self.is_timer:
+            return self.preselection - elapsed
+        else:
+            counted = float(self.doRead()[0])
+            # only estimated if we have more than 3% or at least 100 counts
+            if counted > 100 or counted > 0.03 * self.preselection:
+                if 0 <= counted <= self.preselection:
+                    return (self.preselection - counted) * elapsed / counted
+
+
+class TimerChannelMixin(DeviceMixinBase):
+    """Mixin for channels that return measured time."""
+
+    is_timer = True
+
+    parameter_overrides = {
+        'unit':   Override(default='s'),
+        'fmtstr': Override(default='%.2f'),
+    }
+
+    def valueInfo(self):
+        return Value(self.name, unit='s', type='time', fmtstr=self.fmtstr),
+
+    def doTime(self, preset):
+        if self.ismaster:
+            return self.preselection
+        else:
+            return 0
+
+    def doSimulate(self, preset):
+        if self.ismaster:
+            return [self.preselection]
+        return [0.0]
+
+
+class CounterChannelMixin(DeviceMixinBase):
+    """Mixin for channels that return a single counts value."""
+
+    is_timer = False
+
+    parameters = {
+        'type': Param('Type of channel: monitor or counter',
+                      type=oneof('monitor', 'counter'), mandatory=True),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%d'),
+    }
+
+    def valueInfo(self):
+        return Value(self.name, unit='cts', errors='sqrt',
+                     type=self.type, fmtstr=self.fmtstr),
+
+    def doSimulate(self, preset):
+        if self.ismaster:
+            return [int(self.preselection)]
+        return [0]
+
+
+class ImageChannelMixin(DeviceMixinBase):
+    """Mixin for channels that return images."""
+
+    parameters = {
+        'readresult': Param('Storage for scalar results from image '
+                            'filtering, to be returned from doRead()',
+                            type=listof(float), settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+    }
+
+    # either None or an ImageType instance
+    imagetype = None
+
+    def doRead(self, maxage=0):
+        return self.readresult
+
+    def readLiveImage(self):
+        """Return a live image (or None).
+
+        Should also update self.readresult if necessary.
+        """
+        # XXX: implement rate limiting here?
+        return None
+
+    def readFinalImage(self):
+        """Return the final image.  Must be implemented.
+
+        Should also update self.readresult if necessary.
+        """
+        raise NotImplementedError('implement readFinalImage')
+
+
+class Detector(ImageProducer, Measurable):
+    """Detector using multiple (synchronized) channels."""
 
     attached_devices = {
-        'timer':    Attach('Timer channel', Channel, optional=True),
-        'monitors': Attach('Monitor channels', Channel, multiple=True, optional=True),
-        'counters': Attach('Counter channels', Channel, multiple=True, optional=True)
+        'timers':   Attach('Timer channel', PassiveChannel,
+                           multiple=True, optional=True),
+        'monitors': Attach('Monitor channels', PassiveChannel,
+                           multiple=True, optional=True),
+        'counters': Attach('Counter channels', PassiveChannel,
+                           multiple=True, optional=True),
+        'images':   Attach('Image channels', ImageChannelMixin,
+                           multiple=True, optional=True),
+        'others':   Attach('Channels that return e.g. filenames',
+                           PassiveChannel, multiple=True, optional=True),
+    }
+
+    parameter_overrides = {
+        'fmtstr':   Override(volatile=True),
     }
 
     hardware_access = False
@@ -81,112 +214,161 @@ class MultiChannelDetector(Measurable):
     def _presetiter(self):
         """yields name, device tuples for all 'preset-able' devices"""
         # a device may react to more than one presetkey....
-        dev = self._attached_timer
-        if dev:
-            yield ('t', dev)
-            yield ('time', dev)
+        for i, dev in enumerate(self._attached_timers):
+            if isinstance(dev, ActiveChannel):
+                if i == 0:
+                    yield ('t', dev)
+                    yield ('time', dev)
+                yield ('timer%d' % (i+1), dev)
         for i, dev in enumerate(self._attached_monitors):
-            yield ('mon%d' % (i+1), dev)
+            if isinstance(dev, ActiveChannel):
+                yield ('mon%d' % (i+1), dev)
         for i, dev in enumerate(self._attached_counters):
-            if i == 0:
-                yield ('n', dev)
-            yield ('ctr%d' % (i+1), dev)
-            yield ('det%d' % (i+1), dev)
-        for dev in self._attached_monitors + self._attached_counters:
-            yield (dev.name, dev)
+            if isinstance(dev, ActiveChannel):
+                if i == 0:
+                    yield ('n', dev)
+                yield ('det%d' % (i+1), dev)
+                yield ('ctr%d' % (i+1), dev)
+        for i, dev in enumerate(self._attached_images):
+            if isinstance(dev, ActiveChannel):
+                yield ('img%d' % (i+1), dev)
 
     def doPreinit(self, mode):
-        _counters = []
-        _presetkeys = {}
+        presetkeys = {}
         for name, dev in self._presetiter():
-            if dev not in _counters:
-                _counters.append(dev)
             # later mentioned presetnames dont overwrite earlier ones
-            _presetkeys.setdefault(name, dev)
-        self._counters = _counters
-        self._presetkeys = _presetkeys
+            presetkeys.setdefault(name, dev)
+        if len(self._attached_images) > 1:
+            raise ConfigurationError(self, 'only one image supported '
+                                     'at the moment')
+        self._channels = uniq(self._attached_timers + self._attached_monitors +
+                              self._attached_counters + self._attached_images +
+                              self._attached_others)
+        self._presetkeys = presetkeys
         self._getMasters()
-
-    def doReadFmtstr(self):
-        return ', '.join('%s %%s' % ctr.name for ctr in self._counters)
 
     def _getMasters(self):
         """Internal method to collect all masters."""
-        _masters = []
-        _slaves = []
-        for counter in self._counters:
-            if counter.ismaster:
-                _masters.append(counter)
+        masters = []
+        slaves = []
+        for ch in self._channels:
+            if ch.ismaster:
+                masters.append(ch)
             else:
-                _slaves.append(counter)
-        self._masters = _masters
-        self._slaves = _slaves
+                slaves.append(ch)
+        self._masters, self._slaves = masters, slaves
 
     def doSetPreset(self, **preset):
-        self.doStop()
         if not preset:
             # keep old settings
             return
         for master in self._masters:
             master.ismaster = False
-            master.mode = 'normal'
-        master = None
+        should_be_masters = set()
         for name in preset:
             if name in self._presetkeys:
-                if master:
-                    self.log.error('Only one Master is supported, ignoring '
-                                   'preset %s=%s'%(name, preset[name]))
-                    continue
                 dev = self._presetkeys[name]
                 dev.ismaster = True
-                dev.mode = 'preselection'
                 dev.preselection = preset[name]
-                if not self.multi_master:
-                    master = dev
-        if not (self.multi_master or master):
-            self.log.warning('No usable preset given, '
-                             'detector may not stop by itself!')
+                should_be_masters.add(dev)
         self._getMasters()
+        if set(self._masters) != should_be_masters:
+            if not self._masters:
+                self.log.warning('no master configured, detector may not stop')
+            else:
+                self.log.warning('master setting for devices %s ignored by '
+                                 'detector' % ', '.join(should_be_masters -
+                                                        set(self._masters)))
+
+    def doPrepare(self):
+        for slave in self._slaves:
+            slave.prepare()
+        for master in self._masters:
+            master.prepare()
 
     def doStart(self):
-        self.doStop()
         for slave in self._slaves:
             slave.start()
         for master in self._masters:
             master.start()
 
+    def doTime(self, preset):
+        self.doSetPreset(**preset)  # okay in simmode
+        return self.doEstimateTime(0) or 0
+
     def doPause(self):
+        # XXX: rework pause logic (use mixin?)
+        for slave in self._slaves:
+            if not slave.pause():
+                return False
         for master in self._masters:
-            master.doPause()
+            if not master.pause():
+                return False
         return True
 
     def doResume(self):
+        # XXX: rework pause logic (use mixin?)
+        for slave in self._slaves:
+            slave.resume()
         for master in self._masters:
-            master.doResume()
+            master.resume()
+
+    def doFinish(self):
+        for master in self._masters:
+            master.finish()
+        for slave in self._slaves:
+            slave.finish()
 
     def doStop(self):
         for master in self._masters:
             master.stop()
+        for slave in self._slaves:
+            slave.stop()
 
     def doRead(self, maxage=0):
-        return sum((ctr.read() for ctr in self._counters), [])
+        ret = []
+        for ch in self._channels:
+            ret.extend(ch.read())
+            if isinstance(ch, ImageChannelMixin):
+                ret.append(self.lastfilename)
+        return ret
+
+    def doSimulate(self, preset):
+        self.doSetPreset(**preset)  # okay in simmode
+        return self.doRead()
 
     def doStatus(self, maxage=0):
         self._getMasters()
         if not self._masters:
             return status.OK, 'idle'
+        st, text = multiStatus(self._adevs, maxage)
+        if st == status.ERROR:
+            return st, text
+        # XXX: shorter status strings?
         for master in self._masters:
             masterstatus = master.status(maxage)
             if masterstatus[0] == status.OK:
-                return masterstatus
-        return status.BUSY, 'counting'
+                return status.OK, text
+        return st, text
 
     def doReset(self):
-        for counter in self._counters:
-            counter.reset()
+        for ch in self._channels:
+            ch.reset()
 
     def valueInfo(self):
-        return sum((ctr.valueInfo() for ctr in self._counters), ())
+        # XXX: the value names retrieved here contain the channel device names,
+        # but the presets are generic (monX, detX)
+        ret = []
+        for ch in self._channels:
+            ret.extend(ch.valueInfo())
+            if isinstance(ch, ImageChannelMixin):
+                ret.append(Value('%s.filename' % ch, type='filename',
+                                 fmtstr='%s'))
+        return tuple(ret)
+
+    def doReadFmtstr(self):
+        return ', '.join('%s = %s' % (v.name, v.fmtstr)
+                         for v in self.valueInfo())
 
     def presetInfo(self):
         return set(self._presetkeys)
@@ -199,16 +381,40 @@ class MultiChannelDetector(Measurable):
             return min(eta)
         return None
 
+    # ImageProducer API
+
+    @property
+    def imagetype(self):
+        if self._attached_images:
+            return self._attached_images[0].imagetype
+        return ImageType((), '<u4')
+
+    def duringMeasureHook(self, elapsed):
+        if self._attached_images:
+            self.updateImage()  # calls readImage
+
+    def doSave(self):
+        if self._attached_images:
+            self.saveImage()  # calls readFinalImage
+
+    def readImage(self):
+        # only called from updateImage (i.e. duringMeasureHook)
+        return self._attached_images[0].readLiveImage()
+
+    def readFinalImage(self):
+        # only called from saveImage (i.e. doSave)
+        return self._attached_images[0].readFinalImage()
+
 
 class DetectorForecast(Readable):
-    """Forecast device for a MultiChannelDetector.
+    """Forecast device for a Detector.
 
-    It returns a list of values that gives the estimated final values at the end
-    of the current counting.
+    It returns a list of values that gives the estimated final values at the
+    end of the current counting.
     """
 
     attached_devices = {
-        'det':  Attach('The detector to forecast values.', MultiChannelDetector),
+        'det':  Attach('The detector to forecast values.', Detector),
     }
 
     parameter_overrides = {
@@ -219,21 +425,22 @@ class DetectorForecast(Readable):
 
     def doRead(self, maxage=0):
         # read all values of all counters and store them by device
-        counter_values = dict((c, c.read(maxage)[0])
-                              for c in self._attached_det._counters)
+        counter_values = dict((ch, ch.read(maxage)[0])
+                              for ch in self._attached_det._channels)
         # go through the master channels and determine the one
         # closest to the preselection
         fraction_complete = 0
         for m in self._attached_det._masters:
             p = m.preselection
             if p > 0:
-                fraction_complete = max(fraction_complete, counter_values[m] / p)
+                fraction_complete = max(fraction_complete,
+                                        counter_values[m] / p)
         if fraction_complete == 0:
             # no master or all zero?  just return the current values
             fraction_complete = 1.0
         # scale all counter values by that fraction
-        return [counter_values[ctr] / fraction_complete
-                for ctr in self._attached_det._counters]
+        return [counter_values[ch] / fraction_complete
+                for ch in self._attached_det._channels]
 
     def doStatus(self, maxage=0):
         return status.OK, ''

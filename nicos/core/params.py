@@ -376,6 +376,7 @@ class Value(object):
       - ``'time'`` -- some timing value
       - ``'other'`` -- other numeric value
       - ``'error'`` -- standard error for previous value
+      - ``'filename'`` -- filename of the last saved file
       - ``'info'`` -- non-numeric info value
 
     * The *errors* parameter can be one of:
@@ -397,7 +398,7 @@ class Value(object):
     def __init__(self, name, type='other', errors='none', unit='',
                  fmtstr='%.3f', active=True):
         if type not in ('counter', 'monitor', 'time', 'other', 'error',
-                        'info'):
+                        'filename', 'info'):
             raise ProgrammingError('invalid Value type parameter')
         if errors not in ('none', 'next', 'sqrt'):
             raise ProgrammingError('invalid Value errors parameter')

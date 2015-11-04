@@ -674,7 +674,7 @@ class ContinuousScan(Scan):
         try:
             device.speed = self._speed
             device.move(self._endpos)
-            starttime = currenttime()
+            starttime = looptime = currenttime()
             preset = max(abs(self._endpos - self._startpos) /
                          (self._speed or 0.1) * 5, 3600)
             if session.mode == SIMULATION:
@@ -690,8 +690,8 @@ class ContinuousScan(Scan):
                 new_devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
                 actualpos = [0.5 * (devpos + new_devpos)] + \
-                    self.readEnvironment(starttime, currenttime())
-                starttime = currenttime()
+                    self.readEnvironment(looptime, currenttime())
+                looptime = currenttime()
                 diff = [read[i] - last[i]
                         if isinstance(read[i], number_types) else read[i]
                         for i in range(len(read))]
@@ -700,18 +700,16 @@ class ContinuousScan(Scan):
                 last = read
                 devpos = new_devpos
                 for det in detlist:
-                    if isinstance(det, ImageProducer):
-                        det.updateImage()
+                    det.duringMeasureHook(looptime - starttime)
             device.wait()  # important for simulation
         finally:
             session.endActionScope()
             for det in detlist:
                 try:
-                    det.stop()
+                    det.finish()
+                    det.save()
                 except Exception:
                     session.log.warning('could not stop %s' % det, exc=1)
-                if isinstance(det, ImageProducer):
-                    det.saveImage()
             try:
                 device.stop()
                 device.wait()

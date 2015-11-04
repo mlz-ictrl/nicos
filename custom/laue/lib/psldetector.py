@@ -21,22 +21,18 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''Detector class for the laue PSL detector via the windows server'''
 
-from nicos.core import Measurable, ImageProducer, \
-    ImageType, Param, Override, status, Attach
+"""Detector class for the laue PSL detector via the windows server."""
 
-from nicos.devices.generic.detector import Channel
+from nicos.core import ImageType, Param, status
+from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel
 
-from nicos.laue.psldrv import PSLdrv
 import numpy as np
 
+from nicos.laue.psldrv import PSLdrv
 
-class PSLDetector(ImageProducer, Measurable):
 
-    attached_devices = {
-        'timer': Attach('Timer device', Channel)
-    }
+class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     parameters = {
         'address': Param('inet address', type=str,
@@ -48,10 +44,6 @@ class PSLDetector(ImageProducer, Measurable):
         'imageheight': Param('Image height',
                              type=int, default=1598, category='general'),
 
-    }
-
-    parameter_overrides = {
-        'subdir': Override(settable=True),
     }
 
     def _communicate(self, cmd):
@@ -73,19 +65,17 @@ class PSLDetector(ImageProducer, Measurable):
         shape = (self.imagewidth, self.imageheight)
         self.imagetype = ImageType(shape, np.uint16)
 
-    def doRead(self, _maxage=0):
-        return self.lastfilename
-
     def doStart(self):
-        self._attached_timer.start()
         self._communicate('Snap')
 
-    _modemap = { 'I;16': '<u2',
-                 'I': '<u4',
-                 'F': '<f4',}
+    _modemap = {'I;16': '<u2',
+                'I': '<u4',
+                'F': '<f4', }
+
+    # XXX this needs a virtual timer to read the current elapsed time
+    # def doRead(self, maxage=0): ...
 
     def readFinalImage(self):
-        self._attached_timer.stop()
         (shape, data) = self._communicate('GetImage')
         mode = self._communicate('GetMode')
         self._setROParam('imagewidth', shape[0])
@@ -97,9 +87,12 @@ class PSLDetector(ImageProducer, Measurable):
         na = na.reshape(shape)
         return na
 
+    def doFinish(self):
+        pass
+
     def doStop(self):
         self._communicate('AbortSnap')
-        self._attached_timer.stop()
+        return False
 
     def doStatus(self, maxage=0):
         if self._communicate('GetCamState') == 'ON':
@@ -116,11 +109,6 @@ class PSLDetector(ImageProducer, Measurable):
         return self._preset
 
     def doWritePreselection(self, exptime):
-        '''exposure in seconds, hardware wants ms)'''
+        """exposure in seconds, hardware wants ms"""
         self._preset = exptime
-        self._communicate('SetExposure;%f' % (( exptime * 1000.),))
-        self._attached_timer.preselection = exptime
-
-    def doSetPreset(self, **presets):
-        if 't' in presets:
-            self.doWritePreselection(float(presets['t']))
+        self._communicate('SetExposure;%f' % (exptime * 1000.))

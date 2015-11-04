@@ -2,8 +2,8 @@ Instrument specific devices
 ---------------------------
 
 .. automodule:: nicos.dns.detector
-.. autoclass:: FlipperPresets()
-.. autoclass:: TofDetector()
+.. autoclass:: TofChannel()
+.. autoclass:: DNSDetector()
 
 .. automodule:: nicos.dns.dnsfileformat
 .. autoclass:: DNSFileFormat()

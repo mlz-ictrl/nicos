@@ -55,25 +55,19 @@ devices = dict(
                       abslimits = (0, 5),
                      ),
 
-    card     = device('devices.generic.VirtualCounterCard',
-                      lowlevel = True
-                     ),
-
     timer    = device('devices.generic.VirtualTimer',
                       lowlevel = True,
-                      card = 'card',
                      ),
 
     ctr1     = device('devices.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 2000,
-                      card = 'card',
                       fmtstr = '%d',
                      ),
 
-    det      = device('devices.generic.MultiChannelDetector',
-                      timer = 'timer',
+    det      = device('devices.generic.Detector',
+                      timers = ['timer'],
                       monitors = [],
                       counters = ['ctr1'],
                       maxage = 3,

@@ -197,5 +197,8 @@ class THM(Measurable):
     def doStart(self):
         pass
 
+    def doFinish(self):
+        pass
+
     def doStop(self):
         pass

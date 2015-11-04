@@ -28,9 +28,9 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    det      = device('devices.generic.MultiChannelDetector',
+    det      = device('devices.generic.Detector',
                       description = 'FRM-II multichannel counter card',
-                      timer  = 'timer',
+                      timers = ['timer'],
                       monitors = ['mon1', 'mon2'],
                       counters = ['ctr1'],
                       fmtstr = 'timer %s, mon1 %s, mon2 %s, ctr1 %s',

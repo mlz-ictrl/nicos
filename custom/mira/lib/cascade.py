@@ -30,10 +30,11 @@ from time import sleep, time as currenttime
 import numpy
 
 from nicos.devices.tas import Monochromator
-from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-    CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
-    ImageProducer, ImageSink, ImageType, HasCommunication
-from nicos.devices.generic import MultiChannelDetector
+from nicos.core import status, tupleof, listof, oneof, Param, Override, \
+    Value, CommunicationError, TimeoutError, NicosError, Readable, \
+    ImageSink, ImageType, HasCommunication
+from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
+    ActiveChannel
 from nicos.devices.tas.mono import to_k, from_k
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
 from nicos.core import Attach, SIMULATION
@@ -75,14 +76,9 @@ class MiraXMLFormat(ImageSink):
 
     fileFormat = 'MiraXML'
 
-    parameters = {
-        'monchannel':   Param('Monitor channel to read from master detector',
-                              type=int, settable=True),
-    }
-
     attached_devices = {
-        'master':    Attach('Master to control measurement time in slave mode '
-                            'and to read monitor counts', MultiChannelDetector),
+        'timer':     Attach('Timer readout', ActiveChannel),
+        'counter':   Attach('Monitor readout', ActiveChannel),
         'mono':      Attach('Monochromator device to read out', Monochromator),
         'sampledet': Attach('Sample-detector distance readout', Readable),
     }
@@ -107,27 +103,22 @@ class MiraXMLFormat(ImageSink):
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(image.tostring(), 128*128*4)
         tmp.ConvertPAD(self._padimg)
-        mon = self._attached_master._attached_monitors[self.monchannel - 1]
-        timer = self._attached_master._attached_timer
+        mon = self._attached_monitor
+        timer = self._attached_timer
         mono = self._attached_mono
         tmp.WriteXML(imageinfo.filepath, self._attached_sampledet.read(),
                      from_k(to_k(mono.read(), mono.unit), 'A'),
                      timer.read()[0], mon.read()[0])
 
 
-class CascadeDetector(HasCommunication, ImageProducer, Measurable):
-    """CASCADE-MIEZE detector.
+class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
+    """Detector channel for the CASCADE-MIEZE detector.
 
     Controls the detector via a connection to the CASCADE socket server running
     on a Windows machine.
     """
 
     # XXX rework timeout mechanism with HasTimeout
-
-    attached_devices = {
-        'master': Attach('Master to control measurement time in slave mode '
-                         'and to read monitor counts', MultiChannelDetector),
-    }
 
     parameters = {
         'server':       Param('"host:port" of the cascade server to connect to',
@@ -229,6 +220,10 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         return float(self._getconfig()['time'])
 
     def doWritePreselection(self, value):
+        if self.slave:
+            self._last_preset = value
+            value = 1000000  # master controls preset
+        self._last_preset = value
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             self._raise_reply('could not set measurement time', reply)
@@ -265,21 +260,10 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                 break
         else:
             raise CommunicationError(self, 'could not connect to server')
-        if self.slave:
-            self._attached_master.reset()
         # reset parameters in case the server forgot them
         self.log.info('re-setting to %s mode' % self.mode.upper())
         self.doWriteMode(self.mode)
         self.doWritePreselection(self.preselection)
-
-    def doRead(self, maxage=0):
-        if self.mode == 'tof':
-            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
-        else:
-            myvalues = self.lastcounts + [self.lastfilename]
-        if self.slave:
-            return self._attached_master.read(maxage) + myvalues
-        return myvalues
 
     def doStatus(self, maxage=0):
         if not self._client.isconnected():
@@ -289,18 +273,11 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         else:
             return status.BUSY, 'counting'
 
-    def doSetPreset(self, **preset):
-        if self.slave:
-            self.preselection = 1000000  # master controls preset
-            if preset.get('t'):
-                self._last_preset = preset['t']
-            self._attached_master.setPreset(**preset)
-        elif preset.get('t'):
-            self.preselection = self._last_preset = preset['t']
-
     def doStart(self):
-        self.lastcounts = [0, 0]
-        self.lastcontrast = [0., 0., 0., 0.]
+        if self.mode == 'image':
+            self.readresult = [0, 0]
+        else:
+            self.readresult = [0, 0, 0., 0., 0., 0.]
 
         config = cascadeclient.GlobalConfig.GetTofConfig()
         config.SetImageWidth(self._xres)
@@ -312,9 +289,6 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         self._checked_communicate('CMD_start',
                                   'OKAY',
                                   'could not start measurement')
-
-        if self.slave:
-            self._attached_master.start()
         self._started = currenttime()
         self._lastlivetime = 0
 
@@ -328,19 +302,13 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                                'selected preset time')
         return self._getstatus().get('stop', '0') == '1'
 
-    def doStop(self):
-        if self.slave:
-            self._attached_master.stop()
-        else:
-            reply = str(self._client.communicate('CMD_stop'))
-            if reply != 'OKAY':
-                self._raise_reply('could not stop measurement', reply)
+    def doFinish(self):
+        reply = str(self._client.communicate('CMD_stop'))
+        if reply != 'OKAY':
+            self._raise_reply('could not stop measurement', reply)
 
-    def duringMeasureHook(self, elapsedtime):
-        if elapsedtime > (self._lastlivetime + 0.2):
-            # XXX call updateImage every minute or so...
-            self.updateLiveImage()
-            self._lastlivetime = elapsedtime
+    def doStop(self):
+        self.doFinish()
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',
@@ -360,16 +328,10 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                              Value(self.name + '.dc_tot', unit='',
                                    type='error', fmtstr='%.4f')
                              )
-        cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
-        if self.slave:
-            return self._attached_master.valueInfo() + cvals
         return cvals
 
-    def presetInfo(self):
-        return ['t']
-
     #
-    # ImageProducer interface
+    # ImageChannelMixin interface
     #
 
     @property
@@ -378,7 +340,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
             return ImageType(self._datashape, '<u4', ['X', 'Y'])
         return ImageType(self._datashape, '<u4', ['X', 'Y', 'T'])
 
-    def readImage(self):
+    def readFinalImage(self):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
@@ -387,11 +349,6 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         # determine total and roi counts
         total = self._client.counts(data)
         ctotal, dctotal = 0., 0.
-        if self.mode == 'tof':
-            fret = self._client.contrast(data, self.fitfoil)
-            if fret[0]:
-                ctotal = fret[1]
-                dctotal = fret[3]
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
             roi = self._client.counts(data, x1, x2, y1, y2)
@@ -404,11 +361,20 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         else:
             roi = total
             croi, dcroi = ctotal, dctotal
-        self.lastcounts = [roi, total]
-        self.lastcontrast = [croi, dcroi, ctotal, dctotal]
+        if self.mode == 'tof':
+            fret = self._client.contrast(data, self.fitfoil)
+            if fret[0]:
+                ctotal = fret[1]
+                dctotal = fret[3]
+            self.readresult = [roi, total, croi, dcroi, ctotal, dctotal]
+        else:
+            self.readresult = [roi, total]
         # make a numpy array and reshape it correctly
         return numpy.frombuffer(buf, '<u4').reshape(self._datashape)
 
-    def readFinalImage(self):
-        # get final data including all events from detector
-        return self.readImage()
+    def readLiveImage(self):
+        now = currenttime()
+        if now > (self._lastlivetime + 0.2):
+            self._lastlivetime = now
+            # get final data including all events from detector
+            return self.readFinalImage()
