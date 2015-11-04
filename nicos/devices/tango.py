@@ -474,7 +474,7 @@ class Motor(CanReference, Actuator):
         return 2 * (s / a)**0.5
 
 
-class TemperatureController(Actuator):
+class TemperatureController(HasWindowTimeout, Actuator):
     """
     A temperature control loop device.
     """
