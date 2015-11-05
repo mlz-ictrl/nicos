@@ -13,4 +13,5 @@ distribution.
    tas
    taco/index
    tango
+   epics
    vendor/index
