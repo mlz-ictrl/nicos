@@ -467,9 +467,15 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
             if time > self._master_expires:
                 self._master_expires = time + self._mastertimeout - 1
-                self.lock('master', self._mastertimeout)
-                self.put('session', 'master', session.sessionid,
-                         ttl=self._mastertimeout)
+                try:
+                    self.lock('master', self._mastertimeout)
+                except Exception:
+                    # ignore this, may be caused by the cache server being
+                    # unavailable
+                    pass
+                else:
+                    self.put('session', 'master', session.sessionid,
+                             ttl=self._mastertimeout)
 
     def _unlock_master(self):
         self.unlock('master')
