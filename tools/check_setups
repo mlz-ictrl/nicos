@@ -27,7 +27,9 @@ except ImportError:
 
 from nicos import config
 from nicos.core.errors import ConfigurationError
-from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, fixup_stacked_devices
+from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
+    fixup_stacked_devices
+from nicos.utils import importString
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
@@ -43,17 +45,6 @@ class FileHandler(StreamHandler):
         StreamHandler.__init__(self, *args)
         self.setFormatter(
             logging.Formatter('! %(name)s: %(levelname)s: %(message)s'))
-
-
-def nicos_import(clspath):
-    if '.' not in clspath:
-        raise ImportError('%r is not a "module.Class" name' % clspath)
-    modname, clsname = clspath.rsplit('.', 1)
-    try:
-        mod = __import__('nicos.' + modname, None, None, [clsname])
-    except ImportError:
-        mod = __import__(modname, None, None, [clsname])
-    return getattr(mod, clsname)
 
 
 interpol_re = re.compile(r'%[-#0 +]*(?:[0-9]+)?(?:\.(?:[0-9]+))?'
@@ -177,7 +168,7 @@ class SetupChecker(object):
             return False
         # try to import the device class
         try:
-            cls = nicos_import(devconfig[0])
+            cls = importString(devconfig[0], ('nicos.',))
         except (ImportError, RuntimeError), err:  # the latter for SIP
             self.log.warning('device class %r for %r not importable: %s',
                              devconfig[0], devname, err,
