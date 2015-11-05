@@ -26,7 +26,7 @@
 This module contains the NICOS - TANGO integration.
 
 All NICOS - TANGO devices only support devices which fulfill the official
-FRM-II/JCNS TANGO interface for the respective device classes.
+MLZ TANGO interface for the respective device classes.
 """
 
 import re
