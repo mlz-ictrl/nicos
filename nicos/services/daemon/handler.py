@@ -512,7 +512,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: ok or error
         """
-        if self.status in (STATUS_IDLE, STATUS_IDLEEXC):
+        if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             self.log.warning('immediate stop without script running')
         else:
             self.log.warning('immediate stop request in %s' %
