@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-description = "Tof detector setup"
-
+description = "DNS detector setup"
 group = "optional"
 
-includes = ['shutter', 'counter', 'coils']
-excludes = ['detectortest']
+includes = ['counter']
 
-tango_host = 'tango://phys.dns.frm2:10000'
+tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
     DNSFileSaver = device('dns.dnsfileformat.DNSFileFormat',
@@ -15,8 +13,9 @@ devices = dict(
                          ),
     dettof       = device('dns.detector.TofChannel',
                           description = 'TOF data channel',
-                          tangodevice = '%s/dns/detector/1' % tango_host,
+                          tangodevice = tango_base + 'detector/1',
                           readchannels = (0, 23),
+                          readtimechan = (0, 0),
                          ),
     det          = device('dns.detector.DNSDetector',
                           description = 'Tof detector',
@@ -29,4 +28,6 @@ devices = dict(
                          ),
 )
 
-startupcode = "SetDetectors(det)"
+startupcode = '''
+SetDetectors(det)
+'''

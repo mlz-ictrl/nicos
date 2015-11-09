@@ -62,13 +62,17 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                               unit='us', settable=True),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
                               'returned by a read', type=tupleof(int, int),
-                              default=(0, 0), settable=True, mandatory=True)
+                              default=(0, 0), settable=True, mandatory=True),
+        'readtimechan': Param('Tuple of (start, end) integrated time channels '
+                              'will be returned by a read',
+                              type=tupleof(int, int),
+                              default=(0, 0), settable=True, mandatory=True),
     }
 
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType((int(self.detshape.get('t', 1)),
-                                    int(self.detshape.get('x', 1))),
+        self.imagetype = ImageType((self.detshape.get('t', 1),
+                                    self.detshape.get('x', 1)),
                                    numpy.uint32)
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
@@ -134,10 +138,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         # XXX non-standard implementation of GetProperties; should be fixed in
         # the server
         shvalue = self._dev.GetProperties(("shape", 'device'))
-        dshape = {}
-        for i in range(4):
-            dshape[self.STRSHAPE[i]] = shvalue[i+2]
-        return dshape
+        return {'x': int(shvalue[2]), 't': int(shvalue[5])}
 
     def valueInfo(self):
         start, end = self.readchannels
@@ -149,10 +150,15 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         self.log.debug("Tof Detector read final image")
         start, end = self.readchannels
         # get current data array from detector
-        array = self._dev.value
-        self.readresult = list(array[start:end+1])
-        return numpy.asarray(array).reshape(int(self.detshape['t']),
-                                            int(self.detshape['x']))
+        array = numpy.asarray(self._dev.value, numpy.uint32)
+        array = array.reshape(self.detshape['t'], self.detshape['x'])
+        if self.tofmode == 'tof':
+            startT, endT = self.readtimechan
+            res = array[startT:endT+1].sum(axis=0)[start:end+1]
+        else:
+            res = array[0, start:end+1]
+        self.readresult = res.tolist()
+        return array
 
     def readLiveImage(self):
         pass  # could return live data
@@ -176,8 +182,9 @@ class DNSDetector(Detector):
         return 0  # no preset that we can estimate found
 
     def presetInfo(self):
-        return Detector.presetInfo(self) + (P_TIME_SF, P_TIME_NSF,
-                                                     P_MON_SF, P_MON_NSF)
+        presets = Detector.presetInfo(self)
+        presets.update((P_TIME_SF, P_TIME_NSF, P_MON_SF, P_MON_NSF))
+        return presets
 
     def doSetPreset(self, **preset):
         if P_MON_SF in preset and P_MON_NSF in preset:

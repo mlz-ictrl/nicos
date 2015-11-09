@@ -177,12 +177,12 @@ class DNSFileFormat(ImageSink):
         w("#  sample_setpoint            %6.3f K\n" % tset)
         w(separator)
 
-        det_dev = session.getDevice('det')
+        tofchan = session.getDevice('dettof')
         w("# TOF parameters\n")
-        w("#  TOF channels                %4d\n" % det_dev.nrtimechan)
-        tdiv = 0.05 * (det_dev.divisor + 1)
+        w("#  TOF channels                %4d\n" % tofchan.nrtimechan)
+        tdiv = 0.05 * (tofchan.divisor + 1)
         w("#  Time per channel            %6.1f microsecs\n" % tdiv)
-        tdel = 0.05 * det_dev.offsetdelay
+        tdel = 0.05 * tofchan.offsetdelay
         w("#  Delay time                  %6.1f microsecs\n" % tdel)
 
         w("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO
@@ -203,10 +203,10 @@ class DNSFileFormat(ImageSink):
         # write array
         w("# DATA (number of detectors, number of TOF channels)\n")
         numarr = np.array(image)
-        w("# 64 %4d\n" % det_dev.nrtimechan)
+        w("# 64 %4d\n" % tofchan.nrtimechan)
         for ch in range(64):
             w("%2d " % ch)
-            for q in range(det_dev.nrtimechan):
+            for q in range(tofchan.nrtimechan):
                 w(" %8d" % (numarr[q, ch]))
             w("\n")
         imageinfo.file.flush()
