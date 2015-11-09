@@ -4,16 +4,23 @@ description = 'setup for the GE detector status monitor'
 group = 'special'
 
 _column1 = Column(
-    Block('Temperatures', [
-        BlockRow(Field(dev='ep%02d_T' % ep, name='%02d' % ep),
-                 Field(dev='ep%02d_T' % (ep + 9), name='%02d' % (ep + 9)),
+    Block('Temp. FPGA', [
+        BlockRow(Field(dev='ep%02d_T' % ep, name='ep%d' % ep),
+                 Field(dev='ep%02d_T' % (ep + 9), name='ep%d' % (ep + 9)),
+        ) for ep in range(1, 10)]),
+)
+
+_column1b = Column(
+    Block('Temp. RSPP', [
+        BlockRow(Field(dev='ep%02d_TB' % ep, name='ep%d' % ep),
+                 Field(dev='ep%02d_TB' % (ep + 9), name='ep%d' % (ep + 9)),
         ) for ep in range(1, 10)]),
 )
 
 _column2 = Column(
     Block('High voltage', [
-        BlockRow(Field(dev='ep%02d_HV' % ep, name='%02d' % ep),
-                 Field(dev='ep%02d_HV' % (ep + 9), name='%02d' % (ep + 9))
+        BlockRow(Field(dev='ep%02d_HV' % ep, name='ep%d' % ep),
+                 Field(dev='ep%02d_HV' % (ep + 9), name='ep%d' % (ep + 9))
         ) for ep in range(1, 10)]),
 )
 
@@ -47,6 +54,6 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_column1, _column2, _column3), Row(_column4)],
+                     layout = [Row(_column1, _column1b, _column2, _column3), Row(_column4)],
                     ),
 )
