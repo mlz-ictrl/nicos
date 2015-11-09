@@ -438,6 +438,8 @@ class HasTimeout(DeviceMixinBase):
                     if t > currenttime():
                         msg = statusString(m, msg)
                         break
+        elif code == status.ERROR:
+            self._timeoutActionCalled = True
 
         return (code, msg)
 

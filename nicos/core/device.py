@@ -1116,6 +1116,8 @@ class Readable(Device):
             return
         if isinstance(self, HasTimeout):
             self._setROParam('_timesout', None)
+            # reset should not trigger timeoutAction()
+            self._timeoutActionCalled = True
         if hasattr(self, 'doReset'):
             self.doReset()
         # make sure, status is propagated to the cache after a reset
