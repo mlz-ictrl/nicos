@@ -28,7 +28,7 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
         Field(dev='sgx_huber'), Field(dev='sgz_huber'),
         ),
     ],
-    'huber',
+    setups='huber',
 )
 
 
@@ -37,7 +37,7 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
         Field(dev='stx_servostar'), Field(dev='sty_servostar'), Field(dev='sry_servostar'),
         ),
     ],
-    'servostar',
+    setups='servostar',
 )
 
 _detectorcolumn = Column(
@@ -60,7 +60,7 @@ _detectorcolumn = Column(
         Field(name='rotation', key='ccd.rotation'),
         ),
     ],
-    'detector',
+    setups='detector',
     ),
 )
 
@@ -76,7 +76,7 @@ _shutterblock = Block('Shutters & Collimators', [
         Field(dev='fastshutter', width=10, istext = True),
         ),
     ],
-    'basic',
+    setups='basic',
 )
 
 _basicblock = Block('Info', [
@@ -88,7 +88,7 @@ _basicblock = Block('Info', [
     BlockRow(Field(plot='Pressure', name='Ambient', dev='center3_sens1', width=40, height=20, plotwindow=24*3600),
         Field(plot='Pressure', name='Flight Tube', dev='center3_sens2')),
     ],
-    'basic',
+    setups='basic',
 )
 
 _sblblock = Block('Small Beam Limiter', [
@@ -96,7 +96,7 @@ _sblblock = Block('Small Beam Limiter', [
         Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
         ),
     ],
-    'sbl',
+    setups='sbl',
 )
 
 _lblblock = Block('Large Beam Limiter', [
@@ -104,7 +104,7 @@ _lblblock = Block('Large Beam Limiter', [
         Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
         ),
     ],
-    'lbl',
+    setups='lbl',
 )
 
 _detector_translationblock = Block('Detector Translation', [
@@ -112,7 +112,7 @@ _detector_translationblock = Block('Detector Translation', [
         Field(dev='dtx', width=13), Field(dev='dty', width=13),
         ),
     ],
-    'detector_translation',
+    setups='detector_translation',
 )
 
 

@@ -23,7 +23,7 @@ _detectorcolumn = Column(
         Field(name='rotation', key='ccd.rotation'),
         ),
     ],
-    'detector',
+    setups='detector',
     ),
 )
 
@@ -33,7 +33,7 @@ _sockets1block = Block('Sockets Cabinet 1', [
         Field(dev='socket01', width=9), Field(dev='socket02', width=9), Field(dev='socket03', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets2block = Block('Sockets Cabinet 2', [
@@ -41,7 +41,7 @@ _sockets2block = Block('Sockets Cabinet 2', [
         Field(dev='socket04', width=9), Field(dev='socket05', width=9), Field(dev='socket06', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets3block = Block('Sockets Cabinet 3', [
@@ -49,7 +49,7 @@ _sockets3block = Block('Sockets Cabinet 3', [
         Field(dev='socket07', width=9), Field(dev='socket08', width=9), Field(dev='socket09', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets6block = Block('Sockets Cabinet 6', [
@@ -57,7 +57,7 @@ _sockets6block = Block('Sockets Cabinet 6', [
         Field(dev='socket10', width=9), Field(dev='socket11', width=9), Field(dev='socket12', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets7block = Block('Sockets Cabinet 7', [
@@ -65,7 +65,7 @@ _sockets7block = Block('Sockets Cabinet 7', [
         Field(dev='socket13', width=9), Field(dev='socket14', width=9), Field(dev='socket15', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _filterwheelblock = Block('Filterwheel', [
@@ -73,7 +73,7 @@ _filterwheelblock = Block('Filterwheel', [
         Field(dev='filterwheel', width=14), Field(dev='pbfilter', width=14),
         ),
     ],
-    'filterwheel',
+    setups='filterwheel',
 )
 
 _selectorblock = Block('Velocity Selector', [
@@ -92,26 +92,26 @@ _selectorblock = Block('Velocity Selector', [
         Field(name='Water Flow',dev='selector_wflow'),
         ),
     ],
-    'selector',
+    setups='selector',
 )
 
 _temperatureblock = Block('Cryo Temperature', [
     BlockRow(Field(plot='Temperature', name='Sensor B', dev='T_cc_B', width=40, height=20, plotwindow=3600),
         ),
     ],
-    'cc_puma',
+    setups='cc_puma',
 )
 
 _garfieldblock = Block('Garfield Magnet', [
         BlockRow(Field(dev='B_amagnet', name='B'), Field(dev='amagnet_connection', name='Mode') ),
     ],
-    'amagnet',
+    setups='amagnet',
 )
 
 _flipperblock = Block('Mezei-Flip', [
         BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
     ],
-    'mezeiflip',
+    setups='mezeiflip',
 )
 
 _lockinblock = Block('Lock-In', [
@@ -120,7 +120,7 @@ _lockinblock = Block('Lock-In', [
         Field(dev='sr850', name='Y', item=1)
         ),
     ],
-    'sr850',
+    setups='sr850',
 )
 
 _monochromatorblock = Block('Double Crystal PG Monochromator', [
@@ -131,7 +131,7 @@ _monochromatorblock = Block('Double Crystal PG Monochromator', [
         Field(dev='mr1'), Field(dev='mr2'), Field(dev='mtz'),
         ),
     ],
-    'monochromator',
+    setups='monochromator',
 )
 
 _ngiblock = Block('Neutron Grating Interferometer', [
@@ -142,7 +142,7 @@ _ngiblock = Block('Neutron Grating Interferometer', [
         Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
         ),
     ],
-    'ngi',
+    setups='ngi',
 )
 
 _cryomanipulatorblock = Block('Cryostat Manipulator', [
@@ -150,7 +150,7 @@ _cryomanipulatorblock = Block('Cryostat Manipulator', [
         Field(name='ctx', dev='ctx'), Field(name='cty', dev='cty'), Field(name='cry', dev='cry'),
         ),
     ],
-    'cryomanipulator',
+    setups='cryomanipulator',
 )
 
 _leftcolumn = Column(
