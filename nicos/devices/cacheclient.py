@@ -250,6 +250,9 @@ class BaseCacheClient(Device):
                         if e.errno == socket.EINTR:
                             continue
                         raise
+                    except TypeError:
+                        # socket was None, let the outer loop handle that
+                        res = ([], [], [])
                     break
 
                 if res[1]:
