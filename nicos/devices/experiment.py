@@ -42,7 +42,7 @@ from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, lazy_property, printTable, pwd, grp, \
-    DEFAULT_FILE_MODE, readFileCounter, updateFileCounter
+    DEFAULT_FILE_MODE, readFileCounter, updateFileCounter, createThread
 from nicos.core.utils import DeviceValueDict
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.emails import sendMail
@@ -668,12 +668,6 @@ class Experiment(Device):
                                          logger=self.log, **self.managerights)
                     raise
 
-        # all prepared, do the switch
-        # remove access rights to old proposal if wanted
-        if self.managerights and self.proptype == 'user':
-            disableDirectory(self.proposalpath, logger=self.log, **self.managerights)
-            self.log.debug('disabled directory %s' % self.proposalpath)
-
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
         self.sample.reset()
@@ -730,7 +724,9 @@ class Experiment(Device):
 
     @usermethod
     def finish(self, *args, **kwds):
-        """Called by `.FinishExperiment`."""
+        """Called by `.FinishExperiment`. Returns the `FinishExperiment`
+        Thread if applicable otherwise `None`."""
+        thd = None
         self._beforeFinishHook()
 
         # update metadata
@@ -746,32 +742,49 @@ class Experiment(Device):
             except Exception:
                 self.log.warning('could not generate experimental report',
                                  exc=1)
-            zipname = None
-            if self.zipdata or self.sendmail:
-                try:
-                    zipname = self._zip()
-                except Exception:
-                    self.log.warning('could not zip up experiment data',
-                                     exc=1)
-                    # zipname will stay None and no email is sent
-            if self.sendmail and zipname:
+
+            if self._mode != SIMULATION:
+                pzip = None
                 receivers = None
-                if args:
-                    receivers = args[0]
-                else:
-                    receivers = self.propinfo.get('user_email', receivers)
-                receivers = kwds.get('receivers', kwds.get('email', receivers))
+                if self.sendmail:
+                    if args:
+                        receivers = args[0]
+                    else:
+                        receivers = self.propinfo.get('user_email', receivers)
+                    receivers = kwds.get('receivers', kwds.get('email',
+                                                               receivers))
+                if self.zipdata or self.sendmail:
+                    pzip = path.join(self.proposalpath, '..', self.proposal +
+                                     '.zip')
                 try:
-                    if receivers:
-                        self._mail(receivers, zipname)
+                    stats = self._statistics()
                 except Exception:
-                    self.log.warning('could not send the data via email',
-                                     exc=1)
+                    self.log.exception('could not gather experiment statistics')
+                    stats = {}
+                stats.update(propinfo)
+                # start separate thread for zipping and disabling old proposal
+                self.log.debug("Start separate thread for zipping and "
+                               "disabling proposal.")
+                thd = createThread("FinishExperiment",
+                                   target=self._finish,
+                                   args=(pzip, self.proposalpath,
+                                         self.proposal, self.proptype, stats,
+                                         receivers),
+                                   daemon=False
+                                  )
+                # wait up to 5 seconds
+                thd.join(5)
+                if thd.isAlive():
+                    self.log.info("continuing zipping of proposal %s in "
+                                  "background" % self.proposal)
+                else:
+                    thd = None
 
         self._afterFinishHook()
 
         # switch to service experiment (will hide old data if configured)
         self.new(self.serviceexp, localcontact=self.localcontact)
+        return thd
 
     #
     # template stuff
@@ -880,18 +893,15 @@ class Experiment(Device):
     #
     # various helpers
     #
-    def _zip(self):
-        """Zip all files in the current experiment folder into a .zip file."""
-        if self._mode == SIMULATION:
-            return  # dont touch fs if in simulation!
+    def _zip(self, pzip, proposalpath):
+        """Zip all files in `proposalpath` folder into `pzip` (.zip) file."""
         self.log.info('zipping experiment data, please wait...')
-        zipname = zipFiles(path.join(self.proposalpath, '..',
-                                     self.proposal + '.zip'),
-                           self.proposalpath, logger=self.log)
-        self.log.info('done: stored as ' + zipname)
+        zipname = zipFiles(pzip, proposalpath)
+        self.log.info('zipping done: stored as ' + zipname)
         return zipname
 
-    def _mail(self, receivers, zipname, maxAttachmentSize=10000000):
+    def _mail(self, proposal, stats, receivers, zipname,
+              maxAttachmentSize=10000000):
         """Send a mail with the experiment data"""
 
         if self._mode == SIMULATION:
@@ -913,17 +923,11 @@ class Experiment(Device):
                              self.mailtemplate, exc=1)
             mailbody = 'See data in attachment.'
 
-        try:
-            stats = self._statistics()
-        except Exception:
-            self.log.exception('could not gather experiment statistics')
-            stats = {}
-        stats.update(self.propinfo)
         mailbody, _, _ = expandTemplate(mailbody, stats)
 
         instname = session.instrument and session.instrument.instrument or '?'
         topic = 'Your recent experiment %s on %s from %s to %s' % \
-                (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
+                (proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
         self.log.info('Sending data files via eMail to %s' % receivers)
         if os.stat(zipname).st_size < maxAttachmentSize:
@@ -949,16 +953,38 @@ class Experiment(Device):
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
                      [], 1 if self.loglevel == 'debug' else 0)
 
-        # "hide" compressed file by moving it into the proposal directory
-        self.log.info('moving compressed file to ' + self.proposalpath)
-        try:
-            os.rename(zipname,
-                      path.join(self.proposalpath, path.basename(zipname)))
-        except Exception:
-            self.log.warning('moving compressed file into proposal dir failed',
-                             exc=1)
-            # at least withdraw the access rights
-            os.chmod(zipname, self.managerights.get('disableFileMode', 0o400))
+    def _finish(self, pzip, proposalpath, proposal, proptype, stats, receivers):
+        if pzip:
+            try:
+                pzipfile = self._zip(pzip, proposalpath)
+            except Exception:
+                self.log.warning('could not zip up experiment data', exc=1)
+            else:
+                if receivers:
+                    try:
+                        self._mail(proposal, stats, receivers, pzipfile)
+                    except Exception:
+                        self.log.warning('could not send the data via email',
+                                         exc=1)
+                # "hide" compressed file by moving it into the
+                # proposal directory
+                self.log.info('moving compressed file to ' + proposalpath)
+                try:
+                    os.rename(pzipfile, path.join(proposalpath,
+                                                 path.basename(pzipfile)))
+                except Exception:
+                    self.log.warning('moving compressed file into proposal dir '
+                                     'failed', exc=1)
+                    # at least withdraw the access rights
+                    os.chmod(pzipfile,
+                             self.managerights.get('disableFileMode',
+                                                   0o400))
+        # remove access rights to old proposal if wanted
+        if self.managerights and proptype == 'user':
+            disableDirectory(proposalpath, logger=self.log,
+                             **self.managerights)
+            self.log.debug('disabled directory %s'
+                           % proposalpath)
 
     def _setMode(self, mode):
         if self.elog:

@@ -129,9 +129,9 @@ def test_experiment():
         assert u'Meßzeit'.encode('utf-8') in fp.read()
 
     # now, finish the experiment
-    exp.finish()
-    # has the zip file been created?
-    assert path.isfile(datapath('p999.zip'))
+    thd = exp.finish()
+    if thd:
+        thd.join()
     # have the access rights been revoked?
     if os.name != 'nt':
         assert not os.access(datapath('p999'), os.X_OK)
@@ -143,6 +143,8 @@ def test_experiment():
     exp.new('p999', localcontact=exp.localcontact)
     assert os.access(datapath('p999'), os.X_OK)
     assert exp.users == ''
+    # has the zip file been created?
+    assert path.isfile(datapath('p999', 'p999.zip'))
 
     exp.addUser('A User')
 
