@@ -423,6 +423,16 @@ _julabo = Column(
     ),
 )
 
+_live = Column(
+    Block('Live image of Detector', [
+        BlockRow(
+            Field(name='Data (lin)', picture='sans1-online/live_lin.png', width=64, height=64),
+            Field(name='Data (log)', picture='sans1-online/live_log.png', width=64, height=64),
+        ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
@@ -444,6 +454,7 @@ devices = dict(
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                                      _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports, _julabo),
+                                 Row(_live),
                                ],
                     ),
 )
