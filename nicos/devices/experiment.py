@@ -931,7 +931,7 @@ class Experiment(Device):
                 (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
         self.log.info('Sending data files via eMail to %s' % receivers)
-        if os.stat(zipname).st_size < 10000000:
+        if os.stat(zipname).st_size < maxAttachmentSize:
             # small enough -> send directly
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
                      [zipname], 1 if self.loglevel == 'debug' else 0)
