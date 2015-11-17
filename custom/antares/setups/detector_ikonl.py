@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 
-description = 'Andor DV936 CCD camera'
+description = 'Andor IKON-L CCD camera'
 
 group = 'optional'
 
-includes = ['shutters']
+includes = ['shutters', 'filesavers']
 
 tango_host = 'tango://antareshw.antares.frm2:10000'
 
 devices = dict(
-    FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
-                           description = 'Saves image data in FITS format',
-                           filenametemplate = ['%08d.fits'],
-                          ),
-
-    ccd = device('antares.ikonl.AntaresIkonLCCD',
+    ikonl = device('antares.detector.AntaresIkonLCCD',
                  description = 'The Andor Ikon L CCD camera detector',
                  tangodevice = '%s/antares/detector/limaccd' % tango_host,
                  hwdevice = '%s/antares/detector/ikonl' % tango_host,
@@ -32,7 +27,7 @@ devices = dict(
                  subdir = '.',
                  fileformats = ['FITSFileSaver'],
                 ),
-    ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
+    ikonlTemp = device('devices.vendor.lima.Andor2TemperatureController',
                      description = 'The CCD chip temperature',
                      tangodevice = '%s/antares/detector/ikonl' % tango_host,
                      maxage = 5,
@@ -45,14 +40,14 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(ccd)
+SetDetectors(ikonl)
 
 ## override hw setting to known good values.
-ccd.rotation = 90
-ccd.shutteropentime = 0.05
-ccd.shutterclosetime = 0.05
-ccd.shuttermode = 'auto'
-ccd.vsspeed = 38.55
-ccd.hsspeed = 1
-ccd.pgain = 1
+ikonl.rotation = 90
+ikonl.shutteropentime = 0.05
+ikonl.shutterclosetime = 0.05
+ikonl.shuttermode = 'auto'
+ikonl.vsspeed = 38.55
+ikonl.hsspeed = 1
+ikonl.pgain = 1
 '''
