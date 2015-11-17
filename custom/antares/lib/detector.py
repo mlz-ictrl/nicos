@@ -23,15 +23,15 @@
 
 import time
 
-from nicos.core import Param, Attach, status
+from nicos.core import Param, Attach, status, DeviceMixinBase
 from nicos.devices.generic import Switcher
-from nicos.devices.vendor.lima import Andor2LimaCCD
+from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD
 
 
-class AntaresIkonLCCD(Andor2LimaCCD):
+class UsesFastshutter(DeviceMixinBase):
     """
-    Extension to Andor2LimaCCD; Adds the ability to open shutter before the
-    acquisition and close them afterwards.
+    Adds the ability to open a fast shutter before the
+    acquisition.
 
     The given shutter devices MUST BE of type <nicos.devices.generic.Switcher>
     and MUST HAVE the values 'open' and 'closed'.  This state is enforced to
@@ -48,9 +48,9 @@ class AntaresIkonLCCD(Andor2LimaCCD):
                                  type=bool, settable=True, default=True),
     }
 
-    def doStart(self, **preset):
+    def openFastshutter(self):
         # open fastshutter automatically if desired
-        if self.shuttermode in ['always_open', 'auto'] and self.openfastshutter:
+        if self.openfastshutter:
             # reset fast shutter if in error state (the shutter sometimes goes
             # into error state because it couldn't be opened, but it works
             # again after reset on the next try
@@ -65,9 +65,38 @@ class AntaresIkonLCCD(Andor2LimaCCD):
             # (the moving status isn't set immediately)
             time.sleep(0.1)
 
+
+class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
+    """
+    Extension to Andor2LimaCCD; Adds the ability to open a fast shutter before
+    the acquisition.
+    """
+
+    def doStart(self, **preset):
+        # open fastshutter automatically if desired
+        if self.shuttermode in ['always_open', 'auto']:
+            self.openFastshutter()
+
         Andor2LimaCCD.doStart(self, **preset)
 
     def doSave(self, exception=False):
+        # do not try to save ccd image in case of stopping
         if exception:
             return
         Andor2LimaCCD.doSave(self, exception)
+
+
+class AntaresNeo(UsesFastshutter, Andor3LimaCCD):
+    """
+    Extension to Andor3LimaCCD; Adds the ability to open a fast shutter before
+    the acquisition.
+    """
+    def doStart(self, **preset):
+        self.openFastshutter()
+        Andor3LimaCCD.doStart(self, **preset)
+
+    def doSave(self, exception=False):
+        # do not try to save ccd image in case of stopping
+        if exception:
+            return
+        Andor3LimaCCD.doSave(self, exception)
