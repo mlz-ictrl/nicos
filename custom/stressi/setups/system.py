@@ -48,7 +48,7 @@ group = 'lowlevel'
 #       nicos.devices.notifiers.Notifier or a subclass.
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'stressictrl.stressi.frm2',
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
