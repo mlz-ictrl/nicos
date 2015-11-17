@@ -124,6 +124,8 @@ def process_children(p):
         return p.get_children(recursive=True)
     except TypeError:  # always recursive in psutil < 1.0
         return p.get_children()
+    except AttributeError:  # not in psutil >= 3.0
+        return p.children(recursive=True)
 
 
 def read_pidfile(name, wait=0):
