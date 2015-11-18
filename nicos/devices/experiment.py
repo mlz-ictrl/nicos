@@ -278,30 +278,14 @@ class Experiment(Device):
         except ValueError:
             return 'service'
 
-    def _beforeNewHook(self):
-        """Hook to do something before NewExperiment gets to work"""
-        pass
-
     def _newPropertiesHook(self, proposal, kwds):
         """Hook for querying a database for proposal related stuff
 
         should return an updated kwds dictionary"""
         return kwds
 
-    def _afterNewHook(self):
-        """Hook to do something after NewExperiment did its work"""
-        pass
-
-    def _beforeFinishHook(self):
-        """Hook to do something before FinishExperiment gets to work"""
-        pass
-
-    def _afterFinishHook(self):
-        """Hook to do something after FinishExperiment did its work"""
-        pass
-
     #
-    # end hooks: dont override any method defined below in derived classes!
+    # don't override any method defined below in derived classes!
     #
 
     #
@@ -637,8 +621,6 @@ class Experiment(Device):
                            'please use "FinishExperiment" first')
             return
 
-        self._beforeNewHook()
-
         # allow instruments to override (e.g. from proposal DB)
         if title:
             kwds['title'] = title
@@ -720,14 +702,12 @@ class Experiment(Device):
             self.log.info('Maintenance time started')
 
         self._createCustomProposalSymlink()
-        self._afterNewHook()
 
     @usermethod
     def finish(self, *args, **kwds):
         """Called by `.FinishExperiment`. Returns the `FinishExperiment`
         Thread if applicable otherwise `None`."""
         thd = None
-        self._beforeFinishHook()
 
         # update metadata
         propinfo = dict(self.propinfo)
@@ -779,8 +759,6 @@ class Experiment(Device):
                                   "background" % self.proposal)
                 else:
                     thd = None
-
-        self._afterFinishHook()
 
         # switch to service experiment (will hide old data if configured)
         self.new(self.serviceexp, localcontact=self.localcontact)
@@ -1292,11 +1270,11 @@ class ImagingExperiment(Experiment):
 
         return tuple(paths)
 
-    def _afterNewHook(self):
-        Experiment._afterNewHook(self)
-        self._clearImgPaths()
-
     def _clearImgPaths(self):
         # clear state info
         self._setROParam('lastdarkimage', '')
         self._setROParam('lastopenbeamimage', '')
+
+    def new(self, *args, **kwargs):
+        Experiment.new(*args, **kwargs)
+        self._clearImgPaths()
