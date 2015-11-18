@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = []
 
-jcns_tango_host = 'tango://cpci01.antares.frm2:10000'
+jcns_tango_host = 'tango://slow.antares.frm2:10000'
 
 devices = dict(
     mono = device('antares.monochromator.Monochromator',

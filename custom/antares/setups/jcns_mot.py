@@ -6,7 +6,7 @@ group = 'optional'
 
 includes = ['jcns_io']
 
-tango_host = 'tango://cpci01.antares.frm2:10000'
+tango_host = 'tango://slow.antares.frm2:10000'
 
 devices = dict(
     cryo_vertical = device('devices.tango.Motor',

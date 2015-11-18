@@ -1,6 +1,6 @@
 description = 'setup for the velocity selector'
 
-jcns_tango_host = 'tango://cpci01.antares.frm2:10000'
+jcns_tango_host = 'tango://slow.antares.frm2:10000'
 
 devices = dict(
     selector_state = device('devices.vendor.astrium.SelectorState',
