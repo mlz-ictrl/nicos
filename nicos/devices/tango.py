@@ -287,13 +287,19 @@ class PyTangoDevice(HasCommunication):
         return wrap
 
     def _com_return(self, result, info):
-        if isinstance(result, PyTango.DeviceAttribute):
-            self.log.debug('\t=> %s' % repr(result.value)[:300])
-        else:
-            # This line explicitly logs '=> None' for commands which
-            # does not return a value. This indicates that the command
-            # execution ended.
-            self.log.debug('\t=> %s' % repr(result)[:300])
+        # explicit check for loglevel to avoid expensive reprs
+        if self.loglevel == 'debug':
+            logStr = ''
+
+            if isinstance(result, PyTango.DeviceAttribute):
+                logStr = '\t=> %s' % repr(result.value)[:300]
+            else:
+                # This line explicitly logs '=> None' for commands which
+                # does not return a value. This indicates that the command
+                # execution ended.
+                logStr = '\t=> %s' % repr(result)[:300]
+
+            self.log.debug(logStr)
         return result
 
     def _tango_exc_desc(self, err):
