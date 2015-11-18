@@ -878,6 +878,20 @@ class Experiment(Device):
         self.log.info('zipping done: stored as ' + zipname)
         return zipname
 
+    def _upload(self, pzip):
+        """Uploads the file `pzip` and returns additional mailbody content."""
+        url = ftpUpload(pzip, logger=self.log)
+        mailbody = dedent("""
+        =====
+        Due to size limitations, the attachment has been copied to a temporary
+        storage where it will be kept for four weeks.
+
+        Please download the data from:
+        %s
+        within the next four weeks.
+        """) % url
+        return mailbody
+
     def _mail(self, proposal, stats, receivers, zipname,
               maxAttachmentSize=10000000):
         """Send a mail with the experiment data"""
@@ -916,18 +930,7 @@ class Experiment(Device):
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
                           'uploaded to a temporary storage for download.')
-            mailbody += dedent("""
-            =====
-
-            Due to size limitations, the attachment was put to a temporary storage,
-            where it will be kept for four weeks and then it will be deleted.
-
-            Please download the data from:
-            %s
-            within the next four weeks.
-
-            We apologize for the inconvenience.
-            """) % ftpUpload(zipname, logger=self.log)
+            mailbody += self._upload(zipname)
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
                      [], 1 if self.loglevel == 'debug' else 0)
 
