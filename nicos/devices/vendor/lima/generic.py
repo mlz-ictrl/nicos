@@ -149,8 +149,10 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
 
         self._setROParam('_starttime', time.time())
         self._setROParam('_curexpotime', self.expotime)
-        self._setROParam('_curshutteropentime', self.shutteropentime)
-        self._setROParam('_curshutterclosetime', self.shutterclosetime)
+
+        if self._shutter is not None:
+            self._setROParam('_curshutteropentime', self.shutteropentime)
+            self._setROParam('_curshutterclosetime', self.shutterclosetime)
 
         self._dev.startAcq()
 
