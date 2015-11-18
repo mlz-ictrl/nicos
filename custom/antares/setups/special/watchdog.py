@@ -46,7 +46,8 @@ devices = dict(
                       subject = 'ANTARES'),
 
     smser    = device('devices.notifiers.SMSer',
-                      receivers = ['015121100909'],
+                      #receivers = ['015121100909'],
+                      receivers = [],
                       server = 'triton.admin.frm2'),
 
     Watchdog = device('services.watchdog.Watchdog',
