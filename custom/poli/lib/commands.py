@@ -24,14 +24,34 @@
 
 """Module with specific commands for POLI."""
 
+import time
+
 from nicos import session
 from nicos.commands import usercommand, helparglist
-from nicos.commands.device import maw
+from nicos.commands.device import maw, move
 from nicos.commands.scan import cscan, contscan
 from nicos.commands.analyze import center_of_mass, gauss
 from nicos.commands.output import printinfo
 from nicos.core import Moveable, UsageError, NicosError
 from nicos.pycompat import number_types
+
+
+@usercommand
+def lubricate_liftingctr(startpos, endpos):
+    """Lubricate the lifting counter, while starting from *startpos* and
+    moving to *endpos*.
+    """
+    ldev = session.getDevice('lubrication')
+    motor = session.getDevice('liftingctr')
+    maw(motor, startpos)
+    printinfo('Switching output on for 10 sec...')
+    move(ldev, 1)
+    time.sleep(10)
+    move(ldev, 0)
+    printinfo('Waiting 15 sec...')
+    time.sleep(15)
+    maw(motor, endpos)
+    printinfo('Lubrication is done.')
 
 
 @usercommand
@@ -59,7 +79,8 @@ def centerpeak(*args, **kwargs):
       device, in units of the scan step size. The default is 0.5.
     * ``fit`` - fit function to use for determining peak center, see below.
     * ``cont`` - True/False whether to use continuous scans. Default is false.
-    * all further keyword arguments (like ``t=1``) are used as detector presets.
+    * all further keyword arguments (like ``t=1``) are used as detector
+      presets.
 
     Examples:
 
@@ -160,7 +181,8 @@ def centerpeak(*args, **kwargs):
                 fit_center = params[0]
                 if not minvalue <= fit_center <= maxvalue:
                     maw(dev, center)
-                    raise NicosError('Gaussian fit center outside scanning area')
+                    raise NicosError('Gaussian fit center outside '
+                                     'scanning area')
                 thisround[dev] = fit_center
             maw(dev, thisround[dev])
         printinfo('*' * 100)

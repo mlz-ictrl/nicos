@@ -28,6 +28,29 @@ from nicos.clients.gui.cmdlets import Cmdlet, register, isFloat, isInt
 from nicos.utils import findResource
 
 
+class Lubrication(Cmdlet):
+
+    name = 'Lubricate lifting counter'
+    category = 'Other'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client,
+                        findResource('custom/poli/lib/gui/lube.ui'))
+        self.start.textChanged.connect(self.changed)
+        self.end.textChanged.connect(self.changed)
+
+    def isValid(self):
+        return all([self.markValid(self.start, isFloat(self.start)),
+                    self.markValid(self.end, isFloat(self.end))])
+
+    def generate(self, mode):
+        cmd = 'lubricate_liftingctr'
+        args = [self.start.text(), self.end.text()]
+        if mode == 'simple':
+            return cmd + ' ' + ' '.join(args)
+        return cmd + '(' + ', '.join(args) + ')'
+
+
 class CenterPeak(Cmdlet):
 
     name = 'Center peak'
@@ -105,4 +128,5 @@ class CenterPeak(Cmdlet):
             ', '.join('%s=%r' % i for i in kwargs) + ')'
 
 
+register(Lubrication)
 register(CenterPeak)
