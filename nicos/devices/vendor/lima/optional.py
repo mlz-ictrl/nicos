@@ -54,6 +54,7 @@ class LimaCooler(DeviceMixinBase):
         'cooleron': Param('Cooler enabled',
                           type=bool,
                           default=False,
+                          volatile=True,
                           settable=True),
     }
 

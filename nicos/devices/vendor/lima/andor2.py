@@ -125,7 +125,7 @@ class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
 
     def doStart(self, value):
         if value > -10:
-            self.doWriteCooleron(False)
+            self.cooleron = False
         else:
             self._dev.temperature_sp = value
-            self.doWriteCooleron(True)
+            self.cooleron = True

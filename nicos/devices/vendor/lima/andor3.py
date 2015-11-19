@@ -93,4 +93,4 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
 
     def doStart(self, value):
         self._dev.temperature_sp = value
-        self.doWriteCooleron(True)
+        self.cooleron = True
