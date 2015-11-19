@@ -73,7 +73,7 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'SLITS_R 39 3 1 16 100.0 20 80',
                  ),
-    slits = device('devices.generic.Slit',
+    slits = device('stressi.slit.Slit',
                    description = 'sample slit 4 blades',
                    left = 'slits_l',
                    right = 'slits_r',
