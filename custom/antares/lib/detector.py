@@ -21,8 +21,6 @@
 #
 # *****************************************************************************
 
-import time
-
 from nicos.core import Param, Attach, status, DeviceMixinBase
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD
@@ -60,10 +58,6 @@ class UsesFastshutter(DeviceMixinBase):
                                  ' in error state')
                 fastshutter.reset()
             fastshutter.move('open')
-
-            # wait some time due to a bug in the jcns tango servers
-            # (the moving status isn't set immediately)
-            time.sleep(0.1)
 
 
 class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
