@@ -30,7 +30,7 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    tths = device('nicos.devices.vendor.caress.Motor',
+    tths = device('devices.vendor.caress.Motor',
                   description = 'HWB TTHS',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -41,7 +41,7 @@ devices = dict(
                   config = 'TTHS 114 11 0xf0f1f000 2 20600 5120 32 1 0 0'
                            ' -1 6 1 5000 10 50 0 0',
                  ),
-    omgs = device('nicos.devices.vendor.caress.Motor',
+    omgs = device('devices.vendor.caress.Motor',
                   description = 'HWB OMGS',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -53,7 +53,7 @@ devices = dict(
                   config = 'OMGS 114 11 0xf0f1f000 1 12160 512 32 1 0 0'
                            ' -1 0 1 5000 10 50 0 0',
                  ),
-    xt = device('nicos.devices.vendor.caress.Motor',
+    xt = device('devices.vendor.caress.Motor',
                 description = 'HWB XT',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -65,7 +65,7 @@ devices = dict(
                 config = 'XT 114 11 0x00f1d000 1 8192 10000 1000 2 24 100'
                          ' -1 0 1  5000 1 10 0 0 0'
                ),
-    yt = device('nicos.devices.vendor.caress.Motor',
+    yt = device('devices.vendor.caress.Motor',
                 description = 'HWB YT',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -77,7 +77,7 @@ devices = dict(
                 config = 'YT 114 11 0x00f1d000 3 819 10000 1000 2 24 100'
                          ' -1 0 1 5000 1 10 0 0 0'
                ),
-    zt = device('nicos.devices.vendor.caress.Motor',
+    zt = device('devices.vendor.caress.Motor',
                 description = 'HWB ZT',
                 fmtstr = '%.2f',
                 unit = 'mm',

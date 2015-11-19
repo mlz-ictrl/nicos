@@ -30,7 +30,7 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    pst = device('nicos.devices.vendor.caress.Motor',
+    pst = device('devices.vendor.caress.Motor',
                  description = 'HWB PST',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -41,7 +41,7 @@ devices = dict(
                  config = 'PST 114 11 0x00f1f000 2 2044 500 50 2 24 50 -1 0 1 '
                           '3000 1 10 0 0 0',
                  ),
-    psz = device('nicos.devices.vendor.caress.Motor',
+    psz = device('devices.vendor.caress.Motor',
                  description = 'HWB PSZ',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -52,7 +52,7 @@ devices = dict(
                  config = 'PSZ 114 11 0x00f1f000 1 2044 500 50 2 24 50 -1 0 1 '
                           '3000 1 10 0 0 0',
                  ),
-    psw = device('nicos.devices.vendor.caress.Motor',
+    psw = device('devices.vendor.caress.Motor',
                  description = 'HWB PSW',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -63,7 +63,7 @@ devices = dict(
                  config = 'PSW 114 11 0x00f1c000 4 4096 1000 100 2 24 50 0 0 1'
                           ' 3000 1 10 0 0 0',
                  ),
-    psh = device('nicos.devices.vendor.caress.Motor',
+    psh = device('devices.vendor.caress.Motor',
                  description = 'HWB PSH',
                  fmtstr = '%.2f',
                  unit = 'mm',

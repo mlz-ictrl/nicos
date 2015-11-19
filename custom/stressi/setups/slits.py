@@ -31,7 +31,7 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    slits_u = device('nicos.devices.vendor.caress.Motor',
+    slits_u = device('devices.vendor.caress.Motor',
                  description = 'HWB PST',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -41,7 +41,7 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'SLITS_U 39 3 1 13 100.0 20 80',
                  ),
-    slits_d = device('nicos.devices.vendor.caress.Motor',
+    slits_d = device('devices.vendor.caress.Motor',
                  description = 'HWB PSZ',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -52,7 +52,7 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'SLITS_D 39 3 1 14 -100.0 20 80',
                  ),
-    slits_l = device('nicos.devices.vendor.caress.Motor',
+    slits_l = device('devices.vendor.caress.Motor',
                  description = 'HWB PSW',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -63,7 +63,7 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'SLITS_L 39 3 1 15 -100.0 20 80',
                  ),
-    slits_r = device('nicos.devices.vendor.caress.Motor',
+    slits_r = device('devices.vendor.caress.Motor',
                  description = 'HWB PSH',
                  fmtstr = '%.2f',
                  unit = 'mm',

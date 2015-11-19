@@ -30,7 +30,7 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    omgm = device('nicos.devices.vendor.caress.Motor',
+    omgm = device('devices.vendor.caress.Motor',
                   description = 'HWB OMGM',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -41,7 +41,7 @@ devices = dict(
                   config = 'OMGM 115 11 0xf0f1f000 3 12160 512 32 1 0 0'
                            ' 0 0 1 5000 10 50 0 0',
                  ),
-    transm = device('nicos.devices.vendor.caress.Motor',
+    transm = device('devices.vendor.caress.Motor',
                     description = 'HWB TRANSM',
                     fmtstr = '%.2f',
                     unit = 'mm',
@@ -52,7 +52,7 @@ devices = dict(
                     config = 'TRANSM 115 11 0xf0d1e000 1 4096 512 32 1 0 0'
                              ' 0 0 1 5000 10 50 0 0',
                    ),
-#   tthm = device('nicos.devices.vendor.caress.Motor',
+#   tthm = device('devices.vendor.caress.Motor',
 #                 description = 'virtual HWB TTHM',
 #                 fmtstr = '%.2f',
 #                 unit = 'mm',
