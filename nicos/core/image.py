@@ -361,7 +361,9 @@ class ImageProducer(DeviceMixinBase):
         if not self._saved:
             if image is Ellipsis:
                 image = self.readFinalImage()
-            self.log.debug('saveImage(%20s)' % ('%r' % image))
+            # do expensive debug conversions only if necessary
+            if self.loglevel == 'debug':
+                self.log.debug('saveImage(%20s)' % ('%r' % image))
             if image is not None:
                 for imageinfo in self._imageinfos:
                     imageinfo.imagetype = self.imagetype
