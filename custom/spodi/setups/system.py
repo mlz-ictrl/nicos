@@ -48,7 +48,7 @@ group = 'lowlevel'
 #       'devices.notifiers.Notifier' or a subclass.
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'spodictrl-new.spodi.frm2',
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -63,10 +63,10 @@ modules = ['commands.standard']
 # The parameters are given as keyword arguments.
 devices = dict(
     Spodi = device('devices.instrument.Instrument',
-                      description = 'instrument object',
-                      instrument = 'SPODI',
-                      responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
-                     ),
+                   description = 'instrument object',
+                   instrument = 'SPODI',
+                   responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
+                  ),
 
     Sample   = device('devices.sample.Sample',
                       description = 'The current used sample',

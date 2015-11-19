@@ -6,7 +6,7 @@ group = 'special'
 sysconfig = dict(
     # use only 'localhost' if the cache is really running on the same machine,
     # otherwise use the official computer name
-    cache = 'spodictrl.spodi.frm2'
+    cache = 'spodictrl-new.spodi.frm2'
 )
 
 devices = dict(
