@@ -306,6 +306,9 @@ class Motor(HasOffset, CARESSDevice, BaseMotor):
             if result in [(0, ACTIVE), (0, ACTIVE1)]:
                 raise NicosError(self, 'Could not stop the module')
 
+    def doSetPosition(self, pos):
+        pass
+
 
 class Channel(CARESSDevice, BaseChannel):
 
