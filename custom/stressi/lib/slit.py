@@ -25,7 +25,8 @@
 """Slit device for SPODI/STRESSI with multiplexed motors."""
 
 from nicos.core import MoveError, SIMULATION
-from nicos.devices.generic import Slit as GenericSlit
+from nicos.devices.generic import Slit as GenericSlit, TwoAxisSlit as \
+    GenericTwoAxisSlit
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev
 
 
@@ -70,5 +71,17 @@ class Slit(SequencerMixin, GenericSlit):
         else:
             seq.append(SeqDev(at, tt))
             seq.append(SeqDev(ab, tb * f))
+
+        self._startSequence(seq)
+
+
+class TwoAxisSlit(SequencerMixin, GenericTwoAxisSlit):
+
+    def doStart(self, target):
+        th, tv = target
+
+        seq = []
+        seq.append(SeqDev(self._attached_horizontal, th))
+        seq.append(SeqDev(self._attached_vertical, tv))
 
         self._startSequence(seq)

@@ -109,6 +109,12 @@ devices = dict(
                      config = 'SLITM_H 39 3 1 11 100.0 20 80',
                      # lowlevel = True,
                     ),
+    slitm = device('stressi.slit.TwoAxisSlit',
+                   description = 'Monochromator entry slit',
+                   horizontal = 'slitm_w',
+                   vertical = 'slitm_h',
+                  ),
+
     slite = device('devices.vendor.caress.Motor',
                    description = 'HWB SLITE',
                    fmtstr = '%.2f',
