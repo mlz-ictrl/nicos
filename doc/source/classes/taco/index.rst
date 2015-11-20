@@ -13,7 +13,7 @@ For a description of the TACO system at FRM-II see `this documentation
 <https://forge.frm2.tum.de/wiki/projects:taco:index>`_.
 
 All classes described here are re-exported in the :mod:`nicos.devices.taco` module, so
-for example both ``nicos.devices.taco.AnalogOutput`` and ``nicos.devices.taco.io.AnalogOutput``
+for example both ``devices.taco.AnalogOutput`` and ``devices.taco.io.AnalogOutput``
 are valid entries for the class name in a setup file.
 
 .. toctree::

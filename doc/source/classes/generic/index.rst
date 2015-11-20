@@ -7,8 +7,8 @@ hardware access.  They are generally "superdevices", such as a monochromator
 device that controls a theta and a two-theta angle.
 
 All classes described here are re-exported in the :mod:`nicos.devices.generic`
-module, so for example both ``nicos.devices.generic.Slit`` and
-``nicos.devices.generic.slit.Slit`` are valid entries for the class name in a
+module, so for example both ``devices.generic.Slit`` and
+``devices.generic.slit.Slit`` are valid entries for the class name in a
 setup file.
 
 .. toctree::

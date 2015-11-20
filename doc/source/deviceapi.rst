@@ -101,8 +101,8 @@ possible with the device:
       For example::
 
          attached_devices = {
-             'motor': Attach('the motor to move', nicos.devices.abstract.Motor),
-             'coder': Attach('The coder for reading position', nicos.devices.abstract.Coder),
+             'motor': Attach('the motor to move', devices.abstract.Motor),
+             'coder': Attach('The coder for reading position', devices.abstract.Coder),
          }
 
       The actual attached devices for a specific instance (given in the

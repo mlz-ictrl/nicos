@@ -88,22 +88,22 @@ include the management of
    .. attribute:: instrument
 
       The instrument device configured for the current setup.  An instance of (a
-      subclass of) `nicos.devices.instrument.Instrument`.
+      subclass of) `devices.instrument.Instrument`.
 
    .. attribute:: experiment
 
       The experiment device configured for the current setup.  An instance of (a
-      subclass of) `nicos.devices.experiment.Experiment`.
+      subclass of) `devices.experiment.Experiment`.
 
    .. attribute:: notifiers
 
       The notifier devices configured for the current setup.  A list of
-      instances of `nicos.devices.notifiers.Notifier`.
+      instances of `devices.notifiers.Notifier`.
 
    .. attribute:: datasinks
 
       The data sinks configured for the current setup.  A list of instances of
-      `nicos.devices.datasinks.DataSink`.
+      `devices.datasinks.DataSink`.
 
 
    **Notification support**
