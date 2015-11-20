@@ -778,16 +778,11 @@ class Experiment(Device):
     #
     def getTemplate(self, tmplname):
         """returns the content of the requested template"""
-        try:
-            for tmpldir in self.templatepath:
-                if path.isfile(path.join(tmpldir, tmplname)):
-                    with open(path.join(tmpldir, tmplname), 'r') as f:
-                        return f.read()
-            raise RuntimeError('no such template found')
-        except Exception as e:
-            self.log.error(self, 'Can\'t read template %r (%s), please '
-                           'check settings' % (tmplname, e))
-            raise
+        for tmpldir in self.templatepath:
+            if path.isfile(path.join(tmpldir, tmplname)):
+                with open(path.join(tmpldir, tmplname), 'r') as f:
+                    return f.read()
+        raise IOError('no such template found')
 
     def iterTemplates(self, only_dot_template=True):
         """iterator of all templates (and their content)..."""
