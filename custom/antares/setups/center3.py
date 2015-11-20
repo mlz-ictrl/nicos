@@ -2,7 +2,7 @@ description = 'Helium pressures'
 
 group = 'optional'
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     center3_sens1 = device('devices.taco.AnalogInput',
@@ -17,7 +17,7 @@ devices = dict(
                           ),
     He_pressure = device('devices.tango.AnalogInput',
                          description = 'Pressure of He bottle',
-                         tangodevice = '%s/antares/FZJDP_Analog/Druckgeber' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_analog/Druckgeber',
                          unit = 'bar',
                         ),
 )

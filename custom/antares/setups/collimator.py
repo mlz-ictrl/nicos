@@ -6,13 +6,13 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     # Collimator
     collimator_io = device('devices.tango.DigitalOutput',
                            description = 'Tango device for Collimator',
-                           tangodevice = '%s/antares/fzjdp_digital/Collimator' % tango_host,
+                           tangodevice = tango_base + 'fzjdp_digital/Collimator',
                            lowlevel = True,
                           ),
     collimator = device('devices.generic.Switcher',

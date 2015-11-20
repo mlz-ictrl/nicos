@@ -6,40 +6,40 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
 
     # power sockets / Steckdosen
     # FlexOutput = device('antares.DigitalOutput',
                         # description = '16bit Flex Output',
-                        # tangodevice = '%s/antares/FZJDP_Digital/FlexOutput' % tango_host,
+                        # tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
                        # ),
     # FlexInput = device('antares.DigitalInput',
                        # description = '16bit Flex Input',
-                       # tangodevice = '%s/antares/FZJDP_Digital/FlexInput' % tango_host,
+                       # tangodevice = tango_base + 'fzjdp_digital/FlexInput',
                       # ),
-    FlexOut01 = device('antares.partialdio.PartialDigitalOutput',
+    FlexOut01  = device('antares.partialdio.PartialDigitalOutput',
                         description = '16bit Flex Output',
-                        tangodevice = '%s/antares/FZJDP_Digital/FlexOutput' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
                         startbit = 0,
                         bitwidth = 1,
                        ),
-    FlexOut02 = device('antares.partialdio.PartialDigitalOutput',
+    FlexOut02  = device('antares.partialdio.PartialDigitalOutput',
                         description = '16bit Flex Output',
-                        tangodevice = '%s/antares/FZJDP_Digital/FlexOutput' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
                         startbit = 1,
                         bitwidth = 1,
                        ),
-    FlexOut03 = device('antares.partialdio.PartialDigitalOutput',
+    FlexOut03  = device('antares.partialdio.PartialDigitalOutput',
                         description = '16bit Flex Output',
-                        tangodevice = '%s/antares/FZJDP_Digital/FlexOutput' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
                         startbit = 2,
                         bitwidth = 1,
                        ),
-    FlexOut04 = device('antares.partialdio.PartialDigitalOutput',
+    FlexOut04  = device('antares.partialdio.PartialDigitalOutput',
                         description = '16bit Flex Output',
-                        tangodevice = '%s/antares/FZJDP_Digital/FlexOutput' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
                         startbit = 3,
                         bitwidth = 1,
                        ),

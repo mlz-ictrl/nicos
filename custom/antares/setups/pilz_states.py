@@ -5,13 +5,12 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     emergency_io = device('devices.tango.DigitalInput',
                           description = 'Tango device for Emergency readout',
-                          tangodevice = '%s/antares/FZJDP_Digital/PilzEmergencyStop'
-                              % tango_host,
+                          tangodevice = tango_base + 'fzjdp_digital/PilzEmergencyStop',
                           lowlevel = True,
                          ),
     emergency = device('devices.generic.ReadonlySwitcher',
@@ -28,8 +27,7 @@ devices = dict(
     # searchbuttons
     tourbutton1_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton1',
-                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton1'
-                                % tango_host,
+                            tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton1',
                             lowlevel = True,
                            ),
     tourbutton1 = device('devices.generic.ReadonlySwitcher',
@@ -41,8 +39,7 @@ devices = dict(
 
     tourbutton2_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton2',
-                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton2'
-                                % tango_host,
+                            tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton2',
                             lowlevel = True,
                            ),
     tourbutton2 = device('devices.generic.ReadonlySwitcher',
@@ -54,8 +51,7 @@ devices = dict(
 
     tourbutton3_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton3',
-                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton3'
-                                % tango_host,
+                            tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton3',
                             lowlevel = True,
                            ),
     tourbutton3 = device('devices.generic.ReadonlySwitcher',
@@ -68,8 +64,7 @@ devices = dict(
     # door state
     door_rot_io = device('devices.tango.DigitalInput',
                          description = 'Tango device for Rotating door',
-                         tangodevice = '%s/antares/FZJDP_Digital/PilzDoorRot'
-                             % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/PilzDoorRot',
                          lowlevel = True,
                         ),
     door_rot = device('devices.generic.ReadonlySwitcher',
@@ -81,8 +76,7 @@ devices = dict(
 
     door_slide_io = device('devices.tango.DigitalInput',
                            description = 'Tango device for Sliding door',
-                           tangodevice = '%s/antares/FZJDP_Digital/PilzDoorSlide'
-                               % tango_host,
+                           tangodevice = tango_base + 'fzjdp_digital/PilzDoorSlide',
                            lowlevel = True,
                           ),
     door_slide = device('devices.generic.ReadonlySwitcher',
@@ -94,8 +88,7 @@ devices = dict(
 
     pilz_state_io = device('devices.tango.DigitalInput',
                            description = 'Tango device for Pilz state',
-                           tangodevice = '%s/antares/FZJDP_Digital/PilzFailure'
-                               % tango_host,
+                           tangodevice = tango_base + 'fzjdp_digital/PilzFailure',
                            lowlevel = True,
                           ),
     pilz_state = device('devices.generic.ReadonlySwitcher',

@@ -1,6 +1,6 @@
 description = 'setup for the velocity selector'
 
-jcns_tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     selector_state = device('devices.vendor.astrium.SelectorState',
@@ -99,7 +99,7 @@ devices = dict(
     selector_linear = device('devices.tango.Motor',
                       description = 'Selector translation',
                       unit = 'mm',
-                      tangodevice = '%s/antares/fzjs7/Selektor_linear' % jcns_tango_host,
+                      tangodevice = tango_base + 'fzjs7/Selektor_linear',
                       lowlevel = True,
                      ),
     selector_inout = device('devices.generic.Switcher',

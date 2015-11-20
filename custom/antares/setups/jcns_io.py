@@ -6,13 +6,13 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     # MonoSwitch
     monoswitch_io = device('devices.tango.DigitalOutput',
                            description = 'Tango device for Monoswitch in/out',
-                           tangodevice = '%s/antares/fzjdp_digital/Monochromator' % tango_host,
+                           tangodevice = tango_base + 'fzjdp_digital/Monochromator',
                            lowlevel = True,
                           ),
     monoswitch = device('devices.generic.Switcher',

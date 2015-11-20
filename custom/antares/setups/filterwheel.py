@@ -6,13 +6,13 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     # PB-Filter
     pbfilter_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Pb filter in/out',
-                         tangodevice = '%s/antares/fzjdp_digital/FilterPb' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/FilterPb',
                          lowlevel = True,
                         ),
     pbfilter = device('devices.generic.Switcher',
@@ -26,7 +26,7 @@ devices = dict(
     # Filter Wheel
     filterwheel_inout_io = device('devices.tango.DigitalOutput',
                                   description = 'Tango device for filter wheel in/out',
-                                  tangodevice = '%s/antares/fzjdp_digital/FilterWheel' % tango_host,
+                                  tangodevice = tango_base + 'fzjdp_digital/FilterWheel',
                                   lowlevel = True,
                                  ),
     filterwheel_inout = device('devices.generic.Switcher',
@@ -38,7 +38,7 @@ devices = dict(
                                lowlevel = True,
                               ),
     filterwheel_mot = device('devices.tango.Motor',
-                             tangodevice = '%s/antares/fzjs7/Filterrad' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Filterrad',
                              precision = 0.,
                              lowlevel = True,
                             ),

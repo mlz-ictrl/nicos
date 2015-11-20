@@ -6,26 +6,26 @@ group = 'optional'
 
 includes = ['jcns_io']
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     cryo_vertical = device('devices.tango.Motor',
                            description = 'Flex Achse 1',
-                           tangodevice = '%s/antares/fzjs7/Flex_Achse_1' % tango_host,
+                           tangodevice = tango_base + 'fzjs7/Flex_Achse_1',
                            abslimits = (-500000, 500000),
                            unit = 'microsteps',
                           ),
 
     cryo_horizontal = device('devices.tango.Motor',
                              description = 'Flex Achse 2',
-                             tangodevice = '%s/antares/fzjs7/Flex_Achse_2' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Flex_Achse_2',
                              abslimits = (-500000, 500000),
                              unit = 'microsteps',
                             ),
 
     cryo_rotation = device('devices.tango.Motor',
                            description = 'Flex Achse 3',
-                           tangodevice = '%s/antares/fzjs7/Flex_Achse_3' % tango_host,
+                           tangodevice = tango_base + 'fzjs7/Flex_Achse_3',
                            abslimits = (0, 360),
                            unit = 'deg',
                           ),
@@ -33,17 +33,17 @@ devices = dict(
     # monochromator. monoswitch is defined in jcns_io.py
     mono_linear = device('devices.tango.Motor',
                          description = 'Monochromator translation',
-                         tangodevice = '%s/antares/fzjs7/Mono_linear' % tango_host,
+                         tangodevice = tango_base + 'fzjs7/Mono_linear',
                         ),
 
     mono_phi1 = device('devices.tango.Motor',
                        description = 'Monochromator 1 rotation',
-                       tangodevice = '%s/antares/fzjs7/Mono_phi1' % tango_host,
+                       tangodevice = tango_base + 'fzjs7/Mono_phi1',
                       ),
 
     mono_phi2 = device('devices.tango.Motor',
                        description = 'Monochromator 2 rotation',
-                       tangodevice = '%s/antares/fzjs7/Mono_phi2' % tango_host,
+                       tangodevice = tango_base + 'fzjs7/Mono_phi2',
                       ),
 
     mono = device('antares.monochromator.Monochromator',
@@ -69,27 +69,27 @@ devices = dict(
 
     periscope_linear = device('devices.tango.Motor',
                               description = 'Periscope linear motion',
-                              tangodevice = '%s/antares/fzjs7/Periskop_linear' % tango_host,
+                              tangodevice = tango_base + 'fzjs7/Periskop_linear',
                              ),
 
     periscope_rot_1 = device('devices.tango.Motor',
                              description = 'Periscope rotation 1',
-                             tangodevice = '%s/antares/fzjs7/Periskop_rot_1' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Periskop_rot_1',
                             ),
 
     periscope_rot_2 = device('devices.tango.Motor',
                              description = 'Periscope rotation 2',
-                             tangodevice = '%s/antares/fzjs7/Periskop_rot_2' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Periskop_rot_2',
                             ),
 
     selector_linear = device('devices.tango.Motor',
                              description = 'Selector translation',
-                             tangodevice = '%s/antares/fzjs7/Selektor_linear' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Selektor_linear',
                             ),
 
     # filterwheel. filterwheel_inout is defined in jcns_io.py
     filterwheel_mot = device('devices.tango.Motor',
-                             tangodevice = '%s/antares/fzjs7/Filterrad' % tango_host,
+                             tangodevice = tango_base + 'fzjs7/Filterrad',
                              precision = 0.,
                              lowlevel = True,
                             ),

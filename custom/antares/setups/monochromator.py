@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = []
 
-jcns_tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     mono = device('antares.monochromator.Monochromator',
@@ -62,7 +62,7 @@ devices = dict(
 
     mono_io = device('devices.tango.DigitalOutput',
                      description = 'Moves Monochromator in and out of beam',
-                     tangodevice = '%s/antares/fzjdp_digital/Monochromator' % jcns_tango_host,
+                     tangodevice = tango_base + 'fzjdp_digital/Monochromator',
                      unit = '',
                      maxage = 5,
                      pollinterval = 3,

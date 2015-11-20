@@ -6,14 +6,14 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
 
     # power sockets / Steckdosen
     socket01_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 01',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket01' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket01',
                          lowlevel = True,
                         ),
     socket01 = device('devices.generic.Switcher',
@@ -25,7 +25,7 @@ devices = dict(
 
     socket02_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 02',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket02' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket02',
                          lowlevel = True,
                         ),
     socket02 = device('devices.generic.Switcher',
@@ -37,7 +37,7 @@ devices = dict(
 
     socket03_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 03',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket03' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket03',
                          lowlevel = True,
                         ),
     socket03 = device('devices.generic.Switcher',
@@ -49,7 +49,7 @@ devices = dict(
 
     socket04_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 04',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket04' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket04',
                          lowlevel = True,
                         ),
     socket04 = device('devices.generic.Switcher',
@@ -61,7 +61,7 @@ devices = dict(
 
     socket05_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 05',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket05' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket05',
                          lowlevel = True,
                         ),
     socket05 = device('devices.generic.Switcher',
@@ -73,7 +73,7 @@ devices = dict(
 
     socket06_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 06',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket06' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket06',
                          lowlevel = True,
                         ),
     socket06 = device('devices.generic.Switcher',
@@ -85,7 +85,7 @@ devices = dict(
 
     socket07_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 07',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket07' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket07',
                          lowlevel = True,
                         ),
     socket07 = device('devices.generic.Switcher',
@@ -97,7 +97,7 @@ devices = dict(
 
     socket08_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 08',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket08' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket08',
                          lowlevel = True,
                         ),
     socket08 = device('devices.generic.Switcher',
@@ -109,7 +109,7 @@ devices = dict(
 
     socket09_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 09',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket09' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket09',
                          lowlevel = True,
                         ),
     socket09 = device('devices.generic.Switcher',
@@ -121,7 +121,7 @@ devices = dict(
 
     socket10_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 10',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket10' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket10',
                          lowlevel = True,
                         ),
     socket10 = device('devices.generic.Switcher',
@@ -133,7 +133,7 @@ devices = dict(
 
     socket11_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 11',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket11' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket11',
                          lowlevel = True,
                         ),
     socket11 = device('devices.generic.Switcher',
@@ -145,7 +145,7 @@ devices = dict(
 
     socket12_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 12',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket12' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket12',
                          lowlevel = True,
                         ),
     socket12 = device('devices.generic.Switcher',
@@ -157,7 +157,7 @@ devices = dict(
 
     socket13_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 13',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket13' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket13',
                          lowlevel = True,
                         ),
     socket13 = device('devices.generic.Switcher',
@@ -169,7 +169,7 @@ devices = dict(
 
     socket14_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 14',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket14' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket14',
                          lowlevel = True,
                         ),
     socket14 = device('devices.generic.Switcher',
@@ -181,7 +181,7 @@ devices = dict(
 
     socket15_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Powersocket 15',
-                         tangodevice = '%s/antares/fzjdp_digital/Socket15' % tango_host,
+                         tangodevice = tango_base + 'fzjdp_digital/Socket15',
                          lowlevel = True,
                         ),
     socket15 = device('devices.generic.Switcher',

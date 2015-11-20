@@ -6,12 +6,12 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://slow.antares.frm2:10000'
+tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
 devices = dict(
     cty = device('devices.tango.Motor',
                  description = 'Flex Achse 1',
-                 tangodevice = '%s/antares/fzjs7/Flex_Achse_1' % tango_host,
+                 tangodevice = tango_base + 'fzjs7/Flex_Achse_1',
                  abslimits = (-0, 450),
                  userlimits = (-0, 40),
                  unit = 'mm',
@@ -19,7 +19,7 @@ devices = dict(
 
     ctx = device('devices.tango.Motor',
                  description = 'Flex Achse 2',
-                 tangodevice = '%s/antares/fzjs7/Flex_Achse_2' % tango_host,
+                 tangodevice = tango_base + 'fzjs7/Flex_Achse_2',
                  abslimits = (-0, 330),
                  userlimits = (-0, 330),
                  unit = 'mm',
@@ -27,7 +27,7 @@ devices = dict(
 
     cry = device('devices.tango.Motor',
                  description = 'Flex Achse 3',
-                 tangodevice = '%s/antares/fzjs7/Flex_Achse_3' % tango_host,
+                 tangodevice = tango_base + 'fzjs7/Flex_Achse_3',
                  abslimits = (0, 360),
                  unit = 'deg',
                 ),
