@@ -80,6 +80,9 @@ class ExpPanel(Panel, DlgUtils):
             'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
         self._orig_email = sum(emails, [])
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
+        propinfo = self.client.eval('session.experiment.propinfo')
+        self._orig_datamails = propinfo.get("user_email", [])
+        self.dataEmails.setPlainText(decodeAny('\n'.join(self._orig_datamails)))
 
     def on_client_connected(self):
         # fill proposal
@@ -120,9 +123,12 @@ class ExpPanel(Panel, DlgUtils):
             QMessageBox.critical(self, 'Error', 'The local contact entry is not'
                                  ' a valid email address')
             raise ConfigurationError('')
-        emails = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
+        emails = self.notifEmails.toPlainText().encode('utf-8').strip()
+        emails = emails.split(b'\n') if emails else []
+        dataEmails = self.dataEmails.toPlainText().encode('utf-8').strip()
+        dataEmails = dataEmails.split(b'\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
-        return prop, title, users, local, emails, errorbehavior
+        return prop, title, users, local, emails, dataEmails, errorbehavior
 
     @qtsig('')
     def on_finishButton_clicked(self):
@@ -131,7 +137,8 @@ class ExpPanel(Panel, DlgUtils):
     @qtsig('')
     def on_queryDBButton_clicked(self):
         try:
-            prop, title, users, _, emails, _ = self._getProposalInput()
+            prop, title, users, _, emails, dataEmails, \
+            _ =  self._getProposalInput()
         except ConfigurationError:
             return
         sample = self.sampleName.text().encode('utf-8')
@@ -156,6 +163,7 @@ class ExpPanel(Panel, DlgUtils):
                 self.sampleName.setText(decodeAny(result.get('sample', sample)))
                 self.notifEmails.setPlainText(
                     decodeAny(result.get('user_email', emails)))
+                self.dataEmails.setPlainText(decodeAny(dataEmails))
                 # check permissions:
                 failed = []
                 if result.get('permission_security', 'no') != 'yes':
@@ -193,7 +201,8 @@ class ExpPanel(Panel, DlgUtils):
 
         # proposal settings
         try:
-            prop, title, users, local, email, errorbehavior = self._getProposalInput()
+            prop, title, users, local, email, dataEmails, errorbehavior = \
+                self._getProposalInput()
         except ConfigurationError:
             return
         email = [_f for _f in email if _f]  # remove empty lines
@@ -236,6 +245,10 @@ class ExpPanel(Panel, DlgUtils):
         if email != self._orig_email:
             self.client.run('SetMailReceivers(%s)' % ', '.join(map(repr, email)))
             done.append('New mail receivers set.')
+        if dataEmails != self._orig_datamails:
+            self.client.run('SetDataReceivers(%s)' %
+                            ', '.join(map(repr, dataEmails)))
+            done.append('New data mail receivers set.')
         if errorbehavior != self._orig_proposal_info[5]:
             self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
             done.append('New error behavior set.')
