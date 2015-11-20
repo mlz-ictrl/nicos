@@ -728,11 +728,13 @@ class Experiment(Device):
                 receivers = None
                 if self.sendmail:
                     if args:
-                        receivers = args[0]
+                        receivers = args
                     else:
                         receivers = self.propinfo.get('user_email', receivers)
                     receivers = kwds.get('receivers', kwds.get('email',
                                                                receivers))
+                    if isinstance(receivers, string_types):  # convert to list
+                        receivers = [receivers]
                 if self.zipdata or self.sendmail:
                     pzip = path.join(self.proposalpath, '..', self.proposal +
                                      '.zip')
@@ -903,8 +905,11 @@ class Experiment(Device):
             raise NicosError('%s.mailserver parameter is not set' % self)
         if not self.mailsender:
             raise NicosError('%s.mailsender parameter is not set' % self)
-        if '@' not in receivers:
-            raise NicosError('need full email address(es) (\'@\' missing!)')
+        for email in receivers:
+            try:
+                mailaddress(email)
+            except ValueError:
+                raise NicosError('need valid email address(es)')
 
         # read and translate mailbody template
         self.log.debug('looking for template in %r' % self.templatepath)
