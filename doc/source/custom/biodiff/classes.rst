@@ -13,10 +13,6 @@ Instrument specific devices
 
 .. autoclass:: MicrostepMotor()
 
-.. automodule:: nicos.biodiff.shutter
-
-.. autoclass:: Shutter()
-
 .. automodule:: nicos.biodiff.tiff
 
 .. autoclass:: TIFFFileFormat()

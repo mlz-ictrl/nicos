@@ -134,8 +134,8 @@ class Sans1ColliCoder(TacoDevice, Coder):
         'address'    : Param('Starting offset of Motor control Block in words',
                              type=int, mandatory=True, settable=False,
                              userparam=False),
-        'slope'      : Param('Slope of the Coder in _FULL_ steps per _physical '
-                             'unit_', type=float, default=1000000., unit='steps/main',
+        'slope'      : Param('Slope of the Coder in FULL steps per physical '
+                             'unit', type=float, default=1000000., unit='steps/main',
                              userparam=False, settable=False),
         'zeropos'    : Param('Value of the Coder when at physical zero',
                              type=float, userparam=False, settable=False, unit='main'),
@@ -187,8 +187,8 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         'address'    : Param('Starting offset of Motor control Block in words',
                              type=int, mandatory=True, settable=False,
                              userparam=False),
-        'slope'      : Param('Slope of the Motor in _FULL_ steps per _physical '
-                             'unit_', type=float, default=1., unit='steps/main',
+        'slope'      : Param('Slope of the Motor in FULL steps per physical '
+                             'unit', type=float, default=1., unit='steps/main',
                              userparam=False, settable=True),
         'microsteps' : Param('Microstepping for the motor',
                              type=oneof(1, 2, 4, 8, 16, 32, 64), default=1,

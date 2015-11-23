@@ -65,9 +65,8 @@ Each :class:`SequenceItem` needs to define the following methods:
 * :meth:`SequenceItem.run` This is intended to initiate the action (start a device, call a
   function, ....)
 
-* :meth:`SequenceItem.wait` This waits until the action is completed and returns ``True``.
-  It may return ``False`` for actions which can be polled. In that case it is
-  called (after a small delay) again, until it returns ``True``.
+* :meth:`SequenceItem.isCompleted` This checks if the action is completed and
+  returns a bool.
 
 * :meth:`SequenceItem.stop` This is intended to stop the action. Normally only called, if the
   :class:`Device` derived from the Sequencer got a ``stop``.
@@ -89,7 +88,7 @@ The result is used to create the status string.
   .. automethod:: run
   .. automethod:: retry
   .. automethod:: stop
-  .. automethod:: wait
+  .. automethod:: isCompleted
 
 .. autoclass:: SeqDev
 .. autoclass:: SeqParam

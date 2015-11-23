@@ -1,7 +1,7 @@
 Detector
 --------
 
-.. automodule:: nicos.antares.ikonl
+.. automodule:: nicos.antares.detector
     :members:
     :undoc-members:
 

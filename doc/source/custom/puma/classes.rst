@@ -35,10 +35,6 @@ Instrument specific devices
 
 .. autoclass:: Mchanger()
 
-.. automodule:: nicos.puma.mtt_coder
-
-.. autoclass:: SpecialCoder()
-
 .. automodule:: nicos.puma.mtt
 
 .. autoclass:: MTT_Axis()

@@ -19,7 +19,6 @@ FRMII specific classes
 .. automodule:: nicos.frm2.magnet
 
 .. autoclass:: GarfieldMagnet()
-.. autoclass:: MiraMagnet()
 
 .. automodule:: nicos.frm2.newport
 

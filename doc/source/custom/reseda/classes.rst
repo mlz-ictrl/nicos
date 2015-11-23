@@ -10,12 +10,12 @@ Instrument specific devices
 
 .. autoclass:: Frequencies()
 
-.. automodule:: nicos.reseda.powerSupply
+.. automodule:: nicos.reseda.powersupply
 
 .. autoclass:: PowerSupplyU()
 .. autoclass:: PowerSupplyA()
 
-.. automodule:: nicos.reseda.scatteringVector
+.. automodule:: nicos.reseda.scatteringvector
 
 .. autoclass:: ScatteringVector()
 

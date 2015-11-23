@@ -5,15 +5,8 @@ Instrument specific devices
 .. autoclass:: FlipperPresets()
 .. autoclass:: TofDetector()
 
-.. automodule:: nicos.dns.DNSFileFormat
+.. automodule:: nicos.dns.dnsfileformat
 .. autoclass:: DNSFileFormat()
-
-.. automodule:: nicos.dns.shutter
-.. autoclass:: Shutter()
-
-.. automodule:: nicos.dns.slit
-.. autoclass:: PosOpeningSlit()
 
 .. automodule:: nicos.dns.toellner
 .. autoclass:: Toellner()
-.. autoclass:: CurrentToellner()

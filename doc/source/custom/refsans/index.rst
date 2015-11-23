@@ -10,6 +10,7 @@ Instrument setups
     :glob:
 
     setups/*
+    setups/nok/*
 
 Service setups
 ==============
