@@ -196,11 +196,6 @@ class SetupChecker(object):
                                    extra=self.find_deventry(devname, aname))
                 if aname in config:
                     del config[aname]
-                else:
-                    if ainfo.optional:
-                        continue
-                    self.log_error('%s: attached device %r missing', devname,
-                                   aname, extra=self.find_deventry(devname))
 
         # check missing and unsupported parameter config entries
         if not hasattr(cls, 'parameters'):
