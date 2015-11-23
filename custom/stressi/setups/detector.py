@@ -2,7 +2,7 @@ description = 'Detector CARESS HWB Devices'
 
 group = 'lowlevel'
 
-servername = 'VME'
+servername = 'STRESSICTRL'
 
 nameservice = 'stressictrl'
 
@@ -29,22 +29,34 @@ nameservice = 'stressictrl'
 # CHIR=(-180,180) PHIR=(-720,720) XR=(-2000,2000) YR=(-2000,2000) ZR=(-2000,2000)
 
 
+# ;MESYTEC PSD histogram (2D)
+# ;name   kind    bus     		  ignore  	  ignore  xchan   ychan   yheight(mm)
+# ;LDET   500     qmesydaq.caress_object  diffractogram   0       256     80
+# ;LDET   500     qmesydaq.caress_object  spectrogram     0       80      all
+# ADET    500     qmesydaq.caress_object  histogram       0       256     256
+# ;ADET   500     qmesydaq.caress_object  histogram       0       1024    1024
+# MON     500     qmesydaq.caress_object  monitor1
+# ;MON2   500     qmesydaq.caress_object  monitor2
+# ;                                               Hz
+# TIM1    500     qmesydaq.caress_object  timer   1
+# ;EVENT  500     qmesydaq.caress_object  event
+
 devices = dict(
-#   mon = device('devices.vendor.caress.Counter',
-#                description = 'HWB MON',
-#                fmtstr = '%d',
-#                nameserver = '%s' % (nameservice,),
-#                objname = '%s' % (servername),
-#                config = 'MON 116 11 0x1000000 1',
-#               ),
-#   tim1 = device('devices.vendor.caress.Timer',
-#                 description = 'HWB TIM1',
-#                 fmtstr = '%.2f',
-#                 unit = 's',
-#                 nameserver = '%s' % (nameservice,),
-#                 objname = '%s' % (servername),
-#                 config = 'TIM1 116 11 0x1000000 2',
-#                ),
+    mon = device('devices.vendor.caress.Counter',
+                 description = 'HWB MON',
+                 fmtstr = '%d',
+                 nameserver = '%s' % (nameservice,),
+                 objname = '%s' % (servername),
+                 config = 'MON 500 qmesydaq.caress_object monitor1',
+                ),
+    tim1 = device('devices.vendor.caress.Timer',
+                  description = 'HWB TIM1',
+                  fmtstr = '%.2f',
+                  unit = 's',
+                  nameserver = '%s' % (nameservice,),
+                  objname = '%s' % (servername),
+                  config = 'TIM1 500 qmesydaq.caress_object timer 1',
+                 ),
 #   tim2 = device('devices.vendor.caress.Timer',
 #                 description = 'HWB TIM2',
 #                 fmtstr = '%.2f',
@@ -54,12 +66,16 @@ devices = dict(
 #                 config = 'TIM2 116 11 0x1000000 3',
 #                ),
 #   adet = device('devices.vendor.caress.MultiChannelDetector',
-#                 description = 'Classical detector with single channels',
+#                 description = 'HWB ADET',
 #                 timer = 'tim1',
 #                 monitors = ['mon'],
 #                 counters = ['tim2'],
 #                 maxage = 3,
 #                 pollinterval = 0.5,
+#                 nameserver = '%s' % (nameservice,),
+#                 objname = '%s' % (servername),
+#                 config = 'ADET 500 qmesydaq.caress_object histogram 0 256 '
+#                          '256',
 #                ),
     ysd = device('devices.generic.ManualMove',
                  description = 'Distance detector to sample',
