@@ -61,7 +61,7 @@ __all__ = [
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
-    'notify', 'SetMailReceivers', '_trace', 'timer',
+    'notify', 'SetMailReceivers', 'SetDataReceivers', '_trace', 'timer',
     'LogEntry', '_LogAttach', 'SetErrorAbort',
 ]
 
@@ -830,6 +830,34 @@ def SetMailReceivers(*emails):
                 printinfo('no email notifications will be sent')
             return
     printwarning('email notification is not configured in this setup')
+
+
+@usercommand
+@helparglist('email, ...')
+@parallel_safe
+def SetDataReceivers(*emails):
+    """Set a list of email addresses for data retrieval.
+
+    These addresses will get an email after `FinishExperiment()` with
+    their experimental data.
+
+    Example:
+
+    >>> SetDataReceivers('pi@example.com', 'user@example.com')
+    """
+    exp = session.experiment
+    if not exp.mailserver or not exp.mailsender:
+        printwarning('experimental data retrieval has not been configured '
+                     'in this setup')
+    else:
+        propinfo = dict(exp.propinfo)
+        propinfo['user_email'] = list(emails)
+        exp._setROParam('propinfo', propinfo)
+        if emails:
+            printinfo('data retrieval email will be sent to '
+                      ', '.join(emails))
+        else:
+            printinfo('no data retrieval emails will be sent')
 
 
 @usercommand

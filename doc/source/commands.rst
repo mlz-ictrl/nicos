@@ -65,6 +65,7 @@ Notification commands
 
 .. autofunction:: notify
 .. autofunction:: SetMailReceivers
+.. autofunction:: SetDataReceivers
 
 Miscellaneous commands
 ----------------------

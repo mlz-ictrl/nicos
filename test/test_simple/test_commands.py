@@ -46,7 +46,7 @@ from nicos.commands.basic import ListCommands, sleep, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
     NewExperiment, FinishExperiment, AddUser, NewSample, \
     Remark, SetMode, ClearCache, UserInfo, run, \
-    notify, SetMailReceivers
+    notify, SetMailReceivers, SetDataReceivers
 from nicos.commands.output import printdebug, printinfo, printwarning, \
     printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
@@ -278,11 +278,13 @@ def test_commands_elog():
 
 def test_notifiers():
     notifier = session.getDevice('testnotifier')
+    exp = session.getDevice('Exp')
 
     notifier.reset()
     assert notifier.receivers == []
-    SetMailReceivers('receiver@example.com')
-    assert notifier.receivers == ['receiver@example.com']
+    receiver = 'receiver@example.com'
+    SetMailReceivers(receiver)
+    assert notifier.receivers == [receiver]
 
     notifier.clear()
     notify('something\nimportant')
@@ -294,3 +296,12 @@ def test_notifiers():
     assert notifier._messages == [('subject', 'body', None, None, False)]
 
     assert raises(UsageError, notify, 'lots', 'of', 'args')
+
+    # store current state
+    msrv, msend = exp.mailserver, exp.mailsender
+    exp.mailserver = 'localhost'
+    exp.mailsender = 'noreply@example.com'
+    SetDataReceivers(receiver)
+    # restore previous state
+    exp.mailserver, exp.mailsender = msrv, msend
+    assert exp.propinfo['user_email'] == [receiver]
