@@ -162,14 +162,19 @@ class CARESSDevice(DeviceMixinBase):
         self._cid = self._getCID(self.config.split(' ', 2)[0])
 
     def _init(self):
-        res = self._caressObject.init_module(INIT_CONNECT, self._cid,
-                                             self.config)
+        if self._device_kind() == CORBA_DEVICE:
+            res = self._caressObject.init_module(INIT_NORMAL, self._cid,
+                                                 self.config)
+        else:
+            res = self._caressObject.init_module(INIT_CONNECT, self._cid,
+                                                 self.config)
         self.log.debug('Init module (Connect): %r' % (res,))
         if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
             res = self._caressObject.init_module(INIT_REINIT, self._cid,
                                                  self.config)
             self.log.debug('Init module (Re-Init): %r' % (res,))
             if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
+                self.log.error('Init module (Re-Init): %r' % (res,))
                 raise NicosError(self, 'Could not initialize module!')
         self._initialized = True
 
@@ -187,11 +192,11 @@ class CARESSDevice(DeviceMixinBase):
 
     def _read(self):
         if hasattr(self._caressObject, 'read_module'):
-            result = self._caressObject.read_module(0x80000000, self._cid)
-            self.log.debug('read_module: %r' % (result,))
+            # result = self._caressObject.read_module(0x80000000, self._cid)
+            result = self._caressObject.read_module(0, self._cid)
             if result[0] != CARESS.OK:
                 raise CommunicationError(self, 'Could not read the CARESS module')
-            return result[1:]._v
+            return (result[1], result[2].l,)
         else:
             _ = ()
             result = self._caressObject.read_module_orb(0, self._cid, _)
@@ -439,7 +444,7 @@ class Timer(Channel):
         Channel.doInit(self, mode)
 
     def doRead(self, maxage=0):
-        return self._read()[1] / 100.
+        return self._read()[1] / 500.
 
     def valueInfo(self):
         return Value(self.name, unit='s', type='time', fmtstr='%.2f', ),
