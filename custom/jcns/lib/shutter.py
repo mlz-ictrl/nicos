@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 from nicos.devices.tango import NamedDigitalOutput
-from nicos.core.params import Param, oneof
+from nicos.core.params import Param
 
 
 class Shutter(NamedDigitalOutput):
@@ -34,7 +34,7 @@ class Shutter(NamedDigitalOutput):
     (emergency) stops please use `NamedDigitalOutput`."""
 
     parameters = {
-        'stoptarget': Param('Target position on Stop', type=oneof(int, str),
+        'stoptarget': Param('Target position on Stop', type=str,
                             default='close', userparam=False)
     }
 
