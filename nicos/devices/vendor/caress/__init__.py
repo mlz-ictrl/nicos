@@ -55,24 +55,28 @@ from nicos.utils import readFileCounter, updateFileCounter
 
 CORBA_DEVICE = 500
 
-LOADMASTER  = 14
-LOADSLAVE   = 15
+LOADMASTER = 14
+LOADSLAVE = 15
 RESETMODULE = 16
 SPECIALLOAD = 18
 
-NOT_ACTIVE   = 1
-ACTIVE       = 2
-DONE         = 3
-LOADED       = 4
-ACTIVE1      = 5
+NOT_ACTIVE = 1
+ACTIVE = 2
+DONE = 3
+LOADED = 4
+ACTIVE1 = 5
 COMBO_ACTIVE = 6
 
-OFF_LINE    = 0
-ON_LINE     = 1
+OFF_LINE = 0
+ON_LINE = 1
 
-INIT_NORMAL  = 0
-INIT_REINIT  = 1
+INIT_NORMAL = 0
+INIT_REINIT = 1
 INIT_CONNECT = 4
+
+READBLOCK_NORMAL = 0
+READBLOCK_SINGLE = 1
+READBLOCK_MULTI = 2
 
 CARESS_MAPS = {}
 
@@ -85,21 +89,21 @@ class CARESSDevice(DeviceMixinBase):
     parameters = {
         'config': Param('Device configuration/setup string',
                         type=str, mandatory=True,
-                       ),
+                        ),
         'nameserver': Param('Computer name running the CORBA name service',
                             type=str, mandatory=True,
-                           ),
+                            ),
         'objname': Param('Name of the CORBA object',
                          type=str, mandatory=True,
-                        ),
+                         ),
         'caresspath': Param('Directory of the CARESS installation',
-                            type=absolute_path, default='/opt/caress/parameter',
-                            settable=False,
-                           ),
+                            type=absolute_path,
+                            default='/opt/caress/parameter', settable=False,
+                            ),
         'toolpath': Param('Path to the dump_u1 program',
                           type=absolute_path, default='/opt/caress',
                           settable=False,
-                         ),
+                          ),
     }
 
     def _initORB(self, args):
@@ -147,9 +151,10 @@ class CARESSDevice(DeviceMixinBase):
         else:
             try:
                 self._caressObject = \
-                self._orb.string_to_object('corbaname::%s#%s.context/caress.context/'
-                                           'server.context/absdev.object' %
-                                           (self.nameserver, self.objname, ))
+                    self._orb.string_to_object('corbaname::%s#%s.context/'
+                                               'caress.context/'
+                                               'server.context/absdev.object' %
+                                               (self.nameserver, self.objname))
             except omniORB.CORBA.BAD_PARAM as ex:
                 raise ConfigurationError(self, 'Name not found: %s' % (ex,))
 
@@ -193,16 +198,18 @@ class CARESSDevice(DeviceMixinBase):
     def _read(self):
         if hasattr(self._caressObject, 'read_module'):
             # result = self._caressObject.read_module(0x80000000, self._cid)
-            result = self._caressObject.read_module(0, self._cid)
-            if result[0] != CARESS.OK:
-                raise CommunicationError(self, 'Could not read the CARESS module')
-            return (result[1], result[2].l,)
+            result, status, val = self._caressObject.read_module(0, self._cid)
+            if result != CARESS.OK:
+                raise CommunicationError(self,
+                                         'Could not read the CARESS module')
+            return (status, val.l,)
         else:
             _ = ()
             result = self._caressObject.read_module_orb(0, self._cid, _)
             self.log.debug('read_module: %r' % (result,))
             if result[0] != 0:
-                raise CommunicationError(self, 'Could not read the CARESS module')
+                raise CommunicationError(self,
+                                         'Could not read the CARESS module')
             if result[1][0].value() != self._cid:
                 raise NicosError(self, 'Answer from wrong module!: %d %r' %
                                  (self._cid, result[1][0]))
@@ -232,10 +239,10 @@ class Motor(HasOffset, CARESSDevice, BaseMotor):
         'coderoffset': Param('Encoder offset',
                              type=float, default=0., unit='main',
                              settable=True, category='offsets', chatty=True,
-                            ),
+                             ),
         '_started': Param('Indicator to signal motor is started',
                           type=bool, default=False, settable=False,
-                         ),
+                          ),
     }
 
     parameter_overrides = {
@@ -258,12 +265,13 @@ class Motor(HasOffset, CARESSDevice, BaseMotor):
             is_drivable = self._caressObject.is_drivable_module(self._cid)
         else:
             is_drivable = self._device_kind() in [3, 7, 13, 14, 15, 23, 24, 25,
-                                                 28, 29, 30, 31, 32, 33, 37, 39,
-                                                 40, 41, 43, 44, 45, 49, 50, 51,
-                                                 53, 54, 56, 62, 67, 68, 70, 71,
-                                                 72, 73, 76, 100, 103, 105, 106,
-                                                 107, 108, 110, 111, 112, 114,
-                                                 115, 123, 124, 125, 126,]
+                                                  28, 29, 30, 31, 32, 33, 37,
+                                                  39, 40, 41, 43, 44, 45, 49,
+                                                  50, 51, 53, 54, 56, 62, 67,
+                                                  68, 70, 71, 72, 73, 76, 100,
+                                                  103, 105, 106, 107, 108, 110,
+                                                  111, 112, 114, 115, 123, 124,
+                                                  125, 126, ]
         self.log.debug('Driveable module: %r' % (is_drivable,))
         if not (is_drivable or is_readable):
             raise ConfigurationError(self, 'Object is not a moveable module')
@@ -320,10 +328,10 @@ class Channel(CARESSDevice, BaseChannel):
     parameters = {
         'runnumber': Param('Run number',
                            type=int, settable=True,
-                          ),
+                           ),
         'counterfile': Param('File storing the run number',
                              type=str, default='runid.txt',
-                            ),
+                             ),
     }
 
     def doInit(self, mode):
@@ -366,7 +374,8 @@ class Channel(CARESSDevice, BaseChannel):
                 raise NicosError(self, 'Could not start the module')
         else:
             result = self._caressObject.start_acquisition_orb(kind,
-                                                              self.runnumber, 0)
+                                                              self.runnumber,
+                                                              0)
             if result[0] != 0:
                 raise NicosError(self, 'Could not start the module')
 
