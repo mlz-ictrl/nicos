@@ -32,7 +32,8 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Device, DeviceMixinBase, LimitError, Attach, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
-    ProgrammingError, SIMULATION, anytype, none_or, status, tupleof
+    ProgrammingError, SIMULATION, anytype, none_or, status, tupleof, \
+    Readable
 from nicos.utils import createThread
 from nicos.core.utils import devIter
 
@@ -410,7 +411,8 @@ class SequencerMixin(DeviceMixinBase):
 
     def doStatus(self, maxage=0):
         """returns highest statusvalue"""
-        stati = [dev.status(maxage) for dev in devIter(self._getWaiters())] + \
+        stati = [dev.status(maxage)
+                 for dev in devIter(self._getWaiters(), Readable)] + \
                 [self._seq_status]
         # sort inplace by first element, i.e. status code
         stati.sort(key=lambda st: st[0])
