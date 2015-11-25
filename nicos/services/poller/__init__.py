@@ -297,6 +297,15 @@ class Poller(Device):
                 if devname in self.blacklist:
                     self.log.debug('not polling %s, it is blacklisted' % devname)
                     continue
+                # import the device class in the main thread; this is necessary
+                # for some external modules like Epics
+                self.log.debug('importing device class for %s' % devname)
+                try:
+                    session.importDevice(devname)
+                except Exception:
+                    self.log.warning('%-10s: error importing device class, '
+                                     'not retrying this device', exc=True)
+                    continue
                 self.log.debug('starting thread for %s' % devname)
                 queue = Queue.Queue()
                 worker = createThread('%s poller' % devname,

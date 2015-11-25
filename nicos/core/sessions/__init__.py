@@ -940,6 +940,34 @@ class Session(object):
                              'device must be a %s' % (cls or Device).__name__)
         return dev
 
+    def importDevice(self, devname, replace_classes=None):
+        """Try to import the device class for the device.
+
+        The device must exist in the `configured_devices` dict.
+        """
+        devclsname, devconfig = self.configured_devices[devname]
+        if 'description' in devconfig:
+            self.log.info('creating device %r (%s)... ' %
+                          (devname, devconfig['description']))
+        else:
+            self.log.info('creating device %r... ' % devname)
+        modname, clsname = devclsname.rsplit('.', 1)
+        try:
+            devcls = self._nicos_import(modname, clsname)
+        except (ImportError, AttributeError) as err:
+            raise ConfigurationError('failed to import device class %r: %s'
+                                     % (devclsname, err))
+        if not isinstance(devcls, DeviceMeta):
+            raise ConfigurationError('configured device class %r is not a '
+                                     'Device or derived class' % devclsname)
+        if replace_classes is not None:
+            for orig_class, replace_class, class_config in replace_classes:
+                if issubclass(devcls, orig_class):
+                    devcls = replace_class
+                    devconfig = class_config
+                    break
+        return devcls, devconfig
+
     def createDevice(self, devname, recreate=False, explicit=False,
                      replace_classes=None):
         """Create device given by a device name.
@@ -972,27 +1000,7 @@ class Session(object):
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
-        devclsname, devconfig = self.configured_devices[devname]
-        if 'description' in devconfig:
-            self.log.info('creating device %r (%s)... ' %
-                          (devname, devconfig['description']))
-        else:
-            self.log.info('creating device %r... ' % devname)
-        modname, clsname = devclsname.rsplit('.', 1)
-        try:
-            devcls = self._nicos_import(modname, clsname)
-        except (ImportError, AttributeError) as err:
-            raise ConfigurationError('failed to import device class %r: %s'
-                                     % (devclsname, err))
-        if not isinstance(devcls, DeviceMeta):
-            raise ConfigurationError('configured device class %r is not a '
-                                     'Device or derived class' % devclsname)
-        if replace_classes is not None:
-            for orig_class, replace_class, class_config in replace_classes:
-                if issubclass(devcls, orig_class):
-                    devcls = replace_class
-                    devconfig = class_config
-                    break
+        devcls, devconfig = self.importDevice(devname, replace_classes)
         try:
             dev = devcls(devname, **devconfig)
         except Exception:
