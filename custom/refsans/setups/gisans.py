@@ -18,33 +18,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
-# **************************************************************************
+# *****************************************************************************
 
-description = 'readout devices for Leybold Center 3'
+description = 'GISANS setup'
 
-# not included by others
-group = 'optional'
+group = 'basic'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test/center' % nethost
-
-devices = dict(
-    lc1 = device('devices.taco.AnalogInput',
-                 description = 'Leybold Center 3 Channel 1',
-                 tacodevice = '%s/center_0' % tacodev,
-                ),
-    lc2 = device('devices.taco.AnalogInput',
-                 description = 'Leybold Center 3 Channel 2',
-                 tacodevice = '%s/center_1' % tacodev,
-                ),
-    lc3 = device('devices.taco.AnalogInput',
-                 description = 'Leybold Center 3 Channel 3',
-                 tacodevice = '%s/center_2' % tacodev,
-                ),
-)
-
-startupcode = """
-"""
-
+includes = ['vacuum', 'shutter', 'zb3', ]
+# includes = ['nok']

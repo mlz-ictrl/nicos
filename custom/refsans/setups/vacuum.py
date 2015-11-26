@@ -18,13 +18,33 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'REFSANS basic setup'
+description = 'Vacuum readout devices using Leybold Center 3'
 
-group = 'basic'
+# not included by others
+group = 'lowlevel'
 
-includes = ['vacuum', 'shutter', 'zb3', ]
-# includes = ['nok']
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test/center' % nethost
+
+devices = dict(
+    CB = device('devices.taco.AnalogInput',
+                description = 'Pressure in Chopper chamber',
+                tacodevice = '%s/center_0' % tacodev,
+               ),
+    SFK = device('devices.taco.AnalogInput',
+                 description = 'Pressure in beam guide chamber',
+                 tacodevice = '%s/center_1' % tacodev,
+                ),
+    SR = device('devices.taco.AnalogInput',
+                description = 'Pressure in scattering tube',
+                tacodevice = '%s/center_2' % tacodev,
+               ),
+)
+
+startupcode = """
+"""
+
