@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     KWS1     = device('devices.instrument.Instrument',
