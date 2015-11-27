@@ -6,8 +6,8 @@ includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual',
             'alias_sth', 'monofoci', 'reactor', 'sat', 'blenden', 'water']
 # monoturm is included by panda_s7
 
-#~ modules = ['nicos.commands.tas','nicos.panda.commands']
-modules = ['nicos.commands.tas']
+#~ modules = ['commands.tas','panda.commands']
+modules = ['commands.tas']
 
 sysconfig = dict(
     instrument = 'panda',

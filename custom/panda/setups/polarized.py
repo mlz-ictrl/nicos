@@ -67,7 +67,7 @@ devices = dict(
                  #~ flipcurrent = [0.765, 0],
                  #~ compcurrent = 2.4474,
                   ),
-#    sf1_f = device('nicos.devices.taco.CurrentSupply',
+#    sf1_f = device('devices.taco.CurrentSupply',
     sf1_f = device('devices.taco.io.AnalogOutput',
                    description = 'flipper 1 flipping current',
                    tacodevice = '//pandaps.panda.frm2/panda/hpe3631a/dev24c',

@@ -12,7 +12,7 @@ sysconfig = dict(
     experiment = 'Exp',
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     Exp      = device('panda.experiment.PandaExperiment',

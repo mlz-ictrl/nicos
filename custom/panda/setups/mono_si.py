@@ -59,7 +59,7 @@ devices = dict(
                          coderbits = 25,
                          lowlevel = True,
                         ),
-    #~ mfh_si      = device('nicos.devices.generic.Axis',
+    #~ mfh_si      = device('devices.generic.Axis',
     mfh_si      = device('panda.rot_axis.RefAxis',
                          description = 'horizontal focus of Si monochromator',
                          motor = 'mfh_si_step',

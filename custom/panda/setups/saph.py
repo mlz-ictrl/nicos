@@ -35,7 +35,7 @@ devices = dict(
                       min = 444930, # lower refpos. taken from old config
                       max = 520640, # read out from card
                      ),
-    saph = device('nicos.devices.generic.Switcher',
+    saph = device('devices.generic.Switcher',
                   description = 'saphire filter',
                   moveable = 'saph_mot',
                   mapping = { 'in' : -133, 'out' : -8},

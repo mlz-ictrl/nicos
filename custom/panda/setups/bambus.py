@@ -6,7 +6,7 @@ includes = ['system', 'sampletable', 'panda_s7', 'manual', 'alias_sth',
             'monofoci', 'qmesydaq',]
 # monoturm is included by panda_s7
 
-modules = ['nicos.commands.tas']
+modules = ['commands.tas']
 
 sysconfig = dict(
     instrument = 'panda',
