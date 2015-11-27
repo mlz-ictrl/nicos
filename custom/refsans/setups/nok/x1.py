@@ -40,7 +40,7 @@ devices = dict(
 # ungenau 11.01.2010 15:01:38 (k5)
 # 15/05/2012 15:19:20 JFM scann matthias the zero is at -0.1 for b1 should not you then have 6.0 (slit)
 # just to test mask 2.0 (f6)
-    x1         = device('nicos.refsans.nok_support.DoubleMotorNOK',
+    x1         = device('refsans.nok_support.DoubleMotorNOK',
                         description = 'X1',
                         inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
                         masks = dict(
@@ -59,7 +59,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    x1r_axis   = device('nicos.devices.generic.Axis',
+    x1r_axis   = device('devices.generic.Axis',
                         description = 'Axis of X1, reactor side',
                         motor = 'x1r_motor',
                         coder = 'x1r_motor',
@@ -89,7 +89,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    x1s_axis   = device('nicos.devices.generic.Axis',
+    x1s_axis   = device('devices.generic.Axis',
                         description = 'Axis of X1, sample side',
                         motor = 'x1s_motor',
                         coder = 'x1s_motor',

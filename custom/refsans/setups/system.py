@@ -35,7 +35,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard', 'refsans.commands']
+modules = ['commands.standard', 'refsans.commands']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 

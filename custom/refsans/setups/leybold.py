@@ -31,15 +31,15 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/center' % nethost
 
 devices = dict(
-    lc1 = device('nicos.devices.taco.AnalogInput',
+    lc1 = device('devices.taco.AnalogInput',
                  description = 'Leybold Center 3 Channel 1',
                  tacodevice = '%s/center_0' % tacodev,
                 ),
-    lc2 = device('nicos.devices.taco.AnalogInput',
+    lc2 = device('devices.taco.AnalogInput',
                  description = 'Leybold Center 3 Channel 2',
                  tacodevice = '%s/center_1' % tacodev,
                 ),
-    lc3 = device('nicos.devices.taco.AnalogInput',
+    lc3 = device('devices.taco.AnalogInput',
                  description = 'Leybold Center 3 Channel 3',
                  tacodevice = '%s/center_2' % tacodev,
                 ),

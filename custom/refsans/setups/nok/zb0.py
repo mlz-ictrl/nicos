@@ -35,7 +35,7 @@ devices = dict(
 # masks:
 # Debug (slit)
 # Debug (k1)
-    zb0        = device('nicos.refsans.nok_support.SingleMotorNOK',
+    zb0        = device('refsans.nok_support.SingleMotorNOK',
                         description = 'ZB0',
                         motor = 'zb0_motor',
                         coder = 'zb0_motor',

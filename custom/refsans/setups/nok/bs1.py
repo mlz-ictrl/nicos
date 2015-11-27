@@ -35,7 +35,7 @@ devices = dict(
 # masks:
 # 2010-06-15 10:42:09 (slit)
 # 12.01.2010 10:35:26 (k1)
-    bs1        = device('nicos.refsans.nok_support.DoubleMotorNOK',
+    bs1        = device('refsans.nok_support.DoubleMotorNOK',
                         description = 'BS1',
                         nok_start = 9764.5,
                         nok_length = 6.0,
@@ -54,7 +54,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    bs1r_axis  = device('nicos.devices.generic.Axis',
+    bs1r_axis  = device('devices.generic.Axis',
                         description = 'Axis of BS1, reactor side',
                         motor = 'bs1r_motor',
                         coder = 'bs1r_motor',
@@ -103,7 +103,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    bs1s_axis  = device('nicos.devices.generic.Axis',
+    bs1s_axis  = device('devices.generic.Axis',
                         description = 'Axis of BS1, sample side',
                         motor = 'bs1s_motor',
                         coder = 'bs1s_motor',

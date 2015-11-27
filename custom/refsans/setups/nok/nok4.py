@@ -32,7 +32,7 @@ includes = ['nok_ref', 'nokbus1', 'nokbus2']
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
-    nok4           = device('nicos.refsans.nok_support.DoubleMotorNOK',
+    nok4           = device('refsans.nok_support.DoubleMotorNOK',
                             description = 'NOK4',
                             nok_start = 1326.0,
                             nok_length = 1000.0,
@@ -47,7 +47,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    nok4r_axis     = device('nicos.devices.generic.Axis',
+    nok4r_axis     = device('devices.generic.Axis',
                             description = 'Axis of NOK4, reactor side',
                             motor = 'nok4r_motor',
                             coder = 'nok4r_motor',
@@ -96,7 +96,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    nok4s_axis     = device('nicos.devices.generic.Axis',
+    nok4s_axis     = device('devices.generic.Axis',
                             description = 'Axis of NOK4, sample side',
                             motor = 'nok4s_motor',
                             coder = 'nok4s_motor',

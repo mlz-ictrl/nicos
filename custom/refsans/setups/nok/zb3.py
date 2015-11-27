@@ -35,7 +35,7 @@ devices = dict(
 # masks:
 # 12.01.2010 10:34:54 (k1)
 # 12.06.2009 16:22:34 centertest2 (slit)
-    zb3        = device('nicos.refsans.nok_support.DoubleMotorNOK',
+    zb3        = device('refsans.nok_support.DoubleMotorNOK',
                         description = 'ZB3',
                         nok_start = 8837.5,
                         nok_length = 13.0,
@@ -54,7 +54,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    zb3r_axis  = device('nicos.devices.generic.Axis',
+    zb3r_axis  = device('devices.generic.Axis',
                         description = 'Axis of ZB3, reactor side',
                         motor = 'zb3r_motor',
                         coder = 'zb3r_motor',
@@ -103,7 +103,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    zb3s_axis  = device('nicos.devices.generic.Axis',
+    zb3s_axis  = device('devices.generic.Axis',
                         description = 'Axis of ZB3, sample side',
                         motor = 'zb3s_motor',
                         coder = 'zb3s_motor',

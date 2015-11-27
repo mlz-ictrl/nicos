@@ -32,7 +32,7 @@ includes = ['nok_ref', 'nokbus1']
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
-    nok1       = device('nicos.refsans.nok_support.SingleMotorNOK',
+    nok1       = device('refsans.nok_support.SingleMotorNOK',
                         description = 'NOK1',
                         motor = 'nok1_motor',
                         coder = 'nok1_motor',
