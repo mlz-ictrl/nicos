@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard'] # , 'jcns.commands']
+modules = ['commands.standard'] # , 'jcns.commands']
 
 devices = dict(
     tas        = device('devices.instrument.Instrument',

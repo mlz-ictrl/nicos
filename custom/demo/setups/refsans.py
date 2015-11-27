@@ -42,7 +42,7 @@ devices = dict(
                     unit = 'mm',
                    ),
 
-    nok1   = device('nicos.refsans.nok_support.SingleMotorNOK',
+    nok1   = device('refsans.nok_support.SingleMotorNOK',
                     description = 'NOK1',
                     motor = 'nok1_r',
                     coder = 'nok1_r',

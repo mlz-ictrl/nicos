@@ -1,7 +1,7 @@
 description = 'virtual triple-axis spectrometer'
 group = 'basic'
 
-modules = ['nicos.commands.tas']
+modules = ['commands.tas']
 
 excludes = ['sans', 'refsans',]
 

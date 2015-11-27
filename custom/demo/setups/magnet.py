@@ -9,11 +9,11 @@ devices = dict(
                                abslimits = (-10, 10),
                                unit = 'T'),
 
-    garfield_onoff    = device('nicos.devices.generic.ManualSwitch',
+    garfield_onoff    = device('devices.generic.ManualSwitch',
                                description = 'on/off switch',
                                states = ['on', 'off'],
                               ),
-    garfield_polarity = device('nicos.devices.generic.ManualSwitch',
+    garfield_polarity = device('devices.generic.ManualSwitch',
                                description = 'polarity switch',
                                states = ['+', '-'],
                               ),
