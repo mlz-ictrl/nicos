@@ -10,7 +10,7 @@ devices = dict(
                               ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
                              ],
                    ),
-    Daemon = device('nicos.services.daemon.NicosDaemon',
+    Daemon = device('services.daemon.NicosDaemon',
                     server = 'pumahw.puma.frm2',
                     authenticators = ['Auth'], # and/or 'UserDB'
                     loglevel = 'debug',

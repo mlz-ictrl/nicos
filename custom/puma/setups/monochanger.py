@@ -207,7 +207,7 @@ devices = dict(
                    ),
 
 
-    r3   =  device('nicos.devices.generic.Switcher',
+    r3   =  device('devices.generic.Switcher',
                    description = 'R3 coupling holding monochromators',
                    moveable = 'r3_set',
                    mapping = dict(closed=0, open=1),

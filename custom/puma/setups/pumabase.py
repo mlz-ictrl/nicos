@@ -3,7 +3,7 @@ description = 'basic PUMA triple-axis setup'
 
 includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor']
 
-modules = ['nicos.commands.tas']
+modules = ['commands.tas']
 
 group = 'lowlevel'
 
