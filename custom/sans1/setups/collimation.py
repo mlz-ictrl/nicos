@@ -35,7 +35,7 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    col        = device('nicos.devices.generic.LockedDevice',
+    col        = device('devices.generic.LockedDevice',
                         description = 'sans1 primary collimation',
                         lock = 'att',
                         device = 'col_sw',

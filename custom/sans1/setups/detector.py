@@ -243,7 +243,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    bs1_x    = device('nicos.devices.generic.Axis',
+    bs1_x    = device('devices.generic.Axis',
                       description = 'beamstop 1 x axis',
                       motor = 'bs1_xmot',
                       coder = 'bs1_xmot',
@@ -259,7 +259,7 @@ devices = dict(
                       abslimits = (480, 868),
                       lowlevel = True,
                      ),
-    bs1_y    = device('nicos.devices.generic.Axis',
+    bs1_y    = device('devices.generic.Axis',
                       description = 'beamstop 1 y axis',
                       motor = 'bs1_ymot',
                       coder = 'bs1_ymot',

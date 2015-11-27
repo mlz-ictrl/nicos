@@ -34,7 +34,7 @@ sysconfig = dict(
     notifiers = ['email',],
 )
 
-modules = ['nicos.commands.standard', 'sans1.commands']
+modules = ['commands.standard', 'sans1.commands']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 

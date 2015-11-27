@@ -133,7 +133,7 @@ _collimationcolumn = Column(
 
 
 devices = dict(
-    Monitor = device('nicos.services.monitor.qt.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
                      loglevel = 'debug',
 #                     loglevel = 'info',
