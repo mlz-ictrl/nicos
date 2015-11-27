@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     email = device('devices.notifiers.Mailer',
