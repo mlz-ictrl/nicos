@@ -28,24 +28,24 @@ group = 'lowlevel'
 #   - instrument
 #       The name of the instrument device, defined somewhere in a
 #       devices dictionary. The class for this device must be
-#       nicos.devices.instrument.Instrument or an instrument-specific
+#       'devices.instrument.Instrument' or an instrument-specific
 #       subclass.
 #   - experiment
 #       The name of the experiment "device", defined somewhere in a
 #       devices dictionary. The class for this device must be
-#       nicos.devices.experiment.Experiment or an instrument-specific
+#       'devices.experiment.Experiment' or an instrument-specific
 #       subclass.
 #   - datasinks
 #       A list of names of "data sinks", i.e. special devices that
 #       process measured data. These devices must be defined somewhere
 #       in a devices dictionary and be of class
-#       nicos.devices.datasinks.DataSink or a subclass.
+#       'devices.datasinks.DataSink' or a subclass.
 #   - notifiers
 #       A list of names of "notifiers", i.e. special devices that can
 #       notify the user or instrument responsibles via various channels
 #       (e.g. email). These devices must be defined somewhere in a
 #       devices dictionary and be of class
-#       nicos.devices.notifiers.Notifier or a subclass.
+#       'devices.notifiers.Notifier' or a subclass.
 
 sysconfig = dict(
     cache = 'lauectrl.laue.frm2',
@@ -55,7 +55,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
@@ -63,10 +63,10 @@ modules = ['nicos.commands.standard']
 # The parameters are given as keyword arguments.
 devices = dict(
     Laue = device('devices.instrument.Instrument',
-                      instrument = 'Laue',
-                      responsible = 'R. Esponsible <noreply@frm2.tum.de>',
-                      #  we do not have a dedicated responsible
-                     ),
+                  instrument = 'Laue',
+                  responsible = 'R. Esponsible <noreply@frm2.tum.de>',
+                  #  we do not have a dedicated responsible
+                 ),
 
     Sample   = device('devices.sample.Sample',
                       description = 'The current used sample',

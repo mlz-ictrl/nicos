@@ -7,10 +7,10 @@ sysconfig = dict(
 tangohost = '%s:10000' % 'lauecounter.laue.frm2'
 
 devices = dict(
-    FileSaver = device('nicos.laue.fileformats.ASCIIFileFormat',
+    FileSaver = device('laue.fileformats.ASCIIFileFormat',
                        description = 'Saves TOF data in ASCII format',
                       ),
-    det = device('nicos.devices.tango.TofDetector',
+    det = device('devices.tango.TofDetector',
                  description = 'TOF detector device',
                  tangodevice = 'tango://%s/laue/tof/detector' % tangohost,
                  timer = 'tango://%s/laue/tof/timer' % tangohost,
