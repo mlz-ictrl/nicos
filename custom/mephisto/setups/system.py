@@ -32,7 +32,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     Sample   = device('devices.sample.Sample'),
