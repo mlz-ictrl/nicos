@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['emailer', 'smser'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     TOFTOF   = device('devices.instrument.Instrument',
