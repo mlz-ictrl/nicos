@@ -3,7 +3,7 @@ group = 'basic'
 
 includes = ['base', 'mono2', 'analyzer', 'detector', 'alias_sth']
 
-modules = ['nicos.commands.tas']
+modules = ['commands.tas']
 
 devices = dict(
     Sample = device('devices.tas.TASSample',
