@@ -20,11 +20,19 @@
 # Module authors:
 #   Matthias Pomm <matthias.pomm@hzg.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'GISANS setup'
+description = "raise of detector"
 
-group = 'basic'
+group = 'optional'
 
-includes = ['vacuum', 'shutter', ]
-# includes = ['nok']
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test' % nethost
+
+devices = dict(
+    tube_m = device('devices.taco.Motor',
+                    description = 'tube Motor',
+                    tacodevice = '%s/servostar/tube0' % tacodev,
+                    abslimits = (-120, 1000),
+                   ),
+)

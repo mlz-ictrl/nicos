@@ -20,11 +20,19 @@
 # Module authors:
 #   Matthias Pomm <matthias.pomm@hzg.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'GISANS setup'
+description = "disc4 height"
 
-group = 'basic'
+group = 'lowlevel'
 
-includes = ['vacuum', 'shutter', ]
-# includes = ['nok']
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test' % nethost
+
+devices = dict(
+    disc4 = device('devices.taco.Motor',
+                   description = 'disc 4 Motor',
+                   tacodevice = '%s/disk4/motor' % tacodev,
+                   abslimits = (-22, 49.5),
+                  ),
+)

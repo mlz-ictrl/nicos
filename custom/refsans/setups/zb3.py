@@ -18,13 +18,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matthias Pomm <matthias.pomm@hzg.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'GISANS setup'
+description = "Double Slit"
 
-group = 'basic'
+group = 'optional'
 
-includes = ['vacuum', 'shutter', ]
-# includes = ['nok']
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test' % nethost
+
+devices = dict(
+    zb3_mr = device('devices.taco.Motor',
+                    description = 'SlitMotor reactor side',
+                    tacodevice = '%s/zb3/mr' % tacodev,
+                    abslimits = (-221, 95),
+                   ),
+    zb3_ms = device('devices.taco.Motor',
+                    description = 'SlitMotor sample side',
+                    tacodevice = '%s/zb3/ms' % tacodev,
+                    abslimits = (-106, 113.562),
+                   ),
+)

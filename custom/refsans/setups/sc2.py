@@ -20,11 +20,19 @@
 # Module authors:
 #   Matthias Pomm <matthias.pomm@hzg.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'GISANS setup'
+description = "sc2 height"
 
-group = 'basic'
+group = 'lowlevel'
 
-includes = ['vacuum', 'shutter', ]
-# includes = ['nok']
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test' % nethost
+
+devices = dict(
+    sc2 = device('devices.taco.Motor',
+                 description = 'sc2 Motor',
+                 tacodevice = '%s/sc2/motor' % tacodev,
+                 abslimits = (-150, 150),
+                ),
+)
