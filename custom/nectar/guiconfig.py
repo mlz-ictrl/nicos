@@ -73,9 +73,5 @@ tools = [
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
-    cmdtool('TACO server control panel (beta)',
-            ['bash', '-c', 'source /etc/tacoenv.sh && sudo /usr/bin/python '
-             '/opt/tacocp/tacocp.py nectarctrl.nectar.frm2'])
-    ),
 
 ]
