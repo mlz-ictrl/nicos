@@ -11,7 +11,8 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    alwayspoll = [], # setups that should be polled regardless if loaded
+                    # setups that should be polled regardless if loaded
+                    alwayspoll = ['gedet'],
                     neverpoll = [],  # setups that should not be polled even if loaded
                     blacklist = [],  # DEVICES that should never be polled
                                      # (usually detectors or devices that have problems
