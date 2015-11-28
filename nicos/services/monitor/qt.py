@@ -37,6 +37,7 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
     QCursor, QIcon
 from PyQt4.QtCore import Qt, SIGNAL
 
+from nicos.core import Param
 from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
@@ -149,6 +150,10 @@ class BlockBox(QFrame):
 
 class Monitor(BaseMonitor):
     """Qt specific implementation of instrument monitor."""
+
+    parameters = {
+        'noexpired': Param('If true, show expired values as "n/a"', type=bool)
+    }
 
     _master = None
 
@@ -303,7 +308,8 @@ class Monitor(BaseMonitor):
                 picwidget.filepath = field['picture']
                 return _setup(picwidget)
             else:
-                display = ValueDisplay(groupframe, colorScheme=colorScheme)
+                display = ValueDisplay(groupframe, colorScheme=colorScheme,
+                                       showExpiration=self.noexpired)
                 return _setup(display)
 
         # now iterate through the layout and create the widgets to display it

@@ -412,6 +412,7 @@ class Monitor(BaseMonitor):
                 field._namelabel.back = self._bgcolor
             if expired:
                 field._valuelabel.back = self._gray
+                fvalue = 'n/a'
             else:
                 field._valuelabel.back = self._black
             if fvalue is None:

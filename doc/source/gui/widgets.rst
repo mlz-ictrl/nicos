@@ -197,8 +197,8 @@ Existing widget classes
 
    .. attribute:: showExpiration
 
-      If true (the default), show expiration of the value by coloring the value
-      label's background.
+      If true (the default), show expiration of the value by displaying "n/a"
+      instead; otherwise, only the label's coloring is changed.
 
    .. attribute:: horizontal
 

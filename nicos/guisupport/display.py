@@ -37,8 +37,7 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     statuses
-from nicos.guisupport.utils import setBackgroundColor, setForegroundColor, \
-    setBothColors
+from nicos.guisupport.utils import setBackgroundColor, setBothColors
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import text_type, from_maybe_utf8
@@ -100,6 +99,8 @@ lightColorScheme = {
     },
     'expired':      QColor('#cccccc'),
 }
+
+NOT_AVAILABLE = 'n/a'
 
 
 class SensitiveSMLabel(QLabel):
@@ -218,8 +219,8 @@ class ValueDisplay(NicosWidget, QWidget):
                               'label for the value name'),
         'showStatus': PropDef(bool, True, 'If false, do not display the '
                               'device status as a color of the value text'),
-        'showExpiration': PropDef(bool, True, 'If false, do not display the '
-                                  'expiration of the cache key as a color'),
+        'showExpiration': PropDef(bool, True, 'If true, display expired '
+                                  'cache values as "n/a"'),
         'horizontal': PropDef(bool, False, 'If true, display name label '
                               'left of the value instead of above it'),
     }
@@ -248,9 +249,6 @@ class ValueDisplay(NicosWidget, QWidget):
                 setBothColors(self.valuelabel,
                               (self._colorscheme['fore'][UNKNOWN],
                                self._colorscheme['back'][UNKNOWN]))
-        elif pname == 'showExpiration':
-            if not value:
-                setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         elif pname == 'horizontal':
             self.reinitLayout()
         if pname in ('dev', 'name', 'unit'):
@@ -267,8 +265,8 @@ class ValueDisplay(NicosWidget, QWidget):
         valuelabel.setAlignment(Qt.AlignHCenter)
         valuelabel.setFrameShadow(QFrame.Sunken)
         valuelabel.setAutoFillBackground(True)
-        setBackgroundColor(valuelabel, self._colorscheme['back'][UNKNOWN])
-        setForegroundColor(valuelabel, self._colorscheme['fore'][UNKNOWN])
+        setBothColors(valuelabel, (self._colorscheme['fore'][UNKNOWN],
+                                   self._colorscheme['back'][UNKNOWN]))
         valuelabel.setLineWidth(2)
         self.valuelabel = valuelabel
         self.width = 8
@@ -318,19 +316,22 @@ class ValueDisplay(NicosWidget, QWidget):
                 strvalue[:self.props['maxlen']]))
         else:
             self.valuelabel.setText(from_maybe_utf8(strvalue))
-        if self._expired and self.props['showExpiration']:
-            setForegroundColor(self.valuelabel, self._colorscheme['fore'][OK])
-            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
+        if self._expired:
+            setBothColors(self.valuelabel, (self._colorscheme['fore'][UNKNOWN],
+                                            self._colorscheme['expired']))
+            if self.props['showExpiration']:
+                self.valuelabel.setText(NOT_AVAILABLE)
         elif not self.props['istext']:
-            setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
-            setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
+            setBothColors(self.valuelabel, (self._colorscheme['fore'][BUSY],
+                                            self._colorscheme['back'][BUSY]))
             QTimer.singleShot(1000, self._applystatuscolor)
         else:
             self._applystatuscolor()
 
     def _applystatuscolor(self):
-        if self._expired and self.props['showExpiration']:
-            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
+        if self._expired:
+            setBothColors(self.valuelabel, (self._colorscheme['fore'][UNKNOWN],
+                                            self._colorscheme['expired']))
         else:
             setBothColors(self.valuelabel, self._statuscolors)
             if self._labelcolor:
