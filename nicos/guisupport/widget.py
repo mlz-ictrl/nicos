@@ -105,11 +105,15 @@ class NicosListener(object):
                                         value[0], value[1], expired)
                 return
             elif key.endswith('/fixed'):
+                if value is None:
+                    return
                 devinfo.fixed = value
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
                                       devinfo.unit, devinfo.fixed)
                 return
             elif key.endswith('/fmtstr'):
+                if value is None:
+                    return
                 devinfo.fmtstr = value
                 self._update_value(key, devinfo, devinfo.value,
                                    devinfo.expired)
@@ -117,6 +121,8 @@ class NicosListener(object):
                                       devinfo.unit, devinfo.fixed)
                 return
             elif key.endswith('/unit'):
+                if value is None:
+                    return
                 devinfo.unit = value
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
                                       devinfo.unit, devinfo.fixed)

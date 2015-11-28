@@ -100,6 +100,10 @@ class Monitor(BaseCacheClient):
     def updateTitle(self, text):
         raise NotImplementedError('Implement updateTitle() in subclasses')
 
+    # methods implemented here
+
+    _keys_expired = False  # whether on disconnect all keys have been expired
+
     def start(self, options):  # pylint: disable=W0221
         self.log.info('monitor starting up, creating main window')
 
@@ -170,6 +174,7 @@ class Monitor(BaseCacheClient):
         self._stoprequest = True
 
     def _connect_action(self):
+        self._keys_expired = False
         BaseCacheClient._connect_action(self)
         if self.showwatchdog:
             # also ask for and subscribe to all watchdog events
@@ -178,6 +183,12 @@ class Monitor(BaseCacheClient):
 
     # called between connection attempts
     def _wait_retry(self):
+        if not self._keys_expired:
+            time = currenttime()
+            for key in self._keymap:
+                for obj in self._keymap[key]:
+                    self.signal(obj, 'keyChange', key, None, time, True)
+            self._keys_expired = True
         self.updateTitle('Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S'))
         sleep(1)
 
