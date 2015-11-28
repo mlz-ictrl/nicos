@@ -123,9 +123,12 @@ class TrendPlot(QwtPlot, NicosWidget):
         grid = QwtPlotGrid()
         grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
         grid.attach(self)
-        self.legend = QwtLegend(self)
-        self.legend.setMidLineWidth(100)
-        self.insertLegend(self.legend, QwtPlot.TopLegend)
+        if self.props['legend']:
+            self.legendobj = QwtLegend(self)
+            self.legendobj.setMidLineWidth(100)
+            self.insertLegend(self.legendobj, QwtPlot.TopLegend)
+        else:
+            self.legendobj = None
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
         self.zoomer.initMousePattern(2)  # don't bind middle button
@@ -156,6 +159,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
 '''),
         'names':        PropDef('QStringList', [], 'Names for the plot curves, '
                                 'defaults to the device names/keys.'),
+        'legend':       PropDef(bool, False, 'If a legend should be shown.'),
         'plotwindow':   PropDef(int, 3600, 'The range of time in seconds that '
                                 'should be represented by the plot.'),
         'plotinterval': PropDef(float, 2, 'The minimum time in seconds between '
@@ -180,7 +184,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
 
     def setFont(self, font):
         QwtPlot.setFont(self, font)
-        self.legend.setFont(font)
+        if self.legendobj:
+            self.legendobj.setFont(font)
         self.setAxisFont(QwtPlot.yLeft, font)
         self.setAxisFont(QwtPlot.xBottom, font)
 
@@ -208,7 +213,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.ncurves += 1
         curve.attach(self)
         curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-        self.legend.find(curve).setIdentifierWidth(30)
+        if self.legendobj:
+            self.legendobj.find(curve).setIdentifierWidth(30)
         self.ctimers[curve] = QTimer(singleShot=True)
 
         # record the current value at least every 5 seconds, to avoid curves
