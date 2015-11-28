@@ -221,27 +221,27 @@ The possible entries for the ``sysconfig`` dictionary are:
 
    The name of the instrument device, defined somewhere in a ``devices``
    dictionary.  The class for this device must be
-   :class:`devices.instrument.Instrument` or an instrument-specific subclass.
+   :class:`nicos.devices.instrument.Instrument` or an instrument-specific subclass.
 
 .. data:: experiment
 
    ``'Exp'`` or ``None``.  If ``'Exp'``, a device of this name must be defined
    somewhere in a ``devices`` dictionary.  The class for this device must be
-   :class:`devices.experiment.Experiment` or an instrument-specific
+   :class:`nicos.devices.experiment.Experiment` or an instrument-specific
    subclass.
 
 .. data:: datasinks
 
    A list of names of "data sinks", i.e. special devices that process measured
    data.  These devices must be defined somewhere in a ``devices`` dictionary
-   and be of class :class:`devices.datasinks.DataSink` or a subclass.
+   and be of class :class:`nicos.core.data.DataSink` or a subclass.
 
 .. data:: notifiers
 
    A list of names of "notifiers", i.e. special devices that can notify the user
    or instrument responsibles via various channels (e.g. email).  These devices
    must be defined somewhere in a ``devices`` dictionary and be of class
-   :class:`devices.notifiers.Notifier` or a subclass.
+   :class:`nicos.devices.notifiers.Notifier` or a subclass.
 
 .. rubric:: Footnotes
 

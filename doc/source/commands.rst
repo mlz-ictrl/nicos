@@ -174,8 +174,10 @@ one of your loaded setups.
 
 Imaging commands
 ----------------
+
 To use these commands, add ``'commands.imaging'`` to the ``modules`` list of
-one of your loaded setups. Additionally, your experiment device has to be an :class:`~devices.experiment.ImagingExperiment`.
+one of your loaded setups.  Additionally, your experiment device has to be an
+:class:`~nicos.devices.experiment.ImagingExperiment`.
 
 .. module:: nicos.commands.imaging
 
