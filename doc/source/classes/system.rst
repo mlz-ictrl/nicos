@@ -18,6 +18,8 @@ The experiment device is selected in setups using :ref:`sysconfig`.
 
 .. autoclass:: Experiment()
 
+.. autoclass:: ImagingExperiment()
+
 .. autoclass:: Sample()
 
 
