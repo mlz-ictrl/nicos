@@ -129,7 +129,7 @@ msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=79
+max-line-length=132
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=(^\s*(# )?<?https?://\S+>?$|# pylint:.*$)
