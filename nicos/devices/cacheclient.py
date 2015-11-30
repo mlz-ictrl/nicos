@@ -228,7 +228,8 @@ class BaseCacheClient(Device):
             data = process(data)
 
             # wait for a whole line of data to arrive
-            while b'\n' not in data and self._should_connect and not self._stoprequest:
+            while b'\n' not in data and self._socket and self._should_connect \
+                  and not self._stoprequest:
 
                 # optionally do some action while waiting
                 self._wait_data()
