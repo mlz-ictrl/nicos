@@ -166,7 +166,7 @@ class Monitor(BaseMonitor):
 
     def initGui(self):
         def log_unhandled(*exc_info):
-            traceback.print_exception(*exc_info)
+            traceback.print_exception(*exc_info)  # pylint: disable=no-value-for-parameter
             self.log.exception('unhandled exception in QT callback',
                                exc_info=exc_info)
         sys.excepthook = log_unhandled
