@@ -121,6 +121,7 @@ class Watchdog(BaseCacheClient):
         # process watchlist entries
         for i, entryd in enumerate(self.watch):
             # some values cannot have defaults
+            entryd = dict(entryd)  # convert back from readonlydict
             if not entryd['condition']:
                 self.log.warning('entry %s missing "condition" key' % entryd)
                 continue
