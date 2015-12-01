@@ -97,6 +97,7 @@ disable=access-member-before-definition
         ,wrong-import-order
         ,redefined-variable-type
         ,consider-using-enumerate
+        ,unneeded-not
 
 
 [REPORTS]
