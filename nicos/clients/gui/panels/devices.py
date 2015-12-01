@@ -390,6 +390,12 @@ class DevicesPanel(Panel):
             else:
                 devitem.setForeground(0, foregroundBrush[BUSY])
                 devitem.setBackground(0, backgroundBrush[status[0]])
+            if not devitem.parent().isExpanded():
+                item = devitem.parent()
+                item.setBackground(0, backgroundBrush[
+                    self._getHighestStatus(item)])
+            else:
+                devitem.parent().setBackground(0, backgroundBrush[OK])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg.statuslabel.setText(status[1])
@@ -442,6 +448,20 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg._reinit()
+
+    def on_tree_itemExpanded(self, item):
+        item.setBackground(0, backgroundBrush[OK])
+
+    def _getHighestStatus(self, item):
+        retval = OK
+        for i in range(item.childCount()):
+            lstatus = self._devinfo[item.child(i).text(0).lower()][1][0]
+            if retval < lstatus:
+                retval = lstatus
+        return retval
+
+    def on_tree_itemCollapsed(self, item):
+        item.setBackground(0, backgroundBrush[self._getHighestStatus(item)])
 
     def on_tree_customContextMenuRequested(self, point):
         item = self.tree.itemAt(point)
