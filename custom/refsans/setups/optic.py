@@ -18,20 +18,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Matthias Pomm <matthias.pomm@hzg.de>
 #
 # **************************************************************************
-
 
 description = 'NOK Devices for REFSANS, main file including all'
 
 group = 'lowlevel'
 
-includes = ['bs1',
+includes = ['nok1', 'nok2', 'nok3', 'nok4',
             # beckhoff 'b1',
-            'nok1', 'nok2', 'nok3', 'nok4',
+            'disk3','disk4',
             # beckhoff 'nok5a', 'nok5b',
-            'nok6', 'nok7', 'nok8', 'nok9',
-            'x1',
             # beckhoff 'zb0', 'zb1',
-            'zb2', 'zb3']
+            'nok6', 'nok7', 'nok8', 'nok9',
+            'sc2',
+            'zb2', 'bs1', 'zb3',]
