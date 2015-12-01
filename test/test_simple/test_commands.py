@@ -132,7 +132,7 @@ def test_basic_commands():
     ClearCache('motor', motor)
 
     with UserInfo('userinfo'):
-        assert 'userinfo' == session._actionStack[-1]
+        assert session._actionStack[-1] == 'userinfo'
 
 
 def test_run_command():
