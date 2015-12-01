@@ -58,7 +58,7 @@ devices = dict(
                               lowlevel = True,
                              ),
 
-    det1_mon1 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+    det1_mon1 = device('devices.vendor.qmesydaq.QMesyDAQCounter',
                        description = 'QMesyDAQ Counter0',
                        tacodevice = '//%s/sans1/qmesydaq/counter0' % nethost,
                        type = 'monitor',
