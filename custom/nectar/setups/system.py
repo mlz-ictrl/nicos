@@ -13,6 +13,8 @@ sysconfig = dict(
 modules = ['commands.basic', 'commands.standard',
            'antares.commands', 'nectar.commands', ]
 
+includes = ['notifiers', ]
+
 devices = dict(
     Sample   = device('devices.sample.Sample',
                       description = 'sample object',
@@ -52,21 +54,5 @@ devices = dict(
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'nectar@frm2.tum.de',
-                      copies = [('stefan.soellradl@frm2.tum.de', 'all')],
-                      subject = '[NICOS]',
-                      mailserver = 'smtp.frm2.tum.de',
-                      lowlevel = True,
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                      lowlevel = True,
                      ),
 )
