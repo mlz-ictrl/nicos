@@ -26,26 +26,14 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = []
 
+includes = ['notifiers', ]
+
 notifiers = {
     'default':  ['mailer'],
     'critical': ['mailer', 'smser'],
 }
 
 devices = dict(
-    # Configure source and copy addresses to an existing address.
-    mailer   = device('devices.notifiers.Mailer',
-                      sender = 'stressi@frm2.tum.de',
-                      receivers = ['michael.hofmann@frm2.tum.de',
-                                   'michael.hofmann@frm2.tum.de'],
-                      subject = 'NICOS Warning',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       # use only 'localhost' if the cache is really running on
                       # the same machine, otherwise use the official computer
