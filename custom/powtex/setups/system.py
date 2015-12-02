@@ -57,6 +57,8 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
+includes = ['notifiers', ]
+
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
 # The class name is fully qualified (i.e., includes the package/module name).
