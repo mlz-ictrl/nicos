@@ -24,11 +24,13 @@ devices = dict(
                              tangodevice = _TANGO_URL + "omega_mini_stepper",
                              unit = "deg",
                              precision = 0.01,
+                             abslimits = (-390, 390),
                             ),
     minikappa_omega_m = device("biodiff.motor.MicrostepMotor",
                                description = "Mini-kappa omega axis "
                                              "(micro)",
                                motor = "minikappa_omega",
                                precision = 0.001,
+                               abslimits = (-390, 390),
                               ),
 )
