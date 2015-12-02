@@ -11,15 +11,9 @@ watchlist = [
 
 ]
 
+includes = ['notifiers', ]
 
 devices = dict(
-
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'Nicolas.Martin@frm2.tum.de',
-                      receivers = ['awischol@frm2.tum.de',],
-                      subject = 'Warning',
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'resedahw',
                       notifiers = {'default': ['email']},

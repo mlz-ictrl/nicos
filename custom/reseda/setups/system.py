@@ -10,6 +10,8 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'commands.taco']
 
+includes = ['notifiers', ]
+
 devices = dict(
     Sample   = device('devices.tas.TASSample'),
 
