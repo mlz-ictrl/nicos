@@ -12,21 +12,9 @@ sysconfig = dict(
 
 modules = ['commands.basic', 'commands.standard', 'antares.commands']
 
+includes = ['notifiers', ]
+
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      description = 'Email notifier',
-                      sender = 'michael.schulz@frm2.tum.de',
-                      copies = [('michael.schulz@frm2.tum.de', 'important'),
-                                ('alerts.sw.zea2@fz-juelich.de', 'important'),
-                               ],
-                      subject = 'ANTARES'),
-
-    smser    = device('devices.notifiers.SMSer',
-                      description = 'SMS notifier',
-                      #receivers = ['015121100909'],
-                      receivers = [],
-                      server = 'triton.admin.frm2'),
-
     Sample   = device('devices.experiment.Sample',
                        description = 'Default Sample',
                      ),

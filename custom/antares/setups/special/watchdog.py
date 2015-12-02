@@ -34,22 +34,14 @@ watchlist = [
         ),
 ]
 
+includes = ['notifiers', ]
+
 notifiers = {
-    'default':  ['email'],
-    'critical': ['email', 'smser'],
+    'default':  ['warning'],
+    'critical': ['warning', 'smser'],
 }
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'michael.schulz@frm2.tum.de',
-                      copies = [('michael.schulz@frm2.tum.de', 'all')],
-                      subject = 'ANTARES'),
-
-    smser    = device('devices.notifiers.SMSer',
-                      #receivers = ['015121100909'],
-                      receivers = [],
-                      server = 'triton.admin.frm2'),
-
     Watchdog = device('services.watchdog.Watchdog',
                       # use only 'localhost' if the cache is really running on
                       # the same machine, otherwise use the official computer
