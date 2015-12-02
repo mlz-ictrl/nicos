@@ -107,51 +107,16 @@ watchlist = [
     #~ ),
 ]
 
+includes = ['notifiers', ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 and
 # one for priority 2.
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      mailserver = 'smtp.frm2.tum.de',
-                      sender = 'panda@frm2.tum.de',
-                      receivers = ['pcermak@frm2.tum.de', 'fstoica@frm2.tum.de', 'astrid.schneidewind@frm2.tum.de'],
-                      subject = '[PANDA warning]',
-                      loglevel='debug',
-                     ),
-
-    email2  = device('devices.notifiers.Mailer',
-                      mailserver = 'smtp.frm2.tum.de',
-                      sender = 'panda@frm2.tum.de',
-                      receivers = ['pcermak@frm2.tum.de'],
-                      subject = '[PANDA]',
-                      loglevel='debug',
-                     ),
-
-    email3  = device('devices.notifiers.Mailer',
-                      mailserver = 'smtp.frm2.tum.de',
-                      sender = 'panda@frm2.tum.de',
-                      receivers = ['astrid.schneidewind@frm2.tum.de'],
-                      subject = '[PANDA]',
-                      loglevel='debug',
-                     ),
-
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = ['017697526049', '015252646651'],
-                      loglevel='debug',
-                     ),
-
-    smspetr    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = ['017697526049'],
-                      loglevel='debug',
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'phys.panda.frm2',
-                      notifiers = {'default': ['email'],
-                                   'critical': ['email', 'smser'],
+                      notifiers = {'default': ['email1'],
+                                   'critical': ['email1', 'smser'],
                                    'onlypetr': ['email2', 'smspetr'],
                                    'onlyastrid': ['email3']},
                       watch = watchlist,

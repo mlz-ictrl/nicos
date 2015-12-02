@@ -14,6 +14,8 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
+includes = ['notifiers', ]
+
 devices = dict(
     Exp      = device('panda.experiment.PandaExperiment',
                       description = 'Experiment device for Panda',
@@ -56,12 +58,4 @@ devices = dict(
     daemonsink  = device('devices.datasinks.DaemonSink',
                           description = 'device used for output from the daemon',
                         ),
-
-    email  = device('devices.notifiers.Mailer',
-                    lowlevel = True,
-                    mailserver = 'smtp.frm2.tum.de',
-                    sender = 'panda@frm2.tum.de',
-                    copies = [('pcermak@frm2.tum.de', 'important')],
-                    subject = '[PANDA]',
-                   ),
 )
