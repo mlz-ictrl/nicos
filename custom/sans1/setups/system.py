@@ -36,20 +36,9 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'sans1.commands']
 
-# SYSTEM NEVER INCLUDES OTHER SETUPS !!!
+includes = ['notifiers', ]
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      description = 'Notifications via email',
-                      sender = 'andreas.wilhelm@frm2.tum.de',
-                      copies = [('andreas.wilhelm@frm2.tum.de', 'important'),
-                                ('Andre.Heinemann@hzg.de', 'important'),
-                                ('sebastian.busch@hzg.de', 'important'),
-                                ('sebastian.muehlbauer@frm2.tum.de', 'important')],
-                      mailserver ='mailhost.frm2.tum.de',
-                      subject = 'SANS-1',
-                     ),
-
     Sample   = device('sans1.sans1_sample.Sans1Sample',
                       description = 'sample',
                      ),
