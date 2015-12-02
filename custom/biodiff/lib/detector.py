@@ -32,7 +32,6 @@ from nicos import session
 from nicos.utils import updateFileCounter
 from nicos.core import Moveable, SIMULATION, status
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, oneof, tupleof
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
