@@ -25,19 +25,9 @@ watchlist = [
 #    ),
 ]
 
+includes = ['notifiers', ]
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'karl.zeitelhack@frm2.tum.de',
-                      copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
-                      subject = 'DEL Warning',
-                     ),
-
-#    smser    = device('devices.notifiers.SMSer',
-#                      server = 'triton.admin.frm2',
-#                      receivers = ['01719251564', '01782979497'],
-#                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost',
                       notifiers = {'default': ['email']},

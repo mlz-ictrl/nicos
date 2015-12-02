@@ -11,16 +11,9 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'commands.taco']
 
+includes = ['notifiers', ]
+
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'karl.zeitelhack@frm2.tum.de',
-                      copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
-                      subject = 'DEL',
-                     ),
-
-#   smser    = device('devices.notifiers.SMSer',
-#                     server = 'triton.admin.frm2'),
-
     Exp      = device('devices.experiment.Experiment',
                       sample = 'Sample',
                       dataroot = '/localdata/nicos',
