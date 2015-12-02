@@ -181,13 +181,13 @@ def MakeMap(*args, **kwargs):
         _ticks = tuple(tickstep(min(z), max(z)))
         clim = (_ticks[0], _ticks[1])
     _ticks = tuple(ticks(clim[0], clim[1]))
-    if contourlines == None:
+    if contourlines is None:
         contourlines = _ticks
-    if colorlevels == None:
+    if colorlevels is None:
         colorlevels = contourlines
         colorlevels = tuple(ticks(clim[0], clim[1], 50))
 
-    if lw == None:
+    if lw is None:
         lw = [0.5] * len(contourlines)      # default linewidth is 0.5
         for i in ticks(clim[0], clim[1], 2):
             if i in contourlines:
@@ -687,9 +687,9 @@ def PandaLoad(filename):
                 'ath  (A5) (deg)':'ath_offset',
                 'att  (A6) (deg)':'att_offset',
                 }
-            if filename == None:
+            if filename is None:
                 filename = self._filename # try a reload
-            if filename == None:	# no filename to be found!
+            if filename is None:  # no filename to be found!
                 print "Please give me a filename to load!"
                 return
             if filename == self._filename:

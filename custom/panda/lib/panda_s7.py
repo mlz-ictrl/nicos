@@ -270,10 +270,7 @@ class S7Motor(HasTimeout, NicosMotor):
         sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
 
         # pruefe Wartungsmodus
-        if b20 & 0x08 == 0x08:
-            wm = True
-        else:
-            wm = False
+        wm = bool(b20 & 0x08)
 
         if nc_err_flag:
             self.log.debug('NC_ERR_FLAG SET, NC_ERR:'+hex(nc_err))

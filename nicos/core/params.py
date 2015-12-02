@@ -295,7 +295,7 @@ class Attach(object):
                 return True
             # Don't change it to more pythonic style since we want to check for
             # the boolean 'True' value
-            if self.multiple == True:  # nopep8
+            if self.multiple is True:
                 return count > 0
             return (count in multiple)
 
@@ -315,7 +315,7 @@ class Attach(object):
 
         # Don't change it to more pythonic style since we want to check for
         # the boolean 'True' value
-        if self.multiple == True:  # nopep8
+        if self.multiple is True:
             if check_count(self.multiple, self.optional, len(args)):
                 return args
             raise ConfigurationError(dev, "wrong number of devices (%d) for %r"

@@ -263,7 +263,8 @@ class Scan(object):
         #     raise StopScan
         else:
             # consider all other errors to be fatal
-            raise
+            # (bare raise is ok since this is an error handler method)
+            raise  # pylint: disable=misplaced-bare-raise
 
     def moveTo(self, position, wait=True):
         """Move scan devices to *position*, a list of positions."""

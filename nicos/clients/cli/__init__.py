@@ -85,6 +85,7 @@ def readline_finish_callback(result):
     in a global variable.  (For some reason making this a method
     of NicosCmdClient fails.)
     """
+    # pylint: disable=global-statement
     global readline_result
     librl.rl_callback_handler_remove()
     # NULL pointer gives None, which means EOF
@@ -168,6 +169,7 @@ class NicosCmdClient(NicosClient):
 
         Thanks to ctypes this is possible without a custom C module.
         """
+        # pylint: disable=global-statement
         global readline_result
         term_encoding = sys.stdout.encoding or 'utf-8'
         librl.rl_callback_handler_install(to_encoding(prompt, term_encoding),

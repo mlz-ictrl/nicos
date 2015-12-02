@@ -811,19 +811,13 @@ class MonoWechsler(Device):
     def KL2552_0(self):
         r = self._attached_beckhoff.ReadWordInput(4) & 0xff
         if r < 128:
-            if r & 1:
-                return True
-            else:
-                return False
+            return bool(r & 1)
         return False  # dont mess with index bytes, return false instead !
 
     def KL2552_1(self):
         r = self._attached_beckhoff.ReadWordInput(6) & 0xff
         if r < 128:
-            if r & 1:
-                return True
-            else:
-                return False
+            return bool(r & 1)
         return False  # dont mess with index bytes !
 
     def SecShutter_is_closed(self):

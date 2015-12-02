@@ -932,11 +932,11 @@ class Readable(Device):
         if not self._cache:
             return func()
         val = None
-        if 1:  # self.hardware_access:  XXX decide if this should be enabled
-            if maxage != 0:
-                val = self._cache.get(
-                    self, name,
-                    mintime=currenttime() - maxage if maxage is not None else 0)
+        # XXX decide if the second condition should be enabled
+        if maxage != 0:  # and self.hardware_access:
+            val = self._cache.get(
+                self, name,
+                mintime=currenttime() - maxage if maxage is not None else 0)
         if val is None:
             val = func(self.maxage if maxage is None else maxage)
             self._cache.put(self, name, val, currenttime(), self.maxage)

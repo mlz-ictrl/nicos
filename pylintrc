@@ -92,6 +92,7 @@ disable=access-member-before-definition
         ,star-args
         ,global-statement
         ### new in pylint 1.5
+        ,unsubscriptable-object
         ,wrong-import-position
         ,ungrouped-imports
         ,wrong-import-order
@@ -113,7 +114,7 @@ output-format=text
 files-output=no
 
 # Tells whether to display a full report or only the messages
-reports=yes
+reports=no
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note). You have access to the variables errors warning, statement which
@@ -390,7 +391,7 @@ min-public-methods=0
 max-public-methods=100
 
 # Maximum number of boolean expressions in a if statement
-max-bool-expr=5
+max-bool-expr=7
 
 
 [CLASSES]
