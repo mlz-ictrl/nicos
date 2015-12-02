@@ -43,22 +43,9 @@ watchlist = [
 # The Watchdog device has two lists of notifiers, one for priority 1 and
 # one for priority 2.
 
+includes = ['notifiers', ]
+
 devices = dict(
-    emailer  = device('devices.notifiers.Mailer',
-                      description = 'Notifier service to send emails',
-                      sender = 'nicos.toftof@frm2.tum.de',
-                      copies = [('wiebke.lohstroh@frm2.tum.de', 'all'),
-                                ('Josef.Huber@frm2.tum.de', 'all'),
-                                ('zachary.evenson@frm2.tum.de', 'all'),
-                               ],
-                      subject = 'TOFTOF Warning',
-                     ),
-
-#   smser    = device('devices.notifiers.SMSer',
-#                     server = 'triton.admin.frm2',
-#                     receivers = ['01719251564', '01782979497'],
-#                    ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'tofhw.toftof.frm2:14869',
                       notifiers = {'default': ['emailer']},
