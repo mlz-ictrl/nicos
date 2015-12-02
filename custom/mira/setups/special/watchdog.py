@@ -27,26 +27,16 @@ watchlist = [
     ),
 ]
 
+includes = ['notifiers', ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 and
 # one for priority 2.
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'rgeorgii@frm2.tum.de',
-                      copies = [('robert.georgii@frm2.tum.de', 'all'),
-                                ('klaus.seemann@frm2.tum.de', 'all')],
-                      subject = 'MIRA Warning',
-                     ),
-
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = ['01719251564', '01782979497'],
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'mira1.mira.frm2:14869',
-                      notifiers = {'default': ['email'], 'critical': ['email', 'smser']},
+                      notifiers = {'default': ['email'],
+                                   'critical': ['email', 'smser']},
                       watch = watchlist,
                       mailreceiverkey = 'email/receivers',
                      ),

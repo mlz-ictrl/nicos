@@ -11,20 +11,9 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'commands.taco']
 
+includes = ['notifiers', ]
+
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'rgeorgii@frm2.tum.de',
-                      copies = [('rgeorgii@frm2.tum.de', 'all'),
-                                ('klaus.seemann@frm2.tum.de', 'all')],
-                      subject = 'MIRA',
-                      lowlevel = True,
-                     ),
-
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      lowlevel = True,
-                     ),
-
     Exp      = device('mira.experiment.MiraExperiment',
                       description = 'experiment object',
                       sample = 'Sample',
