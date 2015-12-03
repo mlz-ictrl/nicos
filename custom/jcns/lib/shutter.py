@@ -27,6 +27,10 @@ from nicos.devices.tango import NamedDigitalOutput
 from nicos.core.params import Param
 
 
+OPEN = "open"
+CLOSE = "close"
+
+
 class Shutter(NamedDigitalOutput):
     """Shutter implements a NamedDigitalOutput which moves to `stoptarget`
     position when the device is stopped. This can be used to close the

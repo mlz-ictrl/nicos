@@ -37,7 +37,7 @@ from nicos.core.errors import NicosError, MoveError, InvalidValueError
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
 from nicos.core.image import ImageType
-from nicos.jcns.shutter import Shutter
+from nicos.jcns.shutter import OPEN, CLOSE
 
 
 class ImagePlateDrum(PyTangoDevice, Moveable):
@@ -282,26 +282,26 @@ class BiodiffDetector(Detector):
     def doPrepare(self):
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(Shutter.CLOSED)
+            self._attached_photoshutter.maw(CLOSE)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(Shutter.CLOSED)
+            self._attached_gammashutter.maw(CLOSE)
         Detector.doPrepare(self)
 
     def doStart(self):
         # open shutter
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(Shutter.OPEN)
+            self._attached_gammashutter.maw(OPEN)
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(Shutter.OPEN)
+            self._attached_photoshutter.maw(OPEN)
         Detector.doStart(self)
 
     def _check_shutter(self):
         if (self.ctrl_photoshutter and
-                self._attached_photoshutter.read() == Shutter.CLOSED):
+                self._attached_photoshutter.read() == CLOSE):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter and
-                self._attached_gammashutter.read() == Shutter.CLOSED):
+                self._attached_gammashutter.read() == CLOSE):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -310,17 +310,17 @@ class BiodiffDetector(Detector):
         self._check_shutter()
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(Shutter.CLOSED)
+            self._attached_photoshutter.maw(CLOSE)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(Shutter.CLOSED)
+            self._attached_gammashutter.maw(CLOSE)
 
     def doStop(self):
         Detector.doStop(self)
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(Shutter.CLOSED)
+            self._attached_photoshutter.maw(CLOSE)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(Shutter.CLOSED)
+            self._attached_gammashutter.maw(CLOSE)
         # remove last empty file on errors
         exp = session.experiment
         if self._mode != SIMULATION:

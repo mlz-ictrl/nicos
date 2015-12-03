@@ -34,7 +34,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
 from nicos.biodiff.detector import BiodiffDetector
-from nicos.jcns.shutter import Shutter
+from nicos.jcns.shutter import OPEN
 
 
 class RScan(Scan):
@@ -61,9 +61,9 @@ class RScan(Scan):
             for det in self._detlist:
                 if isinstance(det, BiodiffDetector):
                     if det.ctrl_gammashutter:
-                        where.append((det.gammashutter, Shutter.OPEN))
+                        where.append((det.gammashutter, OPEN))
                     if det.ctrl_photoshutter:
-                        where.append((det.photoshutter, Shutter.OPEN))
+                        where.append((det.photoshutter, OPEN))
             if where:
                 self.moveDevices(where)
 
