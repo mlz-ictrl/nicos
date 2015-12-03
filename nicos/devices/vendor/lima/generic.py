@@ -139,9 +139,6 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doWritePreselection(self, value):
         self._dev.acq_expo_time = value
 
-    def doRead(self, _maxage=0):
-        return self.lastfilename
-
     def valueInfo(self):
         # no readresult by default
         return ()
