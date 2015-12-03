@@ -3,10 +3,11 @@
 description = "Andor DV936 CCD camera setup"
 group = "basic"
 
-includes = ["counter", "shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]
+includes = ["shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]
 
 tango_host = "tango://phys.biodiff.frm2:10000"
 _TANGO_BASE_URL = "%s/biodiff/detector" % tango_host
+tango_limaccd = _TANGO_BASE_URL + "/limaccd"
 
 devices = dict(
     FITSFileSaver = device("devices.fileformats.fits.FITSFileFormat",
@@ -14,9 +15,13 @@ devices = dict(
                            filenametemplate = ["%(proposal)s_%(counter)08d"
                                                ".fits"],
                           ),
+    ccdtime = device("devices.vendor.lima.LimaCCDTimer",
+                     description = "Internal LimaCDDTimer",
+                     tangodevice = tango_limaccd,
+                     ),
     ccd = device("devices.vendor.lima.Andor2LimaCCD",
                  description = "Andor DV936 CCD camera",
-                 tangodevice = _TANGO_BASE_URL + "/limaccd",
+                 tangodevice = tango_limaccd,
                  hwdevice = _TANGO_BASE_URL + "/ikonl",
                  maxage = 10,
                  bin = (2, 2),
@@ -28,7 +33,7 @@ devices = dict(
                 ),
     ccddet = device("biodiff.detector.BiodiffDetector",
                     description = "Andor DV936 CCD detector",
-                    timers = ["timer"],
+                    timers = ["ccdtime"],
                     images = ["ccd"],
                     maxage = 10,
                     fileformats = ["FITSFileSaver"],
