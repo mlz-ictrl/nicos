@@ -61,9 +61,9 @@ class RScan(Scan):
             for det in self._detlist:
                 if isinstance(det, BiodiffDetector):
                     if det.ctrl_gammashutter:
-                        where.append((det.gammashutter, OPEN))
+                        where.append((det._attached_gammashutter, OPEN))
                     if det.ctrl_photoshutter:
-                        where.append((det.photoshutter, OPEN))
+                        where.append((det._attached_photoshutter, OPEN))
             if where:
                 self.moveDevices(where)
 
