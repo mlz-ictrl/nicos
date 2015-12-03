@@ -29,12 +29,57 @@ import numpy
 from nicos.core import ImageType, Param, Device, AutoDevice, status, tupleof, \
     oneof, none_or, tangodev, Override, SIMULATION, HardwareError, NicosError
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
+    ActiveChannel, TimerChannelMixin
 from .optional import LimaShutter
 
 
 class HwDevice(PyTangoDevice, AutoDevice, Device):
     pass
+
+
+class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
+    """
+    Timer channel for Lima cameras.
+    """
+
+    parameters = {
+        '_starttime':   Param('Cached counting start time',
+                              type=float, default=0, settable=False,
+                              userparam=False),
+        '_stoptime':   Param('Cached counting start time',
+                              type=float, default=0, settable=False,
+                              userparam=False),
+    }
+
+    def doWritePreselection(self, value):
+        self._dev.acq_expo_time = value
+
+    def doRead(self, maxage=0):
+        if self._stoptime:
+            return [min(self._stoptime - self._starttime,
+                        self._dev.acq_expo_time)]
+        return [min(time.time() - self._starttime, self._dev.acq_expo_time)]
+
+    def doStart(self):
+        self._setROParam('_starttime', time.time())
+        self._setROParam('_stoptime', 0)
+
+    def doFinish(self):
+        self._setROParam('_stoptime', time.time())
+
+    def doStop(self):
+        self.doFinish()
+
+    def doStatus(self, maxage=0):
+        statusMap = {
+            'Ready': status.OK,
+            'Running': status.BUSY,
+            'Fault': status.ERROR,
+        }
+        limaStatus = self._dev.acq_status
+        nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
+        return (nicosStatus, limaStatus)
 
 
 class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
@@ -84,16 +129,15 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                                      'auto')),
                                   settable=True, default='auto', volatile=True,
                                   category='general'),
-        '_starttime':       Param('Cached counting start time',
-                                  type=float, default=0, settable=False,
-                                  userparam=False),
+        '_starttime':   Param('Cached counting start time',
+                              type=float, default=0, settable=False,
+                              userparam=False),
         # some cached values are necessary as hw params are volatile on request
-        '_curexpotime':         Param('Cached exposure time for current'
-                                      ' acquisition',
-                                      type=float,
-                                      default=0,
-                                      settable=False,
-                                      userparam=False),
+        '_curexpotime': Param('Cached exposure time for current acquisition',
+                              type=float,
+                              default=0,
+                              settable=False,
+                              userparam=False),
         '_curshutteropentime':  Param('Cached shutter open time for current'
                                       ' acquisition',
                                       type=float,
@@ -135,10 +179,6 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doShutdown(self):
         self._hwDev.shutdown()
-
-    # XXX: time this with a virtual timer?
-    def doWritePreselection(self, value):
-        self._dev.acq_expo_time = value
 
     def valueInfo(self):
         # no readresult by default
