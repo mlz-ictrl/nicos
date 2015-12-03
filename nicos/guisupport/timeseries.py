@@ -149,10 +149,6 @@ class TimeSeries(object):
             if value is None:
                 continue
             delta = vtime - ltime
-            if delta < self.interval:
-                # value comes too fast -> ignore
-                lvalue = value
-                continue
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string
                 if isinstance(value, string_types):
@@ -160,6 +156,10 @@ class TimeSeries(object):
                 # other values we can't use
                 else:
                     continue
+            if delta < self.interval:
+                # value comes too fast -> ignore
+                lvalue = value
+                continue
             if delta > maxdelta and lvalue is not None:
                 # synthesize one or two points inbetween
                 if vtime - self.interval > ltime + self.interval:
