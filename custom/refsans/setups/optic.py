@@ -28,7 +28,7 @@ group = 'lowlevel'
 
 includes = ['nok1', 'nok2', 'nok3', 'nok4',
             # beckhoff 'b1',
-            'disk3','disk4',
+            'disc3','disc4',
             # beckhoff 'nok5a', 'nok5b',
             # beckhoff 'zb0', 'zb1',
             'nok6', 'nok7', 'nok8', 'nok9',

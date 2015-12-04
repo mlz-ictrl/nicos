@@ -53,6 +53,15 @@ for i in range(4):
 
 _nokcolumn = Column(Block('NOK-System', _nok_array))
 
+_flippercolumn = Column(
+    Block('Flipper', [
+          BlockRow( Field(dev='frequency'),
+                    Field(dev='current'),
+                    Field(dev='flipper', name='Flipping_State'),
+                  )
+          ]),
+)
+
 _refcolumn = Column(
     Block('References', [
         BlockRow( Field(dev='nok_refa1', name='ref_A1'),
@@ -78,6 +87,7 @@ devices = dict(
                      layout = [
                                Row(_expcolumn),
                                Row(_nokcolumn, _refcolumn),
+                               Row(_flippercolumn),
                               ],
                     ),
 )
