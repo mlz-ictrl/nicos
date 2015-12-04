@@ -33,10 +33,10 @@ from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import SettingGroup, loadUi, \
     loadBasicWindowSettings, loadUserStyle
 
-from nicos.clients.gui.panels.base import Panel
+from nicos.clients.gui.panels.base import Panel, SetupDepWindowMixin
 
 
-class AuxiliaryWindow(QMainWindow):
+class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
 
     closed = pyqtSignal('QMainWindow')
 
@@ -69,6 +69,8 @@ class AuxiliaryWindow(QMainWindow):
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st)
+
+        SetupDepWindowMixin.__init__(self, self.client)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:

@@ -29,7 +29,7 @@ from PyQt4.QtGui import QTabWidget, QMainWindow, QMouseEvent, QPixmap, \
 from PyQt4.QtCore import Qt, SIGNAL, QPoint, QMimeData, QEvent, pyqtSlot, \
     QByteArray
 
-# from nicos.clients.gui.panels.base import SetupDepGuiMixin
+# from nicos.clients.gui.panels.base import SetupDepPanelMixin
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 
@@ -155,7 +155,7 @@ class TearOffTabWidget(QTabWidget):
                 self.detached)
 
     def __init__(self, item, window, menuwindow, parent=None):
-        # SetupDepGuiMixin.__init__(self, client)
+        # SetupDepPanelMixin.__init__(self, client)
         QTabWidget.__init__(self, parent)
         self.menuwindow = menuwindow
         self.tabBar = TearOffTabBar(self)

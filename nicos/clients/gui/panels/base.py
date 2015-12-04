@@ -37,7 +37,21 @@ from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.config import panel
 
 
-class PanelDialog(QDialog):
+class SetupDepWindowMixin(QObject):
+    def __init__(self, client):
+        if client._reg_keys:
+            values = client.ask('getcachekeys', ','.join(client._reg_keys))
+            if values is not None:
+                for key, value in values:
+                    if key in client._reg_keys and \
+                       key == 'session/mastersetup':
+                        for widget in client._reg_keys[key]:
+                            if widget():
+                                widget().on_keyChange(key, value,
+                                                      currenttime(), False)
+
+
+class PanelDialog(SetupDepWindowMixin, QDialog):
     def __init__(self, parent, client, panelcfg, title):
         from nicos.clients.gui.panels.utils import createWindowItem
         self.panels = []
@@ -60,28 +74,17 @@ class PanelDialog(QDialog):
             hbox.addWidget(pnl)
         self.setLayout(hbox)
         self.setWindowTitle(title)
-
-        if self.client._reg_keys:
-            values = self.client.ask('getcachekeys',
-                                     ','.join(self.client._reg_keys))
-            if values is not None:
-                for key, value in values:
-                    if key in self.client._reg_keys and \
-                       key == 'session/mastersetup':
-                        for widget in self.client._reg_keys[key]:
-                            if widget():
-                                widget().on_keyChange(key, value,
-                                                      currenttime(), False)
+        SetupDepWindowMixin.__init__(self, self.client)
 
 
-class SetupDepGuiMixin(QObject):
+class SetupDepPanelMixin(QObject):
     ''' Mixin to handle setup-dependent visibility
 
     Note: You must explicity add the following class attribute in all
     classes using this mixin (A PyQt resctriction, see
     https://riverbankcomputing.com/pipermail/pyqt/2013-September/033199.html):
 
-    `setWidgetVisible = SetupDepGuiMixin.setWidgetVisible`
+    `setWidgetVisible = SetupDepPanelMixin.setWidgetVisible`
 
     '''
     setupSpec = ()
@@ -102,20 +105,20 @@ class SetupDepGuiMixin(QObject):
 
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
-            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
             if hasattr(self, 'setWidgetVisible'):
+                enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
                 self.setWidgetVisible.emit(self, enabled)
 
 
-class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
+class Panel(QWidget, SetupDepPanelMixin, DlgUtils):
     panelName = ''
 
-    setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
+    setWidgetVisible = SetupDepPanelMixin.setWidgetVisible
 
     def __init__(self, parent, client):
         QWidget.__init__(self, parent)
         self.log = NicosLogger(self.panelName)
-        SetupDepGuiMixin.__init__(self, client)
+        SetupDepPanelMixin.__init__(self, client)
         DlgUtils.__init__(self, self.panelName)
         self.parentwindow = parent
         self.client = client

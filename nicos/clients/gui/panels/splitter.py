@@ -29,11 +29,11 @@ from PyQt4.QtGui import QSplitter
 from PyQt4.QtCore import Qt
 
 from nicos.utils.loggers import NicosLogger
-from nicos.clients.gui.panels.base import SetupDepGuiMixin
+from nicos.clients.gui.panels.base import SetupDepPanelMixin
 
 
-class Splitter(QSplitter, SetupDepGuiMixin):
-    setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
+class Splitter(QSplitter, SetupDepPanelMixin):
+    setWidgetVisible = SetupDepPanelMixin.setWidgetVisible
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
         from nicos.clients.gui.panels.utils import createWindowItem
@@ -41,7 +41,7 @@ class Splitter(QSplitter, SetupDepGuiMixin):
         window.splitters.append(self)
         self.log = NicosLogger('Splitter')
         self.log.parent = topwindow.log
-        SetupDepGuiMixin.__init__(self, window.client)
+        SetupDepPanelMixin.__init__(self, window.client)
         self.setOptions(item.options)
         for subitem in item.children:
             sub = createWindowItem(subitem, window, menuwindow, topwindow,
