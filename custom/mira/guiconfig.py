@@ -22,7 +22,7 @@ windows = [
                      tool('Scan', 'scan.ScanTool')
                  ])),
     window('Live data', 'live',
-           panel('nicos.mira.gui.live.LiveDataPanel')),
+           panel('mira.gui.live.LiveDataPanel')),
     window('Scans', 'plotter',
            panel('scans.ScansPanel')),
     window('History', 'find',

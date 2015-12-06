@@ -34,17 +34,17 @@ main_window = docked(
          ),
         ),
         ('PGAA',
-         panel('nicos.pgaa.gui.panels.PGAAPanel', setups='pgaa'),
+         panel('pgaa.gui.panels.PGAAPanel', setups='pgaa'),
         ),
         ('Shutter/Attenuators',
          panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui',
               setups='pgaa'),
         ),
         ('SANS acquisition',
-         panel('nicos.demo.gui.sanspanel.SANSPanel', setups='sans'),
+         panel('demo.gui.sanspanel.SANSPanel', setups='sans'),
         ),
         ('SampleChanger',
-         panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+         panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                image='custom/sans1/lib/gui/sampleChanger11.png',
                positions=11, setups='sans and (sc1 or sc2)',)
         ),
@@ -69,7 +69,7 @@ main_window = docked(
      panel('expinfo.ExpInfoPanel',
            sample_panel=tabbed(
                ('Sample changer',
-                panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                       image='custom/sans1/lib/gui/sampleChanger11.png',
                       positions=11, setups='sans',)
                ),
@@ -88,7 +88,7 @@ windows = [
             ('Setups', panel('setup_panel.SetupsPanel')),
             ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
             ('Samples',
-                panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                       image='custom/sans1/lib/gui/sampleChanger22.png',
                       positions=22, setups='sc1 or sc2')
             ),

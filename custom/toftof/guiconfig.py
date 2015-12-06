@@ -34,7 +34,7 @@ main_window = docked(
      panel('devices.DevicesPanel', icons=True, dockpos='right',),
     ),
     ('Safety system',
-     panel('nicos.toftof.gui.safetypanel.SafetyPanel'),
+     panel('toftof.gui.safetypanel.SafetyPanel'),
     ),
     ('Detector information',
      panel('generic.GenericPanel', uifile='custom/toftof/lib/gui/ratespanel.ui'),
@@ -56,6 +56,12 @@ windows = [
                  ),
         ),
     ),
+#   window('Setup', 'setup',
+#       tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+#              ('Setups',     panel('setup_panel.SetupsPanel')),
+#              ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+#       )
+#   ),
 #   window('Scans', 'plotter', panel('scans.ScansPanel'),),
     window('History', 'find', panel('history.HistoryPanel'),),
     window('Logbook', 'table', panel('elog.ELogPanel'),),
@@ -81,9 +87,3 @@ tools = [
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False,),
 ]
-
-#       window('Setup', 'setup',
-#           tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-#                  ('Setups',     panel('setup_panel.SetupsPanel')),
-#                  ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
-#           )),

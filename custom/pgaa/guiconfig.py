@@ -27,11 +27,10 @@
 main_window = docked(
    tabbed(
         ('PGAA',
-         panel('nicos.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
+         panel('pgaa.gui.panels.PGAAPanel', setups='pgaa',)
         ),
         ('Tomography',
-         panel('nicos.pgaa.gui.panels.TomographyPanel',
-               setups='tomography',),
+         panel('pgaa.gui.panels.TomographyPanel', setups='tomography',),
         ),
         ('Shutter/Attenuators',
          panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui'),
