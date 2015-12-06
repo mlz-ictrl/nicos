@@ -50,7 +50,7 @@ main_window = tabbed(
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
                 tools = [
-                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+                    tool('Scan Generator', 'scan.ScanTool')
             ]),
         )),
     ('Scan Plotting', panel('scans.ScansPanel')),

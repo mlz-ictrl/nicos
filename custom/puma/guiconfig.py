@@ -38,29 +38,29 @@ main_window = docked (
 )
 
 windows = [
-        window('Setup', 'setup', True,
+        window('Setup', 'setup',
             tabbed(('Experiment', panel('setup_panel.ExpPanel')),
                    ('Setups',     panel('setup_panel.SetupsPanel')),
                    ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
             )),
-        window('Editor', 'editor', True,
+        window('Editor', 'editor',
             vsplit(
                 panel('scriptbuilder.CommandsPanel'),
                 panel('editor.EditorPanel',
                   tools = [
-                      tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                      tool('Scan', 'scan.ScanTool')
                   ]))),
-        window('Scans', 'plotter', True,
+        window('Scans', 'plotter',
             panel('scans.ScansPanel')),
-        window('History', 'find', True,
+        window('History', 'find',
             panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
+        window('Logbook', 'table',
             panel('elog.ELogPanel')),
-        window('Errors', 'errors', True,
+        window('Errors', 'errors',
             panel('errors.ErrorPanel')),
-        window('Live data', 'live', True,
+        window('Live data', 'live',
             panel('live.LiveDataPanel')),
-        window('TAS status', 'table', True,
+        window('TAS status', 'table',
             panel('generic.GenericPanel',
                   uifile='custom/demo/lib/gui/tasaxes.ui')),
 ]

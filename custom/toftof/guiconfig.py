@@ -40,7 +40,7 @@ main_window = docked(
      panel('generic.GenericPanel', uifile='custom/toftof/lib/gui/ratespanel.ui'),
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
+     panel('expinfo.ExpInfoPanel')
     ),
 )
 
@@ -51,7 +51,7 @@ windows = [
             panel('editor.EditorPanel',
                   tools = [
 #                     tool('Scan Generator',
-#                          'nicos.clients.gui.tools.ScanTool'),
+#                          'tools.ScanTool'),
                   ],
                  ),
         ),
@@ -82,7 +82,7 @@ tools = [
          runatstartup=False,),
 ]
 
-#       window('Setup', 'setup', True,
+#       window('Setup', 'setup',
 #           tabbed(('Experiment', panel('setup_panel.ExpPanel')),
 #                  ('Setups',     panel('setup_panel.SetupsPanel')),
 #                  ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),

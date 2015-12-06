@@ -31,13 +31,11 @@ main_window = docked(
         panel('console.ConsolePanel'),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
-          )
+     panel('devices.DevicesPanel', icons=True, dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
-       ),
+     panel('expinfo.ExpInfoPanel'),
+    ),
 )
 
 windows = [
@@ -46,14 +44,14 @@ windows = [
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
               tools = [
-                  tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+                  tool('Scan Generator', 'scan.ScanTool')
               ]))),
     window('Scans', 'plotter', panel('scans.ScansPanel')),
     window('History', 'find', panel('history.HistoryPanel')),
     window('Logbook', 'table', panel('elog.ELogPanel')),
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
-    window('Live data', 'live', True,
+    window('Live data', 'live',
             panel('live.LiveDataPanel', instrument = 'imaging'))
 ]
 

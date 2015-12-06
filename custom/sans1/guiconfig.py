@@ -83,7 +83,7 @@ config = ('Default', [
             ),
             ('Experiment info', panel('expinfo.ExpInfoPanel')),
         ),
-        window('Setup', 'setup', True,
+        window('Setup', 'setup',
             tabbed(
                 ('Experiment',
                     panel('setup_panel.ExpPanel')),
@@ -101,7 +101,7 @@ config = ('Default', [
                         positions = 22, setups='sc1',)),
             )
         ),
-        window('Editor', 'editor', True,
+        window('Editor', 'editor',
             vsplit(
                 panel('scriptbuilder.CommandsPanel'),
                 panel('editor.EditorPanel',
@@ -111,17 +111,17 @@ config = ('Default', [
                     )
                 )
         ),
-        window('Watches', 'leds/blue_on', True,
+        window('Watches', 'leds/blue_on',
             panel('watch.WatchPanel')),
-        window('Scans', 'plotter', True,
+        window('Scans', 'plotter',
             panel('scans.ScansPanel')),
-        window('History', 'find', True,
+        window('History', 'find',
             panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
+        window('Logbook', 'table',
             panel('elog.ELogPanel')),
-        window('Log files', 'table', True,
+        window('Log files', 'table',
             panel('logviewer.LogViewerPanel')),
-        window('Errors', 'errors', True,
+        window('Errors', 'errors',
             panel('errors.ErrorPanel')),
     ], [
         tool('Downtime report', 'downtime.DownTimeTool',
@@ -140,7 +140,7 @@ config = ('Default', [
         tool('Emergency stop button', 'estop.EmergencyStopTool',
              runatstartup=False),
         tool('Maintenance commands',
-             'nicos.clients.gui.tools.commands.CommandsTool',
+             'tools.commands.CommandsTool',
              commands=[
                  ('TACO server control panel (beta)',
                   'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY '

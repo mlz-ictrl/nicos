@@ -31,13 +31,11 @@ main_window = docked(
         panel('console.ConsolePanel'),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
-          )
+     panel('devices.DevicesPanel', icons=True, dockpos='right',),
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-       )),
+     panel('expinfo.ExpInfoPanel',),
+    ),
 )
 
 windows = [

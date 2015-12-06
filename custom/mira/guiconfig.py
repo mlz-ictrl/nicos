@@ -11,27 +11,27 @@ main_window = vsplit(
 )
 
 windows = [
-    # window('Setup', 'setup', True,
+    # window('Setup', 'setup',
     #        tabbed(('Experiment', panel('setup_panel.ExpPanel')),
     #               ('Setups',     panel('setup_panel.SetupsPanel')),
     #               ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
     #        )),
-    window('Editor', 'editor', True,
+    window('Editor', 'editor',
            panel('editor.EditorPanel',
                  tools = [
-                     tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                     tool('Scan', 'scan.ScanTool')
                  ])),
-    window('Live data', 'live', True,
+    window('Live data', 'live',
            panel('nicos.mira.gui.live.LiveDataPanel')),
-    window('Scans', 'plotter', True,
+    window('Scans', 'plotter',
            panel('scans.ScansPanel')),
-    window('History', 'find', True,
+    window('History', 'find',
            panel('history.HistoryPanel')),
-    window('Devices', 'table', True,
+    window('Devices', 'table',
            panel('devices.DevicesPanel')),
-    window('Logbook', 'table', True,
+    window('Logbook', 'table',
            panel('elog.ELogPanel')),
-    window('NICOS log files', 'table', True,
+    window('NICOS log files', 'table',
            panel('logviewer.LogViewerPanel')),
 ]
 

@@ -46,7 +46,7 @@ main_window = docked(
         ('SampleChanger',
          panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
                image='custom/sans1/lib/gui/sampleChanger11.png',
-               positions=11, setups='sans',)
+               positions=11, setups='sans and (sc1 or sc2)',)
         ),
         ('PiBox',
          panel('generic.GenericPanel', uifile='custom/demo/lib/gui/piface.ui',
@@ -62,12 +62,11 @@ main_window = docked(
 #       ),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
+     panel('devices.DevicesPanel', icons=True, dockpos='right',
           )
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+     panel('expinfo.ExpInfoPanel',
            sample_panel=tabbed(
                ('Sample changer',
                 panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
@@ -75,8 +74,7 @@ main_window = docked(
                       positions=11, setups='sans',)
                ),
                ('TAS sample',
-                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
-                      setups='tas',)
+                panel('setup_panel.TasSamplePanel', setups='tas',)
                ),
            )
           )
@@ -84,19 +82,32 @@ main_window = docked(
 )
 
 windows = [
+    window('Setup', 'setup',
+        tabbed(
+            ('Experiment', panel('setup_panel.ExpPanel')),
+            ('Setups', panel('setup_panel.SetupsPanel')),
+            ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+            ('Samples',
+                panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      image='custom/sans1/lib/gui/sampleChanger22.png',
+                      positions=22, setups='sc1 or sc2')
+            ),
+        ),
+    ),
     window('Editor', 'editor',
         vsplit(
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
               tools = [
-                  tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+                  tool('Scan Generator', 'scan.ScanTool')
               ]))),
     window('Scans', 'plotter', panel('scans.ScansPanel')),
     window('History', 'find', panel('history.HistoryPanel')),
     window('Logbook', 'table', panel('elog.ELogPanel')),
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
-    # window('Downtime', 'mail', panel('nicos.clients.gui.tools.downtime.DownTimeTool')),
+    # window('Downtime', 'mail', panel('downtime.DownTimeTool')),
+    # window('Live data', 'live', panel('live.LiveDataPanel'), setups='sans',)
     window('Live data', 'live', panel('live.LiveDataPanel')),
 ]
 

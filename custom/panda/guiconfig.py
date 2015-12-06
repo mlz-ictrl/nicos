@@ -32,13 +32,11 @@ main_window = docked(
         panel('console.ConsolePanel'),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
-          )
+     panel('devices.DevicesPanel', icons=True, dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-           sample_panel=panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'),
+     panel('expinfo.ExpInfoPanel',
+           sample_panel=panel('setup_panel.TasSamplePanel'),
           )
     ),
 )
@@ -49,7 +47,7 @@ windows = [
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
               tools = [
-                  tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+                  tool('Scan Generator', 'scan.ScanTool')
               ]))),
     window('Scans', 'plotter', panel('scans.ScansPanel')),
     window('History', 'find', panel('history.HistoryPanel')),
@@ -76,7 +74,7 @@ tools = [
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
     tool('Maintenance commands',
-         'nicos.clients.gui.tools.commands.CommandsTool',
+         'commands.CommandsTool',
          commands=[
              ('TACO server control @PANDA21 (beta)', 'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY maint@panda21.panda.frm2 "source /etc/tacoenv.sh && XAUTHORITY=/home/maint/.Xauthority sudo -E /usr/bin/python /opt/tacocp/tacocp.py pandasrv.panda.frm2" && exit'),
          ]),
