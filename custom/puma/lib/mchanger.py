@@ -129,7 +129,8 @@ class Mchanger(Moveable):
         for dev, pos in self._changing_values.items():
             dev.start(pos)
 
-        multiWait(self._changing_values)
+#        multiWait(self._changing_values)
+        multiWait(self._changing_values.keys())
 
         for dev, pos in self._changing_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
@@ -192,7 +193,7 @@ class Mchanger(Moveable):
         for dev, pos in self._init_values.items():
             dev.start(pos)
 
-        multiWait(self._init_values)
+        multiWait(self._init_values.keys())
 
         for dev, pos in self._init_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
@@ -265,10 +266,19 @@ class Mchanger(Moveable):
             self.log.info('Close %s' % dev.name)
         else:
             self.log.info('Move %s to %r position' % (dev.name, pos))
-        dev.start(pos)
-        dev.wait()
-        if devicename == 'r3':  # R3 does not wait!
-            time.sleep(2)
+        try:
+            dev.start(pos)
+            if devicename == 'r3':  # R3 does not wait!
+                time.sleep(2)
+            if devicename == 'grip':  # grip does not wait!
+                time.sleep(2)
+            dev.wait()
+        except Exception:
+            if devicename == 'lift':  # most probably it is touching the limit switch
+                dev._adevs['moveables'][0].motor.stop()
+                self.log.info('Limit switch ?')
+            else:
+                raise
         if dev.read(0) != pos:
             raise PositionError('Device %r did not reach its target %r, '
                                 'aborting' % (dev, pos))
