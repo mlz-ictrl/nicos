@@ -4,7 +4,7 @@ mono.unit='A-1'
 ana.unit='A-1'
 
 
-mpm=4000000   # monitor per minute
+mpm=4500000   # monitor per minute
 
 move(atn,0)  # means NO ATTENUATOR
 

@@ -72,9 +72,9 @@ devices = dict(
                     coder = 'co_att',
                     obs = [],
                     precision = 0.01,
-                    offset = 0.165, # offset = 0.379, focused before magnet used 16.09.2014
+                    offset = -0.133, # offset = 0.379, focused before magnet used 16.09.2014
 #                   offset = 0.307, # with collimator
-                    maxtries = 10,
+                    maxtries = 30,
                    ),
 
     ath    = device('devices.generic.Axis',
@@ -84,13 +84,13 @@ devices = dict(
                     obs = [],
                     precision = 0.01,
 #                   offset = -0.678, #with collimator
-                    offset = -1.1024, # offset = -0.719, focussed before magnet used 16.09.2014
+                    offset = -0.946, # offset = -0.719, focussed before magnet used 16.09.2014
                     maxtries = 8,
                    ),
 
 # Focusing
 
-   st_afpg = device('puma.ipc_puma.Motor',
+   st_afpg = device('puma.ipc_puma.Motor1',
                     bus = 'motorbus6',
                     addr = 68,
                     slope = 368.4,
@@ -124,7 +124,7 @@ devices = dict(
 
 # Tilt and Translation
 
-   st_atx = device('puma.ipc_puma.Motor',
+   st_atx = device('devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 64,
                    slope = -2500,
@@ -154,7 +154,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-   st_aty = device('puma.ipc_puma.Motor',
+   st_aty = device('devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 63,
                    slope = -2500,
@@ -185,7 +185,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-   st_agx = device('puma.ipc_puma.Motor',
+   st_agx = device('devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 62,
                    slope = -5000,
@@ -206,7 +206,7 @@ devices = dict(
                     backlash = 0.2,
                    ),
 
-    st_agy = device('puma.ipc_puma.Motor',
+    st_agy = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 61,
                     slope = 5000,
