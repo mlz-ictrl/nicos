@@ -152,7 +152,7 @@ class Scan(object):
                                   for det in dataset.detlist), ())
         if self._multistep:
             dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
-        # advanceImageCounter can not be called later as the updated value may
+        # advanceScanCounter can not be called later as the updated value may
         # be used by the sinks...
         session.experiment.advanceScanCounter()
         for sink in self._sinks:
