@@ -185,7 +185,7 @@ class DataHandler(QObject):
                       in zip(dataset.xnames, dataset.xunits)]
         dataset.datax = dict((key, []) for key in xnameunits)
         for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
-            if info.type in ('info', 'error'):
+            if info.type in ('info', 'error', 'filename'):
                 continue
             curve = Curve()
             # share data for X and normalization
