@@ -36,6 +36,8 @@ watchlist = [
         ),
 ]
 
+includes = ['notifiers', ]
+
 notifiers = {
     'default':  ['email'],
     'critical': ['email', 'smser'],
