@@ -8,6 +8,9 @@ includes = ['alias_T']
 # setupname = filename - '.py' extension
 nethost = setupname
 
+plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
+
+# This box is equipped with the pressure regulation!
 devices = {
     'T_%s' % setupname : device('frm2.ccr.CCRControl',
                                 description = 'The main temperature control ' \
@@ -16,137 +19,108 @@ devices = {
                                 tube = 'T_%s_tube' % setupname,
                                 unit = 'K',
                                 fmtstr = '%.3f',
-                                pollinterval = 5,
-                                maxage = 6,
                                ),
 
     'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
                                       description = 'The control device of ' \
                                                     'the sample (stick)',
-                                      tacodevice = '//%s/ccr/stick/control2' % nethost,
+                                      tacodevice = '//%s/box/stick/control2' % nethost,
                                       abslimits = (0, 600),
                                       unit = 'K',
                                       fmtstr = '%.3f',
-                                      pollinterval = 5,
-                                      maxage = 6,
                                      ),
 
     'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
                                      description = 'The control device of the '
                                                    'tube',
-                                     tacodevice = '//%s/ccr/tube/control1' % nethost,
+                                     tacodevice = '//%s/box/tube/control1' % nethost,
                                      abslimits = (0, 300),
                                      warnlimits = (0, 300),
                                      unit = 'K',
                                      fmtstr = '%.3f',
-                                     pollinterval = 5,
-                                     maxage = 6,
                                     ),
 
     'T_%s_A' % setupname : device('devices.taco.TemperatureSensor',
                                   description = '(optional) Sample temperature',
-                                  tacodevice = '//%s/ccr/sample/sensora' % nethost,
+                                  tacodevice = '//%s/box/sample/sensora' % nethost,
                                   unit = 'K',
                                   fmtstr = '%.3f',
-                                  pollinterval = 5,
-                                  maxage = 6,
                                  ),
 
     'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
                                   description = '(regulation) Temperature at '\
                                                 'the stick',
-                                  tacodevice = '//%s/ccr/stick/sensorb' % nethost,
+                                  tacodevice = '//%s/box/stick/sensorb' % nethost,
                                   unit = 'K',
                                   fmtstr = '%.3f',
-                                  pollinterval = 5,
-                                  maxage = 6,
                                  ),
 
     'T_%s_C' % setupname : device('devices.taco.TemperatureSensor',
                                   description = 'Temperature of the coldhead',
-                                  tacodevice = '//%s/ccr/coldhead/sensorc' % nethost,
+                                  tacodevice = '//%s/box/coldhead/sensorc' % nethost,
                                   warnlimits = (0, 300),
                                   unit = 'K',
                                   fmtstr = '%.3f',
-                                  pollinterval = 5,
-                                  maxage = 6,
                                  ),
 
     'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
                                   description = '(regulation) Temperature at ' \
                                                 'thermal coupling to the tube',
-                                  tacodevice = '//%s/ccr/tube/sensord' % nethost,
+                                  tacodevice = '//%s/box/tube/sensord' % nethost,
                                   warnlimits = (0, 300),
                                   unit = 'K',
                                   fmtstr = '%.3f',
-                                  pollinterval = 5,
-                                  maxage = 6,
                                  ),
 
-    '%s_compressor_switch' % setupname : device('frm2.ccr.CompressorSwitch',
-                                                description = 'Switch for the compressor',
-                                                tacodevice = '//%s/ccr/plc/on' % nethost,
-                                                offdev = '//%s/ccr/plc/off' % nethost,
-                                                readback = '//%s/ccr/plc/fbcooler' % nethost,
-                                                statusdev = '//%s/ccr/plc/state' % nethost,
-                                                mapping = {'on' : 1, 'off' : 0},
-                                               ),
-
-    '%s_gas_set' % setupname : device('devices.taco.DigitalOutput',
-                                      description = 'Switch for the gas valve',
-                                      lowlevel = True,
-                                      tacodevice = '//%s/ccr/plc/gas' % nethost,
-                                     ),
-
-    '%s_gas_read' % setupname : device('devices.taco.DigitalInput',
-                                       description = 'Read back of the gas valve state',
-                                       lowlevel = True,
-                                       tacodevice = '//%s/ccr/plc/fbgas' % nethost,
-                                      ),
-
-    '%s_gas_switch' % setupname : device('devices.vendor.frm2.CCRSwitch',
-                                         description = 'Gas valve switch',
-                                         write = '%s_gas_set' % setupname,
-                                         feedback = '%s_gas_read' % setupname,
+    '%s_compressor' % setupname : device('devices.tango.NamedDigitalOutput',
+                                         description = 'Compressor for Coldhead (should be ON)',
+                                         tangodevice = plc_tango_base + 'cooler_onoff',
+                                         mapping = {'on' : 1, 'off' : 0},
                                         ),
 
-    '%s_vacuum_set' % setupname : device('devices.taco.DigitalOutput',
-                                         description = 'Switch for the vacuum' \
-                                                       'valve',
-                                         lowlevel = True,
-                                         tacodevice = '//%s/ccr/plc/vacuum' % nethost,
+    '%s_gas_switch' % setupname : device('devices.tango.NamedDigitalOutput',
+                                         description = 'Switch for the gas valve',
+                                         tangodevice = plc_tango_base + 'gas_onoff',
+                                         mapping = {'on' : 1, 'off' : 0},
                                         ),
 
-    '%s_vacuum_read' % setupname : device('devices.taco.DigitalInput',
-                                          description = 'Read back of the ' \
-                                                        'vacuum valve state',
-                                          lowlevel = True,
-                                          tacodevice = '//%s/ccr/plc/fbvacuum' % nethost,
-                                         ),
-
-    '%s_vacuum_switch' % setupname : device('devices.vendor.frm2.CCRSwitch',
-                                            description = 'Vacuum valve switch',
-                                            write = '%s_vacuum_set' % setupname,
-                                            feedback = '%s_vacuum_read' % setupname,
+    '%s_vacuum_switch' % setupname : device('devices.tango.NamedDigitalOutput',
+                                            description = 'Switch for the vacuum valve',
+                                            tangodevice = plc_tango_base + 'vacuum_onoff',
+                                            mapping = {'on' : 1, 'off' : 0},
                                            ),
 
-    '%s_p1' % setupname : device('devices.taco.AnalogInput',
+    '%s_p1' % setupname : device('devices.tango.AnalogInput',
                                  description = 'Pressure in sample space',
-                                 tacodevice = '//%s/ccr/plc/p1' % nethost,
-                                 fmtstr = '%.4g',
-                                 pollinterval = 15,
-                                 maxage = 20,
+                                 tangodevice = plc_tango_base + 'p1',
+                                 fmtstr = '%.3g',
                                  unit = 'mbar',
                                 ),
 
-    '%s_p2' % setupname : device('devices.taco.AnalogInput',
+    '%s_p2' % setupname : device('devices.tango.AnalogInput',
                                  description = 'Pressure in the vacuum chamber',
-                                 tacodevice = '//%s/ccr/plc/p2' % nethost,
-                                 fmtstr = '%.4g',
-                                 pollinterval = 15,
-                                 maxage = 20,
+                                 tangodevice = plc_tango_base + 'p2',
+                                 fmtstr = '%.3g',
                                  unit = 'mbar',
                                 ),
+
+    '%s_pressure_regulate' % setupname : device('devices.tango.NamedDigitalOutput',
+                                                description = "selects pressure regulation",
+                                                tangodevice = plc_tango_base + 'automatik',
+                                                mapping = dict(off=0, p1=1, p2=2),
+                                               ),
+
+    '%s_p1_limits' % setupname : device('frm2.ccr.PLCLimits',
+                                        description = 'Limits for Pressure regulation on Channel 1',
+                                        tangodevice = plc_tango_base + 'p1',
+                                        unit = 'mbar',
+                                       ),
+
+    '%s_p2_limits' % setupname : device('frm2.ccr.PLCLimits',
+                                        description = 'Limits for Pressure regulation on Channel 2',
+                                        tangodevice = plc_tango_base + 'p2',
+                                        unit = 'mbar',
+                                       ),
 }
 
 alias_config = {
@@ -155,6 +129,11 @@ alias_config = {
 }
 
 startupcode = """
+printinfo("===== %s =====")
 printinfo("Please set T_%s.regulationmode to either 'stick', 'tube', or 'both' "
           "according to your needs.")
-""" % setupname
+printinfo("If using the pressure regulation feature, set the limits via "
+          "%s_p2_limits or %s_p1_limits.")
+printinfo("Activate the wanted channel with the %s_pressure_regulate device or "
+          "switch it to 'off' to deactivate the regulation.")
+""" % (setupname, setupname, setupname, setupname, setupname)

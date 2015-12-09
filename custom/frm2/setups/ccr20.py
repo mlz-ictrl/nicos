@@ -129,11 +129,11 @@ alias_config = {
 }
 
 startupcode = """
-printinfo("===== CCR20 =====")
+printinfo("===== %s =====")
 printinfo("Please set T_%s.regulationmode to either 'stick', 'tube', or 'both' "
           "according to your needs.")
 printinfo("If using the pressure regulation feature, set the limits via "
           "%s_p2_limits or %s_p1_limits.")
 printinfo("Activate the wanted channel with the %s_pressure_regulate device or "
           "switch it to 'off' to deactivate the regulation.")
-""" % (setupname, setupname, setupname, setupname)
+""" % (setupname, setupname, setupname, setupname, setupname)
