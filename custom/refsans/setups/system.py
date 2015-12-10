@@ -32,10 +32,11 @@ sysconfig = dict(
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email'],
 )
 
 modules = ['commands.standard', 'refsans.commands']
+includes = ['notifiers', ]
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 
