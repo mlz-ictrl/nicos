@@ -67,4 +67,7 @@ tools = [
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
+    # unfortunately doesn't work in the QWebView
+    #tool('Webcam', 'website.WebsiteTool',
+    #     url='http://kws1:kws1@172.25.34.66/view/viewer_index.shtml?id=296'),
 ]
