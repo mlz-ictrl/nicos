@@ -315,7 +315,7 @@ class SequencerMixin(DeviceMixinBase):
             self.log.debug('Performing Sequence of %d steps' % len(sequence))
             for i, step in enumerate(sequence):
                 self._set_seq_status(status.BUSY, 'action %d: ' %
-                                     (i + 1) + ';'.join(map(repr, step)))
+                                     (i + 1) + '; '.join(map(repr, step)))
                 # start all actions by calling run and if that fails, retry
                 for action in step:
                     self.log.debug(' - Action: %s' % repr(action))
@@ -341,7 +341,7 @@ class SequencerMixin(DeviceMixinBase):
                 while waiters:
                     t = currenttime()
                     self._set_seq_status(status.BUSY, 'waiting: ' +
-                                         ';'.join(map(repr, waiters)))
+                                         '; '.join(map(repr, waiters)))
                     for action in list(waiters):
                         try:
                             if action.isCompleted():
@@ -368,9 +368,9 @@ class SequencerMixin(DeviceMixinBase):
                 if self._seq_stopflag:
                     self._seq_was_stopped = True
                     self.log.debug('stopping actions: ' +
-                                   ';'.join(map(repr, step)))
+                                   '; '.join(map(repr, step)))
                     self._set_seq_status(status.BUSY, 'stopping at step %d: ' %
-                                         (i + 1) + ';'.join(map(repr, step)))
+                                         (i + 1) + '; '.join(map(repr, step)))
                     try:
                         for action in step:
                             failed = []
@@ -390,7 +390,7 @@ class SequencerMixin(DeviceMixinBase):
                         self._set_seq_status(status.NOTREACHED,
                                              'operation interrupted at step '
                                              '%d: ' % (i + 1) +
-                                             ';'.join(map(repr, step)))
+                                             '; '.join(map(repr, step)))
                         self.log.debug('stopping finished')
                     break
 
