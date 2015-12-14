@@ -56,7 +56,8 @@ class Switcher(MappedMoveable):
     """
 
     attached_devices = {
-        'moveable': Attach('The continuous device which is controlled', Moveable),
+        'moveable': Attach('The continuous device which is controlled',
+                           Moveable),
     }
 
     parameters = {
@@ -83,7 +84,9 @@ class Switcher(MappedMoveable):
         return self._attached_moveable.read(maxage)
 
     def _mapReadValue(self, pos):
-        """Override default inverse mapping to allow a deviation <= precision"""
+        """Override default inverse mapping to allow a
+        deviation <= precision.
+        """
         prec = self.precision
         for name, value in iteritems(self.mapping):
             if prec:
@@ -112,10 +115,10 @@ class Switcher(MappedMoveable):
             r = self.read(maxage)
             if r not in self.mapping:
                 if self.fallback:
-                    return (status.UNKNOWN, 'unconfigured position of %s, using '
-                                            'fallback' % self._attached_moveable)
-                return (status.NOTREACHED, 'unconfigured position of %s or still'
-                                           ' moving' % self._attached_moveable)
+                    return (status.UNKNOWN, 'unconfigured position of %s, '
+                            'using fallback' % self._attached_moveable)
+                return (status.NOTREACHED, 'unconfigured position of %s or '
+                        'still moving' % self._attached_moveable)
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
@@ -243,8 +246,8 @@ class MultiSwitcher(MappedMoveable):
         if self.precision:
             if len(self.precision) not in [1, len(self.devices)]:
                 raise ConfigurationError(self, 'The precision list must either'
-                                         'contain only one element or have the '
-                                         'same amount of elements as the '
+                                         ' contain only one element or have '
+                                         'the same amount of elements as the '
                                          'moveables list')
 
     def _startRaw(self, target):
@@ -252,13 +255,14 @@ class MultiSwitcher(MappedMoveable):
         moveables = self._attached_moveables
         if not isinstance(target, (tuple, list)) or \
                 len(target) < len(moveables):
-            raise InvalidValueError(self, 'doStart needs a tuple of %d positions'
-                                    ' for this device!' % len(moveables))
+            raise InvalidValueError(self, 'doStart needs a tuple of %d '
+                                    'positions for this device!' %
+                                    len(moveables))
         # only check and move the moveables, which are first in self.devices
         for d, t in zip(moveables, target):
             if not d.isAllowed(t):
-                raise InvalidValueError(self, 'target value %r not accepted by '
-                                        'device %s' % (t, d.name))
+                raise InvalidValueError(self, 'target value %r not accepted '
+                                        'by device %s' % (t, d.name))
         for d, t in zip(moveables, target):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
