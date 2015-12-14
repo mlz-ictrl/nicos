@@ -37,7 +37,7 @@ from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.config import panel
 
 
-class SetupDepWindowMixin(QObject):
+class SetupDepWindowMixin(object):
     def __init__(self, client):
         if client._reg_keys:
             values = client.ask('getcachekeys', ','.join(client._reg_keys))
