@@ -65,17 +65,18 @@ class NicosListener(object):
 
     def registerDevice(self, dev, valueindex=-1, unit='', fmtstr=''):
         self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
-        self._devmap[self._source.register(self, dev+'/value')] = dev
-        self._devmap[self._source.register(self, dev+'/status')] = dev
-        self._devmap[self._source.register(self, dev+'/fixed')] = dev
+        self._devmap[self._source.register(self, dev + '/value')] = dev
+        self._devmap[self._source.register(self, dev + '/status')] = dev
+        self._devmap[self._source.register(self, dev + '/fixed')] = dev
         if not unit:
-            self._devmap[self._source.register(self, dev+'/unit')] = dev
+            self._devmap[self._source.register(self, dev + '/unit')] = dev
         if not fmtstr:
-            self._devmap[self._source.register(self, dev+'/fmtstr')] = dev
+            self._devmap[self._source.register(self, dev + '/fmtstr')] = dev
 
     def registerKey(self, valuekey, statuskey='', valueindex=-1,
                     unit='', fmtstr=''):
-        self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr, False)
+        self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr,
+                                                  False)
         self._devmap[self._source.register(self, valuekey)] = valuekey
         if statuskey:
             self._devmap[self._source.register(self, statuskey)] = valuekey
@@ -189,8 +190,8 @@ class AutoPropMeta(pyqtWrapperType):
     inherited, and PyQt getters/setters/resetters are generated.
     """
 
-    def __new__(mcs, name, bases, attrs):  # pylint: disable=C0202
-        newtype = pyqtWrapperType.__new__(mcs, name, bases, attrs)
+    def __new__(cls, name, bases, attrs):  # pylint: disable=C0202
+        newtype = pyqtWrapperType.__new__(cls, name, bases, attrs)
         newprops = {}
         for base in reversed(bases):
             if hasattr(base, 'properties'):
