@@ -57,7 +57,7 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
     SIMULATION, MAINTENANCE, guessCorrectCommand
 from nicos.core.sessions.setups import readSetups
-from nicos.pycompat import builtins, exec_, string_types, \
+from nicos.pycompat import builtins, exec_, string_types, reraise, \
     itervalues, iteritems, listvalues
 from nicos.core.constants import MAIN
 
@@ -420,17 +420,19 @@ class Session(object):
     def _nicos_import(self, modname, member='*'):
         try:
             mod = __import__('nicos.' + modname, None, None, [member])
-        except ImportError as err1:
+        except ImportError:
+            err1 = sys.exc_info()
             try:
                 mod = __import__(modname, None, None, [member])
-            except ImportError as err2:
+            except ImportError:
+                err2 = sys.exc_info()
                 # handle ImportError due to missing dependencies of the
                 # requested module smartly: if the module name starts with
                 # "nicos.", the more useful exception is the second one,
                 # otherwise it's the first
                 if modname.startswith('nicos.'):
-                    raise err2
-                raise err1
+                    reraise(*err2)
+                reraise(*err1)
         if member == '*':
             return mod
         return getattr(mod, member)
