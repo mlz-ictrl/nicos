@@ -39,7 +39,6 @@ from nicos.core.sessions.utils import MASTER, SLAVE
 
 from test.utils import raises
 from nose import with_setup
-from threading import Timer
 
 
 def setup_module():
@@ -282,10 +281,8 @@ def test_manualscan():
             count()
         assert raises(NicosError, manualscan)
 
-    # with multistep; also test random stopping of the detector
-    for i in range(1, 7):
-        Timer(0.05 * i, det.finish).start()
-    with manualscan(mot, c, det, 'manscan', manual=[0, 1]):
+    # with multistep;
+    with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.1):
         for i in range(3):
             mot.maw(i)
             count()
