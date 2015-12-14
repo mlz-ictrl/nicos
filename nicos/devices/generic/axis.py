@@ -64,11 +64,13 @@ class Axis(CanReference, BaseAxis):
     errorstates = {}
 
     def doInit(self, mode):
-        # Check that motor and unit have the same unit
+        # Check that motor and coder have the same unit
         if self._attached_coder.unit != self._attached_motor.unit:
-            raise ConfigurationError(self, 'different units for motor and coder'
-                                     ' (%s vs %s)' % (self._attached_motor.unit,
-                                                      self._attached_coder.unit))
+            raise ConfigurationError(self, 'different units for motor and '
+                                     'coder (%s vs %s)' %
+                                     (self._attached_motor.unit,
+                                      self._attached_coder.unit)
+                                     )
         # Check that all observers have the same unit as the motor
         for ob in self._attached_obs:
             if self._attached_motor.unit != ob.unit:
@@ -120,15 +122,14 @@ class Axis(CanReference, BaseAxis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision' % target)
+            self.log.debug('not moving, already at %.4f within precision' %
+                           target)
             return
 
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
             waitForStatus(self)
-            #raise NicosError(self, 'axis is moving now, please issue a stop '
-            #                 'command and try it again')
 
         if self._posthread:
             if self._posthread.isAlive():
@@ -143,8 +144,8 @@ class Axis(CanReference, BaseAxis):
                                            self.__positioningThread)
 
     def _getWaiters(self):
-        # the Axis does its own status control, there is no need to wait for the
-        # motor as well
+        # the Axis does its own status control, there is no need to wait for
+        # the motor as well
         return []
 
     def doStatus(self, maxage=0):
@@ -162,7 +163,8 @@ class Axis(CanReference, BaseAxis):
 
     def doPoll(self, i, maxage):
         if self._hascoder:
-            devs = [self._attached_coder, self._attached_motor] + self._attached_obs
+            devs = [self._attached_coder, self._attached_motor] + \
+                self._attached_obs
         else:
             devs = [self._attached_motor] + self._attached_obs
         for dev in devs:
@@ -207,7 +209,8 @@ class Axis(CanReference, BaseAxis):
         if isinstance(motor, CanReference):
             motor.reference()
         else:
-            self.log.error('motor %s does not have a reference routine' % motor)
+            self.log.error('motor %s does not have a reference routine' %
+                           motor)
 
     def doStop(self):
         """Stops the movement of the motor."""
@@ -279,9 +282,9 @@ class Axis(CanReference, BaseAxis):
         if maxdiff <= 0:
             return True
         if diff > maxdiff:
-            self._errorstate = MoveError(
-                self, 'drag error (primary coder): difference %.4g, maximum %.4g' %
-                (diff, maxdiff))
+            self._errorstate = MoveError(self, 'drag error (primary coder): '
+                                         'difference %.4g, maximum %.4g' %
+                                         (diff, maxdiff))
             return False
         for obs in self._attached_obs:
             diff = abs(self._attached_motor.read() - obs.read())
@@ -306,14 +309,14 @@ class Axis(CanReference, BaseAxis):
         # a little resulting in non monotonic movement!
         ok = (delta_last >= (delta_curr - self.jitter)) or \
             delta_curr < self.precision
-        # since we allow to move away a little, we want to remember the smallest
-        # distance so far so that we can detect a slow crawl away from the
-        # target which we would otherwise miss
+        # since we allow to move away a little, we want to remember the
+        # smallest distance so far so that we can detect a slow crawl away from
+        # the target which we would otherwise miss
         self._lastdiff = min(delta_last, delta_curr)
         if not ok:
-            self._errorstate = MoveError(self,
-                'not moving to target: last delta %.4g, current delta %.4g'
-                % (delta_last, delta_curr))
+            self._errorstate = MoveError(self, 'not moving to target: '
+                                         'last delta %.4g, current delta %.4g'
+                                         % (delta_last, delta_curr))
             return False
         return True
 
@@ -326,18 +329,20 @@ class Axis(CanReference, BaseAxis):
         prec = self.precision
         if (prec > 0 and diff >= prec) or (prec == 0 and diff):
             if error:
-                self._errorstate = MoveError(self,
-                    'precision error: difference %.4g, precision %.4g' %
-                    (diff, self.precision))
+                self._errorstate = MoveError(self, 'precision error: '
+                                             'difference %.4g, '
+                                             'precision %.4g' %
+                                             (diff, self.precision))
             return False
         maxdiff = self.dragerror
         for obs in self._attached_obs:
             diff = abs(target - obs.read())
             if maxdiff > 0 and diff > maxdiff:
                 if error:
-                    self._errorstate = PositionError(self,
-                        'precision error (%s): difference %.4g, maximum %.4g' %
-                        (obs, diff, maxdiff))
+                    self._errorstate = PositionError(self, 'precision error '
+                                                     '(%s): difference %.4g, '
+                                                     'maximum %.4g' %
+                                                     (obs, diff, maxdiff))
                 return False
         return True
 
@@ -350,7 +355,8 @@ class Axis(CanReference, BaseAxis):
         try:
             self._preMoveAction()
         except Exception as err:
-            self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
+            self._setErrorState(MoveError, 'error in pre-move action: %s' %
+                                err)
             return
         target = self._target
         self._errorstate = None
@@ -440,8 +446,8 @@ class Axis(CanReference, BaseAxis):
                     # if that failed, stop immediately
                     if newstatus[0] == status.ERROR:
                         moving = False
-                        self._setErrorState(MoveError,
-                            'motor in error state: %s' % newstatus[1])
+                        self._setErrorState(MoveError, 'motor in error state: '
+                                            '%s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
                         self.log.warning('last try: %s' % self._errorstate)
@@ -458,9 +464,9 @@ class Axis(CanReference, BaseAxis):
                     tries -= 1
                 else:
                     moving = False
-                    self._setErrorState(MoveError,
-                        'target not reached after %d tries: %s' %
-                        (self.maxtries, self._errorstate))
+                    self._setErrorState(MoveError, 'target not reached after '
+                                        '%d tries: %s' % (self.maxtries,
+                                                          self._errorstate))
             elif not self._checkMoveToTarget(target, pos):
                 self.log.debug('stopping motor because not moving to target')
                 self._attached_motor.stop()
@@ -473,13 +479,13 @@ class Axis(CanReference, BaseAxis):
                 try:
                     self._duringMoveAction(pos)
                 except Exception as err:
-                    self._setErrorState(MoveError,
-                                        'error in during-move action: %s' % err)
+                    self._setErrorState(MoveError, 'error in during-move '
+                                        'action: %s' % err)
                     self._stoprequest = 1
             elif self._stoprequest == 2:
                 # motor should stop, but does not want to?
                 stoptries -= 1
                 if stoptries < 0:
-                    self._setErrorState(MoveError,
-                        'motor did not stop after stop request, aborting')
+                    self._setErrorState(MoveError, 'motor did not stop after '
+                                        'stop request, aborting')
                     moving = False
