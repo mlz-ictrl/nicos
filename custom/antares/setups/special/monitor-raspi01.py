@@ -1,4 +1,5 @@
 #  -*- coding: utf-8 -*-
+description = 'Configuration for raspi01 status monitor'
 
 name = 'setup for the status monitor'
 group = 'special'
@@ -40,27 +41,50 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
     setups='servostar',
 )
 
-_detectorcolumn = Column(
-    Block('Detector', [
+_detectorikonlcolumn = Column(
+    Block('Detector Andor IkonL', [
     BlockRow(
         Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-        Field(name='Last Image', key='ccd.lastfilename', width=60),
+        Field(name='Last Image', key='ikonl.lastfilename', width=60),
         ),
     BlockRow(
-        Field(name='CCD status', key='ccd/status', width=25, item=1),
-        Field(dev='ccdTemp'),
-        Field(name='hsspeed', key='ccd.hsspeed', width=4),
-        Field(name='vsspeed', key='ccd.vsspeed', width=4),
-        Field(name='pgain', key='ccd.pgain', width=4),
+        Field(name='Status', key='ikonl/status', width=25, item=1),
+        Field(dev='ikonlTemp'),
+        Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+        Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+        Field(name='pgain', key='ikonl.pgain', width=4),
         ),
     BlockRow(
-        Field(name='roi', key='ccd.roi'),
-        Field(name='bin', key='ccd.bin'),
-        Field(name='flip (H,V)', key='ccd.flip'),
-        Field(name='rotation', key='ccd.rotation'),
+        Field(name='roi', key='ikonl.roi'),
+        Field(name='bin', key='ikonl.bin'),
+        Field(name='flip (H,V)', key='ikonl.flip'),
+        Field(name='rotation', key='ikonl.rotation'),
         ),
     ],
-    setups='detector',
+    setups='detector_ikonl',
+    ),
+)
+
+_detectorneocolumn = Column(
+    Block('Detector Andor Neo', [
+    BlockRow(
+        Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
+        Field(name='Last Image', key='neo.lastfilename', width=60),
+        ),
+    BlockRow(
+        Field(name='Status', key='neo/status', width=25, item=1),
+        Field(dev='neoTemp'),
+        Field(name='elshuttermode', key='neo.elshuttermode', width=6),
+        Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
+        ),
+    BlockRow(
+        Field(name='roi', key='neo.roi'),
+        Field(name='bin', key='neo.bin'),
+        Field(name='flip (H,V)', key='neo.flip'),
+        Field(name='rotation', key='neo.rotation'),
+        ),
+    ],
+    setups='detector_neo',
     ),
 )
 
@@ -140,6 +164,6 @@ devices = dict(
                       font = 'Luxi Sans',
                       valuefont = 'Monospace',
                       padding = 5,
-                      layout = [[_expcolumn], [_detectorcolumn], [_leftcolumn, _rightcolumn]],
+                      layout = [[_expcolumn], [_detectorikonlcolumn], [_detectorneocolumn], [_leftcolumn, _rightcolumn]],
                     ),
 )

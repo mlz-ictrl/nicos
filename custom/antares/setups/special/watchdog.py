@@ -32,6 +32,12 @@ watchlist = [
          setup = 'reactor',
          gracetime = 300,
         ),
+    dict(condition = 'He_pressure_value < 30',
+         message = 'Pressure in He bottle less than 30bar. Please change soon!',
+         type = 'default',
+         setup = 'reactor',
+         gracetime = 300,
+        ),
 ]
 
 includes = ['notifiers', ]
