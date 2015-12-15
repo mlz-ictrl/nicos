@@ -44,7 +44,13 @@ https://forge.frm2.tum.de/entangle/defs/entangle-master/
 
 .. autoclass:: StringIO()
 
-.. autoclass:: Detector()
+.. autoclass:: DetectorChannel()
 
-.. autoclass:: TofDetector()
+.. autoclass:: CounterChannel()
+
+.. autoclass:: ImageChannel()
+
+.. autoclass:: TOFChannel()
+
+.. autoclass:: TimerChannel()
 

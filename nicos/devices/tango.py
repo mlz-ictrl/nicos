@@ -30,28 +30,30 @@ MLZ TANGO interface for the respective device classes.
 """
 
 import re
-import numpy
 from time import sleep
 
 import PyTango
 
 from nicos.core import Param, Override, status, Readable, Moveable, \
-    Measurable, HasLimits, Device, tangodev, HasCommunication, oneofdict, \
+    HasLimits, Device, tangodev, HasCommunication, oneofdict, \
     dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ImageProducer, ImageType
+    HasTimeout, ImageType
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
 from nicos.core.mixins import HasWindowTimeout
+from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
+    ImageChannelMixin, TimerChannelMixin
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
     'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
     'TemperatureController', 'PowerSupply', 'DigitalInput',
     'NamedDigitalInput', 'PartialDigitalInput', 'DigitalOutput',
-    'NamedDigitalOutput', 'PartialDigitalOutput', 'StringIO', 'Detector',
-    'TofDetector', 'WindowTimeoutAO',
+    'NamedDigitalOutput', 'PartialDigitalOutput', 'StringIO', 'DetectorChannel',
+    'TimerChannel', 'CounterChannel', 'ImageChannel', 'TOFChannel',
+    'WindowTimeoutAO'
 ]
 
 EXC_MAPPING = {
@@ -475,9 +477,9 @@ class Motor(CanReference, Actuator):
         s, v, a, d = abs(start - end), self.speed, self.accel, self.decel
         if v <= 0 or a <= 0 or d <= 0:
             return 0
-        if s > v**2 / a:  # do we reach nominal speed?
+        if s > v ** 2 / a:  # do we reach nominal speed?
             return s / v + 0.5 * (v / a + v / d)
-        return 2 * (s / a)**0.5
+        return 2 * (s / a) ** 0.5
 
 
 class TemperatureController(HasWindowTimeout, Actuator):
@@ -763,27 +765,75 @@ class StringIO(PyTangoDevice, Device):
         return self._dev.availableLines
 
 
-class Detector(PyTangoDevice, Measurable):
+class DetectorChannel(PyTangoDevice, ActiveChannel):
     """
-    Represents the client to a TANGO detector device.
+    Base class for detector channels.
+    """
+
+    def doReadIsmaster(self):
+        # if the channel is passive, it will always return False here
+        return self._dev.active
+
+    def doWriteIsmaster(self, value):
+        self._dev.active = value
+
+    def doReadPreselection(self):
+        return self._dev.preselection
+
+    def doWritePreselection(self, preselectionvalue):
+        self._dev.preselection = preselectionvalue
+
+    def doPrepare(self):
+        self._dev.Prepare()
+
+    def doStart(self):
+        self._dev.Start()
+
+    def doStop(self):
+        self._dev.Stop()
+
+    def doClear(self):
+        self._dev.Clear()
+
+    def doResume(self):
+        self._dev.Resume()
+
+    def doPause(self):
+        self.doStop()
+        return True
+
+    def doFinish(self):
+        self._dev.Stop()
+
+
+class TimerChannel(TimerChannelMixin, DetectorChannel):
+    """
+    Detector channel to measure time.
+    """
+
+
+class CounterChannel(CounterChannelMixin, DetectorChannel):
+    """
+    Detector channel to count events.
+    """
+
+
+class ImageChannel(ImageChannelMixin, DetectorChannel):
+    """
+    Detector channel for delivering images.
     """
 
     parameters = {
-        'size': Param('Detector size',
-                      type=nonemptylistof(int), unit='', settable=False,
-                      volatile=True),
-        'roioffset': Param('ROI offset',
-                           type=nonemptylistof(int), unit='', mandatory=False,
-                           volatile=True),
-        'roisize': Param('ROI size',
-                         type=nonemptylistof(int), unit='', mandatory=False,
-                         volatile=True),
-        'binning': Param('Binning',
-                         type=nonemptylistof(int), unit='', mandatory=False,
-                         volatile=True),
-        'zeropoint': Param('Zero point',
-                           type=nonemptylistof(int), unit='', settable=False,
+        'size':      Param('Full detector size', type=nonemptylistof(int),
+                           settable=False, mandatory=False, volatile=True),
+        'roioffset': Param('ROI offset', type=nonemptylistof(int),
                            mandatory=False, volatile=True),
+        'roisize':   Param('ROI size', type=nonemptylistof(int),
+                           mandatory=False, volatile=True),
+        'binning':   Param('Binning', type=nonemptylistof(int),
+                           mandatory=False, volatile=True),
+        'zeropoint': Param('Zero point', type=nonemptylistof(int),
+                           settable=False, mandatory=False, volatile=True),
     }
 
     def doReadSize(self):
@@ -810,78 +860,26 @@ class Detector(PyTangoDevice, Measurable):
     def doReadZeropoint(self):
         return self._dev.zeroPoint.tolist()
 
-    def doRead(self, maxage=0):
-        return self._dev.value.tolist()
-
-    def presetInfo(self):
-        return set(['t', 'time', 'm', 'monitor', ])
-
-    def doSetPreset(self, **preset):
-        self.doStop()
-        if 't' in preset:
-            self._dev.syncMode = 'time'
-            self._dev.syncValue = preset['t']
-        elif 'time' in preset:
-            self._dev.syncMode = 'time'
-            self._dev.syncValue = preset['time']
-        elif 'm' in preset:
-            self._dev.syncMode = 'monitor'
-            self._dev.syncValue = preset['m']
-        elif 'monitor' in preset:
-            self._dev.syncMode = 'monitor'
-            self._dev.syncValue = preset['monitor']
-
-    def doStart(self):
-        self._dev.Start()
-
-    def doFinish(self):
-        self._dev.Stop()
-
-    def doStop(self):
-        self._dev.Stop()
-
-    def doResume(self):
-        self._dev.Resume()
-
-    def doPause(self):
-        self.doStop()
-        return True
-
-    def doPrepare(self):
-        self._dev.Prepare()
-
-    def doClear(self):
-        self._dev.Clear()
+    def readFinalImage(self):
+        self.imagetype = ImageType(shape=tuple(self._dev.roiSize), dtype='<u4')
+        return self._dev.value.reshape(self.imagetype.shape)
 
 
-class TofDetector(ImageProducer, Detector):
+class TOFChannel(ImageChannel):
     """
-    Represents the client to a TANGO time-of-flight detector device.
+    Image channel with Time-of-flight related attributes.
     """
 
     parameters = {
-        'delay': Param('Delay', settable=True,
-                       type=int, unit='ns', default=0, volatile=True),
+        'delay':        Param('Delay from start pulse to first time channel',
+                              type=int, settable=True, unit='ns',
+                              mandatory=False, volatile=True),
         'timechannels': Param('Number of time channels', settable=True,
-                              type=int, default=1, volatile=True),
-        'timeinterval': Param('Time for each time channel', settable=True,
-                              type=int, unit='ns', default=1, volatile=True),
-        'timer': Param('Tango device for the timer',
-                       type=tangodev, settable=False, mandatory=True,)
+                              type=int, mandatory=False, volatile=True),
+        'timeinterval': Param('Time for each time channel', type=int,
+                              settable=True, unit='ns', mandatory=False,
+                              volatile=True),
     }
-
-    _timer = None
-
-    def doInit(self, mode):
-        self.imagetype = ImageType(shape=(1, ), dtype='<u4')
-        if mode != SIMULATION:
-            self._timer = self._createPyTangoDevice(self.timer)
-
-    def doRead(self, maxage=0):
-        if self._dev.syncMode == 'time' and self._timer:
-            return [self._timer.value.tolist()[0] / 1000., ]
-        else:
-            return [0, ]
 
     def doReadTimechannels(self):
         return self._dev.timeChannels
@@ -900,46 +898,3 @@ class TofDetector(ImageProducer, Detector):
 
     def doWriteTimeinterval(self, value):
         self._dev.timeInterval = value
-
-    def presetInfo(self):
-        return set(['t', 'time', 'm', 'monitor', 'c', 'cycles', ])
-
-    def doSetPreset(self, **preset):
-        self.doStop()
-        if 't' in preset:
-            self._dev.syncMode = 'time'
-            self._dev.syncValue = preset['t']
-        elif 'time' in preset:
-            self._dev.syncMode = 'time'
-            self._dev.syncValue = preset['time']
-        elif 'm' in preset:
-            self._dev.syncMode = 'monitor'
-            self._dev.syncValue = preset['m']
-        elif 'monitor' in preset:
-            self._dev.syncMode = 'monitor'
-            self._dev.syncValue = preset['monitor']
-        elif 'c' in preset:
-            self._dev.syncMode = 'cycles'
-            self._dev.syncValue = preset['c']
-        elif 'cycles' in preset:
-            self._dev.syncMode = 'cycles'
-            self._dev.syncValue = preset['cycles']
-
-    def doEstimateTime(self, elapsed):
-        if self._dev.syncMode == 'time':
-            return self._dev.syncValue - self.doRead(0)[0]
-        return None
-
-    def readImage(self):
-        res = self._dev.value.tolist()
-        self.imagetype = ImageType(shape=(self._dev.roiSize, ), dtype='<u4')
-        data = numpy.fromiter(res[self._dev.roiOffset:], '<u4',
-                              self._dev.roiSize)
-        # self.lastcounts = data.sum()
-        return data
-
-    def readFinalImage(self):
-        if self._dev.syncMode == 'time':
-            self.addHeader('detector', [(self, 'time',
-                                         '%f' % self.doRead()[0])])
-        return self.readImage()

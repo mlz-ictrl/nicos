@@ -138,8 +138,9 @@ class CounterChannelMixin(DeviceMixinBase):
     }
 
     parameter_overrides = {
-        'unit':   Override(default='cts'),
-        'fmtstr': Override(default='%d'),
+        'unit':         Override(default='cts'),
+        'fmtstr':       Override(default='%d'),
+        'preselection': Override(type=int),
     }
 
     def valueInfo(self):
@@ -162,7 +163,8 @@ class ImageChannelMixin(DeviceMixinBase):
     }
 
     parameter_overrides = {
-        'unit':   Override(default='cts'),
+        'unit':         Override(default='cts'),
+        'preselection': Override(type=int),
     }
 
     # either None or an ImageType instance
