@@ -37,10 +37,11 @@ devices = {
                                 fmtstr = '%.3f',
                                 unit = 'l/s',
                                ),
-    'pumpstate_%s' % setupname : device('devices.tango.Sensor',
+    'pumpstate_%s' % setupname : device('devices.tango.NamedDigitalInput',
                                 description = 'State of the turbo pump',
                                 tangodevice = '%s/box/plc/_pumpstate' % \
                                              tango_base,
+                                mapping={'on' : 1, 'off' : 0}
                                ),
 }
 
