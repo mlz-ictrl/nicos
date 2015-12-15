@@ -25,7 +25,7 @@ devices = {
                                ),
     'watertemp_%s' % setupname : device('devices.tango.Sensor',
                                 description = 'Cooling water temperature',
-                                tangodevice = '%s/box/plc/_if_water_temp' % \
+                                tangodevice = '%s/box/plc/_water_temp' % \
                                              tango_base,
                                 fmtstr = '%.3f',
                                 unit = 'C',
