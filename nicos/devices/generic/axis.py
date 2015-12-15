@@ -129,7 +129,7 @@ class Axis(CanReference, BaseAxis):
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
-            waitForStatus(self)
+            waitForStatus(self, ignore_errors=True)
 
         if self._posthread:
             if self._posthread.isAlive():
