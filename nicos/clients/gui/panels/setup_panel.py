@@ -58,8 +58,10 @@ class ExpPanel(Panel, DlgUtils):
 
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
+        self.connect(self.client, SIGNAL('connected'),
+                     self.on_client_connected)
+        self.connect(self.client, SIGNAL('experiment'),
+                     self.on_client_experiment)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -76,7 +78,8 @@ class ExpPanel(Panel, DlgUtils):
             self.localContact.setText(decodeAny(values[3]))
             self.sampleName.setText(decodeAny(values[4]))
             self.errorAbortBox.setChecked(values[5] == 'abort')
-        emails = self.client.eval('[e.receivers for e in session.notifiers '
+        emails = self.client.eval(
+            '[e.receivers for e in session.notifiers '
             'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
         self._orig_email = sum(emails, [])
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
@@ -120,8 +123,8 @@ class ExpPanel(Panel, DlgUtils):
         try:
             local = mailaddress(self.localContact.text().encode('utf-8'))
         except ValueError:
-            QMessageBox.critical(self, 'Error', 'The local contact entry is not'
-                                 ' a valid email address')
+            QMessageBox.critical(self, 'Error', 'The local contact entry is '
+                                 'not  a valid email address')
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().encode('utf-8').strip()
         emails = emails.split(b'\n') if emails else []
@@ -145,8 +148,8 @@ class ExpPanel(Panel, DlgUtils):
 
         # read all values from propdb
         try:
-            result = self.client.eval('session.experiment._fillProposal(%s, {})'
-                                      % prop, None)
+            result = self.client.eval(
+                'session.experiment._fillProposal(%s, {})' % prop, None)
 
             if result:
                 if result['wrong_instrument']:
@@ -160,22 +163,25 @@ class ExpPanel(Panel, DlgUtils):
                 # only a name
                 # self.localContact.setText(decodeAny(result.get('localcontact',
                 #                                                local)))
-                self.sampleName.setText(decodeAny(result.get('sample', sample)))
+                self.sampleName.setText(decodeAny(result.get('sample',
+                                                             sample)))
                 self.notifEmails.setPlainText(
                     decodeAny(result.get('user_email', emails)))
                 self.dataEmails.setPlainText(decodeAny(dataEmails))
                 # check permissions:
                 failed = []
-                if result.get('permission_security', 'no') != 'yes':
+                yes = 'yes'
+                no = 'no'
+                if result.get('permission_security', no) != yes:
                     failed.append('* Security (Tel. 12699)')
-                if result.get('permission_radiation_protection', 'no') != 'yes':
+                if result.get('permission_radiation_protection', no) != yes:
                     failed.append('* Radiation protection (Tel. 14955)')
                 if failed and not result['wrong_instrument']:
                     self.showError('Proposal lacks sufficient permissions '
                                    'to be performed!\n\n' + '\n'.join(failed))
             else:
-                self.showInfo('Reading proposaldb failed for an unknown reason.'
-                              ' Please check logfiles for hints.')
+                self.showInfo('Reading proposaldb failed for an unknown '
+                              'reason. Please check logfiles for hints.')
         except Exception as e:
             self.log.warning(e, exc=1)
             self.showInfo('Reading proposaldb failed for an unknown reason. '
@@ -243,7 +249,8 @@ class ExpPanel(Panel, DlgUtils):
             self.client.run('NewSample(%r)' % sample)
             done.append('New sample name set.')
         if email != self._orig_email:
-            self.client.run('SetMailReceivers(%s)' % ', '.join(map(repr, email)))
+            self.client.run('SetMailReceivers(%s)' %
+                            ', '.join(map(repr, email)))
             done.append('New mail receivers set.')
         if dataEmails != self._orig_datamails:
             self.client.run('SetDataReceivers(%s)' %
@@ -301,7 +308,8 @@ class SetupsPanel(Panel, DlgUtils):
 
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('connected'),
+                     self.on_client_connected)
         self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
 
     def on_client_connected(self):
@@ -381,7 +389,7 @@ class SetupsPanel(Panel, DlgUtils):
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+        if role == QDialogButtonBox.ResetRole:
             self.client.run('NewSetup()')
             self.showInfo('Current setups reloaded.')
             # fall through to the close case
@@ -450,7 +458,8 @@ class SetupsPanel(Panel, DlgUtils):
                 aliasconfig = self._setupinfo[setup]['alias_config']
                 for aliasname, targets in aliasconfig.items():
                     for (target, prio) in targets.items():
-                        alias_config.setdefault(aliasname, []).append((target, prio))
+                        alias_config.setdefault(aliasname, []).append((target,
+                                                                       prio))
         # sort by priority
         for aliasname in alias_config:
             alias_config[aliasname].sort(key=lambda x: -x[1])
@@ -461,7 +470,8 @@ class SetupsPanel(Panel, DlgUtils):
             if aliasname in self._aliasWidgets:
                 self._aliasWidgets[aliasname].setSelections(selections)
             else:
-                wid = self._aliasWidgets[aliasname] = AliasWidget(self, aliasname,
+                wid = self._aliasWidgets[aliasname] = AliasWidget(self,
+                                                                  aliasname,
                                                                   selections)
                 layout.addWidget(wid)
         for name, wid in listitems(self._aliasWidgets):
@@ -503,7 +513,8 @@ class DetEnvPanel(Panel, DlgUtils):
 
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('connected'),
+                     self.on_client_connected)
 
     def on_client_connected(self):
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \

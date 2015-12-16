@@ -191,11 +191,11 @@ class ValueDisplay(NicosWidget, QWidget):
     properties = {
         'dev':        PropDef(str, '', 'NICOS device name, if set, display '
                               'value of this device'),
-        'key':        PropDef(str, '', 'Cache key to display (without "nicos/" '
-                              'prefix), set either "dev" or this'),
-        'statuskey':  PropDef(str, '', 'Cache key to extract status information'
-                              ' for coloring value, if "dev" is given this is '
-                              'set automatically'),
+        'key':        PropDef(str, '', 'Cache key to display (without "nicos/"'
+                              ' prefix), set either "dev" or this'),
+        'statuskey':  PropDef(str, '', 'Cache key to extract status '
+                              'information  for coloring value, if "dev" is '
+                              'given this is set automatically'),
         'name':       PropDef(str, '', 'Name of the value to display above/'
                               'left of the value; if "dev" is given this '
                               'defaults to the device name'),
@@ -309,7 +309,8 @@ class ValueDisplay(NicosWidget, QWidget):
         self._lastvalue = value
         self._lastchange = currenttime()
         if self.props['maxlen'] > -1:
-            self.valuelabel.setText(from_maybe_utf8(strvalue[:self.props['maxlen']]))
+            self.valuelabel.setText(from_maybe_utf8(
+                strvalue[:self.props['maxlen']]))
         else:
             self.valuelabel.setText(from_maybe_utf8(strvalue))
         if self._expired and self.props['showExpiration']:
@@ -350,8 +351,8 @@ class ValueDisplay(NicosWidget, QWidget):
         name = self.props['name'] or self.props['dev'] or self.props['key']
         self.namelabel.setText(
             escape(text_type(name)) +
-            ' <font color="#888888">%s</font><font color="#0000ff">%s</font> ' %
-            (escape(self.props['unit'].strip()), self._isfixed))
+            ' <font color="#888888">%s</font><font color="#0000ff">%s</font> '
+            % (escape(self.props['unit'].strip()), self._isfixed))
 
     def _label_entered(self, widget, event, from_mouse=True):
         infotext = '%s = %s' % (self.props['name'] or self.props['dev']
@@ -369,7 +370,8 @@ class ValueDisplay(NicosWidget, QWidget):
         self.emit(SIGNAL('widgetInfo'), infotext)
         if from_mouse:
             self._mousetimer = QTimer(self, timeout=lambda:
-                                      self._label_entered(widget, event, False))
+                                      self._label_entered(widget, event, False)
+                                      )
             self._mousetimer.start(1000)
 
     def _label_left(self, widget, event):
