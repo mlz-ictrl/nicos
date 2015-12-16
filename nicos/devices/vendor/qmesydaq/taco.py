@@ -33,8 +33,9 @@ from Detector import Detector
 from nicos.core import ImageType, MASTER, Param, SIMULATION, Value, \
     listof, oneof
 from nicos.devices.generic import TimerChannelMixin, CounterChannelMixin, \
-    ImageChannelMixin, PassiveChannel, ActiveChannel
+    PassiveChannel, ActiveChannel
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
+from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
 
 class BaseChannel(TacoBaseChannel):
@@ -121,23 +122,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
         return ', '.join(resultlist)
 
 
-class Filenames(BaseChannel, PassiveChannel):
-    """Channel for QMesyDAQ that just returns the last saved filenames."""
-
-    taco_class = Detector
-
-    def doRead(self, maxage=0):
-        return [
-            self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile'),
-            self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile'),
-        ]
-
-    def valueInfo(self):
-        return (Value('%s.listfile' % self, type='filename', fmtstr='%s'),
-                Value('%s.histfile' % self, type='filename', fmtstr='%s'))
-
-
-class Image(ImageChannelMixin, BaseChannel, PassiveChannel):
+class Image(BaseChannel, QMesyDAQImage):
     """Channel for QMesyDAQ that returns the last image."""
 
     parameters = {
@@ -158,10 +143,6 @@ class Image(ImageChannelMixin, BaseChannel, PassiveChannel):
     def doStart(self):
         self.readresult = [0]
         BaseChannel.doStart(self)
-
-    def valueInfo(self):
-        return Value('%s.sum' % self, type='counter', errors='sqrt',
-                     unit='cts', fmtstr='%d'),
 
     def doWriteReadout(self, value):
         try:
@@ -199,5 +180,16 @@ class Image(ImageChannelMixin, BaseChannel, PassiveChannel):
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
 
-    def readLiveImage(self):
-        return self.readFinalImage()
+    def doWriteListmodefile(self, value):
+        self._taco_guard(self._dev.deviceUpdateResource, 'lastlistfile', '%s' %
+                        value)
+
+    def doWriteHistogramfile(self, value):
+        self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile', '%s' %
+                         value)
+
+    def doReadListmodefile(self, value):
+        return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile'),
+
+    def doReadHistogramfile(self, value):
+        return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile'),

@@ -22,4 +22,4 @@
 #
 # *****************************************************************************
 
-from nicos.devices.vendor.caress.core import Motor, Timer, Counter, Image
+from nicos.devices.vendor.caress.motor import Motor

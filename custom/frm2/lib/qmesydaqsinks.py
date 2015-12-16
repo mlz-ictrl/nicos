@@ -27,6 +27,7 @@
 import os
 
 from nicos.core import Override, Attach, ImageSink, SIMULATION
+from nicos.devices.vendor.qmesydaq import Image
 
 
 class QMesydaqFormat(ImageSink):
@@ -38,8 +39,8 @@ class QMesydaqFormat(ImageSink):
     names of the files but the directory to write the data is set in QMesyDAQ.
     """
     attached_devices = {
-        'image': Attach('ImageSink to set the file name',
-                        ImageSink, optional=True),
+        'image': Attach('Image device to set the file name',
+                        Image, optional=True),
     }
 
     def acceptImageType(self, imagetype):
@@ -81,7 +82,7 @@ class HistogramFileFormat(QMesydaqFormat):
 
     def prepareImage(self, imageinfo, subdir=''):
         QMesydaqFormat.prepareImage(self, imageinfo, subdir)
-        self._attached_image.histogramfile = self.filename
+        self._attached_image.histogramfile = imageinfo.filename
 
 
 class ListmodeFileFormat(QMesydaqFormat):
@@ -98,4 +99,4 @@ class ListmodeFileFormat(QMesydaqFormat):
 
     def prepareImage(self, imageinfo, subdir=''):
         QMesydaqFormat.prepareImage(self, imageinfo, subdir)
-        self._attached_image.listmodefile = self.filename
+        self._attached_image.listmodefile = imageinfo.filename

@@ -43,7 +43,7 @@ toolpath = '/opt/caress'
 # ;EVENT  500     qmesydaq.caress_object  event
 
 devices = dict(
-    mon = device('devices.vendor.caress.Counter',
+    mon = device('devices.vendor.qmesydaq.caress.Counter',
                  description = 'HWB MON',
                  fmtstr = '%d',
                  type = 'monitor',
@@ -55,7 +55,7 @@ devices = dict(
                  toolpath = toolpath,
                  lowlevel = True,
                 ),
-    tim1 = device('devices.vendor.caress.Timer',
+    tim1 = device('devices.vendor.qmesydaq.caress.Timer',
                   description = 'HWB TIM1',
                   fmtstr = '%.2f',
                   unit = 's',
@@ -67,7 +67,7 @@ devices = dict(
                   toolpath = toolpath,
                   lowlevel = True,
                  ),
-#   tim2 = device('devices.vendor.caress.Timer',
+#   tim2 = device('devices.vendor.qmesydaq.caress.Timer',
 #                 description = 'HWB TIM2',
 #                 fmtstr = '%.2f',
 #                 unit = 's',
@@ -78,7 +78,7 @@ devices = dict(
 #                 toolpath = toolpath,
 #                 lowlevel = True,
 #                ),
-    image = device('devices.vendor.caress.Image',
+    image = device('devices.vendor.qmesydaq.caress.Image',
                    description = 'Image data device',
                    fmtstr = '%d',
                    pollinterval = 86400,

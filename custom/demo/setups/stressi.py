@@ -135,7 +135,7 @@ devices = dict(
 #               toolpath = toolpath,
                ),
 
-    mon = device('devices.vendor.caress.Counter',
+    mon = device('devices.vendor.qmesydaq.caress.Counter',
                  description = 'Simulated HWB MON',
                  fmtstr = '%d',
                  type = 'monitor',
@@ -147,7 +147,7 @@ devices = dict(
                  toolpath = toolpath,
                  lowlevel = True,
                 ),
-    tim1 = device('devices.vendor.caress.Timer',
+    tim1 = device('devices.vendor.qmesydaq.caress.Timer',
                   description = 'Simulated HWB TIM1',
                   fmtstr = '%.2f',
                   unit = 's',
@@ -159,7 +159,7 @@ devices = dict(
                   toolpath = toolpath,
                   lowlevel = True,
                  ),
-#    events = device('devices.vendor.caress.Counter',
+#    events = device('devices.vendor.qmesydaq.caress.Counter',
 #                    description = 'Simulated HWB MON',
 #                    fmtstr = '%d',
 #                    type = 'counter',
@@ -170,7 +170,7 @@ devices = dict(
 #                    caresspath = caresspath,
 #                    toolpath = toolpath,
 #                   ),
-#   tim2 = device('devices.vendor.caress.Timer',
+#   tim2 = device('devices.vendor.qmesydaq.caress.Timer',
 #                 description = 'Simulated HWB TIM2',
 #                 fmtstr = '%.2f',
 #                 unit = 's',
@@ -180,7 +180,7 @@ devices = dict(
 #                 caresspath = caresspath,
 #                 toolpath = toolpath,
 #                ),
-    image = device('devices.vendor.caress.Image',
+    image = device('devices.vendor.qmesydaq.caress.Image',
                    description = 'Image data device',
                    fmtstr = '%d',
                    pollinterval = 86400,
@@ -209,9 +209,16 @@ devices = dict(
                   images = 'image',
                   maxage = 3,
                   pollinterval = 0.5,
-                  fileformats = ['listmode', 'histogram',],
+                  fileformats = [
+                                    'listmode',
+                                    'histogram',
+                                ],
                  ),
 )
+
+startupcode = '''
+SetDetectors(adet)
+'''
 #            config = 'ADET 500 qmesydaq.caress_object histogram 0 256 256',
 #            config = 'MON1 500 qmesydaq.caress_object monitor1',
 #            config = 'MON2 500 qmesydaq.caress_object monitor2',
