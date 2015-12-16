@@ -1,11 +1,10 @@
 #  -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen
 from PyQt4.QtCore import QSize, Qt
-
-from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
-
+from PyQt4.QtGui import QBrush, QColor, QPainter, QPen, QWidget
+from nicos.core.status import BUSY, ERROR, NOTREACHED, OK
 from nicos.guisupport.widget import NicosWidget, PropDef
+
 
 _magenta = QBrush(QColor('#A12F86'))
 _yellow = QBrush(QColor('yellow'))
@@ -96,8 +95,7 @@ class Tube2(NicosWidget, QWidget):
         painter.setPen(QColor('black'))
         painter.drawArc(5, 5 + yoff, 50, h, 1440, 2880)
         painter.drawLine(30, 5 + yoff, w - 25, 5 + yoff)
-        painter.drawLine(30, 5 + yoff + h, w - 25,
-                                               5 + yoff + h)
+        painter.drawLine(30, 5 + yoff + h, w - 25, 5 + yoff + h)
         painter.drawEllipse(w - 45, 5 + yoff, 50, h)
 
         # draw Detector 1
@@ -105,32 +103,45 @@ class Tube2(NicosWidget, QWidget):
         pos_val = self._curval[0]
         if pos_val is not None:
             pos_status = self._curstatus[0]
-            #pos_str = self._curstr[0]
+            pos_str = self._curstr[0]
             shift_val = self._curval[1]
             shift_status = self._curstatus[1]
-            #shift_str = self._curstr[1]
+            shift_str = self._curstr[1]
+            if shift_val > 0:
+                shift_str += u' ↓'
+            elif shift_val < 0:
+                shift_str += u' ↑'
             # Not used at the moment, prepared for later use
-            # tilt_val = self._curval[2]
+            tilt_val = self._curval[2]
             tilt_status = self._curstatus[2]
-            #tilt_str = self._curstr[2]
-            #if tilt_str.endswith('deg'):
-            #    tilt_str = tilt_str[:-3]+u'°'
+            tilt_str = self._curstr[2]
+            if tilt_str.endswith('deg'):
+                tilt_str = tilt_str[:-3]+u'°'
 
             stat = max(pos_status, shift_status, tilt_status)
             painter.setBrush(statusbrush[stat])
-            painter.drawRect(60 + pos_val * posscale, 15 + yoff + shift_val * posscale,
-                             fontscale, h - 20 - 4*posscale) #XXX tilt ???
-#            painter.setFont(self.valueFont)
-#            painter.drawText(60 + pos_val * posscale - 10.5 * fontscale,
-#                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
-#                             10 * fontscale, 2 * fontscale, Qt.AlignRight, tilt_str)
-#            painter.drawText(60 + pos_val * posscale + 1.5 * fontscale,
-#                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
-#                             10 * fontscale, 2 * fontscale, Qt.AlignLeft, shift_str)
+            # tf = QTransform()
+            # tf.rotate(tilt_val)
+            painter.resetTransform()
+            painter.translate(60 + pos_val * posscale + fontscale / 2.,
+                              15 + yoff + shift_val * posscale + (h - 20) / 2.)
+            painter.rotate(-tilt_val)
+            painter.drawRect(-fontscale / 2., - (h - 20) / 2., fontscale,
+                             h - 20)  # XXX tilt ???
+            painter.resetTransform()
+            painter.setFont(self.valueFont)
+            painter.drawText(60 + pos_val * posscale - 10.5 * fontscale,
+                             -5 + yoff + h - fontscale,  # + (shift_val - 4) * posscale,
+                             9.5 * fontscale, 2 * fontscale, Qt.AlignRight,
+                             tilt_str)
+            painter.drawText(60 + pos_val * posscale - 6.5 * fontscale,
+                             yoff + fontscale,  # + (shift_val - 4) * posscale,
+                             9.5 * fontscale, 2 * fontscale, Qt.AlignLeft,
+                             shift_str)
             minx = max(minx, 60 + pos_val * posscale + 5 - 4 * fontscale)
-#            painter.drawText(minx,
-#                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
-#                             pos_str)
+            painter.drawText(minx,
+                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
+                             pos_str)
             minx = minx + 8 * fontscale
 
 #        # draw Detector 2
@@ -206,7 +217,8 @@ class BeamOption(NicosWidget, QWidget):
         painter.setBrush(statusbrush[self._curstatus])
         painter.drawRect(2, 2 + yoff, w - 4, h - 4)
         painter.setFont(self.valueFont)
-        painter.drawText(2, 2 + yoff, w - 4, h - 4, Qt.AlignCenter, self._curstr)
+        painter.drawText(2, 2 + yoff, w - 4, h - 4, Qt.AlignCenter,
+                         self._curstr)
 
 
 class CollimatorTable(NicosWidget, QWidget):
@@ -277,11 +289,10 @@ class CollimatorTable(NicosWidget, QWidget):
         else:
             yoff = 0
 
-
         painter.setPen(QPen(_blue.color()))
 
         y = h * 0.5 + yoff
-        painter.drawLine(0, y  , w, y  )
+        painter.drawLine(0, y, w, y)
         painter.drawLine(0, y+1, w, y+1)
         painter.drawLine(0, y+2, w, y+2)
 
@@ -305,6 +316,6 @@ class CollimatorTable(NicosWidget, QWidget):
                 painter.setBrush(b)
             else:
                 painter.setBrush(_grey if b == statusbrush[OK] else b)
-            painter.drawRect(5, y + 2, w - 10, h0 - 4 )
+            painter.drawRect(5, y + 2, w - 10, h0 - 4)
             painter.drawText(5, y + 2, w - 10, h0 - 4,
                              Qt.AlignCenter, t)

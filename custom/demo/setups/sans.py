@@ -112,6 +112,7 @@ devices = dict(
                        speed = 1,
                        unit = 'm',
                        curvalue = 1,
+                       fmtstr = '%.1f',
                       ),
 
     det_pos1_x  = device('devices.generic.VirtualMotor',
@@ -128,6 +129,7 @@ devices = dict(
                            speed = 0.5,
                            unit = 'deg',
                            curvalue = 0,
+                           fmtstr = '%.1f',
                           ),
 
     det_pos2  = device('devices.generic.VirtualMotor',
