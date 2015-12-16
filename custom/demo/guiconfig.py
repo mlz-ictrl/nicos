@@ -46,7 +46,12 @@ main_window = docked(
         ('SampleChanger',
          panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                image='custom/sans1/lib/gui/sampleChanger11.png',
-               positions=11, setups='sans and (sc1 or sc2)',)
+               positions=11, setups='sans and sc1'),
+        ),
+        ('SampleChanger',
+         panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+               image='custom/sans1/lib/gui/sampleChanger22.png',
+               positions=22, setups='sans and sc2'),
         ),
         ('PiBox',
          panel('generic.GenericPanel', uifile='custom/demo/lib/gui/piface.ui',
@@ -71,7 +76,12 @@ main_window = docked(
                ('Sample changer',
                 panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                       image='custom/sans1/lib/gui/sampleChanger11.png',
-                      positions=11, setups='sans',)
+                      positions=11, setups='sans and sc1',),
+               ),
+               ('Sample changer',
+                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      image='custom/sans1/lib/gui/sampleChanger22.png',
+                      positions=22, setups='sans and sc2'),
                ),
                ('TAS sample',
                 panel('setup_panel.TasSamplePanel', setups='tas',)
@@ -90,7 +100,12 @@ windows = [
             ('Samples',
                 panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
                       image='custom/sans1/lib/gui/sampleChanger22.png',
-                      positions=22, setups='sc1 or sc2')
+                      positions=22, setups='sans and sc2')
+            ),
+            ('Samples',
+                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      image='custom/sans1/lib/gui/sampleChanger11.png',
+                      positions=11, setups='sans and sc1')
             ),
         ),
     ),
