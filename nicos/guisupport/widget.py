@@ -110,21 +110,8 @@ class NicosListener(object):
                 return
             elif key.endswith('/fmtstr'):
                 devinfo.fmtstr = value
-                fvalue = devinfo.value
-                if fvalue is None:
-                    strvalue = '----'
-                else:
-                    if isinstance(fvalue, list):
-                        fvalue = tuple(fvalue)
-                    try:
-                        strvalue = devinfo.fmtstr % fvalue
-                    except Exception:
-                        strvalue = str(fvalue)
-                devinfo.fullvalue = (strvalue + ' ' + (devinfo.unit or '')).strip()
-                if devinfo.strvalue != strvalue:
-                    devinfo.strvalue = strvalue
-                    self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                           devinfo.fullvalue, devinfo.expired)
+                self._update_value(key, devinfo, devinfo.value,
+                                   devinfo.expired)
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
                                       devinfo.unit, devinfo.fixed)
                 return
@@ -143,6 +130,10 @@ class NicosListener(object):
         else:
             fvalue = value
         devinfo.value = fvalue
+        devinfo.changetime = time
+        self._update_value(key, devinfo, fvalue, expired)
+
+    def _update_value(self, key, devinfo, fvalue, expired):
         if fvalue is None:
             strvalue = '----'
         else:
@@ -152,7 +143,6 @@ class NicosListener(object):
                 strvalue = devinfo.fmtstr % fvalue
             except Exception:
                 strvalue = str(fvalue)
-        devinfo.changetime = time
         devinfo.fullvalue = (strvalue + ' ' + (devinfo.unit or '')).strip()
         if devinfo.strvalue != strvalue or devinfo.expired != expired:
             devinfo.strvalue = strvalue
