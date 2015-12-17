@@ -57,13 +57,14 @@ class DNSFileFormat(ImageSink):
 
     def prepareImage(self, imageinfo, subdir=''):
         ImageSink.prepareImage(self, imageinfo, subdir)
-        imageinfo.data = DeviceValueDict(fileName=imageinfo.filename,
-                                         fileDate=strftime('%m/%d/%Y'),
-                                         fileTime=strftime('%r'),
-                                         FromDate=strftime('%m/%d/%Y'),
-                                         FromTime=strftime('%r'),
-                                         Environment='_'.join(session.explicit_setups),
-                                         )
+        imageinfo.data = DeviceValueDict(
+            fileName=imageinfo.filename,
+            fileDate=strftime('%m/%d/%Y'),
+            fileTime=strftime('%r'),
+            FromDate=strftime('%m/%d/%Y'),
+            FromTime=strftime('%r'),
+            Environment='_'.join(session.explicit_setups),
+        )
 
     def updateImage(self, imageinfo, image):
         """just write the data upon update"""
@@ -80,136 +81,132 @@ class DNSFileFormat(ImageSink):
 
     def saveImage(self, imageinfo, image):
         """Save in DNS format"""
-        imageinfo.file.seek(0)
-        imageinfo.file.write("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n"
-                             % (session.experiment.users,
-                                str(session.experiment.lastscan),
-                                str(session.experiment.lastimage),
-                                session.experiment.sample.samplename))
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
-        # TODO: use right value, remove dummylines
-        # imageinfo.file.write("# %d\n" % len(datacomment))
-        # for i in range(len(datacomment)):
-        #     imageinfo.file.write("# " + datacomment[i] + "\n")
-        imageinfo.file.write("# 2\n")  # TODO: add other comment maybe
-        imageinfo.file.write("# User: %s\n" % session.experiment.users)
-        imageinfo.file.write("# Sample: %s\n" %
-                             session.experiment.sample.samplename)
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
-        imageinfo.file.write("# DNS   Mono  d-spacing[nm]  Theta[deg]   "
-                             "Lambda[nm]   Energy[meV]   Speed[m/sec]\n")
-        # TODO: not hard coded?
-        imageinfo.file.write("#      %s   %6.4f         %6.2f         %6.3f"
-                             "%6.3f      %7.2f\n" % ("PG-002", 0.3350,
-                                                     float(session.getDevice(
-                                                         'mon_rot').read()),
-                                                     0.474, 3.64, 834.6))
-        imageinfo.file.write("# Distances [cm] Sample_Chopper    "
-                             "Sample_Detector    Sample_Monochromator\n")
-        # TODO: not hard coded?
-        imageinfo.file.write("#                  36.00            80.00"
-                             "            220.00\n")
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w = imageinfo.file.write
+        separator = "#" + "-"*74 + "\n"
 
-        imageinfo.file.write("# Motors                      Position\n")
-        imageinfo.file.write("# Monochromator              %6.2f deg\n" %
-                             float(session.getDevice('mon_rot').read()))
-        imageinfo.file.write("# DeteRota                   %6.2f deg\n" %
-                             float(session.getDevice('det_rot').read()))
-        imageinfo.file.write("#\n")
-        imageinfo.file.write("# Huber                      %6.2f deg\n" %
-                             float(session.getDevice('sample_rot').read()))
-        imageinfo.file.write("# Cradle_lower               %6.2f deg\n" %
-                             float(session.getDevice('cradle_lo').read()))
-        imageinfo.file.write("# Cradle_upper               %6.2f deg\n" %
-                             float(session.getDevice('cradle_up').read()))
-        imageinfo.file.write("#\n")
-        imageinfo.file.write("# Slit_i_vertical upper      %6.1f mm\n" %
-                             float(session.getDevice('ap_sam_y_upper').read()))
-        imageinfo.file.write("#                 lower      %6.1f mm\n" %
-                             float(session.getDevice('ap_sam_y_lower').read()))
-        imageinfo.file.write("# Slit_i_horizontal left     %6.1f mm\n" %
-                             float(session.getDevice('ap_sam_x_left').read()))
-        imageinfo.file.write("#                   right    %6.1f mm\n" %
-                             float(session.getDevice('ap_sam_x_right').read()))
-        imageinfo.file.write("#\n")
+        def readdev(name):
+            return session.getDevice(name).read()
+
+        imageinfo.file.seek(0)
+        exp = session.experiment
+        w("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n" %
+          (exp.users, exp.lastscan, exp.lastimage, exp.sample.samplename))
+        w(separator)
+
+        # TODO: use right value, remove dummylines
+        # w("# %d\n" % len(datacomment))
+        # for i in range(len(datacomment)):
+        #     w("# " + datacomment[i] + "\n")
+
+        w("# 2\n")  # TODO: add other comment maybe
+        w("# User: %s\n" % exp.users)
+        w("# Sample: %s\n" % exp.sample.samplename)
+        w(separator)
+
+        w("# DNS   Mono  d-spacing[nm]  Theta[deg]   "
+          "Lambda[nm]   Energy[meV]   Speed[m/sec]\n")
+        lam = readdev('mon_lambda')
+        energy = 81.804165 / lam**2
+        speed = 3956.0 / lam
+        w("#      %s   %6.4f         %6.2f         %6.3f"
+          "%6.3f      %7.2f\n" %
+          ("PG-002", 0.3350, readdev('mon_rot'), lam, energy, speed))
+
+        w("# Distances [cm] Sample_Chopper    "
+          "Sample_Detector    Sample_Monochromator\n")
+        # TODO: not hard coded?
+        w("#                  36.00            80.00            220.00\n")
+        w(separator)
+
+        w("# Motors                      Position\n")
+        w("# Monochromator              %6.2f deg\n" % readdev('mon_rot'))
+        w("# DeteRota                   %6.2f deg\n" % readdev('det_rot'))
+        w("#\n")
+        w("# Huber                      %6.2f deg\n" % readdev('sample_rot'))
+        w("# Cradle_lower               %6.2f deg\n" % readdev('cradle_lo'))
+        w("# Cradle_upper               %6.2f deg\n" % readdev('cradle_up'))
+        w("#\n")
+        w("# Slit_i_vertical upper      %6.1f mm\n" %
+          readdev('ap_sam_y_upper'))
+        w("#                 lower      %6.1f mm\n" %
+          readdev('ap_sam_y_lower'))
+        w("# Slit_i_horizontal left     %6.1f mm\n" %
+          readdev('ap_sam_x_left'))
+        w("#                   right    %6.1f mm\n" %
+          readdev('ap_sam_x_right'))
+        w("#\n")
         # dummy line
-        imageinfo.file.write("# Slit_f_upper                %4d mm\n" % 0)
+        w("# Slit_f_upper                %4d mm\n" % 0)
         # dummy line
-        imageinfo.file.write("# Slit_f_lower                %4d mm\n" % 0)
+        w("# Slit_f_lower                %4d mm\n" % 0)
         # dummy line
-        imageinfo.file.write("# Detector_Position_vertical  %4d mm\n" % 0)
-        imageinfo.file.write("#\n")
-        imageinfo.file.write("# Polariser\n")
-        imageinfo.file.write("#    Translation              %4d mm\n" %
-                             int(session.getDevice('pol_trans').read()))
-        imageinfo.file.write("#    Rotation              %6.2f deg\n" %
-                             float(session.getDevice('pol_rot').read()))
-        imageinfo.file.write("#\n")
-        imageinfo.file.write("# Analysers                 undefined\n")
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w("# Detector_Position_vertical  %4d mm\n" % 0)
+        w("#\n")
+        w("# Polariser\n")
+        w("#    Translation              %4d mm\n" % readdev('pol_trans'))
+        w("#    Rotation              %6.2f deg\n" % readdev('pol_rot'))
+        w("#\n")
+        w("# Analysers                 undefined\n")
+        w(separator)
         # write currents
-        imageinfo.file.write("# B-fields                   current[A]  field[G]\n")
-        imageinfo.file.write("#   Flipper_precession        %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('Co').read()), 0.0))
-        imageinfo.file.write("#   Flipper_z_compensation    %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('Fi').read()), 0.0))
-        imageinfo.file.write("#   C_a                       %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('A').read()), 0.0))
-        imageinfo.file.write("#   C_b                       %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('B').read()), 0.0))
-        imageinfo.file.write("#   C_c                       %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('C').read()), 0.0))
-        imageinfo.file.write("#   C_z                       %6.3f A     %6.2f G\n" %
-                             (float(session.getDevice('ZT').read()), 0.0))
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w("# B-fields                   current[A]  field[G]\n")
+        w("#   Flipper_precession        %6.3f A     %6.2f G\n" %
+          (readdev('Co'), 0.0))
+        w("#   Flipper_z_compensation    %6.3f A     %6.2f G\n" %
+          (readdev('Fi'), 0.0))
+        w("#   C_a                       %6.3f A     %6.2f G\n" %
+          (readdev('A'), 0.0))
+        w("#   C_b                       %6.3f A     %6.2f G\n" %
+          (readdev('B'), 0.0))
+        w("#   C_c                       %6.3f A     %6.2f G\n" %
+          (readdev('C'), 0.0))
+        w("#   C_z                       %6.3f A     %6.2f G\n" %
+          (readdev('ZT'), 0.0))
+        w(separator)
 
         tsample, ttube, tset = float('NaN'), float('NaN'), float('NaN')
         if 'Ts' in session.devices:
-            tsample = float(session.getDevice('Ts').read())
+            tsample = readdev('Ts')
         if 'T_jlc3_tube' in session.devices:
-            ttube = float(session.getDevice('T_jlc3_tube').read())
+            ttube = readdev('T_jlc3_tube')
             tset = float(session.getDevice('T_jlc3_tube').setpoint)
 
-        imageinfo.file.write("# Temperatures/Lakeshore      T\n")
-        imageinfo.file.write("#  T1                         %6.3f K\n" % ttube)
-        imageinfo.file.write("#  T2                         %6.3f K\n" % tsample)
-        imageinfo.file.write("#  sample_setpoint            %6.3f K\n" % tset)
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w("# Temperatures/Lakeshore      T\n")
+        w("#  T1                         %6.3f K\n" % ttube)
+        w("#  T2                         %6.3f K\n" % tsample)
+        w("#  sample_setpoint            %6.3f K\n" % tset)
+        w(separator)
 
         det_dev = session.getDevice('det')
-        imageinfo.file.write("# TOF parameters\n")
-        imageinfo.file.write("#  TOF channels                %4d\n" % det_dev.nrtimechan)
+        w("# TOF parameters\n")
+        w("#  TOF channels                %4d\n" % det_dev.nrtimechan)
         tdiv = 0.05 * (det_dev.divisor + 1)
-        imageinfo.file.write("#  Time per channel            %6.1f microsecs\n" % tdiv)
+        w("#  Time per channel            %6.1f microsecs\n" % tdiv)
         tdel = 0.05 * det_dev.offsetdelay
-        imageinfo.file.write("#  Delay time                  %6.1f microsecs\n" % tdel)
+        w("#  Delay time                  %6.1f microsecs\n" % tdel)
 
-        imageinfo.file.write("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO
-        imageinfo.file.write("#  Elastic time channel\n")  # %4d\n" % config.dataelastictime) # TODO
-        imageinfo.file.write("#  Chopper frequency\n")  # %4d Hz\n" % monitor.getfreq()) # TODO
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO
+        w("#  Elastic time channel\n")  # %4d\n" % config.dataelastictime) # TODO
+        w("#  Chopper frequency\n")  # %4d Hz\n" % monitor.getfreq()) # TODO
+        w(separator)
 
-        imageinfo.file.write("# Active_Stop_Unit           TIMER\n")
-        imageinfo.file.write("#  Timer                    %6.1f sec\n" %
-                             float(session.getDevice('timer').read()[0]))
-        imageinfo.file.write("#  Monitor           %16d\n" %
-                             int(session.getDevice('mon0').read()[0]))
-        imageinfo.file.write("#\n")
+        w("# Active_Stop_Unit           TIMER\n")
+        w("#  Timer                    %6.1f sec\n" % readdev('timer')[0])
+        w("#  Monitor           %16d\n" % readdev('mon0')[0])
+        w("#\n")
         begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.begintime))
         end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.endtime))
-        imageinfo.file.write("#    start   at      %s\n" % begin_t)
-        imageinfo.file.write("#    stopped at      %s\n" % end_t)
-        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
+        w("#    start   at      %s\n" % begin_t)
+        w("#    stopped at      %s\n" % end_t)
+        w(separator)
 
         # write array
-        imageinfo.file.write("# DATA (number of detectors, number of TOF "
-                             "channels)\n")
+        w("# DATA (number of detectors, number of TOF channels)\n")
         numarr = np.array(image)
-        imageinfo.file.write("# 64 %4d\n" % det_dev.nrtimechan)
+        w("# 64 %4d\n" % det_dev.nrtimechan)
         for ch in range(64):
-            imageinfo.file.write("%2d " % ch)
+            w("%2d " % ch)
             for q in range(det_dev.nrtimechan):
-                imageinfo.file.write(" %8d" % (numarr[q, ch]))
-            imageinfo.file.write("\n")
+                w(" %8d" % (numarr[q, ch]))
+            w("\n")
         imageinfo.file.flush()
