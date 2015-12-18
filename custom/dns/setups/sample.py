@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 description = 'DNS sample table and aperture'
-
 group = 'lowlevel'
 
 tango_host = 'tango://phys.dns.frm2:10000'

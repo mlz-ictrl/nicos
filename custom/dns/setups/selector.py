@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 description = 'setup for the velocity selector'
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 

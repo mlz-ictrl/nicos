@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 description = 'DNS shutter digital in- and outputs'
-
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['reactor', 'nl6']
 

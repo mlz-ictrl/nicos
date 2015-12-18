@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 description = "DNS detector setup"
-group = "optional"
+group = "lowlevel"
 
 includes = ['counter']
 
