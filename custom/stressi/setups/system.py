@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # description: Description of the setup (detailed)
 description = 'system setup'
 
@@ -64,11 +65,16 @@ includes = ['notifiers', ]
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Stressi = device('devices.instrument.Instrument',
+    Stressi = device('frm2.instrument.Instrument',
                      description = 'instrument object',
                      instrument = 'STRESSI',
                      responsible = 'Michael Hofmann <michael.hofmann@frm2.tum.de>',
                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
+                     website = 'http://www.mlz-garching.de/stress-spec',
+                     operators = [u'Technische Universität München (TUM)',
+                                  u'Technische Universität Clausthal',
+                                  'German Engineering Materials Center (GEMS)'
+                                 ],
                     ),
 
     Sample   = device('devices.sample.Sample',

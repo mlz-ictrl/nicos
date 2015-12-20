@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # description: Description of the setup (detailed)
 description = 'system setup'
 
@@ -64,11 +65,15 @@ includes = ['notifiers', ]
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Spodi = device('devices.instrument.Instrument',
+    Spodi = device('frm2.instrument.Instrument',
                    description = 'instrument object',
                    instrument = 'SPODI',
                    doi = 'http://dx.doi.org/10.17815/jlsrf-1-24',
                    responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
+                   website = 'http://www.mlz-garching.de/spodi',
+                   operators = [u'Technische Universität München (TUM)',
+                                u'Karlsruher Institut für Technologie (KIT)',
+                                ],
                   ),
 
     Sample   = device('devices.sample.Sample',

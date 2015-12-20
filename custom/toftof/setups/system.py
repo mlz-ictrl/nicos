@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 description = 'NICOS system setup'
 
 group = 'lowlevel'
@@ -15,11 +16,13 @@ modules = ['commands.standard']
 includes = ['notifiers', ]
 
 devices = dict(
-    TOFTOF   = device('devices.instrument.Instrument',
+    TOFTOF   = device('frm2.instrument.Instrument',
                       description = 'The famous TOFTOF instrument',
                       responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       instrument = 'TOFTOF',
                       doi = 'http://dx.doi.org/10.17815/jlsrf-1-40',
+                      website = 'http://www.mlz-garching.de/toftof',
+                      operators = [u'Technische Universität München (TUM)', ],
                      ),
 
     Sample   = device('devices.sample.Sample',

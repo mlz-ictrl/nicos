@@ -24,7 +24,7 @@
 
 """NICOS Instrument device."""
 
-from nicos.core import Device, Param, mailaddress
+from nicos.core import Device, Param, listof, mailaddress
 
 
 class Instrument(Device):
@@ -49,4 +49,8 @@ class Instrument(Device):
                              category='experiment'),
         'countloopdelay': Param('Loop delay in checking for counting finished',
                                 type=float, default=0.025, userparam=False),
+        'website': Param('Instrument URL', type=str, category='experiment',
+                         settable=False, default='http://www.mlz-garching.de'),
+        'operators': Param('Instrument operators', type=listof(str),
+                           category='experiment', settable=False),
     }
