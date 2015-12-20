@@ -13,6 +13,7 @@ modules = ['commands.standard']
 
 devices = dict(
     email = device('devices.notifiers.Mailer',
+                   description = 'The notifier to send emails',
                       sender = 'bjoern.pedersen@frm2.tum.de',
                       copies = [('bjoern.pedersen@frm2.tum.de', 'all')],
                       subject = 'RESI'),
@@ -21,19 +22,30 @@ devices = dict(
     #                  server='triton.admin.frm2'),
 
     Exp = device('resi.experiment.ResiExperiment',
+                 description = 'The currently running experiment',
                       sample = 'Sample',
                       dataroot = '/tmp/data/testdata',
                       ),
 
     resiInstrument = device('devices.instrument.Instrument',
-                       instrument = 'RESI',
-                        responsible = 'BP <bjoern.pedersen@frm2.tum.de>'),
+                            description = 'Thermal neutron single crystal '
+                                          'diffractometer',
+                            instrument = 'RESI',
+                            responsible = 'B. Pedersen <bjoern.pedersen@frm2.tum.de>'),
 
-    Sample = device('devices.sample.Sample'),
+    Sample = device('devices.sample.Sample',
+                    description = 'The sample',
+                   ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    dmnsink = device('devices.datasinks.DaemonSink'),
+    dmnsink = device('devices.datasinks.DaemonSink',
+                     lowlevel = True,
+                    ),
 )

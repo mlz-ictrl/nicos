@@ -11,22 +11,32 @@ sysconfig = dict(
 modules = ['commands.standard']
 
 devices = dict(
-    Sample   = device('devices.sample.Sample'),
+    Sample   = device('devices.sample.Sample',
+                      description = 'The sample',
+                     ),
 
     Instrument = device('devices.instrument.Instrument',
+                        description = 'Prompt gamma and in-beam neutron '
+                                      'activation analysis facility',
                         responsible = 'Dr. Petra Kudejova <petra.kudejova@frm2.tum.de>',
                        ),
 
     Exp      = device('devices.experiment.Experiment',
+                      description = 'The currently running experiment',
                       dataroot = '/localdata/',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
