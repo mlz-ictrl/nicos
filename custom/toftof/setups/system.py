@@ -19,6 +19,7 @@ devices = dict(
                       description = 'The famous TOFTOF instrument',
                       responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       instrument = 'TOFTOF',
+                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-40',
                      ),
 
     Sample   = device('devices.sample.Sample',

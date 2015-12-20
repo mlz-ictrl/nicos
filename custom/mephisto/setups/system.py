@@ -40,7 +40,9 @@ devices = dict(
                      ),
 
     Instrument = device('devices.instrument.Instrument',
-                        description = 'Facility for particle physics with cold neutrons',
+                        description = 'Facility for particle physics with cold '
+                                      'neutrons',
+                        doi = 'http://dx.doi.org/10.17815/jlsrf-1-48',
                         responsible = 'Dr. Jens Klenke <jens.klenke@frm2.tum.de>',
                        ),
 

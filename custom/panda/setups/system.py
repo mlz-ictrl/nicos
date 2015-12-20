@@ -41,6 +41,7 @@ devices = dict(
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind ' +
                                   '<astrid.schneidewind@frm2.tum.de>',
+                   doi = 'http://dx.doi.org/10.17815/jlsrf-1-35',
                   ),
     Sample   = device('devices.tas.TASSample',
                        description = 'Sample under investigation',

@@ -67,6 +67,7 @@ devices = dict(
     Spodi = device('devices.instrument.Instrument',
                    description = 'instrument object',
                    instrument = 'SPODI',
+                   doi = 'http://dx.doi.org/10.17815/jlsrf-1-24',
                    responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
                   ),
 

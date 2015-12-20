@@ -90,6 +90,7 @@ devices = dict(
                      description = 'Single crystal DIFFractometer '
                                    'for BIOlogical macromolecules',
                      instrument = "BIODIFF",
+                     doi = 'http://dx.doi.org/10.17815/jlsrf-1-19',
                      responsible = "Tobias Schrader <t.schrader@fz-juelich.de>",
                     ),
 

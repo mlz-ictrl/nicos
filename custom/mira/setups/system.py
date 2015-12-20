@@ -32,6 +32,7 @@ devices = dict(
     mira     = device('devices.instrument.Instrument',
                       description = 'instrument object',
                       instrument = 'MIRA',
+                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-21',
                       responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                      ),
 

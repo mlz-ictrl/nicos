@@ -89,6 +89,7 @@ devices = dict(
                   description = 'DNS Diffuse scattering neutron ' +
                                    'time of flight spectrometer',
                   instrument='DNS',
+                  doi = 'http://dx.doi.org/10.17815/jlsrf-1-33',
                   responsible= 'Yixi Su <y.su@fz-juelich.de>'
                  ),
 

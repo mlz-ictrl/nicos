@@ -18,7 +18,8 @@ devices = dict(
     Instrument = device('devices.instrument.Instrument',
                         description = 'Prompt gamma and in-beam neutron '
                                       'activation analysis facility',
-                        responsible = 'Dr. Petra Kudejova <petra.kudejova@frm2.tum.de>',
+                        doi = 'http://dx.doi.org/10.17815/jlsrf-1-46',
+                        responsible = 'Dr. Zsolt Revay <zsolt.revay@frm2.tum.de>',
                        ),
 
     Exp      = device('devices.experiment.Experiment',

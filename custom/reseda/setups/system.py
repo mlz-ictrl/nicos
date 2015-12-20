@@ -2,7 +2,7 @@ description = 'system setup'
 
 sysconfig = dict(
     cache = 'resedahw',
-    instrument = None,
+    instrument = 'Reseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -17,6 +17,12 @@ devices = dict(
                       description = 'The sample',
                      ),
 
+    Reseda   = device('devices.instrument.Instrument',
+                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-37',
+                      description = 'Resonance spin echo spectrometer',
+                      responsible = 'Christian Franz '
+                                    '<christian.franz@frm2.tum.de>',
+                     ),
     Exp      = device('frm2.experiment.Experiment',
                       description = 'The currently running experiment',
                       dataroot = '/data',
