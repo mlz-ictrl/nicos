@@ -39,10 +39,11 @@ class Instrument(Device):
 
     parameters = {
         'facility': Param('Facility name', type=str, category='experiment',
-                          settable=False, default="MLZ"),
-        'instrument':  Param('Instrument name', type=str, category='experiment'),
-        'doi':         Param('Instrument DOI', type=str, category='experiment',
-                             userparam=False),
+                          settable=False,
+                          default='Heinz Maier-Leibnitz Zentrum Garching (MLZ)'),
+        'instrument': Param('Instrument name', type=str, category='experiment'),
+        'doi': Param('Instrument DOI', type=str, category='experiment',
+                     userparam=False),
         'responsible': Param('Instrument responsible name and email',
                              mandatory=True, type=mailaddress,
                              category='experiment'),
