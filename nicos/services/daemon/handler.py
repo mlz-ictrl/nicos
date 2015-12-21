@@ -44,8 +44,8 @@ from nicos.core.data import ScanData
 from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
-from nicos.services.daemon.script import ScriptRequest, \
-    ScriptError, RequestError
+from nicos.services.daemon.script import ScriptRequest, ScriptError, \
+    RequestError
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
@@ -408,35 +408,35 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if not name:
             name = None
         try:
-            reqno = self.controller.new_request(
+            reqid = self.controller.new_request(
                 ScriptRequest(code, name, self.user, handler=self))
         except RequestError as err:
             self.write(NAK, str(err))
             return
         # take control of the session
         self.controller.controlling_user = self.user
-        self.write(STX, reqno)
+        self.write(STX, reqid)
 
     @command()
-    def unqueue(self, reqno):
-        """Mark the given request number (or all, if '*') so that it is not
+    def unqueue(self, reqid):
+        """Mark the given request ID (or all, if '*') so that it is not
         executed.
 
-        :param reqno: (int) request number, or '*'
+        :param reqid: (str) request UUID, or '*'
         :returns: ok or error (e.g. if the given script is not in the queue)
         """
-        if reqno == '*':
+        if reqid == '*':
             self.controller.block_all_requests()
         else:
-            reqno = int(reqno)
-            if reqno <= self.controller.reqno_work:
+            try:
+                self.controller.block_requests([reqid])
+            except IndexError:
                 self.write(NAK, 'script already executing')
                 return
-            self.controller.block_requests([reqno])
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def update(self, newcode, reason):
+    def update(self, newcode, reason, reqid=None):
         """Update the currently running script.
 
         :param newcode: new code for the current script
@@ -444,10 +444,12 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ok or error (e.g. if the script differs in executing code)
         """
         try:
-            self.controller.current_script.update(newcode, reason,
-                                                  self.controller, self.user)
+            self.controller.update_script(reqid, newcode, reason, self.user)
         except ScriptError as err:
             self.write(NAK, str(err))
+            return
+        except IndexError:
+            self.write(NAK, 'script doesn\'t exist')
             return
         self.write(ACK)
 
@@ -547,6 +549,22 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                              self.controller.current_location(True))
         self.controller.script_immediate_stop(self.user)
         self.write(ACK)
+
+    @command()
+    def rearrange(self, ids):
+        """Try to re-sort the queued scripts according to the given sequence of
+        their IDs.
+
+        :param ids: a list of request IDs that gives the new ordering
+
+        :returns: ok or error
+        """
+        try:
+            self.controller.rearrange_queue(ids)
+        except RequestError as err:
+            self.write(NAK, str(err))
+        else:
+            self.write(ACK)
 
     # -- Asynchronous script interaction --------------------------------------
 

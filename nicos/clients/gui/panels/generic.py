@@ -64,7 +64,7 @@ class GenericPanel(Panel):
 
     def on_client_message(self, message):
         # show warnings and errors emitted by the current command in a window
-        if len(message) < 7 or message[6] != self.client.last_reqno or \
+        if len(message) < 7 or message[6] != self.client.last_reqid or \
            message[2] < WARNING:
             return
         msg = '%s: %s' % (message[0], message[3].strip())

@@ -41,6 +41,7 @@ import ctypes.util
 from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
+from collections import OrderedDict
 
 from nicos.clients.base import NicosClient, ConnectionData
 from nicos.clients.cli.txtplot import txtplot
@@ -115,7 +116,7 @@ class NicosCmdClient(NicosClient):
         self.current_line = -1
         self.current_filename = ''
         # pending requests (i.e. scripts) in the daemon
-        self.pending_requests = {}
+        self.pending_requests = OrderedDict()
         # filename of last edited/simulated script
         self.last_filename = ''
         # instrument name from NICOS, pre-filled with server name
@@ -296,14 +297,14 @@ class NicosCmdClient(NicosClient):
         else:
             self.put_client('Connected to %s:%s as %s. ' %
                             (self.host, self.port, self.conndata.user))
-        self.signal('processing', {'script': state['script'], 'reqno': 0})
+        self.signal('processing', {'script': state['script'], 'reqid': '0'})
         self.signal('status', state['status'])
         self.current_mode = state['mode']
         self.scriptpath = self.eval('session.experiment.scriptpath', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
         for req in state['requests']:
-            self.pending_requests[req['reqno']] = req
+            self.pending_requests[req['reqid']] = req
         self.set_status(self.status)
 
     stcolmap  = {'idle': 'blue',
@@ -437,20 +438,28 @@ class NicosCmdClient(NicosClient):
                 script = script.splitlines() or ['']
                 if script != self.current_script:
                     self.current_script = script
-                self.pending_requests.pop(data['reqno'], None)
+                self.pending_requests.pop(data['reqid'], None)
                 self.set_status(self.status)
             elif name == 'request':
                 if 'script' in data:
-                    self.pending_requests[data['reqno']] = data
+                    self.pending_requests[data['reqid']] = data
                 self.set_status(self.status)
             elif name == 'blocked':
-                removed = [_f for _f in (self.pending_requests.pop(reqno, None)
-                                         for reqno in data) if _f]
+                removed = [_f for _f in (self.pending_requests.pop(reqid, None)
+                                         for reqid in data) if _f]
                 if removed:
                     self.put_client('%d script(s) or command(s) removed from '
                                     'queue.' % len(removed))
                     self.show_pending()
                 self.set_status(self.status)
+            elif name == 'updated':
+                if 'script' in data:
+                    self.pending_requests[data['reqid']] = data
+            elif name == 'rearranged':
+                old_reqs = self.pending_requests.copy()
+                self.pending_requests.clear()
+                for reqid in data:
+                    self.pending_requests[reqid] = old_reqs[reqid]
             elif name == 'connected':
                 self.reconnecting = False
                 self.initial_update()
@@ -629,13 +638,8 @@ class NicosCmdClient(NicosClient):
         else:
             self.put_client('No script is running.')
 
-    def show_pending(self):
-        if not self.pending_requests:
-            self.put_client('No scripts or commands are pending.')
-            return
-        self.put_client('Showing pending scripts or commands. '
-                        'Use "/cancel number" to remove.')
-        for reqno, script in sorted(iteritems(self.pending_requests)):
+    def _iter_pending(self):
+        for reqid, script in iteritems(self.pending_requests):
             if 'name' in script and script['name']:
                 short = script['name']
             elif 'script' in script:
@@ -646,8 +650,40 @@ class NicosCmdClient(NicosClient):
                     short = lines[0] + ' ...'
             else:
                 short = '(stop)'
-            self.put('# %s  %s' % (colorize('blue', '%4d' % reqno), short))
+            yield reqid, short
+
+    def show_pending(self):
+        if not self.pending_requests:
+            self.put_client('No scripts or commands are pending.')
+            return
+        self.put_client('Showing pending scripts or commands. '
+                        'Use "/cancel" to remove one or more.')
+        for _reqid, short in self._iter_pending():
+            self.put('#   %s' % short)
         self.put_client('End of pending list.')
+
+    def cancel_menu(self, arg):
+        if not self.pending_requests:
+            self.put_client('No scripts or commands are pending.')
+            return
+        if arg == '*':
+            self.tell('unqueue', '*')
+            return
+        self.put_client('Showing pending scripts or commands.')
+        indices = {}
+        for index, (reqid, short) in enumerate(self._iter_pending(), start=1):
+            indices[index] = reqid
+            self.put('#   %s  %s' % (colorize('blue', '%2d' % index), short))
+        res = self.ask_question('Which script to cancel ("*" for all)?')
+        if res == '*':
+            self.tell('unqueue', '*')
+            return
+        try:
+            reqid = indices[int(res)]
+        except (ValueError, KeyError):
+            self.put_error('Invalid selection.')
+            return
+        self.tell('unqueue', reqid)
 
     def debug_repl(self):
         """Called to handle remote debugging via Rpdb."""
@@ -799,16 +835,7 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'pending':
             self.show_pending()
         elif cmd == 'cancel':
-            if arg != '*':
-                # this catches an empty arg as well
-                try:
-                    arg = int(arg)
-                    self.pending_requests[arg]  # pylint: disable=W0104
-                except (ValueError, KeyError):
-                    self.put_error('Need a pending request number '
-                                   '(see "/pending") or "*" to clear all.')
-                    return
-            self.tell('unqueue', str(arg))
+            self.cancel_menu(arg)
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
@@ -1015,8 +1042,8 @@ This client supports "meta-commands" beginning with a slash:
   /fin(ish)           -- finish current measurement early
   /wait               -- wait until script is finished (for scripting)
 
-  /pending            -- show the currently pending commands
-  /cancel n           -- cancel a pending command by number
+  /pending            -- show the currently pending commands or scripts
+  /cancel             -- cancel a pending command or script
 
   /e(dit) <file>      -- edit a script file
   /r(un) <file>       -- run a script file

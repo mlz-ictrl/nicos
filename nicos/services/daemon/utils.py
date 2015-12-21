@@ -28,13 +28,14 @@ import re
 import time
 import logging
 import linecache
+from threading import Lock, Event
 
 from nicos.utils.loggers import ACTION, TRANSMIT_ENTRIES
 
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
-# -- General utilities ---------------------------------------------------------
+# -- General utilities --------------------------------------------------------
 
 _excessive_ws_re = re.compile(r'\n\s*\n')
 
@@ -80,7 +81,7 @@ def updateLinecache(name, script):
                              [l+'\n' for l in script.splitlines()], name)
 
 
-# -- Logging utilities ---------------------------------------------------------
+# -- Logging utilities --------------------------------------------------------
 
 class LoggerWrapper(object):
     """
@@ -115,7 +116,7 @@ class DaemonLogHandler(logging.Handler):
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
         # record which request caused this message
-        msg.append(self.ctrl.reqno_work)
+        msg.append(self.ctrl.reqid_work)
         if record.levelno != ACTION:
             # do not cache ACTIONs, they do not contribute to useful output if
             # received after the fact (this should also lower memory consumption
@@ -125,3 +126,86 @@ class DaemonLogHandler(logging.Handler):
             if len(self.daemon._messages) > 110000:
                 del self.daemon._messages[:10000]
         self.daemon.emit_event('message', msg)
+
+
+# -- Script queue -------------------------------------------------------------
+
+class QueueOperator(object):
+    """Operations on the queue that must be done while the lock is held."""
+
+    def __init__(self, queue):
+        self.queue = queue
+
+    def get_item(self, key):
+        for item in self.queue.scripts:
+            if item.reqid == key:
+                return item
+        raise IndexError
+
+    def move_item(self, item_id, newindex):
+        for i, item in enumerate(self.queue.scripts):
+            if item.reqid == item_id:
+                self.queue.scripts.insert(newindex, self.queue.scripts.pop(i))
+
+    def get_ids(self):
+        return [item.reqid for item in self.queue.scripts]
+
+    def update(self, reqid, newcode, user):
+        self.queue[reqid].text = newcode
+        self.queue[reqid].user = user.name
+
+
+class ScriptQueue(object):
+    """Specialized queue for scripts that can be re-sorted and updated."""
+
+    def __init__(self):
+        self.scripts = []
+        self._lock = Lock()
+        self._event = Event()
+        self._event.clear()
+
+    def put(self, item):
+        """Put a new script onto the queue."""
+        with self._lock:
+            self.scripts.append(item)
+            self._event.set()
+
+    def get(self):
+        """Get (blockingly) the next script from the queue."""
+        self._event.wait()
+        with self._lock:
+            temp = self.scripts.pop(0)
+            if not self.scripts:
+                self._event.clear()
+        return temp
+
+    def delete_one(self, key):
+        """Delete script with a given reqid from the queue."""
+        with self._lock:
+            for item in self.scripts:
+                if item.reqid == key:
+                    self.scripts.remove(item)
+                    if not self.scripts:
+                        self._event.clear()
+                    return
+            raise IndexError
+
+    def delete_all(self):
+        """Delete all scripts and returns their reqids in a list."""
+        with self._lock:
+            deleted = [item.reqid for item in self.scripts]
+            self.scripts = []
+            self._event.clear()
+        return deleted
+
+    def serialize_queue(self):
+        """Return serialized form of all scripts."""
+        with self._lock:
+            return [req.serialize() for req in self.scripts]
+
+    def __enter__(self):
+        self._lock.acquire()
+        return QueueOperator(self)
+
+    def __exit__(self, *exc):
+        self._lock.release()

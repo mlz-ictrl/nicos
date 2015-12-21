@@ -36,18 +36,12 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 16
+PROTO_VERSION = 17
 
 # old versions with which the client is still compatible
-# 10 -> 11: added RSA encryption of transmitted password
-# 11 -> 12: added return value to 'queue' command
-# 12 -> 13: 'authenticate' now returns user info dict
-# 13 -> 14: added 'finish' command
-# 14 -> 15: added 'eventunmask' command
-# 15 -> 16: added 'uid' and 'detector' parameters to 'liveparams' event
-#           added 'prompt' event
+# (currently none)
 
-COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14, 15]
+COMPATIBLE_PROTO_VERSIONS = []
 
 # message serialization/deserialization
 
@@ -142,10 +136,11 @@ DAEMON_COMMANDS = {
     'quit':           0x63,
     'authenticate':   0x64,  # only used during handshake
     'eventunmask':    0x65,
+    'rearrange':      0x66,
 }
 
 ACTIVE_COMMANDS = set((
-    'start', 'queue', 'unqueue', 'update',
+    'start', 'queue', 'unqueue', 'rearrange', 'update',
     'break', 'continue', 'stop', 'finish', 'exec',  # 'emergency' is allowed
 ))
 
@@ -212,6 +207,10 @@ DAEMON_EVENTS = {
     'experiment':  (True, 0x1016),
     # the user is prompted to continue
     'prompt':      (True, 0x1017),
+    # queued script has been updated
+    'updated':     (True, 0x1018),
+    # order of queued scripts changed
+    'rearranged':  (True, 0x1019),
 }
 
 event2code, code2event = {}, {}

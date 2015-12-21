@@ -30,6 +30,7 @@ import weakref
 import traceback
 from os import path
 from bdb import BdbQuit
+from uuid import uuid1
 from threading import Lock, Event, current_thread
 
 from nicos import session, config
@@ -37,14 +38,14 @@ from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
 from nicos.core.utils import system_user
 from nicos.services.daemon.utils import formatScript, fixupScript, \
-    updateLinecache
+    updateLinecache, ScriptQueue
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_INBREAK, STATUS_STOPPING
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import queue, exec_, text_type
+from nicos.pycompat import exec_, text_type
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -64,7 +65,7 @@ class Request(object):
     thread.  Each request has a number, by which pending requests can be
     identified and ignored.
     """
-    reqno = None
+    reqid = None
     quiet = False
 
     def __init__(self, user):
@@ -73,9 +74,10 @@ class Request(object):
             self.userlevel = user.level
         except AttributeError:
             raise RequestError('No valid user object supplied')
+        self.reqid = str(uuid1())
 
     def serialize(self):
-        return {'reqno': self.reqno, 'user': self.user}
+        return {'reqid': self.reqid, 'user': self.user}
 
 
 class EmergencyStopRequest(Request):
@@ -116,7 +118,7 @@ class ScriptRequest(Request):
         self.curblock = -1
 
     def serialize(self):
-        return {'reqno': self.reqno, 'name': self.name, 'script': self.text,
+        return {'reqid': self.reqid, 'name': self.name, 'script': self.text,
                 'user': self.user}
 
     def __repr__(self):
@@ -298,7 +300,8 @@ class ExecutionController(Controller):
         self.setup = startupsetup   # first setup on start
         self.simmode = simmode and SIMULATION or SLAVE
                                     # start in simulation mode?
-        self.queue = queue.Queue()  # user scripts get put here
+
+        self.queue = ScriptQueue()  # user scripts get put here
         self.current_script = None  # currently executed script
         # namespaces in which scripts execute
         self.namespace = session.namespace
@@ -308,9 +311,8 @@ class ExecutionController(Controller):
         self.watchlock = Lock()     # lock for watch expression list modification
         self.estop_functions = []   # functions to run on emergency stop
         self.thread = None          # thread executing scripts
-        self.reqno_latest = 0       # number of the last queued request
-        self.reqno_work = 0         # number of the last executing request
-        self.blocked_reqs = set()   # set of blocked request numbers
+        self.reqid_work = None      # ID of the last executing request
+
         self.debugger = None        # currently running debugger (Rpdb)
         self.last_handler = None    # handler of current exec/eval
         # only one user or admin can issue non-read-only commands
@@ -370,8 +372,6 @@ class ExecutionController(Controller):
 
     def new_request(self, request, notify=True):
         assert isinstance(request, Request)
-        request.reqno = self.reqno_latest + 1
-        self.reqno_latest += 1
         # first send the notification, otherwise the request could be processed
         # (resulting in a "processing" event) before the "request" event is
         # even sent
@@ -379,15 +379,16 @@ class ExecutionController(Controller):
             self.eventfunc('request', request.serialize())
         # put the script on the queue (will not block)
         self.queue.put(request)
-        return request.reqno
+        return request.reqid
 
     def block_all_requests(self):
-        self.block_requests(range(self.reqno_work + 1,
-                                  self.reqno_latest + 1))
+        deleted = self.queue.delete_all()
+        self.eventfunc('blocked', deleted)
 
     def block_requests(self, requests):
-        self.blocked_reqs.update(requests)
-        self.eventfunc('blocked', requests)
+        for req in requests:
+            self.queue.delete_one(req)
+            self.eventfunc('blocked', [req])
 
     def script_stop(self, level, user, message=None):
         """High-level "stop" routine."""
@@ -432,8 +433,7 @@ class ExecutionController(Controller):
             self.set_continue(('emergency stop', 5, user.name))
 
     def get_queue(self):
-        return [req.serialize() for req in self.queue.queue if
-                req.reqno not in self.blocked_reqs]
+        return self.queue.serialize_queue()
 
     def get_current_handler(self):
         # both of these attributes are weakrefs, so we have to call them to get
@@ -578,6 +578,49 @@ class ExecutionController(Controller):
             else:
                 self.log.info('ESF finished')
 
+    def rearrange_queue(self, ids):
+        """Rearrange the queued scripts according to the given id sequence."""
+
+        def match_ids(client_ids, queued_ids):
+            """Checks consistency between the ID sequences."""
+            queued_idset = set(queued_ids)
+            client_idset = set(client_ids)
+            if queued_idset ^ client_idset:
+                if client_idset - queued_idset:
+                    temp = client_idset - queued_idset
+                    if set(client_ids[:len(temp)]) ^ temp:
+                        raise RequestError('Inconsistency between clients '
+                                           'script IDs and queued IDs')
+
+                    # remove already executed scripts from clients id sequence
+                    client_ids = client_ids[len(temp):]
+
+                if queued_idset - client_idset:
+                    temp = queued_idset - client_idset
+                    if set(queued_ids[:-len(temp)]) ^ temp:
+                        raise RequestError('Inconsistency between clients '
+                                           'script IDs and queued IDs')
+
+        with self.queue as qop:
+            match_ids(ids, qop.get_ids())
+            for new_index, script_id in enumerate(ids):
+                qop.move_item(script_id, new_index)
+                self.eventfunc('rearranged', qop.get_ids())
+
+    def update_script(self, reqid, newcode, reason, user):
+        """The desired update can be either for the executed script or a
+        queued script.
+        """
+        with self.queue as qop:
+            # check if currently executed script needs update
+            if reqid == self.current_script.reqid or reqid is None:
+                self.current_script.update(newcode, reason, self, user)
+                return
+
+            # update queued script with newuser and code
+            qop.update(reqid, newcode, user)
+            self.eventfunc('updated', qop.get_item(reqid).serialize())
+
     def start_script_thread(self, *args):
         if self.thread:
             raise RuntimeError('script thread already started')
@@ -602,12 +645,9 @@ class ExecutionController(Controller):
             while 1:
                 # get a script (or other request) from the queue
                 request = self.queue.get()
-                self.reqno_work = request.reqno
-                if request.reqno in self.blocked_reqs:
-                    self.log.info('request %d blocked, continuing',
-                                  request.reqno)
-                    continue
-                self.log.info('processing request %d', request.reqno)
+
+                self.reqid_work = request.reqid
+                self.log.info('processing request %s', request.reqid)
                 if isinstance(request, EmergencyStopRequest):
                     self.execute_estop(request.user)
                     continue

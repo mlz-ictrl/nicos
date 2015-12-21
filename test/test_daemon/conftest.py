@@ -106,11 +106,11 @@ class TestClient(NicosClient):
 
     def run_and_wait(self, command, name=None, allow_exc=False):
         idx = len(self._signals)
-        reqno = self.run(command, name)
+        reqid = self.run(command, name)
         # wait for idle status
         processing = False
         for sig in self.iter_signals(idx, 5.0):
-            if sig[0] == 'processing' and sig[1]['reqno'] == reqno:
+            if sig[0] == 'processing' and sig[1]['reqid'] == reqid:
                 processing = True
             if processing and sig[0] == 'status' and \
                sig[1][0] in (STATUS_IDLE, STATUS_IDLEEXC):

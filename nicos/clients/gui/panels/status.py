@@ -38,7 +38,7 @@ from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
 
 class ScriptQueue(object):
     def __init__(self, frame, view):
-        self._no2item = {}   # mapping from request number to list widget item
+        self._id2item = {}  # mapping from request ID to list widget item
         self._frame = frame
         self._view = view
         self._timer = QTimer(singleShot=True, timeout=self._timeout)
@@ -54,30 +54,45 @@ class ScriptQueue(object):
 
     def append(self, request):
         item = QListWidgetItem(self._format_item(request))
-        item.setData(Qt.UserRole, request['reqno'])
-        self._no2item[request['reqno']] = item
+        item.setData(Qt.UserRole, request['reqid'])
+        self._id2item[request['reqid']] = item
         self._view.addItem(item)
         # delay showing the frame for 20 msecs, so that it doesn't flicker in
         # and out if the script is immediately taken out of the queue again
         self._timer.start(20)
 
-    def remove(self, reqno):
-        item = self._no2item.pop(reqno, None)
+    def update(self, request):
+        item = self._id2item.get(request['reqid'])
+        if item:
+            text = self._format_item(request['script'])
+            item.setText(text)
+
+    def remove(self, reqid):
+        item = self._id2item.pop(reqid, None)
         if item is None:
             return
         item = self._view.takeItem(self._view.row(item))
-        if not self._no2item:
+        if not self._id2item:
             self._timer.stop()
             self._frame.hide()
         return item
 
+    def rearrange(self, reqids):
+        selected = self._view.currentItem()
+        for i in range(self._view.count()-1, -1, -1):
+            self._view.takeItem(i)
+        for reqid in reqids:
+            self._view.addItem(self._id2item[reqid])
+        if selected:
+            self._view.setCurrentItem(selected)
+
     def clear(self):
         self._frame.hide()
         self._view.clear()
-        self._no2item.clear()
+        self._id2item.clear()
 
     def __nonzero__(self):
-        return bool(self._no2item)
+        return bool(self._id2item)
 
     __bool__ = __nonzero__
 
@@ -124,6 +139,8 @@ class ScriptStatusPanel(Panel):
         self.connect(client, SIGNAL('status'), self.on_client_status)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
+        self.connect(client, SIGNAL('rearranged'), self.on_client_rearranged)
+        self.connect(client, SIGNAL('updated'), self.on_client_updated)
 
         bar = QToolBar('Script control')
         bar.setObjectName(bar.windowTitle())
@@ -244,24 +261,24 @@ class ScriptStatusPanel(Panel):
         if 'script' not in request:
             return
         new_current_line = -1
-        if self.current_request['reqno'] == request['reqno']:
+        if self.current_request['reqid'] == request['reqid']:
             # on update, set the current line to the same as before
             # (this may be WRONG, but should not in most cases, and it's
             # better than no line indicator at all)
             new_current_line = self.current_line
-        self.script_queue.remove(request['reqno'])
+        self.script_queue.remove(request['reqid'])
         self.setScript(request['script'])
         self.current_request = request
         self.setCurrentLine(new_current_line)
 
     def on_client_blocked(self, requests):
-        for reqno in requests:
-            self.script_queue.remove(reqno)
+        for reqid in requests:
+            self.script_queue.remove(reqid)
 
     def on_client_initstatus(self, state):
         self.setScript(state['script'])
         self.current_request['script'] = state['script']
-        self.current_request['reqno'] = None
+        self.current_request['reqid'] = None
         self.on_client_status(state['status'])
         for req in state['requests']:
             self.on_client_request(req)
@@ -273,6 +290,14 @@ class ScriptStatusPanel(Panel):
 
     def on_client_disconnected(self):
         self.script_queue.clear()
+
+    def on_client_rearranged(self, items):
+        self.script_queue.rearrange(items)
+
+    def on_client_updated(self, request):
+        if 'script' not in request:
+            return
+        self.script_queue.update(request)
 
     @qtsig('')
     def on_actionBreak_triggered(self):
@@ -328,6 +353,26 @@ class ScriptStatusPanel(Panel):
         item = self.queueView.currentItem()
         if not item:
             return
-        reqno = item.data(Qt.UserRole)
-        if self.client.tell('unqueue', str(reqno)):
-            self.script_queue.remove(reqno)
+        reqid = item.data(Qt.UserRole)
+        if self.client.tell('unqueue', str(reqid)):
+            self.script_queue.remove(reqid)
+
+    def moveItem(self, delta):
+        rowCount = self.queueView.count()
+        IDs = []
+        for i in range(rowCount):
+            IDs.append(self.queueView.item(i).data(Qt.UserRole))
+        curID = self.queueView.currentItem().data(Qt.UserRole)
+        i = IDs.index(curID)
+        IDs.insert(i + delta, IDs.pop(i))
+        self.client.ask('rearrange', IDs)
+
+    @qtsig('')
+    def on_upButton_clicked(self):
+        if self.queueView.currentItem():
+            self.moveItem(-1)
+
+    @qtsig('')
+    def on_downButton_clicked(self):
+        if self.queueView.currentItem():
+            self.moveItem(+1)

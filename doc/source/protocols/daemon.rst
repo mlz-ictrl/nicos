@@ -112,6 +112,7 @@ Script commands
 .. daemoncmd:: start
 .. daemoncmd:: unqueue
 .. daemoncmd:: update
+.. daemoncmd:: rearrange
 
 Control flow commands
 ---------------------
@@ -207,13 +208,13 @@ for this event should be serialized.
    This event means that the request has been queued, but is not yet being
    executed (see `processed` below).
 
-   Each request has a request number, which is used to identify the request in
+   Each request has a request ID, which is used to identify the request in
    subsequent commands (e.g. to cancel the request) or events.
 
    :arg: The request as a dictionary.  The dictionary contents depend on the
       request type:
 
-      - all requests have ``'reqno'`` (request number) and ``'user'`` (user name
+      - all requests have ``'reqid'`` (request ID) and ``'user'`` (user name
         who originated the request) keys
       - script requests also have ``'name''`` (script name/filename) and
         ``'script'`` (code to execute) keys
@@ -224,11 +225,23 @@ for this event should be serialized.
 
    :arg: The request as a dictionary, see above.
 
+.. daemonevt:: updated
+
+   A queued request has been updated.
+
+   :arg: The request as a dictionary, see above.
+
 .. daemonevt:: blocked
 
    One or more requests have been blocked from execution.
 
-   :arg: A list of request numbers.
+   :arg: A list of request IDs.
+
+.. daemonevt:: rearranged
+
+   The request queue has been rearranged.
+
+   :arg: A list of request IDs that gives the new ordering.
 
 .. daemonevt:: status
 

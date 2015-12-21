@@ -167,10 +167,10 @@ class DevicesPanel(Panel):
         self._control_dialogs = {}
         self._show_lowlevel = self.mainwindow.expertmode
 
-        # daemon request number of last command executed from this panel
+        # daemon request ID of last command executed from this panel
         # (used to display messages from this command)
         self._current_status = 'idle'
-        self._exec_reqno = -1
+        self._exec_reqid = None
         self._error_window = None
 
         if client.connected:
@@ -255,7 +255,7 @@ class DevicesPanel(Panel):
 
     def on_client_message(self, message):
         # show warnings and errors emitted by the current command in a window
-        if len(message) < 7 or message[6] != self._exec_reqno or \
+        if len(message) < 7 or message[6] != self._exec_reqid or \
            message[2] < WARNING:
             return
         msg = '%s: %s' % (message[0], message[3].strip())
@@ -624,9 +624,9 @@ class DevicesPanel(Panel):
                 immediate = True
         if immediate:
             self.client.tell('exec', command)
-            self._exec_reqno = -1  # no request assigned to this command
+            self._exec_reqid = None  # no request assigned to this command
         else:
-            self._exec_reqno = self.client.run(command)
+            self._exec_reqid = self.client.run(command)
 
     def plot_history(self, dev):
         if self.mainwindow.history_wintype:

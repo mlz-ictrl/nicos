@@ -88,7 +88,7 @@ class NicosClient(object):
         self.connected = False
         self.disconnecting = False
         self.gzip = False
-        self.last_reqno = None
+        self.last_reqid = None
         self.viewonly = True
         self.user_level = None
         self.last_action_at = 0
@@ -409,14 +409,14 @@ class NicosClient(object):
         """Run a piece of code."""
         self.last_action_at = currenttime()
         if noqueue:
-            new_reqno = self.ask('start', filename or '', code, noerror=True)
-            if new_reqno is not None:
-                self.last_reqno = new_reqno
+            new_reqid = self.ask('start', filename or '', code, noerror=True)
+            if new_reqid is not None:
+                self.last_reqid = new_reqid
             else:
                 return None
         else:
-            self.last_reqno = self.ask('queue', filename or '', code)
-        return self.last_reqno
+            self.last_reqid = self.ask('queue', filename or '', code)
+        return self.last_reqid
 
     def eval(self, expr, default=Ellipsis, stringify=False):
         """Evaluate a Python expression in the daemon's namespace and return

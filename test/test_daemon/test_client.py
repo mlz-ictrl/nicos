@@ -69,7 +69,7 @@ def test_simple(client, simple_mode):
     status = client.ask('getstatus')
     assert status['requests'][-1]['script'] == 'printinfo 2'
     assert status['requests'][-1]['user'] == 'user'
-    client.tell('unqueue', str(status['requests'][-1]['reqno']))
+    client.tell('unqueue', str(status['requests'][-1]['reqid']))
 
     # test view-only mode
     client.viewonly = True
