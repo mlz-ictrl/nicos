@@ -295,8 +295,8 @@ class MultiSwitcher(MappedMoveable):
         if self.fallback is not None:
             return self.fallback
         raise PositionError(self, 'unknown position of %s: %s' % (
-                            ', '.join(repr(p) for p in pos),
-                            ', '.join(str(d) for d in self.devices)))
+            ', '.join(str(d) for d in self.devices),
+            ', '.join(d.format(p) for (p, d) in zip(pos, self.devices))))
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
