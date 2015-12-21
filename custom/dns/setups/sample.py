@@ -3,36 +3,36 @@
 description = 'DNS sample table and aperture'
 group = 'lowlevel'
 
-tango_host = 'tango://phys.dns.frm2:10000'
+tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
     det_rot        = device('devices.tango.Motor',
                             description = 'Detector bench rotation',
-                            tangodevice = '%s/dns/fzjs7/det_rot' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/det_rot',
                             precision = 0.09,
                            ),
 
     ap_sam_x_left  = device('devices.tango.Motor',
                             description = 'Aperture sample x left',
-                            tangodevice = '%s/dns/fzjs7/ap_sam_x_left' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/ap_sam_x_left',
                             lowlevel = False,
                             precision = 1.0,
                            ),
     ap_sam_x_right = device('devices.tango.Motor',
                             description = 'Aperture sample x right',
-                            tangodevice = '%s/dns/fzjs7/ap_sam_x_right' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/ap_sam_x_right',
                             lowlevel = False,
                             precision = 1.0,
                            ),
     ap_sam_y_upper = device('devices.tango.Motor',
                             description = 'Aperture sample y upper',
-                            tangodevice = '%s/dns/fzjs7/ap_sam_y_upper' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/ap_sam_y_upper',
                             lowlevel = False,
                             precision = 1.0,
                            ),
     ap_sam_y_lower = device('devices.tango.Motor',
                             description = 'Aperture sample y lower',
-                            tangodevice = '%s/dns/fzjs7/ap_sam_y_lower' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/ap_sam_y_lower',
                             lowlevel = False,
                             precision = 1.0,
                            ),
@@ -50,17 +50,17 @@ devices = dict(
 
     sample_rot     = device('devices.tango.Motor',
                             description = 'Sample rotation',
-                            tangodevice = '%s/dns/fzjs7/sample_rot' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/sample_rot',
                             precision = 0.004,
                            ),
     cradle_up      = device('devices.tango.Motor',
                             description = 'Cradle up (phi)',
-                            tangodevice = '%s/dns/fzjs7/cradle_up' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/cradle_up',
                             precision = 1.0,
                            ),
     cradle_lo      = device('devices.tango.Motor',
                             description = 'Cradle low (chi)',
-                            tangodevice = '%s/dns/fzjs7/cradle_lo' % tango_host,
+                            tangodevice = tango_base + 'fzjs7/cradle_lo',
                             precision = 1.0,
                            ),
 )

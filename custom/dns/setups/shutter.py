@@ -5,61 +5,60 @@ group = 'lowlevel'
 
 includes = ['reactor', 'nl6']
 
-tango_host = 'tango://phys.dns.frm2:10000'
+tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-
     expshutter = device('jcns.shutter.Shutter',
                         description = 'Experiment Shutter',
-                        tangodevice = '%s/dns/FZJDP_Digital/ExpShutter' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/ExpShutter',
                         mapping = dict(open=1, close=2),
                        ),
 
     nlashutter = device('devices.tango.NamedDigitalInput',
                         description = 'Status of NlaShutter',
-                        tangodevice = '%s/dns/FZJDP_Digital/NlaShutter' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/NlaShutter',
                         mapping = dict(open=1, close=2),
                         lowlevel = True,
                        ),
 
     fastshut   = device('devices.tango.NamedDigitalInput',
                         description = 'Status of fastshutter',
-                        tangodevice = '%s/dns/FZJDP_Digital/Schnellschluss' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/Schnellschluss',
                         mapping = dict(open=1, close=2),
                         lowlevel = True,
                        ),
 
     enashut    = device('devices.tango.NamedDigitalInput',
                         description = 'Shutter enable',
-                        tangodevice = '%s/dns/FZJDP_Digital/ShutterEnable' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/ShutterEnable',
                         mapping = dict(no=0, yes=1),
                         lowlevel = True,
                        ),
 
     cntrlshut  = device('devices.tango.NamedDigitalInput',
                         description = 'Status of shutter control',
-                        tangodevice = '%s/dns/FZJDP_Digital/ShutterControl' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/ShutterControl',
                         mapping = dict(remote=1, local=0),
                         lowlevel = True,
                        ),
 
     keyswitch  = device('devices.tango.NamedDigitalInput',
                         description = 'Status of shutter keyswitch',
-                        tangodevice = '%s/dns/FZJDP_Digital/Keyswitch' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/Keyswitch',
                         mapping = dict(on=1, off=0),
                         lowlevel = True,
                        ),
 
     lamp       = device('devices.tango.NamedDigitalInput',
                         description = 'Lamp restricted area',
-                        tangodevice = '%s/dns/FZJDP_Digital/RestrictedArea' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/RestrictedArea',
                         mapping = dict(on=1, off=0),
                         lowlevel = True,
                        ),
 
     lightgrid  = device('devices.tango.NamedDigitalInput',
                         description = 'Status door',
-                        tangodevice = '%s/dns/FZJDP_Digital/LightGrid' % tango_host,
+                        tangodevice = tango_base + 'fzjdp_digital/LightGrid',
                         mapping = dict(on=1, off=0),
                         lowlevel = True,
                        ),
