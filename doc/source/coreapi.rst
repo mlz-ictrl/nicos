@@ -167,6 +167,17 @@ etc.), but also do more validation of the parameter.
    Create a converter that accepts only dictionaries with key types given by
    *key_converter* and value types given by *value_converter*.
 
+.. function:: dictwith(key=value_converter, ...)
+
+   Create a converter that accepts only dictionaries with string keys.  The
+   dictionaries must have exactly the keys given to ``dictwith``, and the
+   values are converted using the ``value_converter``s.  For example::
+
+      dictwith(name=str, value=int)
+
+   will accept ``{'name': 'Foo', 'value': 5}`` but not ``{'name': 'Foo'}`` or
+   ``{1: 'bar'}``.  ``{'value': 'notanint'}`` will also be rejected.
+
 .. function:: oneofdict(values)
 
    Create a converter that accepts only the keys and values of the dictionary

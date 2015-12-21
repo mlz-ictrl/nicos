@@ -27,7 +27,7 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-    subdir, nicosdev, nonemptystring, host, ipv4, Attach
+    subdir, nicosdev, nonemptystring, host, ipv4, dictwith, Attach
 from nicos.core.errors import ProgrammingError, ConfigurationError
 
 from test.utils import raises
@@ -164,6 +164,17 @@ def test_dictof():
     assert raises(ValueError, dictof(int, str), {'x': 'y'})
     # test that the dict is read-only
     assert raises(TypeError, dictof(int, str)({1: 'x'}).pop, 1)
+
+
+def test_dictwith():
+    assert dictwith()({}) == {}
+    assert dictwith(key=int)({'key': '10'}) == {'key': 10}
+    assert raises(ValueError, dictwith(key=int), {})
+    assert raises(ValueError, dictwith(key=int), {'key': 'a'})
+    assert raises(ValueError, dictwith(key=int), {'x': '10'})
+    assert raises(ValueError, dictwith(key=int), {'key': '10', 'x': 'a'})
+    # test that the dict is read-only
+    assert raises(TypeError, dictwith(key=int)({'key': '1'}).pop, 1)
 
 
 def test_tacodev():

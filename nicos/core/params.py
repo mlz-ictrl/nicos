@@ -535,6 +535,33 @@ class dictof(object):
         return readonlydict(ret)
 
 
+class dictwith(object):
+
+    def __init__(self, **convs):
+        self.__doc__ = 'a dict with the following keys: ' + \
+            ', '.join('%s: %s' % (k, convdoc(c)) for k, c in convs.items())
+        self.keys = set(convs)
+        self.convs = convs
+
+    def __call__(self, val=None):
+        if val is None:
+            return dict((k, conv()) for k, conv in self.convs.items())
+        if not isinstance(val, dict):
+            raise ValueError('value needs to be a dict')
+        vkeys = set(val)
+        msgs = []
+        if vkeys - self.keys:
+            msgs.append('unknown keys: %s' % (vkeys - self.keys))
+        if self.keys - vkeys:
+            msgs.append('missing keys: %s' % (self.keys - vkeys))
+        if msgs:
+            raise ValueError('Key mismatch in dictionary: ' + ', '.join(msgs))
+        ret = {}
+        for k in self.keys:
+            ret[k] = self.convs[k](val[k])
+        return readonlydict(ret)
+
+
 class intrange(object):
 
     def __init__(self, fr, to):
