@@ -45,7 +45,9 @@ from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
 
 
 class VirtualMotor(HasOffset, Motor):
-    """A virtual motor that can be set to move in finite time using a thread."""
+    """A virtual motor that can be set to move in finite time
+    using a thread.
+    """
 
     parameters = {
         'speed':     Param('Virtual speed of the device', settable=True,
@@ -389,7 +391,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     # Parameters
     #
     def doWriteMaxpower(self, newpower):
-        self.heater = clamp(self.heater * self.maxpower / float(newpower), 0, 100)
+        self.heater = clamp(self.heater * self.maxpower / float(newpower),
+                            0, 100)
 
     def doReadTarget(self):
         # Bootstrapping helper, called at most once
@@ -410,8 +413,10 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
 
     def __heatLink(self, coolertemp, sampletemp):
         """heatflow from sample to cooler. may be negative..."""
-        flow = (sampletemp - coolertemp) * ((coolertemp + sampletemp) ** 2)/400.
-        cp = clamp(self.__coolerCP(coolertemp)*self.__sampleCP(sampletemp), 1, 10)
+        flow = (sampletemp - coolertemp) * \
+               ((coolertemp + sampletemp) ** 2)/400.
+        cp = clamp(self.__coolerCP(coolertemp) * self.__sampleCP(sampletemp),
+                   1, 10)
         return clamp(flow, -cp, cp)
 
     def __sampleCP(self, temp):
@@ -469,14 +474,15 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             heatflow = self.__heatLink(regulation, sample)
             self.log.debug('sample = %.5f, regulation = %.5f, heatflow = %.5g'
                            % (sample, regulation, heatflow))
-            newsample = max(0, sample + (self.__sampleLeak(sample) - heatflow) /
+            newsample = max(0,
+                            sample + (self.__sampleLeak(sample) - heatflow) /
                             self.__sampleCP(sample) * h)
             # avoid instabilities due to too small CP
             newsample = clamp(newsample, sample, regulation)
-            newregulation = max(0, regulation + (heater * 0.01 * self.maxpower +
-                                                 heatflow -
-                                                 self.__coolerPower(regulation)) /
-                                self.__coolerCP(regulation) * h)
+            regdelta = (heater * 0.01 * self.maxpower + heatflow -
+                        self.__coolerPower(regulation))
+            newregulation = max(0, regulation +
+                                regdelta / self.__coolerCP(regulation) * h)
 
             # b) see
             # http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
@@ -523,10 +529,11 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                 heater = clamp(v, 0., 100.)
                 lastD = D
 
-                self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, heater = %.2f' %
-                               (P, I, D, heater))
+                self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, '
+                               'heater = %.2f' % (P, I, D, heater))
 
-                # check for turn-around points to detect oscillations -> increase damper
+                # check for turn-around points to detect oscillations ->
+                # increase damper
                 x, y = last_heaters
                 if (x + 0.1 < y and y > heater + 0.1) or \
                    (x > y + 0.1 and y + 0.1 < heater):
@@ -568,11 +575,13 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                     self._setROParam('curstatus', (status.OK, ''))
                     damper -= (damper - 1) / 10.  # max value for damper is 11
                 else:
-                    self._setROParam('curstatus', (status.BUSY, 'ramping setpoint'))
+                    self._setROParam('curstatus',
+                                     (status.BUSY, 'ramping setpoint'))
             damper -= (damper - 1) / 20.
             self._setROParam('regulation', round(regulation, 3))
             self._setROParam('sample', round(sample, 3))
-            self._setROParam('heaterpower', round(heater * self.maxpower * 0.01, 3))
+            self._setROParam('heaterpower',
+                             round(heater * self.maxpower * 0.01, 3))
             self._setROParam('heater', heater)
             timestamp = t
 
@@ -646,12 +655,13 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                      errors='sqrt', fmtstr='%d'),
 
     def _generate(self, t):
-        dst = (self._attached_distance.read() * 5) if self._attached_distance \
-            else 5
-        coll = self._attached_collimation.read() if self._attached_collimation \
-            else '15m'
+        dst = ((self._attached_distance.read() * 5) if self._attached_distance
+               else 5)
+        coll = (self._attached_collimation.read() if self._attached_collimation
+                else '15m')
         # pylint: disable=unbalanced-tuple-unpacking
-        xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
+        xx, yy = np.meshgrid(np.linspace(-64, 63, 128),
+                             np.linspace(-64, 63, 128))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
         beam = beam + \
