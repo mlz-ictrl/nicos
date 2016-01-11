@@ -47,10 +47,10 @@ _selcolumn = Column(
                  Field(name='selector_rpm', dev='selector_rpm', width=14),
                  Field(name='selector_lambda', dev='selector_lambda', width=14),
                 ),
-#       BlockRow(
-#                Field(name='selector_ng', dev='selector_ng', width=14),
-#                Field(name='selector_tilt', dev='selector_tilt', width=14, format = '%.1f'),
-#               ),
+       BlockRow(
+                Field(name='selector_ng', dev='selector_ng', width=14),
+                Field(name='selector_tilt', dev='selector_tilt', width=14, format = '%.1f'),
+               ),
         BlockRow(
                  Field(name='water flow', dev='selector_wflow', width=14, format = '%.1f'),
                  Field(name='rotor temp.', dev='selector_rtemp', width=14, format = '%.1f'),
@@ -235,8 +235,7 @@ _p_filter = Column(
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
-                     loglevel = 'debug',
-#                    loglevel = 'info',
+                     loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',

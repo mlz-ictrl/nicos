@@ -429,16 +429,15 @@ _julabo_plot = Block('Julabo plot', [
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     description='Status monitor',
-                     title='SANS-1 status monitor',
-                     cache='sans1ctrl.sans1.frm2',
-                     font='Luxi Sans',
-                     fontsize=12,#12
-                     loglevel='info',
-                     padding=0,#3
-                     prefix='nicos/',
-                     valuefont='Consolas',
-                     layout=[
+                     title = 'SANS-1 status monitor',
+                     loglevel = 'info',
+                     cache = 'sans1ctrl.sans1.frm2',
+                     prefix = 'nicos/',
+                     font = 'Luxi Sans',
+                     valuefont = 'Consola',
+                     fontsize = 12,#12
+                     padding = 0,#3
+                     layout = [
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
                                     Column(_sc1, _sc2, _st2, _st1),
