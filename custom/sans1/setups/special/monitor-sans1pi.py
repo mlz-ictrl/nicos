@@ -86,7 +86,7 @@ _collimationcolumn = Column(
                   width=6.5,height=9),
             Field(dev='ng_pol', name='ng_pol',
                   widget='nicos.sans1.monitorwidgets.CollimatorTable',
-                  options=['las','pol2','pol1','ng'],
+                  options=['col','pol2','pol1','ng'],
                   width=5.5,height=9),
             Field(dev='col_20a', name='20',
                   widget='nicos.sans1.monitorwidgets.CollimatorTable',

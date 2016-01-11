@@ -53,23 +53,24 @@ devices = dict(
                         unit = 'm',
                         fmtstr = '%.1f',
                         fallback = 'undefined',
-                        moveables = ['col_20a', 'col_20b', 'col_16a', 'col_16b', 'col_12a', 'col_12b',
+                        moveables = ['ng_pol', 'col_20a', 'col_20b', 'col_16a', 'col_16b', 'col_12a', 'col_12b',
                         'col_8a', 'col_8b', 'col_4a', 'col_4b', 'col_2a', 'col_2b'],
                         # col_2b disabled !!!
                         mapping = {
                             #~ 1:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng'],
-                            1.5: ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col'],
-                            2:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col'],
-                            3:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col'],
-                            4:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col'],
-                            6:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col'],
-                            8:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col'],
-                            10:  ['ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col'],
-                            12:  ['ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
-                            14:  ['ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
-                            16:  ['ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
-                            18:  ['ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
-                            20:  ['col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            1.5: ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col'],
+                            2:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col'],
+                            3:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col'],
+                            4:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col'],
+                            6:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col'],
+                            8:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col'],
+                            10:  ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            12:  ['ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            14:  ['ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            16:  ['ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            18:  ['ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            20:  ['ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            23:  ['col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
                             },
                         lowlevel = True,
                        ),
@@ -79,7 +80,7 @@ devices = dict(
                         description = 'Attenuator',
                         #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
                         #mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
-                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=379.65), #new att_m position!!!
+                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new att_m position!!!
                         moveable = 'att_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -96,7 +97,7 @@ devices = dict(
                         microsteps = 8,
                         unit = 'mm',
                         #refpos = -23.0, old 4 position att
-                        refpos = -4.0, #new 5 position att
+                        refpos = -9.1,
                         abslimits = (-400, 600),
                         lowlevel = True,
                         autozero = 80,
@@ -105,7 +106,7 @@ devices = dict(
 
     ng_pol     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Neutronguide polariser',
-                        mapping = dict(ng=0, pol1=117, pol2=234, las=354),
+                        mapping = dict(ng=0, pol1=117, pol2=234, col=354),
                         moveable = 'ng_pol_a',
                         pollinterval = 15,
                         maxage = 60,
