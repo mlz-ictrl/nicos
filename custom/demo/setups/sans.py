@@ -18,7 +18,10 @@ devices = dict(
     sans     = device('devices.instrument.Instrument',
                       description = 'instrument object',
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-                      instrument = 'SANS-V2'
+                      instrument = 'SANS-V2',
+                      website = 'http://www.nicos-controls.org',
+                      operators = ['NICOS developer team', ],
+                      facility = 'NICOS demo instruments',
                      ),
 
     guide_m1  = device('devices.generic.VirtualMotor',

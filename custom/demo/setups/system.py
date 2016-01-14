@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'tas',
+    instrument = 'demo',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink'],
     notifiers = [],
@@ -13,10 +13,13 @@ sysconfig = dict(
 modules = ['commands.standard'] # , 'jcns.commands']
 
 devices = dict(
-    tas        = device('devices.instrument.Instrument',
+    demo        = device('devices.instrument.Instrument',
                         description = 'demo instrument',
                         instrument = 'DEMO',
                         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+                        website = 'http://www.nicos-controls.org',
+                        operators = ['NICOS developer team', ],
+                        facility = 'NICOS demo instruments',
                        ),
 
     Sample     = device('devices.tas.TASSample',
