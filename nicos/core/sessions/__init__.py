@@ -593,6 +593,8 @@ class Session(object):
                 # make sure we process all initial keys
                 self.cache.waitForStartup(1)
 
+        self.storeSysInfo()
+
         # create all devices
         if autocreate_devices is None:
             autocreate_devices = self.autocreate_devices
@@ -1348,6 +1350,10 @@ class Session(object):
                 del self.namespace[name]
         # but need to put back the default imports
         self.initNamespace()
+
+    def storeSysInfo(self):
+        if self.cache:
+            self.cache.storeSysInfo(self.appname)
 
 
 # must be imported after class definitions due to module interdependencies

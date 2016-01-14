@@ -51,7 +51,7 @@ try:
 except ImportError:
     pwd = grp = None
 
-from nicos import config
+from nicos import config, nicos_version, custom_version
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.pycompat import iteritems, string_types, text_type, exec_
 
@@ -269,6 +269,27 @@ def getVersions(obj):
             _add(base)
     _add(obj.__class__)
     return versions
+
+
+def getSysInfo(service):
+    """Query system information.
+
+    Returns key suitable a cache key and
+    a dict with path and version information.
+    """
+    host = getfqdn()
+    res = dict(
+        instrument=config.instrument,
+        service=service,
+        host=host,
+        nicos_root=config.nicos_root,
+        version=nicos_version,
+        custom_path=config.custom_path,
+        custom_version=custom_version,
+    )
+    nicosroot_key = config.nicos_root.replace('/', '_')
+    key = 'sysinfo/%s/%s/%s' % (service, host, nicosroot_key)
+    return key, res
 
 
 def parseHostPort(host, defaultport):

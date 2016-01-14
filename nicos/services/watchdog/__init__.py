@@ -169,6 +169,7 @@ class Watchdog(BaseCacheClient):
             BaseCacheClient._connect_action(self)
         finally:
             self._first_update = False
+        self.storeSysInfo('watchdog')
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if not value:

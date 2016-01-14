@@ -32,7 +32,7 @@ from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import Device, Param, CacheLockError, CacheError, host
-from nicos.utils import tcpSocket, closeSocket, createThread
+from nicos.utils import tcpSocket, closeSocket, createThread, getSysInfo
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, \
@@ -426,6 +426,18 @@ class BaseCacheClient(Device):
 
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
+
+    def storeSysInfo(self, service):
+        """Store info about the service in the cache."""
+        if not self._socket:
+            return
+        try:
+            key, res = getSysInfo(service)
+            msg = '%s@%s%s%s\n' % (currenttime(), key, OP_TELL,
+                                   cache_dump(res))
+            self._socket.sendall(to_utf8(msg))
+        except Exception:
+            self.log.exception('storing sysinfo failed')
 
 
 class CacheClient(BaseCacheClient):

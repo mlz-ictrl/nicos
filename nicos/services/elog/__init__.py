@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 """The NICOS electronic logbook."""
+
 import sys
 from time import time as currenttime
 
@@ -79,6 +80,8 @@ class Logbook(BaseCacheClient):
         while not data.endswith(b'###!\n') and n < 1000:
             data += self._socket.recv(8192)
             n += 1
+
+        self.storeSysInfo('elog')
 
         # send request for all relevant updates
         self._socket.sendall(to_utf8('@logbook/%s\n' % OP_SUBSCRIBE))

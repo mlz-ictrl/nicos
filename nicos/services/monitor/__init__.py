@@ -181,6 +181,9 @@ class Monitor(BaseCacheClient):
             self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_WILDCARD))
             self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_SUBSCRIBE))
 
+        # use appname to distinguish between different instances
+        self.storeSysInfo(session.appname)
+
     # called between connection attempts
     def _wait_retry(self):
         if not self._keys_expired:

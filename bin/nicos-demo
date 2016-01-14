@@ -92,6 +92,11 @@ parser.add_option('-c', dest='guiconfig', action='store',
 parser.add_option('-u', dest='guiuser', action='store',
                   default='guest:guest@localhost',
                   help='use given user:password@server for the daemon login')
+# It usually doesn't make sense to start this service.  Therefore it is set
+# to False by default and only has a long option.
+parser.add_option('--pushversioninfo', dest='pushversioninfo',
+                  action='store_true', default=False,
+                  help='Start the version update daemon')
 
 opts, rest_args = parser.parse_args()
 
@@ -103,6 +108,11 @@ else:
     spawn('nicos-cache', '--clear')
 echo(' cache')
 sleep(2)
+
+if opts.pushversioninfo:
+    spawn('nicos-pushversioninfo')
+    echo(' pushversioninfo')
+    sleep(0.1)
 
 if not opts.nowatchdog:
     spawn('nicos-watchdog')

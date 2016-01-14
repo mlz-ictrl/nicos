@@ -42,7 +42,7 @@ from time import time as currenttime, sleep
 
 from nicos import session, config
 from nicos.core import Device, Param, host, Attach
-from nicos.utils import loggers, closeSocket, createThread
+from nicos.utils import loggers, closeSocket, createThread, getSysInfo
 from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
 # pylint: disable=W0611
@@ -333,7 +333,12 @@ class CacheServer(Device):
         if config.instrument == 'demo' and 'clear' in startargs:
             self._attached_db.clearDatabase()
         self._attached_db.initDatabase()
+        self.storeSysInfo()
         self._worker = createThread('server', self._server_thread)
+
+    def storeSysInfo(self):
+        key, res = getSysInfo('cache')
+        self._attached_db.tell(key, res, currenttime(), None, None)
 
     def _bind_to(self, address, proto='tcp'):
         # bind to the address with the given protocol; return socket and address
