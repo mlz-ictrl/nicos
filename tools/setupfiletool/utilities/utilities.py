@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,6 @@ from os import path
 class ItemTypes(object):
     # used to distinguish QTreeWidgetItems
     Directory = 1200
-    ManualDirectory = 1250
     Setup = 1300
     Device = 1400
 

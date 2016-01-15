@@ -6,59 +6,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>252</height>
+    <width>446</width>
+    <height>190</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>New setup...</string>
+   <string>New parameter...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Path:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="lineEditPath">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
+      <widget class="QLabel" name="labelHeader">
        <property name="text">
-        <string/>
+        <string>Optional parameters of this device:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonBrowse">
-       <property name="text">
-        <string>Browse...</string>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="comboBoxSelectParameter"/>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxReload">
+    <widget class="QCheckBox" name="checkBoxCustomParameter">
      <property name="text">
-      <string>Reload list of setups after creation</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
+      <string>Custom parameter</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="labelReloadHint">
-     <property name="text">
-      <string>If you save the setup in any subdirectory of nicos-core/custom/, your new file will be visible after reloading.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+    <widget class="QLineEdit" name="lineEditCustomParameter">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -70,7 +50,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>57</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>

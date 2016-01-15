@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,15 +31,19 @@ from PyQt4.QtCore import pyqtSignal, SIGNAL
 
 class DeviceParam(QWidget):
     editedParam = pyqtSignal()
+    clickedRemoveButton = pyqtSignal(str)
 
     def __init__(self, param, valueWidget, isUnknownValue=False, parent=None):
-        self.isUnknownValue = isUnknownValue
         super(DeviceParam, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           'ui',
                                           'deviceparam.ui')), self)
+        self.param = param
         self.valueWidget = valueWidget
-        self.labelParam.setText(param)
+        self.isUnknownValue = isUnknownValue
+        self.pushButtonRemove.clicked.connect(
+            lambda: self.clickedRemoveButton.emit(self.param))
+        self.labelParam.setText(self.param + ':')
         self.horizontalLayout.addWidget(self.valueWidget)
         self.connect(self.valueWidget, SIGNAL('dataChanged'),
                      self.editedParam.emit)

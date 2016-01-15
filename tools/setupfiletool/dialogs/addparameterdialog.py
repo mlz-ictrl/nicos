@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,28 +25,27 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QDialog, QFileDialog
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtGui import QDialog
+from PyQt4.QtCore import Qt
 
 
-class NewSetupDialog(QDialog):
+class AddParameterDialog(QDialog):
     def __init__(self, parent=None):
-        super(NewSetupDialog, self).__init__(parent)
+        super(AddParameterDialog, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
-                                          'newsetup.ui')), self)
+                                          'addparameterdialog.ui')), self)
+        self.checkBoxCustomParameter.stateChanged.connect(
+            self.stateChangedHandler)
 
-    @pyqtSlot()
-    def on_pushButtonBrowse_clicked(self):
-        filepath = QFileDialog.getSaveFileName(
-            self,
-            "New setup...",
-            path.expanduser('~'),
-            "Python script (*.py)")
-
-        if filepath:
-            if not str(filepath).endswith('.py'):
-                filepath += '.py'
-            self.lineEditPath.setText(filepath)
+    def stateChangedHandler(self, state):
+        if state == Qt.Checked:
+            self.labelHeader.setEnabled(False)
+            self.comboBoxSelectParameter.setEnabled(False)
+            self.lineEditCustomParameter.setEnabled(True)
+        else:
+            self.labelHeader.setEnabled(True)
+            self.comboBoxSelectParameter.setEnabled(True)
+            self.lineEditCustomParameter.setEnabled(False)

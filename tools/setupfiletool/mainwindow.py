@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,18 +26,18 @@
 
 from os import path
 import logging
+import inspect
 
 from PyQt4 import uic
 from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox, \
-    QApplication
+    QApplication, QTreeWidgetItem, QIcon
 from PyQt4.QtCore import Qt
 
 from setupfiletool.setupwidget import SetupWidget
 from setupfiletool.devicewidget import DeviceWidget
-from setupfiletool.utilities.utilities import ItemTypes, getNicosDir
-from setupfiletool.dialogs.newsetup import NewSetupDialog
-from setupfiletool.setup import Setup
-from setupfiletool.classparser import importModules
+from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
+from setupfiletool import setupcontroller
+from setupfiletool import classparser
 
 from nicos.configmod import config
 from nicos.pycompat import string_types
@@ -51,12 +51,13 @@ class MainWindow(QMainWindow):
 
         self.log = logging.getLogger()
 
-        # try to import all nicos device modules
-        self.deviceModules = importModules()
+        setupcontroller.init(self.log)
+        classparser.init(self.log)
 
-        # dictionary of setup - setupWidget
+        # dictionary of absolute path to a setup - setupWidget
         self.setupWidgets = {}
-        # dictionary of setup - dict, which is deviceName - deviceWidget
+        # dictionary of absolute path to setup - dict
+        # which is deviceName - deviceWidget
         self.deviceWidgets = {}
 
         self.labelHeader = QLabel('Select Setup or device...')
@@ -65,12 +66,13 @@ class MainWindow(QMainWindow):
         # signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)
         self.treeWidget.deviceRemoved.connect(self.deviceRemovedSlot)
+        self.treeWidget.deviceAdded.connect(self.deviceAddedSlot)
+        self.treeWidget.newDeviceAdded.connect(self.newDeviceAddedSlot)
 
         # setup the menu bar
-        self.actionNewFile.triggered.connect(self.newFile)
+        self.actionNewFile.triggered.connect(self.treeWidget.addSetup)
         self.actionSave.triggered.connect(self.actionSaveSlot)
         self.actionSaveAs.triggered.connect(self.actionSaveAsSlot)
-        self.actionLoadFile.triggered.connect(self.loadFile)
         self.actionExit.triggered.connect(self.close)
         self.instrumentMenu = self.menuView.addMenu('Instrument')
         self.actionShowAllInstrument = self.menuView.addAction(
@@ -85,11 +87,9 @@ class MainWindow(QMainWindow):
 
         self.workarea.addWidget(self.labelHeader)
 
-        self.treeWidget.setColumnCount(1)
-        self.treeWidget.setLogger(self.log)
         self.treeWidget.loadNicosData()
-        for directory in self.treeWidget.topLevelItems:
-            instrumentAction = self.instrumentMenu.addAction(directory.text(0))
+        for directory in sorted(setupcontroller.setup_directories.keys()):
+            instrumentAction = self.instrumentMenu.addAction(directory)
             instrumentAction.triggered.connect(
                 self.treeWidget.setInstrumentMode)
         if config.instrument and config.instrument not in ('jcns', 'demo'):
@@ -99,14 +99,19 @@ class MainWindow(QMainWindow):
         # load a previously not loaded setup's data and initialize their
         # dict in self.setupWidgets.
         # returns index of the setup's widget in self.workarea.
-        newWidget = SetupWidget()
-        newWidget.editedSetup.connect(self.editedSetupSlot)
-        newWidget.loadData(Setup(setup, self.log, self))
-        self.workarea.addWidget(newWidget)
-        self.setupWidgets[setup] = newWidget
-        # initialize empty dictionary for this setup
-        self.deviceWidgets[setup] = {}
-        return self.workarea.indexOf(newWidget)
+        setupWidget = SetupWidget(setup)
+        setupWidget.editedSetup.connect(self.editedSetupSlot)
+        self.workarea.addWidget(setupWidget)
+        self.setupWidgets[setup.abspath] = setupWidget
+        # initialize device widgets dictionary for this setup
+        self.deviceWidgets[setup.abspath] = {}
+        for deviceName, device in setup.devices.iteritems():
+            deviceWidget = DeviceWidget(setupWidget)
+            deviceWidget.editedDevice.connect(self.editedSetupSlot)
+            deviceWidget.loadDevice(device)
+            self.workarea.addWidget(deviceWidget)
+            self.deviceWidgets[setup.abspath][deviceName] = deviceWidget
+        return self.workarea.indexOf(setupWidget)
 
     def loadSelection(self, curItem, column):
         self.treeWidget.setCurrentItem(curItem)
@@ -115,109 +120,128 @@ class MainWindow(QMainWindow):
             self.workarea.setCurrentIndex(0)
 
         elif curItem.type() == ItemTypes.Setup:
-            if curItem.text(1) in self.setupWidgets:
+            if curItem.setup.abspath in self.setupWidgets:
                 # if setup was loaded previously:
                 self.workarea.setCurrentIndex(
-                    self.workarea.indexOf(self.setupWidgets[curItem.text(1)]))
+                    self.workarea.indexOf(
+                        self.setupWidgets[curItem.setup.abspath]))
             else:
                 # if setup hasn't been loaded before:
-                i = self.loadSetup(curItem.text(1))
+                i = self.loadSetup(curItem.setup)
                 self.workarea.setCurrentIndex(i)
 
         elif curItem.type() == ItemTypes.Device:
-            if curItem.parent().text(1) not in self.setupWidgets:
+            setup = curItem.parent().setup
+            if setup.abspath not in self.setupWidgets:
                 # if the setup, this device belongs to, hasn't been loaded yet:
-                self.loadSetup(curItem.parent().text(1))
+                self.loadSetup(setup)
 
-            if curItem.text(0) in self.deviceWidgets[curItem.parent().text(1)]:
-                # if device was loaded previously:
-                self.workarea.setCurrentIndex(
-                    self.workarea.indexOf(self.deviceWidgets[
-                        curItem.parent().text(1)][curItem.text(0)]))
-
-            else:
-                # device has never been loaded before:
-                newWidget = DeviceWidget(self)
-                newWidget.editedDevice.connect(self.editedSetupSlot)
-                newWidget.loadDevice(Setup.getDeviceOfSetup(curItem.parent(
-                    ).text(1), curItem.text(0), self.log))
-                self.workarea.addWidget(newWidget)
-                self.deviceWidgets[curItem.parent(
-                    ).text(1)][curItem.text(0)] = newWidget
-                self.workarea.setCurrentIndex(self.workarea.indexOf(newWidget))
-
-    def loadFile(self):
-        setupFile = QFileDialog.getOpenFileName(
-            self,
-            'Open setup file',
-            getNicosDir(),
-            'Python Files (*.py)')
-        if setupFile:
-            self.treeWidget.showManualDirectory()
-            self.treeWidget.addManualFile(setupFile)
-
-    def newFile(self):
-        dlg = NewSetupDialog()
-        if dlg.exec_():
-            newFile = dlg.lineEditPath.text()
-            if not newFile:
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'No path specified.')
-                return
-
-            try:
-                open(newFile, 'w').close()
-            except IOError:
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'Could not create new setup!')
-                return
-
-            if dlg.checkBoxReload.isChecked():
-                self.treeWidget.loadNicosData()
-            self.workarea.setCurrentIndex(0)
+            self.workarea.setCurrentIndex(
+                self.workarea.indexOf(self.deviceWidgets[setup.abspath]
+                                      [curItem.device.name]))
 
     def editedSetupSlot(self):
-        if self.treeWidget.currentItem().type() == ItemTypes.Setup:
-            self.treeWidget.markItem(self.treeWidget.currentItem())
-        elif self.treeWidget.currentItem().type() == ItemTypes.Device:
-            self.treeWidget.markItem(self.treeWidget.currentItem().parent())
+        setupItem = self.getCurrentSetupItem()
+        if setupItem is None:
+            return
+        if not setupItem.setup.edited:
+            setupItem.setText(0, '*' + setupItem.text(0))
+            setupItem.setup.edited = True
 
-    def deviceRemovedSlot(self, setup, deviceName):
-        if setup not in self.setupWidgets.keys():
+    def newDeviceAddedSlot(self, deviceName, _classString):
+        setupItem = self.getCurrentSetupItem()
+        if setupItem.setup.abspath not in self.setupWidgets.keys():
+            self.loadSetup(setupItem.setup)
+
+        uncombinedModule = _classString.split('.')
+        classname = uncombinedModule.pop()
+        module = '.'.join(uncombinedModule)
+        classes = inspect.getmembers(classparser.modules[module],
+                                     predicate=inspect.isclass)
+        _class = [_class[1] for _class in classes if _class[0] == classname][0]
+        parameters = {key: '' for key in _class.parameters.keys()
+                      if _class.parameters[key].mandatory is True}
+        device = setupcontroller.Device(deviceName,
+                                        _classString,
+                                        parameters=parameters)
+        setupItem.setup.devices[deviceName] = device
+        deviceWidget = DeviceWidget(self.setupWidgets[
+            setupItem.setup.abspath])
+        deviceWidget.editedDevice.connect(self.editedSetupSlot)
+        deviceWidget.loadDevice(device)
+        self.workarea.addWidget(deviceWidget)
+        self.deviceWidgets[setupItem.setup.abspath][deviceName] = deviceWidget
+        deviceItem = QTreeWidgetItem([deviceName], ItemTypes.Device)
+        deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemIsDropEnabled)
+        deviceItem.device = setupItem.setup.devices[deviceName]
+        deviceItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
+        setupItem.insertChild(0, deviceItem)
+        self.treeWidget.itemActivated.emit(deviceItem, 0)
+
+        if not setupItem.setup.edited:
+            setupItem.setText(0, '*' + setupItem.text(0))
+            setupItem.setup.edited = True
+
+    def deviceRemovedSlot(self, setupItem, deviceName):
+        if setupItem.setup.abspath not in self.setupWidgets.keys():
+            self.loadSetup(setupItem.setup)
+
+        try:
+            deviceWidget = self.deviceWidgets[setupItem.setup.abspath][
+                deviceName]
+            if self.workarea.currentWidget() == deviceWidget:
+                self.workarea.setCurrentIndex(
+                    self.workarea.indexOf(self.setupWidgets[
+                        setupItem.setup.abspath]))
+                self.treeWidget.setCurrentItem(setupItem)
+                # when the device's widget was loaded, switch to the setup the
+                # device belonged to.
+            del self.deviceWidgets[setupItem.setup.abspath][deviceName]
+        except KeyError:
             # setup was never loaded
-            return
-        if deviceName not in self.deviceWidgets[setup].keys():
-            # device was never loaded
-            return
+            pass
+        if not setupItem.setup.edited:
+            setupItem.setText(0, '*' + setupItem.text(0))
+            setupItem.setup.edited = True
 
-        deviceWidget = self.deviceWidgets[setup][deviceName]
-        if self.workarea.currentWidget() == deviceWidget:
-            self.workarea.setCurrentIndex(
-                self.workarea.indexOf(self.setupWidgets[setup]))
-            # when the device's widget was loaded, switch to the setup the
-            # device belonged to.
-        del self.deviceWidgets[setup][deviceName]
+    def deviceAddedSlot(self, setupItem, newDeviceName):
+        if setupItem.setup.abspath not in self.setupWidgets.keys():
+            self.loadSetup(setupItem.setup)
+        else:
+            for deviceName, device in setupItem.setup.devices.iteritems():
+                if deviceName == newDeviceName:
+                    deviceWidget = DeviceWidget(self.setupWidgets[
+                        setupItem.setup.abspath])
+                    deviceWidget.editedDevice.connect(self.editedSetupSlot)
+                    deviceWidget.loadDevice(device)
+                    self.workarea.addWidget(deviceWidget)
+                    self.deviceWidgets[setupItem.setup.abspath][
+                        deviceName] = deviceWidget
+        if not setupItem.setup.edited:
+            setupItem.setText(0, '*' + setupItem.text(0))
+            setupItem.setup.edited = True
 
     def aboutSetupFileTool(self):
         QMessageBox.information(
             self,
-            'About SetupFileTool', 'A tool designed to optimize '
-            'editing setup files for NICOS.')
+            'About SetupFileTool', 'A tool designed to optimize editing' +
+            ' setup files for NICOS.')
 
     def closeEvent(self, event):
-        if self.treeWidget.markedSetups:
+        # Find all setups that have been edited
+        setupItemsToBeSaved = []
+        for item in self.treeWidget.topLevelItems:
+            for index in range(item.childCount()):
+                if item.child(index).setup.edited:
+                    setupItemsToBeSaved.append(item.child(index))
+        if setupItemsToBeSaved:
             reply = QMessageBox.question(self, 'Unsaved changes',
                                          'Do you want to save your changes?',
                                          QMessageBox.Yes,
                                          QMessageBox.No,
                                          QMessageBox.Cancel)
             if reply == QMessageBox.Yes:
-                paths = []
-                for setup in self.treeWidget.markedSetups:
-                    paths.append(setup.text(1))
-                self.saveSetups(paths)
+                self.saveSetups(setupItemsToBeSaved)
                 event.accept()
             elif reply == QMessageBox.No:
                 event.accept()
@@ -234,15 +258,13 @@ class MainWindow(QMainWindow):
         curItem = self.treeWidget.currentItem()
         if curItem.type() == ItemTypes.Directory:
             return None
-        if curItem.type() == ItemTypes.ManualDirectory:
-            return None
         if curItem.type() == ItemTypes.Device:
             return curItem.parent()
         elif curItem.type() == ItemTypes.Setup:
             return curItem
 
     def saveSetups(self, setupsToSave):
-        # setupsToSave should be a list of paths to setups.
+        # setupsToSave should be a list of QTreeWidgetItems.
         # saves all the setups in that list.
         # useful when exiting the application and saving all changed setups.
         for setup in setupsToSave:
@@ -251,16 +273,16 @@ class MainWindow(QMainWindow):
     def actionSaveSlot(self):
         # saves the currently selected setup. Or, if a device is loaded,
         # saves the setup the device belongs to.
-        if self.getCurrentSetupItem() not in self.treeWidget.markedSetups:
+        if self.getCurrentSetupItem() is None:
+            return
+        if not self.getCurrentSetupItem().setup.edited:
             return  # setup to be saved hasn't been edited
-        self.save(self.getCurrentSetupItem().text(1))
-        self.treeWidget.unmarkItem(self.getCurrentSetupItem())
+        self.save(self.getCurrentSetupItem())
 
     def actionSaveAsSlot(self):
         # asks the user where to save the current setup to.
-        if not self.getCurrentSetupItem():
+        if self.getCurrentSetupItem() is None:
             return
-        setup = self.getCurrentSetupItem().text(1)
         filepath = QFileDialog.getSaveFileName(
             self,
             "Save as...",
@@ -270,16 +292,14 @@ class MainWindow(QMainWindow):
         if filepath:
             if not str(filepath).endswith('.py'):
                 filepath += '.py'
-            self.save(setup, filepath)
-            if filepath == setup:
-                self.treeWidget.unmarkItem(self.getCurrentSetupItem())
+            self.save(self.getCurrentSetupItem(), filepath)
 
-    def save(self, setup, setupPath=None):
+    def save(self, setupItem, setupPath=None):
         # one may provide a path different from the current file to save to.
         if not setupPath:
-            setupPath = setup
+            setupPath = setupItem.setup.abspath
 
-        setupData = self.setupWidgets[setup]
+        setupData = self.setupWidgets[setupItem.setup.abspath]
         output = []
         add = output.append
         add(self.saveDescription(setupData))
@@ -288,23 +308,33 @@ class MainWindow(QMainWindow):
         add(self.saveExcludes(setupData))
         add(self.saveModules(setupData))
         add(self.saveSysconfig(setupData))
-        add(self.saveDevices(setup, setupData))
+        add(self.saveDevices(setupItem))
         add(self.saveStartupcode(setupData))
 
         with open(setupPath, 'w') as outputFile:
             outputFile.write(''.join(output))
 
+        if setupItem.setup.abspath == setupPath:
+            # saved setup with same name as before; can unmark it
+            setupItem.setText(0, setupItem.text(0)[1:])
+            setupItem.setup.edited = False
+
     def saveDescription(self, setupData):
         output = []
+        descriptionString = repr(str(setupData.lineEditDescription.text()))
+        if not descriptionString:
+            return ""
         output.append('description = ')
-        output.append(repr(str(setupData.lineEditDescription.text())) + '\n\n')
+        output.append(descriptionString + '\n\n')
         return ''.join(output)
 
     def saveGroup(self, setupData):
         output = []
+        groupString = repr(str(setupData.comboBoxGroup.currentText()))
+        if not groupString:
+            return ""
         output.append('group = ')
-        output.append(repr(str(setupData.comboBoxGroup.currentText())) +
-                      '\n\n')
+        output.append(groupString + '\n\n')
         return ''.join(output)
 
     def saveIncludes(self, setupData):
@@ -315,6 +345,8 @@ class MainWindow(QMainWindow):
             includes.append(str(setupData.listWidgetIncludes.item(
                 includeIndex).text()))
             includeIndex += 1
+        if not includes:
+            return ""
         output.append('includes = ')
         output.append(repr(includes) + '\n\n')
         return ''.join(output)
@@ -327,6 +359,8 @@ class MainWindow(QMainWindow):
             excludes.append(str(setupData.listWidgetExcludes.item(
                 excludeIndex).text()))
             excludeIndex += 1
+        if not excludes:
+            return ""
         output.append('excludes = ')
         output.append(repr(excludes) + '\n\n')
         return ''.join(output)
@@ -339,6 +373,8 @@ class MainWindow(QMainWindow):
             modules.append(str(setupData.listWidgetModules.item(
                 moduleIndex).text()))
             moduleIndex += 1
+        if not modules:
+            return ""
         output.append('modules = ')
         output.append(repr(modules) + '\n\n')
         return ''.join(output)
@@ -351,57 +387,39 @@ class MainWindow(QMainWindow):
                     ).items():
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
+            return ''.join(output)
+        return ""
 
-        output.append('devices = dict(\n')
-        return ''.join(output)
-
-    def saveDevices(self, setup, setupData):
+    def saveDevices(self, setupItem):
         output = []
         childIndex = 0
         deviceItems = []
-        while childIndex < self.getCurrentSetupItem().childCount():
-            deviceItems.append(self.getCurrentSetupItem().child(childIndex))
+        while childIndex < setupItem.childCount():
+            deviceItems.append(setupItem.child(childIndex))
             childIndex += 1
-        for device in deviceItems:
-            # makes sure all items have corresponding GUI widgets.
-            # if a device was manually added or renamed, it's already in
-            # self.deviceWidgets[setup]. If it came with the setup and wasn't
-            # loaded, it will be loaded now, so the loop getting all the data
-            # to be saved doesn't have to distinguish between loaded and
-            # not loaded devices.
-            if device.text(0) not in self.deviceWidgets[setup]:
-                # device wasn't loaded before
-                newWidget = DeviceWidget(self)
-                newWidget.editedDevice.connect(self.editedSetupSlot)
-                newWidget.loadDevice(Setup.getDeviceOfSetup(setup,
-                                                            device.text(0),
-                                                            self.log))
-                self.workarea.addWidget(newWidget)
-                self.deviceWidgets[setup][device.text(0)] = newWidget
 
-        for name, info in self.deviceWidgets[setup].items():
+        if not deviceItems:
+            return ""
+
+        output.append('devices = dict(\n')
+        for name, info in self.deviceWidgets[setupItem.setup.abspath].items():
             output.append('    ' + name + ' = device(')
+            # class string must be first parameter. Also mustn't have a key.
+            output.append(repr(info.parameters['Class'].getValue()) + ',\n')
             indent = len(name) + 14
-            for params in info.currentWidgets:
-                # if parameter is a string
-                if isinstance(params.getValue(), string_types):
-                    if str(params.labelParam.text()) == 'Class:':
-                        prepend = ''
-                        param = repr(str(
-                            params.getValue())) + ',\n'
-                    else:
-                        prepend = indent * ' ' + str(
-                            params.labelParam.text())[:-1] + ' = '
+            for _, params in info.parameters.iteritems():
+                # skip class as it has already been added
+                if not params.param == 'Class':
+                    if isinstance(params.getValue(), string_types):
+                        prepend = indent * ' ' + str(params.param) + ' = '
                         if params.isUnknownValue:
                             param = str(params.getValue()) + ',\n'
                         else:
                             param = repr(str(params.getValue())) + ',\n'
-                else:
-                    prepend = indent * ' ' + str(
-                        params.labelParam.text())[:-1] + ' = '
-                    param = str(params.getValue()) + ',\n'
-
-                output.append(prepend + param)
+                    else:
+                        prepend = indent * ' ' + str(params.param) + ' = '
+                        param = str(params.getValue()) + ',\n'
+                    output.append(prepend + param)
             output.append((indent - 1) * ' ' + '),\n')
         output.append(')\n\n')
         return ''.join(output)
@@ -409,8 +427,9 @@ class MainWindow(QMainWindow):
     def saveStartupcode(self, setupData):
         output = []
         startupcode = setupData.textEditStartupCode.toPlainText()
-        output.append("startupcode = '''\n")
         if startupcode:
+            output.append("startupcode = '''\n")
             output.append(startupcode + '\n')
-        output.append("'''\n")
-        return ''.join(output)
+            output.append("'''\n")
+            return ''.join(output)
+        return ""

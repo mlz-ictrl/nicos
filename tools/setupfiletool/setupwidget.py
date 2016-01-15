@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@ from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
 class SetupWidget(QWidget):
     editedSetup = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, setup, parent=None):
         super(SetupWidget, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'setupwidget.ui'), self)
@@ -51,6 +51,39 @@ class SetupWidget(QWidget):
 
         self.lineEditDescription.textEdited.connect(self.editedSetup.emit)
         self.comboBoxGroup.activated.connect(self.editedSetup.emit)
+
+        self.lineEditDescription.setText(setup.description)
+        self.comboBoxGroup.setCurrentIndex(
+            self.comboBoxGroup.findText(setup.group))
+        for includeItem in setup.includes:
+            self.listWidgetIncludes.addItem(includeItem)
+        for excludeItem in setup.excludes:
+            self.listWidgetExcludes.addItem(excludeItem)
+        for moduleItem in setup.modules:
+            self.listWidgetModules.addItem(moduleItem)
+
+        topLevelItems = []
+        for key in self.sysconfigKeys:
+            if key in setup.sysconfig:
+                topLevelItems.append(QTreeWidgetItem([key]))
+        self.treeWidgetSysconfig.addTopLevelItems(topLevelItems)
+
+        for item in topLevelItems:
+            if isinstance(setup.sysconfig[item.text(0)], list):
+                for listItem in setup.sysconfig[item.text(0)]:
+                    item.addChild(QTreeWidgetItem([listItem]))
+            else:
+                item.addChild(QTreeWidgetItem(
+                    [setup.sysconfig[item.text(0)]]))
+
+        if self.treeWidgetSysconfig.topLevelItemCount() == len(
+                self.sysconfigKeys):  # can't add any unknown keys
+            self.pushButtonAddSysconfig.setEnabled(False)
+        else:
+            self.pushButtonAddSysconfig.setEnabled(True)
+        self.textEditStartupCode.blockSignals(True)
+        self.textEditStartupCode.setPlainText(setup.startupcode[1:-1])
+        self.textEditStartupCode.blockSignals(False)
 
     def on_listWidgetIncludes_itemSelectionChanged(self):
         if self.listWidgetIncludes.currentRow() > -1:
@@ -187,38 +220,4 @@ class SetupWidget(QWidget):
         self.treeWidgetSysconfig.clear()
         self.textEditStartupCode.blockSignals(True)
         self.textEditStartupCode.clear()
-        self.textEditStartupCode.blockSignals(False)
-
-    def loadData(self, setup):
-        self.lineEditDescription.setText(setup.description)
-        self.comboBoxGroup.setCurrentIndex(
-            self.comboBoxGroup.findText(setup.group))
-        for includeItem in setup.includes:
-            self.listWidgetIncludes.addItem(includeItem)
-        for excludeItem in setup.excludes:
-            self.listWidgetExcludes.addItem(excludeItem)
-        for moduleItem in setup.modules:
-            self.listWidgetModules.addItem(moduleItem)
-
-        topLevelItems = []
-        for key in self.sysconfigKeys:
-            if key in setup.sysconfig:
-                topLevelItems.append(QTreeWidgetItem([key]))
-        self.treeWidgetSysconfig.addTopLevelItems(topLevelItems)
-
-        for item in topLevelItems:
-            if isinstance(setup.sysconfig[item.text(0)], list):
-                for listItem in setup.sysconfig[item.text(0)]:
-                    item.addChild(QTreeWidgetItem([listItem]))
-            else:
-                item.addChild(QTreeWidgetItem(
-                    [setup.sysconfig[item.text(0)]]))
-
-        if self.treeWidgetSysconfig.topLevelItemCount() == len(
-                self.sysconfigKeys):  # can't add any unknown keys
-            self.pushButtonAddSysconfig.setEnabled(False)
-        else:
-            self.pushButtonAddSysconfig.setEnabled(True)
-        self.textEditStartupCode.blockSignals(True)
-        self.textEditStartupCode.setPlainText(setup.startupcode[1:-1])
         self.textEditStartupCode.blockSignals(False)

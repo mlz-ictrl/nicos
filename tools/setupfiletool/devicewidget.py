@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,11 +25,12 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QSpacerItem
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QWidget, QSpacerItem, QMessageBox
+from PyQt4.QtCore import pyqtSignal, Qt
 
 from setupfiletool.deviceparam import DeviceParam
-
+from setupfiletool import classparser
+from setupfiletool.dialogs.addparameterdialog import AddParameterDialog
 from nicos.guisupport.typedvalue import create
 from nicos.pycompat import string_types
 
@@ -41,89 +42,131 @@ class DeviceWidget(QWidget):
         super(DeviceWidget, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'devicewidget.ui'), self)
-        self.currentWidgets = []
+        self.parameters = {}
+        self.pushButtonAdd.clicked.connect(self.addParameter)
+
+    def addParameter(self):
+        addParameterDialog = AddParameterDialog()
+        missingParameters = [key for key in self.myClass.parameters.keys()
+                             if key not in self.parameters.keys() and
+                             not key.startswith('_')]
+        if missingParameters:
+            for key in missingParameters:
+                addParameterDialog.comboBoxSelectParameter.addItem(key)
+        else:
+            addParameterDialog.labelHeader.setEnabled(False)
+            addParameterDialog.comboBoxSelectParameter.setEnabled(False)
+            addParameterDialog.checkBoxCustomParameter.setChecked(True)
+            addParameterDialog.checkBoxCustomParameter.setEnabled(False)
+            addParameterDialog.lineEditCustomParameter.setEnabled(True)
+
+        if addParameterDialog.exec_():
+            if addParameterDialog.checkBoxCustomParameter.checkState()\
+                    == Qt.Checked:
+                param = addParameterDialog.lineEditCustomParameter.text()
+            else:
+                param = addParameterDialog.comboBoxSelectParameter.\
+                    currentText()
+            if param in self.parameters.keys():
+                QMessageBox.warning(self,
+                                    'Error',
+                                    'Parameter already exists.')
+                return
+            self.parametersLayout.takeAt(self.parametersLayout.count() - 1)
+            newParam = self.createParameterWidget(param, '')
+            self.parametersLayout.addWidget(newParam)
+            self.parameters[param] = newParam
+            self.parametersLayout.addStretch()
+            self.setOptimalWidth()
+            self.editedDevice.emit()
 
     def clear(self):
-        self.currentWidgets = []
-        for index in reversed(range(self.paramList.count())):
-            if not isinstance(self.paramList.itemAt(index), QSpacerItem):
-                self.paramList.itemAt(index).widget().setParent(None)
+        self.parameters.clear()
+        for index in reversed(range(self.parametersLayout.count())):
+            if not isinstance(
+                    self.parametersLayout.itemAt(index), QSpacerItem):
+                self.parametersLayout.itemAt(index).widget().setParent(None)
             else:
-                self.paramList.takeAt(index)
+                self.parametersLayout.takeAt(index)
 
     def getClassOfDevice(self, device):
-        # this method gets a device and parses it's classString
-        # building two modules: one for nicos devices and one for
-        # instrument specific devices. it then tries to get the class in those
-        # modules. If it doesn't find the class, it returns None.
-        mods = self.parent().deviceModules
-        myClass = device.classString.split(".")[-1]
-        myMod = device.classString.split(".")
-        myMod.pop()
-        myMod1 = "nicos." + ".".join(myMod)
-        myMod2 = "custom." + ".".join(myMod)
-        myMods = [myMod1, myMod2]
-        for mod in myMods:
-            if mod in mods:
-                myClass = getattr(mods[mod], myClass)
-                return myClass
-        return None
+        myClass = device.classString.split('.')[-1]
+        mod = device.classString.split('.')
+        mod.pop()
+        mod = '.'.join(mod)
+        return getattr(classparser.modules[mod], myClass)
 
     def loadDevice(self, device):
         self.clear()
-
-        myClass = self.getClassOfDevice(device)
-        classParam = DeviceParam('Class:', create(
+        try:
+            self.myClass = self.getClassOfDevice(device)
+        except KeyError as e:
+            QMessageBox.warning(self,
+                                'Error',
+                                'Unable to load device ' + device.name + ': ' +
+                                'Failed to load class ' + str(e))
+            self.pushButtonAdd.setEnabled(False)
+            return
+        classParam = DeviceParam('Class', create(
             self, str, device.classString))
         classParam.pushButtonRemove.setEnabled(False)
-        self.paramList.addWidget(classParam)
-        self.currentWidgets.append(classParam)
+        classParam.valueWidget.setEnabled(False)
+        self.parametersLayout.addWidget(classParam)
+        self.parameters['Class'] = classParam
 
         for param, value in device.parameters.items():
-            isUnkownValue = False
-            try:
-                typ = myClass.parameters[param].type
-            except (AttributeError, KeyError):
-                if isinstance(value, string_types):
-                    # this is why can't have nice things
-                    isUnkownValue = False
-                else:
-                    isUnkownValue = True
-                typ = str
-            try:
-                myUnit = myClass.parameters[param].unit
-            except (AttributeError, KeyError):
-                myUnit = ''
-            newParam = DeviceParam(param + ':', create(self,
-                                                       typ,
-                                                       value,
-                                                       unit=myUnit))
-            newParam.isUnknownValue = isUnkownValue
-            self.paramList.addWidget(newParam)
-            self.currentWidgets.append(newParam)
-        self.paramList.addStretch()
+            newParam = self.createParameterWidget(param, value)
+            self.parametersLayout.addWidget(newParam)
+            self.parameters[param] = newParam
 
-        for widget in self.currentWidgets:
-            widget.pushButtonRemove.clicked.connect(self.removeParam)
-            widget.pushButtonRemove.clicked.connect(self.editedDevice.emit)
-            widget.editedParam.connect(self.editedDevice.emit)
+        self.parametersLayout.addStretch()
         self.setOptimalWidth()
+
+    def createParameterWidget(self, param, value):
+        isUnkownValue = False
+        try:
+            typ = self.myClass.parameters[param].type
+        except (AttributeError, KeyError):
+            if isinstance(value, string_types):
+                isUnkownValue = False
+            else:
+                isUnkownValue = True
+            typ = type(value)
+        try:
+            myUnit = self.myClass.parameters[param].unit
+        except (AttributeError, KeyError):
+            myUnit = ''
+        newParam = DeviceParam(param, create(self,
+                                             typ,
+                                             value,
+                                             unit=myUnit))
+        newParam.isUnknownValue = isUnkownValue
+        try:
+            mandatory = self.myClass.parameters[param].mandatory
+        except (AttributeError, KeyError):
+            mandatory = False
+        if mandatory:
+            newParam.pushButtonRemove.setToolTip(
+                'This parameter cannot be removed '
+                'because it is required by the device.')
+        newParam.pushButtonRemove.setEnabled(not mandatory)
+        newParam.editedParam.connect(self.editedDevice.emit)
+        newParam.clickedRemoveButton.connect(self.removeParam)
+        return newParam
 
     def setOptimalWidth(self):
         # get necessary width to align labels
         maxWidth = 100  # default minimum 100
-        for widget in self.currentWidgets:
+        for _, widget in self.parameters.iteritems():
             labelWidth = widget.labelParam.sizeHint().width()
 
             if labelWidth > maxWidth:
                 maxWidth = labelWidth
-        for widget in self.currentWidgets:
+        for _, widget in self.parameters.iteritems():
             widget.labelParam.setMinimumWidth(maxWidth)
 
-    def removeParam(self):
-        # removes the widget calling this function
-        # Planned for redesign: Only allow optional parameters to be removed
-        param = self.sender().parent()
-        self.currentWidgets.remove(param)
-        param.setParent(None)
+    def removeParam(self, param):
+        # param is a parameter's name, which works as a key for self.parameters
+        self.parameters[param].setParent(None)
+        del self.parameters[param]
         self.editedDevice.emit()

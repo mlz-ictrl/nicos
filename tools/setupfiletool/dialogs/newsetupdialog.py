@@ -28,11 +28,11 @@ from PyQt4 import uic
 from PyQt4.QtGui import QDialog
 
 
-class AddModuleDialog(QDialog):
+class NewSetupDialog(QDialog):
     def __init__(self, parent=None):
-        super(AddModuleDialog, self).__init__(parent)
+        super(NewSetupDialog, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
-                                          'addmoduledialog.ui')), self)
+                                          'newsetupdialog.ui')), self)

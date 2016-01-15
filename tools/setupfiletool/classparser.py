@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,12 +24,18 @@
 
 import os
 import glob
-import imp
+import inspect
 
 from setupfiletool.utilities.utilities import getNicosDir
+from setupfiletool.utilities.excluded_devices import excluded_device_classes
+from nicos.core.device import Device as _Class_device
+from nicos.core.sessions import Session
+
+modules = {}
+session = Session('SetupFileTool')
 
 
-def importModules():
+def init(log):
     # uses the provided directories to search for *.py files.
     # then tries to import that file.
     # the imported module will be appended to a dictionary, the key being
@@ -37,7 +43,6 @@ def importModules():
     # e.g. nicos.services.cache.server is the key to the module
     # <nicos directory>/nicos/services/cache/server.py
     # returns the dictionary.
-    modules = {}
 
     paths = [os.path.join(getNicosDir(), 'nicos', 'devices'),
              os.path.join(getNicosDir(), 'nicos', 'services')] + glob.glob(
@@ -49,32 +54,60 @@ def importModules():
             pys += [os.path.join(root, f) for f in files if f.endswith('.py')]
 
     for py in pys:
-        name, _ = os.path.splitext(os.path.basename(py))
-        pyfile, filename, data = imp.find_module(name, [os.path.dirname(py)])
+        fqdn = py.split('/')
+        fqdn[-1] = str(fqdn[-1])[:-3]
+        prependingPathCount = len(getNicosDir().split('/'))
+        for _ in range(prependingPathCount):
+            fqdn.pop(0)  # cutting the path to nicos directory
+        moduleName = '.'.join(fqdn)
+        if moduleName.endswith('__init__'):
+            moduleName = moduleName[:-9]
+        if moduleName.startswith('custom'):
+            # module is from custom instrument, remove lib in it's path
+            moduleName = moduleName.split('.')
+            moduleName.pop(2)
+            moduleName.pop(0)
+            moduleName = '.'.join(moduleName)
+        if moduleName.startswith('nicos'):
+            moduleName = moduleName[6:]
         try:
-            # load module
-            try:
-                m = imp.load_module(name, pyfile, filename, data)
-            except KeyError:
-                # Todo: Fix special cases!
-                continue
-            # loading successful. create name for dictionary key
-            fqdn = py.split("/")
-            fqdn[-1] = str(fqdn[-1])[:-3]
-            prependingPathCount = len(getNicosDir().split("/"))
-            for _ in range(prependingPathCount):
-                fqdn.pop(0)  # cutting the path to nicos directory
-            moduleName = ".".join(fqdn)
-            # add to dictionary
-            if moduleName.endswith("__init__"):
-                moduleName = moduleName[:-9]
-            if not moduleName.startswith("nicos"):
-                # module is from custom instrument, remove lib in it's path
-                moduleName = moduleName.split(".")
-                moduleName.pop(2)
-                moduleName = ".".join(moduleName)
-            modules[moduleName] = m
-        except (ImportError, ValueError, NameError):  # as e:
-            pass
-            # print('failed in: ' + py + '\n    because: ' + e.args[0])
-    return modules
+            mod = session._nicos_import(moduleName)
+            modules[moduleName] = mod
+        except (ImportError, KeyError) as e:
+            log.warning('Error importing ' + moduleName + ': ' + str(e))
+
+
+def getDeviceClasses(instrumentPrefix):
+    modkeys = []
+    if instrumentPrefix is not None:
+        for mod in modules.keys():
+            if mod.startswith(instrumentPrefix):
+                modkeys.append(mod)
+            elif mod.startswith('devices'):
+                modkeys.append(mod)
+            elif mod.startswith('services'):
+                modkeys.append(mod)
+    else:
+        modkeys = modules.keys()
+    # Got all modules that contain device classes eligible for this instrument.
+    classes = []
+    for key in modkeys:
+        classesOfModule = inspect.getmembers(modules[key], inspect.isclass)
+        for _class in classesOfModule:
+            if issubclass(_class[1], _Class_device) and\
+                    _class[1] not in classes:
+                classes.append((_class[1]))
+
+    classes = [_class for _class in sorted(classes)
+               if str(_class)[14:-2] not in excluded_device_classes]
+    # classes (the list) may contain classes that were imported in some module.
+    # parse out those classes and remove them from the returned list.
+    return_classes = []
+    for _class in classes:
+        _class_str = str(_class)[14:-2]
+        uncombinedModule = _class_str.split('.')
+        uncombinedModule.pop()
+        mod = '.'.join(uncombinedModule)
+        if mod in modules.keys():
+            return_classes.append(_class)
+    return return_classes
