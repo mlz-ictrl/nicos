@@ -311,6 +311,11 @@ def closeSocket(sock, socket=socket):
         pass
 
 
+def getfqdn(name=''):
+    """Get fully qualified hostname."""
+    return socket.getfqdn(name)
+
+
 def bitDescription(bits, *descriptions):
     """Return a description of a bit-wise value."""
     ret = []
