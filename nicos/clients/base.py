@@ -477,9 +477,10 @@ class NicosClient(object):
 
     def getCacheKey(self, key):
         """Return (key, value) for the given cache key."""
-        key = self.ask('getcachekeys', key, quiet=True)
-        if key:
-            return key[0]
+        keys = self.ask('getcachekeys', key, quiet=True) or []
+        for item in keys:
+            if item[0] == key:
+                return item
         return None
 
     def getDeviceParam(self, devname, param):
