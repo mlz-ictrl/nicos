@@ -100,6 +100,12 @@ class EntryWidget(base_class, ui_class):
         """
         entry = self.entry
 
+        fm = self.labelTime.fontMetrics()
+        margins = self.labelTime.getContentsMargins()
+        self.labelTime.setMinimumWidth(fm.width(entry.convertTime(1.0)) +
+                                       margins[0] + margins[2] +
+                                       self.labelTime.sizeHint().width())
+
         if self.watcher is None:  # widget is already in watcher
             self.buttonWatch.hide()
 
