@@ -230,8 +230,11 @@ class ValueDisplay(NicosWidget, QWidget):
                 self.key = value + '.value'
                 self.statuskey = value + '.status'
         elif pname == 'width':
-            onechar = QFontMetrics(self.valueFont).width('0')
-            self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
+            if value < 0:
+                self.reinitLayout()
+            else:
+                onechar = QFontMetrics(self.valueFont).width('0')
+                self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
         elif pname == 'istext':
             self.valuelabel.setFont(value and self.font() or self.valueFont)
             self.width = self.width
@@ -264,8 +267,8 @@ class ValueDisplay(NicosWidget, QWidget):
         valuelabel.setAlignment(Qt.AlignHCenter)
         valuelabel.setFrameShadow(QFrame.Sunken)
         valuelabel.setAutoFillBackground(True)
-        setBackgroundColor(valuelabel, self._colorscheme['fore'][UNKNOWN])
-        setForegroundColor(valuelabel, self._colorscheme['back'][UNKNOWN])
+        setBackgroundColor(valuelabel, self._colorscheme['back'][UNKNOWN])
+        setForegroundColor(valuelabel, self._colorscheme['fore'][UNKNOWN])
         valuelabel.setLineWidth(2)
         self.valuelabel = valuelabel
         self.width = 8
@@ -284,9 +287,11 @@ class ValueDisplay(NicosWidget, QWidget):
             new_layout = QVBoxLayout()
             new_layout.addWidget(self.namelabel)
             tmplayout = QHBoxLayout()
-            tmplayout.addStretch()
+            if self.width >= 0:
+                tmplayout.addStretch()
             tmplayout.addWidget(self.valuelabel)
-            tmplayout.addStretch()
+            if self.width >= 0:
+                tmplayout.addStretch()
             new_layout.addLayout(tmplayout)
             self.namelabel.setAlignment(Qt.AlignHCenter)
         if self.layout():

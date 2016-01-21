@@ -179,7 +179,8 @@ Existing widget classes
 
    .. attribute:: width
 
-      Width of the widget, in characters.
+      Width of the widget, in characters.  If zero, the widget expands to fill
+      the available space.
 
    .. attribute:: istext
 
