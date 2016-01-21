@@ -47,6 +47,14 @@ def _devParamValDictToTupleList(dct):
     return [(key[0], key[1], val) for key, val in iteritems(dct)]
 
 
+def prepareImageFiles(detectors, dataset=None):
+    """Prepares image files all given `detectors` and updates `dataset`s
+    imageinfos."""
+    for det in detectors:
+        if isinstance(det, ImageProducer):
+            det.prepareImageFile(dataset)
+
+
 class ImageInfo(object):
     """Class for storing data about image detectors which are passed around.
     """
@@ -245,6 +253,7 @@ class ImageProducer(DeviceMixinBase):
 
     def prepareImageFile(self, dataset=None):
         """Should prepare an Image file."""
+        session.experiment.advanceImageCounter()
         self._saved = False
         self.log.debug('prepareImageFile(%r)' % dataset)
         imageinfos = []

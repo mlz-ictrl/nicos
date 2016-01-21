@@ -30,13 +30,13 @@ from time import sleep, time as currenttime
 from nicos import session
 from nicos.core.device import Measurable
 from nicos.core.errors import UsageError
+from nicos.core.image import prepareImageFiles
 from nicos.core.constants import SIMULATION
 from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.output import printinfo, printwarning
 from nicos.pycompat import iteritems, number_types, string_types, reraise
 from nicos.core.utils import waitForStatus
 from nicos.utils import formatDuration
-
 
 __all__ = [
     'count', 'preset',
@@ -88,7 +88,7 @@ def _count(detlist, preset, result, dataset=None):
     # advance imagecounter
     if not dataset:
         dataset = session.experiment.createDataset()
-    session.experiment.advanceImageCounter(detset, dataset)
+    prepareImageFiles(detset, dataset)
     session.beginActionScope('Counting')
     if session.should_pause_count:
         _wait_for_continuation(delay)

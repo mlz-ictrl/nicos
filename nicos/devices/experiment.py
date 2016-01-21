@@ -37,7 +37,7 @@ from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
-    ProgrammingError, SIMULATION, MASTER, ImageProducer, Attach
+    ProgrammingError, SIMULATION, MASTER, Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
@@ -379,19 +379,13 @@ class Experiment(Device):
     def imageCounterPath(self):
         return path.join(self.dataroot, self.imagecounter)
 
-    def advanceImageCounter(self, detlist=tuple(), dataset=None):
+    def advanceImageCounter(self):
         """increments the value of the imagecounter if needed and returns it"""
-        for det in detlist:
-            # only increment for ImageProducer-type detector, also prepare them....
-            # -> if two such detectors are used, each one gets a different number
-            # -> no file collisions!
-            if isinstance(det, ImageProducer):
-                if self._mode != SIMULATION:
-                    updateFileCounter(self.imageCounterPath, self.lastimage + 1)
-                else:
-                    # simulate counting up...
-                    self._lastimage = 1 + (self._lastimage or self.lastimage)
-                det.prepareImageFile(dataset)
+        if self._mode != SIMULATION:
+            updateFileCounter(self.imageCounterPath, self.lastimage + 1)
+        else:
+            # simulate counting up...
+            self._lastimage = 1 + (self._lastimage or self.lastimage)
         return self.lastimage
 
     def doReadLastimage(self):

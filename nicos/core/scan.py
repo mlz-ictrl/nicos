@@ -34,7 +34,7 @@ from nicos.core.params import Value, INFO_CATEGORIES
 from nicos.core.errors import NicosError, LimitError, ModeError, TimeoutError, \
     InvalidValueError, PositionError, CommunicationError, ComputationError, \
     MoveError
-from nicos.core.image import ImageProducer
+from nicos.core.image import ImageProducer, prepareImageFiles
 from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
 from nicos.core.utils import waitForStatus, multiWait
@@ -679,7 +679,7 @@ class ContinuousScan(Scan):
                          (self._speed or 0.1) * 5, 3600)
             if session.mode == SIMULATION:
                 preset = 1  # prevent all contscans taking 1 hour
-            session.experiment.advanceImageCounter(detlist)
+            prepareImageFiles(detlist)
             devpos = device.read(0)
             for det in detlist:
                 det.start(t=preset)
