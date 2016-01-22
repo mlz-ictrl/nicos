@@ -206,7 +206,7 @@ class Detector(ImageProducer, Measurable):
     }
 
     parameter_overrides = {
-        'fmtstr':   Override(volatile=True),
+        'fmtstr': Override(volatile=True),
     }
 
     hardware_access = False
@@ -221,19 +221,19 @@ class Detector(ImageProducer, Measurable):
                 if i == 0:
                     yield ('t', dev)
                     yield ('time', dev)
-                yield ('timer%d' % (i+1), dev)
+                yield ('timer%d' % (i + 1), dev)
         for i, dev in enumerate(self._attached_monitors):
             if isinstance(dev, ActiveChannel):
-                yield ('mon%d' % (i+1), dev)
+                yield ('mon%d' % (i + 1), dev)
         for i, dev in enumerate(self._attached_counters):
             if isinstance(dev, ActiveChannel):
                 if i == 0:
                     yield ('n', dev)
-                yield ('det%d' % (i+1), dev)
-                yield ('ctr%d' % (i+1), dev)
+                yield ('det%d' % (i + 1), dev)
+                yield ('ctr%d' % (i + 1), dev)
         for i, dev in enumerate(self._attached_images):
             if isinstance(dev, ActiveChannel):
-                yield ('img%d' % (i+1), dev)
+                yield ('img%d' % (i + 1), dev)
 
     def doPreinit(self, mode):
         presetkeys = {}
@@ -416,7 +416,7 @@ class DetectorForecast(Readable):
     """
 
     attached_devices = {
-        'det':  Attach('The detector to forecast values.', Detector),
+        'det': Attach('The detector to forecast values.', Detector),
     }
 
     parameter_overrides = {
