@@ -38,19 +38,19 @@ class Instrument(Device):
     """
 
     parameters = {
-        'facility': Param('Facility name', type=str, category='experiment',
+        'facility': Param('Facility name', type=str, category='instrument',
                           settable=False,
                           default='Heinz Maier-Leibnitz Zentrum Garching (MLZ)'),
-        'instrument': Param('Instrument name', type=str, category='experiment'),
-        'doi': Param('Instrument DOI', type=str, category='experiment',
+        'instrument': Param('Instrument name', type=str, category='instrument'),
+        'doi': Param('Instrument DOI', type=str, category='instrument',
                      userparam=False),
         'responsible': Param('Instrument responsible name and email',
                              mandatory=True, type=mailaddress,
-                             category='experiment'),
+                             category='instrument'),
         'countloopdelay': Param('Loop delay in checking for counting finished',
                                 type=float, default=0.025, userparam=False),
-        'website': Param('Instrument URL', type=str, category='experiment',
+        'website': Param('Instrument URL', type=str, category='instrument',
                          settable=False, default='http://www.mlz-garching.de'),
         'operators': Param('Instrument operators', type=listof(str),
-                           category='experiment', settable=False),
+                           category='instrument', settable=False),
     }
