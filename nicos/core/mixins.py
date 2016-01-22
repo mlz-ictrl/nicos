@@ -135,9 +135,12 @@ class HasLimits(DeviceMixinBase):
 
     parameters = {
         'userlimits': Param('User defined limits of device value', unit='main',
-                            type=limits, settable=True, chatty=True),
+                            type=limits, settable=True, chatty=True,
+                            category='limits',),
         'abslimits':  Param('Absolute limits of device value', unit='main',
-                            type=limits, mandatory=True),
+                            type=limits, mandatory=True,
+                            # category='limits'
+                            ),
     }
 
     @property
