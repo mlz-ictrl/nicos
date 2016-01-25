@@ -24,8 +24,8 @@
 
 """NICOS GUI experiment setup window."""
 
-from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem, QMessageBox, \
-    QFrame, QHBoxLayout, QLabel, QComboBox
+from PyQt4.QtGui import QDialog, QDialogButtonBox, QListWidgetItem, \
+    QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
@@ -141,7 +141,7 @@ class ExpPanel(Panel, DlgUtils):
     def on_queryDBButton_clicked(self):
         try:
             prop, title, users, _, emails, dataEmails, \
-            _ =  self._getProposalInput()
+                _ = self._getProposalInput()
         except ConfigurationError:
             return
         sample = self.sampleName.text().encode('utf-8')
@@ -306,6 +306,7 @@ class SetupsPanel(Panel, DlgUtils):
         self._loaded = set()
         self._loaded_basic = None
 
+        self._reload_btn = QPushButton('Reload current setup')
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'),
@@ -353,10 +354,11 @@ class SetupsPanel(Panel, DlgUtils):
         self.basicSetup.setCurrentItem(keep)
         if self.client.viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+            self.buttonBox.removeButton(self._reload_btn)
         else:
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
-            self.buttonBox.addButton('Reload current setup',
+            self.buttonBox.addButton(self._reload_btn,
                                      QDialogButtonBox.ResetRole)
 
     def on_client_setup(self, data):
@@ -387,24 +389,30 @@ class SetupsPanel(Panel, DlgUtils):
                 item.setHidden(item.checkState() == Qt.Unchecked and
                                not self.showPnpBox.isChecked())
 
+    def _close(self):
+        # close the right instance
+        # traverse stack of Widgets and close the right ones...
+        obj = self
+        while hasattr(obj, 'parent'):
+            obj = obj.parent()
+            if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                PanelDialog)):
+                obj.close()
+                return
+
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ResetRole:
-            self.client.run('NewSetup()')
-            self.showInfo('Current setups reloaded.')
-            # fall through to the close case
-        elif role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance
-            # traverse stack of Widgets and close the right ones...
-            obj = self
-            while hasattr(obj, 'parent'):
-                obj = obj.parent()
-                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
-                                    PanelDialog)):
-                    obj.close()
-                    return
+            self._close()
+        elif role == QDialogButtonBox.ResetRole:
+            self.client.run('NewSetup()')
+            self.showInfo('Current setups reloaded.')
+            # Close the window only in case of use in a dialog, not in a
+            # tabbed window or similiar
+            if isinstance(self.parent(), QDialog):
+                self._close()
 
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
