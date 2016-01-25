@@ -1223,6 +1223,9 @@ class Session(object):
             self.cache.put('exp', 'action', joined, flag=FLAG_NO_STORE)
 
     def endActionScope(self):
+        if not self._actionStack:
+            self.log.debug('popping from empty actionStack!')
+            return
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
