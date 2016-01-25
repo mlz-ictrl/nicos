@@ -270,15 +270,14 @@ def getVersions(obj):
     return versions
 
 
-def tcpSocket(host, defaultport, timeout=None):
-    """Helper for opening a TCP client socket to a remote server.
+
+def parseHostPort(host, defaultport):
+    """Parse host[:port] string and tuples
 
     Specify 'host[:port]' or a (host, port) tuple for the mandatory argument.
     If the port specification is missing, the value of the defaultport is used.
-    If timeout is set to a number, the timout of the connection is set to this
-    number, else the socket stays in blocking mode.
     """
-    # finalize arguments
+
     if isinstance(host, (tuple, list)):
         host, port = host
     elif ':' in host:
@@ -287,6 +286,19 @@ def tcpSocket(host, defaultport, timeout=None):
     else:
         port = defaultport
     assert 0 < port < 65536
+    assert ':' not in host
+    return host, port
+
+
+def tcpSocket(host, defaultport, timeout=None):
+    """Helper for opening a TCP client socket to a remote server.
+
+    Specify 'host[:port]' or a (host, port) tuple for the mandatory argument.
+    If the port specification is missing, the value of the defaultport is used.
+    If timeout is set to a number, the timout of the connection is set to this
+    number, else the socket stays in blocking mode.
+    """
+    host, port = parseHostPort(host, defaultport)
 
     # open socket and set options
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
