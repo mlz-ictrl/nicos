@@ -25,6 +25,7 @@
 
 """Devices performing an unlocking/locking sequence upon moving"""
 
+import sys
 import time
 from datetime import timedelta
 from time import time as currenttime
@@ -36,6 +37,7 @@ from nicos.core import Device, DeviceMixinBase, LimitError, Attach, \
     Readable
 from nicos.utils import createThread
 from nicos.core.utils import devIter
+from nicos.pycompat import reraise
 
 
 class StopSequence(Exception):
@@ -274,7 +276,8 @@ class SequencerMixin(DeviceMixinBase):
                     self.log.error('action.check for %r failed with %r' %
                                    (action, e))
                     self.log.debug('_checkFailed returned %r' %
-                                   self._checkFailed(i, action, e))
+                                   self._checkFailed(i, action,
+                                                     sys.exc_info()))
                     # if the above does not raise, consider this as OK
 
         if self._seq_is_running():
@@ -324,7 +327,7 @@ class SequencerMixin(DeviceMixinBase):
                     except Exception as e:
                         # if this raises, abort the sequence...
                         self.log.debug('action.run raised %r' % e)
-                        code = self._runFailed(i, action, e)
+                        code = self._runFailed(i, action, sys.exc_info())
                         self.log.debug('_runFailed returned %r' % code)
                         if code:
                             try:
@@ -334,7 +337,7 @@ class SequencerMixin(DeviceMixinBase):
                                                '%r' % e)
                                 self.log.debug('_retryFailed returned %r' %
                                                self._retryFailed(i, action,
-                                                                 code, e))
+                                                     code, sys.exc_info()))
 
                 # wait until all actions are finished
                 waiters = set(step)
@@ -350,7 +353,7 @@ class SequencerMixin(DeviceMixinBase):
                         except Exception as e:
                             self.log.debug('action.isCompleted failed with %r' % e)
                             # if this raises, abort the sequence...
-                            code = self._waitFailed(i, action, e)
+                            code = self._waitFailed(i, action, sys.exc_info())
                             self.log.debug('_waitFailed returned %r' % code)
                             if code:
                                 if action.isCompleted():
@@ -384,7 +387,8 @@ class SequencerMixin(DeviceMixinBase):
                             # signal those errors, captured earlier
                             for ac, e in failed:
                                 self.log.debug('_stopFailed returned %r' %
-                                               self._stopFailed(i, ac, e))
+                                               self._stopFailed(i, ac,
+                                                            sys.exc_info()))
                     finally:
                         self._stopAction(i)
                         self._set_seq_status(status.NOTREACHED,
@@ -460,7 +464,7 @@ class SequencerMixin(DeviceMixinBase):
         Default to a NOP.
         """
 
-    def _checkFailed(self, step, action, exception):
+    def _checkFailed(self, step, action, exc_info):
         """Called whenever an action check failed
 
         This may raise an Exception to end the sequence or return
@@ -468,9 +472,9 @@ class SequencerMixin(DeviceMixinBase):
 
         Default is to re-raise the given exception.
         """
-        raise exception
+        reraise(*exc_info)
 
-    def _runFailed(self, step, action, exception):
+    def _runFailed(self, step, action, exc_info):
         """Called whenever an action run failed
 
         This may raise an Exception to end the sequence or return
@@ -478,9 +482,9 @@ class SequencerMixin(DeviceMixinBase):
 
         Default is to re-raise the given exception.
         """
-        raise exception
+        reraise(*exc_info)
 
-    def _retryFailed(self, step, action, code, exception):
+    def _retryFailed(self, step, action, code, exc_info):
         """Called whenever an actions retry failed
 
         This may raise an Exception to end the sequence or return
@@ -488,9 +492,9 @@ class SequencerMixin(DeviceMixinBase):
 
         Default is to re-raise the given exception.
         """
-        raise exception
+        reraise(*exc_info)
 
-    def _waitFailed(self, step, action, exception):
+    def _waitFailed(self, step, action, exc_info):
         """Called whenever a wait failed
 
         This may raise an Exception to end the sequence or return
@@ -500,14 +504,14 @@ class SequencerMixin(DeviceMixinBase):
 
         Default is to re-raise the given exception.
         """
-        raise exception
+        reraise(*exc_info)
 
-    def _stopFailed(self, step, action, exception):
+    def _stopFailed(self, step, action, exc_info):
         """Called whenever a stop failed with an exception.
 
         Default is to re-raise the exception.
         """
-        raise exception
+        reraise(*exc_info)
 
 
 class BaseSequencer(SequencerMixin, Moveable):
