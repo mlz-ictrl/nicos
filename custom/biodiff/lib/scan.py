@@ -41,6 +41,17 @@ class RScan(Scan):
 
     def moveTo(self, position, wait=True):
         if wait:
+            # stop running microstep sequence if wait is true because
+            # in the following code the attached motor will be used which will
+            # interference with the microstepping device.
+            # (If there is a running sequence the microstepping device will be
+            #  busy but the attached motor is just busy when it gets a move
+            #  command from the sequence)
+            # A general stop for microstepping motors avoids this interference.
+            for dev in self._devices:
+                if isinstance(dev, MicrostepMotor):
+                    dev.stop()
+                    dev.wait()
             # movement and counting separate
             # do not use software based micro stepping
             where = [(dev._attached_motor, pos) if isinstance(dev,
