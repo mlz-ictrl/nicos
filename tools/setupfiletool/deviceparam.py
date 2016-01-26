@@ -38,6 +38,7 @@ class DeviceParam(QWidget):
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           'ui',
                                           'deviceparam.ui')), self)
+        self.placeholder.setVisible(False)
         self.param = param
         self.valueWidget = valueWidget
         self.isUnknownValue = isUnknownValue

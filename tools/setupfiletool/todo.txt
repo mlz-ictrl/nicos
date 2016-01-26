@@ -7,3 +7,4 @@
 - Filter parameters in AddParameterDialog: Do not show "classes", "name". Need to work out which ones not to show.
 - When adding a custom parameter, allow selection of the type (e.g. display some common used python classes msuch as str, int, float or list).
 - Make sysconfig widget more user friendly. E.g. allow editing of existing values, allow replacing already entered values, etc.
+- Handle special cases (attached devices).

@@ -25,7 +25,7 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QSpacerItem, QMessageBox
+from PyQt4.QtGui import QWidget, QSpacerItem, QMessageBox, QListWidgetItem
 from PyQt4.QtCore import pyqtSignal, Qt
 
 from setupfiletool.deviceparam import DeviceParam
@@ -51,11 +51,14 @@ class DeviceWidget(QWidget):
                              if key not in self.parameters.keys() and
                              not key.startswith('_')]
         if missingParameters:
-            for key in missingParameters:
-                addParameterDialog.comboBoxSelectParameter.addItem(key)
+            for key in sorted(missingParameters):
+                listWidgetItem = QListWidgetItem(
+                    key, addParameterDialog.listWidgetSelectParameter)
+                listWidgetItem.setToolTip(
+                    self.myClass.parameters[key].description)
+                addParameterDialog.listWidgetSelectParameter.addItem(
+                    listWidgetItem)
         else:
-            addParameterDialog.labelHeader.setEnabled(False)
-            addParameterDialog.comboBoxSelectParameter.setEnabled(False)
             addParameterDialog.checkBoxCustomParameter.setChecked(True)
             addParameterDialog.checkBoxCustomParameter.setEnabled(False)
             addParameterDialog.lineEditCustomParameter.setEnabled(True)
@@ -65,8 +68,8 @@ class DeviceWidget(QWidget):
                     == Qt.Checked:
                 param = addParameterDialog.lineEditCustomParameter.text()
             else:
-                param = addParameterDialog.comboBoxSelectParameter.\
-                    currentText()
+                param = addParameterDialog.listWidgetSelectParameter.\
+                    currentItem().text()
             if param in self.parameters.keys():
                 QMessageBox.warning(self,
                                     'Error',
@@ -98,23 +101,45 @@ class DeviceWidget(QWidget):
 
     def loadDevice(self, device):
         self.clear()
+        errors = []
         try:
             self.myClass = self.getClassOfDevice(device)
         except KeyError as e:
+            errors.append('Failed to load class ' + str(e))
+        if errors:
             QMessageBox.warning(self,
-                                'Error',
-                                'Unable to load device ' + device.name + ': ' +
-                                'Failed to load class ' + str(e))
+                                'Errors',
+                                '\n'.join(errors))
             self.pushButtonAdd.setEnabled(False)
             return
+
         classParam = DeviceParam('Class', create(
             self, str, device.classString))
-        classParam.pushButtonRemove.setEnabled(False)
+        classParam.pushButtonRemove.setVisible(False)
+        classParam.placeholder.setVisible(True)
         classParam.valueWidget.setEnabled(False)
         self.parametersLayout.addWidget(classParam)
         self.parameters['Class'] = classParam
 
-        for param, value in device.parameters.items():
+        mandatoryParams = []
+        optionalParams = []
+        for param in sorted(device.parameters):
+            try:
+                mandatory = self.myClass.parameters[param].mandatory
+            except (AttributeError, KeyError):
+                mandatory = False
+            if mandatory:
+                mandatoryParams.append(param)
+            else:
+                optionalParams.append(param)
+
+        for param in mandatoryParams:
+            value = device.parameters[param]
+            newParam = self.createParameterWidget(param, value)
+            self.parametersLayout.addWidget(newParam)
+            self.parameters[param] = newParam
+        for param in optionalParams:
+            value = device.parameters[param]
             newParam = self.createParameterWidget(param, value)
             self.parametersLayout.addWidget(newParam)
             self.parameters[param] = newParam
@@ -132,6 +157,8 @@ class DeviceWidget(QWidget):
             else:
                 isUnkownValue = True
             typ = type(value)
+            if typ is None:
+                typ = str
         try:
             myUnit = self.myClass.parameters[param].unit
         except (AttributeError, KeyError):
@@ -142,14 +169,17 @@ class DeviceWidget(QWidget):
                                              unit=myUnit))
         newParam.isUnknownValue = isUnkownValue
         try:
+            newParam.labelParam.setToolTip(self.myClass.parameters[
+                param].description)
+        except:  # pylint: disable=bare-except
+            newParam.labelParam.setToolTip('No info found.')
+        try:
             mandatory = self.myClass.parameters[param].mandatory
         except (AttributeError, KeyError):
             mandatory = False
         if mandatory:
-            newParam.pushButtonRemove.setToolTip(
-                'This parameter cannot be removed '
-                'because it is required by the device.')
-        newParam.pushButtonRemove.setEnabled(not mandatory)
+            newParam.pushButtonRemove.setVisible(False)
+            newParam.placeholder.setVisible(True)
         newParam.editedParam.connect(self.editedDevice.emit)
         newParam.clickedRemoveButton.connect(self.removeParam)
         return newParam

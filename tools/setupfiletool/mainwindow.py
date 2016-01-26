@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
+        logging.basicConfig()
         self.log = logging.getLogger()
 
         setupcontroller.init(self.log)
@@ -312,7 +313,16 @@ class MainWindow(QMainWindow):
         add(self.saveStartupcode(setupData))
 
         with open(setupPath, 'w') as outputFile:
-            outputFile.write(''.join(output))
+            outputStringWithNewlines = ''.join(output)
+            outputStringListWithNewLines = \
+                outputStringWithNewlines.splitlines()
+            while True:
+                try:
+                    outputStringListWithNewLines.remove('')
+                except:  # pylint: disable=bare-except
+                    break
+            output = '\n'.join(outputStringListWithNewLines) + '\n'
+            outputFile.write(output)
 
         if setupItem.setup.abspath == setupPath:
             # saved setup with same name as before; can unmark it

@@ -43,9 +43,9 @@ class AddParameterDialog(QDialog):
     def stateChangedHandler(self, state):
         if state == Qt.Checked:
             self.labelHeader.setEnabled(False)
-            self.comboBoxSelectParameter.setEnabled(False)
+            self.listWidgetSelectParameter.setEnabled(False)
             self.lineEditCustomParameter.setEnabled(True)
         else:
             self.labelHeader.setEnabled(True)
-            self.comboBoxSelectParameter.setEnabled(True)
+            self.listWidgetSelectParameter.setEnabled(True)
             self.lineEditCustomParameter.setEnabled(False)
