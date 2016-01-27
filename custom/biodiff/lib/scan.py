@@ -31,7 +31,9 @@ from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
+from nicos.commands.output import printwarning
 from nicos.commands.scan import _handleScanArgs, _infostr
+from nicos.devices.abstract import Motor as NicosMotor
 from nicos.biodiff.motor import MicrostepMotor
 from nicos.biodiff.detector import BiodiffDetector
 from nicos.jcns.shutter import OPEN
@@ -77,6 +79,21 @@ class RScan(Scan):
                         where.append((det._attached_photoshutter, OPEN))
             if where:
                 self.moveDevices(where)
+
+    def handleError(self, what, err, dev=None):
+        # consider all movement errors fatal
+        if what in ('move', 'wait'):
+            printwarning('Positioning problem, stopping all moving motors '
+                         'and detectors', exc=1)
+            try:
+                for dev in self._devices:
+                    if isinstance(dev, NicosMotor):
+                        dev.stop()
+                for det in self._detlist:
+                    det.stop()
+            finally:
+                raise  # pylint: disable=misplaced-bare-raise
+        return Scan.handleError(self, what, err, dev)
 
 
 def _fixType(dev, args, mkpos):
