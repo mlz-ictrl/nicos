@@ -1234,6 +1234,27 @@ class Experiment(Device):
     def doUpdateEnvlist(self, devices):
         self._envlist = None  # clear list of actual devices
 
+    def _scrubDetEnvLists(self):
+        """Remove devices from detlist and envlist that don't exist anymore
+        after a setup change.
+        """
+        newlist = []
+        for devname in self.detlist:
+            if devname not in session.configured_devices:
+                self.log.warning('removing device %r from detector list, it '
+                                 'does not exist in any loaded setup' % devname)
+            else:
+                newlist.append(devname)
+        self.detlist = newlist
+        newlist = []
+        for devname in self.envlist:
+            if devname not in session.configured_devices:
+                self.log.warning('removing device %r from environment, it '
+                                 'does not exist in any loaded setup' % devname)
+            else:
+                newlist.append(devname)
+        self.envlist = newlist
+
 
 class ImagingExperiment(Experiment):
     """General experiment device for all imaging instruments.

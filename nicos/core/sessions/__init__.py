@@ -621,6 +621,10 @@ class Session(object):
         # set aliases according to alias_config
         self.applyAliasConfig()
 
+        # remove now nonexisting envlist devices
+        if self.experiment and self.mode == MASTER:
+            self.experiment._scrubDetEnvLists()
+
         # execute the startup code
         if allow_startupcode:
             for code in startupcode:
