@@ -30,11 +30,12 @@ from time import sleep
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
     NicosError, PositionError, MoveError, floatrange, Param, Attach, \
     waitForStatus
-from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
+from nicos.devices.abstract import Axis as AbstractAxis, Motor, Coder, \
+    CanReference
 from nicos.utils import createThread
 
 
-class Axis(CanReference, BaseAxis):
+class Axis(CanReference, AbstractAxis):
     """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {

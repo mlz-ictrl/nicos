@@ -26,11 +26,11 @@
 
 from Encoder import Encoder
 
-from nicos.devices.abstract import Coder as BaseCoder
+from nicos.devices.abstract import Coder as AbstractCoder
 from nicos.devices.taco.core import TacoDevice
 
 
-class Coder(TacoDevice, BaseCoder):
+class Coder(TacoDevice, AbstractCoder):
     """TACO coder implementation class."""
 
     taco_class = Encoder

@@ -32,12 +32,12 @@ from Motor import Motor as TACOMotor
 
 from nicos.core import ModeError, Moveable, Param, Attach, SLAVE, anytype, \
     oneof, requires, status, tupleof, usermethod
-from nicos.devices.abstract import Axis as BaseAxis, CanReference
+from nicos.devices.abstract import Axis as AbstractAxis, CanReference
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep, SeqCall
 from nicos.devices.taco.core import TacoDevice
 
 
-class Axis(CanReference, TacoDevice, BaseAxis):
+class Axis(CanReference, TacoDevice, AbstractAxis):
     """Interface for TACO Axis server devices."""
 
     taco_class = TACOMotor

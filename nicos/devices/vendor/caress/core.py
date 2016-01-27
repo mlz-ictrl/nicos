@@ -52,7 +52,7 @@ from nicos.utils import readFileCounter, updateFileCounter
 from nicos.core import DeviceMixinBase, Param, Override, status, HasOffset, \
     Value, absolute_path, SIMULATION, POLLER, ImageType, MASTER, \
     HasCommunication
-from nicos.devices.abstract import Motor as BaseMotor
+from nicos.devices.abstract import Motor as AbstractMotor
 from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin, ImageChannelMixin, PassiveChannel
 
@@ -284,7 +284,7 @@ class CARESSDevice(HasCommunication, DeviceMixinBase):
     _caress_guard = _caress_guard_nolog
 
 
-class Motor(HasOffset, CARESSDevice, BaseMotor):
+class Motor(HasOffset, CARESSDevice, AbstractMotor):
 
     parameters = {
         'coderoffset': Param('Encoder offset',
@@ -301,7 +301,7 @@ class Motor(HasOffset, CARESSDevice, BaseMotor):
     }
 
     def doInit(self, mode):
-        # BaseMotor.doInit(self, mode)
+        # AbstractMotor.doInit(self, mode)
         CARESSDevice.doInit(self, mode)
         self._setROParam('_started', False)
         if session.sessiontype == POLLER or mode == SIMULATION:

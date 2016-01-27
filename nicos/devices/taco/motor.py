@@ -28,11 +28,11 @@
 from Motor import Motor as TACOMotor # pylint: disable=F0401
 
 from nicos.core import oneof, Param, Override
-from nicos.devices.abstract import CanReference, Motor as BaseMotor
+from nicos.devices.abstract import CanReference, Motor as AbstractMotor
 from nicos.devices.taco.core import TacoDevice
 
 
-class Motor(CanReference, TacoDevice, BaseMotor):
+class Motor(CanReference, TacoDevice, AbstractMotor):
     """TACO motor implementation class."""
 
     taco_class = TACOMotor
