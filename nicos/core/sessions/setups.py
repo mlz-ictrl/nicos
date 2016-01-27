@@ -113,8 +113,8 @@ def fixup_stacked_devices(logger, devdict):
                     dev[1][subname] = list(config)
                     for idx, item in enumerate(config):
                         if isinstance(item, Device):
-                            subname = '%s%d' % (subname, idx + 1)
-                            newname = add_new_dev(devname, subname, item)
+                            subentryname = '%s%d' % (subname, idx + 1)
+                            newname = add_new_dev(devname, subentryname, item)
                             dev[1][subname][idx] = newname
                             patched = True
     return devdict
