@@ -35,8 +35,8 @@ from nicos.core import Device, Param, CacheLockError, CacheError, host
 from nicos.utils import tcpSocket, closeSocket, createThread, getSysInfo
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-    OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, \
-    OP_REWRITE, END_MARKER, SYNC_MARKER, CYCLETIME, BUFSIZE
+    OP_WILDCARD, OP_SUBSCRIBE, OP_UNSUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, \
+    OP_LOCK_UNLOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, CYCLETIME, BUFSIZE
 from nicos.pycompat import queue, iteritems, to_utf8, from_utf8, string_types
 
 
@@ -393,6 +393,25 @@ class BaseCacheClient(Device):
                 break
             sleep(CYCLETIME)
 
+    def addPrefixCallback(self, prefix, function):
+        """Add a "prefix" callback, which is called for every key and value
+        that does not match the prefix parameter of the client, but matches
+        the prefix given to this function.
+        """
+        if prefix not in self._prefixcallbacks:
+            self._queue.put('@%s%s\n' % (prefix, OP_SUBSCRIBE))
+        self._prefixcallbacks[prefix] = function
+
+    def removePrefixCallback(self, prefix):
+        """Remove a "prefix" callback.
+
+        This removes the callback previously installed by addPrefixCallback.
+        If prefix is unknown, then do nothing.
+        """
+        if prefix in self._prefixcallbacks:
+            self._queue.put('@%s%s\n' % (prefix, OP_UNSUBSCRIBE))
+            del self._prefixcallbacks[prefix]
+
     # methods to make this client usable as the main device in a simple session
 
     def start(self, *args):
@@ -558,15 +577,6 @@ class CacheClient(BaseCacheClient):
                 if not cbs:
                     # emty list: remove!
                     self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
-
-    def addPrefixCallback(self, prefix, function):
-        """Add a "prefix" callback, which is called for every key and value
-        that does not match the prefix parameter of the client, but matches
-        the prefix given to this function.
-        """
-        if prefix not in self._prefixcallbacks:
-            self._queue.put('@%s%s\n' % (prefix, OP_SUBSCRIBE))
-        self._prefixcallbacks[prefix] = function
 
     def get(self, dev, key, default=None, mintime=None):
         """Get a value from the local cache for the given device and subkey.
