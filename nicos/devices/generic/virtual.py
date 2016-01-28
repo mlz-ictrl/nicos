@@ -34,7 +34,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
-    Override, none_or, oneof, tupleof, floatrange, Moveable, \
+    Override, none_or, oneof, tupleof, floatrange, intrange, Moveable, \
     Value, ImageType, SIMULATION, POLLER, Attach, HasWindowTimeout
 from nicos.core.constants import MASTER
 from nicos.utils import clamp, createThread
@@ -591,18 +591,29 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     four peaks of scattering intensity.
     """
 
+    parameters = {
+        'sizes': Param('Detector size in pixel (x, y)',
+                       settable=False,
+                       type=tupleof(intrange(1, 1024), intrange(1, 1024)),
+                       default=(128, 128),
+                       ),
+    }
+
     attached_devices = {
         'distance':    Attach('The detector distance for simulation', Moveable,
                               optional=True),
         'collimation': Attach('The collimation', Readable, optional=True),
     }
 
-    imagetype = ImageType((128, 128), '<u4')
+    imagetype = None
     _last_update = 0
     _buf = None
     _mythread = None
     _stopflag = False
     _timer = None
+
+    def doInit(self, mode):
+        self.imagetype = ImageType(self.sizes, '<u4')
 
     def doPrepare(self):
         self.readresult = [0]
@@ -659,9 +670,10 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                else 5)
         coll = (self._attached_collimation.read() if self._attached_collimation
                 else '15m')
+        xl, yl = self.sizes
         # pylint: disable=unbalanced-tuple-unpacking
-        xx, yy = np.meshgrid(np.linspace(-64, 63, 128),
-                             np.linspace(-64, 63, 128))
+        xx, yy = np.meshgrid(np.linspace(-(xl / 2), (xl / 2) - 1, xl),
+                             np.linspace(-(yl / 2), (yl / 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
         beam = beam + \
