@@ -1687,7 +1687,7 @@ class Measurable(Waitable):
     * doStatus(maxage)
     * valueInfo()
     * presetInfo()
-    * duringMeasurementHook(elapsed)
+    * duringMeasureHook(elapsed)
     """
 
     parameter_overrides = {
