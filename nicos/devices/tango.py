@@ -641,7 +641,7 @@ class DigitalOutput(PyTangoDevice, Moveable):
         return self._dev.value
 
     def doStart(self, value):
-        self._dev.value = self.valuetype(value)
+        self._dev.value = value
 
 
 class NamedDigitalOutput(DigitalOutput):
