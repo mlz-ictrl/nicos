@@ -41,6 +41,8 @@ def count(num=1, **preset):
         _detl = [_det for _det in exp.detectors if _det.name is not 'mythen']
         for _ in range(num):
             nicos_count(*_detl, **preset)
+            # allow daemon to stop here
+            session.breakpoint(2)
     finally:
         updateFileCounter(exp.scanCounterPath, exp.lastscan - 1)
 
