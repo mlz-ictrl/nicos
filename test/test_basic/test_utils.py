@@ -233,8 +233,17 @@ def test_timer():
     time.sleep(0.1)
     assert 0.1 < tmr.elapsed_time() < 0.2
     tmr.stop()
+    # check elapsed time for stopped timer
+    assert 0.1 < tmr.elapsed_time() < 0.2
     assert not(tmr.is_running())
+    assert not(tmr.wait())
 
-    # todo tests:
-    # - wait()
-    # - stopping before timeout and then restart
+    # c) stopping before timeout and then restart
+    tmr.restart()
+    tmr.restart()
+
+    tmr.start(run_for=0.5)
+    time.sleep(0.1)
+    tmr.stop()
+    tmr.restart()
+    tmr.wait(interval=0.1)
