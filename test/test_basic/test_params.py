@@ -50,6 +50,7 @@ def test_attach_class():
     assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[])
     assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[None])
     assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[3.14])
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=-1)
     # test repr
     a = Attach('description', MyClass, optional=True, multiple=[3, 4])
     assert repr(a) == "Attach('description', " \
@@ -167,12 +168,14 @@ def test_dictof():
 
 
 def test_dictwith():
+    assert dictwith()() == {}
     assert dictwith()({}) == {}
     assert dictwith(key=int)({'key': '10'}) == {'key': 10}
     assert raises(ValueError, dictwith(key=int), {})
     assert raises(ValueError, dictwith(key=int), {'key': 'a'})
     assert raises(ValueError, dictwith(key=int), {'x': '10'})
     assert raises(ValueError, dictwith(key=int), {'key': '10', 'x': 'a'})
+    assert raises(ValueError, dictwith(key=int), [])
     # test that the dict is read-only
     assert raises(TypeError, dictwith(key=int)({'key': '1'}).pop, 1)
 
