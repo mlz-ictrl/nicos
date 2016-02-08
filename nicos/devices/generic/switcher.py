@@ -176,7 +176,7 @@ class ReadonlySwitcher(MappedReadable):
         try:
             if self.read(maxage) == self.fallback:
                 return status.NOTREACHED, 'unconfigured position of %s or '\
-                    'still moving' % self._attached_moveable
+                    'still moving' % self._attached_readable
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
