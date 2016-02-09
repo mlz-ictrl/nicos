@@ -84,12 +84,16 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (0, 360)),
 
+    t_mfv    = device('test.utils.TestDevice',
+                      unit = 'deg',
+                      abslimits = (0, 360)),
+
     t_mono   = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 't_mth',
                       twotheta = 't_mtt',
                       focush = 't_mfh',
-                      focusv = None,
+                      focusv = 't_mfv',
                       focmode = 'horizontal',
                       abslimits = (0.1, 10),
                       dvalue = 3.325,

@@ -24,7 +24,8 @@
 
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
-    ComputationError, NicosError, PositionError, MoveError, status
+    ComputationError, NicosError, PositionError, MoveError, \
+    status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
 from nicos.commands.measure import count
@@ -65,11 +66,37 @@ def test_mono_device():
     assertAlmostEqual(mono.read(0), 4.061, 3)
     assertAlmostEqual(mono.target, 4.061, 3)
     assert mono.status()[0] == status.OK
-    mono.unit = 'A-1'
-    assert mono.status()[0] == status.OK
+
+    for unit in ['THz', 'A', 'A-1']:
+        mono.unit = unit
+        assert mono.status()[0] == status.OK
+
     # mth/mtt mismatch
-    mth.maw(mth()+5)
+    mth.maw(mth() + 5)
     assert mono.status(0)[0] == status.NOTREACHED
+
+    old = mono.read(0)
+
+    mono.reset()
+    assert raises(LimitError, mono.doStart, 0.11)
+    assert raises(LimitError, mono.maw, 0.11)
+
+    mono.maw(1.5)
+
+    for mode in ['flat', 'vertical', 'double', 'manual']:
+        mono.focmode = mode
+        mono.maw(1.5)
+
+    mono.maw(old)
+
+    mono.hfocuspars = mono.hfocuspars
+    mono.vfocuspars = mono.vfocuspars
+
+    mtt = session.getDevice('t_mtt')
+    mtt.move(mtt.read(0) + 2)
+    mono.finish()
+
+    assertAlmostEqual(mono._calcurvature(1., 1., 1), 1.058, 3)
 
 
 def test_tas_device():
