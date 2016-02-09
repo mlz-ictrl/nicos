@@ -103,4 +103,11 @@ devices = dict(
                             },
                   precision = [0.05, None, 0.05,]
                  ),
+    mswfb = device('nicos.devices.generic.MultiSwitcher',
+                   moveables = ['x', 'y', 'x'],
+                   mapping = {'1' : [1, 0, 1],
+                             },
+                   precision = [0.05, 0.01, 0.0],
+                   fallback = 'unknown',
+                  ),
 )

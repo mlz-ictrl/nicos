@@ -125,6 +125,17 @@ def test_switcher():
         assert m.called
 
 
+def test_switcher_fallback():
+    swfb = session.getDevice('swfb')
+    rswfb = session.getDevice('rswfb')
+    v3 = session.getDevice('v3')
+    v3.maw(2)
+    assert swfb.read(0) == 'unknown'
+    assert swfb.status()[0] == status.UNKNOWN
+    assert rswfb.read(0) == 'unknown'
+    assert rswfb.status()[0] == status.NOTREACHED
+
+
 def test_switcher_noblockingmove():
     sw2 = session.getDevice('sw2')
     v3 = session.getDevice('v3')

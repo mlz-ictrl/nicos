@@ -85,6 +85,13 @@ def test_multi_switcher():
         assert m.call_count == 2  # once for x, once for y
 
 
+def test_multi_switcher_fallback():
+    mswfb = session.getDevice('mswfb')
+    x = session.getDevice('x')
+    x.maw(0)
+    assert mswfb.read(0) == 'unknown'
+
+
 def test_multi_switcher_fails():
     assert raises(ConfigurationError, session.getDevice, 'msw3')
     assert raises(ConfigurationError, session.getDevice, 'msw4')
