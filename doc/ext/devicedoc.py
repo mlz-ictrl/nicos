@@ -33,6 +33,7 @@
 
 import inspect
 
+from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
@@ -52,12 +53,37 @@ class PyParameter(PyClassmember):
         signode += addnodes.desc_annotation(descr, descr)
         return fullname, prefix
 
+
+class PyDerivedParameter(PyClassmember):
+    def handle_signature(self, sig, signode):
+        if ':' not in sig:
+            return PyClassmember.handle_signature(self, sig, signode)
+        fullname, descr = sig.split(':')
+        fullname = fullname.strip()
+        clsname, name = fullname.rsplit('.', 1)
+        namenode = addnodes.desc_name('', '')
+        refnode = addnodes.pending_xref('', refdomain='py', reftype='attr',
+                                        reftarget=name)
+        refnode['py:class'] = clsname
+        refnode += nodes.Text(name, name)
+        namenode += refnode
+        signode += namenode
+        descr = ' (' + descr.strip() + ')'
+        signode += addnodes.desc_annotation(descr, descr)
+        return fullname, clsname + '.'
+
+    def add_target_and_index(self, name_cls, sig, signode):
+        pass
+
+
 orig_handle_signature = PyModulelevel.handle_signature
+
+
 def new_handle_signature(self, sig, signode):
     ret = orig_handle_signature(self, sig, signode)
     for node in signode.children[:]:
         if node.tagname == 'desc_addname' and \
-            node.astext().startswith('nicos.commands.'):
+           node.astext().startswith('nicos.commands.'):
             signode.remove(node)
     return ret
 PyModulelevel.handle_signature = new_handle_signature
@@ -83,7 +109,7 @@ class DeviceDocumenter(ClassDocumenter):
 
     def document_members(self, all_members=False):
         if not issubclass(self.object, Device) and not \
-            hasattr(self.object, 'parameters'):
+           hasattr(self.object, 'parameters'):
             return ClassDocumenter.document_members(self, all_members)
         if self.doc_as_attr:
             return
@@ -136,33 +162,71 @@ class DeviceDocumenter(ClassDocumenter):
                 if attach.optional:
                     atype += ' (optional)'
                 descr = attach.description + \
-                        (not attach.description.endswith('.') and '.' or '')
+                    (not attach.description.endswith('.') and '.' or '')
                 self.add_line('.. parameter:: %s' % adev, '<autodoc>')
                 self.add_line('', '<autodoc>')
-                self.add_line('   %s Type: %s.' %  (descr, atype), '<autodoc>')
+                self.add_line('   %s Type: %s.' % (descr, atype), '<autodoc>')
             self.add_line('', '<autodoc>')
+
+        mandatoryparaminfo = []
+        optionalparaminfo = []
         baseparaminfo = []
-        n = 0
+
         for param, info in sorted(self.object.parameters.items()):
+            if not info.userparam:
+                continue
             if info.classname is not None and info.classname != myclsname:
                 baseparaminfo.append((param, info))
-                continue
-            if n == 0:
-                self.add_line('', '<autodoc>')
-                self.add_line('**Parameters**', '<autodoc>')
-                self.add_line('', '<autodoc>')
+                info.derived = True
+            else:
+                info.derived = False
+            if info.mandatory:
+                mandatoryparaminfo.append((param, info))
+            else:
+                optionalparaminfo.append((param, info))
+
+        if mandatoryparaminfo or optionalparaminfo:
+            self.add_line('', '<autodoc>')
+            self.add_line('**Parameters**', '<autodoc>')
+            self.add_line('', '<autodoc>')
+
+        if mandatoryparaminfo:
+            self.add_line('', '<autodoc>')
+            self.add_line('*Mandatory*', '<autodoc>')
+            self.add_line('', '<autodoc>')
+            self._format_parameters(mandatoryparaminfo, orig_indent)
+
+        if optionalparaminfo:
+            self.add_line('', '<autodoc>')
+            self.add_line('*Optional*', '<autodoc>')
+            self.add_line('', '<autodoc>')
+            self._format_parameters(optionalparaminfo, orig_indent)
+
+        if baseparaminfo:
+            self.add_line('', '<autodoc>')
+            self.add_line('Parameters inherited from the base classes are: ' +
+                          ', '.join('`~%s.%s`' % (info.classname or '', name)
+                                    for (name, info) in baseparaminfo),
+                          '<autodoc>')
+
+    def _format_parameters(self, paraminfolist, orig_indent):
+        for (param, info) in paraminfolist:
             if isinstance(info.type, type):
                 ptype = info.type.__name__
             else:
                 ptype = info.type.__doc__ or '?'
             addinfo = [ptype]
-            if info.settable: addinfo.append('settable at runtime')
-            if info.mandatory: addinfo.append('mandatory in setup')
-            if info.volatile: addinfo.append('volatile')
-            if info.preinit: addinfo.append('initialized for preinit')
-            if not info.userparam: addinfo.append('not shown to user')
-            self.add_line('.. parameter:: %s : %s' %
-                          (param, ', '.join(addinfo)), '<autodoc>')
+            if info.settable:
+                addinfo.append('settable at runtime')
+            if info.volatile:
+                addinfo.append('volatile')
+            if info.derived:
+                self.add_line('.. derivedparameter:: %s.%s : %s' %
+                              (info.classname, param, ', '.join(addinfo)),
+                              '<autodoc>')
+            else:
+                self.add_line('.. parameter:: %s : %s' %
+                              (param, ', '.join(addinfo)), '<autodoc>')
             self.add_line('', '<autodoc>')
             self.indent += self.content_indent
             descr = info.description or ''
@@ -183,12 +247,6 @@ class DeviceDocumenter(ClassDocumenter):
                     self.add_line(line.strip(), '<%s.%s>' % (self.object, param))
             self.add_line('', '<autodoc>')
             self.indent = orig_indent
-            n += 1
-        if baseparaminfo:
-            self.add_line('', '<autodoc>')
-            self.add_line('Parameters inherited from the base classes: ' +
-                          ', '.join('`~%s.%s`' % (info.classname or '', name)
-                                    for (name, info) in baseparaminfo), '<autodoc>')
 
 
 def process_signature(app, objtype, fullname, obj, options, args, retann):
@@ -206,8 +264,9 @@ def process_signature(app, objtype, fullname, obj, options, args, retann):
 
 def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)
+    app.add_directive_to_domain('py', 'derivedparameter', PyDerivedParameter)
     app.add_autodocumenter(DeviceDocumenter)
     app.connect('autodoc-process-signature', process_signature)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
     return {'parallel_read_safe': True,
-            'version': '0.1.0',}
+            'version': '0.1.0', }
