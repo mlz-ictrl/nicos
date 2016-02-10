@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Moveable, NicosError
+from nicos.core import Attach, Moveable, NicosError
 from nicos.devices.tango import DigitalOutput
 
 
@@ -43,8 +43,8 @@ class MultiDigitalOutput(Moveable):
     """Writes the same value to multiple digital outputs at once."""
 
     attached_devices = {
-        'outputs': ([DigitalOutput], 'A list of digital outputs to '
-                    'switch simultaneously'),
+        'outputs': Attach('A list of digital outputs to switch simultaneously',
+                          DigitalOutput, multiple=True),
     }
 
     valuetype = int

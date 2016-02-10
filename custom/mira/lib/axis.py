@@ -27,7 +27,7 @@
 
 from time import sleep
 
-from nicos.core import Moveable, Param, anytype, tupleof
+from nicos.core import Attach, Moveable, Param, anytype, tupleof
 from nicos.devices.generic.axis import Axis
 
 
@@ -35,7 +35,8 @@ class HoveringAxis(Axis):
     """An axis that also controls air for airpads."""
 
     attached_devices = {
-        'switch': (Moveable, 'The device used for switching air on and off'),
+        'switch': Attach('The device used for switching air on and off',
+                         Moveable),
     }
 
     parameters = {

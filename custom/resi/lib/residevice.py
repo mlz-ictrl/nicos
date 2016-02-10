@@ -158,7 +158,9 @@ class ResiVAxis(Moveable):
 
 class ResiSample(Sample):
     """Cell object representing sample geometry."""
-    attached_devices = { 'basedevice': (ResiDevice, 'the base device')}
+    attached_devices = {
+        'basedevice': Attach('the base device', ResiDevice)
+    }
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
                          default=[5, 5 , 5], unit='A',
