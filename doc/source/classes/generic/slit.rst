@@ -1,5 +1,5 @@
-Slit class
-==========
+Slit classes
+============
 
 .. module:: nicos.devices.generic.slit
 
