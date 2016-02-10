@@ -150,7 +150,8 @@ class Timer(object):
             if remaining > interval:
                 time.sleep(interval)
             else:
-                time.sleep(remaining)
+                if remaining > 0:
+                    time.sleep(remaining)
             if callable(notify_func):
                 notify_func(self, *notify_args)
 
@@ -159,6 +160,7 @@ class Timer(object):
         if self._active or self._run_for is None:
             return
         if self.remaining_time():
-            self._active = True
             # adjust timestamp so that it looks as nothing had ever happened
             self._started  = time.time() + self.elapsed_time() - self._run_for
+            self._active = True
+
