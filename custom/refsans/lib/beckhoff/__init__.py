@@ -18,21 +18,16 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""REFSANS specific parameter definition helpers."""
+"""Devices for the Refsans NOK system."""
 
+# nok.py contains devices for:
+# 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
+# '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf '
+# '_2013-04-05 Anhang A V0.6.pdf'
 
-def motoraddress(address=0x3020):
-    """The motor address should start either at addresses 0x3020 or 0x4020
-    and must have an offset of the multiple of 10 words (each motor control
-    block is 20 bytes = 10 words). There are only 200 allowed addresses for one
-    address offset.
-    """
-    if not (address & 0xF000) in (0x3000, 0x4000) or \
-       not (0x20 <= (address & 0xFFF) <= 0x7f0) or \
-       ((address & 0xFFF) - 0x20) % 10 != 0:
-        raise ValueError('Invalid motor address: %0x04x!' % address)
-    return address
+# pumpstation.py contains devices for:
+# '_Anhang_A_REFSANS_Pumpstand.pdf'
