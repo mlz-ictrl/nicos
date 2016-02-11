@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..')) # for custom extensions
 
@@ -14,7 +15,7 @@ master_doc = 'index'
 default_role = 'obj'
 
 project = u'NICOS'
-copyright = u'2009-2015, FRM II / NICOS contributors'  # pylint: disable=W0622
+copyright = u'2009-2016, FRM II / NICOS contributors'  # pylint: disable=W0622
 version = nicos.nicos_version
 release = nicos.nicos_version
 
