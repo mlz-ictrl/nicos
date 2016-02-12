@@ -65,7 +65,7 @@ includes = ['notifiers', ]
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Spodi = device('frm2.instrument.Instrument',
+    Spodi = device('devices.instrument.Instrument',
                    description = 'instrument object',
                    instrument = 'SPODI',
                    doi = 'http://dx.doi.org/10.17815/jlsrf-1-24',

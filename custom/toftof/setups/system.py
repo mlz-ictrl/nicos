@@ -16,7 +16,7 @@ modules = ['commands.standard']
 includes = ['notifiers', ]
 
 devices = dict(
-    TOFTOF   = device('frm2.instrument.Instrument',
+    TOFTOF   = device('devices.instrument.Instrument',
                       description = 'The famous TOFTOF instrument',
                       responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       instrument = 'TOFTOF',
