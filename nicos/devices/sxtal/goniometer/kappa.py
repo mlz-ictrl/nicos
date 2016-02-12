@@ -33,11 +33,11 @@ to allow conversions, the kappa-angle alpha needs to be known
 
 from __future__ import print_function
 
-from nicos.laue.goniometer.base import PositionBase, PositionFactory
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
 from nicos.core import NicosError
-from nicos.laue.goniometer.posutils import normalangle, Yrot, Zrot
+from nicos.devices.sxtal.goniometer.posutils import normalangle, Yrot, Zrot
 
 
 class Kappa(PositionBase):

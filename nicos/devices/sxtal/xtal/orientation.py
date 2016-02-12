@@ -29,7 +29,7 @@ Tools for handling orientation calculations
 import numpy as np
 import scipy.optimize
 
-from nicos.laue.xtal.sxtalcell import SXtalCell
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 
 
 def _norm(mat):
@@ -56,7 +56,7 @@ def _CompleteMatrix(vec1, vec2):
 
 class orient(object):
     def __init__(self, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0):
-        self.cell = SXtalCell.fromabc(a, b, c, alpha, beta, gamma)
+        self.cell = SXTalCell.fromabc(a, b, c, alpha, beta, gamma)
 
     def Reorient(self, hkl1, pos1, hkl2, pos2):
         '''
@@ -81,7 +81,7 @@ class orient(object):
         temp = np.dot(bmat, amat_i)
         omat_t = np.dot(temp, gmat)
         omat = np.transpose(omat_t)
-        cell = SXtalCell(omat)
+        cell = SXTalCell(omat)
         return cell
 
     def RefineOrientation(self, reflexlist):
@@ -104,5 +104,5 @@ class orient(object):
 
         ubmat = scipy.optimize.fmin(residual, np.array(ubmat).flatten(), args=(cmeas, hkls))
         ubmat = ubmat.reshape(3, 3)
-        new_cell = SXtalCell(np.transpose(ubmat))
+        new_cell = SXTalCell(np.transpose(ubmat))
         return new_cell

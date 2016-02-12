@@ -41,7 +41,7 @@ from collections import namedtuple
 
 import numpy as np
 
-from nicos.laue.xtal import symmetry
+from nicos.devices.sxtal.xtal import symmetry
 
 
 CellParam = namedtuple('CellParam', ['a', 'b', 'c', 'alpha', 'beta', 'gamma'])
@@ -117,7 +117,23 @@ def matfromrcell(astar, bstar=None, cstar=None, alphastar=None, betastar=None, g
     return mat, lpi
 
 
-class SXtalCell(object):
+def SXTalCellType(val=None):
+    '''A single crystal cell: either a SXTalCell object,
+     a 3x3 orientation matrix or a dict with the following keys:
+     a , b[opt], c[opt], alpha[opt], gamma[opt], bravais[opt].
+     Optional axes a set to the previous axis length,
+     optional angles to 90°, bravais top 'P' if omitted'''
+
+    if isinstance(val, SXTalCell):
+        return val
+    if isinstance(val, np.ndarray):
+        return SXTalCell(val)
+    if isinstance(val, dict):
+        return SXTalCell.fromabc(**val)
+    raise ValueError('Wrong cell specification')
+
+
+class SXTalCell(object):
 
     @classmethod
     def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0, bravais='P'):
@@ -147,7 +163,7 @@ class SXtalCell(object):
             alpha = np.rad2deg(np.arccos(np.sum(b * c)))
             beta = np.rad2deg(np.arccos(np.sum(c * a)))
             gamma = np.rad2deg(np.arccos(np.sum(a * b)))
-            return (length[0], length[1], length[2], alpha, beta, gamma)
+            return CellParam(length[0], length[1], length[2], alpha, beta, gamma)
         else:
             raise RuntimeError("Zero axis length")
 
@@ -211,7 +227,6 @@ class SXtalCell(object):
         sintheta = invd * wavelength / 2.0
         return np.rad2deg(np.arcsin(sintheta))
 
-
     # pylint: disable=too-many-locals
     def dataset(self, invdmin, invdmax,
                 uhmin=-512, uhmax=512, ukmin=-512, ukmax=512, ulmin=-512, ulmax=512):
@@ -221,7 +236,7 @@ class SXtalCell(object):
             ``'invdmin'`` min reciprocal lattice spacing to measure
             ``'invdmax'`` max reciprocal lattice spacing to measure
 
-            ``'u{h,k,l}{min,max}'`` : limit h,k,l to the spoecified range
+            ``'u{h,k,l}{min,max}'`` : limit h,k,l to the specified range
         '''
 
         celmatrix = np.linalg.inv(self.rmat)
@@ -298,7 +313,7 @@ class SXtalCell(object):
 
 
 def _test():
-    cell1 = SXtalCell([[0.2, 0.0, 0], [0, 0.2, 0], [0, 0, 0.2]])
+    cell1 = SXTalCell([[0.2, 0.0, 0], [0, 0.2, 0], [0, 0, 0.2]])
     assert cell1.cellparams() == (5., 5., 5., 90., 90., 90.)
     cv = cell1.CVector((1, 2, 3))
     assert np.allclose(cv, (0.2, 0.4, 0.6))
@@ -307,5 +322,5 @@ def _test():
     hkl = cell1.hkl((0.4, -0.6, 0.2))
     assert np.allclose(hkl, (2, -3, 1))
     assert cell1.Theta((1, 0, 0), 1.0) == np.rad2deg(np.arcsin(1 / 10.))
-    cell2 = SXtalCell.fromabc(5, c=10, gamma=120)
-    assert cell2.cellparams() == (5.,5.,10., 90.,90.,120.)
+    cell2 = SXTalCell.fromabc(5., c=10., gamma=120.)
+    assert  np.allclose(cell2.cellparams() , (5., 5., 10., 90., 90., 120.))
