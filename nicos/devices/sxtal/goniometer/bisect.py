@@ -30,18 +30,18 @@ class for storing a bisecting position.
 
 from __future__ import print_function
 
-from nicos.laue.goniometer.base import PositionBase, PositionFactory
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
 from nicos import session
 from nicos.core import NicosError
-from nicos.laue.goniometer.posutils import normalangle, sign, Xrot, Yrot, Zrot
+from nicos.devices.sxtal.goniometer.posutils import normalangle, sign, Xrot, Yrot, Zrot
 
 
 class Bisecting(PositionBase):
     ptype = 'b'
 
-    def __init__(self, p=None, theta=None, phi=None, chi=None, psi=None, _rad=False):
+    def __init__(self, p=None, theta=None, phi=None, chi=None, psi=0, _rad=False):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
@@ -55,6 +55,7 @@ class Bisecting(PositionBase):
             self.omega = self._r2d(psi, _rad)
             self.chi = self._r2d(chi, _rad)
             self.phi = self._r2d(phi, _rad)
+            self.psi = self._r2d( psi, _rad)
 
     def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
