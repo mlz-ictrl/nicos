@@ -3,11 +3,13 @@ Instrument specific devices
 
 .. automodule:: nicos.biodiff.detector
 
-.. autoclass:: ImagePlateBase()
 .. autoclass:: ImagePlateDrum()
-.. autoclass:: ImagePlateDetector()
-.. autoclass:: Andor2LimaCCDFPGA()
-.. autoclass:: Andor2LimaCCDDetector()
+.. autoclass:: ImagePlateImage()
+..
+   .. autoclass:: Andor2LimaCCDFPGA()
+   .. autoclass:: Andor2LimaCCDDetector()
+
+.. autoclass:: BiodiffDetector()
 
 .. automodule:: nicos.biodiff.motor
 
