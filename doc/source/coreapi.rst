@@ -254,9 +254,12 @@ Classes for image handling
 
 .. module:: nicos.core.image
 
-.. XXX document ImageSink, ImageInfo, ImageType
+.. autoclass:: ImageSink()
+.. autoclass:: ImageInfo()
+.. autoclass:: ImageType()
 
-.. autoclass:: ImageProducer()
+..
+   .. autoclass:: ImageProducer()
 
 
 Writing commands

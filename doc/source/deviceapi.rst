@@ -461,8 +461,26 @@ Special device classes
 Mixin classes
 -------------
 
-Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
-:mod:`nicos.core`.
+Mixin classes are helper classes to add some special functionality.  They
+normally will be inherited together with one of the base classes to implement
+new device classes.  This technique avoids the multiplying of a lot of
+lines of code.  Besides the functions they also provide the needed parameters.
+
+In the list of the base classes the mixin classes **must** be written before
+the base device classes.
+
+Assuming we want to create a new device class, called ``MyDevice`` which should
+be a `Moveable` and having limits, inherites the `HasLimits` and `Moveable`
+classes.
+
+.. code-block:: python
+
+   class MyDevice(HasLimits, Moveable): ...
+
+
+..
+   Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
+   :mod:`nicos.core`.
 
 .. module:: nicos.core.mixins
 
@@ -512,3 +530,44 @@ Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
 ====================
 
 .. autoclass:: HasCommunication()
+
+
+.. module:: nicos.devices.abstract
+
+``CanReference``
+================
+
+.. autoclass:: CanReference()
+
+.. module:: nicos.devices.generic.detector
+
+``TimerChannelMixin``
+=====================
+
+.. autoclass:: TimerChannelMixin()
+
+``CounterChannelMixin``
+=======================
+
+.. autoclass:: CounterChannelMixin()
+
+``ImageChannelMixin``
+=====================
+
+.. autoclass:: ImageChannelMixin()
+
+
+.. module:: nicos.core.image
+
+``ImageProducer``
+=================
+
+.. autoclass:: ImageProducer()
+
+
+.. module:: nicos.devices.generic.sequence
+
+``SequencerMixin``
+==================
+
+.. autoclass:: SequencerMixin()

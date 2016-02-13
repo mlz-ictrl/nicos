@@ -6,9 +6,10 @@ Detector classes
 .. autoclass:: PassiveChannel()
 .. autoclass:: ActiveChannel()
 
-.. autoclass:: ImageChannelMixin()
-.. autoclass:: TimerChannelMixin()
-.. autoclass:: CounterChannelMixin()
+..
+   .. autoclass:: ImageChannelMixin()
+   .. autoclass:: TimerChannelMixin()
+   .. autoclass:: CounterChannelMixin()
 
 .. autoclass:: Detector()
 
