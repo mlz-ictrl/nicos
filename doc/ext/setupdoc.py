@@ -385,4 +385,5 @@ def setup(app):
     app.add_directive('setup', SetupDirective)
 
     app.connect('builder-inited', setupdoc_builder_inited)
-    return {'parallel_read_safe': True}
+    return {'parallel_read_safe': True,
+            'version': '0.1.0'}

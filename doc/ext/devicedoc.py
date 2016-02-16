@@ -204,4 +204,5 @@ def setup(app):
     app.add_autodocumenter(DeviceDocumenter)
     app.connect('autodoc-process-signature', process_signature)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
-    return {'parallel_read_safe': True}
+    return {'parallel_read_safe': True,
+            'version': '0.1.0',}

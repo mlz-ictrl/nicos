@@ -31,4 +31,5 @@ from nicos.utils.tacostubs import generate_stubs
 
 def setup(app):
     generate_stubs()
-    return {'parallel_read_safe': True}
+    return {'parallel_read_safe': True,
+            'version': '0.1.0',}
