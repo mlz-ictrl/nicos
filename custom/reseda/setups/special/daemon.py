@@ -12,7 +12,7 @@ devices = dict(
                              ],
                                            ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
+                    server = '0.0.0.0',
                     authenticators = ['Auth'],
                     loglevel = 'debug',
                     ),

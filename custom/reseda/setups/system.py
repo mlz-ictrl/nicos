@@ -1,7 +1,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = 'resedahw',
+    cache = 'resedahw2',
     instrument = 'Reseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
