@@ -66,6 +66,21 @@ class PassiveChannel(Measurable):
         return status.OK, 'idle'
 
 
+class DummyDetector(PassiveChannel):
+    """A Dummy detector just providing nameand value info
+
+    Use for scans that add only processed values from subscans
+    """
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%.2f'),
+    }
+
+    def valueInfo(self):
+        return Value(self.name, unit=self.unit, type='other', fmtstr=self.fmtstr),
+
+
 class ActiveChannel(PassiveChannel):
     """Abstract base class for channels that can (but don't need to) end the
     measurement.

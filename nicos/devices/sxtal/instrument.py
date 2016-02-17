@@ -31,12 +31,31 @@ import numpy as np
 from nicos import session
 from nicos.devices.instrument import Instrument
 from nicos.devices.tas import Monochromator
-from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-    multiStatus, Attach
+from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
+    multiStatus, Attach, oneof, vec3, intrange
 
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
 EPos = namedtuple('EPos', ['ttheta', 'omega', 'chi', 'phi'])
+
+
+class numpyarray(object):
+    def __init__(self, dtype=None, shape=None):
+        self.dtype = dtype
+        self.shape = shape
+
+    def __call__(self, val=None):
+        rv = np.asanyarray(val, dtype=self.dtype)
+        if self.shape:
+            try:
+                rv = rv.reshape(self.shape)
+            except AttributeError:
+                raise ValueError('Incompatible array shape')
+        return rv
+
+    def compare(self,val1, val2):
+        return np.array_equiv(val1, val2)
+
 
 class SXTal(Instrument, Moveable):
     """An instrument class that can move in (q,w) space.
@@ -56,7 +75,19 @@ class SXTal(Instrument, Moveable):
     parameters = { 'wavelength': Param('Wavelength', type=float,
                                        volatile=True,
                                        settable=False,
-                                       )
+                                       ),
+                  'scanmode': Param('Scanmode', type=oneof('omega', 't2t'),
+                                    userparam=True,
+                                    settable=True,
+                                    default='omega'),
+                  'scansteps': Param('Scan steps', type=intrange(10, 999),
+                                    userparam=True,
+                                    settable=True,
+                                    default=40),
+                  'scan_uvw': Param('U,V,W Param', type=vec3,
+                                    userparam=True,
+                                    settable=True,
+                                    default=[1.0, 1.0, 1.0]),
     }
 
     parameter_overrides = {
@@ -66,7 +97,7 @@ class SXTal(Instrument, Moveable):
                            )
     }
 
-    valuetype = tupleof(float, float, float)
+    valuetype = numpyarray(np.float64, (3,))
 
     hardware_access = False
 
@@ -80,6 +111,7 @@ class SXTal(Instrument, Moveable):
         self._last_calpos = None
         self._waiters = []
 
+
     def doShutdown(self):
         for name in ['h', 'k', 'l']:
             if name in self.__dict__:
@@ -91,6 +123,10 @@ class SXTal(Instrument, Moveable):
         epos = PositionFactory('c', c=cvector).asE()
         return EPos(np.rad2deg(2 * epos.theta), np.rad2deg(epos.omega),
                     np.rad2deg(epos.chi), np.rad2deg(epos.phi))
+
+    def format(self, value, unit=False):
+        value = (value[0], value[1], value[2])
+        return Moveable.format(self, value, unit)
 
     def doIsAllowed(self, pos):
         try:
@@ -165,6 +201,19 @@ class SXTal(Instrument, Moveable):
         if oldunit:
             self._attached_mono.unit = oldunit
         return result
+
+    def getScanWidthFor(self, hkl):
+        '''Get scanwidth as
+          sqrt(u + v *tan Theta + w * tan² Theta)
+        '''
+        th = session.experiment.sample.cell.Theta(hkl, self.wavelength)
+        tan_th = np.tan(th)
+        w2 = self.scan_uvw[0] + self.scan_uvw[1] * tan_th + self.scan_uvw[2] * (tan_th ** 2)
+        if w2 > 0:
+            return np.sqrt(w2)
+        else:
+            return -np.sqrt(-w2)
+
 
 class SXTalIndex(AutoDevice, Moveable):
     """

@@ -295,6 +295,9 @@ class Scan(object):
             session._currentscan = None
         return self.dataset
 
+    def acquire(self, point, preset):
+        acquire(point, preset)
+
     def _inner_run(self):
         # move all devices to starting position before starting scan
         try:
@@ -329,7 +332,7 @@ class Scan(object):
                         point = dataman.beginPoint(target=position)
                         dataman.putValues(waitresults)
                         try:
-                            acquire(point, self._preset)
+                            self.acquire(point, self._preset)
                         finally:
                             # read environment at least once
                             self.readEnvironment()

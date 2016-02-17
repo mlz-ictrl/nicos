@@ -9,6 +9,8 @@ includes = ['cryo']
 
 sysconfig = dict(
     instrument = 'sxtal',
+    datasinks = ['conssink', 'scanfilesink', 'hklfilesink', 'serialsink',
+                 'livesink', 'dmnsink'],
 )
 
 devices = dict(
@@ -29,7 +31,15 @@ devices = dict(
     Sample = device('devices.sxtal.sample.SXTalSample',
                     description='Single crystal sample',
                     ),
-
+    scanfilesink   = device('devices.datasinks.AsciiScanfileSink',
+                        lowlevel = True,
+                        settypes=set(('subscan',)),
+                       ),
+    hklfilesink   = device('devices.datasinks.AsciiScanfileSink',
+                        lowlevel = True,
+                        settypes=set(('scan',)),
+                        filenametemplate=['hkl_%(scancounter)s.hkl',],
+                       ),
     ttheta   = device('devices.generic.VirtualMotor',
                       description = 'sample scattering angle',
                       abslimits = (-180, 180),
@@ -122,6 +132,10 @@ devices = dict(
                       background = 1,
                       realtime = True,
                      ),
+    intensity     = device('devices.generic.detector.DummyDetector',
+                           description = 'dummy for hkl scan',
+                           lowlevel=True,
+                           unit='cts'),
 
     Shutter     = device('devices.generic.ManualSwitch',
                          description = 'Instrument shutter',
@@ -129,6 +143,9 @@ devices = dict(
 )
 
 startupcode = '''
+if mth() == 0:
+    mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
+    mono(0.7)
 SetDetectors(vdetsxtal)
 AddEnvironment(T)
 printinfo("============================================================")
