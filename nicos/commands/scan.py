@@ -181,7 +181,8 @@ def cscan(dev, *args, **kwargs):
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     Scan(devs, values, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+         scaninfo, subscan=kwargs.get('subscan', False)).run()
+ 
 
 
 @usercommand
