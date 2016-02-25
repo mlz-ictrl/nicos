@@ -156,24 +156,27 @@ The parameters are given as keyword arguments.  Here are some example
 
    devices = dict(
        p   = device('devices.taco.AnalogInput',
+                     description = 'detector gas pressure',
                      tacodevice = 'mira/ccr/pressure',
                      unit = 'bar'),
 
        mth_motor = device('devices.taco.Motor',
-                     tacodevice = 'mira/motor/mth',
-                     lowlevel = True,
-                     unit = 'deg'),
+                          tacodevice = 'mira/motor/mth',
+                          lowlevel = True,
+                          unit = 'deg'),
 
        mth_coder = device('devices.taco.Coder',
-                     tacodevice = 'mira/coder/mth',
-                     lowlevel = True,
-                     unit = 'deg'),
+                          tacodevice = 'mira/coder/mth',
+                          lowlevel = True,
+                          unit = 'deg'),
 
        mth = device('devices.generic.Axis',
-                   motor = 'mth_motor',
-                   coder = 'mth_coder',
-                   abslimits = (0, 100),
-                   userlimits = (0, 50)),
+                    description = 'Monochromator theta angle',
+                    motor = 'mth_motor',
+                    coder = 'mth_coder',
+                    abslimits = (0, 100),
+                    userlimits = (0, 50),
+                    precision = 0.01),
    )
 
 For example, an instrument with varying sample environment could have two setup
