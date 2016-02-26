@@ -6,6 +6,10 @@ group = "lowlevel"
 includes = ['counter']
 excludes = ['virtual_daq']
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'kwsformat'],
+)
+
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(
@@ -18,6 +22,10 @@ devices = dict(
                         description = 'Image for the large KWS detector',
                         tacodevice = '//phys.kws1.frm2/kws1/jdaq/1',
                         rtswitch = 'rtswitch',
+                       ),
+
+    kwsformat  = device('kws1.kwsfileformat.KWSFileFormat',
+                        lowlevel = True,
                        ),
 
     det        = device('kws1.daq.KWSDetector',
