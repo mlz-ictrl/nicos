@@ -117,14 +117,19 @@ class DeviceDocumenter(ClassDocumenter):
         if getattr(self.object, 'attached_devices', None):
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
-            for adev, attach in sorted(
-                    self.object.attached_devices.items()):
-                if attach.multiple:
+            for adev, attach in sorted(self.object.attached_devices.items()):
+                if (isinstance(attach.multiple, list)
+                    and attach.multiple[0] > 1) \
+                   or isinstance(attach.multiple, bool):
                     n = ''
-                    if isinstance(attach.multiple, tuple):
-                        n = '%d to %d ' % attach.multiple
-                    atype = 'a list of %s`~%s.%s`' % (n, attach.devclass.__module__,
-                                                      attach.devclass.__name__)
+                    if isinstance(attach.multiple, list):
+                        if len(attach.multiple) > 1:
+                            n = '%d to %d ' % attach.multiple
+                        else:
+                            n = '%d ' % attach.multiple[0]
+                    atype = 'a list of %s`~%s.%s`' % (
+                        n, attach.devclass.__module__,
+                        attach.devclass.__name__)
                 else:
                     atype = '`~%s.%s`' % (attach.devclass.__module__,
                                           attach.devclass.__name__)
