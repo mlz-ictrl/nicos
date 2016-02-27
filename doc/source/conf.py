@@ -28,7 +28,7 @@ html_last_updated_fmt = '%F %H:%M'
 _dark  = '#0b2c47'
 _light = '#175791'
 
-html_theme = 'default'
+html_theme = 'classic'
 
 html_theme_options = {'sidebarbgcolor': '#EDF1F3',
                       'relbarbgcolor': '#DBDEDE',
