@@ -31,8 +31,8 @@ import numpy
 
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, \
-    Value, CommunicationError, TimeoutError, NicosError, Readable, \
-    ImageSink, ImageType, HasCommunication
+    Value, CommunicationError, Readable, ImageSink, ImageType, \
+    HasCommunication
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
     ActiveChannel
 from nicos.devices.tas.mono import to_k, from_k
@@ -312,9 +312,6 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
             reply = str(self._client.communicate('CMD_stop'))
             if reply != 'OKAY':
                 self._raise_reply('could not stop measurement', reply)
-
-    def doStop(self):
-        self.doFinish()
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',

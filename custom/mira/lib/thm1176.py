@@ -103,7 +103,7 @@ class THM(Measurable):
             os.write(self._io, q.encode() + b'\n')
             ret = os.read(self._io, 2000).rstrip()
             if not binary:
-               ret = ret.decode()
+                ret = ret.decode()
         except OSError as err:
             self.log.debug('exception in query: %s' % err)
             if t == 0:
