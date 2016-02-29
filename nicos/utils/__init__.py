@@ -148,6 +148,7 @@ class BoundedOrderedDict(OrderedDict):
         self.__setitem__(key, value)
         return value
 
+
 class Repeater(object):
     def __init__(self, obj):
         self.object = obj
@@ -268,7 +269,6 @@ def getVersions(obj):
             _add(base)
     _add(obj.__class__)
     return versions
-
 
 
 def parseHostPort(host, defaultport):
@@ -755,8 +755,8 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     # Additionally check that `file` is not a directory, as on Windows
     # directories pass the os.access check.
     def _access_check(fn, mode):
-        return (os.path.exists(fn) and os.access(fn, mode)
-                and not os.path.isdir(fn))
+        return (os.path.exists(fn) and os.access(fn, mode) and
+                not os.path.isdir(fn))
 
     # Short circuit. If we're given a full path which matches the mode
     # and it exists, we're done here.
@@ -856,8 +856,9 @@ def whyExited(status):
     if os.WIFSIGNALED(status):
         signum = os.WTERMSIG(status)
         try:
-            signame = [name for name in dir(signal) if name.startswith('SIG')
-                       and getattr(signal, name) == signum][0]
+            signame = [name for name in dir(signal)
+                       if name.startswith('SIG') and
+                       getattr(signal, name) == signum][0]
         except IndexError:
             signame = 'signal %d' % signum
         return signame
