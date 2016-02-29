@@ -676,11 +676,11 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                              np.linspace(-(yl / 2), (yl / 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
-        beam = beam + \
-            t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) + \
-            t * 30 * np.exp(-(xx+dst)**2/sigma2) * np.exp(-yy**2/sigma2) + \
-            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) + \
-            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy+dst)**2/sigma2)
+        beam += (t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
+                 t * 30 * np.exp(-(xx+dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
+                 t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) +
+                 t * 20 * np.exp(-xx**2/sigma2) *
+                 np.exp(-(yy+dst)**2/sigma2)).astype(int)
         return np.random.poisson(beam)
 
     def doEstimateTime(self, elapsed):
