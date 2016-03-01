@@ -28,7 +28,7 @@ from cgi import escape
 
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QDesktopServices, QDialog, QDialogButtonBox, \
-    QGridLayout, QLabel, QLineEdit
+    QGridLayout, QLabel, QLineEdit, QCheckBox
 
 try:
     import redmine  # pylint: disable=F0401
@@ -54,7 +54,7 @@ class BugreportTool(QDialog, DlgUtils):
 
         settings = CompatSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')
-        self.instrument = settings.value('instrument', 'not specified')
+        self.instrument = settings.value('instrument', '')
         self.apikey = settings.value('apikey')
         self.username = settings.value('username')
 
@@ -96,7 +96,12 @@ class BugreportTool(QDialog, DlgUtils):
                                 'for help.', dlg))
         layout.addWidget(QLabel('Instrument name:', dlg))
         instrBox = QLineEdit(self.instrument, dlg)
+        instrBox.setEnabled(self.instrument != 'none')
         layout.addWidget(instrBox)
+        noinstrBox = QCheckBox('No instrument', dlg)
+        noinstrBox.setChecked(self.instrument == 'none')
+        noinstrBox.toggled.connect(lambda c: instrBox.setEnabled(not c))
+        layout.addWidget(noinstrBox)
         layout.addWidget(QLabel('Username:', dlg))
         userBox = QLineEdit(self.username, dlg)
         layout.addWidget(userBox)
@@ -123,7 +128,10 @@ class BugreportTool(QDialog, DlgUtils):
                           'for further reports.')
             settings = CompatSettings('nicos', 'secrets')
             settings.beginGroup('Redmine')
-            self.instrument = instrBox.text()
+            if noinstrBox.isChecked():
+                self.instrument = 'none'
+            else:
+                self.instrument = instrBox.text()
             self.apikey = apikey
             self.username = userBox.text()
             settings.setValue('instrument', self.instrument)
@@ -197,6 +205,7 @@ class BugreportTool(QDialog, DlgUtils):
             prios = rm.enumeration.filter(resource='issue_priorities')
             prio_id = [p.id for p in prios if p.name == 'Urgent'][0]
             issue.priority_id = prio_id
-        issue.custom_fields = [{'id': 1, 'value': self.instrument}]
+        if self.instrument != 'none':
+            issue.custom_fields = [{'id': 1, 'value': self.instrument}]
         issue.save()
         return issue.id
