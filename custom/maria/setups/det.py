@@ -5,9 +5,24 @@ group = "basic"
 
 includes = []
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink',  # system datasinks
+                 'NPGZFileSink', 'LiveViewSink',
+                ],
+)
+
 tango_base = "tango://phys.maria.frm2:10000/maria"
 
 devices = dict(
+    NPGZFileSink  = device("maria.npsaver.NPGZFileSink",
+                           description = "Saves image data in numpy text "
+                                         "format",
+                           filenametemplate = ["%(proposal)s_"
+                                               "%(pointcounter)08d.gz"],
+                          ),
+    LiveViewSink  = device("devices.datasinks.LiveViewSink",
+                           description = "Sends image data to LiveViewWidget",
+                          ),
     timer         = device("devices.generic.VirtualTimer",
                            lowlevel = True,
                           ),
@@ -19,6 +34,7 @@ devices = dict(
                            description = "Denex detector",
                            timers = ["timer"],
                            images = ["detimg"],
+                           liveinterval = 1.,
                           ),
 )
 
