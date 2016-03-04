@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 description = 'setup for the velocity selector'
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
@@ -11,8 +11,8 @@ devices = dict(
                              tangodevice = tango_base + 'selector/speed',
                              unit = 'rpm',
                              fmtstr = '%.0f',
-                             warnlimits = (11000, 22000),
-                             abslimits = (11000, 22000),
+                             warnlimits = (11000, 27000),
+                             abslimits = (11000, 27000),
                              precision = 10,
                             ),
 

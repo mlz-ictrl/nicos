@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-description = "Axes setup"
+description = "Collimation setup"
 group = "lowlevel"
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"

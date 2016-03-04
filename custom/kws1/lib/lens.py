@@ -24,8 +24,8 @@
 
 """Class for controlling lenses."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Attach, oneof, \
-    Override, status
+from nicos.core import HasTimeout, Moveable, Readable, Param, Attach, oneof, \
+    listof, Override, status
 
 
 LENS_CONFIGS = ['%s-%s-%s' % (l1, l2, l3)
@@ -35,6 +35,7 @@ LENS_CONFIGS = ['%s-%s-%s' % (l1, l2, l3)
 
 
 class Lenses(HasTimeout, Moveable):
+    """High-level lens control."""
 
     valuetype = oneof(*LENS_CONFIGS)
 
@@ -43,6 +44,11 @@ class Lenses(HasTimeout, Moveable):
         'input_in':  Attach('input for limit switch "in" position', Readable),
         'input_out': Attach('input for limit switch "out" position', Readable),
         'sync_bit':  Attach('sync bit output', Moveable),
+    }
+
+    parameters = {
+        'values': Param('Possible values (for GUI)', userparam=False,
+                        type=listof(str), default=LENS_CONFIGS),
     }
 
     parameter_overrides = {

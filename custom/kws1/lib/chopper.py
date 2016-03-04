@@ -33,6 +33,8 @@ class Chopper(HasTimeout, Moveable):
 
     valuetype = tupleof(floatrange(0, 75), floatrange(0, 180))
 
+    hardware_access = False
+
     attached_devices = {
         'motor1': Attach('The motor switch of the first chopper', Moveable),
         'motor2': Attach('The motor switch of the second chopper', Moveable),

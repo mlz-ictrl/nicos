@@ -34,6 +34,8 @@ class Flipper(HasTimeout, Moveable):
     (via SPS) and switching on the power supply for the flipper box.
     """
 
+    hardware_access = False
+
     valuetype = oneof('off', 'on')
 
     attached_devices = {

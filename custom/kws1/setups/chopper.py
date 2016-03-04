@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 description = 'setup for the choppers'
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
