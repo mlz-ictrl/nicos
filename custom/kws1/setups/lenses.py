@@ -3,6 +3,8 @@
 description = 'lens switching devices'
 group = 'lowlevel'
 
+excludes = ['virtual_lenses']
+
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(

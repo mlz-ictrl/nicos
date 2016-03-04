@@ -30,6 +30,7 @@ from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
     listof, intrange, ConfigurationError, ImageType, SIMULATION
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
     Detector
+from nicos.devices.generic.virtual import VirtualImage
 from nicos.jcns.fpga import FPGAChannelBase
 
 import TacoDevice
@@ -143,6 +144,17 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         return arr
 
 
+class VirtualJDaqChannel(VirtualImage):
+
+    parameters = {
+        'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
+                             settable=True),
+    }
+
+    def _configure(self, tofsettings):
+        pass
+
+
 class KWSDetector(Detector):
 
     attached_devices = {
@@ -162,7 +174,8 @@ class KWSDetector(Detector):
 
     def doInit(self, session_mode):
         if not self._attached_images or \
-           not isinstance(self._attached_images[0], JDaqChannel):
+           not isinstance(self._attached_images[0],
+                          (JDaqChannel, VirtualJDaqChannel)):
             raise ConfigurationError(self, 'KWSDetector needs a JDaqChannel '
                                      'as attached image')
         self._jdaq = self._attached_images[0]

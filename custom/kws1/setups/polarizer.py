@@ -3,6 +3,8 @@
 description = "Polarizer setup"
 group = "lowlevel"
 
+excludes = ['virtual_polarizer']
+
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(

@@ -3,6 +3,8 @@
 description = 'setup for the velocity selector'
 group = 'lowlevel'
 
+excludes = ['virtual_selector']
+
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 SELECTOR_PRESETS = {

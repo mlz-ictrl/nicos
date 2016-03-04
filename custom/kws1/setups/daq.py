@@ -4,6 +4,7 @@ description = "Detector data acquisition setup"
 group = "lowlevel"
 
 includes = ['counter']
+excludes = ['virtual_daq']
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 

@@ -3,6 +3,8 @@
 description = "ZEA-2 counter card setup"
 group = "lowlevel"
 
+excludes = ['virtual_daq']
+
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(

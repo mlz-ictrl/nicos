@@ -3,6 +3,8 @@
 description = "Beam shutter setup"
 group = "lowlevel"
 
+excludes = ['virtual_shutter']
+
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(
