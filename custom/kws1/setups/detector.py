@@ -5,7 +5,21 @@ group = "lowlevel"
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
+DETECTOR_PRESETS = {
+    '4m':  dict(z=4, x=0, y=0),
+    '8m':  dict(z=8, x=2, y=10),
+    '20m': dict(z=20, x=10, y=10),
+}
+
 devices = dict(
+    detector   = device('devices.generic.MultiSwitcher',
+                        description = 'select detector presets',
+                        moveables = ['det_z', 'det_x', 'det_y'],
+                        mapping = dict((k, [v['z'], v['x'], v['y']])
+                                       for (k, v) in DETECTOR_PRESETS.items()),
+                        precision = [0.01, 0.1, 0.1]
+                       ),
+
     det_x      = device("devices.tango.Motor",
                         description = "detector translation X",
                         tangodevice = tango_base + "fzjs7/detector_x",
