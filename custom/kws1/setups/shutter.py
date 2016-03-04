@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-description = "Axes setup"
+description = "Beam shutter setup"
 group = "lowlevel"
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
@@ -19,5 +19,4 @@ devices = dict(
                          output = 'shutter_set',
                          input = 'shutter_in',
                         ),
-
 )

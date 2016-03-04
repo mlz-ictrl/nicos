@@ -9,6 +9,7 @@ includes = [
     'sample',
     'selector',
     'detector',
+    'shutter',
     'chopper',
     'collimation',
     'polarizer',

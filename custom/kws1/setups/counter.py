@@ -9,6 +9,7 @@ devices = dict(
     timer  = device("jcns.fpga.FPGATimerChannel",
                     description = "Measurement timer channel",
                     tangodevice = tango_base + 'count/0',
+                    extmask = 1 << 3,
                    ),
     mon1   = device("jcns.fpga.FPGACounterChannel",
                     description = "Monitor 1",   # XXX position
@@ -16,6 +17,7 @@ devices = dict(
                     type = 'monitor',
                     fmtstr = '%d',
                     channel = 1,
+                    extmask = 1 << 3,
                    ),
     mon2   = device("jcns.fpga.FPGACounterChannel",
                     description = "Monitor 2",   # XXX position
@@ -23,6 +25,7 @@ devices = dict(
                     type = 'monitor',
                     fmtstr = '%d',
                     channel = 2,
+                    extmask = 1 << 3,
                    ),
     mon3   = device("jcns.fpga.FPGACounterChannel",
                     description = "Monitor 3",   # XXX position
@@ -30,6 +33,7 @@ devices = dict(
                     type = 'monitor',
                     fmtstr = '%d',
                     channel = 3,
+                    extmask = 1 << 3,
                    ),
     selctr = device("jcns.fpga.FPGACounterChannel",
                     description = "Selector rotation counter",
@@ -37,15 +41,11 @@ devices = dict(
                     type = 'counter',
                     fmtstr = '%d',
                     channel = 0,
+                    extmask = 1 << 3,
                    ),
-
-    det    = device('devices.generic.Detector',
-                    description = 'Preliminary detector (no image yet)',
-                    timers = ['timer'],
-                    monitors = ['mon1', 'mon2', 'mon3'],
-                    counters = ['selctr'],
-                    images = [],
-                    maxage = 2,
-                    pollinterval = 1.0,
+    freq   = device("jcns.fpga.FPGAFrequencyChannel",
+                    description = "Counter card frequency input",
+                    tangodevice = tango_base + 'count/0',
+                    extmask = 1 << 3,
                    ),
 )
