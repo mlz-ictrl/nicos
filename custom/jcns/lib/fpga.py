@@ -30,8 +30,7 @@ masters, e.g. counting on time and count rate.
 
 """
 
-import nicos.core.status as status
-from nicos.core.params import Param, intrange
+from nicos.core import status, Param, Override, Value, intrange, UsageError
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin
@@ -42,6 +41,13 @@ from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
 
 class FPGAChannelBase(PyTangoDevice, ActiveChannel):
     """Basic Tango Device for ZEA-2 Counter Card."""
+
+    parameters = {
+        'extmode': Param('Arm for external start instead of starting',
+                         type=bool, default=False, settable=True),
+        'extmask': Param('Bitmask of the inputs to use for external start',
+                         type=int, default=0),
+    }
 
     def _setPreselection(self):
         """This method must be present and should set the the preselection
@@ -54,7 +60,10 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
             # preselection has to be set here and not in doWritePreset
             # because `DevFPGACountReset()` resets all values.
             self._setPreselection()
-        self._dev.DevFPGACountStart()
+        if self.extmode:
+            self._dev.DevFPGACountArmForExternalStart(self.extmask)
+        else:
+            self._dev.DevFPGACountStart()
 
     def doFinish(self):
         self._dev.DevFPGACountStop()
@@ -95,6 +104,28 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
 
     def doRead(self, maxage=0):
         return [self._dev.DevFPGACountReadTime() / 1000.]
+
+
+class FPGAFrequencyChannel(TimerChannelMixin, FPGAChannelBase):
+    """FPGAFrequencyChannel implements the frequency channel for ZEA-2 counter
+    card.
+    """
+
+    is_timer = False
+
+    parameter_overrides = {
+        'unit':   Override(default='Hz'),
+        'fmtstr': Override(default='%.2f'),
+    }
+
+    def _setPreselection(self):
+        raise UsageError(self, 'this channel cannot be preselected')
+
+    def doRead(self, maxage=0):
+        return [self._dev.DevFPGACountReadFreq()]
+
+    def valueInfo(self):
+        return Value(self.name, unit='Hz', type='other', fmtstr=self.fmtstr),
 
 
 class FPGACounterChannel(CounterChannelMixin, FPGAChannelBase):
