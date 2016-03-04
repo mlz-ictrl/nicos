@@ -24,10 +24,12 @@
 
 """Class for controlling the KWS1 polarizer."""
 
-from nicos.core import Param, Override, oneof, tupleof, SIMULATION, \
-    MoveError, ConfigurationError
+from nicos.core import Moveable, Param, Override, Attach, SIMULATION, \
+    oneof, tupleof, listof, MoveError, ConfigurationError
 from nicos.devices.generic import MultiSwitcher
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+
+POL_SETTINGS = ['out', 'up', 'down', 'alter']
 
 
 class PolSwitcher(SequencerMixin, MultiSwitcher):
@@ -88,3 +90,54 @@ class PolSwitcher(SequencerMixin, MultiSwitcher):
                 raise MoveError(self, 'Cannot start device, sequence is still '
                                       'running (at %s)!' % self._seq_status[1])
         self._startSequence(self._generateSequence(target))
+
+
+class Polarizer(Moveable):
+    """Controls both the position of the polarizer and the spin flipper.
+    """
+
+    valuetype = oneof(*POL_SETTINGS)
+
+    hardware_access = False
+
+    attached_devices = {
+        'switcher': Attach('polarizer in/out switch', Moveable),
+        'flipper':  Attach('flipper', Moveable),
+    }
+
+    parameters = {
+        'values':   Param('Possible values (for GUI)', userparam=False,
+                          type=listof(str), default=POL_SETTINGS),
+    }
+
+    parameter_overrides = {
+        'fmtstr':   Override(default='%s'),
+        'unit':     Override(mandatory=False, default=''),
+    }
+
+    def doRead(self, maxage=0):
+        # Never returns "alter".
+        if self._attached_switcher.read(maxage) == 'ng':
+            return 'out'
+        # Polarizer is a transmission supermirror => without flipper we get
+        # the "down" polarization.
+        if self._attached_flipper.read(maxage) == 'on':
+            return 'up'
+        return 'down'
+
+    def doStart(self, target):
+        if target == 'out':
+            if self._attached_switcher.read(0) != 'ng':
+                self._attached_switcher.start('ng')
+        else:
+            if self._attached_switcher.read(0) != 'pol':
+                self._attached_switcher.start('pol')
+            if target == 'up':
+                self._attached_flipper.start('on')
+            elif target == 'down':
+                self._attached_flipper.start('off')
+            elif target == 'alter':
+                if self._attached_flipper.read(0) == 'on':
+                    self._attached_flipper.start('off')
+                else:
+                    self._attached_flipper.start('on')

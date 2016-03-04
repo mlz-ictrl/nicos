@@ -25,7 +25,8 @@
 """Class for controlling the collimation."""
 
 from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
-    status, intrange, listof, HasLimits, Param
+    status, intrange, dictof, listof, tupleof, oneof, HasLimits, Param, \
+    PositionError, ConfigurationError
 from nicos.devices.generic.slit import TwoAxisSlit
 
 
@@ -83,23 +84,69 @@ class CollimationGuides(HasTimeout, HasLimits, Moveable):
         self._attached_sync_bit.start(1)
 
 
-class CollimationSlits(HasTimeout, HasLimits, Moveable):
-    """Controlling the collimation slits."""
+class Collimation(Moveable):
+    """Controlling the collimation guides and slits together."""
 
-    valuetype = intrange(2, 20)
+    hardware_access = False
 
     attached_devices = {
-        'slits': Attach('slit devices', TwoAxisSlit, multiple=True),
+        'guides':  Attach('guides', Moveable),
+        'slits':   Attach('slit devices', TwoAxisSlit, multiple=True),
     }
 
     parameters = {
-        'slitpositions': Param('positions of the attached slits',
-                               type=listof(float), mandatory=True),
-        'openpos': Param('position for "slit open"', default=43.0,
+        'slitpos': Param('positions of the attached slits', unit='m',
+                         type=listof(int), mandatory=True),
+        'openw':   Param('slit width for "slit open"', default=43.0,
                          settable=True),
+        'openh':   Param('slit height for "slit open"', default=43.0,
+                         settable=True),
+        'mapping': Param('maps position name to guide and slit w/h',
+                         type=dictof(str, tupleof(int, float, float)),
+                         mandatory=True),
     }
 
+    parameter_overrides = {
+        'fmtstr':  Override(default='%s'),
+        'unit':    Override(mandatory=False, default=''),
+    }
+
+    def doInit(self, mode):
+        self.valuetype = oneof(*self.mapping)
+        if len(self._attached_slits) != len(self.slitpos):
+            raise ConfigurationError(self, 'number of elements in slitpos '
+                                     'parameter must match number of attached '
+                                     'slit devices')
+
     def doRead(self, maxage=0):
-        for _i in range(len(self.slitpositions)):
-            # XXX unfinished
-            pass
+        def matches(v1, v2):
+            return abs(v1 - v2) < 1.0
+
+        guidelen = self._attached_guides.read(maxage)
+        if guidelen not in self.slitpos:
+            raise PositionError(self, 'collimation length %d m not at slit '
+                                'position' % guidelen)
+        slitvals = [slit.read(maxage) for slit in self._attached_slits]
+        for (posname, (pos_guidelen, pos_w, pos_h)) in self.mapping.items():
+            if pos_guidelen != guidelen:
+                continue
+            ok = True
+            for (slitpos, (w, h)) in zip(self.slitpos, slitvals):
+                if slitpos == pos_guidelen:
+                    ok &= matches(w, pos_w) and matches(h, pos_h)
+                else:
+                    ok &= matches(w, self.openw) and matches(h, self.openh)
+            if ok:
+                return posname
+
+        raise PositionError(self, 'current slit position is not a preset for '
+                            'collimation length %d m' % guidelen)
+
+    def doStart(self, target):
+        pos_guidelen, pos_w, pos_h = self.mapping[target]
+        self._attached_guides.start(pos_guidelen)
+        for (slitpos, slit) in zip(self.slitpos, self._attached_slits):
+            if slitpos == pos_guidelen:
+                slit.start((pos_w, pos_h))
+            else:
+                slit.start((self.openw, self.openh))

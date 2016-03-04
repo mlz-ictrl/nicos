@@ -5,7 +5,30 @@ group = "lowlevel"
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
+COLLIMATION_PRESETS = {
+    '2m (30x30)':  dict(guides=2,  ap_x=30, ap_y=30),
+    '4m (30x30)':  dict(guides=4,  ap_x=30, ap_y=30),
+    '8m (30x30)':  dict(guides=8,  ap_x=30, ap_y=30),
+    '14m (30x30)': dict(guides=14, ap_x=30, ap_y=30),
+    '20m (30x30)': dict(guides=20, ap_x=30, ap_y=30),
+    '2m (50x50)':  dict(guides=2,  ap_x=50, ap_y=50),
+    '4m (50x50)':  dict(guides=4,  ap_x=50, ap_y=50),
+}
+
 devices = dict(
+    collimation = device('kws1.collimation.Collimation',
+                         description = 'high-level collimation device',
+                         mapping = dict((k, (v['guides'], v['ap_x'], v['ap_y']))
+                                        for (k, v) in COLLIMATION_PRESETS.items()),
+                         guides = 'coll_guides',
+                         slitpos = [2, 4, 8, 14, 20],
+                         slits = ['aperture_02',
+                                  'aperture_04',
+                                  'aperture_08',
+                                  'aperture_14',
+                                  'aperture_20'],
+                        ),
+
     coll_set    = device('devices.tango.DigitalOutput',
                          tangodevice = tango_base + 'fzjdp_digital/coll_write',
                          lowlevel = True,
