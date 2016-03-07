@@ -53,7 +53,7 @@ except ImportError:
 
 from nicos import config
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
-from nicos.pycompat import iteritems, string_types, text_type
+from nicos.pycompat import iteritems, string_types, text_type, exec_
 
 
 class attrdict(dict):
@@ -1119,3 +1119,15 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
                     raise
         return wrapper
     return outer
+
+
+def make_load_config(filepath):
+    """Create a load_config function for use in setups."""
+    def load_config(setupname):
+        fullname = path.join(path.dirname(filepath), setupname + '.py')
+        ns = {}
+        if path.isfile(fullname):
+            with open(fullname) as fp:
+                exec_(fp, ns)
+        return ns
+    return load_config

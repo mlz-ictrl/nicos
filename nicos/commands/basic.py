@@ -286,7 +286,7 @@ def ListSetups(listall=False):
         if info is None:
             items.append((name, '', '<could not be read, check syntax>', ''))
             continue
-        if info['group'] == 'special':
+        if info['group'] in ('special', 'configdata'):
             continue
         if info['group'] == 'lowlevel' and not listall:
             continue

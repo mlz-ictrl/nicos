@@ -29,11 +29,12 @@ Setup file handling.
 import os
 from os import path
 
+from nicos.utils import make_load_config
 from nicos.pycompat import exec_, iteritems, listitems
 
 
 SETUP_GROUPS = set([
-    'basic', 'optional', 'plugplay', 'lowlevel', 'special'
+    'basic', 'optional', 'plugplay', 'lowlevel', 'special', 'configdata'
 ])
 
 
@@ -62,11 +63,12 @@ class Device(tuple):
     pass
 
 
-def prepareNamespace(setupname):
+def prepareNamespace(setupname, filepath):
     """Return a namespace prepared for reading setup "setupname"."""
     # device() is a helper function to make configuration prettier
     ns = {
         'device': lambda cls, **params: Device((cls, params)),
+        'configdata': make_load_config(filepath),
         'setupname': setupname,
     }
     if path.basename(setupname).startswith('monitor'):
@@ -129,7 +131,7 @@ def readSetup(infodict, filepath, logger):
         logger.exception('Could not read setup '
                          'module %r: %s' % (filepath, err))
         return
-    ns = prepareNamespace(modname)
+    ns = prepareNamespace(modname, filepath)
     try:
         exec_(code, ns)
     except Exception as err:

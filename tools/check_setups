@@ -63,7 +63,7 @@ class SetupChecker(object):
         if self.is_guiconfig:
             self.ns = prepareGuiNamespace()
         else:
-            self.ns = prepareNamespace(self.setupname)
+            self.ns = prepareNamespace(self.setupname, filename)
         self.good = True
 
         # filled by check()
@@ -337,7 +337,8 @@ class SetupChecker(object):
 
         # check for valid device classes (if importable) and parameters
         for devname, devconfig in self.ns.get('devices', {}).items():
-            self.check_device(devname, devconfig, group == 'special')
+            self.check_device(devname, devconfig,
+                              group in ('special', 'configdata'))
 
         # return overall "ok" flag
         return self.good

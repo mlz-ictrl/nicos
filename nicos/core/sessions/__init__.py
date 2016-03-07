@@ -515,6 +515,9 @@ class Session(object):
 
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
+            if info['group'] == 'configdata':
+                raise ConfigurationError('Cannot load data-only setup %r' %
+                                         name)
             for exclude in info['excludes']:
                 if exclude in self.loaded_setups:
                     raise ConfigurationError('Cannot load setup %r when setup '
