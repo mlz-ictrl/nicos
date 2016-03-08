@@ -1,10 +1,12 @@
 description = 'Mezei spin flipper using TTI power supply'
 group = 'optional'
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     dct3 = device('devices.tango.PowerSupply',
                   description = 'current in first channel of supply (flipper current)',
-                  tangodevice = 'tango://mira1.mira.frm2:10000/mira/tti2/out1',
+                  tangodevice = tango_base + 'tti2/out1',
                   abslimits = (0, 5),
                   timeout = 1,
                   precision = 0.01,
@@ -12,7 +14,7 @@ devices = dict(
 
     dct4 = device('devices.tango.PowerSupply',
                   description = 'current in second channel of supply (compensation current)',
-                  tangodevice = 'tango://mira1.mira.frm2:10000/mira/tti2/out2',
+                  tangodevice = tango_base + 'tti2/out2',
                   abslimits = (0, 5),
                   timeout = 1,
                   precision = 0.01,

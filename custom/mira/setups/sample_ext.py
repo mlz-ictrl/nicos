@@ -3,17 +3,17 @@ group = 'lowlevel'
 
 excludes = ['sample']
 
-tango_host = 'mira1.mira.frm2:10000'
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
     co_stt   = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/sample/phi_ext_enc' % tango_host,
+                      tangodevice = tango_base + 'sample/phi_ext_enc',
                       unit = 'deg',
                      ),
     mo_stt   = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/sample/phi_ext_mot' % tango_host,
+                      tangodevice = tango_base + 'sample/phi_ext_mot',
                       abslimits = (-120, 120),
                       unit = 'deg',
                       precision = 0.002,
@@ -45,13 +45,12 @@ devices = dict(
                         ),
 
     air_sample   = device('mira.refcountio.RefcountDigitalOutput',
-                        tangodevice = 'tango://%s/mira/air/sample_ext' % tango_host,
+                        tangodevice = tango_base + 'air/sample_ext',
                         lowlevel = True,
                        ),
 
     air_ana   = device('devices.tango.DigitalOutput',
-                        tangodevice = 'tango://%s/mira/air/det_ext' % tango_host,
+                        tangodevice = tango_base + 'air/det_ext',
                         lowlevel = True,
                        ),
 )
-

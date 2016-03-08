@@ -4,6 +4,8 @@ group = 'optional'
 
 excludes = ['mieze']
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     amp1     = device('mira.rfcircuit.GeneratorDevice',
                       description = 'amplitude of first function generator',
@@ -30,7 +32,7 @@ devices = dict(
 
     Cbox1    = device('mira.beckhoff.DigitalOutput',
                       description = 'first capacitor box',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/beckhoff/beckhoff1',
+                      tangodevice = tango_base + 'beckhoff/beckhoff1',
                       startoffset = 8,
                       bitwidth = 32,
                      ),

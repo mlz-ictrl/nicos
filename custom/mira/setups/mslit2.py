@@ -1,9 +1,11 @@
 description = 'IPC slit after mono2 shielding'
 group = 'lowlevel'
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     ms2bus    = device('devices.vendor.ipc.IPCModBusTango',
-                       tangodevice = 'tango://mira1.mira.frm2:10000/mira/ms2/bio',
+                       tangodevice = tango_base + 'ms2/bio',
                        lowlevel = True,
                       ),
 

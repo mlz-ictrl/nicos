@@ -6,12 +6,12 @@ includes = ['mono', ]
 
 excludes = []
 
-tango_host = 'tango://phys.poli.frm2:10000'
+tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
     bmv = device('devices.tango.Motor',
                  description = 'Monochromator vertical opening slit',
-                 tangodevice = '%s/poli/fzjs7/bmv' % (tango_host, ),
+                 tangodevice = tango_base + 'fzjs7/bmv',
                  fmtstr = '%.2f',
                  abslimits = (114, 190),
                  precision = 0.2,
@@ -19,7 +19,7 @@ devices = dict(
                 ),
     bmh = device('devices.tango.Motor',
                  description = 'Monochromator horizontal opening slit',
-                 tangodevice = '%s/poli/fzjs7/bmh' % (tango_host, ),
+                 tangodevice = tango_base + 'fzjs7/bmh',
                  fmtstr = '%.2f',
                  abslimits = (6.5, 80),
                  precision = 0.2,

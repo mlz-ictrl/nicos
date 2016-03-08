@@ -6,15 +6,15 @@ group = 'optional'
 
 modules = ['sans1.spinflipper_commands']
 
-tango_host = 'spinflip.sans1.frm2'
+tango_base = 'tango://spinflip.sans1.frm2:10000/box/'
 
 devices = dict(
 # AG1016 amplifier
     P_spinflipper = device('sans1.spinflipper.SpinflipperPower',
                            description = 'overall power of ag1016',
-                           tangodevice = 'tango://%s:10000/box/amplifier/power' % tango_host,
-                           forwardtangodevice = 'tango://%s:10000/box/amplifier/fpower' % tango_host,
-                           reversetangodevice = 'tango://%s:10000/box/amplifier/rpower' % tango_host,
+                           tangodevice = tango_base + 'amplifier/power',
+                           forwardtangodevice = tango_base + 'amplifier/fpower',
+                           reversetangodevice = tango_base + 'amplifier/rpower',
                            fmtstr = '%.1f',
                            abslimits = (0.0, 100.0),
                            userlimits = (0.0, 100.0),
@@ -42,7 +42,7 @@ devices = dict(
 
     T_spinflipper = device('devices.tango.AnalogInput',
                            description = 'temperature of ag1016',
-                           tangodevice = 'tango://%s:10000/box/amplifier/temp' % tango_host,
+                           tangodevice = tango_base + 'amplifier/temp',
                            fmtstr = '%.3f',
                            maxage = 120,
                            pollinterval = 15,
@@ -51,7 +51,7 @@ devices = dict(
 # HP33220A
     A_spinflipper_hp = device('devices.tango.AnalogOutput',
                               description = 'amplitude of the frequency generator',
-                              tangodevice = 'tango://%s:10000/box/funcgen/ampl' % tango_host,
+                              tangodevice = tango_base + 'funcgen/ampl',
                               fmtstr = '%.3f',
                               abslimits = (0, 2.0),
                               userlimits = (0, 2.0),
@@ -61,7 +61,7 @@ devices = dict(
 
     F_spinflipper_hp = device('devices.tango.AnalogOutput',
                               description = 'frequency of the frequency generator',
-                              tangodevice = 'tango://%s:10000/box/funcgen/freq' % tango_host,
+                              tangodevice = tango_base + 'funcgen/freq',
                               fmtstr = '%.0f',
                               abslimits = (0.0, 4000000.0),
                               userlimits = (0.0, 4000000.0),

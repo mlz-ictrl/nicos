@@ -5,7 +5,7 @@ includes = ['alias_T']
 
 modules = ['nicos.mira.commands']
 
-tango_url = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
     T_ccr5   = device('devices.taco.TemperatureController',
@@ -35,28 +35,28 @@ devices = dict(
                      ),
     ccr5_p1  = device('devices.tango.AnalogInput',
                       description = 'cryo sample tube pressure',
-                      tangodevice = tango_url + 'ccr5/p1',
+                      tangodevice = tango_base + 'ccr5/p1',
                       fmtstr = '%.3f',
                      ),
 #    ccr5_p2  = device('devices.tango.AnalogInput',
 #                      description = 'Cryo sample tube pressure (second sensor)',
-#                      tangodevice = tango_url + 'ccr5/p2',
+#                      tangodevice = tango_base + 'ccr5/p2',
 #                      fmtstr = '%.3f',
 #                     ),
     ccr5_compressor_switch = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 compressor switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tangodevice = tango_url + 'ccr5/comp',
+                                    tangodevice = tango_base + 'ccr5/comp',
                                    ),
     ccr5_gas_switch        = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 sample tube gas switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tangodevice = tango_url + 'ccr5/gas',
+                                    tangodevice = tango_base + 'ccr5/gas',
                                    ),
     ccr5_vacuum_switch     = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 sample tube vacuum switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tangodevice = tango_url + 'ccr5/vacuum',
+                                    tangodevice = tango_base + 'ccr5/vacuum',
                                    ),
 )
 

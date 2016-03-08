@@ -3,7 +3,7 @@ group = 'lowlevel'
 
 includes = ['detector', 'gas']
 
-tango_host = 'mira1.mira.frm2:10000'
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
     psd_padformat = device('mira.cascade.CascadePadRAWFormat',
@@ -41,7 +41,7 @@ devices = dict(
 
     PSDHV  = device('mira.iseg.CascadeIsegHV',
                     description = 'high voltage supply for the CASCADE detector (usually -2850 V)',
-                    tangodevice = 'tango://mira1.mira.frm2:10000/mira/psdhv/voltage',
+                    tangodevice = tango_base + 'psdhv/voltage',
                     abslimits = (-3100, 0),
                     warnlimits = (-3000, -2945),
                     pollinterval = 10,
@@ -51,12 +51,12 @@ devices = dict(
 
     co_dtx   = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/detector/dtx_enc' % tango_host,
+                      tangodevice = tango_base + 'detector/dtx_enc',
                       unit = 'mm',
                      ),
     mo_dtx   = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/detector/dtx_mot' % tango_host,
+                      tangodevice = tango_base + 'detector/dtx_mot',
                       abslimits = (0, 1490),
                       unit = 'mm',
                       precision = 0.1,

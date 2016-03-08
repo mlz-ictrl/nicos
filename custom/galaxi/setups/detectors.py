@@ -6,7 +6,7 @@ group = 'optional'
 
 includes = ['absorber', 'jcns_mot', 'pindiodes', 'jcns_io']
 
-tango_host = 'tango://localhost:10000'
+tango_base = 'tango://localhost:10000/galaxi/'
 
 devices = dict(
     GALAXIFileSaver = device('galaxi.galaxifileformat.GALAXIFileFormat',
@@ -23,13 +23,13 @@ devices = dict(
                              fileformats = ['GALAXIFileSaver'],
                              fmtstr = '%s',
                              subdir = '.',
-                             tangodevice = tango_host + '/galaxi/Mythen/1',
+                             tangodevice = tango_base + 'mythen/1',
                             ),
     pilatus         = device('galaxi.pilatus.PilatusDetector',
                              description = 'GALAXI Pilatus detector',
                              fmtstr = '%s',
                              subdir = '',
-                             tangodevice = tango_host + '/galaxi/Pilatus/1',
+                             tangodevice = tango_base + 'pilatus/1',
                              pathorigin = '/disk2/images/',
                              energyrange = [9224.7, 9251.7],
                              energy = 9.243,

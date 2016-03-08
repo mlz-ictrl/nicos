@@ -4,9 +4,6 @@ group = 'optional'
 
 excludes = ['sbl']
 
-tango_host = 'tango://slow.antares.frm2:10000'
-
-
 devices = dict(
     sbl_l = device('devices.taco.Motor',
                    description = 'Beam Limiter Left Blade',

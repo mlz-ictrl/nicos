@@ -4,11 +4,9 @@ description = 'GALAXI digital in- and outputs'
 
 group = 'optional'
 
-includes = []
-
-tango_host = 'tango://localhost:10000'
-tango_digital = tango_host + '/galaxi/FZJDP_Digital/'
-tango_analog  = tango_host + '/galaxi/FZJDP_Analog/'
+tango_base = 'tango://localhost:10000/galaxi/'
+tango_digital = tango_base + 'fzjdp_digital/'
+tango_analog  = tango_base + 'fzjdp_analog/'
 
 devices = dict(
     pintimer            = device('devices.tango.AnalogOutput',

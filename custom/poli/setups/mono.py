@@ -2,30 +2,30 @@ description = 'POLI monochromator devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://phys.poli.frm2:10000'
+tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
     chi_m     = device('devices.tango.Motor',
                        description = 'monochromator tilt (chi axis)',
-                       tangodevice = '%s/poli/fzjs7/chi_m' % (tango_host, ),
+                       tangodevice = tango_base + 'fzjs7/chi_m',
                        fmtstr = '%.2f',
                        abslimits = (0, 12.8),
                       ),
     theta_m   = device('devices.tango.Motor',
                        description = 'monochromator rotation (theta axis)',
-                       tangodevice = '%s/poli/fzjs7/theta_m' % (tango_host, ),
+                       tangodevice = tango_base + 'fzjs7/theta_m',
                        fmtstr = '%.2f',
                        abslimits = (0, 1300),
                       ),
     x_m       = device('devices.tango.Motor',
                        description = 'monochromator translation (x axis)',
-                       tangodevice = '%s/poli/fzjs7/x_m' % (tango_host, ),
+                       tangodevice = tango_base + 'fzjs7/x_m',
                        fmtstr = '%.2f',
                        abslimits = (0, 90),
                       ),
     changer_m = device('devices.tango.Motor',
                        description = 'monochromator changer axis',
-                       tangodevice = '%s/poli/fzjs7/change_m' % (tango_host, ),
+                       tangodevice = tango_base + 'fzjs7/change_m',
                        fmtstr = '%.2f',
                        abslimits = (0, 4000),
                       ),

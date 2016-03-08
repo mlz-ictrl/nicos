@@ -4,8 +4,8 @@ description = 'Andor DV434 CCD camera'
 
 group = 'optional'
 
-tango_host = 'tango://nectarccd02.nectar.frm2:10000'
-nethost = 'nectarsrv.nectar.frm2' # taco
+tango_base = 'tango://nectarccd02.nectar.frm2:10000/nectar/'
+nethost = 'nectarsrv.nectar.frm2'  # taco
 
 devices = dict(
     FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
@@ -13,10 +13,11 @@ devices = dict(
         filenametemplate = ['%08d.fits'],
     ),
 
+    # TODO: create a generic.Detector device to use the channels
     ccd = device('devices.vendor.lima.Andor2LimaCCD',
         description = 'The CCD detector',
-        tangodevice = '%s/nectar/detector/limaccd' % tango_host,
-        hwdevice = '%s/nectar/detector/dv434' % tango_host,
+        tangodevice = tango_base + 'detector/limaccd',
+        hwdevice = tango_base + 'detector/dv434',
         pollinterval = 5,
         maxage = 12,
         flip = (False, False),
@@ -27,12 +28,10 @@ devices = dict(
         vsspeed = 38.55,
         hsspeed = 1,
         pgain = 1,
-        subdir = '.',
-        fileformats = ['FITSFileSaver'],
     ),
     ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
         description = 'Temperature of the CCD detector',
-        tangodevice = '%s/nectar/detector/dv434' % tango_host,
+        tangodevice = tango_base + 'detector/dv434',
         pollinterval = 5,
         maxage = 12,
         abslimits = (-100, 0),

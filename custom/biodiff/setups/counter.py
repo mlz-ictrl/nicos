@@ -3,12 +3,11 @@
 description = "ZEA-2 counter card setup"
 group = "lowlevel"
 
-tango_host = "tango://phys.biodiff.frm2:10000"
-_TANGO_URL = tango_host + "/biodiff/count/"
+tango_base = "tango://phys.biodiff.frm2:10000/biodiff/"
 
 devices = dict(
     timer = device("jcns.fpga.FPGATimerChannel",
                    description = "ZEA-2 counter card timer channel",
-                   tangodevice = _TANGO_URL + '0',
+                   tangodevice = tango_base + 'count/0',
                   ),
 )

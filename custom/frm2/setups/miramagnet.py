@@ -3,12 +3,12 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-tango_url = 'tango://%s:10000/box/beckhoff' % setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = dict(
     I_miramagnet   = device('devices.tango.Actuator',
                             description = 'MIRA Helmholtz magnet current',
-                            tangodevice = '%s/plc_i' % tango_url,
+                            tangodevice = tango_base + 'beckhoff/plc_i',
                             abslimits = (-250, 250),
                             fmtstr = '%.1f',
                            ),
@@ -21,7 +21,7 @@ devices = dict(
                            ),
     miramagnet_pol = device('devices.tango.DigitalInput',
                             description = 'Polarity of magnet current',
-                            tangodevice = '%s/plc_polarity' % tango_url,
+                            tangodevice = tango_base + 'beckhoff/plc_polarity',
                             fmtstr = '%+d',
                            ),
 )
@@ -29,7 +29,7 @@ devices = dict(
 for i in range(1, 5):
     dev = device('devices.tango.AnalogInput',
                  description = 'Temperature %d of the miramagnet coils' % i,
-                 tangodevice = '%s/plc_t%d' % (tango_url, i),
+                 tangodevice = tango_base + 'beckhoff/plc_t%d' % i,
                  fmtstr = '%d',
                  warnlimits = (0, 60),
                  unit = 'degC',

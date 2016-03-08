@@ -1,18 +1,18 @@
 description = 'analyzer table'
 group = 'lowlevel'
 
-tango_host = 'mira1.mira.frm2:10000'
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 includes = ['sample']
 
 devices = dict(
     co_ath   = device('devices.tango.Sensor',
-                      tangodevice = 'tango://%s/mira/detector/ath_enc' % tango_host,
+                      tangodevice = tango_base + 'detector/ath_enc',
                       lowlevel = True,
                       unit = 'deg',
                      ),
     mo_ath   = device('devices.tango.Motor',
-                      tangodevice = 'tango://%s/mira/detector/ath_mot' % tango_host,
+                      tangodevice = tango_base + 'detector/ath_mot',
                       abslimits = (-180, 180),
                       lowlevel = True,
                       unit = 'deg',
@@ -27,12 +27,12 @@ devices = dict(
                      ),
 
     co_att   = device('devices.tango.Sensor',
-                      tangodevice = 'tango://%s/mira/detector/att_enc' % tango_host,
+                      tangodevice = tango_base + 'detector/att_enc',
                       lowlevel = True,
                       unit = 'deg',
                      ),
     mo_att   = device('devices.tango.Motor',
-                      tangodevice = 'tango://%s/mira/detector/att_mot' % tango_host,
+                      tangodevice = tango_base + 'detector/att_mot',
                       abslimits = (-90 -135, -90 + 135),
                       lowlevel = True,
                       unit = 'deg',
@@ -67,7 +67,7 @@ devices = dict(
 
     stargate = device('mira.stargate.Stargate',
                       description = 'Mira-Stargate (i.e. analyser shielding blocks)',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/anablocks/mb1',
+                      tangodevice = tango_base + 'anablocks/mb1',
                       offset_out = 40003,
                       offset_in = 45395,
                       chevron_att_angles =

@@ -1,9 +1,11 @@
 description = 'alfonso pressure module'
 group = 'optional'
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
 	diptron3plus = device('devices.tango.AnalogInput',
-		tangodevice = 'tango://mira1.mira.frm2:10000/mira/alfonsomodule/diptron3',
+		tangodevice = tango_base + 'alfonsomodule/diptron3',
 		description = 'Pressure at Diptron 3 Plus',
 		pollinterval = 0.7,
 		maxage = 2,
@@ -11,7 +13,7 @@ devices = dict(
 		unit = 'bar',
 	),
 	sentronicplus = device('devices.tango.Actuator',
-		tangodevice = 'tango://mira1.mira.frm2:10000/mira/alfonsomodule/sentronic',
+		tangodevice = tango_base + 'alfonsomodule/sentronic',
 		description = 'Sentronic PLUS digital proportioning valve',
 		abslimits = (0, 25.0),
 		warnlimits = (0, 10.0),

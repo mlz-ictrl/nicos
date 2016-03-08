@@ -3,10 +3,12 @@ group = 'optional'
 
 includes = ['base', 'ccr5']
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     M = device('mira.sr850.Amplifier',
                description = 'SR850 lock-in amplifier',
-               tangodevice = 'tango://mira1.mira.frm2:10000/mira/sr850/io',
+               tangodevice = tango_base + 'sr850/io',
               ),
 )
 

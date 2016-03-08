@@ -4,19 +4,19 @@ group = 'optional'
 
 excludes = ['mono_si']
 
-tango_host = 'tango://phys.poli.frm2:10000'
+tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
     cuh = device('devices.tango.Motor',
                  lowlevel = False,
                  description = 'Copper monochromator horizontal focus',
-                 tangodevice = '%s/poli/fzjs7/cuh' % (tango_host, ),
+                 tangodevice = tango_base + 'fzjs7/cuh',
                  fmtstr = '%.2f',
                 ),
     cuv = device('devices.tango.Motor',
                  lowlevel = False,
                  description = 'Copper monochromator vertical focus',
-                 tangodevice = '%s/poli/fzjs7/cuv' % (tango_host, ),
+                 tangodevice = tango_base + 'fzjs7/cuv',
                  fmtstr = '%.2f',
                 ),
 )

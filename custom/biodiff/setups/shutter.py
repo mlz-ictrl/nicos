@@ -3,8 +3,8 @@
 description = "Shutter setup"
 group = "lowlevel"
 
-tango_host = "tango://phys.biodiff.frm2:10000"
-_TANGO_URL = tango_host + "/biodiff/FZJDP_Digital/"
+tango_base = "tango://phys.biodiff.frm2:10000/biodiff/"
+
 _MAP_SHUTTER = {
     "open": 1,
     "close": 2,
@@ -13,12 +13,12 @@ _MAP_SHUTTER = {
 devices = dict(
     gammashutter = device("jcns.shutter.Shutter",
                           description = "Gamma shutter",
-                          tangodevice = _TANGO_URL + "ExpShutter",
+                          tangodevice = tango_base + "fzjdp_digital/expshutter",
                           mapping = _MAP_SHUTTER,
                          ),
     photoshutter = device("jcns.shutter.Shutter",
                           description = "Photo shutter",
-                          tangodevice = _TANGO_URL + "PhotoExpShutter",
+                          tangodevice = tango_base + "fzjdp_digital/photoexpshutter",
                           mapping = _MAP_SHUTTER,
                          ),
 )

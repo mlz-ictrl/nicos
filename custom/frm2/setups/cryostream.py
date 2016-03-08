@@ -4,12 +4,12 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_host = setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
     'T_%s' % setupname:   device('devices.tango.TemperatureController',
                                  description = 'Sample temperature control',
-                                 tangodevice = 'tango://%s:10000/box/cryostream/cryo' % tango_host,
+                                 tangodevice = tango_base + 'cryostream/cryo',
                                  abslimits = (0, 300),
                                  unit = 'K',
                                  fmtstr = '%.3f',
@@ -18,13 +18,13 @@ devices = {
                                 ),
     '%s_LN2' % setupname: device('devices.tango.Sensor',
                                  description = 'Cryostream LN2 supply',
-                                 tangodevice = 'tango://%s:10000/box/levelmeter/level' % tango_host,
+                                 tangodevice = tango_base + 'levelmeter/level',
                                  fmtstr = '%.1f',
                                 ),
     '%s_LN2_fill' % setupname:
                           device('devices.tango.NamedDigitalOutput',
                                  description = 'Cryostream LN2 supply fill switch',
-                                 tangodevice = 'tango://%s:10000/box/levelmeter/fill' % tango_host,
+                                 tangodevice = tango_base + 'levelmeter/fill',
                                  mapping = {'auto': 0, 'fill': 1},
                                 ),
 }

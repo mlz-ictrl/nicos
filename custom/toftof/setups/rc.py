@@ -6,12 +6,12 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tofhw.toftof.frm2:10000'
+tango_base = 'tango://tofhw.toftof.frm2:10000/toftof/'
 
 devices = dict(
     rc_onoff = device('devices.tango.NamedDigitalOutput',
                       description = 'Activates radial collimator',
-                      tangodevice = 'tango://%s/toftof/rc/_rc_onoff' % tango_host,
+                      tangodevice = tango_base + 'rc/_rc_onoff',
                       mapping = {
                           'on': 1,
                           'off': 0,
@@ -20,7 +20,7 @@ devices = dict(
 
     rc_motor = device('devices.tango.AnalogOutput',
                       description = 'Radial collimator motor',
-                      tangodevice = 'tango://%s/toftof/rc/_rc_motor' % tango_host,
+                      tangodevice = tango_base + 'rc/_rc_motor',
                       lowlevel = True,
                      ),
 )

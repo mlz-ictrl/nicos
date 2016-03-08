@@ -2,8 +2,6 @@ description = 'Axels diamond setup'
 
 group = 'optional'
 
-tango_host = 'tango://slow.antares.frm2:10000'
-
 devices = dict(
     lin = device('devices.taco.Motor',
                  description = 'linear axis',

@@ -6,8 +6,8 @@ group = 'optional'
 
 includes = []
 
-tango_host = 'tango://localhost:10000'
-tango_digital = tango_host + '/galaxi/FZJDP_Digital/'
+tango_base = 'tango://localhost:10000/galaxi/'
+tango_digital = tango_base + 'fzjdp_digital/'
 
 devices = dict(
     absorber00  = device('devices.tango.NamedDigitalOutput',

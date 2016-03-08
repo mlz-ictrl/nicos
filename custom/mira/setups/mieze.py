@@ -4,6 +4,8 @@ group = 'basic'
 includes = ['cascade', 'relay']
 modules = ['nicos.mira.mieze']
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     mieze    = device('mira.mieze.MiezeMaster',
                       description = 'master MIEZE control device',
@@ -75,7 +77,7 @@ devices = dict(
 
     dc1      = device('devices.tango.PowerSupply',
                       description = 'current in first DC coil',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/heinzinger/curr',
+                      tangodevice = tango_base + 'heinzinger/curr',
                       abslimits = (0, 30),
                       fmtstr = '%.2f',
                       timeout = 5,
@@ -83,7 +85,7 @@ devices = dict(
                      ),
     dc2      = device('devices.tango.PowerSupply',
                       description = 'current in second DC coil',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/fug/curr',
+                      tangodevice = tango_base + 'fug/curr',
                       abslimits = (0, 30),
                       fmtstr = '%.2f',
                       timeout = 5,
@@ -92,14 +94,14 @@ devices = dict(
 
     cc1      = device('devices.tango.PowerSupply',
                       description = 'current in first coupling coil',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/tti1/out1',
+                      tangodevice = tango_base + 'tti1/out1',
                       abslimits = (0, 2),
                       timeout = 2,
                       precision = 0.005,
                      ),
     cc2      = device('devices.tango.PowerSupply',
                       description = 'current in second coupling coil',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/tti1/out2',
+                      tangodevice = tango_base + 'tti1/out2',
                       abslimits = (0, 2),
                       timeout = 2,
                       precision = 0.005,
@@ -126,13 +128,13 @@ devices = dict(
 
     Cbox1    = device('mira.beckhoff.DigitalOutput',
                       description = 'first capacitor box',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/beckhoff/beckhoff1',
+                      tangodevice = tango_base + 'beckhoff/beckhoff1',
                       startoffset = 8,
                       bitwidth = 32,
                      ),
     Cbox2    = device('mira.beckhoff.DigitalOutput',
                       description = 'second capacitor box',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/beckhoff/beckhoff1',
+                      tangodevice = tango_base + 'beckhoff/beckhoff1',
                       startoffset = 40,
                       bitwidth = 32,
                      ),

@@ -2,12 +2,12 @@ description = 'setup for the velocity selector'
 
 group = 'lowlevel'
 
-TANGO_BASE_URL = 'tango://sans1hw.sans1.frm2:10000/sans1/selector'
+tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 
 devices = dict(
     selector_rpm = device('devices.tango.WindowTimeoutAO',
                           description = 'Selector speed control',
-                          tangodevice='%s/speed' % TANGO_BASE_URL,
+                          tangodevice = tango_base + 'selector/speed',
                           abslimits = (3100, 28300),
                           unit = 'rpm',
                           fmtstr = '%.0f',
@@ -30,14 +30,14 @@ devices = dict(
                             ),
     selector_sspeed = device('devices.tango.AnalogInput',
                              description = 'Selector speed read out by optical sensor',
-                             tangodevice='%s/sspeed' % TANGO_BASE_URL,
+                             tangodevice= tango_base + 'selector/sspeed',
                              unit = 'Hz',
                              fmtstr = '%.1d',
                              maxage = 35,
                             ),
     selector_vacuum = device('devices.tango.AnalogInput',
                              description = 'Vacuum in the selector',
-                             tangodevice='%s/vacuum' % TANGO_BASE_URL,
+                             tangodevice= tango_base + 'selector/vacuum',
                              unit = 'x1e-3 mbar',
                              fmtstr = '%.5f',
                              warnlimits = (0, 0.008), # selector shuts down above 0.005
@@ -45,7 +45,7 @@ devices = dict(
                             ),
     selector_rtemp = device('devices.tango.AnalogInput',
                             description = 'Temperature of the selector',
-                            tangodevice='%s/rotortemp' % TANGO_BASE_URL,
+                            tangodevice= tango_base + 'selector/rotortemp',
                             unit = 'C',
                             fmtstr = '%.1f',
                             warnlimits = (10, 45),
@@ -53,7 +53,7 @@ devices = dict(
                            ),
     selector_wflow = device('devices.tango.AnalogInput',
                             description = 'Cooling water flow rate through selector',
-                            tangodevice='%s/flowrate' % TANGO_BASE_URL,
+                            tangodevice= tango_base + 'selector/flowrate',
                             unit = 'l/min',
                             fmtstr = '%.1f',
                             warnlimits = (2.3, 10),#without rot temp sensor; old value (2.5, 10)
@@ -61,7 +61,7 @@ devices = dict(
                            ),
 #    selector_winlt = device('devices.tango.AnalogInput',
 #                            description = 'Cooling water temperature at inlet',
-#                            tangodevice='%s/waterintemp' % TANGO_BASE_URL,
+#                            tangodevice= tango_base + 'selector/waterintemp',
 #                            unit = 'C',
 #                            fmtstr = '%.1f',
 #                            warnlimits = (15, 28),
@@ -69,7 +69,7 @@ devices = dict(
 #                           ),
     selector_woutt = device('devices.tango.AnalogInput',
                             description = 'Cooling water temperature at outlet',
-                            tangodevice='%s/waterouttemp' % TANGO_BASE_URL,
+                            tangodevice= tango_base + 'selector/waterouttemp',
                             unit = 'C',
                             fmtstr = '%.1f',
                             warnlimits = (15, 28),
@@ -77,7 +77,7 @@ devices = dict(
                            ),
     selector_vibrt = device('devices.tango.AnalogInput',
                             description = 'Selector vibration',
-                            tangodevice='%s/vibration' % TANGO_BASE_URL,
+                            tangodevice= tango_base + 'selector/vibration',
                             unit = 'mm/s',
                             fmtstr = '%.2f',
                             warnlimits = (0, 1),

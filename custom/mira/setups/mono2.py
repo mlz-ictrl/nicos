@@ -3,17 +3,17 @@ group = 'lowlevel'
 
 includes = ['base', 'mslit2', 'sample', 'alias_mono']
 
-tango_host = 'mira1.mira.frm2:10000'
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
     co_m2tt  = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2tt_enc' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2tt_enc',
                       unit = 'deg',
                      ),
     mo_m2tt  = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2tt_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2tt_mot',
                       abslimits = (-170, -20),
                       unit = 'deg',
                       precision = 1,  # due to backlash
@@ -35,12 +35,12 @@ devices = dict(
 
     co_m2th  = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2th_enc' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2th_enc',
                       unit = 'deg',
                      ),
     mo_m2th  = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2th_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2th_mot',
                       abslimits = (-54, -31),
                       unit = 'deg',
                       precision = 0.002,
@@ -70,12 +70,12 @@ devices = dict(
 
     co_m2tx  = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2tx_enc' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2tx_enc',
                       unit = 'mm',
                      ),
     mo_m2tx  = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2tx_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2tx_mot',
                       abslimits = (-12.5, 10),
                       unit = 'mm',
                       precision = 0.1,
@@ -91,12 +91,12 @@ devices = dict(
 
     co_m2ty  = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2ty_enc' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2ty_enc',
                       unit = 'mm',
                      ),
     mo_m2ty  = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2ty_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2ty_mot',
                       abslimits = (-14.9, 9.9),
                       unit = 'mm',
                       precision = 0.1,
@@ -112,12 +112,12 @@ devices = dict(
 
     co_m2gx  = device('devices.tango.Sensor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2gx_enc' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2gx_enc',
                       unit = 'deg',
                      ),
     mo_m2gx  = device('devices.tango.Motor',
                       lowlevel = True,
-                      tangodevice = 'tango://%s/mira/mono2/m2gx_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2gx_mot',
                       abslimits = (-1, 1),
                       unit = 'deg',
                       precision = 0.05,
@@ -133,7 +133,7 @@ devices = dict(
 
     m2fv     = device('devices.tango.Motor',
                       description = 'monochromator vertical focus',
-                      tangodevice = 'tango://%s/mira/mono2/m2fv_mot' % tango_host,
+                      tangodevice = tango_base + 'mono2/m2fv_mot',
                       abslimits = (-360, 360),
                       unit = 'deg',
                       precision = 0.5,
@@ -142,13 +142,13 @@ devices = dict(
 
     PBe      = device('mira.center.CrappySensor',
                       description = 'Be filter pressure',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/leybold/sensor1',
+                      tangodevice = tango_base + 'leybold/sensor1',
                       warnlimits = (1e-8, 0.00051),
                       fmtstr = '%.2g',
                      ),
     Pccr     = device('mira.center.CrappySensor',
                       description = 'CCR isolation vacuum pressure',
-                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/leybold/sensor2',
+                      tangodevice = tango_base + 'leybold/sensor2',
                       warnlimits = (1e-9, 1e-5),
                       fmtstr = '%.2g',
                      ),

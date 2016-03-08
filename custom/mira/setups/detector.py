@@ -3,6 +3,8 @@ group = 'lowlevel'
 
 includes = ['base']
 
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     timer    = device('devices.taco.FRMTimerChannel',
                       tacodevice = '//mirasrv/mira/frmctr/at',
@@ -48,7 +50,7 @@ devices = dict(
 
     DetHV     = device('devices.tango.Actuator',
                        description = 'HV supply for single tube detector (usual value 850 V)',
-                       tangodevice = 'tango://mira1.mira.frm2:10000/mira/detectorhv/voltage',
+                       tangodevice = tango_base + 'detectorhv/voltage',
                        abslimits = (0, 950),
                        warnlimits = (840, 860),
                        pollinterval = 10,
@@ -58,7 +60,7 @@ devices = dict(
 
     MonHV     = device('devices.tango.Actuator',
                        description = 'HV supply for monitor counter (usual value 500 V)',
-                       tangodevice = 'tango://mira1.mira.frm2:10000/mira/monitorhv/voltage',
+                       tangodevice = tango_base + 'monitorhv/voltage',
                        abslimits = (0, 500),
                        warnlimits = (490, 510),
                        pollinterval = 10,

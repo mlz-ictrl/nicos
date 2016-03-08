@@ -4,12 +4,12 @@ description = 'GALAXI motors'
 
 group = 'optional'
 
-tango_host = 'tango://localhost:10000'
+tango_base = 'tango://localhost:10000/galaxi/'
 
 devices = dict(
     ro_y     = device('devices.tango.Motor',
                       description = 'ROY axis',
-                      tangodevice = '%s/galaxi/fzjs7/ROY' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/ROY',
                       lowlevel = True,
                      ),
     roy      = device('devices.generic.axis.Axis',
@@ -23,7 +23,7 @@ devices = dict(
                      ),
     ro_z     = device('devices.tango.Motor',
                       description = 'ROZ axis',
-                      tangodevice = '%s/galaxi/fzjs7/ROZ' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/ROZ',
                       lowlevel = True,
                      ),
     roz      = device('devices.generic.axis.Axis',
@@ -37,7 +37,7 @@ devices = dict(
                      ),
     dof_chi  = device('devices.tango.Motor',
                       description = 'DOFChi axis',
-                      tangodevice = '%s/galaxi/fzjs7/DOFChi' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/DOFChi',
                       lowlevel = True,
                      ),
     dofchi   = device('devices.generic.axis.Axis',
@@ -51,7 +51,7 @@ devices = dict(
                      ),
     dof_om   = device('devices.tango.Motor',
                       description = 'DOFOm axis',
-                      tangodevice = '%s/galaxi/fzjs7/DOFOm' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/DOFOm',
                       lowlevel = True,
                      ),
     dofom    = device('devices.generic.axis.Axis',
@@ -65,7 +65,7 @@ devices = dict(
                      ),
     rob_y    = device('devices.tango.Motor',
                       description = 'ROBY axis',
-                      tangodevice = '%s/galaxi/fzjs7/ROBY' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/ROBY',
                       lowlevel = True,
                      ),
     roby     = device('devices.generic.axis.Axis',
@@ -78,7 +78,7 @@ devices = dict(
                      ),
     rob_z    = device('devices.tango.Motor',
                       description = 'ROBZ axis',
-                      tangodevice = '%s/galaxi/fzjs7/ROBZ' % tango_host,
+                      tangodevice = tango_base + 'fzjs7/ROBZ',
                       lowlevel = True,
                      ),
     robz     = device('devices.generic.axis.Axis',
