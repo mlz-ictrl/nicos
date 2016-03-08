@@ -505,6 +505,12 @@ class TemperatureController(HasWindowTimeout, Actuator):
                               type=float, settable=True, volatile=True),
     }
 
+    parameter_overrides = {
+        # We want this to be freely user-settable, and not produce a warning
+        # on startup, so select a usually sensible default.
+        'precision':    Override(mandatory=False, default=0.1),
+    }
+
     def doReadRamp(self):
         return self._dev.ramp
 
