@@ -275,7 +275,7 @@ class CARESSDevice(HasCommunication, DeviceMixinBase):
                     return function(*args)
                 except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:
                     tries -= 1
-            raise CommunicationError(self, 'CARESS error: %s%r : %s' %
+            raise CommunicationError(self, 'CARESS error: %s%r: %s' %
                                      (function.__name__, args, err))
         finally:
             pass
@@ -332,7 +332,7 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
             raise ConfigurationError(self, 'Object is not a moveable module')
 
     def doStart(self, target):
-        self.log.debug('target : %r' % (target,))
+        self.log.debug('target: %r' % (target,))
         target += (self.coderoffset + self.offset)
         timeout = 0
         if hasattr(self._caressObject, 'drive_module'):
@@ -600,7 +600,7 @@ class Image(ImageChannelMixin, CARESSDevice, PassiveChannel):
                 return [self._width, self._height, 1] + data.al
             except CORBA.COMM_FAILURE as ex:
                 raise CommunicationError(self, 'Could not read the CARESS '
-                                         'module : %s' % (ex, ))
+                                         'module: %s' % (ex, ))
         else:
             _ = ()
             result = self._caress_guard(self._caressObject.read_module_orb, 0,

@@ -39,7 +39,7 @@ class CCRSwitch(Moveable):
 
     parameter_overrides = {
         'fmtstr': Override(default='%d'),
-        'unit'  : Override(default='', mandatory=False),
+        'unit':   Override(default='', mandatory=False),
     }
 
     valuetype = oneofdict({'on': 1, 'off': 0})

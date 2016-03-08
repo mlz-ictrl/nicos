@@ -53,7 +53,7 @@ class PollerCacheClient(CacheClient):
 
 class PollerCacheReader(CacheReader):
     parameter_overrides = {
-        'unit' : Override(mandatory=False),
+        'unit': Override(mandatory=False),
     }
 
     def _initParam(self, param, paraminfo=None):

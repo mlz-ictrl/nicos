@@ -29,8 +29,8 @@
 from IO import StringIO
 
 from nicos.core import Moveable, HasLimits, Param, Override, \
-     floatrange, status, oneof, CommunicationError, InvalidValueError, \
-     ConfigurationError
+    floatrange, status, oneof, CommunicationError, InvalidValueError, \
+    ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import Attach, SIMULATION
 

@@ -46,11 +46,11 @@ CASES = [
     ('a*',         ['alpha', 'b'],  True),
     ('c*',         ['alpha', 'b'],  False),
     ('(b and not (c or h)', ['b'], True),
-    ('(b and not (c or h))', ['b', 'c',], False),
-    ('(b and not (c or h))', ['b', 'h',], False),
-    ('(b and not (c or h))', ['b', 'c', 'h',], False),
+    ('(b and not (c or h))', ['b', 'c'], False),
+    ('(b and not (c or h))', ['b', 'h'], False),
+    ('(b and not (c or h))', ['b', 'c', 'h'], False),
     ('(b and not (c or h))', [], False),
-    ('(b and not (c or h))', ['h',], False),
+    ('(b and not (c or h))', ['h'], False),
     ('(b and not (c or h))', ['h', 'c'], False),
     ('a and',      ['b'],           True),  # warns
     # compatibility cases

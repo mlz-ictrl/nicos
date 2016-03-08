@@ -26,7 +26,7 @@ devices = dict(
     #                userbasedn = 'ou=People,dc=frm2,dc=de',
     #                groupbasedn = 'ou=Group,dc=frm2,dc=de',
     #                grouproles = {
-    #                    'ictrl' : 'admin',
+    #                    'ictrl': 'admin',
     #                },
     #               ),
 

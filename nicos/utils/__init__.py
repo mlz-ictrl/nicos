@@ -527,7 +527,7 @@ def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
 
 
 def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
-    """set mode and maybe change uid/gid of a filesystem item"""
+    """Set mode and maybe change uid/gid of a filesystem item."""
     if (owner or group) and pwd and hasattr(os, 'chown') and hasattr(os, 'stat'):
         stats = os.stat(filepath)  # only change the requested parts
         owner = owner or stats.st_uid
@@ -556,7 +556,7 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
                            logger=None):
     """Traverse a directory tree and change access rights.
 
-    returns True if there were some errors and False if everything went OK.
+    Returns True if there were some errors and False if everything went OK.
     """
     if not path.isdir(startdir):
         return
@@ -585,7 +585,8 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
                      disableFileMode=S_IRUSR, owner=None, group=None,
                      logger=None, **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and remove access rights.
-    returns True if there were some errors and False if everything went OK.
+
+    Returns True if there were some errors and False if everything went OK.
     disableDirMode default to 0500 (dr-x------) and
     disableFileMode default to 0400 (-r--------).
     owner or group will only be changed if specified.
@@ -608,7 +609,7 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
                     logger=None, **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and grant access rights.
 
-    returns True if there were some errors and False if everything went OK.
+    Returns True if there were some errors and False if everything went OK.
     enableDirMode default to 0755 (drwxr-xr-x) and
     enableFileMode default to 0644 (-rw-r--r--).
     owner or group will only be changed if specified.
@@ -637,9 +638,9 @@ def expandTemplate(template, keywords, field_re=field_re):
     dictionary item with the requested key. If this does not exist,
     default is used instead.
 
-    returns a tuple( <replaced string>, [missed keys where default was used],
-    [list of missing keys without default])
-    each listitem is a dictionary with three keys:
+    Returns a ``tuple(<replaced string>, [missed keys where default was used],
+    [list of missing keys without default])``.
+    Each list item is a dictionary with three keys:
     key, default and description.
     """
     result = []
@@ -749,7 +750,6 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     `mode` defaults to os.F_OK | os.X_OK. `path` defaults to the result
     of os.environ.get("PATH"), or can be overridden with a custom search
     path.
-
     """
     # Check that a given file can be accessed with the correct mode.
     # Additionally check that `file` is not a directory, as on Windows
@@ -922,8 +922,7 @@ def formatExtendedStack(level=1):
 
 
 def formatException(cut=0, exc_info=None):
-    """
-    Format an exception with traceback, but leave out the first `cut`
+    """Format an exception with traceback, but leave out the first `cut`
     number of frames.
     """
     if exc_info is None:
@@ -1044,7 +1043,9 @@ _BAD_NAMES = frozenset(('.', '..', 'con', 'prn', 'aux', 'nul') +
 
 
 def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
-    '''returns a cleanup-version of the given string, which could e.g. be used for filenames'''
+    """Return a cleaned up version of the given string, which could e.g. be
+    used for filenames.
+    """
     # normalize: é -> e, Â->A, etc.
     s = unicodedata.normalize('NFKD', decodeAny(what))
     # map unwanted characters (including space) to '_'
@@ -1069,7 +1070,7 @@ def findResource(filepath):
 
 
 def clamp(value, minval, maxval):
-    """returns a value clamped to the given interval [minval, maxval]"""
+    """Return a value clamped to the given interval [minval, maxval]."""
     minval, maxval = min(minval, maxval), max(minval, maxval)
     return min(max(value, minval), maxval)
 
@@ -1086,16 +1087,15 @@ def uniq(lst):
 
 
 def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
-    """ Wrapper: Try a call and retry it on an exception
+    """Wrapper: Try a call and retry it on an exception.
 
     max_retries: how often to retry
     timeout: how long to sleep between tries
-    ex: Only catch specified exceptions, if None: Only catch
-       `Exception`
-    actionOnFail: will be called when a exception occured
+    ex: only catch specified exceptions, if None, only catch `Exception`
+    actionOnFail: will be called when an exception occured
 
-    all other args are passed to func
-    if max_retries is exhaused, the exception is rethrown
+    All other args are passed to wrapped function.  If max_retries is
+    exhausted, the exception is reraised.
     """
 
     if ex is None:

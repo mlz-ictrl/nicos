@@ -31,7 +31,7 @@ function usage() {
   echo
   echo "  -h | --help             this help"
   echo
-  echo "enviroment vars : PYVERSIONMAJOR BASEDIR"
+  echo "enviroment vars: PYVERSIONMAJOR BASEDIR"
  }
 
 while [ "$1" != "" ]; do

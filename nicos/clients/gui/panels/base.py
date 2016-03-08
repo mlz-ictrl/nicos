@@ -78,15 +78,14 @@ class PanelDialog(SetupDepWindowMixin, QDialog):
 
 
 class SetupDepPanelMixin(QObject):
-    ''' Mixin to handle setup-dependent visibility
+    """Mixin to handle setup-dependent visibility.
 
     Note: You must explicity add the following class attribute in all
     classes using this mixin (A PyQt resctriction, see
     https://riverbankcomputing.com/pipermail/pyqt/2013-September/033199.html):
 
     `setWidgetVisible = SetupDepPanelMixin.setWidgetVisible`
-
-    '''
+    """
     setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
@@ -101,7 +100,7 @@ class SetupDepPanelMixin(QObject):
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
-        self.log.debug('Setups are : %r' % self.setupSpec)
+        self.log.debug('Setups are: %r' % self.setupSpec)
 
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:

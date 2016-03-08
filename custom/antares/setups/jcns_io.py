@@ -18,7 +18,7 @@ devices = dict(
     monoswitch = device('devices.generic.Switcher',
                         description = 'Monochromator switch in/out',
                         moveable = 'monoswitch_io',
-                        mapping = {'in' : 1, 'out' : 2},
+                        mapping = {'in': 1, 'out': 2},
                         fallback = '<undefined>',
                         precision = 0,
                        ),

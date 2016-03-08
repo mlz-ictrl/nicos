@@ -215,16 +215,17 @@ MesyDAQFile=%(det1.lasthistfile)s
 
 """
 
+
 class BerSANSFileFormat(ImageSink):
     parameters = {
-        'flipimage' : Param('flip image after reading from det?',
-                            type=oneof('none','leftright','updown','both'),
-                            default='updown', mandatory=True, unit=''),
+        'flipimage': Param('flip image after reading from det?',
+                           type=oneof('none', 'leftright', 'updown', 'both'),
+                           default='updown', mandatory=True, unit=''),
     }
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False,
-                                      default=['D%(counter)07d.001']),
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['D%(counter)07d.001']),
     }
 
     fileFormat = 'BerSANS'     # should be unique amongst filesavers!
@@ -236,17 +237,17 @@ class BerSANSFileFormat(ImageSink):
         """should prepare an Imagefile in the given subdir"""
         ImageSink.prepareImage(self, imageinfo, subdir)
         imageinfo.data = DeviceValueDict(fileName=imageinfo.filename,
-                                 fileDate=strftime('%m/%d/%Y'),
-                                 fileTime=strftime('%r'),
-                                 FromDate=strftime('%m/%d/%Y'),
-                                 FromTime=strftime('%r'),
-                                 Environment='_'.join(session.explicit_setups),
-                                 #~ scantype=dataset.scantype, #XXX
-                                 #~ MovingDevices=dataset.devices,
-                                 #~ Envlist=dataset.envlist,
-                                 #~ Preset=dataset.preset,
-                                 #~ scaninfo=dataset.sinkinfo,
-                                )
+                                         fileDate=strftime('%m/%d/%Y'),
+                                         fileTime=strftime('%r'),
+                                         FromDate=strftime('%m/%d/%Y'),
+                                         FromTime=strftime('%r'),
+                                         Environment='_'.join(session.explicit_setups),
+                                         # scantype=dataset.scantype, #XXX
+                                         # MovingDevices=dataset.devices,
+                                         # Envlist=dataset.envlist,
+                                         # Preset=dataset.preset,
+                                         # scaninfo=dataset.sinkinfo,
+        )
 
     def saveImage(self, imageinfo,  image):
         """Saves the given image content
@@ -275,15 +276,13 @@ class BerSANSFileFormat(ImageSink):
 
         # update info
         imageinfo.data.update(ToDate=strftime('%m/%d/%Y'),
-                             ToTime=strftime('%r'),
-                             DataSize=shape[0]*shape[1],
-                             DataSizeX=shape[1],
-                             DataSizeY=shape[0],
-                            )
+                              ToTime=strftime('%r'),
+                              DataSize=shape[0]*shape[1],
+                              DataSizeX=shape[1],
+                              DataSizeY=shape[0])
         try:
             SD = '%.4f' % ((session.getDevice('det1_z').read() -
-                           session.getDevice('st1_x').read())
-                           /1000)
+                           session.getDevice('st1_x').read()) / 1000)
         except Exception:
             self.log.warning("can't determine SD (detector distance), "
                              "using 0 instead", exc=1)
@@ -303,13 +302,13 @@ class BerSANSFileFormat(ImageSink):
                              "using 0.0 instead", exc=1)
 
         imageinfo.data.update(
-                             SD=SD,
-                             Sum='%d' % Sum, Time='%.6f' % Time,
-                             Moni1='%d' % Moni1, Moni2='%d' % Moni2,
-                             Sum_Time='%.6f' % (Sum / Time) if Time else 'Inf',
-                             Sum_Moni1='%.6f' %(Sum / Moni1) if Moni1 else 'Inf',
-                             Sum_Moni2='%.6f' %(Sum / Moni2) if Moni2 else 'Inf',
-                            )
+            SD=SD,
+            Sum='%d' % Sum, Time='%.6f' % Time,
+            Moni1='%d' % Moni1, Moni2='%d' % Moni2,
+            Sum_Time='%.6f' % (Sum / Time) if Time else 'Inf',
+            Sum_Moni1='%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
+            Sum_Moni2='%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
+        )
         nicosheader = []
         self.log.debug('imageInfo.header is %r' % imageinfo.header)
 
@@ -328,7 +327,9 @@ class BerSANSFileFormat(ImageSink):
                 imageinfo.data[devname_key] = value
                 nicosheader.append('%s=%r' % (devname_key, value))
 
-        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore').encode('unicode_escape') for l in nicosheader))
+        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore')
+                                       .encode('unicode_escape')
+                                       for l in nicosheader))
         self.log.debug('nicosheader starts with: %40s' % nicosheader)
 
         # write Header
@@ -339,7 +340,7 @@ class BerSANSFileFormat(ImageSink):
             imageinfo.file.write('\n')
 
         # also append nicos header
-        imageinfo.file.write(nicosheader.replace('\\n','\n')) #? why needed?
+        imageinfo.file.write(nicosheader.replace('\\n', '\n'))  # why needed?
         imageinfo.file.write("\n\n%Counts\n")
 
         # write Data (one line per y)

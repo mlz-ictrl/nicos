@@ -81,18 +81,18 @@ class Monochromator(HasLimits, Moveable):
         return list(self._adevs[i] for i in 'inout phi1 phi2 translation'.split())
 
     def _from_lambda(self, lam):
-        ''' returns 3 values used for phi1, phi2 and translation '''
+        """Return 3 values used for phi1, phi2 and translation."""
         phi1 = degrees(asin(lam / float(2 * self.dvalue1)))
         phi2 = degrees(asin(lam / float(2 * self.dvalue2)))
         trans = self.distance / tan(2*radians(phi1))
         return phi1, phi2, trans
 
     def _to_lambda(self, phi1, phi2, trans):
-        ''' calculates lambda from phi1, phi2, trans. May raise a PositionError
-        not necessarily all arguments are used.
+        """Calculate lambda from phi1, phi2, trans. May raise a PositionError.
+        Not necessarily all arguments are used.
 
-        next iteration could evaluate all 3 args and return an average value...
-        '''
+        Next iteration could evaluate all 3 args and return an average value...
+        """
         try:
             return abs(2 * self.dvalue1 * sin(radians(phi1)))
         except Exception:

@@ -180,7 +180,7 @@ class Channel(ActiveChannel):
             value = CARESS.Value(l=int(self.preselection))
         elif isinstance(self.preselection, integer_types):
             value = CARESS.Value(l=self.preselection)
-        self.log.debug('preselection : %r' % (value,))
+        self.log.debug('preselection: %r' % (value,))
         result = self._caressObject.load_module(LOADMASTER, self._cid, value)
         if result != (CARESS.OK, LOADED):
             raise NicosError(self, 'Could not set the preset value')

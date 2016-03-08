@@ -38,7 +38,7 @@ class AbsorberDevice(HasLimits, Moveable):
               6.66e3, 6.70e3, 4.25e5, 4.18e5, 2.30e6, 2.30e6, 4.17e5)
 
     attached_devices = {
-        'absorbers' : Attach('Absorber', Moveable, multiple=14)
+        'absorbers': Attach('Absorber', Moveable, multiple=14),
     }
 
     def doInit(self, mode):

@@ -45,7 +45,7 @@ class Sans1Sample(NicosSample):
                               settable=True, category='sample'),
     }
     parameter_overrides = {
-        'samplename' : Override(volatile = True),
+        'samplename': Override(volatile = True),
     }
 
     def reset(self):
