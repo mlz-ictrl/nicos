@@ -21,7 +21,6 @@ devices = dict(
                           ),
     psd_liveview  = device('devices.fileformats.liveview.LiveViewSink',
                            lowlevel = True,
-                           showcached=False,
                           ),
 
     psd_channel   = device('mira.cascade.CascadeDetector',
