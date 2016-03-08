@@ -8,11 +8,11 @@ excludes = ['virtual_polarizer']
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(
-    polarizer   = device('kws1.polarizer.Polarizer',
-                         description = "high-level polarizer switcher",
-                         switcher = 'pol_switch',
-                         flipper = 'flipper'
-                        ),
+    polarizer    = device('kws1.polarizer.Polarizer',
+                          description = "high-level polarizer switcher",
+                          switcher = 'pol_switch',
+                          flipper = 'flipper'
+                         ),
 
     pol_xv       = device("devices.tango.Motor",
                          description = "polarizer table front X",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-description = 'Virtual KWS-1 setup'
+description = 'Fully virtual KWS-1 setup'
 group = 'basic'
 
 modules = ['kws1.commands']

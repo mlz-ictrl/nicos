@@ -5,23 +5,16 @@ group = 'lowlevel'
 
 excludes = ['virtual_selector']
 
-tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
+presets = configdata('config_selector.SELECTOR_PRESETS')
 
-SELECTOR_PRESETS = {
-    '5A':  dict(lam=5,  speed=26730.0),
-    '6A':  dict(lam=6,  speed=22275.0),
-    '7A':  dict(lam=7,  speed=19092.6),
-    '8A':  dict(lam=8,  speed=16706.4),
-    '10A': dict(lam=10, speed=13365.0),
-    '12A': dict(lam=12, speed=11137.2),
-}
+tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
     selector        = device('devices.generic.MultiSwitcher',
                              description = 'select selector presets',
                              moveables = ['selector_speed'],
                              mapping = dict((k, [v['speed']])
-                                            for (k, v) in SELECTOR_PRESETS.items()),
+                                            for (k, v) in presets.items()),
                              precision = [10.0],
                             ),
 

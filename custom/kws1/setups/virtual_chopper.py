@@ -3,7 +3,18 @@
 description = 'Virtual setup for the choppers'
 group = 'lowlevel'
 
+presets = configdata('config_chopper.CHOPPER_PRESETS')
+
 devices = dict(
+    chopper         = device('kws1.switcher.TofSwitcher',
+                             description = 'high-level chopper/TOF presets',
+                             selector = 'selector',
+                             det_pos = 'detector',
+                             moveables = ['chopper_params'],
+                             mappings = presets,
+                             precision = None,
+                            ),
+
     chopper1_phase  = device('devices.generic.VirtualMotor',
                              description = 'Phase of the first chopper',
                              unit = 'deg',

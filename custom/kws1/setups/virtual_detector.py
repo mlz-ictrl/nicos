@@ -3,18 +3,17 @@
 description = "Virtual detector setup"
 group = "lowlevel"
 
-DETECTOR_PRESETS = {
-    '4m':  dict(z=4, x=0, y=0),
-    '8m':  dict(z=8, x=2, y=10),
-    '20m': dict(z=20, x=10, y=10),
-}
+presets = configdata('config_detector.DETECTOR_PRESETS')
 
 devices = dict(
-    detector   = device('devices.generic.MultiSwitcher',
-                        description = 'select detector presets',
+    detector   = device('kws1.switcher.DetectorPosSwitcher',
+                        description = 'high-level detector presets',
+                        selector = 'selector',
                         moveables = ['det_z', 'det_x', 'det_y'],
-                        mapping = dict((k, [v['z'], v['x'], v['y']])
-                                       for (k, v) in DETECTOR_PRESETS.items()),
+                        mappings = dict(
+                            (name, dict((k, [v['z'], v['x'], v['y']])
+                                        for (k, v) in items.items()))
+                            for (name, items) in presets.items()),
                         precision = [0.01, 0.1, 0.1]
                        ),
 

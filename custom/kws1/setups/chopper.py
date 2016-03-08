@@ -5,9 +5,20 @@ group = 'lowlevel'
 
 excludes = ['virtual_chopper']
 
+presets = configdata('config_chopper.CHOPPER_PRESETS')
+
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
+    chopper         = device('kws1.switcher.TofSwitcher',
+                             description = 'high-level chopper/TOF presets',
+                             selector = 'selector',
+                             det_pos = 'detector',
+                             moveables = ['chopper_params'],
+                             mappings = presets,
+                             precision = None,
+                            ),
+
     chopper1_phase  = device('devices.tango.WindowTimeoutAO',
                              description = 'Phase of the first chopper',
                              tangodevice = tango_base + 'chopper/phase1',

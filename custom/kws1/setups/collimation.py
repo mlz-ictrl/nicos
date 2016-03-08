@@ -5,23 +5,15 @@ group = "lowlevel"
 
 excludes = ['virtual_collimation']
 
-tango_base = "tango://phys.kws1.frm2:10000/kws1/"
+presets = configdata('config_collimation.COLLIMATION_PRESETS')
 
-COLLIMATION_PRESETS = {
-    '2m (30x30)':  dict(guides=2,  ap_x=30, ap_y=30),
-    '4m (30x30)':  dict(guides=4,  ap_x=30, ap_y=30),
-    '8m (30x30)':  dict(guides=8,  ap_x=30, ap_y=30),
-    '14m (30x30)': dict(guides=14, ap_x=30, ap_y=30),
-    '20m (30x30)': dict(guides=20, ap_x=30, ap_y=30),
-    '2m (50x50)':  dict(guides=2,  ap_x=50, ap_y=50),
-    '4m (50x50)':  dict(guides=4,  ap_x=50, ap_y=50),
-}
+tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(
     collimation = device('kws1.collimation.Collimation',
                          description = 'high-level collimation device',
                          mapping = dict((k, (v['guides'], v['ap_x'], v['ap_y']))
-                                        for (k, v) in COLLIMATION_PRESETS.items()),
+                                        for (k, v) in presets.items()),
                          guides = 'coll_guides',
                          slitpos = [2, 4, 8, 14, 20],
                          slits = ['aperture_02',
