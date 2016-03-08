@@ -53,11 +53,11 @@ html_static_path = ['_static']
 html_style = 'nicos.css'
 
 latex_documents = [
-  ('contentspdf', 'NICOS.tex', u'NICOS v2 Documentation',
+  ('contentspdf', 'NICOS.tex', u'NICOS Documentation',
    u'NICOS contributors', 'manual'),
 ]
 pdf_documents = [
-  ('contentspdf', 'NICOS', u'NICOS v2 Documentation',
+  ('contentspdf', 'NICOS', u'NICOS Documentation',
    u'NICOS contributors', 'manual'),
 ]
 # A comma-separated list of custom stylesheets. Example:
@@ -87,7 +87,7 @@ pdf_inline_footnotes = True
 # Set the default DPI for images
 pdf_default_dpi = 300
 man_pages = [
-    ('index', 'nicos', u'NICOS v2 Documentation',
+    ('index', 'nicos', u'NICOS Documentation',
      [u'NICOS contributors'], 1)
 ]
 
