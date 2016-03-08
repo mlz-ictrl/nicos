@@ -25,8 +25,11 @@ devices = dict(
 #                    ),
 )
 
-startupcode = """
-T.alias = Ts_lascon
-Ts.alias = Ts_lascon
+alias_config = {
+    'T': {'Ts_lascon': 200},
+    'Ts': {'Ts_lascon': 100},
+}
+
+startupcode = '''
 SetEnvironment(T, Ts)
-"""
+'''

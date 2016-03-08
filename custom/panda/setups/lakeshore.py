@@ -49,7 +49,7 @@ devices = dict(
 
 )
 
-startupcode = '''
-T.alias='T_ls340'
-Ts.alias='T_ls340_B'
-'''
+alias_config = {
+    'T': {'T_ls340': 200},
+    'Ts': {'T_ls340_B': 100, 'T_ls340_A': 90, 'T_ls340_C': 80, 'T_ls340_D': 70},
+}

@@ -16,7 +16,7 @@ devices = dict(
                      ),
 )
 
-startupcode = '''
-T.alias = T_julabo
-Ts.alias = T_julabo
-'''
+alias_config = {
+    'T': {'T_julabo': 200},
+    'Ts': {'T_julabo': 100},
+}

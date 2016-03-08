@@ -59,10 +59,7 @@ devices = dict(
                 ),
 )
 
-startupcode = '''
-'''
-
-#startupcode = '''
-#T.alias='vti'
-#Ts.alias='sTs'
-#'''
+# alias_config = {
+#     'T': {'vti': 200},
+#     'Ts': {'sTs': 100},
+# }

@@ -27,7 +27,7 @@ devices = dict(
                      ),
 )
 
-startupcode = '''
-T.alias = T_ls2
-Ts.alias = T_ls2_A
-'''
+alias_config = {
+    'T': {'T_ls2': 180},  # lower than default T_ccr5
+    'Ts': {'T_ls2_A': 60, 'T_ls2_B': 50},
+}

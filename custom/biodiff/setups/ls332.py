@@ -28,7 +28,7 @@ devices = dict(
                       ),
 )
 
-startupcode = '''
-T.alias = T_ls332
-Ts.alias = T_ls332_A
-'''
+alias_config = {
+    'T': {'T_ls332': 200},
+    'Ts': {'T_ls332_A': 100, 'T_ls332_B': 90},
+}
