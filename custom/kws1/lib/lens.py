@@ -25,7 +25,7 @@
 """Class for controlling lenses."""
 
 from nicos.core import HasTimeout, Moveable, Readable, Param, Attach, oneof, \
-    listof, Override, status
+    listof, intrange, Override, status
 
 
 LENS_CONFIGS = ['%s-%s-%s' % (l1, l2, l3)
@@ -34,21 +34,49 @@ LENS_CONFIGS = ['%s-%s-%s' % (l1, l2, l3)
                 for l3 in ('out', 'in')]
 
 
-class Lenses(HasTimeout, Moveable):
+class Lenses(Moveable):
     """High-level lens control."""
 
     valuetype = oneof(*LENS_CONFIGS)
+
+    hardware_access = False
+
+    attached_devices = {
+        'io':  Attach('Lens I/O device', Moveable),
+    }
+
+    parameters = {
+        'values': Param('Possible values (for GUI)', userparam=False,
+                        type=listof(str), default=LENS_CONFIGS),
+    }
+
+    parameter_overrides = {
+        'fmtstr':     Override(default='%s'),
+        'unit':       Override(mandatory=False, default=''),
+    }
+
+    def doRead(self, maxage=0):
+        lens_read = int(self._attached_io.read(maxage))
+        configs = [('in' if lens_read & (1 << i) else 'out')
+                   for i in range(3)]
+        return '-'.join(configs)
+
+    def doStart(self, target):
+        configs = [(v == 'in') for v in target.split('-')]
+        bits = configs[0] + 2 * configs[1] + 4 * configs[2]
+        self._attached_io.start(bits)
+
+
+class LensControl(HasTimeout, Moveable):
+    """Control the 3 lenses."""
+
+    valuetype = intrange(0, 7)
 
     attached_devices = {
         'output':    Attach('output setter', Moveable),
         'input_in':  Attach('input for limit switch "in" position', Readable),
         'input_out': Attach('input for limit switch "out" position', Readable),
         'sync_bit':  Attach('sync bit output', Moveable),
-    }
-
-    parameters = {
-        'values': Param('Possible values (for GUI)', userparam=False,
-                        type=listof(str), default=LENS_CONFIGS),
     }
 
     parameter_overrides = {
@@ -58,7 +86,6 @@ class Lenses(HasTimeout, Moveable):
     }
 
     def doStatus(self, maxage=0):
-        # XXX: almost duplicate with collimation
         is_in = self._attached_input_in.read(maxage)
         is_out = self._attached_input_out.read(maxage)
         # check individual bits
@@ -75,14 +102,9 @@ class Lenses(HasTimeout, Moveable):
         return status.OK, 'idle'
 
     def doRead(self, maxage=0):
-        is_in = self._attached_input_in.read(maxage)
-        configs = [('in' if is_in & (1 << i) else 'out')
-                   for i in range(3)]
-        return '-'.join(configs)
+        return self._attached_input_in.read(maxage)
 
     def doStart(self, target):
-        configs = [(v == 'in') for v in target.split('-')]
-        bits = configs[0] + 2 * configs[1] + 4 * configs[2]
-        self._attached_output.start(bits)
+        self._attached_output.start(target)
         # without this bit, no outputs will be changed
         self._attached_sync_bit.start(1)
