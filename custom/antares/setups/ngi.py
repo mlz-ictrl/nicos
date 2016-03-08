@@ -2,8 +2,7 @@ description = 'Neutron Grating Interferometer'
 
 group = 'optional'
 
-includes = []
-
+excludes = ['ngi_jcns']
 
 devices = dict(
     G0rz = device('devices.taco.Motor',

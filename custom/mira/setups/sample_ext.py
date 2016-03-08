@@ -1,26 +1,28 @@
 description = 'sample table (external control)'
 group = 'lowlevel'
 
+excludes = ['sample']
+
 tango_host = 'mira1.mira.frm2:10000'
 
 devices = dict(
-    co_phi   = device('devices.tango.Sensor',
+    co_stt   = device('devices.tango.Sensor',
                       lowlevel = True,
                       tangodevice = 'tango://%s/mira/sample/phi_ext_enc' % tango_host,
                       unit = 'deg',
                      ),
-    mo_phi   = device('devices.tango.Motor',
+    mo_stt   = device('devices.tango.Motor',
                       lowlevel = True,
                       tangodevice = 'tango://%s/mira/sample/phi_ext_mot' % tango_host,
                       abslimits = (-120, 120),
                       unit = 'deg',
                       precision = 0.002,
                      ),
-    phi      = device('mira.axis.HoveringAxis',
+    stt      = device('mira.axis.HoveringAxis',
                       description = 'sample two-theta angle',
                       abslimits = (-120, 120),
-                      motor = 'mo_phi',
-                      coder = 'co_phi',
+                      motor = 'mo_stt',
+                      coder = 'co_stt',
                       obs = [],
                       startdelay = 1,
                       stopdelay = 2,

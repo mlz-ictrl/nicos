@@ -1,7 +1,7 @@
 description = 'POLI sample table'
 
 group = 'lowlevel'
-includes = []
+excludes = ['table']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
