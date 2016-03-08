@@ -84,5 +84,5 @@ devices = dict(
 )
 
 startupcode = """
-#~ SetDetectors(comtec)
+# SetDetectors(comtec)
 """

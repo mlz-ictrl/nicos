@@ -26,7 +26,3 @@ devices = dict(
                  alias='',
                 ),
 )
-
-startupcode = '''
-'''
-

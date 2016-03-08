@@ -38,10 +38,3 @@ devices = dict(
                  jitter = 0.5,       # work around a bug in S7
                 ),
 )
-
-
-
-#startupcode = '''
-#SetMode('maintenance') # automagically switch to maintenance (master) modus
-#print 'ignore next two lines.....'
-#'''

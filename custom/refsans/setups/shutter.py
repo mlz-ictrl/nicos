@@ -19,6 +19,3 @@ devices = dict(
                      mapping = {'close': 0, 'open': 55},
                     ),
 )
-
-startupcode = '''
-'''

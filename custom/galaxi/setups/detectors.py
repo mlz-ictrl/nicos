@@ -47,4 +47,3 @@ devices = dict(
 startupcode = '''
 SetDetectors(pilatus)
 '''
-

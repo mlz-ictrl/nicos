@@ -10,6 +10,3 @@ devices = dict(
                            filenametemplate = ['%08d.fits'],
                           ),
 )
-
-startupcode = '''
-'''

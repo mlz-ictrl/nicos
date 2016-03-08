@@ -32,6 +32,3 @@ devices = dict(
                  unit = 'deg',
                 ),
 )
-
-startupcode = '''
-'''

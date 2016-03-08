@@ -53,4 +53,6 @@ devices = dict(
                     ),
 )
 
-startupcode = "SetDetectors(ccddet)"
+startupcode = '''
+SetDetectors(ccddet)
+'''

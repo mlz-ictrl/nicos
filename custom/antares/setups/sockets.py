@@ -15,6 +15,3 @@ for n in range(1, 16):  # from 01 to 15
                tangodevice = tango_base + 'fzjdp_digital/Socket%02d' % n,
                mapping = dict(on=1, off=0),
               )
-
-startupcode = '''
-'''

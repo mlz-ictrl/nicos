@@ -34,6 +34,3 @@ devices = dict(
                  vertical = 'bmv',
                 ),
 )
-
-startupcode = """
-"""

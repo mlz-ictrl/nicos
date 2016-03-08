@@ -24,7 +24,3 @@ devices = dict(
                       lowlevel = True,
                      ),
 )
-
-
-startupcode = '''
-'''

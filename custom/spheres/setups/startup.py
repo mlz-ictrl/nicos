@@ -5,6 +5,3 @@ group = 'lowlevel'
 # usually stay empty.  In particular, it should not include any other setups
 # without good reason, so that on startup the previous master setups are loaded
 # automatically.
-
-startupcode = '''
-'''

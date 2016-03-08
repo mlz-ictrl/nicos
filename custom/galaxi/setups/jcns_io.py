@@ -131,7 +131,3 @@ devices = dict(
                           fmtstr = '%s',
                          ),
 )
-
-startupcode = '''
-'''
-

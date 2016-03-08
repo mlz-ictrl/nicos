@@ -54,6 +54,3 @@ devices = dict(
                         description = 'handles I/O inside daemon',
                        ),
 )
-
-startupcode = '''
-'''

@@ -34,4 +34,6 @@ devices = dict(
                      ),
 )
 
-startupcode = "SetDetectors(imgdet)"
+startupcode = '''
+SetDetectors(imgdet)
+'''

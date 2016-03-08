@@ -9,6 +9,3 @@ devices = dict(
                    tacodevice = 'antares/rs232/hgm09',
                   ),
 )
-
-startupcode = '''
-'''

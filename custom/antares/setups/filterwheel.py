@@ -57,8 +57,3 @@ devices = dict(
                          blockingmove = True,
                         ),
 )
-
-
-startupcode = '''
-'''
-

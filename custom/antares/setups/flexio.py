@@ -67,7 +67,3 @@ devices = dict(
                         bitwidth = 1,
                        ),
 )
-
-
-startupcode = '''
-'''

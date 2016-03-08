@@ -32,4 +32,6 @@ devices = dict(
                    ),
 )
 
-startupcode = 'hw=resi._hardware'
+startupcode = '''
+hw = resi._hardware
+'''

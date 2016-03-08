@@ -116,6 +116,3 @@ devices = dict(
                                  tangodevice = tango_analog + 'PinDiode2_Offset',
                                 ),
 )
-
-startupcode = '''
-'''

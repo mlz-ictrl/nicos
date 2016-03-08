@@ -9,6 +9,3 @@ devices = dict(
                    tangodevice = tango_base + 'network/sr830',
                   ),
 )
-
-startupcode = '''
-'''

@@ -25,6 +25,3 @@ devices = dict(
                     loglevel = 'debug',
                    ),
 )
-
-startupcode = '''
-'''

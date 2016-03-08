@@ -38,9 +38,9 @@ devices = dict(
                  ),
 )
 
-startupcode = """
+startupcode = '''
 ssvg = slit.height
 ssvo = slit.centery
 sshg = slit.width
 ssho = slit.centerx
-"""
+'''

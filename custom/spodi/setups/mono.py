@@ -74,6 +74,3 @@ devices = dict(
 
 alias_config = {
 }
-
-startupcode = """
-"""

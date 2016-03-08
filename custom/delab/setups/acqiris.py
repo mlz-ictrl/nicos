@@ -48,6 +48,6 @@ devices = dict(
                     ),
 )
 
-startupcode = """
+startupcode = '''
 SetDetectors(acqiris)
-"""
+'''

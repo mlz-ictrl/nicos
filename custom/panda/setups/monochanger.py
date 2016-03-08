@@ -188,6 +188,3 @@ devices = dict(
                             requires = dict(level='admin')
                            ),
 )
-
-startupcode = """
-"""

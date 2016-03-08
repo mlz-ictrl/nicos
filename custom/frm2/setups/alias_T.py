@@ -8,6 +8,6 @@ devices = dict(
     Ts = device('devices.generic.DeviceAlias'),
 )
 
-startupcode = """
+startupcode = '''
 AddEnvironment(Ts, T)
-"""
+'''

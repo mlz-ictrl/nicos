@@ -46,6 +46,3 @@ devices = dict(
                        maxage = 12,
                       ),
 )
-
-startupcode = '''
-'''

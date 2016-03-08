@@ -110,6 +110,3 @@ devices = dict(
                              fmtstr='0x%04x',
                             ),
 )
-
-startupcode = """
-"""

@@ -17,6 +17,3 @@ devices = dict(
                            unit = 'Hz',
                           ),
 )
-
-startupcode = '''
-'''

@@ -18,6 +18,3 @@ devices = dict(
                  userlimits = (0, 300),
                 ),
 )
-
-startupcode = '''
-'''

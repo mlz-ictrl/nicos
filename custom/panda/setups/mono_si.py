@@ -73,9 +73,9 @@ devices = dict(
                         ),
 )
 
-startupcode = """
+startupcode = '''
 try:
-    _=(ana, mono, mfv, mfh, focibox)
+    _ = (ana, mono, mfv, mfh, focibox)
 except NameError as e:
     printerror("The requested setup 'panda' is not fully loaded!")
     raise NameError('One of the required devices is not loaded : %s, please check!' % e)
@@ -95,4 +95,4 @@ if focibox.read(0) == 'Si':
     del session
 else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_si !!!')
-"""
+'''

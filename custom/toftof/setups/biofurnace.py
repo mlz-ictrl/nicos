@@ -22,7 +22,3 @@ alias_config = {
     'T': {'T_bio': 200},
     'Ts': {'T_bio': 100},
 }
-
-startupcode = '''
-SetEnvironment(Ts, T)
-'''

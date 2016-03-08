@@ -20,6 +20,3 @@ for i in range(0, 8):
                                   )
 
 devices['out_1'][1]['lowlevel'] = False
-
-startupcode = '''
-'''

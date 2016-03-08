@@ -90,6 +90,3 @@ devices = dict(
                       maxtries = 1,
                      ),
 )
-
-startupcode = '''
-'''

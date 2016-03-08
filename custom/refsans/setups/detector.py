@@ -76,6 +76,6 @@ devices = dict(
                         ),
 )
 
-startupcode = """
+startupcode = '''
 SetDetectors(comtec)
-"""
+'''

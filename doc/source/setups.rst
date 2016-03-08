@@ -128,9 +128,9 @@ except the **description** entry:
 
    Example::
 
-      startupcode = """
+      startupcode = '''
       AddEnvironment(T, Ts)
-      """
+      '''
 
 ``extended``
    A dictionary, reserved for future use.

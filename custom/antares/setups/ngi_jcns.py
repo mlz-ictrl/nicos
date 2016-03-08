@@ -69,6 +69,3 @@ devices = dict(
                    pollinterval = 3,
                   ),
 )
-
-startupcode = '''
-'''

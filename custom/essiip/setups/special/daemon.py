@@ -40,6 +40,6 @@ devices = dict(
                    ),
 )
 
-startupcode='''
+startupcode = '''
 import nicos.devices.epics
 '''

@@ -18,7 +18,3 @@ devices = dict(
                             abslimits = (0, 1e9),
                            ),
 )
-
-startupcode = """
-"""
-

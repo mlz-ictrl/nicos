@@ -15,6 +15,6 @@ devices = dict(
                 ),
 )
 
-startupcode = """
+startupcode = '''
 AddEnvironment(P)
-"""
+'''

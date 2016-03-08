@@ -95,12 +95,12 @@ devices = dict(
                         ),
 )
 
-startupcode = """
+startupcode = '''
 from nicos import session
 from nicos.core import SIMULATION
 
 try:
-    _=(ana, mono, mfv, mfh, focibox)
+    _ = (ana, mono, mfv, mfh, focibox)
 except NameError as e:
     printerror("The requested setup 'panda' is not fully loaded!")
     raise NameError('One of the required devices is not loaded : %s, please check!' % e)
@@ -109,12 +109,12 @@ if session.mode == SIMULATION:
     mfh.alias = session.getDevice('mfh_pg')
     mfv.alias = session.getDevice('mfv_pg')
     mono.alias = session.getDevice('mono_pg')
-#    ana.alias = session.getDevice('ana_pg')
+    # ana.alias = session.getDevice('ana_pg')
 elif focibox.read(0) == 'PG':
     mfh.alias = session.getDevice('mfh_pg')
     mfv.alias = session.getDevice('mfv_pg')
     mono.alias = session.getDevice('mono_pg')
-#    ana.alias = session.getDevice('ana_pg')
+    # ana.alias = session.getDevice('ana_pg')
     mfh.motor._pushParams() # forcibly send parameters to HW
     mfv.motor._pushParams() # forcibly send parameters to HW
     focibox.comm('XMA', forcechannel=False) # enable output for mfh
@@ -124,4 +124,4 @@ elif focibox.read(0) == 'PG':
 else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_pg !!!')
 del session
-"""
+'''

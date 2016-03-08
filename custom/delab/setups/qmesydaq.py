@@ -71,6 +71,6 @@ devices = dict(
                     ),
 )
 
-startupcode = """
+startupcode = '''
 SetDetectors(mesytec)
-"""
+'''

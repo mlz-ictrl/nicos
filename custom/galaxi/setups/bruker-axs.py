@@ -59,6 +59,3 @@ devices = dict(
                           unit = '',
                          ),
 )
-
-startupcode = '''
-'''

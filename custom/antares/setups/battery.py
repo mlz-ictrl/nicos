@@ -28,6 +28,6 @@ devices = {
                  ),
 }
 
-startupcode = """
+startupcode = '''
 AddEnvironment(T1, T2)
-"""
+'''

@@ -29,7 +29,3 @@ devices = dict(
                      mapping = dict(ON=1, OFF=0),
                     ),
 )
-
-startupcode = """
-"""
-

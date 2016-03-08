@@ -169,6 +169,3 @@ devices = dict(
                             states = ['in', 'out'],
                            ),
 )
-
-startupcode = '''
-'''

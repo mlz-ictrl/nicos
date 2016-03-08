@@ -32,7 +32,3 @@ devices = dict(
                            tacodevice = '%s/WB_C/2_6' % tacodev,
                           ),
 )
-
-startupcode = """
-"""
-

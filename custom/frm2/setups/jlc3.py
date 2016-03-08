@@ -114,6 +114,6 @@ alias_config = {
     'Ts': {'T_%s_B' % setupname: 100, 'T_%s_A' % setupname: 90, 'T_%s_D' % setupname: 20, 'T_%s_C' % setupname: 10},
 }
 
-startupcode = """
+startupcode = '''
 printinfo("Please set T_%s.regulationmode to either 'stick' or 'tube' according to your needs.")
-""" % setupname
+''' % setupname

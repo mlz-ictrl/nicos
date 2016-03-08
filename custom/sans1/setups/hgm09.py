@@ -14,5 +14,3 @@ devices = dict(
                    tacotimeout = 5,
                   ),
 )
-startupcode = """
-"""
