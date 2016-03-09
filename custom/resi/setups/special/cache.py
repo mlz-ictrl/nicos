@@ -5,10 +5,10 @@ group = 'special'
 
 devices = dict(
     DBmem     = device('services.cache.server.MemoryCacheDatabase',
-                    loglevel = 'warning'),
+                    loglevel = 'info'),
     DBfile     = device('services.cache.server.FlatfileCacheDatabase',
                     storepath = '/home/resi/pedersen/nicos-cache',
-                    loglevel = 'warning'),
+                    loglevel = 'info'),
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DBmem',

@@ -35,13 +35,19 @@ import math
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
 
-from nicos.core import Moveable, Param, Attach  #@UnusedImport  pylint: disable=W0611
+from nicos.core import Moveable, Param, Attach
 from nicos.devices.sample import Sample
-from nicos.core import vec3
+from nicos.core import vec3, NicosError
 
 # imports from the nonius libs
-from sc_scan_new import HuberScan  # pylint: disable=F0401
-from goniometer import position    # pylint: disable=F0401
+try:
+    from sc_scan_new import HuberScan  # pylint: disable=F0401
+    from goniometer import position    # pylint: disable=F0401
+except ImportError:
+    # at least make the module importable for setup checking
+    HuberScan = None
+    position = None
+
 
 class ResiPositionProxy(object):
     """
@@ -76,6 +82,7 @@ class ResiPositionProxy(object):
     def __setstate__(self, state):
         self.pos = position.PositionFromStorage(ResiPositionProxy.__hardware, state)
 
+
 class ResiDevice(Moveable):
     '''
     Main device for RESI
@@ -91,6 +98,9 @@ class ResiDevice(Moveable):
         Constructor
         '''
         # the hardware will use a dummy driver if no hardware is detected
+        if HuberScan is None:
+            raise NicosError(self, 'Nonius scan libraries not found on this '
+                             'system, cannot use ResiDevice')
         self._hardware = HuberScan()
         try:
             self._hardware.LoadRmat()
