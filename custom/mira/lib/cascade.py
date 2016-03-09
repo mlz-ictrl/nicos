@@ -31,7 +31,7 @@ import numpy
 
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, \
-    Value, CommunicationError, Readable, ImageSink, ImageType, \
+    Value, CommunicationError, Readable, ImageSink, ImageType, NicosError, \
     HasCommunication
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
     ActiveChannel
@@ -39,7 +39,11 @@ from nicos.devices.tas.mono import to_k, from_k
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
 from nicos.core import Attach, SIMULATION
 
-import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
+try:
+    import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
+except ImportError:
+    # make the module importable for Jenkins setup-check
+    cascadeclient = None
 
 
 class CascadePadRAWFormat(SingleRAWFileFormat):
@@ -233,6 +237,9 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
     #
 
     def doPreinit(self, mode):
+        if cascadeclient is None:
+            raise NicosError(self, 'cascadeclient module is not installed, '
+                             'cannot use this device class')
         if mode != SIMULATION:
             self._client = cascadeclient.NicosClient()
             self.doReset()
