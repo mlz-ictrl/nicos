@@ -62,6 +62,7 @@ devices = dict(
                ),
 
     b1 = device('devices.generic.Slit',
+                description = 'first slit',
                 top = 'e1',
                 bottom = 'e2',
                 right = 'e3',

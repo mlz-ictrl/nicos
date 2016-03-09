@@ -51,7 +51,7 @@ sysconfig = dict(
     cache = 'lauectrl.laue.frm2',
     instrument = 'Laue',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'dmnsink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -63,6 +63,7 @@ modules = ['commands.standard']
 # The parameters are given as keyword arguments.
 devices = dict(
     Laue = device('devices.instrument.Instrument',
+                  description = 'instrument object',
                   instrument = 'Laue',
                   responsible = 'R. Esponsible <noreply@frm2.tum.de>',
                   #  we do not have a dedicated responsible
@@ -74,6 +75,7 @@ devices = dict(
 
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
+                      description = 'experiment object',
                       dataroot = '/data',
                       sendmail = False,
                       zipdata = False,
@@ -82,11 +84,17 @@ devices = dict(
                       sample = 'Sample',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    dmnsink  = device('devices.datasinks.DaemonSink',
+                      lowlevel = True,
+                     ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
@@ -99,12 +107,14 @@ devices = dict(
                       sender = 'noreply@frm2.tum.de',
                       copies = [],
                       subject = 'NICOS',
+                      lowlevel = True,
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
+                      lowlevel = True,
                      ),
 )
 

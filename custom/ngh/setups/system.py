@@ -62,10 +62,13 @@ modules = ['commands.standard']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Sample   = device('devices.sample.Sample'),
+    Sample   = device('devices.sample.Sample',
+                      description = 'currently used sample',
+                     ),
 
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
+                      description = 'experiment object',
                       dataroot = 'data',
                       sendmail = True,
                       serviceexp = '0',
@@ -77,5 +80,6 @@ devices = dict(
                       sender = 'ictrl@frm2.tum.de',
                       receivers = ['alexander.lenz@frm2.tum.de'],
                       subject = 'NICOS Warning',
+                      lowlevel = True,
                      ),
 )
