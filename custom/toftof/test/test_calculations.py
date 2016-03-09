@@ -37,7 +37,8 @@ def test_basic_calculations():
     for i in [1, 2, 4, 5, 8, 10]:
         assert speedRatio(i) == r[i]
 
-    res1 = ['0.00', '12.74', '432.78', '1013.21', '1022.77', '1264.45', '1274.00']
+    res1 = ['0.00', '12.74', '432.78', '1013.21', '1022.77', '1264.45',
+            '1274.00']
     for x in range(1, 8):
         assert '%.2f' % phi1(x, 14000, ilambda=6) == res1[x - 1]
 
@@ -67,11 +68,12 @@ def test_basic_calculations():
     assert '%f, %f' % Eres1(6, 14000, crc=0) == '0.000096, 0.000128'
     assert '%f, %f' % Eres1(6, 14000, crc=1) == '0.000048, 0.000064'
 
+
 def test_delay_calculations():
 
     assert calculateChopperDelay(6, 14000, 5, 0, False) == 1094
     assert calculateChopperDelay(6, 14000, 5, 1, False) == 22
 
-    assert calculateCounterDelay(6,14000,5,0,False) == 129070
+    assert calculateCounterDelay(6, 14000, 5, 0, False) == 129070
 
     assert '%.7f' % calculateTimeInterval(14000, 5) == '0.0107143'
