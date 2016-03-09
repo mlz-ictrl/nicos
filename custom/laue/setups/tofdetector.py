@@ -4,19 +4,20 @@ group = 'basic'
 sysconfig = dict(
 )
 
-tangohost = '%s:10000' % 'lauecounter.laue.frm2'
+tango_base = 'tango://lauecounter.laue.frm2:10000/laue/'
 
 devices = dict(
     FileSaver = device('laue.fileformats.ASCIIFileFormat',
                        description = 'Saves TOF data in ASCII format',
                       ),
-    det = device('devices.tango.TofDetector',
-                 description = 'TOF detector device',
-                 tangodevice = 'tango://%s/laue/tof/detector' % tangohost,
-                 timer = 'tango://%s/laue/tof/timer' % tangohost,
-                 subdir = '.',
-                 fileformats = ['FileSaver', ],
-                ),
+    # TODO: fix this (use TOFChannel and generic.Detector)
+    # det = device('devices.tango.TofDetector',
+    #              description = 'TOF detector device',
+    #              tangodevice = tango_base + 'tof/detector',
+    #              timer = tango_base + 'tof/timer',
+    #              subdir = '.',
+    #              fileformats = ['FileSaver', ],
+    #             ),
 )
 
 startupcode = '''
