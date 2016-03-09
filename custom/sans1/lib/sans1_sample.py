@@ -48,9 +48,9 @@ class Sans1Sample(NicosSample):
         'samplename': Override(volatile = True),
     }
 
-    def reset(self):
-        """Reset experiment-specific information."""
-        NicosSample.reset(self)
+    def clear(self):
+        """Clear experiment-specific information."""
+        NicosSample.clear(self)
         self.samplenames = {}
 
     def setName(self, idx, name):

@@ -667,8 +667,8 @@ class TASSample(Sample, Cell):
                         unit='deg', category='sample'),
     }
 
-    def reset(self):
-        Sample.reset(self)
+    def clear(self):
+        Sample.clear(self)
         self.lattice = [2 * pi, 2 * pi, 2 * pi]
         self.angles = [90, 90, 90]
         self.orient1 = [1, 0, 0]

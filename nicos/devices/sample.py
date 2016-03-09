@@ -44,8 +44,8 @@ class Sample(Device):
                              category='sample'),
     }
 
-    def reset(self):
-        """Reset experiment-specific information."""
+    def clear(self):
+        """Clear experiment-specific information."""
         self.samplename = ''
 
     def doWriteSamplename(self, name):

@@ -73,7 +73,7 @@ def ClearSamples():
     if not isinstance(sd, Sans1Sample):
         raise ConfigurationError("Instrument needs to be configured with a "
                                  "Sans1Sample for this command to work")
-    sd.reset()
+    sd.clear()
 
 @usercommand
 @helparglist('sampleposition')

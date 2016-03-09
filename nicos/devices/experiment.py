@@ -646,7 +646,7 @@ class Experiment(Device):
 
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
-        self.sample.reset()
+        self.sample.clear()
         self.envlist = []
         for notifier in session.notifiers:
             notifier.reset()
