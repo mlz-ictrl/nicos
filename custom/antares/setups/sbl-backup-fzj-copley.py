@@ -2,6 +2,8 @@ description = 'Small Beam Limiter in Experimental Chamber 1'
 
 group = 'optional'
 
+excludes = ['sbl']
+
 tango_host = 'tango://slow.antares.frm2:10000'
 
 

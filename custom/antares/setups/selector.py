@@ -2,6 +2,8 @@ description = 'setup for the velocity selector'
 
 tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
+excludes = ['jcns_mot']
+
 devices = dict(
     selector_state = device('devices.vendor.astrium.SelectorState',
                             tacodevice = '//antaressrv/antares/network/selector',
