@@ -82,7 +82,7 @@ class MiraXMLFormat(ImageSink):
 
     attached_devices = {
         'timer':     Attach('Timer readout', ActiveChannel),
-        'counter':   Attach('Monitor readout', ActiveChannel),
+        'monitor':   Attach('Monitor readout', ActiveChannel),
         'mono':      Attach('Monochromator device to read out', Monochromator),
         'sampledet': Attach('Sample-detector distance readout', Readable),
     }
