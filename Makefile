@@ -52,6 +52,9 @@ install-requirements:
 check:
 	$(PYTHON) tools/check_setups $(CHECK_DIRS)
 
+setupcheck:
+	$(PYTHON) tools/check_setups -s custom/*/setups
+
 T = test
 
 test:

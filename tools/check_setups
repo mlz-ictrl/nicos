@@ -350,6 +350,9 @@ parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
 parser.add_option('-o', '--outfile', dest='filename', action='store',
                   default=None, type='string',
                   help='write report to FILE', metavar='FILE')
+parser.add_option('-s', '--separate', dest='separate', action='store_true',
+                  help='treat every argument as a separate setup directory '
+                  'for duplicate device purposes')
 
 opts, args = parser.parse_args()
 
@@ -387,6 +390,9 @@ devs_seen = {}
 setup_info = {}
 ret = True
 for p in args:
+    if opts.separate:
+        devs_seen = {}
+        setup_info = {}
     if path.isdir(p):
         for root, _dirs, files in os.walk(p):
             for f in files:
