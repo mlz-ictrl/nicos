@@ -101,7 +101,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
             valuetype = self._client.getDeviceValuetype(devname)
             if curvalue is None:
                 curvalue = self._client.getDeviceValue(devname)
-            if curvalue is None:
+            if curvalue is None and valuetype is not None:
                 curvalue = valuetype()
         else:
             valuetype = str
@@ -171,7 +171,7 @@ class DeviceParamEdit(DeviceValueEdit):
                 valuetype = pinfo[parname]['type']
             if curvalue is None:
                 curvalue = pvals.get(parname)
-            if curvalue is None:
+            if curvalue is None and valuetype is not None:
                 curvalue = valuetype()
         else:
             valuetype = str
@@ -193,6 +193,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         curvalue = typ(curvalue)
     except ValueError:
         curvalue = typ()
+    except TypeError:
+        return MissingWidget(parent, curvalue, 'device not found')
     if unit:
         inner = create(parent, typ, curvalue, fmtstr, unit='', client=client,
                        allow_enter=allow_enter)
@@ -440,9 +442,9 @@ class CheckWidget(QWidget):
 
 class MissingWidget(QLabel):
 
-    def __init__(self, parent, curvalue):
+    def __init__(self, parent, curvalue, text='editing impossible'):
         QLabel.__init__(self, parent)
-        self.setText('(editing impossible)')
+        self.setText('(%s)' % text)
         self._value = curvalue
 
     def getValue(self):
