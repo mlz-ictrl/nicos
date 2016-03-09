@@ -9,6 +9,7 @@ includes = ['shutters', 'filesavers']
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
+    # TODO: configure generic.Detector device to use the channel
     ikonl = device('antares.detector.AntaresIkonLCCD',
                  description = 'The Andor Ikon L CCD camera detector',
                  tangodevice = tango_base + 'detector/limaccd',
@@ -24,8 +25,6 @@ devices = dict(
                  vsspeed = 38.55,
                  hsspeed = 1,
                  pgain = 1,
-                 subdir = '.',
-                 fileformats = ['FITSFileSaver'],
                 ),
     ikonlTemp = device('devices.vendor.lima.Andor2TemperatureController',
                      description = 'The CCD chip temperature',
