@@ -7,12 +7,12 @@ includes = ['sample_table_1'] # includes 'sample_table_1'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    samplenameselector = device('devices.generic.ParamDevice',
-                                description = 'Paramdevice used to select the right samplename',
-                                lowlevel = True,
-                                device = 'Sample',
-                                parameter = 'activesample',
-                               ),
+    samplenameselector2 = device('devices.generic.ParamDevice',
+                                 description = 'Paramdevice used to select the right samplename',
+                                 lowlevel = True,
+                                 device = 'Sample',
+                                 parameter = 'activesample',
+                                ),
 
     sc2_y    = device('devices.generic.Axis',
                          description = 'Sample Changer 1/2 Axis',
@@ -41,7 +41,7 @@ devices = dict(
 
     sc2    = device('devices.generic.MultiSwitcher',
                     description = 'Sample Changer 2 Huber device',
-                    moveables = ['sc2_y', 'st1_z', 'samplenameselector'],
+                    moveables = ['sc2_y', 'st1_z', 'samplenameselector2'],
                     mapping = {1:  [592.5, -32, 1],  2: [533.5, -32, 2],
                                3:  [474.5, -32, 3],  4: [415.5, -32, 4],
                                5:  [356.5, -32, 5],  6: [297.5, -32, 6],

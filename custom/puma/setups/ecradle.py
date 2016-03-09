@@ -5,6 +5,7 @@ description = 'Eulerian cradle'
 group = 'lowlevel'
 
 includes = ['system', 'motorbus2', 'motorbus5']
+excludes = ['euler']
 
 devices = dict(
     st_echi    = device('devices.vendor.ipc.Motor',

@@ -2,7 +2,7 @@ description = 'x-z detector table at beam TREFF with the short x axis'
 
 group = 'lowlevel'
 
-includes = []
+excludes = ['long_table_treff', 'table_lab']
 
 nethost = 'localhost'
 
@@ -42,4 +42,3 @@ devices = dict(
                     userlimits = (0, 264.5),
                    ),
 )
-

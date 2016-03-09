@@ -2,7 +2,7 @@ description = 'x-z detector table at beam TREFF with long x axis'
 
 group = 'lowlevel'
 
-includes = []
+excludes = ['short_table_treff', 'table_lab']
 
 nethost = 'localhost'
 
