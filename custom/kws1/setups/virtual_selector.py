@@ -8,6 +8,7 @@ presets = configdata('config_selector.SELECTOR_PRESETS')
 devices = dict(
     selector        = device('devices.generic.MultiSwitcher',
                              description = 'select selector presets',
+                             blockingmove = False,
                              moveables = ['selector_speed'],
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),

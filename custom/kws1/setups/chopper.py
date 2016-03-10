@@ -12,11 +12,23 @@ tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 devices = dict(
     chopper         = device('kws1.switcher.TofSwitcher',
                              description = 'high-level chopper/TOF presets',
+                             blockingmove = False,
                              selector = 'selector',
                              det_pos = 'detector',
-                             moveables = ['chopper_params'],
-                             mappings = presets,
+                             moveables = ['chopper_params', 'det_tof_params'],
+                             mappings = dict(
+                                 (name, dict((k, [(v['phase'], v['freq']),
+                                                  ('tof', v['channels'],
+                                                   v['interval'])])
+                                             for (k, v) in items.items()))
+                                 for (name, items) in presets.items()),
                              precision = None,
+                            ),
+
+    det_tof_params  = device('kws1.switcher.DetTofParams',
+                             description = 'parameter setter for TOF params',
+                             detector = 'det',
+                             lowlevel = True,
                             ),
 
     chopper1_phase  = device('devices.tango.WindowTimeoutAO',

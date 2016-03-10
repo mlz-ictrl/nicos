@@ -8,6 +8,7 @@ presets = configdata('config_detector.DETECTOR_PRESETS')
 devices = dict(
     detector   = device('kws1.switcher.DetectorPosSwitcher',
                         description = 'high-level detector presets',
+                        blockingmove = False,
                         selector = 'selector',
                         moveables = ['det_z', 'det_x', 'det_y'],
                         mappings = dict(

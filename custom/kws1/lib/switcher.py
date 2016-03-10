@@ -24,9 +24,10 @@
 
 """Switcher extensions for KWS."""
 
-from nicos.core import Moveable, Attach, Param, Override, oneof, dictof, \
-    anytype
+from nicos.core import Moveable, Attach, Param, Override, status, oneof, \
+    tupleof, dictof, anytype
 from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.kws1.daq import KWSDetector
 
 
 class DynamicMultiSwitcher(MultiSwitcher):
@@ -50,13 +51,14 @@ class DynamicMultiSwitcher(MultiSwitcher):
     def doUpdateMapping(self, newvalue):
         self.valuetype = oneof(*newvalue)
 
-    def doStart(self, target):
+    def start(self, target):
         self.mapping = self._determineMapping()
-        MultiSwitcher.doStart(self, target)
+        MultiSwitcher.start(self, target)
 
     def doPoll(self, i, maxage):
         # will use the correct mapping on the next polling cycle
         self._setROParam('mapping', self._determineMapping())
+        self.doUpdateMapping(self.mapping)
 
 
 class DetectorPosSwitcher(DynamicMultiSwitcher):
@@ -91,4 +93,35 @@ class TofSwitcher(DynamicMultiSwitcher):
     def _determineMapping(self):
         sel_value = self._attached_selector.target
         det_value = self._attached_det_pos.target
-        return self.mappings.get((sel_value, det_value), {})
+        mapping = self.mappings.get((sel_value, det_value), {}).copy()
+        mapping['off'] = [(0, 0), ('standard', 1, 1)]
+        return mapping
+
+
+class DetTofParams(Moveable):
+    """Sets detector's TOF parameters for use in a chopper preset."""
+
+    attached_devices = {
+        'detector':    Attach('Detector device', KWSDetector),
+    }
+
+    parameter_overrides = {
+        'unit':        Override(mandatory=False),
+    }
+
+    # mode, tofchannels, tofinterval
+    valuetype = tupleof(str, int, int)
+
+    def doStart(self, value):
+        self._attached_detector.mode = value[0]
+        self._attached_detector.tofchannels = value[1]
+        self._attached_detector.tofinterval = value[2]
+        self._attached_detector.tofprog = 1.0  # linear channel widths
+
+    def doRead(self, maxage=0):
+        return (self._attached_detector.mode,
+                self._attached_detector.tofchannels,
+                self._attached_detector.tofinterval)
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''

@@ -12,6 +12,7 @@ tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 devices = dict(
     selector        = device('devices.generic.MultiSwitcher',
                              description = 'select selector presets',
+                             blockingmove = False,
                              moveables = ['selector_speed'],
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),

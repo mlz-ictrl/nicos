@@ -12,6 +12,7 @@ tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 devices = dict(
     detector   = device('kws1.switcher.DetectorPosSwitcher',
                         description = 'high-level detector presets',
+                        blockingmove = False,
                         selector = 'selector',
                         moveables = ['det_z', 'det_x', 'det_y'],
                         mappings = dict(

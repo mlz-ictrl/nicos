@@ -51,6 +51,7 @@ devices = dict(
                         ),
     pol_switch  = device("kws1.polarizer.PolSwitcher",
                          description = "switch polarizer or neutron guide",
+                         blockingmove = False,
                          moveables = ["pol_rot", "pol_xv", "pol_yv", "pol_xh", "pol_yh"],
                          readables = [],
                          movepos = [5.0, 5.0, 5.0, 5.0],
