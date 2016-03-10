@@ -32,16 +32,107 @@ from numpy import sqrt, pi, sin, arcsin, radians, degrees
 
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.commands.analyze import FitResult
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
-from nicos.pycompat import urllib, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import urllib, iteritems
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.utils.fitting import Fit, GaussFit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 
+__all__ = [
+    'NewSample', 'SetSample', 'SelectSample', 'ClearSamples', 'ListSamples',
+]
+
 ACTIVATIONURL = 'https://webapps.frm2.tum.de/intranet/activation/'
+
+
+@usercommand
+@helparglist('name, ...')
+def NewSample(name, **parameters):
+    """Define and select a new sample with the given sample name.
+
+    Example:
+
+    >>> NewSample('D2O')
+
+    Other parameters can be given, depending on the parameters of the sample
+    object.  For example, for triple-axis spectrometers, the following command
+    is valid:
+
+    >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
+    """
+    parameters['name'] = name
+    session.experiment.sample.new(parameters)
+
+
+@usercommand
+@helparglist('number, name, ...')
+def SetSample(number, name, **parameters):
+    """Update sample name and parameters for given sample number.
+
+    Example:
+
+    >>> SetSample(2, 'Sample2')  # set name of sample number 2 to 'Sample2'
+
+    If several samples need to be specified, several calls to SetSample are
+    required.
+    """
+    parameters['name'] = name
+    session.experiment.sample.set(number, parameters)
+
+
+@usercommand
+def SelectSample(number_or_name):
+    """Select the sample with the given number or name.
+
+    When using names to select, the name must be unique among all configured
+    samples, otherwise an error is raised.
+
+    Example:
+
+    >>> SelectSample(3)  # select sample with number 3
+    >>> SelectSample('Sample2')  # select sample with name 'Sample2'
+    """
+    session.experiment.sample.select(number_or_name)
+
+
+@usercommand
+def ClearSamples():
+    """Clear current sample information and delete all stored samples.
+
+    Example:
+
+    >>> ClearSamples()
+    """
+    session.experiment.sample.clear()
+    session.experiment.samples = {}
+
+
+@usercommand
+def ListSamples():
+    """List all information about defined samples.
+
+    Example:
+
+    >>> ListSamples()
+    """
+    rows = []
+    all_cols = set()
+    index = {}
+    for info in session.experiment.samples.values():
+        all_cols.update(info)
+    all_cols.discard('name')
+    index = dict((key, i) for (i, key) in enumerate(sorted(all_cols), start=2))
+    index['name'] = 1
+    for number, info in iteritems(session.experiment.samples):
+        rows.append([str(number), info['name']] + [''] * len(all_cols))
+        for key in info:
+            rows[-1][index[key]] = str(info[key])
+    printTable(['number', 'sample name'] + sorted(all_cols),
+               rows, session.log.info)
 
 
 @usercommand

@@ -25,29 +25,95 @@
 
 """NICOS Sample device."""
 
-from nicos.core.device import Device
-from nicos.core.params import Param
 from nicos import session
+from nicos.core import Device, Param, none_or, InvalidValueError
 
 
 class Sample(Device):
     """A special device to represent a sample.
 
     An instance of this class is used as the *sample* attached device of the
-    `Experiment` object.  It can be subclassed to add special sample properties,
-    such as lattice and orientation calculations, or more parameters describing
-    the sample.
+    `Experiment` object.  It can be subclassed to add special sample
+    properties, such as lattice and orientation calculations, or more
+    parameters describing the sample.
+
+    The experiment stores the collection of all currently defined samples in
+    its `samples` parameter.  When changing samples, it will overwrite the
+    sample device's parameters with these values.
     """
 
     parameters = {
-        'samplename':  Param('Sample name', type=str, settable=True,
-                             category='sample'),
+        'samplename':   Param('Current sample name', type=str, settable=True,
+                              category='sample'),
+        'samplenumber': Param('Current sample number: e.g. the position in '
+                              'a sample changer or the index of the sample '
+                              'among all defined samples', type=none_or(int),
+                              settable=True),
     }
-
-    def clear(self):
-        """Clear experiment-specific information."""
-        self.samplename = ''
 
     def doWriteSamplename(self, name):
         if name:
             session.elogEvent('sample', name)
+
+    def clear(self):
+        """Clear experiment-specific information."""
+        self.samplename = ''
+        self.samplenumber = None
+
+    def new(self, parameters):
+        """Create and select a new sample."""
+        # In this simple base class, we expect the user to use only NewSample,
+        # so we remove stored sample information every time to avoid a buildup
+        # of unused sample information.
+        session.experiment.samples = {0: parameters}
+        self.select(0)
+
+    def set(self, number, parameters):
+        """Set sample information for sample no. *number*."""
+        if number is None:
+            raise InvalidValueError(self, 'cannot use None as sample number')
+        info = session.experiment.samples.copy()
+        if number in info:
+            self.log.warning('overwriting parameters for sample %s (%s)' %
+                             (number, info[number]['name']))
+        info[number] = parameters
+        session.experiment.samples = info
+
+    def select(self, number_or_name):
+        """Select sample with given number or name."""
+        number = self._findIdent(number_or_name)
+        try:
+            parameters = session.experiment.samples[number]
+        except KeyError:
+            raise InvalidValueError(self, 'cannot find sample with number '
+                                    'or name %r' % number_or_name)
+        self._applyParams(number, parameters)
+        session.experiment.newSample(parameters)
+
+    def _findIdent(self, number_or_name):
+        """Find sample number.  Can be overridden in subclasses."""
+        # look by number
+        if number_or_name in session.experiment.samples:
+            return number_or_name
+        # look by name
+        found = None
+        for (number, parameters) in session.experiment.samples.items():
+            if parameters['name'] == number_or_name:
+                if found is not None:
+                    # two samples with same name found...
+                    raise InvalidValueError(self, 'two samples with name %r '
+                                            'were found, please use the '
+                                            'sample number (%s or %s)' %
+                                            (number_or_name, found, number))
+                found = number
+        return found
+
+    def _applyParams(self, number, parameters):
+        """Apply sample parameters.  Override in subclasses.
+
+        All parameters beside the name should be treated as optional by
+        subclasses, since they will not be provided for the empty sample
+        created by NewExperiment.
+        """
+        self.samplenumber = number
+        self.samplename = parameters['name']

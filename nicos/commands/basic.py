@@ -58,7 +58,7 @@ __all__ = [
     'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
     '_Restart', 'Keep',
     'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
-    'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
+    'NewExperiment', 'FinishExperiment', 'AddUser',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'SetDataReceivers', '_trace', 'timer',
@@ -436,24 +436,6 @@ def AddUser(name, email=None, affiliation=None):
     if session.mode == SIMULATION:
         return
     session.experiment.addUser(name, email, affiliation)
-
-
-@usercommand
-@helparglist('name, ...')
-def NewSample(name, **parameters):
-    """Start a new sample with the given sample name.
-
-    Example:
-
-    >>> NewSample('D2O')
-
-    Other parameters can be given, depending on the parameters of the sample
-    object.  For example, for triple-axis spectrometers, the following command
-    is valid:
-
-    >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
-    """
-    session.experiment.newSample(name, parameters)
 
 
 @usercommand

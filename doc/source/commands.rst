@@ -43,8 +43,13 @@ Experiment-related commands
 ---------------------------
 
 .. autofunction:: NewExperiment
-.. .. autofunction:: AddUser
+
 .. autofunction:: NewSample
+.. autofunction:: SetSample
+.. autofunction:: SelectSample
+.. autofunction:: ClearSamples
+.. autofunction:: ListSamples
+
 .. autofunction:: Remark
 .. autofunction:: LogEntry
 .. autofunction:: FinishExperiment

@@ -44,9 +44,11 @@ from nicos.commands.basic import ListCommands, sleep, \
     NewSetup, AddSetup, RemoveSetup, ListSetups, \
     LogEntry, _LogAttach, SetErrorAbort, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
-    NewExperiment, FinishExperiment, AddUser, NewSample, \
+    NewExperiment, FinishExperiment, AddUser, \
     Remark, SetMode, ClearCache, UserInfo, run, \
     notify, SetMailReceivers, SetDataReceivers
+from nicos.commands.sample import NewSample, SetSample, SelectSample, \
+    ClearSamples, ListSamples
 from nicos.commands.output import printdebug, printinfo, printwarning, \
     printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
@@ -141,6 +143,26 @@ def test_run_command():
     with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
         f.write('read()')
     run('test')
+
+
+def test_sample_commands():
+    exp = session.experiment
+    NewSample('abc')
+    assert exp.sample.samplename == 'abc'
+    assert exp.samples == {0: {'name': 'abc'}}
+
+    SetSample(1, 'def', param=45)
+    assert exp.samples[1] == {'name': 'def', 'param': 45}
+
+    SelectSample(1)
+    assert exp.sample.samplename == 'def'
+    SelectSample('abc')
+    assert exp.sample.samplename == 'abc'
+
+    ClearSamples()
+    assert exp.samples == {}
+
+    ListSamples()
 
 
 def test_device_commands():

@@ -154,6 +154,9 @@ class Experiment(Device):
                                 'ONLY for display purposes!', type=int),
         'lastpoint':      Param('Last used value of the point counter - '
                                 'ONLY for display purposes!', type=int),
+        'samples':        Param('Information about all defined samples',
+                                type=dictof(int, dictof(str, anytype)),
+                                settable=True, userparam=False),
     }
 
     attached_devices = {
@@ -490,6 +493,7 @@ class Experiment(Device):
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
         self.sample.clear()
+        self.samples = {}
         self.envlist = []
         for notifier in session.notifiers:
             notifier.reset()
@@ -509,7 +513,7 @@ class Experiment(Device):
         # change proposalpath to new value
         self.proposalpath = self.proposalpath_of(proposal)
         # newSample also (re-)creates all needed dirs
-        self.newSample(kwds.get('sample', ''), {})
+        self.sample.new({'name': kwds.get('sample', '')})
 
         # debug output
         self.log.info('experiment directory is now %s' % self.proposalpath)
@@ -842,13 +846,12 @@ class Experiment(Device):
             self.users = self.users + ', ' + user
         self.log.info('User "%s" added' % user)
 
-    @usermethod
-    def newSample(self, name, parameters):
-        """Called by `.NewSample`."""
-        self.sample.samplename = name
-        for param, value in parameters.items():
-            setattr(self.sample, param, value)
-        # (re-) create all needed (sub)dirs
+    def newSample(self, parameters):
+        """Hook called by the sample object to notify of new sample name.
+
+        By default, (re-) creates all needed (sub)dirs that might change
+        depending on the sample name/number.
+        """
         for _dir in self.allpaths:
             ensureDirectory(_dir, **self.managerights)
 
