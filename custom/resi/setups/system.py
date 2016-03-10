@@ -9,20 +9,11 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
+includes = ['notifiers']
+
 modules = ['commands.standard']
 
 devices = dict(
-    email = device('devices.notifiers.Mailer',
-                   description = 'The notifier to send emails',
-                   sender = 'bjoern.pedersen@frm2.tum.de',
-                   copies = [('bjoern.pedersen@frm2.tum.de', 'all')],
-                   subject = 'RESI',
-                   lowlevel = True,
-                  ),
-
-    #smser    = device('devices.notifiers.SMSer',
-    #                  server='triton.admin.frm2'),
-
     Exp = device('resi.experiment.ResiExperiment',
                  description = 'The currently running experiment',
                  sample = 'Sample',
