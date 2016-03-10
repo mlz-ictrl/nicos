@@ -1123,11 +1123,21 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
 
 def make_load_config(filepath):
     """Create a load_config function for use in setups."""
-    def load_config(setupname):
+    def load_config(name):
+        from nicos.core.errors import ConfigurationError
+        try:
+            setupname, element = name.split('.')
+        except ValueError:
+            raise ConfigurationError('configdata() argument must be in the '
+                                     'form \'module.valuename\'')
         fullname = path.join(path.dirname(filepath), setupname + '.py')
         ns = {}
         if path.isfile(fullname):
             with open(fullname) as fp:
                 exec_(fp, ns)
-        return ns
+        try:
+            return ns[element]
+        except KeyError:
+            raise ConfigurationError('value named %s not found in config '
+                                     'setup %s' % (element, setupname))
     return load_config

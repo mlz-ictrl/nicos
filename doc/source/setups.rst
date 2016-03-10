@@ -266,28 +266,34 @@ when the data is used by devices in multiple setups, to avoid duplication.
 
 The setup cannot be loaded as usual, but its data can be included in other
 setups using the ``configdata()`` function that is provided when setups are
-read.  It returns a dictionary with the config-setup's namespace, and is
-typically used like this::
+read.
 
-   # setup file "config_det.py"
+.. function:: configdata(value)
 
-   group = 'configdata'
-   DET_CONFIG = {
-       ...  # some configuration data
-   }
+   This function is available in setups and returns a value from a configuration
+   setup.  The argument must be ``'setupname.valuename'``.
 
-   # setup file "det.py"
+   It is typically used like this::
 
-   group = 'lowlevel'
+      # setup file "config_det.py"
 
-   devices = dict(
-       det = device('my.instrument.Detector',
-                    # here the DET_CONFIG dictionary is loaded from
-                    # config_det.py and inserted as a parameter
-                    config = configdata('config_det')['DET_CONFIG'],
-                    # other parameters...
-                   ),
-   )
+      group = 'configdata'
+      DET_CONFIG = {
+          ...  # some configuration data
+      }
+
+      # setup file "det.py"
+
+      group = 'lowlevel'
+
+      devices = dict(
+          det = device('my.instrument.Detector',
+                       # here the DET_CONFIG dictionary is loaded from
+                       # config_det.py and inserted as a parameter
+                       config = configdata('config_det.DET_CONFIG'),
+                       # other parameters...
+                      ),
+      )
 
 
 .. rubric:: Footnotes
