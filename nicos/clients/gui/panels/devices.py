@@ -153,6 +153,7 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('device'), self.on_client_device)
+        self.connect(client, SIGNAL('setup'), self.on_client_setup)
         self.connect(client, SIGNAL('message'), self.on_client_message)
 
     def updateStatus(self, status, exception=False):
@@ -208,7 +209,7 @@ class DevicesPanel(Panel):
         if not state:
             return
         devlist = state['devices']
-        self._read_setup_info(state)
+        self._read_setup_info(state['setups'])
 
         for devname in devlist:
             self._create_device_item(devname)
@@ -240,10 +241,10 @@ class DevicesPanel(Panel):
             self._error_window.addMessage(msg)
             self._error_window.activateWindow()
 
-    def _read_setup_info(self, state=None):
-        if state is None:
-            state = self.client.ask('getstatus')
-        loaded_setups = set(state['setups'][0])
+    def _read_setup_info(self, setuplists=None):
+        if setuplists is None:
+            setuplists = self.client.ask('getstatus')['setups']
+        loaded_setups = set(setuplists[0])
         self._dev2setup = {}
         self._setupinfo = self.client.eval('session.getSetupInfo()', {})
         for setupname, info in iteritems(self._setupinfo):
@@ -312,6 +313,14 @@ class DevicesPanel(Panel):
         for key, value in iteritems(params):
             self.on_client_cache((None, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
+
+    def on_client_setup(self, setuplists):
+        # update setup tooltips
+        self._read_setup_info(setuplists)
+        for i in range(self.tree.topLevelItemCount()):
+            catitem = self.tree.topLevelItem(i)
+            cat = catitem.text(0)
+            catitem.setToolTip(0, self._setupinfo[cat].get('description', ''))
 
     def on_client_device(self, data):
         (action, devlist) = data
