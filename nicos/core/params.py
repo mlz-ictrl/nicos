@@ -626,7 +626,9 @@ class oneof(object):
 
     def __call__(self, val=None):
         if val is None:
-            return self.vals[0]
+            if self.vals:
+                return self.vals[0]
+            return None
         if val not in self.vals:
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, self.vals))))
