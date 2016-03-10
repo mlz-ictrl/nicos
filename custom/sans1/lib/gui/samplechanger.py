@@ -204,12 +204,12 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._update_sample_info()
 
     def _update_sample_info(self):
-        samplenames = self.client.eval('session.experiment.sample.samplenames', None)
-        if not isinstance(samplenames, dict):
+        names = self.client.eval('session.experiment.samples', None)
+        if names is None:
             return
         for i in range(self._numSamples):
-            samplename = from_maybe_utf8(samplenames.get(i + 1, ''))
-            self._tableWidget.cellWidget(i, 0).setText(samplename)
+            name = from_maybe_utf8(names.get(i + 1, {}).get('name', ''))
+            self._tableWidget.cellWidget(i, 0).setText(name)
 
     def _applyChanges(self):
         code = ['ClearSamples()']

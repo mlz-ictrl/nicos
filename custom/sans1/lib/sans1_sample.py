@@ -25,7 +25,7 @@
 """Sans1 Sample device."""
 
 from nicos import session
-from nicos.core import Param, Override, dictof, none_or
+from nicos.core import Override
 from nicos.devices.sample import Sample as NicosSample
 
 
@@ -33,61 +33,22 @@ class Sans1Sample(NicosSample):
     """A special device to represent a sample.
 
     Represent a set of samples with a currently activated one.
-    Can be used via a ParamDevice as an attached device of a samplechanger to
-    autoselect the right entry.
     """
 
-    parameters = {
-        'samplenames':  Param('Sample names', type=dictof(int, str),
-                              settable=True, category='sample', default={}),
-        'activesample': Param('None or index of currently used sample on'
-                              ' samplechanger', type=none_or(int),
-                              settable=True, category='sample'),
-    }
     parameter_overrides = {
-        'samplename': Override(volatile = True),
+        # We want this to occur in the data files.
+        'samplenumber': Override(category='sample'),
     }
 
-    def clear(self):
-        """Clear experiment-specific information."""
-        NicosSample.clear(self)
-        self.samplenames = {}
+    def new(self, parameters):
+        if self.samplenumber is None:
+            NicosSample.new(self, parameters)
+        else:
+            self.set(self.samplenumber, parameters)
 
-    def setName(self, idx, name):
-        """ sets name of sample in sampleslot <idx> to <name>
-
-        if <idx> is 0 or None, use self.activesample instead"""
-        if not idx:
-            idx = self.activesample or 0
-        d = {}
-        d.update(self.samplenames)
-        d[int(idx)] = name
-        self.samplenames = d  # trigger transfer to cache
-
-    def getName(self, idx):
-        """returns name of sample in slot <idx> or the current one,
-        if <idx> is 0 or None
-        """
-        if idx:
-            return self.samplenames.get(int(idx),
-                '<unknown sample> at sample position %d' % idx)
-        return self.samplenames.get(self.activesample or 0, '<unknown sample>')
-
-    def doReadSamplename(self):
-        """always derive samplename from the currently used one...."""
-        return self.getName(None)
-
-    def doWriteSamplename(self, name):
-        NicosSample.doWriteSamplename(self, name)
-        self.setName(None, name)
-
-    def doWriteActivesample(self, num):
-        """change the current sample to another one"""
-        # self.samplename = self.getName(num)
-        # maybe this is better (Exp.datapath adjustments?):
-        # see for example the antares experiment.
-        # sans people want to deviate from the default too :(
-        self._setROParam('activesample', num)
-        samplename = self.getName(num)
-        if 'Exp' in session.devices and samplename:
-            session.experiment.newSample(samplename, {})
+    def _applyParams(self, number, parameters):
+        if number > 0:
+            # move sample changer to new position!
+            sc = session.getDevice('SampleChanger')
+            sc.maw(number)
+        NicosSample._applyParams(self, number, parameters)

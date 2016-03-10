@@ -58,7 +58,7 @@ User=%(Exp.users)s
 %%Sample
 SampleName=%(Sample.samplename)s
 Environment=%(Environment)s
-Position=%(Sample.activesample)s
+Position=%(Sample.samplenumber)s
 Omega=%(st1_omg)s
 omega-2b=%(st1_omg)s
 Phi=%(st1_phi)s

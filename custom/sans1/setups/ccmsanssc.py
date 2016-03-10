@@ -2,6 +2,8 @@ description = 'sample changer sword'
 
 group = 'plugplay'
 
+includes = ['sample_changer']
+
 tango_base = 'tango://ccmsanssc:10000/box/'
 
 devices = dict(
@@ -46,3 +48,7 @@ devices = dict(
                                 precision = 0.05,
                                ),
 )
+
+alias_config = {
+    'SampleChanger': {'ccmsanssc_position': 100},
+}
