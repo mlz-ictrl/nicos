@@ -43,7 +43,8 @@ class AsymmetricMagnet(HasTimeout, CurrentSupply):
     }
 
     parameter_overrides = {
-        'timeout': Override(mandatory=False, default=5400 + 300) # max range * max ramp + 5'
+        # max range * max ramp + 5'
+        'timeout': Override(mandatory=False, default=5400 + 300)
     }
 
     busystates = (status.BUSY, status.ERROR)
