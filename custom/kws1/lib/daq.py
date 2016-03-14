@@ -183,6 +183,13 @@ class KWSDetector(Detector):
     def doWriteMode(self, mode):
         self._jdaq.mode = mode
 
+    def doSetPreset(self, **preset):
+        # override time preset in realtime mode
+        if self.mode in ('realtime', 'realtime_external'):
+            # set counter card preset to last RT slice plus
+            preset = {'t': self._jdaq.slices[-1] / 1000000.0 + 2.0}
+        Detector.doSetPreset(self, **preset)
+
     def doPrepare(self):
         for ch in self._channels:
             if isinstance(ch, FPGAChannelBase):
