@@ -84,14 +84,14 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         else:
             self._dev.DevJudidt2SetMode(1)
         # set timing of TOF slices
-        nslices, interval, q = tofsettings
+        channels, interval, q = tofsettings
         times = [0]
-        for i in range(nslices - 1):
+        for i in range(channels):
             times.append(times[-1] + int(interval * q**i))
         self.slices = times
-        times = [nslices] + times
+        times = [channels + 1] + times
         self._dev.DevJudidt2SetTofParam(times)
-        self.imagetype = ImageType((PIXELS, PIXELS, nslices), np.uint32)
+        self.imagetype = ImageType((PIXELS, PIXELS, channels), np.uint32)
 
     def doPrepare(self):
         self._dev.DevJudidt2ClrRecoHistoAll()
@@ -164,7 +164,7 @@ class KWSDetector(Detector):
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True),
-        'tofslices':   Param('Number of TOF timeslices',
+        'tofchannels': Param('Number of TOF channels',
                              type=intrange(1, 1023), settable=True),
         'tofinterval': Param('Interval dt between TOF channels', type=int,
                              unit='us', settable=True),
@@ -188,7 +188,7 @@ class KWSDetector(Detector):
             if isinstance(ch, FPGAChannelBase):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
-        self._jdaq._configure((self.tofslices,
+        self._jdaq._configure((self.tofchannels,
                                self.tofinterval,
                                self.tofprog))
         Detector.doPrepare(self)
