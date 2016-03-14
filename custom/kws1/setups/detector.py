@@ -19,7 +19,8 @@ devices = dict(
                             (name, dict((k, [v['z'], v['x'], v['y']])
                                         for (k, v) in items.items()))
                             for (name, items) in presets.items()),
-                        precision = [0.01, 0.1, 0.1]
+                        fallback = 'unknown',
+                        precision = [0.01, 0.1, 0.1],
                        ),
 
     det_x      = device("devices.tango.Motor",
@@ -59,4 +60,8 @@ devices = dict(
                         unit = "stp",
                         precision = 0.01,
                        ),
+)
+
+extended = dict(
+    poller_cache_reader = ['selector'],
 )

@@ -16,6 +16,7 @@ devices = dict(
                              moveables = ['selector_speed'],
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),
+                             fallback = 'unknown',
                              precision = [10.0],
                             ),
 

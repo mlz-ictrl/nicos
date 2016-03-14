@@ -18,6 +18,7 @@ devices = dict(
                                                    v['interval'])])
                                              for (k, v) in items.items()))
                                  for (name, items) in presets.items()),
+                             fallback = 'unknown',
                              precision = None,
                             ),
 
@@ -81,4 +82,8 @@ devices = dict(
                              phase1 = 'chopper1_phase',
                              phase2 = 'chopper2_phase',
                             ),
+)
+
+extended = dict(
+    poller_cache_reader = ['detector', 'selector', 'det'],
 )
