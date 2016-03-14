@@ -8,7 +8,7 @@ modules = []
 
 excludes = ['mono_pg', 'mono_cu', 'mono_si']
 
-extended = dict( dynamic_loaded = True)
+extended = dict(dynamic_loaded = True)
 
 # for ipc-stuff
 MOTOR = lambda x: 0x50 + x

@@ -4,7 +4,7 @@ description = 'Setup of a Monochromator Focuing Box on PANDA'
 
 group = 'lowlevel'
 
-extended = dict( dynamic_loaded = True)
+extended = dict(dynamic_loaded = True)
 
 devices = dict(
     # Nicos based access to phytron in magnet rack

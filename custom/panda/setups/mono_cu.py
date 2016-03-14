@@ -8,7 +8,7 @@ modules = []
 
 excludes = ['mono_pg', 'mono_si', 'mono_heusler']
 
-extended = dict( dynamic_loaded = True)
+extended = dict(dynamic_loaded = True)
 
 devices = dict(
     mono_cu     = device('devices.tas.Monochromator',
