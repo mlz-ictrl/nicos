@@ -138,6 +138,8 @@ class Polarizer(Moveable):
                 self._attached_flipper.start('off')
             elif target == 'alter':
                 if self._attached_flipper.read(0) == 'on':
+                    self._setROParam('target', 'down')
                     self._attached_flipper.start('off')
                 else:
+                    self._setROParam('target', 'up')
                     self._attached_flipper.start('on')
