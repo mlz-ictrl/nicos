@@ -27,6 +27,9 @@
 from nicos.core import Moveable, Attach, Override, HasTimeout, tupleof, \
     floatrange
 
+FREQ_PRECISION = 1.0
+PHASE_PRECISION = 1.0
+
 
 class Chopper(HasTimeout, Moveable):
     """Setting chopper parameters in terms of (frequency, phase)."""
@@ -76,3 +79,10 @@ class Chopper(HasTimeout, Moveable):
         p2 = self._attached_phase2.read(maxage)
         phase = 90.0 - (p2 - p1)
         return (freq, phase)
+
+    def doIsAtTarget(self, pos):
+        # take precision into account
+        tfreq, tphase = self.target
+        rfreq, rphase = pos
+        return abs(tfreq - rfreq) < FREQ_PRECISION and \
+            abs(tphase - rphase) < PHASE_PRECISION

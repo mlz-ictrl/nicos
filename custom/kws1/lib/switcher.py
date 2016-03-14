@@ -25,9 +25,11 @@
 """Switcher extensions for KWS."""
 
 from nicos.core import Moveable, Attach, Param, Override, status, oneof, \
-    tupleof, dictof, anytype
+    tupleof, dictof, anytype, PositionError
 from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.pycompat import iteritems
 from nicos.kws1.daq import KWSDetector
+from nicos.kws1.chopper import FREQ_PRECISION, PHASE_PRECISION
 
 
 class DynamicMultiSwitcher(MultiSwitcher):
@@ -37,7 +39,7 @@ class DynamicMultiSwitcher(MultiSwitcher):
     """
 
     parameters = {
-        'mappings': Param('Collection of mappings',
+        'mappings': Param('Collection of mappings', userparam=False,
                           type=dictof(anytype, anytype))
     }
 
@@ -97,6 +99,21 @@ class TofSwitcher(DynamicMultiSwitcher):
         mapping['off'] = [(0, 0), ('standard', 1, 1)]
         return mapping
 
+    def _mapReadValue(self, pos):
+        # override to handle precision of chopper frequency/phase
+        rchop, rtof = pos
+        for name, values in iteritems(self.mapping):
+            tchop, ttof = values
+            if rtof == ttof:
+                if abs(tchop[0] - rchop[0]) < FREQ_PRECISION and \
+                   abs(tchop[1] - rchop[1]) < PHASE_PRECISION:
+                    return name
+        if self.fallback is not None:
+            return self.fallback
+        raise PositionError(self, 'unknown position of %s: %s' % (
+            ', '.join(str(d) for d in self.devices),
+            ', '.join(d.format(p) for (p, d) in zip(pos, self.devices))))
+
 
 class DetTofParams(Moveable):
     """Sets detector's TOF parameters for use in a chopper preset."""
@@ -125,3 +142,6 @@ class DetTofParams(Moveable):
 
     def doStatus(self, maxage=0):
         return status.OK, ''
+
+    def _getWaiters(self):
+        return []
