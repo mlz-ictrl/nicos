@@ -64,6 +64,13 @@ class PollerCacheReader(CacheReader):
         # the parameters anyway.
         pass
 
+    def __getattr__(self, param):
+        # called when a parameter of the underlying device is required
+        entry = self._cache.get(self, param, Ellipsis)
+        if entry is not Ellipsis:
+            return entry
+        raise AttributeError
+
 
 class PollerSession(NoninteractiveSession):
 
@@ -87,6 +94,16 @@ class PollerSession(NoninteractiveSession):
         """
         return NoninteractiveSession.getDevice(self, dev, Device, source,
                                                replace_classes=replace_classes)
+
+    def _deviceNotFound(self, devname, source=None):
+        """Override "device not found" to be able to create PollerCacheReaders
+        for devices noted as such in extended['poller_cache_reader'].
+        """
+        for setupname in self.loaded_setups:
+            ext = self._setup_info[setupname]['extended']
+            if devname in ext.get('poller_cache_reader', ()):
+                return PollerCacheReader(devname)
+        NoninteractiveSession._deviceNotFound(self, devname, source)
 
     # do not send action messages to the cache
 

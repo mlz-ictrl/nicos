@@ -935,8 +935,7 @@ class Session(object):
             elif dev in self.configured_devices:
                 dev = self.createDevice(dev, replace_classes=replace_classes)
             else:
-                raise ConfigurationError(source, 'device %r not found in '
-                                         'configuration' % dev)
+                dev = self._deviceNotFound(dev, source)
         if not isinstance(dev, cls or Device):
             def clsrep(cls):
                 if isinstance(cls, tuple):
@@ -948,6 +947,14 @@ class Session(object):
             raise UsageError(source,
                              'device must be a %s' % (cls or Device).__name__)
         return dev
+
+    def _deviceNotFound(self, devname, source=None):
+        """Called when a required device was not found in the currently
+        configured devices.  Normally this raises ConfigurationError, but can
+        be overridden in subclasses to extend behavior.
+        """
+        raise ConfigurationError(source, 'device %r not found in '
+                                 'configuration' % devname)
 
     def importDevice(self, devname, replace_classes=None):
         """Try to import the device class for the device.
