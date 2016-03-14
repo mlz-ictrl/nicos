@@ -149,10 +149,22 @@ class VirtualJDaqChannel(VirtualImage):
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True),
+        'slices':      Param('Calculated TOF slices', userparam=False,
+                             unit='us', settable=True, type=listof(int)),
     }
 
     def _configure(self, tofsettings):
-        pass
+        if self.mode == 'standard':
+            self.slices = []
+            self.imagetype = ImageType((PIXELS, PIXELS), np.uint32)
+        else:
+            # set timing of TOF slices
+            channels, interval, q = tofsettings
+            times = [0]
+            for i in range(channels):
+                times.append(times[-1] + int(interval * q**i))
+            self.slices = times
+            self.imagetype = ImageType((PIXELS, PIXELS, channels), np.uint32)
 
 
 class KWSDetector(Detector):
