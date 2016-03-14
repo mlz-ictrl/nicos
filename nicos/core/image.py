@@ -35,6 +35,7 @@ from nicos.core.device import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.errors import NicosError, ProgrammingError
 from nicos.core.params import Param, Attach, subdir, listof
+from nicos.core.constants import SIMULATION
 from nicos.pycompat import iteritems
 
 
@@ -338,6 +339,8 @@ class ImageProducer(DeviceMixinBase):
     def saveImage(self, image=Ellipsis):
         """Save the given image content."""
         # trigger saving the image
+        if self._mode == SIMULATION:
+            return
         # XXX: maybe do this in a thread to avoid delaying the countloop.....
         for imageinfo in self._imageinfos:
             if not imageinfo.endtime:
@@ -367,7 +370,6 @@ class ImageProducer(DeviceMixinBase):
                             '')
             else:
                 self.log.error("Can't save Image, got no data!")
-                return
             # finalize/close image
             for imageinfo in self._imageinfos:
                 imageinfo.filesaver.finalizeImage(imageinfo)
