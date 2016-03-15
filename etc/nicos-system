@@ -102,7 +102,6 @@ def get_config():
 SERVICES, LOG_PATH, PID_PATH = get_config()
 
 
-
 def usage(prog):
     printerr('Usage: %s start|stop|restart|status [service ...]' % prog)
     printerr('Possible services are', ', '.join(SERVICES))
@@ -177,16 +176,15 @@ def check_stray_procs(name):
             still_running.add(p)
 
     if still_running:
-        printerr('WARNING: some other', name, 'processes seem to run!')
-        printerr(' PID    Commandline')
+        printerr('WARNING: some', name, 'processes are still running!')
+        printerr('  PID  Command line')
         for p in still_running:
-            printerr('%-6d  %s' % (p.pid, ' '.join(cmd_line(p))))
-        printerr('You could kill all of them with this command:')
-        printerr('# kill %s' % ' '.join(str(p.pid) for p in still_running))
+            printerr('%5d  %s' % (p.pid, ' '.join(cmd_line(p))))
         printerr()
-        printerr('if this does not work, you may be tempted to '
-                 'use this instead:')
-        printerr('# kill -9 %s' % ' '.join(str(p.pid) for p in still_running))
+        printerr('Use one of the following commands to kill them:')
+        pids = ' '.join(str(p.pid) for p in still_running)
+        printerr('  kill %s' % pids)
+        printerr('  kill -9 %s' % pids)
         return True
     return False
 
@@ -213,8 +211,8 @@ def start_daemon(name):
     pid = read_pidfile(name, wait=10)
     if not pid:
         printout('failed, please look in the logfile at %s'
-                 % path.join(LOG_PATH, name, name
-                             + time.strftime('-%Y-%m-%d.log')))
+                 % path.join(LOG_PATH, name, name +
+                             time.strftime('-%Y-%m-%d.log')))
         return False
     printout('pid =', pid)
     if name.startswith('cache'):
@@ -243,7 +241,7 @@ def kill_daemon(name):
                 printout('FAILED to stop!')
                 return False
             elif current > begin + 6:
-                printout('KILL')
+                printout('KILL', end=' ')
                 try:
                     os.kill(pid, signal.SIGKILL)
                 except OSError as err:
