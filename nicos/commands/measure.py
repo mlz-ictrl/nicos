@@ -46,11 +46,16 @@ __all__ = [
 ]
 
 
-def _wait_for_continuation(delay):
-    """Wait until the watchdog "pausecount" list is empty."""
+def _wait_for_continuation(delay, only_pause=False):
+    """Wait until any countloop requests are processed and the watchdog
+    "pausecount" is empty.
+
+    Return True if measurement can continue, or False if detectors should be
+    stopped.
+    """
+    current_msg = session.countloop_request[1]
+    session.countloop_request = None
     exp = session.experiment
-    current_msg = session.should_pause_count or ''
-    session.should_pause_count = None
     if current_msg:
         session.log.warning('counting paused: ' + current_msg)
     # allow the daemon to pause here, if we were paused by it
@@ -62,6 +67,7 @@ def _wait_for_continuation(delay):
             session.log.warning('counting paused: ' + current_msg)
         sleep(delay)
     session.log.info('counting resumed')
+    return True
 
 
 def _count(detlist, preset, result, dataset=None):
@@ -89,9 +95,13 @@ def _count(detlist, preset, result, dataset=None):
     if not dataset:
         dataset = session.experiment.createDataset()
     prepareImageFiles(detset, dataset)
+
+    # maybe wait for pause condition
     session.beginActionScope('Counting')
-    if session.should_pause_count:
-        _wait_for_continuation(delay)
+    if session.countloop_request:
+        _wait_for_continuation(delay, only_pause=True)
+
+    # actually start counting
     starttime = currenttime()
     try:
         for det in detlist:
@@ -117,7 +127,7 @@ def _count(detlist, preset, result, dataset=None):
             if not detset:
                 # all detectors finished measuring
                 break
-            if session.should_pause_count:
+            if session.countloop_request:
                 for det in detset:
                     if not det.pause():
                         session.log.warning(

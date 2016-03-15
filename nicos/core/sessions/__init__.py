@@ -135,8 +135,8 @@ class Session(object):
         self.setSPMode(config.simple_mode)
         # plug&play info cache
         self._pnp_cache = {'descriptions': {}}
-        # intrinsic count pause request
-        self.should_pause_count = None
+        # intrinsic request to influence the countloop
+        self.countloop_request = None
         # when was the last script started?
         self._script_start = None
         self._script_text = ''
@@ -1110,7 +1110,7 @@ class Session(object):
             if self.experiment and self.mode == MASTER:
                 self.experiment.pausecount = value
                 if value:
-                    self.should_pause_count = value
+                    self.countloop_request = ('pause', value)
 
     def watchdogEvent(self, event, time, data):
         if event == 'warning':

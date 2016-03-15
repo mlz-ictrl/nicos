@@ -463,7 +463,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             session.log.info('Pause requested by %s' % self.user.name)
             self.controller.set_break(('break', level, self.user.name))
             if level >= BREAK_NOW:
-                session.should_pause_count = 'Paused by %s' % self.user.name
+                session.countloop_request = ('pause',
+                                             'Paused by %s' % self.user.name)
             self.log.info('script pause request')
             self.write(ACK)
 

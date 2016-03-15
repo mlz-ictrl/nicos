@@ -160,7 +160,7 @@ class ScriptRequest(Request):
         to execute individual blocks.
         """
         session.scriptEvent('start', self.text)
-        session.should_pause_count = None  # reset any pause flag from before
+        session.countloop_request = None  # reset any pause flag from before
         # this is to allow the traceback module to report the script's
         # source code correctly
         updateLinecache('<script>', self.text)
@@ -403,7 +403,8 @@ class ExecutionController(Controller):
             self.block_all_requests()
             self.set_break(('stop', level, user.name))
             if level >= BREAK_NOW:
-                session.should_pause_count = 'Stopped by %s' % user.name
+                session.countloop_request = ('pause',
+                                             'Stopped by %s' % user.name)
         else:
             self.log.info('script stop request while in break')
             self.block_all_requests()
