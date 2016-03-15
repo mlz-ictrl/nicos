@@ -53,9 +53,17 @@ def _wait_for_continuation(delay, only_pause=False):
     Return True if measurement can continue, or False if detectors should be
     stopped.
     """
-    current_msg = session.countloop_request[1]
+    req, current_msg = session.countloop_request  # pylint: disable=E0633
     session.countloop_request = None
+    if only_pause and req != 'pause':
+        # for 'finish' requests, we don't want to finish *before* starting the
+        # measurement, because then we don't have any results to return
+        session.log.info('request for early finish ignored, not counting')
+        return True
     exp = session.experiment
+    if req == 'finish':
+        session.log.warning('counting stopped: ' + current_msg)
+        return False
     if current_msg:
         session.log.warning('counting paused: ' + current_msg)
     # allow the daemon to pause here, if we were paused by it
@@ -132,9 +140,17 @@ def _count(detlist, preset, result, dataset=None):
                     if not det.pause():
                         session.log.warning(
                             'detector %r could not be paused' % det.name)
-                _wait_for_continuation(delay)
-                for det in detset:
-                    det.resume()
+                if not _wait_for_continuation(delay):
+                    for det in list(detset):
+                        try:
+                            det.finish()
+                            det.save()
+                        except Exception:
+                            det.log.exception('error saving measurement data')
+                        detset.discard(det)
+                else:
+                    for det in detset:
+                        det.resume()
             if eta_update >= 1:
                 # update at most once per 1s
                 # note: as delay = 0 in SIMULATION, we are here always in !SIM

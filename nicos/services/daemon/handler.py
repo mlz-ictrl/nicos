@@ -503,6 +503,24 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         self.controller.script_stop(level, self.user)
         self.write(ACK)
 
+    # note: name finish() is already defined by BaseRequestHandler
+    @command(name='finish', needcontrol=True, needscript=True)
+    def finish_(self):
+        """Finish the currently running action early and proceed.
+
+        Currently, the only action that can be finished early is a count().
+
+        :returns: ok or error
+        """
+        self.log.info('measurement finish request')
+        if self.controller.status == STATUS_STOPPING:
+            self.write(NAK, 'script is stopping')
+        else:
+            session.log.info('Early finish requested by %s' % self.user.name)
+            session.countloop_request = \
+                ('finish', 'Finished early by %s' % self.user.name)
+        self.write(ACK)
+
     @command()
     def emergency(self):
         """Stop the script unconditionally and run emergency stop functions.

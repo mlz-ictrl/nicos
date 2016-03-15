@@ -202,6 +202,18 @@
     <string>Stop after current scan, scan point, or command</string>
    </property>
   </action>
+  <action name="actionFinishEarly">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/finishearly</normaloff>:/finishearly</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Finish current measurement early and continue</string>
+   </property>
+   <property name="toolTip">
+    <string>Finish current measurement early, continue</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

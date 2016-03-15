@@ -771,6 +771,8 @@ class NicosCmdClient(NicosClient):
                 self.stop_query('Stop request')
             else:
                 self.tell('emergency')
+        elif cmd in ('fin', 'finish'):
+            self.tell('finish')
         elif cmd == 'pending':
             self.show_pending()
         elif cmd == 'cancel':
@@ -993,6 +995,7 @@ This client supports "meta-commands" beginning with a slash:
   /break              -- pause script after next scan step or script command
   /cont(inue)         -- continue paused script
   /s(top)             -- stop script (you will be prompted how abruptly)
+  /fin(ish)           -- finish current measurement early
   /wait               -- wait until script is finished (for scripting)
 
   /pending            -- show the currently pending commands

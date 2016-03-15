@@ -36,14 +36,15 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 13
+PROTO_VERSION = 14
 
 # old versions with which the client is still compatible
 # 10 -> 11: added RSA encryption of transmitted password
 # 11 -> 12: added return value to 'queue' command
-# 12 -> 13: "authenticate" now returns user info dict
+# 12 -> 13: 'authenticate' now returns user info dict
+# 13 -> 14: added 'finish' command
 
-COMPATIBLE_PROTO_VERSIONS = [10, 11, 12]
+COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13]
 
 # message serialization/deserialization
 
@@ -110,6 +111,7 @@ DAEMON_COMMANDS = {
     'continue':       0x12,
     'stop':           0x13,
     'emergency':      0x14,
+    'finish':         0x15,
     # async execution commands
     'exec':           0x21,
     'eval':           0x22,
@@ -139,7 +141,7 @@ DAEMON_COMMANDS = {
 
 ACTIVE_COMMANDS = set((
     'start', 'queue', 'unqueue', 'update',
-    'break', 'continue', 'stop', 'exec',  # 'emergency' is allowed
+    'break', 'continue', 'stop', 'finish', 'exec',  # 'emergency' is allowed
 ))
 
 _codefmt = struct.Struct('>H')

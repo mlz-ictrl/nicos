@@ -121,6 +121,7 @@ class ScriptStatusPanel(Panel):
         dropdown1 = QMenu('', self)
         dropdown1.addAction(self.actionBreak)
         dropdown1.addAction(self.actionBreakCount)
+        dropdown1.addAction(self.actionFinishEarly)
         self.actionBreak2.setMenu(dropdown1)
         dropdown2 = QMenu('', self)
         dropdown2.addAction(self.actionStop)
@@ -136,6 +137,7 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionBreak)
         menu.addAction(self.actionBreakCount)
         menu.addAction(self.actionContinue)
+        menu.addAction(self.actionFinishEarly)
         menu.addSeparator()
         menu.addAction(self.actionStop)
         menu.addAction(self.actionFinish)
@@ -152,6 +154,7 @@ class ScriptStatusPanel(Panel):
         self.activeGroup.addAction(self.actionStop)
         self.activeGroup.addAction(self.actionStop2)
         self.activeGroup.addAction(self.actionFinish)
+        self.activeGroup.addAction(self.actionFinishEarly)
 
     def setOptions(self, options):
         Panel.setOptions(self, options)
@@ -187,6 +190,7 @@ class ScriptStatusPanel(Panel):
         self.actionStop.setEnabled(isconnected and status != 'idle')
         self.actionStop2.setEnabled(isconnected and status != 'idle')
         self.actionFinish.setEnabled(isconnected and status != 'idle')
+        self.actionFinishEarly.setEnabled(isconnected and status != 'idle')
         self.actionEmergencyStop.setEnabled(isconnected)
         if status == 'paused':
             self.statusLabel.setText('Script is paused.')
@@ -290,6 +294,11 @@ class ScriptStatusPanel(Panel):
     def on_actionFinish_triggered(self):
         self.mainwindow.action_start_time = time.time()
         self.client.tell('stop', BREAK_AFTER_LINE)
+
+    @qtsig('')
+    def on_actionFinishEarly_triggered(self):
+        self.mainwindow.action_start_time = time.time()
+        self.client.tell('finish')
 
     @qtsig('')
     def on_actionEmergencyStop_triggered(self):
