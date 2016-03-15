@@ -102,17 +102,19 @@ class PNGLiveFileFormat(ImageSink):
         return (len(imagetype.shape) == 2)
 
     def saveImage(self, imageinfo, image):
+        max_pixel = image.max()
         if self.log10:
             zeros = (image == 0)
             image = np.log10(image)
-            norm_arr = (image.astype(float) * 255. / image.max()).astype(np.uint8)
+            norm_arr = image.astype(float) * 255. / (max_pixel or 1)
+            norm_arr = norm_arr.astype(np.uint8)
             norm_arr[zeros] = 0
         else:
-            max_pixel = image.max()
             if max_pixel == 0:
                 norm_arr = image
             else:
-                norm_arr = (image.astype(float) * 255. / max_pixel).astype(np.uint8)
+                norm_arr = image.astype(float) * 255. / max_pixel
+                norm_arr = norm_arr.astype(np.uint8)
         try:
             rgb_arr = np.zeros(image.shape + (3,), np.uint8)
             rgb_arr[..., 0] = LUT_r[norm_arr]
