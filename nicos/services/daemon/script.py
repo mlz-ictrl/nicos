@@ -121,8 +121,8 @@ class ScriptRequest(Request):
 
     def __repr__(self):
         if self.name:
-            return self.name + ':\n' + self.text
-        return self.text
+            return '%s: %r' % (self.name, self.text)
+        return repr(self.text)
 
     def parse(self, splitblocks=True, compilecode=True):
         if compilecode:
