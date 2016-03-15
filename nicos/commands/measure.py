@@ -131,7 +131,7 @@ def _count(detlist, preset, result, dataset=None):
                 for det in detset:
                     if not det.pause():
                         session.log.warning(
-                            'detector %r could not be paused' % det)
+                            'detector %r could not be paused' % det.name)
                 _wait_for_continuation(delay)
                 for det in detset:
                     det.resume()
