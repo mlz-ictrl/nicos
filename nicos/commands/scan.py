@@ -30,7 +30,7 @@ from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
-from nicos.core.newscan import Scan
+from nicos.core.scan import Scan
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
 from nicos.pycompat import iteritems, number_types, string_types

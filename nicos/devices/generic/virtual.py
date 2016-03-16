@@ -39,7 +39,7 @@ from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
     Override, none_or, oneof, tupleof, floatrange, intrange, Measurable, \
     Moveable, Value, MASTER, SIMULATION, POLLER, Attach, HasWindowTimeout, \
     listof, SubscanMeasurable, Array
-from nicos.core.newscan import Scan
+from nicos.core.scan import Scan
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
     ImageChannelMixin
