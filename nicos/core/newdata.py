@@ -35,7 +35,7 @@ from nicos import session
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
-from nicos.core.params import Param, listof
+from nicos.core.params import Param, listof, setof
 from nicos.core.utils import DeviceValueDict
 from nicos.pycompat import iteritems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
@@ -46,6 +46,8 @@ LIVE = 'live'
 INTERMEDIATE = 'intermediate'
 FINAL = 'final'
 INTERRUPTED = 'interrupted'
+
+SETTYPES = ('point', 'scan', 'subscan', 'block')
 
 
 class BaseDataset(object):
@@ -326,7 +328,7 @@ class DataSink(Device):
                            '(default is always activated)', type=listof(str)),
         'settypes':  Param('List of dataset types to activate this sink '
                            '(default is for all settypes the sink supports)',
-                           type=listof(str))  # XXX oneof(*SETTYPES)
+                           type=setof(*SETTYPES)),
     }
 
     # Set to true in subclasses that are safe for simulation.

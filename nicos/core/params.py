@@ -670,6 +670,22 @@ class floatrange(object):
         return val
 
 
+class setof(object):
+
+    def __init__(self, *vals):
+        self.__doc__ = 'a (sub)set of ' + ', '.join(map(repr, vals))
+        self.vals = set(vals)
+
+    def __call__(self, val=None):
+        if val is None:
+            return set()
+        val = set(val)
+        if val.difference(self.vals):
+            raise ValueError('invalid value: %s, may only contain a (sub)set '
+                             'of %s' % (val, ', '.join(map(repr, self.vals))))
+        return val
+
+
 class oneof(object):
 
     def __init__(self, *vals):
