@@ -188,13 +188,13 @@ class CalibratedMagnet(HasLimits, Moveable):
         Is = []
         Bs = []
         currentcolumn = self._attached_currentsource.name
+        # XXX(dataapi): adapt to new Dataset class
         for scan in scans:
-            if scan.sinkinfo.get('number') not in scannumbers:
+            if scan.counter not in scannumbers:
                 continue
             if fieldcolumn not in scan.ynames or \
                     currentcolumn not in scan.xnames:
-                self.log.info('%s is not a calibration scan'
-                              % scan.sinkinfo['number'])
+                self.log.info('%s is not a calibration scan' % scan.counter)
                 continue
             xindex = scan.xnames.index(currentcolumn)
             yindex = scan.ynames.index(fieldcolumn)

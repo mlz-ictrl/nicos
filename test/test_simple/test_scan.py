@@ -316,11 +316,11 @@ def test_specialscans():
 
     appendscan(5)
     dataset = dataman._last_scans[-1]
-    assert dataset.sinkinfo['continuation'] == str(uid)
+    assert dataset.continuation == str(uid)
     uid2 = dataset.uid
     appendscan(-5)
     dataset = dataman._last_scans[-1]
-    assert dataset.sinkinfo['continuation'] == '%s,%s' % (uid2, uid)
+    assert dataset.continuation == '%s,%s' % (uid2, uid)
 
 
 def test_twodscan():

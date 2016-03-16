@@ -435,7 +435,7 @@ class Handler(object):
                 ycindex.append(i)
                 headers.append(yc.name)
         headers += ['Plot', 'Data']
-        scannumber = dataset.sinkinfo.get('number', -1)
+        scannumber = dataset.counter
         if scannumber >= 0:
             html = ['<tr id="scan%s">' % scannumber]
             html.append('<td class="scannum">%s</td>' % scannumber)
@@ -483,9 +483,9 @@ class Handler(object):
                         '<a href="scan-%d-log.%s">Log</a></td>' %
                         (scannumber, plotfmt, scannumber, plotfmt))
         # file link
-        if self.logdir and dataset.sinkinfo.get('filepath'):
-            relfile = path.relpath(dataset.sinkinfo.get('filepath'),
-                                   self.logdir)
+        # XXX(dataapi): where is the filepath now?
+        if self.logdir and dataset.filepath:
+            relfile = path.relpath(dataset.filepath, self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'
                         % relfile)
         else:

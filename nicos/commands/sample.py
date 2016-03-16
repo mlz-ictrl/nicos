@@ -329,7 +329,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             raise UsageError('please give either scans or peaks argument')
 
         for dataset in dataman._last_scans:
-            num = dataset.sinkinfo.get('number')
+            num = dataset.counter
             if num not in scans:
                 continue
             res = _extract_powder_data(num, dataset)
