@@ -30,8 +30,9 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param, subdir, listof, INFO_CATEGORIES
-from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE
+from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE, FINAL
 from nicos.pycompat import iteritems
+from nicos.utils import syncFile
 
 
 class ImageSink(DataSink):
@@ -55,6 +56,20 @@ class ImageSink(DataSink):
         for det in dataset.detectors:
             if det.arrayInfo():
                 return True
+        return False
+
+
+class TwoDImageSink(ImageSink):
+    """Base class for DataSinks which ONLY accept 2D data"""
+
+    def isActive(self, dataset):
+        self.log.debug('Check dataset: %r' % dataset)
+        if ImageSink.isActive(self, dataset):
+            for det in dataset.detectors:
+                arrayinfo = det.arrayInfo()
+                if arrayinfo:
+                    if len(arrayinfo[0].shape) == 2:
+                        return True
         return False
 
 
@@ -178,3 +193,73 @@ class LiveViewSink(ImageSink):
     }
 
     handlerclass = LiveViewSinkHandler
+
+
+class SingleFileSinkHandler(DataSinkHandler):
+    """Provide a convenient base class for writing a single data file
+
+    consisting of a header part and a data part.
+    """
+
+    # this is the filetype as transferred to live-view
+    filetype = 'raw'
+
+    # set this to True to create the datafile as latest as possible
+    deferFileCreation = False
+
+    # set this to True to save only FINAL images
+    acceptFinalImagesOnly = False
+
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
+        self._file = None
+        # determine which index of the detector value is our data array
+        # XXX support more than one array
+        arrayinfo = self.detector.arrayInfo()
+        if len(arrayinfo) > 1:
+            self.log.warning('image sink only supports one array per detector')
+        self._arrayinfo = arrayinfo[0]
+
+    def _createFile(self):
+        if self._file is not None:
+            dataman.assignCounter(self.dataset)
+            self._file = dataman.createDataFile(self.dataset,
+                self.sink.filenametemplate,
+                self.sink.subdir)
+
+    def begin(self):
+        if not self.deferFileCreation:
+            self._createFile()
+
+    def writeHeader(self, fp, metainfo, image):
+        # write the header part of the file (first part)
+        # image is None if deferFileCreation is false
+        pass
+
+    def writeData(self, fp, image):
+        # write the data part of the file (second part)
+        pass
+
+    def addResults(self, quality, results):
+        if quality == LIVE:
+            return
+        if self.acceptFinalImagesOnly and (quality != FINAL):
+            return
+        if self.detector.name in results:
+            image = results[self.detector.name][1][0]
+            if self.deferFileCreation:
+                self._createFile()
+                self.writeHeader(self._file, self.dataset.metainfo, image)
+            self.writeData(self._file, image)
+            syncFile(self._file)
+            session.updateLiveData(self.filetype, self._file.filepath,
+                                   self._arrayinfo.dtype, 0, 0, 0, 0, b'')
+
+    def addMetainfo(self, metainfo):
+        if not self.deferFileCreation:
+            self._file.seek(0)
+            self._writeHeader(self._file, self.dataset.metainfo, None)
+
+    def end(self):
+        if self._file:
+            self._file.close()

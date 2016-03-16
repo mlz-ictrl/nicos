@@ -26,13 +26,10 @@ import time
 import numpy
 from collections import OrderedDict
 
-from nicos import session
-from nicos.core.data import FINAL
 from nicos.core.params import Override
-from nicos.devices.datasinks.image import DataSinkHandler, ImageSink, dataman
+from nicos.devices.datasinks.image import SingleFileSinkHandler, TwoDImageSink
 from nicos.core import NicosError
 from nicos.pycompat import iteritems, to_ascii_escaped
-from nicos.utils import syncFile
 
 try:
     import pyfits
@@ -40,41 +37,13 @@ except ImportError:
     pyfits = None
 
 
-class FITSImageSinkHandler(DataSinkHandler):
+class FITSImageSinkHandler(SingleFileSinkHandler):
 
-    def __init__(self, sink, dataset, detector):
-        DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._sink = sink
-        self._file = None
+    filetype ='fits'
+    deferFileCreation = True
+    acceptFinalImagesOnly = True
 
-    def end(self):
-        if self._file is not None:
-            self._file.close()
-
-    def addResults(self, quality, results):
-        # Only write complete images
-        if quality != FINAL:
-            return
-        # Create empty file to ensure existance
-        # (avoid data reshaping etc if not necessary)
-        self._createFile()
-
-        if self.detector.name in results:
-            data = results[self.detector.name][1][0]
-            if data is not None:
-                self._writeFile(data)
-
-                arrayinfo = self.detector.arrayInfo()[0]
-                session.updateLiveData('fits', self._file.filepath,
-                                       arrayinfo.dtype, 0, 0, 0, 0, b'')
-
-    def _createFile(self):
-        dataman.assignCounter(self.dataset)
-        self._file = dataman.createDataFile(self.dataset,
-            self.sink.filenametemplate,
-            self.sink.subdir)
-
-    def _writeFile(self, data):
+    def writeHeader(self, fp, metainfo, data):
         # ensure numpy type
         npData = numpy.array(data)
 
@@ -82,13 +51,10 @@ class FITSImageSinkHandler(DataSinkHandler):
         hdu = pyfits.PrimaryHDU(npData)
 
         # create fits header from nicos header and add entries to hdu
-        self._buildHeader(self.dataset.metainfo, hdu)
+        self._buildHeader(metainfo, hdu)
 
         # write full fits file
-        hdu.writeto(self._file)
-
-        # sync file to avoid caching problems (=> nfs)
-        syncFile(self._file)
+        hdu.writeto(fp)
 
     def _buildHeader(self, info, hdu):
 
@@ -124,7 +90,7 @@ class FITSImageSinkHandler(DataSinkHandler):
                 hdu.header.append((key, item))
 
 
-class FITSImageSink(ImageSink):
+class FITSImageSink(TwoDImageSink):
 
     parameter_overrides = {
         'filenametemplate': Override(default=['%(pointcounter)s.fits']),
@@ -137,17 +103,5 @@ class FITSImageSink(ImageSink):
         # without pyfits.
         if pyfits is None:
             raise NicosError(self, 'pyfits module is not available. Check'
-                             ' if it\'s installed and in your PYTHONPATH')
+                             ' if it is installed and in your PYTHONPATH')
 
-    def isActive(self, dataset):
-        self.log.debug('Check dataset: %r' % dataset)
-        # Note: FITS would be capable of saving multiple images in one file
-        # (as 3. dimension). May be implemented if necessary. For now, only
-        # 2D data is supported.
-        if ImageSink.isActive(self, dataset):
-            for det in dataset.detectors:
-                arrayinfo = det.arrayInfo()
-                if arrayinfo:
-                    if len(arrayinfo[0].shape) == 2:
-                        return True
-        return False

@@ -24,12 +24,15 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
-from time import strftime, time as currenttime
+from time import strftime, localtime
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, ImageSink, Param, oneof
+from nicos.core import Override, Param, oneof
 from nicos.core.utils import DeviceValueDict
+from nicos.devices.datasinks.image import TwoDImageSink, SingleFileSinkHandler
+from nicos.pycompat import iteritems
+
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
@@ -216,7 +219,100 @@ MesyDAQFile=%(det1.lasthistfile)s
 """
 
 
-class BerSANSFileFormat(ImageSink):
+class BerSANSImageSinkHandler(SingleFileSinkHandler):
+
+    filetype = 'bersans'
+    deferFileCreation = True
+
+    def writeHeader(self, fp, metainfo, image):
+        shape = image.shape
+
+        try:
+            SD = '%.4f' % ((session.getDevice('det1_z').read() -
+                           session.getDevice('st1_x').read()) / 1000)
+        except Exception:
+            self.log.warning("can't determine SD (detector distance), "
+                             "using 0 instead", exc=1)
+            SD = 0
+
+        totalTime = self.dataset.finished - self.dataset.started
+        Sum = image.sum()
+        Moni1 = 0
+        Moni2 = 0
+        try:
+            Moni1 = float(session.getDevice('det1_mon1').read()[0])
+            Moni2 = float(session.getDevice('det1_mon2').read()[0])
+        except Exception:
+            self.log.warning("can't determine all monitors, "
+                             "using 0.0 instead", exc=1)
+
+        metadata = DeviceValueDict(
+            fileName = self._file.filepath(),
+            fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
+            fileTime = strftime('%r', localtime(self.dataset.started)),
+            FromDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
+            FromTime = strftime('%r', localtime(self.dataset.started)),
+            ToDate = strftime('%m/%d/%Y', localtime(self.dataset.finished)),
+            ToTime = strftime('%r', localtime(self.dataset.finished)),
+            DataSize = shape[0]*shape[1],
+            DataSizeX = shape[1],
+            DataSizeY = shape[0],
+            Environment = '_'.join(session.explicit_setups),
+            SD = SD,
+            Sum = '%d' % Sum, Time='%.6f' % totalTime,
+            Moni1 = '%d' % Moni1, Moni2='%d' % Moni2,
+            Sum_Time = '%.6f' % (Sum / totalTime) if totalTime else 'Inf',
+            Sum_Moni1 = '%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
+            Sum_Moni2 = '%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
+        )
+
+        nicosheader = []
+
+        # no way to map nicos-categories to BerSANS sections :(
+        # also ignore some keys :(
+        ignore = ('det1_lastlistfile', 'det1_lasthistfile')
+        for (dev, param), (value, strvalue, _unit, _category) in \
+                iteritems(self.dataset.metainfo):
+            devname_key = '%s_%s' % (dev.name, param)
+            if devname_key in ignore:
+                continue
+            metadata[devname_key] = value
+            nicosheader.append('%s=%s' % (devname_key, strvalue))
+
+        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore')
+                                       .encode('unicode_escape')
+                                       for l in nicosheader))
+        self.log.debug('nicosheader starts with: %40s' % nicosheader)
+
+        # write Header
+        for line in BERSANSHEADER.split('\n'):
+            self.log.debug('testing header line: %r' % line)
+            self.log.debug(line % metadata)
+            fp.write(line % metadata)
+            fp.write('\n')
+
+        # also append nicos header
+        fp.write(nicosheader.replace('\\n', '\n'))  # why needed?
+        fp.write("\n\n%Counts\n")
+        fp.flush()
+
+    def writeData(self, fp, image):
+        # respect flipping options
+        if self.sink.flipimage in ['both', 'updown']:
+            image = np.flipud(image)
+        if self.sink.flipimage in ['both', 'leftright']:
+            image = np.fliplr(image)
+
+        # write Data (one line per y)
+        for y in range(image.shape[0]):
+            line = image[y]
+            line.tofile(fp, sep=',', format='%d')
+            fp.write('\n')
+        fp.flush()
+
+
+class BerSANSImageSink(TwoDImageSink):
+
     parameters = {
         'flipimage': Param('flip image after reading from det?',
                            type=oneof('none', 'leftright', 'updown', 'both'),
@@ -228,124 +324,4 @@ class BerSANSFileFormat(ImageSink):
                                      default=['D%(counter)07d.001']),
     }
 
-    fileFormat = 'BerSANS'     # should be unique amongst filesavers!
-
-    def acceptImageType(self, imagetype):
-        return len(imagetype.shape) == 2
-
-    def prepareImage(self, imageinfo, subdir=''):
-        """should prepare an Imagefile in the given subdir"""
-        ImageSink.prepareImage(self, imageinfo, subdir)
-        imageinfo.data = DeviceValueDict(fileName=imageinfo.filename,
-                                         fileDate=strftime('%m/%d/%Y'),
-                                         fileTime=strftime('%r'),
-                                         FromDate=strftime('%m/%d/%Y'),
-                                         FromTime=strftime('%r'),
-                                         Environment='_'.join(session.explicit_setups),
-                                         # scantype=dataset.scantype, #XXX
-                                         # MovingDevices=dataset.devices,
-                                         # Envlist=dataset.envlist,
-                                         # Preset=dataset.preset,
-                                         # scaninfo=dataset.sinkinfo,
-        )
-
-    def saveImage(self, imageinfo,  image):
-        """Saves the given image content
-
-        content MUST be a numpy array with the right shape
-        if the fileformat to be supported has image shaping options,
-        they should be applied here.
-        """
-        # stupid validator, making sure we have a numpy.array:
-        image = np.array(image)
-        shape = image.shape
-
-        # savety check
-        if len(shape) != 2:
-            self.log.error('can not save data with shape %r, '
-                           'can only handle 2D-data!' % shape)
-            return
-
-        # respect flipping options
-        # XXX: check if this should go elsewhere!
-        # or each Filesaver needs this as well (-> stupid)
-        if self.flipimage in ['both', 'updown']:
-            image = np.flipud(image)
-        if self.flipimage in ['both', 'leftright']:
-            image = np.fliplr(image)
-
-        # update info
-        imageinfo.data.update(ToDate=strftime('%m/%d/%Y'),
-                              ToTime=strftime('%r'),
-                              DataSize=shape[0]*shape[1],
-                              DataSizeX=shape[1],
-                              DataSizeY=shape[0])
-        try:
-            SD = '%.4f' % ((session.getDevice('det1_z').read() -
-                           session.getDevice('st1_x').read()) / 1000)
-        except Exception:
-            self.log.warning("can't determine SD (detector distance), "
-                             "using 0 instead", exc=1)
-            SD = 0
-
-        if imageinfo.endtime == 0:
-            imageinfo.endtime = currenttime()
-        Time = imageinfo.endtime - imageinfo.begintime
-        Sum = image.sum()
-        Moni1 = 0
-        Moni2 = 0
-        try:
-            Moni1 = float(session.getDevice('det1_mon1').read()[0])
-            Moni2 = float(session.getDevice('det1_mon2').read()[0])
-        except Exception:
-            self.log.warning("can't determine all monitors, "
-                             "using 0.0 instead", exc=1)
-
-        imageinfo.data.update(
-            SD=SD,
-            Sum='%d' % Sum, Time='%.6f' % Time,
-            Moni1='%d' % Moni1, Moni2='%d' % Moni2,
-            Sum_Time='%.6f' % (Sum / Time) if Time else 'Inf',
-            Sum_Moni1='%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
-            Sum_Moni2='%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
-        )
-        nicosheader = []
-        self.log.debug('imageInfo.header is %r' % imageinfo.header)
-
-        if imageinfo.dataset:
-            headersrc = imageinfo.dataset.headerinfo
-        else:
-            headersrc = imageinfo.header
-        # no way to map nicos-categories to BerSANS sections :(
-        # also ignore some keys :(
-        ignore = ('det1_lastlistfile', 'det1_lasthistfile')
-        for _, valuelist in headersrc.items():
-            for dev, key, value in valuelist:
-                devname_key = '%s_%s' % (dev.name, key)
-                if devname_key in ignore:
-                    continue
-                imageinfo.data[devname_key] = value
-                nicosheader.append('%s=%r' % (devname_key, value))
-
-        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore')
-                                       .encode('unicode_escape')
-                                       for l in nicosheader))
-        self.log.debug('nicosheader starts with: %40s' % nicosheader)
-
-        # write Header
-        for line in BERSANSHEADER.split('\n'):
-            self.log.debug('testing header line: %r' % line)
-            self.log.debug(line % imageinfo.data)
-            imageinfo.file.write(line % imageinfo.data)
-            imageinfo.file.write('\n')
-
-        # also append nicos header
-        imageinfo.file.write(nicosheader.replace('\\n', '\n'))  # why needed?
-        imageinfo.file.write("\n\n%Counts\n")
-
-        # write Data (one line per y)
-        for y in range(shape[0]):
-            line = image[y]
-            line.tofile(imageinfo.file, sep=',', format='%d')
-            imageinfo.file.write('\n')
-        imageinfo.file.flush()
+    handlerclass = BerSANSImageSinkHandler
