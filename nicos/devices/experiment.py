@@ -372,7 +372,6 @@ class Experiment(Device):
     #
 
     def doInit(self, mode):
-        self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
         if self._attached_sample.name != 'Sample':
             raise ConfigurationError(self, 'the sample device must now be '
@@ -498,7 +497,6 @@ class Experiment(Device):
         self.envlist = []
         for notifier in session.notifiers:
             notifier.reset()
-        self._last_datasets = []
         dataman.reset()
 
         # set new experiment properties given by caller

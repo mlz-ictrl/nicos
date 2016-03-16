@@ -412,6 +412,9 @@ class DataManager(object):
         # A stack of currently active datasets.  Maximum 3 depth.
         self._stack = []
 
+        # Last finished scans.  Stored for analysis purposes.
+        self._last_scans = []
+
     @lazy_property
     def log(self):
         logger = session.getLogger('nicos-data')  # XXX name?
@@ -427,6 +430,7 @@ class DataManager(object):
     def reset(self):
         """Cleanup and reset the current datasets."""
         self._clean()
+        self._last_scans = []
 
     #
     # Adding and finishing up datasets
@@ -472,6 +476,8 @@ class DataManager(object):
             raise ProgrammingError('No scan to finish')
         scan = self._stack.pop()
         self._finish(scan)
+        # XXX: when to clean these up?
+        self._last_scans.append(scan)
 
     def _init(self, dataset):
         """Init dataset and put it on the stack"""

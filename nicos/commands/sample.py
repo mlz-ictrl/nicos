@@ -31,7 +31,7 @@ from copy import deepcopy
 from numpy import sqrt, pi, sin, arcsin, radians, degrees
 
 from nicos import session
-from nicos.core import UsageError, ConfigurationError
+from nicos.core import UsageError, ConfigurationError, dataman
 from nicos.commands import usercommand
 from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.commands.analyze import FitResult
@@ -328,7 +328,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
         if not scans:
             raise UsageError('please give either scans or peaks argument')
 
-        for dataset in session.experiment._last_datasets:
+        for dataset in dataman._last_scans:
             num = dataset.sinkinfo.get('number')
             if num not in scans:
                 continue

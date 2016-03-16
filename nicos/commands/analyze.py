@@ -30,8 +30,7 @@ from math import sqrt
 
 import numpy as np
 
-from nicos import session
-from nicos.core import NicosError, UsageError
+from nicos.core import NicosError, UsageError, dataman
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit, GaussFit, PolyFit
 from nicos.utils.analyze import estimateFWHM
@@ -50,9 +49,9 @@ __all__ = [
 
 
 def _getData(columns=None):
-    if not session.experiment._last_datasets:
+    if not dataman._last_scans:
         raise NicosError('no latest dataset has been stored')
-    dataset = session.experiment._last_datasets[-1]
+    dataset = dataman._last_scans[-1]
 
     # append data from previous scans if this is a continuation
     i = -1
@@ -60,7 +59,7 @@ def _getData(columns=None):
     yresults = dataset.yresults
     while dataset.continuation:
         i -= 1
-        dataset = session.experiment._last_datasets[i]
+        dataset = dataman._last_scans[i]
         xresults = dataset.xresults + xresults
         yresults = dataset.yresults + yresults
 

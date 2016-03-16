@@ -142,8 +142,6 @@ class Scan(object):
             session.endActionScope()
 
     def beginScan(self):
-        # XXX XXX move to data manager
-        session.experiment._last_datasets.append(self.dataset)
         session.elogEvent('scanbegin', self.dataset)
         session.beginActionScope(self.shortDesc())
 
