@@ -63,7 +63,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', int(iwstr))
         self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
-        self.imagetype = ImageType(shape, np.uint16)
+        self.imagetype = ImageType('data', shape, np.uint16)
 
     def doStart(self):
         self._communicate('Snap')
@@ -81,7 +81,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', shape[0])
         self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
-        self.imagetype = ImageType(shape, self._modemap[mode])
+        self.imagetype = ImageType('data', shape, self._modemap[mode])
         na = np.frombuffer(data, self._modemap[mode])
 
         na = na.reshape(shape)

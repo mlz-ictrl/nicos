@@ -56,8 +56,9 @@ class MythenDetector(PyTangoDevice, ImageProducer, Measurable):
 
     def doInit(self, mode):
         self.log.debug('Mythen detector init')
-        self.imagetype = ImageType((int(self.detshape['x']),
-                                   int(self.detshape['t'])),
+        self.imagetype = ImageType('data',
+                                   (int(self.detshape['x']),
+                                    int(self.detshape['t'])),
                                    numpy.uint32)
         if self._mode == MASTER:
             self._dev.Reset()

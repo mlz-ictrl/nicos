@@ -175,7 +175,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doInit(self, mode):
         # Determine image type
         shape = (self.imagewidth, self.imageheight)
-        self.imagetype = ImageType(shape, self._getImageType())
+        self.imagetype = ImageType('data', shape, self._getImageType())
 
     def doShutdown(self):
         self._hwDev.shutdown()

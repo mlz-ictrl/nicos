@@ -71,7 +71,8 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType((self.detshape.get('t', 1),
+        self.imagetype = ImageType('data',
+                                   (self.detshape.get('t', 1),
                                     self.detshape.get('x', 1)),
                                    numpy.uint32)
         if mode != SIMULATION:

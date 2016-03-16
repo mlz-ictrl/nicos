@@ -74,7 +74,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
     def _setup_standard(self):
         self._dev.DevJudidt2SetMode(0)
         self.slices = []
-        self.imagetype = ImageType((PIXELS, PIXELS), np.uint32)
+        self.imagetype = ImageType('data', (PIXELS, PIXELS), np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
         if ext_trigger:
@@ -91,7 +91,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         self.slices = times
         times = [channels + 1] + times
         self._dev.DevJudidt2SetTofParam(times)
-        self.imagetype = ImageType((PIXELS, PIXELS, channels), np.uint32)
+        self.imagetype = ImageType('data', (PIXELS, PIXELS, channels), np.uint32)
 
     def doPrepare(self):
         self._dev.DevJudidt2ClrRecoHistoAll()
@@ -156,7 +156,7 @@ class VirtualJDaqChannel(VirtualImage):
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.imagetype = ImageType((PIXELS, PIXELS), np.uint32)
+            self.imagetype = ImageType('data', (PIXELS, PIXELS), np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q = tofsettings
@@ -164,7 +164,7 @@ class VirtualJDaqChannel(VirtualImage):
             for i in range(channels):
                 times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.imagetype = ImageType((PIXELS, PIXELS, channels), np.uint32)
+            self.imagetype = ImageType('data', (PIXELS, PIXELS, channels), np.uint32)
 
 
 class KWSDetector(Detector):

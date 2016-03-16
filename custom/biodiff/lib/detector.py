@@ -215,7 +215,8 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.imagetype = ImageType(self.MAP_SHAPE[self.pixelsize],
+        self.imagetype = ImageType('data',
+                                   self.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
     def doPrepare(self):
@@ -257,7 +258,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
 
     def doWritePixelsize(self, value):
         self._attached_imgdrum._dev.PixelSize = value
-        self.imagetype = ImageType(self.MAP_SHAPE[value], numpy.uint16)
+        self.imagetype = ImageType('data', self.MAP_SHAPE[value], numpy.uint16)
 
     def doWriteFile(self, value):
         self._attached_imgdrum._dev.ImageFile = value
@@ -330,7 +331,7 @@ class BiodiffDetector(Detector):
                     os.path.getsize(lastimagepath) == 0):
                 self.log.debug("Remove empty file: %s" % exp.lastimagefile)
                 os.unlink(lastimagepath)
-            updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
+            updateFileCounter(exp.imageCounterPath, 'point', exp.lastimage - 1)
         else:
             # only in sim-mode, see nicos.devices.experiment.Experiment
             exp._lastimage = (exp._lastimage or exp.lastimage) - 1
