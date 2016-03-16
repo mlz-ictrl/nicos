@@ -6,12 +6,17 @@ group = 'optional'
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/qmesydaq' % nethost
 
+sysconfig = dict(
+    datasinks = ['BerSANSFileSaver'],
+)
+
 devices = dict(
-    BerSANSFileSaver  = device('sans1.bersans.BerSANSFileFormat',
+    BerSANSFileSaver  = device('sans1.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
-                               filenametemplate = ['D%(counter)07d.001',
-                                                   '/data_user/D%(counter)07d.001'],
+                               filenametemplate = ['D%(pointcounter)07d.001',
+                                                   '/data_user/D%(pointcounter)07d.001'],
                                flipimage = 'none',
+                               subdir = 'bersans',
                                lowlevel = True,
                               ),
     #~ LiveViewSink = device('devices.fileformats.LiveViewSink',
@@ -58,8 +63,6 @@ devices = dict(
                    counters = [],
                    monitors = ['mon1', 'mon2'],
                    images = ['image'],
-                   fileformats = ['BerSANSFileSaver'],
-                   subdir = 'bersans',
                   ),
 )
 

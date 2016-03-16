@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -32,9 +33,11 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos import session
 from nicos.core.errors import NicosError
-from nicos.core import ImageSink, Param, Override
+from nicos.core import Param, Override, DataSinkHandler
+
+from nicos.devices.datasinks.image import TwoDImageSink
+from nicos.core import NicosError
 
 
 def makeLUT(n, spec):
@@ -67,41 +70,18 @@ LUT_g = makeLUT(256, colormap['green'])
 LUT_b = makeLUT(256, colormap['blue'])
 
 
-class PNGLiveFileFormat(ImageSink):
-    parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False, default=['']),
-    }
-
-    fileFormat = 'PNG'
-
-    parameters = {
-        'interval': Param('Interval to write file to disk', unit='s',
-                          default=5),
-        'filename': Param('File name for .png image', type=str, mandatory=True),
-        'log10':    Param('Use logarithmic counts for image', type=bool,
-                          default=False),
-    }
-
-    def doPreinit(self, mode):
-        if PIL is None:
-            self.log.error(_import_error)
-            raise NicosError(self, 'Python Image Library (PIL) is not ' +
-                             'available. Please check wether it is installed ' +
-                             'and in your PYTHONPATH')
+class PNGLiveFileSinkHandler(DataSinkHandler):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self._last_saved = 0
 
-    def prepareImage(self, imageinfo, subdir=''):
-        imageinfo.filename = 'png@%s' % session.experiment.lastimage
+    def addResults(self, quality, results):
+        if currenttime() - self._last_saved > self.sink.interval:
+            if self.detector.name in results:
+                self._write(results[self.detector.name][1][0])
 
-    def updateImage(self, imageinfo, image):
-        if currenttime() - self._last_saved > self.interval:
-            self.saveImage(imageinfo, image)
-
-    def acceptImageType(self, imagetype):
-        return (len(imagetype.shape) == 2)
-
-    def saveImage(self, imageinfo, image):
+    def _writeData(self, data):
+        image = np.array(data)
         max_pixel = image.max()
         if self.log10:
             zeros = (image == 0)
@@ -120,10 +100,31 @@ class PNGLiveFileFormat(ImageSink):
             rgb_arr[..., 0] = LUT_r[norm_arr]
             rgb_arr[..., 1] = LUT_g[norm_arr]
             rgb_arr[..., 2] = LUT_b[norm_arr]
-            Image.fromarray(rgb_arr, 'RGB').save(self.filename)
+            Image.fromarray(rgb_arr, 'RGB').save(self.sink.filename)
         except Exception:
             self.log.warning('could not save live PNG', exc=1)
         self._last_saved = currenttime()
 
-    def finalizeImage(self, imageinfo):
-        pass
+
+class PNGLiveFileSink(TwoDImageSink):
+    parameter_overrides = {
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False, default=['']),
+    }
+
+    parameters = {
+        'interval': Param('Interval to write file to disk', unit='s',
+                          default=5),
+        'filename': Param('File name for .png image', type=str, mandatory=True),
+        'log10':    Param('Use logarithmic counts for image', type=bool,
+                          default=False),
+    }
+
+    handlerclass = PNGLiveFileSinkHandler
+
+    def doPreinit(self, mode):
+        if PIL is None:
+            self.log.error(_import_error)
+            raise NicosError(self, 'Python Image Library (PIL) is not ' +
+                             'available. Please check wether it is installed ' +
+                             'and in your PYTHONPATH')
