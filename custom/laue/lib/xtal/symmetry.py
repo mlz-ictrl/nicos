@@ -27,7 +27,6 @@ Symmetry-related classes
 """
 
 import numpy
-from nicos.devices.tas.spacegroups import get_spacegroup, can_reflect
 
 
 class Bravais(object):
@@ -53,14 +52,6 @@ class Bravais(object):
             return Bravais.conditions['P'](*hkl)
 
 
-class SpaceGroup(object):
-    def __init__(self, spgr):
-        self.spgr = get_spacegroup(spgr)
-
-    def allowed(self, hkl):
-        return can_reflect(self.spgr, *hkl)
-
-
 valid = {'C': [(0, 0, 3), (1, 1, 0), (2, 2, 0), (-1, 1, 0), (1, -1, 0), (3, 3, 1), (4, 4, 3)],
          'A': [(1, 0, 0), (0, 1, 1), (0, 2, 2), (0, -1, 1), (0, 1, -1,), (3, 3, 1), (3, 4, 4)],
          'B': [(0, 1, 0), (1, 0, 1), (2, 0, 2), (-1, 0, 1), (1, 0, -1,), (3, 3, 1), (4, 3, 4)],
@@ -78,21 +69,14 @@ invalid = {'C': [(0, 1, 2), (2, 1, 0), (1, 2, 0), (-1, 2, 0), (2, -1, 0)],
            'F': [(1, 1, 0), (0, 1, 1), (1, 0, 1)]
            }
 
-def _testfunc(t, mode, hkl):
-    b = Bravais(t)
-    # note: return is a numpy.bool_, so testing with 'is' fails
-    if mode:
-        assert b.allowed(hkl)
-    else:
-        assert not b.allowed(hkl)
 
 def _test():
-    import six
-    for t, vals in six.iteritems(valid):
+    for t, vals in valid.iteritems():
+        b = Bravais(t)
         for hkl in vals:
-            _testfunc.description = '%s %s , OK' %(t, hkl)
-            yield _testfunc, t, True, hkl
-    for t, vals in six.iteritems(invalid):
+            assert b.allowed(hkl) is True
+
+    for t, vals in invalid.iteritems():
+        b = Bravais(t)
         for hkl in vals:
-            _testfunc.description = '%s %s , False' %(t, hkl)
-            yield _testfunc, t, False, hkl
+            assert b.allowed(hkl) is False

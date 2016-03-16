@@ -866,7 +866,7 @@ class Experiment(Device):
         # get start of proposal from cache history
         hist, d = [], 7
         while not hist and d < 60:
-            hist = self.history('proposal', -d * 24)
+            hist = self.history('proposal', -d*24)
             d += 7
         if hist:
             from_time = hist[-1][0]
@@ -1136,13 +1136,3 @@ class ImagingExperiment(Experiment):
     def new(self, *args, **kwargs):
         Experiment.new(*args, **kwargs)
         self._clearImgPaths()
-
-
-class SXtalExperiment(Experiment):
-    parameters = {'centeredrefs': Param('List of centered reflections',
-                                        type=list, settable=True,
-                                        category='experiment'),
-                  'checkrefs': Param('List of reflections to re-check regularly',
-                                     type=list, settable=True,
-                                     category='experiment'),
-                  }
