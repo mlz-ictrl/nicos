@@ -49,9 +49,10 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. module:: nicos.devices.datasinks
 
-.. autoclass:: ConsoleSink()
+.. autoclass:: ConsoleScanSink()
 .. autoclass:: AsciiScanfileSink()
 .. autoclass:: DaemonSink()
+.. autoclass:: SerializedSink()
 
 
 .. _notifiers:

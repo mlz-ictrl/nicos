@@ -94,11 +94,11 @@ devices = dict(
                      responsible = "Tobias Schrader <t.schrader@fz-juelich.de>",
                     ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',
                      ),
 

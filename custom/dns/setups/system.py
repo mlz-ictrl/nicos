@@ -47,10 +47,10 @@ devices = dict(
                   operators = [u'Jülich Center for Neutron Science (JCNS)', ],
                  ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
                      ),
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',
                      ),
     daemonsink = device('devices.datasinks.DaemonSink',

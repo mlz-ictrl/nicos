@@ -85,13 +85,13 @@ devices = dict(
                      responsible= 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
                     ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
                       filenametemplate = ['%(session.experiment.users)s_'
                                           '%(session.experiment.sample.samplename)s_'
                                           '%(session.experiment.lastscan)s.dat'],
                     ),
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',
                     ),
     daemonsink = device('devices.datasinks.DaemonSink',
