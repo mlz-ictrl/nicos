@@ -43,7 +43,8 @@ from nicos.core.params import Param, Override, Value, Array, INFO_CATEGORIES, \
     vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
     relative_path, absolute_path, subdir, mailaddress, limits, Attach, \
     dictwith, host
-from nicos.core.data import Dataset, DataSink
+from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
+    DataSinkHandler, dataman, LIVE, INTERMEDIATE, FINAL, INTERRUPTED
 from nicos.core.scan import Scan
 from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \

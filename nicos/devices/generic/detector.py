@@ -26,10 +26,9 @@
 
 """Generic detector and channel classes for NICOS."""
 
-from nicos.core import Attach, ConfigurationError, DeviceMixinBase, \
-    Measurable, Override, Param, Readable, UsageError, Value, Array, listof, \
-    multiStatus, status, oneof
-from nicos.core.newdata import LIVE
+from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
+    Readable, UsageError, Value, Array, listof, multiStatus, status, oneof, \
+    LIVE
 from nicos.utils import uniq
 
 

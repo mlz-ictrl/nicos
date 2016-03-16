@@ -274,7 +274,7 @@ for this event should be serialized.
 
    A new data set has been created.
 
-   :arg: The `nicos.core.data.Dataset` object.
+   :arg: The `nicos.core.data.BaseDataset` object.
 
 .. daemonevt:: datapoint
 

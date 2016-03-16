@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['commands.standard', 'commands.newacq'] # , 'jcns.commands']
+modules = ['commands.standard']  # , 'jcns.commands']
 
 devices = dict(
     demo        = device('devices.instrument.Instrument',
@@ -35,11 +35,11 @@ devices = dict(
                         reporttemplate = '',
                        ),
 
-    nfilesink  = device('devices.newsinks.AsciiScanfileSink',
+    filesink   = device('devices.datasinks.AsciiScanfileSink',
                         lowlevel = True,
                        ),
 
-    nconssink  = device('devices.newsinks.ConsoleScanSink',
+    conssink   = device('devices.datasinks.ConsoleScanSink',
                         lowlevel = True,
                        ),
 
@@ -51,12 +51,12 @@ devices = dict(
     #                     lowlevel = True,
     #                    ),
 
-    imgsink    = device('devices.newsinks.image.RawImageSink',
+    imgsink    = device('devices.datasinks.image.RawImageSink',
                         filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
                         lowlevel = True,
                        ),
 
-    livesink   = device('devices.newsinks.image.LiveViewSink',
+    livesink   = device('devices.datasinks.image.LiveViewSink',
                         lowlevel = True,
                        ),
 

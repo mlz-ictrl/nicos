@@ -1780,7 +1780,7 @@ class Measurable(Waitable):
         a loop.  The *elapsed* argument is the time elapsed since the detector
         was started.
 
-        If the hook returns a data quality value from ``nicos.core.newdata``,
+        If the hook returns a data quality value from ``nicos.core.data``,
         either LIVE or INTERMEDIATE, the detector is read out and the data is
         sent to the data sinks.  The detector is responsible for determining how
         often this should be done.

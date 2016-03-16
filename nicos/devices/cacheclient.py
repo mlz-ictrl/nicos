@@ -31,8 +31,7 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import Device, Param, CacheLockError, CacheError, host
-from nicos.core.newdata import dataman
+from nicos.core import Device, Param, CacheLockError, CacheError, host, dataman
 from nicos.utils import tcpSocket, closeSocket, createThread, getSysInfo
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \

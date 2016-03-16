@@ -28,8 +28,7 @@ from time import strftime, localtime
 
 from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, Override, Param, listof, \
-    INFO_CATEGORIES
-from nicos.core.newdata import DataSink, DataSinkHandler, dataman
+    INFO_CATEGORIES, DataSink, DataSinkHandler, dataman
 from nicos.pycompat import TextIOWrapper, iteritems
 
 
@@ -224,3 +223,29 @@ class AsciiScanfileSink(DataSink):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be '
                                      'one character')
+
+
+# XXX: switch to new API
+
+class SerializedSink(DatafileSink):
+    """A data sink that writes serialized datasets to a single file.
+
+    Can be used to retrieve and redisplay past datasets.
+    """
+    def endDataset(self, dataset):
+        serial_file = path.join(session.experiment.datapath, '.all_datasets')
+        if path.isfile(serial_file):
+            try:
+                with open(serial_file, 'rb') as fp:
+                    datasets = pickle.load(fp)
+            except Exception:
+                self.log.warning('could not load serialized datasets', exc=1)
+                datasets = {}
+        else:
+            datasets = {}
+        datasets[session.experiment.lastscan] = dataset
+        try:
+            with open(serial_file, 'wb') as fp:
+                pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
+        except Exception:
+            self.log.warning('could not save serialized datasets', exc=1)

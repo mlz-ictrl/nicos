@@ -31,17 +31,16 @@ import re
 import time
 from os import path
 from textwrap import dedent
-from uuid import uuid1
-
 
 from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
-    Param, Dataset, NicosError, ConfigurationError, UsageError, \
-    SIMULATION, MASTER, Attach
+    Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
+    Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
-from nicos.core.scan import DevStatistics
-from nicos.core.newdata import dataman
+# XXX
+# from nicos.core.scan import DevStatistics
+from nicos.core.data import dataman
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
     createThread
@@ -974,20 +973,6 @@ class Experiment(Device):
     def doWriteRemark(self, remark):
         if remark:
             session.elogEvent('remark', remark)
-
-    #
-    # dataset stuff
-    #
-    def createDataset(self, scantype=None):
-        raise RuntimeError('old createDataset API called')
-        # XXX
-        dataset = Dataset()  # pylint: disable=unreachable
-        dataset.uid = str(uuid1())
-        dataset.sinks = [sink for sink in session.datasinks
-                         if sink.isActive(scantype)]
-        dataset.started = time.localtime()
-        dataset.updateHeaderInfo()
-        return dataset
 
     @property
     def sample(self):

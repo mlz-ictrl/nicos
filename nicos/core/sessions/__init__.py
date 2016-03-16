@@ -40,7 +40,7 @@ import numpy
 
 from nicos import config, nicos_version, custom_version
 from nicos.core.spm import SPMHandler
-from nicos.core.newdata import DataSink, dataman
+from nicos.core.data import DataSink, dataman
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError

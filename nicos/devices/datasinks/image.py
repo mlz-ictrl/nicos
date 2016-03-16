@@ -30,7 +30,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param, subdir, listof, INFO_CATEGORIES
-from nicos.core.newdata import DataSink, DataSinkHandler, dataman, LIVE
+from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE
 from nicos.pycompat import iteritems
 
 
