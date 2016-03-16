@@ -34,8 +34,9 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
 from nicos.core.constants import SLAVE
-from nicos.core.utils import waitForStatus
+from nicos.core.utils import waitForStatus, multiWait
 from nicos.core.data import dataman
+from nicos.pycompat import iteritems
 from nicos.commands.measure import acquire
 
 
@@ -143,7 +144,7 @@ class Scan(object):
 
     def prepareScan(self, position):
         # XXX with actionscope
-        session.beginActionScope('%s (moving to start)' % self.shortDesc())
+        session.beginActionScope('Moving to start')
         try:
             # the move-before devices
             if self._firstmoves:
@@ -156,36 +157,32 @@ class Scan(object):
 
     def beginScan(self):
         session.elogEvent('scanbegin', self.dataset)
-        session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
         # called before moving to current scanpoint
-        if self.dataset.npoints == 0:
-            session.beginActionScope('Point %d' % num)
-        else:
-            session.beginActionScope('Point %d/%d' % (num, self.dataset.npoints))
         # XXX prepare
-        for det in self._detlist:
-            # preparation before count command
-            det.prepare()
-        # wait for preparation has been finished.
-        for det in self._detlist:
-            waitForStatus(det)
+        try:
+            for det in self._detlist:
+                # preparation before count command
+                det.prepare()
+            # wait for preparation has been finished.
+            for det in self._detlist:
+                waitForStatus(det)
+        except NicosError as err:
+            self.handleError('prepare', err)
 
     def finishPoint(self):
-        session.endActionScope()
         session.breakpoint(2)
 
     def endScan(self):
         dataman.finishScan()
-        session.endActionScope()
         try:
             session.elogEvent('scanend', self.dataset)
         except Exception:
             session.log.debug('could not add scan to electronic logbook', exc=1)
         session.breakpoint(1)
 
-    def handleError(self, what, dev, val, err):
+    def handleError(self, what, err):
         """Handle an error occurring during positioning or readout for a point.
 
         This method can do several things:
@@ -200,12 +197,24 @@ class Scan(object):
             # continue counting anyway
             if what == 'read':
                 printwarning('Readout problem', exc=1)
+            elif what == 'count':
+                printwarning('Counting problem', exc=1)
+            elif what == 'prepare':
+                printwarning('Prepare problem, skipping point', exc=1)
+                # no point in measuring this point in any case
+                raise SkipPoint
             else:
                 printwarning('Positioning problem, continuing', exc=1)
             return
         elif isinstance(err, SKIP_EXCEPTIONS):
             if what == 'read':
                 printwarning('Readout problem', exc=1)
+            elif what == 'count':
+                printwarning('Counting problem', exc=1)
+                # point is already skipped, no need to raise...
+            elif what == 'prepare':
+                printwarning('Prepare problem, skipping point', exc=1)
+                raise SkipPoint
             else:
                 printwarning('Skipping data point', exc=1)
                 raise SkipPoint
@@ -220,32 +229,36 @@ class Scan(object):
     def moveDevices(self, devices, positions, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
         On errors, call handleError, which decides when the scan may continue.
+
+        Returns a dictionary mapping devices to timestamp and final positions
+        if *wait* is True, and None otherwise.
         """
+        skip = None
         waitdevs = []
         for dev, val in zip(devices, positions):
             try:
                 dev.start(val)
             except NicosError as err:
-                # handleError can reraise for fatal error, return False
-                # to skip this point and True to measure anyway
-                self.handleError('move', dev, val, err)
+                try:
+                    # handleError can reraise for fatal error, raise SkipPoint
+                    # to skip this point or return to measure anyway
+                    self.handleError('move', err)
+                except SkipPoint:
+                    skip = True
             else:
-                waitdevs.append((dev, val))
+                waitdevs.append(dev)
         if not wait:
             return
         waitresults = {}
-        for dev, val in waitdevs:
-            try:
-                val = dev.wait()
-            except NicosError as err:
-                self.handleError('wait', dev, val, err)
-                # at least read its value
-                try:
-                    val = dev.read(0)
-                except NicosError as err:
-                    self.handleError('read', dev, None, err)
-                    val = [None] * len(dev.valueInfo())
-            waitresults[dev.name] = (currenttime(), val)
+        try:
+            # remember the read values so that they can be used for the data point
+            for (dev, value) in iteritems(multiWait(waitdevs)):
+                waitresults[dev.name] = (currenttime(), value)
+        except NicosError as err:
+            self.handleError('wait', err)
+            # XXX: at least read the remaining devs?
+        if skip:
+            raise SkipPoint
         return waitresults
 
     # XXX: move to data manager
@@ -259,7 +272,7 @@ class Scan(object):
                 #else:
                 val = dev.read(0)
             except NicosError as err:
-                self.handleError('read', dev, None, err)
+                self.handleError('read', err)
                 val = [None] * len(dev.valueInfo())
             values[dev.name] = (currenttime(), val)
         dataman.putValues(values)
@@ -274,9 +287,11 @@ class Scan(object):
         if not self._subscan and getattr(session, '_currentscan', None):
             raise NicosError('cannot start scan while another scan is running')
         session._currentscan = self
+        session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
         finally:
+            session.endActionScope()
             session._currentscan = None
         return self.dataset
 
@@ -295,15 +310,21 @@ class Scan(object):
             for i, position in enumerate(self._startpositions):
                 with self.pointScope(i + 1):
                     try:
-                        point = self.preparePoint(i + 1, position)
+                        self.preparePoint(i + 1, position)
                         if i == 0 and skip_first_point:
                             continue
                         waitresults = self.moveDevices(self._devices, position,
                                                        wait=True)
                         # start moving to end positions
                         if self._endpositions:
-                            self.moveDevices(self._devices, self._endpositions[i],
-                                             wait=False)
+                            self.moveDevices(self._devices,
+                                             self._endpositions[i], wait=False)
+                    except SkipPoint:
+                        continue
+                    except:
+                        self.finishPoint()
+                        raise
+                    try:
                         # measure...
                         point = dataman.beginPoint(target=position)
                         dataman.putValues(waitresults)
@@ -313,6 +334,8 @@ class Scan(object):
                             # read environment at least once
                             self.readEnvironment()
                             dataman.finishPoint()
+                    except NicosError as err:
+                        self.handleError('count', err)
                     except SkipPoint:
                         pass
                     finally:
