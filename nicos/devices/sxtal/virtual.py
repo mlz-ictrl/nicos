@@ -25,9 +25,9 @@
 """Virtual TAS devices."""
 
 from time import time as currenttime
-import numpy as np
+from numpy import random
 
-from nicos.core import Readable, Measurable, Param, Value, Attach, status, vec3
+from nicos.core import Readable, Measurable, Param, Value, Attach, status
 
 
 class VirtualSXtalDetector(Measurable):
@@ -38,10 +38,10 @@ class VirtualSXtalDetector(Measurable):
     parameters = {
         'realtime':   Param('Whether to wait for the preset counting time',
                             type=bool, default=False, settable=True),
-        'background': Param('Instrumental background', unit='cts/s',
+        'background': Param('Instrumental background', unit='cts/min',
                             default=1.0, settable=True),
-        'peakwidth':   Param('Apparent peakwidth (rlu)', type=vec3,
-                            default=(0.001,0.002,0.003), settable=True),
+        'mcpoints':   Param('Number of Monte-Carlo points', type=int,
+                            default=1000, settable=True),
     }
 
     def doInit(self, mode):
@@ -89,29 +89,28 @@ class VirtualSXtalDetector(Measurable):
         return self._lastresult
 
     def doSave(self):
-        monrate = 50000.
+        from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
+        from nicos.commands.tas import _resmat_args
+        taspos = self._attached_sxtal.read(0).append(0)
+        mat = resmat(*_resmat_args(taspos, {}))
+        # monitor rate (assume constant flux distribution from source)
+        # is inversely proportional to k_i
+        ki = self._attached_sxtal._attached_mono.read(0)
+        monrate = 50000. / ki
         if 't' in self._lastpreset:
             time = float(self._lastpreset['t'])
-            moni = np.random.poisson(int(monrate * time))
+            moni = random.poisson(int(monrate * time))
         elif 'mon' in self._lastpreset:
             moni = int(self._lastpreset['mon'])
-            time = float(moni) / np.random.poisson(monrate)
+            time = float(moni) / random.poisson(monrate)
         else:
             time = 1
             moni = monrate
-        bg = np.random.poisson(int(self.background * time))
-        counts = int(self._peak(time)) + bg
+        bg = random.poisson(int(self.background * time / 60))
+        counts = int(calc_MC([taspos], [bg, time], demosqw, mat,
+                             self.mcpoints)[0])
         self._counting_started = 0
         self._lastresult = [time, moni, counts]
-
-    def _peak(self, time):
-        from scipy import stats
-        width = np.array(self.peakwidth) / 10
-        hkl = np.array(self._attached_sxtal.read(0))
-        hkli = np.round(hkl)
-        dhkl = (hkli - hkl)
-        x = stats.multivariate_normal([0, 0, 0], width)
-        return int(self.background * time) * x.pdf(dhkl)
 
     def doEstimateTime(self, elapsed):
         eta = set()
@@ -119,7 +118,7 @@ class VirtualSXtalDetector(Measurable):
         if 't' in self._lastpreset:
             eta.add(float(self._lastpreset['t']) - elapsed)
         if 'mon' in self._lastpreset:
-            eta.add(float(self._lastpreset['mon']) / monrate - elapsed)
+            eta.add(float(self._lastpreset['mon'])/monrate - elapsed)
         if eta:
             return min(eta)
         return None

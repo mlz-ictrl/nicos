@@ -153,7 +153,7 @@ class Scan(object):
             session.beginActionScope('Point %d' % num)
         else:
             session.beginActionScope('Point %d/%d' % (num, self.dataset.npoints))
-        point = dataman.beginPoint(target=xvalues)
+        point = dataman.beginPoint()
         # XXX prepare
         for det in self._detlist:
             # preparation before count command
@@ -273,9 +273,6 @@ class Scan(object):
             session._currentscan = None
         return self.dataset
 
-    def acquire(self, point, preset):
-        acquire(point, preset)
-
     def _inner_run(self):
         # move all devices to starting position before starting scan
         try:
@@ -300,7 +297,7 @@ class Scan(object):
                                          wait=False)
                     # measure...
                     try:
-                        self.acquire(point, self._preset)
+                        acquire(point, self._preset)
                     finally:
                         # read environment at least once
                         self.readEnvironment()
