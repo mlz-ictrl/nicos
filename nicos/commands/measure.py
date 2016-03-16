@@ -35,7 +35,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import UsageError, NicosError
 from nicos.core.utils import waitForStatus
 from nicos.core.data import dataman, INTERRUPTED, FINAL
-from nicos.pycompat import number_types, string_types
+from nicos.pycompat import number_types, string_types, iteritems
 
 
 def _wait_for_continuation(delay, only_pause=False):
@@ -225,7 +225,10 @@ def count(*detlist, **preset):
     # start counting
     point = dataman.beginPoint(detectors=detectors,
                                environment=session.experiment.sampleenv)
-    acquire(point, preset)
+    try:
+        acquire(point, preset)
+    finally:
+        dataman.finishPoint()
     msg = []
     retval = []
     for det in detectors:
