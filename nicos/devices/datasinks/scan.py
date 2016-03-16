@@ -227,25 +227,25 @@ class AsciiScanfileSink(DataSink):
 
 # XXX: switch to new API
 
-class SerializedSink(DatafileSink):
-    """A data sink that writes serialized datasets to a single file.
+# class SerializedSink(DatafileSink):
+#     """A data sink that writes serialized datasets to a single file.
 
-    Can be used to retrieve and redisplay past datasets.
-    """
-    def endDataset(self, dataset):
-        serial_file = path.join(session.experiment.datapath, '.all_datasets')
-        if path.isfile(serial_file):
-            try:
-                with open(serial_file, 'rb') as fp:
-                    datasets = pickle.load(fp)
-            except Exception:
-                self.log.warning('could not load serialized datasets', exc=1)
-                datasets = {}
-        else:
-            datasets = {}
-        datasets[session.experiment.lastscan] = dataset
-        try:
-            with open(serial_file, 'wb') as fp:
-                pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
-        except Exception:
-            self.log.warning('could not save serialized datasets', exc=1)
+#     Can be used to retrieve and redisplay past datasets.
+#     """
+#     def endDataset(self, dataset):
+#         serial_file = path.join(session.experiment.datapath, '.all_datasets')
+#         if path.isfile(serial_file):
+#             try:
+#                 with open(serial_file, 'rb') as fp:
+#                     datasets = pickle.load(fp)
+#             except Exception:
+#                 self.log.warning('could not load serialized datasets', exc=1)
+#                 datasets = {}
+#         else:
+#             datasets = {}
+#         datasets[session.experiment.lastscan] = dataset
+#         try:
+#             with open(serial_file, 'wb') as fp:
+#                 pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
+#         except Exception:
+#             self.log.warning('could not save serialized datasets', exc=1)

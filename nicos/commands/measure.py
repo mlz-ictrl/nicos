@@ -158,7 +158,7 @@ class CountResult(list):
 
 @usercommand
 @helparglist('[detectors], [presets]')
-def newcount(*detlist, **preset):
+def count(*detlist, **preset):
     """Perform a single counting.
 
     With preset arguments, this preset is used instead of the default preset.
