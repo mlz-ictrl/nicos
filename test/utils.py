@@ -40,7 +40,8 @@ from nose.tools import assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
-from nicos.core import Moveable, HasLimits, DataSink, status
+from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
+    status
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.notifiers import Mailer
@@ -248,9 +249,10 @@ class TestDevice(HasLimits, Moveable):
         return status.OK, 'fine'
 
 
-class TestSink(DataSink):
+class TestSinkHandler(DataSinkHandler):
 
-    def doInit(self, mode):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self.clear()
 
     def clear(self):
@@ -277,6 +279,11 @@ class TestSink(DataSink):
 
     def endDataset(self, dataset):
         self._calls.append('endDataset')
+
+
+class TestSink(DataSink):
+
+    handlerclass = TestSinkHandler
 
 
 class TestNotifier(Mailer):

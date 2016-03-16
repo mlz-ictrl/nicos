@@ -32,5 +32,5 @@ includes = ['axis']
 
 
 devices = dict(
-    asciisink = device('devices.datasinks.AsciiDatafileSink'),
+    asciisink = device('devices.datasinks.AsciiScanfileSink'),
 )

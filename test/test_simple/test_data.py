@@ -24,6 +24,7 @@
 
 """NICOS data handlers test suite."""
 
+import os
 import time
 from os import path
 from logging import Handler
@@ -58,7 +59,10 @@ class CHandler(Handler):
 
 def test_sinks():
     exp = session.experiment
-    exp._setROParam('dataroot', path.join(config.nicos_root, 'testdata'))
+    dataroot = path.join(config.nicos_root, 'testdata')
+    os.makedirs(dataroot)
+    exp._setROParam('dataroot', dataroot)
+    open(path.join(dataroot, 'counters'), 'wb').close()
     exp.new(1234, user='testuser', localcontact=exp.localcontact)
 
     assert path.abspath(exp.datapath) == \
@@ -79,10 +83,10 @@ def test_sinks():
     assert_response(handler.messages,
                     matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.00[45].*\)')
 
-    fname = path.join(session.experiment.dataroot, 'scancounter')
+    fname = path.join(session.experiment.dataroot, 'counters')
     assert path.isfile(fname)
     contents = readFile(fname)
-    assert contents == ['1']
+    assert contents == ['scan 1']
 
     fname = path.join(config.nicos_root, 'testdata',
                       year, 'p1234', 'data', 'p1234_00000001.dat')

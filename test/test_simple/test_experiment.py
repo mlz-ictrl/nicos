@@ -65,6 +65,8 @@ def test_experiment():
 
     # setup test scenario
     exp._setROParam('dataroot', path.join(rootdir, 'data'))
+    # create empty counter file
+    open(path.join(rootdir, 'data', 'counters'), 'wb').close()
     exp.proposal = 'service'
     exp._setROParam('proptype', 'service')
     # if there is no exp.new, we need to adjust proposalpath ourselfs!
@@ -121,8 +123,8 @@ def test_experiment():
 
     # try a small scan; check for data file written
     scan(session.getDevice('axis'), 0, 1, 5, 0.01, u'Meßzeit')
-    assert path.isfile(datapath('..', 'scancounter'))
-    nr = readFileCounter(datapath('..', 'scancounter'))
+    assert path.isfile(datapath('..', 'counters'))
+    nr = readFileCounter(datapath('..', 'counters'), 'scan')
     fn = datapath('p999', 'data', 'p999_%08d.dat' % nr)
     assert path.isfile(fn)
     with open(fn, 'rb') as fp:

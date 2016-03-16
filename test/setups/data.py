@@ -31,9 +31,9 @@ sysconfig = dict(
 )
 
 devices = dict(
-    asciisink = device('nicos.devices.datasinks.AsciiDatafileSink',
+    asciisink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       ),
-    consolesink = device('nicos.devices.datasinks.ConsoleSink',
+    consolesink = device('nicos.devices.datasinks.ConsoleScanSink',
                         ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
                        )

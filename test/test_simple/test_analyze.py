@@ -34,6 +34,7 @@ from nicos.core import Value
 
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
+from nicos.core.data import dataman
 from nicos.core.sessions.utils import MASTER
 
 
@@ -52,12 +53,12 @@ def generate_dataset():
     data = numpy.array((1, 2, 1, 2, 2, 2, 5, 20, 30, 20, 10, 2, 3, 1, 2, 1, 1, 1))
     xpoints = numpy.arange(-9, 9)
     assert len(data) == len(xpoints)
-    dataset = session.experiment.createDataset(None)
+    dataset = dataman.beginScan()
     dataset.xvalueinfo = [Value('x', 'other')]
     dataset.yvalueinfo = [Value('y1', 'counter'), Value('y2', 'counter')]
     dataset.xresults = [[x] for x in xpoints]
     dataset.yresults = [[y, y*2] for y in data]
-    session.experiment._last_datasets.append(dataset)
+    dataman._last_scans.append(dataset)
 
 
 def test_fwhm():

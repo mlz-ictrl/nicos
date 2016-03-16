@@ -238,6 +238,18 @@ class ScanDataset(BaseDataset):
             raise ProgrammingError('metainfo is not available without points')
         return self.subsets[0].metainfo
 
+    @property
+    def devvaluelists(self):
+        return [subset.devvaluelist for subset in self.subsets]
+
+    @property
+    def envvaluelists(self):
+        return [subset.envvaluelist for subset in self.subsets]
+
+    @property
+    def detvaluelists(self):
+        return [subset.detvaluelist for subset in self.subsets]
+
 
 class SubscanDataset(ScanDataset):
     """Collects data related to a subscan (scan within a scan with results)."""
