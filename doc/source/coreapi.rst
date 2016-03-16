@@ -249,19 +249,6 @@ are re-exported in :mod:`nicos.core`.
 .. autofunction:: multiReset
 
 
-Classes for image handling
-==========================
-
-.. module:: nicos.core.image
-
-.. autoclass:: ImageSink()
-.. autoclass:: ImageInfo()
-.. autoclass:: ImageType()
-
-..
-   .. autoclass:: ImageProducer()
-
-
 Writing commands
 ================
 

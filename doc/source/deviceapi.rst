@@ -539,6 +539,7 @@ classes.
 
 .. autoclass:: CanReference()
 
+
 .. module:: nicos.devices.generic.detector
 
 ``TimerChannelMixin``
@@ -555,14 +556,6 @@ classes.
 =====================
 
 .. autoclass:: ImageChannelMixin()
-
-
-.. module:: nicos.core.image
-
-``ImageProducer``
-=================
-
-.. autoclass:: ImageProducer()
 
 
 .. module:: nicos.devices.generic.sequence

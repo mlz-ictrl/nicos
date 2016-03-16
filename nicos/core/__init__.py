@@ -46,7 +46,7 @@ from nicos.core.params import Param, Override, Value, Array, INFO_CATEGORIES, \
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler, dataman, LIVE, INTERMEDIATE, FINAL, INTERRUPTED
 from nicos.core.scan import Scan
-from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
+from nicos.core.image import ImageType, ImageSink
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user
