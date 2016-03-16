@@ -90,7 +90,7 @@ class DaemonSinkHandler(DataSinkHandler):
 
     def _emitDataset(self):
         dataset = SimpleDataset()
-        dataset.uid = self.dataset.uid
+        dataset.uid = str(self.dataset.uid)
         dataset.started = time.localtime(self.dataset.started)
         dataset.scaninfo = self.dataset.info
         dataset.counter = self.dataset.counter
