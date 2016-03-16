@@ -22,16 +22,13 @@
 #
 # *****************************************************************************
 
-"""Data sink classes (new API) for NICOS."""
+"""Base Image data sink classes for NICOS."""
 
 from time import time as currenttime
 
-import numpy as np
-
 from nicos import session
-from nicos.core import Override, Param, subdir, listof, INFO_CATEGORIES
+from nicos.core import Override, Param, subdir, listof
 from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE, FINAL
-from nicos.pycompat import iteritems
 from nicos.utils import syncFile
 
 
@@ -71,96 +68,6 @@ class TwoDImageSink(ImageSink):
                     if len(arrayinfo[0].shape) == 2:
                         return True
         return False
-
-
-class RawImageSinkHandler(DataSinkHandler):
-
-    def __init__(self, sink, dataset, detector):
-        DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._datafile = self._headerfile = None
-        self._subdir = sink.subdir
-        self._template = sink.filenametemplate
-        self._headertemplate = self._template[0].replace('.raw', '.header')
-        self._logtemplate = self._template[0].replace('.raw', '.log')
-        # determine which index of the detector value is our data array
-        # XXX support more than one array
-        arrayinfo = self.detector.arrayInfo()
-        if len(arrayinfo) > 1:
-            self.log.warning('image sink only supports one array per detector')
-        self._arrayinfo = arrayinfo[0]
-
-    def begin(self):
-        dataman.assignCounter(self.dataset)
-        self._datafile = dataman.createDataFile(
-            self.dataset, self._template, self._subdir)
-        self._headerfile = dataman.createDataFile(
-            self.dataset, self._headertemplate, self._subdir)
-        self._logfile = dataman.createDataFile(
-            self.dataset, self._logtemplate, self._subdir)
-
-    def _writeHeader(self, fp, header):
-        fp.seek(0)
-        fp.write('### NICOS Raw File Header V3.0\n')
-        bycategory = {}
-        for (device, key), (_, val, unit, category) in iteritems(header):
-            if category:
-                bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device.name, key), (val + ' ' + unit).strip()))
-        for category, _catname in INFO_CATEGORIES:
-            if category not in bycategory:
-                continue
-            fp.write('### %s\n' % category)
-            for key, value in bycategory[category]:
-                fp.write('%25s : %s\n' % (key, value))
-        # to ease interpreting the data...
-        fp.write('\n%r\n' % self._arrayinfo)
-        fp.flush()
-
-    def _writeLogs(self, fp, stats):
-        fp.seek(0)
-        fp.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
-        for dev in self.dataset.valuestats:
-            fp.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
-                     ((dev,) + self.dataset.valuestats[dev]))
-        fp.flush()
-
-    def _writeData(self, fp, data):
-        fp.seek(0)
-        fp.write(np.asarray(data).tostring())
-        fp.flush()
-
-    def putResults(self, quality, results):
-        if quality == LIVE:
-            return
-        if self.detector.name in results:
-            data = results[self.detector.name][1][0]
-            if data is not None:
-                self._writeData(self._datafile, data)
-                session.updateLiveData('raw', self._datafile.filepath,
-                                       self._arrayinfo.dtype, 0, 0, 0, 0, b'')
-
-    def putMetainfo(self, metainfo):
-        self._writeHeader(self._headerfile, self.dataset.metainfo)
-
-    def end(self):
-        self._writeLogs(self._logfile, self.dataset.valuestats)
-        if self._datafile:
-            self._datafile.close()
-        if self._headerfile:
-            self._headerfile.close()
-
-
-class RawImageSink(ImageSink):
-
-    parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
-                                     default=['%(proposal)s_%(pointcounter)s.raw',
-                                              '%(proposal)s_%(scancounter)s'
-                                              '_%(pointnumber)s.raw']),
-    }
-
-    handlerclass = RawImageSinkHandler
 
 
 class LiveViewSinkHandler(DataSinkHandler):
@@ -223,8 +130,8 @@ class SingleFileSinkHandler(DataSinkHandler):
         if self._file is not None:
             dataman.assignCounter(self.dataset)
             self._file = dataman.createDataFile(self.dataset,
-                self.sink.filenametemplate,
-                self.sink.subdir)
+                                                self.sink.filenametemplate,
+                                                self.sink.subdir)
 
     def begin(self):
         if not self.deferFileCreation:
