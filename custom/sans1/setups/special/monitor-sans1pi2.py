@@ -238,7 +238,7 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
             ),
-    BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
+    BlockRow(Field(name='Temperature of Spinflipper', dev='T_spinflipper'),),
     BlockRow(
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
@@ -371,11 +371,12 @@ _sans1crane = Column(
 
 _sans1julabo = Block('Julabo', [
     BlockRow(
-             Field(name='Setpoint', dev='T_control'),
+             Field(name='Target', key='T_julabo/target'),
+             Field(name='Setpoint', key='T_julabo/setpoint'),
              ),
     BlockRow(
              Field(name='Intern', dev='T_intern'),
-             Field(name='Extern', dev='T_extern'),
+             Field(name='Extern', dev='T_julabo'),
              ),
     ],
     setups='julabo',
@@ -385,15 +386,15 @@ _julabo_plot = Block('Julabo plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=1800,
-              devices=['T_control', 'T_intern', 'T_extern'],
-              names=['Setpoint', 'Intern 30min', 'Extern 30min'],
+              devices=['T_julabo', 'T_julabo/setpoint'],
+              names=['T 30min', 'Setpoint'],
               ),
     ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=12*3600,
-              devices=['T_control', 'T_intern', 'T_extern'],
-              names=['Setpoint', 'Intern 12h', 'Extern 12h'],
+              devices=['T_julabo', 'T_julabo/setpoint'],
+              names=['T 12h', 'Setpoint'],
               ),
     ),
     ],
