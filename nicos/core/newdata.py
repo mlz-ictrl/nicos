@@ -266,6 +266,7 @@ class DataSinkHandler(object):
 
     def begin(self):
         """Run after sinks are all started."""
+        # filenames are set when this is called
 
     def addMetainfo(self, metainfo):
         """Called when the dataset metainfo is updated.
@@ -493,6 +494,7 @@ class DataManager(object):
         self._current.dispatch('addMetainfo', metainfo)
 
     def putValues(self, values):
+        # values is dict(<devicename>: (timestamp, value),...)
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring values')
             return
