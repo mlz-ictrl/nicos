@@ -1293,21 +1293,30 @@ class Session(object):
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
         """Send new live data to clients.
 
         The parameters are:
 
         * tag - a string describing the type of data that is sent.  It is used
           by clients to determine if they can display this data.
-        * filename - a string giving the filename of the data once measurement
-          is finished.  Can be empty.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
         * nx, ny, nt - three integers giving the dimensions of the data array,
           if it is in array format.
         * time - the current measurement time, for determining count rate.
         * data - the actual data as a byte string.
+        """
+
+    def notifyDataFile(self, tag, filename):
+        """Notify clients that a new data file has been written, which might
+        be viewed by live-data views.
+
+        The parameters are:
+
+        * tag - a string describing the type of data saved.  It is used
+          by clients to determine if they can open/display this data.
+        * filename - a string giving the filename of the data.
         """
 
     def breakpoint(self, level):

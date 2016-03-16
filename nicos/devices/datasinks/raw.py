@@ -133,8 +133,7 @@ class RawImageSinkHandler(DataSinkHandler):
             data = results[self.detector.name][1][0]
             if data is not None:
                 self._writeData(self._datafile, data)
-                session.updateLiveData('raw', self._datafile.filepath,
-                                       self._arrayinfo.dtype, 0, 0, 0, 0, b'')
+                session.updateLiveData('raw', self._datafile.filepath)
 
     def putMetainfo(self, metainfo):
         self._writeHeader(self._headerfile, self.dataset.metainfo)
