@@ -136,14 +136,13 @@ def SXTalCellType(val=None):
 class SXTalCell(object):
 
     @classmethod
-    def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0, bravais='P', laue='1'):
+    def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0, bravais='P'):
         _mat, lpi = matfromrcell(a, b, c, alpha, beta, gamma)
-        return cls(np.transpose(lpi), bravais, laue)
+        return cls(np.transpose(lpi), bravais)
 
-    def __init__(self, matrix, bravais='P', laue='1'):
+    def __init__(self, matrix, bravais='P'):
         self.rmat = np.array(matrix)
         self.bravais = symmetry.Bravais(bravais)
-        self.laue = symmetry.Laue(laue)
 
     def __str__(self):
         return 'Cell: a=%.4f b=%.4f c=%.4f alpha=%.3f° beta=%.3f° gamma=%.3f°' \
@@ -230,7 +229,7 @@ class SXTalCell(object):
 
     # pylint: disable=too-many-locals
     def dataset(self, invdmin, invdmax,
-                uhmin=-512, uhmax=512, ukmin=-512, ukmax=512, ulmin=-512, ulmax=512, uniq=False):
+                uhmin=-512, uhmax=512, ukmin=-512, ukmax=512, ulmin=-512, ulmax=512):
         '''Calculate a set of reflections for the given bravais lattice
 
         parameters:
@@ -299,8 +298,6 @@ class SXTalCell(object):
                 zone = np.dstack((h, k, l))[0]
                 # Remove bravais-forbidden
                 condition = self.bravais.allowed((h, k, l))
-                if uniq:
-                    condition = np.logical_and(condition, self.laue.uniq((h, k, l)))
                 # Now calculate 1/d for the reflections in the zone
                 invd = np.transpose(np.inner(self.rmat.T, zone))
                 invd = np.linalg.norm(invd, axis=1)
