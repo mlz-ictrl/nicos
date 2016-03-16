@@ -243,6 +243,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return EditWidget(parent, str, curvalue, allow_enter=allow_enter)
     elif typ == anytype:
         return ExprWidget(parent, curvalue, allow_enter=allow_enter)
+    elif isinstance(typ, params.setof):
+        return SetOfWidget(parent, typ.vals, curvalue, client)
     elif isinstance(typ, params.listof):
         return ListOfWidget(parent, typ.conv, curvalue, client,
                             allow_enter=allow_enter)
@@ -438,6 +440,35 @@ class CheckWidget(QWidget):
         if self.checkbox.isChecked():
             return self.inner_widget.getValue()
         return None
+
+
+class SetOfWidget(QWidget):
+
+    def __init__(self, parent, values, curvalue, client):
+        QWidget.__init__(self, parent)
+        layout = self._layout = QVBoxLayout()
+        self.checkboxes = []
+        self.values = []
+        curvalue = curvalue or set()
+        for value in values:
+            checkbox = QCheckBox(str(value), self)
+            if value in curvalue:
+                checkbox.setCheckState(Qt.Checked)
+            checkbox.stateChanged.connect(self.on_checkbox_stateChanged)
+            layout.addWidget(checkbox)
+            self.checkboxes.append(checkbox)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+    def on_checkbox_stateChanged(self, state):
+        self.emit(SIGNAL('dataChanged'))
+
+    def getValue(self):
+        result = set()
+        for value, checkbox in zip(self.values, self.checkboxes):
+            if checkbox.isChecked():
+                result.add(value)
+        return result
 
 
 class MissingWidget(QLabel):
