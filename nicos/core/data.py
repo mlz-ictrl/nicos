@@ -383,7 +383,7 @@ class DataSink(Device):
                 for det in dets]
 
 
-class DataFile(file):
+class DataFile(object):
     """Represents a Nicos data file."""
 
     def __init__(self, shortpath, filepath):
@@ -392,7 +392,10 @@ class DataFile(file):
                                    'Check filename templates!' % filepath)
         self.shortpath = shortpath
         self.filepath = filepath
-        file.__init__(self, filepath, 'wb')
+        self._file = open(filepath, 'wb')
+
+    def __getattr__(self, name):
+        return getattr(self._file, name)
 
 
 class DataManager(object):
