@@ -25,6 +25,7 @@
 """Scan classes, new API."""
 
 from time import time as currenttime
+from contextlib import contextmanager
 
 from nicos.commands.output import printwarning
 
@@ -128,6 +129,18 @@ class Scan(object):
             endpositions=endpositions,
         )
 
+    @contextmanager
+    def pointScope(self, num):
+        if self.dataset.npoints == 0:
+            session.beginActionScope('Point %d' % num)
+        else:
+            session.beginActionScope('Point %d/%d' % (num,
+                                                      self.dataset.npoints))
+        try:
+            yield
+        finally:
+            session.endActionScope()
+
     def prepareScan(self, position):
         # XXX with actionscope
         session.beginActionScope('%s (moving to start)' % self.shortDesc())
@@ -135,9 +148,9 @@ class Scan(object):
             # the move-before devices
             if self._firstmoves:
                 fm_devs, fm_pos = zip(*self._firstmoves)
-                self.moveDevices(fm_devs, fm_pos, data=False)
+                self.moveDevices(fm_devs, fm_pos)
             # the scanned-over devices
-            self.moveDevices(self._devices, position, data=False)
+            self.moveDevices(self._devices, position)
         finally:
             session.endActionScope()
 
@@ -151,7 +164,6 @@ class Scan(object):
             session.beginActionScope('Point %d' % num)
         else:
             session.beginActionScope('Point %d/%d' % (num, self.dataset.npoints))
-        point = dataman.beginPoint()
         # XXX prepare
         for det in self._detlist:
             # preparation before count command
@@ -159,10 +171,8 @@ class Scan(object):
         # wait for preparation has been finished.
         for det in self._detlist:
             waitForStatus(det)
-        return point
 
     def finishPoint(self):
-        dataman.finishPoint()
         session.endActionScope()
         session.breakpoint(2)
 
@@ -207,7 +217,7 @@ class Scan(object):
             # XXX raise NicosError ?
             raise  # pylint: disable=misplaced-bare-raise
 
-    def moveDevices(self, devices, positions, wait=True, data=True):
+    def moveDevices(self, devices, positions, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
         On errors, call handleError, which decides when the scan may continue.
         """
@@ -236,8 +246,7 @@ class Scan(object):
                     self.handleError('read', dev, None, err)
                     val = [None] * len(dev.valueInfo())
             waitresults[dev.name] = (currenttime(), val)
-        if data:
-            dataman.putValues(waitresults)
+        return waitresults
 
     # XXX: move to data manager
     def readEnvironment(self):
@@ -284,25 +293,30 @@ class Scan(object):
         self.beginScan()
         try:
             for i, position in enumerate(self._startpositions):
-                point = self.preparePoint(i + 1, position)
-                try:
-                    if i == 0 and skip_first_point:
-                        continue
-                    self.moveDevices(self._devices, position, wait=True)
-                    # start moving to end positions
-                    if self._endpositions:
-                        self.moveDevices(self._devices, self._endpositions[i],
-                                         wait=False)
-                    # measure...
+                with self.pointScope(i + 1):
                     try:
-                        acquire(point, self._preset)
+                        point = self.preparePoint(i + 1, position)
+                        if i == 0 and skip_first_point:
+                            continue
+                        waitresults = self.moveDevices(self._devices, position,
+                                                       wait=True)
+                        # start moving to end positions
+                        if self._endpositions:
+                            self.moveDevices(self._devices, self._endpositions[i],
+                                             wait=False)
+                        # measure...
+                        point = dataman.beginPoint(target=position)
+                        dataman.putValues(waitresults)
+                        try:
+                            acquire(point, self._preset)
+                        finally:
+                            # read environment at least once
+                            self.readEnvironment()
+                            dataman.finishPoint()
+                    except SkipPoint:
+                        pass
                     finally:
-                        # read environment at least once
-                        self.readEnvironment()
-                except SkipPoint:
-                    pass
-                finally:
-                    self.finishPoint()
+                        self.finishPoint()
         except StopScan:
             pass
         finally:
