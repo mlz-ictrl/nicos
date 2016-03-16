@@ -324,3 +324,7 @@ class ContinuousScan(Scan):
 
 class ManualScan(Scan):
     pass
+
+
+class QScan(Scan):
+    pass

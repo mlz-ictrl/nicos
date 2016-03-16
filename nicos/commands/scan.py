@@ -460,7 +460,7 @@ def appendscan(numpoints=5, stepsize=None):
     i = len(dslist) - 1
     while i >= 0:
         contuids.append(dslist[i].uid)
-        if not dslist[i].sinkinfo.get('continuation'):
+        if not dslist[i].continuation:
             break
         i -= 1
 
@@ -470,7 +470,7 @@ def appendscan(numpoints=5, stepsize=None):
     #   appendscan(5)
     #   appendscan(2)
     #   appendscan(-3)
-    if dslist[-1].sinkinfo.get('cont_direction') == direction:
+    if dslist[-1].cont_direction == direction:
         scan = dslist[-1]
     else:
         scan = dslist[i]
@@ -507,8 +507,8 @@ def appendscan(numpoints=5, stepsize=None):
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' %
              numpoints)
-    s.dataset.sinkinfo['continuation'] = ','.join(contuids)
-    s.dataset.sinkinfo['cont_direction'] = direction
+    s.dataset.continuation = ','.join(contuids)
+    s.dataset.cont_direction = direction
     s.dataset.xindex = scan.xindex
     # envlist must be reset since Scan.__init__ messes with the ordering
     s.dataset.envlist[:] = scan.envlist

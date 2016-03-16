@@ -24,10 +24,10 @@
 
 """Data handling classes, new API."""
 
-import logging
 import os
-from math import sqrt
+import logging
 from os import path
+from math import sqrt
 from time import time as currenttime
 from uuid import uuid4
 
@@ -222,6 +222,13 @@ class ScanDataset(BaseDataset):
         # Number of points in the scan, if known.
         self.npoints = None
 
+        # Index of the X value to plot.
+        self.xindex = 0
+
+        # If this is a continuation dataset, the UIDs of the continued ones.
+        self.continuation = None
+        self.cont_direction = 0
+
         BaseDataset.__init__(self, **kwds)
 
     @property
@@ -270,20 +277,29 @@ class DataSinkHandler(object):
         """Run after sinks are all started."""
         # filenames are set when this is called
 
-    def addMetainfo(self, metainfo):
+    def putMetainfo(self, metainfo):
         """Called when the dataset metainfo is updated.
 
         Argument *metainfo* contains the new metainfo.  ``dataset.metainfo``
         contains the full metainfo.
+
+        The metainfo is a dictionary in this form:
+
+        * key: (devname, paramname)
+        * value: (value, stringified value, unit, category)
+
+        where the category is one of the keys defined in
+        `nicos.core.params.INFO_CATEGORIES`.
         """
 
-    def addValues(self, values):
+    def putValues(self, values):
         """Called when device values are updated.
 
-        XXX: document format of parameter.
+        The *values* parameter is a dictionary with device names as keys and
+        ``(timestamp, value)`` as values.
         """
 
-    def addResults(self, quality, results):
+    def putResults(self, quality, results):
         """Called when the point dataset main results are updated.
 
         The *quality* is one of the constants defined in the module:
@@ -296,6 +312,9 @@ class DataSinkHandler(object):
 
         Argument *results* contains the new results.  ``dataset.results``
         contains all results so far.
+
+        The *results* parameter is a dictionary with device names as keys and
+        ``(scalarvalues, arrays)`` as values.
         """
 
     def addSubset(self, subset):
@@ -389,7 +408,7 @@ class DataManager(object):
     @lazy_property
     def log(self):
         logger = session.getLogger('nicos-data')  # XXX name?
-        logger.setLevel(logging.INFO)  # XXX session.log.level)
+        logger.setLevel(logging.INFO)
         return logger
 
     @property
@@ -493,7 +512,7 @@ class DataManager(object):
             self.log.warning('No current point dataset, ignoring metainfo')
             return
         self._current.metainfo.update(metainfo)
-        self._current.dispatch('addMetainfo', metainfo)
+        self._current.dispatch('putMetainfo', metainfo)
 
     def putValues(self, values):
         # values is dict(<devicename>: (timestamp, value),...)
@@ -501,41 +520,34 @@ class DataManager(object):
             self.log.warning('No current point dataset, ignoring values')
             return
         self._current._addvalues(values)
-        self._current.dispatch('addValues', values)
+        self._current.dispatch('putValues', values)
 
     def putResults(self, quality, results):
+        # results is dict(<devicename>: (timestamp, value),...)
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring results')
             return
         self._current.results.update(results)
-        self._current.dispatch('addResults', quality, results)
+        self._current.dispatch('putResults', quality, results)
 
     def cacheCallback(self, key, value, time):
         if not self._current or self._current.settype != 'point':
             return
         devname = session.device_case_map[key.split('/')[0]]
-        #print devname, time, value
         try:
             self.putValues({devname: (time, value)})
         except Exception:
             pass
 
     def updateMetainfo(self):
-        # if updatedict is not empty, only update those devices & positions, else all
-        if 0:  # pylint: disable=using-constant-test
-            # XXX
-            # devices = zip(*sorted(iteritems(updatedict),
-            #               key=lambda dev_and_val: dev_and_val[0].name.lower()))[0]
-            pass
-        else:
-            devices = zip(*sorted(iteritems(session.devices),
-                                  key=lambda name_and_dev: name_and_dev[0].lower()))[1]
+        devices = zip(*sorted(iteritems(session.devices),
+                              key=lambda name_and_dev: name_and_dev[0].lower()))[1]
         newinfo = {}
         for device in devices:
             if device.lowlevel:
                 continue
             for key, value, strvalue, unit, category in device.info():
-                newinfo[device, key] = (value, strvalue, unit, category)
+                newinfo[device.name, key] = (value, strvalue, unit, category)
         self.putMetainfo(newinfo)
 
     #

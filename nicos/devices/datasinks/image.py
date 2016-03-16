@@ -114,7 +114,7 @@ class RawImageSinkHandler(DataSinkHandler):
         fp.write(np.asarray(data).tostring())
         fp.flush()
 
-    def addResults(self, quality, results):
+    def putResults(self, quality, results):
         if quality == LIVE:
             return
         if self.detector.name in results:
@@ -124,7 +124,7 @@ class RawImageSinkHandler(DataSinkHandler):
                 session.updateLiveData('raw', self._datafile.filepath,
                                        self._arrayinfo.dtype, 0, 0, 0, 0, b'')
 
-    def addMetainfo(self, metainfo):
+    def putMetainfo(self, metainfo):
         self._writeHeader(self._headerfile, self.dataset.metainfo)
 
     def end(self):
@@ -155,7 +155,7 @@ class LiveViewSinkHandler(DataSinkHandler):
         if len(self.detector.arrayInfo()) > 1:
             self.log.warning('image sink only supports one array per detector')
 
-    def addResults(self, quality, results):
+    def putResults(self, quality, results):
         if self.detector.name in results:
             data = results[self.detector.name][1][0]
             if data is not None:
