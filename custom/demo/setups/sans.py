@@ -152,7 +152,7 @@ devices = dict(
                                '%(proposal)s_%(session.experiment.lastscan)s_'
                                '%(counter)s_%(scanpoint)s.raw'],
                               ),
-    LiveViewFileSink = device('devices.fileformats.LiveViewSink',
+    LiveViewFileSink = device('devices.datasinks.LiveViewSink',
                               description = 'Sends image data to LiveViewWidget',
                              ),
     LivePNGSinkLog   = device('devices.datasinks.PNGLiveFileSink',

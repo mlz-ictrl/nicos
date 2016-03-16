@@ -24,12 +24,13 @@
 
 """Data sink classes (new API) for NICOS."""
 
-import time
 from os import path
+from time import time as currenttime, localtime
 
 from nicos import session
 from nicos.core import Override, DataSink, DataSinkHandler
 from nicos.pycompat import iteritems, cPickle as pickle
+from nicos.devices.datasinks.image import ImageSink
 from nicos.utils import lazy_property
 
 
@@ -91,7 +92,7 @@ class DaemonSinkHandler(DataSinkHandler):
     def _emitDataset(self):
         dataset = SimpleDataset()
         dataset.uid = str(self.dataset.uid)
-        dataset.started = time.localtime(self.dataset.started)
+        dataset.started = localtime(self.dataset.started)
         dataset.scaninfo = self.dataset.info
         dataset.counter = self.dataset.counter
         dataset.xindex = self.dataset.xindex
@@ -136,6 +137,39 @@ class DaemonSink(DataSink):
         if not isinstance(session, DaemonSession):
             return False
         return DataSink.isActive(self, dataset)
+
+
+class LiveViewSinkHandler(DataSinkHandler):
+
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
+        if len(self.detector.arrayInfo()) > 1:
+            self.log.warning('image sink only supports one array per detector')
+
+    def putResults(self, quality, results):
+        if self.detector.name in results:
+            data = results[self.detector.name][1][0]
+            if data is not None:
+                if len(data.shape) == 2:
+                    (resX, resY), resZ = data.shape, 1
+                else:
+                    resX, resY, resZ = data.shape
+                session.updateLiveData('Live', '', '<u4', resX, resY, resZ,
+                                       currenttime() - self.dataset.started,
+                                       buffer(data.astype('<u4')))
+
+
+class LiveViewSink(ImageSink):
+    """A data sink that sends images to attached clients for live preview."""
+
+    parameter_overrides = {
+        # this is not really used, so we give it a default that would
+        # raise if used as a template filename
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False, default=['']),
+    }
+
+    handlerclass = LiveViewSinkHandler
 
 
 class SerializedSinkHandler(DataSinkHandler):

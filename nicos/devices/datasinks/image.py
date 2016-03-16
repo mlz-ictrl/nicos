@@ -24,8 +24,6 @@
 
 """Base Image data sink classes for NICOS."""
 
-from time import time as currenttime
-
 from nicos import session
 from nicos.core import Override, Param, subdir, listof
 from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE, FINAL
@@ -68,37 +66,6 @@ class TwoDImageSink(ImageSink):
                     if len(arrayinfo[0].shape) == 2:
                         return True
         return False
-
-
-class LiveViewSinkHandler(DataSinkHandler):
-
-    def __init__(self, sink, dataset, detector):
-        DataSinkHandler.__init__(self, sink, dataset, detector)
-        if len(self.detector.arrayInfo()) > 1:
-            self.log.warning('image sink only supports one array per detector')
-
-    def putResults(self, quality, results):
-        if self.detector.name in results:
-            data = results[self.detector.name][1][0]
-            if data is not None:
-                if len(data.shape) == 2:
-                    (resX, resY), resZ = data.shape, 1
-                else:
-                    resX, resY, resZ = data.shape
-                session.updateLiveData('Live', '', '<u4', resX, resY, resZ,
-                                       currenttime() - self.dataset.started,
-                                       buffer(data.astype('<u4')))
-
-
-class LiveViewSink(ImageSink):
-    parameter_overrides = {
-        # this is not really used, so we give it a default that would
-        # raise if used as a template filename
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False, default=['']),
-    }
-
-    handlerclass = LiveViewSinkHandler
 
 
 class SingleFileSinkHandler(DataSinkHandler):

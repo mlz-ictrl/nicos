@@ -255,7 +255,7 @@ devices = dict(
                      motor_s = 'nok9_s',
                     ),
 
-    LiveViewFileSink = device('devices.fileformats.LiveViewSink',
+    LiveViewFileSink = device('devices.datasinks.LiveViewSink',
                               description = 'Sends image data to LiveViewWidget',
                              ),
 

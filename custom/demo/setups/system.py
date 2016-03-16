@@ -57,7 +57,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    livesink   = device('devices.datasinks.image.LiveViewSink',
+    livesink   = device('devices.datasinks.LiveViewSink',
                         lowlevel = True,
                        ),
 

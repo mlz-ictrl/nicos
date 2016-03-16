@@ -18,7 +18,7 @@ devices = dict(
                                lowlevel = True,
                                subdir = 'bersans',
                               ),
-    #~ LiveViewSink = device('devices.fileformats.LiveViewSink',
+    #~ LiveViewSink = device('devices.datasinks.LiveViewSink',
                                #~ description = 'Sends image data to LiveViewWidget',
                                #~ filenametemplate=[],
                                #~ lowlevel = True,

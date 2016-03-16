@@ -25,7 +25,8 @@
 """Data sink classes (new API) for NICOS."""
 
 from nicos.devices.datasinks.scan import ConsoleScanSink, AsciiScanfileSink
-from nicos.devices.datasinks.special import SerializedSink, DaemonSink
+from nicos.devices.datasinks.special import SerializedSink, DaemonSink, \
+    LiveViewSink
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.datasinks.fits import FITSImageSink
 from nicos.devices.datasinks.livepng import PNGLiveFileSink

@@ -19,7 +19,7 @@ devices = dict(
                            mono = 'mono',
                            lowlevel = True,
                           ),
-    psd_liveview  = device('devices.fileformats.liveview.LiveViewSink',
+    psd_liveview  = device('devices.datasinks.LiveViewSink',
                            lowlevel = True,
                           ),
 

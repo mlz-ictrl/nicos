@@ -14,7 +14,7 @@ devices = dict(
     #                          '%(counter)s_%(scanpoint)s.raw'],
     #                          lowlevel = True,
     #                         ),
-    LiveViewSink = device('devices.fileformats.LiveViewSink',
+    LiveViewSink = device('devices.datasinks.LiveViewSink',
                           description = 'Sends image data to LiveViewWidget',
                           filenametemplate = [''],
                           lowlevel = True,
