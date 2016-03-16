@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -64,7 +64,7 @@ def test_alias_dev():
     assert session.testhandler.emits_message(setattr, alias, 'alias', v1)
     # check delegation of methods etc.
     assert isinstance(alias, type(v1))
-    assert type(alias) != type(v1)
+    assert type(alias) != type(v1)  # pylint: disable=unidiomatic-typecheck
     assert v1.read() == alias.read()
     # check attribute access
     alias.speed = 5.1
@@ -104,7 +104,7 @@ def test_alias_valueinfo():
     alias.alias = v1
     vistr = str(alias.valueInfo())
     assert 'aliasDev' in vistr
-    assert 'aliasDev' == alias.valueInfo()[0].name
+    assert alias.valueInfo()[0].name == 'aliasDev'
 
 
 def test_alias_valueinfo2():

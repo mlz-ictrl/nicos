@@ -3,7 +3,7 @@ Upstream-Name: nicos-core
 Source: http://forge.frm2.tum.de/cgit/cgit.cgi/frm2/nicos/nicos-core.git/
 
 Files: *
-Copyright: 2009-2015 by the NICOS contributors (see AUTHORS)
+Copyright: 2009-2016 by the NICOS contributors (see AUTHORS)
 License: GPL-2
 
 Files: debian/*

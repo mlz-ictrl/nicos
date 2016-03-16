@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@ from passwordeditor.user import User
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
@@ -204,10 +204,7 @@ class MainWindow(QMainWindow):
                                   'WARNING: THIS WILL CLEAR ALL PASSWORDS.')
         msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msgBox.setDefaultButton(QMessageBox.Cancel)
-        if msgBox.exec_() == QMessageBox.Ok:
-            return True
-        else:
-            return False
+        return msgBox.exec_() == QMessageBox.Ok
 
     def setConfig(self):
         #method called when clicking save button in config widget.

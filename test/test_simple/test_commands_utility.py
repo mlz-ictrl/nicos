@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -99,6 +99,8 @@ def test_rangelistbycounts():
 
 
 def test_floatrange():
+    # pylint: disable=unidiomatic-typecheck
+
     l4 = floatrange(1, 2, step=0.5)
     assert len(l4) == 3
     assert l4[0] == 1.
