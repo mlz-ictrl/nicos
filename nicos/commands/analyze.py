@@ -58,7 +58,7 @@ def _getData(columns=None):
     i = -1
     xresults = dataset.xresults
     yresults = dataset.yresults
-    while dataset.sinkinfo.get('continuation'):
+    while dataset.continuation:
         i -= 1
         dataset = session.experiment._last_datasets[i]
         xresults = dataset.xresults + xresults

@@ -131,12 +131,10 @@ class DataHandler(QObject):
         self.dependent = []
         # add some custom attributes of the dataset
         dataset.invisible = False
-        dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo))
+        dataset.name = str(dataset.counter)
         dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
                                           dataset.xunits[dataset.xindex])
         dataset.curves = self._init_curves(dataset)
-        for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
-            self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('datasetAdded'), dataset)
 
     def add_existing_dataset(self, dataset, origins=()):

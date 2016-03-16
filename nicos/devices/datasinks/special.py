@@ -29,7 +29,7 @@ from os import path
 
 from nicos import session
 from nicos.core import Override, DataSink, DataSinkHandler
-from nicos.pycompat import cPickle as pickle
+from nicos.pycompat import iteritems, cPickle as pickle
 from nicos.utils import lazy_property
 
 
@@ -86,6 +86,9 @@ class SimpleDataset(object):
 class DaemonSinkHandler(DataSinkHandler):
 
     def begin(self):
+        self._dataset_emitted = False
+
+    def _emitDataset(self):
         dataset = SimpleDataset()
         dataset.uid = self.dataset.uid
         dataset.started = time.localtime(self.dataset.started)
@@ -96,9 +99,16 @@ class DaemonSinkHandler(DataSinkHandler):
         dataset.cont_direction = self.dataset.cont_direction
         dataset.xvalueinfo = self.dataset.devvalueinfo
         dataset.yvalueinfo = self.dataset.detvalueinfo
+        for (devname, key), (_, val, unit, category) in \
+                iteritems(self.dataset.metainfo):
+            catlist = dataset.headerinfo.setdefault(category, [])
+            catlist.append((devname, key, (val + ' ' + unit).strip()))
         session.emitfunc('dataset', dataset)
 
     def addSubset(self, point):
+        if not self._dataset_emitted:
+            self._emitDataset()
+            self._dataset_emitted = True
         xvalues = point.devvaluelist
         yvalues = point.detvaluelist
         session.emitfunc('datapoint', (xvalues, yvalues))

@@ -35,8 +35,8 @@ from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
 from PyQt4.QtCore import QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.core import Dataset
 from nicos.utils import safeFilename
+from nicos.devices.datasinks.special import SimpleDataset
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -47,10 +47,10 @@ from nicos.pycompat import itervalues
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
 INTERESTING_CATS = [  # from nicos.core.params
-    'Device positions and sample environment state',
-    'Sample and alignment',
-    'Instrument setup',
-    'Experiment information',
+    'general',
+    'sample',
+    'instrument',
+    'experiment',
 ]
 
 
@@ -384,7 +384,7 @@ class ScansPanel(Panel):
             self.no_openset = False
         # If the dataset is a continuation of another dataset, automatically
         # create a combined dataset.
-        contuids = dataset.sinkinfo.get('continuation')
+        contuids = dataset.continuation
         if contuids:
             alluids = tuple(contuids.split(',')) + (dataset.uid,)
             # Did we already create this set?  Then don't create it again.
@@ -640,7 +640,7 @@ class ScansPanel(Panel):
 
     def _combine(self, op, sets):
         if op == TOGETHER:
-            newset = Dataset()
+            newset = SimpleDataset()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.invisible = False
             newset.curves = []

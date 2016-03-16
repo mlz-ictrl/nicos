@@ -7,7 +7,7 @@ sysconfig = dict(
     instrument = 'demo',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'serialsink', 'imgsink',
-                 'livesink'],
+                 'livesink', 'dmnsink'],
     notifiers = [],
 )
 
@@ -44,9 +44,9 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    # daemonsink = device('devices.datasinks.DaemonSink',
-    #                     lowlevel = True,
-    #                    ),
+    dmnsink    = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
     serialsink = device('devices.datasinks.SerializedSink',
                         lowlevel = True,
