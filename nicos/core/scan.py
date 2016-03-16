@@ -309,3 +309,15 @@ class Scan(object):
             pass
         finally:
             self.endScan()
+
+
+class SweepScan(Scan):
+    pass
+
+
+class ContinuousScan(Scan):
+    pass
+
+
+class ManualScan(Scan):
+    pass

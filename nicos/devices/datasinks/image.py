@@ -60,7 +60,8 @@ class ImageSink(DataSink):
 
 class RawImageSinkHandler(DataSinkHandler):
 
-    def init(self, sink):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self._datafile = self._headerfile = None
         self._subdir = sink.subdir
         self._template = sink.filenametemplate
@@ -149,7 +150,8 @@ class RawImageSink(ImageSink):
 
 class LiveViewSinkHandler(DataSinkHandler):
 
-    def init(self, sink):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         if len(self.detector.arrayInfo()) > 1:
             self.log.warning('image sink only supports one array per detector')
 

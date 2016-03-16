@@ -24,9 +24,10 @@
 
 """New acquisition commands (scan and count)."""
 
-from nicos.commands import helparglist, usercommand
-from nicos.commands.output import printinfo, printwarning
 from time import sleep, time as currenttime
+
+from nicos.commands import helparglist, usercommand, parallel_safe
+from nicos.commands.output import printinfo, printwarning
 
 from nicos import session
 from nicos.core.device import Measurable, SubscanMeasurable
@@ -234,3 +235,108 @@ def count(*detlist, **preset):
             retval.append(res[i])
     printinfo('count: ' + ', '.join(msg))
     return CountResult(retval)
+
+
+@usercommand
+@helparglist('presets...')
+def preset(**preset):
+    """Set a new default preset for the currently selected detectors.
+
+    The arguments that are accepted depend on the detectors.  The current
+    detectors are selected using `SetDetectors()`.
+
+    Examples:
+
+    >>> preset(t=10)      # sets a time preset of 5 seconds
+    >>> preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
+                          # that support monitor presets
+    """
+    names = set(preset)
+    for det in session.experiment.detectors:
+        names.difference_update(det.presetInfo())
+        det.setPreset(**preset)
+    printinfo('new preset: ' +
+              ', '.join('%s=%s' % item for item in iteritems(preset)))
+    if names:
+        printwarning('these preset keys were not recognized by any of '
+                     'the detectors: %s -- detectors are %s' %
+                     (', '.join(names),
+                      ', '.join(map(str, session.experiment.detectors))))
+
+
+@usercommand
+@helparglist('det, ...')
+def SetDetectors(*detlist):
+    """Select the detector device(s) to read out when calling scan() or count().
+
+    Examples:
+
+    >>> SetDetectors(det)       # to use the "det" detector
+    >>> SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
+    """
+    session.experiment.setDetectors(detlist)
+    session.log.info('standard detectors are now: %s' %
+                     ', '.join(session.experiment.detlist))
+
+
+@usercommand
+@helparglist('det, ...')
+def AddDetector(*detlist):
+    """Add the specified detector device(s) to the standard detectors.
+
+    Example:
+
+    >>> AddDetector(psd)    # count also with the "psd" detector
+    """
+    existing = session.experiment.detlist
+    session.experiment.setDetectors(existing + list(detlist))
+    session.log.info('standard detectors are now: %s' %
+                     ', '.join(session.experiment.detlist))
+
+
+@usercommand
+@parallel_safe
+def ListDetectors():
+    """List the standard detectors."""
+    session.log.info('standard detectors are %s' %
+                     ', '.join(session.experiment.detlist))
+
+
+@usercommand
+@helparglist('[dev, ...]')
+def SetEnvironment(*devlist):
+    """Select the device(s) to read during scans as "experiment environment".
+
+    Experiment environment devices are read out at every point of a scan.
+
+    Examples:
+
+    >>> SetEnvironment(T, B)   # to read out T and B devices
+    >>> SetEnvironment()       # to read out no additional devices
+    """
+    session.experiment.setEnvironment(devlist)
+    session.log.info('standard environment is now: %s' %
+                     ', '.join(session.experiment.envlist))
+
+
+@usercommand
+@helparglist('dev, ...')
+def AddEnvironment(*devlist):
+    """Add the specified environment device(s) to the standard environment.
+
+    Example:
+
+    >>> AddEnvironment(T)   # also read out T device
+    """
+    existing = session.experiment.envlist
+    session.experiment.setEnvironment(existing + list(devlist))
+    session.log.info('standard environment is now: %s' %
+                     ', '.join(session.experiment.envlist))
+
+
+@usercommand
+@parallel_safe
+def ListEnvironment():
+    """List the standard environment devices."""
+    session.log.info('standard environment is %s' %
+                     ', '.join(session.experiment.envlist))

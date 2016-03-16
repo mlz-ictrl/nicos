@@ -24,12 +24,14 @@
 
 """Data sink classes (new API) for NICOS."""
 
+from os import path
 from time import strftime, localtime
 
+from nicos import session
 from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, Override, Param, listof, \
     INFO_CATEGORIES, DataSink, DataSinkHandler, dataman
-from nicos.pycompat import TextIOWrapper, iteritems
+from nicos.pycompat import TextIOWrapper, iteritems, cPickle as pickle
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -44,7 +46,8 @@ def safe_format(fmtstr, value):
 
 class ConsoleScanSinkHandler(DataSinkHandler):
 
-    def init(self, sink):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self._indent = '' if self.dataset.settype != 'subscan' else ' ' * 6
 
     def begin(self):
@@ -225,27 +228,37 @@ class AsciiScanfileSink(DataSink):
                                      'one character')
 
 
-# XXX: switch to new API
+class SerializedSinkHandler(DataSinkHandler):
 
-# class SerializedSink(DatafileSink):
-#     """A data sink that writes serialized datasets to a single file.
+    def end(self):
+        serial_file = path.join(session.experiment.datapath, '.all_datasets')
+        if path.isfile(serial_file):
+            try:
+                with open(serial_file, 'rb') as fp:
+                    datasets = pickle.load(fp)
+            except Exception:
+                self.log.warning('could not load serialized datasets', exc=1)
+                datasets = {}
+        else:
+            datasets = {}
+        datasets[self.dataset.counter] = self.dataset
+        try:
+            with open(serial_file, 'wb') as fp:
+                pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
+        except Exception:
+            self.log.warning('could not save serialized datasets', exc=1)
 
-#     Can be used to retrieve and redisplay past datasets.
-#     """
-#     def endDataset(self, dataset):
-#         serial_file = path.join(session.experiment.datapath, '.all_datasets')
-#         if path.isfile(serial_file):
-#             try:
-#                 with open(serial_file, 'rb') as fp:
-#                     datasets = pickle.load(fp)
-#             except Exception:
-#                 self.log.warning('could not load serialized datasets', exc=1)
-#                 datasets = {}
-#         else:
-#             datasets = {}
-#         datasets[session.experiment.lastscan] = dataset
-#         try:
-#             with open(serial_file, 'wb') as fp:
-#                 pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
-#         except Exception:
-#             self.log.warning('could not save serialized datasets', exc=1)
+
+class SerializedSink(DataSink):
+    """A data sink that writes serialized datasets to a single file.
+
+    Can be used to retrieve and redisplay past datasets.
+    """
+
+    activeInSimulation = False
+
+    handlerclass = SerializedSinkHandler
+
+    parameter_overrides = {
+        'settypes':  Override(default=['scan', 'subscan']),
+    }
