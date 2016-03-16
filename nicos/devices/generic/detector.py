@@ -27,8 +27,8 @@
 """Generic detector and channel classes for NICOS."""
 
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
-    Readable, UsageError, Value, Array, listof, multiStatus, status, oneof, \
-    LIVE
+    Readable, UsageError, Value, ArrayDesc, listof, multiStatus, status, \
+    oneof, LIVE
 from nicos.utils import uniq
 
 
@@ -378,7 +378,7 @@ class Detector(Measurable):
                 if ch.imagetype:
                     ret.append(ch.imagetype)
                 else:
-                    ret.append(Array(ch.name, (128, 128), '<u4'))
+                    ret.append(ArrayDesc(ch.name, (128, 128), '<u4'))
         return tuple(ret)
 
     def doReadFmtstr(self):

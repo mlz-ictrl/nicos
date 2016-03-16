@@ -38,7 +38,7 @@ from nicos.utils.timer import Timer
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
     Override, none_or, oneof, tupleof, floatrange, intrange, Measurable, \
     Moveable, Value, MASTER, SIMULATION, POLLER, Attach, HasWindowTimeout, \
-    listof, SubscanMeasurable, Array
+    listof, SubscanMeasurable, ArrayDesc
 from nicos.core.scan import Scan
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
@@ -615,7 +615,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     _timer = None
 
     def doInit(self, mode):
-        self.imagetype = Array(self.name, self.sizes, '<u4')
+        self.imagetype = ArrayDesc(self.name, self.sizes, '<u4')
 
     def doPrepare(self):
         self.readresult = [0]

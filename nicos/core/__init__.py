@@ -38,10 +38,10 @@ from nicos.core.mixins import DeviceMixinBase, AutoDevice, HasLimits, \
 from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
     Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, \
     usermethod, requires
-from nicos.core.params import Param, Override, Value, Array, INFO_CATEGORIES, \
-    listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
-    vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
-    relative_path, absolute_path, subdir, mailaddress, limits, Attach, \
+from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
+    INFO_CATEGORIES, listof, nonemptylistof, tupleof, dictof, setof, tacodev, \
+    tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or, \
+    nicosdev, relative_path, absolute_path, subdir, mailaddress, limits, \
     dictwith, host
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler, dataman, LIVE, INTERMEDIATE, FINAL, INTERRUPTED

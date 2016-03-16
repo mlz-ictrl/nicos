@@ -415,7 +415,7 @@ class Value(object):
         return Value(self.name, self.type, self.errors, self.unit, self.fmtstr)
 
 
-class Array(object):
+class ArrayDesc(object):
     """Defines the properties of an array detector result.
 
     An array type consists of these attributes:
@@ -462,11 +462,11 @@ class Array(object):
         return numpy.array(data, dtype=arrtype.dtype)
 
     def __repr__(self):
-        return 'Array(%r, %r, %r, %r)' % (self.name, self.shape, self.dtype,
-                                          self.dimnames)
+        return 'ArrayDesc(%r, %r, %r, %r)' % (self.name, self.shape,
+                                              self.dtype, self.dimnames)
 
     def copy(self):
-        return Array(self.name, self.shape, self.dtype, self.dimnames)
+        return ArrayDesc(self.name, self.shape, self.dtype, self.dimnames)
 
 
 # parameter conversion functions

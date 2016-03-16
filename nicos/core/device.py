@@ -1945,8 +1945,8 @@ class Measurable(Waitable):
     def arrayInfo(self):
         """Describe the array values measured by this device.
 
-        Return a tuple of :class:`~nicos.core.params.Array` instances describing
-        the values that :meth:`readArrays` returns.
+        Return a tuple of :class:`~nicos.core.params.ArrayDesc` instances
+        describing the values that :meth:`readArrays` returns.
 
         This must be overridden by every Measurable that wants to return one or
         more arrays.
