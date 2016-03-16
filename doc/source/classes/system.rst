@@ -50,7 +50,7 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 .. module:: nicos.devices.datasinks
 
 .. autoclass:: ConsoleSink()
-.. autoclass:: AsciiDatafileSink()
+.. autoclass:: AsciiScanfileSink()
 .. autoclass:: DaemonSink()
 
 

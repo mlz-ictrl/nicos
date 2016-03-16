@@ -156,7 +156,7 @@ class ComtecFilename(BaseChannel, PassiveChannel):
 
 
 class NullImage(ImageChannelMixin, ImageProducer, PassiveChannel):
-    imagetype = ImageType((1, 1), np.uint32)
+    imagetype = ImageType('', (1, 1), np.uint32)
     def readFinalImage(self):
         return np.zeros((1, 1), dtype='uint32')
 

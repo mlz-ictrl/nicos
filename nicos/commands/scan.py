@@ -180,8 +180,8 @@ def cscan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+    Scan(devs, values, None, move, multistep, detlist, envlist, preset,
+         scaninfo, subscan=kwargs.get('subscan', False)).run()
 
 
 @usercommand

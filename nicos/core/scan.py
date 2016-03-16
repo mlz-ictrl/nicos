@@ -96,20 +96,20 @@ class Scan(object):
             new_startpositions = []
             for pos in startpositions:
                 for i in range(mscount):
-                    new_startpositions.append(pos + mspos[i])
+                    new_startpositions.append(list(pos) + mspos[i])
             startpositions = new_startpositions
             if endpositions:
                 new_endpositions = []
                 for pos in endpositions:
                     for i in range(mscount):
-                        new_endpositions.append(pos + mspos[i])
+                        new_endpositions.append(list(pos) + mspos[i])
                 endpositions = new_endpositions
         self._devices = devices
         self._startpositions = startpositions
         self._endpositions = endpositions
         self._detlist = detlist
         self._envlist = allenvlist
-        self._preset = preset
+        self._preset = preset or {}
         self._subscan = subscan
         try:
             npoints = len(startpositions)  # can be zero if not known
