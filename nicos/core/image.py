@@ -320,9 +320,6 @@ class ImageProducer(DeviceMixinBase):
             self._saved = True
         self._header = None
 
-    def doSave(self):
-        self.saveImage()
-
     #
     # HW-specific 'Hooks'
     #

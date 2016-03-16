@@ -260,11 +260,7 @@ def stop(*devlist):
 
     def stopdev(dev):
         try:
-            if isinstance(dev, Measurable):
-                if dev.stop():
-                    dev.save()
-            else:
-                dev.stop()
+            dev.stop()
             if not stop_all:
                 dev.log.info('stopped')
         except AccessError:

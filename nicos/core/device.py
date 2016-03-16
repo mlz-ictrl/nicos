@@ -1695,7 +1695,6 @@ class Measurable(Waitable):
     * doResume()
     * doTime(**preset)
     * doSimulate(**preset)
-    * doSave()
     * doPrepare()
     * valueInfo()
     * arrayInfo()
@@ -1849,8 +1848,7 @@ class Measurable(Waitable):
 
     @usermethod
     def stop(self):
-        """Stop (abort) the measurement now.  Can return True to still attempt
-        a save() afterwards.
+        """Stop (abort) the measurement now.
 
         This operation is forbidden in slave mode.
 
@@ -1916,20 +1914,6 @@ class Measurable(Waitable):
         if not self._sim_active:
             if hasattr(self, 'doPrepare'):
                 return self.doPrepare()
-
-    def save(self):
-        """Save the current measurement, if necessary.
-
-        Called by `.count` for all detectors at the end of a counting.
-
-        .. method:: doSave()
-
-           This method can be implemented if the detector needs to save data.
-        """
-        if self._sim_active:
-            return
-        if hasattr(self, 'doSave'):
-            self.doSave()
 
     def info(self):
         """Automatically add device status (if not OK).  Does not add the

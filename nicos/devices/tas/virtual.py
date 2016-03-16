@@ -74,6 +74,7 @@ class VirtualTasDetector(Measurable):
         return True
 
     def doFinish(self):
+        self._simulate()
         self._counting_started = 0
 
     def doStop(self):
@@ -88,11 +89,12 @@ class VirtualTasDetector(Measurable):
     def doRead(self, maxage=0):
         return self._lastresult
 
-    def doSave(self):
+    def _simulate(self):
         from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
         taspos = self._attached_tas.read(0)
         mat = resmat(*_resmat_args(taspos, {}))
+        self.log.debug('virtual TAS det: MC simulation at %r' % taspos)
         # monitor rate (assume constant flux distribution from source)
         # is inversely proportional to k_i
         ki = self._attached_tas._attached_mono.read(0)
