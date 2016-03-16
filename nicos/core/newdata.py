@@ -251,17 +251,15 @@ class DataSinkHandler(object):
     """Handles sink operations for a single dataset."""
 
     def __init__(self, sink, dataset, detector):
+        """Prepare `DataSinkHandler` for writing this `dataset`."""
         self.log = sink.log
+        self.sink = sink
         self.dataset = dataset
         self.detector = detector
-        self.init(sink)
 
     #
     # DataSinkHandler API
     #
-
-    def init(self, sink):
-        """Prepare for this dataset."""
 
     def start(self):
         """Start writing this dataset."""

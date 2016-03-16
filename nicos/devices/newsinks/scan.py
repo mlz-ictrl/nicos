@@ -110,7 +110,8 @@ class ConsoleScanSink(DataSink):
 
 class AsciiScanfileSinkHandler(DataSinkHandler):
 
-    def init(self, sink):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self._wrote_header = False
         self._wrote_columninfo = False
         self._file = None
