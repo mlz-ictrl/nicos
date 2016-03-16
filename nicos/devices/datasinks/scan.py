@@ -198,20 +198,16 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
 
 
 class AsciiScanfileSink(DataSink):
-    """A data sink that writes to a plain ASCII data file.
-
-    The current file counter as well as the name of the most recently written
-    scanfile is managed by the experiment device.
-    """
+    """A data sink that writes to a plain ASCII data file."""
     parameters = {
-        'commentchar':    Param('Comment character', type=str, default='#',
-                                settable=True),
-        'semicolon':      Param('Whether to add a semicolon between X and Y '
-                                'values', type=bool, default=True),
+        'commentchar':      Param('Comment character', type=str, default='#',
+                                  settable=True),
+        'semicolon':        Param('Whether to add a semicolon between X and Y '
+                                  'values', type=bool, default=True),
         'filenametemplate': Param('Name template for the files written',
                                   type=listof(str), userparam=False,
-                                  settable=False,
-                                  default=['%(proposal)s_%(scancounter)08d.dat']),
+                                  settable=False, default=[
+                                      '%(proposal)s_%(scancounter)08d.dat']),
     }
 
     handlerclass = AsciiScanfileSinkHandler

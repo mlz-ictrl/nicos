@@ -222,7 +222,7 @@ MesyDAQFile=%(det1.lasthistfile)s
 class BerSANSImageSinkHandler(SingleFileSinkHandler):
 
     filetype = 'bersans'
-    deferFileCreation = True
+    defer_file_creation = True
 
     def writeHeader(self, fp, metainfo, image):
         shape = image.shape

@@ -120,7 +120,7 @@ class DaemonSinkHandler(DataSinkHandler):
 
 
 class DaemonSink(DataSink):
-    """A DataSink that sends datasets to connected GUI clients for live
+    """A DataSink that sends scan datasets to connected GUI clients for live
     plotting.  Only active for daemon sessions.
     """
 

@@ -36,7 +36,8 @@ from nicos.core import status, tupleof, listof, oneof, Param, Override, \
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
     ActiveChannel
 from nicos.devices.tas.mono import to_k, from_k
-from nicos.devices.fileformats.raw import SingleRAWFileFormat
+from nicos.devices.datasinks.raw import SingleRawImageSinkHandler, \
+    SingleRawImageSink
 from nicos.core import Attach, SIMULATION
 
 try:

@@ -35,7 +35,7 @@ from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 class SingleRawImageSinkHandler(SingleFileSinkHandler):
 
-    deferFileCreation = True
+    defer_file_creation = True
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)

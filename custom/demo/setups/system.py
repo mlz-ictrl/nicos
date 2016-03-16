@@ -52,7 +52,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    imgsink    = device('devices.datasinks.image.RawImageSink',
+    imgsink    = device('devices.datasinks.RawImageSink',
                         filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
                         lowlevel = True,
                        ),

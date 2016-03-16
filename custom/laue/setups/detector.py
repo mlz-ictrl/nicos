@@ -1,6 +1,11 @@
 description = 'PSL 2-D detector'
 group = 'lowlevel'
 
+sysconfig = dict(
+    datasinks = ['live', 'raw', 'sraw', 'tiff', 'hbin'],
+)
+
+
 modules = ['nicos.laue.psldrv', 'nicos.laue.psldetector']
 devices = dict(
     image=device('laue.psldetector.PSLDetector',
@@ -9,9 +14,9 @@ devices = dict(
                  port = 50000),
     live=device('devices.datasinks.LiveViewSink',
                 description = 'live sink'),
-    raw=device('devices.fileformats.raw.RAWFileFormat',
+    raw=device('devices.datasinks.RawImageSink',
                description = 'raw sink'),
-    sraw=device('devices.fileformats.raw.SingleRAWFileFormat',
+    sraw=device('devices.datasinks.SingleRawImageSink',
                 description = 'single raw sink',
                 filenametemplate=['s%08d.raw']),
     tiff=device('laue.lauetiff.TIFFLaueFileFormat',
@@ -27,6 +32,5 @@ devices = dict(
                 description = 'PSL detector',
                 timers = ['timer'],
                 images = ['image'],
-                subdir='',
                 fileformats=['live', 'tiff', 'hbin', 'raw', 'sraw']),
 )

@@ -39,9 +39,9 @@ except ImportError:
 
 class FITSImageSinkHandler(SingleFileSinkHandler):
 
-    filetype ='fits'
-    deferFileCreation = True
-    acceptFinalImagesOnly = True
+    filetype = 'fits'
+    defer_file_creation = True
+    accept_final_images_only = True
 
     def writeHeader(self, fp, metainfo, data):
         # ensure numpy type
@@ -104,4 +104,3 @@ class FITSImageSink(TwoDImageSink):
         if pyfits is None:
             raise NicosError(self, 'pyfits module is not available. Check'
                              ' if it is installed and in your PYTHONPATH')
-

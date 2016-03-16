@@ -8,7 +8,7 @@ tango_base = 'tango://nectarccd02.nectar.frm2:10000/nectar/'
 nethost = 'nectarsrv.nectar.frm2'  # taco
 
 devices = dict(
-    FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
+    FITSFileSaver = device('devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
         filenametemplate = ['%08d.fits'],
     ),

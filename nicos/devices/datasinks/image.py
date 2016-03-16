@@ -34,8 +34,9 @@ class ImageSink(DataSink):
     """Base class for sinks that save arrays to "image" files."""
 
     parameters = {
-        'subdir': Param('Filetype specific subdirectory name for the image files',
-                        type=subdir, mandatory=False, default=''),
+        'subdir':           Param('Filetype specific subdirectory name for '
+                                  'the image files',
+                                  type=subdir, mandatory=False, default=''),
         'filenametemplate': Param('List of templates for data file names '
                                   '(will be hardlinked)', type=listof(str),
                                   default=['%08d.dat'], settable=True),
@@ -55,33 +56,32 @@ class ImageSink(DataSink):
 
 
 class TwoDImageSink(ImageSink):
-    """Base class for DataSinks which ONLY accept 2D data"""
+    """Base class for DataSinks which ONLY accept 2D data."""
 
     def isActive(self, dataset):
-        self.log.debug('Check dataset: %r' % dataset)
-        if ImageSink.isActive(self, dataset):
-            for det in dataset.detectors:
-                arrayinfo = det.arrayInfo()
-                if arrayinfo:
-                    if len(arrayinfo[0].shape) == 2:
-                        return True
+        if not ImageSink.isActive(self, dataset):
+            return False
+        for det in dataset.detectors:
+            arrayinfo = det.arrayInfo()
+            if arrayinfo and len(arrayinfo[0].shape) == 2:
+                return True
         return False
 
 
 class SingleFileSinkHandler(DataSinkHandler):
-    """Provide a convenient base class for writing a single data file
+    """Provide a convenient base class for writing a single data file.
 
-    consisting of a header part and a data part.
+    Normally, the file consists of a header part and a data part.
     """
 
     # this is the filetype as transferred to live-view
     filetype = 'raw'
 
     # set this to True to create the datafile as latest as possible
-    deferFileCreation = False
+    defer_file_creation = False
 
     # set this to True to save only FINAL images
-    acceptFinalImagesOnly = False
+    accept_final_images_only = False
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
@@ -101,26 +101,29 @@ class SingleFileSinkHandler(DataSinkHandler):
                                                 self.sink.subdir)
 
     def begin(self):
-        if not self.deferFileCreation:
+        if not self.defer_file_creation:
             self._createFile()
 
     def writeHeader(self, fp, metainfo, image):
-        # write the header part of the file (first part)
-        # image is None if deferFileCreation is false
+        """Write the header part of the file (first part).
+
+        Note that *image* is None if defer_file_creation is false, because in
+        that case `writeHeader` is called before the image data is available.
+        """
         pass
 
     def writeData(self, fp, image):
-        # write the data part of the file (second part)
+        """Write the image data part of the file (second part)."""
         pass
 
     def addResults(self, quality, results):
         if quality == LIVE:
             return
-        if self.acceptFinalImagesOnly and (quality != FINAL):
+        if self.accept_final_images_only and (quality != FINAL):
             return
         if self.detector.name in results:
             image = results[self.detector.name][1][0]
-            if self.deferFileCreation:
+            if self.defer_file_creation:
                 self._createFile()
                 self.writeHeader(self._file, self.dataset.metainfo, image)
             self.writeData(self._file, image)
@@ -129,7 +132,7 @@ class SingleFileSinkHandler(DataSinkHandler):
                                    self._arrayinfo.dtype, 0, 0, 0, 0, b'')
 
     def addMetainfo(self, metainfo):
-        if not self.deferFileCreation:
+        if not self.defer_file_creation:
             self._file.seek(0)
             self._writeHeader(self._file, self.dataset.metainfo, None)
 

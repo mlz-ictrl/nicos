@@ -9,7 +9,7 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
 devices = dict(
-    RawFileSaver  = device('devices.fileformats.raw.SingleRAWFileFormat',
+    RawFileSaver  = device('devices.datasinks.SingleRawImageSink',
                            description = 'Saves image data in RAW format',
                            filenametemplate = ['%(proposal)s_%(counter)s.raw',
                                       '%(proposal)s_%(session.experiment.lastscan)s'

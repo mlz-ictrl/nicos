@@ -30,3 +30,4 @@ from nicos.devices.datasinks.special import SerializedSink, DaemonSink, \
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.datasinks.fits import FITSImageSink
 from nicos.devices.datasinks.livepng import PNGLiveFileSink
+from nicos.devices.datasinks.raw import SingleRawImageSink, RawImageSink

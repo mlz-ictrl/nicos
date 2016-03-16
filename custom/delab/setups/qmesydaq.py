@@ -7,7 +7,7 @@ excludes = ['acqiris',]
 nethost = 'localhost'
 
 devices = dict(
-    # RAWFileSaver      = device('devices.fileformats.RAWFileFormat',
+    # RAWFileSaver      = device('devices.datasinks.RawImageSink',
     #                          description = 'Saves image data in RAW format',
     #                          filenametemplate = ['%(proposal)s_%(counter)06d.raw',
     #                          '%(proposal)s_%(session.experiment.lastscan)s_'
