@@ -361,7 +361,7 @@ _spinflipper = Column(
 )
 
 newports = []
-for k in range(1, 5 + 1):
+for k in range(1, 6 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,
