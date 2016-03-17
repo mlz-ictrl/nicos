@@ -65,6 +65,7 @@ class Scan(object):
                  preset=None, scaninfo=None, subscan=False):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
+        self.dataset = None
         if not detlist:
             detlist = session.experiment.detectors
         if not detlist:
@@ -112,23 +113,12 @@ class Scan(object):
         self._detlist = detlist
         self._envlist = allenvlist
         self._preset = preset or {}
+        self._scaninfo = scaninfo
         self._subscan = subscan
         try:
-            npoints = len(startpositions)  # can be zero if not known
+            self._npoints = len(startpositions)  # can be zero if not known
         except TypeError:
-            npoints = 0
-        # XXX move dataset creation to caller/helper
-        # move to beginScan or end of prepareScan
-        self.dataset = dataman.beginScan(
-            subscan=subscan,
-            devices=devices,
-            environment=allenvlist,
-            detectors=detlist,
-            info=scaninfo,
-            npoints=npoints,
-            startpositions=startpositions,
-            endpositions=endpositions,
-        )
+            self._npoints = 0
 
     @contextmanager
     def pointScope(self, num):
@@ -156,6 +146,16 @@ class Scan(object):
             session.endActionScope()
 
     def beginScan(self):
+        self.dataset = dataman.beginScan(
+            subscan=self._subscan,
+            devices=self._devices,
+            environment=self._envlist,
+            detectors=self._detlist,
+            info=self._scaninfo,
+            npoints=self._npoints,
+            startpositions=self._startpositions,
+            endpositions=self._endpositions,
+        )
         session.elogEvent('scanbegin', self.dataset)
 
     def preparePoint(self, num, xvalues):
@@ -278,7 +278,7 @@ class Scan(object):
         dataman.putValues(values)
 
     def shortDesc(self):
-        if self.dataset.counter:
+        if self.dataset and self.dataset.counter > 0:
             return 'Scan %s #%s' % (','.join(map(str, self._devices)),
                                     self.dataset.counter)
         return 'Scan %s' % ','.join(map(str, self._devices))
@@ -287,6 +287,7 @@ class Scan(object):
         if not self._subscan and getattr(session, '_currentscan', None):
             raise NicosError('cannot start scan while another scan is running')
         session._currentscan = self
+        # XXX(dataapi): this is too early, dataset has no number yet
         session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
