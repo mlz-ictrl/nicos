@@ -27,7 +27,8 @@
 from time import time as currenttime
 from numpy import random
 
-from nicos.core import Readable, Measurable, Param, Value, Attach, status
+from nicos.core import Readable, Measurable, Param, Value, Attach, status, \
+    ComputationError
 
 
 class VirtualTasDetector(Measurable):
@@ -74,7 +75,11 @@ class VirtualTasDetector(Measurable):
         return True
 
     def doFinish(self):
-        self._simulate()
+        try:
+            self._simulate()
+        except ComputationError:
+            # TAS device is on a strange position
+            pass
         self._counting_started = 0
 
     def doStop(self):
