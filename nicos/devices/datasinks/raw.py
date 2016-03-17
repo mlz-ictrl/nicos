@@ -45,7 +45,7 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
         for (device, key), (_, val, unit, category) in iteritems(metainfo):
             if category:
                 bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device.name, key), (val + ' ' + unit).strip()))
+                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
         for category, _catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue
@@ -102,7 +102,7 @@ class RawImageSinkHandler(DataSinkHandler):
         for (device, key), (_, val, unit, category) in iteritems(header):
             if category:
                 bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device.name, key), (val + ' ' + unit).strip()))
+                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
         for category, _catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue

@@ -3,6 +3,8 @@ group = 'basic'
 
 sysconfig = dict(
     instrument = 'sans',
+    datasinks = ['BerSANSImageSink', 'RawImageSink', 'LiveViewSink',
+        'LivePNGSinkLog', 'LivePNGSink'],
 )
 
 modules = ['sans1.commands']
@@ -140,19 +142,19 @@ devices = dict(
                        curvalue = 10,
                       ),
 
-    BerSANSFileSaver  = device('sans1.bersans.BerSANSImageSink',
+    BerSANSImageSink  = device('sans1.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
-                               filenametemplate = ['D%(counter)07d.001',
+                               filenametemplate = ['D%(counter)s.001',
                                '/%(proposal)s_%(counter)s_%(scanpoint)s.bersans'],
                                flipimage = 'none',
                               ),
-    RAWFileSaver      = device('devices.datasinks.RawImageSink',
+    RawImageSink      = device('devices.datasinks.RawImageSink',
                                description = 'Saves image data in RAW format',
                                filenametemplate = ['%(proposal)s_%(counter)s.raw',
                                '%(proposal)s_%(session.experiment.lastscan)s_'
                                '%(counter)s_%(scanpoint)s.raw'],
                               ),
-    LiveViewFileSink = device('devices.datasinks.LiveViewSink',
+    LiveViewSink = device('devices.datasinks.LiveViewSink',
                               description = 'Sends image data to LiveViewWidget',
                              ),
     LivePNGSinkLog   = device('devices.datasinks.PNGLiveFileSink',

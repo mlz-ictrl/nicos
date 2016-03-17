@@ -6,8 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'serialsink', 'imgsink',
-                 'livesink', 'dmnsink'],
+    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink'],
     notifiers = [],
 )
 
@@ -49,11 +48,6 @@ devices = dict(
                        ),
 
     serialsink = device('devices.datasinks.SerializedSink',
-                        lowlevel = True,
-                       ),
-
-    imgsink    = device('devices.datasinks.RawImageSink',
-                        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
                         lowlevel = True,
                        ),
 

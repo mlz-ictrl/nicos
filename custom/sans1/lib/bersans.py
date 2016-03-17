@@ -247,7 +247,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
                              "using 0.0 instead", exc=1)
 
         metadata = DeviceValueDict(
-            fileName = self._file.filepath(),
+            fileName = self._file.filepath,
             fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
             fileTime = strftime('%r', localtime(self.dataset.started)),
             FromDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
@@ -273,7 +273,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         ignore = ('det1_lastlistfile', 'det1_lasthistfile')
         for (dev, param), (value, strvalue, _unit, _category) in \
                 iteritems(self.dataset.metainfo):
-            devname_key = '%s_%s' % (dev.name, param)
+            devname_key = '%s_%s' % (dev, param)
             if devname_key in ignore:
                 continue
             metadata[devname_key] = value
