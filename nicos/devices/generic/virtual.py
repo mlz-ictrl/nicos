@@ -607,7 +607,6 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         'collimation': Attach('The collimation', Readable, optional=True),
     }
 
-    imagetype = None
     _last_update = 0
     _buf = None
     _mythread = None
@@ -615,7 +614,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     _timer = None
 
     def doInit(self, mode):
-        self.imagetype = ArrayDesc(self.name, self.sizes, '<u4')
+        self.arraydesc = ArrayDesc(self.name, self.sizes, '<u4')
 
     def doPrepare(self):
         self.readresult = [0]
@@ -655,12 +654,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 
-    def readLiveImage(self):
-        if self._timer.elapsed_time() > self._last_update + 1:
-            self._last_update = self._timer.elapsed_time()
-            return self._buf
-
-    def readFinalImage(self):  # , maxage=0):
+    def readArray(self, _quality):
         return self._buf
 
     def valueInfo(self):

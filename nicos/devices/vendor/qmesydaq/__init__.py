@@ -24,9 +24,8 @@
 
 """Base classes for the QMesyDAQ devices."""
 
-from nicos.core import Param, Value
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    ArrayDesc
+from nicos.core import Param, Value, ArrayDesc
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 
 class Image(ImageChannelMixin, PassiveChannel):
@@ -49,6 +48,3 @@ class Image(ImageChannelMixin, PassiveChannel):
     def valueInfo(self):
         return Value('%s.sum' % self, type='counter', errors='sqrt',
                      unit='cts', fmtstr='%d'),
-
-    def readLiveImage(self):
-        return self.readFinalImage()

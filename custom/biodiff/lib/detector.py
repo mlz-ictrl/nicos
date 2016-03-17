@@ -32,11 +32,11 @@ from nicos import session
 from nicos.utils import updateFileCounter
 from nicos.core import Moveable, SIMULATION, status
 from nicos.devices.tango import PyTangoDevice
-from nicos.core.params import Attach, Param, Override, oneof, tupleof
+from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
+from nicos.core.constants import FINAL
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
-from nicos.core.image import ImageType
 from nicos.jcns.shutter import OPEN, CLOSE
 
 
@@ -215,7 +215,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.imagetype = ImageType('data',
+        self.arraydesc = ArrayDesc('data',
                                    self.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
@@ -225,20 +225,19 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
             self._attached_imgdrum.maw(ImagePlateDrum.POS_ERASE)
         self._attached_imgdrum.maw(ImagePlateDrum.POS_EXPO)
 
-    def readLiveImage(self):
-        return None  # cannot read while exposing!
-
-    def readFinalImage(self):
-        # start readout
-        self._attached_imgdrum.maw(ImagePlateDrum.POS_READ)
-        narray = None
-        timeout = self._attached_imgdrum._dev.get_timeout_millis()
-        self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
-        try:
-            narray = self._attached_imgdrum._dev.Bitmap16Bit
-        finally:
-            self._attached_imgdrum._dev.set_timeout_millis(timeout)
-        return narray
+    def readArray(self, quality):
+        if quality == FINAL:
+            # start readout
+            self._attached_imgdrum.maw(ImagePlateDrum.POS_READ)
+            narray = None
+            timeout = self._attached_imgdrum._dev.get_timeout_millis()
+            self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
+            try:
+                narray = self._attached_imgdrum._dev.Bitmap16Bit
+            finally:
+                self._attached_imgdrum._dev.set_timeout_millis(timeout)
+            return narray
+        return None
 
     def doReadRoi(self):
         return (0, self._attached_imgdrum._dev.InterestZoneY, 1250,
@@ -258,7 +257,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
 
     def doWritePixelsize(self, value):
         self._attached_imgdrum._dev.PixelSize = value
-        self.imagetype = ImageType('data', self.MAP_SHAPE[value], numpy.uint16)
+        self.arraydesc = ArrayDesc('data', self.MAP_SHAPE[value], numpy.uint16)
 
     def doWriteFile(self, value):
         self._attached_imgdrum._dev.ImageFile = value

@@ -27,7 +27,9 @@ from time import sleep
 import numpy as np
 
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
-    listof, intrange, ConfigurationError, ImageType, SIMULATION
+    listof, intrange, ConfigurationError, SIMULATION
+from nicos.core.constants import FINAL, INTERRUPTED
+from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
     Detector
 from nicos.devices.generic.virtual import VirtualImage
@@ -74,7 +76,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
     def _setup_standard(self):
         self._dev.DevJudidt2SetMode(0)
         self.slices = []
-        self.imagetype = ImageType('data', (PIXELS, PIXELS), np.uint32)
+        self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
         if ext_trigger:
@@ -91,7 +93,8 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         self.slices = times
         times = [channels + 1] + times
         self._dev.DevJudidt2SetTofParam(times)
-        self.imagetype = ImageType('data', (PIXELS, PIXELS, channels), np.uint32)
+        self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels),
+                                   np.uint32)
 
     def doPrepare(self):
         self._dev.DevJudidt2ClrRecoHistoAll()
@@ -125,23 +128,21 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
     def valueInfo(self):
         return (Value(name='total', type='counter', fmtstr='%d'),)
 
-    def readLiveImage(self):
-        # update the total counter
-        self.readresult = [self._dev.DevJudidt2GetStatus()[1]]
-        return None  # different live view is used
-
-    def readFinalImage(self):
-        if self.mode == 'standard':
-            array = self._dev.DevJudidt2GetRecoHistoSlot(0)
-        else:
-            array = self._dev.DevJudidt2GetRecoHistoAll()
-        arr = np.array(array, np.uint32)
-        shape = self.imagetype.shape
-        if self.mode != 'standard':
-            arr = arr[:shape[0]*shape[1]*shape[2]]
-        arr = arr.reshape(shape)
-        self.readresult = [arr.sum()]
-        return arr
+    def readArray(self, quality):
+        if quality in (FINAL, INTERRUPTED):
+            if self.mode == 'standard':
+                array = self._dev.DevJudidt2GetRecoHistoSlot(0)
+            else:
+                array = self._dev.DevJudidt2GetRecoHistoAll()
+            arr = np.array(array, np.uint32)
+            shape = self.arraydesc.shape
+            if self.mode != 'standard':
+                arr = arr[:shape[0]*shape[1]*shape[2]]
+            arr = arr.reshape(shape)
+            self.readresult = [arr.sum()]
+            return arr
+        # live image handled in separate application - KWSLive
+        return None
 
 
 class VirtualJDaqChannel(VirtualImage):
@@ -156,7 +157,7 @@ class VirtualJDaqChannel(VirtualImage):
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.imagetype = ImageType('data', (PIXELS, PIXELS), np.uint32)
+            self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q = tofsettings
@@ -164,7 +165,7 @@ class VirtualJDaqChannel(VirtualImage):
             for i in range(channels):
                 times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.imagetype = ImageType('data', (PIXELS, PIXELS, channels), np.uint32)
+            self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels), np.uint32)
 
 
 class KWSDetector(Detector):

@@ -27,8 +27,7 @@
 """Generic detector and channel classes for NICOS."""
 
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
-    Readable, UsageError, Value, ArrayDesc, listof, multiStatus, status, \
-    oneof, LIVE
+    Readable, UsageError, Value, listof, multiStatus, status, oneof, LIVE
 from nicos.utils import uniq
 
 
@@ -182,27 +181,33 @@ class ImageChannelMixin(DeviceMixinBase):
         'preselection': Override(type=int),
     }
 
-    # either None or an ImageType instance
-    imagetype = None
+    # set this to an ArrayDesc instance, either as a class attribute
+    # or dynamically as an instance attribute
+    arraydesc = None
 
     def doRead(self, maxage=0):
         return self.readresult
 
-    # XXX(dataapi): combine these two to readArrays
-    def readLiveImage(self):
-        """Return a live image (or None).
+    def readArray(self, quality):
+        """This method should return the detector data array or `None` if no
+        data is available.
 
-        Should also update self.readresult if necessary.
+        The *quality* parameter is one of the constants defined in the
+        `nicos.core.constants` module:
+
+        * LIVE is for intermediate data that should not be written to files.
+        * INTERMEDIATE is for intermediate data that should be written.
+        * FINAL is for final data.
+        * INTERRUPTED is for data read after the counting was interrupted by
+          an exception.
+
+        For detectors which just supports FINAL images, e.g. Image plate
+        detectors this method should return an array when *quality* is `FINAL`
+        and `None` otherwise.  Most other detectors should also read out and
+        return the data when *quality* is `INTERRUPTED`.
         """
-        # XXX: implement rate limiting here?
-        return None
-
-    def readFinalImage(self):
-        """Return the final image.  Must be implemented.
-
-        Should also update self.readresult if necessary.
-        """
-        raise NotImplementedError('implement readFinalImage')
+        raise NotImplementedError('implement readArray in %s' %
+                                  self.__class__.__name__)
 
 
 class Detector(Measurable):
@@ -347,11 +352,7 @@ class Detector(Measurable):
         return ret
 
     def doReadArrays(self, quality):
-        ret = []
-        for ch in self._channels:
-            if isinstance(ch, ImageChannelMixin):
-                ret.append(ch.readFinalImage())
-        return ret
+        return [img.readArray(quality) for img in self._attached_images]
 
     def duringMeasureHook(self, elapsed):
         return LIVE
@@ -387,15 +388,7 @@ class Detector(Measurable):
         return tuple(ret)
 
     def arrayInfo(self):
-        ret = []
-        for ch in self._channels:
-            if isinstance(ch, ImageChannelMixin):
-                # XXX(dataapi): switch Channel API away from imagetype
-                if ch.imagetype:
-                    ret.append(ch.imagetype)
-                else:
-                    ret.append(ArrayDesc(ch.name, (128, 128), '<u4'))
-        return tuple(ret)
+        return tuple(img.arraydesc for img in self._attached_images)
 
     def doReadFmtstr(self):
         return ', '.join('%s = %s' % (v.name, v.fmtstr)

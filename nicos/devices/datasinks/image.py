@@ -87,7 +87,6 @@ class SingleFileSinkHandler(DataSinkHandler):
         arrayinfo = self.detector.arrayInfo()
         if len(arrayinfo) > 1:
             self.log.warning('image sink only supports one array per detector')
-        self._arrayinfo = arrayinfo[0]
 
     def _createFile(self):
         if self._file is None:

@@ -28,8 +28,9 @@ from time import sleep
 import numpy
 
 from nicos.core import Value, SIMULATION
-from nicos.core.image import ImageType
-from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange
+from nicos.core.constants import FINAL, INTERRUPTED
+from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange, \
+    ArrayDesc
 from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
     Detector
@@ -71,7 +72,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType('data',
+        self.arraydesc = ArrayDesc('data',
                                    (self.detshape.get('t', 1),
                                     self.detshape.get('x', 1)),
                                    numpy.uint32)
@@ -147,22 +148,22 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                            type="counter", fmtstr="%d")
                      for i in range(start, end + 1))
 
-    def readFinalImage(self):
-        self.log.debug("Tof Detector read final image")
-        start, end = self.readchannels
-        # get current data array from detector
-        array = numpy.asarray(self._dev.value, numpy.uint32)
-        array = array.reshape(self.detshape['t'], self.detshape['x'])
-        if self.tofmode == 'tof':
-            startT, endT = self.readtimechan
-            res = array[startT:endT+1].sum(axis=0)[start:end+1]
-        else:
-            res = array[0, start:end+1]
-        self.readresult = res.tolist()
-        return array
-
-    def readLiveImage(self):
-        pass  # could return live data
+    def readArray(self, quality):
+        if quality in (FINAL, INTERRUPTED):
+            self.log.debug("Tof Detector read final image")
+            start, end = self.readchannels
+            # get current data array from detector
+            array = numpy.asarray(self._dev.value, numpy.uint32)
+            array = array.reshape(self.detshape['t'], self.detshape['x'])
+            if self.tofmode == 'tof':
+                startT, endT = self.readtimechan
+                res = array[startT:endT+1].sum(axis=0)[start:end+1]
+            else:
+                res = array[0, start:end+1]
+            self.readresult = res.tolist()
+            return array
+        # live images currently not supported
+        return None
 
 
 class DNSDetector(Detector):

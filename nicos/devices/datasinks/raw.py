@@ -53,7 +53,7 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
             for key, value in bycategory[category]:
                 fp.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
-        fp.write('\n%r\n' % self._arrayinfo)
+        fp.write('\n%r\n' % self._arraydesc)
         fp.flush()
 
 
@@ -84,7 +84,7 @@ class RawImageSinkHandler(DataSinkHandler):
         arrayinfo = self.detector.arrayInfo()
         if len(arrayinfo) > 1:
             self.log.warning('image sink only supports one array per detector')
-        self._arrayinfo = arrayinfo[0]
+        self._arraydesc = arrayinfo[0]
 
     def begin(self):
         dataman.assignCounter(self.dataset)
@@ -110,7 +110,7 @@ class RawImageSinkHandler(DataSinkHandler):
             for key, value in bycategory[category]:
                 fp.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
-        fp.write('\n%r\n' % self._arrayinfo)
+        fp.write('\n%r\n' % self._arraydesc)
         fp.flush()
 
     def _writeLogs(self, fp, stats):
