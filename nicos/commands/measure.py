@@ -99,7 +99,7 @@ def acquire(point, preset):
     point.started = currenttime()
     try:
         for det in point.detectors:
-            det.start(**preset)
+            det.start()
     except:
         session.endActionScope()
         raise
