@@ -297,7 +297,9 @@ def test_manualscan():
             count()
     dataset = dataman._last_scans[-1]
     assert dataset.info.startswith('manscan')
-    assert dataset.devvaluelists == [[0., 0.], [1., 1.], [2., 2.]]
+    assert dataset.envvaluelists == [[0., 0.], [0., 0.],
+                                     [1., 1.], [1., 1.],
+                                     [2., 2.], [2., 2.]]
 
 
 def test_specialscans():

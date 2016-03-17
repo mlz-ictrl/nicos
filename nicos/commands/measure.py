@@ -197,13 +197,13 @@ def count(*detlist, **preset):
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
         detectors.append(det)
-    # check if manual scan is active (XXX)
-    # scan = getattr(session, '_manualscan', None)
-    # if scan is not None:
-    #     if detectors:
-    #         raise UsageError('cannot specify different detector list '
-    #                          'in manual scan')
-    #     return scan.step(**preset)
+    # check if manual scan is active
+    scan = getattr(session, '_manualscan', None)
+    if scan is not None:
+        if detectors:
+            raise UsageError('cannot specify different detector list '
+                             'in manual scan')
+        return scan.step(**preset)
     # counting without detectors is not useful, but does not error out
     if not detectors:
         detectors = session.experiment.detectors

@@ -266,6 +266,17 @@ class Scan(object):
             raise SkipPoint
         return waitresults
 
+    def readPosition(self):
+        actualpos = {}
+        try:
+            # remember the read values so that they can be used for the data point
+            for dev in self._devices:
+                actualpos[dev.name] = (currenttime(), dev.read(0))
+        except NicosError as err:
+            self.handleError('read', err)
+            # XXX(dataapi): at least read the remaining devs?
+        return actualpos
+
     # XXX(dataapi): move to data manager
     def readEnvironment(self):
         values = {}
@@ -554,7 +565,58 @@ class ContinuousScan(Scan):
 
 
 class ManualScan(Scan):
-    pass
+    """
+    Special scan class for "manual" scans.
+    """
+
+    def __init__(self, firstmoves=None, multistep=None, detlist=None,
+                 envlist=None, preset=None, scaninfo=None, subscan=False):
+        Scan.__init__(self, [], Repeater([]), Repeater([]), firstmoves,
+                      None, detlist, envlist, preset, scaninfo, subscan)
+        self._multistep = multistep
+        if multistep:
+            for dev, _ in multistep:
+                self._devices.append(dev)
+            self._mscount = len(multistep[0][1])
+            self._mspos = [[multistep[i][1][j]
+                            for i in range(len(multistep))]
+                           for j in range(self._mscount)]
+        self._curpoint = 0
+
+    def manualBegin(self):
+        session.beginActionScope('Scan')
+        self.beginScan()
+
+    def manualEnd(self):
+        session.endActionScope()
+        self.endScan()
+
+    def step(self, **preset):
+        if not self._multistep:
+            return self._step_inner(preset)
+        else:
+            for i in range(self._mscount):
+                self.moveDevices(self._devices, self._mspos[i])
+                self._step_inner(preset)
+
+    def _step_inner(self, preset):
+        preset = preset or self._preset
+        self._curpoint += 1
+        self.preparePoint(self._curpoint, [])
+        try:
+            point = dataman.beginPoint()
+            actualpos = self.readPosition()
+            dataman.putValues(actualpos)
+            try:
+                acquire(point, preset)
+            finally:
+                self.readEnvironment()
+                dataman.finishPoint()
+        except SkipPoint:
+            pass
+        finally:
+            self.finishPoint()
+        return point
 
 
 class QScan(Scan):
