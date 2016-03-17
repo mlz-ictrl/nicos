@@ -31,10 +31,10 @@ from nicos.commands.output import printinfo, printwarning
 
 from nicos import session
 from nicos.core.device import Measurable, SubscanMeasurable
-from nicos.core.constants import SIMULATION
+from nicos.core.constants import SIMULATION, INTERRUPTED, FINAL
 from nicos.core.errors import UsageError, NicosError
 from nicos.core.utils import waitForStatus
-from nicos.core.data import dataman, INTERRUPTED, FINAL
+from nicos.core.data import dataman
 from nicos.pycompat import number_types, string_types, iteritems
 
 __all__ = [

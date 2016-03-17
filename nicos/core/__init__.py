@@ -26,7 +26,7 @@
 
 from nicos.core import status
 from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, \
-    MAIN, POLLER
+    MAIN, POLLER, LIVE, INTERMEDIATE, INTERRUPTED, FINAL
 from nicos.core.errors import NicosError, ProgrammingError, \
     ConfigurationError, UsageError, InvalidValueError, ModeError, \
     PositionError, MoveError, LimitError, CommunicationError, \
@@ -44,7 +44,7 @@ from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
     nicosdev, relative_path, absolute_path, subdir, mailaddress, limits, \
     dictwith, host
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
-    DataSinkHandler, dataman, LIVE, INTERMEDIATE, FINAL, INTERRUPTED
+    DataSinkHandler, dataman
 from nicos.core.scan import Scan
 from nicos.core.image import ImageType, ImageSink
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \

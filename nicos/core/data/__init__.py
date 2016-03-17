@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,24 +19,12 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS core constants."""
+"""Data handling APIs."""
 
-# session modes
-MASTER = 'master'
-SLAVE = 'slave'
-SIMULATION = 'simulation'
-MAINTENANCE = 'maintenance'
-
-# session types
-MAIN = 'main'
-POLLER = 'poller'
-
-# data qualities
-LIVE = 'live'
-INTERMEDIATE = 'intermediate'
-FINAL = 'final'
-INTERRUPTED = 'interrupted'
+from nicos.core.data.dataset import BaseDataset, PointDataset, ScanDataset, \
+    SubscanDataset, BlockDataset
+from nicos.core.data.manager import dataman
+from nicos.core.data.sink import DataSinkHandler, DataSink

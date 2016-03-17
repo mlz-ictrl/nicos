@@ -27,8 +27,8 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, INFO_CATEGORIES
-from nicos.core.data import DataSinkHandler, dataman, LIVE
+from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, dataman, \
+    LIVE
 from nicos.pycompat import iteritems
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 

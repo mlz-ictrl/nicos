@@ -25,8 +25,8 @@
 """Base Image data sink classes for NICOS."""
 
 from nicos import session
-from nicos.core import Override, Param, subdir, listof
-from nicos.core.data import DataSink, DataSinkHandler, dataman, LIVE, FINAL
+from nicos.core import Override, Param, subdir, listof, LIVE, FINAL
+from nicos.core.data import DataSink, DataSinkHandler, dataman
 from nicos.utils import syncFile
 
 
