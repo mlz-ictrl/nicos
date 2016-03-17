@@ -80,6 +80,9 @@ number_types = integer_types + (float,)
 # missing str/bytes helpers
 
 if six.PY2:
+    # use stadard file for Py2
+    File = file
+
     # encode str/unicode (Py2) or str (Py3) to bytes, using UTF-8
     def to_utf8(s):
         if isinstance(s, str):
@@ -120,6 +123,13 @@ if six.PY2:
         def __getattr__(self, att):
             return getattr(self.fp, att)
 else:
+    from io import FileIO, BufferedRandom
+    # create file like class for py3
+    class File(BufferedRandom):
+        def __init__(self, filepath, openmode):
+            self._raw = FileIO(filepath, openmode)
+            BufferedRandom.__init__(self._raw)
+
     # on Py3, UTF-8 is the default encoding already
     to_utf8 = str.encode
     to_encoding = str.encode

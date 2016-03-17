@@ -35,12 +35,12 @@ from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
 from nicos.core.data.dataset import PointDataset, ScanDataset, \
     SubscanDataset, BlockDataset
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems, string_types, File
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter
 
 
-class DataFile(object):
+class DataFile(File):
     """Represents a Nicos data file."""
 
     def __init__(self, shortpath, filepath):
@@ -49,10 +49,8 @@ class DataFile(object):
                                    'Check filename templates!' % filepath)
         self.shortpath = shortpath
         self.filepath = filepath
-        self._file = open(filepath, 'wb')
 
-    def __getattr__(self, name):
-        return getattr(self._file, name)
+        File.__init__(self, filepath, 'wb')
 
 
 class DataManager(object):
