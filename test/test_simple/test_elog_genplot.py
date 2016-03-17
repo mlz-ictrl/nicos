@@ -28,6 +28,7 @@ from os import path
 
 from nicos import session
 
+from nicos.core import dataman
 from nicos.commands.scan import scan
 from nicos.services.elog import genplot
 from nicos.core.sessions.utils import MASTER
