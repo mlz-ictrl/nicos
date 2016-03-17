@@ -75,7 +75,7 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._last_saved = 0
 
-    def addResults(self, quality, results):
+    def putResults(self, quality, results):
         if currenttime() - self._last_saved > self.sink.interval:
             if self.detector.name in results:
                 self._write(results[self.detector.name][1][0])
