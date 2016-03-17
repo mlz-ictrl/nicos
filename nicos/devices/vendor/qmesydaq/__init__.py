@@ -26,14 +26,14 @@
 
 from nicos.core import Param, Value
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    ImageType
+    ArrayDesc
 
 
 class Image(ImageChannelMixin, PassiveChannel):
     """Channel that returns the image, histogram, or spectrogram."""
 
     # initial imagetype, will be updated upon readImage
-    imagetype = ImageType('data', (128, 128), '<u4')
+    imagetype = ArrayDesc('data', (128, 128), '<u4')
 
     parameters = {
         'listmodefile': Param('List mode data file name (if it is empty, no '
