@@ -221,12 +221,10 @@ def count(*detlist, **preset):
     # check detector types
     has_sub = sum(isinstance(det, SubscanMeasurable) for det in detectors)
     if has_sub > 0:
-        # XXX support both types
+        # XXX(dataapi): support both types
         if not len(detectors) == has_sub == 1:
-            # XXX message
             raise NicosError('cannot acquire on normal and subscan detectors')
 
-    # preparation before count command (XXX)
     for det in detectors:
         det.prepare()
     for det in detectors:

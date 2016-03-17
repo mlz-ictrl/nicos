@@ -105,7 +105,7 @@ class DataSinkHandler(object):
     def addAnalysis(self):
         """Add an after-measure analysis to the dataset.
 
-        XXX: discuss if this is in the right place here.
+        XXX(dataapi): discuss if this is in the right place here.
         """
 
 
@@ -151,13 +151,12 @@ class DataSink(Device):
         if self.handlerclass is None:
             raise NotImplementedError('Must set an "handlerclass" attribute '
                                       'on %s' % self.__class__)
+        # pylint: disable=not-callable
         if dataset.settype == 'point':
             dets = set(d.name for d in dataset.detectors)
             if self.detectors:
                 dets &= set(self.detectors)
-            # pylint: disable=not-callable
             return [self.handlerclass(self, dataset, session.getDevice(det))
                     for det in dets]
         else:
-            # pylint: disable=not-callable
             return [self.handlerclass(self, dataset, None)]

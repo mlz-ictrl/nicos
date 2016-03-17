@@ -114,7 +114,7 @@ class DaemonSinkHandler(DataSinkHandler):
         yvalues = point.detvaluelist
         session.emitfunc('datapoint', (str(self.dataset.uid), xvalues, yvalues))
 
-    # XXX
+    # XXX(dataapi)
     # def addFitCurve(self, dataset, result):
     #     session.emitfunc('datacurve', (result,))
 

@@ -165,7 +165,6 @@ class Scan(object):
 
     def preparePoint(self, num, xvalues):
         # called before moving to current scanpoint
-        # XXX prepare
         try:
             for det in self._detlist:
                 # preparation before count command
@@ -261,7 +260,7 @@ class Scan(object):
                 waitresults[dev.name] = (currenttime(), value)
         except NicosError as err:
             self.handleError('wait', err)
-            # XXX: at least read the remaining devs?
+            # XXX(dataapi): at least read the remaining devs?
         if skip:
             raise SkipPoint
         return waitresults
@@ -509,6 +508,7 @@ class ContinuousScan(Scan):
         except (StopScan, SkipPoint):
             return
         self.beginScan()
+        # XXX(dataapi): update metainfo here
         original_speed = device.speed
         session.beginActionScope(self.shortDesc())
         try:

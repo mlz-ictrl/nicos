@@ -169,9 +169,6 @@ class DataManager(object):
     # Filling datasets with data
     #
 
-    # XXX: consider putting this in the point dataset class itself
-    # if the point object is available everywhere
-
     def putMetainfo(self, metainfo):
         # metainfo is {(devname, param): (rawvalue, strvalue, unit, category)}
         if self._current.settype != 'point':

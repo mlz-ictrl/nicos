@@ -67,7 +67,7 @@ def test_scan():
     session.setMode(MASTER)
 
     session.experiment.setDetectors([session.getDevice('det')])
-    # XXX
+    # XXX(dataapi)
     # session.experiment.setEnvironment([avg(mm), minmax(mm)])
 
     try:

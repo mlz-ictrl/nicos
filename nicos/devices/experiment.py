@@ -38,7 +38,7 @@ from nicos.core import listof, anytype, oneof, \
     Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
     Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
-# XXX
+# XXX(dataapi)
 # from nicos.core.scan import DevStatistics
 from nicos.core.data import dataman
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
@@ -149,7 +149,7 @@ class Experiment(Device):
         'counterfile':  Param('Name of the file with data counters in dataroot',
                               default='counters', userparam=False, type=subdir,
                               mandatory=False),
-        # XXX replace every use
+        # XXX(dataapi): replace every use
         # 'scancounter':  Param('Name of the global scan counter in dataroot',
         #                       default='scancounter', userparam=False,
         #                       type=subdir, mandatory=False, settable=False),

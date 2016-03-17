@@ -28,8 +28,6 @@ import re
 import copy
 from os import path
 
-import numpy
-
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type, string_types
@@ -446,21 +444,6 @@ class ArrayDesc(object):
         self.shape = shape
         self.dtype = dtype
         self.dimnames = dimnames
-
-    def canConvertTo(self, arrtype):
-        """Checks if we can be converted to the given array type."""
-        # XXX
-        if self.shape != arrtype.shape:
-            return False
-        if self.dimnames != arrtype.dimnames:
-            return False
-        return True
-
-    def convertTo(self, data, arrtype):
-        """converts given data to given arrtype and returns converted data"""
-        if not self.canConvertTo(arrtype):
-            raise ProgrammingError('Can not convert to requested datatype')
-        return numpy.array(data, dtype=arrtype.dtype)
 
     def __repr__(self):
         return 'ArrayDesc(%r, %r, %r, %r)' % (self.name, self.shape,

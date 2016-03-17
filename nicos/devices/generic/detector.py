@@ -188,6 +188,7 @@ class ImageChannelMixin(DeviceMixinBase):
     def doRead(self, maxage=0):
         return self.readresult
 
+    # XXX(dataapi): combine these two to readArrays
     def readLiveImage(self):
         """Return a live image (or None).
 
@@ -389,7 +390,7 @@ class Detector(Measurable):
         ret = []
         for ch in self._channels:
             if isinstance(ch, ImageChannelMixin):
-                # XXX switch Channel API away from imagetype
+                # XXX(dataapi): switch Channel API away from imagetype
                 if ch.imagetype:
                     ret.append(ch.imagetype)
                 else:

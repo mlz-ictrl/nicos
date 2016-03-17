@@ -959,7 +959,7 @@ def readFileCounter(counterpath, key):
     The counter file consists of lines with ``key value`` pairs.  If the key
     does not exist in the file, return 0; other exceptions are not handled.
 
-    # XXX: we want to create the counter file automatically in demo mode!
+    # XXX(dataapi): we want to create the file automatically in demo mode!
     """
     try:
         lines = readFile(counterpath)
