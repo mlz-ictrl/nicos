@@ -379,10 +379,11 @@ class DataSink(Device):
             return False
         return True
 
-    def getHandlers(self, dataset):
+    def createHandlers(self, dataset):
         """Start processing the given dataset (a BaseDataset).
 
-        Return the DataSinkHandler instances to use for this dataset.
+        Creates the corresponding DataSinkHandler instances to use for this
+        dataset determined via `handlerclass` and returns them.
         """
         if self.handlerclass is None:
             raise NotImplementedError('Must set an "handlerclass" attribute '
@@ -492,11 +493,12 @@ class DataManager(object):
         self._last_scans.append(scan)
 
     def _init(self, dataset):
-        """Init dataset and put it on the stack"""
+        """Initialises the dataset and puts it on the stack.
+        Finally dispatches corresponding sink handlers."""
         self.log.debug('Created new dataset %s' % dataset)
         for sink in session.datasinks:
             if sink.isActive(dataset):
-                handlers = sink.getHandlers(dataset)
+                handlers = sink.createHandlers(dataset)
                 dataset.handlers.extend(handlers)
         if self._current:
             self._current.subsets.append(dataset)
