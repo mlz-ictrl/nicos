@@ -246,12 +246,12 @@ def test_sweeps():
     timescan(5, m)
     dataset = dataman._last_scans[-1]
     assert len(dataset.devvaluelists) == 5
-    assert dataset.devvaluelists[0][0] < 1
-    assert dataset.devvaluelists[0][1] == 1.0
+    assert dataset.envvaluelists[0][0] < 1
+    assert dataset.envvaluelists[0][1] == 1.0
 
     sweep(m, 1, 5)
     dataset = dataman._last_scans[-1]
-    assert dataset.devvaluelists[-1][0] == 5
+    assert dataset.envvaluelists[-1][0] == 5
 
 
 def test_contscan():
