@@ -164,6 +164,7 @@ class DataManager(object):
         dataset.dispatch('end')
         if self._stack:
             self._stack[-1].dispatch('addSubset', dataset)
+        dataset.trimResult()
 
     #
     # Filling datasets with data

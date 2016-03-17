@@ -100,6 +100,10 @@ class BaseDataset(object):
 
     # XXX(dataapi): these are tuples, should they be lists?
 
+    def trimResult(self):
+        """Trim objects that are not required to be kept after finish()."""
+        del self.handlers[:]
+
     @lazy_property
     def devvalueinfo(self):
         return sum((dev.valueInfo() for dev in self.devices), ())
@@ -172,6 +176,13 @@ class PointDataset(BaseDataset):
             else:
                 ret.append(val)
         return ret
+
+    def trimResult(self):
+        """Trim objects that are not required to be kept after finish()."""
+        BaseDataset.trimResult(self)
+        # remove arrays from memory in cached datasets
+        for (key, (reads, _)) in iteritems(self.results):
+            self.results[key] = (reads, [])
 
     @property
     def valuestats(self):
