@@ -24,18 +24,21 @@
 
 """Scan classes, new API."""
 
-from time import time as currenttime
+from time import sleep, time as currenttime
 from contextlib import contextmanager
 
 from nicos.commands.output import printwarning
 
 from nicos import session
+from nicos.core import status
+from nicos.core.device import Readable
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
-from nicos.core.constants import SLAVE
+from nicos.core.constants import SLAVE, SIMULATION
 from nicos.core.utils import waitForStatus, multiWait
 from nicos.core.data import dataman
+from nicos.utils import Repeater
 from nicos.pycompat import iteritems
 from nicos.commands.measure import acquire
 
@@ -261,12 +264,12 @@ class Scan(object):
             raise SkipPoint
         return waitresults
 
-    # XXX: move to data manager
+    # XXX(dataapi): move to data manager
     def readEnvironment(self):
         values = {}
         for dev in self._envlist:
             try:
-                # XXX
+                # XXX(dataapi)
                 #if isinstance(dev, DevStatistics):
                 #    val = dev.read(point.started, currenttime())
                 #else:
@@ -350,8 +353,104 @@ class Scan(object):
             self.endScan()
 
 
+class ElapsedTime(Readable):
+    temporary = True
+    started = 0
+
+    def doRead(self, maxage=0):
+        return currenttime() - self.started
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
+
+
 class SweepScan(Scan):
-    pass
+    """
+    Special scan class for "sweeps" (i.e., start device(s) and scan until they
+    arrive at their targets.)  The number of points, if > 0, is a maximum of
+    points, after which the scan will stop.
+
+    If no devices are given, acts as a "time scan", i.e. just counts the given
+    number of points (or indefinitely) with an elapsed time counter.
+    """
+
+    def __init__(self, devices, startend, numpoints, firstmoves=None,
+                 multistep=None, detlist=None, envlist=None, preset=None,
+                 scaninfo=None, subscan=False):
+        self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
+        self._numpoints = numpoints
+        self._sweepdevices = devices
+        if numpoints < 0:
+            points = Repeater([])
+        else:
+            points = [[]] * numpoints
+        # start for sweep devices are "firstmoves"
+        firstmoves = firstmoves or []
+        self._sweeptargets = []
+        for dev, (start, end) in zip(devices, startend):
+            if start is not None:
+                firstmoves.append((dev, start))
+            self._sweeptargets.append((dev, end))
+        # sweep scans support a special "delay" preset
+        self._delay = preset.pop('delay', 0)
+        Scan.__init__(self, [], points, [], firstmoves, multistep,
+                      detlist, envlist, preset, scaninfo, subscan)
+        if not devices:
+            self._envlist.insert(0, self._etime)
+        else:
+            for dev in devices[::-1]:
+                if dev in self._envlist:
+                    self._envlist.remove(dev)
+                self._envlist.insert(0, dev)
+
+    def shortDesc(self):
+        if not self._sweepdevices:
+            stype = 'Time scan'
+        else:
+            stype = 'Sweep %s' % ','.join(map(str, self._sweepdevices))
+        if self.dataset and self.dataset.counter > 0:
+            return '%s #%s' % (stype, self.dataset.counter)
+        return stype
+
+    def endScan(self):
+        self._etime.shutdown()
+        Scan.endScan(self)
+
+    def preparePoint(self, num, xvalues):
+        if num == 1:
+            self._etime.started = currenttime()
+            if self._sweeptargets:
+                try:
+                    self.moveDevices(*zip(*self._sweeptargets), wait=False)
+                except SkipPoint:
+                    raise StopScan
+        elif self._delay:
+            # wait between points, but only from the second point on
+            session.action('Delay')
+            sleep(self._delay)
+        Scan.preparePoint(self, num, xvalues)
+        if session.mode == SIMULATION:
+            self._sim_start = session.clock.time
+
+    def finishPoint(self):
+        Scan.finishPoint(self)
+        if session.mode == SIMULATION:
+            if self._numpoints > 1:
+                session.log.info('skipping %d points...' %
+                                 (self._numpoints - 1))
+                duration = session.clock.time - self._sim_start
+                session.clock.tick(duration * (self._numpoints - 1))
+            elif self._numpoints < 0:
+                if self._sweepdevices:
+                    for dev in self._sweepdevices:
+                        dev.wait()
+                else:
+                    session.log.info('would scan indefinitely, skipping...')
+            raise StopScan
+        if self._sweepdevices:
+            if not any(dev.status()[0] == status.BUSY
+                       for dev in self._sweepdevices):
+                raise StopScan
 
 
 class ContinuousScan(Scan):
