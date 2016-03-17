@@ -37,6 +37,12 @@ from nicos.core.utils import waitForStatus
 from nicos.core.data import dataman, INTERRUPTED, FINAL
 from nicos.pycompat import number_types, string_types, iteritems
 
+__all__ = [
+    'acquire', 'count', 'preset',
+    'SetDetectors', 'AddDetector', 'ListDetectors',
+    'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
+]
+
 
 def _wait_for_continuation(delay, only_pause=False):
     """Wait until any countloop requests are processed and the watchdog
