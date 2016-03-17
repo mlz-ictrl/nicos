@@ -5,22 +5,21 @@ group = 'optional'
 
 excludes = ['detector']
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'RawFileSaver'],
+)
+
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
 devices = dict(
     RawFileSaver  = device('devices.datasinks.SingleRawImageSink',
                            description = 'Saves image data in RAW format',
-                           filenametemplate = ['%(proposal)s_%(counter)s.raw',
-                                      '%(proposal)s_%(session.experiment.lastscan)s'
-                                      '_%(counter)s_%(scanpoint)s.raw'],
+                           filenametemplate = ['%(proposal)s_%(pointcounter)s.raw',
+                                               '%(proposal)s_%(scancounter)s'
+                                               '_%(pointcounter)s_%(pointnumber)s.raw'],
                            lowlevel = True,
                           ),
-    #~ LiveViewSink = device('devices.datasinks.LiveViewSink',
-                          #~ description = 'Sends image data to LiveViewWidget',
-                          #~ filenametemplate=[],
-                          #~ lowlevel = True,
-                         #~ ),
     fastctr_a = device('devices.taco.detector.FRMCounterChannel',
                        description = "Channel A of Comtep P7888 Fast Counter",
                        tacodevice = '%s/rate_a' % tacodev,
