@@ -396,6 +396,28 @@ class Detector(Measurable):
             return min(eta)
         return None
 
+    def doInfo(self):
+        ret = []
+        for dev in self._masters:
+            for key in self._presetkeys.keys():
+                if self._presetkeys[key].name == dev.name:
+                    if key.startswith('mon'):
+                        ret.append(('mode', 'monitor', 'monitor', '',
+                                    'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, 'cts', 'presets'))
+                    elif key.startswith('t'):
+                        ret.append(('mode', 'time', 'time', '', 'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, dev.unit,
+                                    'presets'))
+                    else:  # n, det, ctr, img
+                        ret.append(('mode', 'counts', 'counts', '', 'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, 'cts', 'presets'))
+                    break
+        return ret
+
 
 class DetectorForecast(Readable):
     """Forecast device for a Detector.

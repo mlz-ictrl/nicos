@@ -43,6 +43,7 @@ INFO_CATEGORIES = [
     ('limits', 'Limits'),
     ('precisions', 'Precisions/tolerances'),
     ('status', 'Device status'),
+    ('presets', 'Detector preset information'),
     ('general', 'Device positions and sample environment state'),
 ]
 

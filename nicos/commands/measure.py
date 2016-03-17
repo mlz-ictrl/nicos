@@ -92,6 +92,9 @@ def acquire(point, preset):
     session.beginActionScope('Counting')
     if session.countloop_request:
         _wait_for_continuation(delay, only_pause=True)
+    if preset:
+        for det in point.detectors:
+            det.setPreset(**preset)
     dataman.updateMetainfo()
     point.started = currenttime()
     try:
