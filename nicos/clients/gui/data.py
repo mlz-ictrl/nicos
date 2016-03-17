@@ -146,13 +146,14 @@ class DataHandler(QObject):
             self.dependent.append(dataset)
 
     def on_client_datapoint(self, data):
-        (xvalues, yvalues) = data
-        if not self.currentset:
+        (uid, xvalues, yvalues) = data
+        currentset = self.uid2set[uid]
+        if not currentset:
             raise DataError('No current set, trying to add a point')
-        self.currentset.xresults.append(xvalues)
-        self.currentset.yresults.append(yvalues)
-        self._update_curves(xvalues, yvalues)
-        self.emit(SIGNAL('pointsAdded'), self.currentset)
+        currentset.xresults.append(xvalues)
+        currentset.yresults.append(yvalues)
+        self._update_curves(currentset, xvalues, yvalues)
+        self.emit(SIGNAL('pointsAdded'), currentset)
         for depset in self.dependent:
             self.emit(SIGNAL('pointsAdded'), depset)
 
@@ -213,16 +214,16 @@ class DataHandler(QObject):
         dataset.datanorm.update((name, []) for (i, name) in normindices)
         return curves
 
-    def _update_curves(self, xvalues, yvalues):
+    def _update_curves(self, currentset, xvalues, yvalues):
         done = set()
-        for key, val in zip(self.currentset.xnameunits, xvalues):
+        for key, val in zip(currentset.xnameunits, xvalues):
             # avoid adding values twice
             if key not in done:
-                self.currentset.datax[key].append(val)
+                currentset.datax[key].append(val)
                 done.add(key)
-        for index, name in self.currentset.normindices:
-            self.currentset.datanorm[name].append(yvalues[index])
-        for curve in self.currentset.curves:
+        for index, name in currentset.normindices:
+            currentset.datanorm[name].append(yvalues[index])
+        for curve in currentset.curves:
             curve.datay.append(yvalues[curve.yindex])
             if curve.dyindex >= 0:
                 curve.datady.append(yvalues[curve.dyindex])
