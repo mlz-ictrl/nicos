@@ -24,11 +24,42 @@
 
 """Base classes for NICOS data sinks."""
 
+from os import path
+from gzip import GzipFile as StdGzipFile
+
 from nicos import session
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Device
 from nicos.core.params import Param, listof, setof
+from nicos.core.errors import ProgrammingError
 from nicos.core.data.dataset import SETTYPES
+from nicos.pycompat import File
+
+
+class DataFileBase(object):
+    """Base class for Nicos data files."""
+
+    def __init__(self, shortpath, filepath):
+        if path.isfile(filepath):
+            raise ProgrammingError('Data file named %r already exists! '
+                                   'Check filename templates!' % filepath)
+        self.shortpath = shortpath
+        self.filepath = filepath
+
+
+class DataFile(DataFileBase, File):
+    """Represents a Nicos data file."""
+
+    def __init__(self, shortpath, filepath):
+        DataFileBase.__init__(self, shortpath, filepath)
+        File.__init__(self, filepath, 'wb')
+
+
+class GzipFile(DataFileBase, StdGzipFile):
+
+    def __init__(self, shortpath, filepath):
+        DataFileBase.__init__(self, shortpath, filepath)
+        StdGzipFile.__init__(self, filepath, 'wb')
 
 
 class DataSinkHandler(object):

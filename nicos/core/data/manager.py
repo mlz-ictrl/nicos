@@ -35,22 +35,10 @@ from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
 from nicos.core.data.dataset import PointDataset, ScanDataset, \
     SubscanDataset, BlockDataset
-from nicos.pycompat import iteritems, string_types, File
+from nicos.core.data.sink import DataFile
+from nicos.pycompat import iteritems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter
-
-
-class DataFile(File):
-    """Represents a Nicos data file."""
-
-    def __init__(self, shortpath, filepath):
-        if path.isfile(filepath):
-            raise ProgrammingError('Data file named %r already exists! '
-                                   'Check filename templates!' % filepath)
-        self.shortpath = shortpath
-        self.filepath = filepath
-
-        File.__init__(self, filepath, 'wb')
 
 
 class DataManager(object):
@@ -311,14 +299,20 @@ class DataManager(object):
         else:
             self.log.warning('can\'t link datafiles, no os support!')
 
-    def createDataFile(self, dataset, nametemplates, *subdirs):
+    def createDataFile(self, dataset, nametemplates, *subdirs, **kwargs):
         """Creates and returns a file named according to the given nametemplate
         in the given subdir of the datapath.
 
         The nametemplate can be either a string or a list of strings.  In the
         second case, the first listentry is used to create the file and the
         remaining ones will be hardlinked to this file if the os supports this.
+
+        Setting `fileclass` as keyword argument a DataFile class can be
+        specified used for creating the data file (descriptor).
+        If no `fileclass` has been specified this defaults to
+        `nicos.core.data.DataFile`.
         """
+        fileclass = kwargs.get("fileclass", DataFile)
         if session.mode == SIMULATION:
             raise ProgrammingError('createDataFile should not be called in '
                                    'simulation mode')
@@ -327,8 +321,9 @@ class DataManager(object):
         filepath = filepaths[0]
         shortpath = path.join(*subdirs + (filename,))
 
-        self.log.debug('creating file %r' % filename)
-        datafile = DataFile(shortpath, filepath)
+        self.log.debug('creating file %r using fileclass %r' % (filename,
+                                                                fileclass))
+        datafile = fileclass(shortpath, filepath)
         if exp.managerights:
             os.chmod(filepath,
                      exp.managerights.get('enableFileMode', DEFAULT_FILE_MODE))

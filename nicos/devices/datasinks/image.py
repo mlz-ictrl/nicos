@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.core import Override, Param, subdir, listof, LIVE, FINAL
 from nicos.core.data import DataSink, DataSinkHandler, dataman
+from nicos.core.data.manager import DataFile
 from nicos.utils import syncFile
 
 
@@ -83,6 +84,9 @@ class SingleFileSinkHandler(DataSinkHandler):
     # set this to True to save only FINAL images
     accept_final_images_only = False
 
+    # DataFile class used for creating the data file (descriptor).
+    fileclass = DataFile
+
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._file = None
@@ -98,7 +102,8 @@ class SingleFileSinkHandler(DataSinkHandler):
             dataman.assignCounter(self.dataset)
             self._file = dataman.createDataFile(self.dataset,
                                                 self.sink.filenametemplate,
-                                                self.sink.subdir)
+                                                self.sink.subdir,
+                                                fileclass=self.fileclass)
 
     def begin(self):
         if not self.defer_file_creation:
@@ -133,7 +138,7 @@ class SingleFileSinkHandler(DataSinkHandler):
     def putMetainfo(self, metainfo):
         if not self.defer_file_creation:
             self._file.seek(0)
-            self._writeHeader(self._file, self.dataset.metainfo, None)
+            self.writeHeader(self._file, self.dataset.metainfo, None)
 
     def end(self):
         if self._file:

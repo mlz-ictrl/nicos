@@ -27,4 +27,4 @@
 from nicos.core.data.dataset import BaseDataset, PointDataset, ScanDataset, \
     SubscanDataset, BlockDataset
 from nicos.core.data.manager import dataman
-from nicos.core.data.sink import DataSinkHandler, DataSink
+from nicos.core.data.sink import DataSinkHandler, DataSink, DataFile, GzipFile
