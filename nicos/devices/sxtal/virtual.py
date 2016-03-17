@@ -110,9 +110,10 @@ class VirtualSXtalDetector(Measurable):
         width = np.array(self.peakwidth) / 10
         hkl = np.array(self._attached_sxtal.read(0))
         hkli = np.round(hkl)
+        intens = np.sqrt(hkli[0]**2 + hkli[1]**2 + hkl[2]**2)
         dhkl = (hkli - hkl)
         x = stats.multivariate_normal([0, 0, 0], width)
-        return int(self.background * time) * x.pdf(dhkl)
+        return int(self.background * time * 100 * intens) * x.pdf(dhkl)
 
     def doEstimateTime(self, elapsed):
         eta = set()
