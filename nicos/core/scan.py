@@ -118,6 +118,7 @@ class Scan(object):
         self._preset = preset or {}
         self._scaninfo = scaninfo
         self._subscan = subscan
+        self._xindex = 0
         try:
             self._npoints = len(startpositions)  # can be zero if not known
         except TypeError:
@@ -156,6 +157,7 @@ class Scan(object):
             detectors=self._detlist,
             info=self._scaninfo,
             npoints=self._npoints,
+            xindex=self._xindex,
             startpositions=self._startpositions,
             endpositions=self._endpositions,
         )
@@ -556,4 +558,48 @@ class ManualScan(Scan):
 
 
 class QScan(Scan):
-    pass
+    """
+    Special scan class for scans with a triple axis instrument in Q/E space.
+    """
+
+    def __init__(self, positions, firstmoves=None, multistep=None,
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 subscan=False):
+        from nicos.devices.tas import TAS
+        inst = session.instrument
+        if not isinstance(inst, TAS):
+            raise NicosError('cannot do a Q scan, your instrument device '
+                             'is not a triple axis device')
+        Scan.__init__(self, [inst], positions, [],
+                      firstmoves, multistep, detlist, envlist, preset,
+                      scaninfo, subscan)
+        if inst.scanmode == 'DIFF':
+            self._envlist[0:0] = [inst._attached_mono,
+                                  inst._attached_psi, inst._attached_phi]
+        else:
+            self._envlist[0:0] = [inst._attached_mono, inst._attached_ana,
+                                  inst._attached_psi, inst._attached_phi]
+        if inst in self._envlist:
+            self._envlist.remove(inst)
+
+    def shortDesc(self):
+        comps = []
+        if len(self._startpositions) > 1:
+            for i in range(4):
+                if self._startpositions[0][0][i] != \
+                   self._startpositions[1][0][i]:
+                    comps.append('HKLE'[i])
+        if self.dataset and self.dataset.counter > 0:
+            return 'Scan %s #%s' % (','.join(comps) or 'Q',
+                                    self.dataset.counter)
+        return 'Scan %s' % (','.join(comps) or 'Q')
+
+    def beginScan(self):
+        if len(self._startpositions) > 1:
+            # determine first varying index as the plotting index
+            for i in range(4):
+                if self._startpositions[0][0][i] != \
+                   self._startpositions[1][0][i]:
+                    self._xindex = i
+                    break
+        Scan.beginScan(self)
