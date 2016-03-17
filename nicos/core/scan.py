@@ -35,11 +35,11 @@ from nicos.core.device import Readable
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
-from nicos.core.constants import SLAVE, SIMULATION
+from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
 from nicos.core.data import dataman
 from nicos.utils import Repeater
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 from nicos.commands.measure import acquire
 
 
@@ -333,6 +333,7 @@ class Scan(object):
                         raise
                     try:
                         # measure...
+                        # XXX(dataapi): is target= needed?
                         point = dataman.beginPoint(target=position)
                         dataman.putValues(waitresults)
                         try:
@@ -454,7 +455,100 @@ class SweepScan(Scan):
 
 
 class ContinuousScan(Scan):
-    pass
+    """
+    Special scan class for scans with one axis moving continuously (used for
+    peak search).
+    """
+
+    def __init__(self, device, start, end, speed, timedelta=None,
+                 firstmoves=None, detlist=None, envlist=None, scaninfo=None):
+        self._startpos = start
+        self._endpos = end
+        if speed is None:
+            self._speed = device.speed / 5.
+        else:
+            self._speed = speed
+        self._timedelta = timedelta or 1.0
+
+        Scan.__init__(self, [device], [], [], firstmoves, None, detlist,
+                      envlist, None, scaninfo)
+
+    def shortDesc(self):
+        if self.dataset and self.dataset.counter > 0:
+            return 'Continuous scan %s #%s' % (self._devices[0],
+                                               self.dataset.counter)
+        return 'Continuous scan %s' % self._devices[0]
+
+    def run(self):
+        device = self._devices[0]
+        detlist = self._detlist
+        ok, why = device.isAllowed(self._startpos)
+        if not ok:
+            raise LimitError('Cannot move to start value for %s: %s' %
+                             (device, why))
+        ok, why = device.isAllowed(self._endpos)
+        if not ok:
+            raise LimitError('Cannot move to end value for %s: %s' %
+                             (device, why))
+        try:
+            self.prepareScan([self._startpos])
+        except (StopScan, SkipPoint):
+            return
+        self.beginScan()
+        original_speed = device.speed
+        session.beginActionScope(self.shortDesc())
+        try:
+            device.speed = self._speed
+            device.move(self._endpos)
+            starttime = looptime = currenttime()
+            preset = max(abs(self._endpos - self._startpos) /
+                         (self._speed or 0.1) * 5, 3600)
+            if session.mode == SIMULATION:
+                preset = 1  # prevent all contscans taking 1 hour
+            devpos = device.read(0)
+            for det in detlist:
+                det.prepare()
+            for det in detlist:
+                waitForStatus(det)
+            for det in detlist:
+                det.start(t=preset)
+            last = {det.name: (det.read(), ()) for det in detlist}
+            while device.status(0)[0] == status.BUSY:
+                sleep(self._timedelta)
+                session.breakpoint(3)
+                new_devpos = device.read(0)
+                read = {det.name: (det.read(), ()) for det in detlist}
+                diff = {detname: ([vals[i] - last[detname][0][i]
+                                   if isinstance(vals[i], number_types)
+                                   else vals[i]
+                                   for i in range(len(vals))], ())
+                        for (detname, (vals, _)) in iteritems(read)}
+                looptime = currenttime()
+                actualpos = [0.5 * (devpos + new_devpos)]
+                dataman.beginPoint()
+                dataman.putValues({device.name: (looptime, actualpos)})
+                self.readEnvironment()
+                dataman.putResults(FINAL, diff)
+                dataman.finishPoint()
+                last = read
+                devpos = new_devpos
+                for det in detlist:
+                    det.duringMeasureHook(looptime - starttime)
+            device.wait()  # important for simulation
+        finally:
+            session.endActionScope()
+            for det in detlist:
+                try:
+                    det.finish()
+                except Exception:
+                    session.log.warning('could not stop %s' % det, exc=1)
+            try:
+                device.stop()
+                device.wait()
+            except Exception:
+                device.log.warning('could not stop %s' % device, exc=1)
+            device.speed = original_speed
+            self.endScan()
 
 
 class ManualScan(Scan):
