@@ -604,7 +604,7 @@ class DataManager(object):
         self.log.debug('%s now has number %d' % (dataset, nextnum))
         return nextnum
 
-    def expandDataFile(self, dataset, nametemplate):
+    def expandDataFile(self, dataset, nametemplates):
         """Determine the final data file name(s)."""
         if dataset.counter is None:
             raise ProgrammingError('expandDataFile: a counter number must be '
@@ -637,7 +637,41 @@ class DataManager(object):
             filenames.append(filename)
         return filenames
 
-    def createDataFile(self, dataset, nametemplate, *subdirs):
+    def getFilenames(self, dataset, nametemplates, *subdirs):
+        """Determines filenames from filename templates.
+
+        Registers the first filename in the dataset as 'the' filename.  Returns
+        a short path of the first filename and a list of the absolute paths of
+        all filenames.
+        After the counting is finished, you should create the datafile(s)
+        and then call `linkFiles` to create the hardlinks.
+        """
+        exp = session.experiment
+        filenames = self.expandDataFile(dataset, nametemplates)
+        filename = filenames[0]
+        filepaths =  [exp.getDataFilename(ln, *subdirs) for ln in filenames]
+
+        shortpath = path.join(*subdirs + (filename,))
+        dataset.filenames.append(shortpath)
+
+        return filename, filepaths
+
+    def linkFiles(self, filepath, linkpaths):
+        """Creates hardlinks in *linkpaths*, pointing to *filepath*."""
+        linkfunc = os.link if hasattr(os,  'link') else \
+            os.symlink if hasattr(os, 'symlink') else None
+        if linkfunc:
+            for linkpath in linkpaths:
+                self.log.debug('linking %r to %r' % (linkpath, filepath))
+                try:
+                    linkfunc(filepath, linkpath)
+                except OSError:
+                    self.log.warning('linking %r to %r failed, ignoring' %
+                                     (linkpath, filepath))
+        else:
+            self.log.warning('can\'t link datafiles, no os support!')
+
+    def createDataFile(self, dataset, nametemplates, *subdirs):
         """Creates and returns a file named according to the given nametemplate
         in the given subdir of the datapath.
 
@@ -649,13 +683,9 @@ class DataManager(object):
             raise ProgrammingError('createDataFile should not be called in '
                                    'simulation mode')
         exp = session.experiment
-        filenames = self.expandDataFile(dataset, nametemplate)
-        filename = filenames[0]
-        linknames = filenames[1:]
-        filepath = exp.getDataFilename(filename, *subdirs)
-
+        filename, filepaths = self.getFilenames(dataset, nametemplates, *subdirs)
+        filepath = filepaths[0]
         shortpath = path.join(*subdirs + (filename,))
-        dataset.filenames.append(shortpath)
 
         self.log.debug('creating file %r' % filename)
         datafile = DataFile(shortpath, filepath)
@@ -663,19 +693,8 @@ class DataManager(object):
             os.chmod(filepath,
                      exp.managerights.get('enableFileMode', DEFAULT_FILE_MODE))
             # XXX add chown here?
-        linkfunc = os.link if hasattr(os,  'link') else \
-            os.symlink if hasattr(os, 'symlink') else None
-        if linkfunc:
-            for linkname in linknames:
-                linkpath = exp.getDataFilename(linkname, *subdirs)
-                self.log.debug('linking %r to %r' % (linkpath, filepath))
-                try:
-                    linkfunc(filepath, linkpath)
-                except OSError:
-                    self.log.warning('linking %r to %r failed, ignoring' %
-                                     (linkpath, filepath))
-        else:
-            self.log.warning('can\'t link datafiles, no os support!')
+
+        self.linkFiles(filepath, filepaths[1:])
 
         return datafile
 
