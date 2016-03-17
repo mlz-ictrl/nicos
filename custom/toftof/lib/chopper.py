@@ -31,9 +31,8 @@ import IO
 
 from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
     NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof, \
-    HasTimeout
+    HasTimeout, SIMULATION
 from nicos.devices.taco import TacoDevice
-from nicos.core import SIMULATION
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.toftof import calculations as calc
@@ -96,7 +95,9 @@ class Controller(TacoDevice, HasTimeout, Readable):
     parameters = {
         'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
                                   '(= 0) or with 90deg offset (= 1)',
-                                  type=intrange(0, 1), mandatory=True),
+                                  type=intrange(0, 1), mandatory=True,
+                                  category='general',
+                                  ),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
                                 settable=True, default=10, type=float,),  # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',

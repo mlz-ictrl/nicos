@@ -2,7 +2,7 @@ description = 'virtual detector'
 group = 'lowlevel'
 
 includes = ['system']
-excludes = ['refsans', 'sans', 'qmchannel', 'pgaa']
+excludes = ['refsans', 'sans', 'qmchannel', 'pgaa', 'vtof']
 
 devices = dict(
     timer    = device('devices.generic.VirtualTimer',

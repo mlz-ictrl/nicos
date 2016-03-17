@@ -20,107 +20,173 @@
 # Module authors:
 #   Tobias Unruh <tobias.unruh@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
 """TOFTOF histogram counter card Taco devices."""
 
+try:
+    from SIS3400 import (Timer as SIS3400Timer,
+                         MonitorCounter,  # pylint: disable=F0401
+                         HistogramCounter)
+except ImportError:
+    SIS3400Timer = None
+    MonitorCounter = None
+    HistogramCounter = None
+
+from nicos.core import ArrayDesc, Override, Param, Value, intrange, status
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
+from nicos.devices.taco.core import TacoDevice
+from nicos.devices.taco.detector import FRMCounterChannel, FRMTimerChannel
+
 import numpy as np
 
-from SIS3400 import (Timer, MonitorCounter,  # pylint: disable=F0401
-                     HistogramCounter)
 
-from nicos.core import Measurable, Param, Value, intrange, status, tacodev
-from nicos.devices.taco.core import TacoDevice
-from nicos.core import SIMULATION
+class Monitor(FRMCounterChannel):
+
+    taco_class = MonitorCounter
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
+    parameters = {
+        'monitorchannel': Param('Channel number of the monitor counter',
+                                default=956,
+                                type=intrange(1, 1024), settable=True,
+                                ),
+    }
+
+    def doWriteMonitorchannel(self, chan):
+        self._taco_guard(self._dev.setMonitorInput, chan)
+
+    def doReadMonitorchannel(self):
+        return self._taco_guard(self._dev.monitorInput)
+
+    def doReset(self):
+        self._taco_guard(self._dev.deviceOn)
+
+#   def doClear(self):
+#       self.doFinish()
+
+    def doStop(self):
+        if self.doStatus()[0] == status.BUSY:
+            FRMCounterChannel.doStop(self)
+
+    def doStatus(self, maxage=0):
+        state = self._taco_guard(self._dev.deviceStatus)
+        if state == 'counting':
+            return status.BUSY, 'counting'
+        elif state in ['init', 'unknown']:
+            return status.OK, 'idle'
+        else:
+            return status.ERROR, state
+
+    def doIsCompleted(self):
+        return self.doRead(0)[0] >= self.preselection
+
+    def doPrepare(self):
+        self.doFinish()
+        FRMCounterChannel.doPrepare(self)
+
+    def valueInfo(self):
+        return Value(self.name, unit=self.units, type='monitor', fmtstr=self.fmtstr),
 
 
-class TofCounter(TacoDevice, Measurable):
+class Timer(FRMTimerChannel):
+
+    taco_class = SIS3400Timer
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%.1f'),
+    }
+
+    def doReset(self):
+        if self._taco_guard(self._dev.deviceStatus) != 'init':
+            self._taco_guard(self._dev.deviceOn)
+
+    def doStop(self):
+        if self.doStatus()[0] == status.BUSY:
+            FRMTimerChannel.doStop(self)
+
+    def doStatus(self, maxage=0):
+        state = self._taco_guard(self._dev.deviceStatus)
+        if state == 'counting':
+            if self._taco_guard(self._dev.read) > 0:
+                return status.BUSY, 'counting'  # counts down to zero
+            return status.OK, 'idle'
+        elif state in ['init', 'unknown']:
+            return status.OK, 'idle'
+        else:
+            return status.ERROR, state
+
+    def doRead(self, maxage=0):
+        return self.preselection - FRMTimerChannel.doRead(self, maxage)[0]
+
+    def doIsCompleted(self):
+        return self.doRead(0) >= self.preselection
+
+    def doPrepare(self):
+        self.doFinish()
+        self.preselection = 0
+        FRMTimerChannel.doPrepare(self)
+
+    def valueInfo(self):
+        return Value(self.name, unit=self.units, type='time', fmtstr=self.fmtstr),
+
+
+class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
     """The TOFTOF histogram counter card accessed via TACO."""
 
     taco_class = HistogramCounter
     _preselection = 0
 
     parameters = {
-        'monitor':        Param('Monitor device',
-                                type=tacodev, mandatory=True, preinit=True),
-        'timer':          Param('Timer device',
-                                type=tacodev, mandatory=True, preinit=True),
-        'timechannels':   Param('Number of time channels per detector channel',
-                                type=intrange(1, 4096), settable=True,
-                                default=1024, volatile=True,),
-        'timeinterval':   Param('Time interval between pulses', type=float,
-                                settable=True, volatile=True,),
-        'delay':          Param('TOF frame delay', type=int,
-                                settable=True, volatile=True,),
+        'timechannels': Param('Number of time channels per detector channel',
+                              type=intrange(1, 4096), settable=True,
+                              default=1024, volatile=True,
+                              ),
+        'timeinterval': Param('Time interval between pulses',
+                              type=float, settable=True, volatile=True,
+                              ),
+        'delay': Param('TOF frame delay',
+                       type=int, settable=True,  # volatile=True,
+                       ),
+        'channelwidth': Param('Channel width',
+                              volatile=True,
+                              ),
+        'numinputs': Param('Number of detector channels',
+                           type=int, volatile=True,
+                           ),
         'monitorchannel': Param('Channel number of the monitor counter',
                                 default=956,
-                                type=intrange(1, 1024), settable=True,),
-        'channelwidth':   Param('Channel width', volatile=True),
-        'numinputs':      Param('Number of detector channels', type=int,
-                                volatile=True),
+                                type=intrange(1, 1024), settable=True,
+                                ),
     }
 
-    def valueInfo(self):
-        return Value('timer', unit='s', type='timer'), \
-            Value('monitor', unit='cts', type='monitor'), \
-            Value('total', unit='cts', type='counter')
-
-    def presetInfo(self):
-        return ['t', 'm']
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
 
     def doPreinit(self, mode):
         TacoDevice.doPreinit(self, mode)
-        if mode != SIMULATION:
-            self._timer = self._create_client(devname=self.timer,
-                                              class_=Timer,
-                                              resetok=False,
-                                              timeout=None)
-            self._monitor = self._create_client(devname=self.monitor,
-                                                class_=MonitorCounter,
-                                                resetok=False,
-                                                timeout=None)
+        self.arraydesc = ArrayDesc('data', (self.numinputs, self.timechannels),
+                                   np.uint32)
 
-    def doShutdown(self):
-        if self._monitor:
-            self._monitor.disconnectClient()
-            del self._monitor
-        if self._timer:
-            self._timer.disconnectClient()
-            del self._timer
-        TacoDevice.doShutdown(self)
-
-    def doSetPreset(self, **preset):
-        self.doStop()
-        if 't' in preset:
-            self._taco_guard(self._monitor.enableMaster, 0)
-            self._taco_guard(self._timer.enableMaster, 1)
-            self._taco_guard(self._timer.setPreselection, preset['t'])
-            self._preselection = preset['t']
-        elif 'm' in preset:
-            self._taco_guard(self._monitor.enableMaster, 1)
-            self._taco_guard(self._timer.enableMaster, 0)
-            self._taco_guard(self._monitor.setPreselection, int(preset['m']))
-            self._preselection = int(preset['m'])
+    def valueInfo(self):
+        return Value(name='total', type='counter', fmtstr='%d'),
 
     def doStart(self):
         # the deviceOn command on the server resets the delay time
-        # store the value
-        tmp = self.doReadDelay()
-        # self.doStop()
-        # and reset the value back
-        self.doWriteDelay(tmp)
+        # store the value and reset the value back
+        # Don't remove the next line !!!
+        self.delay = self.delay
         self._taco_guard(self._dev.start)
-        self._taco_guard(self._monitor.start)
-        self._taco_guard(self._timer.start)
-
-    def doFinish(self):
-        self._taco_guard(self._dev.deviceOn)
-        self._taco_guard(self._timer.deviceOn)
-        self._taco_guard(self._monitor.deviceOn)
 
     def doStop(self):
-        self.doFinish()
+        if self.doStatus()[0] == status.BUSY:
+            self._taco_guard(self._dev.stop)
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceStatus)
@@ -132,38 +198,28 @@ class TofCounter(TacoDevice, Measurable):
             return status.ERROR, state
 
     def doRead(self, maxage=0):
-        arr = self._taco_guard(self._dev.read)
-        return [self._taco_guard(self._timer.read),
-                self._taco_guard(self._monitor.read),
-                sum(arr[2:])]
-
-    def read_full(self):
-        arr = np.array(self._taco_guard(self._dev.read))
-        ndata = np.reshape(arr[2:], (arr[1], arr[0]))
-        return self._taco_guard(self._timer.read), \
-            self._taco_guard(self._monitor.read), ndata
+        return self.readresult
 
     def doReset(self):
         self._taco_guard(self._dev.deviceOn)
-        self._taco_guard(self._timer.deviceOn)
-        self._taco_guard(self._monitor.deviceOn)
 
     def doReadTimechannels(self):
         return self._taco_guard(self._dev.timeChannels)
 
     def doWriteTimechannels(self, value):
+        self.doStop()
         self._taco_guard(self._dev.setTimeChannels, value)
 
     def doReadTimeinterval(self):
         return self._taco_guard(self._dev.timeInterval)
 
     def doWriteTimeinterval(self, value):
+        self.doStop()
         self._taco_guard(self._dev.setTimeInterval, value)
 
-    def doReadDelay(self):
-        return self._taco_guard(self._dev.getDelay)
-
     def doWriteDelay(self, value):
+        self.doStop()
+        self.log.debug('set counter delay : %d' % value)
         self._taco_guard(self._dev.setDelay, value)
 
     def doReadChannelwidth(self):
@@ -172,13 +228,23 @@ class TofCounter(TacoDevice, Measurable):
     def doReadNuminputs(self):
         return self._taco_guard(self._dev.numInputs)
 
-    def doEstimateTime(self, elapsed):
-        if self.doStatus()[0] == status.BUSY:
-            if self._timer.isMaster():
-                return self._preselection - elapsed
-            elif self._monitor.isMaster() and elapsed > 0:
-                mon = self._taco_guard(self._monitor.read)
-                rate = mon / elapsed
-                if rate > 0:
-                    return (self._preselection - mon) / rate
-        return None
+    def doPrepare(self):
+        self.doFinish()
+        self._taco_guard(self._dev.clear)
+
+    def _read_full(self):
+        if self._sim_active:
+            arr = np.zeros(2 + self.numinputs * self.timechannels, np.uint32)
+            arr[0] = self.numinputs
+            arr[1] = self.timechannels
+        else:
+            arr = np.array(self._taco_guard(self._dev.read))
+        ndata = np.reshape(arr[2:], (arr[1], arr[0]))
+        self.readresult = [ndata[2:self.monitorchannel].sum() +
+                           ndata[self.monitorchannel + 1:].sum()]
+        self.arraydesc = ArrayDesc(self.name, ndata.shape, np.uint32)
+        return ndata
+
+    def doReadArray(self, quality):
+        counts = self._read_full()
+        return counts

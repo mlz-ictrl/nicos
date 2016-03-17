@@ -45,14 +45,14 @@ class BaseChannel(TacoDevice):
         self._taco_guard(self._dev.start)
 
     def doPause(self):
-        self._taco_guard(self._dev.stop)
+        self.doStop()
         return True
 
     def doResume(self):
         self._taco_guard(self._dev.resume)
 
     def doFinish(self):
-        self._taco_guard(self._dev.stop)
+        self.doStop()
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
@@ -62,21 +62,21 @@ class BaseChannel(TacoDevice):
 
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
-            self._taco_guard(self._dev.stop)
+            self.doStop()
         TacoDevice.doReset(self)
 
     def doReadPreselection(self):
         return self._taco_guard(self._dev.preselection)
 
     def doWritePreselection(self, value):
-        self._taco_guard(self._dev.stop)
+        self.doStop()
         self._taco_guard(self._dev.setPreselection, value)
 
     def doReadIsmaster(self):
         return self._taco_guard(self._dev.isMaster)
 
     def doWriteIsmaster(self, value):
-        self._taco_guard(self._dev.stop)
+        self.doStop()
         self._taco_guard(self._dev.enableMaster, value)
 
 
@@ -116,7 +116,7 @@ class FRMChannel(BaseChannel, ActiveChannel):
             if value:
                 raise UsageError(self, 'ratemeter channel cannot be master')
             return
-        self._taco_guard(self._dev.stop)
+        self.doStop()
         self.mode = 'preselection' if value else 'normal'
         self._taco_guard(self._dev.enableMaster, value)
 

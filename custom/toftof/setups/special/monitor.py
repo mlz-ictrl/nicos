@@ -23,7 +23,7 @@ _expcolumn = Row(
 
 _chopperblock = Block('Chopper system', [
     BlockRow(Field(name='Wavelength', dev='chWL', format='%.1f'),
-	    ),
+            ),
     BlockRow(
              Field(name='Nom. Speed', dev='chSpeed', format='%.0f'),
              Field(name='Act. Speed', dev='ch', format='%.0f'),
@@ -57,7 +57,7 @@ _chopperblock = Block('Chopper system', [
              Field(name='Gauge 4', dev='vac3', format='%.2g'),
             ),
     ],
-    setups='measurement',
+    setups='toftof',
 )
 
 _choppercoolingblock = Block('Cooling system (Chopper)', [
@@ -69,7 +69,7 @@ _choppercoolingblock = Block('Cooling system (Chopper)', [
              Field(name='Cool power', dev='power_ch_cooling',),
             )
     ],
-    setups='measurement',
+    setups='toftof',
 )
 
 _collimationblock = Block('Radial Collimator/Collimation', [
@@ -77,7 +77,7 @@ _collimationblock = Block('Radial Collimator/Collimation', [
              Field(name='Collimator', dev='ngc',),
             ),
     ],
-    setups='measurement',
+    setups='toftof',
 )
 
 _samplecoolingblock = Block('Cooling system (Sample)', [
@@ -90,7 +90,7 @@ _samplecoolingblock = Block('Cooling system (Sample)', [
 _ccrblock = Block('Sample environment', [
     BlockRow(Field(name='Stick', dev='T_ccr17_stick',),
              Field(name='Tube', dev='T_ccr17_tube',),
-	    ),
+            ),
     BlockRow(
              Field(name='Vacuum/Gas', dev='ccr17_p2',)
             ),
@@ -151,10 +151,10 @@ _slitblock = Block('Sample slit', [
 )
 
 _measblock = Block('Measurement', [
-    BlockRow(Field(key='m/timechannels', name='Time channels'),),
-    BlockRow(Field(key='m/laststats', item=0, name='Time', format='%.1f'),
-             Field(key='m/laststats', item=1, name='Monitor', format='%d'),
-             Field(key='m/laststats', item=2, name='Counts', format='%d'),
+    BlockRow(Field(key='det/timechannels', name='Time channels'),),
+    BlockRow(Field(name='Time', dev='timer', format='%.1f'),
+             Field(name='Monitor', key='det/rates', item=1, format='%d'),
+             Field(name='Counts', key='det/rates', item=0, format='%d'),
             ),
     ],
 )
@@ -162,7 +162,7 @@ _measblock = Block('Measurement', [
 _rateblock = Block('Detector rates', [
     BlockRow(Field(gui='custom/toftof/lib/gui/ratespanel.ui')),
     ],
-    setups='measurement',
+    setups='toftof',
 )
 
 _col1 = Column(
