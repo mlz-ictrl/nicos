@@ -234,11 +234,11 @@ def test_methods():
     assert 'doFinish' in methods_called
     assert 'isAtTarget' in methods_called
     # test info() method
-    keys = set(value[1] for value in dev2.info())
+    keys = set(value[0] for value in dev2.info())
     assert 'testkey' in keys
     assert 'param2' in keys
     assert 'value' in keys
-    assert 'status' not in keys  # it's not busy
+    assert 'status' in keys
     # loglevel
     dev2.loglevel = 'info'
     assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
