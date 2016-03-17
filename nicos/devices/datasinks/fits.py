@@ -43,7 +43,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
     defer_file_creation = True
     accept_final_images_only = True
 
-    def writeHeader(self, fp, metainfo, data):
+    def writeData(self, fp, data):
         # ensure numpy type
         npData = numpy.array(data)
 
@@ -51,7 +51,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         hdu = pyfits.PrimaryHDU(npData)
 
         # create fits header from nicos header and add entries to hdu
-        self._buildHeader(metainfo, hdu)
+        self._buildHeader(self.dataset.metainfo, hdu)
 
         # write full fits file
         hdu.writeto(fp)
@@ -66,7 +66,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         })
 
         for (dev, param), (_, strvalue, _, _) in iteritems(info):
-            header['%s/%s' % (dev.name, param)] = strvalue
+            header['%s/%s' % (dev, param)] = strvalue
 
         for key, value in iteritems(header):
             # The FITS standard defines max 8 characters for a header key.

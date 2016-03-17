@@ -94,7 +94,7 @@ class SingleFileSinkHandler(DataSinkHandler):
         self._arrayinfo = arrayinfo[0]
 
     def _createFile(self):
-        if self._file is not None:
+        if self._file is None:
             dataman.assignCounter(self.dataset)
             self._file = dataman.createDataFile(self.dataset,
                                                 self.sink.filenametemplate,
@@ -116,7 +116,7 @@ class SingleFileSinkHandler(DataSinkHandler):
         """Write the image data part of the file (second part)."""
         pass
 
-    def addResults(self, quality, results):
+    def putResults(self, quality, results):
         if quality == LIVE:
             return
         if self.accept_final_images_only and (quality != FINAL):
@@ -130,7 +130,7 @@ class SingleFileSinkHandler(DataSinkHandler):
             syncFile(self._file)
             session.notifyDataFile(self.filetype, self._file.filepath)
 
-    def addMetainfo(self, metainfo):
+    def putMetainfo(self, metainfo):
         if not self.defer_file_creation:
             self._file.seek(0)
             self._writeHeader(self._file, self.dataset.metainfo, None)
