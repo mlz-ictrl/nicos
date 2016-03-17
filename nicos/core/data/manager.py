@@ -252,26 +252,23 @@ class DataManager(object):
         # translate entries
         filenames = []
         for nametmpl in nametemplates:
-            if '%(' in nametmpl:
-                kwds = dict(session.experiment.propinfo)
-                # get all parent counters into the keywords
-                # i.e. blockcounter, scancounter, pointcounter
-                for ds in self._stack:
-                    kwds[ds.countertype + 'counter'] = ds.counter
-                # XXX add experiment local counter if present
-                # point number within the scan
-                if hasattr(dataset, 'pointnumber'):
-                    kwds['pointnumber'] = dataset.pointnumber
-                try:
-                    filename = nametmpl % DeviceValueDict(kwds)
-                except KeyError as err:
-                    raise KeyError('can\'t create datafile, illegal key %s in '
-                                   'filename template %r!' % (err, nametmpl))
-                except TypeError as err:
-                    raise TypeError('error expanding data file name: %s, check '
-                                    'filename template %r!' % (err, nametmpl))
-            else:
-                filename = nametmpl % dataset.counter
+            kwds = dict(session.experiment.propinfo)
+            # get all parent counters into the keywords
+            # i.e. blockcounter, scancounter, pointcounter
+            for ds in self._stack:
+                kwds[ds.countertype + 'counter'] = ds.counter
+            # XXX(dataapi): add experiment local counter
+            # point number within the scan
+            if hasattr(dataset, 'pointnumber'):
+                kwds['pointnumber'] = dataset.pointnumber
+            try:
+                filename = nametmpl % DeviceValueDict(kwds)
+            except KeyError as err:
+                raise KeyError('can\'t create datafile, illegal key %s in '
+                               'filename template %r!' % (err, nametmpl))
+            except TypeError as err:
+                raise TypeError('error expanding data file name: %s, check '
+                                'filename template %r!' % (err, nametmpl))
             filenames.append(filename)
         return filenames
 
