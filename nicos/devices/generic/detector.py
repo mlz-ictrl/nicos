@@ -113,7 +113,8 @@ class TimerChannelMixin(DeviceMixinBase):
     }
 
     def valueInfo(self):
-        return Value(self.name, unit='s', type='time', fmtstr=self.fmtstr),
+        return Value(self.name, unit=self.unit, type='time',
+                     fmtstr=self.fmtstr),
 
     def doTime(self, preset):
         if self.ismaster:
@@ -144,7 +145,7 @@ class CounterChannelMixin(DeviceMixinBase):
     }
 
     def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt',
+        return Value(self.name, unit=self.unit, errors='sqrt',
                      type=self.type, fmtstr=self.fmtstr),
 
     def doSimulate(self, preset):
