@@ -28,7 +28,7 @@ from os import path
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Override, DataSink, DataSinkHandler, PointDataset
+from nicos.core import Override, DataSink, DataSinkHandler
 from nicos.core.data import ScanData
 from nicos.pycompat import cPickle as pickle
 from nicos.devices.datasinks.image import ImageSink
@@ -43,7 +43,7 @@ class DaemonSinkHandler(DataSinkHandler):
         session.emitfunc('dataset', ScanData(self.dataset))
 
     def addSubset(self, point):
-        if not isinstance(point, PointDataset):
+        if point.settype != 'point':
             return
         if not self._dataset_emitted:
             self._emitDataset()

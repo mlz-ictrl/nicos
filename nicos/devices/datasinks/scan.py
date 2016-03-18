@@ -72,6 +72,8 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         printinfo(self._indent + '-' * (100 - len(self._indent)))
 
     def addSubset(self, point):
+        if point.settype != 'point':
+            return
         ds = self.dataset
         if ds.npoints:
             pointstr = '%s/%s' % (len(ds.subsets), ds.npoints)
@@ -168,6 +170,8 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._file.flush()
 
     def addSubset(self, point):
+        if point.settype != 'point':
+            return
         ds = self.dataset
         if not self._wrote_header:
             self._write_header(ds)
