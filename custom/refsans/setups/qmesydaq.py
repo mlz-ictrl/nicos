@@ -7,7 +7,7 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/qmesydaq' % nethost
 
 sysconfig = dict(
-    datasinks = ['BerSANSFileSaver'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'BerSANSFileSaver'],
 )
 
 devices = dict(

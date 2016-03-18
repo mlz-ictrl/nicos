@@ -3,8 +3,9 @@ group = 'basic'
 
 sysconfig = dict(
     instrument = 'sans',
-    datasinks = ['BerSANSImageSink', 'RawImageSink', 'LiveViewSink',
-        'LivePNGSinkLog', 'LivePNGSink'],
+    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink',
+                 'BerSANSImageSink', 'RawImageSink', 'LiveViewSink',
+                 'LivePNGSinkLog', 'LivePNGSink'],
 )
 
 modules = ['sans1.commands']

@@ -4,7 +4,7 @@ description = "Andor DV936 CCD camera setup"
 group = "basic"
 
 sysconfig = dict(
-    datasinks = ['FITSFileSaver'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'FITSFileSaver'],
 )
 
 includes = ["shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]
@@ -41,7 +41,6 @@ devices = dict(
                      timers = ["ccdtime"],
                      images = ["ccd"],
                      maxage = 10,
-                     fileformats = ["FITSFileSaver"],
                      gammashutter = "gammashutter",
                      photoshutter = "photoshutter",
                     ),

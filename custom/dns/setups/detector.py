@@ -5,6 +5,10 @@ group = "lowlevel"
 
 includes = ['counter']
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'DNSFileSaver'],
+)
+
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
@@ -23,8 +27,6 @@ devices = dict(
                           monitors = ['mon0'],
                           images = ['dettof'],
                           flipper = 'flipper',
-                          fileformats = ["DNSFileSaver"],
-                          subdir = '.',
                          ),
 )
 

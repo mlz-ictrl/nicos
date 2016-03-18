@@ -6,8 +6,8 @@ includes = ['detector', 'gas']
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 sysconfig = dict(
-    datasinks = ['psd_padformat', 'psd_tofformat', 'psd_xmlformat',
-                 'psd_liveview']
+    datasinks = ['conssink', 'filesink', 'dmnsink', 'psd_padformat',
+                 'psd_tofformat', 'psd_xmlformat', 'psd_liveview'],
 )
 
 devices = dict(

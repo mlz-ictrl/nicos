@@ -2,7 +2,8 @@ description = 'PSL 2-D detector'
 group = 'lowlevel'
 
 sysconfig = dict(
-    datasinks = ['live', 'raw', 'sraw', 'tiff', 'hbin'],
+    datasinks = ['conssink', 'filesink', 'dmnsink',
+                 'live', 'raw', 'sraw', 'tiff', 'hbin'],
 )
 
 
