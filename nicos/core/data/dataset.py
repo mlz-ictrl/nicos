@@ -47,7 +47,7 @@ class BaseDataset(object):
         self.uid = uuid4()
 
         # Counter number assigned to the dataset.
-        self.counter = None
+        self.counter = 0
 
         # Short and absolute filename(s) assigned to the dataset.
         self.filenames = []

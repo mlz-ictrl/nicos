@@ -188,8 +188,9 @@ class DataManager(object):
 
         Relevant devices are (currently) those that are not lowlevel.
         """
-        devices = zip(*sorted(iteritems(session.devices),
-                              key=lambda name_dev: name_dev[0].lower()))[1]
+        devices = [dev for (_, dev) in
+                   sorted(iteritems(session.devices),
+                          key=lambda name_dev: name_dev[0].lower())]
         newinfo = {}
         for device in devices:
             if device.lowlevel:
@@ -221,7 +222,7 @@ class DataManager(object):
         This can be called multiple times on a dataset; it will return the
         already assigned counter.
         """
-        if dataset.counter is not None:
+        if dataset.counter != 0:
             return dataset.counter
         if session.mode == SIMULATION:
             raise ProgrammingError('assignCounter should not be called in '
