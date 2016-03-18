@@ -341,8 +341,8 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
     @property
     def imagetype(self):
         if self.mode == 'image':
-            return ImageType('data', self._datashape, '<u4', ['X', 'Y'])
-        return ImageType('data', self._datashape, '<u4', ['X', 'Y', 'T'])
+            return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
+        return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
 
     def readFinalImage(self):
         # get current data array from detector
