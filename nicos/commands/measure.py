@@ -115,7 +115,7 @@ def acquire(point, preset):
                     quality = FINAL
                 if quality:
                     try:
-                        res = det.read(), det.readArrays()
+                        res = det.read(), det.readArrays(quality)
                     except Exception:
                         det.log.exception('error reading measurement data')
                         res = None
@@ -151,7 +151,7 @@ def acquire(point, preset):
                 # However, it might be better to leave that to the data sink
                 # handling the INTERRUPTED quality.
                 det.stop()
-                res = det.read(), det.readArrays()
+                res = det.read(), det.readArrays(INTERRUPTED)
             except Exception:
                 det.log.exception('error reading measurement data')
                 res = None

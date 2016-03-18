@@ -346,7 +346,7 @@ class Detector(Measurable):
             ret.extend(ch.read())
         return ret
 
-    def doReadArrays(self, maxage=0):
+    def doReadArrays(self, quality):
         ret = []
         for ch in self._channels:
             if isinstance(ch, ImageChannelMixin):

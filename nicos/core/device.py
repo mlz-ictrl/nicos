@@ -1693,7 +1693,7 @@ class Measurable(Waitable):
     Subclasses *can* implement:
 
     * doStatus(maxage=0)
-    * doReadArrays(maxage=0)
+    * doReadArrays(quality)
     * doIsCompleted()
     * doPause()
     * doResume()
@@ -1888,16 +1888,20 @@ class Measurable(Waitable):
             return [result]
         return result
 
-    def doReadArrays(self, maxage=0):
+    def doReadArrays(self, quality):
         return []
 
     @usermethod
-    def readArrays(self, maxage=None):
-        """Return a list with the array result(s) of the last measurement."""
+    def readArrays(self, quality):
+        """Return a list with the array result(s) of the last measurement.
+
+        *quality* is the quality of the requested result: LIVE, INTERMEDIATE,
+        FINAL, or INTERRUPTED.
+        """
         if self._sim_active:
             arrtypes = self.arrayInfo()
             return [numpy.zeros(arrtype.shape) for arrtype in arrtypes]
-        result = self.doReadArrays()
+        result = self.doReadArrays(quality)
         if not isinstance(result, list):
             return [result]
         return result
@@ -1979,7 +1983,7 @@ class SubscanMeasurable(Measurable):
 
     Subclasses *can* implement:
 
-    * doReadArrays(maxage=0)
+    * doReadArrays(quality)
     * valueInfo()
     * arrayInfo()
     * presetInfo()
