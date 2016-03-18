@@ -47,25 +47,17 @@ class ImageSink(DataSink):
         'settypes': Override(default=['point'])
     }
 
+    def isActiveForArray(self, arraydesc):
+        return True
+
     def isActive(self, dataset):
         if not DataSink.isActive(self, dataset):
             return False
         for det in dataset.detectors:
-            if det.arrayInfo():
-                return True
-        return False
-
-
-class TwoDImageSink(ImageSink):
-    """Base class for DataSinks which ONLY accept 2D data."""
-
-    def isActive(self, dataset):
-        if not ImageSink.isActive(self, dataset):
-            return False
-        for det in dataset.detectors:
             arrayinfo = det.arrayInfo()
-            if arrayinfo and len(arrayinfo[0].shape) == 2:
-                return True
+            if arrayinfo:
+                # XXX: support multiple arrays
+                return self.isActiveForArray(arrayinfo[0])
         return False
 
 

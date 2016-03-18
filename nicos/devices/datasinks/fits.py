@@ -27,7 +27,7 @@ import numpy
 from collections import OrderedDict
 
 from nicos.core.params import Override
-from nicos.devices.datasinks.image import SingleFileSinkHandler, TwoDImageSink
+from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
 from nicos.core import NicosError
 from nicos.pycompat import iteritems, to_ascii_escaped
 
@@ -90,7 +90,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
                 hdu.header.append((key, item))
 
 
-class FITSImageSink(TwoDImageSink):
+class FITSImageSink(ImageSink):
 
     parameter_overrides = {
         'filenametemplate': Override(default=['%(pointcounter)s.fits']),
@@ -104,3 +104,6 @@ class FITSImageSink(TwoDImageSink):
         if pyfits is None:
             raise NicosError(self, 'pyfits module is not available. Check'
                              ' if it is installed and in your PYTHONPATH')
+
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2

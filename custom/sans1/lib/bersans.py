@@ -30,7 +30,7 @@ import numpy as np
 from nicos import session
 from nicos.core import Override, Param, oneof
 from nicos.core.utils import DeviceValueDict
-from nicos.devices.datasinks.image import TwoDImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems
 
 
@@ -311,7 +311,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         fp.flush()
 
 
-class BerSANSImageSink(TwoDImageSink):
+class BerSANSImageSink(ImageSink):
 
     parameters = {
         'flipimage': Param('flip image after reading from det?',
@@ -325,3 +325,6 @@ class BerSANSImageSink(TwoDImageSink):
     }
 
     handlerclass = BerSANSImageSinkHandler
+
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2

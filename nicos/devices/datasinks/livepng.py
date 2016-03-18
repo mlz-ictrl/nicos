@@ -33,11 +33,8 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos.core.errors import NicosError
-from nicos.core import Param, Override, DataSinkHandler
-
-from nicos.devices.datasinks.image import TwoDImageSink
-from nicos.core import NicosError
+from nicos.core import Param, Override, DataSinkHandler, NicosError
+from nicos.devices.datasinks.image import ImageSink
 
 
 def makeLUT(n, spec):
@@ -106,7 +103,7 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
         self._last_saved = currenttime()
 
 
-class PNGLiveFileSink(TwoDImageSink):
+class PNGLiveFileSink(ImageSink):
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False, default=['']),
@@ -128,3 +125,6 @@ class PNGLiveFileSink(TwoDImageSink):
             raise NicosError(self, 'Python Image Library (PIL) is not ' +
                              'available. Please check wether it is installed ' +
                              'and in your PYTHONPATH')
+
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2
