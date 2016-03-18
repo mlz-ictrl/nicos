@@ -30,13 +30,22 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos.core.errors import NicosError
-from nicos.core import ImageSink
-from nicos.core.params import Param
+from nicos.core import NicosError, Param
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
-class TIFFFileFormat(ImageSink):
-    """..."""
+class TIFFImageHandler(SingleFileSinkHandler):
+
+    filetype = 'TIFF'
+    defer_file_creation = True
+    accept_final_images_only = True
+
+    def writeData(self, fp, image):
+        Image.fromarray(numpy.array(image), self.sink.mode).save(fp)
+
+
+class TIFFImageSink(ImageSink):
+    """TIFF image sink, without metadata."""
 
     fileFormat = "TIFF"
 
@@ -45,6 +54,8 @@ class TIFFFileFormat(ImageSink):
                       type=str, default="I;16", mandatory=False,
                       settable=True),
     }
+
+    handlerclass = TIFFImageHandler
 
     def doPreinit(self, mode):
         self.log.debug("INITIALISE TIFFFileFormat")
@@ -56,10 +67,5 @@ class TIFFFileFormat(ImageSink):
                              "available. Please check wether it is installed "
                              "and in your PYTHONPATH")
 
-    def acceptImageType(self, imagetype):
-        self.log.debug("accetImageType: %s" % imagetype)
-        return (len(imagetype.shape) == 2)
-
-    def saveImage(self, imageinfo, image):
-        self.log.debug("save file: %s" % imageinfo)
-        Image.fromarray(numpy.array(image), self.mode).save(imageinfo.file)
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2
