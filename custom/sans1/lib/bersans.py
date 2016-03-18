@@ -214,7 +214,7 @@ Merged=
 Operation=
 
 %%Comment
-MesyDAQFile=%(det1.lasthistfile)s
+MesyDAQFile=%(Histfile)s
 
 """
 
@@ -247,6 +247,11 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             self.log.warning("can't determine all monitors, "
                              "using 0.0 instead", exc=1)
 
+        try:
+            Histfile = session.getDevice('det1_image').histogramfile
+        except Exception:
+            Histfile = ''
+
         metadata = DeviceValueDict(
             fileName = self._file.filepath,
             fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
@@ -265,6 +270,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Sum_Time = '%.6f' % (Sum / totalTime) if totalTime else 'Inf',
             Sum_Moni1 = '%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
             Sum_Moni2 = '%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
+            Histfile = Histfile,
         )
 
         nicosheader = []
