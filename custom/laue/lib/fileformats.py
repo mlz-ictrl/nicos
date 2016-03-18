@@ -56,7 +56,7 @@ Each line represents a datapoint (point #, value):
 
 from nicos.core import Override, ImageSink
 
-
+# TODO: port to new data API
 class ASCIIFileFormat(ImageSink):
     """Saves header data and single spectrum data into a single file"""
 
@@ -65,7 +65,8 @@ class ASCIIFileFormat(ImageSink):
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False, prefercache=False,
-                                     default=['%(proposal)s_%(counter)s.txt',
+                                     default=['%(proposal)s_'
+                                              '%(pointcounter)s.txt',
                                               ]),
     }
 

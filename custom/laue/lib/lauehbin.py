@@ -100,6 +100,7 @@ Counts : %(sumcounts)s
 '''
 
 
+# TODO: port to new data API
 class HBINLaueFileFormat(ImageSink):
 
     fileFormat = 'HBIN'
