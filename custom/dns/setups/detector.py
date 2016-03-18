@@ -12,7 +12,7 @@ sysconfig = dict(
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-    DNSFileSaver = device('dns.dnsfileformat.DNSFileFormat',
+    DNSFileSaver = device('dns.dnsfileformat.DNSFileSink',
                           lowlevel = True,
                          ),
     dettof       = device('dns.detector.TofChannel',
