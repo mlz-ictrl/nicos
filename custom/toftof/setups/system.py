@@ -45,9 +45,6 @@ devices = dict(
                                           owner='toftof', group='toftof',
                                          ),
                       elog = True,
-                      scancounter = 'scancounter',
-                      # filecounter = '/data/counter',
-                      imagecounter = 'counter',
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',

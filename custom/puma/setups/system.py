@@ -36,7 +36,6 @@ devices = dict(
                     mailserver = 'smtp.frm2.tum.de',
                     mailsender = 'puma@frm2.tum.de',
                     serviceexp = 'service',
-                    scancounter = 'filecounter', #backwards compatibility
                    ),
     Sample = device('devices.tas.TASSample',
                     description = 'Currently used Sample',

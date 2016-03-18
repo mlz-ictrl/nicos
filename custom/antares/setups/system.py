@@ -31,7 +31,6 @@ devices = dict(
                        templates = 'templates',
                        sendmail = False,
                        zipdata = False,
-                       scancounter = 'filecounter', #backwards compatibility
                        managerights = dict(enableDirMode=0o775,
                                           enableFileMode=0o664,
                                           disableDirMode=0o775,
