@@ -3,7 +3,7 @@
 import os
 import sys
 import atexit
-import optparse
+import argparse
 import subprocess
 from os import path
 from time import sleep
@@ -62,43 +62,46 @@ def cleanup():
     echo('NICOS demo finished.\n')
 
 
-parser = optparse.OptionParser()
-parser.add_option('-E', dest='noelog', action='store_true',
-                  help='disable electronic logbook')
-parser.add_option('-W', dest='nowatchdog', action='store_true',
-                  help='disable watchdog')
-parser.add_option('-M', dest='nomonitor', action='store_true',
-                  help='disable monitor')
-parser.add_option('-m', dest='monitorsetup', action='store',
-                  help='use given monitor setup instead of the default one')
-parser.add_option('-H', dest='htmlmonitor', action='store_true',
-                  help='start the web status service')
-parser.add_option('-O', dest='oh', action='store',
-                  help='does nothing (yet)')
+parser = argparse.ArgumentParser()
+parser.add_argument('-E', dest='noelog', action='store_true',
+                    help='disable electronic logbook')
+parser.add_argument('-W', dest='nowatchdog', action='store_true',
+                    help='disable watchdog')
+parser.add_argument('-M', dest='nomonitor', action='store_true',
+                    help='disable monitor')
+parser.add_argument('-m', dest='monitorsetup', action='store',
+                    help='use given monitor setup instead of the default one')
+parser.add_argument('-H', dest='htmlmonitor', action='store_true',
+                    help='start the web status service')
+parser.add_argument('-O', dest='oh', action='store',
+                    help='does nothing (yet)')
 
-parser.add_option('-D', dest='nodaemon', action='store_true',
-                  help='disable daemon')
-parser.add_option('--clear-cache', dest='clearcache', action='store_true',
-                  help='clear the cache')
-parser.add_option('-T', dest='textclient', action='store_true',
-                  help='start text daemon client instead of GUI')
-parser.add_option('-N', dest='noclient', action='store_true',
-                  help='do not start any client')
-parser.add_option('-t', dest='aioclient', action='store_true',
-                  help='disable daemon and start console shell')
+parser.add_argument('-D', dest='nodaemon', action='store_true',
+                    help='disable daemon')
+parser.add_argument('--clear-cache', dest='clearcache', action='store_true',
+                    help='clear the cache')
+parser.add_argument('-T', dest='textclient', action='store_true',
+                    help='start text daemon client instead of GUI')
+parser.add_argument('-N', dest='noclient', action='store_true',
+                    help='do not start any client')
+parser.add_argument('-t', dest='aioclient', action='store_true',
+                    help='disable daemon and start console shell')
 
-parser.add_option('-c', dest='guiconfig', action='store',
-                  help='use given GUI config file instead of the default one')
-parser.add_option('-u', dest='guiuser', action='store',
-                  default='guest:guest@localhost',
-                  help='use given user:password@server for the daemon login')
+parser.add_argument('-c', dest='guiconfig', action='store',
+                    help='use given GUI config file instead of the default one')
+parser.add_argument('-u', dest='guiuser', action='store',
+                    default='guest:guest@localhost',
+                    help='use given user:password@server for the daemon login')
 # It usually doesn't make sense to start this service.  Therefore it is set
 # to False by default and only has a long option.
-parser.add_option('--pushversioninfo', dest='pushversioninfo',
-                  action='store_true', default=False,
-                  help='Start the version update daemon')
+parser.add_argument('--pushversioninfo', dest='pushversioninfo',
+                    action='store_true', default=False,
+                    help='Start the version update daemon')
 
-opts, rest_args = parser.parse_args()
+parser.add_argument('restargs', nargs='*', help=argparse.SUPPRESS)
+
+opts = parser.parse_args()
+rest_args = opts.restargs
 
 echo('Starting NICOS demo system, please wait:')
 
