@@ -506,7 +506,7 @@ def appendscan(numpoints=5, stepsize=None):
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' %
              numpoints)
-    s.dataset.continuation = ','.join(contuids)
+    s.dataset.continuation = contuids
     s.dataset.cont_direction = direction
     s.dataset.xindex = scan.xindex
     # envlist must be reset since Scan.__init__ messes with the ordering

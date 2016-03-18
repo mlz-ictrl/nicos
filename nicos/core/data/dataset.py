@@ -49,8 +49,9 @@ class BaseDataset(object):
         # Counter number assigned to the dataset.
         self.counter = None
 
-        # Filename(s) assigned to the dataset.
+        # Short and absolute filename(s) assigned to the dataset.
         self.filenames = []
+        self.filepaths = []
 
         # (Approximate) timestamps for the point, good for cache queries.
         self.started = currenttime()  # Can be refined later.
@@ -66,6 +67,9 @@ class BaseDataset(object):
         # Which detectors were involved in measuring this dataset.
         # (XXX: for block datasets, SetDetectors should finish the set.)
         self.detectors = []
+
+        # Preset for this dataset.
+        self.preset = {}
 
         # Subsets of this dataset.  (Empty for point datasets.)
         self.subsets = []
@@ -212,7 +216,7 @@ class ScanDataset(BaseDataset):
         self.xindex = 0
 
         # If this is a continuation dataset, the UIDs of the continued ones.
-        self.continuation = None
+        self.continuation = []
         self.cont_direction = 0
 
         BaseDataset.__init__(self, **kwds)

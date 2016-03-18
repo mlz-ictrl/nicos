@@ -231,7 +231,8 @@ def count(*detlist, **preset):
         waitForStatus(det)
     # start counting
     point = dataman.beginPoint(detectors=detectors,
-                               environment=session.experiment.sampleenv)
+                               environment=session.experiment.sampleenv,
+                               preset=preset)
     try:
         acquire(point, preset)
     finally:

@@ -291,6 +291,7 @@ class DataManager(object):
 
         shortpath = path.join(*subdirs + (filename,))
         dataset.filenames.append(shortpath)
+        dataset.filepaths.append(filepaths[0])
 
         return filename, filepaths
 

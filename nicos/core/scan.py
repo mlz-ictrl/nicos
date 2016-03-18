@@ -155,6 +155,7 @@ class Scan(object):
             devices=self._devices,
             environment=self._envlist,
             detectors=self._detlist,
+            preset=self._preset,
             info=self._scaninfo,
             npoints=self._npoints,
             xindex=self._xindex,
