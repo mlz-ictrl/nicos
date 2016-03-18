@@ -142,18 +142,17 @@ devices = dict(
                        unit = 'm',
                        curvalue = 10,
                       ),
-
     BerSANSImageSink  = device('sans1.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
-                               filenametemplate = ['D%(counter)s.001',
-                               '/%(proposal)s_%(counter)s_%(scanpoint)s.bersans'],
+                               filenametemplate = ['D%(pointcounter)s.001',
+                               '/%(proposal)s_%(pointcounter)s_%(pointnumber)s.bersans'],
                                flipimage = 'none',
                               ),
     RawImageSink      = device('devices.datasinks.RawImageSink',
                                description = 'Saves image data in RAW format',
-                               filenametemplate = ['%(proposal)s_%(counter)s.raw',
-                               '%(proposal)s_%(session.experiment.lastscan)s_'
-                               '%(counter)s_%(scanpoint)s.raw'],
+                               filenametemplate = ['%(proposal)s_%(pointcounter)s.raw',
+                               '%(proposal)s_%(scancounter)s_'
+                               '%(pointcounter)s_%(pointnumber)s.raw'],
                               ),
     LivePNGSinkLog   = device('devices.datasinks.PNGLiveFileSink',
                               description = 'Saves live image as .png every now and then',
