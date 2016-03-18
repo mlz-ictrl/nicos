@@ -16,8 +16,8 @@ tango_limaccd = tango_base + "detector/limaccd"
 devices = dict(
     FITSFileSaver = device("devices.datasinks.FITSImageSink",
                            description = "Saves image data in FITS format",
-                           filenametemplate = ["%(proposal)s_%(counter)08d"
-                                               ".fits"],
+                           filenametemplate = ["%(proposal)s_"
+                                               "%(pointcounter)08d.fits"],
                            subdir = ".",
                           ),
     ccdtime = device("devices.vendor.lima.LimaCCDTimer",
