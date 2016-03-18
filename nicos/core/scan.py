@@ -409,6 +409,7 @@ class SweepScan(Scan):
         self._delay = preset.pop('delay', 0)
         Scan.__init__(self, [], points, [], firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, subscan)
+        # XXX(dataapi): devices should be in devlist, not envlist
         if not devices:
             self._envlist.insert(0, self._etime)
         else:

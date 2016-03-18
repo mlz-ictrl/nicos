@@ -173,6 +173,7 @@ class DataManager(object):
     # if the point object is available everywhere
 
     def putMetainfo(self, metainfo):
+        # metainfo is {(devname, param): (rawvalue, strvalue, unit, category)}
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring metainfo')
             return
@@ -180,7 +181,7 @@ class DataManager(object):
         self._current.dispatch('putMetainfo', metainfo)
 
     def putValues(self, values):
-        # values is dict(<devicename>: (timestamp, value),...)
+        # values is {devname: (timestamp, value)}
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring values')
             return
@@ -188,12 +189,28 @@ class DataManager(object):
         self._current.dispatch('putValues', values)
 
     def putResults(self, quality, results):
-        # results is dict(<devicename>: (timestamp, value),...)
+        # results is {devname: (readvalue, arrays)}
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring results')
             return
         self._current.results.update(results)
         self._current.dispatch('putResults', quality, results)
+
+    def updateMetainfo(self):
+        """Utility function to gather metainfo from all relevant devices and
+        write it to the current dataset with `putMetainfo`.
+
+        Relevant devices are (currently) those that are not lowlevel.
+        """
+        devices = zip(*sorted(iteritems(session.devices),
+                              key=lambda name_dev: name_dev[0].lower()))[1]
+        newinfo = {}
+        for device in devices:
+            if device.lowlevel:
+                continue
+            for key, value, strvalue, unit, category in device.info():
+                newinfo[device.name, key] = (value, strvalue, unit, category)
+        self.putMetainfo(newinfo)
 
     def cacheCallback(self, key, value, time):
         if not self._current or self._current.settype != 'point':
@@ -203,17 +220,6 @@ class DataManager(object):
             self.putValues({devname: (time, value)})
         except Exception:
             pass
-
-    def updateMetainfo(self):
-        devices = zip(*sorted(iteritems(session.devices),
-                              key=lambda name_and_dev: name_and_dev[0].lower()))[1]
-        newinfo = {}
-        for device in devices:
-            if device.lowlevel:
-                continue
-            for key, value, strvalue, unit, category in device.info():
-                newinfo[device.name, key] = (value, strvalue, unit, category)
-        self.putMetainfo(newinfo)
 
     #
     # Services for sinks
