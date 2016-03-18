@@ -10,7 +10,6 @@ development environment and coding  guidelines.
 .. toctree::
    :maxdepth: 1
 
-   newsetup
    deviceapi
    classes/index
    sessionapi
