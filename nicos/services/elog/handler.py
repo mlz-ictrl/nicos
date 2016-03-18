@@ -421,9 +421,6 @@ class Handler(object):
                 '<span class="msglabel">Messages</span>'
                 '<pre class="messages">\n', '</pre></div>\n', formatted)
 
-    #def handle_scanbegin(self, time, dataset):
-    #    print 'Scan begin:', dataset
-
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)
         headers = ['Scan#', 'Points']
@@ -435,7 +432,7 @@ class Handler(object):
                 ycindex.append(i)
                 headers.append(yc.name)
         headers += ['Plot', 'Data']
-        scannumber = dataset.counter
+        scannumber = dataset.counter or -1
         if scannumber >= 0:
             html = ['<tr id="scan%s">' % scannumber]
             html.append('<td class="scannum">%s</td>' % scannumber)
@@ -484,8 +481,8 @@ class Handler(object):
                         (scannumber, plotfmt, scannumber, plotfmt))
         # file link
         # XXX(dataapi): where is the filepath now?
-        if self.logdir and dataset.filepath:
-            relfile = path.relpath(dataset.filepath, self.logdir)
+        if self.logdir and dataset.filepaths:
+            relfile = path.relpath(dataset.filepaths[0], self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'
                         % relfile)
         else:

@@ -37,7 +37,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     PositionError, TimeoutError
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
-from nicos.core.data import dataman
+from nicos.core.data import dataman, ScanData
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types
 from nicos.commands.measure import acquire
@@ -186,7 +186,7 @@ class Scan(object):
     def endScan(self):
         dataman.finishScan()
         try:
-            session.elogEvent('scanend', self.dataset)
+            session.elogEvent('scanend', ScanData(self.dataset))
         except Exception:
             session.log.debug('could not add scan to electronic logbook', exc=1)
         session.breakpoint(1)

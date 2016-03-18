@@ -38,6 +38,7 @@ levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
 def format_time(timeval):
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeval))
 
+
 def formatMessage(message):
     cls = 'out'
     levelno = message[2]
@@ -77,8 +78,9 @@ def pretty2(fmtstr, value1, value2):
     fmt2 = pretty1(fmtstr, value2)
     if fmt1 == fmt2:
         return fmt1
-    if value1 != 0 and abs((value2 - value1)/value1) < 0.00001:
-        return fmt2
-    if value2 != 0 and abs((value2 - value1)/value2) < 0.00001:
-        return fmt1
+    if value1 is not None and value2 is not None:
+        if value1 != 0 and abs((value2 - value1)/value1) < 0.00001:
+            return fmt2
+        if value2 != 0 and abs((value2 - value1)/value2) < 0.00001:
+            return fmt1
     return '%s - %s' % (fmt1, fmt2)

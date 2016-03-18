@@ -25,63 +25,13 @@
 """Data sink classes (new API) for NICOS."""
 
 from os import path
-from time import time as currenttime, localtime
+from time import time as currenttime
 
 from nicos import session
-from nicos.core import Override, DataSink, DataSinkHandler
-from nicos.pycompat import iteritems, cPickle as pickle
+from nicos.core import Override, DataSink, DataSinkHandler, PointDataset
+from nicos.core.data import ScanData
+from nicos.pycompat import cPickle as pickle
 from nicos.devices.datasinks.image import ImageSink
-from nicos.utils import lazy_property
-
-
-class SimpleDataset(object):
-    """Simplified dataset for transfer to the GUI."""
-    # unique id
-    uid = ''
-    # start time
-    started = 0
-    # scan info
-    scaninfo = ''
-    # assigned number
-    counter = 0
-    # resulting x values
-    xresults = []
-    # resulting y values
-    yresults = []
-    # index of the x value to use for plotting
-    xindex = 0
-    # continuation info
-    continuation = None
-    cont_direction = 0
-    # value info
-    xvalueinfo = []
-    yvalueinfo = []
-    # storage for header info
-    headerinfo = {}
-
-    def __init__(self):
-        self.xresults = []
-        self.yresults = []
-        self.xvalueinfo = []
-        self.yvalueinfo = []
-        self.headerinfo = {}
-
-    # info derived from valueinfo
-    @lazy_property
-    def xnames(self):
-        return [v.name for v in self.xvalueinfo]
-
-    @lazy_property
-    def xunits(self):
-        return [v.unit for v in self.xvalueinfo]
-
-    @lazy_property
-    def ynames(self):
-        return [v.name for v in self.yvalueinfo]
-
-    @lazy_property
-    def yunits(self):
-        return [v.unit for v in self.yvalueinfo]
 
 
 class DaemonSinkHandler(DataSinkHandler):
@@ -90,31 +40,20 @@ class DaemonSinkHandler(DataSinkHandler):
         self._dataset_emitted = False
 
     def _emitDataset(self):
-        dataset = SimpleDataset()
-        dataset.uid = str(self.dataset.uid)
-        dataset.started = localtime(self.dataset.started)
-        dataset.scaninfo = self.dataset.info
-        dataset.counter = self.dataset.counter
-        dataset.xindex = self.dataset.xindex
-        dataset.continuation = self.dataset.continuation
-        dataset.cont_direction = self.dataset.cont_direction
-        dataset.xvalueinfo = self.dataset.devvalueinfo
-        dataset.yvalueinfo = self.dataset.detvalueinfo
-        for (devname, key), (_, val, unit, category) in \
-                iteritems(self.dataset.metainfo):
-            catlist = dataset.headerinfo.setdefault(category, [])
-            catlist.append((devname, key, (val + ' ' + unit).strip()))
-        session.emitfunc('dataset', dataset)
+        session.emitfunc('dataset', ScanData(self.dataset))
 
     def addSubset(self, point):
+        if not isinstance(point, PointDataset):
+            return
         if not self._dataset_emitted:
             self._emitDataset()
             self._dataset_emitted = True
-        xvalues = point.devvaluelist
+        xvalues = point.devvaluelist + point.envvaluelist
         yvalues = point.detvaluelist
-        session.emitfunc('datapoint', (str(self.dataset.uid), xvalues, yvalues))
+        session.emitfunc('datapoint',
+                         (str(self.dataset.uid), xvalues, yvalues))
 
-    # XXX(dataapi)
+    # XXX(dataapi): replace this
     # def addFitCurve(self, dataset, result):
     #     session.emitfunc('datacurve', (result,))
 

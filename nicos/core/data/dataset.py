@@ -25,7 +25,7 @@
 """Dataset classes."""
 
 from math import sqrt
-from time import time as currenttime
+from time import time as currenttime, localtime
 from uuid import uuid4
 
 from nicos.core.errors import ProgrammingError
@@ -269,3 +269,76 @@ class BlockDataset(BaseDataset):
 
     def __init__(self, **kwds):
         BaseDataset.__init__(self, **kwds)
+
+
+class ScanData(object):
+    """Simplified object containing scan data for serialized transfer to the
+    GUI/ELog.
+    """
+    # unique id as a string
+    uid = ''
+    # start time
+    started = 0
+    # scan info
+    scaninfo = ''
+    # assigned number
+    counter = 0
+    # file name(s)
+    filepaths = []
+    # index of the x value to use for plotting
+    xindex = 0
+    # number of env. values
+    envvalues = 0
+    # continuation info
+    continuation = ''
+    # value info
+    xvalueinfo = []
+    yvalueinfo = []
+    # storage for header info
+    # XXX(dataapi): convert to new metainfo format
+    headerinfo = {}
+    # resulting x and y values
+    xresults = []
+    yresults = []
+
+    def __init__(self, dataset):
+        """Create this simple set from the ScanDataset *dataset*."""
+        self.uid = str(dataset.uid)
+        self.started = localtime(dataset.started)
+        self.scaninfo = dataset.info
+        self.counter = dataset.counter
+        self.filepaths = dataset.filepaths
+        self.xindex = dataset.xindex
+        self.envvalues = len(dataset.envvalueinfo)
+        self.continuation = ','.join(str(uid) for uid in dataset.continuation)
+        self.xvalueinfo = dataset.devvalueinfo + dataset.envvalueinfo
+        self.yvalueinfo = dataset.detvalueinfo
+
+        # convert result points to result lists (no arrays)
+        self.xresults = [subset.devvaluelist + subset.envvaluelist
+                         for subset in dataset.subsets]
+        self.yresults = dataset.detvaluelists
+
+        # convert metainfo to headerinfo
+        self.headerinfo = {}
+        for (devname, key), (_, val, unit, category) in \
+                iteritems(dataset.metainfo):
+            catlist = self.headerinfo.setdefault(category, [])
+            catlist.append((devname, key, (val + ' ' + unit).strip()))
+
+    # info derived from valueinfo
+    @lazy_property
+    def xnames(self):
+        return [v.name for v in self.xvalueinfo]
+
+    @lazy_property
+    def xunits(self):
+        return [v.unit for v in self.xvalueinfo]
+
+    @lazy_property
+    def ynames(self):
+        return [v.name for v in self.yvalueinfo]
+
+    @lazy_property
+    def yunits(self):
+        return [v.unit for v in self.yvalueinfo]
