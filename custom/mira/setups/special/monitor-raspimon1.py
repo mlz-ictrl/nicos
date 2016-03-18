@@ -43,7 +43,7 @@ _column1 = Column(
                  Field(dev='NL6', min='open', width=6),
                  Field(dev='UBahn', width=5, istext=True, unit=' '),
                  Field(dev='OutsideTemp', name='Temp', width=4, unit=' ')),
-        BlockRow(#Field(dev='DoseRate', name='Rate', width=6),
+        BlockRow(Field(dev='DoseRate', name='Rate', width=6),
                  Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
                  #Field(dev='PSDGas', width=6),

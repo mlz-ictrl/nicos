@@ -97,6 +97,11 @@ _column1 = Column(
         ],
         setups='mezeiflip2',
     ),
+    Block('Guidefield coil', [
+        BlockRow('dct5', 'dct6'),
+        ],
+        setups='gfcoil',
+    ),
     Block('HV Stick', [
         BlockRow('HV')
         ],
@@ -139,6 +144,16 @@ _column2 = Column(
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr11_p1')),
         ],
         setups='ccr11',
+    ),
+    Block('Cryostat (CCR21)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='Control', dev='T'), Field(dev='Ts', name='Sample')),
+        BlockRow(Field(name='A', dev='T_ccr21_A'), Field(name='B', dev='T_ccr21_B'),
+                 Field(name='C', dev='T_ccr21_C'), Field(name='D', dev='T_ccr21_D')),
+        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+                 Field(name='D', key='t/d'), Field(name='p', dev='ccr21_p1')),
+        ],
+        setups='ccr21',
     ),
     Block('Furnace (HTF01)', [
         BlockRow(Field(name='Setpoint', key='t_htf01/setpoint', unitkey='t_htf01/unit', format='%.2f'),
