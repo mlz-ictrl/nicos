@@ -166,6 +166,38 @@ class CountResult(list):
     __display__ = None
 
 
+def inner_count(detectors, preset, temporary=False):
+    """Inner counting function for normal counts with single-point dataset.
+
+    If *temporary* is true, use a dataset without data sinks.
+    """
+    for det in detectors:
+        det.prepare()
+    for det in detectors:
+        waitForStatus(det)
+    # start counting
+    args = dict(detectors=detectors,
+                environment=session.experiment.sampleenv,
+                preset=preset)
+    if temporary:
+        point = dataman.beginTemporaryPoint(**args)
+    else:
+        point = dataman.beginPoint(**args)
+    try:
+        acquire(point, preset)
+    finally:
+        dataman.finishPoint()
+    msg = []
+    retval = []
+    for det in detectors:
+        res = point.results[det.name][0]
+        for i, v in enumerate(det.valueInfo()):
+            msg.append('%s = %s' % (v.name, res[i]))
+            retval.append(res[i])
+    printinfo('count: ' + ', '.join(msg))
+    return CountResult(retval)
+
+
 @usercommand
 @helparglist('[detectors], [presets]')
 def count(*detlist, **preset):
@@ -225,27 +257,7 @@ def count(*detlist, **preset):
         if not len(detectors) == has_sub == 1:
             raise NicosError('cannot acquire on normal and subscan detectors')
 
-    for det in detectors:
-        det.prepare()
-    for det in detectors:
-        waitForStatus(det)
-    # start counting
-    point = dataman.beginPoint(detectors=detectors,
-                               environment=session.experiment.sampleenv,
-                               preset=preset)
-    try:
-        acquire(point, preset)
-    finally:
-        dataman.finishPoint()
-    msg = []
-    retval = []
-    for det in detectors:
-        res = point.results[det.name][0]
-        for i, v in enumerate(det.valueInfo()):
-            msg.append('%s = %s' % (v.name, res[i]))
-            retval.append(res[i])
-    printinfo('count: ' + ', '.join(msg))
-    return CountResult(retval)
+    return inner_count(detectors, preset)
 
 
 @usercommand

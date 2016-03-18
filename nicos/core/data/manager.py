@@ -81,6 +81,7 @@ class DataManager(object):
         return self._init(dataset)
 
     def beginScan(self, subscan=False, **kwds):
+        """Create and begin a new scan dataset."""
         if subscan:
             # a subscan can only start when a point is open
             self._clean(('point',))
@@ -90,8 +91,10 @@ class DataManager(object):
             dataset = ScanDataset(**kwds)
         return self._init(dataset)
 
-    def beginPoint(self, **kwds):
-        self._clean(('block', 'scan', 'subscan'))
+    def _updatePointKeywords(self, kwds):
+        """If a scan is currently on the stack, apply the relevant devices
+        from the scan to the keywords for creating a point dataset.
+        """
         if self._current:
             if 'devices' not in kwds:
                 kwds['devices'] = self._current.devices
@@ -101,16 +104,30 @@ class DataManager(object):
                 kwds['detectors'] = self._current.detectors
             if self._current.settype in ('scan', 'subscan'):
                 kwds['pointnumber'] = len(self._current.subsets) + 1
+
+    def beginPoint(self, **kwds):
+        """Create and begin a new point dataset."""
+        self._clean(('block', 'scan', 'subscan'))
+        self._updatePointKeywords(kwds)
         dataset = PointDataset(**kwds)
         return self._init(dataset)
 
+    def beginTemporaryPoint(self, **kwds):
+        """Create and begin a point dataset that does not use datasinks."""
+        self._clean(('block', 'scan', 'subscan'))
+        self._updatePointKeywords(kwds)
+        dataset = PointDataset(**kwds)
+        return self._init(dataset, skip_handlers=True)
+
     def finishPoint(self):
+        """Finish the current point dataset."""
         if self._current.settype != 'point':
             raise ProgrammingError('No point to finish')
         point = self._stack.pop()
         self._finish(point)
 
     def finishScan(self):
+        """Finish the current scan dataset."""
         if self._current.settype not in ('scan', 'subscan'):
             raise ProgrammingError('No scan to finish')
         scan = self._stack.pop()
@@ -118,14 +135,17 @@ class DataManager(object):
         # XXX: when to clean these up?
         self._last_scans.append(scan)
 
-    def _init(self, dataset):
-        """Initialises the dataset and puts it on the stack.
-        Finally dispatches corresponding sink handlers."""
+    def _init(self, dataset, skip_handlers=False):
+        """Initialize the dataset and put it on the stack.
+
+        Finally dispatches corresponding sink handlers.
+        """
         self.log.debug('Created new dataset %s' % dataset)
-        for sink in session.datasinks:
-            if sink.isActive(dataset):
-                handlers = sink.createHandlers(dataset)
-                dataset.handlers.extend(handlers)
+        if not skip_handlers:
+            for sink in session.datasinks:
+                if sink.isActive(dataset):
+                    handlers = sink.createHandlers(dataset)
+                    dataset.handlers.extend(handlers)
         if self._current:
             self._current.subsets.append(dataset)
         self._stack.append(dataset)
