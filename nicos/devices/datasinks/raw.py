@@ -58,7 +58,7 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
 
 
 class SingleRawImageSink(ImageSink):
-
+    # XXX (data sinks) add documentation
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
@@ -147,7 +147,7 @@ class RawImageSinkHandler(DataSinkHandler):
 
 
 class RawImageSink(ImageSink):
-
+    # XXX (data sinks) add documentation
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,

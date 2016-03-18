@@ -35,6 +35,8 @@ functionality of the specific instrument.  It is selected in setups using
 .. autoclass:: Instrument()
 
 
+.. _data_sinks:
+
 Data Sinks
 ----------
 
@@ -45,15 +47,34 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. module:: nicos.core.data
 
+
 .. autoclass:: DataSink()
 
 .. module:: nicos.devices.datasinks
 
 .. autoclass:: ConsoleScanSink()
-.. autoclass:: AsciiScanfileSink()
 .. autoclass:: DaemonSink()
 .. autoclass:: SerializedSink()
 
+.. autoclass:: LiveViewSink()
+.. autoclass:: PNGLiveFileSink()
+
+.. autoclass:: AsciiScanfileSink()
+
+.. autoclass:: ImageSink()
+
+.. autoclass:: SingleRawImageSink()
+.. autoclass:: RawImageSink()
+.. autoclass:: FITSImageSink()
+.. autoclass:: TIFFImageSink()
+
+
+Data Sink Handlers
+^^^^^^^^^^^^^^^^^^
+
+.. module:: nicos.core.data
+
+.. autoclass:: DataSinkHandler
 
 .. _notifiers:
 

@@ -45,7 +45,10 @@ class TIFFImageSinkHandler(SingleFileSinkHandler):
 
 
 class TIFFImageSink(ImageSink):
-    """TIFF image sink, without metadata."""
+    """TIFF image sink, without metadata.
+
+    This data sinks writes TIFF format files without any meta data.
+    """
 
     fileFormat = "TIFF"
 

@@ -240,9 +240,15 @@ The possible entries for the ``sysconfig`` dictionary are:
 
 .. data:: datasinks
 
-   A list of names of "data sinks", i.e. special devices that process measured
-   data.  These devices must be defined somewhere in a ``devices`` dictionary
-   and be of class :class:`nicos.core.data.DataSink` or a subclass.
+   A list of names of :ref:`data_sinks`, i.e. special devices that process
+   measured data.  These devices must be defined somewhere in a ``devices``
+   dictionary.
+
+   A 'data sink' could work as a data storage device, writing the measured data
+   in a special format, which could be read by the data analysis software.
+
+   The other type of data sink is the support to transport the measured data to
+   the different components of NICOS to display the data of the measurement.
 
 .. data:: notifiers
 
@@ -294,7 +300,6 @@ read.
                        # other parameters...
                       ),
       )
-
 
 .. rubric:: Footnotes
 
