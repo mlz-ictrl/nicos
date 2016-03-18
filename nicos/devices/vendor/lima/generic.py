@@ -26,7 +26,7 @@ import time
 
 import numpy
 
-from nicos.core import ImageType, Param, Device, AutoDevice, status, tupleof, \
+from nicos.core import ArrayDesc, Param, Device, AutoDevice, status, tupleof, \
     oneof, none_or, tangodev, Override, SIMULATION, HardwareError, NicosError
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
@@ -47,7 +47,7 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
         '_starttime':   Param('Cached counting start time',
                               type=float, default=0, settable=False,
                               userparam=False),
-        '_stoptime':   Param('Cached counting start time',
+        '_stoptime':    Param('Cached counting start time',
                               type=float, default=0, settable=False,
                               userparam=False),
     }
@@ -175,7 +175,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doInit(self, mode):
         # Determine image type
         shape = (self.imagewidth, self.imageheight)
-        self.imagetype = ImageType('data', shape, self._getImageType())
+        self.arraydesc = ArrayDesc('data', shape, self._getImageType())
 
     def doShutdown(self):
         self._hwDev.shutdown()

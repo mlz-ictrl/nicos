@@ -339,7 +339,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
     #
 
     @property
-    def imagetype(self):
+    def arraydesc(self):
         if self.mode == 'image':
             return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
         return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])

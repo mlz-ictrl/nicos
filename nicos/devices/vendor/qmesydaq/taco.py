@@ -30,8 +30,8 @@ import IO
 import IOCommon
 from Detector import Detector
 
-from nicos.core import ImageType, MASTER, Param, SIMULATION, Value, \
-    listof, oneof
+from nicos.core import ArrayDesc, MASTER, Param, SIMULATION, Value, listof, \
+    oneof
 from nicos.devices.generic import TimerChannelMixin, CounterChannelMixin, \
     PassiveChannel, ActiveChannel
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
@@ -133,12 +133,9 @@ class Image(BaseChannel, QMesyDAQImage):
 
     taco_class = Detector
 
-    # initial imagetype, will be updated upon readImage
-    imagetype = ImageType('data', (128, 128), '<u4')
-
     def doInit(self, mode):
         if mode == MASTER:
-            self.readFinalImage()  # also set imagetype
+            self.readFinalImage()  # also set arraydesc
 
     def doStart(self):
         self.readresult = [0]
@@ -163,17 +160,17 @@ class Image(BaseChannel, QMesyDAQImage):
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
-            self.imagetype = ImageType('data', shape=(res[0], ), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
             return data
         elif res[2] in [0, 1]:  # 2D array
-            self.imagetype = ImageType('data', shape=(res[0], res[1]), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
-            self.imagetype = ImageType('data', shape=(res[0], res[1], res[2]),
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             self.readresult = [data.sum()]

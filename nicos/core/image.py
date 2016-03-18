@@ -28,8 +28,7 @@
 from nicos import session
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, ProgrammingError
-# pylint: disable=unused-import
-from nicos.core.params import Param, subdir, listof, ArrayDesc as ImageType
+from nicos.core.params import Param, subdir, listof
 
 
 class ImageSink(Device):

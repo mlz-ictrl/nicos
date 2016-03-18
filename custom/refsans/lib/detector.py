@@ -28,8 +28,9 @@
 from Detector import Detector
 from IO import Counter
 
-from nicos.core import Param, Value, Override, oneof, Value, ImageSink, ImageType
-from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, TimerChannelMixin, CounterChannelMixin, ImageChannelMixin
+from nicos.core import Param, Value, Override, oneof, Value, ArrayDesc, ImageSink
+from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
+    TimerChannelMixin, CounterChannelMixin, ImageChannelMixin
 from nicos.devices.taco.detector import BaseChannel
 
 import numpy as np
@@ -156,7 +157,7 @@ class ComtecFilename(BaseChannel, PassiveChannel):
 
 
 class NullImage(ImageChannelMixin, PassiveChannel):
-    imagetype = ImageType('', (1, 1), np.uint32)
+    arraydesc = ArrayDesc('', (1, 1), np.uint32)
     def readFinalImage(self):
         return np.zeros((1, 1), dtype='uint32')
 

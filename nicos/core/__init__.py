@@ -46,7 +46,9 @@ from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler, dataman
 from nicos.core.scan import Scan
-from nicos.core.image import ImageType, ImageSink
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user
+
+# XXX(dataapi): to be removed
+from nicos.core.image import ImageSink

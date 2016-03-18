@@ -24,7 +24,7 @@
 
 """Detector class for the laue PSL detector via the windows server."""
 
-from nicos.core import ImageType, Param, status
+from nicos.core import ArrayDesc, Param, status
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel
 
 import numpy as np
@@ -63,7 +63,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', int(iwstr))
         self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
-        self.imagetype = ImageType('data', shape, np.uint16)
+        self.arraydesc = ArrayDesc('data', shape, np.uint16)
 
     def doStart(self):
         self._communicate('Snap')
@@ -81,7 +81,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', shape[0])
         self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
-        self.imagetype = ImageType('data', shape, self._modemap[mode])
+        self.arraydesc = ArrayDesc('data', shape, self._modemap[mode])
         na = np.frombuffer(data, self._modemap[mode])
 
         na = na.reshape(shape)

@@ -38,7 +38,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, \
     dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ImageType
+    HasTimeout, ArrayDesc
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -867,9 +867,9 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
         return self._dev.zeroPoint.tolist()
 
     def readFinalImage(self):
-        self.imagetype = ImageType('data', shape=tuple(self._dev.roiSize),
+        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.roiSize),
                                    dtype='<u4')
-        return self._dev.value.reshape(self.imagetype.shape)
+        return self._dev.value.reshape(self.arraydesc.shape)
 
 
 class TOFChannel(ImageChannel):
