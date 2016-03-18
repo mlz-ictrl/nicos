@@ -119,6 +119,8 @@ class Scan(object):
         self._scaninfo = scaninfo
         self._subscan = subscan
         self._xindex = 0
+        self._continuation = []
+        self._cont_direction = None
         try:
             self._npoints = len(startpositions)  # can be zero if not known
         except TypeError:
@@ -161,6 +163,8 @@ class Scan(object):
             xindex=self._xindex,
             startpositions=self._startpositions,
             endpositions=self._endpositions,
+            continuation=self._continuation,
+            cont_direction=self._cont_direction,
         )
         session.elogEvent('scanbegin', self.dataset)
 
