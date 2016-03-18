@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 
-import time
-import numpy
+from time import time as currenttime, strftime, localtime
 from collections import OrderedDict
+
+import numpy
 
 from nicos.core.params import Override
 from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
@@ -58,11 +59,12 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
 
     def _buildHeader(self, info, hdu):
 
+        finished = currenttime()
         header = OrderedDict({
-            'begintime': time.strftime('%Y-%m-%d %H:%M:%S',
-                                       time.localtime(self.dataset.started)),
-            'endtime': time.strftime('%Y-%m-%d %H:%M:%S',
-                                     time.localtime(self.dataset.finished))
+            'begintime': strftime('%Y-%m-%d %H:%M:%S',
+                                  localtime(self.dataset.started)),
+            'endtime':   strftime('%Y-%m-%d %H:%M:%S',
+                                  localtime(finished))
         })
 
         for (dev, param), (_, strvalue, _, _) in iteritems(info):

@@ -24,7 +24,7 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
-from time import strftime, localtime
+from time import strftime, localtime, time as currenttime
 import numpy as np
 
 from nicos import session
@@ -235,7 +235,8 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
                              "using 0 instead", exc=1)
             SD = 0
 
-        totalTime = self.dataset.finished - self.dataset.started
+        finished = currenttime()
+        totalTime = finished - self.dataset.started
         Sum = image.sum()
         Moni1 = 0
         Moni2 = 0
@@ -252,8 +253,8 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             fileTime = strftime('%r', localtime(self.dataset.started)),
             FromDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
             FromTime = strftime('%r', localtime(self.dataset.started)),
-            ToDate = strftime('%m/%d/%Y', localtime(self.dataset.finished)),
-            ToTime = strftime('%r', localtime(self.dataset.finished)),
+            ToDate = strftime('%m/%d/%Y', localtime(finished)),
+            ToTime = strftime('%r', localtime(finished)),
             DataSize = shape[0]*shape[1],
             DataSizeX = shape[1],
             DataSizeY = shape[0],
