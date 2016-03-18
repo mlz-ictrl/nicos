@@ -25,6 +25,18 @@ devices = dict(
                       pollinterval = 0.7,
                       maxage = 2,
                      ),
+    T_ls2_C  = device('devices.tango.Sensor',
+                      description = 'sensor C',
+                      tangodevice = tango_base + 'ls2/ls_sensor3',
+                      pollinterval = 0.7,
+                      maxage = 2,
+                     ),
+    T_ls2_D  = device('devices.tango.Sensor',
+                      description = 'sensor D',
+                      tangodevice = tango_base + 'ls2/ls_sensor4',
+                      pollinterval = 0.7,
+                      maxage = 2,
+                     ),
 )
 
 alias_config = {

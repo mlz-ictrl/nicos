@@ -10,8 +10,12 @@ devices = dict(
                description = 'SR850 lock-in amplifier',
                tangodevice = tango_base + 'sr850/io',
               ),
+    M2 = device('mira.sr850.Amplifier',
+               description = 'SR850 lock-in amplifier',
+               tangodevice = tango_base + 'sr850/io2',
+              ),
 )
 
 startupcode = '''
-SetDetectors(M)
+SetDetectors(M, M2)
 '''

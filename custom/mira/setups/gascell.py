@@ -22,4 +22,12 @@ devices = dict(
                            fmtstr = '%.3f',
                            unit = 'bar',
                           ),
+    kistler       = device('devices.tango.AnalogInput',
+                           tangodevice = tango_base + 'alfonsomodule/kistler',
+                           description = 'Kistler Charge Meter for Calibration with Piezo Sensor',
+                           pollinterval = 0.7,
+                           maxage = 2,
+                           fmtstr = '%.3f',
+                           unit = 'N',
+                          ),
 )
