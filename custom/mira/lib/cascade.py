@@ -24,21 +24,20 @@
 
 """Class for CASCADE detector measurement and readout."""
 
-import gzip
 from time import sleep, time as currenttime
 
 import numpy
 
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, \
-    Value, CommunicationError, Readable, ImageSink, ImageType, NicosError, \
-    HasCommunication
+    Value, CommunicationError, Readable, NicosError, HasCommunication, \
+    Attach, ArrayDesc, SIMULATION
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
     ActiveChannel
+from nicos.core.data import GzipFile
+from nicos.devices.datasinks.raw import SingleRawImageSink
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.tas.mono import to_k, from_k
-from nicos.devices.datasinks.raw import SingleRawImageSinkHandler, \
-    SingleRawImageSink
-from nicos.core import Attach, SIMULATION
 
 try:
     import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
@@ -47,39 +46,51 @@ except ImportError:
     cascadeclient = None
 
 
-class CascadePadRAWFormat(SingleRAWFileFormat):
-
-    fileFormat = 'CascadePad'
+class CascadePadSink(SingleRawImageSink):
 
     parameter_overrides = {
-        'filenametemplate': Override(default=['%08d.pad'], settable=False),
+        'filenametemplate': Override(default=['%(pointcounter)08d.pad'],
+                                     settable=False),
     }
 
-    def acceptImageType(self, imagetype):
-        return len(imagetype.shape) == 2
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2
 
 
-class CascadeTofRAWFormat(SingleRAWFileFormat):
-
-    fileFormat = 'CascadeTof'
+class CascadeTofSink(SingleRawImageSink):
 
     parameter_overrides = {
-        'filenametemplate': Override(default=['%08d.tof'], settable=False),
+        'filenametemplate': Override(default=['%(pointcounter)08d.tof'],
+                                     settable=False),
     }
 
-    def acceptImageType(self, imagetype):
-        return len(imagetype.shape) == 3
+    fileclass = GzipFile
 
-    def saveImage(self, imageinfo, image):
-        gzfp = gzip.GzipFile(mode='wb', fileobj=imageinfo.file)
-        gzfp.write(buffer(image))
-        self._writeHeader(imageinfo.imagetype, imageinfo.header, gzfp)
-        gzfp.close()
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 3
 
 
-class MiraXMLFormat(ImageSink):
+class MiraXmlHandler(SingleFileSinkHandler):
+    filetype = 'xml'
 
-    fileFormat = 'MiraXML'
+    def doInit(self, mode):
+        self._padimg = cascadeclient.PadImage()
+
+    def writeData(self, fp, image):
+        tmp = cascadeclient.TmpImage()
+        self._padimg.LoadMem(image.tostring(), 128*128*4)
+        tmp.ConvertPAD(self._padimg)
+        mon = self._attached_monitor
+        timer = self._attached_timer
+        mono = self._attached_mono
+        tmp.WriteXML(fp.filepath, self._attached_sampledet.read(),
+                     from_k(to_k(mono.read(), mono.unit), 'A'),
+                     timer.read()[0], mon.read()[0])
+
+
+class MiraXmlSink(ImageSink):
+
+    handlerclass = MiraXmlHandler
 
     attached_devices = {
         'timer':     Attach('Timer readout', ActiveChannel),
@@ -89,31 +100,13 @@ class MiraXMLFormat(ImageSink):
     }
 
     parameter_overrides = {
-        'filenametemplate': Override(default=['mira_cas_%08d.xml'],
+        'filenametemplate': Override(default=['mira_cas_%(pointcounter)08d.xml'],
                                      settable=False),
     }
 
-    def doInit(self, mode):
-        self._padimg = cascadeclient.PadImage()
-
-    def acceptImageType(self, imagetype):
+    def isActiveForArray(self, arraydesc):
         # only for 2-D data
-        return len(imagetype.shape) == 2
-
-    def updateImage(self, imageinfo, image):
-        # no updates written
-        pass
-
-    def saveImage(self, imageinfo, image):
-        tmp = cascadeclient.TmpImage()
-        self._padimg.LoadMem(image.tostring(), 128*128*4)
-        tmp.ConvertPAD(self._padimg)
-        mon = self._attached_monitor
-        timer = self._attached_timer
-        mono = self._attached_mono
-        tmp.WriteXML(imageinfo.filepath, self._attached_sampledet.read(),
-                     from_k(to_k(mono.read(), mono.unit), 'A'),
-                     timer.read()[0], mon.read()[0])
+        return len(arraydesc.shape) == 2
 
 
 class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):

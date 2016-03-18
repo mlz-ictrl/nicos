@@ -5,14 +5,22 @@ includes = ['detector', 'gas']
 
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
+sysconfig = dict(
+    datasinks = ['psd_padformat', 'psd_tofformat', 'psd_xmlformat',
+                 'psd_liveview']
+)
+
 devices = dict(
-    psd_padformat = device('mira.cascade.CascadePadRAWFormat',
+    psd_padformat = device('mira.cascade.CascadePadSink',
+                           subdir = 'cascade',
                            lowlevel = True,
                           ),
-    psd_tofformat = device('mira.cascade.CascadeTofRAWFormat',
+    psd_tofformat = device('mira.cascade.CascadeTofSink',
+                           subdir = 'cascade',
                            lowlevel = True,
                           ),
-    psd_xmlformat = device('mira.cascade.MiraXMLFormat',
+    psd_xmlformat = device('mira.cascade.MiraXmlSink',
+                           subdir = 'cascade',
                            timer = 'timer',
                            monitor = 'mon2',
                            sampledet = 'sampledet',
@@ -29,15 +37,12 @@ devices = dict(
                            slave = True,
                           ),
 
-    psd    = device('devices.generic.Detector',
-                    description = 'CASCADE detector',
-                    subdir = 'cascade',
-                    timers = ['timer'],
-                    monitors = ['mon1', 'mon2'],
-                    images = ['psd_channel'],
-                    fileformats = ['psd_padformat', 'psd_tofformat',
-                                   'psd_xmlformat', 'psd_liveview'],
-                   ),
+    psd           = device('devices.generic.Detector',
+                           description = 'CASCADE detector',
+                           timers = ['timer'],
+                           monitors = ['mon1', 'mon2'],
+                           images = ['psd_channel'],
+                          ),
 
     PSDHV  = device('mira.iseg.CascadeIsegHV',
                     description = 'high voltage supply for the CASCADE detector (usually -2850 V)',
