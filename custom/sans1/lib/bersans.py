@@ -321,7 +321,7 @@ class BerSANSImageSink(ImageSink):
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
-                                     default=['D%(counter)07d.001']),
+                                     default=['D%(pointcounter)07d.001']),
     }
 
     handlerclass = BerSANSImageSinkHandler
