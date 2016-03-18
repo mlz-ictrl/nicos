@@ -96,7 +96,7 @@ class SingleFileSinkHandler(DataSinkHandler):
                                                 self.sink.subdir,
                                                 fileclass=self.fileclass)
 
-    def begin(self):
+    def prepare(self):
         if not self.defer_file_creation:
             self._createFile()
 

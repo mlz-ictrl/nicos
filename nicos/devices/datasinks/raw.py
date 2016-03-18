@@ -86,7 +86,7 @@ class RawImageSinkHandler(DataSinkHandler):
             self.log.warning('image sink only supports one array per detector')
         self._arraydesc = arrayinfo[0]
 
-    def begin(self):
+    def prepare(self):
         dataman.assignCounter(self.dataset)
         self._datafile = dataman.createDataFile(
             self.dataset, self._template, self._subdir)
