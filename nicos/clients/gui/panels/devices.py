@@ -264,10 +264,7 @@ class DevicesPanel(Panel):
         lowlevel_device = params.get('lowlevel') or False
         if lowlevel_device and not self._show_lowlevel:
             return
-        if 'nicos.core.data.DataSink' in params.get('classes', []) and \
-           not self._show_lowlevel:
-            return
-        if 'nicos.core.image.ImageSink' in params.get('classes', []) and \
+        if 'nicos.core.data.sink.DataSink' in params.get('classes', []) and \
            not self._show_lowlevel:
             return
 
