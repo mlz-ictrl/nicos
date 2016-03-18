@@ -480,7 +480,6 @@ class Handler(object):
                         '<a href="scan-%d-log.%s">Log</a></td>' %
                         (scannumber, plotfmt, scannumber, plotfmt))
         # file link
-        # XXX(dataapi): where is the filepath now?
         if self.logdir and dataset.filepaths:
             relfile = path.relpath(dataset.filepaths[0], self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'
