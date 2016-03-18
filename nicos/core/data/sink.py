@@ -76,12 +76,18 @@ class DataSinkHandler(object):
     # DataSinkHandler API
     #
 
-    def start(self):
-        """Start writing this dataset."""
+    def prepare(self):
+        """Start writing this dataset.
+
+        This is usually the place to assign the file counter with
+        dataman.assignCounter and request a file.
+        """
 
     def begin(self):
-        """Run after sinks are all started."""
-        # filenames are set when this is called
+        """Run after sinks are all prepared.
+
+        This can use the filenames from all sinks on self.dataset.filenames.
+        """
 
     def putMetainfo(self, metainfo):
         """Called when the dataset metainfo is updated.
@@ -127,11 +133,8 @@ class DataSinkHandler(object):
         """Called when a new subset of the sink's dataset is finished.
         """
 
-    def finish(self):
-        """Finish up writing this dataset."""
-
     def end(self):
-        """Run after sinks are all finished."""
+        """Finish up the dataset (close files etc)."""
 
     def addAnalysis(self):
         """Add an after-measure analysis to the dataset.

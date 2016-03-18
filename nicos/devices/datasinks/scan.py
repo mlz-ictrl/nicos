@@ -120,7 +120,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._commentc = sink.commentchar
         self._template = sink.filenametemplate
 
-    def start(self):
+    def prepare(self):
         self._number = dataman.assignCounter(self.dataset)
         fp = dataman.createDataFile(self.dataset, self._template)
         self._fname = fp.shortpath

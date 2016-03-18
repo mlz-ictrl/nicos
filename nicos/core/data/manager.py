@@ -149,7 +149,7 @@ class DataManager(object):
         if self._current:
             self._current.subsets.append(dataset)
         self._stack.append(dataset)
-        dataset.dispatch('start')
+        dataset.dispatch('prepare')
         dataset.dispatch('begin')
         return dataset
 
@@ -168,7 +168,6 @@ class DataManager(object):
         if dataset.finished is None:
             dataset.finished = currenttime()
         self.log.debug('Finishing up %s' % dataset)
-        dataset.dispatch('finish')
         dataset.dispatch('end')
         if self._stack:
             self._stack[-1].dispatch('addSubset', dataset)
