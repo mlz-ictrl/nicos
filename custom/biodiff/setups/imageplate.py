@@ -32,10 +32,8 @@ devices = dict(
                       description = "Image plate detector",
                       timers = ["timer"],
                       images = ["imgplate"],
-                      fileformats = ["TIFFFileSaver"],
                       gammashutter = "gammashutter",
                       photoshutter = "photoshutter",
-                      subdir = ".",
                      ),
 )
 

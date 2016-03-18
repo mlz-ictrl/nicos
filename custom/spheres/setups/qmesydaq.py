@@ -30,7 +30,5 @@ devices = dict(
                  counters = ['events'],
                  monitors = [],
                  images = ['image'],
-                 fileformats = [],
-                 subdir = '',
                 ),
 )

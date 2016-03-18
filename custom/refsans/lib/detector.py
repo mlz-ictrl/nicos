@@ -28,7 +28,7 @@
 from Detector import Detector
 from IO import Counter
 
-from nicos.core import Param, Value, Override, oneof, Value, ImageSink, ImageProducer, ImageType
+from nicos.core import Param, Value, Override, oneof, Value, ImageSink, ImageType
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, TimerChannelMixin, CounterChannelMixin, ImageChannelMixin
 from nicos.devices.taco.detector import BaseChannel
 

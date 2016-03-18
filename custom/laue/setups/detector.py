@@ -32,6 +32,5 @@ devices = dict(
     det1=device('devices.generic.detector.Detector',
                 description = 'PSL detector',
                 timers = ['timer'],
-                images = ['image'],
-                fileformats=['live', 'tiff', 'hbin', 'raw', 'sraw']),
+                images = ['image']),
 )

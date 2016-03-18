@@ -4,6 +4,10 @@ group = 'optional'
 
 excludes = ['acqiris',]
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'dmnsink', 'LiveViewSink'],
+)
+
 nethost = 'localhost'
 
 devices = dict(
@@ -12,11 +16,11 @@ devices = dict(
     #                          filenametemplate = ['%(proposal)s_%(counter)06d.raw',
     #                          '%(proposal)s_%(session.experiment.lastscan)s_'
     #                          '%(counter)s_%(scanpoint)s.raw'],
+    #                          subdir = 'QMesyDAQ2',
     #                          lowlevel = True,
     #                         ),
     LiveViewSink = device('devices.datasinks.LiveViewSink',
                           description = 'Sends image data to LiveViewWidget',
-                          filenametemplate = [''],
                           lowlevel = True,
                          ),
     qm_ctr0 = device('devices.vendor.qmesydaq.taco.Counter',
@@ -63,11 +67,6 @@ devices = dict(
                      #'qm_ctr1',  'qm_ctr3'
                      ],
                      others = [],
-                     fileformats = [
-#                                   'RAWFileSaver',
-                                    'LiveViewSink',
-                                   ],
-                     subdir = 'QMesyDAQ2',
                     ),
 )
 

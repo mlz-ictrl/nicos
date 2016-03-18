@@ -28,14 +28,14 @@ import numpy
 
 from nicos.core import waitForStatus, status, usermethod, MASTER
 from nicos.core.device import Measurable
-from nicos.core.image import ImageProducer, ImageType
+from nicos.core.image import ImageType
 from nicos.core.params import Param, dictof
 from nicos.devices.tango import PyTangoDevice
 
 P_TIME = 't'
 P_FRAMES = 'f'
 
-class MythenDetector(PyTangoDevice, ImageProducer, Measurable):
+class MythenDetector(PyTangoDevice, Measurable):
     """Basic Tango device for Mythen detector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']

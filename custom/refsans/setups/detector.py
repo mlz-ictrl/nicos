@@ -6,6 +6,10 @@ group = 'optional'
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'RawFileSaver'],
+)
+
 devices = dict(
     fastctr_a = device('refsans.detector.ComtecCounter',
                        description = "Channel A of Comtep P7888 Fast Counter",
@@ -71,8 +75,6 @@ devices = dict(
                         images = ['comtec_image'],
                         #~ counters = ['fastctr_%c'%c for c in 'abcdefgh'],
                         others = ['comtec_filename'],
-                        fileformats = ['RawFileSaver'],
-                        subdir = 'comtec',
                         ),
 )
 

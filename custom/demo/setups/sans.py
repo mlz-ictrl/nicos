@@ -4,7 +4,7 @@ group = 'basic'
 sysconfig = dict(
     instrument = 'sans',
     datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink',
-                 'BerSANSImageSink', 'RawImageSink', 'LiveViewSink',
+                 'BerSANSImageSink', 'RawImageSink',
                  'LivePNGSinkLog', 'LivePNGSink'],
 )
 
@@ -155,9 +155,6 @@ devices = dict(
                                '%(proposal)s_%(session.experiment.lastscan)s_'
                                '%(counter)s_%(scanpoint)s.raw'],
                               ),
-    LiveViewSink = device('devices.datasinks.LiveViewSink',
-                              description = 'Sends image data to LiveViewWidget',
-                             ),
     LivePNGSinkLog   = device('devices.datasinks.PNGLiveFileSink',
                               description = 'Saves live image as .png every now and then',
                               filename = 'data/live_log.png',

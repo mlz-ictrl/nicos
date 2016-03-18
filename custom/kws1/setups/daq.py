@@ -26,7 +26,6 @@ devices = dict(
                         monitors = ['mon1', 'mon2', 'mon3', 'selctr'],
                         images = ['det_img'],
                         others = ['freq'],
-                        fileformats = [],
                         shutter = 'shutter',
                        ),
 )
