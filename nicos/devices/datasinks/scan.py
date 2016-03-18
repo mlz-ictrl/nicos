@@ -86,7 +86,9 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             [safe_format(info.fmtstr, val) for (info, val) in
              zip(ds.envvalueinfo, point.envvaluelist)] +
             [safe_format(info.fmtstr, val) for (info, val) in
-             zip(ds.detvalueinfo, point.detvaluelist)]).expandtabs())
+             zip(ds.detvalueinfo, point.detvaluelist)] +
+            point.filenames
+        ).expandtabs())
 
     def end(self):
         if self.dataset.settype != 'subscan':
@@ -135,7 +137,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
     def _write_comment(self, comment):
         self._file.write('%s %s\n' % (self._commentc, comment))
 
-    def _write_header(self, ds):
+    def _write_header(self, ds, nfiles):
         self._write_section('NICOS data file, created at %s' % strftime(TIMEFMT))
         for name, value in [('number', self._number),
                             ('filename', self._fname),
@@ -160,13 +162,16 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         ynames = [v.name for v in ds.detvalueinfo]
         yunits = [v.unit for v in ds.detvalueinfo]
         # to be written later (after info)
+        file_names = ['file%d' % i for i in range(1, nfiles + 1)]
         if self._semicolon:
-            self._colnames = xnames + [';'] + ynames
+            self._colnames = xnames + [';'] + ynames + file_names
             # make sure there are no empty units
-            self._colunits = [u or '-' for u in xunits + [';'] + yunits]
+            self._colunits = [u or '-' for u in xunits + [';'] + yunits +
+                              [''] * nfiles]
         else:
-            self._colnames = xnames + ynames
-            self._colunits = [u or '-' for u in xunits + yunits]
+            self._colnames = xnames + ynames + file_names
+            self._colunits = [u or '-' for u in xunits + yunits +
+                              [''] * nfiles]
         self._file.flush()
 
     def addSubset(self, point):
@@ -174,7 +179,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
             return
         ds = self.dataset
         if not self._wrote_header:
-            self._write_header(ds)
+            self._write_header(ds, len(point.filenames))
             self._wrote_header = True
         if not self._wrote_columninfo:
             self._write_section('Scan data')
@@ -187,10 +192,11 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
               zip(self.dataset.envvalueinfo, point.envvaluelist)]
         yv = [safe_format(info.fmtstr, val) for (info, val) in
               zip(self.dataset.detvalueinfo, point.detvaluelist)]
+        fv = point.filenames
         if self._semicolon:
-            values = xv + [';'] + yv
+            values = xv + [';'] + yv + fv
         else:
-            values = xv + yv
+            values = xv + yv + fv
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
 
