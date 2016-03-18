@@ -55,13 +55,13 @@ def _getData(columns=None):
 
     # append data from previous scans if this is a continuation
     i = -1
-    xresults = dataset.xresults
-    yresults = dataset.yresults
+    xresults = dataset.devvaluelists
+    yresults = dataset.detvaluelists
     while dataset.continuation:
         i -= 1
         dataset = dataman._last_scans[i]
-        xresults = dataset.xresults + xresults
-        yresults = dataset.yresults + yresults
+        xresults = dataset.devvaluelists + xresults
+        yresults = dataset.detvaluelists + yresults
 
     # xcol/ycol are 1-indexed here
     if not columns:
@@ -77,19 +77,19 @@ def _getData(columns=None):
 
     if isinstance(xcol, string_types):
         try:
-            xcol = dataset.xnames.index(xcol) + 1
+            xcol = [v.name for v in dataset.devvalueinfo].index(xcol) + 1
         except ValueError:
             raise NicosError('no such X column name: %r' % xcol)
 
     if isinstance(ycol, string_types):
         try:
-            ycol = dataset.ynames.index(ycol) + 1
+            ycol = [v.name for v in dataset.detvalueinfo].index(ycol) + 1
         except ValueError:
             raise NicosError('no such Y column name: %r' % ycol)
     elif ycol < 0:
         try:
-            ycol = [j for j in range(len(dataset.ynames))
-                    if dataset.yvalueinfo[j].type == 'counter'][0] + 1
+            ycol = [j for (j, info) in enumerate(dataset.detvalueinfo)
+                    if info.type == 'counter'][0] + 1
         except IndexError:
             raise NicosError('no Y column of type "counter"')
 
@@ -97,7 +97,7 @@ def _getData(columns=None):
     xcol -= 1
     ycol -= 1
 
-    names = [dataset.xvalueinfo[xcol].name, dataset.yvalueinfo[ycol].name]
+    names = [dataset.devvalueinfo[xcol].name, dataset.detvalueinfo[ycol].name]
 
     try:
         xs = np.array([p[xcol] for p in xresults])
@@ -108,9 +108,9 @@ def _getData(columns=None):
     except IndexError:
         raise NicosError('no such Y column: %r' % ycol)
 
-    if dataset.yvalueinfo[ycol].errors == 'sqrt':
+    if dataset.detvalueinfo[ycol].errors == 'sqrt':
         dys = np.sqrt(ys)
-    elif dataset.yvalueinfo[ycol].errors == 'next':
+    elif dataset.detvalueinfo[ycol].errors == 'next':
         try:
             dys = np.array([p[ycol+1] for p in yresults])
         except IndexError:

@@ -34,8 +34,7 @@ from nicos.core import Value
 
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
-from nicos.core.data import dataman
-from nicos.core.sessions.utils import MASTER
+from nicos.core import FINAL, dataman, MASTER
 
 
 def setup_module():
@@ -54,11 +53,15 @@ def generate_dataset():
     xpoints = numpy.arange(-9, 9)
     assert len(data) == len(xpoints)
     dataset = dataman.beginScan()
-    dataset.xvalueinfo = [Value('x', 'other')]
-    dataset.yvalueinfo = [Value('y1', 'counter'), Value('y2', 'counter')]
-    dataset.xresults = [[x] for x in xpoints]
-    dataset.yresults = [[y, y*2] for y in data]
-    dataman._last_scans.append(dataset)
+    dataset.devvalueinfo = [Value('x', 'other')]
+    dataset.detvalueinfo = [Value('y1', 'counter'), Value('y2', 'counter')]
+    # XXX(dataapi): need a simpler API to fabricate a point!
+    for (x, y) in zip(xpoints, data):
+        dataman.beginPoint()
+        dataman.putValues({'x': (None, x)})
+        dataman.putResults(FINAL, {'y1': ([y], None), 'y2': ([y*2], None)})
+        dataman.finishPoint()
+    dataman.finishScan()
 
 
 def test_fwhm():

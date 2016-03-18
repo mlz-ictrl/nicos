@@ -98,6 +98,8 @@ class BaseDataset(object):
         for handler in self.handlers:
             getattr(handler, method)(*args)
 
+    # XXX(dataapi): these are tuples, should they be lists?
+
     @lazy_property
     def devvalueinfo(self):
         return sum((dev.valueInfo() for dev in self.devices), ())
