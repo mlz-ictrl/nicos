@@ -28,6 +28,8 @@ import re
 import copy
 from os import path
 
+import numpy as np
+
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type, string_types
@@ -428,7 +430,7 @@ class ArrayDesc(object):
     to another.
     """
 
-    def __init__(self, name, shape, dtype=None, dimnames=None):
+    def __init__(self, name, shape, dtype, dimnames=None):
         """Creates a datatype with given (numpy) shape and (numpy) data format.
 
         Also stores the 'names' of the used dimensions as a list called
@@ -436,13 +438,10 @@ class ArrayDesc(object):
         data.
         """
         self.name = name
-        if dtype is None:  # try to derive from a given numpy.array
-            dtype = shape.dtype
-            shape = shape.shape
+        self.shape = shape
+        self.dtype = np.dtype(dtype)
         if dimnames is None:
             dimnames = ['X', 'Y', 'Z', 'T', 'E', 'U', 'V', 'W'][:len(shape)]
-        self.shape = shape
-        self.dtype = dtype
         self.dimnames = dimnames
 
     def __repr__(self):
