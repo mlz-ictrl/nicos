@@ -113,9 +113,9 @@ _sansblock = Block('SANS', [
               options=['off','ng','P3','P4'],
               #~ options=['off','ng'],#'P3','P4'],
               width=4,height=5),
-        #~ Field(dev='det_pos', name='Detector position',
+        #~ Field(dev='det1_z', name='Detector position',
               #~ widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
-        Field(devices=['det_pos1', 'det_pos1_x','det_pos1_tilt', 'det_pos2'],
+        Field(devices=['det1_z', 'det1_x','det1_omega', 'det_pos2'],
                 name='Detector position',
                 widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, posscale=21)
     ),
