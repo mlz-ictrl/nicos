@@ -27,7 +27,8 @@
 """Generic detector and channel classes for NICOS."""
 
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
-    Readable, UsageError, Value, listof, multiStatus, status, oneof, LIVE
+    Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
+    LIVE, INTERMEDIATE
 from nicos.utils import uniq
 
 
@@ -226,12 +227,26 @@ class Detector(Measurable):
                            PassiveChannel, multiple=True, optional=True),
     }
 
+    parameters = {
+        'liveinterval':  Param('Interval to read out live images (None '
+                               'to disable live readout)',
+                               type=none_or(float), unit='s', settable=True),
+        'saveintervals': Param('Intervals to read out intermediate images '
+                               '(empty to disable); [x, y, z] will read out '
+                               'after x, then after y, then every z seconds',
+                               type=listof(float), unit='s', settable=True),
+    }
+
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
     }
 
     hardware_access = False
     multi_master = True
+
+    _last_live = 0
+    _last_save = 0
+    _last_save_index = 0
 
     # allow overwriting in derived classes
     def _presetiter(self):
@@ -307,6 +322,9 @@ class Detector(Measurable):
             master.prepare()
 
     def doStart(self):
+        self._last_live = 0
+        self._last_save = 0
+        self._last_save_index = 0
         for slave in self._slaves:
             slave.start()
         for master in self._masters:
@@ -355,7 +373,18 @@ class Detector(Measurable):
         return [img.readArray(quality) for img in self._attached_images]
 
     def duringMeasureHook(self, elapsed):
-        return LIVE
+        if self.liveinterval is not None:
+            if self._last_live + self.liveinterval < elapsed:
+                self._last_live = elapsed
+                return LIVE
+        intervals = self.saveintervals
+        if intervals:
+            if self._last_save + intervals[self._last_save_index] < elapsed:
+                self._last_save_index = min(self._last_save_index + 1,
+                                            len(intervals) - 1)
+                self._last_save = elapsed
+                return INTERMEDIATE
+        return None
 
     def doSimulate(self, preset):
         self.doSetPreset(**preset)  # okay in simmode

@@ -75,7 +75,9 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
     def putResults(self, quality, results):
         if currenttime() - self._last_saved > self.sink.interval:
             if self.detector.name in results:
-                self._writeData(results[self.detector.name][1][0])
+                data = results[self.detector.name][1][0]
+                if data is not None:
+                    self._writeData(data)
 
     def _writeData(self, data):
         image = np.array(data)
