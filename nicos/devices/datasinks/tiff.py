@@ -34,7 +34,7 @@ from nicos.core import NicosError, Param
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
-class TIFFImageHandler(SingleFileSinkHandler):
+class TIFFImageSinkHandler(SingleFileSinkHandler):
 
     filetype = 'TIFF'
     defer_file_creation = True
@@ -55,7 +55,7 @@ class TIFFImageSink(ImageSink):
                       settable=True),
     }
 
-    handlerclass = TIFFImageHandler
+    handlerclass = TIFFImageSinkHandler
 
     def doPreinit(self, mode):
         self.log.debug("INITIALISE TIFFFileFormat")
