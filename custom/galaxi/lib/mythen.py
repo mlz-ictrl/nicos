@@ -151,7 +151,7 @@ class MythenDetector(PyTangoDevice, Measurable):
         command = '-get ' + parameter
         self.sendCommand(command)
 
-    def readFinalImage(self):
+    def readArray(self, quality):
         """Returns oldest frame reshaped as 2D numpy array"""
         self.log.debug('Mythen detector read final image')
         return numpy.asarray(self._dev.value).reshape(int(self.detshape['x']),

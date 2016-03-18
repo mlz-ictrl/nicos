@@ -30,8 +30,8 @@ import IO
 import IOCommon
 from Detector import Detector
 
-from nicos.core import ArrayDesc, MASTER, Param, SIMULATION, Value, listof, \
-    oneof
+from nicos.core import ArrayDesc, Param, MASTER, SIMULATION, FINAL, Value, \
+    listof, oneof
 from nicos.devices.generic import TimerChannelMixin, CounterChannelMixin, \
     PassiveChannel, ActiveChannel
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
@@ -135,7 +135,7 @@ class Image(BaseChannel, QMesyDAQImage):
 
     def doInit(self, mode):
         if mode == MASTER:
-            self.readFinalImage()  # also set arraydesc
+            self.readArray(FINAL)  # also set arraydesc
 
     def doStart(self):
         self.readresult = [0]
@@ -150,7 +150,7 @@ class Image(BaseChannel, QMesyDAQImage):
             self._taco_guard(self._dev.deviceOn)
         return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
 
-    def readFinalImage(self):
+    def readArray(self, quality):
         if self._mode == SIMULATION:
             # simulated readout of an 128*128 image
             res = [128, 128, 1] + [0] * (128 * 128)

@@ -28,16 +28,15 @@ from time import sleep, time as currenttime
 
 import numpy
 
-from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, \
     Value, CommunicationError, Readable, NicosError, HasCommunication, \
     Attach, ArrayDesc, SIMULATION
+from nicos.core.data import GzipFile
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, \
     ActiveChannel
-from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.devices.tas.mono import to_k, from_k
+from nicos.devices.tas.mono import Monochromator, to_k, from_k
 
 try:
     import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
@@ -344,7 +343,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
             return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
         return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
 
-    def readFinalImage(self):
+    def readArray(self, quality):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
@@ -375,10 +374,3 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
             self.readresult = [roi, total]
         # make a numpy array and reshape it correctly
         return numpy.frombuffer(buf, '<u4').reshape(self._datashape)
-
-    def readLiveImage(self):
-        now = currenttime()
-        if now > (self._lastlivetime + 0.2):
-            self._lastlivetime = now
-            # get final data including all events from detector
-            return self.readFinalImage()

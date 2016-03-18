@@ -260,7 +260,7 @@ class Image(CARESSDevice, QMesyDAQImage):
                 raise InvalidValueError(self, 'No position in data')
             return result[1][1].value(), result[1][4].value()
 
-    def readFinalImage(self):
+    def readArray(self, quality):
         if self._mode == SIMULATION:
             # simulated readout of an 128*128 image
             res = [128, 128, 1] + [0] * (128 * 128)

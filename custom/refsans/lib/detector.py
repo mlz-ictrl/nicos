@@ -143,13 +143,14 @@ class ComtecFilename(BaseChannel, PassiveChannel):
     taco_class = Detector
 
     def doRead(self, maxage=0):
-        return self._taco_guard(self._dev.deviceQueryResource, 'prefix') # How to obtain the part after the prefix???
+        # How to obtain the part after the prefix???
+        return self._taco_guard(self._dev.deviceQueryResource, 'prefix')
 
     def doReadIsmaster(self):
         return False
 
     def doWriteIsmaster(self, value):
-        return False # is NEVER master
+        return False  # is NEVER master
 
     def valueInfo(self):
         return Value(self.name, unit='', errors='none',
@@ -158,9 +159,9 @@ class ComtecFilename(BaseChannel, PassiveChannel):
 
 class NullImage(ImageChannelMixin, PassiveChannel):
     arraydesc = ArrayDesc('', (1, 1), np.uint32)
-    def readFinalImage(self):
-        return np.zeros((1, 1), dtype='uint32')
 
+    def readArray(self, quality):
+        return np.zeros((1, 1), dtype='uint32')
 
 
 class ComtecFileFormat(ImageSink):
