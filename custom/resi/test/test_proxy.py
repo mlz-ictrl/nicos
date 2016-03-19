@@ -8,9 +8,10 @@ from test.utils import SkipTest
 
 from nicos.resi import residevice
 
-if residevice.position is None:
-    # running without resi specific Nonius libs
-    raise SkipTest
+
+def setup_module():
+    if residevice.position is None:
+        raise SkipTest('RESI specific Nonius libs not present')
 
 
 def test_pickable():
