@@ -26,7 +26,6 @@
 """NICOS GUI scan plot window."""
 
 import os
-import time
 from math import sqrt
 
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
@@ -36,7 +35,7 @@ from PyQt4.QtCore import QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.utils import safeFilename
-from nicos.devices.datasinks.special import SimpleDataset
+from nicos.core.data import ScanData
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -640,12 +639,11 @@ class ScansPanel(Panel):
 
     def _combine(self, op, sets):
         if op == TOGETHER:
-            newset = SimpleDataset()
+            newset = ScanData()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
-            newset.started = time.localtime()
             # combine xnameunits from those that are in all sets
             all_xnu = set(sets[0].xnameunits)
             for dset in sets[1:]:
@@ -679,12 +677,11 @@ class ScansPanel(Panel):
                 self.showError('Sets have different curves.')
                 return
         if op == COMBINE:
-            newset = Dataset()
+            newset = ScanData()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
-            newset.started = time.localtime()
             newset.xnameunits = firstset.xnameunits
             newset.default_xname = firstset.default_xname
             newset.normindices = firstset.normindices
@@ -708,12 +705,11 @@ class ScansPanel(Panel):
         elif op == DIVIDE:
             sep = ' / '
 
-        newset = Dataset()
+        newset = ScanData()
         newset.name = combineattr(sets, 'name', sep=sep)
         newset.invisible = False
         newset.scaninfo = 'combined set'
         newset.curves = []
-        newset.started = time.localtime()
         newset.xnameunits = firstset.xnameunits
         newset.default_xname = firstset.default_xname
         if op in (SUBTRACT, DIVIDE):

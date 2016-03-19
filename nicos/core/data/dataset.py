@@ -301,30 +301,40 @@ class ScanData(object):
     xresults = []
     yresults = []
 
-    def __init__(self, dataset):
+    def __init__(self, dataset=None):
         """Create this simple set from the ScanDataset *dataset*."""
-        self.uid = str(dataset.uid)
-        self.started = localtime(dataset.started)
-        self.scaninfo = dataset.info
-        self.counter = dataset.counter
-        self.filepaths = dataset.filepaths
-        self.xindex = dataset.xindex
-        self.envvalues = len(dataset.envvalueinfo)
-        self.continuation = ','.join(str(uid) for uid in dataset.continuation)
-        self.xvalueinfo = dataset.devvalueinfo + dataset.envvalueinfo
-        self.yvalueinfo = dataset.detvalueinfo
+        if dataset is None:
+            self.uid = str(uuid4())
+            self.started = localtime()
+            self.filepaths = []
+            self.xvalueinfo = []
+            self.yvalueinfo = []
+            self.headerinfo = {}
+            self.xresults = []
+            self.yresults = []
+        else:
+            self.uid = str(dataset.uid)
+            self.started = localtime(dataset.started)
+            self.scaninfo = dataset.info
+            self.counter = dataset.counter
+            self.filepaths = dataset.filepaths
+            self.xindex = dataset.xindex
+            self.envvalues = len(dataset.envvalueinfo)
+            self.continuation = ','.join(str(uid) for uid in dataset.continuation)
+            self.xvalueinfo = dataset.devvalueinfo + dataset.envvalueinfo
+            self.yvalueinfo = dataset.detvalueinfo
 
-        # convert result points to result lists (no arrays)
-        self.xresults = [subset.devvaluelist + subset.envvaluelist
-                         for subset in dataset.subsets]
-        self.yresults = dataset.detvaluelists
+            # convert result points to result lists (no arrays)
+            self.xresults = [subset.devvaluelist + subset.envvaluelist
+                             for subset in dataset.subsets]
+            self.yresults = dataset.detvaluelists
 
-        # convert metainfo to headerinfo
-        self.headerinfo = {}
-        for (devname, key), (_, val, unit, category) in \
-                iteritems(dataset.metainfo):
-            catlist = self.headerinfo.setdefault(category, [])
-            catlist.append((devname, key, (val + ' ' + unit).strip()))
+            # convert metainfo to headerinfo
+            self.headerinfo = {}
+            for (devname, key), (_, val, unit, category) in \
+                    iteritems(dataset.metainfo):
+                catlist = self.headerinfo.setdefault(category, [])
+                catlist.append((devname, key, (val + ' ' + unit).strip()))
 
     # info derived from valueinfo
     @lazy_property
