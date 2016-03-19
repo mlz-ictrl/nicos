@@ -220,7 +220,6 @@ class VirtualTimer(VirtualChannel):
                 self.curvalue += self._base_loop_delay
         finally:
             self.curstatus = (status.OK, 'idle')
-            self._thread = None
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -264,7 +263,6 @@ class VirtualCounter(VirtualChannel):
                                      self._base_loop_delay)
         finally:
             self.curstatus = (status.OK, 'idle')
-            self._thread = None
 
     def doSimulate(self, preset):
         if self.ismaster:
