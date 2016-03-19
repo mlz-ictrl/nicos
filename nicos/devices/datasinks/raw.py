@@ -40,17 +40,19 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
         fp.write(np.asarray(image).tostring())
-        fp.write('\n### NICOS Raw File Header V3.0\n')
+        fp.write('\n### NICOS Raw File Header V2.0\n')
+        # XXX(dataapi): add a utility function to convert metainfo to old
+        # by-category format
         bycategory = {}
         for (device, key), (_, val, unit, category) in iteritems(metainfo):
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
-        for category, _catname in INFO_CATEGORIES:
+        for category, catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue
-            fp.write('### %s\n' % category)
-            for key, value in bycategory[category]:
+            fp.write('### %s\n' % catname)
+            for key, value in sorted(bycategory[category]):
                 fp.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
         fp.write('\n%r\n' % self._arraydesc)
@@ -97,17 +99,17 @@ class RawImageSinkHandler(DataSinkHandler):
 
     def _writeHeader(self, fp, header):
         fp.seek(0)
-        fp.write('### NICOS Raw File Header V3.0\n')
+        fp.write('### NICOS Raw File Header V2.0\n')
         bycategory = {}
         for (device, key), (_, val, unit, category) in iteritems(header):
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
-        for category, _catname in INFO_CATEGORIES:
+        for category, catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue
-            fp.write('### %s\n' % category)
-            for key, value in bycategory[category]:
+            fp.write('### %s\n' % catname)
+            for key, value in sorted(bycategory[category]):
                 fp.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
         fp.write('\n%r\n' % self._arraydesc)
