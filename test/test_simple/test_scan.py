@@ -24,6 +24,8 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+import warnings
+
 from nicos import session
 from nicos.core import UsageError, PositionError, CommunicationError, \
     NicosError, ModeError, dataman
@@ -42,6 +44,9 @@ from nose import with_setup
 
 
 def setup_module():
+    # this can happen during fitting, just don't print it out
+    warnings.filterwarnings('ignore', 'Covariance of the parameters could not '
+                            'be estimated')
     session.loadSetup('scanning')
     session.setMode(MASTER)
 
