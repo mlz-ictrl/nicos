@@ -24,6 +24,7 @@
 
 """NICOS sequence class test suite."""
 
+import os
 import time
 
 from nicos import session
@@ -34,6 +35,9 @@ from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqMethod, \
 from test.utils import raises
 
 methods_called = set()
+
+# due to time.time() and time.sleep() resolution on windows
+DELTA = 0.05 if os.name == 'nt' else 0
 
 
 def setup_module():
@@ -123,7 +127,7 @@ def test_seqsleep():
         pass
     b = time.time()
 
-    assert 0.05 <= b - a <= 0.15
+    assert 0.08 - DELTA <= b - a <= 0.15 + DELTA
 
 
 def test_seqcall():
@@ -135,7 +139,7 @@ def test_seqcall():
     sc.run()
     assert sc.isCompleted() is True
     b = time.time()
-    assert 0.09 <= b - a <= 0.13
+    assert 0.08 - DELTA <= b - a <= 0.15 + DELTA
 
 
 def test_seqnop():
@@ -143,7 +147,7 @@ def test_seqnop():
     sn = SeqNOP()
     sn.check()
     sn.run()
-    assert True == sn.isCompleted()
+    assert sn.isCompleted() is True
     sn.stop()
     sn.retry(5)
 
