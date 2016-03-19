@@ -36,6 +36,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.utils import safeFilename
 from nicos.core.data import ScanData
+from nicos.core.params import INFO_CATEGORIES
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -334,14 +335,18 @@ class ScansPanel(Panel):
             for catname in INTERESTING_CATS:
                 if catname in plot.dataset.headerinfo:
                     values = plot.dataset.headerinfo[catname]
-                    catitem = QTableWidgetItem(catname)
+                    catdesc = catname
+                    for name_desc in INFO_CATEGORIES:
+                        if name_desc[0] == catname:
+                            catdesc = name_desc[1]
+                    catitem = QTableWidgetItem(catdesc)
                     font = catitem.font()
                     font.setBold(True)
                     catitem.setFont(font)
                     self.metaTable.setItem(i, 0, catitem)
                     self.metaTable.setSpan(i, 0, 1, 2)
                     i += 1
-                    for dev, name, value in values:
+                    for dev, name, value in sorted(values):
                         key = '%s_%s' % (dev, name) if name != 'value' else dev
                         self.metaTable.setItem(i, 0, QTableWidgetItem(key))
                         self.metaTable.setItem(i, 1, QTableWidgetItem(value))
