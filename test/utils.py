@@ -47,7 +47,7 @@ from nicos.core.sessions.utils import MASTER
 from nicos.devices.notifiers import Mailer
 from nicos.utils import tcpSocket
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
-from nicos.pycompat import exec_
+from nicos.pycompat import exec_, reraise
 
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
@@ -311,7 +311,7 @@ def cleanup():
 
 
 def adjustPYTHONPATH():
-    global pythonpath
+    global pythonpath  # pylint: disable=global-statement
     if pythonpath is None:
         topdir = path.abspath(path.join(rootdir, '..', '..'))
         pythonpath = os.environ.get('PYTHONPATH', '').split(':')
@@ -336,12 +336,14 @@ def startSubprocess(filename, *args, **kwds):
         try:
             kwds['wait_cb']()
         except Exception:
+            caught = sys.exc_info()
             sys.stderr.write('%s failed]' % proc.pid)
             try:
                 proc.kill()
             except Exception:
                 pass
             proc.wait()
+            reraise(*caught)
     sys.stderr.write('%s ok]\n' % proc.pid)
     return proc
 
