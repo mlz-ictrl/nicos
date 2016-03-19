@@ -52,10 +52,15 @@ devices = dict(
                       fmtstr = '%d',
                      ),
 
+    img      = device('devices.generic.VirtualImage',
+                      lowlevel = True,
+                     ),
+
     det      = device('devices.generic.Detector',
                       timers = ['timer'],
                       monitors = ['mon1'],
                       counters = ['ctr1', 'ctr2'],
+                      images = ['img'],
                       maxage = 3,
                       pollinterval = 0.5,
                      ),

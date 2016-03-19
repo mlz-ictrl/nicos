@@ -80,8 +80,9 @@ number_types = integer_types + (float,)
 # missing str/bytes helpers
 
 if six.PY2:
-    # use standard file for Py2
+    # use standard file and buffer for Py2
     File = file
+    memory_buffer = buffer
 
     # encode str/unicode (Py2) or str (Py3) to bytes, using UTF-8
     def to_utf8(s):
@@ -120,6 +121,8 @@ if six.PY2:
             if isinstance(s, unicode):
                 s = s.encode('utf-8')
             self.fp.write(s)
+        def detach(self):
+            pass
         def __getattr__(self, att):
             return getattr(self.fp, att)
 else:
@@ -140,6 +143,7 @@ else:
             return s
         return s.decode()
     srepr = repr
+    memory_buffer = memoryview
     def to_ascii_escaped(s):
         if isinstance(s, bytes):
             s = s.decode('ascii', 'ignore')

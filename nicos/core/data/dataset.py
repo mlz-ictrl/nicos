@@ -29,7 +29,7 @@ from time import time as currenttime, localtime
 from uuid import uuid4
 
 from nicos.core.errors import ProgrammingError
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import lazy_property
 
 
@@ -116,10 +116,6 @@ class BaseDataset(object):
     def detvalueinfo(self):
         return sum((dev.valueInfo() for dev in self.detectors), ())
 
-    @lazy_property
-    def detarrayinfo(self):
-        return sum((dev.arrayInfo() for dev in self.detectors), ())
-
 
 class PointDataset(BaseDataset):
     """Collects data related to a single count/measurement."""
@@ -147,7 +143,7 @@ class PointDataset(BaseDataset):
 
     def _addvalues(self, values):
         for devname, (timestamp, value) in iteritems(values):
-            if isinstance(value, float):
+            if isinstance(value, number_types):
                 # collect statistics
                 current = self._valuestats.setdefault(devname, [])
                 if not current:
@@ -209,10 +205,6 @@ class PointDataset(BaseDataset):
     @lazy_property
     def detvaluelist(self):
         return self._reslist(self.detectors, self.results, 0)
-
-    @lazy_property
-    def detarraylist(self):
-        return self._reslist(self.detectors, self.results, 1)
 
 
 class ScanDataset(BaseDataset):

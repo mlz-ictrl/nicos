@@ -30,7 +30,7 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Override, DataSink, DataSinkHandler
 from nicos.core.data import ScanData
-from nicos.pycompat import cPickle as pickle
+from nicos.pycompat import cPickle as pickle, memory_buffer
 from nicos.devices.datasinks.image import ImageSink
 
 
@@ -95,7 +95,7 @@ class LiveViewSinkHandler(DataSinkHandler):
                     resX, resY, resZ = data.shape
                 session.updateLiveData('Live', '<u4', resX, resY, resZ,
                                        currenttime() - self.dataset.started,
-                                       buffer(data.astype('<u4')))
+                                       memory_buffer(data.astype('<u4')))
 
 
 class LiveViewSink(ImageSink):

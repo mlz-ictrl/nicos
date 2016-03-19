@@ -70,28 +70,66 @@ def test_sinks():
                                year, 'p1234', 'data'))
     m = session.getDevice('motor2')
     det = session.getDevice('det')
+    tdev = session.getDevice('tdev')
 
     handler = CHandler()
     session.addLogHandler(handler)
     try:
-        scan(m, 0, 1, 5, det, t=0.005)
+        scan(m, 0, 1, 5, det, tdev, t=0.005)
     finally:
         session.log.removeHandler(handler)
         session._log_handlers.remove(handler)
 
     assert '=' * 100 in handler.messages
     assert_response(handler.messages,
-                    matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.00[45].*\)')
+                    matches=r'Starting scan:      scan\(motor2'
+                            r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
-    fname = path.join(session.experiment.dataroot, 'counters')
-    assert path.isfile(fname)
-    contents = readFile(fname)
-    assert contents == ['scan 1']
+    datapath = path.join(session.experiment.dataroot, year, 'p1234', 'data')
 
-    fname = path.join(config.nicos_root, 'testdata',
-                      year, 'p1234', 'data', 'p1234_00000001.dat')
-    assert path.isfile(fname)
-    contents = readFile(fname)
+    # check contents of counter file
+    counterfile = path.join(session.experiment.dataroot, 'counters')
+    assert path.isfile(counterfile)
+    contents = readFile(counterfile)
+    assert set(contents) == set(['scan 1', 'point 5'])
+
+    # check contents of ASCII scan data file
+    scanfile = path.join(datapath, 'p1234_00000001.dat')
+    assert path.isfile(scanfile)
+    contents = readFile(scanfile)
     assert contents[0].startswith('### NICOS data file')
     assert '### Scan data' in contents
     assert contents[-1].startswith('### End of NICOS data file')
+
+    # check contents of files written by the raw sink
+    rawfile = path.join(datapath, 'p1234_1.raw')
+    assert path.isfile(rawfile)
+    assert path.getsize(rawfile) == 128 * 128 * 4  # 128x128 px, 32bit ints
+
+    headerfile = path.join(datapath, 'p1234_1.header')
+    assert path.isfile(headerfile)
+    contents = readFile(headerfile)
+    assert contents[0] == '### NICOS Raw File Header V2.0'
+    assert '### Sample and alignment' in contents
+    assert any(line.strip() == 'Exp_proposal : p1234' for line in contents)
+
+    logfile = path.join(datapath, 'p1234_1.log')
+    assert path.isfile(logfile)
+    contents = readFile(logfile)
+    assert contents[0].startswith('# dev')
+    assert len(contents) == 3  # header, motor2, tdev
+    for line in contents[1:]:
+        name, mean, stdev, minv, maxv = line.split()
+        if name == 'motor2':
+            assert mean == minv == maxv == '0.000'
+            assert stdev == 'inf'
+
+    # check files written by the single-raw sink
+    rawfile = path.join(datapath, 'single', '1_5.raw')
+    assert path.isfile(rawfile)
+    assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
+
+    if hasattr(os, 'link'):
+        linkfile = path.join(session.experiment.dataroot, '00000005.raw')
+        assert path.isfile(linkfile)  # hardlink
+        assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino

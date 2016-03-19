@@ -29,7 +29,7 @@ import numpy as np
 from nicos import session
 from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, dataman, \
     LIVE
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, TextIOWrapper
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
@@ -40,7 +40,8 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
         fp.write(np.asarray(image).tostring())
-        fp.write('\n### NICOS Raw File Header V2.0\n')
+        wrapper = TextIOWrapper(fp)
+        wrapper.write('\n### NICOS Raw File Header V2.0\n')
         # XXX(dataapi): add a utility function to convert metainfo to old
         # by-category format
         bycategory = {}
@@ -51,11 +52,12 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
         for category, catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue
-            fp.write('### %s\n' % catname)
+            wrapper.write('### %s\n' % catname)
             for key, value in sorted(bycategory[category]):
-                fp.write('%25s : %s\n' % (key, value))
+                wrapper.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
-        fp.write('\n%r\n' % self._arraydesc)
+        wrapper.write('\n%r\n' % self._arraydesc)
+        wrapper.detach()
         fp.flush()
 
 
@@ -98,7 +100,8 @@ class RawImageSinkHandler(DataSinkHandler):
 
     def _writeHeader(self, fp, header):
         fp.seek(0)
-        fp.write('### NICOS Raw File Header V2.0\n')
+        wrapper = TextIOWrapper(fp)
+        wrapper.write('### NICOS Raw File Header V2.0\n')
         bycategory = {}
         for (device, key), (_, val, unit, category) in iteritems(header):
             if category:
@@ -107,19 +110,22 @@ class RawImageSinkHandler(DataSinkHandler):
         for category, catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue
-            fp.write('### %s\n' % catname)
+            wrapper.write('### %s\n' % catname)
             for key, value in sorted(bycategory[category]):
-                fp.write('%25s : %s\n' % (key, value))
+                wrapper.write('%25s : %s\n' % (key, value))
         # to ease interpreting the data...
-        fp.write('\n%r\n' % self._arraydesc)
+        wrapper.write('\n%r\n' % self._arraydesc)
+        wrapper.detach()
         fp.flush()
 
     def _writeLogs(self, fp, stats):
         fp.seek(0)
-        fp.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
+        wrapper = TextIOWrapper(fp)
+        wrapper.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
         for dev in self.dataset.valuestats:
-            fp.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
-                     ((dev,) + self.dataset.valuestats[dev]))
+            wrapper.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
+                          ((dev,) + self.dataset.valuestats[dev]))
+        wrapper.detach()
         fp.flush()
 
     def _writeData(self, fp, data):

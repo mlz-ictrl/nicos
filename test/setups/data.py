@@ -27,14 +27,18 @@ name = 'test_data setup'
 includes = ['stdsystem', 'scanning']
 
 sysconfig = dict(
-    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink']
+    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink',
+                 'livesink', 'rawsink', 'srawsink']
 )
 
 devices = dict(
-    asciisink = device('nicos.devices.datasinks.AsciiScanfileSink',
-                      ),
-    consolesink = device('nicos.devices.datasinks.ConsoleScanSink',
-                        ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                       )
+    asciisink   = device('nicos.devices.datasinks.AsciiScanfileSink'),
+    consolesink = device('nicos.devices.datasinks.ConsoleScanSink'),
+    daemonsink  = device('nicos.devices.datasinks.DaemonSink'),
+    livesink    = device('nicos.devices.datasinks.LiveViewSink'),
+    rawsink     = device('nicos.devices.datasinks.RawImageSink'),
+    srawsink    = device('nicos.devices.datasinks.SingleRawImageSink',
+                         subdir = 'single',
+                         filenametemplate = ['%(scancounter)s_%(pointcounter)s.raw',
+                                             '/%(pointcounter)08d.raw']),
 )

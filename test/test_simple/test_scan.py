@@ -83,9 +83,9 @@ def test_scan():
         assert [v.unit for v in dataset.devvalueinfo] == ['mm']
         assert dataset.devvaluelists == [[float(i)] for i in range(5)]
         assert [v.name for v in dataset.detvalueinfo] == \
-            ['timer', 'mon1', 'ctr1', 'ctr2']
+            ['timer', 'mon1', 'ctr1', 'ctr2', 'img.sum']
         assert [v.unit for v in dataset.detvalueinfo] == \
-            ['s', 'cts', 'cts', 'cts']
+            ['s', 'cts', 'cts', 'cts', 'cts']
         assert dataset.info.startswith('test scan')
         assert len(dataset.detvaluelists) == 5
         assert mm.read() == 1
@@ -140,11 +140,11 @@ def test_scan2():
         scan(m, [0, 1], det, m=1)
         dataset = dataman._last_scans[-1]
         assert dataset.devvaluelists == [[0.], [1.]]
-        # 2 points, 4 detector channels
+        # 2 points, 5 detector channels
         assert len(dataset.detvaluelists) == 2
-        assert len(dataset.detvaluelists[0]) == 4
+        assert len(dataset.detvaluelists[0]) == 5
         assert [v.name for v in dataset.detvalueinfo] == \
-            ['timer', 'mon1', 'ctr1', 'ctr2']
+            ['timer', 'mon1', 'ctr1', 'ctr2', 'img.sum']
 
         # scan with multistep
         scan(m, [0, 1], det, manual=[3, 4])
