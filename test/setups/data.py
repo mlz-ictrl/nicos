@@ -26,9 +26,11 @@ name = 'test_data setup'
 
 includes = ['stdsystem', 'scanning']
 
+sinklist = ['testsink', 'asciisink', 'consolesink', 'daemonsink',
+            'livesink', 'rawsink', 'srawsink', 'bersanssink']
+
 sysconfig = dict(
-    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink',
-                 'livesink', 'rawsink', 'srawsink']
+    datasinks = sinklist,
 )
 
 devices = dict(
@@ -41,4 +43,6 @@ devices = dict(
                          subdir = 'single',
                          filenametemplate = ['%(scancounter)s_%(pointcounter)s.raw',
                                              '/%(pointcounter)08d.raw']),
+    bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
+                         flipimage = 'none'),
 )

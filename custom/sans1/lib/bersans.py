@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import Override, Param, oneof
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
 
 
 # not a good solution: BerSANS keys are fixed, but devicenames
@@ -286,21 +286,19 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             metadata[devname_key] = value
             nicosheader.append('%s=%s' % (devname_key, strvalue))
 
-        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore')
-                                       .encode('unicode_escape')
-                                       for l in nicosheader))
+        nicosheader = b'\n'.join(sorted(map(to_ascii_escaped, nicosheader)))
         self.log.debug('nicosheader starts with: %40s' % nicosheader)
 
         # write Header
         for line in BERSANSHEADER.split('\n'):
             self.log.debug('testing header line: %r' % line)
             self.log.debug(line % metadata)
-            fp.write(line % metadata)
-            fp.write('\n')
+            fp.write(to_utf8(line % metadata))
+            fp.write(b'\n')
 
         # also append nicos header
-        fp.write(nicosheader.replace('\\n', '\n'))  # why needed?
-        fp.write("\n\n%Counts\n")
+        fp.write(nicosheader.replace(b'\\n', b'\n'))  # why needed?
+        fp.write(b'\n\n%Counts\n')
         fp.flush()
 
     def writeData(self, fp, image):
@@ -314,7 +312,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         for y in range(image.shape[0]):
             line = image[y]
             line.tofile(fp, sep=',', format='%d')
-            fp.write('\n')
+            fp.write(b'\n')
         fp.flush()
 
 

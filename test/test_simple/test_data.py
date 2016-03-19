@@ -43,6 +43,13 @@ def setup_module():
     session.loadSetup('data')
     session.setMode(MASTER)
 
+    exp = session.experiment
+    dataroot = path.join(config.nicos_root, 'testdata')
+    os.makedirs(dataroot)
+    exp._setROParam('dataroot', dataroot)
+    open(path.join(dataroot, 'counters'), 'wb').close()
+    exp.new(1234, user='testuser', localcontact=exp.localcontact)
+
 
 def teardown_module():
     session.unloadSetup()
@@ -57,14 +64,8 @@ class CHandler(Handler):
         self.messages.append(self.format(record))
 
 
-def test_sinks():
+def test_console_sink():
     exp = session.experiment
-    dataroot = path.join(config.nicos_root, 'testdata')
-    os.makedirs(dataroot)
-    exp._setROParam('dataroot', dataroot)
-    open(path.join(dataroot, 'counters'), 'wb').close()
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-
     assert path.abspath(exp.datapath) == \
         path.abspath(path.join(config.nicos_root, 'testdata',
                                year, 'p1234', 'data'))
@@ -85,35 +86,37 @@ def test_sinks():
                     matches=r'Starting scan:      scan\(motor2'
                             r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
-    datapath = path.join(session.experiment.dataroot, year, 'p1234', 'data')
-
     # check contents of counter file
-    counterfile = path.join(session.experiment.dataroot, 'counters')
+    counterfile = path.join(exp.dataroot, 'counters')
     assert path.isfile(counterfile)
     contents = readFile(counterfile)
     assert set(contents) == set(['scan 1', 'point 5'])
 
+
+def test_scan_sink():
     # check contents of ASCII scan data file
-    scanfile = path.join(datapath, 'p1234_00000001.dat')
+    scanfile = path.join(session.experiment.datapath, 'p1234_00000001.dat')
     assert path.isfile(scanfile)
     contents = readFile(scanfile)
     assert contents[0].startswith('### NICOS data file')
     assert '### Scan data' in contents
     assert contents[-1].startswith('### End of NICOS data file')
 
+
+def test_raw_sinks():
     # check contents of files written by the raw sink
-    rawfile = path.join(datapath, 'p1234_1.raw')
+    rawfile = path.join(session.experiment.datapath, 'p1234_1.raw')
     assert path.isfile(rawfile)
     assert path.getsize(rawfile) == 128 * 128 * 4  # 128x128 px, 32bit ints
 
-    headerfile = path.join(datapath, 'p1234_1.header')
+    headerfile = path.join(session.experiment.datapath, 'p1234_1.header')
     assert path.isfile(headerfile)
     contents = readFile(headerfile)
     assert contents[0] == '### NICOS Raw File Header V2.0'
     assert '### Sample and alignment' in contents
     assert any(line.strip() == 'Exp_proposal : p1234' for line in contents)
 
-    logfile = path.join(datapath, 'p1234_1.log')
+    logfile = path.join(session.experiment.datapath, 'p1234_1.log')
     assert path.isfile(logfile)
     contents = readFile(logfile)
     assert contents[0].startswith('# dev')
@@ -125,11 +128,23 @@ def test_sinks():
             assert stdev == 'inf'
 
     # check files written by the single-raw sink
-    rawfile = path.join(datapath, 'single', '1_5.raw')
+    rawfile = path.join(session.experiment.datapath, 'single', '1_5.raw')
     assert path.isfile(rawfile)
     assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
 
     if hasattr(os, 'link'):
+        # this entry in filenametemplate is absolute, which means relative to
+        # the dataroot, not the current experiment's datapath
         linkfile = path.join(session.experiment.dataroot, '00000005.raw')
         assert path.isfile(linkfile)  # hardlink
         assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
+
+
+def test_bersans_sink():
+    bersansfile = path.join(session.experiment.datapath, 'D0000001.001')
+    assert path.isfile(bersansfile)
+    contents = readFile(bersansfile)
+    assert '%File' in contents
+    assert 'User=testuser' in contents  # BerSANS headers
+    assert 'Exp_proposal=p1234' in contents  # NICOS headers
+    assert ('0,' * 127 + '0') in contents  # data
