@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 """NICOS test suite utilities."""
+
 from __future__ import print_function
 
 import os
@@ -30,6 +31,7 @@ import re
 import sys
 import time
 import shutil
+import signal
 import socket
 import subprocess
 from os import path
@@ -392,8 +394,8 @@ def hasGnuplot():
     To be used with the `requires` decorator.
     """
     try:
-        gpProcess = subprocess.Popen(b'gnuplot', shell=True, stdin=subprocess.PIPE,
-                                     stdout=None)
+        gpProcess = subprocess.Popen(b'gnuplot', shell=True,
+                                     stdin=subprocess.PIPE, stdout=None)
         gpProcess.communicate(b'exit')
         if gpProcess.returncode:
             return False
@@ -412,3 +414,11 @@ def getCacheNameAndPort(host):
 
 def getDaemonPort():
     return int(os.environ.get('NICOS_DAEMON_PORT', 14874))
+
+
+def selfDestructAfter(seconds):
+    """If possible, setup a SIGALRM after *seconds* to clean up otherwise
+    hanging test processes.
+    """
+    if hasattr(signal, 'alarm'):
+        signal.alarm(seconds)

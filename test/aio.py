@@ -40,7 +40,7 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.core.sessions.console import ConsoleSession
 
-from test.utils import rootdir
+from test.utils import rootdir, selfDestructAfter
 
 
 class TestConsoleSession(ConsoleSession):
@@ -63,4 +63,5 @@ config.user = None
 config.group = None
 config.nicos_root = rootdir
 
+selfDestructAfter(120)
 TestConsoleSession.run('startup', False)
