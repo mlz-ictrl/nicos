@@ -314,9 +314,9 @@ def adjustPYTHONPATH():
     global pythonpath  # pylint: disable=global-statement
     if pythonpath is None:
         topdir = path.abspath(path.join(rootdir, '..', '..'))
-        pythonpath = os.environ.get('PYTHONPATH', '').split(':')
+        pythonpath = os.environ.get('PYTHONPATH', '').split(os.pathsep)
         pythonpath.insert(0, topdir)
-        os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+        os.environ['PYTHONPATH'] = os.pathsep.join(pythonpath)
 
 
 def startSubprocess(filename, *args, **kwds):
