@@ -32,15 +32,15 @@ from nicos.pycompat import from_utf8
 
 from test.utils import getDaemonPort, startSubprocess, killSubprocess
 
-if os.name != 'posix':
-    # text client needs the readline C library
-    raise nose.SkipTest('text client not available on this system')
-
 client = None
 
 
 def setup_module():
-    global client
+    if os.name != 'posix':
+        # text client needs the readline C library
+        raise nose.SkipTest('text client not available on this system')
+
+    global client  # pylint: disable=global-statement
     os.environ['EDITOR'] = 'cat'
     client = startSubprocess('cliclient.py',
                              'guest:guest@localhost:%s' % getDaemonPort(),
