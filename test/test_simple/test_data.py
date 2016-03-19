@@ -29,17 +29,30 @@ import time
 from os import path
 from logging import Handler
 
+try:
+    import pyfits
+except ImportError:
+    pyfits = None
+
+try:
+    import PIL
+except ImportError:
+    PIL = None
+
 from nicos import session, config
 from nicos.utils import readFile
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
 
-from test.utils import assert_response
+from test.utils import assert_response, requires
 
 year = time.strftime('%Y')
+handler = None
 
 
 def setup_module():
+    global handler  # pylint: disable=global-statement
+
     session.loadSetup('data')
     session.setMode(MASTER)
 
@@ -49,6 +62,20 @@ def setup_module():
     exp._setROParam('dataroot', dataroot)
     open(path.join(dataroot, 'counters'), 'wb').close()
     exp.new(1234, user='testuser', localcontact=exp.localcontact)
+    assert path.abspath(exp.datapath) == \
+        path.abspath(path.join(config.nicos_root, 'testdata',
+                               year, 'p1234', 'data'))
+    m = session.getDevice('motor2')
+    det = session.getDevice('det')
+    tdev = session.getDevice('tdev')
+
+    handler = CHandler()
+    session.addLogHandler(handler)
+    try:
+        scan(m, 0, 1, 5, det, tdev, t=0.005)
+    finally:
+        session.log.removeHandler(handler)
+        session._log_handlers.remove(handler)
 
 
 def teardown_module():
@@ -65,29 +92,13 @@ class CHandler(Handler):
 
 
 def test_console_sink():
-    exp = session.experiment
-    assert path.abspath(exp.datapath) == \
-        path.abspath(path.join(config.nicos_root, 'testdata',
-                               year, 'p1234', 'data'))
-    m = session.getDevice('motor2')
-    det = session.getDevice('det')
-    tdev = session.getDevice('tdev')
-
-    handler = CHandler()
-    session.addLogHandler(handler)
-    try:
-        scan(m, 0, 1, 5, det, tdev, t=0.005)
-    finally:
-        session.log.removeHandler(handler)
-        session._log_handlers.remove(handler)
-
     assert '=' * 100 in handler.messages
     assert_response(handler.messages,
                     matches=r'Starting scan:      scan\(motor2'
                             r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
     # check contents of counter file
-    counterfile = path.join(exp.dataroot, 'counters')
+    counterfile = path.join(session.experiment.dataroot, 'counters')
     assert path.isfile(counterfile)
     contents = readFile(counterfile)
     assert set(contents) == set(['scan 1', 'point 5'])
@@ -148,3 +159,19 @@ def test_bersans_sink():
     assert 'User=testuser' in contents  # BerSANS headers
     assert 'Exp_proposal=p1234' in contents  # NICOS headers
     assert ('0,' * 127 + '0') in contents  # data
+
+
+@requires(PIL, 'PIL library missing')
+def test_tiff_sink():
+    tifffile = path.join(session.experiment.datapath, '00000001.tiff')
+    assert path.isfile(tifffile)
+
+
+@requires(pyfits, 'pyfits library missing')
+def test_fits_sink():
+    fitsfile = path.join(session.experiment.datapath, '00000001.fits')
+    assert path.isfile(fitsfile)
+    ffile = pyfits.open(fitsfile)
+    hdu = ffile[0]
+    assert hdu.data.shape == (128, 128)
+    assert hdu.header['Exp/proposal'] == 'p1234'

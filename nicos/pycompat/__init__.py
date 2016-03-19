@@ -113,6 +113,7 @@ if six.PY2:
         if isinstance(s, str):
             s = s.decode('ascii', 'ignore')
         return s.encode('unicode-escape')
+    to_ascii_string = to_ascii_escaped
     # on Py2, io.TextIOWrapper exists but only accepts Unicode objects
     class TextIOWrapper(object):
         def __init__(self, fp):
@@ -148,4 +149,6 @@ else:
         if isinstance(s, bytes):
             s = s.decode('ascii', 'ignore')
         return s.encode('unicode-escape')
+    def to_ascii_string(s):
+        return s.encode('unicode-escape').decode('ascii')
     from io import TextIOWrapper

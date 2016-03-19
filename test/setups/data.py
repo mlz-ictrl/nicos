@@ -29,6 +29,21 @@ includes = ['stdsystem', 'scanning']
 sinklist = ['testsink', 'asciisink', 'consolesink', 'daemonsink',
             'livesink', 'rawsink', 'srawsink', 'bersanssink']
 
+# These sinks cannot be created if the modules are not present.
+# Omit them from the datasinks list in that case.
+
+try:
+    import PIL  # pylint: disable=unused-import
+    sinklist.append('tiffsink')
+except Exception:
+    pass
+
+try:
+    import pyfits  # pylint: disable=unused-import
+    sinklist.append('fitssink')
+except Exception:
+    pass
+
 sysconfig = dict(
     datasinks = sinklist,
 )
@@ -45,4 +60,6 @@ devices = dict(
                                              '/%(pointcounter)08d.raw']),
     bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
                          flipimage = 'none'),
+    fitssink    = device('nicos.devices.datasinks.FITSImageSink'),
+    tiffsink    = device('nicos.devices.datasinks.TIFFImageSink'),
 )

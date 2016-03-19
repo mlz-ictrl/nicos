@@ -30,7 +30,7 @@ import numpy
 from nicos.core.params import Override
 from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
 from nicos.core import NicosError
-from nicos.pycompat import iteritems, to_ascii_escaped
+from nicos.pycompat import iteritems, to_ascii_string
 
 try:
     import pyfits
@@ -78,7 +78,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
             key = 'HIERARCH %s' % key
 
             # use only ascii characters and escapes if necessary.
-            value = to_ascii_escaped(str(value))
+            value = to_ascii_string(str(value))
 
             # Determine maximum possible value length (key dependend).
             maxValLen = 63 - len(key)

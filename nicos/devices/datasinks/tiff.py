@@ -30,7 +30,7 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos.core import NicosError, Param
+from nicos.core import NicosError, Param, Override
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
@@ -41,7 +41,7 @@ class TIFFImageSinkHandler(SingleFileSinkHandler):
     accept_final_images_only = True
 
     def writeData(self, fp, image):
-        Image.fromarray(numpy.array(image), self.sink.mode).save(fp)
+        Image.fromarray(numpy.array(image), self.sink.mode).save(fp, 'TIFF')
 
 
 class TIFFImageSink(ImageSink):
@@ -50,25 +50,25 @@ class TIFFImageSink(ImageSink):
     This data sinks writes TIFF format files without any meta data.
     """
 
-    fileFormat = "TIFF"
-
     parameters = {
-        "mode": Param("Image mode (PIL)",
-                      type=str, default="I;16", mandatory=False,
+        'mode': Param('Image mode (PIL format)', type=str, default='I;16',
                       settable=True),
+    }
+
+    parameter_overrides = {
+        'filenametemplate': Override(default=['%(pointcounter)08d.tiff'])
     }
 
     handlerclass = TIFFImageSinkHandler
 
     def doPreinit(self, mode):
-        self.log.debug("INITIALISE TIFFFileFormat")
         # Enforce PIL requirement. Do not create TIFFFileFormat instance if
         # PIL is not available.
         if PIL is None:
             self.log.error(_import_error)
-            raise NicosError(self, "Python Image Library (PIL) is not "
-                             "available. Please check wether it is installed "
-                             "and in your PYTHONPATH")
+            raise NicosError(self, 'The Python Image Library (PIL) is not '
+                             'available. Please check wether it is installed '
+                             'and in your PYTHONPATH')
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
