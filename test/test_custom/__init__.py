@@ -31,7 +31,7 @@ from os import path
 
 cuspath = path.join(path.dirname(__file__), '..', '..', 'custom')
 for subdir in os.listdir(cuspath):
-    if path.isdir(path.join(cuspath, subdir, 'test')):
+    if path.isdir(path.join(cuspath, subdir, 'test_' + subdir)):
         __path__.append(path.join(cuspath, subdir))
 
 
