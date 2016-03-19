@@ -108,8 +108,8 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
 class PNGLiveFileSink(ImageSink):
     # XXX (data sinks) add documentation
     parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False, default=['']),
+        'filenametemplate': Override(mandatory=False, userparam=False,
+                                     default=['']),
     }
 
     parameters = {

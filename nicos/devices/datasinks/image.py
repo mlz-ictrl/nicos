@@ -40,7 +40,8 @@ class ImageSink(DataSink):
                                   type=subdir, mandatory=False, default=''),
         'filenametemplate': Param('List of templates for data file names '
                                   '(will be hardlinked)', type=listof(str),
-                                  default=['%08d.dat'], settable=False),
+                                  default=['%(pointcounter)08d.dat'],
+                                  settable=False),
     }
 
     parameter_overrides = {

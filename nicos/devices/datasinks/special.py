@@ -104,8 +104,8 @@ class LiveViewSink(ImageSink):
     parameter_overrides = {
         # this is not really used, so we give it a default that would
         # raise if used as a template filename
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False, default=['']),
+        'filenametemplate': Override(mandatory=False, userparam=False,
+                                     default=['']),
     }
 
     handlerclass = LiveViewSinkHandler

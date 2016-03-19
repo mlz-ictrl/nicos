@@ -95,7 +95,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
 class FITSImageSink(ImageSink):
     # XXX (data sinks) add documentation
     parameter_overrides = {
-        'filenametemplate': Override(default=['%(pointcounter)s.fits']),
+        'filenametemplate': Override(default=['%(pointcounter)08d.fits']),
     }
 
     handlerclass = FITSImageSinkHandler

@@ -62,8 +62,7 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
 class SingleRawImageSink(ImageSink):
     # XXX (data sinks) add documentation
     parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
+        'filenametemplate': Override(mandatory=False, userparam=False,
                                      default=['%(proposal)s_%(pointcounter)s.raw',
                                               '%(proposal)s_%(scancounter)s'
                                               '_%(pointnumber)s.raw']),
@@ -151,8 +150,7 @@ class RawImageSinkHandler(DataSinkHandler):
 class RawImageSink(ImageSink):
     # XXX (data sinks) add documentation
     parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
+        'filenametemplate': Override(mandatory=False, userparam=False,
                                      default=['%(proposal)s_%(pointcounter)s.raw',
                                               '%(proposal)s_%(scancounter)s'
                                               '_%(pointnumber)s.raw']),

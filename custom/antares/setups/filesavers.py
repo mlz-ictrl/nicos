@@ -7,6 +7,6 @@ group = 'lowlevel'
 devices = dict(
     FITSFileSaver = device('devices.datasinks.FITSImageSink',
                            description = 'Saves image data in FITS format',
-                           filenametemplate = ['%08d.fits'],
+                           filenametemplate = ['%(pointcounter)08d.fits'],
                           ),
 )

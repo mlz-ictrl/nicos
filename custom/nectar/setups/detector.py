@@ -10,7 +10,7 @@ nethost = 'nectarsrv.nectar.frm2'  # taco
 devices = dict(
     FITSFileSaver = device('devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
-        filenametemplate = ['%08d.fits'],
+        filenametemplate = ['%(pointcounter)08d.fits'],
     ),
 
     # TODO: create a generic.Detector device to use the channels
