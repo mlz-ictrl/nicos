@@ -38,7 +38,7 @@ from nicos.core.data.dataset import PointDataset, ScanDataset, \
 from nicos.core.data.sink import DataFile
 from nicos.pycompat import iteritems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
-    updateFileCounter
+    updateFileCounter, readFile, writeFile
 
 
 class DataManager(object):
@@ -102,8 +102,6 @@ class DataManager(object):
                 kwds['environment'] = self._current.environment
             if 'detectors' not in kwds:
                 kwds['detectors'] = self._current.detectors
-            if self._current.settype in ('scan', 'subscan'):
-                kwds['pointnumber'] = len(self._current.subsets) + 1
 
     def beginPoint(self, **kwds):
         """Create and begin a new point dataset."""
@@ -158,6 +156,7 @@ class DataManager(object):
                     dataset.handlers.extend(handlers)
         if self._current:
             self._current.subsets.append(dataset)
+            dataset.number = len(self._current.subsets)
         self._stack.append(dataset)
         dataset.dispatch('prepare')
         dataset.dispatch('begin')
@@ -242,47 +241,70 @@ class DataManager(object):
     #
 
     def assignCounter(self, dataset):
-        """Assign a counter number to the dataset.
+        """Assign counter numbers to the dataset.
 
-        Datasets have no number until one is explicitly assigned.  Assignment
+        Datasets have no numbers until one is explicitly assigned.  Assignment
         should only be requested when a file is actually written, so that
         measurements that don't write files don't increment numbers needlessly.
 
-        This can be called multiple times on a dataset; it will return the
-        already assigned counter.
+        This can be called multiple times on a dataset; the counter will only
+        be increased and assigned once.
         """
         if dataset.counter != 0:
-            return dataset.counter
+            return
+
+        exp = session.experiment
+        if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
+            self._tryMigrateCounters()
         if session.mode == SIMULATION:
             raise ProgrammingError('assignCounter should not be called in '
                                    'simulation mode')
-        exp = session.experiment
-        counterpath = path.join(exp.dataroot, exp.counterfile)
-        nextnum = readFileCounter(counterpath, dataset.countertype) + 1
-        updateFileCounter(counterpath, dataset.countertype, nextnum)
-        dataset.counter = nextnum
-        self.log.debug('%s now has number %d' % (dataset, nextnum))
-        return nextnum
 
-    def expandDataFile(self, dataset, nametemplates):
-        """Determine the final data file name(s)."""
-        if dataset.counter is None:
-            raise ProgrammingError('expandDataFile: a counter number must be '
-                                   'assigned to the dataset first')
+        # Keep track of which files we have already updated, since the proposal
+        # and the sample specific counter might be the same file.
+        seen = set()
+        for directory, attr in [(exp.dataroot, 'counter'),
+                                (exp.proposalpath, 'propcounter'),
+                                (exp.samplepath, 'samplecounter')]:
+            counterpath = path.normpath(path.join(directory, exp.counterfile))
+            nextnum = readFileCounter(counterpath, dataset.countertype) + 1
+            if counterpath not in seen:
+                updateFileCounter(counterpath, dataset.countertype, nextnum)
+                seen.add(counterpath)
+            else:
+                nextnum -= 1
+            setattr(dataset, attr, nextnum)
+
+    def getCounters(self):
+        """Return a dictionary with the current values of all relevant file
+        counters.
+
+        Counters are relevant if there is a dataset of their type on the stack.
+        Counter names are as follows:
+
+        * (type)counter: global counters (unique in dataroot)
+        * (type)propcounter: proposal local counters (unique in proposalpath)
+        * (type)samplecounter: sample local counters (unique in samplepath)
+        * (type)number: counter within the parent dataset (1-based)
+        """
+        result = {}
+        # get all parent counters into the keywords
+        for ds in self._stack:
+            result[ds.countertype + 'counter'] = ds.counter
+            result[ds.countertype + 'propcounter'] = ds.propcounter
+            result[ds.countertype + 'samplecounter'] = ds.samplecounter
+            result[ds.countertype + 'number'] = ds.number
+        return result
+
+    def expandNameTemplates(self, nametemplates):
+        """Expand the given *nametemplates* with the current counter values."""
         if isinstance(nametemplates, string_types):
             nametemplates = [nametemplates]
         # translate entries
         filenames = []
         for nametmpl in nametemplates:
             kwds = dict(session.experiment.propinfo)
-            # get all parent counters into the keywords
-            # i.e. blockcounter, scancounter, pointcounter
-            for ds in self._stack:
-                kwds[ds.countertype + 'counter'] = ds.counter
-            # XXX(dataapi): add experiment local counter
-            # point number within the scan
-            if hasattr(dataset, 'pointnumber'):
-                kwds['pointnumber'] = dataset.pointnumber
+            kwds.update(self.getCounters())
             try:
                 filename = nametmpl % DeviceValueDict(kwds)
             except KeyError as err:
@@ -295,7 +317,7 @@ class DataManager(object):
         return filenames
 
     def getFilenames(self, dataset, nametemplates, *subdirs):
-        """Determines filenames from filename templates.
+        """Determines dataset filenames from filename templates.
 
         Registers the first filename in the dataset as 'the' filename.  Returns
         a short path of the first filename and a list of the absolute paths of
@@ -303,10 +325,13 @@ class DataManager(object):
         After the counting is finished, you should create the datafile(s)
         and then call `linkFiles` to create the hardlinks.
         """
-        exp = session.experiment
-        filenames = self.expandDataFile(dataset, nametemplates)
+        if dataset.counter == 0:
+            raise ProgrammingError('a counter number must be assigned to the '
+                                   'dataset first')
+        filenames = self.expandNameTemplates(nametemplates)
         filename = filenames[0]
-        filepaths = [exp.getDataFilename(ln, *subdirs) for ln in filenames]
+        filepaths = [session.experiment.getDataFilename(ln, *subdirs)
+                     for ln in filenames]
 
         shortpath = path.join(*subdirs + (filename,))
         dataset.filenames.append(shortpath)
@@ -342,11 +367,10 @@ class DataManager(object):
         If no `fileclass` has been specified this defaults to
         `nicos.core.data.DataFile`.
         """
-        fileclass = kwargs.get("fileclass", DataFile)
+        fileclass = kwargs.get('fileclass', DataFile)
         if session.mode == SIMULATION:
             raise ProgrammingError('createDataFile should not be called in '
                                    'simulation mode')
-        exp = session.experiment
         filename, filepaths = self.getFilenames(dataset, nametemplates, *subdirs)
         filepath = filepaths[0]
         shortpath = path.join(*subdirs + (filename,))
@@ -354,6 +378,7 @@ class DataManager(object):
         self.log.debug('creating file %r using fileclass %r' % (filename,
                                                                 fileclass))
         datafile = fileclass(shortpath, filepath)
+        exp = session.experiment
         if exp.managerights:
             os.chmod(filepath,
                      exp.managerights.get('enableFileMode', DEFAULT_FILE_MODE))
@@ -362,6 +387,36 @@ class DataManager(object):
         self.linkFiles(filepath, filepaths[1:])
 
         return datafile
+
+    def _tryMigrateCounters(self):
+        """Counter file migration: create the new counter file from previous
+        scan and image counter files.
+
+        TODO: remove this method in a future release.
+        """
+        exp = session.experiment
+        counterpath = path.join(exp.dataroot, exp.counterfile)
+        cache = session.cache
+        if cache:
+            # scan- and image counter files from previous version
+            scountname = cache.get(exp, 'scancounter')
+            icountname = cache.get(exp, 'imagecounter')
+        else:
+            # assume the default values
+            scountname = 'scancounter'
+            icountname = 'imagecounter'
+        scount = icount = 0
+        if scountname is not None:
+            scount = int(readFile(path.join(exp.dataroot, scountname))[0])
+        if icountname is not None:
+            icount = int(readFile(path.join(exp.dataroot, icountname))[0])
+        if scount + icount > 0:
+            lines = ['scan %s\n' % scount, 'point %s\n' % icount]
+            writeFile(counterpath, lines)
+            session.log.info('The new file counter file %r has been created.' %
+                             counterpath)
+            session.log.warning('Please check that datasinks filenametemplate '
+                                'cache keys do not contain %(counter).')
 
 
 # Create the singleton instance right now.

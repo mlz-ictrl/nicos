@@ -46,8 +46,16 @@ class BaseDataset(object):
         # Unique id of the scan.
         self.uid = uuid4()
 
-        # Counter number assigned to the dataset.
+        # Counter numbers assigned to the dataset, starting at 1.
+        # This is set only when assignCounter() is called, i.e. when a file is
+        # actually about to be written.
         self.counter = 0
+        self.propcounter = 0
+        self.samplecounter = 0
+
+        # Counter relative to the parent dataset, starting at 1.  This is
+        # always set by the data manager (if there is a parent).
+        self.number = 0
 
         # Short and absolute filename(s) assigned to the dataset.
         self.filenames = []
@@ -124,9 +132,6 @@ class PointDataset(BaseDataset):
     countertype = 'point'
 
     def __init__(self, **kwds):
-        # Point number within a scan.
-        self.pointnumber = None
-
         # Point results: values of detectors.
         self.results = {}
 

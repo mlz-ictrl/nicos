@@ -65,8 +65,6 @@ def test_experiment():
 
     # setup test scenario
     exp._setROParam('dataroot', path.join(rootdir, 'data'))
-    # create empty counter file
-    open(path.join(rootdir, 'data', 'counters'), 'wb').close()
     exp.proposal = 'service'
     exp._setROParam('proptype', 'service')
     # if there is no exp.new, we need to adjust proposalpath ourselfs!

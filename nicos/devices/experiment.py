@@ -145,11 +145,12 @@ class Experiment(Device):
                               userparam=False, mandatory=False, settable=True),
         'sampledir':    Param('Sample specific subdir', type=subdir, default='',
                               userparam=False, mandatory=False, settable=True),
-        # counter
-        'counterfile':  Param('Name of the file with data counters in dataroot',
-                              default='counters', userparam=False, type=subdir,
-                              mandatory=False),
-        # XXX(dataapi): replace every use
+        # file counter stuff
+        'counterfile':  Param('Name of the file with data counters in '
+                              'dataroot and datapath', default='counters',
+                              userparam=False, type=subdir, mandatory=False),
+        # XXX(dataapi): check every use, then reintroduce counters on
+        # experiment and filenames on sinks
         # 'scancounter':  Param('Name of the global scan counter in dataroot',
         #                       default='scancounter', userparam=False,
         #                       type=subdir, mandatory=False, settable=False),

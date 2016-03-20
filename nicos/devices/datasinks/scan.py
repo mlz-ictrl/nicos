@@ -126,7 +126,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._template = sink.filenametemplate
 
     def prepare(self):
-        self._number = dataman.assignCounter(self.dataset)
+        dataman.assignCounter(self.dataset)
         fp = dataman.createDataFile(self.dataset, self._template,
                                     self.sink.subdir)
         self._fname = fp.shortpath
@@ -141,7 +141,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
 
     def _write_header(self, ds, nfiles):
         self._write_section('NICOS data file, created at %s' % strftime(TIMEFMT))
-        for name, value in [('number', self._number),
+        for name, value in [('number', self.dataset.counter),
                             ('filename', self._fname),
                             ('filepath', self._filepath),
                             ('info', ds.info)]:

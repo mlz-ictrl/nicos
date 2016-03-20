@@ -66,6 +66,7 @@ def test_dataset_stack():
 
         with dataset_scope('scan'):
             assert session.testhandler.warns(dataman.finishBlock)
+            assert dataman._current.number == 1
 
             with dataset_scope('point'):
                 with dataset_scope('scan', subscan=True):
@@ -74,19 +75,25 @@ def test_dataset_stack():
                         assert [s.settype for s in dataman._stack] == \
                             ['block', 'scan', 'point', 'subscan', 'point']
 
-                        ds = dataman._current
-                        assert ds.pointnumber == 1
+                        assert dataman._current.number == 1
 
-                    dataman.beginTemporaryPoint()
-                    dataman.finishPoint()
+                    with dataset_scope('point'):
+                        assert dataman._current.number == 2
+
+
+def test_temp_point():
+    dataman.beginTemporaryPoint()
+    assert dataman._current.handlers == []
+    dataman.finishPoint()
 
 
 def test_point_dataset():
+    assert len(dataman._stack) == 0
     with dataset_scope('point'):
         ds = dataman._current
 
-        # only assigned if scan is open
-        assert ds.pointnumber is None
+        # only assigned if a parent dataset is open
+        assert ds.number == 0
 
         # fresh dataset, nothing in there
         assert not ds.results

@@ -40,6 +40,7 @@ except ImportError:
     PIL = None
 
 from nicos import session, config
+from nicos.core import dataman
 from nicos.utils import readFile
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
@@ -68,8 +69,16 @@ def setup_module():
     exp = session.experiment
     dataroot = path.join(config.nicos_root, 'testdata')
     os.makedirs(dataroot)
+
+    # setup test of data file migration
+    session.cache.put(exp, 'scancounter', 'scancounter')
+    session.cache.put(exp, 'imagecounter', 'pointcounter')
+    with open(path.join(dataroot, 'scancounter'), 'w') as fp:
+        fp.write('42')
+    with open(path.join(dataroot, 'pointcounter'), 'w') as fp:
+        fp.write('167')
+
     exp._setROParam('dataroot', dataroot)
-    open(path.join(dataroot, 'counters'), 'wb').close()
     exp.new(1234, user='testuser', localcontact=exp.localcontact)
     assert path.abspath(exp.datapath) == \
         path.abspath(path.join(config.nicos_root, 'testdata',
@@ -88,6 +97,7 @@ def setup_module():
 
 
 def teardown_module():
+    session.cache.clear(session.experiment)
     session.unloadSetup()
 
 
@@ -116,21 +126,34 @@ def test_console_sink():
                     matches=r'Starting scan:      scan\(motor2'
                             r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
-    # check contents of counter file
-    counterfile = path.join(session.experiment.dataroot, 'counters')
-    assert path.isfile(counterfile)
-    contents = readFile(counterfile)
-    assert set(contents) == set(['scan 1', 'point 5'])
+
+def test_filecounters():
+    # check contents of counter files
+    exp = session.experiment
+    for directory, ctrs in zip(
+            [exp.dataroot, exp.proposalpath, exp.samplepath],
+            [('scan 43', 'point 172'), ('scan 1', 'point 5'),
+             ('scan 1', 'point 5')]):
+        counterfile = path.join(directory, exp.counterfile)
+        assert path.isfile(counterfile)
+        contents = readFile(counterfile)
+        assert set(contents) == set(ctrs)
 
 
 def test_scan_sink():
     # check contents of ASCII scan data file
-    scanfile = path.join(session.experiment.datapath, 'p1234_00000001.dat')
+    scanfile = path.join(session.experiment.datapath, 'p1234_00000043.dat')
     assert path.isfile(scanfile)
     contents = readFile(scanfile)
     assert contents[0].startswith('### NICOS data file')
     assert '### Scan data' in contents
     assert contents[-1].startswith('### End of NICOS data file')
+
+    # check counter attributes
+    scan = dataman._last_scans[-1]
+    assert scan.counter == 43
+    assert scan.propcounter == 1
+    assert scan.samplecounter == 1
 
 
 def test_raw_sinks():
@@ -157,21 +180,26 @@ def test_raw_sinks():
             assert mean == minv == maxv == '0.000'
             assert stdev == 'inf'
 
+    if hasattr(os, 'link'):
+        linkfile = path.join(session.experiment.datapath, '00000168.raw')
+        assert path.isfile(linkfile)  # hardlink
+        assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
+
     # check files written by the single-raw sink
-    rawfile = path.join(session.experiment.datapath, 'single', '1_5.raw')
+    rawfile = path.join(session.experiment.datapath, 'single', '43_172.raw')
     assert path.isfile(rawfile)
     assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
 
     if hasattr(os, 'link'):
         # this entry in filenametemplate is absolute, which means relative to
         # the dataroot, not the current experiment's datapath
-        linkfile = path.join(session.experiment.dataroot, '00000005.raw')
+        linkfile = path.join(session.experiment.dataroot, '00000172.raw')
         assert path.isfile(linkfile)  # hardlink
         assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
 
 def test_bersans_sink():
-    bersansfile = path.join(session.experiment.datapath, 'D0000001.001')
+    bersansfile = path.join(session.experiment.datapath, 'D0000168.001')
     assert path.isfile(bersansfile)
     contents = readFile(bersansfile)
     assert '%File' in contents
@@ -182,13 +210,13 @@ def test_bersans_sink():
 
 @requires(PIL, 'PIL library missing')
 def test_tiff_sink():
-    tifffile = path.join(session.experiment.datapath, '00000001.tiff')
+    tifffile = path.join(session.experiment.datapath, '00000168.tiff')
     assert path.isfile(tifffile)
 
 
 @requires(pyfits, 'pyfits library missing')
 def test_fits_sink():
-    fitsfile = path.join(session.experiment.datapath, '00000001.fits')
+    fitsfile = path.join(session.experiment.datapath, '00000168.fits')
     assert path.isfile(fitsfile)
     ffile = pyfits.open(fitsfile)
     hdu = ffile[0]

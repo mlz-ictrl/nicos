@@ -958,15 +958,12 @@ def readFileCounter(counterpath, key):
 
     The counter file consists of lines with ``key value`` pairs.  If the key
     does not exist in the file, return 0; other exceptions are not handled.
-
-    # XXX(dataapi): we want to create the file automatically in demo mode!
     """
     try:
         lines = readFile(counterpath)
-    except IOError as e:
-        raise IOError('File counter %r cannot be read: %s (the counter must '
-                      'be recreated manually with the correct values after '
-                      'NICOS update to this version)' % (counterpath, e))
+    except IOError:
+        writeFile(counterpath, [])
+        return 0
     for line in lines:
         linekey, value = line.split()
         if key == linekey:
