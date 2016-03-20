@@ -263,7 +263,7 @@ class Scan(object):
         try:
             # remember the read values so that they can be used for the data point
             for (dev, value) in iteritems(multiWait(waitdevs)):
-                waitresults[dev.name] = (currenttime(), value)
+                waitresults[dev.name] = (None, value)
         except NicosError as err:
             self.handleError('wait', err)
             # XXX(dataapi): at least read the remaining devs?
@@ -274,15 +274,15 @@ class Scan(object):
     def readPosition(self):
         actualpos = {}
         try:
-            # remember the read values so that they can be used for the data point
+            # remember the read values so that they can be used for the
+            # data point
             for dev in self._devices:
-                actualpos[dev.name] = (currenttime(), dev.read(0))
+                actualpos[dev.name] = (None, dev.read(0))
         except NicosError as err:
             self.handleError('read', err)
             # XXX(dataapi): at least read the remaining devs?
         return actualpos
 
-    # XXX(dataapi): move to data manager
     def readEnvironment(self):
         values = {}
         for dev in self._envlist:
@@ -548,7 +548,7 @@ class ContinuousScan(Scan):
                 looptime = currenttime()
                 actualpos = [0.5 * (devpos + new_devpos)]
                 session.data.beginPoint()
-                session.data.putValues({device.name: (looptime, actualpos)})
+                session.data.putValues({device.name: (None, actualpos)})
                 self.readEnvironment()
                 session.data.putResults(FINAL, diff)
                 session.data.finishPoint()

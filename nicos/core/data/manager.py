@@ -197,6 +197,8 @@ class DataManager(object):
 
     def putValues(self, values):
         # values is {devname: (timestamp, value)}
+        # if timestamp is None, it is the canonical position of the device
+        # for the point
         if self._current.settype != 'point':
             self.log.warning('No current point dataset, ignoring values')
             return
@@ -231,11 +233,12 @@ class DataManager(object):
     def cacheCallback(self, key, value, time):
         if not self._current or self._current.settype != 'point':
             return
-        devname = session.device_case_map[key.split('/')[0]]
-        try:
-            self.putValues({devname: (time, value)})
-        except Exception:
-            pass
+        devname = session.device_case_map.get(key.split('/')[0])
+        if devname is not None:
+            try:
+                self.putValues({devname: (time, value)})
+            except Exception:
+                pass
 
     #
     # Services for sinks

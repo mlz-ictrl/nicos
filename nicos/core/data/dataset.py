@@ -134,20 +134,28 @@ class PointDataset(BaseDataset):
         # Point results: values of detectors.
         self.results = {}
 
-        # Values of "interesting" devices (time series).
+        # Latest values of "interesting" devices.
         self.values = {}
+        # Values of "interesting" devices taken at a "canonical time".
+        # Used as *the* position for scanned over devices.
+        self.canonical_values = {}
+        # More stats about "interesting" devices (to allow statistics).
         self._valuestats = {}
 
         # Instrument metainfo ("header data").
-        # A dictionary of (device, key) -> (value, str_value, unit, category).
-        # keys are usually parameters or 'value', 'status'.
+        # A dictionary of (devname, key) -> (value, str_value, unit, category).
+        # Keys are usually parameters or 'value', 'status'.
         self.metainfo = {}
 
         BaseDataset.__init__(self, **kwds)
 
     def _addvalues(self, values):
         for devname, (timestamp, value) in iteritems(values):
-            if isinstance(value, number_types):
+            self.values[devname] = value
+            if timestamp is None:
+                self.canonical_values[devname] = value
+                continue
+            elif isinstance(value, number_types):
                 # collect statistics
                 current = self._valuestats.setdefault(devname, [])
                 if not current:
@@ -156,14 +164,14 @@ class PointDataset(BaseDataset):
                 else:
                     oldtime, oldvalue = current[-2:]
                     dt = timestamp - oldtime
-                    current[0] += dt
-                    current[1] += dt * oldvalue
-                    current[2] += dt * oldvalue ** 2
-                    current[3] = min(current[3], value)
-                    current[4] = max(current[4], value)
-                    current[5] = timestamp
-                    current[6] = value
-            self.values[devname] = value
+                    if dt >= 0:
+                        current[0] += dt
+                        current[1] += dt * oldvalue
+                        current[2] += dt * oldvalue ** 2
+                        current[3] = min(current[3], value)
+                        current[4] = max(current[4], value)
+                        current[5] = timestamp
+                        current[6] = value
 
     def _reslist(self, devices, resdict, index=-1):
         ret = []
@@ -206,7 +214,7 @@ class PointDataset(BaseDataset):
 
     @lazy_property
     def devvaluelist(self):
-        return self._reslist(self.devices, self.values)
+        return self._reslist(self.devices, self.canonical_values)
 
     @lazy_property
     def envvaluelist(self):

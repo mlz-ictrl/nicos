@@ -24,8 +24,6 @@
 
 """NICOS tests for nicos.commands.analyze."""
 
-from time import time as currenttime
-
 try:
     from scipy.optimize.minpack import leastsq
 except ImportError:
@@ -59,7 +57,7 @@ def generate_dataset():
     session.data.beginScan(devices=[tdev], detectors=[det])
     for (x, y) in zip(xpoints, data):
         session.data.beginPoint()
-        session.data.putValues({'tdev': (currenttime(), x)})
+        session.data.putValues({'tdev': (None, x)})
         session.data.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
         session.data.finishPoint()
     session.data.finishScan()
