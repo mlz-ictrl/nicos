@@ -93,7 +93,14 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
 
 
 class FITSImageSink(ImageSink):
-    # XXX (data sinks) add documentation
+    """Writes data to a FITS (Flexible image transport system) format file.
+
+    NICOS headers are also written into the file using the standard FITS header
+    facility, with HIERARCH type keys.
+
+    Requires the pyfits library to be installed.
+    """
+
     parameter_overrides = {
         'filenametemplate': Override(default=['%(pointcounter)08d.fits']),
     }

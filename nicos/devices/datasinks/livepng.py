@@ -106,7 +106,15 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
 
 
 class PNGLiveFileSink(ImageSink):
-    # XXX (data sinks) add documentation
+    """Writes (live) data to a PNG file, possibly with a log-10 color scale.
+
+    Data is normalized to the highest-value pixel, and the used color map is
+    the commonly used "Jet" colormap.
+
+    This is not intended for data result storage, but to create images of the
+    live measurement for quick view, e.g. in status monitors.
+    """
+
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, userparam=False,
                                      default=['']),

@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, dataman, \
-    LIVE
+    ConfigurationError, LIVE
 from nicos.pycompat import iteritems, TextIOWrapper
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
@@ -62,7 +62,8 @@ class SingleRawImageSinkHandler(SingleFileSinkHandler):
 
 
 class SingleRawImageSink(ImageSink):
-    # XXX (data sinks) add documentation
+    """Writes raw (binary) image data and header into a single file."""
+
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, userparam=False,
                                      default=['%(proposal)s_%(pointcounter)s.raw',
@@ -154,7 +155,13 @@ class RawImageSinkHandler(DataSinkHandler):
 
 
 class RawImageSink(ImageSink):
-    # XXX (data sinks) add documentation
+    """Writes raw (binary) image data, metadata header, and environment device
+    logs into three separate files.
+
+    The primary filename template must contain `.raw`, which is then replaced
+    by `.header` for the header file, and `.log` for the device log file.
+    """
+
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, userparam=False,
                                      default=['%(proposal)s_%(pointcounter)s.raw',
@@ -163,3 +170,10 @@ class RawImageSink(ImageSink):
     }
 
     handlerclass = RawImageSinkHandler
+
+    def doInit(self, mode):
+        if '.raw' not in self.filenametemplate[0]:
+            raise ConfigurationError(self, 'first filenametemplate must '
+                                     'contain .raw which is then exchanged '
+                                     'to .header and .log for additional '
+                                     'data files')
