@@ -78,77 +78,83 @@ class Experiment(Device):
     """
 
     parameters = {
-        'title':        Param('Experiment title', type=str, settable=True,
-                              category='experiment'),
-        'proposal':     Param('Current proposal number or proposal string',
-                              type=str, settable=True, category='experiment'),
-        'proptype':     Param('Current proposal type', settable=False, userparam=False,
-                              type=oneof('service', 'user', 'other')),
-        'propprefix':   Param('Prefix of the proposal if is a number', type=str,
-                              settable=True, default='p'),
-        'users':        Param('User names and emails for the proposal',
-                              type=str, settable=True, category='experiment'),
-        'localcontact': Param('Local contact for current experiment',
-                              type=mailaddress, settable=True,
-                              category='experiment'),
-        'remark':       Param('Current remark about experiment configuration',
-                              type=str, settable=True, category='experiment'),
-        'dataroot':     Param('Root data path under which all proposal specific'
-                              ' paths are created', type=expanded_path,
-                              default='/data', mandatory=True),
-        'detlist':      Param('List of default detector device names',
-                              type=listof(str), settable=True, userparam=False),
-        'envlist':      Param('List of default environment device names to read'
-                              ' at every scan point', type=listof(str),
-                              settable=True, userparam=False),
-        'elog':         Param('True if the electronig logbook should be '
-                              'enabled', type=bool, default=True),
-        'scripts':      Param('Currently executed scripts',
-                              type=listof(str), settable=True, userparam=False),
-        'templates':    Param('Name of the directory with script templates '
-                              '(relative to dataroot)', type=str),
-        'managerights': Param('A dict of en/disableDir/FileMode to manage '
-                              'access rights of data dirs on proposal change.',
-                              mandatory=False, settable=False, default={},
-                              type=dictof(oneof('owner', 'group',
-                                                'enableOwner', 'enableGroup',
-                                                'disableOwner', 'disableGroup',
-                                                'enableDirMode',
-                                                'enableFileMode',
-                                                'disableDirMode',
-                                                'disableFileMode'),
-                                          anytype),
-                              userparam=False),
-        'zipdata':      Param('Whether to zip up experiment data after '
-                              'experiment finishes', type=bool, default=True),
-        'sendmail':     Param('Whether to send proposal data via email after '
-                              'experiment finishes', type=bool, default=False),
-        'mailserver':   Param('Mail server name', type=str, settable=True,
-                              userparam=False),
-        'mailsender':   Param('Mail sender address', type=none_or(mailaddress),
-                              settable=True),
-        'mailtemplate': Param('Mail template file name (in templates)',
-                              type=str, default='mailtext.txt'),
+        'title':          Param('Experiment title', type=str, settable=True,
+                                category='experiment'),
+        'proposal':       Param('Current proposal number or proposal string',
+                                type=str, settable=True, category='experiment'),
+        'proptype':       Param('Current proposal type', settable=False,
+                                userparam=False,
+                                type=oneof('service', 'user', 'other')),
+        'propprefix':     Param('Prefix of the proposal if is a number',
+                                type=str, settable=True, default='p'),
+        'users':          Param('User names and emails for the proposal',
+                                type=str, settable=True, category='experiment'),
+        'localcontact':   Param('Local contact for current experiment',
+                                type=mailaddress, settable=True,
+                                category='experiment'),
+        'remark':         Param('Current remark about experiment configuration',
+                                type=str, settable=True, category='experiment'),
+        'dataroot':       Param('Root data path under which all proposal '
+                                'specific paths are created', mandatory=True,
+                                type=expanded_path),
+        'detlist':        Param('List of default detector device names',
+                                type=listof(str), settable=True,
+                                userparam=False),
+        'envlist':        Param('List of default environment device names to '
+                                'read at every scan point', type=listof(str),
+                                settable=True, userparam=False),
+        'elog':           Param('True if the electronic logbook should be '
+                                'enabled', type=bool, default=True),
+        'scripts':        Param('Currently executed scripts', type=listof(str),
+                                settable=True, userparam=False),
+        'templates':      Param('Name of the directory with script templates '
+                                '(relative to dataroot)', type=str),
+        'managerights':   Param('A dict of en/disableDir/FileMode to manage '
+                                'access rights of data dirs on proposal change',
+                                mandatory=False, settable=False, default={},
+                                type=dictof(oneof('owner', 'group',
+                                                  'enableOwner',
+                                                  'enableGroup',
+                                                  'disableOwner',
+                                                  'disableGroup',
+                                                  'enableDirMode',
+                                                  'enableFileMode',
+                                                  'disableDirMode',
+                                                  'disableFileMode'),
+                                            anytype),
+                                userparam=False),
+        'zipdata':        Param('Whether to zip up experiment data after '
+                                'experiment finishes', type=bool, default=True),
+        'sendmail':       Param('Whether to send proposal data via email after '
+                                'experiment finishes', type=bool,
+                                default=False),
+        'mailserver':     Param('Mail server name', type=str, settable=True,
+                                userparam=False),
+        'mailsender':     Param('Mail sender address', settable=True,
+                                type=none_or(mailaddress)),
+        'mailtemplate':   Param('Mail template file name (in templates)',
+                                type=str, default='mailtext.txt'),
         'reporttemplate': Param('File name of experimental report template '
                                 '(in templates)',
                                 type=str, default='experimental_report.rtf'),
-        'serviceexp':   Param('Name of proposal to switch to after user '
-                              'experiment', type=nonemptystring, default='service'),
-        'servicescript': Param('Script to run for service time', type=str,
-                               default='', settable=True),
-        'pausecount':   Param('Reason for pausing the count loop', type=str,
-                              settable=True, userparam=False),
-        'propinfo':     Param('dict of info for the current proposal', type=dict,
-                              default={}, settable=False, userparam=False),
+        'serviceexp':     Param('Name of proposal to switch to after user '
+                                'experiment', type=nonemptystring,
+                                default='service'),
+        'servicescript':  Param('Script to run for service time', type=str,
+                                default='', settable=True),
+        'pausecount':     Param('Reason for pausing the count loop', type=str,
+                                settable=True, userparam=False),
+        'propinfo':       Param('Dict of info for the current proposal',
+                                type=dict, default={}, userparam=False),
         # dir param
-        'proposalpath': Param('proposal prefix upon creation of experiment', type=str,
-                              userparam=False, mandatory=False, settable=True),
-        'sampledir':    Param('Sample specific subdir', type=subdir, default='',
-                              userparam=False, mandatory=False, settable=True),
-        # file counter stuff
-        'counterfile':  Param('Name of the file with data counters in '
-                              'dataroot and datapath', default='counters',
-                              userparam=False, type=subdir, mandatory=False),
+        'proposalpath':   Param('Proposal prefix upon creation of experiment',
+                                type=str, userparam=False, settable=True),
+        'sampledir':      Param('Current sample-specific subdir', type=subdir,
+                                default='', userparam=False, settable=True),
+        # counter
+        'counterfile':    Param('Name of the file with data counters in '
+                                'dataroot and datapath', default='counters',
+                                userparam=False, type=subdir),
         # XXX(dataapi): check every use, then reintroduce counters on
         # experiment and filenames on sinks
         # 'scancounter':  Param('Name of the global scan counter in dataroot',
@@ -165,9 +171,9 @@ class Experiment(Device):
         #                       settable=False, volatile=True, mandatory=False),
         # 'lastimagefile': Param('Last/Currently written imagefile in this experiment',
         #                        type=str, settable=False, mandatory=False),
-        'errorbehavior': Param('Behavior on unhandled errors in commands',
-                               type=oneof('abort', 'report'), settable=True,
-                               default='report'),
+        'errorbehavior':  Param('Behavior on unhandled errors in commands',
+                                type=oneof('abort', 'report'), settable=True,
+                                default='report'),
     }
 
     attached_devices = {
@@ -179,89 +185,91 @@ class Experiment(Device):
     #
 
     def proposalpath_of(self, proposal):
-        """proposalpath of a given proposal
+        """Proposal path of a given proposal.
 
-        defaults to <dataroot>/<year>/<proposal>
-        last component MUST be the proposal.
+        Defaults to ``<dataroot>/<year>/<proposal>``, last component MUST be
+        the *proposal*.
         """
         return path.join(self.dataroot, time.strftime("%Y"), proposal)
 
     @property
     def samplepath(self):
-        """path to current active sample, if used, defaults to proposalpath"""
+        """Path to current active sample, if used, defaults to proposalpath."""
         if self.sampledir:
             return path.join(self.proposalpath, self.sampledir)
         return self.proposalpath
 
     @property
     def scriptpath(self):
-        """path to the scripts of the curent experiment/sample"""
+        """Path to the scripts of the curent experiment/sample."""
         return path.join(self.samplepath, 'scripts')
 
     @property
     def elogpath(self):
-        """path to the eLogbook of the curent experiment/sample"""
+        """Path to the eLogbook of the curent experiment/sample."""
         return path.join(self.samplepath, 'logbook')
 
     @property
     def datapath(self):
-        """path to the data storage of the curent experiment/sample
+        """Path to the data storage of the curent experiment/sample.
 
-        here scanfiles and images of image-type detectors will be stored
+        Here scanfiles and images of image-type detectors will be stored.
         """
         return path.join(self.samplepath, 'data')
 
     @property
     def extrapaths(self):
-        """if derived classes need more autocreated dirs, they should be put here!"""
+        """If derived classes need more automatically created dirs, they can
+        be put here.
+        """
         return tuple()
 
     @property
     def allpaths(self):
-        """return a list of all autocreated paths
+        """Return a list of all autocreated paths.
 
-        needed to keep track of directory structure upon proposal change
+        Needed to keep track of directory structure upon proposal change.
         """
         return [self.proposalpath, self.datapath,
                 self.scriptpath, self.elogpath] + list(self.extrapaths)
 
     @property
     def templatepath(self):
-        """Paths where all template files are stored"""
+        """Paths where all template files are stored."""
         return [path.abspath(path.join(self.dataroot, self.templates))] + \
             [path.join(config.custom_path, p.strip(), 'template')
              for p in config.setup_subdirs.split(',')]
 
     @property
     def proposalsymlink(self):
-        """dataroot based location of 'current' experiment symlink to maintain,
-        or empty string
+        """Dataroot based location of 'current' experiment symlink to maintain,
+        or empty string.
         """
         return path.join(self.dataroot, 'current')
 
     @property
     def customproposalsymlink(self):
-        """path of a custom proposal symlink or empty string.
+        """Path of a custom proposal symlink or empty string.
         If a path was specified, the symlink will be created automatically.
         """
         return ''
 
     @property
     def samplesymlink(self):
-        """dataroot based location of 'current' sample symlink to maintain,
-        or empty string
+        """Dataroot based location of 'current' sample symlink to maintain,
+        or empty string.
         """
         return self.proposalsymlink if self.sampledir else ''
 
     @lazy_property
     def skiptemplates(self):
-        """list of template filenames which are to be ignored upon creating
-        a new experiment
+        """List of template filenames which are to be ignored upon creating
+        a new experiment.
         """
         return []
 
     def getProposalType(self, proposal):
-        """determine proposaltype of a given proposalstring"""
+        """Determine proposaltype of a given proposalstring."""
         if proposal in ('template', 'current'):
             raise UsageError(self, 'The proposal names "template" and "current"'
                              ' are reserved and cannot be used')
@@ -286,7 +294,8 @@ class Experiment(Device):
     def _newPropertiesHook(self, proposal, kwds):
         """Hook for querying a database for proposal related stuff
 
-        should return an updated kwds dictionary"""
+        Should return an updated kwds dictionary.
+        """
         return kwds
 
     #
@@ -315,7 +324,8 @@ class Experiment(Device):
 
     def doWriteSampledir(self, newsampledir):
         # handle current symlink
-        self._set_symlink(self.samplesymlink, path.join(self.proposalpath, newsampledir))
+        self._set_symlink(self.samplesymlink,
+                          path.join(self.proposalpath, newsampledir))
 
         # HACK: we need the getters to provide the right values....
         self._setROParam('sampledir', newsampledir)
@@ -380,8 +390,10 @@ class Experiment(Device):
                                      'setup')
         if self.elog and mode != SIMULATION:
             if not self.proposalpath:
-                self.log.warning('Proposalpath was not set, initiating a service experiment.')
-                self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp))
+                self.log.warning('Proposalpath was not set, initiating a '
+                                 'service experiment.')
+                self._setROParam('proposalpath',
+                                 self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elogEvent('directory', (self.proposalpath,
@@ -392,7 +404,8 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
-                             path.abspath(path.join(config.nicos_root, 'template')))
+                             path.abspath(path.join(config.nicos_root,
+                                                    'template')))
 
     def doUpdateManagerights(self, mrinfo):
         """Check the managerights dict into values used later."""
@@ -434,13 +447,15 @@ class Experiment(Device):
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
         if self._mode == SIMULATION:
-            raise UsageError('Simulating switching experiments is not supported!')
+            raise UsageError('Simulating switching experiments is not '
+                             'supported!')
 
         if localcontact:
             try:
                 mailaddress(localcontact)
             except ValueError:
-                raise ConfigurationError('localcontact is not a valid email address')
+                raise ConfigurationError('localcontact is not a valid '
+                                         'email address')
 
         try:
             # if proposal can be converted to a number, use the canonical form
@@ -511,7 +526,8 @@ class Experiment(Device):
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
-        self.proposalpath = self.proposalpath_of(proposal)  # change proposalpath to new value
+        # change proposalpath to new value
+        self.proposalpath = self.proposalpath_of(proposal)
         # newSample also (re-)creates all needed dirs
         self.newSample(kwds.get('sample', ''), {})
 
@@ -592,8 +608,7 @@ class Experiment(Device):
                                    args=(pzip, self.proposalpath,
                                          self.proposal, self.proptype, stats,
                                          receivers),
-                                   daemon=False
-                                  )
+                                   daemon=False)
                 # wait up to 5 seconds
                 thd.join(5)
                 if thd.isAlive():
@@ -797,7 +812,7 @@ class Experiment(Device):
                 self.log.info('moving compressed file to ' + proposalpath)
                 try:
                     os.rename(pzipfile, path.join(proposalpath,
-                                                 path.basename(pzipfile)))
+                                                  path.basename(pzipfile)))
                 except Exception:
                     self.log.warning('moving compressed file into proposal dir '
                                      'failed', exc=1)
@@ -928,8 +943,9 @@ class Experiment(Device):
         data = data.replace('\\par Please replace the place holder in the upper'
                             ' part (brackets <>) by the appropriate values.', '')
         data = data.replace('\\par Description', '\\par\n\\par '
-                            'Please check all pre-filled values carefully! They were '
-                            'partially read from the proposal and might need correction.\n'
+                            'Please check all pre-filled values carefully! '
+                            'They were partially read from the proposal and '
+                            'might need correction.\n'
                             '\\par\n'
                             '\\par Description')
         # replace placeholders with templating markup
@@ -1100,9 +1116,10 @@ class ImagingExperiment(Experiment):
     parameters = {
         # for display purposes....
         'lastdarkimage':     Param('Last dark image', type=str, settable=False,
-                                   mandatory=False, default='', category='general'),
-        'lastopenbeamimage': Param('Last Open Beam image', type=str, settable=False,
-                                   mandatory=False, default='', category='general'),
+                                   default='', category='general'),
+        'lastopenbeamimage': Param('Last Open Beam image', type=str,
+                                   settable=False, default='',
+                                   category='general'),
     }
 
     @property
@@ -1138,10 +1155,11 @@ class ImagingExperiment(Experiment):
 
 
 class SXtalExperiment(Experiment):
-    parameters = {'centeredrefs': Param('List of centered reflections',
-                                        type=list, settable=True,
-                                        category='experiment'),
-                  'checkrefs': Param('List of reflections to re-check regularly',
-                                     type=list, settable=True,
-                                     category='experiment'),
-                  }
+    parameters = {
+        'centeredrefs': Param('List of centered reflections',
+                              type=list, settable=True,
+                              category='experiment'),
+        'checkrefs':    Param('List of reflections to re-check regularly',
+                              type=list, settable=True,
+                              category='experiment'),
+    }
