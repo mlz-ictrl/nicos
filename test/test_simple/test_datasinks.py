@@ -50,6 +50,15 @@ year = time.strftime('%Y')
 handler = None
 
 
+class ListHandler(Handler):
+    def __init__(self):
+        Handler.__init__(self)
+        self.messages = []
+
+    def emit(self, record):
+        self.messages.append(self.format(record))
+
+
 def setup_module():
     global handler  # pylint: disable=global-statement
 
@@ -69,7 +78,7 @@ def setup_module():
     det = session.getDevice('det')
     tdev = session.getDevice('tdev')
 
-    handler = CHandler()
+    handler = ListHandler()
     session.addLogHandler(handler)
     try:
         scan(m, 0, 1, 5, det, tdev, t=0.005)
@@ -82,13 +91,23 @@ def teardown_module():
     session.unloadSetup()
 
 
-class CHandler(Handler):
-    def __init__(self):
-        Handler.__init__(self)
-        self.messages = []
+def test_sink_class():
+    scansink = session.getDevice('testsink1')
+    # this saves the handlers created for the last dataset
+    handlers = scansink._handlers
+    assert len(handlers) == 1
+    calls = handlers[0]._calls
+    # this was called for a scan
+    assert calls == ['prepare', 'begin'] + ['addSubset'] * 5 + ['end']
 
-    def emit(self, record):
-        self.messages.append(self.format(record))
+    pointsink = session.getDevice('testsink2')
+    handlers = pointsink._handlers
+    assert len(handlers) == 1
+    calls = handlers[0]._calls
+    # this was called for a point
+    # first putValues: devices, second putValues: environment
+    assert calls == ['prepare', 'begin', 'putValues', 'putMetainfo',
+                     'putResults', 'putValues', 'end']
 
 
 def test_console_sink():

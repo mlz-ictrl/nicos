@@ -25,7 +25,7 @@
 name = 'test system setup that writes data files'
 
 sysconfig = dict(
-    datasinks = ['testsink', 'asciisink'],
+    datasinks = ['asciisink'],
 )
 
 includes = ['axis']

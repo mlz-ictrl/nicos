@@ -259,33 +259,38 @@ class TestSinkHandler(DataSinkHandler):
 
     def clear(self):
         self._calls = []
-        self._info = []
-        self._points = []
 
-    def prepareDataset(self, dataset):
-        self._calls.append('prepareDataset')
+    def prepare(self):
+        self._calls.append('prepare')
 
-    def beginDataset(self, dataset):
-        self._calls.append('beginDataset')
+    def begin(self):
+        self._calls.append('begin')
 
-    def addInfo(self, dataset, category, valuelist):
-        self._calls.append('addInfo')
-        self._info.extend(valuelist)
+    def putMetainfo(self, metainfo):
+        self._calls.append('putMetainfo')
 
-    def addPoint(self, dataset, xvalues, yvalues):
-        self._calls.append('addPoint')
-        self._points.append(xvalues + yvalues)
+    def putValues(self, values):
+        self._calls.append('putValues')
 
-    def addBreak(self, dataset):
-        self._calls.append('addBreak')
+    def putResults(self, quality, results):
+        self._calls.append('putResults')
 
-    def endDataset(self, dataset):
-        self._calls.append('endDataset')
+    def addSubset(self, subset):
+        self._calls.append('addSubset')
+
+    def end(self):
+        self._calls.append('end')
 
 
 class TestSink(DataSink):
 
     handlerclass = TestSinkHandler
+    _handlers = []
+
+    def createHandlers(self, dataset):
+        handlers = DataSink.createHandlers(self, dataset)
+        self._handlers = handlers
+        return handlers
 
 
 class TestNotifier(Mailer):
