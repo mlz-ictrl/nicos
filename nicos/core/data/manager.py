@@ -135,6 +135,13 @@ class DataManager(object):
         # XXX: when to clean these up?
         self._last_scans.append(scan)
 
+    def finishBlock(self):
+        """Finish the current block dataset."""
+        if self._current.settype != 'block':
+            raise ProgrammingError('No block to finish')
+        block = self._stack.pop()
+        self._finish(block)
+
     def _init(self, dataset, skip_handlers=False):
         """Initialize the dataset and put it on the stack.
 
