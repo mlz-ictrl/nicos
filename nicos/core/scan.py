@@ -32,12 +32,12 @@ from nicos.commands.output import printwarning
 from nicos import session
 from nicos.core import status
 from nicos.core.device import Readable
+from nicos.core.params import Value
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
-from nicos.core.data import ScanData
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types
 from nicos.commands.measure import acquire
@@ -186,6 +186,7 @@ class Scan(object):
     def endScan(self):
         session.data.finishScan()
         try:
+            from nicos.core.data import ScanData
             session.elogEvent('scanend', ScanData(self.dataset))
         except Exception:
             session.log.debug('could not add scan to electronic logbook', exc=1)
@@ -285,11 +286,13 @@ class Scan(object):
     def readEnvironment(self):
         values = {}
         for dev in self._envlist:
+            if isinstance(dev, DevStatistics):
+                try:
+                    dev.dev.read(0)
+                except NicosError:
+                    pass
+                continue
             try:
-                # XXX(dataapi)
-                #if isinstance(dev, DevStatistics):
-                #    val = dev.read(point.started, currenttime())
-                #else:
                 val = dev.read(0)
             except NicosError as err:
                 self.handleError('read', err)
@@ -671,3 +674,65 @@ class QScan(Scan):
                     self._xindex = i
                     break
         Scan.beginScan(self)
+
+
+class DevStatistics(object):
+    """Object to use in the environment list to get not only a single device
+    value, but statistics such as average, minimum or maximum over the time of
+    counting during a scan point.
+    """
+
+    statname = None
+
+    def __init__(self, dev):
+        self.dev = dev
+
+    def __str__(self):
+        return '%s:%s' % (self.dev, self.statname)
+
+    def retrieve(self, valuestats):
+        raise NotImplementedError('%s.retrieve() must be implemented'
+                                  % self.__class__.__name__)
+
+    def valueInfo(self):
+        raise NotImplementedError('%s.valueInfo() must be implemented'
+                                  % self.__class__.__name__)
+
+
+class Average(DevStatistics):
+    """Collects the average of the device value."""
+
+    statname = 'avg'
+
+    def retrieve(self, valuestats):
+        if self.dev.name in valuestats:
+            return [valuestats[self.dev.name][0]]
+        return [None]
+
+    def valueInfo(self):
+        return Value('%s:avg' % self.dev, unit=self.dev.unit,
+                     fmtstr=self.dev.fmtstr),
+
+
+class MinMax(DevStatistics):
+    """Collects the minimum and maximum of the device value."""
+
+    statname = 'minmax'
+
+    def retrieve(self, valuestats):
+        if self.dev.name in valuestats:
+            return [valuestats[self.dev.name][2],
+                    valuestats[self.dev.name][3]]
+        return [None, None]
+
+    def valueInfo(self):
+        return (Value('%s:min' % self.dev, unit=self.dev.unit,
+                      fmtstr=self.dev.fmtstr),
+                Value('%s:max' % self.dev, unit=self.dev.unit,
+                      fmtstr=self.dev.fmtstr))
+
+
+DevStatistics.subclasses = {
+    Average.statname: Average,
+    MinMax.statname:  MinMax,
+}

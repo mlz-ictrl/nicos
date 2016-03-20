@@ -31,7 +31,7 @@ from nicos.core import UsageError, PositionError, CommunicationError, \
     NicosError, ModeError
 from nicos.core.scan import ContinuousScan
 
-from nicos.commands.measure import count  #, avg, minmax
+from nicos.commands.measure import count, avg, minmax
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
@@ -72,8 +72,7 @@ def test_scan():
     session.setMode(MASTER)
 
     session.experiment.setDetectors([session.getDevice('det')])
-    # XXX(dataapi)
-    # session.experiment.setEnvironment([avg(mm), minmax(mm)])
+    session.experiment.setEnvironment([avg(mm), minmax(mm)])
 
     try:
         # plain scan, with some extras: infostring, firstmove
@@ -88,6 +87,8 @@ def test_scan():
             ['s', 'cts', 'cts', 'cts', 'cts']
         assert dataset.info.startswith('test scan')
         assert len(dataset.detvaluelists) == 5
+        assert len(dataset.envvaluelists[0]) == 3
+        assert dataset.envvaluelists[0] == [1., 1., 1.]  # avg, min, max
         assert mm.read() == 1
 
         session.experiment.setEnvironment([])

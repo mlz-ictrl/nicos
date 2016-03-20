@@ -29,6 +29,7 @@ from time import time as currenttime, localtime
 from uuid import uuid4
 
 from nicos.core.errors import ProgrammingError
+from nicos.core.scan import DevStatistics
 from nicos.pycompat import iteritems, number_types
 from nicos.utils import lazy_property
 
@@ -106,8 +107,6 @@ class BaseDataset(object):
         for handler in self.handlers:
             getattr(handler, method)(*args)
 
-    # XXX(dataapi): these are tuples, should they be lists?
-
     def trimResult(self):
         """Trim objects that are not required to be kept after finish()."""
         del self.handlers[:]
@@ -168,10 +167,16 @@ class PointDataset(BaseDataset):
 
     def _reslist(self, devices, resdict, index=-1):
         ret = []
+        stats = None
         for dev in devices:
-            val = resdict.get(dev.name, None)
-            if val is not None and index > -1:
-                val = val[index]
+            if isinstance(dev, DevStatistics):
+                if stats is None:
+                    stats = self.valuestats
+                val = dev.retrieve(stats)
+            else:
+                val = resdict.get(dev.name, None)
+                if val is not None and index > -1:
+                    val = val[index]
             if isinstance(val, list):
                 ret.extend(val)
             else:

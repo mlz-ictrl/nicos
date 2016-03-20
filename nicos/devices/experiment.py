@@ -38,8 +38,7 @@ from nicos.core import listof, anytype, oneof, \
     Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
     Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
-# XXX(dataapi)
-# from nicos.core.scan import DevStatistics
+from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
     createThread
@@ -1027,18 +1026,18 @@ class Experiment(Device):
         all_created = True
         for devname in self.envlist:
             try:
-                # if ':' in devname:
-                #     devname, stat = devname.split(':')
-                #     dev = session.getDevice(devname, source=self)
-                #     dev = DevStatistics.subclasses[stat](dev)
-                # else:
-                dev = session.getDevice(devname, source=self)
+                if ':' in devname:
+                    devname, stat = devname.split(':')
+                    dev = session.getDevice(devname, source=self)
+                    dev = DevStatistics.subclasses[stat](dev)
+                else:
+                    dev = session.getDevice(devname, source=self)
             except Exception:
                 self.log.warning('could not create %r environment device' %
                                  devname, exc=1)
                 all_created = False
             else:
-                if not isinstance(dev, Readable):
+                if not isinstance(dev, (Readable, DevStatistics)):
                     self.log.warning('cannot use device %r as '
                                      'environment: it is not a Readable' % dev)
                     all_created = False
@@ -1053,8 +1052,8 @@ class Experiment(Device):
         for dev in devices:
             if isinstance(dev, Device):
                 dev = dev.name
-            # elif isinstance(dev, DevStatistics):
-            #     dev = str(dev)
+            elif isinstance(dev, DevStatistics):
+                dev = str(dev)
             if dev not in dlist:
                 dlist.append(dev)
         self.envlist = dlist
@@ -1079,6 +1078,8 @@ class Experiment(Device):
         self.detlist = newlist
         newlist = []
         for devname in self.envlist:
+            if ':' in devname:
+                devname = devname.split(':')[0]
             if devname not in session.configured_devices:
                 self.log.warning('removing device %r from environment, it '
                                  'does not exist in any loaded setup' % devname)

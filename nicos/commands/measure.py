@@ -40,6 +40,7 @@ __all__ = [
     'acquire', 'count', 'preset',
     'SetDetectors', 'AddDetector', 'ListDetectors',
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
+    'avg', 'minmax',
 ]
 
 
@@ -364,3 +365,40 @@ def ListEnvironment():
     """List the standard environment devices."""
     session.log.info('standard environment is %s' %
                      ', '.join(session.experiment.envlist))
+
+
+@usercommand
+def avg(dev):
+    """Create a "statistics device" that calculates the scan-point average.
+
+    This pseudo-device can be used in the sample environment in order to
+    calculate the average of a device over the whole scan point, as opposed to
+    the value at the end of the scan point.
+
+    For example:
+
+    >>> SetEnvironment(avg(T), minmax(T))
+
+    would record for every point in a scan the average and the minimum and
+    maximum of the device "T" over the counting period.
+    """
+    from nicos.core.scan import Average
+    return Average(dev)
+
+
+@usercommand
+def minmax(dev):
+    """Create a "statistics device" that calculates the scan-point min/maximum.
+
+    This pseudo-device can be used in the sample environment in order to
+    calculate the minimum and maximum of a device over the whole scan point.
+
+    For example:
+
+    >>> SetEnvironment(avg(T), minmax(T))
+
+    would record for every point in a scan the average and the minimum and
+    maximum of the device "T" over the counting period.
+    """
+    from nicos.core.scan import MinMax
+    return MinMax(dev)
