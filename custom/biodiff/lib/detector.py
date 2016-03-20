@@ -23,14 +23,11 @@
 # *****************************************************************************
 
 import time
-import os.path
 
 import numpy
 from PyTango import DevState
 
-from nicos import session
-from nicos.utils import updateFileCounter
-from nicos.core import Moveable, SIMULATION, status
+from nicos.core import Moveable, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
@@ -321,16 +318,3 @@ class BiodiffDetector(Detector):
             self._attached_photoshutter.maw(CLOSE)
         if self.ctrl_gammashutter:
             self._attached_gammashutter.maw(CLOSE)
-        # remove last empty file on errors
-        exp = session.experiment
-        if self._mode != SIMULATION:
-            lastimagepath = os.path.join(exp.proposalpath,
-                                         exp.lastimagefile)
-            if (os.path.isfile(lastimagepath) and
-                    os.path.getsize(lastimagepath) == 0):
-                self.log.debug("Remove empty file: %s" % exp.lastimagefile)
-                os.unlink(lastimagepath)
-            updateFileCounter(exp.imageCounterPath, 'point', exp.lastimage - 1)
-        else:
-            # only in sim-mode, see nicos.devices.experiment.Experiment
-            exp._lastimage = (exp._lastimage or exp.lastimage) - 1
