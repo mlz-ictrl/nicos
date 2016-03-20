@@ -28,10 +28,11 @@ Class for magnets powered by unipolar power supplies.
 
 import math
 
+from nicos import session
 from nicos.utils import clamp
 from nicos.utils.fitting import Fit
 from nicos.core import Moveable, HasLimits, status, ConfigurationError, \
-    LimitError, usermethod, NicosError, Attach, dataman
+    LimitError, usermethod, NicosError, Attach
 from nicos.core.params import Param, Override, tupleof
 from nicos.core.utils import multiStop
 from nicos.devices.generic.sequence import SeqDev, BaseSequencer
@@ -183,7 +184,7 @@ class CalibratedMagnet(HasLimits, Moveable):
 
         >>> B_mira.calibrate(Bf, 351)
         """
-        scans = dataman._last_scans
+        scans = session.data._last_scans
         self.log.info('determining calibration from scans, please wait...')
         Is = []
         Bs = []

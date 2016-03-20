@@ -40,7 +40,7 @@ except ImportError:
 import hashlib
 
 from nicos import session, nicos_version, custom_version, config
-from nicos.core import ADMIN, ConfigurationError, SPMError, User, dataman
+from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.core.data import ScanData
 from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError
@@ -776,14 +776,15 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         if index == '*':
             try:
-                self.write(STX, [ScanData(s) for s in dataman._last_scans])
+                self.write(STX, [ScanData(s)
+                                 for s in session.data._last_scans])
             # session.experiment may be None or a stub
             except (AttributeError, ConfigurationError):
                 self.write(STX, None)
         else:
             index = int(index)
             try:
-                dataset = ScanData(dataman._last_scans[index])
+                dataset = ScanData(session.data._last_scans[index])
                 self.write(STX, dataset)
             except (IndexError, AttributeError, ConfigurationError):
                 self.write(STX, None)

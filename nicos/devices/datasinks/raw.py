@@ -27,8 +27,8 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, dataman, \
-    ConfigurationError, LIVE
+from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, LIVE, \
+    ConfigurationError
 from nicos.pycompat import iteritems, TextIOWrapper
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
@@ -91,12 +91,12 @@ class RawImageSinkHandler(DataSinkHandler):
         self._arraydesc = arrayinfo[0]
 
     def prepare(self):
-        dataman.assignCounter(self.dataset)
-        self._datafile = dataman.createDataFile(
+        session.data.assignCounter(self.dataset)
+        self._datafile = session.data.createDataFile(
             self.dataset, self._template, self._subdir)
-        self._headerfile = dataman.createDataFile(
+        self._headerfile = session.data.createDataFile(
             self.dataset, self._headertemplate, self._subdir)
-        self._logfile = dataman.createDataFile(
+        self._logfile = session.data.createDataFile(
             self.dataset, self._logtemplate, self._subdir)
 
     def _writeHeader(self, fp, header):

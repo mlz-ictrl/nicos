@@ -37,7 +37,6 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _infostr
 from nicos.core.scan import Scan
 from nicos.core.constants import FINAL
-from nicos.core.data import dataman
 
 
 class HKLScan(Scan):
@@ -52,7 +51,7 @@ class HKLScan(Scan):
     def acquire(self, point, preset):
         res = _scanfuncs[self.scanmode](point.target[0], subscan=True)
         vals = [x[2] for x in res.detvaluelists]
-        dataman.putResults(FINAL, {session.getDevice('intensity').name: [max(vals)]})
+        session.data.putResults(FINAL, {session.getDevice('intensity').name: [max(vals)]})
 
 class CScan(Scan):
     def __init__(self, devs, center, steps, numperside, **kwargs):

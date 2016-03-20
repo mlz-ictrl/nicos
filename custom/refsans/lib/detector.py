@@ -32,9 +32,10 @@ import numpy as np
 from IO import Counter
 from Detector import Detector
 
+from nicos import session
 from nicos.core import Attach, Param, Value, Override, oneof, SIMULATION, \
     INFO_CATEGORIES, LIVE
-from nicos.core.data import DataSinkHandler, dataman
+from nicos.core.data import DataSinkHandler
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
     TimerChannelMixin, CounterChannelMixin
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
@@ -176,8 +177,8 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         # we use it for the prefix of the det.
         # the other entries are normally 'just' the hardlinks to the datafile
         # we use the first for the filename and the others for the links.
-        dataman.assignCounter(self.dataset)
-        self.prefix, allfilepaths = dataman.getFilenames(
+        session.data.assignCounter(self.dataset)
+        self.prefix, allfilepaths = session.data.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir)
         self.linkpaths = allfilepaths[1:]
         # set prefix on tacodevice
@@ -191,7 +192,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         if self.detector.name in results:
             image = results[self.detector.name][1][0]
             self.log.debug("results: %r" % results)
-            self._file = dataman.createDataFile(
+            self._file = session.data.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],
                 self.sink.subdir)
             self.writeHeader(self._file, self.dataset.metainfo, image)
@@ -243,7 +244,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
 
             # link files
             # self.linkpaths enthält den zieldateinamen und die linknamen als eine liste
-            # dataman.linkFiles(self.linkpaths[0], self.linkpaths[1:])
+            # session.data.linkFiles(self.linkpaths[0], self.linkpaths[1:])
 
 
 class ComtecHeaderSink(ImageSink):

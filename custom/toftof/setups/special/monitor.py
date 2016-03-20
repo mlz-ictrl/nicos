@@ -15,7 +15,7 @@ _expcolumn = Row(
                        maxlen=40),
                  Field(name='Sample', key='sample/samplename', width=30,
                        istext=True, maxlen=40),
-                 Field(name='Last Image file', key='exp/lastimage'),
+                 Field(name='Last Image file', key='exp/lastpoint'),
                 ),
         ],
     ),

@@ -32,10 +32,9 @@ except ImportError:
     odrmod = None
 
 from nicos import session
-
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
-from nicos.core import FINAL, dataman, MASTER
+from nicos.core import FINAL, MASTER
 
 
 def setup_module():
@@ -55,13 +54,13 @@ def generate_dataset():
     assert len(data) == len(xpoints)
     tdev = session.getDevice('tdev')
     det = session.getDevice('det')
-    dataman.beginScan(devices=[tdev], detectors=[det])
+    session.data.beginScan(devices=[tdev], detectors=[det])
     for (x, y) in zip(xpoints, data):
-        dataman.beginPoint()
-        dataman.putValues({'tdev': (currenttime(), x)})
-        dataman.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
-        dataman.finishPoint()
-    dataman.finishScan()
+        session.data.beginPoint()
+        session.data.putValues({'tdev': (currenttime(), x)})
+        session.data.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
+        session.data.finishPoint()
+    session.data.finishScan()
 
 
 def test_fwhm():

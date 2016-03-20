@@ -37,7 +37,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     PositionError, TimeoutError
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
-from nicos.core.data import dataman, ScanData
+from nicos.core.data import ScanData
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types
 from nicos.commands.measure import acquire
@@ -152,7 +152,7 @@ class Scan(object):
             session.endActionScope()
 
     def beginScan(self):
-        self.dataset = dataman.beginScan(
+        self.dataset = session.data.beginScan(
             subscan=self._subscan,
             devices=self._devices,
             environment=self._envlist,
@@ -184,7 +184,7 @@ class Scan(object):
         session.breakpoint(2)
 
     def endScan(self):
-        dataman.finishScan()
+        session.data.finishScan()
         try:
             session.elogEvent('scanend', ScanData(self.dataset))
         except Exception:
@@ -295,7 +295,7 @@ class Scan(object):
                 self.handleError('read', err)
                 val = [None] * len(dev.valueInfo())
             values[dev.name] = (currenttime(), val)
-        dataman.putValues(values)
+        session.data.putValues(values)
 
     def shortDesc(self):
         if self.dataset and self.dataset.counter > 0:
@@ -351,14 +351,14 @@ class Scan(object):
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
-                        point = dataman.beginPoint(target=position)
-                        dataman.putValues(waitresults)
+                        point = session.data.beginPoint(target=position)
+                        session.data.putValues(waitresults)
                         try:
                             self.acquire(point, self._preset)
                         finally:
                             # read environment at least once
                             self.readEnvironment()
-                            dataman.finishPoint()
+                            session.data.finishPoint()
                     except NicosError as err:
                         self.handleError('count', err)
                     except SkipPoint:
@@ -544,11 +544,11 @@ class ContinuousScan(Scan):
                         for (detname, (vals, _)) in iteritems(read)}
                 looptime = currenttime()
                 actualpos = [0.5 * (devpos + new_devpos)]
-                dataman.beginPoint()
-                dataman.putValues({device.name: (looptime, actualpos)})
+                session.data.beginPoint()
+                session.data.putValues({device.name: (looptime, actualpos)})
                 self.readEnvironment()
-                dataman.putResults(FINAL, diff)
-                dataman.finishPoint()
+                session.data.putResults(FINAL, diff)
+                session.data.finishPoint()
                 last = read
                 devpos = new_devpos
                 for det in detlist:
@@ -610,14 +610,14 @@ class ManualScan(Scan):
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
         try:
-            point = dataman.beginPoint()
+            point = session.data.beginPoint()
             actualpos = self.readPosition()
-            dataman.putValues(actualpos)
+            session.data.putValues(actualpos)
             try:
                 acquire(point, preset)
             finally:
                 self.readEnvironment()
-                dataman.finishPoint()
+                session.data.finishPoint()
         except SkipPoint:
             pass
         finally:

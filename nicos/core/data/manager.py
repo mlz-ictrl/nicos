@@ -42,9 +42,10 @@ from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
 
 
 class DataManager(object):
-    """Singleton class that manages incoming data.
+    """Singleton device class that manages incoming data.
 
-    It takes all data that is produced by detectors and distributes it to sinks.
+    It takes all data that is produced by detectors, as well as device values
+    and metadata, and distributes it to data sinks.
     """
 
     def __init__(self):
@@ -56,7 +57,7 @@ class DataManager(object):
 
     @lazy_property
     def log(self):
-        logger = session.getLogger('nicos-data')  # XXX name?
+        logger = session.getLogger('nicos-data')
         logger.setLevel(logging.INFO)
         return logger
 
@@ -275,6 +276,12 @@ class DataManager(object):
                 nextnum -= 1
             setattr(dataset, attr, nextnum)
 
+        # push special counters into parameters for display
+        if dataset.settype == 'scan':
+            session.experiment._setROParam('lastscan', dataset.counter)
+        elif dataset.settype == 'point':
+            session.experiment._setROParam('lastpoint', dataset.counter)
+
     def getCounters(self):
         """Return a dictionary with the current values of all relevant file
         counters.
@@ -417,7 +424,3 @@ class DataManager(object):
                              counterpath)
             session.log.warning('Please check that datasinks filenametemplate '
                                 'cache keys do not contain %(counter).')
-
-
-# Create the singleton instance right now.
-dataman = DataManager()

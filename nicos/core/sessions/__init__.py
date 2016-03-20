@@ -40,7 +40,7 @@ import numpy
 
 from nicos import config, nicos_version, custom_version
 from nicos.core.spm import SPMHandler
-from nicos.core.data import DataSink, dataman
+from nicos.core.data import DataSink, DataManager
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
@@ -145,7 +145,8 @@ class Session(object):
 
         # cache connection
         self.cache = None
-
+        # data manager
+        self.data = DataManager()
         # sysconfig devices
         self._instrument = None
         self._experiment = None
@@ -698,7 +699,8 @@ class Session(object):
                     dev.log.error('can not unload, dependency still active!')
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  'failed on these devices: %r' % devs)
-        dataman.reset()
+
+        self.data.reset()
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()

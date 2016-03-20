@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import FINAL, LIVE, Override
-from nicos.core.data import DataSink, DataSinkHandler, dataman
+from nicos.core.data import DataSink, DataSinkHandler
 from nicos.core.data.manager import DataFile
 from nicos.devices.datasinks import FileSink
 from nicos.utils import syncFile
@@ -85,11 +85,11 @@ class SingleFileSinkHandler(DataSinkHandler):
 
     def _createFile(self):
         if self._file is None:
-            dataman.assignCounter(self.dataset)
-            self._file = dataman.createDataFile(self.dataset,
-                                                self.sink.filenametemplate,
-                                                self.sink.subdir,
-                                                fileclass=self.fileclass)
+            session.data.assignCounter(self.dataset)
+            self._file = session.data.createDataFile(self.dataset,
+                                                     self.sink.filenametemplate,
+                                                     self.sink.subdir,
+                                                     fileclass=self.fileclass)
 
     def prepare(self):
         if not self.defer_file_creation:

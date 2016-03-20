@@ -26,9 +26,10 @@
 
 from time import strftime, localtime
 
+from nicos import session
 from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, DataSink, DataSinkHandler, \
-    INFO_CATEGORIES, Override, Param, dataman
+    INFO_CATEGORIES, Override, Param
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import TextIOWrapper, iteritems
 
@@ -126,9 +127,9 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._template = sink.filenametemplate
 
     def prepare(self):
-        dataman.assignCounter(self.dataset)
-        fp = dataman.createDataFile(self.dataset, self._template,
-                                    self.sink.subdir)
+        session.data.assignCounter(self.dataset)
+        fp = session.data.createDataFile(self.dataset, self._template,
+                                         self.sink.subdir)
         self._fname = fp.shortpath
         self._filepath = fp.filepath
         self._file = TextIOWrapper(fp)

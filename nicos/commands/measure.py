@@ -34,7 +34,6 @@ from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.constants import SIMULATION, INTERRUPTED, FINAL
 from nicos.core.errors import UsageError, NicosError
 from nicos.core.utils import waitForStatus
-from nicos.core.data import dataman
 from nicos.pycompat import number_types, string_types, iteritems
 
 __all__ = [
@@ -95,7 +94,7 @@ def acquire(point, preset):
     if preset:
         for det in point.detectors:
             det.setPreset(**preset)
-    dataman.updateMetainfo()
+    session.data.updateMetainfo()
     point.started = currenttime()
     try:
         for det in point.detectors:
@@ -119,7 +118,7 @@ def acquire(point, preset):
                     except Exception:
                         det.log.exception('error reading measurement data')
                         res = None
-                    dataman.putResults(quality, {det.name: res})
+                    session.data.putResults(quality, {det.name: res})
                 if quality == FINAL:
                     detset.discard(det)
             if not detset:
@@ -155,7 +154,7 @@ def acquire(point, preset):
             except Exception:
                 det.log.exception('error reading measurement data')
                 res = None
-            dataman.putResults(INTERRUPTED, {det.name: res})
+            session.data.putResults(INTERRUPTED, {det.name: res})
         raise
     finally:
         point.finished = currenttime()
@@ -180,13 +179,13 @@ def inner_count(detectors, preset, temporary=False):
                 environment=session.experiment.sampleenv,
                 preset=preset)
     if temporary:
-        point = dataman.beginTemporaryPoint(**args)
+        point = session.data.beginTemporaryPoint(**args)
     else:
-        point = dataman.beginPoint(**args)
+        point = session.data.beginPoint(**args)
     try:
         acquire(point, preset)
     finally:
-        dataman.finishPoint()
+        session.data.finishPoint()
     msg = []
     retval = []
     for det in detectors:

@@ -53,7 +53,8 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         fp.seek(0)
         exp = session.experiment
         w("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n" %
-          (exp.users, exp.lastscan, exp.lastimage, exp.sample.samplename))
+          (exp.users, exp.proposal, self.dataset.counter,
+           exp.sample.samplename))
         w(separator)
 
         # TODO: use right value, remove dummylines

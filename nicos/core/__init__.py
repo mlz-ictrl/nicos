@@ -44,7 +44,7 @@ from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
     nicosdev, relative_path, absolute_path, subdir, mailaddress, limits, \
     dictwith, host
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
-    DataSinkHandler, dataman
+    DataSinkHandler
 from nicos.core.scan import Scan
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \

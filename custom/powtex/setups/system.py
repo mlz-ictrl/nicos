@@ -81,7 +81,6 @@ devices = dict(
                       templates = 'templates',
                       sendmail = False,
                       zipdata = False,
-                      # scancounter = 'filecounter', #backwards compatibility
                      ),
 
 

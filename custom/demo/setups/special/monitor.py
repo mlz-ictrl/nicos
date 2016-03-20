@@ -19,7 +19,7 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last Image file', key='exp/lastimage'),
+                 Field(name='Last Image file', key='exp/lastpoint'),
                 ),
         ],
         setups='sans or refsans',

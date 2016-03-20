@@ -8,7 +8,7 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=50,
                        istext=True, maxlen=50),
-                 Field(name='Last file', key='exp/lastimage'),
+                 Field(name='Last file', key='exp/lastpoint'),
                  Field(name='Current Sample', key='sample/samplename', width=16),
                 ),
         ],

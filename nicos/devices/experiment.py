@@ -40,7 +40,6 @@ from nicos.core import listof, anytype, oneof, \
 from nicos.core.params import subdir, nonemptystring, expanded_path
 # XXX(dataapi)
 # from nicos.core.scan import DevStatistics
-from nicos.core.data import dataman
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
     createThread
@@ -62,10 +61,6 @@ class Experiment(Device):
 
     Several parameters configure special behavior:
 
-    * `datapath` (usually set proposal-specific by the `new` method) is a list
-      of paths where raw data files are stored.  If there is more than one entry
-      in the list, the data files are created in the first path and hardlinked
-      in the others.
     * `detlist` and `envlist` are lists of names of the currently selected
       standard detector and sample environment devices, respectively.  The
       Experiment object has `detectors` and `sampleenv` properties that return
@@ -146,34 +141,20 @@ class Experiment(Device):
                                 settable=True, userparam=False),
         'propinfo':       Param('Dict of info for the current proposal',
                                 type=dict, default={}, userparam=False),
-        # dir param
         'proposalpath':   Param('Proposal prefix upon creation of experiment',
                                 type=str, userparam=False, settable=True),
         'sampledir':      Param('Current sample-specific subdir', type=subdir,
                                 default='', userparam=False, settable=True),
-        # counter
         'counterfile':    Param('Name of the file with data counters in '
                                 'dataroot and datapath', default='counters',
                                 userparam=False, type=subdir),
-        # XXX(dataapi): check every use, then reintroduce counters on
-        # experiment and filenames on sinks
-        # 'scancounter':  Param('Name of the global scan counter in dataroot',
-        #                       default='scancounter', userparam=False,
-        #                       type=subdir, mandatory=False, settable=False),
-        # 'lastscan':     Param('Last used value of the scancounter', type=int,
-        #                       settable=False, volatile=True, mandatory=False),
-        # 'lastscanfile': Param('Last/Currently written scanfile in this experiment',
-        #                       type=str, settable=False, mandatory=False),
-        # 'imagecounter': Param('Name of the global image counter in dataroot',
-        #                       default='imagecounter', userparam=False,
-        #                       type=subdir, mandatory=False, settable=False),
-        # 'lastimage':    Param('Last used value of the imagecounter', type=int,
-        #                       settable=False, volatile=True, mandatory=False),
-        # 'lastimagefile': Param('Last/Currently written imagefile in this experiment',
-        #                        type=str, settable=False, mandatory=False),
         'errorbehavior':  Param('Behavior on unhandled errors in commands',
                                 type=oneof('abort', 'report'), settable=True,
                                 default='report'),
+        'lastscan':       Param('Last used value of the scan counter - '
+                                'ONLY for display purposes!', type=int),
+        'lastpoint':      Param('Last used value of the point counter - '
+                                'ONLY for display purposes!', type=int),
     }
 
     attached_devices = {
@@ -513,7 +494,7 @@ class Experiment(Device):
         self.envlist = []
         for notifier in session.notifiers:
             notifier.reset()
-        dataman.reset()
+        session.data.reset()
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)

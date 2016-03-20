@@ -40,7 +40,6 @@ except ImportError:
     PIL = None
 
 from nicos import session, config
-from nicos.core import dataman
 from nicos.utils import readFile
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
@@ -150,10 +149,12 @@ def test_scan_sink():
     assert contents[-1].startswith('### End of NICOS data file')
 
     # check counter attributes
-    scan = dataman._last_scans[-1]
+    scan = session.data._last_scans[-1]
     assert scan.counter == 43
     assert scan.propcounter == 1
     assert scan.samplecounter == 1
+    assert session.experiment.lastscan == 43
+    assert session.experiment.lastpoint == 172
 
 
 def test_raw_sinks():

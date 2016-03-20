@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
-    NicosError, dataman
+    NicosError
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
@@ -450,7 +450,7 @@ def appendscan(numpoints=5, stepsize=None):
         raise UsageError('number of points must be either positive or '
                          'negative')
     direction = numpoints / abs(numpoints)
-    dslist = dataman._last_scans
+    dslist = session.data._last_scans
     if not dslist:
         raise NicosError('no last scan saved')
     contuids = []

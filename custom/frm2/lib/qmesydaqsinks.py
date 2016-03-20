@@ -24,7 +24,8 @@
 
 """QMesyDAQ file writer classes."""
 
-from nicos.core import Override, Attach, DataSinkHandler, dataman
+from nicos import session
+from nicos.core import Override, Attach, DataSinkHandler
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.vendor.qmesydaq import Image
 
@@ -32,20 +33,20 @@ from nicos.devices.vendor.qmesydaq import Image
 class HistogramSinkHandler(DataSinkHandler):
 
     def prepare(self):
-        dataman.assignCounter(self.dataset)
-        filepaths = dataman.getFilenames(self.dataset,
-                                         self.sink.filenametemplate,
-                                         self.sink.subdir)[1]
+        session.data.assignCounter(self.dataset)
+        filepaths = session.data.getFilenames(self.dataset,
+                                              self.sink.filenametemplate,
+                                              self.sink.subdir)[1]
         self.sink._attached_image.histogramfile = filepaths[0]
 
 
 class ListmodeSinkHandler(DataSinkHandler):
 
     def prepare(self):
-        dataman.assignCounter(self.dataset)
-        filepaths = dataman.getFilenames(self.dataset,
-                                         self.sink.filenametemplate,
-                                         self.sink.subdir)[1]
+        session.data.assignCounter(self.dataset)
+        filepaths = session.data.getFilenames(self.dataset,
+                                              self.sink.filenametemplate,
+                                              self.sink.subdir)[1]
         self.sink._attached_image.listmodefile = filepaths[0]
 
 
