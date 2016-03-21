@@ -38,7 +38,7 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from nose.tools import assert_raises  # pylint: disable=E0611
+from nose.tools import make_decorator, istest, assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
@@ -51,9 +51,38 @@ from nicos.utils import tcpSocket
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.pycompat import exec_, reraise
 
+# try to get the nose conf singleton provided by the noseglobalconf plugin
+# if it is not available,  set verbosity to 2.
+try:
+    from noseglobalconf import noseconf
+except ImportError:
+    class DummyConf(object):
+        pass
+    noseconf = DummyConf()
+    noseconf.verbosity = 2
+
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
 pythonpath = None
+
+
+def gen_if_verbose(func):
+    '''Wrapper to reduce verbosity for test-generator functions
+    '''
+
+    @wraps(func)
+    def new_func():
+        if noseconf.verbosity >= 3:
+            for f_args in func():
+                yield f_args
+        else:
+            @istest
+            def collecttests():
+                for f_args in func():
+                    f_args[0](*f_args[1:])
+            yield collecttests
+    new_func = make_decorator(func)(new_func)
+    return new_func
 
 
 def raises(exc, *args, **kwds):

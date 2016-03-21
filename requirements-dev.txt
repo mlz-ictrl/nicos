@@ -6,3 +6,5 @@ Sphinx>=1.2.1
 rst2pdf>=0.16
 memory_profiler
 line_profiler
+--allow-external noseglobalconf
+noseglobalconf>=0.0.2

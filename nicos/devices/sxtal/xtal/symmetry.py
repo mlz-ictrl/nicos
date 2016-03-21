@@ -204,6 +204,7 @@ def _testbravais(t, mode, hkl):
 
 def _testlaue(sym):
     # This is a 'template' function
+    # uniq only contains test data
     from nicos.devices.sxtal.xtal.uniqdata import uniq
     lauein = np.array([(h, k, l) for l in range(-2, 3)
                        for k in range(-2, 3)
@@ -213,9 +214,11 @@ def _testlaue(sym):
     assert np.array_equiv(uniq[sym], res)
 
 
+# Note: no gen_if_verbose decorator here, the
+# reduction is done in test/test_basic/test_symmetry
 def _test():
-    import six
-    for t, vals in six.iteritems(valid):
+    from nicos.pycompat import iteritems
+    for t, vals in iteritems(valid):
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.
@@ -223,7 +226,7 @@ def _test():
                 _testbravais(t, mode, hkl)
             tf1.description = 'Bravais allowed %s %s' % (t, hkl)
             yield tf1, t, True, hkl
-    for t, vals in six.iteritems(invalid):
+    for t, vals in iteritems(invalid):
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.
@@ -231,6 +234,7 @@ def _test():
                 _testbravais(t, mode, hkl)
             tf2.description = 'Bravais forbidden %s %s' % (t, hkl)
             yield tf2, t, False, hkl
+
     for sym in symbols:
         # this def is necessary to get uniq descriptions in the
         # test output.
@@ -238,3 +242,4 @@ def _test():
             _testlaue(sym)
         tf3.description = 'Laue uniqds for %s' % sym
         yield tf3, sym
+
