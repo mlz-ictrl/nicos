@@ -255,14 +255,17 @@ _amagnet_plot = Block('Antares Magnet plot', [
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
-             Field(name='P_spinflipper', dev='P_spinflipper'),
+             Field(name='P', dev='P_spinflipper'),
              #Field(name='F_spinflipper', dev='F_spinflipper'),
             ),
     BlockRow(
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
             ),
-    BlockRow(Field(name='Temperature of Spinflipper', dev='T_spinflipper'),),
+    BlockRow(
+             Field(name='Temperature', dev='T_spinflipper'),
+             Field(name='Voltage', dev='U_spinflipper'),
+            ),
     BlockRow(
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),

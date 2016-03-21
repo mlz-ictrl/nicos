@@ -7,6 +7,7 @@ group = 'optional'
 modules = ['sans1.spinflipper_commands']
 
 tango_base = 'tango://spinflip.sans1.frm2:10000/box/'
+tango_base_truerms = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 
 devices = dict(
 # AG1016 amplifier
@@ -79,4 +80,14 @@ devices = dict(
                             loglevel = 'info',
                             unit = 'C',
     ),
+
+# 34461A
+    U_spinflipper = device('sans1.34461a.VoltageMeter',
+               description = 'Voltage of 34461A True RMS Meter',
+               tangodevice = tango_base_truerms + 'rmsspinflip/io',
+               unit = 'V',
+               fmtstr = '%.2f',
+               pollinterval = 5,
+               maxage = 18,
+              ),
 )
