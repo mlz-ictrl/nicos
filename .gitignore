@@ -46,3 +46,8 @@ TAGS
 
 #SCITE
 SciTEDirectory.properties
+
+#mprof/kernprof/line_profile
+mprofile_*.dat
+*.prof
+*.lprof

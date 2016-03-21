@@ -4,9 +4,13 @@ import os
 import sys
 import atexit
 import argparse
+import signal
 import subprocess
 from os import path
 from time import sleep
+
+import psutil
+
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -26,7 +30,15 @@ def echo(s):
 def spawn(script, *args, **kwds):
     wait = kwds.pop('wait', False)
     stdout = dev_null if not wait else None
-    p = subprocess.Popen((sys.executable, path.join(bin_path, script)) + args,
+    executable = (sys.executable,)
+    prof = kwds.get('profile', None)
+    if prof == 'mprof':
+        executable = ('mprof', 'run', '--include-children', '--python')
+    if prof == 'kernprof':
+        executable = ('kernprof',)
+    if prof == 'line_prof':
+        executable = ('kernprof', '--line-by-line')
+    p = subprocess.Popen(executable + (path.join(bin_path, script),) + args,
                          stdout=stdout)
     if wait:
         try:
@@ -35,7 +47,9 @@ def spawn(script, *args, **kwds):
             p.terminate()
     else:
         nice_name = '%s %s' % (script, ' '.join(args))
-        background_processes.append((nice_name, p))
+        background_processes.append((nice_name, p, prof))
+
+
 
 
 def wait():
@@ -51,14 +65,27 @@ def cleanup():
     # clean up processes, even if nicos-demo is terminated early
     if background_processes:
         echo('Cleaning up...\n')
-    for nice_name, proc in reversed(background_processes):
+    pgid = None
+    for nice_name, proc, prof in reversed(background_processes):
         try:
+            if not pgid:
+                pgid= os.getpgid(proc.pid)
+            if prof == 'mprof':
+                parent = psutil.Process(proc.pid)
+                for c in parent.children():
+                    c.terminate()
+                sleep(0.5)
             proc.terminate()
         except OSError as e:
             # might already have terminated early
             echo('could not stop %s %s: %s\n' % (nice_name, e))
         else:
             proc.wait()
+    #under some circumstances (re-start due to internal errors)
+    # the poller or watchdog may become detached
+    # from its parents, so do a final safety kill
+    if pgid:
+        os.killpg(pgid, signal.SIGTERM)
     echo('NICOS demo finished.\n')
 
 
@@ -98,70 +125,86 @@ parser.add_argument('--pushversioninfo', dest='pushversioninfo',
                     action='store_true', default=False,
                     help='Start the version update daemon')
 
+parser.add_argument('--profile', dest='profile',
+                    action='store', default=None,
+                    choices=['mprof', 'kernprof', 'line_prof'],
+                    help='''Start processes with profiling - available:
+'mprof': Run the mprof memory profiler,
+'kernprof': Run kernprof globally,
+'line_prof': Run kernprof in line_by_line mode.
+See https://pypi.python.org/pypi/memory_profiler and
+https://github.com/rkern/line_profiler for extended documentation.''')
+
 parser.add_argument('restargs', nargs='*', help=argparse.SUPPRESS)
 
 opts = parser.parse_args()
 rest_args = opts.restargs
 
+if opts.profile:
+    spawnargs = {'profile': opts.profile}
+else:
+    spawnargs = {}
+
 echo('Starting NICOS demo system, please wait:')
 
 if not opts.clearcache:
-    spawn('nicos-cache')
+    spawn('nicos-cache', **spawnargs)
 else:
-    spawn('nicos-cache', '--clear')
+    spawn('nicos-cache', '--clear', **spawnargs)
 echo(' cache')
 sleep(2)
 
 if opts.pushversioninfo:
-    spawn('nicos-pushversioninfo')
+    spawn('nicos-pushversioninfo', **spawnargs)
     echo(' pushversioninfo')
     sleep(0.1)
 
 if not opts.nowatchdog:
-    spawn('nicos-watchdog')
+    spawn('nicos-watchdog', **spawnargs)
     echo(' watchdog')
     sleep(0.1)
 
 if not opts.noelog:
-    spawn('nicos-elog')
+    spawn('nicos-elog', **spawnargs)
     echo(' elog')
     sleep(0.1)
 
-spawn('nicos-poller')
+spawn('nicos-poller', **spawnargs)
 echo(' poller')
 sleep(0.1)
 
 if not opts.nomonitor:
-    monitorargs = ['-S', 'monitor-' + opts.monitorsetup] if opts.monitorsetup else []
+    monitorargs = ['-S', 'monitor-' + opts.monitorsetup] \
+        if opts.monitorsetup else []
     if opts.nodaemon:
         echo('.\n')
-        spawn('nicos-monitor', *monitorargs, wait=True)
+        spawn('nicos-monitor', *monitorargs, wait=True, **spawnargs)
     else:
-        spawn('nicos-monitor', *monitorargs)
+        spawn('nicos-monitor', *monitorargs, **spawnargs)
         echo(' monitor')
         sleep(0.1)
 
 if opts.htmlmonitor:
-    monitorargs = ['-S', 'monitor-html',]
-    spawn('nicos-monitor', *monitorargs)
+    monitorargs = ['-S', 'monitor-html']
+    spawn('nicos-monitor', *monitorargs, **spawnargs)
     echo(' web-monitor')
 
 if opts.aioclient:
     echo('\nServices started, starting console.\n')
-    spawn('nicos-aio', wait=True)
+    spawn('nicos-aio', wait=True, **spawnargs)
 elif not opts.nodaemon:
-    spawn('nicos-daemon')
+    spawn('nicos-daemon', **spawnargs)
     echo(' daemon')
     sleep(1)
     echo('.\n')
     if not opts.noclient:
         if opts.textclient:
-            spawn('nicos-client', opts.guiuser, wait=True)
+            spawn('nicos-client', opts.guiuser, wait=True, **spawnargs)
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
             guiargs.extend([opts.guiuser, ''] + rest_args)
-            spawn('nicos-gui', *guiargs, wait=True)
+            spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()
 else:
