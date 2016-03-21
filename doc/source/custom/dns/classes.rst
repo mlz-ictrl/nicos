@@ -6,7 +6,7 @@ Instrument specific devices
 .. autoclass:: DNSDetector()
 
 .. automodule:: nicos.dns.dnsfileformat
-.. autoclass:: DNSFileFormat()
+.. autoclass:: DNSFileSink()
 
 .. automodule:: nicos.dns.toellner
 .. autoclass:: Toellner()

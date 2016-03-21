@@ -171,7 +171,7 @@ etc.), but also do more validation of the parameter.
 
    Create a converter that accepts only dictionaries with string keys.  The
    dictionaries must have exactly the keys given to ``dictwith``, and the
-   values are converted using the ``value_converter``s.  For example::
+   values are converted using the ``value_converter``\s.  For example::
 
       dictwith(name=str, value=int)
 

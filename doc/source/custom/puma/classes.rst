@@ -5,10 +5,6 @@ Instrument specific devices
 
 .. autoclass:: Attenuator()
 
-.. automodule:: nicos.puma.comb_ax_old
-
-.. autoclass:: CombAxis()
-
 .. automodule:: nicos.puma.comb_ax
 
 .. autoclass:: CombAxis()

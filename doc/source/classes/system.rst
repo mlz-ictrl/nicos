@@ -72,9 +72,10 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 Data Sink Handlers
 ^^^^^^^^^^^^^^^^^^
 
-.. module:: nicos.core.data
+.. currentmodule:: nicos.core.data
 
 .. autoclass:: DataSinkHandler
+
 
 .. _notifiers:
 

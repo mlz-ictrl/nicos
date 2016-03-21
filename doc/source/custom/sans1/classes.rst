@@ -3,7 +3,7 @@ Instrument specific classes
 
 .. automodule:: nicos.sans1.bersans
 
-.. autoclass:: BerSANSFileFormat()
+.. autoclass:: BerSANSImageSink()
 
 .. automodule:: nicos.sans1.ccmsans
 

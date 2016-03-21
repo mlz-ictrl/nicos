@@ -11,4 +11,5 @@ with a few APIs provided by the NICOS base library.
 
    designer
    widgets
+   panels
    client

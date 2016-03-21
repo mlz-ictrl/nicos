@@ -14,7 +14,3 @@ Instrument specific devices
 .. automodule:: nicos.biodiff.motor
 
 .. autoclass:: MicrostepMotor()
-
-.. automodule:: nicos.biodiff.tiff
-
-.. autoclass:: TIFFFileFormat()
