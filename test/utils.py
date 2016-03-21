@@ -38,7 +38,7 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from nose.tools import make_decorator, istest, assert_raises  # pylint: disable=E0611
+from nose.tools import istest, assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
@@ -74,14 +74,16 @@ def gen_if_verbose(func):
     def new_func():
         if noseconf.verbosity >= 3:
             for f_args in func():
-                yield f_args
+                def run(r_args):
+                    r_args[0](*r_args[1:])
+                run.description =f_args[0].description
+                yield run, f_args
         else:
             @istest
             def collecttests():
                 for f_args in func():
                     f_args[0](*f_args[1:])
             yield collecttests
-    new_func = make_decorator(func)(new_func)
     return new_func
 
 
