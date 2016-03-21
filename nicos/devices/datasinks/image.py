@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,26 +25,19 @@
 """Base Image data sink classes for NICOS."""
 
 from nicos import session
-from nicos.core import Override, Param, subdir, listof, LIVE, FINAL
+from nicos.core import FINAL, LIVE, Override
 from nicos.core.data import DataSink, DataSinkHandler, dataman
 from nicos.core.data.manager import DataFile
+from nicos.devices.datasinks import FileSink
 from nicos.utils import syncFile
 
 
-class ImageSink(DataSink):
+class ImageSink(FileSink):
     """Base class for sinks that save arrays to "image" files."""
 
-    parameters = {
-        'subdir':           Param('Filetype specific subdirectory name for '
-                                  'the image files',
-                                  type=subdir, mandatory=False, default=''),
-        'filenametemplate': Param('List of templates for data file names '
-                                  '(will be hardlinked)', type=listof(str),
-                                  default=['%(pointcounter)08d.dat'],
-                                  settable=False),
-    }
-
     parameter_overrides = {
+        'subdir': Override(description='Filetype specific subdirectory name '
+                           'for the image files'),
         'settypes': Override(default=['point'])
     }
 

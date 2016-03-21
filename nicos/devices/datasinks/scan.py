@@ -27,8 +27,9 @@
 from time import strftime, localtime
 
 from nicos.commands.output import printinfo
-from nicos.core import ConfigurationError, Override, Param, listof, \
-    INFO_CATEGORIES, DataSink, DataSinkHandler, dataman
+from nicos.core import ConfigurationError, DataSink, DataSinkHandler, \
+    INFO_CATEGORIES, Override, Param, dataman
+from nicos.devices.datasinks import FileSink
 from nicos.pycompat import TextIOWrapper, iteritems
 
 
@@ -126,7 +127,8 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
 
     def prepare(self):
         self._number = dataman.assignCounter(self.dataset)
-        fp = dataman.createDataFile(self.dataset, self._template)
+        fp = dataman.createDataFile(self.dataset, self._template,
+                                    self.sink.subdir)
         self._fname = fp.shortpath
         self._filepath = fp.filepath
         self._file = TextIOWrapper(fp)
@@ -207,23 +209,20 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
             self._file = None
 
 
-class AsciiScanfileSink(DataSink):
+class AsciiScanfileSink(FileSink):
     """A data sink that writes to a plain ASCII data file."""
     parameters = {
         'commentchar':      Param('Comment character', type=str, default='#',
                                   settable=True),
         'semicolon':        Param('Whether to add a semicolon between X and Y '
                                   'values', type=bool, default=True),
-        'filenametemplate': Param('Name template for the files written',
-                                  type=listof(str), userparam=False,
-                                  settable=False, default=[
-                                      '%(proposal)s_%(scancounter)08d.dat']),
     }
 
     handlerclass = AsciiScanfileSinkHandler
 
     parameter_overrides = {
         'settypes':  Override(default=['scan', 'subscan']),
+        'filenametemplate': Override(default=['%(proposal)s_%(scancounter)08d.dat']),
     }
 
     def doUpdateCommentchar(self, value):
