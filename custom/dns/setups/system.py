@@ -1,4 +1,4 @@
-# description: Description of the setup (detailed)
+#  -*- coding: utf-8 -*-
 description = 'system setup for DNS '
 
 group = 'lowlevel'
