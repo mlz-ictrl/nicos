@@ -42,11 +42,10 @@ Data Sinks
 
 .. XXX adapt this
 
-These data sinks provide different ways of processing scan data.  They can be
-configured in setups like normal devices and selected in :ref:`sysconfig`.
+These data sinks provide different ways of processing measured data.  They can
+be configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. module:: nicos.core.data
-
 
 .. autoclass:: DataSink()
 
@@ -75,6 +74,7 @@ Data Sink Handlers
 .. currentmodule:: nicos.core.data
 
 .. autoclass:: DataSinkHandler
+   :members:
 
 
 .. _notifiers:

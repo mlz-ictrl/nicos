@@ -63,7 +63,17 @@ class GzipFile(DataFileBase, StdGzipFile):
 
 
 class DataSinkHandler(object):
-    """Handles sink operations for a single dataset."""
+    """Handles sink operations for a single dataset, and in the case of point
+    datasets, a single detector.
+
+    The individual methods are called by the data manager, for each active
+    handler in turn.  The default implementation does nothing, and does not
+    need to be called in derived classes.
+
+    The constructor saves the datasink device as ``self.sink``, the dataset as
+    ``self.dataset``, and the detector (or ``None``) as ``self.detector``.
+    There is also a logger present as ``self.log``.
+    """
 
     def __init__(self, sink, dataset, detector):
         """Prepare `DataSinkHandler` for writing this `dataset`."""
@@ -72,49 +82,54 @@ class DataSinkHandler(object):
         self.dataset = dataset
         self.detector = detector
 
-    #
-    # DataSinkHandler API
-    #
-
     def prepare(self):
-        """Start writing this dataset.
+        """Prepare writing this dataset.
 
-        This is usually the place to assign the file counter with
-        dataman.assignCounter and request a file.
+        This is usually the place to assign the file counter with the data
+        manager's `assignCounter() and request a file with `createDataFile()`.
+        If a file should only be created when actual data to save is present,
+        you can defer this to `putResults` or `putMetainfo`.
         """
 
     def begin(self):
-        """Run after sinks are all prepared.
+        """Begin writing this dataset.
 
-        This can use the filenames from all sinks on self.dataset.filenames.
+        This is called immediately after `prepare`, but after *all* sink
+        handlers have been prepared.  Therefore, the method can use the
+        filenames requested from all sinks on ``self.dataset.filenames``.
         """
 
     def putMetainfo(self, metainfo):
-        """Called when the dataset metainfo is updated.
+        """Called for point datasets when the dataset metainfo is updated.
 
-        Argument *metainfo* contains the new metainfo.  ``dataset.metainfo``
-        contains the full metainfo.
+        Argument *metainfo* contains the new metainfo.
+        ``self.dataset.metainfo`` contains the full metainfo.
 
-        The metainfo is a dictionary in this form:
+        The *metainfo* is a dictionary in this form:
 
-        * key: (devname, paramname)
-        * value: (value, stringified value, unit, category)
+        * key: ``(devname, paramname)``
+        * value: ``(value, stringified value, unit, category)``
 
         where the category is one of the keys defined in
         `nicos.core.params.INFO_CATEGORIES`.
         """
 
     def putValues(self, values):
-        """Called when device values are updated.
+        """Called for point datasets when device values are updated.
 
         The *values* parameter is a dictionary with device names as keys and
         ``(timestamp, value)`` as values.
+
+        ``self.dataset.values`` contains all values collected so far.  You can
+        also use ``self.dataset.valuestats`` which is a dictionary with more
+        statistics of the values over the whole duration of the dataset in the
+        form ``(average, stdev, minimum, maximum)``.
         """
 
     def putResults(self, quality, results):
-        """Called when the point dataset main results are updated.
+        """Called for point datasets when measurement results are updated.
 
-        The *quality* is one of the constants defined in the module:
+        The *quality* is one of the constants defined in `nicos.core`:
 
         * LIVE is for intermediate data that should not be written to files.
         * INTERMEDIATE is for intermediate data that should be written.
@@ -122,7 +137,7 @@ class DataSinkHandler(object):
         * INTERRUPTED is for data that has been read after the counting was
           interrupted by an exception.
 
-        Argument *results* contains the new results.  ``dataset.results``
+        Argument *results* contains the new results.  ``self.dataset.results``
         contains all results so far.
 
         The *results* parameter is a dictionary with device names as keys and
@@ -131,24 +146,42 @@ class DataSinkHandler(object):
 
     def addSubset(self, subset):
         """Called when a new subset of the sink's dataset is finished.
+
+        This is the usual place in a scan handler to react to points measured
+        during the scan.
         """
 
     def end(self):
         """Finish up the dataset (close files etc)."""
 
-    def addAnalysis(self):
-        """Add an after-measure analysis to the dataset.
-
-        XXX(dataapi): discuss if this is in the right place here.
-        """
-
 
 class DataSink(Device):
-    """Class that represents one way of processing incoming data.
+    """The base class for data sinks.
+
+    Each sink represents one way of processing incoming data.
 
     This is a device to be instantiated once per setup so that it can be
     configured easily through NICOS setups.  Actual processing is done by a
-    `DataSinkHandler` class, of which one instance is created per dataset.
+    `DataSinkHandler` class, of which one or more instances are created for
+    each dataset that is processed with this sink.
+
+    Usually, sinks are specific to a certain type of dataset (e.g. points or
+    scans) and therefore override the `settypes` parameter with a default value
+    that reflects this.
+
+    .. attribute:: handlerclass
+
+       This class attribute must be set by subclasses.  It selects the subclass
+       of `.DataSinkHandler` that is to be used for handling datasets with this
+       sink.
+
+    .. attribute:: activeInSimulation
+
+       This is a class attribute that selects whether this sink can be used in
+       simulation mode.  This should only be true for sinks that write no data,
+       such as a "write scan data to the console" sink.
+
+    .. automethod:: isActive
     """
 
     parameters = {
@@ -166,7 +199,15 @@ class DataSink(Device):
     handlerclass = None
 
     def isActive(self, dataset):
-        """Return True if the sink can and should process this dataset."""
+        """Should return True if the sink can and should process this dataset.
+
+        The default implementation, which should always be called in overrides,
+        checks for simulation mode and for a match with the settypes and the
+        detectors selected by the respective parameters.
+
+        Derived classes can add additional checks, such as the dataset
+        producing an array that can be written to an image file.
+        """
         if session.mode == SIMULATION and not self.activeInSimulation:
             return False
         if self.settypes and dataset.settype not in self.settypes:
