@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import atexit
 import argparse
+import atexit
+import os
 import signal
 import subprocess
+import sys
+
 from os import path
 from time import sleep
 
 import psutil
-
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -50,8 +50,6 @@ def spawn(script, *args, **kwds):
         background_processes.append((nice_name, p, prof))
 
 
-
-
 def wait():
     echo('Services started, press Enter to stop them.\n')
     try:
@@ -69,7 +67,7 @@ def cleanup():
     for nice_name, proc, prof in reversed(background_processes):
         try:
             if not pgid:
-                pgid= os.getpgid(proc.pid)
+                pgid = os.getpgid(proc.pid)
             if prof == 'mprof':
                 parent = psutil.Process(proc.pid)
                 for c in parent.children():
@@ -81,7 +79,7 @@ def cleanup():
             echo('could not stop %s %s: %s\n' % (nice_name, e))
         else:
             proc.wait()
-    #under some circumstances (re-start due to internal errors)
+    # under some circumstances (re-start due to internal errors)
     # the poller or watchdog may become detached
     # from its parents, so do a final safety kill
     if pgid:
@@ -135,10 +133,10 @@ parser.add_argument('--profile', dest='profile',
 See https://pypi.python.org/pypi/memory_profiler and
 https://github.com/rkern/line_profiler for extended documentation.''')
 
-parser.add_argument('restargs', nargs='*', help=argparse.SUPPRESS)
+parser.add_argument('restargs', nargs=argparse.REMAINDER,
+                    help=argparse.SUPPRESS)
 
 opts = parser.parse_args()
-rest_args = opts.restargs
 
 if opts.profile:
     spawnargs = {'profile': opts.profile}
@@ -203,7 +201,7 @@ elif not opts.nodaemon:
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
-            guiargs.extend([opts.guiuser, ''] + rest_args)
+            guiargs.extend([opts.guiuser, ''] + opts.restargs)
             spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()

@@ -1,26 +1,29 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
+
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import optparse
 from nicos.core.sessions.simple import NoninteractiveSession
 
-parser = optparse.OptionParser()
-parser.add_option('-s', '--fontsize', dest='fontsize', type='int',
-                  help='base font size')
-parser.add_option('-p', '--padding', dest='padding', type='int',
-                  help='base padding')
-parser.add_option('-g', '--geometry', dest='geometry', type='string',
-                  help='window geometry (WxH+X+Y)')
-parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
-                  help='daemonize the monitor process (only useful '
-                       'for non-GUI versions)')
-parser.add_option('-S', '--setup', action='store', dest='setupname',
-                  default='monitor',
-                  help="name of the setup, default is 'monitor'")
-opts, args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--fontsize', dest='fontsize', type=int,
+                    help='base font size')
+parser.add_argument('-p', '--padding', dest='padding', type=int,
+                    help='base padding')
+parser.add_argument('-g', '--geometry', dest='geometry', type=str,
+                    help='window geometry (WxH+X+Y)')
+parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
+                    help='daemonize the monitor process (only useful '
+                         'for non-GUI versions)')
+parser.add_argument('-S', '--setup', action='store', dest='setupname',
+                    default='monitor',
+                    help="name of the setup, default is 'monitor'")
+
+opts = parser.parse_args()
 
 NoninteractiveSession.run(opts.setupname, maindevname='Monitor',
                           start_args=[opts],

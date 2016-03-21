@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+import argparse
+import ast
+import logging
 import os
 import re
-import ast
 import sys
-import logging
-import optparse
 import traceback
+
 from os import path
 
 # force QT api to V2
@@ -260,7 +261,8 @@ class SetupChecker(object):
             self.log_error('missing user-friendly setup description',
                            extra=self.find_global('description'))
 
-        self.ns['devices'] = fixup_stacked_devices(self, self.ns.get('devices', {}))
+        self.ns['devices'] = fixup_stacked_devices(self,
+                                                   self.ns.get('devices', {}))
         # check if devices are duplicated
         if group != 'special':
             devs = self.ns.get('devices', {})
@@ -344,20 +346,23 @@ class SetupChecker(object):
         return self.good
 
 
-parser = optparse.OptionParser(usage='usage: %prog [options] dir|file')
-parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-                  default=False, help='verbose output')
-parser.add_option('-o', '--outfile', dest='filename', action='store',
-                  default=None, type='string',
-                  help='write report to FILE', metavar='FILE')
-parser.add_option('-s', '--separate', dest='separate', action='store_true',
-                  help='treat every argument as a separate setup directory '
-                  'for duplicate device purposes')
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                    default=False, help='verbose output')
+parser.add_argument('-o', '--outfile', dest='filename', action='store',
+                    default=None, type=str,
+                    help='write report to FILE', metavar='FILE')
+parser.add_argument('-s', '--separate', dest='separate', action='store_true',
+                    help='treat every argument as a separate setup directory '
+                    'for duplicate device purposes')
+parser.add_argument('paths', nargs=argparse.REMAINDER,
+                    help='directory containing setup files|setup file(s)')
 
-opts, args = parser.parse_args()
+opts = parser.parse_args()
+paths = opts.paths
 
-if not args:
-    args = default_dirs
+if not paths:
+    paths = default_dirs
 
 
 class Logger(logging.Logger):
@@ -389,7 +394,7 @@ generate_stubs()
 devs_seen = {}
 setup_info = {}
 ret = True
-for p in args:
+for p in paths:
     if opts.separate:
         devs_seen = {}
         setup_info = {}

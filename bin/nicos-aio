@@ -1,25 +1,30 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import optparse
-from nicos.utils import nocolor
 from nicos.core.sessions.console import ConsoleSession
+from nicos.utils import nocolor
 
-parser = optparse.OptionParser()
-parser.add_option('-s', '--simulate', dest='simulate', action='store_true',
-                  help='start in simulation mode')
-parser.add_option('-c', '--nocreate', dest='noautocreate', action='store_true',
-                  help='do not autocreate devices')
-parser.add_option('-n', '--nocolor', dest='nocolor', action='store_true',
-                  help='disable colorization')
-opts, args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--simulate', dest='simulate', action='store_true',
+                    help='start in simulation mode')
+parser.add_argument('-c', '--nocreate', dest='noautocreate',
+                    action='store_true',
+                    help='do not autocreate devices')
+parser.add_argument('-n', '--nocolor', dest='nocolor', action='store_true',
+                    help='disable colorization')
+parser.add_argument('setup', nargs='?', type=str, default='startup',
+                    help="start setup [default='startup']")
+
+opts = parser.parse_args()
 
 if opts.nocolor:
     nocolor()
 
 ConsoleSession.autocreate_devices = not opts.noautocreate
 
-ConsoleSession.run(args[0] if args else 'startup', opts.simulate)
+ConsoleSession.run(opts.setup, opts.simulate)

@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
+
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import optparse
 from nicos.core.sessions.simple import NoninteractiveSession
 
-parser = optparse.OptionParser()
-parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
-                  help='daemonize the cache process')
-parser.add_option('-S', '--setup', action='store', dest='setupname',
-                  default='pushversioninfo',
-                  help="name of the setup, default is 'pushversioninfo'")
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
+                    help='daemonize the cache process')
+parser.add_argument('-S', '--setup', action='store', dest='setupname',
+                    default='pushversioninfo',
+                    help="name of the setup, default is 'pushversioninfo'")
 opts, args = parser.parse_args()
 
 NoninteractiveSession.run(opts.setupname, 'PushVersionInfo',

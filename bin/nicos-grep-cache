@@ -27,11 +27,11 @@
 Small utility to grep within cache files.
 """
 
+import argparse
 import os
 import re
 import sys
 import time
-import optparse
 
 
 def printline(fn, line, opts):
@@ -75,8 +75,8 @@ def rgrep(dev, dt, rex, opts):
 
 
 def main():
-    parser = optparse.OptionParser(usage='''\
-%prog [options] device datetime searchterm
+    parser = argparse.ArgumentParser(usage='''\
+%(prog)s [options] device datetime searchterm
 
 All of "device", "datetime" and "searchterm" are regular expressions.
 
@@ -86,29 +86,35 @@ All of "device", "datetime" and "searchterm" are regular expressions.
     * "searchterm" is matched against entries in the cache file.
 
 Hint: to select everything for one argument, use . as argument.''')
-    parser.add_option('-d', '--cache-dir', dest='cachedir', default='/data/cache',
-                      help='root location of cache database (default /data/cache)')
-    parser.add_option('-t', '--timestamp', dest='timestamp', action='store_true',
-                      help='output raw timestamp instead of formatted time')
-    parser.add_option('-b', '--table', dest='table', action='store_true',
-                      help='output timestamp and value suitable for reading in '
-                      'with another program')
-    opts, args = parser.parse_args()
+    parser.add_argument('-d', '--cache-dir', dest='cachedir',
+                        default='/data/cache',
+                        help='root location of cache database (default='
+                        '/data/cache)')
+    parser.add_argument('-t', '--timestamp', dest='timestamp',
+                        action='store_true',
+                        help='output raw timestamp instead of formatted time')
+    parser.add_argument('-b', '--table', dest='table', action='store_true',
+                        help='output timestamp and value suitable for reading'
+                        'in with another program')
+    parser.add_argument('device', nargs=1,
+                        help='regular expression matched against the NICOS'
+                        ' device names')
+    parser.add_argument('day', nargs=1,
+                        help='is matched against the date of the cache file'
+                        ' in format YYYY-MM-DD')
+    parser.add_argument('searchterm', nargs=1,
+                        help='is matched against entries in the cache file')
+
+    opts = parser.parse_args()
 
     # special case for running from checkout
     if opts.cachedir == '/data/cache' and not os.path.isdir(opts.cachedir) \
        and os.path.isdir('data/cache'):
         opts.cachedir = 'data/cache'
 
-    try:
-        device, day, searchterm = args
-    except ValueError:
-        parser.print_usage()
-        return 1
-
-    rgrep(re.compile(device, re.I),
-          re.compile(day),
-          re.compile(searchterm), opts)
+    rgrep(re.compile(opts.device, re.I),
+          re.compile(opts.day),
+          re.compile(opts.searchterm), opts)
 
 
 sys.exit(main())

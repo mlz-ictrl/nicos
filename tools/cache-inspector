@@ -23,8 +23,9 @@
 #
 # *****************************************************************************
 
+import argparse
 import sys
-import optparse
+
 from os import path
 
 import sip
@@ -45,16 +46,14 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    usage = '%prog [options]'
-
-    parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-c', '--cache', dest='cache', action='store',
-                      help='CACHE server:port, defaults to localhost:14869',
-                      default='localhost')
-    parser.add_option('-p', '--prefix', dest='prefix', action='store',
-                      help='PREFIX is the key prefix; shows only keys with '
-                      'this prefix, defaults to no prefix', default='')
-    opts, args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--cache', dest='cache', action='store',
+                        help='CACHE server:port, defaults to localhost:14869',
+                        default='localhost')
+    parser.add_argument('-p', '--prefix', dest='prefix', action='store',
+                        help='PREFIX is the key prefix; shows only keys with '
+                        'this prefix, defaults to no prefix', default='')
+    opts, args = parser.parse_args(argv)
 
     CISession.run('Inspector', CacheInspector,
                   {'cache': opts.cache, 'prefix': opts.prefix},
