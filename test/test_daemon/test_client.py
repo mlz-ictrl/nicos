@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -65,7 +65,7 @@ client = None
 
 
 def setup_module():
-    global client
+    global client  # pylint: disable=global-statement
     client = TestClient()
     client.connect(ConnectionData('localhost', getDaemonPort(), 'user', 'user'))
     assert ('connected', None, None) in client._signals
