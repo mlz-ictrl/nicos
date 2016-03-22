@@ -122,14 +122,16 @@ class DataManager(object):
     def finishPoint(self):
         """Finish the current point dataset."""
         if self._current.settype != 'point':
-            raise ProgrammingError('No point to finish')
+            self.log.warning('no data point to finish here')
+            return
         point = self._stack.pop()
         self._finish(point)
 
     def finishScan(self):
         """Finish the current scan dataset."""
         if self._current.settype not in ('scan', 'subscan'):
-            raise ProgrammingError('No scan to finish')
+            self.log.warning('no scan to finish here')
+            return
         scan = self._stack.pop()
         self._finish(scan)
         # XXX: when to clean these up?
@@ -138,7 +140,8 @@ class DataManager(object):
     def finishBlock(self):
         """Finish the current block dataset."""
         if self._current.settype != 'block':
-            raise ProgrammingError('No block to finish')
+            self.log.warning('no block to finish here')
+            return
         block = self._stack.pop()
         self._finish(block)
 

@@ -26,9 +26,8 @@
 
 from contextlib import contextmanager
 
-from nicos.core import dataman, ProgrammingError
-
-from test.utils import raises
+from nicos import session
+from nicos.core import dataman
 
 
 def teardown_module():
@@ -62,11 +61,11 @@ def dataset_scope(settype, **kwds):
 def test_dataset_stack():
     # create some datasets on the stack, check nesting
     with dataset_scope('block'):
-        assert raises(ProgrammingError, dataman.finishScan)
-        assert raises(ProgrammingError, dataman.finishPoint)
+        assert session.testhandler.warns(dataman.finishScan)
+        assert session.testhandler.warns(dataman.finishPoint)
 
         with dataset_scope('scan'):
-            assert raises(ProgrammingError, dataman.finishBlock)
+            assert session.testhandler.warns(dataman.finishBlock)
 
             with dataset_scope('point'):
                 with dataset_scope('scan', subscan=True):
