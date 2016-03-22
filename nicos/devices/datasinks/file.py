@@ -58,5 +58,5 @@ class FileSink(DataSink):
                                   '(will be hardlinked)',
                                   ext_desc=TEMPLATE_DESC, type=listof(str),
                                   default=['%(pointcounter)08d.dat'],
-                                  settable=False),
+                                  settable=False, prefercache=False),
     }

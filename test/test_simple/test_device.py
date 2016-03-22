@@ -54,7 +54,8 @@ class Dev2(HasLimits, HasOffset, Moveable):
         'attached': Attach('Test attached device', Dev1),
     }
     parameters = {
-        'param1': Param('An optional parameter', type=int, default=42),
+        'param1': Param('An optional parameter', type=int, default=42,
+                        prefercache=False),
         'param2': Param('A mandatory parameter', type=int, mandatory=True,
                         settable=True, category='instrument'),
         'failinit': Param('If true, fail the doInit() call', type=bool,
@@ -206,6 +207,11 @@ def test_params():
     assert dev2.getPar('param2') == 8
     assert raises(UsageError, dev2.setPar, 'param3', 1)
     assert raises(UsageError, dev2.getPar, 'param3')
+    # test parameter value when in cache, but default value updated
+    session.cache.put(dev2, 'param1', 50)
+    session.createDevice('dev2_1', recreate=True)
+    # restored the default value from the code?
+    assert dev2.param1 == 42
 
 
 def test_methods():

@@ -307,7 +307,8 @@ class Device(object):
         'description': Param('A description of the device', type=str,
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
-                             type=bool, default=False, userparam=False),
+                             type=bool, default=False, userparam=False,
+                             prefercache=False),
         # Don't allow setting loglevel to > INFO, as it could be confusing.
         'loglevel':    Param('The logging level of the device',
                              type=oneof('debug', 'info'),
@@ -550,6 +551,20 @@ class Device(object):
                                 (param, value, cfgvalue))
                             value = cfgvalue
                             self._cache.put(self, param, value)
+                elif not paraminfo.settable and paraminfo.prefercache is False:
+                    # parameter is in cache, but not in config: if it is not
+                    # settable and has a default, use that (since most probably
+                    # the default is intended to be used but has changed)
+                    defvalue = paraminfo.default
+                    if defvalue != value:
+                        defvalue = self._validateType(defvalue, param, paraminfo)
+                    if defvalue != value:
+                        self.log.warning(
+                            'value of %s from cache (%r) differs from '
+                            'default value (%r), using default' %
+                            (param, value, paraminfo.default))
+                        value = paraminfo.default
+                        self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
                 if umethod:
                     umethod(value)
