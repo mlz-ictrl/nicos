@@ -25,11 +25,12 @@
 """The base class for communication with the NICOS server."""
 
 import os
-import time
 import base64
 import socket
 import hashlib
 import threading
+from time import time as currenttime
+
 try:
     import rsa  # pylint: disable=F0401
 except ImportError:
@@ -90,8 +91,9 @@ class NicosClient(object):
         self.last_reqno = None
         self.viewonly = True
         self.user_level = None
+        self.last_action_at = 0
 
-        unique_id = to_utf8(str(time.time()) + str(os.getpid()))
+        unique_id = to_utf8(str(currenttime()) + str(os.getpid()))
         # spurious warning due to hashlib magic # pylint: disable=E1121
         self.client_id = hashlib.md5(unique_id).digest()
 
@@ -356,6 +358,11 @@ class NicosClient(object):
         except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
+    def tell_action(self, command, *args):
+        """Execute a command and reset the last action time."""
+        self.last_action_at = currenttime()
+        return self.tell(command, *args)
+
     def ask(self, command, *args, **kwds):
         """Excecute a command that generates a response, and return the response.
 
@@ -385,6 +392,7 @@ class NicosClient(object):
 
     def run(self, code, filename=None):
         """Run a piece of code."""
+        self.last_action_at = currenttime()
         self.last_reqno = self.ask('queue', filename or '', code)
         return self.last_reqno
 

@@ -25,7 +25,6 @@
 """NICOS livewidget 2D data plot window/panel."""
 
 import os
-import time
 from os import path
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
@@ -285,6 +284,5 @@ class SANSPanel(Panel):
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)
-            self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)

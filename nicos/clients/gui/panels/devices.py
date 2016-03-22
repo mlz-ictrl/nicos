@@ -806,7 +806,7 @@ class ControlDialog(QDialog):
 
     @qtsig('')
     def on_actionReference_triggered(self):
-        self.client.run('reference(%s)' % self.devname)
+        self.device_panel.exec_command('reference(%s)' % srepr(self.devname))
 
     @qtsig('')
     def on_actionFix_triggered(self):
