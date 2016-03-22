@@ -395,8 +395,10 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                             0, 100)
 
     def doReadTarget(self):
-        # Bootstrapping helper, called at most once
-        return sum(self.abslimits) * 0.5
+        # Bootstrapping helper, called at most once.
+        # Start target at the initial current temperature, to avoid going into
+        # BUSY state right away.
+        return self.parameters['regulation'].default
 
     #
     # calculation helpers
@@ -560,7 +562,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                     self.setpoint = round(self.setpoint +
                                           clamp(self.target - self.setpoint,
                                                 -maxdelta, maxdelta), 3)
-                    self.log.debug('setpoint changes to %r' % self.setpoint)
+                    self.log.debug('setpoint changes to %r (target %r)' %
+                                   (self.setpoint, self.target))
                 except (TypeError, ValueError):
                     # self.target might be None
                     pass
