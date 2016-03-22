@@ -27,14 +27,16 @@
 from time import time as currenttime
 
 try:
-    import scipy.odr as odrmod
+    from scipy.optimize.minpack import leastsq
 except ImportError:
-    odrmod = None
+    leastsq = None
 
 from nicos import session
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
 from nicos.core import FINAL, MASTER
+
+from test.utils import requires
 
 
 def setup_module():
@@ -83,9 +85,8 @@ def test_root_mean_square():
     assert 10.176 < result < 10.177
 
 
+@requires(leastsq, 'scipy leastsq not available')
 def test_poly():
-    if not odrmod:
-        return
     generate_dataset()
     result1 = poly(1, 1, 3)
     assert len(result1) == 2 and len(result1[0]) == 2
@@ -98,9 +99,8 @@ def test_poly():
     assert result4 == result3
 
 
+@requires(leastsq, 'scipy leastsq not available')
 def test_gauss():
-    if not odrmod:
-        return
     generate_dataset()
     result = gauss()
     assert len(result) == 2 and len(result[0]) == 4
