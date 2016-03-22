@@ -22,16 +22,15 @@
 #   Lydia Fleischhauer-Fuß <l.fleischhauer-fuss@fz-juelich.de>
 #
 # *****************************************************************************
-
 """GALAXI Pilatus detector"""
 
-
-from nicos import session
-from nicos.core import waitForStatus, status, usermethod, MASTER
+from nicos.core import DataSinkHandler, waitForStatus, status, usermethod
+from nicos.core.constants import MASTER
 from nicos.core.device import Readable, Measurable
-from nicos.core.params import Param, dictof, subdir, Attach
+from nicos.core.params import Param, dictof, subdir, Override, Attach
+from nicos.devices.datasinks.image import FileSink
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.datasinks import AsciiScanfileSink
+from nicos import session
 
 P_TIME = 't'
 P_FRAMES = 'f'
@@ -101,9 +100,6 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doInit(self, mode):
         self.log.debug('Pilatus detector init')
-        for ds in session.datasinks:
-            if isinstance(ds, AsciiScanfileSink):
-                self._asciiFile = ds
         self._f = self.frames
         self._t = self.time
         if self._mode == MASTER:
@@ -121,13 +117,9 @@ class PilatusDetector(PyTangoDevice, Measurable):
             self.doWriteFrames(preset[P_FRAMES])
 
     def doRead(self, maxage=0):
-        """Returns remaining exposure time while an acquisition is running
-
-        Returns last image filename after end of an acquisition"""
+        """Returns empty list"""
         self.log.debug('Pilatus detector read')
-        lastImage = self.lastimage
-        splitted = lastImage.split('/')
-        return self.subdir + splitted[len(splitted)-1]
+        return []
 
     def doReadDetshape(self):
         shapeValues = self._dev.detectorSize
@@ -186,7 +178,6 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doWriteSubdir(self, value):
         if value != '':
-            self._asciiFile._setROParam('subdir', value)
             value = value + '/'
         self._dev.imagePath = self.pathorigin + value
         self._pollParam('imagepath')
@@ -232,12 +223,6 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doPrepare(self):
         self.log.debug('Pilatus detector prepare')
-        self._scanpoint = self._asciiFile.lastpoint + 1
-        exp = session.experiment
-        fname = exp.users + '_' + exp.sample.samplename + '_'\
-                + str(exp.lastscan) + '_' + str(self._scanpoint) + '.tif'
-        self._dev.nextFilename = fname
-        self._pollParam('nextfilename')
         self.doWriteMxsettings()
         self._dev.Prepare()
 
@@ -276,3 +261,25 @@ class PilatusDetector(PyTangoDevice, Measurable):
     def thRead(self, channel):
         """Read temperature and humidity sensors"""
         return self._dev.THread(channel)
+
+
+class PilatusSinkHandler(DataSinkHandler):
+    def prepare(self):
+        session.data.assignCounter(self.dataset)
+        filename = session.data.getFilenames( self.dataset,
+                           self.sink.filenametemplate, self.sink.subdir)
+        self.sink._attached_detector.nextfilename = filename[0]
+
+class PilatusSink(FileSink):
+    attached_devices = {
+        'detector' : Attach('Pilatus Detector', PilatusDetector)
+    }
+    parameter_overrides = {
+        'filenametemplate': Override(default=['%(session.experiment.users)s_'
+                                    '%(session.experiment.sample.samplename)s_'
+                                    '%(scancounter)s_%(pointnumber)s.tif'],
+                                    settable= False),
+
+         'settypes': Override(default=['point'])
+    }
+    handlerclass = PilatusSinkHandler

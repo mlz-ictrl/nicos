@@ -1,4 +1,4 @@
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
@@ -18,6 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
 #   Alexander Steffens <a.steffens@fz-juelich.de>
 #
 # *****************************************************************************
@@ -25,22 +26,61 @@
 """GALAXI Mythen detector"""
 
 import numpy
-
-from nicos.core import ArrayDesc, waitForStatus, status, usermethod, MASTER
-from nicos.core.device import Measurable
-from nicos.core.params import Param, dictof
+import time
+from nicos.core import waitForStatus, status, usermethod, MASTER, Value
+from nicos.core.params import Param, ArrayDesc
 from nicos.devices.tango import PyTangoDevice
+from nicos.core.constants import FINAL, INTERRUPTED
+from nicos.devices.generic.detector import TimerChannelMixin, ImageChannelMixin,\
+     ActiveChannel, Detector
 
 P_TIME = 't'
 P_FRAMES = 'f'
 
-class MythenDetector(PyTangoDevice, Measurable):
+DATASIZE = 1280
+
+class MythenTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
+    """
+    Timer channel for Mythen detector
+    """
+    parameters = {
+        '_starttime':   Param('Cached counting start time',
+                              type=float, default=0, settable=False,
+                              userparam=False),
+        '_stoptime':    Param('Cached counting stop time',
+                              type=float, settable=False, userparam=False),
+    }
+
+    def doInit(self,mode):
+        self._setROParam('_stoptime', time.time())
+
+    def doRead(self, maxage=0):
+        if self._stoptime:
+            return [min(self._stoptime - self._starttime,
+                        self.preselection)]
+        return [round((time.time() - self._starttime),3)]
+
+    def valueInfo(self):
+        return (Value(name='time', fmtstr='%.2f'),)
+
+    def doStart(self):
+        self._setROParam('_starttime', time.time())
+        self._setROParam('_stoptime', 0)
+
+    def doFinish(self):
+        self._setROParam('_stoptime', time.time())
+
+    def doStop(self):
+        self.doFinish()
+
+    def doStatus(self, maxage=0):
+        return PyTangoDevice.doStatus(self, 0)
+
+
+class MythenImage(PyTangoDevice, ImageChannelMixin, ActiveChannel):
     """Basic Tango device for Mythen detector."""
 
-    STRSHAPE = ['x', 'y', 'z', 't']
-
     parameters = {
-        'detshape':  Param('Shape of Mythen detector', type=dictof(str, int)),
         'energy':    Param('X-ray energy', type=float, unit='keV',
                            settable=True, volatile=True),
         'kthresh':   Param('Energy threshold', type=float, unit='keV',
@@ -55,37 +95,10 @@ class MythenDetector(PyTangoDevice, Measurable):
 
     def doInit(self, mode):
         self.log.debug('Mythen detector init')
-        self.arraydesc = ArrayDesc('data',
-                                   (int(self.detshape['x']),
-                                    int(self.detshape['t'])),
-                                   numpy.uint32)
+        self.arraydesc = ArrayDesc('data', (self.frames, DATASIZE), numpy.uint32)
         if self._mode == MASTER:
             self._dev.Reset()
-        self._t = self.time
-        self._f = self.frames
-
-    def presetInfo(self):
-        return (P_TIME, P_FRAMES)
-
-    def doSetPreset(self, **preset):
-        self.log.debug('Mythen detector set preset')
-        self._preset = preset
-        if P_TIME in preset:
-            self.doWriteTime(preset[P_TIME])
-        if P_FRAMES in preset:
-            self.doWriteFrames(preset[P_FRAMES])
-
-    def doRead(self, maxage=0):
-        self.log.debug('Mythen detector read')
-        return self.lastfilename
-
-    def doReadDetshape(self):
-        ''' Method currently not implemented in server '''
-        shvalue = self._dev.get_property('shape').values()[0]
-        dshape = dict()
-        for i in range(4):
-            dshape[self.STRSHAPE[i]] = shvalue[i]
-        return dshape
+            self.preselection = float(self.time)
 
     def doReadEnergy(self):
         return self._dev.energy
@@ -104,12 +117,14 @@ class MythenDetector(PyTangoDevice, Measurable):
 
     def doWriteFrames(self, value):
         self._dev.frames = value
+        self.arraydesc = ArrayDesc('data', (self.frames, DATASIZE), numpy.uint32)
 
     def doReadTime(self):
         return self._dev.time
 
     def doWriteTime(self, value):
         self._dev.time = value
+        self.preselection = value
 
     def doReadRemaining(self):
         return self._dev.remainingTime
@@ -117,6 +132,7 @@ class MythenDetector(PyTangoDevice, Measurable):
     def doStart(self):
         self.log.debug('Mythen detector wait for status')
         waitForStatus(self, ignore_errors=True)
+        self.readresult = [0]
         self.log.debug('Mythen detector start')
         self._dev.Start()
 
@@ -137,8 +153,6 @@ class MythenDetector(PyTangoDevice, Measurable):
     def doReset(self):
         self.log.debug('Mythen detector reset')
         self._dev.Reset()
-        self._t = self.time
-        self._f = self.frames
 
     @usermethod
     def sendCommand(self, command):
@@ -151,8 +165,37 @@ class MythenDetector(PyTangoDevice, Measurable):
         command = '-get ' + parameter
         self.sendCommand(command)
 
+    def valueInfo(self):
+        return tuple(Value('frame-%d' % i, fmtstr='%d')
+                     for i in range(1,self.frames +1))
+
     def doReadArray(self, quality):
-        """Returns oldest frame reshaped as 2D numpy array"""
-        self.log.debug('Mythen detector read final image')
-        return numpy.asarray(self._dev.value).reshape(int(self.detshape['x']),
-                                                      int(self.detshape['t']))
+        """Returns all frames reshaped as 2D numpy array"""
+        if quality in (FINAL, INTERRUPTED):
+            self.log.debug('Mythen detector read final image')
+            arr = numpy.asarray(self._dev.value, numpy.uint32)
+            shape = self.arraydesc.shape
+            arr = arr.reshape(shape)
+            self.readresult = list(arr.sum(axis=1))
+            return arr
+        return None
+
+
+class MythenDetector(Detector):
+    """Mythen detector"""
+
+    def presetInfo(self):
+        presets = Detector.presetInfo(self)
+        presets.update((P_TIME, P_FRAMES))
+        return presets
+
+    def doSetPreset(self, **preset):
+        self.log.debug('Mythen detector set preset')
+        myimage = self._attached_images[0]
+        if P_TIME in preset:
+            myimage.doWriteTime(preset[P_TIME])
+            new_preset = {P_TIME: preset[P_TIME]}
+            Detector.doSetPreset(self, **new_preset)
+        if P_FRAMES in preset:
+            myimage.doWriteFrames(preset[P_FRAMES])
+
