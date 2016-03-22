@@ -75,7 +75,7 @@ class NicosGuiClient(NicosClient, QObject):
         # request initial value for all keys we have registered
         if not self._reg_keys:
             return
-        values = self.ask('getcachekeys', ','.join(self._reg_keys))
+        values = self.ask('getcachekeys', ','.join(self._reg_keys), quiet=True)
         if values is not None:
             for key, value in values:
                 # Not all keys are registered!
