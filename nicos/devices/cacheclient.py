@@ -652,7 +652,7 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db[dbkey] = (value, time)
         dvalue = cache_dump(value)
-        msg = '%s%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
+        msg = '%r%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                      flag, OP_TELL, dvalue)
         # self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
@@ -684,7 +684,7 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
-        msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
+        msg = '%r%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
         # self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
 
@@ -715,7 +715,7 @@ class CacheClient(BaseCacheClient):
                 if dbkey.startswith(devprefix):
                     if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
                         continue
-                    msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                    msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                     self._db.pop(dbkey, None)
                     self._queue.put(msg)
                     self._propagate((time, dbkey, OP_TELL, ''))
@@ -725,7 +725,7 @@ class CacheClient(BaseCacheClient):
         time = currenttime()
         with self._dblock:
             for dbkey in list(self._db):
-                msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
@@ -747,7 +747,7 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%s-%s@%s%s%s\n###?\n' % (fromtime, totime,
+        tosend = '%r-%r@%s%s%s\n###?\n' % (fromtime, totime,
                                            self._prefix, key, OP_ASK)
         ret = []
         for msgmatch in self._single_request(tosend, b'###!\n', sync=False):
