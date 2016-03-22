@@ -42,13 +42,13 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
-        self.info = {}          #dictionary read from script
-        self.className = ''     #name of the devices class in auth tuple
-        self.group = ''         #name of the group defined in the setup file
-        self.description = ''   #name of the description in the setup file
-        self.authDict = {}      #dictionary containing info in auth tuple
-        self.users = {}         #dict to store users while working
-        self.loadedScript = ''  #path to the currently loaded file without *.py
+        self.info = {}          # dictionary read from script
+        self.className = ''     # name of the devices class in auth tuple
+        self.group = ''         # name of the group defined in the setup file
+        self.description = ''   # name of the description in the setup file
+        self.authDict = {}      # dictionary containing info in auth tuple
+        self.users = {}         # dict to store users while working
+        self.loadedScript = ''  # path to the currently loaded file without *.py
 
         self.actionNew.triggered.connect(self.newFile)
         self.actionLoad.triggered.connect(self.loadFile)
@@ -103,8 +103,8 @@ class MainWindow(QMainWindow):
         readSetup(self.info, str(pathToFile), self.log)
         self.loadedScript = str(pathToFile[:-3])
 
-        #if device Auth doesnt exist, create it
-        if not 'Auth' in self.info[str(pathToFile[:-3])]['devices']:
+        # if device Auth doesnt exist, create it
+        if 'Auth' not in self.info[str(pathToFile[:-3])]['devices']:
             self.info[str(pathToFile[:-3])]['devices']['Auth'] = (
                 'services.daemon.auth.ListAuthenticator',
                 {'passwd': [], 'hashing': 'sha1'})
@@ -114,12 +114,12 @@ class MainWindow(QMainWindow):
         self.description = self.info[str(pathToFile[:-3])]['description']
         self.authDict = self.info[str(pathToFile[:-3])]['devices']['Auth'][1]
 
-        for userTuple in self.authDict['passwd']: #passwd = list of users
+        for userTuple in self.authDict['passwd']:  # passwd = list of users
             newUser = User(userTuple[0], userTuple[1], userTuple[2])
-            self.users[userTuple[0]] = newUser #convert tuples to editable users
+            self.users[userTuple[0]] = newUser  # convert to editable users
 
         for key in self.users.keys():
-            self.userList.addItem(key) #put users in gui (list widget)
+            self.userList.addItem(key)  # put users in gui (list widget)
 
         self.userList.setEnabled(True)
         self.lineEditClassName.setEnabled(True)
@@ -136,11 +136,11 @@ class MainWindow(QMainWindow):
         self.reloadConfig()
 
     def changeUser(self, user, previuousUser):
-        #signal provides last item and current item
+        # signal provides last item and current item
         self.pushButtonSaveUser.setEnabled(False)
         self.pushButtonSaveConfig.setEnabled(False)
 
-        if self.userList.currentRow() == 0: #if "Device Configuration...":
+        if self.userList.currentRow() == 0:  # if "Device Configuration...":
             self.userWidget.setVisible(False)
             self.infoWidget.setVisible(True)
             self.pushButtonDeleteUser.setEnabled(False)
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
                 self.authDict['hashing']))
             return
 
-        if not self.userWidget.isVisible(): #if previous selection was no user
+        if not self.userWidget.isVisible():  # if previous selection was no user
             self.userWidget.setVisible(True)
             self.infoWidget.setVisible(False)
             self.pushButtonDeleteUser.setEnabled(True)
@@ -159,7 +159,7 @@ class MainWindow(QMainWindow):
         currentUser = self.users[str(user.text())]
         self.lineEditUserName.setText(currentUser.userName)
         if currentUser.password:
-            #to show 'there is a password, it's not empty'
+            # to show 'there is a password, it's not empty'
             self.lineEditPassword.setText('abcdefg')
         else:
             self.lineEditPassword.clear()
@@ -176,8 +176,8 @@ class MainWindow(QMainWindow):
 
     def deleteUser(self):
         user = str(self.userList.currentItem().text())
-        del self.users[user] #remove from model
-        self.userList.takeItem(self.userList.currentRow()) #remove from gui
+        del self.users[user]  # remove from model
+        self.userList.takeItem(self.userList.currentRow())  # remove from gui
 
     def addUser(self):
         dlg = UserDialog()
@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
                 noHashPassword = str(dlg.lineEditPassword.text())
                 if self.authDict['hashing'] == 'sha1':
                     password = str(hashlib.sha1(noHashPassword).hexdigest())
-                else: #elif self.authDict['hashing'] == 'md5':
+                else:  # elif self.authDict['hashing'] == 'md5':
                     password = str(hashlib.md5(noHashPassword).hexdigest())
             userlevel = str(dlg.comboBoxUserLevel.currentText())
             newUser = User(username, password, userlevel)
@@ -207,7 +207,7 @@ class MainWindow(QMainWindow):
         return msgBox.exec_() == QMessageBox.Ok
 
     def setConfig(self):
-        #method called when clicking save button in config widget.
+        # method called when clicking save button in config widget.
         self.pushButtonSaveConfig.setEnabled(False)
 
         self.className = str(self.lineEditClassName.text())
@@ -224,18 +224,18 @@ class MainWindow(QMainWindow):
                     self.comboBoxHashing.findText(self.authDict['hashing']))
 
     def setUserData(self):
-        #method called when clicking save button in user widget.
+        # method called when clicking save button in user widget.
         self.pushButtonSaveUser.setEnabled(False)
 
-        #get the string of the currently selected user in GUI
+        # get the string of the currently selected user in GUI
         oldUserName = str(self.userList.currentItem().text())
 
-        #get the new entered username
+        # get the new entered username
         newUserName = str(self.lineEditUserName.text())
 
-        #update model
-        #because users are identified by their name, the key in the dictionary
-        #must be updated to the new name.
+        # update model
+        # because users are identified by their name, the key in the dictionary
+        # must be updated to the new name.
         self.users[newUserName] = self.users.pop(oldUserName)
         self.users[newUserName].userName = newUserName
         if self.lineEditPassword.text().isEmpty():
@@ -244,29 +244,29 @@ class MainWindow(QMainWindow):
             noHashPassword = str(self.lineEditPassword.text())
             if self.authDict['hashing'] == 'sha1':
                 password = str(hashlib.sha1(noHashPassword).hexdigest())
-            else: #elif self.authDict['hashing'] == 'md5':
+            else:  # elif self.authDict['hashing'] == 'md5':
                 password = str(hashlib.md5(noHashPassword).hexdigest())
         self.users[newUserName].password = password
         self.users[newUserName].userLevel = str(self.comboBoxUserLevel.
                                                 currentText())
 
-        #update GUI
+        # update GUI
         self.userList.currentItem().setText(newUserName)
 
     def changedConfig(self):
-        #called when changing lineEdits for className, group, description
-        #or selection in comboBoxHashing changed
+        # called when changing lineEdits for className, group, description
+        # or selection in comboBoxHashing changed
         if not self.pushButtonSaveConfig.isEnabled():
             self.pushButtonSaveConfig.setEnabled(True)
 
     def changedUser(self):
-        #called when lineEditUserName, lineEditPassword, comoBoxUserLevel change
+        # called when lineEditUserName, lineEditPassword, comoBoxUserLevel change
         if not self.pushButtonSaveUser.isEnabled():
             self.pushButtonSaveUser.setEnabled(True)
 
     def removeAllPasswords(self):
-        #called when hashing changes: It's neccessary to enter all passwords
-        #again, so they can be hashed in the new way.
+        # called when hashing changes: It's neccessary to enter all passwords
+        # again, so they can be hashed in the new way.
         for _, value in self.users.items():
             value.password = ''
 
@@ -325,15 +325,15 @@ class MainWindow(QMainWindow):
             self.readSetupFile(filepath)
 
     def save(self):
-        #put information in self.users, e.g. the User() classes, into tuples
-        #and put them back into self.info['file']['devices']['Auth'][1][passwd]
+        # put information in self.users, e.g. the User() classes, into tuples
+        # and put them back into self.info['file']['devices']['Auth'][1][passwd]
         del self.authDict['passwd'][:]
         for _, value in self.users.items():
             self.authDict['passwd'].append((value.userName,
                                             value.password,
                                             value.userLevel))
 
-        #open a file to save into, create empty output string
+        # open a file to save into, create empty output string
         filepath = QFileDialog.getSaveFileName(
             self,
             "Save as...",
@@ -364,20 +364,19 @@ class MainWindow(QMainWindow):
         add(repr(self.info[self.loadedScript]['modules']) + '\n\n')
 
         add('sysconfig = dict(\n')
-        for key, value in self.info[
-            self.loadedScript]['sysconfig'].items():
+        for key, value in self.info[self.loadedScript]['sysconfig'].items():
             add('    ' + str(key) + ' = ' + repr(value) + ',\n')
         add(')\n\n')
 
         add('devices = dict(\n')
 
-        #sort the devices by their name
+        # sort the devices by their name
         self.info[self.loadedScript]['devices'] = OrderedDict(
             sorted(self.info[self.loadedScript]['devices'].items()))
         for deviceName, deviceInfo in self.info[
-            self.loadedScript]['devices'].items():
+                self.loadedScript]['devices'].items():
             add('    ' + str(deviceName) + ' = device(')
-            indent = '              ' + (' ' * len(deviceName)) #fancy indent
+            indent = '              ' + (' ' * len(deviceName))  # fancy indent
 
             if str(deviceName) == 'Auth':
                 add(repr(self.className) + ',\n')

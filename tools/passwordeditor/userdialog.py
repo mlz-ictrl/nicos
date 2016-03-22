@@ -27,6 +27,7 @@ from os import path
 from PyQt4 import uic
 from PyQt4.QtGui import QDialog
 
+
 class UserDialog(QDialog):
     def __init__(self, parent = None):
         super(UserDialog, self).__init__(parent)
