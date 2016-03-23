@@ -27,6 +27,26 @@
 from nicos.core.data import DataSink
 from nicos.core.params import Param, listof, subdir
 
+TEMPLATE_DESC = '''Templates must contain percent-style placeholders
+(e.g. ``%(proposal)s_%(pointcounter)08d``) with the following keys:
+
+* counters:
+
+  - ``(type)counter`` for globally unique counters
+  - ``(type)propcounter`` for unique counters within a proposal
+  - ``(type)samplecounter`` for unique counters within a sample directory
+    (for many instruments, there is no separate sample directory, so this
+    counter is the same as the propcounter)
+  - ``(type)number`` for the dataset's number within its parent
+
+  ``type`` is the dataset type, e.g. ``point`` or ``scan``.
+
+* proposal info from the experiment (e.g. ``proposal`` for the prop. number)
+
+* all devices and parameters (e.g. ``dev1`` for the value of dev1 and
+``dev1.param`` for a parameter)
+'''
+
 
 class FileSink(DataSink):
     """Base class for sinks that save data into files."""
@@ -36,7 +56,7 @@ class FileSink(DataSink):
                                   type=subdir, mandatory=False, default=''),
         'filenametemplate': Param('List of templates for data file names '
                                   '(will be hardlinked)',
-                                  type=listof(str),
+                                  ext_desc=TEMPLATE_DESC, type=listof(str),
                                   default=['%(pointcounter)08d.dat'],
                                   settable=False),
     }

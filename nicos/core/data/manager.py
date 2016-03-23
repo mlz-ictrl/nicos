@@ -326,11 +326,14 @@ class DataManager(object):
     def getFilenames(self, dataset, nametemplates, *subdirs):
         """Determines dataset filenames from filename templates.
 
+        Call this instead of `createDataFile` if you want to resolve the
+        templates and make the filenames known in the dataset, but create (or
+        copy from external) the files on your own.
+
         Registers the first filename in the dataset as 'the' filename.  Returns
         a short path of the first filename and a list of the absolute paths of
-        all filenames.
-        After the counting is finished, you should create the datafile(s)
-        and then call `linkFiles` to create the hardlinks.
+        all filenames.  After the counting is finished, you should create the
+        datafile(s) and then call `linkFiles` to create the hardlinks.
         """
         if dataset.counter == 0:
             raise ProgrammingError('a counter number must be assigned to the '
@@ -368,6 +371,11 @@ class DataManager(object):
         The nametemplate can be either a string or a list of strings.  In the
         second case, the first listentry is used to create the file and the
         remaining ones will be hardlinked to this file if the os supports this.
+
+        Filename templates should contain placeholders in ``%(key)s`` format.
+        Possible placeholder keys are all counters (see `getCounters`), the
+        experiment's proposal info keys (e.g. ``proposal``) as well as all
+        devices and parameters as accepted by `DeviceValueDict`.
 
         Setting `fileclass` as keyword argument a DataFile class can be
         specified used for creating the data file (descriptor).
