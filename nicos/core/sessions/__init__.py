@@ -81,6 +81,7 @@ class Session(object):
     name = 'session'
     cache_class = CacheClient
     sessiontype = MAIN
+    has_datamanager = False
 
     def __str__(self):
         # used for cache operations
@@ -146,7 +147,7 @@ class Session(object):
         # cache connection
         self.cache = None
         # data manager
-        self.data = DataManager()
+        self.data = DataManager() if self.has_datamanager else None
         # sysconfig devices
         self._instrument = None
         self._experiment = None
@@ -700,7 +701,8 @@ class Session(object):
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  'failed on these devices: %r' % devs)
 
-        self.data.reset()
+        if self.data is not None:
+            self.data.reset()
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()

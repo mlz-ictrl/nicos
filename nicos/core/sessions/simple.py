@@ -114,6 +114,8 @@ class ScriptSession(Session):
     Subclass of Session that allows for batch execution of scripts.
     """
 
+    has_datamanager = True
+
     @classmethod
     def run(cls, setup, code, mode=SLAVE, appname='script'):
         session.__class__ = cls

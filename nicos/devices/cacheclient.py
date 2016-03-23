@@ -526,7 +526,7 @@ class CacheClient(BaseCacheClient):
             if self._do_callbacks:
                 if key in self._callbacks:
                     self._call_callbacks(key, value, time)
-                if key.endswith('/value'):
+                if key.endswith('/value') and session.data:
                     session.data.cacheCallback(key, value, time)
 
     def _call_callbacks(self, key, value, time):
@@ -647,7 +647,7 @@ class CacheClient(BaseCacheClient):
         # self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))
-        if key == 'value':
+        if key == 'value' and session.data:
             session.data.cacheCallback(dbkey, value, time)
         # we have to check rewrites here, since the cache server won't send
         # us updates for a rewritten key if we sent the original key
@@ -657,7 +657,7 @@ class CacheClient(BaseCacheClient):
                 with self._dblock:
                     self._db[rdbkey] = (value, time)
                 self._propagate((time, rdbkey, OP_TELL, dvalue))
-                if key == 'value':
+                if key == 'value' and session.data:
                     session.data.cacheCallback(rdbkey, value, time)
 
     def put_raw(self, key, value, time=None, ttl=None):

@@ -108,6 +108,7 @@ class SimulationSession(Session):
     """
 
     sessiontype = SIMULATION
+    has_datamanager = True
 
     @classmethod
     def run(cls, port, prefix, setups, user, code):

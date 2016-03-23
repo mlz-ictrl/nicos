@@ -229,6 +229,7 @@ class TestLogHandler(ColoredConsoleHandler):
 
 class TestSession(Session):
     autocreate_devices = False
+    has_datamanager = True
 
     def __init__(self, appname, daemonized=False):
         Session.__init__(self, appname, daemonized)

@@ -45,6 +45,7 @@ class DaemonSession(NoninteractiveSession):
 
     autocreate_devices = True
     cache_class = DaemonCacheClient
+    has_datamanager = True
 
     # later overwritten to send events to the client
     emitfunc = lambda self, event, args: None

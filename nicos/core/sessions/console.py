@@ -164,6 +164,8 @@ class ConsoleSession(Session):
     an exception hook that reports unhandled exceptions via the logging system.
     """
 
+    has_datamanager = True
+
     def __init__(self, appname, daemonized=False):
         self._console = None
         Session.__init__(self, appname, daemonized)
