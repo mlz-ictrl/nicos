@@ -244,7 +244,7 @@ class DeviceDocumenter(ClassDocumenter):
             if info.ext_desc:
                 self.add_line('', '<autodoc>')
                 for line in info.ext_desc.splitlines():
-                    self.add_line(line.strip(), '<%s.%s>' % (self.object, param))
+                    self.add_line(line.rstrip(), '<%s.%s>' % (self.object, param))
             self.add_line('', '<autodoc>')
             self.indent = orig_indent
 

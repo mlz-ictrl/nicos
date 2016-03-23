@@ -34,8 +34,8 @@ TEMPLATE_DESC = '''Templates must contain percent-style placeholders
 
   - ``(type)counter`` for globally unique counters
   - ``(type)propcounter`` for unique counters within a proposal
-  - ``(type)samplecounter`` for unique counters within a sample directory
-    (for many instruments, there is no separate sample directory, so this
+  - ``(type)samplecounter`` for unique counters within a sample directory \
+    (for many instruments, there is no separate sample directory, so this \
     counter is the same as the propcounter)
   - ``(type)number`` for the dataset's number within its parent
 
@@ -44,7 +44,7 @@ TEMPLATE_DESC = '''Templates must contain percent-style placeholders
 * proposal info from the experiment (e.g. ``proposal`` for the prop. number)
 
 * all devices and parameters (e.g. ``dev1`` for the value of dev1 and
-``dev1.param`` for a parameter)
+  ``dev1.param`` for a parameter)
 '''
 
 
