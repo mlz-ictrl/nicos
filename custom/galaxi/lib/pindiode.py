@@ -28,12 +28,11 @@
 import time
 
 from nicos import session
-from nicos.core.params import Param, subdir
+from nicos.core.params import Param
 from nicos.devices.tango import AnalogInput, DigitalInput, NamedDigitalInput
 from nicos.core.device import Measurable, Moveable
 from nicos.core.params import Attach
 from nicos.core import status, Value
-from nicos.devices.datasinks import AsciiScanfileSink
 
 class SingleDetectors(Measurable):
 
@@ -45,17 +44,12 @@ class SingleDetectors(Measurable):
     }
 
     parameters = {
-        'subdir':   Param('Subdir for the tif files', type=subdir, default='',
-                          mandatory=False, settable=True),
         'detector': Param('Detector used for timing', type=str,
                           default='pilatus'),
     }
 
     def doInit(self, mode):
         self.log.debug('Integral init')
-        for ds in session.datasinks:
-            if isinstance(ds, AsciiScanfileSink):
-                self._asciiFile = ds
         self._preset = 0
         self._timeout = 3
 
@@ -66,11 +60,6 @@ class SingleDetectors(Measurable):
         self.log.debug('Integral set preset')
         if 't' in presets:
             self._preset = presets['t']
-
-    def doWriteSubdir(self, value):
-        if value != '':
-            self._asciiFile._setROParam('subdir', value)
-        return value
 
     def valueInfo(self):
         return tuple(Value('%16s' % diode.name, unit='%23s' % 'counts',
