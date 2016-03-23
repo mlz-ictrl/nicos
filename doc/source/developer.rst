@@ -12,7 +12,7 @@ development environment and coding  guidelines.
 
    deviceapi
    classes/index
+   gui/index
    sessionapi
    coreapi
    protocols/index
-   gui/index
