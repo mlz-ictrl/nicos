@@ -283,6 +283,30 @@ def multiReset(devices):
     _multiMethod(Readable, 'reset', devices)
 
 
+class DeviceValue(namedtuple('DeviceValue',
+                             ('raw', 'formatted', 'unit', 'category'))):
+    """Wrapper for metainfo values
+
+        Provides different ways to access the meta info:
+        - as a tuple with numeric indexing
+        - as an object with named access
+        - string representation compatible with legacy DeviceValueDict usage
+    """
+    __slots__ = ()
+
+    def __str__(self):
+        return str(self.formatted)
+
+    def __int__(self):
+        return int(self.raw)
+
+    def __long__(self):
+        return long(self.raw)
+
+    def __float__(self):
+        return float(self.raw)
+
+
 class DeviceValueDict(object):
     """Convenience class to be used for templating device values/params.
 
@@ -291,15 +315,17 @@ class DeviceValueDict(object):
     Requesting a key, the following rules are checked in that order:
     1) if a key is request which was specified to the constructor,
        that specified value will be returned.
-    2) if a key names a device, that device is read and returned as string
-       using dev.format.
+    2) if a key names a device, that device is read.
     3) if a key contains dots and the substring before the first dot names
        a device, we follow the 'chain' of substring named attributes/calls.
        A substring ending in '()' causes the attribute to be called.
-       If all substrings could be resolved we return the (stringified)
+       If all substrings could be resolved we return the
        attribute.  If some steps fail, we warn and return an empty string.
        This is unlike an ordinary dictionary which would raise a KeyError
        if the requested key does not exist.
+
+    All return values are wrapped as a DeviceValue object. If no raw value
+    is present, then the raw and formatted value are the same.
 
     Examples:
 
@@ -309,8 +335,8 @@ class DeviceValueDict(object):
     >>> '%(stuff)03d_%(Sample.samplename)s' % d # intended use case
     '001_Samplename of currently used sample.'
     """
-    def __init__(self, *args,  **kwargs):
-        self._constvals = dict(*args,  **kwargs)
+    def __init__(self, *args, **kwargs):
+        self._constvals = dict(*args, **kwargs)
         # convenience stuff
         l = localtime()
         self._constvals.setdefault('year', l.tm_year)
@@ -324,13 +350,15 @@ class DeviceValueDict(object):
         self._constvals[key] = value
 
     def update(self, *args, **kwargs):
-        self._constvals.update(*args,  **kwargs)
+        self._constvals.update(*args, **kwargs)
 
     def __delitem__(self, key):
         del self._constvals[key]
 
     def __getitem__(self, key):
         res = ''
+        raw = None
+        unit = None
         # we dont want to raise anything!
         try:
             # value given to constructor?
@@ -339,7 +367,9 @@ class DeviceValueDict(object):
             # just a device?
             elif key in session.configured_devices:
                 dev = session.getDevice(key)
-                res = dev.format(dev.read())
+                raw = dev.read()
+                res = dev.format(raw)
+                unit = dev.unit
             # attrib path? (must start with a device!)
             elif '.' in key:
                 keys = key.split('.')
@@ -406,7 +436,14 @@ class DeviceValueDict(object):
         except Exception:
             session.log.warning("invalid key %r requested, returning %r" %
                                 (key, res), exc=1)
-        finally:
-            if isinstance(res, bytes):
-                res = to_ascii_escaped(res)
-            return res  # pylint: disable=W0150
+        if isinstance(res, bytes):
+            res = to_ascii_escaped(res)
+        if isinstance(res, DeviceValue):
+            return res
+        if raw is None:
+            raw = res
+        final = DeviceValue(raw=raw,
+                            formatted=res,
+                            unit=unit or '',
+                            category='meta')
+        return final
