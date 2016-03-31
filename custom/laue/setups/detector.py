@@ -2,7 +2,7 @@ description = 'PSL 2-D detector'
 group = 'lowlevel'
 
 sysconfig = dict(
-    datasinks = ['live', 'raw', 'sraw', 'tiff', 'hbin'],
+    datasinks = ['tiff', 'raw', 'sraw', 'live' ],
 )
 
 
@@ -15,16 +15,17 @@ devices = dict(
     live=device('devices.datasinks.LiveViewSink',
                 description = 'live sink'),
     raw=device('devices.datasinks.RawImageSink',
-               description = 'raw sink'),
+               description = 'raw sink',
+               filenametemplate=['s%(pointcounter)08d.raw'],
+               subdir=''),
     sraw=device('devices.datasinks.SingleRawImageSink',
                 description = 'single raw sink',
-                filenametemplate=['s%(pointcounter)08d.raw']),
-    tiff=device('laue.lauetiff.TIFFLaueFileFormat',
+                filenametemplate=['s%(pointcounter)08d.sraw'],
+                subdir=''),
+    tiff=device('laue.lauetiff.TIFFLaueSink',
                 description = 'tiff sink',
-                filenametemplate=['%(pointcounter)08d.tif']),
-    hbin=device('laue.lauehbin.HBINLaueFileFormat',
-                description = 'hbin sink',
-                filenametemplate=['%(pointcounter)08d.hbin']),
+                filenametemplate=['%(pointcounter)08d.tif'],
+                subdir=''),
     timer=device('devices.generic.VirtualTimer',
                  description = 'timer',
                  lowlevel=True),

@@ -46,6 +46,9 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     }
 
+    def valueInfo(self):
+        return ()
+
     def _communicate(self, cmd):
         # we need to create a fresh socket each time, as the remote
         # end closes the socket after each command
@@ -96,9 +99,9 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     def doStatus(self, maxage=0):
         if self._communicate('GetCamState') == 'ON':
-            if self._attached_timer:
-                remain = self._preset - self._attached_timer.read(0)[0]
-                return status.BUSY, '%.1f s remaining' % remain
+          #  if self._attached_timer:
+          #      remain = self._preset - self._attached_timer.read(0)[0]
+          #      return status.BUSY, '%.1f s remaining' % remain
             return status.BUSY, 'Exposure ongoing'
         return status.OK, 'OK'
 

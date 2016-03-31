@@ -22,10 +22,10 @@ windows = [
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
     window('Live data', 'live',panel('live.LiveDataPanel',
-                                     cachesize = 20,
-                                     showcached = False,
+                                     cachesize = 40,
+                                     showcached = True,
                                      instrument = 'laue',
-                                     filetypes=['raw',])),
+                                     filetypes=['tif',])),
 ]
 
 tools = [

@@ -40,12 +40,13 @@ except ImportError:
 
 import numpy
 
-from nicos.core import ImageSink, NicosError
+from nicos.core import NicosError
+from nicos.core.params import Override
+from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
 from nicos.pycompat import iteritems
 
-
 # tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90
-# format: nicos key: ( tiff tag nr, descr, tiff valuetype (3=str, 11, float)
+# format: nicos key: ( tiff tag nr, descr, tiff valuetype (2=str, 11, float)
 TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin', 11),
           'T/evalue': (1001, 'ICd%temp_end', 11),
           'Sample/name': (1002, 'ICd%sample', 2),
@@ -59,10 +60,10 @@ TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin', 11),
           }
 
 
-# TODO: port to new data API
-class TIFFLaueFileFormat(ImageSink):
+class TiffLaueImageSinkHandler(SingleFileSinkHandler):
 
-    fileFormat = 'TIFF'
+    filetype = 'TIFF'
+    defer_file_creation = True
 
     def doPreinit(self, _mode):
         # Stop creation of the TIFFLaueFileFormat as it would make no sense
@@ -71,34 +72,43 @@ class TIFFLaueFileFormat(ImageSink):
             raise NicosError(self, 'PIL/Pillow module is not available. Check'
                              ' if it\'s installed and in your PYTHONPATH')
 
-    def acceptImageType(self, imageType):
-        # Note: FITS would be capable of saving multiple images in one file
-        # (as 3. dimension). May be implemented if necessary. For now, only
-        # 2D data is supported.
-        return (len(imageType.shape) == 2)
+    def writeHeader(self, fp, metainfo, image):
+        self.metainfo = metainfo
 
-    def saveImage(self, info, data):
+    def writeData(self, fp, image):
         # ensure numpy type, with float values for PIL
-        npData = numpy.asarray(data, dtype='<u2')
+        npData = numpy.asarray(image, dtype='<u2')
         buf = numpy.getbuffer(npData)
         ifile = Image.frombuffer('I;16', npData.shape, buf, "raw", 'I;16', 0, 1)
 
-        ifile.save(info.file, 'TIFF', tiffinfo=self._buildHeader(info))
+        ifile.save(fp, 'TIFF', tiffinfo=self._buildHeader(self.metainfo))
 
     def _buildHeader(self, imageinfo):
         ifd = ImageFileDirectory()  # pylint: disable=E1120
         ifd[TAGMAP['startx'][0]] = 1
         ifd[TAGMAP['starty'][0]] = 1
         ifd[STRIPOFFSETS] = 8
-        for _cat, dataSets in iteritems(imageinfo.header):
-            for dev, attr, attrVal in dataSets:
-                key = '%s/%s' % (dev.name, attr)
-                if key in TAGMAP:
-                    tag = TAGMAP[key][0]
-                    typ = TAGMAP[key][2]
-                    ifd.tagtype[tag] = typ
-                    if typ == 11:
-                        attrVal = float(attrVal.split(' ')[0])
-                    ifd[tag] = attrVal
+        for (dev, attr), attrVal in iteritems(imageinfo):
+            key = '%s/%s' % (dev, attr)
+            if key in TAGMAP:
+                tag = TAGMAP[key][0]
+                typ = TAGMAP[key][2]
+                ifd.tagtype[tag] = typ
+                if typ == 11:
+                    attrVal = float(attrVal[0])
+                ifd[tag] = attrVal
 
         return ifd
+
+
+class TIFFLaueSink(ImageSink):
+    parameter_overrides = {
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['%(proposal)s_%(pointcounter)07d.tif']),
+    }
+
+    handlerclass = TiffLaueImageSinkHandler
+
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2
