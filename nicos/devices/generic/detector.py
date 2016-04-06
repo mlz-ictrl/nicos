@@ -174,7 +174,8 @@ class ImageChannelMixin(DeviceMixinBase):
     parameters = {
         'readresult': Param('Storage for scalar results from image '
                             'filtering, to be returned from doRead()',
-                            type=listof(float), settable=True),
+                            type=listof(float), settable=True,
+                            userparam=False),
     }
 
     parameter_overrides = {
