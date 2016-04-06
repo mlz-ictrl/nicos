@@ -388,6 +388,9 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
     def doReadUnit(self):
         attrInfo = self._dev.attribute_query('value')
+        # prefer configured unit if nothing is set on the Tango device
+        if attrInfo.unit == 'No unit' and 'unit' in self._config:
+            return self._config['unit']
         return attrInfo.unit
 
     def doReadAbslimits(self):
