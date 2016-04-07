@@ -350,7 +350,7 @@ _spinflipper = Column(
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
         ),
-        BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
+        BlockRow(Field(name='Temperature of Spinflipper', dev='T_spinflipper'),),
         BlockRow(
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
@@ -361,7 +361,7 @@ _spinflipper = Column(
 )
 
 newports = []
-for k in range(1, 5 + 1):
+for k in range(1, 6 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,

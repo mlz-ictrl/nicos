@@ -40,7 +40,7 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-    T_spinflipper = device('devices.tango.AnalogInput',
+    T_spinflipper_AG = device('devices.tango.AnalogInput',
                            description = 'temperature of ag1016',
                            tangodevice = tango_base + 'amplifier/temp',
                            fmtstr = '%.3f',
@@ -68,4 +68,15 @@ devices = dict(
                               maxage = 120,
                               pollinterval = 15,
                              ),
+
+# WUT Box
+    T_spinflipper = device('sans1.wut.WutValue',
+                            hostname = 'sans1wut-temp-spinflip.sans1.frm2',
+                            port = '1',
+                            description = 'temperature of spinflipper',
+                            fmtstr = '%.2F',
+                            lowlevel = False,
+                            loglevel = 'info',
+                            unit = 'C',
+    ),
 )

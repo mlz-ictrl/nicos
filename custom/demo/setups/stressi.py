@@ -1,6 +1,6 @@
 description = 'Simulated CARESS HWB Devices'
 
-group = 'lowlevel'
+group = 'basic'
 
 servername = 'SIMU'
 nameservice = 'localhost'

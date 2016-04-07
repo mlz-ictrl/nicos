@@ -2,7 +2,7 @@ description = 'REFSANS demo setup'
 
 group = 'basic'
 
-excludes = ['tas', 'sans', 'detector', 'qmchannel']
+excludes = ['detector', 'qmchannel']
 
 includes = []
 

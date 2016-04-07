@@ -61,8 +61,9 @@ class OverwriteQuestion(QMessageBox):
 
     def __init__(self):
         QMessageBox.__init__(self, QMessageBox.Question, 'Code generation',
-                    'Do you want to append to or overwrite the current code?',
-                    QMessageBox.NoButton)
+                             'Do you want to append to or overwrite the '
+                             'current code?',
+                             QMessageBox.NoButton)
         self.b0 = self.addButton('Append', QMessageBox.YesRole)
         self.b1 = self.addButton('Overwrite', QMessageBox.ApplyRole)
         self.b2 = self.addButton('Cancel', QMessageBox.RejectRole)
@@ -538,7 +539,8 @@ class EditorPanel(Panel):
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
         settings.setValue('openfiles',
-            [self.filenames[e] for e in self.editors if self.filenames[e]])
+                          [self.filenames[e] for e in self.editors
+                           if self.filenames[e]])
 
     def requestClose(self):
         for editor in self.editors:
@@ -570,7 +572,7 @@ class EditorPanel(Panel):
         else:
             editor = QScintillaCompatible(self)
             lexer = None
-        #editor.setFrameStyle(0)
+        # editor.setFrameStyle(0)
         self.connect(editor, SIGNAL('modificationChanged(bool)'), self.setDirty)
         self._updateStyle(editor, lexer)
         return editor, lexer
@@ -653,7 +655,7 @@ class EditorPanel(Panel):
             printer = Printer()
             printer.setOutputFileName('')
             printer.setDocName(self.filenames[self.currentEditor])
-            #printer.setFullPage(True)
+            # printer.setFullPage(True)
             if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
                 lexer = self.lexers[self.currentEditor]
                 bgcolor = lexer.paper(0)
@@ -670,9 +672,9 @@ class EditorPanel(Panel):
     def validateScript(self):
         script = self.currentEditor.text()
         # XXX: this does not apply to .txt (SPM) scripts
-        #try:
+        # try:
         #    compile(script, 'script', 'exec')
-        #except SyntaxError as err:
+        # except SyntaxError as err:
         #    self.showError('Syntax error in script: %s' % err)
         #    self.currentEditor.setCursorPosition(err.lineno - 1, err.offset)
         #    return
@@ -711,9 +713,9 @@ class EditorPanel(Panel):
             return
         if not self.checkDirty(self.currentEditor, askonly=True):
             return
-        reason, ok = QInputDialog.getText(self, 'Update reason',
-            'For the logbook, you can enter a reason for the update here:',
-            text='no reason specified')
+        reason, ok = QInputDialog.getText(
+            self, 'Update reason', 'For the logbook, you can enter a reason '
+            'for the update here:', text='no reason specified')
         if not ok:
             return
         self.client.tell('update', script, reason)
@@ -852,7 +854,7 @@ class EditorPanel(Panel):
 
         # replace tab if it's a single new file
         if len(self.editors) == 1 and not self.filenames[self.editors[0]] and \
-            not self.editors[0].isModified():
+           not self.editors[0].isModified():
             self._close(self.editors[0])
 
         self.editors.append(editor)
@@ -880,18 +882,20 @@ class EditorPanel(Panel):
             self.recentf_actions.append(new_action)
         with self.sgroup as settings:
             settings.setValue('recentf',
-                [a.text() for a in self.recentf_actions])
+                              [a.text() for a in self.recentf_actions])
 
     @qtsig('')
     def on_actionSave_triggered(self):
         self.saveFile(self.currentEditor)
-        self.window.setWindowTitle('%s[*] - %s editor' %
+        self.window.setWindowTitle(
+            '%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
 
     @qtsig('')
     def on_actionSaveAs_triggered(self):
         self.saveFileAs(self.currentEditor)
-        self.window.setWindowTitle('%s[*] - %s editor' %
+        self.window.setWindowTitle(
+            '%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
 
     def saveFile(self, editor):

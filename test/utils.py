@@ -350,7 +350,8 @@ def cleanup():
 
 
 def adjustPYTHONPATH():
-    global pythonpath  # pylint: disable=global-statement
+    # pylint: disable=global-statement
+    global pythonpath
     if pythonpath is None:
         topdir = path.abspath(path.join(rootdir, '..', '..'))
         pythonpath = os.environ.get('PYTHONPATH', '').split(os.pathsep)

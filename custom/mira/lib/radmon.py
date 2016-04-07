@@ -31,29 +31,30 @@ from nicos.pycompat import urllib
 class RadMon(Readable):
 
     def doInit(self, mode):
-        h = urllib.HTTPBasicAuthHandler()
+        h = urllib.request.HTTPBasicAuthHandler()
         h.add_password(realm='Administrator or User',
                        uri='http://miracam.mira.frm2/IMAGE.JPG',
-                       user='rgeorgii', passwd='rg.frm2')
-        self._op = urllib.build_opener(h)
+                       user='mira', passwd='mira')
+        self._op = urllib.request.build_opener(h)
 
     def doRead(self, maxage=0):
         img = self._op.open('http://miracam.mira.frm2/IMAGE.JPG').read()
         open('/tmp/radmon.jpg', 'wb').write(img)
-        p1 = subprocess.Popen('/usr/local/bin/ssocr -d 3 -i 2 -t 40 '
-                              'rotate 268 crop 298 192 55 34 '
-                              'make_mono invert opening 1 '
+        p1 = subprocess.Popen('/usr/local/bin/ssocr -d 3 -i 1 -t 50 -l maximum '
+                              'rotate 1 crop 300 157 57 30 '
+                              'make_mono invert keep_pixels_filter 5 '
                               '/tmp/radmon.jpg'.split(),
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p2 = subprocess.Popen('/usr/local/bin/ssocr -d 1 -i 2 -t 40 '
-                              'rotate 268 crop 387 158 23 30 '
-                              'make_mono invert opening 1 '
+        p2 = subprocess.Popen('/usr/local/bin/ssocr -d 1 -i 1 -t 50 -l maximum '
+                              'rotate 1 crop 391 125 20 30 '
+                              'make_mono invert keep_pixels_filter 5 '
                               '/tmp/radmon.jpg'.split(),
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out1, err1 = p1.communicate()
         out2, err2 = p2.communicate()
         out1 = out1.strip()
         out2 = out2.strip()
+        self.log.warning('out1=%r, out2=%r' % (out1, out2))
         if err1:
             raise NicosError(self, 'ERROR in mantissa')
         if err2:

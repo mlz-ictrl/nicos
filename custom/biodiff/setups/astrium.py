@@ -13,6 +13,7 @@ devices = dict(
                              warnlimits = (11000, 22000),
                              abslimits = (11000, 22000),
                              precision = 10,
+                             timeout = 180,
                             ),
 
     selector_lambda = device('devices.vendor.astrium.SelectorLambda',

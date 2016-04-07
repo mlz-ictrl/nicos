@@ -4,31 +4,20 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'sans1srv.sans1.frm2'
+tango_base = 'tango://julabo.sans1.frm2:10000/box/'
 
 devices = dict(
-    T_control = device('devices.taco.TemperatureController',
+    T_julabo = device('devices.tango.TemperatureController',
                        description = 'The regulated temperature',
-                       tacodevice = '//%s/sans1/julabo/control' % nethost,
-                       abslimits = (-100, 250),
+                       tangodevice = tango_base + 'julabo/control',
+                       abslimits = (-40, 250),
                        unit = 'C',
                        fmtstr = '%.2f',
+                       precision = 0.1,
                       ),
-    T_intern = device('devices.taco.TemperatureSensor',
-                      description = 'The internal sensor',
-                      tacodevice = '//%s/sans1/julabo/intern' % nethost,
-                      fmtstr = '%.2f',
-                      unit = 'C',
-                     ),
-    T_extern = device('devices.taco.TemperatureSensor',
-                      description = 'The external sensor',
-                      tacodevice = '//%s/sans1/julabo/extern' % nethost,
-                      fmtstr = '%.2f',
-                      unit = 'C',
-                     ),
 )
 
 alias_config = {
-    'T': {'T_control': 100},
-    'Ts': {'T_control': 100, 'T_extern': 90, 'T_intern': 80},
+    'T':  {'T_julabo': 100},
+    'Ts': {'T_julabo': 100},
 }

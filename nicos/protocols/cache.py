@@ -120,6 +120,17 @@ Response: none immediately, but every update matching the given key is sent to
 the client, either as ``[time@]key=value`` or ``[time@]key!value`` (if the key
 has expired).
 
+Unsubscribing updates
+---------------------
+
+Operation: ``OP_UNSUBSCRIBE`` or ``'|'``
+
+- Key must be the same as for the subscription.
+- Unsubscribing keys which were never subscribed has no side-effects.
+
+Response: none immediately, no updates for the specified keys will be sent
+anymore.
+
 Locking
 -------
 
@@ -212,6 +223,7 @@ OP_TELL = '='
 OP_ASK = '?'
 OP_WILDCARD = '*'
 OP_SUBSCRIBE = ':'
+OP_UNSUBSCRIBE = '|'
 OP_TELLOLD = '!'
 OP_LOCK = '$'
 OP_REWRITE = '~'
@@ -233,6 +245,9 @@ CYCLETIME = 0.1
 # Buffer size
 BUFSIZE = 8192
 
+opkeys = OP_TELL + OP_ASK + OP_WILDCARD + OP_SUBSCRIBE + OP_UNSUBSCRIBE + \
+    OP_TELLOLD + OP_LOCK + OP_REWRITE
+
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
     ^ (?:
@@ -241,11 +256,11 @@ msg_pattern = re.compile(r'''
       \s* (?P<ttl>\d+\.?\d*(?:[eE][+-]?\d+)?)?   # ttl
       \s* (?P<tsop>@)                            # timestamp mark
     )?
-    \s* (?P<key>[^=!?:*$]*?)                     # key
-    \s* (?P<op>[=!?:*$~])                        # operator
+    \s* (?P<key>[^%(opkeys)s]*?)                     # key
+    \s* (?P<op>[%(opkeys)s])                        # operator
     \s* (?P<value>[^\r\n]*?)                     # value
     \s* $
-    ''', re.X)
+    ''' % dict(opkeys=opkeys), re.X)
 
 line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 

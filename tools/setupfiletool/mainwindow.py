@@ -393,8 +393,7 @@ class MainWindow(QMainWindow):
         output = []
         if setupData.treeWidgetSysconfig.topLevelItemCount() > 0:
             output.append('sysconfig = dict(\n')
-            for key, value in setupData.treeWidgetSysconfig.getData(
-                    ).items():
+            for key, value in setupData.treeWidgetSysconfig.getData().items():
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
             return ''.join(output)

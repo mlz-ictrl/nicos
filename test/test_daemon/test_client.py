@@ -65,7 +65,8 @@ client = None
 
 
 def setup_module():
-    global client  # pylint: disable=global-statement
+    # pylint: disable=global-statement
+    global client
     client = TestClient()
     client.connect(ConnectionData('localhost', getDaemonPort(), 'user', 'user'))
     assert ('connected', None, None) in client._signals

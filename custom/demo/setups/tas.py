@@ -3,7 +3,7 @@ group = 'basic'
 
 modules = ['commands.tas']
 
-excludes = ['sans', 'refsans',]
+excludes = []
 
 includes = ['cryo']
 

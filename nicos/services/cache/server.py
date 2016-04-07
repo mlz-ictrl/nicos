@@ -50,7 +50,7 @@ from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, 
     MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-    OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
+    OP_UNSUBSCRIBE, OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
 
 
 class CacheWorker(object):
@@ -222,6 +222,11 @@ class CacheWorker(object):
                 self.ts_updates_on.add(key)
             else:
                 self.updates_on.add(key)
+        elif op == OP_UNSUBSCRIBE:
+            if tsop:
+                self.ts_updates_on.discard(key)  # note: discard does not raise
+            else:
+                self.updates_on.discard(key)
         elif op == OP_TELLOLD:
             # the server shouldn't get TELLOLD, ignore it
             pass

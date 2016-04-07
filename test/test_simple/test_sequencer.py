@@ -147,7 +147,7 @@ def test_seqnop():
     sn = SeqNOP()
     sn.check()
     sn.run()
-    assert sn.isCompleted() is True
+    assert sn.isCompleted()
     sn.stop()
     sn.retry(5)
 

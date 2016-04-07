@@ -1,3 +1,27 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
+#
+# *****************************************************************************
+
 description = 'setup for the status monitor for SANS1'
 
 group = 'special'
@@ -238,7 +262,7 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
             ),
-    BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
+    BlockRow(Field(name='Temperature of Spinflipper', dev='T_spinflipper'),),
     BlockRow(
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
@@ -248,7 +272,7 @@ _spinflipper = Block('Spin Flipper', [
 )
 
 newports = []
-for k in range(1, 5 + 1):
+for k in range(1, 6 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,
@@ -371,11 +395,12 @@ _sans1crane = Column(
 
 _sans1julabo = Block('Julabo', [
     BlockRow(
-             Field(name='Setpoint', dev='T_control'),
+             Field(name='Target', key='T_julabo/target'),
+             Field(name='Setpoint', key='T_julabo/setpoint'),
              ),
     BlockRow(
              Field(name='Intern', dev='T_intern'),
-             Field(name='Extern', dev='T_extern'),
+             Field(name='Extern', dev='T_julabo'),
              ),
     ],
     setups='julabo',
@@ -385,15 +410,15 @@ _julabo_plot = Block('Julabo plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=1800,
-              devices=['T_control', 'T_intern', 'T_extern'],
-              names=['Setpoint', 'Intern 30min', 'Extern 30min'],
+              devices=['T_julabo', 'T_julabo/setpoint'],
+              names=['T 30min', 'Setpoint'],
               ),
     ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=12*3600,
-              devices=['T_control', 'T_intern', 'T_extern'],
-              names=['Setpoint', 'Intern 12h', 'Extern 12h'],
+              devices=['T_julabo', 'T_julabo/setpoint'],
+              names=['T 12h', 'Setpoint'],
               ),
     ),
     ],
