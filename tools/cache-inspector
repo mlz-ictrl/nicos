@@ -42,9 +42,7 @@ except ImportError:
 from cacheinspector.cacheinspector import CacheInspector, CISession
 
 
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
+def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cache', dest='cache', action='store',
@@ -53,11 +51,12 @@ def main(argv=None):
     parser.add_argument('-p', '--prefix', dest='prefix', action='store',
                         help='PREFIX is the key prefix; shows only keys with '
                         'this prefix, defaults to no prefix', default='')
-    opts, args = parser.parse_args(argv)
+    opts = parser.parse_args()
 
     CISession.run('Inspector', CacheInspector,
                   {'cache': opts.cache, 'prefix': opts.prefix},
                   pidfile=False)
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    main()
+

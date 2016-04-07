@@ -15,7 +15,8 @@ parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
 parser.add_argument('-S', '--setup', action='store', dest='setupname',
                     default='pushversioninfo',
                     help="name of the setup, default is 'pushversioninfo'")
-opts, args = parser.parse_args()
+opts = parser.parse_args()
 
 NoninteractiveSession.run(opts.setupname, 'PushVersionInfo',
                           daemon=opts.daemon)
+
