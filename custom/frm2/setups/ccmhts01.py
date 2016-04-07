@@ -4,30 +4,70 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-taco_host = setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
-devices = dict(
-    # by convention this needs to be B_%(setupname)s
-    I_ccmhts01  = device('devices.taco.CurrentSupply',
-                         description = 'current device',
-                         tacodevice = '//%s/magnet/kepco/current' % taco_host,
-                         unit = 'A',
-                         abslimits = (-210, 210),
-                        ),
-    B_ccmhts01  = device('devices.generic.magnet.CalibratedMagnet',
+devices = {
+    'B_%s' % setupname  : device('devices.tango.AnalogOutput',
                          description = 'magnetic field device',
-                         currentsource = 'I_ccmhts01',
+                         tangodevice = tango_base + 'plc/_current',
                          unit = 'mT',
-                         abslimits = (-2250, 2250),
-                         # curve from Juergen Peters
-                         calibration = [9.52412, 1.9862, 31.6875, 195.56, 0.01228],
-                         # calibration = [9.49484, 0, 0, 201.5, 0.011742],
-                         # curve from Vladimir Hutanu
-                         # calibration = [7.67752, 239.074, 0.00822055, 6.14579, 0.913737],
+                         abslimits = (-2.2, 2.2),
                         ),
+    '%s_current' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'magnet current',
+                         tangodevice = tango_base + 'hts_mss/magnet_current',
+                         unit = 'A',
+                        ),
+    '%s_voltage' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'magnet voltage',
+                         tangodevice = tango_base + 'hts_mss/magnet_voltage',
+                         unit = 'V',
+                        ),
+    '%s_watertemp' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Temperature of cooling water',
+                         tangodevice = tango_base + 'plc/_watertemp',
+                         unit = 'degC',
+                         warnlimits = (0.5, 25),
+                        ),
+    '%s_waterflow' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Flow rate of cooling water',
+                         tangodevice = tango_base + 'plc/_waterflow',
+                         unit = 'l/s',
+                         warnlimits = (0.5, 25),
+                        ),
+    '%s_compressor' % setupname  : device('devices.tango.NamedDigitalOutput',
+                         description = 'Compressor for cold head',
+                         tangodevice = tango_base + 'plc/_comp',
+                         mapping = dict(on=1, off=0),
+                        ),
+    '%s_T1' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Temperature of the first stage of the '
+                            'cryo-cooler',
+                         tangodevice = tango_base + 'hts_mss/t1',
+                         unit = 'K',
+                         warnlimits = (0, 11),
+                        ),
+    '%s_T2' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Temperature of the second stage of the '
+                            'cryo-cooler',
+                         tangodevice = tango_base + 'hts_mss/t2',
+                         unit = 'K',
+                         warnlimits = (0, 11),
+                        ),
+    '%s_TA' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Temperature of coil pack A',
+                         tangodevice = tango_base + 'hts_mss/t3',
+                         unit = 'K',
+                         warnlimits = (0, 11),
+                        ),
+    '%s_TB' % setupname  : device('devices.tango.AnalogInput',
+                         description = 'Temperature of coil pack B',
+                         tangodevice = tango_base + 'hts_mss/t4',
+                         unit = 'K',
+                         warnlimits = (0, 11),
+                        ),
+}
 
-)
 alias_config = {
-    # I is included for the rare case you want to control the current directly instead of field.
-    'B': {'B_ccmhts01': 100, 'I_ccmhts01': 90},
+    'B': {'B_%s' % setupname: 100},
 }
