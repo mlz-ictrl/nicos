@@ -403,7 +403,17 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
         return self._dev.value
 
     def doStart(self, value):
-        self._dev.value = value
+        try:
+            self._dev.value = value
+        except NicosError:
+            # changing target value during movement is not allowed by the
+            # Tango base class state machine. If we are moving, stop first.
+            if self.status(0)[0] == status.BUSY:
+                self.stop()
+                self._hw_wait()
+                self._dev.value = value
+            else:
+                raise
 
     def doStop(self):
         self._dev.Stop()
