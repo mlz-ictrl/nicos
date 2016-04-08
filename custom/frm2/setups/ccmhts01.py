@@ -10,7 +10,7 @@ devices = {
     'B_%s' % setupname  : device('devices.tango.AnalogOutput',
                          description = 'magnetic field device',
                          tangodevice = tango_base + 'plc/_current',
-                         unit = 'mT',
+                         unit = 'T',
                          abslimits = (-2.2, 2.2),
                         ),
     '%s_current' % setupname  : device('devices.tango.AnalogInput',
