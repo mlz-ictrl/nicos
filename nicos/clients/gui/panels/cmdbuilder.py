@@ -102,7 +102,7 @@ class CommandPanel(Panel):
         menus = []
         for category in all_categories[::]:
             if category not in self.mapping:
-                return
+                continue
             menu = QMenu('&' + category + ' commands', self)
             menu.addActions(self.mapping[category])
             menus.append(menu)

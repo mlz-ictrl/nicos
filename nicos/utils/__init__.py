@@ -187,7 +187,9 @@ def _s(n):
 
 
 def formatDuration(secs, precise=True):
-    if 0 <= secs < 60:
+    if secs < 1:
+        est = '< 1 second'
+    elif 1 <= secs < 60:
         est = '%s second%s' % _s(secs + 0.5)
     elif secs < 3600:
         if precise:
