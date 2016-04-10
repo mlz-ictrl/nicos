@@ -28,13 +28,14 @@ The supported types are defined in `nicos.core.params`.
 """
 
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
+from PyQt4.QtGui import QLineEdit, QIntValidator, \
     QCheckBox, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, \
     QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, QIcon
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import iteritems, listvalues
 
 
@@ -356,7 +357,7 @@ class EditWidget(QLineEdit):
         QLineEdit.__init__(self, parent)
         self._typ = typ
         if typ is float:
-            val = QDoubleValidator(self)
+            val = DoubleValidator(self)
             if minmax:
                 # setRange doesn't work correctly in some Qt versions...
                 val.setBottom(minmax[0])

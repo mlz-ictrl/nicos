@@ -28,7 +28,10 @@ in dependence of loaded_setups.
 
 from __future__ import print_function
 
-from nicos.guisupport.utils import checkSetupSpec
+from nicos.guisupport.utils import checkSetupSpec, DoubleValidator
+
+# Importing this AFTER nicos.guisupport to have the correct SIP API set.
+from PyQt4.QtGui import QValidator
 
 
 # setupspec : loaded_setups : result
@@ -74,3 +77,40 @@ def test_checkSetupSpec():
         print('testing checkSetupSpec(%r, %r) == %r: %r' %
               (spec, setups, result, res))
         assert res == result
+
+
+def test_double_validator():
+    inf = float('inf')
+    # valid cases
+    validator = DoubleValidator()
+    for args in [
+            ('0', -inf, inf),
+            ('0.0', -inf, inf),
+            ('0.0e0', -inf, inf),
+            ('-0.0', -inf, inf),
+            ('1.23456789123456789e130', -inf, inf),
+            ('0', -1, 1),
+            ('0', 0, inf),
+            ('0', -inf, 0),
+    ]:
+        validator.setRange(args[1], args[2])
+        assert validator.validate(args[0], 0)[0] == QValidator.Acceptable
+    # intermediate cases
+    for args in [
+            ('4', 10, 50),
+            ('-4', -50, -10),
+            ('1.0e', -inf, inf),
+            ('0', 10, 20),
+    ]:
+        validator.setRange(args[1], args[2])
+        assert validator.validate(args[0], 0)[0] == QValidator.Intermediate
+    # invalid cases
+    for args in [
+            ('-15', 10, 20),
+            ('-1', 10, 20),
+            ('+15', -20, -10),
+            ('+1', -20, -10),
+            ('1,5', 0, 10),
+    ]:
+        validator.setRange(args[1], args[2])
+        assert validator.validate(args[0], 0)[0] == QValidator.Invalid

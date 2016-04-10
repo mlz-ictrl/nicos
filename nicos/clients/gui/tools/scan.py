@@ -24,10 +24,12 @@
 
 """Graphical interface to prepare scan commands."""
 
-from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator, QButtonGroup
+from PyQt4.QtGui import QDialog, QIntValidator, QButtonGroup
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
+from nicos.guisupport.utils import DoubleValidator
+
 
 def toint(text):
     text = str(text)
@@ -35,11 +37,13 @@ def toint(text):
         return 0
     return int(text)
 
+
 def tofloat(text):
     text = str(text)
     if not text:
         return 0.0
     return float(text)
+
 
 def fmt_time(seconds):
     if seconds < 60:
@@ -116,7 +120,7 @@ class ScanTool(QDialog):
         for name, unit in self._devices:
             self.deviceList.addItem("%s [%s]" % (name, unit))
 
-        dval = QDoubleValidator(self)
+        dval = DoubleValidator(self)
         ival = QIntValidator(self)
 
         # qscan tab

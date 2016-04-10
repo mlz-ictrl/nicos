@@ -28,10 +28,11 @@ import re
 import math
 from os import path
 
-from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
+from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
+from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import iteritems
 
 
@@ -106,7 +107,7 @@ class CalculatorTool(QDialog):
         self.braggcalc()
         self.n_calc('')
 
-        dblval = QDoubleValidator(self)
+        dblval = DoubleValidator(self)
         for fld in bragg_fields:
             inputbox = getattr(self, 'input'+fld)
             self.connect(inputbox, SIGNAL('textChanged(const QString &)'),
