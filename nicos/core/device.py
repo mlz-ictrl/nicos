@@ -1498,7 +1498,8 @@ class Moveable(Waitable):
         self._setROParam('target', pos)
         self.doStart(pos)
 
-    move = start
+    def move(self, pos):
+        self.start(pos)
 
     def doTime(self, old_value, target):
         """Calculate the time to move from one position to another.
