@@ -47,6 +47,7 @@ class ELogPanel(Panel, DlgUtils):
         loadUi(self, 'elog.ui', 'panels')
 
         self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)
+        self.propdir = None
 
         self.menus = None
         self.bar = None
@@ -105,6 +106,7 @@ class ELogPanel(Panel, DlgUtils):
             btn = QPushButton('Search', self)
             bar.addWidget(box)
             bar.addWidget(btn)
+
             def callback():
                 self.preview.findText(box.text(), QWebPage.FindWrapsAroundDocument)
             box.returnPressed.connect(callback)
@@ -117,7 +119,6 @@ class ELogPanel(Panel, DlgUtils):
         self.activeGroup.setEnabled(not viewonly)
 
     def on_timer_timeout(self):
-        sig = SIGNAL('loadFinished(bool)')
         try:
             frame = self.preview.page().mainFrame().childFrames()[1]
         except IndexError:
@@ -126,6 +127,7 @@ class ELogPanel(Panel, DlgUtils):
             return
         scrollval = frame.scrollBarValue(Qt.Vertical)
         was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
+
         # restore current scrolling position in document on reload
         def callback(new_size):
             nframe = self.preview.page().mainFrame().childFrames()[1]
@@ -134,8 +136,8 @@ class ELogPanel(Panel, DlgUtils):
                                          nframe.scrollBarMaximum(Qt.Vertical))
             else:
                 nframe.setScrollBarValue(Qt.Vertical, scrollval)
-            self.disconnect(self.preview, sig, callback)
-        self.connect(self.preview, sig, callback)
+            self.preview.loadFinished.disconnect(callback)
+        self.preview.loadFinished.connect(callback)
         self.preview.reload()
 
     def on_client_connected(self):
@@ -145,10 +147,10 @@ class ELogPanel(Panel, DlgUtils):
         self._update_content()
 
     def _update_content(self):
-        proposaldir = self.client.eval('session.experiment.proposalpath', '')
-        if not proposaldir:
+        self.propdir = self.client.eval('session.experiment.proposalpath', '')
+        if not self.propdir:
             return
-        logfile = path.join(proposaldir, 'logbook', 'logbook.html')
+        logfile = path.join(self.propdir, 'logbook', 'logbook.html')
         if path.isfile(logfile):
             self.preview.load(QUrl(logfile))
         else:
@@ -190,7 +192,12 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_actionRefresh_triggered(self):
-        self.on_timer_timeout()
+        # if for some reason, we have the wrong proposal path, update here
+        propdir = self.client.eval('session.experiment.proposalpath', '')
+        if propdir and propdir != self.propdir:
+            self._update_content()
+        else:
+            self.on_timer_timeout()
 
     @qtsig('')
     def on_actionBack_triggered(self):
@@ -203,7 +210,7 @@ class ELogPanel(Panel, DlgUtils):
     @qtsig('')
     def on_actionNewSample_triggered(self):
         name, ok = QInputDialog.getText(self, 'New sample',
-            'Please enter the new sample name:')
+                                        'Please enter the new sample name:')
         if not ok or not name:
             return
         self.client.eval('NewSample(%r)' % name)
@@ -211,7 +218,8 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_actionAddRemark_triggered(self):
-        remark, ok = QInputDialog.getText(self, 'New remark',
+        remark, ok = QInputDialog.getText(
+            self, 'New remark',
             'Please enter the remark.  The remark will be added to the logbook '
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
@@ -236,6 +244,7 @@ class ELogPanel(Panel, DlgUtils):
     @qtsig('')
     def on_actionAttachFile_triggered(self):
         dlg = dialogFromUi(self, 'elog_attach.ui', 'panels')
+
         def on_fileSelect_clicked():
             self.selectInputFile(dlg.fileName, 'Choose a file to attach')
             dlg.fileRename.setFocus()
@@ -265,7 +274,6 @@ class ELogPanel(Panel, DlgUtils):
 
         mainFrame = self.preview.page().mainFrame()
         childFrames = mainFrame.childFrames()
-
 
         # Workaround for Qt versions < 4.8.0
         printWholeSite = True
