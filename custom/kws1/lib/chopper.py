@@ -24,13 +24,20 @@
 
 """Class for KWS chopper control."""
 
-from nicos.core import Moveable, Attach, Override, tupleof, floatrange
+from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
+    listof, oneof, intrange, floatrange, PositionError
+from nicos.utils import clamp
+from nicos.kws1.daq import KWSDetector
+from nicos.kws1.switcher import SelectorSwitcher, DetectorPosSwitcher
+
+# neutron speed at 1A, in m/ms
+SPEED = 3.956
 
 FREQ_PRECISION = 1.0
 PHASE_PRECISION = 1.0
 
 
-class Chopper(Moveable):
+class ChopperParams(Moveable):
     """Setting chopper parameters in terms of (frequency, phase)."""
 
     valuetype = tupleof(floatrange(0, 75), floatrange(0, 180))
@@ -88,3 +95,142 @@ class Chopper(Moveable):
         rfreq, rphase = pos
         return abs(tfreq - rfreq) < FREQ_PRECISION and \
             abs(tphase - rphase) < PHASE_PRECISION
+
+
+def calculate(lam, spread, reso, shade, l, dtau, n_max):
+    """Calculate chopper frequency and phase for a single setting, which needs:
+
+    * lam: incoming neutron wavelength in Angstrom
+    * spread: incoming neutron wavelength spread from selector
+    * reso: desired wavelength resolution
+    * shade: shade of spectrum edges
+    * l: chopper-detector length in m
+    * dtau: additional offset of TOF in ms
+    * n_max: maximum number of acquisition frames
+
+    Returns: (frequency in Hz, phase in deg)
+    """
+
+    dlam = 2.0 * spread * lam
+    tau_tot = l * lam * (1.0 - spread) / SPEED
+
+    n = max(2, int(2 * spread / reso + 1))
+    n_fac = (1. - 2 * shade) / (1. - shade)
+    n_fac = clamp(n_fac, 1.0 / n, 1.0)
+    n_illum = clamp(int(n_fac * n), 1, n_max)
+
+    tau_delta = l * dlam / ((n - 1) * SPEED)
+    tau_win = 0.5 * tau_delta * (n + n_illum)
+    tau0 = tau_tot + 0.5 * (n - n_illum) * tau_delta + dtau
+    tau0 -= tau_win * int(tau0 / tau_win)
+
+    freq = 1000.0 / tau_win / 2.0
+    angle = 180.0 / (0.5 * (n + n_illum))
+
+    return freq, angle
+
+
+class Chopper(Moveable):
+    """Switcher for the TOF setting.
+
+    This controls the chopper phase and frequency, as well as the TOF slice
+    settings for the detector.  Presets depend on the target wavelength as well
+    as the detector position.
+    """
+
+    attached_devices = {
+        'selector':    Attach('Selector preset switcher', SelectorSwitcher),
+        'det_pos':     Attach('Detector preset switcher', DetectorPosSwitcher),
+        'daq':         Attach('KWSDetector device', KWSDetector),
+        'params':      Attach('Chopper param device', Moveable),
+    }
+
+    parameters = {
+        'resolutions': Param('Possible values for the resolution', unit='%',
+                             type=listof(float), mandatory=True),
+        'channels':    Param('Desired number of TOF channels',
+                             # TODO: max channels?
+                             type=intrange(1, 1024), default=64,
+                             settable=True),
+        'detoffset':   Param('Offset for chopper-detector length',
+                             type=floatrange(0.0), unit='m', default=2.3,
+                             settable=True),
+        'shade':       Param('Desired overlap of spectrum edges',
+                             type=floatrange(0.0, 1.0), default=0.0,
+                             settable=True),
+        'tauoffset':   Param('Additional offset for time of flight',
+                             type=floatrange(0.0), default=0.0, settable=True),
+        'nmax':        Param('Maximum number of acquisition frames',
+                             type=intrange(1, 128), default=25, settable=True),
+        'calcresult':  Param('Last calculated setting',
+                             type=tupleof(float, float, int), settable=True,
+                             userparam=False),
+    }
+
+    parameter_overrides = {
+        'unit':        Override(default='', mandatory=False),
+    }
+
+    def doInit(self, mode):
+        self.valuetype = oneof('off',
+                               *('%.1f%%' % v for v in self.resolutions))
+
+    def _getWaiters(self):
+        return [self._attached_params]
+
+    def doStart(self, value):
+        if value == 'off':
+            self._attached_daq.mode = 'standard'
+            self._attached_params.start((0, 0))
+            return
+        reso = float(value.strip('%')) / 100.0
+
+        sel_target = self._attached_selector.target
+        det_target = self._attached_det_pos.target
+        try:
+            lam = self._attached_selector.presets[sel_target]['lam']
+            spread = self._attached_selector.presets[sel_target]['spread']
+            det_z = self._attached_det_pos.presets[sel_target][det_target]['z']
+        except KeyError:
+            raise PositionError(self, 'cannot calculate chopper settings: '
+                                'selector or detector device not at preset')
+
+        self.log.debug('chopper calc inputs: reso=%f, lam=%f, spread=%f, '
+                       'det_z=%f' % (reso, lam, spread, det_z))
+        freq, phase = calculate(lam, spread, reso, self.shade,
+                                20.0 + det_z + self.detoffset,
+                                self.tauoffset, self.nmax)
+        self.log.debug('calculated chopper settings: freq=%f, phase=%f' %
+                       (freq, phase))
+        interval = int(1000000.0 / (freq * self.channels))
+        self.calcresult = freq, phase, interval
+
+        self._attached_params.start((freq, phase))
+
+        self._attached_daq.mode = 'tof'
+        self._attached_daq.tofchannels = self.channels
+        self._attached_daq.tofinterval = interval
+        self._attached_daq.tofprog = 1.0  # linear channel widths
+
+    def doRead(self, maxage=0):
+        params = self._attached_params.read(maxage)
+        if params[0] < 1.0:
+            return 'off'
+        if abs(params[0] - self.calcresult[0]) < FREQ_PRECISION and \
+           abs(params[1] - self.calcresult[1]) < PHASE_PRECISION:
+            if self._attached_daq.mode == 'tof' and \
+               self._attached_daq.tofchannels == self.channels and \
+               self._attached_daq.tofinterval == self.calcresult[2] and \
+               self._attached_daq.tofprog == 1.0:
+                return self.target
+        return 'unknown'
+
+    def doStatus(self, maxage=0):
+        move_status = self._attached_params.status(maxage)
+        if move_status[0] not in (status.OK, status.WARN):
+            return move_status
+        r = self.read(maxage)
+        if r == 'unknown':
+            return (status.NOTREACHED, 'unconfigured chopper frequency/phase '
+                    'or still moving')
+        return status.OK, ''

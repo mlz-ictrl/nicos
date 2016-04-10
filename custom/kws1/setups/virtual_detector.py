@@ -11,6 +11,7 @@ devices = dict(
                         blockingmove = False,
                         selector = 'selector',
                         moveables = ['det_z', 'det_x', 'det_y'],
+                        presets = presets,
                         mappings = dict(
                             (name, dict((k, [v['z'], v['x'], v['y']])
                                         for (k, v) in items.items()))

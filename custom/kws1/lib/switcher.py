@@ -24,21 +24,34 @@
 
 """Switcher extensions for KWS."""
 
-from nicos.core import Moveable, Attach, Param, Override, status, oneof, \
-    tupleof, dictof, anytype, PositionError
+from nicos.core import Moveable, Attach, Param, Override, oneof, dictof, \
+    dictwith, anytype
 from nicos.devices.generic.switcher import MultiSwitcher
-from nicos.pycompat import iteritems
-from nicos.kws1.daq import KWSDetector
-from nicos.kws1.chopper import FREQ_PRECISION, PHASE_PRECISION
 
 
-class DynamicMultiSwitcher(MultiSwitcher):
-    """Switcher whose currently available mapping depends on other devices.
+class SelectorSwitcher(MultiSwitcher):
+    """Switcher whose mapping is determined by a list of presets."""
 
-    This is selected by the `_determineMapping` method.
+    parameters = {
+        'presets':  Param('Presets that determine the mapping',
+                          type=dictof(str, dictwith(lam=float, speed=float,
+                                                    spread=float)),
+                          mandatory=True),
+    }
+
+
+class DetectorPosSwitcher(MultiSwitcher):
+    """Switcher for the detector position.
+
+    This controls the X, Y and Z components of the detector position.  Presets
+    depend on the target wavelength given by the selector.
     """
 
     parameters = {
+        'presets':  Param('Presets that determine the mappings',
+                          type=dictof(str, dictof(str, dictwith(
+                              x=float, y=float, z=float))),
+                          mandatory=True),
         'mappings': Param('Collection of mappings', userparam=False,
                           type=dictof(anytype, anytype))
     }
@@ -47,8 +60,13 @@ class DynamicMultiSwitcher(MultiSwitcher):
         'mapping':  Override(mandatory=False, settable=True, userparam=False),
     }
 
+    attached_devices = {
+        'selector':  Attach('Selector preset device', Moveable),
+    }
+
     def _determineMapping(self):
-        raise NotImplementedError('implement _determineMapping')
+        sel_value = self._attached_selector.target
+        return self.mappings.get(sel_value, {})
 
     def doUpdateMapping(self, newvalue):
         self.valuetype = oneof(*newvalue)
@@ -61,87 +79,3 @@ class DynamicMultiSwitcher(MultiSwitcher):
         # will use the correct mapping on the next polling cycle
         self._setROParam('mapping', self._determineMapping())
         self.doUpdateMapping(self.mapping)
-
-
-class DetectorPosSwitcher(DynamicMultiSwitcher):
-    """Switcher for the detector position.
-
-    This controls the X, Y and Z components of the detector position.  Presets
-    depend on the target wavelength given by the selector.
-    """
-
-    attached_devices = {
-        'selector':  Attach('Selector preset device', Moveable),
-    }
-
-    def _determineMapping(self):
-        sel_value = self._attached_selector.target
-        return self.mappings.get(sel_value, {})
-
-
-class TofSwitcher(DynamicMultiSwitcher):
-    """Switcher for the TOF setting.
-
-    This controls the chopper phase and frequency, as well as the TOF slice
-    settings for the detector.  Presets depend on the target wavelength as well
-    as the detector position.
-    """
-
-    attached_devices = {
-        'selector':    Attach('Selector preset switcher', MultiSwitcher),
-        'det_pos':     Attach('Detector preset switcher', DetectorPosSwitcher),
-    }
-
-    def _determineMapping(self):
-        sel_value = self._attached_selector.target
-        det_value = self._attached_det_pos.target
-        mapping = self.mappings.get((sel_value, det_value), {}).copy()
-        mapping['off'] = [(0, 0), ('standard', 1, 1)]
-        return mapping
-
-    def _mapReadValue(self, pos):
-        # override to handle precision of chopper frequency/phase
-        rchop, rtof = pos
-        for name, values in iteritems(self.mapping):
-            tchop, ttof = values
-            if rtof == ttof:
-                if abs(tchop[0] - rchop[0]) < FREQ_PRECISION and \
-                   abs(tchop[1] - rchop[1]) < PHASE_PRECISION:
-                    return name
-        if self.fallback is not None:
-            return self.fallback
-        raise PositionError(self, 'unknown position of %s: %s' % (
-            ', '.join(str(d) for d in self.devices),
-            ', '.join(d.format(p) for (p, d) in zip(pos, self.devices))))
-
-
-class DetTofParams(Moveable):
-    """Sets detector's TOF parameters for use in a chopper preset."""
-
-    attached_devices = {
-        'detector':    Attach('Detector device', KWSDetector),
-    }
-
-    parameter_overrides = {
-        'unit':        Override(mandatory=False),
-    }
-
-    # mode, tofchannels, tofinterval
-    valuetype = tupleof(str, int, int)
-
-    def doStart(self, value):
-        self._attached_detector.mode = value[0]
-        self._attached_detector.tofchannels = value[1]
-        self._attached_detector.tofinterval = value[2]
-        self._attached_detector.tofprog = 1.0  # linear channel widths
-
-    def doRead(self, maxage=0):
-        return (self._attached_detector.mode,
-                self._attached_detector.tofchannels,
-                self._attached_detector.tofinterval)
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
-
-    def _getWaiters(self):
-        return []

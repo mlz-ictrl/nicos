@@ -10,10 +10,11 @@ presets = configdata('config_selector.SELECTOR_PRESETS')
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
-    selector        = device('devices.generic.MultiSwitcher',
+    selector        = device('kws1.switcher.SelectorSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['selector_speed'],
+                             presets = presets,
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),
                              fallback = 'unknown',

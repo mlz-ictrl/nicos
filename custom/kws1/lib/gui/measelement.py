@@ -141,39 +141,20 @@ class Detector(MeasElement, QComboBox):
 
 class Chopper(MeasElement, QComboBox):
 
-    CACHE_KEY = 'chopper/mappings'
+    CACHE_KEY = 'chopper/resolutions'
     LABEL = u'TOF dλ/λ'
 
     changed = pyqtSignal(object)
 
     def init(self, ename, client, value=None):
         MeasElement.init(self, ename, client, value)
-        self.allvalues = client.getDeviceParam(*self.CACHE_KEY.split('/'))
+        resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))
+        values = ['off'] + ['%.1f%%' % v for v in resos]
+        self.addItems(values)
+        if value is not None and value in values:
+            self.setCurrentIndex(values.index(value))
         self.currentIndexChanged.connect(self._changed)
-        self.seltarget = None
-        self.dettarget = None
         self.pvalue = value
-
-    def othersChanged(self, ename, value):
-        if ename == 'selector':
-            self.seltarget = value
-        elif ename == 'detector':
-            self.dettarget = value
-        else:
-            return
-        values = ['off']
-        if self.allvalues is None:
-            return
-        try:
-            values.extend(self.allvalues[self.seltarget, self.dettarget])
-        except KeyError:
-            pass
-        prev = self.currentText() or self.pvalue
-        self.clear()
-        self.addItems(list(values))
-        index = self.findText(prev)
-        if index >= 0:
-            self.setCurrentIndex(index)
 
     def getValue(self):
         return self.currentText()

@@ -6,10 +6,11 @@ group = 'lowlevel'
 presets = configdata('config_selector.SELECTOR_PRESETS')
 
 devices = dict(
-    selector        = device('devices.generic.MultiSwitcher',
+    selector        = device('kws1.switcher.SelectorSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['selector_speed'],
+                             presets = presets,
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),
                              fallback = 'unknown',
