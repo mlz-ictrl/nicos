@@ -22,7 +22,7 @@ devices = dict(
                       responsible = 'H. Frielinghaus <h.frielinghaus@fz-juelich.de>',
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('kws1.sample.KWSSample',
                       description = 'Sample object',
                      ),
 

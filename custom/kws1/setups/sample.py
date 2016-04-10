@@ -39,6 +39,7 @@ devices = dict(
     ap_sam        = device("devices.generic.Slit",
                            description = "sample aperture",
                            coordinates = "opposite",
+                           opmode = "offcentered",
                            left = "ap_sam_x1",
                            right = "ap_sam_x0",
                            bottom = "ap_sam_y0",

@@ -1,36 +1,49 @@
 """NICOS GUI default configuration."""
 
-main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
-    ),
-    ('NICOS devices',
-     panel('devices.DevicesPanel', icons=True, dockpos='right',)
-    ),
-    ('Experiment Information and Setup',
-     panel('expinfo.ExpInfoPanel',)
-    ),
+main_window = tabbed(
+    ('Instrument', docked(
+        vsplit(
+            hsplit(
+                vsplit(
+                    panel('cmdbuilder.CommandPanel',
+                          modules=['kws1.gui.cmdlets']),
+                    panel('status.ScriptStatusPanel'),
+                ),
+            ),
+            tabbed(
+                ('All output',
+                    panel('console.ConsolePanel',
+                          hasinput=False, hasmenu=False)),
+                ('Errors/Warnings',
+                    panel('errors.ErrorPanel')),
+            ),
+        ),
+        ('Experiment Info',
+            panel('expinfo.ExpInfoPanel', dockpos='left',
+                  sample_panel='kws1.gui.sampleconf.KWSSamplePanel'),
+        ),
+        ('NICOS devices',
+            panel('devices.DevicesPanel', icons=True, dockpos='right')),
+    )),
+    ('Script Editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+                tools = [
+                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+            ]),
+        )),
+    ('Scan Plotting', panel('scans.ScansPanel')),
+    ('Device Plotting', panel('history.HistoryPanel')),
+    ('Logbook', panel('elog.ELogPanel')),
 )
 
-windows = [
-    window('Editor', 'editor', panel('editor.EditorPanel')),
-    window('Scans', 'plotter', panel('scans.ScansPanel')),
-    window('History', 'find', panel('history.HistoryPanel')),
-    window('Logbook', 'table', panel('elog.ELogPanel')),
-    window('Log files', 'table', panel('logviewer.LogViewerPanel')),
-    window('Errors', 'errors', panel('errors.ErrorPanel')),
-    #window('Live data', 'live', panel('live.LiveDataPanel')),
-]
+windows = []
 
 tools = [
     tool('Downtime report', 'downtime.DownTimeTool',
-# If not at the FRM-II facility you have to change this reporting address
          receiver='f.carsughi@fz-juelich.de',
-# If you are not at the FRM-II facility you have to change your mail server
          mailserver='smtp.frm2.tum.de',
-# Please change the sender address to a valid, instrument specific address
          sender='kws1@frm2.tum.de',
         ),
     tool('Calculator', 'calculator.CalculatorTool'),
