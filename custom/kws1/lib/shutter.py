@@ -27,6 +27,8 @@
 from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
     status, oneof
 
+# TODO: check if this can be a FZJDP BioShutter device!
+
 READ_CLOSED = 1
 READ_OPEN = 2
 WRITE_CLOSED = 1

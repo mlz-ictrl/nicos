@@ -45,6 +45,7 @@ devices = dict(
                          input_in = 'coll_in',
                          input_out = 'coll_out',
                          sync_bit = 'coll_sync',
+                         timeout = 30.0,
                         ),
 
     aperture_20_x = device("devices.tango.Motor",

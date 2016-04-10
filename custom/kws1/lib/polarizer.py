@@ -129,6 +129,7 @@ class Polarizer(Moveable):
         if target == 'out':
             if self._attached_switcher.read(0) != 'ng':
                 self._attached_switcher.start('ng')
+            self._attached_flipper.start('off')
         else:
             if self._attached_switcher.read(0) != 'pol':
                 self._attached_switcher.start('pol')

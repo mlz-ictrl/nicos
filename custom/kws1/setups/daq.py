@@ -37,3 +37,7 @@ devices = dict(
                         shutter = 'shutter',
                        ),
 )
+
+extended = dict(
+    poller_cache_reader = ['shutter'],
+)

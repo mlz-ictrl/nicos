@@ -25,8 +25,8 @@ devices = dict(
                              tangodevice = tango_base + 'selector/speed',
                              unit = 'rpm',
                              fmtstr = '%.0f',
-                             warnlimits = (11000, 27000),
-                             abslimits = (11000, 27000),
+                             warnlimits = (11000, 27300),
+                             abslimits = (11000, 27300),
                              precision = 10,
                             ),
 
