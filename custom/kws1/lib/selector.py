@@ -24,7 +24,9 @@
 
 """Class for KWS selector."""
 
-from nicos.core import Moveable, Attach, Param
+from nicos.core import Moveable, Attach, Param, dictof, dictwith
+from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.kws1.detector import DetectorPosSwitcher
 
 
 class SelectorLambda(Moveable):
@@ -62,3 +64,25 @@ class SelectorLambda(Moveable):
         speed = int(60 * self.constant / value)
         self.log.debug('moving selector to %f rpm' % speed)
         self._attached_seldev.start(speed)
+
+
+class SelectorSwitcher(MultiSwitcher):
+    """Switcher whose mapping is determined by a list of presets."""
+
+    parameters = {
+        'presets':  Param('Presets that determine the mapping',
+                          type=dictof(str, dictwith(lam=float, speed=float,
+                                                    spread=float)),
+                          mandatory=True),
+    }
+
+    attached_devices = {
+        'det_pos':  Attach('Detector preset device', DetectorPosSwitcher),
+    }
+
+    def _getWaiters(self):
+        return self._attached_moveables
+
+    def start(self, position):
+        MultiSwitcher.start(self, position)
+        self._attached_det_pos._updateMapping(position)

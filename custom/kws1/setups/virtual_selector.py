@@ -6,10 +6,11 @@ group = 'lowlevel'
 presets = configdata('config_selector.SELECTOR_PRESETS')
 
 devices = dict(
-    selector        = device('kws1.switcher.SelectorSwitcher',
+    selector        = device('kws1.selector.SelectorSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['selector_speed'],
+                             det_pos = 'detector',
                              presets = presets,
                              mapping = dict((k, [v['speed']])
                                             for (k, v) in presets.items()),
@@ -34,4 +35,8 @@ devices = dict(
                              fmtstr = '%.2f',
                              constant = 2227.5,
                             ),
+)
+
+extended = dict(
+    poller_cache_reader = ['detector'],
 )

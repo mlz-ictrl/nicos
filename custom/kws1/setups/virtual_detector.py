@@ -6,16 +6,11 @@ group = "lowlevel"
 presets = configdata('config_detector.DETECTOR_PRESETS')
 
 devices = dict(
-    detector   = device('kws1.switcher.DetectorPosSwitcher',
+    detector   = device('kws1.detector.DetectorPosSwitcher',
                         description = 'high-level detector presets',
                         blockingmove = False,
-                        selector = 'selector',
                         moveables = ['det_z', 'det_x', 'det_y'],
                         presets = presets,
-                        mappings = dict(
-                            (name, dict((k, [v['z'], v['x'], v['y']])
-                                        for (k, v) in items.items()))
-                            for (name, items) in presets.items()),
                         fallback = 'unknown',
                         precision = [0.01, 0.1, 0.1],
                        ),
@@ -41,8 +36,4 @@ devices = dict(
                         precision = 0.01,
                         speed = 1,
                        ),
-)
-
-extended = dict(
-    poller_cache_reader = ['selector'],
 )

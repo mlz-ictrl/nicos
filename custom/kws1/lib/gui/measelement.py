@@ -114,7 +114,7 @@ class FloatElement(MeasElement, QLineEdit):
 
 class Detector(MeasElement, QComboBox):
 
-    CACHE_KEY = 'detector/mappings'
+    CACHE_KEY = 'detector/presets'
     LABEL = 'Detector'
 
     changed = pyqtSignal(object)

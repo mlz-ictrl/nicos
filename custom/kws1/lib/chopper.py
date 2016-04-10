@@ -28,7 +28,8 @@ from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
     listof, oneof, intrange, floatrange, PositionError
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
-from nicos.kws1.switcher import SelectorSwitcher, DetectorPosSwitcher
+from nicos.kws1.selector import SelectorSwitcher
+from nicos.kws1.detector import DetectorPosSwitcher
 
 # neutron speed at 1A, in m/ms
 SPEED = 3.956

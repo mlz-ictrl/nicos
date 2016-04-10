@@ -22,22 +22,10 @@
 #
 # *****************************************************************************
 
-"""Switcher extensions for KWS."""
+"""Detector switcher for KWS."""
 
-from nicos.core import Moveable, Attach, Param, Override, oneof, dictof, \
-    dictwith, anytype
+from nicos.core import Param, Override, oneof, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
-
-
-class SelectorSwitcher(MultiSwitcher):
-    """Switcher whose mapping is determined by a list of presets."""
-
-    parameters = {
-        'presets':  Param('Presets that determine the mapping',
-                          type=dictof(str, dictwith(lam=float, speed=float,
-                                                    spread=float)),
-                          mandatory=True),
-    }
 
 
 class DetectorPosSwitcher(MultiSwitcher):
@@ -52,30 +40,23 @@ class DetectorPosSwitcher(MultiSwitcher):
                           type=dictof(str, dictof(str, dictwith(
                               x=float, y=float, z=float))),
                           mandatory=True),
-        'mappings': Param('Collection of mappings', userparam=False,
-                          type=dictof(anytype, anytype))
     }
 
     parameter_overrides = {
         'mapping':  Override(mandatory=False, settable=True, userparam=False),
     }
 
-    attached_devices = {
-        'selector':  Attach('Selector preset device', Moveable),
-    }
-
-    def _determineMapping(self):
-        sel_value = self._attached_selector.target
-        return self.mappings.get(sel_value, {})
-
-    def doUpdateMapping(self, newvalue):
-        self.valuetype = oneof(*newvalue)
-
-    def start(self, target):
-        self.mapping = self._determineMapping()
-        MultiSwitcher.start(self, target)
-
-    def doPoll(self, i, maxage):
-        # will use the correct mapping on the next polling cycle
-        self._setROParam('mapping', self._determineMapping())
-        self.doUpdateMapping(self.mapping)
+    def _updateMapping(self, selpos):
+        self.log.debug('updating the detector mapping for selector '
+                       'setting %s' % selpos)
+        try:
+            pos = self.presets.get(selpos, {})
+            new_mapping = dict((k, [v['z'], v['x'], v['y']])
+                               for (k, v) in pos.items())
+            self.mapping = new_mapping
+            self.valuetype = oneof(*new_mapping)
+            if self._cache:
+                self._cache.invalidate(self, 'value')
+                self._cache.invalidate(self, 'status')
+        except Exception:
+            self.log.warning('could not update detector mapping', exc=1)
