@@ -30,6 +30,19 @@ from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
 from nicos.devices.generic.slit import TwoAxisSlit
 
 
+class CollimationSlit(TwoAxisSlit):
+    """Two-axis slit with an additional parameter for the "open" position."""
+
+    parameters = {
+        'openpos':   Param('position to move slit completely open',
+                           type=tupleof(float, float), default=(50.0, 50.0)),
+    }
+
+    parameter_overrides = {
+        'fmtstr':    Override(default='%.1f x %.1f'),
+    }
+
+
 class CollimationGuides(HasTimeout, HasLimits, Moveable):
     """Controlling the collimation guide elements."""
 
@@ -91,16 +104,12 @@ class Collimation(Moveable):
 
     attached_devices = {
         'guides':  Attach('guides', Moveable),
-        'slits':   Attach('slit devices', TwoAxisSlit, multiple=True),
+        'slits':   Attach('slit devices', CollimationSlit, multiple=True),
     }
 
     parameters = {
         'slitpos': Param('positions of the attached slits', unit='m',
                          type=listof(int), mandatory=True),
-        'openw':   Param('slit width for "slit open"', default=43.0,
-                         settable=True),
-        'openh':   Param('slit height for "slit open"', default=43.0,
-                         settable=True),
         'mapping': Param('maps position name to guide and slit w/h',
                          type=dictof(str, tupleof(int, float, float)),
                          mandatory=True),
@@ -131,11 +140,13 @@ class Collimation(Moveable):
             if pos_guidelen != guidelen:
                 continue
             ok = True
-            for (slitpos, (w, h)) in zip(self.slitpos, slitvals):
+            for (slitpos, slit, (w, h)) in zip(self.slitpos,
+                                               self._attached_slits, slitvals):
                 if slitpos == pos_guidelen:
                     ok &= matches(w, pos_w) and matches(h, pos_h)
                 else:
-                    ok &= matches(w, self.openw) and matches(h, self.openh)
+                    ok &= matches(w, slit.openpos[0]) and \
+                        matches(h, slit.openpos[1])
             if ok:
                 return posname
 
@@ -149,4 +160,4 @@ class Collimation(Moveable):
             if slitpos == pos_guidelen:
                 slit.start((pos_w, pos_h))
             else:
-                slit.start((self.openw, self.openh))
+                slit.start(slit.openpos)
