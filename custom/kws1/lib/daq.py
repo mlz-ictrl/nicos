@@ -208,9 +208,9 @@ class KWSDetector(Detector):
             if isinstance(ch, FPGAChannelBase):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
-        self._jdaq._configure((self.tofchannels,
-                               self.tofinterval,
-                               self.tofprog))
+        if self._mode != SIMULATION:
+            self._jdaq._configure((self.tofchannels, self.tofinterval,
+                                   self.tofprog))
         Detector.doPrepare(self)
 
     def doStart(self):
