@@ -75,7 +75,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
     # XXX this needs a virtual timer to read the current elapsed time
     # def doRead(self, maxage=0): ...
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         (shape, data) = self._communicate('GetImage')
         mode = self._communicate('GetMode')
         self._setROParam('imagewidth', shape[0])

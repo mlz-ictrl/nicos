@@ -34,7 +34,7 @@ class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doInit(self, mode):
         self.arraydesc = ArrayDesc("coincimg", (1024, 1024), np.uint32)
 
-    def readArray(self, _quality):
+    def doReadArray(self, _quality):
         narray = self._dev.value
         self.readresult = [narray.sum()]
         return narray.reshape(self.arraydesc.shape)

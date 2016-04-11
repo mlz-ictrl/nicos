@@ -308,7 +308,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             return self._shutter.doWriteShuttermode(value)
         raise HardwareError('Not supported')
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         response = self._dev.readImage(0)
         imgDataStr = response[1]  # response is a tuple (type name, data)
 

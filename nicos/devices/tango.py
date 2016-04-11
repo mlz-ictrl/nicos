@@ -879,7 +879,7 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
     def doReadZeropoint(self):
         return self._dev.zeroPoint.tolist()
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.roiSize),
                                    dtype='<u4')
         return self._dev.value.reshape(self.arraydesc.shape)

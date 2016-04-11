@@ -128,7 +128,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
     def valueInfo(self):
         return (Value(name='total', type='counter', fmtstr='%d'),)
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         if quality in (FINAL, INTERRUPTED):
             if self.mode == 'standard':
                 array = self._dev.DevJudidt2GetRecoHistoSlot(0)

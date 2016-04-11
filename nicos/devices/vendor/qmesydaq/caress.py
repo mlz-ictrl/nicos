@@ -260,13 +260,9 @@ class Image(CARESSDevice, QMesyDAQImage):
                 raise InvalidValueError(self, 'No position in data')
             return result[1][1].value(), result[1][4].value()
 
-    def readArray(self, quality):
-        if self._mode == SIMULATION:
-            # simulated readout of an 128*128 image
-            res = [128, 128, 1] + [0] * (128 * 128)
-        else:
-            # read data via taco and transform it
-            res = self._caress_guard(self._readblock)
+    def doReadArray(self, quality):
+        # read data via CARESS and transform it
+        res = self._caress_guard(self._readblock)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array

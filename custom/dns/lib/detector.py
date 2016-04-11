@@ -148,7 +148,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                            type="counter", fmtstr="%d")
                      for i in range(start, end + 1))
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         if quality in (FINAL, INTERRUPTED):
             self.log.debug("Tof Detector read final image")
             start, end = self.readchannels

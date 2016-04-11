@@ -655,7 +655,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 
-    def readArray(self, _quality):
+    def doReadArray(self, _quality):
         return self._buf
 
     def valueInfo(self):

@@ -150,13 +150,9 @@ class Image(BaseChannel, QMesyDAQImage):
             self._taco_guard(self._dev.deviceOn)
         return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
 
-    def readArray(self, quality):
-        if self._mode == SIMULATION:
-            # simulated readout of an 128*128 image
-            res = [128, 128, 1] + [0] * (128 * 128)
-        else:
-            # read data via taco and transform it
-            res = self._taco_guard(self._dev.read)
+    def doReadArray(self, quality):
+        # read data via taco and transform it
+        res = self._taco_guard(self._dev.read)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array

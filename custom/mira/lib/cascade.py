@@ -140,7 +140,7 @@ class CascadeDetector(ImageChannel):
             return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
         return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
 
-    def readArray(self, quality):
+    def doReadArray(self, quality):
         # get current data array from detector
         data = self._dev.value.reshape(self._datashape)
         # determine total and roi counts

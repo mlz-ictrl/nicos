@@ -26,6 +26,8 @@
 
 """Generic detector and channel classes for NICOS."""
 
+import numpy
+
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
     LIVE, INTERMEDIATE
@@ -209,7 +211,14 @@ class ImageChannelMixin(DeviceMixinBase):
         and `None` otherwise.  Most other detectors should also read out and
         return the data when *quality* is `INTERRUPTED`.
         """
-        raise NotImplementedError('implement readArray in %s' %
+        if self._sim_active:
+            if self.arraydesc:
+                return numpy.zeros(self.arraydesc.shape)
+            return numpy.zeros(1)
+        return self.doReadArray(quality)
+
+    def doReadArray(self, quality):
+        raise NotImplementedError('implement doReadArray in %s' %
                                   self.__class__.__name__)
 
 
