@@ -43,7 +43,7 @@ def plotDataset(dataset, fn, fmt):
     write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
                                       dataset.xunits[dataset.xindex]))
     write('set title "Scan %s - %s"\n' %
-          (dataset.sinkinfo.get('number', ''), dataset.scaninfo))
+          (dataset.counter, dataset.scaninfo))
     write('set grid lt 3 lc 8\n')
     write('set style increment user\n')
     for ls, pt in enumerate([7, 5, 9, 11, 13, 2, 1, 3]):

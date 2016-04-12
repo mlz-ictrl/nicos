@@ -12,7 +12,7 @@ _expcolumn = Column(
                  Field(name='Remark', key='exp/remark', istext=True),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last file', key='exp/lastimage',
+                 Field(name='Last file', key='exp/lastpoint',
                        width=20),
                  )
         ],

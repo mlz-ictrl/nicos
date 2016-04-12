@@ -28,11 +28,11 @@
 from __future__ import print_function
 
 import sys
-import time
 import logging
 import traceback
 import getopt
 from os import path
+from time import strftime, time as currenttime
 
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
     QLabel, QSystemTrayIcon, QPixmap, QMenu, QIcon, QAction, \
@@ -106,7 +106,6 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # state members
         self.current_status = None
-        self.action_start_time = None
 
         # connect the client's events
         self.client = NicosGuiClient(self, self.log)
@@ -374,9 +373,10 @@ class MainWindow(QMainWindow, DlgUtils):
     def setStatus(self, status, exception=False):
         if status == self.current_status:
             return
-        if self.action_start_time and self.current_status == 'running' and \
+        if self.client.last_action_at and \
+           self.current_status == 'running' and \
            status in ('idle', 'paused') and \
-           time.time() - self.action_start_time > 20:
+           currenttime() - self.client.last_action_at > 20:
             # show a visual indication of what happened
             if status == 'paused':
                 msg = 'Script is now paused.'
@@ -385,7 +385,7 @@ class MainWindow(QMainWindow, DlgUtils):
             else:
                 msg = 'Script has finished.'
             self.trayIcon.showMessage(self.instrument, msg)
-            self.action_start_time = None
+            self.client.last_action_at = 0
         self.current_status = status
         isconnected = status != 'disconnected'
         self.actionConnect.setChecked(isconnected)
@@ -414,7 +414,7 @@ class MainWindow(QMainWindow, DlgUtils):
     def on_client_error(self, problem, exc=None):
         if exc is not None:
             self.log.error('Error from daemon', exc=exc)
-        problem = time.strftime('[%m-%d %H:%M:%S] ') + problem
+        problem = strftime('[%m-%d %H:%M:%S] ') + problem
         if self.errorWindow is None:
             def reset_errorWindow():
                 self.errorWindow = None

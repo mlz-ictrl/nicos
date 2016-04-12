@@ -35,11 +35,11 @@ devices = dict(
                       #~ elog = False,
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'Device saving scanfiles',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device outputting logmessages to the console',
                      ),
 

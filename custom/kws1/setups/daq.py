@@ -6,6 +6,10 @@ group = "lowlevel"
 includes = ['counter']
 excludes = ['virtual_daq']
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'kwsformat'],
+)
+
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
 devices = dict(
@@ -20,13 +24,20 @@ devices = dict(
                         rtswitch = 'rtswitch',
                        ),
 
+    kwsformat  = device('kws1.kwsfileformat.KWSFileFormat',
+                        lowlevel = True,
+                       ),
+
     det        = device('kws1.daq.KWSDetector',
                         description = 'KWS detector',
                         timers = ['timer'],
                         monitors = ['mon1', 'mon2', 'mon3', 'selctr'],
                         images = ['det_img'],
                         others = ['freq'],
-                        fileformats = [],
                         shutter = 'shutter',
                        ),
+)
+
+extended = dict(
+    poller_cache_reader = ['shutter'],
 )

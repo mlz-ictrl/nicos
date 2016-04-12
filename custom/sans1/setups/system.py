@@ -33,11 +33,11 @@ devices = dict(
                       sample = 'Sample',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'filesink',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'conssink',
                      ),
 

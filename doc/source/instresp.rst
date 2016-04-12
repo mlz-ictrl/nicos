@@ -11,5 +11,7 @@ functions check :doc:`For Developers <developer>`
    :maxdepth: 1
 
    install
+   newsetup
    setups
    services/index
+   gui/config

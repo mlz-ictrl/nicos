@@ -131,12 +131,10 @@ class DataHandler(QObject):
         self.dependent = []
         # add some custom attributes of the dataset
         dataset.invisible = False
-        dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo))
+        dataset.name = str(dataset.counter)
         dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
                                           dataset.xunits[dataset.xindex])
         dataset.curves = self._init_curves(dataset)
-        for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
-            self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('datasetAdded'), dataset)
 
     def add_existing_dataset(self, dataset, origins=()):
@@ -148,13 +146,18 @@ class DataHandler(QObject):
             self.dependent.append(dataset)
 
     def on_client_datapoint(self, data):
-        (xvalues, yvalues) = data
-        if not self.currentset:
+        if len(data) == 3:
+            # XXX: compatibility, remove later
+            (uid, xvalues, yvalues) = data
+        else:
+            uid, (xvalues, yvalues) = self.currentset.uid, data
+        currentset = self.uid2set[uid]
+        if not currentset:
             raise DataError('No current set, trying to add a point')
-        self.currentset.xresults.append(xvalues)
-        self.currentset.yresults.append(yvalues)
-        self._update_curves(xvalues, yvalues)
-        self.emit(SIGNAL('pointsAdded'), self.currentset)
+        currentset.xresults.append(xvalues)
+        currentset.yresults.append(yvalues)
+        self._update_curves(currentset, xvalues, yvalues)
+        self.emit(SIGNAL('pointsAdded'), currentset)
         for depset in self.dependent:
             self.emit(SIGNAL('pointsAdded'), depset)
 
@@ -215,16 +218,16 @@ class DataHandler(QObject):
         dataset.datanorm.update((name, []) for (i, name) in normindices)
         return curves
 
-    def _update_curves(self, xvalues, yvalues):
+    def _update_curves(self, currentset, xvalues, yvalues):
         done = set()
-        for key, val in zip(self.currentset.xnameunits, xvalues):
+        for key, val in zip(currentset.xnameunits, xvalues):
             # avoid adding values twice
             if key not in done:
-                self.currentset.datax[key].append(val)
+                currentset.datax[key].append(val)
                 done.add(key)
-        for index, name in self.currentset.normindices:
-            self.currentset.datanorm[name].append(yvalues[index])
-        for curve in self.currentset.curves:
+        for index, name in currentset.normindices:
+            currentset.datanorm[name].append(yvalues[index])
+        for curve in currentset.curves:
             curve.datay.append(yvalues[curve.yindex])
             if curve.dyindex >= 0:
                 curve.datady.append(yvalues[curve.dyindex])

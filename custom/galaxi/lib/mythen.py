@@ -26,23 +26,22 @@
 
 import numpy
 
-from nicos.core import waitForStatus, status, usermethod, MASTER
+from nicos.core import ArrayDesc, waitForStatus, status, usermethod, MASTER
 from nicos.core.device import Measurable
-from nicos.core.image import ImageProducer, ImageType
 from nicos.core.params import Param, dictof
 from nicos.devices.tango import PyTangoDevice
 
 P_TIME = 't'
 P_FRAMES = 'f'
 
-class MythenDetector(PyTangoDevice, ImageProducer, Measurable):
+class MythenDetector(PyTangoDevice, Measurable):
     """Basic Tango device for Mythen detector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
 
     parameters = {
         'detshape':  Param('Shape of Mythen detector', type=dictof(str, int)),
-        'energy':    Param('X-ray energy',type=float, unit='keV',
+        'energy':    Param('X-ray energy', type=float, unit='keV',
                            settable=True, volatile=True),
         'kthresh':   Param('Energy threshold', type=float, unit='keV',
                            settable=True, volatile=True),
@@ -56,8 +55,9 @@ class MythenDetector(PyTangoDevice, ImageProducer, Measurable):
 
     def doInit(self, mode):
         self.log.debug('Mythen detector init')
-        self.imagetype = ImageType((int(self.detshape['x']),
-                                   int(self.detshape['t'])),
+        self.arraydesc = ArrayDesc('data',
+                                   (int(self.detshape['x']),
+                                    int(self.detshape['t'])),
                                    numpy.uint32)
         if self._mode == MASTER:
             self._dev.Reset()
@@ -151,7 +151,7 @@ class MythenDetector(PyTangoDevice, ImageProducer, Measurable):
         command = '-get ' + parameter
         self.sendCommand(command)
 
-    def readFinalImage(self):
+    def doReadArray(self, quality):
         """Returns oldest frame reshaped as 2D numpy array"""
         self.log.debug('Mythen detector read final image')
         return numpy.asarray(self._dev.value).reshape(int(self.detshape['x']),

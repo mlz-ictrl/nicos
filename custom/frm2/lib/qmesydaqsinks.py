@@ -22,81 +22,69 @@
 #
 # *****************************************************************************
 
-"""QMesydaq file writer classes"""
+"""QMesyDAQ file writer classes."""
 
-import os
-
-from nicos.core import Override, Attach, ImageSink, SIMULATION
+from nicos import session
+from nicos.core import Override, Attach, DataSinkHandler
+from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.vendor.qmesydaq import Image
 
 
-class QMesydaqFormat(ImageSink):
+class HistogramSinkHandler(DataSinkHandler):
+
+    def prepare(self):
+        session.data.assignCounter(self.dataset)
+        filepaths = session.data.getFilenames(self.dataset,
+                                              self.sink.filenametemplate,
+                                              self.sink.subdir)[1]
+        self.sink._attached_image.histogramfile = filepaths[0]
+
+
+class ListmodeSinkHandler(DataSinkHandler):
+
+    def prepare(self):
+        session.data.assignCounter(self.dataset)
+        filepaths = session.data.getFilenames(self.dataset,
+                                              self.sink.filenametemplate,
+                                              self.sink.subdir)[1]
+        self.sink._attached_image.listmodefile = filepaths[0]
+
+
+class QMesyDAQSink(ImageSink):
     """Base class for the QMesyDAQ related data files.
 
     The class reimplements all methods to avoid real data writing in NICOS
     itself. It ensures that the listmode and/or histogram data files will be
-    written via QMesyDAQ itself. It uses the settings of the NICOS to define the
-    names of the files but the directory to write the data is set in QMesyDAQ.
+    written via QMesyDAQ itself. It uses the settings of the NICOS to define
+    the names of the files but the directory to write the data is set in
+    QMesyDAQ.
     """
     attached_devices = {
-        'image': Attach('Image device to set the file name',
-                        Image, optional=True),
+        'image': Attach('Image device to set the file name', Image,
+                        optional=True),
     }
 
-    def acceptImageType(self, imagetype):
-        return len(imagetype.shape) == 2
-
-    def prepareImage(self, imageinfo, subdir=''):
-        """Prepares an Imagefile in the given subdir.
-
-        It will be removed since it is not needed anymore, but the filename is
-        needed.
-        """
-        ImageSink.prepareImage(self, imageinfo, subdir)
-        self._removeImagefile(imageinfo)
-
-    def _removeImagefile(self, imageinfo):
-        if self._mode != SIMULATION and imageinfo.file:
-            imageinfo.file.close()
-            self.log.debug('removing file: %s' % imageinfo.filepath)
-            os.remove(imageinfo.filepath)
-            imageinfo.file = None
-
-    def saveImage(self, imageinfo,  image):
-        pass
-
-    def finalizeImage(self, imageinfo):
-        pass
+    def isActiveForArray(self, arraydesc):
+        return len(arraydesc.shape) == 2
 
 
-class HistogramFileFormat(QMesydaqFormat):
+class HistogramSink(QMesyDAQSink):
     """Writer for the histogram files via QMesyDAQ itself."""
+
+    handlerclass = HistogramSinkHandler
+
     parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
-                                     default=['D%(counter)07d.mtxt'],
-                                     ),
+        'filenametemplate': Override(mandatory=False, userparam=False,
+                                     default=['D%(pointcounter)07d.mtxt']),
     }
 
-    fileFormat = 'MesytecHistogram'  # should be unique amongst filesavers!
 
-    def prepareImage(self, imageinfo, subdir=''):
-        QMesydaqFormat.prepareImage(self, imageinfo, subdir)
-        self._attached_image.histogramfile = imageinfo.filename
-
-
-class ListmodeFileFormat(QMesydaqFormat):
+class ListmodeSink(QMesyDAQSink):
     """Writer for the list mode files via QMesyDAQ itself."""
 
+    handlerclass = ListmodeSinkHandler
+
     parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
-                                     default=['D%(counter)07d.mdat'],
-                                     ),
+        'filenametemplate': Override(mandatory=False, userparam=False,
+                                     default=['D%(pointcounter)07d.mdat']),
     }
-
-    fileFormat = 'MesytecListMode'  # should be unique amongst filesavers!
-
-    def prepareImage(self, imageinfo, subdir=''):
-        QMesydaqFormat.prepareImage(self, imageinfo, subdir)
-        self._attached_image.listmodefile = imageinfo.filename

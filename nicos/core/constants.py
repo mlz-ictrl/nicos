@@ -25,10 +25,18 @@
 
 """NICOS core constants."""
 
+# session modes
 MASTER = 'master'
 SLAVE = 'slave'
 SIMULATION = 'simulation'
 MAINTENANCE = 'maintenance'
 
+# session types
 MAIN = 'main'
 POLLER = 'poller'
+
+# data qualities
+LIVE = 'live'
+INTERMEDIATE = 'intermediate'
+FINAL = 'final'
+INTERRUPTED = 'interrupted'

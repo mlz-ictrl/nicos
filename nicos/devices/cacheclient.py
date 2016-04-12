@@ -542,8 +542,11 @@ class CacheClient(BaseCacheClient):
             value = cache_load(value)
             with self._dblock:
                 self._db[key] = (value, time)
-            if key in self._callbacks and self._do_callbacks:
-                self._call_callbacks(key, value, time)
+            if self._do_callbacks:
+                if key in self._callbacks:
+                    self._call_callbacks(key, value, time)
+                if key.endswith('/value') and session.data:
+                    session.data.cacheCallback(key, value, time)
 
     def _call_callbacks(self, key, value, time):
         with self._dblock:
@@ -649,11 +652,13 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db[dbkey] = (value, time)
         dvalue = cache_dump(value)
-        msg = '%s%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
+        msg = '%r%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                      flag, OP_TELL, dvalue)
         # self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))
+        if key == 'value' and session.data:
+            session.data.cacheCallback(dbkey, value, time)
         # we have to check rewrites here, since the cache server won't send
         # us updates for a rewritten key if we sent the original key
         if str(dev).lower() in self._rewrites:
@@ -662,6 +667,8 @@ class CacheClient(BaseCacheClient):
                 with self._dblock:
                     self._db[rdbkey] = (value, time)
                 self._propagate((time, rdbkey, OP_TELL, dvalue))
+                if key == 'value' and session.data:
+                    session.data.cacheCallback(rdbkey, value, time)
 
     def put_raw(self, key, value, time=None, ttl=None):
         """Put a key given by full name.
@@ -677,7 +684,7 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
-        msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
+        msg = '%r%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
         # self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
 
@@ -708,7 +715,7 @@ class CacheClient(BaseCacheClient):
                 if dbkey.startswith(devprefix):
                     if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
                         continue
-                    msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                    msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                     self._db.pop(dbkey, None)
                     self._queue.put(msg)
                     self._propagate((time, dbkey, OP_TELL, ''))
@@ -718,7 +725,7 @@ class CacheClient(BaseCacheClient):
         time = currenttime()
         with self._dblock:
             for dbkey in list(self._db):
-                msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
@@ -740,7 +747,7 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%s-%s@%s%s%s\n###?\n' % (fromtime, totime,
+        tosend = '%r-%r@%s%s%s\n###?\n' % (fromtime, totime,
                                            self._prefix, key, OP_ASK)
         ret = []
         for msgmatch in self._single_request(tosend, b'###!\n', sync=False):

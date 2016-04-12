@@ -1,28 +1,31 @@
 #!/usr/bin/env python
 
+import argparse
+import signal
 import sys
+
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import signal
-import optparse
 
-parser = optparse.OptionParser()
-parser.add_option('-M', '--maintenance', dest='mode', const='maintenance',
-                  action='store_const', default='slave',
-                  help='start in maintenance mode')
-parser.add_option('-A', '--appname', dest='appname', default='script',
-                  help='application name (base name for log files)')
-parser.add_option('-S', '--stop-after', dest='stop', default=0, type=int,
-                  help='forcibly stop after SEC seconds', metavar='SEC')
-opts, args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-M', '--maintenance', dest='mode', const='maintenance',
+                    action='store_const', default='slave',
+                    help='start in maintenance mode')
+parser.add_argument('-A', '--appname', dest='appname', default='script',
+                    help='application name (base name for log files)')
+parser.add_argument('-S', '--stop-after', dest='stop', default=0, type=int,
+                    help='forcibly stop after SEC seconds', metavar='SEC')
+parser.add_argument('args', nargs=argparse.ONE_OR_MORE,
+                    help='[setupname] file_or_code')
 
-if len(args) == 1:
-    setup, script = 'startup', args[0]
-elif len(args) >= 2:
-    setup, script = args[:2]
-else:
-    raise SystemExit('Usage: nicos-script [options] [setupnames] file_or_code')
+opts = parser.parse_args()
+
+if len(opts.args) == 1:
+    setup, script = 'startup', opts.args[0]
+elif len(opts.args) >= 2:
+    setup, script = opts.args[:2]
 
 setup = setup.split(',')
 if path.isfile(script):

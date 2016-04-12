@@ -10,10 +10,9 @@ development environment and coding  guidelines.
 .. toctree::
    :maxdepth: 1
 
-   newsetup
    deviceapi
    classes/index
+   gui/index
    sessionapi
    coreapi
    protocols/index
-   gui/index

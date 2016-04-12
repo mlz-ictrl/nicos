@@ -39,11 +39,11 @@ devices = dict(
                         responsible = 'Dr. Stefan Soellradl <stefan.soellradl@frm2.tum.de>',
                        ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 

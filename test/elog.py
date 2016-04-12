@@ -41,7 +41,7 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.core.sessions.simple import NoninteractiveSession
 
-from test.utils import rootdir
+from test.utils import rootdir, selfDestructAfter
 
 
 class TestElogSession(NoninteractiveSession):
@@ -76,4 +76,5 @@ try:
 except IndexError:
     setup = 'elog'
 
+selfDestructAfter(120)
 TestElogSession.run(setup, 'Logbook')

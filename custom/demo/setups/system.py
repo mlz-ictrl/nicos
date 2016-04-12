@@ -6,11 +6,11 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink'],
+    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink'],
     notifiers = [],
 )
 
-modules = ['commands.standard'] # , 'jcns.commands']
+modules = ['commands.standard']  # , 'jcns.commands']
 
 devices = dict(
     demo        = device('devices.instrument.Instrument',
@@ -35,15 +35,15 @@ devices = dict(
                         reporttemplate = '',
                        ),
 
-    filesink   = device('devices.datasinks.AsciiDatafileSink',
+    filesink   = device('devices.datasinks.AsciiScanfileSink',
                         lowlevel = True,
                        ),
 
-    conssink   = device('devices.datasinks.ConsoleSink',
+    conssink   = device('devices.datasinks.ConsoleScanSink',
                         lowlevel = True,
                        ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    dmnsink    = device('devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
 
@@ -51,15 +51,19 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    Space     = device('devices.generic.FreeSpace',
-                       description = 'The amount of free space for storing data',
-                       path = None,
-                       minfree = 5,
-                      ),
+    livesink   = device('devices.datasinks.LiveViewSink',
+                        lowlevel = True,
+                       ),
 
-    UBahn     = device('frm2.ubahn.UBahn',
-                       description = 'Next subway departures',
-                      ),
+    Space      = device('devices.generic.FreeSpace',
+                        description = 'The amount of free space for storing data',
+                        path = None,
+                        minfree = 5,
+                       ),
+
+    UBahn      = device('frm2.ubahn.UBahn',
+                        description = 'Next subway departures',
+                       ),
 )
 
 startupcode = '''

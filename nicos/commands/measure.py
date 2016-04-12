@@ -22,27 +22,25 @@
 #
 # *****************************************************************************
 
-"""Module for measuring user commands."""
+"""New acquisition commands (scan and count)."""
 
-import sys
 from time import sleep, time as currenttime
 
-from nicos import session
-from nicos.core.device import Measurable
-from nicos.core.errors import UsageError
-from nicos.core.image import prepareImageFiles
-from nicos.core.constants import SIMULATION
-from nicos.commands import usercommand, helparglist, parallel_safe
+from nicos.commands import helparglist, usercommand, parallel_safe
 from nicos.commands.output import printinfo, printwarning
-from nicos.pycompat import iteritems, number_types, string_types, reraise
+
+from nicos import session
+from nicos.core.device import Measurable, SubscanMeasurable
+from nicos.core.constants import SIMULATION, INTERRUPTED, FINAL
+from nicos.core.errors import UsageError, NicosError
 from nicos.core.utils import waitForStatus
-from nicos.utils import formatDuration
+from nicos.pycompat import number_types, string_types, iteritems
 
 __all__ = [
-    'count', 'preset',
+    'acquire', 'count', 'preset',
     'SetDetectors', 'AddDetector', 'ListDetectors',
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
-    'avg', 'minmax'
+    'avg', 'minmax',
 ]
 
 
@@ -64,8 +62,6 @@ def _wait_for_continuation(delay, only_pause=False):
     if req == 'finish':
         session.log.warning('counting stopped: ' + current_msg)
         return False
-    if current_msg:
-        session.log.warning('counting paused: ' + current_msg)
     # allow the daemon to pause here, if we were paused by it
     session.breakpoint(3)
     # but after continue still check for other conditions
@@ -78,8 +74,8 @@ def _wait_for_continuation(delay, only_pause=False):
     return True
 
 
-def _count(detlist, preset, result, dataset=None):
-    """Low-level counting function.
+def acquire(point, preset):
+    """Low-level acquisition function.
 
     The loop delay is configurable in the instrument object, and defaults to
     0.025 seconds.
@@ -89,48 +85,42 @@ def _count(detlist, preset, result, dataset=None):
     propagated upwards.
     """
     # put detectors in a set and discard them when completed
-    detset = set(detlist)
+    detset = set(point.detectors)
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != SIMULATION else 0.0)
 
-    # set detector presets before the dataset is created
-    # (to get the new preset into the new dataset)
-    # TODO: move preset handling to a sane place
-    for det in detlist:
-        det.setPreset(**preset)
-
-    # advance imagecounter
-    if not dataset:
-        dataset = session.experiment.createDataset()
-    prepareImageFiles(detset, dataset)
-
-    # maybe wait for pause condition
     session.beginActionScope('Counting')
     if session.countloop_request:
         _wait_for_continuation(delay, only_pause=True)
-
-    # actually start counting
-    starttime = currenttime()
+    if preset:
+        for det in point.detectors:
+            det.setPreset(**preset)
+    session.data.updateMetainfo()
+    point.started = currenttime()
     try:
-        for det in detlist:
-            det.start(**preset)
+        for det in point.detectors:
+            det.start()
     except:
         session.endActionScope()
         raise
     sleep(delay)
-    eta_update = 1 if delay else 0  # never update ETA in simulation
     try:
         while True:
             looptime = currenttime()
             for det in list(detset):
                 if session.mode != SIMULATION:
-                    det.duringMeasureHook(looptime - starttime)
+                    quality = det.duringMeasureHook(looptime - point.started)
                 if det.isCompleted():
+                    det.finish()
+                    quality = FINAL
+                if quality:
                     try:
-                        det.finish()
-                        det.save()
+                        res = det.read(), det.readArrays(quality)
                     except Exception:
-                        det.log.exception('error saving measurement data')
+                        det.log.exception('error reading measurement data')
+                        res = None
+                    session.data.putResults(quality, {det.name: res})
+                if quality == FINAL:
                     detset.discard(det)
             if not detset:
                 # all detectors finished measuring
@@ -141,51 +131,73 @@ def _count(detlist, preset, result, dataset=None):
                         session.log.warning(
                             'detector %r could not be paused' % det.name)
                 if not _wait_for_continuation(delay):
-                    for det in list(detset):
-                        try:
-                            det.finish()
-                            det.save()
-                        except Exception:
-                            det.log.exception('error saving measurement data')
-                        detset.discard(det)
+                    for det in detset:
+                        # next iteration of loop will see det is finished
+                        det.finish()
                 else:
                     for det in detset:
                         det.resume()
-            if eta_update >= 1:
-                # update at most once per 1s
-                # note: as delay = 0 in SIMULATION, we are here always in !SIM
-                eta_update -= 1
-                eta = set()
-                for det in detset:
-                    eta.add(det.estimateTime(looptime - starttime))
-                eta.discard(None)
-                if eta:
-                    session.action('estimated %s left' %
-                                   formatDuration(max(eta)))
-                else:
-                    session.action('')
             sleep(delay)
-            eta_update += delay
-    except BaseException:  # really ALL exceptions
-        t, v, tb = sys.exc_info()
-        if v.__class__.__name__ != 'ControlStop':
+    except BaseException as e:
+        point.finished = currenttime()
+        if e.__class__.__name__ != 'ControlStop':
             session.log.warning('Exception during count, trying to save data',
                                 exc=True)
         for det in detset:
             try:
-                if det.stop():
-                    det.save()
+                # XXX: in theory, stop() can return True or False to indicate
+                # whether saving makes sense.
+                #
+                # However, it might be better to leave that to the data sink
+                # handling the INTERRUPTED quality.
+                det.stop()
+                res = det.read(), det.readArrays(INTERRUPTED)
             except Exception:
-                det.log.exception('error saving measurement data', exc=True)
-        result.extend(sum((det.read() for det in detlist), []))
-        reraise(t, v, tb)
+                det.log.exception('error reading measurement data')
+                res = None
+            session.data.putResults(INTERRUPTED, {det.name: res})
+        raise
     finally:
+        point.finished = currenttime()
         session.endActionScope()
-    result.extend(sum((det.read() for det in detlist), []))
 
 
 class CountResult(list):
     __display__ = None
+
+
+def inner_count(detectors, preset, temporary=False):
+    """Inner counting function for normal counts with single-point dataset.
+
+    If *temporary* is true, use a dataset without data sinks.
+    """
+    for det in detectors:
+        det.prepare()
+    for det in detectors:
+        waitForStatus(det)
+    # start counting
+    args = dict(detectors=detectors,
+                environment=session.experiment.sampleenv,
+                preset=preset)
+    if temporary:
+        point = session.data.beginTemporaryPoint(**args)
+    else:
+        point = session.data.beginPoint(**args)
+    try:
+        acquire(point, preset)
+    finally:
+        session.data.finishPoint()
+    msg = []
+    retval = []
+    for det in detectors:
+        res = point.results[det.name][0]
+        for i, v in enumerate(det.valueInfo()):
+            msg.append('%s = %s' % (v.name, res[i]))
+            retval.append(res[i])
+    for filename in point.filenames:
+        msg.append('file = %s' % filename)
+    printinfo('count: ' + ', '.join(msg))
+    return CountResult(retval)
 
 
 @usercommand
@@ -207,13 +219,14 @@ def count(*detlist, **preset):
     Within a manual scan, this command is also used to perform the count as one
     point of the manual scan.
     """
+    # sanitize detector list; support count(1) and count('info')
     detectors = []
     for det in detlist:
         if isinstance(det, number_types):
             preset['t'] = det
             continue
         elif isinstance(det, string_types):
-            preset['info'] = det
+            preset['info'] = det  # XXX
             continue
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
@@ -225,11 +238,13 @@ def count(*detlist, **preset):
             raise UsageError('cannot specify different detector list '
                              'in manual scan')
         return scan.step(**preset)
+    # counting without detectors is not useful, but does not error out
     if not detectors:
         detectors = session.experiment.detectors
         if not detectors:
             printwarning('counting without detector, use SetDetectors() '
                          'to select which detector(s) you want to use')
+    # check preset names for validity
     names = set(preset)
     for det in detectors:
         names.difference_update(det.presetInfo())
@@ -237,23 +252,14 @@ def count(*detlist, **preset):
         printwarning('these preset keys were not recognized by any of '
                      'the detectors: %s -- detectors are %s' %
                      (', '.join(names), ', '.join(map(str, detectors))))
-    # preparation before count command
-    for det in detectors:
-        det.prepare()
-    # wait for preparation has been finished.
-    for det in detectors:
-        waitForStatus(det)
-    # start counting
-    result = []
-    _count(detectors, preset, result)
-    i = 0
-    msg = []
-    for det in detectors:
-        for v in det.valueInfo():
-            msg.append('%s = %s' % (v.name, result[i]))
-            i += 1
-    printinfo('count: ' + ', '.join(msg))
-    return CountResult(result)
+    # check detector types
+    has_sub = sum(isinstance(det, SubscanMeasurable) for det in detectors)
+    if has_sub > 0:
+        # XXX(dataapi): support both types
+        if not len(detectors) == has_sub == 1:
+            raise NicosError('cannot acquire on normal and subscan detectors')
+
+    return inner_count(detectors, preset)
 
 
 @usercommand

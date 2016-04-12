@@ -40,7 +40,7 @@ import numpy
 
 from nicos import config, nicos_version, custom_version
 from nicos.core.spm import SPMHandler
-from nicos.core.data import DataSink
+from nicos.core.data import DataSink, DataManager
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
@@ -81,6 +81,7 @@ class Session(object):
     name = 'session'
     cache_class = CacheClient
     sessiontype = MAIN
+    has_datamanager = False
 
     def __str__(self):
         # used for cache operations
@@ -92,6 +93,8 @@ class Session(object):
         self.sessionid = makeSessionId()
         # contains all created device objects
         self.devices = {}
+        # maps lower-cased device names to actual-cased device names
+        self.device_case_map = {}
         # contains the name of all explicitly created devices
         self.explicit_devices = set()
         # contains the configuration for all configured devices
@@ -143,7 +146,8 @@ class Session(object):
 
         # cache connection
         self.cache = None
-
+        # data manager
+        self.data = DataManager() if self.has_datamanager else None
         # sysconfig devices
         self._instrument = None
         self._experiment = None
@@ -696,9 +700,13 @@ class Session(object):
                     dev.log.error('can not unload, dependency still active!')
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  'failed on these devices: %r' % devs)
+
+        if self.data is not None:
+            self.data.reset()
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()
+        self.device_case_map.clear()
         self.configured_devices.clear()
         self.explicit_devices.clear()
         for name in list(self._exported_names):
@@ -1289,21 +1297,30 @@ class Session(object):
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
         """Send new live data to clients.
 
         The parameters are:
 
         * tag - a string describing the type of data that is sent.  It is used
           by clients to determine if they can display this data.
-        * filename - a string giving the filename of the data once measurement
-          is finished.  Can be empty.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
         * nx, ny, nt - three integers giving the dimensions of the data array,
           if it is in array format.
         * time - the current measurement time, for determining count rate.
         * data - the actual data as a byte string.
+        """
+
+    def notifyDataFile(self, tag, filename):
+        """Notify clients that a new data file has been written, which might
+        be viewed by live-data views.
+
+        The parameters are:
+
+        * tag - a string describing the type of data saved.  It is used
+          by clients to determine if they can open/display this data.
+        * filename - a string giving the filename of the data.
         """
 
     def breakpoint(self, level):

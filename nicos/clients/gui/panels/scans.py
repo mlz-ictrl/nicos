@@ -26,7 +26,6 @@
 """NICOS GUI scan plot window."""
 
 import os
-import time
 from math import sqrt
 
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
@@ -35,8 +34,9 @@ from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
 from PyQt4.QtCore import QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.core import Dataset
 from nicos.utils import safeFilename
+from nicos.core.data import ScanData
+from nicos.core.params import INFO_CATEGORIES
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -47,10 +47,10 @@ from nicos.pycompat import itervalues
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
 INTERESTING_CATS = [  # from nicos.core.params
-    'Device positions and sample environment state',
-    'Sample and alignment',
-    'Instrument setup',
-    'Experiment information',
+    'general',
+    'sample',
+    'instrument',
+    'experiment',
 ]
 
 
@@ -335,14 +335,18 @@ class ScansPanel(Panel):
             for catname in INTERESTING_CATS:
                 if catname in plot.dataset.headerinfo:
                     values = plot.dataset.headerinfo[catname]
-                    catitem = QTableWidgetItem(catname)
+                    catdesc = catname
+                    for name_desc in INFO_CATEGORIES:
+                        if name_desc[0] == catname:
+                            catdesc = name_desc[1]
+                    catitem = QTableWidgetItem(catdesc)
                     font = catitem.font()
                     font.setBold(True)
                     catitem.setFont(font)
                     self.metaTable.setItem(i, 0, catitem)
                     self.metaTable.setSpan(i, 0, 1, 2)
                     i += 1
-                    for dev, name, value in values:
+                    for dev, name, value in sorted(values):
                         key = '%s_%s' % (dev, name) if name != 'value' else dev
                         self.metaTable.setItem(i, 0, QTableWidgetItem(key))
                         self.metaTable.setItem(i, 1, QTableWidgetItem(value))
@@ -384,7 +388,7 @@ class ScansPanel(Panel):
             self.no_openset = False
         # If the dataset is a continuation of another dataset, automatically
         # create a combined dataset.
-        contuids = dataset.sinkinfo.get('continuation')
+        contuids = dataset.continuation
         if contuids:
             alluids = tuple(contuids.split(',')) + (dataset.uid,)
             # Did we already create this set?  Then don't create it again.
@@ -640,12 +644,11 @@ class ScansPanel(Panel):
 
     def _combine(self, op, sets):
         if op == TOGETHER:
-            newset = Dataset()
+            newset = ScanData()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
-            newset.started = time.localtime()
             # combine xnameunits from those that are in all sets
             all_xnu = set(sets[0].xnameunits)
             for dset in sets[1:]:
@@ -679,12 +682,11 @@ class ScansPanel(Panel):
                 self.showError('Sets have different curves.')
                 return
         if op == COMBINE:
-            newset = Dataset()
+            newset = ScanData()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
-            newset.started = time.localtime()
             newset.xnameunits = firstset.xnameunits
             newset.default_xname = firstset.default_xname
             newset.normindices = firstset.normindices
@@ -708,12 +710,11 @@ class ScansPanel(Panel):
         elif op == DIVIDE:
             sep = ' / '
 
-        newset = Dataset()
+        newset = ScanData()
         newset.name = combineattr(sets, 'name', sep=sep)
         newset.invisible = False
         newset.scaninfo = 'combined set'
         newset.curves = []
-        newset.started = time.localtime()
         newset.xnameunits = firstset.xnameunits
         newset.default_xname = firstset.default_xname
         if op in (SUBTRACT, DIVIDE):

@@ -156,12 +156,12 @@ class MemoryCacheDatabase(CacheDatabase):
             remaining = lastent.time + lastent.ttl - currenttime()
             op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                return ['%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
                                             key, op, lastent.value)]
             else:
                 return [key + op + lastent.value + '\n']
         if ts:
-            return ['%s@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
+            return ['%r@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
         else:
             return [key + OP_TELL + lastent.value + '\n']
 
@@ -183,12 +183,12 @@ class MemoryCacheDatabase(CacheDatabase):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     op = remaining > 0 and OP_TELL or OP_TELLOLD
                     if ts:
-                        ret.add('%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                        ret.add('%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
                                                     dbkey, op, lastent.value))
                     else:
                         ret.add(dbkey + op + lastent.value + '\n')
                 elif ts:
-                    ret.add('%s@%s%s%s\n' % (lastent.time, dbkey,
+                    ret.add('%r@%s%s%s\n' % (lastent.time, dbkey,
                                              OP_TELL, lastent.value))
                 else:
                     ret.add(dbkey + OP_TELL + lastent.value + '\n')
@@ -252,10 +252,10 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             entries = self._db[key]
             for entry in entries:
                 if fromtime <= entry.time <= totime:
-                    ret.append('%s@%s=%s\n' % (entry.time, key, entry.value))
+                    ret.append('%r@%s=%s\n' % (entry.time, key, entry.value))
                     inrange = True
                 elif not inrange and entry.value:
-                    ret = ['%s@%s=%s\n' % (entry.time, key, entry.value)]
+                    ret = ['%r@%s=%s\n' % (entry.time, key, entry.value)]
         except Exception:
             self.log.exception('error reading store for history query')
         if not inrange:
@@ -536,12 +536,12 @@ class FlatfileCacheDatabase(CacheDatabase):
         op = entry.expired and OP_TELLOLD or OP_TELL
         if entry.ttl:
             if ts:
-                return ['%s+%s@%s%s%s\n' % (entry.time, entry.ttl,
+                return ['%r+%s@%s%s%s\n' % (entry.time, entry.ttl,
                                             key, op, entry.value)]
             else:
                 return [key + op + entry.value + '\n']
         if ts:
-            return ['%s@%s%s%s\n' % (entry.time, key, op, entry.value)]
+            return ['%r@%s%s%s\n' % (entry.time, key, op, entry.value)]
         else:
             return [key + op + entry.value + '\n']
 
@@ -561,13 +561,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                     op = entry.expired and OP_TELLOLD or OP_TELL
                     if entry.ttl:
                         if ts:
-                            ret.add('%s+%s@%s%s%s\n' %
+                            ret.add('%r+%s@%s%s%s\n' %
                                     (entry.time, entry.ttl, prefix+subkey,
                                      op, entry.value))
                         else:
                             ret.add(prefix+subkey + op + entry.value + '\n')
                     elif ts:
-                        ret.add('%s@%s%s%s\n' % (entry.time, prefix+subkey,
+                        ret.add('%r@%s%s%s\n' % (entry.time, prefix+subkey,
                                                  op, entry.value))
                     else:
                         ret.add(prefix+subkey + op + entry.value + '\n')
@@ -617,14 +617,14 @@ class FlatfileCacheDatabase(CacheDatabase):
                     if fromtime <= time <= totime:
                         if not inrange and lastvalue:
                             temp.append(lastvalue)
-                        temp.append('%s@%s=%s\n' % (time, key, value))
+                        temp.append('%r@%s=%s\n' % (time, key, value))
                         inrange = True
                         if len(temp) > 100:
                             # bunch up 100 entries at a time
                             yield ''.join(temp)
                             temp = []
                     elif not inrange and value:
-                        lastvalue = '%s@%s=%s\n' % (time, key, value)
+                        lastvalue = '%r@%s=%s\n' % (time, key, value)
             except Exception:
                 self.log.exception('error reading store file for history query')
         # return at least the last value, if none match the range

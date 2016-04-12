@@ -33,7 +33,6 @@ devices = dict(
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'panda@frm2.tum.de',
                       serviceexp = 'service',
-                      scancounter = 'filecounter', #backwards compatibility
                       ),
 
     panda = device('devices.instrument.Instrument',
@@ -47,13 +46,14 @@ devices = dict(
                        description = 'Sample under investigation',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                        description = 'metadevice storing the scanfiles',
-                       filenametemplate = ['%(proposal)s_%(counter)08d.dat',
+                       filenametemplate = ['%(proposal)s_%(scancounter)08d.dat',
                                            '/%(year)d/links/'
-                                           '%(proposal)s_%(counter)08d.dat'],
+                                           '%(proposal)s_'
+                                           '%(scancounter)08d.dat'],
                      ),
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                        description = 'device used for console-output',
                      ),
     daemonsink  = device('devices.datasinks.DaemonSink',

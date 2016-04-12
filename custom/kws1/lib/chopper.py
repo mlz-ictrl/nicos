@@ -24,14 +24,13 @@
 
 """Class for KWS chopper control."""
 
-from nicos.core import Moveable, Attach, Override, HasTimeout, tupleof, \
-    floatrange
+from nicos.core import Moveable, Attach, Override, tupleof, floatrange
 
 FREQ_PRECISION = 1.0
 PHASE_PRECISION = 1.0
 
 
-class Chopper(HasTimeout, Moveable):
+class Chopper(Moveable):
     """Setting chopper parameters in terms of (frequency, phase)."""
 
     valuetype = tupleof(floatrange(0, 75), floatrange(0, 180))
@@ -54,6 +53,9 @@ class Chopper(HasTimeout, Moveable):
 
     def doStart(self, pos):
         if pos[0] == 0:
+            self._attached_freq1._setROParam('target', 0)
+            self._attached_phase1._setROParam('target', 0)
+            self._attached_phase2._setROParam('target', 0)
             self._attached_motor1.start(0)
             self._attached_motor2.start(0)
             return

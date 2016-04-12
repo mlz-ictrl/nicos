@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
-import os
-import sys
+import argparse
 import atexit
-import optparse
+import os
+import signal
 import subprocess
+import sys
+
 from os import path
 from time import sleep
+
+import psutil
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -26,7 +30,15 @@ def echo(s):
 def spawn(script, *args, **kwds):
     wait = kwds.pop('wait', False)
     stdout = dev_null if not wait else None
-    p = subprocess.Popen((sys.executable, path.join(bin_path, script)) + args,
+    executable = (sys.executable,)
+    prof = kwds.get('profile', None)
+    if prof == 'mprof':
+        executable = ('mprof', 'run', '--include-children', '--python')
+    if prof == 'kernprof':
+        executable = ('kernprof',)
+    if prof == 'line_prof':
+        executable = ('kernprof', '--line-by-line')
+    p = subprocess.Popen(executable + (path.join(bin_path, script),) + args,
                          stdout=stdout)
     if wait:
         try:
@@ -35,7 +47,7 @@ def spawn(script, *args, **kwds):
             p.terminate()
     else:
         nice_name = '%s %s' % (script, ' '.join(args))
-        background_processes.append((nice_name, p))
+        background_processes.append((nice_name, p, prof))
 
 
 def wait():
@@ -51,114 +63,146 @@ def cleanup():
     # clean up processes, even if nicos-demo is terminated early
     if background_processes:
         echo('Cleaning up...\n')
-    for nice_name, proc in reversed(background_processes):
+    pgid = None
+    for nice_name, proc, prof in reversed(background_processes):
         try:
+            if not pgid:
+                pgid = os.getpgid(proc.pid)
+            if prof == 'mprof':
+                parent = psutil.Process(proc.pid)
+                for c in parent.children():
+                    c.terminate()
+                sleep(0.5)
             proc.terminate()
         except OSError as e:
             # might already have terminated early
             echo('could not stop %s %s: %s\n' % (nice_name, e))
         else:
             proc.wait()
+    # under some circumstances (re-start due to internal errors)
+    # the poller or watchdog may become detached
+    # from its parents, so do a final safety kill
+    if pgid:
+        os.killpg(pgid, signal.SIGTERM)
     echo('NICOS demo finished.\n')
 
 
-parser = optparse.OptionParser()
-parser.add_option('-E', dest='noelog', action='store_true',
-                  help='disable electronic logbook')
-parser.add_option('-W', dest='nowatchdog', action='store_true',
-                  help='disable watchdog')
-parser.add_option('-M', dest='nomonitor', action='store_true',
-                  help='disable monitor')
-parser.add_option('-m', dest='monitorsetup', action='store',
-                  help='use given monitor setup instead of the default one')
-parser.add_option('-H', dest='htmlmonitor', action='store_true',
-                  help='start the web status service')
-parser.add_option('-O', dest='oh', action='store',
-                  help='does nothing (yet)')
+parser = argparse.ArgumentParser()
+parser.add_argument('-E', dest='noelog', action='store_true',
+                    help='disable electronic logbook')
+parser.add_argument('-W', dest='nowatchdog', action='store_true',
+                    help='disable watchdog')
+parser.add_argument('-M', dest='nomonitor', action='store_true',
+                    help='disable monitor')
+parser.add_argument('-m', dest='monitorsetup', action='store',
+                    help='use given monitor setup instead of the default one')
+parser.add_argument('-H', dest='htmlmonitor', action='store_true',
+                    help='start the web status service')
+parser.add_argument('-O', dest='oh', action='store',
+                    help='does nothing (yet)')
 
-parser.add_option('-D', dest='nodaemon', action='store_true',
-                  help='disable daemon')
-parser.add_option('--clear-cache', dest='clearcache', action='store_true',
-                  help='clear the cache')
-parser.add_option('-T', dest='textclient', action='store_true',
-                  help='start text daemon client instead of GUI')
-parser.add_option('-N', dest='noclient', action='store_true',
-                  help='do not start any client')
-parser.add_option('-t', dest='aioclient', action='store_true',
-                  help='disable daemon and start console shell')
+parser.add_argument('-D', dest='nodaemon', action='store_true',
+                    help='disable daemon')
+parser.add_argument('--clear-cache', dest='clearcache', action='store_true',
+                    help='clear the cache')
+parser.add_argument('-T', dest='textclient', action='store_true',
+                    help='start text daemon client instead of GUI')
+parser.add_argument('-N', dest='noclient', action='store_true',
+                    help='do not start any client')
+parser.add_argument('-t', dest='aioclient', action='store_true',
+                    help='disable daemon and start console shell')
 
-parser.add_option('-c', dest='guiconfig', action='store',
-                  help='use given GUI config file instead of the default one')
-parser.add_option('-u', dest='guiuser', action='store',
-                  default='guest:guest@localhost',
-                  help='use given user:password@server for the daemon login')
+parser.add_argument('-c', dest='guiconfig', action='store',
+                    help='use given GUI config file instead of the default one')
+parser.add_argument('-u', dest='guiuser', action='store',
+                    default='guest:guest@localhost',
+                    help='use given user:password@server for the daemon login')
 # It usually doesn't make sense to start this service.  Therefore it is set
 # to False by default and only has a long option.
-parser.add_option('--pushversioninfo', dest='pushversioninfo',
-                  action='store_true', default=False,
-                  help='Start the version update daemon')
+parser.add_argument('--pushversioninfo', dest='pushversioninfo',
+                    action='store_true', default=False,
+                    help='Start the version update daemon')
 
-opts, rest_args = parser.parse_args()
+parser.add_argument('--profile', dest='profile',
+                    action='store', default=None,
+                    choices=['mprof', 'kernprof', 'line_prof'],
+                    help='''Start processes with profiling - available:
+'mprof': Run the mprof memory profiler,
+'kernprof': Run kernprof globally,
+'line_prof': Run kernprof in line_by_line mode.
+See https://pypi.python.org/pypi/memory_profiler and
+https://github.com/rkern/line_profiler for extended documentation.''')
+
+parser.add_argument('restargs', nargs=argparse.REMAINDER,
+                    help=argparse.SUPPRESS)
+
+opts = parser.parse_args()
+
+if opts.profile:
+    spawnargs = {'profile': opts.profile}
+else:
+    spawnargs = {}
 
 echo('Starting NICOS demo system, please wait:')
 
 if not opts.clearcache:
-    spawn('nicos-cache')
+    spawn('nicos-cache', **spawnargs)
 else:
-    spawn('nicos-cache', '--clear')
+    spawn('nicos-cache', '--clear', **spawnargs)
 echo(' cache')
 sleep(2)
 
 if opts.pushversioninfo:
-    spawn('nicos-pushversioninfo')
+    spawn('nicos-pushversioninfo', **spawnargs)
     echo(' pushversioninfo')
     sleep(0.1)
 
 if not opts.nowatchdog:
-    spawn('nicos-watchdog')
+    spawn('nicos-watchdog', **spawnargs)
     echo(' watchdog')
     sleep(0.1)
 
 if not opts.noelog:
-    spawn('nicos-elog')
+    spawn('nicos-elog', **spawnargs)
     echo(' elog')
     sleep(0.1)
 
-spawn('nicos-poller')
+spawn('nicos-poller', **spawnargs)
 echo(' poller')
 sleep(0.1)
 
 if not opts.nomonitor:
-    monitorargs = ['-S', 'monitor-' + opts.monitorsetup] if opts.monitorsetup else []
+    monitorargs = ['-S', 'monitor-' + opts.monitorsetup] \
+        if opts.monitorsetup else []
     if opts.nodaemon:
         echo('.\n')
-        spawn('nicos-monitor', *monitorargs, wait=True)
+        spawn('nicos-monitor', *monitorargs, wait=True, **spawnargs)
     else:
-        spawn('nicos-monitor', *monitorargs)
+        spawn('nicos-monitor', *monitorargs, **spawnargs)
         echo(' monitor')
         sleep(0.1)
 
 if opts.htmlmonitor:
-    monitorargs = ['-S', 'monitor-html',]
-    spawn('nicos-monitor', *monitorargs)
+    monitorargs = ['-S', 'monitor-html']
+    spawn('nicos-monitor', *monitorargs, **spawnargs)
     echo(' web-monitor')
 
 if opts.aioclient:
     echo('\nServices started, starting console.\n')
-    spawn('nicos-aio', wait=True)
+    spawn('nicos-aio', wait=True, **spawnargs)
 elif not opts.nodaemon:
-    spawn('nicos-daemon')
+    spawn('nicos-daemon', **spawnargs)
     echo(' daemon')
     sleep(1)
     echo('.\n')
     if not opts.noclient:
         if opts.textclient:
-            spawn('nicos-client', opts.guiuser, wait=True)
+            spawn('nicos-client', opts.guiuser, wait=True, **spawnargs)
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
-            guiargs.extend([opts.guiuser, ''] + rest_args)
-            spawn('nicos-gui', *guiargs, wait=True)
+            guiargs.extend([opts.guiuser, ''] + opts.restargs)
+            spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()
 else:

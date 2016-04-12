@@ -23,20 +23,17 @@
 # *****************************************************************************
 
 import time
-import os.path
 
 import numpy
 from PyTango import DevState
 
-from nicos import session
-from nicos.utils import updateFileCounter
-from nicos.core import Moveable, SIMULATION, status
+from nicos.core import Moveable, status
 from nicos.devices.tango import PyTangoDevice
-from nicos.core.params import Attach, Param, Override, oneof, tupleof
+from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
+from nicos.core.constants import FINAL
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
-from nicos.core.image import ImageType
 from nicos.jcns.shutter import OPEN, CLOSE
 
 
@@ -215,7 +212,8 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.imagetype = ImageType(self.MAP_SHAPE[self.pixelsize],
+        self.arraydesc = ArrayDesc('data',
+                                   self.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
     def doPrepare(self):
@@ -224,20 +222,19 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
             self._attached_imgdrum.maw(ImagePlateDrum.POS_ERASE)
         self._attached_imgdrum.maw(ImagePlateDrum.POS_EXPO)
 
-    def readLiveImage(self):
-        return None  # cannot read while exposing!
-
-    def readFinalImage(self):
-        # start readout
-        self._attached_imgdrum.maw(ImagePlateDrum.POS_READ)
-        narray = None
-        timeout = self._attached_imgdrum._dev.get_timeout_millis()
-        self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
-        try:
-            narray = self._attached_imgdrum._dev.Bitmap16Bit
-        finally:
-            self._attached_imgdrum._dev.set_timeout_millis(timeout)
-        return narray
+    def doReadArray(self, quality):
+        if quality == FINAL:
+            # start readout
+            self._attached_imgdrum.maw(ImagePlateDrum.POS_READ)
+            narray = None
+            timeout = self._attached_imgdrum._dev.get_timeout_millis()
+            self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
+            try:
+                narray = self._attached_imgdrum._dev.Bitmap16Bit
+            finally:
+                self._attached_imgdrum._dev.set_timeout_millis(timeout)
+            return narray
+        return None
 
     def doReadRoi(self):
         return (0, self._attached_imgdrum._dev.InterestZoneY, 1250,
@@ -257,7 +254,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
 
     def doWritePixelsize(self, value):
         self._attached_imgdrum._dev.PixelSize = value
-        self.imagetype = ImageType(self.MAP_SHAPE[value], numpy.uint16)
+        self.arraydesc = ArrayDesc('data', self.MAP_SHAPE[value], numpy.uint16)
 
     def doWriteFile(self, value):
         self._attached_imgdrum._dev.ImageFile = value
@@ -321,16 +318,3 @@ class BiodiffDetector(Detector):
             self._attached_photoshutter.maw(CLOSE)
         if self.ctrl_gammashutter:
             self._attached_gammashutter.maw(CLOSE)
-        # remove last empty file on errors
-        exp = session.experiment
-        if self._mode != SIMULATION:
-            lastimagepath = os.path.join(exp.proposalpath,
-                                         exp.lastimagefile)
-            if (os.path.isfile(lastimagepath) and
-                    os.path.getsize(lastimagepath) == 0):
-                self.log.debug("Remove empty file: %s" % exp.lastimagefile)
-                os.unlink(lastimagepath)
-            updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
-        else:
-            # only in sim-mode, see nicos.devices.experiment.Experiment
-            exp._lastimage = (exp._lastimage or exp.lastimage) - 1

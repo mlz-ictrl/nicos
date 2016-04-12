@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 """NICOS test suite utilities."""
+
 from __future__ import print_function
 
 import os
@@ -30,27 +31,60 @@ import re
 import sys
 import time
 import shutil
+import signal
 import socket
 import subprocess
 from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from nose.tools import assert_raises  # pylint: disable=E0611
+from nose.tools import istest, assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
-from nicos.core import Moveable, HasLimits, DataSink, status
+from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
+    status
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.notifiers import Mailer
 from nicos.utils import tcpSocket
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
-from nicos.pycompat import exec_
+from nicos.pycompat import exec_, reraise
+
+# try to get the nose conf singleton provided by the noseglobalconf plugin
+# if it is not available,  set verbosity to 2.
+try:
+    from noseglobalconf import noseconf
+except ImportError:
+    class DummyConf(object):
+        pass
+    noseconf = DummyConf()
+    noseconf.verbosity = 2
 
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
 pythonpath = None
+
+
+def gen_if_verbose(func):
+    '''Wrapper to reduce verbosity for test-generator functions
+    '''
+
+    @wraps(func)
+    def new_func():
+        if noseconf.verbosity >= 3:
+            for f_args in func():
+                def run(r_args):
+                    r_args[0](*r_args[1:])
+                run.description =f_args[0].description
+                yield run, f_args
+        else:
+            @istest
+            def collecttests():
+                for f_args in func():
+                    f_args[0](*f_args[1:])
+            yield collecttests
+    return new_func
 
 
 def raises(exc, *args, **kwds):
@@ -195,6 +229,7 @@ class TestLogHandler(ColoredConsoleHandler):
 
 class TestSession(Session):
     autocreate_devices = False
+    has_datamanager = True
 
     def __init__(self, appname, daemonized=False):
         Session.__init__(self, appname, daemonized)
@@ -248,35 +283,46 @@ class TestDevice(HasLimits, Moveable):
         return status.OK, 'fine'
 
 
-class TestSink(DataSink):
+class TestSinkHandler(DataSinkHandler):
 
-    def doInit(self, mode):
+    def __init__(self, sink, dataset, detector):
+        DataSinkHandler.__init__(self, sink, dataset, detector)
         self.clear()
 
     def clear(self):
         self._calls = []
-        self._info = []
-        self._points = []
 
-    def prepareDataset(self, dataset):
-        self._calls.append('prepareDataset')
+    def prepare(self):
+        self._calls.append('prepare')
 
-    def beginDataset(self, dataset):
-        self._calls.append('beginDataset')
+    def begin(self):
+        self._calls.append('begin')
 
-    def addInfo(self, dataset, category, valuelist):
-        self._calls.append('addInfo')
-        self._info.extend(valuelist)
+    def putMetainfo(self, metainfo):
+        self._calls.append('putMetainfo')
 
-    def addPoint(self, dataset, xvalues, yvalues):
-        self._calls.append('addPoint')
-        self._points.append(xvalues + yvalues)
+    def putValues(self, values):
+        self._calls.append('putValues')
 
-    def addBreak(self, dataset):
-        self._calls.append('addBreak')
+    def putResults(self, quality, results):
+        self._calls.append('putResults')
 
-    def endDataset(self, dataset):
-        self._calls.append('endDataset')
+    def addSubset(self, subset):
+        self._calls.append('addSubset')
+
+    def end(self):
+        self._calls.append('end')
+
+
+class TestSink(DataSink):
+
+    handlerclass = TestSinkHandler
+    _handlers = []
+
+    def createHandlers(self, dataset):
+        handlers = DataSink.createHandlers(self, dataset)
+        self._handlers = handlers
+        return handlers
 
 
 class TestNotifier(Mailer):
@@ -308,9 +354,9 @@ def adjustPYTHONPATH():
     global pythonpath
     if pythonpath is None:
         topdir = path.abspath(path.join(rootdir, '..', '..'))
-        pythonpath = os.environ.get('PYTHONPATH', '').split(':')
+        pythonpath = os.environ.get('PYTHONPATH', '').split(os.pathsep)
         pythonpath.insert(0, topdir)
-        os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+        os.environ['PYTHONPATH'] = os.pathsep.join(pythonpath)
 
 
 def startSubprocess(filename, *args, **kwds):
@@ -330,12 +376,14 @@ def startSubprocess(filename, *args, **kwds):
         try:
             kwds['wait_cb']()
         except Exception:
+            caught = sys.exc_info()
             sys.stderr.write('%s failed]' % proc.pid)
             try:
                 proc.kill()
             except Exception:
                 pass
             proc.wait()
+            reraise(*caught)
     sys.stderr.write('%s ok]\n' % proc.pid)
     return proc
 
@@ -384,8 +432,8 @@ def hasGnuplot():
     To be used with the `requires` decorator.
     """
     try:
-        gpProcess = subprocess.Popen(b'gnuplot', shell=True, stdin=subprocess.PIPE,
-                                     stdout=None)
+        gpProcess = subprocess.Popen(b'gnuplot', shell=True,
+                                     stdin=subprocess.PIPE, stdout=None)
         gpProcess.communicate(b'exit')
         if gpProcess.returncode:
             return False
@@ -404,3 +452,11 @@ def getCacheNameAndPort(host):
 
 def getDaemonPort():
     return int(os.environ.get('NICOS_DAEMON_PORT', 14874))
+
+
+def selfDestructAfter(seconds):
+    """If possible, setup a SIGALRM after *seconds* to clean up otherwise
+    hanging test processes.
+    """
+    if hasattr(signal, 'alarm'):
+        signal.alarm(seconds)

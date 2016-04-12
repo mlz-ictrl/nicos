@@ -17,6 +17,11 @@ includes = []
 # TIM1 500 qmesydaq.caress_object timer	1
 # EVENT 500 qmesydaq.caress_object event
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink',
+                 'histogram', 'listmode'],
+)
+
 nethost = 'spodisrv.spodi.frm2'
 
 devices = dict(
@@ -86,11 +91,11 @@ devices = dict(
                             ' 256 0',
                    lowlevel = True,
                   ),
-    histogram = device('frm2.qmesydaqsinks.HistogramFileFormat',
+    histogram = device('frm2.qmesydaqsinks.HistogramSink',
                        description = 'Histogram data written via QMesyDAQ',
                        image = 'image',
                       ),
-    listmode = device('frm2.qmesydaqsinks.ListmodeFileFormat',
+    listmode = device('frm2.qmesydaqsinks.ListmodeSink',
                       description = 'Listmode data written via QMesyDAQ',
                       image = 'image',
                      ),
@@ -102,6 +107,5 @@ devices = dict(
                   images = ['image'],
                   maxage = 3,
                   pollinterval = 0.5,
-                  fileformats = ['listmode', 'histogram',],
                  ),
 )

@@ -31,7 +31,6 @@ devices = dict(
                        templates = 'templates',
                        sendmail = False,
                        zipdata = False,
-                       scancounter = 'filecounter', #backwards compatibility
                        managerights = dict(enableDirMode=0o775,
                                           enableFileMode=0o664,
                                           disableDirMode=0o775,
@@ -46,11 +45,11 @@ devices = dict(
                       doi = 'http://dx.doi.org/10.17815/jlsrf-1-42',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                        description = 'Scanfile storing device',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                        description = 'Device handling console output',
                      ),
 

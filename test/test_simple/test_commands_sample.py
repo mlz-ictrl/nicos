@@ -58,7 +58,7 @@ def test_activation_wronginput():
         assert raises(UsageError, activation, formula='H2O')
         assert raises(UsageError, activation, formula='H2O', flux=1e7)
         assert session.testhandler.warns(activation, warns_clear=True,
-                                         formula='H2', instrument='XXX', mass=1)
+                                         formula='H2', instrument='IN', mass=1)
 
 
 def test_activation_function():

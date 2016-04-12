@@ -81,7 +81,6 @@ devices = dict(
                       templates = 'templates',
                       sendmail = False,
                       zipdata = False,
-                      # scancounter = 'filecounter', #backwards compatibility
                      ),
 
 
@@ -91,10 +90,10 @@ devices = dict(
                      responsible = 'Christian.Randau@frm2.tum.de'
                     ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
                     ),
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',
                     ),
     daemonsink = device('devices.datasinks.DaemonSink',

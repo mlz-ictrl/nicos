@@ -1,5 +1,5 @@
-GUI configuration and development
-=================================
+GUI development
+===============
 
 The NICOS GUI is a graphical application using the Qt framework and `PyQt
 <http://www.riverbankcomputing.co.uk/software/pyqt>`_.  It is highly
@@ -9,9 +9,7 @@ with a few APIs provided by the NICOS base library.
 
 .. toctree::
 
-   config
-   setups
-   panels
    designer
    widgets
+   panels
    client

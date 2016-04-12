@@ -402,9 +402,9 @@ possible with the device:
    .. parameter:: requires : dict
 
       A dictionary of requirements, similar to the arguments of
-      :func:`.requires`.  For access control in the daemon-client shell,
-      e.g. you can use ``requires = {'level': 'admin'}`` to restrict write
-      actions to ADMIN users.
+      :func:`~nicos.core.device.requires`.  For access control in the
+      daemon-client shell, e.g. you can use ``requires = {'level': 'admin'}`` to
+      restrict write actions to ADMIN users.
 
 
 ``Measurable``
@@ -429,8 +429,6 @@ possible with the device:
 
    .. automethod:: duringMeasureHook
 
-   .. automethod:: save
-
    .. automethod:: valueInfo
 
    .. automethod:: presetInfo
@@ -449,6 +447,7 @@ Special device classes
 ===============
 
 .. autoclass:: DeviceAlias()
+   :noindex:
 
 
 ``NoDevice``
@@ -539,6 +538,7 @@ classes.
 
 .. autoclass:: CanReference()
 
+
 .. module:: nicos.devices.generic.detector
 
 ``TimerChannelMixin``
@@ -557,17 +557,10 @@ classes.
 .. autoclass:: ImageChannelMixin()
 
 
-.. module:: nicos.core.image
-
-``ImageProducer``
-=================
-
-.. autoclass:: ImageProducer()
-
-
 .. module:: nicos.devices.generic.sequence
 
 ``SequencerMixin``
 ==================
 
 .. autoclass:: SequencerMixin()
+   :noindex:

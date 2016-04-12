@@ -28,13 +28,9 @@ from test.utils import getCacheNameAndPort
 
 sysconfig = dict(
     cache = getCacheNameAndPort('localhost'),
-    datasinks = ['testsink'],
-    loglevel = 'debug',
 )
 
 devices = dict(
-    testsink = device('test.utils.TestSink',
-                     ),
     reader1 = device('nicos.devices.generic.cache.CacheReader',
                       description='Test Reader',
                       maxage=0.1,

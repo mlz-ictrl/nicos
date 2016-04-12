@@ -18,76 +18,101 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""NICOS data handlers test suite."""
+"""NICOS data manager test suite."""
 
-import time
-from os import path
-from logging import Handler
+from contextlib import contextmanager
 
-from nicos import session, config
-from nicos.utils import readFile
-from nicos.commands.scan import scan
-from nicos.core.sessions.utils import MASTER
-
-from test.utils import assert_response
-
-year = time.strftime('%Y')
-
-
-def setup_module():
-    session.loadSetup('data')
-    session.setMode(MASTER)
+from nicos import session
 
 
 def teardown_module():
-    session.unloadSetup()
+    session.data.reset()
 
 
-class CHandler(Handler):
-    def __init__(self):
-        Handler.__init__(self)
-        self.messages = []
+def test_empty_manager():
+    # check for empty data stack
+    assert session.data._stack == []
+    assert session.data._current is None
+    # check for empty scan cache
+    session.data.reset()
+    assert session.data._last_scans == []
 
-    def emit(self, record):
-        self.messages.append(self.format(record))
+
+def test_cleanup():
+    # check that data manager cleans up unsuitable datasets still open
+    session.data.beginPoint()
+    session.data.beginPoint()
+    assert len(session.data._stack) == 1
+    session.data.finishPoint()
 
 
-def test_sinks():
-    exp = session.experiment
-    exp._setROParam('dataroot', path.join(config.nicos_root, 'testdata'))
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
+@contextmanager
+def dataset_scope(settype, **kwds):
+    getattr(session.data, 'begin' + settype.capitalize())(**kwds)
+    yield
+    getattr(session.data, 'finish' + settype.capitalize())()
 
-    assert path.abspath(exp.datapath) == \
-        path.abspath(path.join(config.nicos_root, 'testdata',
-                               year, 'p1234', 'data'))
-    m = session.getDevice('motor2')
-    det = session.getDevice('det')
 
-    handler = CHandler()
-    session.addLogHandler(handler)
-    try:
-        scan(m, 0, 1, 5, det, t=0.005)
-    finally:
-        session.log.removeHandler(handler)
-        session._log_handlers.remove(handler)
+def test_dataset_stack():
+    # create some datasets on the stack, check nesting
+    with dataset_scope('block'):
+        assert session.testhandler.warns(session.data.finishScan)
+        assert session.testhandler.warns(session.data.finishPoint)
 
-    assert '=' * 100 in handler.messages
-    assert_response(handler.messages,
-                    matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.00[45].*\)')
+        with dataset_scope('scan'):
+            assert session.testhandler.warns(session.data.finishBlock)
+            assert session.data._current.number == 1
 
-    fname = path.join(session.experiment.dataroot, 'scancounter')
-    assert path.isfile(fname)
-    contents = readFile(fname)
-    assert contents == ['1']
+            with dataset_scope('point'):
+                with dataset_scope('scan', subscan=True):
+                    with dataset_scope('point'):
+                        assert len(session.data._stack) == 5
+                        assert [s.settype for s in session.data._stack] == \
+                            ['block', 'scan', 'point', 'subscan', 'point']
 
-    fname = path.join(config.nicos_root, 'testdata',
-                      year, 'p1234', 'data', 'p1234_00000001.dat')
-    assert path.isfile(fname)
-    contents = readFile(fname)
-    assert contents[0].startswith('### NICOS data file')
-    assert '### Scan data' in contents
-    assert contents[-1].startswith('### End of NICOS data file')
+                        assert session.data._current.number == 1
+
+                    with dataset_scope('point'):
+                        assert session.data._current.number == 2
+
+
+def test_temp_point():
+    session.data.beginTemporaryPoint()
+    assert session.data._current.handlers == []
+    session.data.finishPoint()
+
+
+def test_point_dataset():
+    assert len(session.data._stack) == 0
+    with dataset_scope('point'):
+        ds = session.data._current
+
+        # only assigned if a parent dataset is open
+        assert ds.number == 0
+
+        # fresh dataset, nothing in there
+        assert not ds.results
+        assert not ds.values
+        assert not ds._valuestats
+        assert not ds.metainfo
+
+        # now fill it with some device values
+        for (ts, value) in [(0, 5.), (2, 7.), (3, 5.), (4, 4.)]:
+            session.data.putValues({'dev': (ts, value)})
+        session.data.putValues({'dev2': (2, 5.)})
+
+        # check value stats for devices with multiple values
+        mean, stdev, mini, maxi = ds.valuestats['dev']
+        assert mini == 4.
+        assert maxi == 7.
+        assert mean == 5.5
+        assert 0.866 < stdev < 0.867  # sqrt(3)/2
+
+        # check value stats for devices with only one value
+        mean, stdev, mini, maxi = ds.valuestats['dev2']
+        assert mini == maxi == mean == 5.
+        assert stdev == float('inf')

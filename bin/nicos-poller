@@ -1,24 +1,30 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
+
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import optparse
 from nicos.services.poller.psession import PollerSession
 
-parser = optparse.OptionParser()
-parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
-                  help='daemonize the poller processes')
-parser.add_option('-S', '--setup', action='store', dest='setupname',
-                  default='poller',
-                  help="name of the setup, default is 'poller'")
-opts, args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
+                    help='daemonize the poller processes')
+parser.add_argument('-S', '--setup', action='store', dest='setupname',
+                    default='poller',
+                    help="name of the setup, default is 'poller'")
+parser.add_argument('setup', nargs=argparse.OPTIONAL, help=argparse.SUPPRESS)
 
-if len(args) > 0:
-    appname = 'poller-' + args[0]
+opts = parser.parse_args()
+
+if opts.setup:
+    appname = 'poller-' + opts.setup
+    args = [opts.setup, ]
 else:
     appname = 'poller'
+    args = []
 
 PollerSession.run(appname, setupname=opts.setupname, maindevname='Poller',
                   start_args=args, daemon=opts.daemon)

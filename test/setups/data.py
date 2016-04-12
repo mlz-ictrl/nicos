@@ -26,15 +26,47 @@ name = 'test_data setup'
 
 includes = ['stdsystem', 'scanning']
 
+sinklist = ['testsink1', 'testsink2', 'asciisink', 'consolesink', 'daemonsink',
+            'livesink', 'rawsink', 'srawsink', 'bersanssink']
+
+# These sinks cannot be created if the modules are not present.
+# Omit them from the datasinks list in that case.
+
+try:
+    import PIL  # pylint: disable=unused-import
+    sinklist.append('tiffsink')
+except Exception:
+    pass
+
+try:
+    import pyfits  # pylint: disable=unused-import
+    sinklist.append('fitssink')
+except Exception:
+    pass
+
 sysconfig = dict(
-    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink']
+    datasinks = sinklist,
 )
 
 devices = dict(
-    asciisink = device('nicos.devices.datasinks.AsciiDatafileSink',
-                      ),
-    consolesink = device('nicos.devices.datasinks.ConsoleSink',
-                        ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                       )
+    testsink1   = device('test.utils.TestSink',
+                         settypes = ['scan']),
+    testsink2   = device('test.utils.TestSink',
+                         settypes = ['point'],
+                         detectors = ['det']),
+    asciisink   = device('nicos.devices.datasinks.AsciiScanfileSink'),
+    consolesink = device('nicos.devices.datasinks.ConsoleScanSink'),
+    daemonsink  = device('nicos.devices.datasinks.DaemonSink'),
+    livesink    = device('nicos.devices.datasinks.LiveViewSink'),
+    rawsink     = device('nicos.devices.datasinks.RawImageSink',
+                         filenametemplate = ['%(proposal)s_%(pointpropcounter)s.raw',
+                                             '%(pointcounter)08d.raw']),
+    srawsink    = device('nicos.devices.datasinks.SingleRawImageSink',
+                         subdir = 'single',
+                         filenametemplate = ['%(scancounter)s_%(pointcounter)s.raw',
+                                             '/%(pointcounter)08d.raw']),
+    bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
+                         flipimage = 'none'),
+    fitssink    = device('nicos.devices.datasinks.FITSImageSink'),
+    tiffsink    = device('nicos.devices.datasinks.TIFFImageSink'),
 )

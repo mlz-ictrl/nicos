@@ -26,7 +26,7 @@
 
 from nicos.core import status
 from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, \
-    MAIN, POLLER
+    MAIN, POLLER, LIVE, INTERMEDIATE, INTERRUPTED, FINAL
 from nicos.core.errors import NicosError, ProgrammingError, \
     ConfigurationError, UsageError, InvalidValueError, ModeError, \
     PositionError, MoveError, LimitError, CommunicationError, \
@@ -36,15 +36,19 @@ from nicos.core.mixins import DeviceMixinBase, AutoDevice, HasLimits, \
     HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
     HasCommunication
 from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
-    Moveable, Measurable, DeviceAlias, NoDevice, usermethod, requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-    listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
-    vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
-    relative_path, absolute_path, subdir, mailaddress, limits, Attach, \
+    Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, \
+    usermethod, requires
+from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
+    INFO_CATEGORIES, listof, nonemptylistof, tupleof, dictof, setof, tacodev, \
+    tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or, \
+    nicosdev, relative_path, absolute_path, subdir, mailaddress, limits, \
     dictwith, host
-from nicos.core.data import Dataset, DataSink
+from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
+    DataSinkHandler
 from nicos.core.scan import Scan
-from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user
+
+# XXX(dataapi): to be removed
+from nicos.core.image import ImageSink

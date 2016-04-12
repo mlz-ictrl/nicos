@@ -197,7 +197,7 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 """
 
 import re
-from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
+from ast import parse, Str, Num, Tuple, List, Dict, Set, BinOp, UnaryOp, \
     Add, Sub, USub, Name, Call
 from base64 import b64encode, b64decode
 
@@ -294,6 +294,12 @@ def cache_dump(obj):
             res.append(cache_dump(value))
             res.append(',')
         res.append('}')
+    elif isinstance(obj, frozenset):
+        res.append('{')
+        for item in obj:
+            res.append(cache_dump(item))
+            res.append(',')
+        res.append('}')
     elif obj is None:
         return 'None'
     else:
@@ -323,6 +329,8 @@ def ast_eval(node):
         elif isinstance(node, Dict):
             return readonlydict((_convert(k), _convert(v)) for k, v
                                 in zip(node.keys, node.values))
+        elif isinstance(node, Set):
+            return frozenset(map(_convert, node.elts))
         elif isinstance(node, Name):
             if node.id in _safe_names:
                 return _safe_names[node.id]

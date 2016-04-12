@@ -33,12 +33,12 @@ devices = dict(
                       responsible = 'Karl Zeitelhack <karl.zeitelhack@frm2.tum.de>',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       semicolon = False,
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 

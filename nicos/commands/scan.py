@@ -28,8 +28,9 @@ from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
     NicosError
 from nicos.core.spm import spmsyntax, Dev, Bare
-from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
+from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
+from nicos.core.scan import Scan
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
 from nicos.pycompat import iteritems, number_types, string_types
@@ -156,7 +157,7 @@ def scan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset,
+    Scan(devs, values, None, move, multistep, detlist, envlist, preset,
          scaninfo).run()
 
 
@@ -179,8 +180,8 @@ def cscan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+    Scan(devs, values, None, move, multistep, detlist, envlist, preset,
+         scaninfo, subscan=kwargs.get('subscan', False)).run()
 
 
 @usercommand
@@ -449,7 +450,7 @@ def appendscan(numpoints=5, stepsize=None):
         raise UsageError('number of points must be either positive or '
                          'negative')
     direction = numpoints / abs(numpoints)
-    dslist = session.experiment._last_datasets
+    dslist = session.data._last_scans
     if not dslist:
         raise NicosError('no last scan saved')
     contuids = []
@@ -458,7 +459,7 @@ def appendscan(numpoints=5, stepsize=None):
     i = len(dslist) - 1
     while i >= 0:
         contuids.append(dslist[i].uid)
-        if not dslist[i].sinkinfo.get('continuation'):
+        if not dslist[i].continuation:
             break
         i -= 1
 
@@ -468,19 +469,19 @@ def appendscan(numpoints=5, stepsize=None):
     #   appendscan(5)
     #   appendscan(2)
     #   appendscan(-3)
-    if dslist[-1].sinkinfo.get('cont_direction') == direction:
+    if dslist[-1].cont_direction == direction:
         scan = dslist[-1]
     else:
         scan = dslist[i]
 
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
-    npos = len(scan.xresults)
+    npos = len(scan.subsets)
     if npos < 2:
         raise NicosError('cannot append to scan with no positions')
-    pos1 = scan.positions[0][0]
+    pos1 = scan.startpositions[0][0]
     # start at the real end position...
-    pos2 = scan.positions[len(scan.xresults) - 1][0]
+    pos2 = scan.startpositions[len(scan.subsets) - 1][0]
     if isinstance(pos1, tuple):
         stepsizes = tuple((b - a) / (npos - 1) for (a, b) in zip(pos1, pos2))
         if numpoints > 0:
@@ -502,12 +503,12 @@ def appendscan(numpoints=5, stepsize=None):
         positions = [[startpos + j*stepsize] for j in range(numpoints)]
     else:
         raise NicosError('cannot append to this scan')
-    s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
-             scan.envlist, scan.preset, '%d more steps of last scan' %
+    s = Scan(scan.devices, positions, [], None, None, scan.detectors,
+             scan.environment, scan.preset, '%d more steps of last scan' %
              numpoints)
-    s.dataset.sinkinfo['continuation'] = ','.join(contuids)
-    s.dataset.sinkinfo['cont_direction'] = direction
-    s.dataset.xindex = scan.xindex
+    s._xindex = scan.xindex
+    s._continuation = contuids
+    s._cont_direction = direction
     # envlist must be reset since Scan.__init__ messes with the ordering
-    s.dataset.envlist[:] = scan.envlist
+    s._envlist[:] = scan.environment
     s.run()

@@ -30,7 +30,7 @@ import IO
 import IOCommon
 from Detector import Detector
 
-from nicos.core import ImageType, MASTER, Param, SIMULATION, Value, \
+from nicos.core import ArrayDesc, Param, MASTER, SIMULATION, FINAL, Value, \
     listof, oneof
 from nicos.devices.generic import TimerChannelMixin, CounterChannelMixin, \
     PassiveChannel, ActiveChannel
@@ -133,12 +133,9 @@ class Image(BaseChannel, QMesyDAQImage):
 
     taco_class = Detector
 
-    # initial imagetype, will be updated upon readImage
-    imagetype = ImageType((128, 128), '<u4')
-
     def doInit(self, mode):
         if mode == MASTER:
-            self.readFinalImage()  # also set imagetype
+            self.readArray(FINAL)  # also set arraydesc
 
     def doStart(self):
         self.readresult = [0]
@@ -153,27 +150,23 @@ class Image(BaseChannel, QMesyDAQImage):
             self._taco_guard(self._dev.deviceOn)
         return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
 
-    def readFinalImage(self):
-        if self._mode == SIMULATION:
-            # simulated readout of an 128*128 image
-            res = [128, 128, 1] + [0] * (128 * 128)
-        else:
-            # read data via taco and transform it
-            res = self._taco_guard(self._dev.read)
+    def doReadArray(self, quality):
+        # read data via taco and transform it
+        res = self._taco_guard(self._dev.read)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
-            self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
             return data
         elif res[2] in [0, 1]:  # 2D array
-            self.imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
-            self.imagetype = ImageType(shape=(res[0], res[1], res[2]),
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             self.readresult = [data.sum()]

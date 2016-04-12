@@ -45,16 +45,13 @@ devices = dict(
                                           owner='toftof', group='toftof',
                                          ),
                       elog = True,
-                      scancounter = 'scancounter',
-                      # filecounter = '/data/counter',
-                      imagecounter = 'counter',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink',
+    conssink = device('devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 

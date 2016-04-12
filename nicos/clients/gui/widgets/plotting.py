@@ -566,11 +566,11 @@ class ViewPlotMixin(object):
         with open(filename, 'wb') as fp:
             for i in range(n):
                 if fmtno == 0:
-                    fp.write('%s\t%.10f\n' % (x[i] - x[0], y[i]))
+                    fp.write('%s\t%s\n' % (x[i] - x[0], y[i]))
                 elif fmtno == 1:
-                    fp.write('%s\t%.10f\n' % (x[i], y[i]))
+                    fp.write('%s\t%s\n' % (x[i], y[i]))
                 else:
-                    fp.write('%s\t%.10f\n' % (
+                    fp.write('%s\t%s\n' % (
                         strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
                         y[i]))
 

@@ -38,7 +38,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, \
     dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ImageType
+    HasTimeout, ArrayDesc
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -388,6 +388,9 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
     def doReadUnit(self):
         attrInfo = self._dev.attribute_query('value')
+        # prefer configured unit if nothing is set on the Tango device
+        if attrInfo.unit == 'No unit' and 'unit' in self._config:
+            return self._config['unit']
         return attrInfo.unit
 
     def doReadAbslimits(self):
@@ -400,7 +403,17 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
         return self._dev.value
 
     def doStart(self, value):
-        self._dev.value = value
+        try:
+            self._dev.value = value
+        except NicosError:
+            # changing target value during movement is not allowed by the
+            # Tango base class state machine. If we are moving, stop first.
+            if self.status(0)[0] == status.BUSY:
+                self.stop()
+                self._hw_wait()
+                self._dev.value = value
+            else:
+                raise
 
     def doStop(self):
         self._dev.Stop()
@@ -866,9 +879,10 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
     def doReadZeropoint(self):
         return self._dev.zeroPoint.tolist()
 
-    def readFinalImage(self):
-        self.imagetype = ImageType(shape=tuple(self._dev.roiSize), dtype='<u4')
-        return self._dev.value.reshape(self.imagetype.shape)
+    def doReadArray(self, quality):
+        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.roiSize),
+                                   dtype='<u4')
+        return self._dev.value.reshape(self.arraydesc.shape)
 
 
 class TOFChannel(ImageChannel):

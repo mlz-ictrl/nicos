@@ -80,6 +80,10 @@ number_types = integer_types + (float,)
 # missing str/bytes helpers
 
 if six.PY2:
+    # use standard file and buffer for Py2
+    File = file
+    memory_buffer = buffer
+
     # encode str/unicode (Py2) or str (Py3) to bytes, using UTF-8
     def to_utf8(s):
         if isinstance(s, str):
@@ -109,6 +113,7 @@ if six.PY2:
         if isinstance(s, str):
             s = s.decode('ascii', 'ignore')
         return s.encode('unicode-escape')
+    to_ascii_string = to_ascii_escaped
     # on Py2, io.TextIOWrapper exists but only accepts Unicode objects
     class TextIOWrapper(object):
         def __init__(self, fp):
@@ -117,9 +122,18 @@ if six.PY2:
             if isinstance(s, unicode):
                 s = s.encode('utf-8')
             self.fp.write(s)
+        def detach(self):
+            pass
         def __getattr__(self, att):
             return getattr(self.fp, att)
 else:
+    from io import FileIO, BufferedWriter
+    # create file like class for py3
+    class File(BufferedWriter):
+        def __init__(self, filepath, openmode):
+            self._raw = FileIO(filepath, openmode)
+            BufferedWriter.__init__(self, self._raw)
+
     # on Py3, UTF-8 is the default encoding already
     to_utf8 = str.encode
     to_encoding = str.encode
@@ -130,8 +144,11 @@ else:
             return s
         return s.decode()
     srepr = repr
+    memory_buffer = memoryview
     def to_ascii_escaped(s):
         if isinstance(s, bytes):
             s = s.decode('ascii', 'ignore')
         return s.encode('unicode-escape')
+    def to_ascii_string(s):
+        return s.encode('unicode-escape').decode('ascii')
     from io import TextIOWrapper

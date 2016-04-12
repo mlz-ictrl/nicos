@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 
+import argparse
+import signal
 import sys
+
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-import signal
+parser = argparse.ArgumentParser()
+parser.add_argument('port', type=int, help='port number')
+parser.add_argument('prefix', type=str, help='prefix')
+parser.add_argument('setups', help='comma separated list of setup files')
+parser.add_argument('user', type=str, help='user name,user Level')
+parser.add_argument('code', type=str, help='code to be executed')
 
-args = sys.argv[1:]
-if len(args) != 5:
-    raise SystemExit('Usage: nicos-simulate port prefix setups user code')
-port = int(args[0])
-prefix = args[1]
-setups = args[2].split(',')
-user = args[3]
-code = args[4]
+opts = parser.parse_args()
 
 # kill forcibly after 10 minutes
 if hasattr(signal, 'alarm'):
     signal.alarm(600)
 
 from nicos.core.sessions.simulation import SimulationSession
-SimulationSession.run(port, prefix, setups, user, code)
+SimulationSession.run(opts.port, opts.prefix, opts.setups.split(','),
+                      opts.user, opts.code)

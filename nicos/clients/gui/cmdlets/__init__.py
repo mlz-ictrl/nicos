@@ -25,11 +25,11 @@
 """NICOS GUI command input widgets."""
 
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal
-from PyQt4.QtGui import QColor, QDoubleValidator, QWidget
+from PyQt4.QtGui import QColor, QWidget
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.typedvalue import DeviceParamEdit
-from nicos.guisupport.utils import setBackgroundColor
+from nicos.guisupport.utils import setBackgroundColor, DoubleValidator
 from nicos.utils import findResource, formatDuration
 
 
@@ -215,8 +215,8 @@ class CommonScan(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
-        self.start.setValidator(QDoubleValidator(self))
-        self.step.setValidator(QDoubleValidator(self))
+        self.start.setValidator(DoubleValidator(self))
+        self.step.setValidator(DoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
         self.step.textChanged.connect(self.on_range_change)
         self.numpoints.valueChanged.connect(self.on_range_change)
@@ -321,10 +321,10 @@ class ContScan(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
-        self.start.setValidator(QDoubleValidator(self))
-        self.stop.setValidator(QDoubleValidator(self))
-        self.speed.setValidator(QDoubleValidator(self))
-        self.delta.setValidator(QDoubleValidator(self))
+        self.start.setValidator(DoubleValidator(self))
+        self.stop.setValidator(DoubleValidator(self))
+        self.speed.setValidator(DoubleValidator(self))
+        self.delta.setValidator(DoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
         self.stop.textChanged.connect(self.on_range_change)
         self.speed.textChanged.connect(self.on_range_change)

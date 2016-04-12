@@ -227,6 +227,7 @@ def test_timer():
 
     # b) test an unlimited timer (for a short while)
     tmr.start()
+    time.sleep(0.02)  # due to windows time.time() resolution
     assert tmr.is_running()
     assert tmr.elapsed_time() > 0
     assert tmr.remaining_time() is None

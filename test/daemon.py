@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""NICOS test suite cache."""
+"""NICOS test suite daemon."""
 
 import os
 import logging
@@ -41,7 +41,7 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.services.daemon.session import DaemonSession
 
-from test.utils import rootdir
+from test.utils import rootdir, selfDestructAfter
 
 
 class TestDaemonSession(DaemonSession):
@@ -79,4 +79,5 @@ config.user = None
 config.group = None
 config.nicos_root = rootdir
 
+selfDestructAfter(120)
 TestDaemonSession.run('daemon', 'Daemon')

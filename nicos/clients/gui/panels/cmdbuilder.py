@@ -25,8 +25,6 @@
 
 """NICOS GUI single cmdlet command input."""
 
-import time
-
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QAction, QMenu
 
@@ -172,7 +170,6 @@ class CommandPanel(Panel):
 
     def on_commandInput_execRequested(self, script, action):
         if action == 'queue':
-            self.mainwindow.action_start_time = time.time()
             self.client.run(script)
         else:
             self.client.tell('exec', script)

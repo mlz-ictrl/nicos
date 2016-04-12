@@ -30,26 +30,24 @@ import os
 import re
 import time
 from os import path
-from uuid import uuid1
 from textwrap import dedent
 
 from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
-    Param, Dataset, NicosError, ConfigurationError, UsageError, \
-    ProgrammingError, SIMULATION, MASTER, Attach
+    Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
+    Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-    enableDirectory, lazy_property, printTable, pwd, grp, \
-    DEFAULT_FILE_MODE, readFileCounter, updateFileCounter, createThread
-from nicos.core.utils import DeviceValueDict
+    enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
+    createThread
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import BytesIO, string_types, from_maybe_utf8
+from nicos.pycompat import string_types, from_maybe_utf8
 from nicos.devices.sample import Sample
 from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
 
@@ -62,10 +60,6 @@ class Experiment(Device):
 
     Several parameters configure special behavior:
 
-    * `datapath` (usually set proposal-specific by the `new` method) is a list
-      of paths where raw data files are stored.  If there is more than one entry
-      in the list, the data files are created in the first path and hardlinked
-      in the others.
     * `detlist` and `envlist` are lists of names of the currently selected
       standard detector and sample environment devices, respectively.  The
       Experiment object has `detectors` and `sampleenv` properties that return
@@ -78,91 +72,88 @@ class Experiment(Device):
     """
 
     parameters = {
-        'title':        Param('Experiment title', type=str, settable=True,
-                              category='experiment'),
-        'proposal':     Param('Current proposal number or proposal string',
-                              type=str, settable=True, category='experiment'),
-        'proptype':     Param('Current proposal type', settable=False, userparam=False,
-                              type=oneof('service', 'user', 'other')),
-        'propprefix':   Param('Prefix of the proposal if is a number', type=str,
-                              settable=True, default='p'),
-        'users':        Param('User names and emails for the proposal',
-                              type=str, settable=True, category='experiment'),
-        'localcontact': Param('Local contact for current experiment',
-                              type=mailaddress, settable=True,
-                              category='experiment'),
-        'remark':       Param('Current remark about experiment configuration',
-                              type=str, settable=True, category='experiment'),
-        'dataroot':     Param('Root data path under which all proposal specific'
-                              ' paths are created', type=expanded_path,
-                              default='/data', mandatory=True),
-        'detlist':      Param('List of default detector device names',
-                              type=listof(str), settable=True, userparam=False),
-        'envlist':      Param('List of default environment device names to read'
-                              ' at every scan point', type=listof(str),
-                              settable=True, userparam=False),
-        'elog':         Param('True if the electronig logbook should be '
-                              'enabled', type=bool, default=True),
-        'scripts':      Param('Currently executed scripts',
-                              type=listof(str), settable=True, userparam=False),
-        'templates':    Param('Name of the directory with script templates '
-                              '(relative to dataroot)', type=str),
-        'managerights': Param('A dict of en/disableDir/FileMode to manage '
-                              'access rights of data dirs on proposal change.',
-                              mandatory=False, settable=False, default={},
-                              type=dictof(oneof('owner', 'group',
-                                                'enableOwner', 'enableGroup',
-                                                'disableOwner', 'disableGroup',
-                                                'enableDirMode',
-                                                'enableFileMode',
-                                                'disableDirMode',
-                                                'disableFileMode'),
-                                          anytype),
-                              userparam=False),
-        'zipdata':      Param('Whether to zip up experiment data after '
-                              'experiment finishes', type=bool, default=True),
-        'sendmail':     Param('Whether to send proposal data via email after '
-                              'experiment finishes', type=bool, default=False),
-        'mailserver':   Param('Mail server name', type=str, settable=True,
-                              userparam=False),
-        'mailsender':   Param('Mail sender address', type=none_or(mailaddress),
-                              settable=True),
-        'mailtemplate': Param('Mail template file name (in templates)',
-                              type=str, default='mailtext.txt'),
+        'title':          Param('Experiment title', type=str, settable=True,
+                                category='experiment'),
+        'proposal':       Param('Current proposal number or proposal string',
+                                type=str, settable=True, category='experiment'),
+        'proptype':       Param('Current proposal type', settable=False,
+                                userparam=False,
+                                type=oneof('service', 'user', 'other')),
+        'propprefix':     Param('Prefix of the proposal if is a number',
+                                type=str, settable=True, default='p'),
+        'users':          Param('User names and emails for the proposal',
+                                type=str, settable=True, category='experiment'),
+        'localcontact':   Param('Local contact for current experiment',
+                                type=mailaddress, settable=True,
+                                category='experiment'),
+        'remark':         Param('Current remark about experiment configuration',
+                                type=str, settable=True, category='experiment'),
+        'dataroot':       Param('Root data path under which all proposal '
+                                'specific paths are created', mandatory=True,
+                                type=expanded_path),
+        'detlist':        Param('List of default detector device names',
+                                type=listof(str), settable=True,
+                                userparam=False),
+        'envlist':        Param('List of default environment device names to '
+                                'read at every scan point', type=listof(str),
+                                settable=True, userparam=False),
+        'elog':           Param('True if the electronic logbook should be '
+                                'enabled', type=bool, default=True),
+        'scripts':        Param('Currently executed scripts', type=listof(str),
+                                settable=True, userparam=False),
+        'templates':      Param('Name of the directory with script templates '
+                                '(relative to dataroot)', type=str),
+        'managerights':   Param('A dict of en/disableDir/FileMode to manage '
+                                'access rights of data dirs on proposal change',
+                                mandatory=False, settable=False, default={},
+                                type=dictof(oneof('owner', 'group',
+                                                  'enableOwner',
+                                                  'enableGroup',
+                                                  'disableOwner',
+                                                  'disableGroup',
+                                                  'enableDirMode',
+                                                  'enableFileMode',
+                                                  'disableDirMode',
+                                                  'disableFileMode'),
+                                            anytype),
+                                userparam=False),
+        'zipdata':        Param('Whether to zip up experiment data after '
+                                'experiment finishes', type=bool, default=True),
+        'sendmail':       Param('Whether to send proposal data via email after '
+                                'experiment finishes', type=bool,
+                                default=False),
+        'mailserver':     Param('Mail server name', type=str, settable=True,
+                                userparam=False),
+        'mailsender':     Param('Mail sender address', settable=True,
+                                type=none_or(mailaddress)),
+        'mailtemplate':   Param('Mail template file name (in templates)',
+                                type=str, default='mailtext.txt'),
         'reporttemplate': Param('File name of experimental report template '
                                 '(in templates)',
                                 type=str, default='experimental_report.rtf'),
-        'serviceexp':   Param('Name of proposal to switch to after user '
-                              'experiment', type=nonemptystring, default='service'),
-        'servicescript': Param('Script to run for service time', type=str,
-                               default='', settable=True),
-        'pausecount':   Param('Reason for pausing the count loop', type=str,
-                              settable=True, userparam=False),
-        'propinfo':     Param('dict of info for the current proposal', type=dict,
-                              default={}, settable=False, userparam=False),
-        # dir param
-        'proposalpath': Param('proposal prefix upon creation of experiment', type=str,
-                              userparam=False, mandatory=False, settable=True),
-        'sampledir':    Param('Sample specific subdir', type=subdir, default='',
-                              userparam=False, mandatory=False, settable=True),
-        # counter
-        'scancounter':  Param('Name of the global scan counter in dataroot',
-                              default='scancounter', userparam=False,
-                              type=subdir, mandatory=False, settable=False),
-        'lastscan':     Param('Last used value of the scancounter', type=int,
-                              settable=False, volatile=True, mandatory=False),
-        'lastscanfile': Param('Last/Currently written scanfile in this experiment',
-                              type=str, settable=False, mandatory=False),
-        'imagecounter': Param('Name of the global image counter in dataroot',
-                              default='imagecounter', userparam=False,
-                              type=subdir, mandatory=False, settable=False),
-        'lastimage':    Param('Last used value of the imagecounter', type=int,
-                              settable=False, volatile=True, mandatory=False),
-        'lastimagefile': Param('Last/Currently written imagefile in this experiment',
-                               type=str, settable=False, mandatory=False),
-        'errorbehavior': Param('Behavior on unhandled errors in commands',
-                               type=oneof('abort', 'report'), settable=True,
-                               default='report'),
+        'serviceexp':     Param('Name of proposal to switch to after user '
+                                'experiment', type=nonemptystring,
+                                default='service'),
+        'servicescript':  Param('Script to run for service time', type=str,
+                                default='', settable=True),
+        'pausecount':     Param('Reason for pausing the count loop', type=str,
+                                settable=True, userparam=False),
+        'propinfo':       Param('Dict of info for the current proposal',
+                                type=dict, default={}, userparam=False),
+        'proposalpath':   Param('Proposal prefix upon creation of experiment',
+                                type=str, userparam=False, settable=True),
+        'sampledir':      Param('Current sample-specific subdir', type=subdir,
+                                default='', userparam=False, settable=True),
+        'counterfile':    Param('Name of the file with data counters in '
+                                'dataroot and datapath', default='counters',
+                                userparam=False, type=subdir),
+        'errorbehavior':  Param('Behavior on unhandled errors in commands',
+                                type=oneof('abort', 'report'), settable=True,
+                                default='report'),
+        'lastscan':       Param('Last used value of the scan counter - '
+                                'ONLY for display purposes!', type=int),
+        'lastpoint':      Param('Last used value of the point counter - '
+                                'ONLY for display purposes!', type=int),
     }
 
     attached_devices = {
@@ -174,89 +165,91 @@ class Experiment(Device):
     #
 
     def proposalpath_of(self, proposal):
-        """proposalpath of a given proposal
+        """Proposal path of a given proposal.
 
-        defaults to <dataroot>/<year>/<proposal>
-        last component MUST be the proposal.
+        Defaults to ``<dataroot>/<year>/<proposal>``, last component MUST be
+        the *proposal*.
         """
         return path.join(self.dataroot, time.strftime("%Y"), proposal)
 
     @property
     def samplepath(self):
-        """path to current active sample, if used, defaults to proposalpath"""
+        """Path to current active sample, if used, defaults to proposalpath."""
         if self.sampledir:
             return path.join(self.proposalpath, self.sampledir)
         return self.proposalpath
 
     @property
     def scriptpath(self):
-        """path to the scripts of the curent experiment/sample"""
+        """Path to the scripts of the curent experiment/sample."""
         return path.join(self.samplepath, 'scripts')
 
     @property
     def elogpath(self):
-        """path to the eLogbook of the curent experiment/sample"""
+        """Path to the eLogbook of the curent experiment/sample."""
         return path.join(self.samplepath, 'logbook')
 
     @property
     def datapath(self):
-        """path to the data storage of the curent experiment/sample
+        """Path to the data storage of the curent experiment/sample.
 
-        here scanfiles and images of image-type detectors will be stored
+        Here scanfiles and images of image-type detectors will be stored.
         """
         return path.join(self.samplepath, 'data')
 
     @property
     def extrapaths(self):
-        """if derived classes need more autocreated dirs, they should be put here!"""
+        """If derived classes need more automatically created dirs, they can
+        be put here.
+        """
         return tuple()
 
     @property
     def allpaths(self):
-        """return a list of all autocreated paths
+        """Return a list of all autocreated paths.
 
-        needed to keep track of directory structure upon proposal change
+        Needed to keep track of directory structure upon proposal change.
         """
         return [self.proposalpath, self.datapath,
                 self.scriptpath, self.elogpath] + list(self.extrapaths)
 
     @property
     def templatepath(self):
-        """Paths where all template files are stored"""
+        """Paths where all template files are stored."""
         return [path.abspath(path.join(self.dataroot, self.templates))] + \
             [path.join(config.custom_path, p.strip(), 'template')
              for p in config.setup_subdirs.split(',')]
 
     @property
     def proposalsymlink(self):
-        """dataroot based location of 'current' experiment symlink to maintain,
-        or empty string
+        """Dataroot based location of 'current' experiment symlink to maintain,
+        or empty string.
         """
         return path.join(self.dataroot, 'current')
 
     @property
     def customproposalsymlink(self):
-        """path of a custom proposal symlink or empty string.
+        """Path of a custom proposal symlink or empty string.
         If a path was specified, the symlink will be created automatically.
         """
         return ''
 
     @property
     def samplesymlink(self):
-        """dataroot based location of 'current' sample symlink to maintain,
-        or empty string
+        """Dataroot based location of 'current' sample symlink to maintain,
+        or empty string.
         """
         return self.proposalsymlink if self.sampledir else ''
 
     @lazy_property
     def skiptemplates(self):
-        """list of template filenames which are to be ignored upon creating
-        a new experiment
+        """List of template filenames which are to be ignored upon creating
+        a new experiment.
         """
         return []
 
     def getProposalType(self, proposal):
-        """determine proposaltype of a given proposalstring"""
+        """Determine proposaltype of a given proposalstring."""
         if proposal in ('template', 'current'):
             raise UsageError(self, 'The proposal names "template" and "current"'
                              ' are reserved and cannot be used')
@@ -281,7 +274,8 @@ class Experiment(Device):
     def _newPropertiesHook(self, proposal, kwds):
         """Hook for querying a database for proposal related stuff
 
-        should return an updated kwds dictionary"""
+        Should return an updated kwds dictionary.
+        """
         return kwds
 
     #
@@ -310,7 +304,8 @@ class Experiment(Device):
 
     def doWriteSampledir(self, newsampledir):
         # handle current symlink
-        self._set_symlink(self.samplesymlink, path.join(self.proposalpath, newsampledir))
+        self._set_symlink(self.samplesymlink,
+                          path.join(self.proposalpath, newsampledir))
 
         # HACK: we need the getters to provide the right values....
         self._setROParam('sampledir', newsampledir)
@@ -330,93 +325,6 @@ class Experiment(Device):
             self.log.debug('setting symlink %s to %s' %
                            (location, target))
             os.symlink(target, location)
-
-    #
-    # counter stuff
-    #
-    # Note: handling of counters in simulation mode differs slightly from
-    #       normal mode: counter values are kept (and updated) in private vars
-    #       instead of the usual file and no file will be touched or created.
-    _lastimage = None  # only used in sim-mode
-    _lastscan = None   # only used in sim-mode
-
-    @property
-    def scanCounterPath(self):
-        return path.join(self.dataroot, self.scancounter)
-
-    def advanceScanCounter(self):
-        """increments the value of the scancounter and returns it"""
-        if self._mode != SIMULATION:
-            updateFileCounter(self.scanCounterPath, self.lastscan + 1)
-        else:
-            self._lastscan = 1 + (self._lastscan or self.lastscan)
-        return self.lastscan
-
-    def doReadLastscan(self):
-        return self._lastscan or readFileCounter(self.scanCounterPath)
-
-    def createScanFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an scanfile acccording to the given nametemplate in the given
-        subdir structure
-
-        returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current
-        experiment' and the filehandle to the already opened (for writing)
-        file which has the right FS attributes.
-
-        Note: in Simulation mode, the returned 'filehandle' is actually a
-        memory only file-like object.
-        """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastscan,
-                                               *subdirs, **kwargs)
-        # setting lastscanfile here might have unwanted side effects if
-        # multiple datasinks are used.
-        self._setROParam('lastscanfile', path.relpath(fullfilename,
-                                                      self.proposalpath))
-        return path.basename(fullfilename), fullfilename, fp
-
-    @property
-    def imageCounterPath(self):
-        return path.join(self.dataroot, self.imagecounter)
-
-    def advanceImageCounter(self):
-        """increments the value of the imagecounter if needed and returns it"""
-        if self._mode != SIMULATION:
-            updateFileCounter(self.imageCounterPath, self.lastimage + 1)
-        else:
-            # simulate counting up...
-            self._lastimage = 1 + (self._lastimage or self.lastimage)
-        return self.lastimage
-
-    def doReadLastimage(self):
-        return self._lastimage or readFileCounter(self.imageCounterPath)
-
-    def createImageFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an imagefile acccording to the given nametemplate in the
-        given subdir structure
-
-        returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current
-        experiment' and the filehandle to the already opened (for writing)
-        file which has the right FS attributes.
-
-        the nametemplate may contain references like %(counter)s,
-        %(scanpoint)s, %(proposal)s, %(imagecounter)08d or %(scancounter)d
-        which replaced with appropriate values.
-
-        Note: in Simulation mode, the returned 'filehandle' is actually a
-        memory only file-like object.
-        """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
-                                               *subdirs,
-                                               imagecounter=self.lastimage,
-                                               scancounter=self.lastscan,
-                                               **kwargs)
-        # setting lastimagefile here might have unwanted side effects if
-        # multiple 2D-datasinks are used.
-        self._setROParam('lastimagefile', path.relpath(fullfilename,
-                                                       self.proposalpath))
-        return path.basename(fullfilename), fullfilename, fp
 
     #
     # datafile stuff
@@ -450,81 +358,11 @@ class Experiment(Device):
             fullname = path.join(self.getDataDir(*subdirs), filename)
         return fullname
 
-    def createDataFile(self, nametemplate, counter, *subdirs, **kwargs):
-        """Creates and returns a file named according to the given nametemplate
-        in the given subdir of the datapath.
-
-        If the optional keyworded argument nofile is True, the file is not
-        created. This is needed for some data-saving libraries creating the
-        file by themselfs. In this case, the filemode is (obviously) not
-        managed by us.
-
-        The nametemplate can be either a string or a list of strings.  In the
-        second case, the first listentry is used to create the file and the
-        remaining ones will be hardlinked to this file if the os supports this.
-
-        In SIMULATION mode this returns a file-like object to avoid accessing
-        or changing the filesystem.
-        """
-        if isinstance(nametemplate, string_types):
-            nametemplate = [nametemplate]
-        # translate entries
-        filenames = []
-        for nametmpl in nametemplate:
-            if '%(' in nametmpl:
-                kwds = dict(self.propinfo)
-                kwds.update(kwargs)
-                kwds.update(counter=counter, proposal=self.proposal)
-                try:
-                    filename = nametmpl % DeviceValueDict(kwds)
-                except KeyError:
-                    self.log.error('Can\'t create datafile, illegal key in '
-                                   'nametemplate!')
-                    raise
-            else:
-                filename = nametmpl % counter
-            filenames.append(filename)
-        filename = filenames[0]
-        otherfiles = filenames[1:]
-        fullfilename = self.getDataFilename(filename, *subdirs)
-        if self._mode == SIMULATION or kwargs.get('nofile'):
-            self.log.debug('Not creating any file, returning a BytesIO '
-                           'buffer instead.')
-            fp = BytesIO()
-        else:
-            if path.isfile(fullfilename):
-                raise ProgrammingError('Data file named %r already exists! '
-                                       'Check filenametemplates!' %
-                                       fullfilename)
-            self.log.debug('Creating file %r' % fullfilename)
-            fp = open(fullfilename, 'wb')
-            if self.managerights:
-                os.chmod(fullfilename,
-                         self.managerights.get('enableFileMode',
-                                               DEFAULT_FILE_MODE))
-            linkfunc = os.link if hasattr(os,  'link') else \
-                os.symlink if hasattr(os, 'symlink') else None
-            if linkfunc:
-                for otherfile in otherfiles:
-                    self.log.debug('Linking %r to %r' % (self.getDataFilename(
-                        otherfile, *subdirs), fullfilename))
-                    try:
-                        linkfunc(fullfilename,
-                                 self.getDataFilename(otherfile, *subdirs))
-                    except OSError:
-                        self.log.warning('linking %r to %r failed, ignoring' %
-                                         (self.getDataFilename(otherfile, *subdirs),
-                                          fullfilename))
-            else:
-                self.log.warning('can\'t link datafiles, no os support!')
-        return (fullfilename, fp)
-
     #
     # NICOS interface
     #
 
     def doInit(self, mode):
-        self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
         if self._attached_sample.name != 'Sample':
             raise ConfigurationError(self, 'the sample device must now be '
@@ -532,8 +370,10 @@ class Experiment(Device):
                                      'setup')
         if self.elog and mode != SIMULATION:
             if not self.proposalpath:
-                self.log.warning('Proposalpath was not set, initiating a service experiment.')
-                self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp))
+                self.log.warning('Proposalpath was not set, initiating a '
+                                 'service experiment.')
+                self._setROParam('proposalpath',
+                                 self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elogEvent('directory', (self.proposalpath,
@@ -544,7 +384,8 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
-                             path.abspath(path.join(config.nicos_root, 'template')))
+                             path.abspath(path.join(config.nicos_root,
+                                                    'template')))
 
     def doUpdateManagerights(self, mrinfo):
         """Check the managerights dict into values used later."""
@@ -586,13 +427,15 @@ class Experiment(Device):
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
         if self._mode == SIMULATION:
-            raise UsageError('Simulating switching experiments is not supported!')
+            raise UsageError('Simulating switching experiments is not '
+                             'supported!')
 
         if localcontact:
             try:
                 mailaddress(localcontact)
             except ValueError:
-                raise ConfigurationError('localcontact is not a valid email address')
+                raise ConfigurationError('localcontact is not a valid '
+                                         'email address')
 
         try:
             # if proposal can be converted to a number, use the canonical form
@@ -650,9 +493,7 @@ class Experiment(Device):
         self.envlist = []
         for notifier in session.notifiers:
             notifier.reset()
-        self._last_datasets = []
-        self._setROParam('lastscanfile', '')  # none written yet
-        self._setROParam('lastimagefile', '')
+        session.data.reset()
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)
@@ -665,7 +506,8 @@ class Experiment(Device):
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
-        self.proposalpath = self.proposalpath_of(proposal)  # change proposalpath to new value
+        # change proposalpath to new value
+        self.proposalpath = self.proposalpath_of(proposal)
         # newSample also (re-)creates all needed dirs
         self.newSample(kwds.get('sample', ''), {})
 
@@ -746,8 +588,7 @@ class Experiment(Device):
                                    args=(pzip, self.proposalpath,
                                          self.proposal, self.proptype, stats,
                                          receivers),
-                                   daemon=False
-                                  )
+                                   daemon=False)
                 # wait up to 5 seconds
                 thd.join(5)
                 if thd.isAlive():
@@ -951,7 +792,7 @@ class Experiment(Device):
                 self.log.info('moving compressed file to ' + proposalpath)
                 try:
                     os.rename(pzipfile, path.join(proposalpath,
-                                                 path.basename(pzipfile)))
+                                                  path.basename(pzipfile)))
                 except Exception:
                     self.log.warning('moving compressed file into proposal dir '
                                      'failed', exc=1)
@@ -1019,7 +860,7 @@ class Experiment(Device):
         # get start of proposal from cache history
         hist, d = [], 7
         while not hist and d < 60:
-            hist = self.history('proposal', -d*24)
+            hist = self.history('proposal', -d * 24)
             d += 7
         if hist:
             from_time = hist[-1][0]
@@ -1082,8 +923,9 @@ class Experiment(Device):
         data = data.replace('\\par Please replace the place holder in the upper'
                             ' part (brackets <>) by the appropriate values.', '')
         data = data.replace('\\par Description', '\\par\n\\par '
-                            'Please check all pre-filled values carefully! They were '
-                            'partially read from the proposal and might need correction.\n'
+                            'Please check all pre-filled values carefully! '
+                            'They were partially read from the proposal and '
+                            'might need correction.\n'
                             '\\par\n'
                             '\\par Description')
         # replace placeholders with templating markup
@@ -1126,18 +968,6 @@ class Experiment(Device):
     def doWriteRemark(self, remark):
         if remark:
             session.elogEvent('remark', remark)
-
-    #
-    # dataset stuff
-    #
-    def createDataset(self, scantype=None):
-        dataset = Dataset()
-        dataset.uid = str(uuid1())
-        dataset.sinks = [sink for sink in session.datasinks
-                         if sink.isActive(scantype)]
-        dataset.started = time.localtime()
-        dataset.updateHeaderInfo()
-        return dataset
 
     @property
     def sample(self):
@@ -1248,6 +1078,8 @@ class Experiment(Device):
         self.detlist = newlist
         newlist = []
         for devname in self.envlist:
+            if ':' in devname:
+                devname = devname.split(':')[0]
             if devname not in session.configured_devices:
                 self.log.warning('removing device %r from environment, it '
                                  'does not exist in any loaded setup' % devname)
@@ -1266,9 +1098,10 @@ class ImagingExperiment(Experiment):
     parameters = {
         # for display purposes....
         'lastdarkimage':     Param('Last dark image', type=str, settable=False,
-                                   mandatory=False, default='', category='general'),
-        'lastopenbeamimage': Param('Last Open Beam image', type=str, settable=False,
-                                   mandatory=False, default='', category='general'),
+                                   default='', category='general'),
+        'lastopenbeamimage': Param('Last Open Beam image', type=str,
+                                   settable=False, default='',
+                                   category='general'),
     }
 
     @property
@@ -1301,3 +1134,14 @@ class ImagingExperiment(Experiment):
     def new(self, *args, **kwargs):
         Experiment.new(*args, **kwargs)
         self._clearImgPaths()
+
+
+class SXtalExperiment(Experiment):
+    parameters = {
+        'centeredrefs': Param('List of centered reflections',
+                              type=list, settable=True,
+                              category='experiment'),
+        'checkrefs':    Param('List of reflections to re-check regularly',
+                              type=list, settable=True,
+                              category='experiment'),
+    }

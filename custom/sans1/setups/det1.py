@@ -5,27 +5,32 @@ group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'BerSANSFileSaver'],
+)
+
 devices = dict(
-    BerSANSFileSaver  = device('sans1.bersans.BerSANSFileFormat',
+    BerSANSFileSaver  = device('sans1.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
-                               filenametemplate = ['D%(counter)07d.001',
-                                                   '/data_user/D%(counter)07d.001'],
+                               filenametemplate = ['D%(pointcounter)07d.001',
+                                                   '/data_user/D%(pointcounter)07d.001'],
                                flipimage = 'updown',
                                lowlevel = True,
+                               subdir = 'bersans',
                               ),
-    #~ LiveViewSink = device('devices.fileformats.LiveViewSink',
+    #~ LiveViewSink = device('devices.datasinks.LiveViewSink',
                                #~ description = 'Sends image data to LiveViewWidget',
                                #~ filenametemplate=[],
                                #~ lowlevel = True,
                               #~ ),
-    LivePNGSinkLog   = device('devices.fileformats.PNGLiveFileFormat',
+    LivePNGSinkLog   = device('devices.datasinks.PNGLiveFileSink',
                               description = 'Saves live image as .png every now and then',
                               filename = '/sans1control/webroot/live_log.png',
                               log10 = True,
                               interval = 15,
                               lowlevel = True,
                              ),
-    LivePNGSink      = device('devices.fileformats.PNGLiveFileFormat',
+    LivePNGSink      = device('devices.datasinks.PNGLiveFileSink',
                               description = 'Saves live image as .png every now and then',
                               filename = '/sans1control/webroot/live_lin.png',
                               log10 = False,
@@ -72,8 +77,6 @@ devices = dict(
                      counters = [],
                      monitors = ['det1_mon1', 'det1_mon2'],
                      images = ['det1_image'],
-                     fileformats = ['BerSANSFileSaver', 'LivePNGSink', 'LivePNGSinkLog'],
-                     subdir = 'bersans',
                     ),
 )
 

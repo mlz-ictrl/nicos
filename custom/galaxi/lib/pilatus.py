@@ -31,7 +31,7 @@ from nicos.core import waitForStatus, status, usermethod, MASTER
 from nicos.core.device import Readable, Measurable
 from nicos.core.params import Param, dictof, subdir, Attach
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.datasinks import AsciiDatafileSink
+from nicos.devices.datasinks import AsciiScanfileSink
 
 P_TIME = 't'
 P_FRAMES = 'f'
@@ -102,7 +102,7 @@ class PilatusDetector(PyTangoDevice, Measurable):
     def doInit(self, mode):
         self.log.debug('Pilatus detector init')
         for ds in session.datasinks:
-            if isinstance(ds, AsciiDatafileSink):
+            if isinstance(ds, AsciiScanfileSink):
                 self._asciiFile = ds
         self._f = self.frames
         self._t = self.time

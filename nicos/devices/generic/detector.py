@@ -26,9 +26,11 @@
 
 """Generic detector and channel classes for NICOS."""
 
-from nicos.core import Attach, ConfigurationError, DeviceMixinBase, \
-    ImageProducer, ImageType, Measurable, Override, Param, Readable, \
-    UsageError, Value, listof, multiStatus, status, oneof
+import numpy
+
+from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
+    Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
+    LIVE, INTERMEDIATE
 from nicos.utils import uniq
 
 
@@ -64,6 +66,21 @@ class PassiveChannel(Measurable):
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
+
+
+class DummyDetector(PassiveChannel):
+    """A Dummy detector just providing nameand value info
+
+    Use for scans that add only processed values from subscans
+    """
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%.2f'),
+    }
+
+    def valueInfo(self):
+        return Value(self.name, unit=self.unit, type='other', fmtstr=self.fmtstr),
 
 
 class ActiveChannel(PassiveChannel):
@@ -160,7 +177,8 @@ class ImageChannelMixin(DeviceMixinBase):
     parameters = {
         'readresult': Param('Storage for scalar results from image '
                             'filtering, to be returned from doRead()',
-                            type=listof(float), settable=True),
+                            type=listof(float), settable=True,
+                            userparam=False),
     }
 
     parameter_overrides = {
@@ -168,29 +186,43 @@ class ImageChannelMixin(DeviceMixinBase):
         'preselection': Override(type=int),
     }
 
-    # either None or an ImageType instance
-    imagetype = None
+    # set this to an ArrayDesc instance, either as a class attribute
+    # or dynamically as an instance attribute
+    arraydesc = None
 
     def doRead(self, maxage=0):
         return self.readresult
 
-    def readLiveImage(self):
-        """Return a live image (or None).
+    def readArray(self, quality):
+        """This method should return the detector data array or `None` if no
+        data is available.
 
-        Should also update self.readresult if necessary.
+        The *quality* parameter is one of the constants defined in the
+        `nicos.core.constants` module:
+
+        * LIVE is for intermediate data that should not be written to files.
+        * INTERMEDIATE is for intermediate data that should be written.
+        * FINAL is for final data.
+        * INTERRUPTED is for data read after the counting was interrupted by
+          an exception.
+
+        For detectors which just supports FINAL images, e.g. Image plate
+        detectors this method should return an array when *quality* is `FINAL`
+        and `None` otherwise.  Most other detectors should also read out and
+        return the data when *quality* is `INTERRUPTED`.
         """
-        # XXX: implement rate limiting here?
-        return None
+        if self._sim_active:
+            if self.arraydesc:
+                return numpy.zeros(self.arraydesc.shape)
+            return numpy.zeros(1)
+        return self.doReadArray(quality)
 
-    def readFinalImage(self):
-        """Return the final image.  Must be implemented.
-
-        Should also update self.readresult if necessary.
-        """
-        raise NotImplementedError('implement readFinalImage')
+    def doReadArray(self, quality):
+        raise NotImplementedError('implement doReadArray in %s' %
+                                  self.__class__.__name__)
 
 
-class Detector(ImageProducer, Measurable):
+class Detector(Measurable):
     """Detector using multiple (synchronized) channels."""
 
     attached_devices = {
@@ -206,12 +238,26 @@ class Detector(ImageProducer, Measurable):
                            PassiveChannel, multiple=True, optional=True),
     }
 
+    parameters = {
+        'liveinterval':  Param('Interval to read out live images (None '
+                               'to disable live readout)',
+                               type=none_or(float), unit='s', settable=True),
+        'saveintervals': Param('Intervals to read out intermediate images '
+                               '(empty to disable); [x, y, z] will read out '
+                               'after x, then after y, then every z seconds',
+                               type=listof(float), unit='s', settable=True),
+    }
+
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
     }
 
     hardware_access = False
     multi_master = True
+
+    _last_live = 0
+    _last_save = 0
+    _last_save_index = 0
 
     # allow overwriting in derived classes
     def _presetiter(self):
@@ -241,9 +287,6 @@ class Detector(ImageProducer, Measurable):
         for name, dev in self._presetiter():
             # later mentioned presetnames dont overwrite earlier ones
             presetkeys.setdefault(name, dev)
-        if len(self._attached_images) > 1:
-            raise ConfigurationError(self, 'only one image supported '
-                                     'at the moment')
         self._channels = uniq(self._attached_timers + self._attached_monitors +
                               self._attached_counters + self._attached_images +
                               self._attached_others)
@@ -290,6 +333,9 @@ class Detector(ImageProducer, Measurable):
             master.prepare()
 
     def doStart(self):
+        self._last_live = 0
+        self._last_save = 0
+        self._last_save_index = 0
         for slave in self._slaves:
             slave.start()
         for master in self._masters:
@@ -332,9 +378,24 @@ class Detector(ImageProducer, Measurable):
         ret = []
         for ch in self._channels:
             ret.extend(ch.read())
-            if isinstance(ch, ImageChannelMixin):
-                ret.append(self.lastfilename)
         return ret
+
+    def doReadArrays(self, quality):
+        return [img.readArray(quality) for img in self._attached_images]
+
+    def duringMeasureHook(self, elapsed):
+        if self.liveinterval is not None:
+            if self._last_live + self.liveinterval < elapsed:
+                self._last_live = elapsed
+                return LIVE
+        intervals = self.saveintervals
+        if intervals:
+            if self._last_save + intervals[self._last_save_index] < elapsed:
+                self._last_save_index = min(self._last_save_index + 1,
+                                            len(intervals) - 1)
+                self._last_save = elapsed
+                return INTERMEDIATE
+        return None
 
     def doSimulate(self, preset):
         self.doSetPreset(**preset)  # okay in simmode
@@ -364,10 +425,10 @@ class Detector(ImageProducer, Measurable):
         ret = []
         for ch in self._channels:
             ret.extend(ch.valueInfo())
-            if isinstance(ch, ImageChannelMixin):
-                ret.append(Value('%s.filename' % ch, type='filename',
-                                 fmtstr='%s'))
         return tuple(ret)
+
+    def arrayInfo(self):
+        return tuple(img.arraydesc for img in self._attached_images)
 
     def doReadFmtstr(self):
         return ', '.join('%s = %s' % (v.name, v.fmtstr)
@@ -384,29 +445,27 @@ class Detector(ImageProducer, Measurable):
             return min(eta)
         return None
 
-    # ImageProducer API
-
-    @property
-    def imagetype(self):
-        if self._attached_images:
-            return self._attached_images[0].imagetype
-        return ImageType((), '<u4')
-
-    def duringMeasureHook(self, elapsed):
-        if self._attached_images:
-            self.updateImage()  # calls readImage
-
-    def doSave(self):
-        if self._attached_images:
-            self.saveImage()  # calls readFinalImage
-
-    def readImage(self):
-        # only called from updateImage (i.e. duringMeasureHook)
-        return self._attached_images[0].readLiveImage()
-
-    def readFinalImage(self):
-        # only called from saveImage (i.e. doSave)
-        return self._attached_images[0].readFinalImage()
+    def doInfo(self):
+        ret = []
+        for dev in self._masters:
+            for key in self._presetkeys.keys():
+                if self._presetkeys[key].name == dev.name:
+                    if key.startswith('mon'):
+                        ret.append(('mode', 'monitor', 'monitor', '',
+                                    'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, 'cts', 'presets'))
+                    elif key.startswith('t'):
+                        ret.append(('mode', 'time', 'time', '', 'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, dev.unit,
+                                    'presets'))
+                    else:  # n, det, ctr, img
+                        ret.append(('mode', 'counts', 'counts', '', 'presets'))
+                        ret.append(('preset', dev.preselection,
+                                    '%s' % dev.preselection, 'cts', 'presets'))
+                    break
+        return ret
 
 
 class DetectorForecast(Readable):

@@ -35,7 +35,5 @@ devices = dict(
                     timers = ['qtimer'],
                     counters = ['qevents'],
                     monitors = ['qmon1', 'qmon2'],
-                    fileformats = [],
-                    subdir = '',
                    ),
 )

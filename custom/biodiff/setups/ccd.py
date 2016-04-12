@@ -3,6 +3,10 @@
 description = "Andor DV936 CCD camera setup"
 group = "basic"
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'FITSFileSaver'],
+)
+
 includes = ["shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]
 
 tango_base = "tango://phys.biodiff.frm2:10000/biodiff/"
@@ -10,10 +14,11 @@ tango_ikonl = tango_base + "detector/ikonl"
 tango_limaccd = tango_base + "detector/limaccd"
 
 devices = dict(
-    FITSFileSaver = device("devices.fileformats.fits.FITSFileFormat",
+    FITSFileSaver = device("devices.datasinks.FITSImageSink",
                            description = "Saves image data in FITS format",
-                           filenametemplate = ["%(proposal)s_%(counter)08d"
-                                               ".fits"],
+                           filenametemplate = ["%(proposal)s_"
+                                               "%(pointcounter)08d.fits"],
+                           subdir = ".",
                           ),
     ccdtime = device("devices.vendor.lima.LimaCCDTimer",
                      description = "Internal LimaCDDTimer",
@@ -36,10 +41,8 @@ devices = dict(
                      timers = ["ccdtime"],
                      images = ["ccd"],
                      maxage = 10,
-                     fileformats = ["FITSFileSaver"],
                      gammashutter = "gammashutter",
                      photoshutter = "photoshutter",
-                     subdir = ".",
                     ),
     ccdTemp = device("devices.vendor.lima.Andor2TemperatureController",
                      description = "Andor DV936 CCD temperature control",

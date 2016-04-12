@@ -13,6 +13,7 @@ devices = dict(
                       unit = 'K',
                       jitter = 0,
                       precision = 0.1,
+                      window = 30.0,
                      ),
     T_sample = device('devices.generic.ReadonlyParamDevice',
                       parameter = 'sample',

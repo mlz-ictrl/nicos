@@ -25,16 +25,16 @@
 """NICOS tests for nicos.commands.analyze."""
 
 try:
-    import scipy.odr as odrmod
+    from scipy.optimize.minpack import leastsq
 except ImportError:
-    odrmod = None
+    leastsq = None
 
 from nicos import session
-from nicos.core import Value
-
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
-from nicos.core.sessions.utils import MASTER
+from nicos.core import FINAL, MASTER
+
+from test.utils import requires
 
 
 def setup_module():
@@ -52,17 +52,20 @@ def generate_dataset():
     data = numpy.array((1, 2, 1, 2, 2, 2, 5, 20, 30, 20, 10, 2, 3, 1, 2, 1, 1, 1))
     xpoints = numpy.arange(-9, 9)
     assert len(data) == len(xpoints)
-    dataset = session.experiment.createDataset(None)
-    dataset.xvalueinfo = [Value('x', 'other')]
-    dataset.yvalueinfo = [Value('y1', 'counter'), Value('y2', 'counter')]
-    dataset.xresults = [[x] for x in xpoints]
-    dataset.yresults = [[y, y*2] for y in data]
-    session.experiment._last_datasets.append(dataset)
+    tdev = session.getDevice('tdev')
+    det = session.getDevice('det')
+    session.data.beginScan(devices=[tdev], detectors=[det])
+    for (x, y) in zip(xpoints, data):
+        session.data.beginPoint()
+        session.data.putValues({'tdev': (None, x)})
+        session.data.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
+        session.data.finishPoint()
+    session.data.finishScan()
 
 
 def test_fwhm():
     generate_dataset()
-    result = fwhm(1, 1)
+    result = fwhm(1, 3)
     assert result == (2.75, -1, 30, 1)
 
 
@@ -70,7 +73,7 @@ def test_center_of_mass():
     generate_dataset()
     result1 = center_of_mass()
     assert -0.840 < result1 < -0.839
-    result2 = center_of_mass(2)  # center of mass from values*2 should be same
+    result2 = center_of_mass(4)  # center of mass from values*2 should be same
     assert result1 == result2
 
 
@@ -80,25 +83,23 @@ def test_root_mean_square():
     assert 10.176 < result < 10.177
 
 
+@requires(leastsq, 'scipy leastsq not available')
 def test_poly():
-    if not odrmod:
-        return
     generate_dataset()
-    result1 = poly(1)
+    result1 = poly(1, 1, 3)
     assert len(result1) == 2 and len(result1[0]) == 2
-    assert 5.851 < result1[0][0] < 5.852
+    assert 1.847 < result1[0][0] < 1.848
     result2 = poly(2)
-    assert -0.203 < result2[0][2] < -0.202
-    result3 = poly(2, 2)
-    assert -0.405 < result3[0][2] < -0.404
-    result4 = poly(2, 1, 2)
+    assert -0.047 < result2[0][2] < -0.046
+    result3 = poly(2, 4)
+    assert -0.094 < result3[0][2] < -0.093
+    result4 = poly(2, 1, 4)
     assert result4 == result3
 
 
+@requires(leastsq, 'scipy leastsq not available')
 def test_gauss():
-    if not odrmod:
-        return
     generate_dataset()
     result = gauss()
     assert len(result) == 2 and len(result[0]) == 4
-    assert -0.927 < result[0][0] < -0.926
+    assert -0.874 < result[0][0] < -0.873

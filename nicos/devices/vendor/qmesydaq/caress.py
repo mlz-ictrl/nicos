@@ -29,8 +29,8 @@ from os import path
 import numpy
 
 from nicos import session
-from nicos.utils import readFileCounter, updateFileCounter
-from nicos.core import Param, SIMULATION, ImageType, MASTER
+from nicos.utils import readFile, writeFile
+from nicos.core import Param, SIMULATION, ArrayDesc, MASTER
 from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin
 from nicos.core.errors import CommunicationError, ConfigurationError, \
@@ -149,13 +149,15 @@ class Channel(CARESSDevice, ActiveChannel):
     def doReset(self):
         self._reset()
 
+    @property
+    def _counterpath(self):
+        return path.join(session.experiment.dataroot, self.counterfile)
+
     def doReadRunnumber(self):
-        return readFileCounter(path.join(session.experiment.dataroot,
-                                         self.counterfile))
+        return int(readFile(self._counterpath)[0])
 
     def doWriteRunnumber(self, value):
-        updateFileCounter(path.join(session.experiment.dataroot,
-                                    self.counterfile), value)
+        writeFile(self._counterpath, [str(value)])
 
 
 class Timer(TimerChannelMixin, Channel):
@@ -194,7 +196,7 @@ class Image(CARESSDevice, QMesyDAQImage):
         if not is_counting:
             raise ConfigurationError(self, 'Object is not a measurable module')
         if mode == MASTER:
-            # self.readImage()  # also set imagetype
+            # self.readImage()  # also set arraydesc
             pass
         self._set_option(text='mesydaq_32bit=True')
 
@@ -258,27 +260,23 @@ class Image(CARESSDevice, QMesyDAQImage):
                 raise InvalidValueError(self, 'No position in data')
             return result[1][1].value(), result[1][4].value()
 
-    def readFinalImage(self):
-        if self._mode == SIMULATION:
-            # simulated readout of an 128*128 image
-            res = [128, 128, 1] + [0] * (128 * 128)
-        else:
-            # read data via taco and transform it
-            res = self._caress_guard(self._readblock)
+    def doReadArray(self, quality):
+        # read data via CARESS and transform it
+        res = self._caress_guard(self._readblock)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
-            self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
             return data
         elif res[2] in [0, 1]:  # 2D array
-            self.imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
-            self.imagetype = ImageType(shape=(res[0], res[1], res[2]),
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             self.readresult = [data.sum()]

@@ -24,7 +24,6 @@
 
 """NICOS GUI PGAA panel components."""
 
-import time
 from os import path
 
 from PyQt4.QtGui import QColor, QMessageBox
@@ -153,6 +152,5 @@ class TomographyPanel(Panel):
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)
-            self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)

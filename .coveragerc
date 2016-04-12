@@ -1,5 +1,6 @@
 [run]
 source = nicos
+include = nicos/*
 omit =
 	nicos/_vendor/*
 	nicos/clients/gui/*

@@ -31,7 +31,7 @@ sysconfig = dict(
     cache = getCacheNameAndPort('localhost'),
     experiment = 'Exp',
     instrument = 'Tas',
-    datasinks = ['testsink'],
+    datasinks = [],
     notifiers = ['testnotifier'],
 )
 
@@ -40,9 +40,6 @@ modules = ['nicos.commands.standard', 'nicos.commands.tas']
 
 devices = dict(
     Sample   = device('devices.tas.TASSample',
-                     ),
-
-    testsink = device('test.utils.TestSink',
                      ),
 
     testnotifier = device('test.utils.TestNotifier',

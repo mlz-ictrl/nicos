@@ -129,9 +129,12 @@ class ResiDevice(Moveable):
 
     def doInfo(self):
         info = list()
-        info.append(('experiment', 'position', ResiPositionProxy(self._hardware.GetPosition())))
-        info.append(('experiment', 'reflex', self._hardware.current_reflex))
-        info.append(('sample', 'cell', self._hardware.cell))
+        pos = ResiPositionProxy(self._hardware.GetPosition())
+        info.append(('position', pos, str(pos), '', 'experiment'))
+        info.append(('reflex', self._hardware.current_reflex,
+                     str(self._hardware.current_reflex), '', 'experiment'))
+        info.append(('cell', self._hardware.cell,
+                     str(self._hardware.cell), '', 'sample'))
         return info
 
     def doStop(self):

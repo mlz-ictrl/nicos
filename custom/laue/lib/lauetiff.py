@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2015-2016 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -52,13 +52,14 @@ TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin', 11),
           'det1/preset': (1003, 'ICd%expose_time', 11),
           'phi/value': (1004, 'ICd%expose_phi', 11),
           'startx': (1005, 'ICd%startx', 11),
-          'starty': (1006, 'ICd%starty', 11 ),
+          'starty': (1006, 'ICd%starty', 11),
           '???3': (1007, 'ICd%speed', 11),
           'T/min': (1008, 'ICd%temp_min', 11),
           'T/max': (1009, 'ICd%temp_max', 11),
           }
 
 
+# TODO: port to new data API
 class TIFFLaueFileFormat(ImageSink):
 
     fileFormat = 'TIFF'
@@ -97,7 +98,7 @@ class TIFFLaueFileFormat(ImageSink):
                     typ = TAGMAP[key][2]
                     ifd.tagtype[tag] = typ
                     if typ == 11:
-                        attrVal=float(attrVal.split(' ')[0])
+                        attrVal = float(attrVal.split(' ')[0])
                     ifd[tag] = attrVal
 
         return ifd

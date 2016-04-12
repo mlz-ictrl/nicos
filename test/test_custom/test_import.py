@@ -39,7 +39,8 @@ def setup_module():
 def import_and_check(modname):
     try:
         __import__(modname)
-    except ImportError:  # we lack a precondition module, don't worry about that
+    except ImportError:
+        # we lack a precondition module, don't worry about that
         raise SkipTest
     except ValueError as err:
         if 'has already been set to' in str(err):
@@ -48,13 +49,28 @@ def import_and_check(modname):
         raise
 
 
+def collect_files(instr, instrlib):
+    some_skipped = False
+    for mod in os.listdir(instrlib):
+        if mod.endswith('.py'):
+            try:
+                import_and_check('nicos.%s.%s' % (instr, mod[:-3]))
+            except SkipTest:
+                some_skipped = True
+    if some_skipped:
+        raise SkipTest
+
 def test_import_all():
     custom_dir = path.join(rootdir, '..', '..', 'custom')
     for instr in sorted(os.listdir(custom_dir)):
         if instr == 'delab':
             continue
-        if not path.isdir(path.join(custom_dir, instr, 'lib')):
+        instrlib = path.join(custom_dir, instr, 'lib')
+        if not path.isdir(instrlib):
             continue
-        for mod in os.listdir(path.join(custom_dir, instr, 'lib')):
-            if mod.endswith('.py'):
-                yield import_and_check, 'nicos.%s.%s' % (instr, mod[:-3])
+
+        def tf(*args):
+            collect_files(*args)
+
+        tf.description =  __name__ + '.test_import_all: ' + instr
+        yield tf, instr, instrlib

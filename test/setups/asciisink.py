@@ -25,12 +25,12 @@
 name = 'test system setup that writes data files'
 
 sysconfig = dict(
-    datasinks = ['testsink', 'asciisink'],
+    datasinks = ['asciisink'],
 )
 
 includes = ['axis']
 
 
 devices = dict(
-    asciisink = device('devices.datasinks.AsciiDatafileSink'),
+    asciisink = device('devices.datasinks.AsciiScanfileSink'),
 )

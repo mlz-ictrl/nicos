@@ -255,10 +255,6 @@ devices = dict(
                      motor_s = 'nok9_s',
                     ),
 
-    LiveViewFileSink = device('devices.fileformats.LiveViewSink',
-                              description = 'Sends image data to LiveViewWidget',
-                             ),
-
     det_time = device('devices.generic.virtual.VirtualTimer',
                       description = 'demo timer',
                      ),
@@ -269,11 +265,8 @@ devices = dict(
                      ),
     det      = device('devices.generic.detector.Detector',
                       description = 'demo 2D detector',
-                      fileformats = ['BerSANSFileSaver', 'RAWFileSaver',
-                                     'LiveViewFileSink', 'LivePNGSink', 'LivePNGSinkLog'],
                       timers = ['det_timer'],
                       images = ['det_img'],
-                      subdir = '2ddata',
     )
 )
 

@@ -33,7 +33,7 @@ from nicos.devices.tango import AnalogInput, DigitalInput, NamedDigitalInput
 from nicos.core.device import Measurable, Moveable
 from nicos.core.params import Attach
 from nicos.core import status, Value
-from nicos.devices.datasinks import AsciiDatafileSink
+from nicos.devices.datasinks import AsciiScanfileSink
 
 class SingleDetectors(Measurable):
 
@@ -54,7 +54,7 @@ class SingleDetectors(Measurable):
     def doInit(self, mode):
         self.log.debug('Integral init')
         for ds in session.datasinks:
-            if isinstance(ds, AsciiDatafileSink):
+            if isinstance(ds, AsciiScanfileSink):
                 self._asciiFile = ds
         self._preset = 0
         self._timeout = 3

@@ -26,7 +26,6 @@
 
 from __future__ import print_function
 
-import time
 from os import path
 
 from PyQt4.QtGui import QColor, QButtonGroup, QMessageBox
@@ -162,7 +161,6 @@ class PGAAPanel(Panel):
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)
-            self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)
 

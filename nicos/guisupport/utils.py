@@ -27,7 +27,7 @@
 import re
 import fnmatch
 
-from PyQt4.QtGui import QPalette
+from PyQt4.QtGui import QPalette, QValidator, QDoubleValidator
 
 
 def setBackgroundColor(widget, color):
@@ -54,6 +54,14 @@ def setBothColors(widget, colors):
     widget.setBackgroundRole(QPalette.Window)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
+
+
+class DoubleValidator(QDoubleValidator):
+
+    def validate(self, string, pos):
+        if ',' in string:
+            return QValidator.Invalid, string, pos
+        return QDoubleValidator.validate(self, string, pos)
 
 
 def extractKeyAndIndex(spec):

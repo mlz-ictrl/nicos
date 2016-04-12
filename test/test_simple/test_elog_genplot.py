@@ -27,7 +27,7 @@
 from os import path
 
 from nicos import session
-
+from nicos.core.data import ScanData
 from nicos.commands.scan import scan
 from nicos.services.elog import genplot
 from nicos.core.sessions.utils import MASTER
@@ -55,7 +55,7 @@ def test_scan_gen_elog():
     try:
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
-        dataset = session.experiment._last_datasets[-1]
+        dataset = ScanData(session.data._last_scans[-1])
         genplot.plotDataset(dataset, path.join(rootdir, 'testplt'), 'svg')
     finally:
         session.experiment.detlist = []

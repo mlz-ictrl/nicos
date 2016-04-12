@@ -30,6 +30,11 @@ toolpath = '/opt/caress'
 # CHIR=(-180,180) PHIR=(-720,720) XR=(-2000,2000) YR=(-2000,2000) ZR=(-2000,2000)
 
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink',
+                 'histogram', 'listmode'],
+)
+
 # ;MESYTEC PSD histogram (2D)
 # ;name   kind    bus     		  ignore  	  ignore  xchan   ychan   yheight(mm)
 # ;LDET   500     qmesydaq.caress_object  diffractogram   0       256     80
@@ -91,11 +96,11 @@ devices = dict(
                             ' 256 0',
                    lowlevel = True,
                   ),
-    histogram = device('frm2.qmesydaqsinks.HistogramFileFormat',
+    histogram = device('frm2.qmesydaqsinks.HistogramSink',
                        description = 'Histogram data written via QMesyDAQ',
                        image = 'image',
                       ),
-    listmode = device('frm2.qmesydaqsinks.ListmodeFileFormat',
+    listmode = device('frm2.qmesydaqsinks.ListmodeSink',
                       description = 'Listmode data written via QMesyDAQ',
                       image = 'image',
                      ),
@@ -107,7 +112,6 @@ devices = dict(
                   images = ['image'],
                   maxage = 3,
                   pollinterval = 0.5,
-                  fileformats = ['listmode', 'histogram',],
                  ),
     ysd = device('devices.generic.ManualMove',
                  description = 'Distance detector to sample',

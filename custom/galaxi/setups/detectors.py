@@ -8,6 +8,10 @@ includes = ['absorber', 'jcns_mot', 'pindiodes', 'jcns_io']
 
 tango_base = 'tango://localhost:10000/galaxi/'
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'GALAXIFileSaver'],
+)
+
 devices = dict(
     GALAXIFileSaver = device('galaxi.galaxifileformat.GALAXIFileFormat',
                              lowlevel = True,
@@ -20,9 +24,7 @@ devices = dict(
                             ),
     mythen          = device('galaxi.mythen.MythenDetector',
                              description = 'GALAXI Mythen detector',
-                             fileformats = ['GALAXIFileSaver'],
                              fmtstr = '%s',
-                             subdir = '.',
                              tangodevice = tango_base + 'mythen/1',
                             ),
     pilatus         = device('galaxi.pilatus.PilatusDetector',

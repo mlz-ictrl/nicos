@@ -24,8 +24,6 @@
 
 """NICOS GUI script status panel component."""
 
-import time
-
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
     QActionGroup, QPixmap, QColor
 from PyQt4.QtCore import Qt, QTimer, SIGNAL
@@ -261,8 +259,7 @@ class ScriptStatusPanel(Panel):
 
     @qtsig('')
     def on_actionBreak_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('break', BREAK_AFTER_STEP)
+        self.client.tell_action('break', BREAK_AFTER_STEP)
 
     @qtsig('')
     def on_actionBreak2_triggered(self):
@@ -270,21 +267,18 @@ class ScriptStatusPanel(Panel):
 
     @qtsig('')
     def on_actionBreakCount_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('break', BREAK_NOW)
+        self.client.tell_action('break', BREAK_NOW)
 
     @qtsig('')
     def on_actionContinue_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('continue')
+        self.client.tell_action('continue')
 
     @qtsig('')
     def on_actionStop_triggered(self):
-        self.mainwindow.action_start_time = time.time()
         if self.stopcounting:
-            self.client.tell('stop', BREAK_NOW)
+            self.client.tell_action('stop', BREAK_NOW)
         else:
-            self.client.tell('stop', BREAK_AFTER_STEP)
+            self.client.tell_action('stop', BREAK_AFTER_STEP)
 
     @qtsig('')
     def on_actionStop2_triggered(self):
@@ -292,18 +286,15 @@ class ScriptStatusPanel(Panel):
 
     @qtsig('')
     def on_actionFinish_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('stop', BREAK_AFTER_LINE)
+        self.client.tell_action('stop', BREAK_AFTER_LINE)
 
     @qtsig('')
     def on_actionFinishEarly_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('finish')
+        self.client.tell_action('finish')
 
     @qtsig('')
     def on_actionEmergencyStop_triggered(self):
-        self.mainwindow.action_start_time = time.time()
-        self.client.tell('emergency')
+        self.client.tell_action('emergency')
 
     @qtsig('')
     def on_clearQueue_clicked(self):

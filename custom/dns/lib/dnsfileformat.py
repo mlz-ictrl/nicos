@@ -28,69 +28,33 @@
 .d_dat: document the file format here.
 """
 
-from time import strftime, localtime
+from time import strftime, localtime, time as currenttime
 
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, ImageSink
-from nicos.core.utils import DeviceValueDict
+from nicos.core import Override
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
-class DNSFileFormat(ImageSink):
-    """Saves DNS image data"""
-    parameter_overrides = {
-        'filenametemplate': Override(mandatory=False, settable=False,
-                                     userparam=False,
-                                     default=['%(proposal)s_%(counter)s.d_dat',
-                                              '%(proposal)s'
-                                              '%(imagecounter)010d'
-                                              '%(session.experiment.sample.'
-                                              'samplename)s.d_dat'],
-                                     ),
-    }
+class DNSFileSinkHandler(SingleFileSinkHandler):
 
-    fileFormat = 'DNS'     # should be unique amongst filesavers!
+    filetype = 'DNS'
+    accept_final_images_only = True
 
-    def acceptImageType(self, imagetype):
-        return True
-
-    def prepareImage(self, imageinfo, subdir=''):
-        ImageSink.prepareImage(self, imageinfo, subdir)
-        imageinfo.data = DeviceValueDict(
-            fileName=imageinfo.filename,
-            fileDate=strftime('%m/%d/%Y'),
-            fileTime=strftime('%r'),
-            FromDate=strftime('%m/%d/%Y'),
-            FromTime=strftime('%r'),
-            Environment='_'.join(session.explicit_setups),
-        )
-
-    def updateImage(self, imageinfo, image):
-        """just write the data upon update"""
-        imageinfo.file.seek(0)
-        numarr = np.array(image)
-        imageinfo.file.write("# 64 %4d\n" % 1)
-        for ch in range(64):
-            imageinfo.file.write("%2d %8d\n" % (ch, numarr[ch]))
-        imageinfo.file.flush()
-
-    def finalizeImage(self, imageinfo):
-        """finalizes the on-disk image, normally just a close"""
-        ImageSink.finalizeImage(self, imageinfo)
-
-    def saveImage(self, imageinfo, image):
+    def writeData(self, fp, image):
         """Save in DNS format"""
-        w = imageinfo.file.write
+        w = fp.write
         separator = "#" + "-"*74 + "\n"
 
         def readdev(name):
             return session.getDevice(name).read()
 
-        imageinfo.file.seek(0)
+        fp.seek(0)
         exp = session.experiment
         w("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n" %
-          (exp.users, exp.lastscan, exp.lastimage, exp.sample.samplename))
+          (exp.users, exp.proposal, self.dataset.counter,
+           exp.sample.samplename))
         w(separator)
 
         # TODO: use right value, remove dummylines
@@ -194,8 +158,8 @@ class DNSFileFormat(ImageSink):
         w("#  Timer                    %6.1f sec\n" % readdev('timer')[0])
         w("#  Monitor           %16d\n" % readdev('mon0')[0])
         w("#\n")
-        begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.begintime))
-        end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.endtime))
+        begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(self.dataset.started))
+        end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(currenttime()))
         w("#    start   at      %s\n" % begin_t)
         w("#    stopped at      %s\n" % end_t)
         w(separator)
@@ -209,4 +173,18 @@ class DNSFileFormat(ImageSink):
             for q in range(tofchan.nrtimechan):
                 w(" %8d" % (numarr[q, ch]))
             w("\n")
-        imageinfo.file.flush()
+        fp.flush()
+
+
+class DNSFileSink(ImageSink):
+    """Saves DNS image data"""
+    parameter_overrides = {
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['%(proposal)s_%(pointcounter)s.d_dat',
+                                              '%(proposal)s'
+                                              '%(pointcounter)010d'
+                                              '%(session.experiment.sample.'
+                                              'samplename)s.d_dat'],
+                                     ),
+    }

@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-    intrange, listof, tupleof, status, ImageProducer, Attach
+    intrange, listof, tupleof, status, Attach
 from nicos.pycompat import string_types, from_maybe_utf8
 
 from nicos.devices.vendor.toni import DelayBox
@@ -41,7 +41,7 @@ from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
 
 
-class TofTofMeasurement(ImageProducer, Measurable):
+class TofTofMeasurement(Measurable):
     """The TOFTOF measurement device.
 
     This is a temporarely used device which should be substituted by a detector

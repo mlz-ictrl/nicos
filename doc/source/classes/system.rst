@@ -35,11 +35,15 @@ functionality of the specific instrument.  It is selected in setups using
 .. autoclass:: Instrument()
 
 
+.. _data_sinks:
+
 Data Sinks
 ----------
 
-These data sinks provide different ways of processing scan data.  They can be
-configured in setups like normal devices and selected in :ref:`sysconfig`.
+.. XXX adapt this
+
+These data sinks provide different ways of processing measured data.  They can
+be configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. module:: nicos.core.data
 
@@ -47,9 +51,30 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. module:: nicos.devices.datasinks
 
-.. autoclass:: ConsoleSink()
-.. autoclass:: AsciiDatafileSink()
+.. autoclass:: ConsoleScanSink()
 .. autoclass:: DaemonSink()
+.. autoclass:: SerializedSink()
+
+.. autoclass:: LiveViewSink()
+.. autoclass:: PNGLiveFileSink()
+
+.. autoclass:: AsciiScanfileSink()
+
+.. autoclass:: ImageSink()
+
+.. autoclass:: SingleRawImageSink()
+.. autoclass:: RawImageSink()
+.. autoclass:: FITSImageSink()
+.. autoclass:: TIFFImageSink()
+
+
+Data Sink Handlers
+^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: nicos.core.data
+
+.. autoclass:: DataSinkHandler
+   :members:
 
 
 .. _notifiers:

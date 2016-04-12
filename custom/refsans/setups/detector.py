@@ -6,6 +6,10 @@ group = 'optional'
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'comtec_sink'],
+)
+
 devices = dict(
     fastctr_a = device('refsans.detector.ComtecCounter',
                        description = "Channel A of Comtep P7888 Fast Counter",
@@ -47,33 +51,26 @@ devices = dict(
                        tacodevice = '%s/rate_h' % tacodev,
                        lowlevel = True,
                       ),
-    RawFileSaver  = device('refsans.detector.ComtecFileFormat',
-                           description = 'Saves image data in RAW format',
-                           filenametemplate = ['%(proposal)s_%(counter)s.cfg',
-                                      '%(proposal)s_%(session.experiment.lastscan)s'
-                                      '_%(counter)s_%(scanpoint)s.cfg'],
-                           lowlevel = True,
-                          ),
+    comtec_sink     = device('refsans.detector.ComtecHeaderSink',
+                             description = 'Copies image data and saves header',
+                             lowlevel = True,
+                             detector = 'comtec_timer',
+                            ),
     comtec_timer    = device('refsans.detector.ComtecTimer',
-                       description = 'Comtec P7888 Fast System: Timer channel',
-                       tacodevice = '%s/detector' % tacodev,
-                      ),
+                             description = 'Comtec P7888 Fast System: Timer channel',
+                             tacodevice = '%s/detector' % tacodev,
+                            ),
     comtec_filename = device('refsans.detector.ComtecFilename',
-                       description = 'Comtec P7888 Fast System: Filename',
-                       tacodevice = '%s/detector' % tacodev,
-                      ),
-    comtec_image = device('refsans.detector.NullImage',
-                                description = "Null image",
-                                ),
-    comtec = device('devices.generic.Detector',
-                        description = "detector, joining all channels",
-                        timers = ['comtec_timer'],
-                        images = ['comtec_image'],
-                        #~ counters = ['fastctr_%c'%c for c in 'abcdefgh'],
-                        others = ['comtec_filename'],
-                        fileformats = ['RawFileSaver'],
-                        subdir = 'comtec',
-                        ),
+                             description = 'Comtec P7888 Fast System: Filename',
+                             tacodevice = '%s/detector' % tacodev,
+                            ),
+    comtec          = device('devices.generic.Detector',
+                             description = "detector, joining all channels",
+                             timers = ['comtec_timer'],
+                             images = [],
+                             # counters = ['fastctr_%c'%c for c in 'abcdefgh'],
+                             others = ['comtec_filename'],
+                            ),
 )
 
 startupcode = '''

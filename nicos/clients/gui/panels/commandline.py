@@ -24,8 +24,6 @@
 
 """NICOS GUI command line input component."""
 
-import time
-
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
@@ -92,7 +90,6 @@ class CommandLinePanel(Panel):
 
     def on_commandInput_execRequested(self, script, action):
         if action == 'queue':
-            self.mainwindow.action_start_time = time.time()
             self.client.run(script)
         else:
             self.client.tell('exec', script)

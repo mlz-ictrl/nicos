@@ -60,7 +60,8 @@ class RScan(Scan):
                                                               MicrostepMotor)
                      else (dev, pos)
                      for dev, pos in zip(self._devices, position)]
-            return self.moveDevices(where, wait)
+            where = zip(*where)
+            return self.moveDevices(where[0], where[1], wait)
         else:
             return Scan.moveTo(self, position, wait)
 
@@ -78,9 +79,10 @@ class RScan(Scan):
                     if det.ctrl_photoshutter:
                         where.append((det._attached_photoshutter, OPEN))
             if where:
-                self.moveDevices(where)
+                where = zip(*where)
+                self.moveDevices(where[0], where[1])
 
-    def handleError(self, what, err, dev=None):
+    def handleError(self, what, err):
         # consider all movement errors fatal
         if what in ('move', 'wait'):
             printwarning('Positioning problem, stopping all moving motors '
@@ -93,7 +95,7 @@ class RScan(Scan):
                     det.stop()
             finally:
                 raise  # pylint: disable=misplaced-bare-raise
-        return Scan.handleError(self, what, err, dev)
+        return Scan.handleError(self, what, err)
 
 
 def _fixType(dev, args, mkpos):

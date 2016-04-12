@@ -30,6 +30,8 @@ import inspect
 import re
 from time import time as currenttime, sleep
 
+import numpy
+
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
@@ -38,13 +40,16 @@ from nicos.core.utils import formatStatus, statusString, \
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout, HasPrecision
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-    anytype, none_or, dictof, listof, tupleof, nicosdev, Attach
+    anytype, none_or, dictof, listof, tupleof, nicosdev, Attach, \
+    INFO_CATEGORIES
 from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
     ProgrammingError, UsageError, LimitError, ModeError, PositionError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
     string_types, integer_types, number_types
+
+ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
 
 
 def usermethod(func):
@@ -302,7 +307,8 @@ class Device(object):
         'description': Param('A description of the device', type=str,
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
-                             type=bool, default=False, userparam=False),
+                             type=bool, default=False, userparam=False,
+                             prefercache=False),
         # Don't allow setting loglevel to > INFO, as it could be confusing.
         'loglevel':    Param('The logging level of the device',
                              type=oneof('debug', 'info'),
@@ -333,6 +339,7 @@ class Device(object):
             if name in session.devices:
                 raise ProgrammingError('device with name %s already exists' % name)
             session.devices[name] = self
+            session.device_case_map[name.lower()] = name
 
         self._name = name
         # _config: device configuration (all parameter names lower-case)
@@ -544,6 +551,20 @@ class Device(object):
                                 (param, value, cfgvalue))
                             value = cfgvalue
                             self._cache.put(self, param, value)
+                elif not paraminfo.settable and paraminfo.prefercache is False:
+                    # parameter is in cache, but not in config: if it is not
+                    # settable and has a default, use that (since most probably
+                    # the default is intended to be used but has changed)
+                    defvalue = paraminfo.default
+                    if defvalue != value:
+                        defvalue = self._validateType(defvalue, param, paraminfo)
+                    if defvalue != value:
+                        self.log.warning(
+                            'value of %s from cache (%r) differs from '
+                            'default value (%r), using default' %
+                            (param, value, paraminfo.default))
+                        value = paraminfo.default
+                        self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
                 if umethod:
                     umethod(value)
@@ -552,8 +573,12 @@ class Device(object):
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
             if paraminfo.category is not None:
-                self._infoparams.append((paraminfo.category, param,
-                                         paraminfo.unit))
+                if paraminfo.category not in ALLOWED_CATEGORIES:
+                    self.log.error('parameter %s uses illegal category %r!' %
+                                   (param, paraminfo.category))
+                else:
+                    self._infoparams.append((paraminfo.category, param,
+                                             paraminfo.unit))
             # end of _init_param()
 
         notfromcache = []
@@ -698,8 +723,8 @@ class Device(object):
             return self._cache.history(self, name, fromtime, totime)
 
     def info(self):
-        """Return "device information" as an iterable of tuples ``(category,
-        name, value)``.
+        """Return "device information" as an iterable of tuples ``(name,
+        raw_value, formatted_value, unit, category)``.
 
         This "device information" is put into data files and should therefore
         include any parameters that will be essential to record the current
@@ -725,7 +750,7 @@ class Device(object):
                                  name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
-            ret.append((category, name, '%s %s' % (parvalue, parunit)))
+            ret.append((name, parvalue, str(parvalue), parunit, category))
         return ret
 
     def shutdown(self):
@@ -762,6 +787,7 @@ class Device(object):
             elif adev is not None:
                 adev._sdevs.discard(self._name)
         session.devices.pop(self._name, None)
+        session.device_case_map.pop(self._name.lower(), None)
         session.explicit_devices.discard(self._name)
         # re-raise the doShutdown error
         if caughtExc is not None:
@@ -1154,7 +1180,7 @@ class Readable(Device):
         ret = []
         try:
             val = self.read()
-            ret.append(('general', 'value', self.format(val, unit=True)))
+            ret.append(('value', val, self.format(val), self.unit, 'general'))
         except Exception as err:
             self._info_errcount += 1
             # only display the message for the first 5 times and then
@@ -1163,16 +1189,16 @@ class Readable(Device):
                 self.log.warning('error reading', exc=err)
             else:
                 self.log.debug('error reading', exc=err)
-            ret.append(('general', 'value', 'Error: %s' % err))
+            ret.append(('value', None, 'Error: %s' % err, '', 'general'))
         else:
             self._info_errcount = 0
         try:
             st = self.status()
         except Exception as err:
-            ret.append(('status', 'status', 'Error: %s' % err))
+            errstr = 'Error: %s' % err
+            ret.append(('status', (status.ERROR, errstr), errstr, '', 'status'))
         else:
-            if st[0] not in (status.OK, status.UNKNOWN):
-                ret.append(('status', 'status', formatStatus(st)))
+            ret.append(('status', st, formatStatus(st), '', 'status'))
         return ret + Device.info(self)
 
 
@@ -1461,14 +1487,19 @@ class Moveable(Waitable):
         if self._cache:
             self._cache.invalidate(self, 'value')
             self._cache.invalidate(self, 'status')
-        if self.target == pos:
+        if hasattr(self.valuetype, 'compare'):
+            target_equal = self.valuetype.compare(self.target, pos)
+        else:
+            target_equal = (self.target == pos)
+        if target_equal:
             # if the target hasn't changed, make the poller receive the correct
             # event in any case
             self._setROParam('target', None)
         self._setROParam('target', pos)
         self.doStart(pos)
 
-    move = start
+    def move(self, pos):
+        self.start(pos)
 
     def doTime(self, old_value, target):
         """Calculate the time to move from one position to another.
@@ -1669,7 +1700,7 @@ class Measurable(Waitable):
 
     Subclasses *need* to implement:
 
-    * doRead(maxage)
+    * doRead(maxage=0)
     * doSetPreset(**preset)
     * doStart()
     * doFinish()
@@ -1677,18 +1708,16 @@ class Measurable(Waitable):
 
     Subclasses *can* implement:
 
+    * doStatus(maxage=0)
+    * doReadArrays(quality)
     * doIsCompleted()
     * doPause()
     * doResume()
     * doTime(**preset)
     * doSimulate(**preset)
-    * doSave()
     * doPrepare()
-
-    Subclass *can* override:
-
-    * doStatus(maxage)
     * valueInfo()
+    * arrayInfo()
     * presetInfo()
     * duringMeasureHook(elapsed)
     """
@@ -1769,6 +1798,11 @@ class Measurable(Waitable):
         while measuring.  The hook is called by `.count` for every detector in
         a loop.  The *elapsed* argument is the time elapsed since the detector
         was started.
+
+        If the hook returns a data quality value from ``nicos.core.data``,
+        either LIVE or INTERMEDIATE, the detector is read out and the data is
+        sent to the data sinks.  The detector is responsible for determining how
+        often this should be done.
         """
 
     @usermethod
@@ -1834,8 +1868,7 @@ class Measurable(Waitable):
 
     @usermethod
     def stop(self):
-        """Stop (abort) the measurement now.  Can return True to still attempt
-        a save() afterwards.
+        """Stop (abort) the measurement now.
 
         This operation is forbidden in slave mode.
 
@@ -1855,7 +1888,7 @@ class Measurable(Waitable):
 
     @usermethod
     def read(self, maxage=None):
-        """Return a tuple with the result(s) of the last measurement."""
+        """Return a list with the scalar result(s) of the last measurement."""
         if self._sim_active:
             if hasattr(self, 'doSimulate'):
                 result = self.doSimulate(self._sim_preset)
@@ -1867,6 +1900,24 @@ class Measurable(Waitable):
         if self._cache:
             self._cache.invalidate(self, 'value')
         result = self._get_from_cache('value', self.doRead)
+        if not isinstance(result, list):
+            return [result]
+        return result
+
+    def doReadArrays(self, quality):
+        return []
+
+    @usermethod
+    def readArrays(self, quality):
+        """Return a list with the array result(s) of the last measurement.
+
+        *quality* is the quality of the requested result: LIVE, INTERMEDIATE,
+        FINAL, or INTERRUPTED.
+        """
+        if self._sim_active:
+            arrtypes = self.arrayInfo()
+            return [numpy.zeros(arrtype.shape) for arrtype in arrtypes]
+        result = self.doReadArrays(quality)
         if not isinstance(result, list):
             return [result]
         return result
@@ -1888,20 +1939,6 @@ class Measurable(Waitable):
             if hasattr(self, 'doPrepare'):
                 return self.doPrepare()
 
-    def save(self):
-        """Save the current measurement, if necessary.
-
-        Called by `.count` for all detectors at the end of a counting.
-
-        .. method:: doSave()
-
-           This method can be implemented if the detector needs to save data.
-        """
-        if self._sim_active:
-            return
-        if hasattr(self, 'doSave'):
-            self.doSave()
-
     def info(self):
         """Automatically add device status (if not OK).  Does not add the
         device value since that is typically not useful for Measurables.
@@ -1911,14 +1948,14 @@ class Measurable(Waitable):
             st = self.status()
         except Exception as err:
             self.log.warning('error getting status', exc=err)
-            ret.append(('status', 'status', 'Error: %s' % err))
+            errstr = 'Error: %s' % err
+            ret.append(('status', (status.ERROR, errstr), errstr, '', 'status'))
         else:
-            if st[0] not in (status.OK, status.UNKNOWN):
-                ret.append(('status', 'status', '%s: %s' % st))
+            ret.append(('status', st, formatStatus(st), '', 'status'))
         return ret + Device.info(self)
 
     def valueInfo(self):
-        """Describe the values measured by this device.
+        """Describe the scalar values measured by this device.
 
         Return a tuple of :class:`~nicos.core.params.Value` instances describing
         the values that :meth:`read` returns.
@@ -1929,6 +1966,17 @@ class Measurable(Waitable):
         """
         return Value(self.name, unit=self.unit),
 
+    def arrayInfo(self):
+        """Describe the array values measured by this device.
+
+        Return a tuple of :class:`~nicos.core.params.ArrayDesc` instances
+        describing the values that :meth:`readArrays` returns.
+
+        This must be overridden by every Measurable that wants to return one or
+        more arrays.
+        """
+        return ()
+
     def presetInfo(self):
         """Return an iterable of preset keys accepted by this device.
 
@@ -1936,6 +1984,42 @@ class Measurable(Waitable):
         be overridden by all measurables that support more presets.
         """
         return ('t',)
+
+
+class SubscanMeasurable(Measurable):
+    """
+    Base class for Measurables that do not count directly, but initiate a
+    subscan and extract some values from that.  For this measurable, start()
+    is expected to be synchronous.  `isCompleted` always returns True.
+
+    Subclasses *need* to implement:
+
+    * doRead(maxage=0)
+    * doStart()
+
+    Subclasses *can* implement:
+
+    * doReadArrays(quality)
+    * valueInfo()
+    * arrayInfo()
+    * presetInfo()
+    """
+
+    hardware_access = False
+
+    def start(self, **preset):
+        if self._mode == SLAVE:
+            raise ModeError(self, 'start not possible in slave mode')
+        if preset:
+            self.doSetPreset(**preset)
+        # XXX start subscan measurable
+        self.doStart()
+
+    def doStop(self):
+        pass
+
+    def doIsCompleted(self):
+        return True
 
 
 # Use the DeviceMixinMeta metaclass here to provide the instancecheck
@@ -2122,7 +2206,7 @@ class DeviceAlias(Device):
         ret = []
         if isinstance(self._obj, Device):
             ret = self._obj.info()
-        return ret + [('instrument', 'alias', str(self._obj))]
+        return ret + [('alias', str(self._obj), str(self._obj), '', 'instrument')]
 
     @usermethod
     def version(self):
@@ -2150,6 +2234,7 @@ class DeviceAlias(Device):
                 for param, func in self._subscriptions:
                     self._cache.removeCallback(self, param, func)
         session.devices.pop(self._name, None)
+        session.device_case_map.pop(self._name.lower(), None)
         session.explicit_devices.discard(self._name)
 
     # generic proxying of missing attributes to the object

@@ -25,8 +25,8 @@ devices = dict(
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
-                              ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),
-                              ('admin', 'f3309476bdb36550aa8fb90ae748c9cc', 'admin'),
+                              ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
+                              ('jcns', '51b8e46e7a54e8033f0d7a3393305cdb', 'admin'),
                              ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',

@@ -28,6 +28,8 @@ import re
 import copy
 from os import path
 
+import numpy as np
+
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type, string_types
@@ -40,7 +42,8 @@ INFO_CATEGORIES = [
     ('offsets', 'Offsets'),
     ('limits', 'Limits'),
     ('precisions', 'Precisions/tolerances'),
-    ('status', 'Devices in busy or error status'),
+    ('status', 'Device status'),
+    ('presets', 'Detector preset information'),
     ('general', 'Device positions and sample environment state'),
 ]
 
@@ -390,13 +393,11 @@ class Value(object):
 
     * The *fmtstr* parameter selects how to format the value for display.  This
       will generally be ``device.fmtstr`` for Readables.
-
-    * The *active* parameter is reserved.
     """
 
     # pylint: disable=W0622
     def __init__(self, name, type='other', errors='none', unit='',
-                 fmtstr='%.3f', active=True):
+                 fmtstr='%.3f'):
         if type not in ('counter', 'monitor', 'time', 'other', 'error',
                         'filename', 'info'):
             raise ProgrammingError('invalid Value type parameter')
@@ -407,14 +408,48 @@ class Value(object):
         self.errors = errors
         self.unit = unit
         self.fmtstr = fmtstr
-        self.active = active
 
     def __repr__(self):
         return 'value %r' % self.name
 
     def copy(self):
-        return Value(self.name, self.type, self.errors, self.unit,
-                     self.fmtstr, self.active)
+        return Value(self.name, self.type, self.errors, self.unit, self.fmtstr)
+
+
+class ArrayDesc(object):
+    """Defines the properties of an array detector result.
+
+    An array type consists of these attributes:
+
+    * name, a name for the array
+    * shape, a tuple of lengths in 1 to N dimensions
+    * dtype, the data type of a single value, in numpy format
+    * dimnames, a list of names for each dimension
+
+    The class can try to determine if a given image-type can be converted
+    to another.
+    """
+
+    def __init__(self, name, shape, dtype, dimnames=None):
+        """Creates a datatype with given (numpy) shape and (numpy) data format.
+
+        Also stores the 'names' of the used dimensions as a list called
+        dimnames.  Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D
+        data.
+        """
+        self.name = name
+        self.shape = shape
+        self.dtype = np.dtype(dtype)
+        if dimnames is None:
+            dimnames = ['X', 'Y', 'Z', 'T', 'E', 'U', 'V', 'W'][:len(shape)]
+        self.dimnames = dimnames
+
+    def __repr__(self):
+        return 'ArrayDesc(%r, %r, %r, %r)' % (self.name, self.shape,
+                                              self.dtype, self.dimnames)
+
+    def copy(self):
+        return ArrayDesc(self.name, self.shape, self.dtype, self.dimnames)
 
 
 # parameter conversion functions
@@ -615,6 +650,22 @@ class floatrange(object):
         else:
             if not self.fr <= val:
                 raise ValueError('value needs to fulfill %d <= x' % self.fr)
+        return val
+
+
+class setof(object):
+
+    def __init__(self, *vals):
+        self.__doc__ = 'a (sub)set of ' + ', '.join(map(repr, vals))
+        self.vals = frozenset(vals)
+
+    def __call__(self, val=None):
+        if val is None:
+            return frozenset()
+        val = frozenset(val)
+        if val.difference(self.vals):
+            raise ValueError('invalid value: %s, may only contain a (sub)set '
+                             'of %s' % (val, ', '.join(map(repr, self.vals))))
         return val
 
 

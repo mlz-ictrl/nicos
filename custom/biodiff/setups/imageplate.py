@@ -3,15 +3,20 @@
 description = "Image plate detector setup"
 group = "basic"
 
-includes = ["counter", "shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]
+sysconfig = dict(
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'TIFFFileSaver'],
+)
+
+includes = ["counter", "shutter", "microstep", "reactor", "nl1", "guidehall",
+            "astrium"]
 
 _TANGO_SRV = "maatel.biodiff.frm2:9999"
 _TANGO_DEV = "tango://%s/EMBL/Microdiff/General#dbase=no" % _TANGO_SRV
 
 devices = dict(
-    TIFFFileSaver = device("biodiff.tiff.TIFFFileFormat",
+    TIFFFileSaver = device("devices.datasinks.TIFFImageSink",
                            description = "Saves image data in TIFF format",
-                           filenametemplate = ["%(proposal)s_%(counter)08d"
+                           filenametemplate = ["%(proposal)s_%(pointcounter)08d"
                                                ".tiff"],
                            mode = "I;16",
                           ),
@@ -27,10 +32,8 @@ devices = dict(
                       description = "Image plate detector",
                       timers = ["timer"],
                       images = ["imgplate"],
-                      fileformats = ["TIFFFileSaver"],
                       gammashutter = "gammashutter",
                       photoshutter = "photoshutter",
-                      subdir = ".",
                      ),
 )
 
