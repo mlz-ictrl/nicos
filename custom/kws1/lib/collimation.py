@@ -28,6 +28,17 @@ from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
     status, intrange, dictof, listof, tupleof, oneof, HasLimits, Param, \
     PositionError, ConfigurationError
 from nicos.devices.generic.slit import TwoAxisSlit
+from nicos.devices.tango import Motor as TangoMotor
+
+
+class SlitMotor(TangoMotor):
+    """Overridden motor to round off the read values from the slit motors,
+    because they use resolvers and change on every read.
+    """
+
+    def doRead(self, maxage=0):
+        value = TangoMotor.doRead(self, maxage)
+        return round(value, 1)
 
 
 class CollimationSlit(TwoAxisSlit):
