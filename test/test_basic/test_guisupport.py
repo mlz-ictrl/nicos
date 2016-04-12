@@ -93,7 +93,8 @@ def test_double_validator():
             ('0', 0, inf),
             ('0', -inf, 0),
     ]:
-        validator.setRange(args[1], args[2])
+        validator.setBottom(args[1])
+        validator.setTop(args[2])
         assert validator.validate(args[0], 0)[0] == QValidator.Acceptable
     # intermediate cases
     for args in [
@@ -102,7 +103,8 @@ def test_double_validator():
             ('1.0e', -inf, inf),
             ('0', 10, 20),
     ]:
-        validator.setRange(args[1], args[2])
+        validator.setBottom(args[1])
+        validator.setTop(args[2])
         assert validator.validate(args[0], 0)[0] == QValidator.Intermediate
     # invalid cases
     for args in [
@@ -112,5 +114,6 @@ def test_double_validator():
             ('+1', -20, -10),
             ('1,5', 0, 10),
     ]:
-        validator.setRange(args[1], args[2])
+        validator.setBottom(args[1])
+        validator.setTop(args[2])
         assert validator.validate(args[0], 0)[0] == QValidator.Invalid
