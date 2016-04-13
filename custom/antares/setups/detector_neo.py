@@ -40,7 +40,6 @@ devices = dict(
                      description = 'The Andor Neo sCMOS camera detector',
                      images = ['neo'],
                      timers = ['timer'],
-                     fileformats = ['FITSFileSaver'],
                     ),
 )
 
