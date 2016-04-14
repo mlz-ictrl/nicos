@@ -2,7 +2,7 @@
 
 from PyQt4.QtCore import QSize, Qt
 from PyQt4.QtGui import QBrush, QColor, QPainter, QPen, QWidget
-from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN
+from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 
@@ -14,9 +14,11 @@ _black = QBrush(QColor('black'))
 _blue = QBrush(QColor('blue'))
 _red = QBrush(QColor('red'))
 _olive = QBrush(QColor('olive'))
+_orange = QBrush(QColor('#ffa500'))
 
 statusbrush = {
     BUSY: _yellow,
+    WARN: _orange,
     ERROR: _red,
     NOTREACHED: _red,
     OK: _white,
