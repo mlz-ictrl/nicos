@@ -272,14 +272,14 @@ _spinflipper = Block('Spin Flipper', [
 )
 
 newports = []
-for k in range(1, 6 + 1):
-    newports.append(Block('NewPort0%d' % k, [
+for k in [1,2,3,4,5,10,11,12]:
+    newports.append(Block('NewPort%02d' % k, [
         BlockRow(
-            Field(name='Position', dev='sth_newport0%d' % k,
+            Field(name='Position', dev='sth_newport%02d' % k,
                    unitkey='t/unit'),
         ),
         ],
-        setups='newport0%d' % k,
+        setups='newport%02d' % k,
     ))
 
 ccrs = []
