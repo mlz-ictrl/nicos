@@ -63,7 +63,7 @@ defaultColorScheme = {
     },
     'label': {
         OK:         None,
-        WARN:       QColor('red'),
+        WARN:       QColor('#ffa500'),
         BUSY:       None,
         ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
