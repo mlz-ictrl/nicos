@@ -108,7 +108,7 @@ devices = dict(
                     unit = 'deg',
                     lowlevel = True,
                    ),
-   afpg   = device('puma.focus.focus_Axis',
+   afpg   = device('puma.focus.FocusAxis',
                    description = 'Horizontal focus of PG-analyser',
                    motor = 'st_afpg',
                    coder = 'co_afpg',
