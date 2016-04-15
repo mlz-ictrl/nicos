@@ -625,9 +625,10 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         self._last_update = 0
         self._timer = Timer()
         self._timer.start()
-        if self._mythread:
+        if self._mythread and self._mythread.isAlive():
             self._stopflag = True
             self._mythread.join()
+        self._stopflag = False
         self._mythread = createThread('virtual detector %s' % self, self._run)
 
     def _run(self):
@@ -640,8 +641,6 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                 self.readresult = [array.sum()]
                 time.sleep(self._base_loop_delay)
         finally:
-            self._stopflag = False
-            self._mythread = None
             self._remaining = None
 
     def doFinish(self):
