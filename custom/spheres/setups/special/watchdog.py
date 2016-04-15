@@ -26,11 +26,11 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = []
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 notifiers = {
-    'default':  ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default':  ['email'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
