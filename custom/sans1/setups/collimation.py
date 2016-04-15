@@ -734,8 +734,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -9.,
                         abslimits = (-400, 600),
-                        fixed = 'unreliable, do not use !',
-                        fixedby = ('setupfile', 99),      # deny release!
+                        #fixed = 'unreliable, do not use !!!',
+                        #fixedby = ('setupfile', 99),      # deny release!
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
@@ -755,8 +755,9 @@ devices = dict(
 
     sa1        = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'attenuation slits',
-                        mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
-                        '50x50':0, '10mm':70, '20mm':140, 'N.A.':210 },
+#                        mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
+#                        '50x50':0, '10mm':70, '20mm':140, 'N.A.':210 },
+                        mapping = {'50x50':0, '30mm':70, '20mm':140},
                         moveable = 'sa1_m',
                         blockingmove = False,
                         pollinterval = 15,
