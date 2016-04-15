@@ -9,7 +9,7 @@ includes = ['absorber', 'jcns_mot', 'pindiodes', 'jcns_io']
 tango_base = 'tango://localhost:10000/galaxi/'
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'GALAXIFileSaver'],
+    datasinks = ['GALAXIFileSaver'],
 )
 
 devices = dict(

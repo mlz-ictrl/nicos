@@ -368,9 +368,6 @@ class Session(object):
                                    (key, configured))
                 raise
         else:
-            if not isinstance(configured, list):
-                raise ConfigurationError('sysconfig entry %s must be a list'
-                                         % key)
             devs = []
             for devname in configured:
                 try:
@@ -500,7 +497,19 @@ class Session(object):
                 elif getattr(command, 'is_userobject', False):
                     self.export(name, command)
 
-        def inner_load(name):
+        def merge_sysconfig(old, new):
+            for key, value in iteritems(new):
+                if key == 'datasinks':
+                    if not isinstance(value, list):
+                        raise ConfigurationError('sysconfig entry %s must be '
+                                                 'a list' % key)
+                    old.setdefault('datasinks', set()).update(value)
+                elif key == 'notifiers':
+                    old.setdefault('notifiers', set()).update(value)
+                else:
+                    old[key] = value
+
+        def inner_load(name, sysconfig, devlist, startupcode):
             if name in self.loaded_setups:
                 return
             info = self._setup_info[name]
@@ -531,31 +540,22 @@ class Session(object):
             self.loaded_setups.add(name)
             self.excluded_setups.update(info['excludes'])
 
-            sysconfig = {}
-            devlist = {}
-            startupcode = []
-
             for include in info['includes']:
-                ret = inner_load(include)
-                if ret:
-                    sysconfig.update(ret[0])
-                    devlist.update(ret[1])
-                    startupcode.extend(ret[2])
+                inner_load(include, sysconfig, devlist, startupcode)
 
             for modname in info['modules']:
                 load_module(modname)
 
             self.configured_devices.update(info['devices'])
 
-            sysconfig.update(iteritems(info['sysconfig']))
+            merge_sysconfig(sysconfig, info['sysconfig'])
             devlist.update(iteritems(info['devices']))
             startupcode.append(info['startupcode'])
+
             for aliasname, targets in info['alias_config'].items():
                 for target, prio in targets.items():
                     self.alias_config.setdefault(aliasname,
                                                  []).append((target, prio))
-
-            return sysconfig, devlist, startupcode
 
         sysconfig, devlist, startupcode = self.current_sysconfig, {}, []
         load_setupnames = setupnames[:]
@@ -566,11 +566,7 @@ class Session(object):
             self.log.info('loading setup %r (%s)' %
                           (setupname,
                            self._setup_info[setupname]['description']))
-            ret = inner_load(setupname)
-            if ret:
-                sysconfig.update(ret[0])
-                devlist.update(ret[1])
-                startupcode.extend(ret[2])
+            inner_load(setupname, sysconfig, devlist, startupcode)
 
         # sort the preferred aliases by priority
         for aliasname in self.alias_config:

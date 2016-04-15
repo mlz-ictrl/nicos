@@ -51,3 +51,16 @@ def test_raisers():
 
     assert session._experiment is None
     assert session._instrument is None
+
+
+def test_sysconfig():
+    session.loadSetup('sysconfig1')
+    assert session.current_sysconfig['datasinks'] == set(['sink1', 'sink2'])
+    assert session.current_sysconfig['notifiers'] == set([])
+    session.loadSetup('sysconfig2')  # ... which includes sysconfig3
+    assert session.current_sysconfig['datasinks'] == set(['sink1', 'sink2',
+                                                          'sink3', 'sink4'])
+    assert session.current_sysconfig['notifiers'] == set(['notif1'])
+
+    session.unloadSetup()
+    assert 'datasinks' not in session.current_sysconfig

@@ -7,7 +7,7 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'comtec_sink'],
+    datasinks = ['comtec_sink'],
 )
 
 devices = dict(

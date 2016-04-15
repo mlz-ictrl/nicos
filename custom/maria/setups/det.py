@@ -6,9 +6,7 @@ group = "basic"
 includes = []
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink',  # system datasinks
-                 'NPGZFileSink', 'LiveViewSink',
-                ],
+    datasinks = ['NPGZFileSink', 'LiveViewSink'],
 )
 
 tango_base = "tango://phys.maria.frm2:10000/maria"

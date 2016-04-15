@@ -18,8 +18,7 @@ includes = []
 # EVENT 500 qmesydaq.caress_object event
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink',
-                 'histogram', 'listmode'],
+    datasinks = ['histogram', 'listmode'],
 )
 
 nethost = 'spodisrv.spodi.frm2'

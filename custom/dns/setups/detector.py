@@ -6,7 +6,7 @@ group = "lowlevel"
 includes = ['counter']
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'DNSFileSaver'],
+    datasinks = ['DNSFileSaver'],
 )
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'

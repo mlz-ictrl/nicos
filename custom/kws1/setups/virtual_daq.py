@@ -4,7 +4,7 @@ description = "Detector data acquisition setup"
 group = "lowlevel"
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'kwsformat'],
+    datasinks = ['kwsformat'],
 )
 
 devices = dict(

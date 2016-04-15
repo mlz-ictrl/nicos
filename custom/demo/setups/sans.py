@@ -3,8 +3,7 @@ group = 'basic'
 
 sysconfig = dict(
     instrument = 'sans',
-    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink',
-                 'BerSANSImageSink', 'RawImageSink',
+    datasinks = ['BerSANSImageSink', 'RawImageSink',
                  'LivePNGSinkLog', 'LivePNGSink'],
 )
 

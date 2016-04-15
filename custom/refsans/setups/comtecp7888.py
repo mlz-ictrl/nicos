@@ -6,7 +6,7 @@ group = 'optional'
 excludes = ['detector']
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'RawFileSaver'],
+    datasinks = ['RawFileSaver'],
 )
 
 nethost = 'refsanssrv.refsans.frm2'

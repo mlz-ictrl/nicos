@@ -9,8 +9,7 @@ includes = ['cryo']
 
 sysconfig = dict(
     instrument = 'sxtal',
-    datasinks = ['conssink', 'scanfilesink', 'hklfilesink', 'serialsink',
-                 'livesink', 'dmnsink'],
+    datasinks = ['scanfilesink', 'hklfilesink'],
 )
 
 devices = dict(

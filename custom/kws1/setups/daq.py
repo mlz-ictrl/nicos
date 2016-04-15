@@ -7,7 +7,7 @@ includes = ['counter']
 excludes = ['virtual_daq']
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'kwsformat'],
+    datasinks = ['kwsformat'],
 )
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"

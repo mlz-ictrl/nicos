@@ -6,7 +6,7 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'BerSANSFileSaver'],
+    datasinks = ['BerSANSFileSaver'],
 )
 
 devices = dict(

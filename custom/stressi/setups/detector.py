@@ -31,8 +31,7 @@ toolpath = '/opt/caress'
 
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink',
-                 'histogram', 'listmode'],
+    datasinks = ['histogram', 'listmode'],
 )
 
 # ;MESYTEC PSD histogram (2D)

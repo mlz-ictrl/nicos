@@ -250,12 +250,16 @@ The possible entries for the ``sysconfig`` dictionary are:
    The other type of data sink is the support to transport the measured data to
    the different components of NICOS to display the data of the measurement.
 
+   Datasinks lists from different loaded setups are merged.
+
 .. data:: notifiers
 
    A list of names of "notifiers", i.e. special devices that can notify the user
    or instrument responsibles via various channels (e.g. email).  These devices
    must be defined somewhere in a ``devices`` dictionary and be of class
    :class:`nicos.devices.notifiers.Notifier` or a subclass.
+
+   Notifiers lists from different loaded setups are merged.
 
 
 .. _config-setups:

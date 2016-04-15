@@ -30,8 +30,7 @@ toolpath = '/opt/caress'
 # CHIR=(-180,180) PHIR=(-720,720) XR=(-2000,2000) YR=(-2000,2000) ZR=(-2000,2000)
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink',
-                 'histogram', 'listmode'],
+    datasinks = ['histogram', 'listmode'],
 )
 
 devices = dict(

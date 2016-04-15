@@ -4,7 +4,7 @@ description = "Image plate detector setup"
 group = "basic"
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'TIFFFileSaver'],
+    datasinks = ['TIFFFileSaver'],
 )
 
 includes = ["counter", "shutter", "microstep", "reactor", "nl1", "guidehall",

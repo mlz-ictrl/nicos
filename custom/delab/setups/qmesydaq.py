@@ -5,7 +5,7 @@ group = 'optional'
 excludes = ['acqiris',]
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'dmnsink', 'LiveViewSink'],
+    datasinks = ['LiveViewSink'],
 )
 
 nethost = 'localhost'

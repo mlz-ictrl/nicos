@@ -4,7 +4,7 @@ description = "Andor DV936 CCD camera setup"
 group = "basic"
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'FITSFileSaver'],
+    datasinks = ['FITSFileSaver'],
 )
 
 includes = ["shutter", "microstep", "reactor", "nl1", "guidehall", "astrium"]

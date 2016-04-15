@@ -5,7 +5,7 @@ description = 'Detector file savers'
 group = 'lowlevel'
 
 sysconfig = dict(
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'FITSFileSaver'],
+    datasinks = ['FITSFileSaver'],
 )
 
 devices = dict(
