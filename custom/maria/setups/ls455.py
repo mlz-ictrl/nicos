@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 description = "Gauss meter setup"
-group = "lowlevel"
+group = "optional"
 
 tango_base = "tango://phys.maria.frm2:10000/maria"
 
