@@ -1,10 +1,9 @@
 --extra-index-url https://forge.frm2.tum.de/simple
---allow-external nicoslivewidget
 nicoslivewidget>=1.2 ; python_version < '3.0'
---allow-external nicos-pyctl
 nicos-pyctl>=1.0
---allow-external mysql-connector-python
-mysql-connector-python>=1.0.7
+#since PEP470 externally hosted files are not allowed anymore via pypi
+#mysql-connector-python>=1.0.7
+http://cdn.mysql.com/Downloads/Connector-Python/mysql-connector-python-2.0.4.zip#md5=3df394d89300db95163f17c843ef49df
 scipy>=0.9.0
 matplotlib>=1.1
 numpy>=1.6.1
