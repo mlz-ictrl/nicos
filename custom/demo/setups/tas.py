@@ -5,7 +5,7 @@ modules = ['commands.tas']
 
 excludes = []
 
-includes = ['cryo']
+includes = ['cryo', 'source']
 
 sysconfig = dict(
     instrument = 'tas',

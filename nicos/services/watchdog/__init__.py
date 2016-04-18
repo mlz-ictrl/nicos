@@ -24,20 +24,21 @@
 
 """The NICOS watchdog daemon."""
 
-import sys
 import ast
 import subprocess
-from os import path
-from time import time as currenttime, strftime
-from collections import OrderedDict
+import sys
 
-from nicos import session, config
-from nicos.core import Param, Override, listof, dictof, anytype, status
-from nicos.utils import lc_dict
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
-from nicos.devices.notifiers import Notifier, Mailer
+from collections import OrderedDict
+from os import path
+from time import ctime, strftime, time as currenttime
+
+from nicos import config, session
+from nicos.core import Override, Param, anytype, dictof, listof, status
 from nicos.devices.cacheclient import BaseCacheClient
+from nicos.devices.notifiers import Mailer, Notifier
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.pycompat import iteritems, listitems
+from nicos.utils import lc_dict
 
 
 class Entry(object):
@@ -56,12 +57,73 @@ class Entry(object):
     def __init__(self, values):
         self.__dict__.update(values)
 
+VALID = 1
+PRECONDITIONED = 2
+GRACETIMING = 3
+FULFILLED = 4
+
+
+class Precondition(object):
+    _entry = None
+    _value = None
+    _pretime = None
+    _grace_time = None
+
+    def __init__(self, entry, value=None, time=None):
+        self._entry = entry
+        self.update(value, time)
+
+    def __repr__(self):
+        return '%s %s %s' % (self._value,
+                             ctime(self._pretime) if self._pretime else None,
+                             ctime(self._grace_time) if self._grace_time else
+                             None)
+
+    def fulfilled(self, time):
+        return self._value == FULFILLED
+
+    def update(self, value, time):
+        if value:
+            if not self._value:
+                self._value = VALID
+                self._pretime = time
+            elif self._value == VALID and self._precondtime(time):
+                if self._entry.gracetime:
+                    self._value = PRECONDITIONED
+                else:
+                    self._value = FULFILLED
+        else:
+            if self._value == PRECONDITIONED:
+                if self._grace_time is None:
+                    self._grace_time = time
+                self._value = GRACETIMING
+            elif self._value == GRACETIMING:
+                if self._gracetime(time):
+                    self._value = FULFILLED
+                    self._grace_time = None
+            else:
+                self._value = None
+                self._pretime = None
+                self._grace_time = None
+
+    def _gracetime(self, time):
+        # grace time is gone
+        if self._entry.gracetime and self._grace_time:
+            return time - self._grace_time > self._entry.gracetime
+        return True
+
+    def _precondtime(self, time):
+        # precondition time is gone
+        if self._entry.precondtime and self._pretime:
+            return time - self._pretime >= self._entry.precondtime
+        return True
+
 
 class Watchdog(BaseCacheClient):
 
     parameters = {
-        'watch':   Param('The configuration of things to watch',
-                         type=listof(dictof(str, anytype))),
+        'watch': Param('The configuration of things to watch',
+                       type=listof(dictof(str, anytype))),
         'mailreceiverkey': Param('Cache key that updates the receivers for '
                                  'any mail notifiers we have configured',
                                  type=str),
@@ -72,7 +134,7 @@ class Watchdog(BaseCacheClient):
     }
 
     parameter_overrides = {
-        'prefix':  Override(mandatory=False, default='nicos/'),
+        'prefix': Override(mandatory=False, default='nicos/'),
     }
 
     def doInit(self, mode):
@@ -190,12 +252,12 @@ class Watchdog(BaseCacheClient):
         # put key in db
         self._keydict[key[len(self._prefix):].replace('/', '_').lower()] = \
             cache_load(value)
-        # handle warning conditions
-        if key in self._keymap:
-            self._update_conditions(self._keymap[key], time, key, op, value)
         # handle preconditions
         if key in self._prekeymap:
             self._update_preconditions(self._prekeymap[key], time, key, op, value)
+        # handle warning conditions
+        if key in self._keymap:
+            self._update_conditions(self._keymap[key], time, key, op, value)
 
     def _update_conditions(self, entries, time, key, op, value):
         for entry in entries:
@@ -241,11 +303,17 @@ class Watchdog(BaseCacheClient):
                                      'precondition' % key, exc=1)
                 continue
             value = bool(value)
+            time = float(time)
+            if eid not in self._preconditions:
+                self._preconditions[eid] = Precondition(entry, value, time)
+            else:
+                self._preconditions[eid].update(value, time)
             self.log.debug('precondition %r is now %s' %
                            (entry.precondition, value))
-            if value == self._preconditions.get(eid, None):
-                continue
-            self._preconditions[eid] = value, float(time)
+            precondition = self._preconditions[eid]
+            self.log.debug('%r : %r' % (entry.precondition, precondition))
+            self.log.debug('precondition %r is fulfilled now %s' %
+                           (entry.precondition, precondition.fulfilled(time)))
 
     def _update_mailreceivers(self, emails):
         self.log.info('updating any Mailer receivers to %s' % emails)
@@ -291,15 +359,20 @@ class Watchdog(BaseCacheClient):
                 # warning has already been given
                 return
             if entry.precondition:
-                fulfilled, tstamp = self._preconditions.get(eid, (False, None))
-                mintime = entry.precondtime
-                if not fulfilled or currenttime() - tstamp < mintime:
-                    # we should not emit a warning, but we need to re-check the
-                    # precondition in a while
-                    self.log.info('condition %r triggered, but precondition %r '
-                                  'was not fulfilled for %d seconds' %
-                                  (entry.condition, entry.precondition, mintime))
-                    self._watch_grace[eid] = [currenttime() + mintime, value]
+                t = currenttime()
+                if eid not in self._preconditions:
+                    self.log.warning('Must create precondition %r',
+                                     entry.precondition)
+                    self._preconditions[eid] = Precondition(entry, value, t)
+                precond = self._preconditions[eid]
+                if not precond.fulfilled(t):
+                    # we should not emit a warning, but we need to re-check
+                    # the precondition in a while
+                    self.log.info('condition %r triggered, but precondition %r'
+                                  ' was not fulfilled for %d seconds' %
+                                  (entry.condition, entry.precondition,
+                                   entry.precondtime))
+                    self._watch_grace[eid] = [t + entry.precondtime, value]
                     return
             self._conditions.add(eid)
             self.log.info('got a new warning for %r' % entry.condition)

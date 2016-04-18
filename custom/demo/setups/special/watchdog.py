@@ -15,11 +15,11 @@ group = 'special'
 #   The time a precondition must be fulfilled. Default is 5 seconds.
 # 'message' -- warning message to display
 # 'type' -- for defining different types of warnings; this corresponds to the
-#     configured notifiers (default 'default')
-#     type '' does not emit warnings (useful together with scriptaction)
+#   configured notifiers (default 'default')
+#   type '' does not emit warnings (useful together with scriptaction)
 # 'scriptaction' -- 'pausecount' to pause the count loop on the condition
-#     or 'stop' or 'immediatestop' to cancel script execution
-#     (default '')
+#   or 'stop' or 'immediatestop' to cancel script execution
+#   (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
@@ -33,6 +33,7 @@ watchlist = [
          gracetime = 5),
     dict(condition = 'tbefilter_value > 75',
          scriptaction = 'pausecount',
+         setup = 'tas',
          message = 'Beryllium filter temperature too high',
          gracetime = 0),
     dict(condition = 'shutter_value == "closed"',
@@ -47,11 +48,31 @@ watchlist = [
          setup = 'magnet',
          message = 'Magnet quenched',
          gracetime = 0),
+    dict(condition = 'vacuum_value > 0.2',
+         precondition = 'vacuum_value < 0.2',
+         setup = 'vacuum',
+         message = 'vacuum_value > 0.2 mbar',
+         type = 'critical',
+        ),
+    dict(condition = 'reactorpower_value < 10',
+         precondition = 'reactorpower_value > 19',
+         precondtime = 60,
+         setup = 'source',
+         message = 'Reactor power too low',
+         type = 'critical',
+         action = 'stop()',
+         gracetime = 30,),
+    # dict(condition = 'ReactorPower_value < 19',
+    #      # precondition = 'ReactorPower_value >= 19',
+    #      pausecount = True,
+    #      message = 'Reactor power is lower than 19 MW',
+    #      # action = '',
+    #      gracetime = 10, ),
 ]
 
 
-# The Watchdog device has two lists of notifiers, one for priority 1 and
-# one for priority 2.
+# The Watchdog device has two lists of notifiers, one for priority 1 ('default')
+# and one for priority 2 ('critical').
 
 devices = dict(
 
@@ -59,5 +80,6 @@ devices = dict(
                       cache = 'localhost:14869',
                       notifiers = {'default': [], 'critical': []},
                       watch = watchlist,
+                      loglevel = 'info',
                      ),
 )

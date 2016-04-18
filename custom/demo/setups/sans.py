@@ -11,7 +11,7 @@ sysconfig = dict(
 modules = ['sans1.commands']
 
 excludes = ['detector', 'qmchannel']
-includes = ['cryo']
+includes = ['cryo', 'source']
 
 devices = dict(
     Sample   = device('sans1.sans1_sample.Sans1Sample',
