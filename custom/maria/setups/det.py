@@ -3,7 +3,7 @@
 description = "Denex detector setup"
 group = "basic"
 
-includes = []
+includes = ["counter"]
 
 sysconfig = dict(
     datasinks = ['NPGZFileSink', 'LiveViewSink'],
@@ -20,9 +20,6 @@ devices = dict(
                           ),
     LiveViewSink  = device("devices.datasinks.LiveViewSink",
                            description = "Sends image data to LiveViewWidget",
-                          ),
-    timer         = device("devices.generic.VirtualTimer",
-                           lowlevel = True,
                           ),
     detimg        = device("maria.detector.DenexImage",
                            description = "Denex detector image",
