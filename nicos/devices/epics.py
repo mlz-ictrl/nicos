@@ -64,7 +64,22 @@ FTYPE_TO_VALUETYPE = {
     4: bytes,
     5: int,
     6: float,
+
+    14: str,
+    15: int,
+    16: float,
+    17: int,
+    18: bytes,
+    19: int,
     20: float,
+
+    28: str,
+    29: int,
+    30: float,
+    31: int,
+    32: bytes,
+    33: int,
+    34: float,
 }
 
 
