@@ -181,8 +181,8 @@ class Image(BaseChannel, QMesyDAQImage):
         self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile', '%s' %
                          value)
 
-    def doReadListmodefile(self, value):
+    def doReadListmodefile(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile'),
 
-    def doReadHistogramfile(self, value):
+    def doReadHistogramfile(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile'),
