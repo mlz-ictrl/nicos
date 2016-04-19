@@ -30,10 +30,10 @@ import IO
 import IOCommon
 from Detector import Detector
 
-from nicos.core import ArrayDesc, Param, MASTER, SIMULATION, FINAL, Value, \
+from nicos.core import ArrayDesc, FINAL, MASTER, Param, SIMULATION, Value, \
     listof, oneof
-from nicos.devices.generic import TimerChannelMixin, CounterChannelMixin, \
-    PassiveChannel, ActiveChannel
+from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
+    PassiveChannel, TimerChannelMixin
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
@@ -50,7 +50,7 @@ class BaseChannel(TacoBaseChannel):
     def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.setMode, IOCommon.MODE_PRESELECTION if value
-                                           else IOCommon.MODE_NORMAL)
+                                            else IOCommon.MODE_NORMAL)
         self._taco_guard(self._dev.enableMaster, value)
 
 
@@ -161,21 +161,22 @@ class Image(BaseChannel, QMesyDAQImage, PassiveChannel):
             self.readresult = [data.sum()]
             return data
         elif res[2] in [0, 1]:  # 2D array
-            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]), dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]),
+                                       dtype='<u4')
+            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
+            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
 
     def doWriteListmodefile(self, value):
         self._taco_guard(self._dev.deviceUpdateResource, 'lastlistfile', '%s' %
-                        value)
+                         value)
 
     def doWriteHistogramfile(self, value):
         self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile', '%s' %
