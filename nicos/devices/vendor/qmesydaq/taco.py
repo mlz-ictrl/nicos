@@ -122,7 +122,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
         return ', '.join(resultlist)
 
 
-class Image(BaseChannel, QMesyDAQImage):
+class Image(BaseChannel, QMesyDAQImage, PassiveChannel):
     """Channel for QMesyDAQ that returns the last image."""
 
     parameters = {
