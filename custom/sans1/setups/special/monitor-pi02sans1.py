@@ -41,6 +41,13 @@ _sc2 = Block('Sample Changer 2', [
     setups='sc2',
 )
 
+_ccmsanssc = Block('Magnet Sample Changer', [
+    BlockRow(Field(name='Position', dev='ccmsanssc_axis'),),
+    BlockRow(Field(name='SampleChanger', dev='ccmsanssc_position'),),
+    ],
+    setups='ccmsanssc',
+)
+
 _st2 = Block('Sample Table 2', [
     BlockRow(Field(name='st2_z', dev='st2_z'),),
     BlockRow(Field(name='st2_y', dev='st2_y'),),
@@ -448,7 +455,7 @@ devices = dict(
                      layout = [
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _sc2, _st2, _st1),
+                                    Column(_sc1, _sc2, _ccmsanssc, _st2, _st1),
                                     Column(_htf01, _htf03, _ccmsans, _miramagnet, _amagnet, _sans1julabo, *newports),
                                     Column(_ccmsans_temperature),
                                     Column(_htf01_plot, _htf03_plot, _spinflipper, _julabo_plot),

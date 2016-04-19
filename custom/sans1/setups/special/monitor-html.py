@@ -241,6 +241,17 @@ _sc2 = Column(
     ),
 )
 
+_ccmsanssc = Column(
+    Block('Magnet Sample Changer', [
+         BlockRow(
+            Field(name='Position', dev='ccmsanssc_axis'),
+            Field(name='SampleChanger', dev='ccmsanssc_position'),
+        ),
+        ],
+        setups='ccmsanssc',
+    ),
+)
+
 _htf03 = Column(
     Block('HTF03', [
         BlockRow(
@@ -455,7 +466,7 @@ devices = dict(
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2,
-                                     _miramagnet, _amagnet, _htf03, _htf01,
+                                     _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports, _julabo),
                                  Row(_live),
                                ],

@@ -38,14 +38,15 @@ devices = dict(
                                 switchvalues = (2, 1),
                                 fmtstr = '%.2f',
                                 precision = 0.01,
+                                dragerror = 5,
                                ),
 
     ccmsanssc_position = device('devices.generic.Switcher',
                                 description = 'position of the sample changer sword',
                                 moveable = 'ccmsanssc_axis',
-                                mapping = dict((i + 1, i * 65)
-                                               for i in range(10)),
-                                precision = 0.05,
+                                mapping = {1: 4, 2: 69, 3: 134, 4: 199, 5: 264,
+                                           6: 329, 7: 394, 8: 459, 9: 524, 10: 589},
+                                precision = 0.01,
                                ),
 )
 

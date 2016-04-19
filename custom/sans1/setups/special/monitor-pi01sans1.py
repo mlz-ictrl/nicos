@@ -154,7 +154,7 @@ _collimationcolumn = Column(
                   width=5,height=9),
             Field(dev='sa1', name='sa1',
                   widget='nicos.sans1.monitorwidgets.CollimatorTable',
-                  options=['20mm','10mm','50x50'],
+                  options=['20mm','30mm','50x50'],
                   disabled_options = ['N.A.'],
                   width=7,height=9),
         ),
