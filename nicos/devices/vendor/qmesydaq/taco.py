@@ -49,8 +49,8 @@ class BaseChannel(TacoBaseChannel):
 
     def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.stop)
-        self._taco_guard(self._dev.setMode(IOCommon.MODE_PRESELECTION if value
-                                           else IOCommon.MODE_NORMAL))
+        self._taco_guard(self._dev.setMode, IOCommon.MODE_PRESELECTION if value
+                                           else IOCommon.MODE_NORMAL)
         self._taco_guard(self._dev.enableMaster, value)
 
 
