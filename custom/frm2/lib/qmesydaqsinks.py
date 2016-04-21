@@ -25,7 +25,7 @@
 """QMesyDAQ file writer classes."""
 
 from nicos import session
-from nicos.core import Override, Attach, DataSinkHandler
+from nicos.core import Attach, DataSinkHandler, Override
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.vendor.qmesydaq import Image
 
