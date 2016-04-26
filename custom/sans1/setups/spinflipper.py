@@ -81,8 +81,8 @@ devices = dict(
                             unit = 'C',
     ),
 
-# 34461A
-    U_spinflipper = device('sans1.34461a.VoltageMeter',
+# Keysight 34461A
+    U_spinflipper = device('sans1.k34461a.VoltageMeter',
                description = 'Voltage of 34461A True RMS Meter',
                tangodevice = tango_base_truerms + 'rmsspinflip/io',
                unit = 'V',

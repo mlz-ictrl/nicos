@@ -47,7 +47,7 @@ class VoltageMeter(PyTangoDevice, Measurable):
             raise CommunicationError('wrong identification: %r' % reply)
 
     def doRead(self, maxage=0):
-        return float(self._dev.Communicate('MEASure:VOLTage:DC?'))
+        return float(self._dev.Communicate('MEASure:VOLTage:AC?'))
 
     def doStatus(self, maxage=0):
         return status.OK, ''
