@@ -1939,6 +1939,18 @@ class Measurable(Waitable):
             if hasattr(self, 'doPrepare'):
                 return self.doPrepare()
 
+    def readResults(self, quality):
+        """Return a tuple of the scalar result(s) of the last measurement and
+        the array result(s) of the last measurement.
+
+        The array results will be read first calling `readArrays` because
+        there migth be side-effects on the scalar result of `read`, e.g.
+        `ImageChannelMixin`'s standard implementation of `doRead` returns
+        `self.readresult` which will probably be altered in `doReadArrays`.
+        """
+        arrays = self.readArrays(quality)
+        return self.read(), arrays
+
     def info(self):
         """Automatically add device status (if not OK).  Does not add the
         device value since that is typically not useful for Measurables.
