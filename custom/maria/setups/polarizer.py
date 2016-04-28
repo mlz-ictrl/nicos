@@ -25,9 +25,18 @@ devices = dict(
                       description = "Flipper",
                       tangodevice = tango_dio + "/pflipper",
                       mapping = {
-                                 "up": 0,
-                                 "down": 1,
-                                }
+                          "up": 0,
+                          "down": 1,
+                      }
                      ),
-    # TODO: aflipper (HE3), invertiert 0 "down", 1 "up"
+    # aflipper (3HE) has inverted up/down mapping
+    aflipper = device("maria.pyro4.NamedDigitalOutput",
+                      description = "Pyro4 Device",
+                      pyro4device = "PYRO:he3.cell@172.25.32.39:50555",
+                      hmackey = "iamverysecret",
+                      mapping = {
+                          "down": 0,
+                          "up": 1,
+                      }
+                     ),
 )
