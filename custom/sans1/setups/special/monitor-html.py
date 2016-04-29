@@ -141,6 +141,7 @@ _sans1det = Column(
                 ),
         BlockRow(
                  Field(name='events', dev='det1_ev', width=13),
+                 Field(name='TISANE', dev='TISANE_det_pulses', width=13),
                 ),
         BlockRow(
                  Field(name='mon 1', dev='det1_mon1', width=13),

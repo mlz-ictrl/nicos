@@ -215,6 +215,7 @@ Operation=
 
 %%Comment
 MesyDAQFile=%(Histfile)s
+TISANE_det_pulses=%(det1_mon3)s
 
 """
 

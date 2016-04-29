@@ -190,6 +190,7 @@ _sans1det = Column(
                  Field(name='events', dev='det1_ev', width=12),
                  Field(name='mon 1', dev='det1_mon1', width=12),
                  Field(name='mon 2', dev='det1_mon2', width=12),
+                 Field(name='TISANE', dev='TISANE_det_pulses', width=12),
                  Field(name='bs1_x', dev='bs1_x', width=12, format='%.1f'),
                  Field(name='bs1_y', dev='bs1_y', width=12, format='%.1f'),
                 ),
