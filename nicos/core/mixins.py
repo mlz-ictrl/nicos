@@ -413,6 +413,19 @@ class HasTimeout(DeviceMixinBase):
         timesout = self._getTimeoutTimes(self.read(), target, currenttime())
         self._setROParam('_timesout', timesout)
 
+    def _clearTimeout(self):
+        self._setROParam('_timesout', None)
+
+    def _targetReached(self):
+        """Clears timeout in order to suppress further timeouts after the
+        device has reached its target. This is determined by `_combinedStatus`.
+        Thus this will just be checked when the status is polled periodically
+        before the device timed out.
+        This behaviour may be changed in derived classes,
+        e.g. `HasWindowTimeout`.
+        """
+        self._clearTimeout()
+
     def _combinedStatus(self, maxage=0):
         """Create a combined status from doStatus, isAtTarget and timedOut
 
@@ -422,10 +435,12 @@ class HasTimeout(DeviceMixinBase):
         """
         code, msg = Readable._combinedStatus(self, maxage)
 
-        if code in (status.OK, status.WARN) and self._timeoutTime and \
-                not self.isAtTarget(self.read(maxage)):
-            code = status.BUSY
-            msg = statusString('target not yet reached', msg)
+        if code in (status.OK, status.WARN) and self._timeoutTime:
+            if not self.isAtTarget(self.read(maxage)):
+                code = status.BUSY
+                msg = statusString('target not yet reached', msg)
+            else:
+                self._targetReached()
         if code == status.BUSY:
             if self.isTimedOut():
                 code = self.timeout_status
@@ -445,7 +460,7 @@ class HasTimeout(DeviceMixinBase):
                         self._timeoutActionCalled = True
             elif self._timesout:
                 # give indication about the phase of the movement
-                for m, t in self._timesout:
+                for m, t in self._timesout or []:
                     if t > currenttime():
                         msg = statusString(m, msg)
                         break
@@ -539,6 +554,12 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return 0.0
         # ramp unfinished, estimate ramp + window
         return abs(self.read() - self.target) * 60 / self.ramp + self.window
+
+    def _targetReached(self):
+        """Do not call `_clearTimeout` as supposed by `HasTimeout` in order
+        to check whether or not the value has drifted away from its window
+        also after the target has been reached.
+        """
 
 
 class HasCommunication(DeviceMixinBase):
