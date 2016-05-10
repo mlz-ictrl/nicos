@@ -219,6 +219,7 @@ def count(*detlist, **preset):
     Within a manual scan, this command is also used to perform the count as one
     point of the manual scan.
     """
+    temporary = preset.pop('temporary', False)
     # sanitize detector list; support count(1) and count('info')
     detectors = []
     for det in detlist:
@@ -259,7 +260,7 @@ def count(*detlist, **preset):
         if not len(detectors) == has_sub == 1:
             raise NicosError('cannot acquire on normal and subscan detectors')
 
-    return inner_count(detectors, preset)
+    return inner_count(detectors, preset, temporary)
 
 
 @usercommand
