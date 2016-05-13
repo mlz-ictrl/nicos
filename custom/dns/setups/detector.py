@@ -6,7 +6,7 @@ group = "lowlevel"
 includes = ['counter']
 
 sysconfig = dict(
-    datasinks = ['DNSFileSaver', 'YAMLSaver'],
+    datasinks = ['DNSFileSaver', 'YAMLSaver', 'LiveView'],
 )
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
@@ -16,6 +16,9 @@ devices = dict(
                           lowlevel = True,
                          ),
     YAMLSaver    = device('dns.yamlformat.YAMLFileSink',
+                          lowlevel = True,
+                         ),
+    LiveView     = device('devices.datasinks.LiveViewSink',
                           lowlevel = True,
                          ),
     dettof       = device('dns.detector.TofChannel',

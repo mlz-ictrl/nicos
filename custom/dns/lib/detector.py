@@ -28,7 +28,6 @@ from time import sleep
 import numpy
 
 from nicos.core import Value, SIMULATION
-from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange, \
     ArrayDesc
 from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
@@ -149,21 +148,18 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                      for i in range(start, end + 1))
 
     def doReadArray(self, quality):
-        if quality in (FINAL, INTERRUPTED):
-            self.log.debug("Tof Detector read final image")
-            start, end = self.readchannels
-            # get current data array from detector
-            array = numpy.asarray(self._dev.value, numpy.uint32)
-            array = array.reshape(self.detshape['t'], self.detshape['x'])
-            if self.tofmode == 'tof':
-                startT, endT = self.readtimechan
-                res = array[startT:endT+1].sum(axis=0)[start:end+1]
-            else:
-                res = array[0, start:end+1]
-            self.readresult = res.tolist()
-            return array
-        # live images currently not supported
-        return None
+        self.log.debug("Tof Detector read image")
+        start, end = self.readchannels
+        # get current data array from detector
+        array = numpy.asarray(self._dev.value, numpy.uint32)
+        array = array.reshape(self.detshape['t'], self.detshape['x'])
+        if self.tofmode == 'tof':
+            startT, endT = self.readtimechan
+            res = array[startT:endT+1].sum(axis=0)[start:end+1]
+        else:
+            res = array[0, start:end+1]
+        self.readresult = res.tolist()
+        return array
 
 
 class DNSDetector(Detector):

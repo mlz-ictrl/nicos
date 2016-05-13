@@ -84,7 +84,6 @@ class LiveDataPanel(Panel):
 
         self.widget = LWWidget(self)
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widget.setKeepAspect(True)
         self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
                                 Integrate | Histogram)
         self.widgetLayout.addWidget(self.widget)
@@ -126,6 +125,10 @@ class LiveDataPanel(Panel):
                                     Darkfield | Despeckle |
                                     CreateProfile | Histogram | MinimumMaximum)
             self.widget.setStandardColorMap(True, False)
+        if self._instrument == 'dns':
+            self.widget.setKeepAspect(False)
+        else:
+            self.widget.setKeepAspect(True)
         # configure allowed file types
         opt_filetypes = options.get('filetypes', list(FILETYPES))
         self._allowed_tags = set(opt_filetypes) & set(FILETYPES)
@@ -197,8 +200,8 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
-        normalized_type = numpy.dtype(dtype).str
-        if normalized_type not in DATATYPES:
+        normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
+        if not fname and normalized_type not in DATATYPES:
             self._last_format = self._last_fname = None
             self.log.warning('Unsupported live data format: %s' % (params,))
             return
