@@ -174,6 +174,11 @@ class DNSDetector(Detector):
                           'with respect to setting presets.', BaseFlipper),
     }
 
+    def _getWaiters(self):
+        waiters = self._adevs.copy()
+        del waiters['flipper']
+        return waiters
+
     def doTime(self, preset):
         if P_TIME in preset:
             return preset[P_TIME]

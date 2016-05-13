@@ -70,8 +70,12 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         w("# DNS   Mono  d-spacing[nm]  Theta[deg]   "
           "Lambda[nm]   Energy[meV]   Speed[m/sec]\n")
         lam = readdev('mon_lambda')
-        energy = 81.804165 / lam**2
-        speed = 3956.0 / lam
+        if lam is not None:
+            energy = 81.804165 / lam**2
+            speed = 3956.0 / lam
+            lam /= 10.  # displayed in nm
+        else:
+            energy = speed = None
         w("#      %s   %6.4f         %6.2f         %6.3f"
           "%6.3f      %7.2f\n" %
           ("PG-002", 0.3350, readdev('mon_rot'), lam, energy, speed))
@@ -178,6 +182,9 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
 
 class DNSFileSink(ImageSink):
     """Saves DNS image data"""
+
+    handlerclass = DNSFileSinkHandler
+
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
