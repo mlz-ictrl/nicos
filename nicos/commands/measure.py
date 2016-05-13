@@ -192,7 +192,7 @@ def inner_count(detectors, preset, temporary=False):
     for det in detectors:
         res = point.results[det.name][0]
         for i, v in enumerate(det.valueInfo()):
-            msg.append('%s = %s' % (v.name, res[i]))
+            msg.append('%s = %s' % (v.name, v.fmtstr % res[i]))
             retval.append(res[i])
     for filename in point.filenames:
         msg.append('file = %s' % filename)
