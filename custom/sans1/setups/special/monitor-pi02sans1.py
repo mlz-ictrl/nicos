@@ -328,7 +328,7 @@ for k in range(10, 22 + 1):
     ))
 
 cryos = []
-for cryo in 'cci3he1 cci3he2 cci3he3 cci3he4he1 cci3he4he2'.split():
+for cryo in 'cci3he1 cci3he2 cci3he3 ccidu1 ccidu2'.split():
     cryos.append(Block(cryo.title(), [
         BlockRow(
             Field(name='Setpoint', key='t_%s/setpoint' % cryo,
