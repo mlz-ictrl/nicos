@@ -65,7 +65,8 @@ _column1 = Column(
         setups='magnet5',
     ),
     Block('HTS Magnet', [
-        BlockRow(Field(dev='B_ccmhts01', name='I'))
+        BlockRow(Field(name='Target', dev='B_ccmhts01'),
+                 Field(name='Readback', dev='B_ccmhts01_readback')),
         ],
         setups='ccmhts01',
     ),
@@ -262,7 +263,7 @@ devices = dict(
                      loglevel = 'info',
                      cache = 'mira1:14869',
                      prefix = 'nicos/',
-                     font = 'Luxi Sans',
+                     font = 'Droid Sans',
                      valuefont = 'Consolas',
                      fontsize = 22,
                      padding = 5,
