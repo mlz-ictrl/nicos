@@ -27,7 +27,7 @@
 
 from nicos import session
 from nicos.commands import usercommand, helparglist
-from nicos.utils import updateFileCounter
+from nicos.galaxi.pilatus import PilatusDetector
 from nicos.commands.measure import count as nicos_count
 
 @usercommand
@@ -36,13 +36,10 @@ def count(num=1, **preset):
     """GALAXI specific command: Count with Pilatus detector and rewrite image"""
 
     exp = session.experiment
-    exp.advanceScanCounter()
-    try:
-        _detl = [_det for _det in exp.detectors if _det.name is not 'mythen']
-        for _ in range(num):
-            nicos_count(*_detl, **preset)
-            # allow daemon to stop here
-            session.breakpoint(2)
-    finally:
-        updateFileCounter(exp.scanCounterPath, exp.lastscan - 1)
-
+    for _det in exp.detectors:
+        if isinstance(_det, PilatusDetector): _det.nextfilename = 'tmpcount.tif'
+    preset['temporary'] = True
+    for _ in range(num):
+        nicos_count(**preset)
+        # allow daemon to stop here
+        session.breakpoint(2)
