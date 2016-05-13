@@ -405,7 +405,7 @@ class Detector(Measurable):
         self._getMasters()
         if not self._masters:
             return status.OK, 'idle'
-        st, text = multiStatus(self._adevs, maxage)
+        st, text = multiStatus(self._getWaiters(), maxage)
         if st == status.ERROR:
             return st, text
         # XXX: shorter status strings?
