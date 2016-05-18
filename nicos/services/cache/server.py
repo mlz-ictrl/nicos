@@ -38,6 +38,7 @@ line protocol.
 import select
 import socket
 import threading
+from errno import EAGAIN
 from time import time as currenttime, sleep
 
 from nicos import session, config
@@ -114,16 +115,24 @@ class CacheWorker(object):
             # self.log.debug('sending: %r' % data)
             if self.sock is None:  # connection already closed
                 return
-            try:
-                self.sock.sendall(to_utf8(data))
-            except socket.timeout:
-                self.log.warning('send timed out, shutting down')
-                self.closedown()
-            except Exception:
-                # if we can't write (or it would be blocking), there is some
-                # serious problem: forget writing and close down
-                self.log.warning('other end closed, shutting down')
-                self.closedown()
+            while True:
+                try:
+                    self.sock.sendall(to_utf8(data))
+                except socket.timeout:
+                    self.log.warning('send timed out, shutting down')
+                    self.closedown()
+                except socket.error as err:
+                    if err.args[0] == EAGAIN:
+                        sleep(CYCLETIME)
+                        continue
+                    self.log.warning('other end closed, shutting down', exc=err)
+                    self.closedown()
+                except Exception:
+                    # if we can't write (or it would be blocking), there is some
+                    # serious problem: forget writing and close down
+                    self.log.warning('other end closed, shutting down')
+                    self.closedown()
+                break
 
     def _receiver_thread(self):
         data = b''
@@ -145,6 +154,11 @@ class CacheWorker(object):
                 continue
             try:
                 newdata = self.sock.recv(BUFSIZE)
+            except socket.error as err:
+                if err.args[0] == EAGAIN:
+                    # if we receive an EAGAIN error, just continue
+                    continue
+                newdata = b''
             except Exception:
                 newdata = b''
             if not newdata:
