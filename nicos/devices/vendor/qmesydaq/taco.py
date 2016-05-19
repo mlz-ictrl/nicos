@@ -122,7 +122,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
         return ', '.join(resultlist)
 
 
-class Image(BaseChannel, QMesyDAQImage, PassiveChannel):
+class Image(BaseChannel, QMesyDAQImage):
     """Channel for QMesyDAQ that returns the last image."""
 
     parameters = {
@@ -149,6 +149,9 @@ class Image(BaseChannel, QMesyDAQImage, PassiveChannel):
         finally:
             self._taco_guard(self._dev.deviceOn)
         return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
+
+    def doRead(self, maxage=0):
+        return self.readresult
 
     def doReadArray(self, quality):
         # read data via taco and transform it
