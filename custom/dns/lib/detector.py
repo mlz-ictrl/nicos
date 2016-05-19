@@ -104,6 +104,9 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doResume(self):
         self.doStart()
 
+    def doReset(self):
+        pass  # no Reset implemented in the server currently
+
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
 
