@@ -163,7 +163,7 @@ class Sans1ColliCoder(TacoDevice, Coder):
         value = self.steps / self.slope
         self.log.debug('doRead: %d steps -> %s' %
                        (self.steps, self.format(value, unit=True)))
-        return value - self.zeropos
+        return round(value - self.zeropos, 3)
 
     def doStatus(self, maxage=0):
         if self.steps:
