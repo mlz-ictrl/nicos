@@ -43,8 +43,8 @@ try:
 except ImportError:
     omniORB = None
 
-from nicos.core import DeviceMixinBase, Param, Override, absolute_path, \
-    status, SIMULATION, HasCommunication
+from nicos.core import Param, Override, absolute_path, status, SIMULATION, \
+    HasCommunication
 
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
@@ -80,7 +80,7 @@ LOAD_NORMAL = 0
 CARESS_MAPS = {}
 
 
-class CARESSDevice(HasCommunication, DeviceMixinBase):
+class CARESSDevice(HasCommunication):
     """The CARESS base device."""
 
     _orb = None
