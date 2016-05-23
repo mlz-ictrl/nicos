@@ -23,7 +23,7 @@ devices = dict(
                          ),
     dettof       = device('dns.detector.TofChannel',
                           description = 'TOF data channel',
-                          tangodevice = tango_base + 'detector/1',
+                          tangodevice = tango_base + 'sistofdetector/1',
                           readchannels = (0, 23),
                           readtimechan = (0, 0),
                          ),

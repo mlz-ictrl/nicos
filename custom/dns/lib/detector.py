@@ -28,7 +28,7 @@ from time import sleep
 import numpy
 
 from nicos.core import Value, SIMULATION
-from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange, \
+from nicos.core.params import Param, Attach, dictof, tupleof, intrange, \
     ArrayDesc
 from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
@@ -48,17 +48,15 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     """Basic Tango Device for TofDetector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
-    TOFMODE = ['notof', 'tof']
 
     parameters = {
         'detshape':     Param('Shape of tof detector', type=dictof(str, int)),
-        'tofmode':      Param('Data acquisition mode',
-                              type=oneof('notof', 'tof'), settable=True),
-        'nrtimechan':   Param('Number of time channel', type=intrange(1, 1024),
+        'timechannels': Param('Number of time channels - if set to 1 TOF mode '
+                              'is disabled', type=intrange(1, 1024),
                               settable=True),
         'divisor':      Param('Divisor between hard- and software time slice',
                               type=int, settable=True),
-        'offsetdelay':  Param('Offset delay in measure begin', type=int,
+        'delay':        Param('Offset delay in measure begin', type=int,
                               unit='us', settable=True),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
                               'returned by a read', type=tupleof(int, int),
@@ -70,7 +68,6 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.log.debug("doInit")
         self.arraydesc = ArrayDesc('data',
                                    (self.detshape.get('t', 1),
                                     self.detshape.get('x', 1)),
@@ -105,45 +102,28 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doResume(self):
         self.doStart()
 
-    def doReset(self):
-        pass  # no Reset implemented in the server currently
+    def doReadTimechannels(self):
+        return self._dev.timeChannels
 
-    def doReadTofmode(self):
-        return self.TOFMODE[self._dev.mode]
-
-    def doWriteTofmode(self, value):
-        if value == self.TOFMODE[0]:
-            self._dev.mode = 0
-            self.nrtimechan = 1
-        else:
-            self._dev.mode = 1
-
-    def doReadNrtimechan(self):
-        return self._dev.numchan
-
-    def doWriteNrtimechan(self, value):
-        self._dev.numchan = value
-        if value > 1:
-            self.tofmode = self.TOFMODE[1]
+    def doWriteTimechannels(self, value):
+        self._dev.timeChannels = value
         self._pollParam('detshape')
 
     def doReadDivisor(self):
-        return self._dev.divisor
+        return self._dev.timeInterval
 
     def doWriteDivisor(self, value):
-        self._dev.divisor = value
+        self._dev.timeInterval = value
 
-    def doReadOffsetdelay(self):
+    def doReadDelay(self):
         return self._dev.delay
 
-    def doWriteOffsetdelay(self, value):
+    def doWriteDelay(self, value):
         self._dev.delay = value
 
     def doReadDetshape(self):
-        # XXX non-standard implementation of GetProperties; should be fixed in
-        # the server
-        shvalue = self._dev.GetProperties(("shape", 'device'))
-        return {'x': int(shvalue[2]), 't': int(shvalue[5])}
+        shvalue = self._dev.detectorSize
+        return {'x': shvalue[0], 't': shvalue[3]}
 
     def valueInfo(self):
         start, end = self.readchannels
@@ -157,7 +137,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         # get current data array from detector
         array = numpy.asarray(self._dev.value, numpy.uint32)
         array = array.reshape(self.detshape['t'], self.detshape['x'])
-        if self.tofmode == 'tof':
+        if self.timechannels > 1:
             startT, endT = self.readtimechan
             res = array[startT:endT+1].sum(axis=0)[start:end+1]
         else:

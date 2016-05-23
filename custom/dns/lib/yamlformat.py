@@ -119,7 +119,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         else:
             monitor['is_in_place'] = False
 
-        nrtimechan = 1
+        timechannels = 1
         chanwidth = 0
         tofdelay = 0
         uses_chopper = False
@@ -128,12 +128,12 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         det1['type'] = 'polarization_analyser_detector_bank'
         if 'det' in expdev.detlist:
             tofchan = session.getDevice('dettof')
-            uses_chopper = tofchan.tofmode == 'tof'
+            uses_chopper = tofchan.timechannels > 1
             det1['is_in_place'] = True
-            if tofchan.tofmode == 'tof':
-                nrtimechan = tofchan.nrtimechan
+            if tofchan.timechannels > 1:
+                timechannels = tofchan.timechannels
                 chanwidth = tofchan.divisor / 1000000.
-                tofdelay = tofchan.offsetdelay / 1000000.
+                tofdelay = tofchan.delay / 1000000.
                 det1['axes'] = self._flowlist(['tube', 'time'])
             else:
                 det1['axes'] = self._flowlist(['tube'])
@@ -152,7 +152,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             det1['total_counts'] = int(total)
         else:
             det1['is_in_place'] = False
-        meas['setup']['time_of_flight']['number_of_channels'] = nrtimechan
+        meas['setup']['time_of_flight']['number_of_channels'] = timechannels
         meas['setup']['time_of_flight']['delay_duration'] = tofdelay
         meas['setup']['time_of_flight']['channel_duration'] = chanwidth
         meas['setup']['settings_for']['uses_chopper'] = uses_chopper
