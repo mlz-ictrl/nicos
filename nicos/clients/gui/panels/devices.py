@@ -385,7 +385,7 @@ class DevicesPanel(Panel):
             else:
                 status = cache_load(value)
             devinfo[1] = status
-            devitem.setText(2, status[1])
+            devitem.setText(2, str(status[1]))
             if status[0] not in statusIcon:
                 # old or wrong status constant
                 return
