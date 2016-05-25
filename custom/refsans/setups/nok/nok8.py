@@ -1,6 +1,6 @@
-description = "Devices for REFSANS's nok8"
+description = "neutronguid sideMirror noMirror"
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['nok_ref', 'nokbus3']
 
@@ -32,6 +32,36 @@ devices = dict(
                             unit = 'mm',
                             lowlevel = True,
                            ),
+
+    nok8_srll = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok8/srll of Server ipcsmsserver nok8',
+                       tacodevice = '//%s/test/nok8/srll' % nethost,
+                      ),
+
+    nok8_srhl = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok8/srhl of Server ipcsmsserver nok8',
+                       tacodevice = '//%s/test/nok8/srhl' % nethost,
+                      ),
+
+    nok8_srref = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/srref of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/srref' % nethost,
+                       ),
+
+    nok8_srrel = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/srrel of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/srrel' % nethost,
+                       ),
+
+    nok8_srsll = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/srsll of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/srsll' % nethost,
+                       ),
+
+    nok8_srshl = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/srshl of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/srshl' % nethost,
+                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok8r_motor    = device('refsans.nok_support.NOKMotorIPC',
@@ -81,6 +111,36 @@ devices = dict(
                             unit = 'mm',
                             lowlevel = True,
                            ),
+
+    nok8_ssll = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok8/ssll of Server ipcsmsserver nok8',
+                       tacodevice = '//%s/test/nok8/ssll' % nethost,
+                      ),
+
+    nok8_sshl = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok8/sshl of Server ipcsmsserver nok8',
+                       tacodevice = '//%s/test/nok8/sshl' % nethost,
+                      ),
+
+    nok8_ssref = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/ssref of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/ssref' % nethost,
+                       ),
+
+    nok8_ssrel = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/ssrel of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/ssrel' % nethost,
+                       ),
+
+    nok8_sssll = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/sssll of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/sssll' % nethost,
+                       ),
+
+    nok8_ssshl = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok8/ssshl of Server ipcsmsserver nok8',
+                        tacodevice = '//%s/test/nok8/ssshl' % nethost,
+                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok8s_motor    = device('refsans.nok_support.NOKMotorIPC',

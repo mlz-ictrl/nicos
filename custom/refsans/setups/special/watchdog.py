@@ -31,7 +31,7 @@ watchlist = [
          type = 'critical',
         ),
     dict(condition = 'vacuum_sr_value > 0.02',
-         #precondition = 'vacuum_sr_value < 0.02',
+         precondition = 'vacuum_sr_value < 0.02',
          message = 'vacuum_sr_value > 0.02',
          type = 'critical',
         ),

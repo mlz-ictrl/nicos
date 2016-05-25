@@ -1,6 +1,6 @@
-description = "Devices for REFSANS's nok2"
+description = "neutronguid"
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['nok_ref', 'nokbus1']
 
@@ -51,6 +51,42 @@ devices = dict(
                             lowlevel = True,
                            ),
 
+    nok2_sshl = device('devices.taco.DigitalInput',
+                       description = 'high limit switch',
+                       tacodevice = '//%s/test/nok2/sshl' % nethost,
+                       #lowlevel = True,
+                      ),
+
+    nok2_ssll = device('devices.taco.DigitalInput',
+                       description = 'low limit switch',
+                       tacodevice = '//%s/test/nok2/ssll' % nethost,
+                       #lowlevel = True,
+                      ),
+
+    nok2_ssref = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/ssref of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/ssref' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_ssrel = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/ssrel of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/ssrel' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_sssll = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/sssll of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/sssll' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_ssshl = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/ssshl of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/ssshl' % nethost,
+                        #lowlevel = True,
+                       ),
+
 # generated from global/inf/poti_tracing.inf
     nok2r_obs      = device('refsans.nok_support.NOKPosition',
                             description = 'Position sensing for NOK2, reactor side',
@@ -99,6 +135,42 @@ devices = dict(
                             zerosteps = int(268.11 * 2000),  # offset * slope
                             lowlevel = True,
                            ),
+
+    nok2_srll = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok2/srll of Server ipcsmsserver nok2',
+                       tacodevice = '//%s/test/nok2/srll' % nethost,
+                       #lowlevel = True,
+                      ),
+
+    nok2_srhl = device('devices.taco.DigitalInput',
+                       description = 'Device test/nok2/srhl of Server ipcsmsserver nok2',
+                       tacodevice = '//%s/test/nok2/srhl' % nethost,
+                       lowlevel = False,
+                      ),
+
+    nok2_srref = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/srref of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/srref' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_srrel = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/srrel of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/srrel' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_srsll = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/srsll of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/srsll' % nethost,
+                        #lowlevel = True,
+                       ),
+
+    nok2_srshl = device('devices.taco.DigitalInput',
+                        description = 'Device test/nok2/srshl of Server ipcsmsserver nok2',
+                        tacodevice = '//%s/test/nok2/srshl' % nethost,
+                        #lowlevel = True,
+                       ),
 
 # generated from global/inf/poti_tracing.inf
     nok2s_obs      = device('refsans.nok_support.NOKPosition',

@@ -1,6 +1,6 @@
-description = "Devices for REFSANS's bs1"
+description = "DoubleSlit [slit k1] between nok8 and nok9"
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['nok_ref', 'nokbus4']
 
@@ -39,6 +39,36 @@ devices = dict(
                         unit = 'mm',
                         lowlevel = True,
                        ),
+
+    bs1_srll = device('devices.taco.DigitalInput',
+                      description = 'Device test/bs1/srll of Server ipcsmsserver bs1',
+                      tacodevice = '//%s/test/bs1/srll' % nethost,
+                     ),
+
+    bs1_srhl = device('devices.taco.DigitalInput',
+                      description = 'Device test/bs1/srhl of Server ipcsmsserver bs1',
+                      tacodevice = '//%s/test/bs1/srhl' % nethost,
+                     ),
+
+    bs1_srref = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/srref of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/srref' % nethost,
+                      ),
+
+    bs1_srrel = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/srrel of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/srrel' % nethost,
+                      ),
+
+    bs1_srsll = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/srsll of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/srsll' % nethost,
+                      ),
+
+    bs1_srshl = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/srshl of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/srshl' % nethost,
+                      ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1r_motor = device('refsans.nok_support.NOKMotorIPC',
@@ -88,6 +118,36 @@ devices = dict(
                         unit = 'mm',
                         lowlevel = True,
                        ),
+
+    bs1_ssll = device('devices.taco.DigitalInput',
+                      description = 'Device test/bs1/ssll of Server ipcsmsserver bs1',
+                      tacodevice = '//%s/test/bs1/ssll' % nethost,
+                     ),
+
+    bs1_sshl = device('devices.taco.DigitalInput',
+                      description = 'Device test/bs1/sshl of Server ipcsmsserver bs1',
+                      tacodevice = '//%s/test/bs1/sshl' % nethost,
+                     ),
+
+    bs1_ssref = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/ssref of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/ssref' % nethost,
+                      ),
+
+    bs1_ssrel = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/ssrel of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/ssrel' % nethost,
+                      ),
+
+    bs1_sssll = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/sssll of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/sssll' % nethost,
+                      ),
+
+    bs1_ssshl = device('devices.taco.DigitalInput',
+                       description = 'Device test/bs1/ssshl of Server ipcsmsserver bs1',
+                       tacodevice = '//%s/test/bs1/ssshl' % nethost,
+                      ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1s_motor = device('refsans.nok_support.NOKMotorIPC',

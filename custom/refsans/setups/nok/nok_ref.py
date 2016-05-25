@@ -1,4 +1,4 @@
-description = 'Reference readouts for NOK Devices of REFSANS'
+description = 'Reference readouts for NOK poti'
 
 group = 'lowlevel'
 

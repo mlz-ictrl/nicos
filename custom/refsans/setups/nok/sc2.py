@@ -1,6 +1,6 @@
-description = "sc2 height"
+description = "sc2 height after nok9"
 
-group = 'lowlevel'
+group = 'optional'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost

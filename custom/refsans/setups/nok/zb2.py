@@ -1,6 +1,6 @@
-description = "Devices for REFSANS's zb2"
+description = "SingleSlit [slit k1] between nok6 and nok7"
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['nok_ref', 'nokbus2']
 

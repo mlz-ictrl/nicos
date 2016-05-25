@@ -1,6 +1,6 @@
 description = "disc3 height"
 
-group = 'lowlevel'
+group = 'optional'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost

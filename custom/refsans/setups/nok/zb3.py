@@ -1,6 +1,6 @@
-description = "Devices for REFSANS's zb3"
+description = "DoubleSlit [slit k1] between nok6 and nok7"
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['nok_ref', 'nokbus3']
 
@@ -58,6 +58,36 @@ devices = dict(
                         lowlevel = True,
                        ),
 
+    zb3_ssshl = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/ssshl of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/ssshl' % nethost,
+                      ),
+
+    zb3_sssll = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/sssll of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/sssll' % nethost,
+                      ),
+
+    zb3_ssrel = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/ssrel of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/ssrel' % nethost,
+                      ),
+
+    zb3_ssref = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/ssref of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/ssref' % nethost,
+                      ),
+
+    zb3_sshl = device('devices.taco.DigitalInput',
+                      description = 'Device test/zb3/sshl of Server ipcsmsserver zb3',
+                      tacodevice = '//%s/test/zb3/sshl' % nethost,
+                     ),
+
+    zb3_ssll = device('devices.taco.DigitalInput',
+                      description = 'Device test/zb3/ssll of Server ipcsmsserver zb3',
+                      tacodevice = '//%s/test/zb3/ssll' % nethost,
+                     ),
+
 # generated from global/inf/poti_tracing.inf
     zb3r_obs   = device('refsans.nok_support.NOKPosition',
                         description = 'Position sensing for ZB3, reactor side',
@@ -88,6 +118,36 @@ devices = dict(
                         unit = 'mm',
                         lowlevel = True,
                        ),
+
+    zb3_srshl = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/srshl of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/srshl' % nethost,
+                      ),
+
+    zb3_srsll = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/srsll of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/srsll' % nethost,
+                      ),
+
+    zb3_srrel = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/srrel of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/srrel' % nethost,
+                      ),
+
+    zb3_srref = device('devices.taco.DigitalInput',
+                       description = 'Device test/zb3/srref of Server ipcsmsserver zb3',
+                       tacodevice = '//%s/test/zb3/srref' % nethost,
+                      ),
+
+    zb3_srhl = device('devices.taco.DigitalInput',
+                      description = 'Device test/zb3/srhl of Server ipcsmsserver zb3',
+                      tacodevice = '//%s/test/zb3/srhl' % nethost,
+                     ),
+
+    zb3_srll = device('devices.taco.DigitalInput',
+                      description = 'Device test/zb3/srll of Server ipcsmsserver zb3',
+                      tacodevice = '//%s/test/zb3/srll' % nethost,
+                     ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     zb3s_motor = device('refsans.nok_support.NOKMotorIPC',
