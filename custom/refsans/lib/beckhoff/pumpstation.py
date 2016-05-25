@@ -448,5 +448,5 @@ class PumpstandPump(Moveable):
         work = self.doRead(maxage)
         if work in (1,-1):
             # venting, priming or pumping
-            return status.BUSY, ['', 'venting', 'priming or pumping']
+            return status.BUSY, ['', 'venting', 'priming or pumping'][work]
         return status.OK, ''
