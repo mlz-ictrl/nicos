@@ -96,6 +96,22 @@ _vakuumcolumn = Column(
                   ),
           ]),
 )
+_pumpstandcolumn = Column(
+    Block('pumpstand', [
+          BlockRow( Field(dev='pressure_CB',name='CB'),
+                    Field(dev='pump_CB'),
+                    #Field(dev='center_center_1',name='SFK'),
+                    #Field(dev='center_center_2',name='SR'),
+                  ),
+          BlockRow( Field(dev='pressure_SFK',name='SFK'),
+                    Field(dev='pump_SFK'),
+                    #Field(dev='center_center_2',name='SR'),
+                  ),
+          BlockRow( Field(dev='pressure_SR',name='SR'),
+                    Field(dev='pump_SR'),
+                  ),
+          ]),
+)
 
 _shuttercolumn = Column(
     Block('shutter',[
@@ -143,7 +159,7 @@ devices = dict(
                      layout = [
                                Row(_expcolumn,_shuttercolumn),
                                Row(_nokcolumn,_samplecolumn), #  _refcolumn),
-                               Row(_countercolumn,_h2column,_flippercolumn,_tubecolumn,_vakuumcolumn),
+                               Row(_countercolumn,_h2column,_flippercolumn,_tubecolumn,_vakuumcolumn,_pumpstandcolumn),
                                #Row(_vakuumcolumn),
                               ],
                     ),
