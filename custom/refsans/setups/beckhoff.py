@@ -131,22 +131,33 @@ devices = dict(
 # according to '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
     # det_z is along the scattered beam (inside the tube)
     # beckhoff is at 'detektorantrieb.refsans.frm2' / 172.25.18.108
-    table_z = device('refsans.beckhoff.nok.BeckhoffMotorDetector',
-                   description = 'table inside tube',
-                   tacodevice='//%s/test/modbus/tablee'% (nethost,),
-                   address = 0x3020+0*10, # word adress
-                   slope = 100,
-                   unit = 'mm',
-                   # acording to docu:
-                   abslimits = (620, 11025),
-                  ),
+    table_z_motor = device('refsans.beckhoff.nok.BeckhoffMotorDetector',
+                           description = 'table inside tube',
+                           tacodevice='//%s/test/modbus/tablee'% (nethost,),
+                           address = 0x3020+0*10, # word adress
+                           slope = 100,
+                           unit = 'mm',
+                           # acording to docu:
+                           abslimits = (620, 11025),
+                           lowlevel = True,
+                          ),
     table_z_obs = device('refsans.beckhoff.nok.BeckhoffCoderDetector',
-                       description = 'Coder of detektorantrieb inside tube',
-                       tacodevice='//%s/test/modbus/tablee'% (nethost,),
-                       address = 0x3020+1*10, # word adress
-                       slope = 100,
-                       unit = 'mm',
-                      ),
+                         description = 'Coder of detektorantrieb inside tube',
+                         tacodevice='//%s/test/modbus/tablee'% (nethost,),
+                         address = 0x3020+1*10, # word adress
+                         slope = 100,
+                         unit = 'mm',
+                         lowlevel = True,
+                        ),
+
+    table_z = device('devices.generic.Axis',
+                     description = 'table',
+                     motor = 'table_z_motor',
+                     coder = 'table_z_motor',
+                     obs = ['table_z_obs'],
+                     precision = 0.05,
+                    ),
+
 # according to '_2013-04-05 Anhang A V0.6.pdf'
     # beckhoff is at 'horizontalblende.refsans.frm2' / 172.25.18.109
     # hs_center is the offset of the slit-center to the beam
