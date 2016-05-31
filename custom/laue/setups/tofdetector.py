@@ -1,10 +1,10 @@
-description = 'virtual LAUE devices'
+description = ' LAUE devices TOF'
 group = 'basic'
 
 sysconfig = dict(
 )
 
-tango_base = 'tango://lauecounter.laue.frm2:10000/laue/'
+tangohost = '%s:10000' % 'lauecounter.laue.frm2'
 
 devices = dict(
     FileSaver = device('laue.fileformats.ASCIIFileFormat',
