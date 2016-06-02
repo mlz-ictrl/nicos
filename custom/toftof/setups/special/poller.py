@@ -8,12 +8,9 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    autosetup = False,  # important! do not poll everything
-                    poll = ['chopper', 'reactor', 'vacuum', 'voltage', 'table',
-                            'slit', 'safety', 'system', 'collimator', 'ng',
-                            'he3', 'htf01', 'ls', 'biofurnace', 'cryo_ccr',
-                            'pressure', 'ccr17', 'choppermemograph', 'lascon',
-                            'rc',],
-                    alwayspoll = [],
+                    autosetup = True,
+                    poll = [],
+                    neverpoll = ['detector', 'measurement', 'notifiers',],
+                    alwayspoll = ['reactor',],
                     blacklist = []),
 )
