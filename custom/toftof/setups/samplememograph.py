@@ -18,7 +18,7 @@ devices = {
                                             fmtstr = '%.1f',
                                             warnlimits = (-1, 17.5), #-1 no lower value
                                             lowlevel = False,
-                                            unit = 'C',
+                                            unit = 'degC',
                                            ),
     't_out_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
                                             hostname = '%s' % memograph,
@@ -27,7 +27,7 @@ devices = {
                                             description = 'outlet temperature %s cooling' % system,
                                             fmtstr = '%.1f',
                                             lowlevel = False,
-                                            unit = 'C',
+                                            unit = 'degC',
                                            ),
     'p_in_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
                                            hostname = '%s' % memograph,
