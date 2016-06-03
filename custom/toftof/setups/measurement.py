@@ -13,6 +13,7 @@ includes = [
     'slit',
     'collimator',
     'rc',
+    'samplememograph',
 ]
 
 devices = dict(
