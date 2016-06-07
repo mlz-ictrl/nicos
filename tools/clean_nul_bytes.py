@@ -23,7 +23,9 @@
 #
 # *****************************************************************************
 
-"""Cleans up Cache data files from stray NUL Bytes e.g. adter Harddisk crashes"""
+"""Cleans up Cache data files from stray NUL Bytes e.g. after Harddisk crashes"""
+
+from __future__ import print_function
 
 import os
 
@@ -34,15 +36,22 @@ for root, dirs, files in os.walk('.'):
         if fn.endswith('.bak'):
             continue
         full_fn = os.path.join(root,fn)
-        with open(full_fn,'r') as f:
+        with open(full_fn, 'rb') as f:
             data = f.read()
-            if '\x00' in data:
-                print full_fn
+            if b'\x00' in data:
+                print(full_fn)
                 nullfiles[full_fn] = data
 
 # write backup files and cleaned files
+count = 0
 for fn, data in nullfiles.items():
-    with open(fn + '.bak', 'w') as f:
+    count += 1
+    with open(fn + '.bak', 'wb') as f:
         f.write(data)
-    with open(fn, 'w') as f:
-        f.write(data.replace('\x00',''))
+    with open(fn, 'wb') as f:
+        f.write(data.replace(b'\x00', b''))
+
+if count:
+    print('Wrote backup for %d changed file(s), please check '
+          'and remove them if not needed.' % count)
+    print('The find command is left as an exercise to the caller.')
