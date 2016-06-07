@@ -49,15 +49,9 @@ devices = dict(
                        type = 'monitor',
                       ),
     det1_mon3 = device('devices.vendor.qmesydaq.taco.Counter',
-                       description = 'QMesyDAQ Counter2',
+                       description = 'QMesyDAQ Counter2 (reference for tisane)',
                        tacodevice = '//%s/sans1/qmesydaq/counter2' % nethost,
                        type = 'monitor',
-                      ),
-    det1_mon4 = device('devices.vendor.qmesydaq.taco.Counter',
-                       description = 'QMesyDAQ Counter3',
-                       tacodevice = '//%s/sans1/qmesydaq/counter3' % nethost,
-                       type = 'monitor',
-                       lowlevel = 'True',
                       ),
     det1_ev  = device('devices.vendor.qmesydaq.taco.Counter',
                       description = 'QMesyDAQ Events channel',
@@ -72,16 +66,7 @@ devices = dict(
                         description = 'QMesyDAQ Image',
                         tacodevice = '//%s/sans1/qmesydaq/det' % nethost,
                        ),
-    det1    = device('devices.generic.Detector',
-                     description = 'QMesyDAQ Image type Detector1',
-                     timers = ['det1_timer'],
-                     counters = [],
-                     monitors = ['det1_mon1', 'det1_mon2', 'TISANE_det_pulses'],
-                     images = ['det1_image'],
-                    ),
-    TISANE_det_pulses = device('devices.generic.DeviceAlias',
-                           alias = 'det1_mon3',
-                          )
+    # the combined detector device is in sans1.py or tisane.py
 )
 
 startupcode = '''

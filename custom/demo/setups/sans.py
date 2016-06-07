@@ -192,7 +192,7 @@ devices = dict(
                        distance = 'det1_z',
                        collimation = 'guide',
                       ),
-    det      = device('devices.generic.detector.Detector',
+    det      = device('devices.generic.detector.GatedDetector',
                       description = 'demo 2D detector',
                       timers = ['det1_time'],
                       monitors = ['det1_mon1', 'det1_mon2'],

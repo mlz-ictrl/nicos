@@ -30,7 +30,7 @@ from nicos.core.device import DeviceAlias, NoDevice
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.detector import Detector, \
     ImageChannelMixin, TimerChannelMixin, CounterChannelMixin, \
-    PassiveChannel, ActiveChannel, DetectorForecast
+    PassiveChannel, ActiveChannel, DetectorForecast, GatedDetector
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
 from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
 from nicos.devices.generic.slit import Slit, TwoAxisSlit

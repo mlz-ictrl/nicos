@@ -30,7 +30,8 @@ import numpy
 
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
-    LIVE, INTERMEDIATE
+    LIVE, INTERMEDIATE, anytype, Moveable
+from nicos.core.utils import multiWait
 from nicos.utils import uniq
 
 
@@ -509,3 +510,60 @@ class DetectorForecast(Readable):
 
     def valueInfo(self):
         return self._attached_det.valueInfo()
+
+
+class GatedDetector(Detector):
+    """A Detector which enables some 'gates' before the measurment
+    and disables them afterwards
+    """
+
+    attached_devices = {
+        'gates':   Attach('Gating devices', Moveable,
+                           multiple=True, optional=True),
+    }
+
+    parameters = {
+        'enablevalues': Param('List of values to enable the gates',
+                              type=listof(anytype), default=[]),
+        'disablevalues': Param('List of values to disable the gates',
+                              type=listof(anytype), default=[]),
+    }
+
+    def _enable_gates(self):
+        self.log.debug('enabling gates')
+        for dev, val in zip(self._attached_gates, self.enablevalues):
+            dev.move(val)
+        multiWait(self._attached_gates)
+        self.log.debug('gates enabled')
+
+    def _disable_gates(self):
+        self.log.debug('disabling gates')
+        for dev, val in reversed(zip(self._attached_gates, self.disablevalues)):
+            dev.move(val)
+        multiWait(self._attached_gates)
+        self.log.debug('gates disabled')
+
+    def doStart(self):
+        self._enable_gates()
+        Detector.doStart(self)
+
+    def doResume(self):
+        # check first gate to see if we need to (re-)enable them
+        if self._attached_gates[0].read(0) != self.enablevalues[0]:
+            self._enable_gates()
+        Detector.doResume(self)
+
+    def doPause(self):
+        res = Detector.doPause(self)
+        if res:
+            self._disable_gates()
+        return res
+
+    def doStop(self):
+        Detector.doStop(self)
+        self._disable_gates()
+
+    def doFinish(self):
+        Detector.doFinish(self)
+        self._disable_gates()
+
