@@ -64,10 +64,11 @@ class Experiment(BaseExperiment):
                     kwds['cycle'] = cycle
                 except Exception:
                     self.log.error('cannot query reactor cycle', exc=1)
+                    kwds['cycle'] = 'unknown_cycle'
             else:
                 self.log.error('cannot query reactor cycle, please give a '
                                '"cycle" keyword to this function')
-                kwds['cycle'] = '?'
+                kwds['cycle'] = 'unknown_cycle'
         self.cycle = kwds['cycle']
         if self.proptype == 'user':
             upd = self._fillProposal(int(proposal[len(self.propprefix):]), kwds)
