@@ -367,6 +367,9 @@ class FlatfileCacheDatabase(CacheDatabase):
     def _read_one_storefile_v2(self, filename, fd):
         db = {}
         for line in fd:
+            if '\x00' in line:
+                self.log.warning('found nullbyte in store file %s' % filename)
+                continue
             try:
                 subkey, time, hasttl, value = line.rstrip().split(None, 3)
                 if hasttl == '+':
@@ -585,6 +588,9 @@ class FlatfileCacheDatabase(CacheDatabase):
             else:
                 fd.seek(0, os.SEEK_SET)
             for line in fd:
+                if '\x00' in line:
+                    self.log.warning('found nullbyte in file %s' % fn)
+                    continue
                 fields = line.rstrip().split(None, nsplit)
                 if fields[0] == subkey:
                     time = float(fields[1])
