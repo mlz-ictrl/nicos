@@ -83,8 +83,9 @@ def configFromFrame(frame):
 
 class ConfigEditDialog(QDialog):
 
-    def __init__(self, parent, client, config=None):
+    def __init__(self, parent, client, configs, config=None):
         QDialog.__init__(self, parent)
+        self.configs = configs
         self.client = client
         self.setWindowTitle('Sample configuration')
         layout = QVBoxLayout()
@@ -111,6 +112,13 @@ class ConfigEditDialog(QDialog):
     def maybeAccept(self):
         if not self.frm.nameBox.text():
             QMessageBox.warning(self, 'Error', 'Please enter a sample name.')
+            self.frm.nameBox.setFocus()
+            return
+        name = self.frm.nameBox.text()
+        if name in [config['name'] for config in self.configs]:
+            QMessageBox.warning(self, 'Error', 'This sample name is already '
+                                'used, please use a different one.')
+            self.frm.nameBox.setFocus()
             return
         for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.factorBox,
                     self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
@@ -280,7 +288,7 @@ class KWSSamplePanel(Panel):
 
     @pyqtSlot()
     def on_newBtn_clicked(self):
-        dlg = ConfigEditDialog(self, self.client)
+        dlg = ConfigEditDialog(self, self.client, self.configs)
         if not dlg.exec_():
             return
         self.dirty = True
@@ -296,7 +304,10 @@ class KWSSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        dlg = ConfigEditDialog(self, self.client, self.configs[index])
+        dlg = ConfigEditDialog(self, self.client,
+                               [config for (i, config) in
+                                enumerate(self.configs) if i != index],
+                               self.configs[index])
         if not dlg.exec_():
             return
         self.dirty = True

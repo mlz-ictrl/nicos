@@ -149,7 +149,8 @@ class SampleDialog(QDialog):
         for item in self.selList.findItems('', Qt.MatchContains):
             results.append(OrderedDict(sample=MeasEntry(
                 ename=None, text=item.text(),
-                key=item.data(SAMPLE_NUM),
+                # select samples by name
+                key=item.text(),
                 wclass=None,
                 extra=self._times.get(item.data(SAMPLE_NUM), 1.0))))
         return [results]
