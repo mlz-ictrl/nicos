@@ -27,7 +27,7 @@ _selector = Block('Selector', [
 _chopper = Block('Chopper', [
     BlockRow(Field(name='Preset', dev='chopper', istext=True, width=17)),
     BlockRow(Field(name='Frequency', dev='chopper_params', unit='Hz', item=0),
-             Field(name='Phase', dev='chopper_params', unit='deg', item=1)),
+             Field(name='Opening', dev='chopper_params', unit='deg', item=1)),
 ])
 
 _collimation = Block('Collimation', [

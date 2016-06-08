@@ -14,7 +14,7 @@ devices = dict(
                             ),
 
     chopper_params  = device('kws1.chopper.ChopperParams',
-                             description = 'Chopper frequency and phase',
+                             description = 'Chopper frequency and opening',
                              motor1 = 'chopper1_motor',
                              motor2 = 'chopper2_motor',
                              freq1 = 'chopper1_freq',

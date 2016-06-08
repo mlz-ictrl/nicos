@@ -39,9 +39,9 @@ PHASE_PRECISION = 1.0
 
 
 class ChopperParams(Moveable):
-    """Setting chopper parameters in terms of (frequency, phase)."""
+    """Setting chopper parameters in terms of (frequency, opening angle)."""
 
-    valuetype = tupleof(floatrange(0, 75), floatrange(0, 180))
+    valuetype = tupleof(floatrange(0, 100), floatrange(0, 90))
 
     hardware_access = False
 
@@ -67,10 +67,10 @@ class ChopperParams(Moveable):
             self._attached_motor1.start(0)
             self._attached_motor2.start(0)
             return
-        (freq, phase) = pos
+        (freq, opening) = pos
         self._attached_freq1.start(freq)  # second chopper will set the same
         # calculate phases of the two choppers (they should be around 180deg)
-        p0 = 90.0 - phase  # phase shift due to opening angle
+        p0 = 90.0 - opening  # p0: phase difference for given opening angle
         p1 = 180.0 - p0/2.0
         p2 = 180.0 + p0/2.0
         self._attached_phase1.start(p1)
@@ -87,19 +87,20 @@ class ChopperParams(Moveable):
         freq = self._attached_freq1.read(maxage)
         p1 = self._attached_phase1.read(maxage)
         p2 = self._attached_phase2.read(maxage)
-        phase = 90.0 - (p2 - p1)
-        return (freq, phase)
+        opening = 90.0 - (p2 - p1)
+        return (freq, opening)
 
     def doIsAtTarget(self, pos):
         # take precision into account
-        tfreq, tphase = self.target
-        rfreq, rphase = pos
+        tfreq, topen = self.target
+        rfreq, ropen = pos
         return abs(tfreq - rfreq) < FREQ_PRECISION and \
-            abs(tphase - rphase) < PHASE_PRECISION
+            abs(topen - ropen) < PHASE_PRECISION
 
 
 def calculate(lam, spread, reso, shade, l, dtau, n_max):
-    """Calculate chopper frequency and phase for a single setting, which needs:
+    """Calculate chopper frequency and opening angle for a single setting,
+    which needs:
 
     * lam: incoming neutron wavelength in Angstrom
     * spread: incoming neutron wavelength spread from selector
@@ -109,7 +110,7 @@ def calculate(lam, spread, reso, shade, l, dtau, n_max):
     * dtau: additional offset of TOF in ms
     * n_max: maximum number of acquisition frames
 
-    Returns: (frequency in Hz, phase in deg)
+    Returns: (frequency in Hz, opening angle in deg)
     """
 
     dlam = 2.0 * spread * lam
@@ -134,7 +135,7 @@ def calculate(lam, spread, reso, shade, l, dtau, n_max):
 class Chopper(Moveable):
     """Switcher for the TOF setting.
 
-    This controls the chopper phase and frequency, as well as the TOF slice
+    This controls the chopper phase and opening angle, as well as the TOF slice
     settings for the detector.  Presets depend on the target wavelength as well
     as the detector position.
     """
@@ -198,15 +199,15 @@ class Chopper(Moveable):
 
         self.log.debug('chopper calc inputs: reso=%f, lam=%f, spread=%f, '
                        'det_z=%f' % (reso, lam, spread, det_z))
-        freq, phase = calculate(lam, spread, reso, self.shade,
-                                20.0 + det_z + self.detoffset,
-                                self.tauoffset, self.nmax)
-        self.log.debug('calculated chopper settings: freq=%f, phase=%f' %
-                       (freq, phase))
+        freq, opening = calculate(lam, spread, reso, self.shade,
+                                  20.0 + det_z + self.detoffset,
+                                  self.tauoffset, self.nmax)
+        self.log.debug('calculated chopper settings: freq=%f, opening=%f' %
+                       (freq, opening))
         interval = int(1000000.0 / (freq * self.channels))
-        self.calcresult = freq, phase, interval
+        self.calcresult = freq, opening, interval
 
-        self._attached_params.start((freq, phase))
+        self._attached_params.start((freq, opening))
 
         self._attached_daq.mode = 'tof'
         self._attached_daq.tofchannels = self.channels
