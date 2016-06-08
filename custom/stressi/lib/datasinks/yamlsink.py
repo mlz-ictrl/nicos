@@ -26,35 +26,64 @@
 import re
 import time
 
-from collections import OrderedDict
-
 from nicos import session
-from nicos.core import Override, Param, listof
+from nicos.core import NicosError, Override, Param, listof
+from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import AsciiScanfileSink, \
     AsciiScanfileSinkHandler, TIMEFMT
+
 from nicos.pycompat import TextIOWrapper, iteritems, to_utf8
+from nicos.utils import AutoDefaultODict
 
-from yaml import add_representer, dump, representer
+import numpy as np
 
-add_representer(OrderedDict,
-                representer.SafeRepresenter.represent_dict)
+try:
+    import quickyaml
+    import io
+except ImportError:
+    quickyaml = None
+    from yaml import add_representer, dump, representer
+
+    add_representer(AutoDefaultODict,
+                    representer.SafeRepresenter.represent_dict)
 
 
 class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
-    """YAML format datafile writing class."""
+    """Write the STRESS-SPEC specific yaml-formatted scan data file."""
 
-    _data = OrderedDict()
-    _identifier = 'MLZ.StressSpec.2.0 / proposal 0.2'
-    _objects = ['time', 'angle', 'clearance', 'collimator_fhwm', 'position',
-                'wavelength']
+    filetype = 'MLZ.StressSpec.2.0 / proposal 0.2'
+    accept_file_images_only = False
+    max_yaml_width = 120
+
+    def _readdev(self, devname, mapper=lambda x: x):
+        try:
+            return mapper(session.getDevice(devname).read())
+        except NicosError:
+            return None
+
+    def _devpar(self, devname, parname, mapper=lambda x: x):
+        try:
+            return mapper(getattr(session.getDevice(devname), parname))
+        except NicosError:
+            return None
+
+    def _dict(self):
+        return AutoDefaultODict()
+
+    def _flowlist(self, *args):
+        return None
+        # return quickyaml.flowlist(*args)
+
+    objects = ['time', 'angle', 'clearance', 'collimator_fhwm', 'position',
+               'wavelength']
     _millimeter = 'millimeter'
-    _units = ['second', 'degree', _millimeter, _millimeter, _millimeter,
-              'angstrom']
+    units = ['second', 'degree', _millimeter, _millimeter, _millimeter,
+             'angstrom']
 
     def _fill_format(self, formats):
-        formats['identifier'] = self._identifier
-        _units = formats['units'] = OrderedDict()
-        for obj, unit in zip(self._objects, self._units):
+        formats['identifier'] = self.filetype
+        _units = formats['units'] = AutoDefaultODict()
+        for obj, unit in zip(self.objects, self.units):
             _units[obj] = unit
 
     def _fill_position(self, position, value, offset, precision):
@@ -93,7 +122,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 p = setup['slit_e']['clearance']
                 p['precision'] = value
             else:
-                # print('%s.%s: %s' % (device, _key, value))
+                # self.log.info('%s.%s: %s', device, _key, value)
                 pass
 
     def _write_offsets(self, valuelist):
@@ -120,45 +149,45 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 p = setup['slit_e']['clearance']
                 p['offset_coder'] = value
             else:
-                # print('%s.%s: %s' % (device, _key, value))
+                # self.log.info('%s.%s: %s', device, _key, value)
                 pass
 
     def _write_sample(self, valuelist):
-        # print('Sample:')
-        # print(valuelist)
+        # self.log.info('Sample:')
+        # self.log.info(valuelist)
         sample = self._data['measurement']['sample']
         for _device, key, value in valuelist:
             if key == 'samplename':
                 sample['description']['name'] = value
 
     def _write_experiment(self, valuelist):
-        # print('Experiment:')
-        # print(valuelist)
+        # self.log.info('Experiment:')
+        # self.log.info(valuelist)
         experiment = self._data['experiment']
         for _device, key, value in valuelist:
             if key in ['proposal', 'title', 'remark']:
                 experiment[key] = value
             elif key == 'users':
                 authors = experiment['authors']
-                author = OrderedDict()
+                author = AutoDefaultODict()
                 self._fill_user(author, value, ['principal_investigator', ])
                 authors.append(author)
             elif key == 'localcontact':
                 authors = experiment['authors']
-                author = OrderedDict()
+                author = AutoDefaultODict()
                 self._fill_user(author, value, ['local_contact', ])
                 authors.append(author)
 
     def _write_status(self, valuelist):
-        # print('Status:')
-        # print(valuelist)
+        # self.log.info('Status:')
+        # self.log.info(valuelist)
         # for device, _key, value in valuelist:
-        #     print('%s.%s: %s' % (device, _key, value))
+        #     self.log.info('%s.%s: %s', device, _key, value)
         pass
 
     def _write_instrument(self, valuelist):
-        # print('Instrument:')
-        # print(valuelist)
+        # self.log.info('Instrument:')
+        # self.log.info(valuelist)
         instrument = self._data['instrument']
         for device, key, value in valuelist:
             if device not in ['demo', 'DEMO']:
@@ -175,9 +204,9 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                     instrument['references'].append(to_utf8(value))
 
     def _write_limits(self, valuelist):
-        # print('Limits:')
+        # self.log.info('Limits:')
         # for device, _key, value in valuelist:
-        #     print('%s.%s: %s' % (device, _key, value))
+        #     self.log.info('%s.%s: %s', device, _key, value)
         pass
 
     def _write_general(self, valuelist):
@@ -204,7 +233,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 p = setup['slit_e']['clearance']
                 p['value'] = value
             else:
-                # print('%s.%s: %s' % (device, _key, value))
+                # self.log.info('%s.%s: %s', device, _key, value)
                 pass
 
     def __init__(self, sink, dataset, detector):
@@ -213,21 +242,42 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         self._file = None
         self._fname = None
         self._template = sink.filenametemplate
+        self._data = None
+        self._scan_type = None
 
     def prepare(self):
+        self.log.debug('prepare: %r', self.dataset.settype)
+        if self.dataset.settype == POINT:
+            return
+        if self._data is None:
+            self._data = AutoDefaultODict()
+            self._scan_type = 'SGEN1'
         self._number = session.data.assignCounter(self.dataset)
-        fp = session.data.createDataFile(self.dataset, self._template)
+        fp = session.data.createDataFile(self.dataset, self._template[0])
         self._fname = fp.shortpath
         self._filepath = fp.filepath
-        self._file = TextIOWrapper(fp)
+        if not quickyaml:
+            self._file = TextIOWrapper(fp)
+        else:
+            self._file = io.FileIO(self._filepath, 'w')
 
-        self._data['instrument'] = OrderedDict()
-        self._data['format'] = OrderedDict()
-        self._data['experiment'] = OrderedDict()
-        self._data['measurement'] = OrderedDict()
+        self._data['instrument'] = AutoDefaultODict()
+        self._data['format'] = AutoDefaultODict()
+        self._data['experiment'] = AutoDefaultODict()
+        self._data['measurement'] = AutoDefaultODict()
         self._fill_format(self._data['format'])
 
     def begin(self):
+        if self.dataset.settype == POINT:
+            return
+        ds = self.dataset
+        if ds.info.startswith('contscan'):
+            self._scan_type = 'SGEN2'
+        elif ds.info.startswith('scan'):
+            self._scan_type = 'SGEN1'
+        else:
+            self._scan_type = 'SGEN1'
+
         instrument = self._data['instrument']
         instrument['name'] = ''
         instrument['operators'] = []
@@ -244,50 +294,52 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         experiment['title'] = ''
         experiment['authors'] = []
 
-        history = measurement['history'] = OrderedDict()
+        history = measurement['history'] = AutoDefaultODict()
         history['started'] = time.strftime(TIMEFMT)
         history['stopped'] = time.strftime(TIMEFMT)
         history['scan'] = self.dataset.info
 
-        sample = measurement['sample'] = OrderedDict()
-        sample['description'] = OrderedDict()
+        sample = measurement['sample'] = AutoDefaultODict()
+        sample['description'] = AutoDefaultODict()
         sample['description']['name'] = ''
-        sample['temperature'] = OrderedDict()
-        sample['orientation'] = OrderedDict()
-        tths = sample['orientation']['tths'] = OrderedDict()
+        sample['temperature'] = AutoDefaultODict()
+        sample['orientation'] = AutoDefaultODict()
+        tths = sample['orientation']['tths'] = AutoDefaultODict()
         self._fill_position(tths, 0, 0, 0)
-        sample['position'] = OrderedDict()
-        xt = sample['position']['xt'] = OrderedDict()
+        sample['position'] = AutoDefaultODict()
+        xt = sample['position']['xt'] = AutoDefaultODict()
         self._fill_position(xt, 0, 0, 0)
-        yt = sample['position']['yt'] = OrderedDict()
+        yt = sample['position']['yt'] = AutoDefaultODict()
         self._fill_position(yt, 0, 0, 0)
-        zt = sample['position']['zt'] = OrderedDict()
+        zt = sample['position']['zt'] = AutoDefaultODict()
         self._fill_position(zt, 0, 0, 0)
 
-        setup = measurement['setup'] = OrderedDict()
+        setup = measurement['setup'] = AutoDefaultODict()
         setup['collimator_1'] = "15'"
 
-        setup['slit_m'] = OrderedDict()
+        setup['slit_m'] = AutoDefaultODict()
         for x in ['horizontal_clearance', 'vertical_clearance']:
-            p = setup['slit_m'][x] = OrderedDict()
+            p = setup['slit_m'][x] = AutoDefaultODict()
             self._fill_position(p, 0, 0, 0)
 
-        setup['monochromator'] = OrderedDict()
+        setup['monochromator'] = AutoDefaultODict()
 
-        setup['slit_e'] = OrderedDict()
-        p = setup['slit_e']['clearance'] = OrderedDict()
+        setup['slit_e'] = AutoDefaultODict()
+        p = setup['slit_e']['clearance'] = AutoDefaultODict()
         self._fill_position(p, 0, 0, 0)
 
-        setup['slit_p'] = OrderedDict()
+        setup['slit_p'] = AutoDefaultODict()
         for x in ['horizontal_clearance', 'horizontal_translation',
                   'vertical_clearance', 'vertical_translation']:
-            p = setup['slit_p'][x] = OrderedDict()
+            p = setup['slit_p'][x] = AutoDefaultODict()
             self._fill_position(p, 0, 0, 0)
 
-        setup['collimator_2'] = OrderedDict()
+        setup['collimator_2'] = AutoDefaultODict()
 
         measurement['scan'] = []
         self._wrote_headers = False
+        self._detvalues = None
+        self._lastdetvalues = np.zeros(256 * 256).reshape((256, 256))
 
     def _float(self, value):
         return float(eval(value))
@@ -297,28 +349,27 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_header(self):
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(self.dataset.metainfo):
+        for (_dev, _key), (_v, _, _, cat) in iteritems(self.dataset.metainfo):
             if cat:
-                bycategory.setdefault(cat, []).append((dev.name, key, v))
-        if 'experiment' in bycategory:
-            self._write_experiment(bycategory['experiment'])
-        if 'sample' in bycategory:
-            self._write_sample(bycategory['sample'])
-        if 'instrument' in bycategory:
-            self._write_instrument(bycategory['instrument'])
-        if 'offsets' in bycategory:
-            self._write_offsets(bycategory['offsets'])
-        if 'limits' in bycategory:
-            self._write_limits(bycategory['limits'])
-        if 'precisions' in bycategory:
-            self._write_tolerances(bycategory['precisions'])
-        if 'status' in bycategory:
-            self._write_status(bycategory['status'])
-        if 'general' in bycategory:
-            self._write_general(bycategory['general'])
+                if 'experiment' in bycategory:
+                    self._write_experiment(bycategory['experiment'])
+                if 'sample' in bycategory:
+                    self._write_sample(bycategory['sample'])
+                if 'instrument' in bycategory:
+                    self._write_instrument(bycategory['instrument'])
+                if 'offsets' in bycategory:
+                    self._write_offsets(bycategory['offsets'])
+                if 'limits' in bycategory:
+                    self._write_limits(bycategory['limits'])
+                if 'precisions' in bycategory:
+                    self._write_tolerances(bycategory['precisions'])
+                if 'status' in bycategory:
+                    self._write_status(bycategory['status'])
+                if 'general' in bycategory:
+                    self._write_general(bycategory['general'])
 
     def putMetainfo(self, metainfo):
-        self.log.info('ADD META INFO %r', metainfo)
+        self.log.debug('ADD META INFO %r', metainfo)
         return
 
     def addValues(self, values):
@@ -339,37 +390,87 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         Argument *results* contains the new results.  ``dataset.results``
         contains all results so far.
         """
+        self.log.debug('%s', quality)
+        if quality != FINAL and self.dataset.settype != POINT:
+            return
 
     def addSubset(self, point):
         if not self._wrote_header:
             self._fill_header()
             self._wrote_header = True
 
-        scanpoint = OrderedDict()
-        scanparams = OrderedDict()
-        scanparams[point.devvalueinfo[0].name] = self._float(
-            '%.2f' % point.devvaluelist[0])
+        if point.settype != POINT:
+            self.log.info('add subset: %s', point.settype)
+            return
+        self.log.debug('%r - %r', self.dataset.detvalueinfo,
+                       point.detvaluelist)
+
+        # the image data are hopefully always at this place
+        try:
+            if not self.sink.detectors:
+                det = session.experiment.detectors[0]
+            else:
+                det = session.getDevice(self.sink.detectors[0])
+            detvalues = point.results[det.name][1][0]
+        except IndexError:
+            # There are no (differential) images available in case of contscan
+            img = 'no image device'
+            try:
+                # try to read image date ourselves
+                img = det._attached_images[0].name
+                detvalues = session.getDevice(img).readArray(FINAL)
+            except Exception:
+                # create empty data set
+                self.log.error('Could not get the image data from %s', img)
+                detvalues = np.array([[1, ], ])
+                detvalues.resize((256, 256))
+
+        if self._scan_type == 'SGEN2':
+            if detvalues.shape == self._lastdetvalues.shape:
+                self._detvalues = detvalues - self._lastdetvalues
+                self._lastdetvalues = detvalues
+            else:
+                self.log.error('%r %r', detvalues.shape,
+                               self._lastdetvalues.shape)
+        else:
+            self._detvalues = detvalues
+
+        scanpoint = AutoDefaultODict()
+        scanparams = AutoDefaultODict()
+        if point.devvaluelist:
+            scanparams[point.devvalueinfo[0].name] = self._float(
+                '%.2f' % point.devvaluelist[0])
         scanpoint['scan_parameters'] = scanparams
         for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
             if info.type == 'time':
                 scanpoint['time'] = self._float('%.2f' % val)
             elif info.type == 'counter':
                 scanpoint['sum'] = self._integer('%d' % val)
-            elif info.type == 'filename':
-                scanpoint['image'] = '%s' % val
+            # elif info.type == 'filename':
+            #     scanpoint['image'] = '%s' % val
             elif info.type == 'monitor':
                 scanpoint['monitor'] = self._integer('%d' % val)
             else:
                 self.log.info('%s %s', info.name, info.type)
+        scanpoint['image'] = [] if self._detvalues is None else self._detvalues
         self._data['measurement']['scan'].append(scanpoint)
 
     def end(self):
+        if self.dataset.settype == POINT:
+            return
         history = self._data['measurement']['history']
         history['stopped'] = time.strftime(TIMEFMT)
-        dump(self._data, self._file, allow_unicode=True, canonical=False,
-             default_flow_style=False, indent=4)
-        # self._file.close()
-        # self._file = None
+        if quickyaml:
+            quickyaml.Dumper(width=self.max_yaml_width,
+                             array_handling=quickyaml.ARRAY_AS_SEQ).dump(
+                                 self._data, self._file)
+        else:
+            dump(self._data, self._file, allow_unicode=True, canonical=False,
+                 default_flow_style=False, indent=4)
+        self._file.flush()
+        self._file.close()
+        self._file = None
+        self._data = None
 
 
 class YamlDatafileSink(AsciiScanfileSink):
@@ -393,7 +494,7 @@ class YamlDatafileSink(AsciiScanfileSink):
     }
 
     parameter_overrides = {
-        'settypes': Override(default=['scan', 'subscan', 'point', ]),
+        'settypes': Override(default=[SCAN, SUBSCAN]),
         'semicolon': Override(default=''),
         'commentchar': Override(default='',)
     }

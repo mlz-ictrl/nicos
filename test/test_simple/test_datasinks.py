@@ -274,3 +274,12 @@ def test_yaml_sink_2(session):
     assert contents['experiment']['proposal'] == 'p1234'
     assert contents['measurement']['sample']['description']['name'] == \
         'mysample'
+
+
+@pytest.mark.skipif(not (quickyaml and yaml),
+                    reason='QuickYAML/PyYAML libraries missing')
+def test_yaml_sink_3(session):
+    yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
+    assert path.isfile(yamlfile)
+    contents = yaml.load(open(yamlfile))
+    assert contents['measurement']

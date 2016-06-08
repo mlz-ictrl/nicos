@@ -58,6 +58,7 @@ except Exception:
 try:
     import quickyaml  # pylint: disable=unused-import
     sinklist.append('yamlsink')
+    sinklist.append('ystressisink')
 except Exception:
     pass
 
@@ -90,13 +91,17 @@ devices = dict(
     bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
         flipimage = 'none',
     ),
-    # note: these three will only be created if their prerequisite modules
+    # note: these four will only be created if their prerequisite modules
     # are installed (and they are present in *sinklist*) because device auto
     # creation is off for test sessions
     fitssink = device('devices.datasinks.FITSImageSink'),
     tiffsink = device('devices.datasinks.TIFFImageSink'),
     yamlsink = device('nicos.dns.yamlformat.YAMLFileSink',
         filenametemplate = ['%(pointcounter)08d.yaml'],
+    ),
+    ystressisink = device('nicos.stressi.datasinks.YamlDatafileSink',
+                          filenametemplate = ['m2%(scancounter)08d.yaml'],
+                          detectors = ['det'],
     ),
     cstressisink = device('nicos.stressi.datasinks.CaressScanfileSink',
                           filenametemplate = ['m2%(scancounter)08d.dat'],
