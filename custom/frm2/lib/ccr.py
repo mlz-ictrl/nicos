@@ -152,6 +152,14 @@ class CCRControl(HasLimits, Moveable):
         if n % 50 == 0:
             self._pollParam('setpoint', 60)
 
+    def _getWaiters(self):
+        if self.regulationmode == 'stick':
+            return [self._attached_stick]
+        elif self.regulationmode == 'tube':
+            return [self._attached_tube]
+        elif self.regulationmode == 'both':
+            return self._adevs
+
     #
     # Parameters
     #
