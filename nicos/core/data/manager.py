@@ -326,7 +326,7 @@ class DataManager(object):
             filenames.append(filename)
         return filenames
 
-    def getFilenames(self, dataset, nametemplates, *subdirs):
+    def getFilenames(self, dataset, nametemplates, *subdirs, **kwargs):
         """Determines dataset filenames from filename templates.
 
         Call this instead of `createDataFile` if you want to resolve the
@@ -337,6 +337,10 @@ class DataManager(object):
         a short path of the first filename and a list of the absolute paths of
         all filenames.  After the counting is finished, you should create the
         datafile(s) and then call `linkFiles` to create the hardlinks.
+
+        Keyword argument `nomeasdata` can be set to true in order to not record
+        this as a measurement data file in the dataset.  (Useful for either
+        temporary files or auxiliary data files.)
         """
         if dataset.counter == 0:
             raise ProgrammingError('a counter number must be assigned to the '
@@ -346,9 +350,10 @@ class DataManager(object):
         filepaths = [session.experiment.getDataFilename(ln, *subdirs)
                      for ln in filenames]
 
-        shortpath = path.join(*subdirs + (filename,))
-        dataset.filenames.append(shortpath)
-        dataset.filepaths.append(filepaths[0])
+        if not kwargs.get('nomeasdata'):
+            shortpath = path.join(*subdirs + (filename,))
+            dataset.filenames.append(shortpath)
+            dataset.filepaths.append(filepaths[0])
 
         return filename, filepaths
 
@@ -384,12 +389,17 @@ class DataManager(object):
         specified used for creating the data file (descriptor).
         If no `fileclass` has been specified this defaults to
         `nicos.core.data.DataFile`.
+
+        Keyword argument `nomeasdata` can be set to true in order to not record
+        this as a measurement data file in the dataset.  (Useful for either
+        temporary files or auxiliary data files.)
         """
         fileclass = kwargs.get('fileclass', DataFile)
         if session.mode == SIMULATION:
             raise ProgrammingError('createDataFile should not be called in '
                                    'simulation mode')
-        filename, filepaths = self.getFilenames(dataset, nametemplates, *subdirs)
+        filename, filepaths = self.getFilenames(dataset, nametemplates,
+                                                *subdirs, **kwargs)
         filepath = filepaths[0]
         shortpath = path.join(*subdirs + (filename,))
 
