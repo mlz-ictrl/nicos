@@ -112,6 +112,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
             self._pollParam('p')
             self._pollParam('i')
             self._pollParam('d')
+            self._pollParam('mode')
 
     def doReadSetpoint(self):
         return self._taco_guard(self._dev.setpoint)
