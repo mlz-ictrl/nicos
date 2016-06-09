@@ -83,15 +83,15 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
     filetype = 'MLZ.YAML'  # to be overwritten in derived classes
     accept_final_images_only = True
 
-    def _readdev(self, devname):
+    def _readdev(self, devname, mapper=lambda x: x):
         try:
-            return session.getDevice(devname).read()
+            return mapper(session.getDevice(devname).read())
         except NicosError:
             return None
 
-    def _devpar(self, devname, parname):
+    def _devpar(self, devname, parname, mapper=lambda x: x):
         try:
-            return getattr(session.getDevice(devname), parname)
+            return mapper(getattr(session.getDevice(devname), parname))
         except NicosError:
             return None
 
@@ -117,8 +117,10 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         instr['references'] = [AutoDefaultODict({'doi': instrdev.doi})]
 
         objects = ['angle', 'clearance', 'current', 'displacement', 'duration',
-                   'energy', 'frequency', 'temperature', 'wavelength']
-        units = ['deg', 'mm', 'A', 'mm', 's', 'eV', 'hertz', 'K', 'A']
+                   'energy', 'frequency', 'temperature', 'wavelength',
+                   'offset', 'width', 'height', 'length']
+        units = ['deg', 'mm', 'A', 'mm', 's', 'eV', 'hertz', 'K', 'A',
+                 'mm', 'mm', 'mm', 'mm']
 
         o['format']['identifier'] = self.__class__.filetype
         for obj, unit in zip(objects, units):
@@ -153,6 +155,21 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
 
         sample = meas['sample']['description']
         sample['name'] = from_maybe_utf8(expdev.sample.samplename)
+
+        env = meas['sample']['environment'] = []
+        stats = self.dataset.valuestats
+        for (info, val) in zip(self.dataset.envvalueinfo,
+                               self.dataset.envvaluelist):
+            entry = self._dict()
+            entry['name'] = info.name
+            entry['unit'] = info.unit
+            entry['value'] = val
+            if info.name in stats:
+                entry['mean'] = stats[info.name][0]
+                entry['stddev'] = stats[info.name][1]
+                entry['min'] = stats[info.name][2]
+                entry['max'] = stats[info.name][3]
+            env.append(entry)
 
         self._write_instr_data(meas, image)
 

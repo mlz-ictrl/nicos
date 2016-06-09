@@ -169,6 +169,12 @@ class VirtualJDaqChannel(VirtualImage):
             self.slices = times
             self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels), np.uint32)
 
+    def doReadArray(self, quality):
+        res = VirtualImage.doReadArray(self, quality)
+        if self.mode != 'standard':
+            return np.array([res] * (len(self.slices) - 1))
+        return res
+
 
 class KWSDetector(Detector):
 

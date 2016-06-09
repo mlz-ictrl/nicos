@@ -4,7 +4,7 @@ description = "Detector data acquisition setup"
 group = "lowlevel"
 
 sysconfig = dict(
-    datasinks = ['kwsformat'],
+    datasinks = ['kwsformat', 'yamlformat'],
 )
 
 devices = dict(
@@ -35,10 +35,14 @@ devices = dict(
                         lowlevel = True,
                        ),
 
+    yamlformat = device('kws1.yamlformat.YAMLFileSink',
+                        lowlevel = True,
+                       ),
+
     det        = device('kws1.daq.KWSDetector',
                         description = 'KWS detector',
                         timers = ['timer'],
-                        monitors = ['mon1'],
+                        monitors = ['mon1', 'mon2', 'mon3'],
                         images = ['det_img'],
                         others = [],
                         shutter = 'shutter',

@@ -7,7 +7,7 @@ includes = ['counter']
 excludes = ['virtual_daq']
 
 sysconfig = dict(
-    datasinks = ['kwsformat'],
+    datasinks = ['kwsformat', 'yamlformat'],
 )
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
@@ -25,6 +25,10 @@ devices = dict(
                        ),
 
     kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
+                        lowlevel = True,
+                       ),
+
+    yamlformat = device('kws1.yamlformat.YAMLFileSink',
                         lowlevel = True,
                        ),
 
