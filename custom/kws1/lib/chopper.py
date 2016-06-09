@@ -25,7 +25,7 @@
 """Class for KWS chopper control."""
 
 from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
-    listof, oneof, intrange, floatrange, PositionError
+    listof, oneof, intrange, floatrange, PositionError, MASTER
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
 from nicos.kws1.selector import SelectorSwitcher
@@ -154,9 +154,6 @@ class Chopper(Moveable):
                              # TODO: max channels?
                              type=intrange(1, 1024), default=64,
                              settable=True),
-        'detoffset':   Param('Offset for chopper-detector length',
-                             type=floatrange(0.0), unit='m', default=2.3,
-                             settable=True, category='general'),
         'shade':       Param('Desired overlap of spectrum edges',
                              type=floatrange(0.0, 1.0), default=0.0,
                              settable=True, category='general'),
@@ -181,6 +178,23 @@ class Chopper(Moveable):
     def _getWaiters(self):
         return [self._attached_params]
 
+    def doUpdateChannels(self, value):
+        # invalidate last calculated result when changing these parameters
+        if self._mode == MASTER and 'channels' in self._params:
+            self.calcresult = (0, 0, 0)
+
+    def doUpdateShade(self, value):
+        if self._mode == MASTER and 'shade' in self._params:
+            self.calcresult = (0, 0, 0)
+
+    def doUpdateTauoffset(self, value):
+        if self._mode == MASTER and 'tauoffset' in self._params:
+            self.calcresult = (0, 0, 0)
+
+    def doUpdateNmax(self, value):
+        if self._mode == MASTER and 'nmax' in self._params:
+            self.calcresult = (0, 0, 0)
+
     def doStart(self, value):
         if value == 'off':
             self._attached_daq.mode = 'standard'
@@ -194,6 +208,7 @@ class Chopper(Moveable):
             lam = self._attached_selector.presets[sel_target]['lam']
             spread = self._attached_selector.presets[sel_target]['spread']
             det_z = self._attached_det_pos.presets[sel_target][det_target]['z']
+            det_offset = self._attached_det_pos.offsets[det_z]
         except KeyError:
             raise PositionError(self, 'cannot calculate chopper settings: '
                                 'selector or detector device not at preset')
@@ -201,7 +216,7 @@ class Chopper(Moveable):
         self.log.debug('chopper calc inputs: reso=%f, lam=%f, spread=%f, '
                        'det_z=%f' % (reso, lam, spread, det_z))
         freq, opening = calculate(lam, spread, reso, self.shade,
-                                  20.0 + det_z + self.detoffset,
+                                  20.0 + det_z + det_offset,
                                   self.tauoffset, self.nmax)
         self.log.debug('calculated chopper settings: freq=%f, opening=%f' %
                        (freq, opening))

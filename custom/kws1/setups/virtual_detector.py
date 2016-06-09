@@ -4,6 +4,7 @@ description = "Virtual detector setup"
 group = "lowlevel"
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
+offsets = configdata('config_detector.DETECTOR_OFFSETS')
 
 devices = dict(
     detector   = device('kws1.detector.DetectorPosSwitcher',
@@ -11,6 +12,7 @@ devices = dict(
                         blockingmove = False,
                         moveables = ['det_z', 'det_x', 'det_y'],
                         presets = presets,
+                        offsets = offsets,
                         fallback = 'unknown',
                         precision = [0.01, 0.1, 0.1],
                        ),

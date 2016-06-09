@@ -24,8 +24,10 @@
 
 """Detector switcher for KWS."""
 
-from nicos.core import Param, Override, oneof, dictof, dictwith
+from nicos.core import Param, Override, oneof, dictof, dictwith, \
+    ConfigurationError
 from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.pycompat import iteritems
 
 
 class DetectorPosSwitcher(MultiSwitcher):
@@ -40,11 +42,25 @@ class DetectorPosSwitcher(MultiSwitcher):
                           type=dictof(str, dictof(str, dictwith(
                               x=float, y=float, z=float))),
                           mandatory=True),
+        'offsets':  Param('Offsets to correct TOF chopper-detector length '
+                          'for the errors in the det_z axis value',
+                          type=dictof(float, float),
+                          mandatory=True),
     }
 
     parameter_overrides = {
         'mapping':  Override(mandatory=False, settable=True, userparam=False),
     }
+
+    def doInit(self, mode):
+        # check that an offset is defined for each z distance
+        for _selpos, selpresets in iteritems(self.presets):
+            for _pname, preset in iteritems(selpresets):
+                if preset['z'] not in self.offsets:
+                    raise ConfigurationError(
+                        self, 'no detector offset found in configuration '
+                        'for detector distance of %.2f m' % preset['z'])
+        MultiSwitcher.doInit(self, mode)
 
     def _updateMapping(self, selpos):
         self.log.debug('updating the detector mapping for selector '

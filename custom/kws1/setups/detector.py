@@ -6,6 +6,7 @@ group = "lowlevel"
 excludes = ['virtual_detector']
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
+offsets = configdata('config_detector.DETECTOR_OFFSETS')
 
 tango_base = "tango://phys.kws1.frm2:10000/kws1/"
 
@@ -15,6 +16,7 @@ devices = dict(
                         blockingmove = False,
                         moveables = ['det_z', 'det_x', 'det_y'],
                         presets = presets,
+                        offsets = offsets,
                         fallback = 'unknown',
                         precision = [0.01, 0.1, 0.1],
                        ),

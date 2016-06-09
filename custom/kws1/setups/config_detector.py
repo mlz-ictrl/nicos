@@ -1,6 +1,12 @@
 description = 'presets for the detector position'
 group = 'configdata'
 
+# Assigns presets for the z position and x/y displacement of the detector for
+# each selector preset.
+#
+# When you add a new detector z position, make sure to add a real offset as
+# well in the DETECTOR_OFFSETS table below.
+
 DETECTOR_PRESETS = {
     '5A': {
         '1.5m':    dict(z=1.5, x=-5.0,  y=9.7),
@@ -54,4 +60,24 @@ DETECTOR_PRESETS = {
         '8m':      dict(z=8,   x=-2.7,  y=1.3),
         '20m':     dict(z=20,  x=-3.2,  y=-29.7),
     },
+}
+
+# This offset is added to 20m + det_z to get the chopper-detector length
+# for time-of-flight mode calculation.
+#
+# It varies with detector distance because the det_z value is not actually
+# particularly accurate.
+
+DETECTOR_OFFSETS = {
+    2:    2.21,
+    4:    2.218,
+    8:    2.23,
+    14:   2.248,
+    18.3: 2.26,
+    20:   2.266,
+    1.5:  2.21,
+    # Taken from a linear interpolation of the above measured values.
+    6:    2.223,
+    6.4:  2.225,
+    10.4: 2.237,
 }
