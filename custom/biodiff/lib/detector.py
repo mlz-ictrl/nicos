@@ -222,6 +222,10 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
             self._attached_imgdrum.maw(ImagePlateDrum.POS_ERASE)
         self._attached_imgdrum.maw(ImagePlateDrum.POS_EXPO)
 
+    def valueInfo(self):
+        # no readresult -> no values
+        return ()
+
     def doReadArray(self, quality):
         if quality == FINAL:
             # start readout

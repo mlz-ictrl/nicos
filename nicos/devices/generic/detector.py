@@ -38,6 +38,11 @@ class PassiveChannel(Measurable):
     """Abstract base class for one channel of a aggregate detector.
 
     Passive channels cannot stop the measurement.
+
+    Derived classes have to implement `doRead` and `valueInfo` methods.
+    They can return an empty list and tuple, respectively, if the channel
+    contributes no scalar values but one or more arrays, e.g. classes
+    derived from `ImageChannelMixin`.
     """
 
     parameters = {
@@ -59,19 +64,21 @@ class PassiveChannel(Measurable):
         pass
 
     def doRead(self, maxage=0):
-        return []
+        raise NotImplementedError('implement doRead')
 
     def valueInfo(self):
-        return ()
+        raise NotImplementedError('implement valueInfo')
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
 
 
 class DummyDetector(PassiveChannel):
-    """A Dummy detector just providing nameand value info
+    """A Dummy detector just providing name and value info.
 
-    Use for scans that add only processed values from subscans
+    Still needs to implement doRead!
+
+    Use for scans that add only processed values from subscans.
     """
 
     parameter_overrides = {
@@ -99,12 +106,6 @@ class ActiveChannel(PassiveChannel):
 
     # set to True to get a simplified doEstimateTime
     is_timer = False
-
-    def doRead(self, maxage=0):
-        raise NotImplementedError('implement doRead')
-
-    def valueInfo(self):
-        raise NotImplementedError('implement valueInfo')
 
     def doEstimateTime(self, elapsed):
         if not self.ismaster or self.doStatus()[0] != status.BUSY:

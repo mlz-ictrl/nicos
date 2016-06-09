@@ -23,8 +23,8 @@
 # *****************************************************************************
 
 import numpy as np
-from nicos.core import status
-from nicos.core.params import ArrayDesc
+
+from nicos.core import status, Value, ArrayDesc
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
@@ -33,6 +33,9 @@ class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doInit(self, mode):
         self.arraydesc = ArrayDesc("coincimg", (1024, 1024), np.uint32)
+
+    def valueInfo(self):
+        return Value(name='total', type='counter', fmtstr='%d'),
 
     def doReadArray(self, _quality):
         narray = self._dev.value
@@ -50,9 +53,6 @@ class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doStop(self):
         self._dev.Stop()
-
-    def valueInfo(self):
-        return ()
 
     def doStatus(self, maxage=0):
         return status.OK, "idle"
