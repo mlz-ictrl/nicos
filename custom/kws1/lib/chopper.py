@@ -156,12 +156,13 @@ class Chopper(Moveable):
                              settable=True),
         'detoffset':   Param('Offset for chopper-detector length',
                              type=floatrange(0.0), unit='m', default=2.3,
-                             settable=True),
+                             settable=True, category='general'),
         'shade':       Param('Desired overlap of spectrum edges',
                              type=floatrange(0.0, 1.0), default=0.0,
-                             settable=True),
+                             settable=True, category='general'),
         'tauoffset':   Param('Additional offset for time of flight',
-                             type=floatrange(0.0), default=0.0, settable=True),
+                             type=floatrange(0.0), default=0.0, settable=True,
+                             category='general'),
         'nmax':        Param('Maximum number of acquisition frames',
                              type=intrange(1, 128), default=25, settable=True),
         'calcresult':  Param('Last calculated setting',
@@ -212,7 +213,7 @@ class Chopper(Moveable):
         self._attached_daq.mode = 'tof'
         self._attached_daq.tofchannels = self.channels
         self._attached_daq.tofinterval = interval
-        self._attached_daq.tofprog = 1.0  # linear channel widths
+        self._attached_daq.tofprogression = 1.0  # linear channel widths
 
     def doRead(self, maxage=0):
         params = self._attached_params.read(maxage)
@@ -223,7 +224,7 @@ class Chopper(Moveable):
             if self._attached_daq.mode == 'tof' and \
                self._attached_daq.tofchannels == self.channels and \
                self._attached_daq.tofinterval == self.calcresult[2] and \
-               self._attached_daq.tofprog == 1.0:
+               self._attached_daq.tofprogression == 1.0:
                 return self.target
         return 'unknown'
 

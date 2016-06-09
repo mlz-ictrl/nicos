@@ -43,7 +43,7 @@ def SetupRealtime(channels, interval, progression, trigger):
         detector.mode = 'realtime'
     detector.tofchannels = channels
     detector.tofinterval = interval
-    detector.tofprog = progression
+    detector.tofprogression = progression
     printinfo('Detector presets set to realtime mode.')
 
 

@@ -51,9 +51,10 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
     parameters = {
         'tacodevice':  Param('Old TACO device name', type=str),
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
-                             settable=True),
+                             settable=True, category='general'),
         'slices':      Param('Calculated TOF slices', userparam=False,
-                             unit='us', settable=True, type=listof(int)),
+                             unit='us', settable=True, type=listof(int),
+                             category='general'),
     }
 
     def doPreinit(self, mode):
@@ -149,9 +150,10 @@ class VirtualJDaqChannel(VirtualImage):
 
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
-                             settable=True),
+                             settable=True, category='general'),
         'slices':      Param('Calculated TOF slices', userparam=False,
-                             unit='us', settable=True, type=listof(int)),
+                             unit='us', settable=True, type=listof(int),
+                             category='general'),
     }
 
     def _configure(self, tofsettings):
@@ -178,11 +180,14 @@ class KWSDetector(Detector):
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True),
         'tofchannels': Param('Number of TOF channels',
-                             type=intrange(1, 1023), settable=True),
+                             type=intrange(1, 1023), settable=True,
+                             category='general'),
         'tofinterval': Param('Interval dt between TOF channels', type=int,
-                             unit='us', settable=True),
-        'tofprog':     Param('Progression q of TOF intervals (t_i = dt * q^i)',
-                             type=float, default=1.0, settable=True),
+                             unit='us', settable=True, category='general'),
+        'tofprogression':
+                       Param('Progression q of TOF intervals (t_i = dt * q^i)',
+                             type=float, default=1.0, settable=True,
+                             category='general'),
     }
 
     def doInit(self, session_mode):
@@ -210,7 +215,7 @@ class KWSDetector(Detector):
         # TODO: ensure that total meas. time < 2**31 usec
         if self._mode != SIMULATION:
             self._jdaq._configure((self.tofchannels, self.tofinterval,
-                                   self.tofprog))
+                                   self.tofprogression))
         Detector.doPrepare(self)
 
     def doStart(self):

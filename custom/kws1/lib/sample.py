@@ -43,13 +43,16 @@ class KWSSample(Sample):
                             'to this sample\'s position',
                             type=dictof(str, anytype), settable=True),
         'timefactor': Param('Measurement time factor for this sample',
-                            type=float, settable=True),
+                            type=float, settable=True,
+                            category='sample'),
         'thickness':  Param('Sample thickness (info only)',
-                            type=float, settable=True, unit='mm'),
+                            type=float, settable=True, unit='mm',
+                            category='sample'),
         'detoffset':  Param('Detector offset (info only)',
-                            type=float, settable=True, unit='mm'),
+                            type=float, settable=True, unit='mm',
+                            category='sample'),
         'comment':    Param('Sample comment',
-                            type=str, settable=True),
+                            type=str, settable=True, category='sample'),
     }
 
     def _applyKwsParams(self, parameters):
