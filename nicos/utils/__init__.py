@@ -149,6 +149,17 @@ class BoundedOrderedDict(OrderedDict):
         return value
 
 
+class AutoDefaultODict(OrderedDict):
+    """Ordered dict that automatically creates values for missing keys as
+    ordered dicts.
+
+    Useful for creating hierarchical dicts.
+    """
+    def __missing__(self, key):
+        val = self[key] = self.__class__()
+        return val
+
+
 class Repeater(object):
     def __init__(self, obj):
         self.object = obj

@@ -26,209 +26,93 @@
 
 """DNS file format saver for the new YAML based format."""
 
-from time import time as currenttime
-from datetime import datetime
-from collections import OrderedDict
-
-import yaml
-
 from nicos import session
-from nicos.core import Override, NicosError
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import from_maybe_utf8
+from nicos.core import Override
+from nicos.devices.datasinks.image import ImageSink
+from nicos.frm2.yamlbase import YAMLBaseFileSinkHandler
 
 
-# Subclass to support creation of nested dicts easily
-class AutoDefaultODict(OrderedDict):
-    def __missing__(self, key):
-        val = self[key] = self.__class__()
-        return val
+class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
+    filetype = 'MLZ.DNS.2.0-beta3'
 
-# Subclass to support flowed (inline) lists
-class FlowSeq(list):
-    pass
-
-
-# The improved YAML dumper
-class ImprovedDumper(yaml.Dumper):
-    pass
-
-
-def odict_representer(dumper, data):
-    return dumper.represent_mapping(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        data.items())
-
-
-def flowseq_representer(dumper, data):
-    return dumper.represent_sequence(
-        yaml.resolver.BaseResolver.DEFAULT_SEQUENCE_TAG,
-        data, flow_style=True)
-
-ImprovedDumper.add_representer(AutoDefaultODict, odict_representer)
-ImprovedDumper.add_representer(FlowSeq, flowseq_representer)
-ImprovedDumper.add_representer(
-    str, yaml.representer.SafeRepresenter.represent_str)
-ImprovedDumper.add_representer(
-    unicode, yaml.representer.SafeRepresenter.represent_unicode)
-
-
-def improved_dump(data, stream=None, **kwds):
-    return yaml.dump(data, stream, ImprovedDumper, allow_unicode=True,
-                     encoding='utf-8', default_flow_style=False, indent=4,
-                     width=70, **kwds)
-
-
-def nice_datetime(dt):
-    if isinstance(dt, float):
-        dt = datetime.fromtimestamp(dt)
-    rounded = dt.replace(microsecond=0)
-    return rounded.isoformat()
-
-
-class YAMLFileSinkHandler(SingleFileSinkHandler):
-
-    filetype = 'DNS-YAML'
-    accept_final_images_only = True
-
-    def writeData(self, fp, image):
-        """Save in YAML format."""
-
-        fp.seek(0)
-
+    def _write_instr_data(self, meas, image):
         expdev = session.experiment
-        instrdev = session.instrument
-
-        def readdev(devname):
-            try:
-                return session.getDevice(devname).read()
-            except NicosError:
-                return None
-
-        def devpar(devname, parname):
-            try:
-                return getattr(session.getDevice(devname), parname)
-            except NicosError:
-                return None
-
-        o = AutoDefaultODict()
-        instr = o['instrument']
-        instr['name'] = instrdev.instrument
-        instr['facility'] = instrdev.facility
-        # TODO: add instrument params for these two, once this migrates from DNS
-        instr['operator'] = u'Jülich Centre for Neutron Science (JCNS)'
-        instr['website'] = 'http://www.mlz-garching.de/dns'
-        instr['references'] = [AutoDefaultODict({'doi': instrdev.doi})]
-
-        objects = ['angle', 'clearance', 'current', 'displacement', 'duration',
-                   'energy', 'frequency', 'temperature', 'wavelength']
-        units = ['deg', 'mm', 'A', 'mm', 's', 'eV', 'hertz', 'K', 'A']
-
-        o['format']['identifier'] = 'MLZ.DNS.2.0-beta3'
-        for obj, unit in zip(objects, units):
-            o['format']['units'][obj] = unit
-
-        exp = o['experiment']
-        # TODO: use experiment number when we have it in NICOS
-        exp['number'] = expdev.proposal
-        exp['proposal'] = expdev.proposal
-        exp['title'] = from_maybe_utf8(expdev.title)
-        exp['authors'] = []
-        authors = [
-            {'name': from_maybe_utf8(expdev.users),
-             'roles': ['principal_investigator']},
-            {'name':  from_maybe_utf8(expdev.localcontact),
-             'roles': ['local_contact']},
-        ]
-        for author in authors:
-            a = AutoDefaultODict()
-            a['name'] = author['name']
-            a['roles'] = FlowSeq(author['roles'])
-            exp['authors'].append(a)
-
-        meas = o['measurement']
-        meas['number'] = self.dataset.number
-        meas['unique_identifier'] = '%s/%s/%s' % (
-            expdev.proposal, self.dataset.counter, self.dataset.number)
 
         hist = meas['history']
-        hist['started'] = nice_datetime(self.dataset.started)
-        hist['stopped'] = nice_datetime(currenttime())
-        hist['duration_counted'] = readdev('timer')[0]
-        hist['duration_scheduled'] = devpar('timer', 'preselection')
-        hist['termination_reason'] = devpar('timer', 'name')
+        hist['duration_counted'] = self._readdev('timer')[0]
+        hist['duration_scheduled'] = self._devpar('timer', 'preselection')
+        hist['termination_reason'] = self._devpar('timer', 'name')
 
-        sample = meas['sample']['description']
-        sample['name'] = from_maybe_utf8(expdev.sample.samplename)
         # TODO: one we have a better sample object
+        # sample = meas['sample']['description']
         # sample['kind'] = 'Vanadium' etc.
         # sample['unit_cell'] = from_maybe_utf8(expdev.sample.description)
         # sample['spacegroup'] = 'not looked up'
 
         temp = meas['sample']['temperature']
-        temp['environment'] = devpar('T', 'description')
+        temp['environment'] = self._devpar('T', 'description')
         # TODO: replace by true mean once we keep track with the new data API
-        temp['setpoint']['mean'] = devpar('T', 'setpoint')
-        temp['T1']['mean'] = readdev('T_jlc3_tube')
-        temp['T2']['mean'] = readdev('Ts')
+        temp['setpoint']['mean'] = self._devpar('T', 'setpoint')
+        temp['T1']['mean'] = self._readdev('T_jlc3_tube')
+        temp['T2']['mean'] = self._readdev('Ts')
 
         orient = meas['sample']['orientation']
-        orient['rotation_angle'] = readdev('sample_rot')
-        orient['lower_cradle_angle'] = readdev('cradle_lo')
-        orient['upper_cradle_angle'] = readdev('cradle_up')
+        orient['rotation_angle'] = self._readdev('sample_rot')
+        orient['lower_cradle_angle'] = self._readdev('cradle_lo')
+        orient['upper_cradle_angle'] = self._readdev('cradle_up')
 
         settings = meas['setup']['settings_for']
-        lam = readdev('mon_lambda')
+        lam = self._readdev('mon_lambda')
         energy = 81.804165 / lam**2
         settings['incident_wavelength'] = lam
         settings['incident_energy'] = energy
 
         mono = meas['setup']['monochromator']
         mono['crystal'] = 'PG-002'
-        mono['angle'] = readdev('mon_rot')
+        mono['angle'] = self._readdev('mon_rot')
 
         selector = meas['setup']['velocity_selector']
         if 'selector_speed' in session.devices:
-            selector['is_in_place'] = readdev('selector_inbeam') == 'in'
+            selector['is_in_place'] = self._readdev('selector_inbeam') == 'in'
             if selector['is_in_place']:
-                selector['frequency'] = readdev('selector_speed')
+                selector['frequency'] = self._readdev('selector_speed')
 
         polarizer = meas['setup']['polarizer']
-        polarizer['is_in_place'] = readdev('pol_inbeam') == 'in'
+        polarizer['is_in_place'] = self._readdev('pol_inbeam') == 'in'
         if polarizer['is_in_place']:
-            polarizer['displacement'] = readdev('pol_trans')
-            polarizer['rotation_angle'] = readdev('pol_rot')
+            polarizer['displacement'] = self._readdev('pol_trans')
+            polarizer['rotation_angle'] = self._readdev('pol_rot')
 
         flipper = meas['setup']['flipper']
-        flipper['is_in_place'] = readdev('flipper_inbeam') == 'in'
+        flipper['is_in_place'] = self._readdev('flipper_inbeam') == 'in'
         if flipper['is_in_place']:
-            flipper['setting'] = readdev('flipper')
-            flipper['precession_current'] = readdev('Co')
-            flipper['z_compensation_current'] = readdev('Fi')
+            flipper['setting'] = self._readdev('flipper')
+            flipper['precession_current'] = self._readdev('Co')
+            flipper['z_compensation_current'] = self._readdev('Fi')
 
         slit = meas['setup']['slit_i']
-        slit['upper_clearance'] = readdev('ap_sam_y_upper')
-        slit['lower_clearance'] = readdev('ap_sam_y_lower')
-        slit['left_clearance'] = readdev('ap_sam_x_left')
-        slit['right_clearance'] = readdev('ap_sam_x_right')
+        slit['upper_clearance'] = self._readdev('ap_sam_y_upper')
+        slit['lower_clearance'] = self._readdev('ap_sam_y_lower')
+        slit['left_clearance'] = self._readdev('ap_sam_x_left')
+        slit['right_clearance'] = self._readdev('ap_sam_x_right')
 
         coil = meas['setup']['xyz_coil']
         if 'field' in session.devices:
-            coil['is_in_place'] = readdev('xyzcoil_inbeam') == 'in'
+            coil['is_in_place'] = self._readdev('xyzcoil_inbeam') == 'in'
             if coil['is_in_place']:
-                coil['coil_a_current'] = readdev('A')
-                coil['coil_b_current'] = readdev('B')
-                coil['coil_c_current'] = readdev('C')
-                coil['coil_zb_current'] = readdev('ZB')
-                coil['coil_zt_current'] = readdev('ZT')
+                coil['coil_a_current'] = self._readdev('A')
+                coil['coil_b_current'] = self._readdev('B')
+                coil['coil_c_current'] = self._readdev('C')
+                coil['coil_zb_current'] = self._readdev('ZB')
+                coil['coil_zt_current'] = self._readdev('ZT')
 
-        meas['setup']['polarization'] = readdev('field')
+        meas['setup']['polarization'] = self._readdev('field')
 
         monitor = meas['monitor']
         if 'mon0' in session.devices:
             monitor['is_in_place'] = True
-            monitor['counts'] = readdev('mon0')[0]
+            monitor['counts'] = self._readdev('mon0')[0]
         else:
             monitor['is_in_place'] = False
 
@@ -237,7 +121,7 @@ class YAMLFileSinkHandler(SingleFileSinkHandler):
         tofdelay = 0
         uses_chopper = False
         meas['detectors'] = []
-        det1 = AutoDefaultODict()
+        det1 = self._dict()
         det1['type'] = 'polarization_analyser_detector_bank'
         if 'det' in expdev.detlist:
             tofchan = session.getDevice('dettof')
@@ -247,18 +131,18 @@ class YAMLFileSinkHandler(SingleFileSinkHandler):
                 nrtimechan = tofchan.nrtimechan
                 chanwidth = tofchan.divisor / 1000000.
                 tofdelay = tofchan.offsetdelay / 1000000.
-                det1['axes'] = FlowSeq(['tube', 'time'])
+                det1['axes'] = self._flowlist(['tube', 'time'])
             else:
-                det1['axes'] = FlowSeq(['tube'])
+                det1['axes'] = self._flowlist(['tube'])
             start, end = tofchan.readchannels
-            det1['angle_tube0'] = readdev('det_rot') - 5*start
+            det1['angle_tube0'] = self._readdev('det_rot') - 5*start
             det1['angle_step'] = -5
             det1['number_of_tubes'] = end - start + 1
             total = 0
             for j in range(start, end + 1):
                 det_counts = [int(v) for v in image[:, j]]
                 if len(det_counts) > 1:
-                    det1['counts'][j] = FlowSeq(det_counts)
+                    det1['counts'][j] = self._flowlist(det_counts)
                 else:
                     det1['counts'][j] = det_counts[0]
                 total += image[:, j].sum()
@@ -271,13 +155,10 @@ class YAMLFileSinkHandler(SingleFileSinkHandler):
         meas['setup']['settings_for']['uses_chopper'] = uses_chopper
         meas['detectors'].append(det1)
 
-        det2 = AutoDefaultODict()
+        det2 = self._dict()
         det2['type'] = 'position_sensitive_detector_bank'
         det2['is_in_place'] = False  # 'qm_det' in expdev.detlist
         meas['detectors'].append(det2)
-
-        improved_dump(o, fp)
-        fp.flush()
 
 
 class YAMLFileSink(ImageSink):
