@@ -70,6 +70,7 @@ devices = dict(
                          tangodevice = tango_base + 'flipperps/volt',
                          lowlevel = True,
                          abslimits = (0, 11),
+                         timeout = 3,
                         ),
     flipper     = device("kws1.flipper.Flipper",
                          description = "spin flipper after polarizer",
