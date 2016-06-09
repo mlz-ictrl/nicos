@@ -24,7 +24,8 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit
+from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit, QWidget, QSpinBox, \
+    QHBoxLayout
 from PyQt4.QtCore import pyqtSignal
 
 from nicos.guisupport.utils import DoubleValidator
@@ -41,6 +42,10 @@ class MeasElement(object):
 
     def getValue(self):
         """Return currently selected/entered value."""
+
+    def getDispValue(self):
+        """Return a form of the value to be displayed."""
+        return self.getValue()
 
     def _changed(self, *args):
         self.changed.emit(self.getValue())
@@ -180,5 +185,54 @@ class Collimation(ChoiceElement):
     LABEL = 'Collimation'
 
 
-class MeasTime(FloatElement):
+class MeasTime(MeasElement, QWidget):
     LABEL = 'Time'
+
+    changed = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        layout = QHBoxLayout()
+        self.number = QSpinBox(self)
+        self.number.setValue(30)
+        self.unit = QComboBox(self)
+        self.unit.addItems(['sec', 'min', 'hr'])
+        self.unit.setCurrentIndex(1)
+        layout.addWidget(self.number)
+        layout.addWidget(self.unit)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        self.number.valueChanged.connect(self._changed)
+        self.unit.currentIndexChanged.connect(self._changed)
+        self.setMinimumWidth(120)
+
+    def init(self, ename, client, value=None):
+        MeasElement.init(self, ename, client, value)
+        if value is not None:
+            if value % 3600 == 0:
+                self.number.setValue(value / 3600)
+                self.unit.setCurrentIndex(2)
+            elif value % 60 == 0:
+                self.number.setValue(value / 60)
+                self.unit.setCurrentIndex(1)
+            else:
+                self.number.setValue(value)
+                self.unit.setCurrentIndex(0)
+
+    def getValue(self):
+        unit = self.unit.currentIndex()
+        if unit == 0:
+            return self.number.value()
+        elif unit == 1:
+            return self.number.value() * 60
+        else:
+            return self.number.value() * 3600
+
+    def getDispValue(self):
+        unit = self.unit.currentIndex()
+        if unit == 0:
+            return '%d sec' % self.number.value()
+        elif unit == 1:
+            return '%d min' % self.number.value()
+        else:
+            return '%d hr' % self.number.value()

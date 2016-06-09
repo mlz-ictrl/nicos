@@ -41,7 +41,7 @@ from nicos.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
 
 
 SAMPLES = 'samples'
-DETSETS = 'detector settings'
+DETSETS = 'detector/collimation'
 DEVICES = 'other devices'
 
 LOOPS = [
@@ -242,12 +242,13 @@ class DetsetDialog(QDialog):
     def _stopEdit(self):
         i, j, widget = self._edit
         value = widget.getValue()
+        dispvalue = widget.getDispValue()
         element = self.measdef.getElements()[j][0]
         prev = self._rows[i][element]
         self._rows[i][element] = MeasEntry(
-            ename=prev.ename, text=value, key=value, wclass=prev.wclass)
+            ename=prev.ename, text=dispvalue, key=value, wclass=prev.wclass)
         self.table.setCellWidget(i, j, None)
-        self.table.item(i, j).setText(str(value))
+        self.table.item(i, j).setText(str(dispvalue))
         self._edit = None
 
     def on_buttonBox_accepted(self):
@@ -273,7 +274,8 @@ class DetsetDialog(QDialog):
         dic = OrderedDict()
         for ename, eclass in self.measdef.getElements():
             value = self._widgets[ename].getValue()
-            dic[ename] = MeasEntry(ename=ename, text=value, key=value,
+            dispvalue = self._widgets[ename].getDispValue()
+            dic[ename] = MeasEntry(ename=ename, text=dispvalue, key=value,
                                    wclass=eclass)
         self.addRow(dic)
 
