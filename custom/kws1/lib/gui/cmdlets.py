@@ -149,14 +149,28 @@ class MeasureTable(Cmdlet):
             ))
         else:
             out.append('SetupNormal()')
-        for entry in self.measdef.getTable():
+        table = self.measdef.getTable()
+        # detect if we use a non-default value for these, and generate the
+        # keywords only for these cases
+        has_lenses = False
+        has_chopper = False
+        has_polarizer = False
+        for entry in table:
+            for (k, v) in entry.items():
+                if k == 'chopper' and v.key != 'off':
+                    has_chopper = True
+                elif k == 'polarizer' and v.key != 'out':
+                    has_polarizer = True
+                elif k == 'lenses' and v.key != 'out-out-out':
+                    has_lenses = True
+        for entry in table:
             items = []
             for (k, v) in entry.items():
-                if k == 'chopper' and v.key == 'off':
+                if k == 'chopper' and not has_chopper:
                     continue
-                if k == 'polarizer' and v.key == 'out':
+                if k == 'polarizer' and not has_polarizer:
                     continue
-                if k == 'lenses' and v.key == 'out-out-out':
+                if k == 'lenses' and not has_lenses:
                     continue
                 items.append('%s=%s' % (k, srepr(v.key)))
             out.append('kwscount(' + ', '.join(items) + ')')
