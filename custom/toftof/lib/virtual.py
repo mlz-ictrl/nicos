@@ -24,10 +24,13 @@
 
 """Virtual devices for testing."""
 
-from nicos.core import Override, Param
+import numpy as np
+
+from nicos.core import Override, Param, intrange
+
 from nicos.devices.generic.virtual import VirtualImage as BaseImage
 
-import numpy as np
+from nicos.toftof import calculations as calc
 
 
 class VirtualImage(BaseImage):
@@ -41,6 +44,26 @@ class VirtualImage(BaseImage):
                           type=str,
                           default='custom/toftof/data/test/data.npz',
                           ),
+        'timechannels': Param('Number of time channels per detector channel',
+                              type=intrange(1, 4096), settable=True,
+                              default=1024,
+                              ),
+        'timeinterval': Param('Time interval between pulses',
+                              type=float, settable=True, default=0.1,
+                              ),
+        'delay': Param('TOF frame delay',
+                       type=int, settable=True,
+                       ),
+        'channelwidth': Param('Channel width',
+                              volatile=True,
+                              ),
+        'numinputs': Param('Number of detector channels',
+                           type=intrange(1, 1024), settable=True, default=1024,
+                           ),
+        'monitorchannel': Param('Channel number of the monitor counter',
+                                default=956,
+                                type=intrange(1, 1024), settable=True,
+                                ),
     }
 
     parameter_overrides = {
@@ -51,8 +74,16 @@ class VirtualImage(BaseImage):
 
     def doInit(self, mode):
         BaseImage.doInit(self, mode)
-        with open(self.datafile, 'rb') as fp:
-            self._rawdata = 0.01 * np.load(fp)
+        try:
+            with open(self.datafile, 'rb') as fp:
+                self._rawdata = 0.01 * np.load(fp)
+        except IOError:
+            self.log.warning('data file %s not present, returning empty array '
+                             'from virtual TOF image' % self.datafile)
+            self._rawdata = np.zero(self.sizes[0] * self.sizes[1])
 
     def _generate(self, t):
         return np.random.poisson(t * self._rawdata).reshape(self.sizes)
+
+    def doReadChannelwidth(self):
+        return int(1.0 + self.timeinterval / (calc.ttr * 1024))

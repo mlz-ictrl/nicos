@@ -29,13 +29,14 @@ from time import sleep, time as currenttime
 
 import IO
 
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
-    NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof, \
-    HasTimeout, SIMULATION
+from nicos.core import ADMIN, NicosError, SIMULATION, status, requires
+
 from nicos.devices.taco import TacoDevice
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.toftof import calculations as calc
+
+from .base import BaseChopperController
 
 WAVE_LENGTH = 4181
 ACT_POS = 4191
@@ -86,45 +87,11 @@ C_ACCEPT = 7
 C_NO_CMD = 9
 
 
-class Controller(TacoDevice, HasTimeout, Readable):
+class Controller(TacoDevice, BaseChopperController):
     """The main controller device of the chopper."""
     taco_class = IO.StringIO
 
     # XXX: maybe HasWindowTimeout is better suited here....
-
-    parameters = {
-        'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
-                                  '(= 0) or with 90deg offset (= 1)',
-                                  type=intrange(0, 1), mandatory=True,
-                                  category='general',
-                                  ),
-        'phase_accuracy': Param('Required accuracy of the chopper phases',
-                                settable=True, default=10, type=float,),  # XXX unit?
-        'speed_accuracy': Param('Required accuracy of the chopper speeds',
-                                settable=True, default=2, type=float,),  # XXX unit?
-        'resolution':     Param('Current energy resolution',
-                                volatile=True, type=tupleof(float, float),),
-
-        # readonly hidden state parameters giving current values
-        'wavelength': Param('Selected wavelength',
-                            unit='AA', userparam=False, type=float,),
-        'speed':      Param('Disk speed',
-                            unit='rpm', userparam=False, type=int,),
-        'ratio':      Param('Frame-overlap ratio',
-                            type=int, userparam=False),
-        'crc':        Param('Counter-rotating mode',
-                            type=int, userparam=False),
-        'slittype':   Param('Slit type',
-                            type=int, userparam=False),
-        'phases':     Param('Current phases',
-                            type=listof(float), userparam=False),
-        'changetime': Param('Time of last change',
-                            userparam=False, type=float,),
-    }
-
-    parameter_overrides = {
-        'timeout': Override(default=90),
-    }
 
     def _read(self, n):
         return int(self._taco_guard(
@@ -177,10 +144,6 @@ class Controller(TacoDevice, HasTimeout, Readable):
             self._setROParam('phases', [0] * 8)
             self.log.warning('could not read initial data from PMAC chopper '
                              'controller', exc=1)
-
-    def _getparams(self):
-        return (self.wavelength, self.speed, self.ratio,
-                self.crc, self.slittype)
 
     def _is_cal(self):
         for ch in range(1, 8):
@@ -277,26 +240,6 @@ class Controller(TacoDevice, HasTimeout, Readable):
 
     def _readphase(self, ch):
         return self._read(ACT_PHASE + ch) / 100.0
-
-    def doReadResolution(self):
-        return calc.Eres1(self.wavelength, self.speed)
-
-    def doRead(self, maxage=0):
-        """Read average speed from all choppers."""
-        speeds = self._readspeeds()
-        speed = 0.0
-        for ch in [1, 2, 3, 4, 6, 7]:
-            speed += speeds[ch - 1]
-        if self.ratio is not None:
-            if self.ratio == 1:
-                speed += speeds[5 - 1]
-            elif self.ratio < 9:
-                speed += speeds[5 - 1] * self.ratio / (self.ratio - 1.0)
-            else:
-                speed += speeds[5 - 1] * self.ratio / 7.0
-            return speed / 7.0
-        else:
-            return speed / 6.0
 
     def doReset(self):
         speed = sum(self._readspeeds())
@@ -431,94 +374,3 @@ class Controller(TacoDevice, HasTimeout, Readable):
                           PAR_SPEED, ds,
                           DES_CMD, C_ACCEPT)
         self._setROParam('changetime', currenttime())
-
-
-class SpeedReadout(Readable):
-    """The current speed readout device of the chopper."""
-    attached_devices = {
-        'chopper': Attach('Chopper controller', Controller),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='rpm'),
-    }
-
-    def doRead(self, maxage=0):
-        return [v / 279.618375
-                for v in self._attached_chopper._readspeeds_actual()]
-
-    def doStatus(self, maxage=0):
-        return status.OK, 'no status info'
-
-
-class PropertyChanger(Moveable):
-    """This is essentially a ParamDevice
-
-    and can be replace once Controller uses single setters
-    (NICOS-style interface).
-    """
-    attached_devices = {
-        'chopper': Attach('Chopper controller', Controller),
-    }
-
-    def doStatus(self, maxage=0):
-        return status.OK, 'no status info'
-
-    def doRead(self, maxage=0):
-        return getattr(self._attached_chopper, self._prop)
-
-    def doStart(self, target):
-        self._attached_chopper._change(self._prop, target)
-
-    def doReadTarget(self):
-        return getattr(self._attached_chopper, self._prop)
-
-
-class Wavelength(HasLimits, PropertyChanger):
-    """The wave length parameter device of the chopper."""
-    _prop = 'wavelength'
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default='AA'),
-    }
-    valuetype = float
-
-
-class Speed(HasLimits, PropertyChanger):
-    """The speed parameter device of the chopper."""
-    _prop = 'speed'
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default='rpm'),
-    }
-    valuetype = float
-
-
-class Ratio(PropertyChanger):
-    """The ratio parameter device of the chopper."""
-    _prop = 'ratio'
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
-        'fmtstr': Override(default='%d'),
-    }
-    valuetype = oneof(*range(1, 11))
-
-
-class CRC(PropertyChanger):
-    """The crc (rotation direction of disc 5) parameter device of the
-    chopper.
-    """
-    _prop = 'crc'
-    parameter_overrides = {
-        'unit':   Override(mandatory=False, default=''),
-        'fmtstr': Override(default='%d'),
-    }
-    valuetype = oneof(0, 1)
-
-
-class SlitType(PropertyChanger):
-    """The slit type parameter device of the chopper."""
-    _prop = 'slittype'
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
-        'fmtstr': Override(default='%d'),
-    }
-    valuetype = oneof(0, 1, 2)

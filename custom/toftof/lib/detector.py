@@ -30,8 +30,7 @@ from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
 # from nicos.core.constants import INTERMEDIATE
 from nicos.devices.generic.detector import Detector as GenericDetector
 
-from nicos.devices.vendor.toni import DelayBox
-from nicos.toftof.chopper import Controller
+from nicos.toftof.chopper import BaseChopperController
 
 from nicos.toftof import calculations as calc
 
@@ -40,8 +39,8 @@ class Detector(GenericDetector):
 
     attached_devices = {
         'rc': Attach('The Radial collimator', Moveable),
-        'chopper': Attach('The chopper controller', Controller),
-        'chdelay': Attach('Setting chopper delay', DelayBox),
+        'chopper': Attach('The chopper controller', BaseChopperController),
+        'chdelay': Attach('Setting chopper delay', Moveable),
     }
 
     parameters = {
