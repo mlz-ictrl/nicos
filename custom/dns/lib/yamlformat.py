@@ -64,7 +64,10 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
         settings = meas['setup']['settings_for']
         lam = self._readdev('mon_lambda')
-        energy = 81.804165 / lam**2
+        if lam is not None:
+            energy = 81.804165 / lam**2
+        else:
+            energy = None
         settings['incident_wavelength'] = lam
         settings['incident_energy'] = energy
 

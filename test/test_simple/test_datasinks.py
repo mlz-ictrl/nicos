@@ -39,6 +39,11 @@ try:
 except ImportError:
     PIL = None
 
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
 from nicos import session, config
 from nicos.utils import readFile
 from nicos.commands.scan import scan
@@ -79,6 +84,7 @@ def setup_module():
 
     exp._setROParam('dataroot', dataroot)
     exp.new(1234, user='testuser', localcontact=exp.localcontact)
+    exp.sample.new({'name': 'mysample'})
     assert path.abspath(exp.datapath) == \
         path.abspath(path.join(config.nicos_root, 'testdata',
                                year, 'p1234', 'data'))
@@ -226,3 +232,14 @@ def test_fits_sink():
     hdu = ffile[0]
     assert hdu.data.shape == (128, 128)
     assert hdu.header['Exp/proposal'] == 'p1234'
+
+
+@requires(yaml, 'PyYAML library missing')
+def test_yaml_sink():
+    yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
+    assert path.isfile(yamlfile)
+    contents = yaml.load(open(yamlfile))
+    assert contents['instrument']['name'] == 'Tas'
+    assert contents['experiment']['proposal'] == 'p1234'
+    assert contents['measurement']['sample']['description']['name'] == \
+        'mysample'

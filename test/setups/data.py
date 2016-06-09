@@ -44,6 +44,12 @@ try:
 except Exception:
     pass
 
+try:
+    import yaml  # pylint: disable=unused-import
+    sinklist.append('yamlsink')
+except Exception:
+    pass
+
 sysconfig = dict(
     datasinks = sinklist,
 )
@@ -69,4 +75,6 @@ devices = dict(
                          flipimage = 'none'),
     fitssink    = device('nicos.devices.datasinks.FITSImageSink'),
     tiffsink    = device('nicos.devices.datasinks.TIFFImageSink'),
+    yamlsink    = device('nicos.dns.yamlformat.YAMLFileSink',
+                         filenametemplate = ['%(pointcounter)08d.yaml']),
 )
