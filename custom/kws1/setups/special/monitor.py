@@ -47,9 +47,10 @@ _polarizer = Block('Polarizer', [
 
 _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
-    BlockRow(Field(name='X', dev='det_x'),
-             Field(name='Y', dev='det_y'),
-             Field(name='Z', dev='det_z')),
+    BlockRow(
+        Field(devices=['det_z', 'det_x', 'det_y'],
+              widget='nicos.kws1.monitorwidgets.Tube', width=30, height=10)
+    ),
 ])
 
 _lenses = Block('Lenses', [
@@ -67,6 +68,16 @@ _sample = Block('Sample', [
     BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
 ])
 
+_hexapod = Block('Hexapod', [
+    BlockRow(Field(name='TX', dev='hexapod_tx'),
+             Field(name='TY', dev='hexapod_ty'),
+             Field(name='TZ', dev='hexapod_tz')),
+    BlockRow(Field(name='RX', dev='hexapod_rx'),
+             Field(name='RY', dev='hexapod_ry'),
+             Field(name='RZ', dev='hexapod_rz')),
+    BlockRow(Field(name='Table', dev='hexapod_dt')),
+], setups='hexapod')
+
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
              Field(name='Total counts', dev='det_img')),
@@ -82,15 +93,15 @@ devices = dict(
                      # Use only 'localhost' if the cache is really running on
                      # the same machine, otherwise use the hostname (official
                      # computer name) or an IP address.
-                     cache = 'phys.kws1.frm2',
+                     cache = 'localhost',# 'phys.kws1.frm2',
                      font = 'Luxi Sans',
                      valuefont = 'Bitstream Vera Sans Mono',
                      padding = 0,
                      layout = [
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _shutter),
-                             Column(_collimation, _polarizer, _lenses),
-                             Column(_sample, _detector, _daq)),
+                             Column(_collimation, _polarizer, _lenses, _daq),
+                             Column(_sample, _hexapod, _detector)),
                      ],
                     ),
 )
