@@ -41,11 +41,11 @@ main_window = tabbed(
 windows = []
 
 tools = [
-    tool('Downtime report', 'downtime.DownTimeTool',
-         receiver='f.carsughi@fz-juelich.de',
-         mailserver='smtp.frm2.tum.de',
-         sender='kws1@frm2.tum.de',
-        ),
+    cmdtool('Detector live view', 'KWSlive'),
+    cmdtool('Server control (Marche)', 'marche-gui'),
+    tool('Hexapod manual control', 'nicos.kws1.gui.tools.hexapod.HexapodTool'),
+    tool('Emergency stop button', 'estop.EmergencyStopTool',
+         runatstartup=False),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
@@ -54,9 +54,11 @@ tools = [
     tool('Neutron calculations', 'website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-    tool('Emergency stop button', 'estop.EmergencyStopTool',
-         runatstartup=False),
-    tool('Hexapod manual control', 'nicos.kws1.gui.tools.hexapod.HexapodTool'),
+    tool('Downtime report', 'downtime.DownTimeTool',
+         receiver='f.carsughi@fz-juelich.de',
+         mailserver='smtp.frm2.tum.de',
+         sender='kws1@frm2.tum.de',
+        ),
     # unfortunately doesn't work in the QWebView
     #tool('Webcam', 'website.WebsiteTool',
     #     url='http://kws1:kws1@172.25.34.66/view/viewer_index.shtml?id=296'),
