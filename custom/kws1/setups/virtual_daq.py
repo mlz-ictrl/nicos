@@ -21,7 +21,17 @@ devices = dict(
                         type = 'monitor',
                        ),
 
-    kwsformat  = device('kws1.kwsfileformat.KWSFileFormat',
+    mon2       = device('devices.generic.virtual.VirtualCounter',
+                        description = 'monitor',
+                        type = 'monitor',
+                       ),
+
+    mon3       = device('devices.generic.virtual.VirtualCounter',
+                        description = 'monitor',
+                        type = 'monitor',
+                       ),
+
+    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                        ),
 

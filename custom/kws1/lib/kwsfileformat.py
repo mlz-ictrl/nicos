@@ -55,10 +55,10 @@ Cyclus_Number Reduce_Data Date_field from to
 %(Sample.samplename)s | %(Sample.comment)s
 
 (* Collimation discription *)
-Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y
+Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y Polarization
           [m]         [m]         [mm]         [mm]
-%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s
-%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s
+%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s
+%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s
 
 (* Detector Discription *)
 Li6 Detector is in normal mode. Angle: 0.00 grd
@@ -74,7 +74,11 @@ Sample_Nr Sample_Pos Thickness Beamwindow_X Beamwindow_Y Time_Factor
 %(ap_sam.height())12s %(Sample.timefactor)11s
 
 (* Temperature discription *)
-%(sample_env)s
+%(sample_env_0)s
+%(sample_env_1)s
+%(sample_env_2)s
+%(sample_env_3)s
+%(sample_env_4)s
 
 (* Data_field and Time per Data_Field *)
 Data_Field     Time Time_Factor  Repetition
@@ -107,6 +111,18 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
 
         w = fp.write
 
+        # sample envs
+        sample_env = ['Temperature dummy line'] * 5
+        for (i, (info, val)) in enumerate(zip(self.dataset.envvalueinfo,
+                                              self.dataset.envvaluelist)):
+            if i >= 5:  # only five lines allowed
+                break
+            try:
+                val = info.fmtstr % val
+            except Exception:
+                val = str(val)
+            sample_env[i] = '%s is Active %s %s' % (info.name, val, info.unit)
+
         # write header
         data = DeviceValueDict()
         data.update(
@@ -117,7 +133,11 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             coll_y = '%d' % session.getDevice(_collslit).height.read(),
             exptime = '%d min' % (_exposuretime / 60.),
             realtime = '%d sec' % _exposuretime,
-            sample_env = '',  # TODO
+            sample_env_0 = sample_env[0],
+            sample_env_1 = sample_env[1],
+            sample_env_2 = sample_env[2],
+            sample_env_3 = sample_env[3],
+            sample_env_4 = sample_env[4],
         )
         w(KWSHEADER % data)
 
@@ -169,7 +189,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             w('\n')
 
 
-class KWSFileFormat(ImageSink):
+class KWSFileSink(ImageSink):
     """Saves KWS image and header data into a single file"""
 
     handlerclass = KWSFileSinkHandler

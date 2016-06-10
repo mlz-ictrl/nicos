@@ -24,7 +24,7 @@ devices = dict(
                         rtswitch = 'rtswitch',
                        ),
 
-    kwsformat  = device('kws1.kwsfileformat.KWSFileFormat',
+    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                        ),
 
