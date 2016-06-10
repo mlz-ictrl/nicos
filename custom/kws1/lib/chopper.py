@@ -59,6 +59,14 @@ class ChopperParams(Moveable):
         'unit':   Override(mandatory=False, default=''),
     }
 
+    def doIsAllowed(self, pos):
+        freq = pos[0]
+        # forbidden ranges 0-5 and 25-32 Hz (0 must be allowed and means OFF)
+        if 0 < freq <= 5 or 25 <= freq <= 32:
+            return False, 'moving to "forbidden" frequency ranges ' \
+                '0-5 Hz and 25-32 Hz is not allowed'
+        return True, ''
+
     def doStart(self, pos):
         if pos[0] == 0:
             self._attached_freq1._setROParam('target', 0)
