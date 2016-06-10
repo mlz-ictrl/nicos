@@ -22,5 +22,13 @@
 #
 # *****************************************************************************
 
-from nicos.devices.vendor.caress.motor import Motor
-from nicos.devices.vendor.caress.mux import MUX
+"""MUX Device via the CARESS device service."""
+
+from nicos.core import Device
+from nicos.devices.vendor.caress.core import CARESSDevice
+
+
+class MUX(CARESSDevice, Device):
+
+    def doInit(self, mode):
+        CARESSDevice.doInit(self, mode)
