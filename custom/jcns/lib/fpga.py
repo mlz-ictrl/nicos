@@ -30,7 +30,8 @@ masters, e.g. counting on time and count rate.
 
 """
 
-from nicos.core import status, Param, Override, Value, intrange, UsageError
+from nicos.core import status, Param, Override, Value, intrange, UsageError, \
+    Readable
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin
@@ -146,3 +147,33 @@ class FPGACounterChannel(CounterChannelMixin, FPGAChannelBase):
 
     def doRead(self, maxage=0):
         return self._dev.DevFPGACountReadCount(self.channel)
+
+
+class FPGARate(PyTangoDevice, Readable):
+    """Determines the instantaneous count rate of a counter card channel."""
+
+    parameters = {
+        'channel': Param('Channel number', type=intrange(0, 4),
+                         settable=False, mandatory=True)
+    }
+
+    parameter_overrides = {
+        'unit':    Override(mandatory=False, default='cps'),
+    }
+
+    _last = None
+
+    def doRead(self, maxage=0):
+        cur = (self._dev.DevFPGACountReadCount(self.channel),
+               self._dev.DevFPGACountReadTime() / 1000.)
+        if cur[1] == 0:
+            res = 0.0
+        elif self._last is None or self._last[1] > cur[1]:
+            res = cur[0] / cur[1]
+        elif self._last[1] == cur[1]:
+            res = 0.0
+        else:
+            res = (cur[0] - self._last[0]) / (cur[1] - self._last[1])
+
+        self._last = cur
+        return res

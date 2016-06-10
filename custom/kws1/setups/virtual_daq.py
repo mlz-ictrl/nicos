@@ -14,6 +14,7 @@ devices = dict(
 
     timer      = device('devices.generic.virtual.VirtualTimer',
                         description = 'timer',
+                        fmtstr = '%.2f',
                        ),
 
     mon1       = device('devices.generic.virtual.VirtualCounter',

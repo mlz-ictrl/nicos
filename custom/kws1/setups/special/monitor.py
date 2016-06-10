@@ -70,6 +70,9 @@ _sample = Block('Sample', [
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
              Field(name='Total counts', dev='det_img')),
+    BlockRow(Field(name='Mon1', dev='rate1'),
+             Field(name='Mon2', dev='rate2'),
+             Field(name='Mon3', dev='rate3')),
 ])
 
 devices = dict(

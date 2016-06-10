@@ -58,7 +58,7 @@ devices = dict(
                            description = "14m aperture",
                            horizontal = "aperture_14_x",
                            vertical = "aperture_14_y",
-                           openpos = (50.0, 50.0),
+                           openpos = (49.5, 50.0),
                           ),
     aperture_08   = device("kws1.collimation.CollimationSlit",
                            description = "8m aperture",
