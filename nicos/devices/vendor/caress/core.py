@@ -186,12 +186,13 @@ class CARESSDevice(HasCommunication):
                                                      self.config)
                 self.log.debug('Init module (Re-Init): %r' % (res,))
                 if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-                    self.log.error('Init module (Re-Init): %r' % (res,))
+                    self.log.error('Init module (Re-Init): %r (%d, %s)' %
+                                   (res, self._cid, self.config))
                     raise NicosError(self, 'Could not initialize module!')
             self._initialized = True
         except CORBA.TRANSIENT as err:
-            raise CommunicationError(self, 'could not init CARESS module %r' %
-                                     err)
+            raise CommunicationError(self, 'could not init CARESS module %r '
+                                     '(%d: %s)' % (err, self._cid, self.config))
 
     def doInit(self, mode):
         if mode == SIMULATION:
