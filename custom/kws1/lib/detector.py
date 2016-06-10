@@ -30,6 +30,15 @@ from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.pycompat import iteritems
 
 
+class oneof_detector(oneof):
+    def __call__(self, val=None):
+        try:
+            return oneof.__call__(self, val)
+        except ValueError:
+            raise ValueError('preset %r does not exist for the current '
+                             'selector setting' % val)
+
+
 class DetectorPosSwitcher(MultiSwitcher):
     """Switcher for the detector position.
 
@@ -70,7 +79,7 @@ class DetectorPosSwitcher(MultiSwitcher):
             new_mapping = dict((k, [v['z'], v['x'], v['y']])
                                for (k, v) in pos.items())
             self.mapping = new_mapping
-            self.valuetype = oneof(*new_mapping)
+            self.valuetype = oneof_detector(*new_mapping)
             if self._cache:
                 self._cache.invalidate(self, 'value')
                 self._cache.invalidate(self, 'status')
