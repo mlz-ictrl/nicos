@@ -177,11 +177,12 @@ class Image(CARESSDevice, QMesyDAQImage):
 
     def doInit(self, mode):
         lconfig = self.config.split()
-        lconfig = lconfig[:2] + lconfig[4:]
-        self._width = int(lconfig[2])
-        self._height = int(lconfig[3])
-        self._setROParam('config', ' '.join(lconfig))
+        tmpconfig = lconfig[:2] + lconfig[4:]
+        self._width = int(tmpconfig[2])
+        self._height = int(tmpconfig[3])
+        self._setROParam('config', ' '.join(tmpconfig))
         CARESSDevice.doInit(self, mode)
+        self._setROParam('config', ' '.join(lconfig))
         if mode == SIMULATION:
             return
         if hasattr(self._caressObject, 'is_counting_module'):
