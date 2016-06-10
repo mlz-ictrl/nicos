@@ -24,7 +24,8 @@
 
 """Class for controlling the KWS flipper."""
 
-from nicos.core import HasTimeout, Moveable, Attach, Override, status, oneof
+from nicos.core import HasTimeout, Moveable, Attach, Override, status, oneof, \
+    SIMULATION
 
 
 class Flipper(HasTimeout, Moveable):
@@ -50,15 +51,23 @@ class Flipper(HasTimeout, Moveable):
     }
 
     def doStatus(self, maxage=0):
+        if self._mode == SIMULATION:
+            # in simulation mode, we don't know that the current will
+            # change when changing the voltage of the power supply
+            return status.OK, 'idle'
         flip_bit = self._attached_output.read(maxage)
         current = self._attached_supply.current
         if flip_bit and current > 0.1:
             return status.OK, 'idle'
         if not flip_bit and current < 0.1:
             return status.OK, 'idle'
-        return status.ALARM, 'inconsistent'
+        return status.WARN, 'inconsistent'
 
     def doRead(self, maxage=0):
+        if self._mode == SIMULATION:
+            # in simulation mode, we don't know that the current will
+            # change when changing the voltage of the power supply
+            return 'on' if self._attached_supply.read(maxage) > 0 else 'off'
         current = self._attached_supply.current
         if current > 0.1:
             return 'on'

@@ -57,7 +57,7 @@ class Shutter(HasTimeout, Moveable):
             if self.target == 'open':
                 return status.OK, 'idle'
             else:
-                return status.ALARM, 'open, but target=closed'
+                return status.WARN, 'open, but target=closed'
         elif inputstatus == READ_CLOSED:
             if self.target == 'closed':
                 return status.OK, 'idle'
