@@ -38,8 +38,7 @@ devices = dict(
                   userlimits = (-200, 200),
                   nameserver = '%s' % (nameservice,),
                   objname = '%s' % (servername),
-                  config = 'OMGM 115 11 0xf0f1f000 3 12160 512 32 1 0 0'
-                           ' 0 0 1 5000 10 50 0 0',
+                  config = 'OMGM 114 11 0x00f1e000 2 4096 2000 200 2 24 50 1 0 1 3000 1 10 0 0 0',
                  ),
     transm_m = device('devices.vendor.caress.Motor',
                       description = 'HWB TRANSM',
@@ -49,8 +48,7 @@ devices = dict(
                       userlimits = (-200, 200),
                       nameserver = '%s' % (nameservice,),
                       objname = '%s' % (servername),
-                      config = 'TRANSM 115 11 0xf0d1e000 1 4096 512 32 1 0 0'
-                               ' 0 0 1 5000 10 50 0 0',
+                      config = 'TRANSM 114 11 0x00f1e000 4 204800 10000 1000 2 24 50 1 0 1 3000 1 10 0 0 0',
                       lowlevel = True,
                      ),
     transm = device('devices.generic.Switcher',

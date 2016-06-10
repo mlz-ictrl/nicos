@@ -120,6 +120,6 @@ devices = dict(
                    abslimits = (0, 70),
                    nameserver = '%s' % (nameservice,),
                    objname = '%s' % (servername),
-                   config = 'SLITM_E 39 3 1 11 100.0 20 80',
+                   config = 'SLITM_E 39 3 1 12 100.0 20 80',
                   ),
 )
