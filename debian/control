@@ -14,7 +14,8 @@ Depends: python (>= 2.7),
  python-numpy,
  python-zmq (>= 2.0),
  python-psutil (>= 0.4),
- nicos-pyctl
+ nicos-pyctl,
+ nicos-quickyaml
 Description: NICOS core system
 
 Package: nicos-services

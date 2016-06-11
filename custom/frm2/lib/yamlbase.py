@@ -27,48 +27,13 @@
 from datetime import datetime
 from time import time as currenttime
 
-import yaml
+import quickyaml
 
 from nicos import session
 from nicos.core import NicosError
 from nicos.devices.datasinks.image import SingleFileSinkHandler
 from nicos.pycompat import from_maybe_utf8
 from nicos.utils import AutoDefaultODict
-
-
-# Subclass to support flowed (inline) lists
-class FlowSeq(list):
-    pass
-
-
-# The improved YAML dumper
-class ImprovedDumper(yaml.Dumper):
-    pass
-
-
-def odict_representer(dumper, data):
-    return dumper.represent_mapping(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        data.items())
-
-
-def flowseq_representer(dumper, data):
-    return dumper.represent_sequence(
-        yaml.resolver.BaseResolver.DEFAULT_SEQUENCE_TAG,
-        data, flow_style=True)
-
-ImprovedDumper.add_representer(AutoDefaultODict, odict_representer)
-ImprovedDumper.add_representer(FlowSeq, flowseq_representer)
-ImprovedDumper.add_representer(
-    str, yaml.representer.SafeRepresenter.represent_str)
-ImprovedDumper.add_representer(
-    unicode, yaml.representer.SafeRepresenter.represent_unicode)
-
-
-def improved_dump(data, stream=None, **kwds):
-    return yaml.dump(data, stream, ImprovedDumper, allow_unicode=True,
-                     encoding='utf-8', default_flow_style=False, indent=4,
-                     width=70, **kwds)
 
 
 def nice_datetime(dt):
@@ -81,6 +46,7 @@ def nice_datetime(dt):
 class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
 
     filetype = 'MLZ.YAML'  # to be overwritten in derived classes
+    max_yaml_width = 120
     accept_final_images_only = True
 
     def _readdev(self, devname, mapper=lambda x: x):
@@ -99,7 +65,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         return AutoDefaultODict()
 
     def _flowlist(self, *args):
-        return FlowSeq(*args)
+        return quickyaml.flowlist(*args)
 
     def writeData(self, fp, image):
         """Save in YAML format."""
@@ -141,7 +107,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         for author in authors:
             a = AutoDefaultODict()
             a['name'] = author['name']
-            a['roles'] = FlowSeq(author['roles'])
+            a['roles'] = self._flowlist(author['roles'])
             exp['authors'].append(a)
 
         meas = o['measurement']
@@ -173,7 +139,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
 
         self._write_instr_data(meas, image)
 
-        improved_dump(o, fp)
+        quickyaml.Dumper(width=self.max_yaml_width).dump(o, fp)
         fp.flush()
 
     def _write_instr_data(self, meas_root, image):

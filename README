@@ -31,6 +31,7 @@ Requirements
 * At least Python 2.7 or Python 3.3
 
 * nicos-pyctl
+* nicos-quickyaml
 
 * numpy
 

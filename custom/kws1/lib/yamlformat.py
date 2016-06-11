@@ -33,6 +33,7 @@ from nicos.frm2.yamlbase import YAMLBaseFileSinkHandler
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
     filetype = 'MLZ.KWS1.2.0-beta1'
+    max_yaml_width = 10000
 
     def _write_instr_data(self, meas, image):
         expdev = session.experiment
@@ -127,13 +128,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             det1['axes'] = self._flowlist(['x', 'y'])
         det1['pixel_width'] = 5.3
         det1['pixel_height'] = 5.3
-        counts = det1['counts']
-        for i in range(image.shape[0]):
-            if len(image.shape) == 2:
-                counts[i] = self._flowlist(map(int, image[i]))
-            else:
-                for j in range(image.shape[1]):
-                    counts[i][j] = self._flowlist(map(int, image[i][j]))
+        det1['counts'] = image
         det1['total_counts'] = int(image.sum())
         meas['detectors'] = [det1]
 
@@ -152,4 +147,4 @@ class YAMLFileSink(ImageSink):
     handlerclass = YAMLFileSinkHandler
 
     def isActiveForArray(self, arraydesc):
-        return len(arraydesc.shape) == 2
+        return len(arraydesc.shape) in (2, 3)

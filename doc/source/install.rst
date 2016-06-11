@@ -37,6 +37,7 @@ Requirements
 
 * pyzmq version >= 2
 * nicos-pyctl
+* nicos-quickyaml
 
 * For the provided SysV compatible init script:
 
