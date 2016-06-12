@@ -92,6 +92,18 @@ except the **description** entry:
 
       modules = ['commands.standard', 'commands.taco']
 
+``display_order``
+   An integer (range 0-100) that determines how the list of loaded setups is
+   sorted when displayed in the GUI device list.
+
+   The default is 50.  To sort a setup before the default, use smaller numbers,
+   to sort them after the default, use larger numbers.  Setups with the same
+   number are sorted alphabetically by setup name.
+
+   Example::
+
+      display_order = 20
+
 ``alias_config``
    A dictionary of device aliases that the current setup would like to change.
 

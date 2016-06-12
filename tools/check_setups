@@ -337,6 +337,14 @@ class SetupChecker(object):
                                        extra=self.find_global('alias_config'))
                         break
 
+        # check for validity of display_order
+        display_order = self.ns.get('display_order', 50)
+        if not isinstance(display_order, (int, long)) or \
+           not 0 <= display_order <= 100:
+            self.log_error('display_order should be an integer between '
+                           '0 and 100',
+                           extra=self.find_global('display_order'))
+
         # check for valid device classes (if importable) and parameters
         for devname, devconfig in self.ns.get('devices', {}).items():
             self.check_device(devname, devconfig,

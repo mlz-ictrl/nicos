@@ -410,7 +410,7 @@ class Session(object):
         This is a dictionary mapping setup name to another dictionary.  The
         keys of that dictionary are those present in the setup files:
         'description', 'group', 'sysconfig', 'includes', 'excludes', 'modules',
-        'devices', 'alias_config', 'startupcode', 'extended'.
+        'devices', 'alias_config', 'startupcode', 'display_order', 'extended'.
 
         If a setup file could not be read or parsed, the value for that key is
         ``None``.

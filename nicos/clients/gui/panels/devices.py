@@ -86,6 +86,10 @@ lowlevelFont = {
     True:       QFont(QFont().family(), -1, -1, True),
 }
 
+# QTreeWidgetItem types
+SETUP_TYPE = QTreeWidgetItem.UserType
+DEVICE_TYPE = SETUP_TYPE + 1
+
 
 def setBackgroundBrush(widget, color):
     palette = widget.palette()
@@ -99,6 +103,16 @@ def setForegroundBrush(widget, color):
     palette.setBrush(QPalette.WindowText, color)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
+
+
+class SetupTreeWidgetItem(QTreeWidgetItem):
+
+    def __init__(self, setupname, display_order):
+        QTreeWidgetItem.__init__(self, [setupname, '', ''], SETUP_TYPE)
+        self.sortkey = (display_order, setupname)
+
+    def __lt__(self, other):
+        return self.sortkey < other.sortkey
 
 
 class DevicesPanel(Panel):
@@ -280,7 +294,8 @@ class DevicesPanel(Panel):
                 return
 
         if cat not in self._catitems:
-            catitem = QTreeWidgetItem([cat, '', ''], 1000)
+            display_order = self._setupinfo[cat].get('display_order', 50)
+            catitem = SetupTreeWidgetItem(cat, display_order)
             catitem.setToolTip(0, self._setupinfo[cat].get('description', ''))
             f = catitem.font(0)
             f.setBold(True)
@@ -294,7 +309,7 @@ class DevicesPanel(Panel):
             catitem = self._catitems[cat]
 
         # create a tree node for the device
-        devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
+        devitem = QTreeWidgetItem(catitem, [devname, '', ''], DEVICE_TYPE)
 
         devitem.setForeground(0, lowlevelBrush[lowlevel_device])
         devitem.setFont(0, lowlevelFont[lowlevel_device])
@@ -473,7 +488,7 @@ class DevicesPanel(Panel):
         item = self.tree.itemAt(point)
         if item is None:
             return
-        if item.type() == 1001:
+        if item.type() == DEVICE_TYPE:
             self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
             if 'nicos.core.device.Moveable' in self._devinfo[ldevname][6] and \
@@ -549,7 +564,7 @@ class DevicesPanel(Panel):
             self.plot_history(self._menu_dev)
 
     def on_tree_itemActivated(self, item, column):
-        if item.type() != 1001:
+        if item.type() != DEVICE_TYPE:
             return
         devname = item.text(0)
         self._open_control_dialog(devname)
