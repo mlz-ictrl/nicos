@@ -45,6 +45,7 @@ from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
     dictwith, host
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler
+from nicos.core.acquire import acquire, read_environment, DevStatistics
 from nicos.core.scan import Scan
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \

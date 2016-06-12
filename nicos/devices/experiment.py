@@ -38,7 +38,7 @@ from nicos.core import listof, anytype, oneof, \
     Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
     Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
-from nicos.core.scan import DevStatistics
+from nicos.core.acquire import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
     createThread

@@ -29,7 +29,7 @@ from time import time as currenttime, localtime
 from uuid import uuid4
 
 from nicos.core.errors import ProgrammingError
-from nicos.core.scan import DevStatistics
+from nicos.core.acquire import DevStatistics
 from nicos.pycompat import iteritems, number_types
 from nicos.utils import lazy_property
 
