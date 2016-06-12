@@ -33,8 +33,6 @@ from nicos.pycompat import srepr
 from nicos.kws1.gui.measdialogs import MeasDef, SampleDialog, DetsetDialog, \
     DevicesDialog, RtConfigDialog, LOOPS
 
-WIDGET_TYPE = 33
-
 
 class MeasureTable(Cmdlet):
 
@@ -92,7 +90,8 @@ class MeasureTable(Cmdlet):
             if loop != mloop and loop != oloop:
                 self.innerLoop.addItem(loop)
                 self.measdef.loops = [oloop, mloop, loop]
-                self.updateTable()
+                if mloop:
+                    self.updateTable()
                 break
         self.innerLoop.setCurrentIndex(0)
 
@@ -127,12 +126,11 @@ class MeasureTable(Cmdlet):
         self.table.setHorizontalHeaderLabels(first.keys())
         total_time = 0
         for i, entry in enumerate(table):
-            for j, value in enumerate(entry.values()):
-                item = QTableWidgetItem(str(value.text))
-                item.setData(WIDGET_TYPE, value.wclass)
+            for j, element in enumerate(entry.values()):
+                item = QTableWidgetItem(element.getDispValue())
                 self.table.setItem(i, j, item)
-                if value.ename == 'time':
-                    total_time += value.key
+                if element.eltype == 'time':
+                    total_time += element.getValue()
         self.table.resizeRowsToContents()
         self.totalTime.setText(formatDuration(total_time))
         self.changed()
@@ -155,13 +153,16 @@ class MeasureTable(Cmdlet):
         has_lenses = False
         has_chopper = False
         has_polarizer = False
+        maxlen = {}
         for entry in table:
             for (k, v) in entry.items():
-                if k == 'chopper' and v.key != 'off':
+                vrepr = srepr(v.getValue())
+                maxlen[k] = max(maxlen.get(k, 0), len(vrepr))
+                if k == 'chopper' and v.getValue() != 'off':
                     has_chopper = True
-                elif k == 'polarizer' and v.key != 'out':
+                elif k == 'polarizer' and v.getValue() != 'out':
                     has_polarizer = True
-                elif k == 'lenses' and v.key != 'out-out-out':
+                elif k == 'lenses' and v.getValue() != 'out-out-out':
                     has_lenses = True
         for entry in table:
             items = []
@@ -172,7 +173,7 @@ class MeasureTable(Cmdlet):
                     continue
                 if k == 'lenses' and not has_lenses:
                     continue
-                items.append('%s=%s' % (k, srepr(v.key)))
+                items.append('%s=%-*s' % (k, maxlen[k], srepr(v.getValue())))
             out.append('kwscount(' + ', '.join(items) + ')')
         return '\n'.join(out)
 

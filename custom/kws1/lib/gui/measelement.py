@@ -24,145 +24,192 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
+import re
+
 from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit, QWidget, QSpinBox, \
     QHBoxLayout
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import QObject, pyqtSignal, SIGNAL
 
+from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
 
 
-class MeasElement(object):
+class MeasElement(QObject):
     """Represents one setting for a measurement that can be manipulated."""
 
     LABEL = ''
+    ORDER = 1
 
-    def init(self, ename, client, value=None):
+    changed = pyqtSignal(object)
+
+    def __init__(self, eltype, client, value=None, extra=None):
         """Initialize widget contents, if necessary."""
-        self.ename = ename
+        QObject.__init__(self)
+        self.eltype = eltype
+        self.value = value
+        self.extra = extra
+        self._widget = None
+        self.clientUpdate(client)
+
+    def getLabel(self):
+        """Return label for the element."""
+        if self.LABEL:
+            return self.LABEL
+        return self.eltype.capitalize()
+
+    def clientUpdate(self, client):
+        """Update internal info from daemon."""
+
+    def createWidget(self, parent, client):
+        """Create and return a Qt widget for editing this element."""
+
+    def destroyWidget(self):
+        """Destroy the currently created widget."""
+        if self._widget:
+            self._widget.deleteLater()
+            self._widget = None
 
     def getValue(self):
-        """Return currently selected/entered value."""
+        """Return currently selected value."""
+        return self.value
 
     def getDispValue(self):
         """Return a form of the value to be displayed."""
-        return self.getValue()
+        return str(self.getValue())
 
-    def _changed(self, *args):
-        self.changed.emit(self.getValue())
-
-    def othersChanged(self, ename, value):
-        """Called when a sister element changed."""
+    def otherChanged(self, eltype, value):
+        """Hook to be called when a sibling element changed."""
 
 
-class ChoiceElement(MeasElement, QComboBox):
+class ChoiceElement(MeasElement):
     """Base for elements that allow an arbitrary choice."""
 
     CACHE_KEY = ''
     VALUES = []
 
-    changed = pyqtSignal(object)
-
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
+    def createWidget(self, parent, client):
         if self.CACHE_KEY:
             values = client.getDeviceParam(*self.CACHE_KEY.split('/'))
             values = list(values or [])
         else:
             values = self.VALUES
-        self.addItems(values)
-        if value is not None and value in values:
-            self.setCurrentIndex(values.index(value))
-        self.currentIndexChanged.connect(self._changed)
+        self._values = values
+        self._widget = QComboBox(parent)
+        self._widget.addItems(self._values)
+        if self.value is not None and self.value in self._values:
+            self._widget.setCurrentIndex(self._values.index(self.value))
+        elif self.value is None and self._values:
+            self.value = self._values[0]
+        self._widget.currentIndexChanged.connect(self._updateValue)
+        return self._widget
 
-    def getValue(self):
-        return self.currentText()
+    def _updateValue(self, index):
+        self.value = self._values[index]
+        self.changed.emit(self.value)
 
 
-class CheckElement(MeasElement, QCheckBox):
+class CheckElement(MeasElement):
     """Base for elements that allow yes/no choice."""
 
-    changed = pyqtSignal(object)
+    def createWidget(self, parent, client):
+        self._widget = QCheckBox(parent)
+        if self.value is None:
+            self.value = False
+        self._widget.setChecked(self.value)
+        self._widget.toggled.connect(self._updateValue)
+        return self._widget
 
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
-        if value is not None:
-            if value == 'yes':
-                value = True
-            if value == 'no':
-                value = False
-            self.setChecked(value)
-        self.toggled.connect(self._changed)
+    def _updateValue(self, checked):
+        self.value = checked
+        self.changed.emit(self.value)
 
-    def getValue(self):
-        return self.isChecked() and 'yes' or 'no'
+    def getDispValue(self):
+        return 'yes' if self.value else 'no'
 
 
-class FloatElement(MeasElement, QLineEdit):
+class FloatElement(MeasElement):
     """Base for elements that are floating point numbers."""
 
-    changed = pyqtSignal(object)
+    def createWidget(self, parent, client):
+        if self.value is None:
+            self.value = 10.0
+        self._widget = QLineEdit(parent)
+        self._widget.setValidator(DoubleValidator(parent))
+        self._widget.setText('%g' % self.value)
+        self._widget.textChanged.connect(self._updateValue)
+        return self._widget
 
-    def __init__(self, parent):
-        QLineEdit.__init__(self, parent)
-        self.setValidator(DoubleValidator(self))
-        self.setText('10')  # XXX
-        self.textChanged.connect(self._changed)
-
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
-        if value is not None:
-            self.setText('%g' % value)
-
-    def getValue(self):
-        return float(self.text().replace(',', '.'))
+    def _updateValue(self, text):
+        self.value = float(text.replace(',', '.'))
+        self.changed.emit(self.value)
 
 
-class Detector(MeasElement, QComboBox):
+class Detector(MeasElement):
+    """Element for selecting detector distance, depending on selector."""
 
     CACHE_KEY = 'detector/presets'
     LABEL = 'Detector'
 
-    changed = pyqtSignal(object)
+    _allvalues = None
 
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
-        self.allvalues = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-        self.currentIndexChanged.connect(self._changed)
-        self.pvalue = value
+    def clientUpdate(self, client):
+        self._allvalues = client.getDeviceParam(*self.CACHE_KEY.split('/'))
+        self._values = []
 
-    def othersChanged(self, ename, value):
-        if ename == 'selector' and self.allvalues is not None:
-            values = self.allvalues[value]
-            prev = self.currentText() or self.pvalue
-            self.clear()
-            self.addItems(list(values))
-            index = self.findText(prev)
-            if index >= 0:
-                self.setCurrentIndex(index)
+    def createWidget(self, parent, client):
+        self.clientUpdate(client)
+        self._widget = QComboBox(parent)
+        self._updateWidget()
+        self._widget.currentIndexChanged.connect(self._updateValue)
+        return self._widget
 
-    def getValue(self):
-        return self.currentText()
+    def _updateWidget(self):
+        self._widget.clear()
+        self._widget.addItems(self._values)
+        if self.value in self._values:
+            self._widget.setCurrentIndex(self._values.index(self.value))
+
+    def otherChanged(self, eltype, value):
+        def num_sort(x):
+            m = re.match(r'[\d.]+', x)
+            return float(m.group()) if m else x
+
+        if eltype == 'selector' and self._allvalues is not None:
+            self._values = sorted(self._allvalues[value], key=num_sort)
+            if self.value not in self._values:
+                if self._values:
+                    self.value = self._values[0]
+                else:
+                    self.value = None
+            if self._widget is not None:
+                self._updateWidget()
+
+    def _updateValue(self, index):
+        self.value = self._values[index]
+        self.changed.emit(self.value)
 
 
-class Chopper(MeasElement, QComboBox):
+class Chopper(MeasElement):
+    """Element for selecting chopper TOF resolution."""
 
     CACHE_KEY = 'chopper/resolutions'
     LABEL = u'TOF dλ/λ'
 
-    changed = pyqtSignal(object)
-
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
+    def createWidget(self, parent, client):
         resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-        values = ['off'] + ['%.1f%%' % v for v in resos]
-        self.addItems(values)
-        if value is not None and value in values:
-            self.setCurrentIndex(values.index(value))
-        self.currentIndexChanged.connect(self._changed)
-        self.pvalue = value
+        self._values = ['off'] + ['%.1f%%' % v for v in resos]
+        self._widget = QComboBox(parent)
+        self._widget.addItems(self._values)
+        if self.value is not None and self.value in self._values:
+            self._widget.setCurrentIndex(self._values.index(self.value))
+        elif self.value is None and self._values:
+            self.value = self._values[0]
+        self._widget.currentIndexChanged.connect(self._updateValue)
+        return self._widget
 
-    def getValue(self):
-        return self.currentText()
+    def _updateValue(self, index):
+        self.value = self._values[index]
+        self.changed.emit(self.value)
 
 
 class Selector(ChoiceElement):
@@ -185,54 +232,89 @@ class Collimation(ChoiceElement):
     LABEL = 'Collimation'
 
 
-class MeasTime(MeasElement, QWidget):
+class MeasTime(MeasElement):
+    """Element for selecting measurement time in different time units."""
+
     LABEL = 'Time'
 
-    changed = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
+    def createWidget(self, parent, client):
+        if self.value is None:
+            self.value = 30 * 60
+        self._widget = QWidget(parent)
         layout = QHBoxLayout()
-        self.number = QSpinBox(self)
-        self.number.setValue(30)
-        self.unit = QComboBox(self)
-        self.unit.addItems(['sec', 'min', 'hr'])
-        self.unit.setCurrentIndex(1)
-        layout.addWidget(self.number)
-        layout.addWidget(self.unit)
+        self._widget.number = QSpinBox(self._widget)
+        self._widget.number.setValue(30)
+        self._widget.unit = QComboBox(self._widget)
+        self._widget.unit.addItems(['sec', 'min', 'hr'])
+        self._widget.unit.setCurrentIndex(1)
+        layout.addWidget(self._widget.number)
+        layout.addWidget(self._widget.unit)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        self.number.valueChanged.connect(self._changed)
-        self.unit.currentIndexChanged.connect(self._changed)
-        self.setMinimumWidth(120)
-
-    def init(self, ename, client, value=None):
-        MeasElement.init(self, ename, client, value)
-        if value is not None:
-            if value % 3600 == 0:
-                self.number.setValue(value / 3600)
-                self.unit.setCurrentIndex(2)
-            elif value % 60 == 0:
-                self.number.setValue(value / 60)
-                self.unit.setCurrentIndex(1)
+        self._widget.setLayout(layout)
+        self._widget.number.valueChanged.connect(self._updateValue)
+        self._widget.unit.currentIndexChanged.connect(self._updateValue)
+        self._widget.setMinimumWidth(120)
+        if self.value is not None:
+            if self.value % 3600 == 0:
+                self._widget.number.setValue(self.value / 3600)
+                self._widget.unit.setCurrentIndex(2)
+            elif self.value % 60 == 0:
+                self._widget.number.setValue(self.value / 60)
+                self._widget.unit.setCurrentIndex(1)
             else:
-                self.number.setValue(value)
-                self.unit.setCurrentIndex(0)
+                self._widget.number.setValue(self.value)
+                self._widget.unit.setCurrentIndex(0)
+        return self._widget
 
-    def getValue(self):
-        unit = self.unit.currentIndex()
+    def _updateValue(self, *args):
+        unit = self._widget.unit.currentIndex()
+        number = self._widget.number.value()
         if unit == 0:
-            return self.number.value()
+            self.value = number
         elif unit == 1:
-            return self.number.value() * 60
+            self.value = number * 60
         else:
-            return self.number.value() * 3600
+            self.value = number * 3600
+        self.changed.emit(self.value)
 
     def getDispValue(self):
-        unit = self.unit.currentIndex()
-        if unit == 0:
-            return '%d sec' % self.number.value()
-        elif unit == 1:
-            return '%d min' % self.number.value()
+        # TODO: better display here
+        if self.value % 3600 == 0:
+            return '%d hr' % (self.value / 3600)
+        elif self.value % 60 == 0:
+            return '%d min' % (self.value / 60)
         else:
-            return '%d hr' % self.number.value()
+            return '%d sec' % self.value
+
+
+class Sample(ChoiceElement):
+    CACHE_KEY = 'exp/samples'
+    LABEL = 'Sample'
+    ORDER = 0
+
+
+class Device(MeasElement):
+    """Element to select the value for a device.
+
+    eltype is set to the device name.
+    """
+
+    ORDER = 2
+
+    def getLabel(self):
+        return self.eltype
+
+    def clientUpdate(self, client):
+        self._valuetype = client.getDeviceValuetype(self.eltype)
+        if self.value is None:
+            self.value = self._valuetype()
+
+    def createWidget(self, parent, client):
+        self._widget = typedvalue.create(parent, self._valuetype, self.value,
+                                         allow_enter=False)
+        self.connect(self._widget, SIGNAL('dataChanged'), self._updateValue)
+        return self._widget
+
+    def _updateValue(self):
+        self.value = self._widget.getValue()
+        self.changed.emit(self.value)

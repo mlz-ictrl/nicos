@@ -354,7 +354,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Total time:</string>
+        <string>Total counting time:</string>
        </property>
       </widget>
      </item>

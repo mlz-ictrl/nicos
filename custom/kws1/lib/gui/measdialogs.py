@@ -24,7 +24,6 @@
 
 """Dialogs for the "Measurement" commandlet."""
 
-import copy
 import itertools
 from collections import OrderedDict
 
@@ -33,11 +32,10 @@ from PyQt4.QtGui import QDialog, QListWidgetItem, QTableWidgetItem, QLabel, \
     QVBoxLayout, QFrame, QWidget
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 from nicos.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
-    Polarizer, Collimation, MeasTime
+    Polarizer, Collimation, MeasTime, Sample, Device
 
 
 SAMPLES = 'samples'
@@ -51,7 +49,6 @@ LOOPS = [
 ]
 
 SAMPLE_NUM = 32
-WIDGET_TYPE = 34
 
 
 class MeasDef(object):
@@ -75,9 +72,6 @@ class MeasDef(object):
             elements.append(('time', MeasTime))
         return elements
 
-    def getLabels(self):
-        return [e[1].LABEL for e in self.getElements()]
-
     def getEntries(self, loop):
         if loop == SAMPLES:
             return self.samples
@@ -100,26 +94,17 @@ class MeasDef(object):
         # and merge the ordered dicts for each element
         result = []
         for dicts in itertools.product(*dict_lists):
-            entry = dicts[0].copy()
-            for d in dicts[1:]:
+            entry = OrderedDict()
+            for d in sorted(dicts, key=lambda d: d.values()[0].ORDER):
                 entry.update(d)
             result.append(entry)
         # post-process sample measurement time factor
         for entry in result:
             if 'sample' in entry and 'time' in entry:
-                entry['time'] = new_time = copy.copy(entry['time'])
-                new_time.key *= entry['sample'].extra
-                new_time.text = str(new_time.key)
+                entry['time'] = new_time = \
+                    MeasTime('time', None, entry['time'].getValue())
+                new_time.value *= entry['sample'].extra[1]
         return result
-
-
-class MeasEntry(object):
-    def __init__(self, ename, text, key, wclass, extra=None):
-        self.ename = ename
-        self.text = text
-        self.key = key
-        self.wclass = wclass
-        self.extra = extra
 
 
 class SampleDialog(QDialog):
@@ -140,19 +125,18 @@ class SampleDialog(QDialog):
 
         if measdef.samples:
             for sam in measdef.samples[0]:
-                newitem = QListWidgetItem(sam['sample'].text, self.selList)
-                newitem.setData(SAMPLE_NUM, sam['sample'].key)
-                self._selected.add(sam['sample'].key)
+                newitem = QListWidgetItem(sam['sample'].getValue(),
+                                          self.selList)
+                newitem.setData(SAMPLE_NUM, sam['sample'].extra[0])
+                self._selected.add(sam['sample'].extra[0])
 
     def toDefs(self):
         results = []
         for item in self.selList.findItems('', Qt.MatchContains):
-            results.append(OrderedDict(sample=MeasEntry(
-                ename=None, text=item.text(),
-                # select samples by name
-                key=item.text(),
-                wclass=None,
-                extra=self._times.get(item.data(SAMPLE_NUM), 1.0))))
+            num = item.data(SAMPLE_NUM)
+            results.append(OrderedDict(sample=Sample(
+                'sample', self.client, item.text(),
+                extra=(num, self._times.get(num, 1.0)))))
         return [results]
 
     @pyqtSlot()
@@ -200,11 +184,6 @@ class DetsetDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, findResource('custom/kws1/lib/gui/detsets.ui'))
         self.table.setColumnCount(len(measdef.getElements()))
-        self.table.setHorizontalHeaderLabels(measdef.getLabels())
-        self.table.resizeColumnsToContents()
-        for i in range(len(measdef.getElements())):
-            self.table.setColumnWidth(i, max(50, 1.5 * self.table.columnWidth(i)))
-        self.table.resizeRowsToContents()
 
         # apply current settings
         self._rows = []
@@ -213,23 +192,31 @@ class DetsetDialog(QDialog):
                 self.addRow(row)
 
         # create widgets for new setting
-        self._widgets = {}
-        for i, (ename, eclass) in enumerate(measdef.getElements()):
-            self._widgets[ename] = w = eclass(self)
-            w.init(ename, self.client)
-            for ew in self._widgets.values():
-                if ew is not w:
-                    w.othersChanged(ew.ename, ew.getValue())
+        self._new_elements = {}
+        headers = []
+        for i, (eltype, cls) in enumerate(measdef.getElements()):
+            element = self._new_elements[eltype] = cls(eltype, self.client)
+            w = element.createWidget(self, self.client)
+            for other in self._new_elements.values():
+                if other is not element:
+                    element.otherChanged(other.eltype, other.getValue())
 
-            def handler(new_value, ename=ename):
-                for ew in self._widgets.values():
-                    ew.othersChanged(ename, new_value)
-            w.changed.connect(handler)
+            def handler(new_value, eltype=eltype):
+                for other in self._new_elements.values():
+                    other.otherChanged(eltype, new_value)
+            element.changed.connect(handler)
+            headers.append(element.getLabel())
             layout = QVBoxLayout()
-            layout.addWidget(
-                QLabel(eclass.LABEL or ename.capitalize(), self))
+            layout.addWidget(QLabel(headers[-1], self))
             layout.addWidget(w)
             self.widgetFrame.layout().insertLayout(i, layout)
+
+        # update table widget
+        self.table.setHorizontalHeaderLabels(headers)
+        self.table.resizeColumnsToContents()
+        for i in range(len(measdef.getElements())):
+            self.table.setColumnWidth(i, max(50, 1.5 * self.table.columnWidth(i)))
+        self.table.resizeRowsToContents()
 
     def keyPressEvent(self, event):
         # do not close the whole dialog when pressing Enter in an input box
@@ -241,15 +228,17 @@ class DetsetDialog(QDialog):
         return [self._rows]
 
     def _stopEdit(self):
-        i, j, widget = self._edit
-        value = widget.getValue()
-        dispvalue = widget.getDispValue()
-        element = self.measdef.getElements()[j][0]
-        prev = self._rows[i][element]
-        self._rows[i][element] = MeasEntry(
-            ename=prev.ename, text=dispvalue, key=value, wclass=prev.wclass)
+        i, j, eltype = self._edit
+        element = self._rows[i][eltype]
+        element.destroyWidget()
+        # apply constraints of the widget to other entries
+        for k, (othereltype, otherelement) in enumerate(self._rows[i].items()):
+            if othereltype == element.eltype:
+                continue
+            otherelement.otherChanged(element.eltype, element.getValue())
+            self.table.item(i, k).setText(otherelement.getDispValue())
         self.table.setCellWidget(i, j, None)
-        self.table.item(i, j).setText(str(dispvalue))
+        self.table.item(i, j).setText(element.getDispValue())
         self._edit = None
 
     def on_buttonBox_accepted(self):
@@ -259,25 +248,25 @@ class DetsetDialog(QDialog):
     def on_table_cellActivated(self, i, j):
         if self._edit:
             self._stopEdit()
-        entry = self._rows[i].values()[j]
-        widget = entry.wclass(self)
-        widget.init(entry.ename, self.client, entry.key)
-        for ename, eentry in self._rows[i].items():
-            if ename == entry.ename:
+        element = self._rows[i].values()[j]
+        # create edit widget
+        widget = element.createWidget(self, self.client)
+        # apply constraints to the widget from other entries
+        for othereltype, otherelement in self._rows[i].items():
+            if othereltype == element.eltype:
                 continue
-            widget.othersChanged(ename, eentry.key)
+            element.otherChanged(othereltype, otherelement.getValue())
+        # show widget in table
         widget.setFocus()
         self.table.setCellWidget(i, j, widget)
-        self._edit = (i, j, widget)
+        self._edit = (i, j, element.eltype)
 
     @pyqtSlot()
     def on_addBtn_clicked(self):
         dic = OrderedDict()
-        for ename, eclass in self.measdef.getElements():
-            value = self._widgets[ename].getValue()
-            dispvalue = self._widgets[ename].getDispValue()
-            dic[ename] = MeasEntry(ename=ename, text=dispvalue, key=value,
-                                   wclass=eclass)
+        for eltype, cls in self.measdef.getElements():
+            value = self._new_elements[eltype].getValue()
+            dic[eltype] = cls(eltype, self.client, value)
         self.addRow(dic)
 
     def addRow(self, dic):
@@ -286,9 +275,8 @@ class DetsetDialog(QDialog):
         self._rows.append(dic)
         last = self.table.rowCount()
         self.table.setRowCount(last + 1)
-        for i, (elname, _) in enumerate(self.measdef.getElements()):
-            item = QTableWidgetItem(str(dic[elname].text))
-            item.setData(WIDGET_TYPE, dic[elname].wclass)
+        for i, (eltype, _) in enumerate(self.measdef.getElements()):
+            item = QTableWidgetItem(dic[eltype].getDispValue())
             self.table.setItem(last, i, item)
         self.table.resizeRowsToContents()
 
@@ -337,7 +325,6 @@ class DevicesWidget(QWidget):
     def __init__(self, parent, client, devs):
         self.client = client
         self.devs = devs
-        self.valuetypes = [client.getDeviceValuetype(dev) for dev in devs]
         QWidget.__init__(self, parent)
         loadUi(self, findResource('custom/kws1/lib/gui/devices_one.ui'))
 
@@ -349,47 +336,38 @@ class DevicesWidget(QWidget):
     def getDef(self):
         if self._edit:
             self._stopEdit()
-        result = []
-        for i in range(self.table.rowCount()):
-            result.append(OrderedDict(
-                (dev, MeasEntry(ename=None,
-                                text=self.table.item(i, j).text(),
-                                key=self._rows[i][j],
-                                wclass=None))
-                for (j, dev) in enumerate(self.devs)))
-        return result
+        return [dict((dev, element) for (dev, element) in zip(self.devs, row))
+                for row in self._rows]
 
-    def addRow(self, values=None):
+    def addRow(self, elements=None):
         if self._edit:
             self._stopEdit()
         last = self.table.rowCount()
         self.table.setRowCount(last + 1)
-        if values is None:
-            values = [typ() for typ in self.valuetypes]
-        texts = [str(val) for val in values]
-        for (i, text) in enumerate(texts):
-            self.table.setItem(last, i, QTableWidgetItem(text))
-        self._rows.append(values)
+        if elements is None:
+            elements = [Device(dev, self.client) for dev in self.devs]
+        for (i, element) in enumerate(elements):
+            self.table.setItem(last, i,
+                               QTableWidgetItem(element.getDispValue()))
+        self._rows.append(elements)
         self.table.resizeRowsToContents()
 
     def _stopEdit(self):
-        i, j, widget = self._edit
-        value = widget.getValue()
-        self._rows[i][j] = value
+        i, j, element = self._edit
+        element.destroyWidget()
         self.table.setCellWidget(i, j, None)
-        self.table.item(i, j).setText(str(value))
+        self.table.item(i, j).setText(element.getDispValue())
         self._edit = None
 
     def on_table_cellActivated(self, i, j):
         if self._edit:
             self._stopEdit()
-        value = self._rows[i][j]
-        widget = typedvalue.create(self, self.valuetypes[j], value,
-                                   allow_enter=False)
+        element = self._rows[i][j]
+        widget = element.createWidget(self, self.client)
         widget.setFocus()
         self.table.setCellWidget(i, j, widget)
         self.table.item(i, j).setText('')
-        self._edit = (i, j, widget)
+        self._edit = (i, j, element)
 
     @pyqtSlot()
     def on_clearBtn_clicked(self):
@@ -452,6 +430,7 @@ class DevicesDialog(QDialog):
         self.frame.layout().setContentsMargins(0, 0, 10, 0)
         self.frame.layout().addStretch()
 
+        # XXX: only those from non-core setups!
         devlist = client.getDeviceList('nicos.core.device.Moveable')
         for dev in devlist:
             QListWidgetItem(dev, self.devList)
@@ -462,7 +441,7 @@ class DevicesDialog(QDialog):
             devs = group[0].keys()
             w = self._addWidget(devs)
             for entry in group:
-                w.addRow([entry[x].text for x in devs])
+                w.addRow([entry[x] for x in devs])
 
     def toDefs(self):
         return [w.getDef() for w in self._widgets]
