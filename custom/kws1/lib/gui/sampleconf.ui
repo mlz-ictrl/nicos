@@ -33,7 +33,7 @@
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -47,7 +47,7 @@
        <widget class="QPushButton" name="newFileBtn">
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>120</width>
           <height>30</height>
          </size>
         </property>
@@ -61,16 +61,33 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="genFileBtn">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Generate...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
+          <normaloff>:/table</normaloff>:/table</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::MinimumExpanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>20</width>
           <height>20</height>
          </size>
         </property>
@@ -80,7 +97,7 @@
        <widget class="QPushButton" name="openFileBtn">
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>140</width>
           <height>30</height>
          </size>
         </property>
@@ -99,11 +116,11 @@
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::MinimumExpanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>20</width>
           <height>20</height>
          </size>
         </property>
@@ -116,6 +133,7 @@
      <zorder>horizontalSpacer</zorder>
      <zorder>horizontalSpacer_2</zorder>
      <zorder>horizontalSpacer_4</zorder>
+     <zorder>genFileBtn</zorder>
     </widget>
    </item>
    <item>
@@ -182,6 +200,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="copyBtn">
+          <property name="text">
+           <string>Copy from this to all samples</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -210,6 +235,31 @@
     </widget>
    </item>
   </layout>
+  <action name="actionCopyDetOffset">
+   <property name="text">
+    <string>Detector offset</string>
+   </property>
+  </action>
+  <action name="actionCopyAperture">
+   <property name="text">
+    <string>Aperture settings</string>
+   </property>
+  </action>
+  <action name="actionCopyThickness">
+   <property name="text">
+    <string>Thickness</string>
+   </property>
+  </action>
+  <action name="actionCopyTimeFactor">
+   <property name="text">
+    <string>Time factor</string>
+   </property>
+  </action>
+  <action name="actionCopyAll">
+   <property name="text">
+    <string>All of the above</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

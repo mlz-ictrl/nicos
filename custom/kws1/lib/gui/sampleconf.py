@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Artem Feoktystov <a.feoktystov@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -28,7 +29,8 @@ import time
 
 from PyQt4.QtCore import pyqtSlot
 from PyQt4.QtGui import QMessageBox, QDialog, QFrame, QVBoxLayout, \
-    QDialogButtonBox, QListWidgetItem, QTableWidgetItem, QFileDialog
+    QDialogButtonBox, QListWidgetItem, QTableWidgetItem, QFileDialog, \
+    QRadioButton, QLineEdit, QMenu
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
@@ -202,12 +204,77 @@ class KWSSamplePanel(Panel):
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
 
+        menu = QMenu(self)
+        menu.addAction(self.actionCopyAperture)
+        menu.addAction(self.actionCopyDetOffset)
+        menu.addAction(self.actionCopyThickness)
+        menu.addAction(self.actionCopyTimeFactor)
+        menu.addSeparator()
+        menu.addAction(self.actionCopyAll)
+        self.copyBtn.setMenu(menu)
+
         self.configs = []
         self.dirty = False
         self.filename = None
 
     @pyqtSlot()
     def on_newFileBtn_clicked(self):
+        self.fileGroup.setEnabled(False)
+        self.sampleGroup.setEnabled(True)
+        self.dirty = True
+
+    @pyqtSlot()
+    def on_genFileBtn_clicked(self):
+        dlg = QDialog(self)
+        loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_gen.ui'))
+        dlg.transBox.setValidator(DoubleValidator(self))
+        dlg.heightBox.setValidator(DoubleValidator(self))
+        if not dlg.exec_():
+            return
+        trans = float(dlg.transBox.text())
+        height = float(dlg.heightBox.text())
+        holder_info = {
+            # Radio text: [rows, levels, row_step, level_step]
+            'Al 3-level': [9, 3, 27, 75],
+            'Al 3-level (narrow)': [12, 3, 20, 75],
+            'Cu 3-level': [9, 3, 27.125, 113],
+            'Cu 3-level (narrow)': [16, 3, 14.78, 113],
+            'Peltier 6': [6, 1, 36.56, 0],
+            'Peltier 8': [8, 1, 36.56, 0],
+            'Red oven 4': [4, 1, 40, 0],
+        }
+        for ch in dlg.findChildren(QRadioButton):
+            if ch.isChecked():
+                rows, levels, row_step, level_step = holder_info[ch.text()]
+                break
+        else:
+            return
+
+        n = 0
+        for i in range(levels):
+            for j in range(rows):
+                n += 1
+                config = dict(
+                    name = str(n),
+                    comment = '',
+                    detoffset = -335.0,
+                    thickness = 1.0,
+                    timefactor = 1.0,
+                    aperture = (15.7, 18.5, 10, 10),
+                    position = {
+                        'sam_trans_1': round(trans + j * row_step, 1),
+                        'sam_trans_2': round(height + i * level_step, 1),
+                    },
+                )
+                self.configs.append(config)
+        firstitem = None
+        for config in self.configs:
+            newitem = QListWidgetItem(config['name'], self.list)
+            firstitem = firstitem or newitem
+        # select the first item
+        self.list.setCurrentItem(firstitem)
+        self.on_list_itemClicked(firstitem)
+
         self.fileGroup.setEnabled(False)
         self.sampleGroup.setEnabled(True)
         self.dirty = True
@@ -281,10 +348,18 @@ class KWSSamplePanel(Panel):
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
+        frm.readApBtn.setVisible(False)
         frm.readDevsBtn.setVisible(False)
-        frm.setEnabled(False)
+        # frm.posTbl.setEditTriggers(QTableWidget.NoEditTriggers)
+        frm.posTbl.setEnabled(False)
+        for box in frm.findChildren(QLineEdit):
+            # box.setReadOnly(True)
+            box.setEnabled(False)
         layout = self.frame.layout()
         layout.addWidget(frm)
+
+    def on_list_itemDoubleClicked(self, item):
+        self.on_editBtn_clicked()
 
     @pyqtSlot()
     def on_newBtn_clicked(self):
@@ -329,6 +404,38 @@ class KWSSamplePanel(Panel):
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
             self._clearDisplay()
+
+    def _copy_key(self, key):
+        index = self.list.currentRow()
+        if index < 0:
+            return
+        self.dirty = True
+        template = self.configs[index][key]
+        for config in self.configs:
+            config[key] = template
+
+    @pyqtSlot()
+    def on_actionCopyAperture_triggered(self):
+        self._copy_key('aperture')
+
+    @pyqtSlot()
+    def on_actionCopyDetOffset_triggered(self):
+        self._copy_key('detoffset')
+
+    @pyqtSlot()
+    def on_actionCopyThickness_triggered(self):
+        self._copy_key('thickness')
+
+    @pyqtSlot()
+    def on_actionCopyTimeFactor_triggered(self):
+        self._copy_key('timefactor')
+
+    @pyqtSlot()
+    def on_actionCopyAll_triggered(self):
+        self._copy_key('aperture')
+        self._copy_key('detoffset')
+        self._copy_key('thickness')
+        self._copy_key('timefactor')
 
     def _parse(self, filename):
         builtin_ns = vars(builtins).copy()
