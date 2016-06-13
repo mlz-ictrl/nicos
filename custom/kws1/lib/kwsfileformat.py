@@ -178,7 +178,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         w('\n')
         nslots = image.shape[2]
         w('(* Detector Time Slices: %d slices, unit=us *)\n' % nslots)
-        w(' '.join('%d' % s for s in detimg.slices))
+        w(' '.join('%8d' % s for s in detimg.slices))
         w('\n\n')
 
         w('(* Detector Data for %s mode %d timeslots *)\n' %

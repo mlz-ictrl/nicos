@@ -92,7 +92,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         for i in range(channels):
             times.append(times[-1] + int(interval * q**i))
         self.slices = times
-        times = [channels + 1] + times
+        times = [channels] + times
         self._dev.DevJudidt2SetTofParam(times)
         self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels),
                                    np.uint32)
@@ -111,6 +111,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
 
     def doPause(self):
         self._dev.DevJudidt2Stop()
+        return True
 
     def doResume(self):
         self._dev.DevJudidt2Start()

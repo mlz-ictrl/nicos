@@ -74,6 +74,7 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
 
     def doPause(self):
         self.finish()
+        return True
 
     def doResume(self):
         self._dev.DevFPGACountStart()
