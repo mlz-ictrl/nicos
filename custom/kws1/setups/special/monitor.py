@@ -32,26 +32,24 @@ _chopper = Block('Chopper', [
 
 _collimation = Block('Collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
-    BlockRow(Field(name='Guide elements', dev='coll_guides')),
-    BlockRow(Field(name='Ap. 20m', dev='aperture_20', istext=True, width=10),
-             Field(name='Ap. 14m', dev='aperture_14', istext=True, width=10),
-             Field(name='Ap. 8m', dev='aperture_08', istext=True, width=10)),
-    BlockRow(Field(name='Ap. 4m', dev='aperture_04', istext=True, width=10),
-             Field(name='Ap. 2m', dev='aperture_02', istext=True, width=10)),
-])
-
-_polarizer = Block('Polarizer/Lenses', [
-    BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
-             Field(name='Flipper', dev='flipper', istext=True)),
-    BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
+    BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
+                            'aperture_08', 'aperture_04', 'aperture_02'],
+                   widget='nicos.kws1.monitorwidgets.Collimation',
+                   width=70, height=12)),
 ])
 
 _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
-              widget='nicos.kws1.monitorwidgets.Tube', width=30, height=10)
+              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
     ),
+])
+
+_polarizer = Block('Polarizer/Lenses', [
+    BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
+             Field(name='Flipper', dev='flipper', istext=True)),
+    BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
 ])
 
 _shutter = Block('Shutter', [
@@ -109,9 +107,9 @@ devices = dict(
                      padding = 0,
                      layout = [
                          Row(Column(_experiment)),
-                         Row(Column(_selector, _chopper, _shutter, _peltier),
-                             Column(_collimation, _sample, _polarizer, _daq),
-                             Column(_hexapod, _detector, _peltierplot)),
+                         Row(Column(_selector, _chopper, _polarizer, _daq),
+                             Column(_shutter, _collimation, _detector, _sample),
+                             Column(_hexapod, _peltier, _peltierplot)),
                      ],
                     ),
 )

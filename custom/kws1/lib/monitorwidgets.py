@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QBrush, QColor, QPainter, QWidget
+from PyQt4.QtGui import QBrush, QColor, QPainter, QWidget, QPen, QFont
 from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
 from nicos.guisupport.widget import NicosWidget, PropDef
 
@@ -12,6 +12,9 @@ _grey = QBrush(QColor('lightgrey'))
 _red = QBrush(QColor('red'))
 _olive = QBrush(QColor('olive'))
 _orange = QBrush(QColor('#ffa500'))
+_black = QBrush(QColor('black'))
+_blue = QBrush(QColor('blue'))
+_green = QBrush(QColor('#00cc00'))
 
 statusbrush = {
     BUSY: _yellow,
@@ -25,7 +28,7 @@ statusbrush = {
 
 class Tube(NicosWidget, QWidget):
 
-    designer_description = 'KWS-1 tube'
+    designer_description = 'KWS tube'
 
     def __init__(self, parent, designMode=False):
         # z, x, y
@@ -142,3 +145,115 @@ class Tube(NicosWidget, QWidget):
             painter.drawText(minx,
                              h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
                              pos_str)
+
+
+collstatusbrush = {
+    BUSY: _yellow,
+    WARN: _orange,
+    ERROR: _red,
+    NOTREACHED: _red,
+    OK: _green,
+    UNKNOWN: _olive,
+}
+
+
+class Collimation(NicosWidget, QWidget):
+
+    designer_description = 'KWS collimation'
+
+    def __init__(self, parent, designMode=False):
+        # coll_in, coll_out, ap_20, ap_14, ap_8, ap_4, ap_2
+        self._curval = [0, 0, (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
+        self._curstr = ['', '', '', '', '', '', '']
+        self._curstatus = [OK, OK, OK, OK, OK, OK, OK]
+
+        QWidget.__init__(self, parent)
+        NicosWidget.__init__(self)
+
+    properties = {
+        'devices':   PropDef('QStringList', []),
+        'height':    PropDef(int, 4),
+        'width':     PropDef(int, 10),
+    }
+
+    def registerKeys(self):
+        for dev in self.props['devices']:
+            self.registerDevice(str(dev))
+
+    def sizeHint(self):
+        return QSize(self._scale * self.props['width'],
+                     self._scale * self.props['height'] * 1.2)
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        try:
+            idx = self.props['devices'].index(dev)
+        except ValueError:
+            return
+        self._curval[idx] = value
+        self._curstr[idx] = unitvalue
+        self.update()
+
+    def on_devStatusChange(self, dev, code, status, expired):
+        try:
+            idx = self.props['devices'].index(dev)
+        except ValueError:
+            return
+        self._curstatus[idx] = code
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        pen = painter.pen()
+
+        fontscale = float(self._scale)
+        smallerfont = QFont(self.valueFont)
+        smallerfont.setPointSizeF(smallerfont.pointSizeF() * 0.9)
+        painter.setFont(smallerfont)
+        h = self.props['height'] * fontscale
+        w = self.props['width'] * fontscale
+        elwidth = w / 20.
+        elheight = h / 3
+
+        is_in = int(self._curval[0])
+        is_out = int(self._curval[1])
+        x = elwidth
+        y = 2.5 * fontscale
+        for i in range(18):
+            painter.setPen(QPen(_black.color()))
+            painter.setBrush(_grey)
+            painter.drawRect(x, y, elwidth - 2, elheight)
+            painter.setBrush(_blue)
+            if is_in & (1 << (17 - i)):
+                ely = 3
+            elif is_out & (1 << (17 - i)):
+                ely = 2 + elheight / 2
+            else:
+                ely = 2 + elheight / 4
+            painter.drawRect(x + 3, y + ely, elwidth - 8, elheight / 3)
+            painter.drawText(x, 3,
+                             elwidth, 2 * fontscale,
+                             Qt.AlignRight | Qt.AlignTop,
+                             str(19 - i))
+            x += elwidth
+        painter.fillRect(0, y + elheight / 3 - 5, w, 3, _yellow)
+        painter.setPen(pen)
+
+        x = elwidth + 1
+        y += elheight + 4
+
+        slhw = 1.6 * elwidth
+        for i, slitpos in enumerate([20, 14, 8, 4, 2]):
+            slitw, slith = self._curval[2 + i]
+            xmiddle = x + ((20 - slitpos) * elwidth)
+            painter.drawLine(xmiddle, y, xmiddle, y + 15)
+            painter.setBrush(_white)
+            painter.drawRect(xmiddle - 0.5 * slhw, y + 15, slhw, slhw)
+            painter.setBrush(collstatusbrush[self._curstatus[2 + i]])
+            w = (50 - slitw) * slhw / 100
+            h = (50 - slith) * slhw / 100
+            painter.drawRect(xmiddle - 0.5 * slhw + w, y + 15 + h,
+                             slhw - 2 * w, slhw - 2 * h)
+            painter.drawText(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw,
+                             Qt.AlignCenter | Qt.AlignHCenter,
+                             '%.1f\n%.1f' % (slitw, slith))
