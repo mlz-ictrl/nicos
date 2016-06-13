@@ -36,6 +36,7 @@ from nicos.utils import findResource
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import builtins, exec_
 
@@ -149,10 +150,30 @@ class ConfigEditDialog(QDialog):
         self.frm.posTbl.setRowCount(rc + 1)
         self.frm.posTbl.setItem(rc, 0, QTableWidgetItem(name))
         self.frm.posTbl.setItem(rc, 1, QTableWidgetItem(value))
+        self.frm.posTbl.resizeColumnsToContents()
         self.frm.posTbl.resizeRowsToContents()
 
     def on_addDevBtn_clicked(self):
-        self._addRow('<devname>', '<value>')
+        devlist = self.client.getDeviceList(
+            'nicos.core.device.Moveable',
+            special_clause='d.valuetype is float')
+        dlg = QDialog(self)
+        loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_adddev.ui'))
+        dlg.widget = None
+
+        def callback(index):
+            devname = devlist[index]
+            if dlg.widget:
+                dlg.widget.deleteLater()
+                dlg.valueFrame.layout().takeAt(0)
+            dlg.widget = typedvalue.DeviceValueEdit(dlg, dev=devname)
+            dlg.widget.setClient(self.client)
+            dlg.valueFrame.layout().insertWidget(0, dlg.widget)
+        dlg.devBox.currentIndexChanged.connect(callback)
+        dlg.devBox.addItems(devlist)
+        if not dlg.exec_():
+            return
+        self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
 
     def on_delDevBtn_clicked(self):
         srow = self.frm.posTbl.currentRow()
