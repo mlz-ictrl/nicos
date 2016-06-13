@@ -113,16 +113,16 @@ def multiStatus(devices, maxage=None):
     from nicos.core import Readable
     # get to work
     rettext = []
-    retstate = status.OK
+    retstate = 0
     for devname, dev in devIter(devices, Readable, onlydevs=False):
         state, text = dev.status(maxage)
         if '=' in text:
             rettext.append('%s=(%s)' % (devname, text))
-        else:
+        elif text:
             rettext.append('%s=%s' % (devname, text))
         if state > retstate:
             retstate = state
-    if rettext:
+    if retstate > 0:
         return retstate, ', '.join(rettext)
     else:
         return status.UNKNOWN, 'no status could be determined (no doStatus ' \
