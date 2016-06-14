@@ -116,22 +116,27 @@ class Polarizer(Moveable):
     }
 
     def doRead(self, maxage=0):
+        switcher_pos = self._attached_switcher.read(maxage)
+        flipper_pos = self._attached_flipper.read(maxage)
+        if switcher_pos == 'unknown' or flipper_pos == 'unknown':
+            return 'unknown'
         # Never returns "alter".
-        if self._attached_switcher.read(maxage) == 'ng':
+        if switcher_pos == 'ng':
             return 'out'
         # Polarizer is a transmission supermirror => without flipper we get
         # the "down" polarization.
-        if self._attached_flipper.read(maxage) == 'on':
+        if flipper_pos == 'on':
             return 'up'
         return 'down'
 
     def doStart(self, target):
+        switch_pos = self._attached_switcher.read(0)
         if target == 'out':
-            if self._attached_switcher.read(0) != 'ng':
+            if switch_pos != 'ng':
                 self._attached_switcher.start('ng')
             self._attached_flipper.start('off')
         else:
-            if self._attached_switcher.read(0) != 'pol':
+            if switch_pos != 'pol':
                 self._attached_switcher.start('pol')
             if target == 'up':
                 self._attached_flipper.start('on')

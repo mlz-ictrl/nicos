@@ -60,6 +60,7 @@ devices = dict(
                              'ng':  [335.33, 5.0, 5.0, 5.0, 5.0],
                          },
                          precision = [0.01, 0.05, 0.05, 0.05, 0.05],
+                         fallback = 'unknown',
                         ),
 
     flip_set    = device('devices.tango.DigitalOutput',
