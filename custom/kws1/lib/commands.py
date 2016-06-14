@@ -136,4 +136,5 @@ def kwscount(**arguments):
     factor = session.experiment.sample.timefactor
     if factor > 0:
         meastime *= factor
+    printinfo('Now counting for %d seconds...' % meastime)
     count(t=meastime)

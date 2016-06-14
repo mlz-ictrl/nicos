@@ -44,6 +44,7 @@ devices = dict(
                         description = "difference of detector Y and Y2",
                         axis1 = "det_y",
                         axis2 = "det_y2",
+                        lowlevel = True,
                        ),
     det_z      = device("devices.tango.Motor",
                         description = "detector translation Z",
@@ -57,5 +58,6 @@ devices = dict(
                         tangodevice = tango_base + "fzjs7/varbs_1",
                         unit = "stp",
                         precision = 0.01,
+                        lowlevel = True,
                        ),
 )

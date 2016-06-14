@@ -35,6 +35,7 @@ devices = dict(
                        input_in = 'lens_in',
                        input_out = 'lens_out',
                        sync_bit = 'lens_sync',
+                       timeout = 30.0,
                        lowlevel = True,
                       ),
 )

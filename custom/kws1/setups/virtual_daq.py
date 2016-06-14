@@ -12,9 +12,15 @@ devices = dict(
                         description = 'Image for the large KWS detector',
                        ),
 
+    det_mode   = device('devices.generic.ReadonlyParamDevice',
+                        description = 'Current detector mode',
+                        device = 'det_img',
+                        parameter = 'mode',
+                       ),
+
     timer      = device('devices.generic.virtual.VirtualTimer',
                         description = 'timer',
-                        fmtstr = '%.2f',
+                        fmtstr = '%.0f',
                        ),
 
     mon1       = device('devices.generic.virtual.VirtualCounter',

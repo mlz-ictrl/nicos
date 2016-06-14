@@ -24,6 +24,12 @@ devices = dict(
                         rtswitch = 'rtswitch',
                        ),
 
+    det_mode   = device('devices.generic.ReadonlyParamDevice',
+                        description = 'Current detector mode',
+                        device = 'det_img',
+                        parameter = 'mode',
+                       ),
+
     kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                        ),
