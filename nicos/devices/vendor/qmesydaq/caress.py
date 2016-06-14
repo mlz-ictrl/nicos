@@ -177,7 +177,7 @@ class Image(CARESSDevice, QMesyDAQImage):
 
     def doInit(self, mode):
         lconfig = self.config.split()
-        tmpconfig = lconfig[:2] + lconfig[4:]
+        tmpconfig = lconfig[:2] + lconfig[5:]
         self._width = int(tmpconfig[2])
         self._height = int(tmpconfig[3])
         self._setROParam('config', ' '.join(tmpconfig))
