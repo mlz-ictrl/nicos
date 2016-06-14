@@ -2,6 +2,7 @@
 
 description = 'Virtual setup for the choppers'
 group = 'lowlevel'
+display_order = 65
 
 devices = dict(
     chopper         = device('kws1.chopper.Chopper',

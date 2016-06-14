@@ -2,6 +2,7 @@
 
 description = "Virtual beam shutter setup"
 group = "lowlevel"
+display_order = 5
 
 devices = dict(
     shutter    = device('devices.generic.ManualSwitch',

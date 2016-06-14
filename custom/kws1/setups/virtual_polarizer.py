@@ -2,6 +2,7 @@
 
 description = "Virtual polarizer setup"
 group = "lowlevel"
+display_order = 60
 
 devices = dict(
     polarizer   = device('kws1.polarizer.Polarizer',

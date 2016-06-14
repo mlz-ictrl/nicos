@@ -2,6 +2,7 @@
 
 description = 'lens switching devices'
 group = 'lowlevel'
+display_order = 75
 
 excludes = ['virtual_lenses']
 

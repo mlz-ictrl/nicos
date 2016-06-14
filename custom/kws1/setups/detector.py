@@ -2,6 +2,7 @@
 
 description = "Detector setup"
 group = "lowlevel"
+display_order = 20
 
 excludes = ['virtual_detector']
 

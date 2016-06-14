@@ -2,6 +2,7 @@
 
 description = "Beam shutter setup"
 group = "lowlevel"
+display_order = 5
 
 excludes = ['virtual_shutter']
 

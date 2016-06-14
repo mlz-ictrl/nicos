@@ -2,6 +2,7 @@
 
 description = "Detector data acquisition setup"
 group = "lowlevel"
+display_order = 25
 
 includes = ['counter']
 excludes = ['virtual_daq']

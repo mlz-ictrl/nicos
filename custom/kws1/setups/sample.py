@@ -2,6 +2,7 @@
 
 description = "Sample aperture and table"
 group = "lowlevel"
+display_order = 35
 
 excludes = ['virtual_sample']
 

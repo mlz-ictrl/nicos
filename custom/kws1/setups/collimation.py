@@ -2,6 +2,7 @@
 
 description = "Collimation setup"
 group = "lowlevel"
+display_order = 10
 
 excludes = ['virtual_collimation']
 

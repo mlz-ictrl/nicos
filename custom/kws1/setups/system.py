@@ -1,6 +1,8 @@
-description = 'system setup'
+# -*- coding: utf-8 -*-
 
+description = 'system setup'
 group = 'lowlevel'
+display_order = 80
 
 sysconfig = dict(
     cache = 'localhost',

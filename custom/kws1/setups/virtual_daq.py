@@ -2,6 +2,7 @@
 
 description = "Detector data acquisition setup"
 group = "lowlevel"
+display_order = 25
 
 sysconfig = dict(
     datasinks = ['kwsformat', 'yamlformat'],

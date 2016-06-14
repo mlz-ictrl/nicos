@@ -2,6 +2,7 @@
 
 description = 'Virtual velocity selector'
 group = 'lowlevel'
+display_order = 15
 
 presets = configdata('config_selector.SELECTOR_PRESETS')
 

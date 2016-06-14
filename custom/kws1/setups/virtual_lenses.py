@@ -2,6 +2,7 @@
 
 description = 'Virtual lens switching devices'
 group = 'lowlevel'
+display_order = 75
 
 devices = dict(
     lenses    = device('kws1.lens.Lenses',

@@ -2,6 +2,7 @@
 
 description = "ZEA-2 counter card setup"
 group = "lowlevel"
+display_order = 30
 
 excludes = ['virtual_daq']
 

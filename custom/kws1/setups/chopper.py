@@ -2,6 +2,7 @@
 
 description = 'setup for the choppers'
 group = 'lowlevel'
+display_order = 65
 
 excludes = ['virtual_chopper']
 

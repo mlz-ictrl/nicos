@@ -2,6 +2,7 @@
 
 description = "Virtual collimation setup"
 group = "lowlevel"
+display_order = 10
 
 presets = configdata('config_collimation.COLLIMATION_PRESETS')
 

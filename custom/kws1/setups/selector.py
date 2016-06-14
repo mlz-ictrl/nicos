@@ -2,6 +2,7 @@
 
 description = 'setup for the velocity selector'
 group = 'lowlevel'
+display_order = 15
 
 excludes = ['virtual_selector']
 

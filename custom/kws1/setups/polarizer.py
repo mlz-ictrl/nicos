@@ -2,6 +2,7 @@
 
 description = "Polarizer setup"
 group = "lowlevel"
+display_order = 60
 
 excludes = ['virtual_polarizer']
 

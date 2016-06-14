@@ -2,6 +2,7 @@
 
 description = "Hexapod control"
 group = "optional"
+display_order = 70
 
 excludes = []
 
