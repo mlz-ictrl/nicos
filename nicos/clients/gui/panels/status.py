@@ -307,5 +307,5 @@ class ScriptStatusPanel(Panel):
         if not item:
             return
         reqno = item.data(Qt.UserRole)
-        if self.client.tell('unqueue', str(reqno[0])):
-            self.script_queue.remove(reqno[0])
+        if self.client.tell('unqueue', str(reqno)):
+            self.script_queue.remove(reqno)
