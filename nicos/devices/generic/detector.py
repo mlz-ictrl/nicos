@@ -348,13 +348,12 @@ class Detector(Measurable):
 
     def doPause(self):
         # XXX: rework pause logic (use mixin?)
+        success = True
         for slave in self._slaves:
-            if not slave.pause():
-                return False
+            success &= slave.pause()
         for master in self._masters:
-            if not master.pause():
-                return False
-        return True
+            success &= master.pause()
+        return success
 
     def doResume(self):
         # XXX: rework pause logic (use mixin?)
