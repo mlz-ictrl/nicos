@@ -1,4 +1,4 @@
-# This setup file configures the nicos poller service.
+# This setup file configures the nicos watchdog service.
 
 description = 'setup for the NICOS watchdog'
 group = 'special'
