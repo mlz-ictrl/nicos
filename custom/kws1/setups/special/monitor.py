@@ -86,6 +86,17 @@ _daq = Block('Data acquisition', [
              Field(name='Mon3', dev='mon3rate')),
 ])
 
+_peltier = Block('Peltier/Julabo', [
+    BlockRow('T_peltier', 'T_julabo')
+], setups='peltier')
+
+_peltierplot = Block('', [
+    BlockRow(Field(plot='TT', dev='T_peltier', width=40, height=25, plotwindow=24*3600),
+             Field(plot='TT', dev='T_julabo'),
+             Field(plot='TT', key='T_peltier/setpoint'),
+             Field(plot='TT', key='T_julabo/setpoint')),
+], setups='peltier')
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'KWS-1 status',
@@ -99,9 +110,9 @@ devices = dict(
                      padding = 0,
                      layout = [
                          Row(Column(_experiment)),
-                         Row(Column(_selector, _chopper, _shutter),
+                         Row(Column(_selector, _chopper, _shutter, _peltier),
                              Column(_collimation, _polarizer, _lenses, _daq),
-                             Column(_sample, _hexapod, _detector)),
+                             Column(_sample, _hexapod, _detector, _peltierplot)),
                      ],
                     ),
 )
