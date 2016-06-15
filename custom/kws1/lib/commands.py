@@ -137,4 +137,11 @@ def kwscount(**arguments):
     if factor > 0:
         meastime *= factor
     printinfo('Now counting for %d seconds...' % meastime)
-    count(t=meastime)
+    det = session.getDevice('det')
+    # set the parameter that will allow the watchdog to act on
+    # failure conditions
+    det.kwscounting = True
+    try:
+        count(t=meastime)
+    finally:
+        det.kwscounting = False

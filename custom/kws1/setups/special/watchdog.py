@@ -4,13 +4,22 @@ description = 'setup for the NICOS watchdog'
 group = 'special'
 
 watchlist = [
+    dict(condition = 'det_kwscounting and det_mode != "realtime" and '
+                     'det_mode != "realtime_external" and '
+                     'abs(selector_speed_value - selector_speed_target) > '
+                     'selector_speed_precision',
+         message = 'Selector outside of target speed, count paused',
+         scriptaction = 'pausecount',
+         gracetime = 1,
+         type = 'default',
+    )
 ]
 
 includes = ['notifiers']
 
 notifiers = {
-    'default':  [],
-    'critical': [],
+    'default':  ['email'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
