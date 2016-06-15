@@ -24,6 +24,8 @@
 
 """Instrument monitor that generates an HTML page."""
 
+import operator
+
 from cgi import escape
 from time import sleep, time as currenttime
 from binascii import b2a_base64
@@ -40,6 +42,7 @@ except ImportError:
     matplotlib = None
 
 from nicos.core import Param
+from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
@@ -397,10 +400,18 @@ class Monitor(BaseMonitor):
         if key == field.key:
             # apply item selection
             field.value = value
-            if field.item >= 0 and value is not None:
-                try:
-                    fvalue = value[field.item]
-                except Exception:
+            if value is not None:
+                if isinstance(field.item, list):
+                    try:
+                        fvalue = reduce(operator.getitem, field.item, value)
+                    except Exception:
+                        fvalue = NOT_AVAILABLE
+                elif field.item >= 0:
+                    try:
+                        fvalue = value[field.item]
+                    except Exception:
+                        fvalue = NOT_AVAILABLE
+                else:
                     fvalue = value
             else:
                 fvalue = value

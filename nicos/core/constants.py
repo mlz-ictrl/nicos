@@ -47,3 +47,7 @@ SCAN = 'scan'
 SUBSCAN = 'subscan'
 POINT = 'point'
 BLOCK = 'block'
+
+# data display
+NOT_AVAILABLE = 'n/a'
+

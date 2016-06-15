@@ -26,12 +26,15 @@
 Base class for NICOS UI widgets.
 """
 
+import operator
+
 from copy import copy
 
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import SIGNAL, pyqtProperty, pyqtWrapperType
 
 from nicos.utils import lazy_property, attrdict
+from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import add_metaclass, iteritems
@@ -129,11 +132,19 @@ class NicosListener(object):
                 return
         # it's either /value, or any key registered as value
         # first, apply item selection
-        if devinfo.valueindex >= 0 and value is not None:
-            try:
-                fvalue = value[devinfo.valueindex]
-            except Exception:
-                fvalue = 'N/A'
+        if value is not None:
+            if isinstance(devinfo.valueindex, list):
+                try:
+                    fvalue = reduce(operator.getitem, devinfo.valueindex, value)
+                except Exception:
+                    fvalue = NOT_AVAILABLE
+            elif devinfo.valueindex >= 0:
+                try:
+                    fvalue = value[devinfo.valueindex]
+                except Exception:
+                    fvalue = NOT_AVAILABLE
+            else:
+                fvalue = value
         else:
             fvalue = value
         devinfo.value = fvalue
