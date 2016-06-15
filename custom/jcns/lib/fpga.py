@@ -48,6 +48,9 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
                          type=bool, default=False, settable=True),
         'extmask': Param('Bitmask of the inputs to use for external start',
                          type=int, default=0),
+        'extwait': Param('If true, we are waiting for external start',
+                         type=bool, default=False, settable=True,
+                         userparam=False),
     }
 
     def _setPreselection(self):
@@ -62,17 +65,21 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
             # because `DevFPGACountReset()` resets all values.
             self._setPreselection()
         if self.extmode:
+            self.extwait = True
             self._dev.DevFPGACountArmForExternalStart(self.extmask)
         else:
             self._dev.DevFPGACountStart()
 
     def doFinish(self):
+        self.extwait = False
         self._dev.DevFPGACountStop()
 
     def doStop(self):
         self.doFinish()
 
     def doPause(self):
+        if self.extmode:
+            return False
         self.finish()
         return True
 
@@ -85,10 +92,9 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
     def doStatus(self, maxage=0):
         # Workaround self._dev.State() does not return DevState.MOVING
         if self._dev.DevFPGACountGateStatus():
-            res = (status.BUSY, 'counting')
+            return (status.BUSY, 'counting')
         else:
-            res = (status.OK, '')
-        return res
+            return (status.OK, '')
 
     def doReset(self):
         if self.status(0)[0] == status.BUSY:
@@ -104,8 +110,41 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
         self._dev.DevFPGACountSetTimeLimit(millis)
         self._dev.DevFPGACountSetMinTime(millis)
 
+    def doStatus(self, maxage=0):
+        # Normal mode: Gate is active
+        if self._dev.DevFPGACountGateStatus():
+            return (status.BUSY, 'counting')
+        elif self.extmode and self.extwait:
+            # External mode: there is no status indication of "waiting",
+            # so use the time as an indication of wait/done
+            if self._dev.DevFPGACountReadTime() > 0:
+                return (status.OK, '')
+            return (status.BUSY, 'waiting for external start')
+        else:
+            return (status.OK, '')
+
     def doRead(self, maxage=0):
         return [self._dev.DevFPGACountReadTime() / 1000.]
+
+
+class FPGACounterChannel(CounterChannelMixin, FPGAChannelBase):
+    """FPGACounterChannel implements one monitor channel for ZEA-2 counter
+    card.
+    """
+
+    parameters = {
+        'channel': Param('Channel number', type=intrange(0, 4),
+                         settable=False, mandatory=True)
+    }
+
+    def _setPreselection(self):
+        self._dev.DevFPGACountSetMinTime(0)
+        self._dev.DevFPGACountSetTimeLimit(3600*24)
+        self._dev.DevFPGACountSetCountLimit([self.channel,
+                                             int(self.preselection)])
+
+    def doRead(self, maxage=0):
+        return self._dev.DevFPGACountReadCount(self.channel)
 
 
 class FPGAFrequencyChannel(TimerChannelMixin, FPGAChannelBase):
@@ -128,26 +167,6 @@ class FPGAFrequencyChannel(TimerChannelMixin, FPGAChannelBase):
 
     def valueInfo(self):
         return Value(self.name, unit='Hz', type='other', fmtstr=self.fmtstr),
-
-
-class FPGACounterChannel(CounterChannelMixin, FPGAChannelBase):
-    """FPGACounterChannel implements one monitor channel for ZEA-2 counter
-    card.
-    """
-
-    parameters = {
-        'channel': Param('Channel number', type=intrange(0, 4),
-                         settable=False, mandatory=True)
-    }
-
-    def _setPreselection(self):
-        self._dev.DevFPGACountSetMinTime(0)
-        self._dev.DevFPGACountSetTimeLimit(3600*24)
-        self._dev.DevFPGACountSetCountLimit([self.channel,
-                                             int(self.preselection)])
-
-    def doRead(self, maxage=0):
-        return self._dev.DevFPGACountReadCount(self.channel)
 
 
 class FPGARate(PyTangoDevice, Readable):
