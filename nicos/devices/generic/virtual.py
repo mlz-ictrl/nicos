@@ -170,8 +170,15 @@ class VirtualChannel(ActiveChannel):
             self.curvalue = 0
 
     def doStart(self):
-        self._stopflag = False
         self.curvalue = 0
+        self.doResume()
+
+    def doPause(self):
+        self.doFinish()
+        return True
+
+    def doResume(self):
+        self._stopflag = False
         self.curstatus = (status.BUSY, 'counting')
         self._thread = createThread('%s %s' % (self.__class__.__name__, self),
                                     self._counting)
@@ -210,7 +217,7 @@ class VirtualTimer(VirtualChannel):
 
     def _counting(self):
         self.log.debug('timing to %.3f' % (self.preselection,))
-        finish_at = time.time() + self.preselection
+        finish_at = time.time() + self.preselection - self.curvalue
         try:
             while not self._stopflag:
                 if self.ismaster and time.time() >= finish_at:
@@ -642,6 +649,13 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                 time.sleep(self._base_loop_delay)
         finally:
             self._remaining = None
+
+    def doPause(self):
+        self._timer.stop()
+        return True
+
+    def doResume(self):
+        self._timer.restart()
 
     def doFinish(self):
         self._stopflag = True

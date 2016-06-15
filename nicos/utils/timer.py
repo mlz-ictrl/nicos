@@ -157,10 +157,11 @@ class Timer(object):
 
     def restart(self):
         """Continue a prematurely stopped timer."""
-        if self._active or self._run_for is None:
+        if self._active:
             return
-        if self.remaining_time():
-            # adjust timestamp so that it looks as nothing had ever happened
+        # adjust timestamp so that it looks as nothing had ever happened
+        if self._run_for is None:
+            self._started = time.time() - self.elapsed_time()
+        elif self.remaining_time():
             self._started  = time.time() + self.elapsed_time() - self._run_for
-            self._active = True
-
+        self._active = True
