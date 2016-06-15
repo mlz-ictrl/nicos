@@ -200,6 +200,7 @@ class Channel(ActiveChannel):
             result = self._caressObject.stop_module(0, self._cid)
             if result != (CARESS.OK, DONE):
                 raise NicosError(self, 'Could not pause the module')
+        return True
 
     def doResume(self):
         if not self.ismaster:

@@ -46,6 +46,7 @@ class BaseChannel(TacoDevice):
 
     def doPause(self):
         self._taco_guard(self._dev.stop)
+        return True
 
     def doResume(self):
         self._taco_guard(self._dev.resume)

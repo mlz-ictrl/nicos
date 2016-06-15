@@ -100,6 +100,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doPause(self):
         self.doFinish()
+        return True
 
     def doResume(self):
         self.doStart()

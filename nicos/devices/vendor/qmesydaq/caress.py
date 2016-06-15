@@ -117,6 +117,7 @@ class Channel(CARESSDevice, ActiveChannel):
 
     def doPause(self):
         self._break(0)
+        return True
 
     def doResume(self):
         self._start(1)
