@@ -4,6 +4,7 @@ group = 'basic'
 
 sysconfig = dict(
     instrument = 'VSTRESSI',
+    datasinks = ['caresssink'],
 )
 
 includes = ['source',]
@@ -230,6 +231,10 @@ devices = dict(
                     unit = 'steps',
                     abslimits = (0, 4096),
                    ),
+    caresssink = device('stressi.datasinks.CaressScanfileSink',
+                        lowlevel = True,
+                        filenametemplate = ['m2%(scancounter)08d.dat'],
+                       ),
     hv1   = device('devices.generic.virtual.VirtualMotor',
                    description = 'ISEG HV power supply 1',
                    requires = {'level': 'admin'},

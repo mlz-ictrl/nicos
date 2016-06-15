@@ -52,7 +52,7 @@ sysconfig = dict(
     cache = 'stressictrl.stressi.frm2',
     instrument = 'Stressi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'daemonsink', ],
     notifiers = ['email', 'smser'],
 )
 
@@ -125,4 +125,8 @@ devices = dict(
                  abslimits = (0.9, 2.5),
                  requires =  {'level': 'admin',},
                 ),
+    caresssink = device('stressi.datasinks.CaressScanfileSink',
+                        lowlevel = True,
+                        filenametemplate = ['m2%(scancounter)08d.dat', ],
+                       ),
 )

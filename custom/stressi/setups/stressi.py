@@ -9,5 +9,9 @@ servername = 'VME'
 
 nameservice = 'stressictrl'
 
+sysconfig = dict(
+    datasinks = ['caresssink'],
+)
+
 devices = dict(
 )

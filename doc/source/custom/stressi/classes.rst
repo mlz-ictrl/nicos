@@ -8,3 +8,10 @@ Slits
 
 .. autoclass:: Slit()
 .. autoclass:: TwoAxisSlit()
+
+Data formats
+------------
+
+.. automodule:: nicos.stressi.datasinks
+
+.. autoclass:: CaressScanfileSink()
