@@ -36,7 +36,7 @@ from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _infostr
 from nicos.core.scan import Scan
-from nicos.core.constants import FINAL
+from nicos.core.constants import SUBSCAN, FINAL
 
 
 class HKLScan(Scan):
@@ -63,7 +63,7 @@ class CScan(Scan):
         Scan.__init__(self, devs, values, preset={'t':1.},
                       envlist = kwargs.get('envlist'),
                       scaninfo=scanstr,
-                      subscan=kwargs.get('subscan', False))
+                      subscan=kwargs.get(SUBSCAN, False))
 
 
 @usercommand

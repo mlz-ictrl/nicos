@@ -28,20 +28,21 @@ from math import sqrt
 from time import time as currenttime, localtime
 from uuid import uuid4
 
+from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, UNKNOWN
 from nicos.core.errors import ProgrammingError
 from nicos.core.acquire import DevStatistics
 from nicos.pycompat import iteritems, number_types
 from nicos.utils import lazy_property
 
 
-SETTYPES = ('point', 'scan', 'subscan', 'block')
+SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
 
 
 class BaseDataset(object):
     """Base class for scan and point datasets."""
 
-    settype = 'unknown'
-    countertype = 'unknown'
+    settype = UNKNOWN
+    countertype = UNKNOWN
 
     def __init__(self, **kwds):
         # Unique id of the scan.
@@ -127,8 +128,8 @@ class BaseDataset(object):
 class PointDataset(BaseDataset):
     """Collects data related to a single count/measurement."""
 
-    settype = 'point'
-    countertype = 'point'
+    settype = POINT
+    countertype = POINT
 
     def __init__(self, **kwds):
         # Point results: values of detectors.
@@ -228,8 +229,8 @@ class PointDataset(BaseDataset):
 class ScanDataset(BaseDataset):
     """Collects data related to a scan (sequence of measurements)."""
 
-    settype = 'scan'
-    countertype = 'scan'
+    settype = SCAN
+    countertype = SCAN
 
     def __init__(self, **kwds):
         # Number of points in the scan, if known.
@@ -267,15 +268,15 @@ class ScanDataset(BaseDataset):
 class SubscanDataset(ScanDataset):
     """Collects data related to a subscan (scan within a scan with results)."""
 
-    settype = 'subscan'
-    countertype = 'scan'
+    settype = SUBSCAN
+    countertype = SCAN
 
 
 class BlockDataset(BaseDataset):
     """Collects data related to a whole (multi-scan) block of an experiment."""
 
-    settype = 'block'
-    countertype = 'block'
+    settype = BLOCK
+    countertype = BLOCK
 
     def __init__(self, **kwds):
         BaseDataset.__init__(self, **kwds)

@@ -27,6 +27,7 @@
 from time import strftime, localtime
 
 from nicos import session
+from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, DataSink, DataSinkHandler, \
     INFO_CATEGORIES, Override, Param
@@ -48,11 +49,11 @@ class ConsoleScanSinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._indent = '' if self.dataset.settype != 'subscan' else ' ' * 6
+        self._indent = '' if self.dataset.settype != SUBSCAN else ' ' * 6
 
     def begin(self):
         ds = self.dataset
-        if ds.settype != 'subscan':
+        if ds.settype != SUBSCAN:
             printinfo('=' * 100)
             printinfo('Starting scan:      ' + (ds.info or ''))
             printinfo('Started at:         ' +
@@ -74,7 +75,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         printinfo(self._indent + '-' * (100 - len(self._indent)))
 
     def addSubset(self, point):
-        if point.settype != 'point':
+        if point.settype != POINT:
             return
         ds = self.dataset
         if ds.npoints:
@@ -93,7 +94,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         ).expandtabs())
 
     def end(self):
-        if self.dataset.settype != 'subscan':
+        if self.dataset.settype != SUBSCAN:
             printinfo('-' * 100)
             printinfo('Finished at:        ' +
                       strftime(TIMEFMT, localtime(self.dataset.finished)))
@@ -110,7 +111,7 @@ class ConsoleScanSink(DataSink):
     handlerclass = ConsoleScanSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=['scan', 'subscan']),
+        'settypes':  Override(default=[SCAN, SUBSCAN]),
     }
 
 
@@ -178,7 +179,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._file.flush()
 
     def addSubset(self, point):
-        if point.settype != 'point':
+        if point.settype != POINT:
             return
         ds = self.dataset
         if not self._wrote_header:
@@ -222,7 +223,7 @@ class AsciiScanfileSink(FileSink):
     handlerclass = AsciiScanfileSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=['scan', 'subscan']),
+        'settypes':  Override(default=[SCAN, SUBSCAN]),
         'filenametemplate': Override(default=['%(proposal)s_%(scancounter)08d.dat']),
     }
 

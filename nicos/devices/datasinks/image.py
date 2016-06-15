@@ -26,6 +26,7 @@
 
 from nicos import session
 from nicos.core import FINAL, LIVE, Override
+from nicos.core.constants import POINT
 from nicos.core.data import DataSink, DataSinkHandler
 from nicos.core.data.manager import DataFile
 from nicos.devices.datasinks import FileSink
@@ -38,7 +39,7 @@ class ImageSink(FileSink):
     parameter_overrides = {
         'subdir': Override(description='Filetype specific subdirectory name '
                            'for the image files'),
-        'settypes': Override(default=['point'])
+        'settypes': Override(default=[POINT])
     }
 
     def isActiveForArray(self, arraydesc):

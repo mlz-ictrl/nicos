@@ -40,3 +40,10 @@ LIVE = 'live'
 INTERMEDIATE = 'intermediate'
 FINAL = 'final'
 INTERRUPTED = 'interrupted'
+
+# data sink types
+UNKNOWN = 'unknown'
+SCAN = 'scan'
+SUBSCAN = 'subscan'
+POINT = 'point'
+BLOCK = 'block'

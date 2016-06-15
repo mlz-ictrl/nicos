@@ -35,6 +35,7 @@ from Detector import Detector
 from nicos import session
 from nicos.core import Attach, Param, Value, Override, oneof, SIMULATION, \
     INFO_CATEGORIES, LIVE
+from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
     TimerChannelMixin, CounterChannelMixin
@@ -260,7 +261,7 @@ class ComtecHeaderSink(ImageSink):
     }
 
     parameter_overrides = {  # \A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst
-        'settypes': Override(default=['point', 'scan']),
+        'settypes': Override(default=[POINT, SCAN]),
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
                                      default=['_%(session.experiment.users)s_'

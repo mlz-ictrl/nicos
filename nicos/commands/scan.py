@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
     NicosError
+from nicos.core.constants import SUBSCAN
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
@@ -181,7 +182,7 @@ def cscan(dev, *args, **kwargs):
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo, subscan=kwargs.get('subscan', False)).run()
+         scaninfo, subscan=kwargs.get(SUBSCAN, False)).run()
 
 
 @usercommand

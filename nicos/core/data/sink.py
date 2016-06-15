@@ -28,7 +28,7 @@ from os import path
 from gzip import GzipFile as StdGzipFile
 
 from nicos import session
-from nicos.core.constants import SIMULATION
+from nicos.core.constants import POINT, SIMULATION
 from nicos.core.device import Device
 from nicos.core.params import Param, listof, setof
 from nicos.core.errors import ProgrammingError
@@ -227,7 +227,7 @@ class DataSink(Device):
             raise NotImplementedError('Must set an "handlerclass" attribute '
                                       'on %s' % self.__class__)
         # pylint: disable=not-callable
-        if dataset.settype == 'point':
+        if dataset.settype == POINT:
             dets = set(d.name for d in dataset.detectors)
             if self.detectors:
                 dets &= set(self.detectors)

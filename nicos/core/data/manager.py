@@ -30,7 +30,7 @@ from os import path
 from time import time as currenttime
 
 from nicos import session
-from nicos.core.constants import SIMULATION
+from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, SIMULATION
 from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
 from nicos.core.data.dataset import PointDataset, ScanDataset, \
@@ -85,10 +85,10 @@ class DataManager(object):
         """Create and begin a new scan dataset."""
         if subscan:
             # a subscan can only start when a point is open
-            self._clean(('point',))
+            self._clean((POINT,))
             dataset = SubscanDataset(**kwds)
         else:
-            self._clean(('block',))
+            self._clean((BLOCK,))
             dataset = ScanDataset(**kwds)
         return self._init(dataset)
 
@@ -106,21 +106,21 @@ class DataManager(object):
 
     def beginPoint(self, **kwds):
         """Create and begin a new point dataset."""
-        self._clean(('block', 'scan', 'subscan'))
+        self._clean((BLOCK, SCAN, SUBSCAN))
         self._updatePointKeywords(kwds)
         dataset = PointDataset(**kwds)
         return self._init(dataset)
 
     def beginTemporaryPoint(self, **kwds):
         """Create and begin a point dataset that does not use datasinks."""
-        self._clean(('block', 'scan', 'subscan'))
+        self._clean((BLOCK, SCAN, SUBSCAN))
         self._updatePointKeywords(kwds)
         dataset = PointDataset(**kwds)
         return self._init(dataset, skip_handlers=True)
 
     def finishPoint(self):
         """Finish the current point dataset."""
-        if self._current.settype != 'point':
+        if self._current.settype != POINT:
             self.log.warning('no data point to finish here')
             return
         point = self._stack.pop()
@@ -128,7 +128,7 @@ class DataManager(object):
 
     def finishScan(self):
         """Finish the current scan dataset."""
-        if self._current.settype not in ('scan', 'subscan'):
+        if self._current.settype not in (SCAN, SUBSCAN):
             self.log.warning('no scan to finish here')
             return
         scan = self._stack.pop()
@@ -138,7 +138,7 @@ class DataManager(object):
 
     def finishBlock(self):
         """Finish the current block dataset."""
-        if self._current.settype != 'block':
+        if self._current.settype != BLOCK:
             self.log.warning('no block to finish here')
             return
         block = self._stack.pop()
@@ -189,7 +189,7 @@ class DataManager(object):
 
     def putMetainfo(self, metainfo):
         # metainfo is {(devname, param): (rawvalue, strvalue, unit, category)}
-        if self._current.settype != 'point':
+        if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring metainfo')
             return
         self._current.metainfo.update(metainfo)
@@ -199,7 +199,7 @@ class DataManager(object):
         # values is {devname: (timestamp, value)}
         # if timestamp is None, it is the canonical position of the device
         # for the point
-        if self._current.settype != 'point':
+        if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring values')
             return
         self._current._addvalues(values)
@@ -207,7 +207,7 @@ class DataManager(object):
 
     def putResults(self, quality, results):
         # results is {devname: (readvalue, arrays)}
-        if self._current.settype != 'point':
+        if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring results')
             return
         self._current.results.update(results)
@@ -231,7 +231,7 @@ class DataManager(object):
         self.putMetainfo(newinfo)
 
     def cacheCallback(self, key, value, time):
-        if not self._current or self._current.settype != 'point':
+        if not self._current or self._current.settype != POINT:
             return
         devname = session.device_case_map.get(key.split('/')[0])
         if devname is not None:
@@ -280,9 +280,9 @@ class DataManager(object):
             setattr(dataset, attr, nextnum)
 
         # push special counters into parameters for display
-        if dataset.settype == 'scan':
+        if dataset.settype == SCAN:
             session.experiment._setROParam('lastscan', dataset.counter)
-        elif dataset.settype == 'point':
+        elif dataset.settype == POINT:
             session.experiment._setROParam('lastpoint', dataset.counter)
 
     def getCounters(self):

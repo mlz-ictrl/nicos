@@ -29,6 +29,7 @@ from time import time as currenttime
 
 from nicos import session
 from nicos.core import Override, DataSink, DataSinkHandler
+from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import ScanData
 from nicos.pycompat import cPickle as pickle, memory_buffer
 from nicos.devices.datasinks.image import ImageSink
@@ -43,7 +44,7 @@ class DaemonSinkHandler(DataSinkHandler):
         session.emitfunc('dataset', ScanData(self.dataset))
 
     def addSubset(self, point):
-        if point.settype != 'point':
+        if point.settype != POINT:
             return
         if not self._dataset_emitted:
             self._emitDataset()
@@ -68,7 +69,7 @@ class DaemonSink(DataSink):
     handlerclass = DaemonSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=['scan', 'subscan']),
+        'settypes':  Override(default=[SCAN, SUBSCAN]),
     }
 
     def isActive(self, dataset):
@@ -143,5 +144,5 @@ class SerializedSink(DataSink):
     handlerclass = SerializedSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=['scan', 'subscan']),
+        'settypes':  Override(default=[SCAN, SUBSCAN]),
     }
