@@ -480,16 +480,12 @@ class ContinuousScan(Scan):
 
     def __init__(self, device, start, end, speed, timedelta=None,
                  firstmoves=None, detlist=None, envlist=None, scaninfo=None):
-        self._startpos = start
-        self._endpos = end
-        if speed is None:
-            self._speed = device.speed / 5.
-        else:
-            self._speed = speed
+
+        self._speed = device.speed / 5. if speed is None else speed
         self._timedelta = timedelta or 1.0
 
-        Scan.__init__(self, [device], [], [], firstmoves, None, detlist,
-                      envlist, None, scaninfo)
+        Scan.__init__(self, [device], [[start]], [[end]], firstmoves, None,
+                      detlist, envlist, None, scaninfo)
 
     def shortDesc(self):
         if self.dataset and self.dataset.counter > 0:
@@ -497,62 +493,95 @@ class ContinuousScan(Scan):
                                                self.dataset.counter)
         return 'Continuous scan %s' % self._devices[0]
 
-    def run(self):
+    def beginScan(self):
         device = self._devices[0]
-        detlist = self._detlist
-        ok, why = device.isAllowed(self._startpos)
+        self._original_speed = device.speed
+        device.speed = self._speed
+        Scan.beginScan(self)
+
+    def endScan(self):
+        device = self._devices[0]
+        device.speed = self._original_speed
+        Scan.endScan(self)
+
+    def acquire(self, point, preset):
+        pass
+
+    def prepareScan(self, position):
+        device = self._devices[0]
+        ok, why = device.isAllowed(self._startpositions[0][0])
         if not ok:
             raise LimitError('Cannot move to start value for %s: %s' %
                              (device, why))
-        ok, why = device.isAllowed(self._endpos)
+        ok, why = device.isAllowed(self._endpositions[0][0])
         if not ok:
             raise LimitError('Cannot move to end value for %s: %s' %
                              (device, why))
+        Scan.prepareScan(self, position)
+
+        self._distance = abs(self._endpositions[0][0] -
+                             self._startpositions[0][0])
+        # guess the number of points
+        self._npoints = int(self._distance / self._speed / self._timedelta) + 1
+
+    def _inner_run(self):
         try:
-            self.prepareScan([self._startpos])
-        except (StopScan, SkipPoint):
+            self.prepareScan(self._startpositions[0])
+        except (StopScan, SkipPoint, LimitError):
             return
+
         self.beginScan()
+
         # XXX(dataapi): update metainfo here
-        original_speed = device.speed
-        session.beginActionScope(self.shortDesc())
+        session.data.updateMetainfo()
+
+        device = self._devices[0]
+        detlist = self._detlist
+        point = 0
         try:
-            device.speed = self._speed
-            device.move(self._endpos)
-            starttime = looptime = currenttime()
-            preset = max(abs(self._endpos - self._startpos) /
-                         (self._speed or 0.1) * 5, 3600)
             if session.mode == SIMULATION:
                 preset = 1  # prevent all contscans taking 1 hour
+            else:
+                preset = max(self._distance / (self._speed or 0.1) * 5, 3600)
+
             devpos = device.read(0)
-            for det in detlist:
-                det.prepare()
-            for det in detlist:
-                waitForStatus(det)
+
+            self.preparePoint(None, None)
+
             for det in detlist:
                 det.start(t=preset)
+            device.move(self._endpositions[0][0])
+            starttime = looptime = currenttime()
+
             last = {det.name: (det.read(), ()) for det in detlist}
+
             while device.status(0)[0] == status.BUSY:
-                session.delay(self._timedelta)
                 session.breakpoint(3)
-                new_devpos = device.read(0)
-                read = {det.name: (det.read(), ()) for det in detlist}
-                diff = {detname: ([vals[i] - last[detname][0][i]
-                                   if isinstance(vals[i], number_types)
-                                   else vals[i]
-                                   for i in range(len(vals))], ())
-                        for (detname, (vals, _)) in iteritems(read)}
-                looptime = currenttime()
-                actualpos = [0.5 * (devpos + new_devpos)]
-                session.data.beginTemporaryPoint()
-                session.data.putValues({device.name: (None, actualpos)})
-                self.readEnvironment()
-                session.data.putResults(FINAL, diff)
-                session.data.finishPoint()
-                last = read
-                devpos = new_devpos
-                for det in detlist:
-                    det.duringMeasureHook(looptime - starttime)
+                sleeptime = max(0, looptime + self._timedelta - currenttime())
+                session.log.debug('Sleep time: %f' % sleeptime)
+                with self.pointScope(point + 1):
+                    session.delay(sleeptime)
+                    looptime = currenttime()
+                    new_devpos = device.read(0)
+                    read = {det.name: (det.read(), ()) for det in detlist}
+                    diff = {detname: ([vals[i] - last[detname][0][i]
+                                       if isinstance(vals[i], number_types)
+                                       else vals[i]
+                                       for i in range(len(vals))], ())
+                            for (detname, (vals, _)) in iteritems(read)}
+                    actualpos = [0.5 * (devpos + new_devpos)]
+                    session.data.beginTemporaryPoint()
+                    session.data.putValues({device.name: (None, actualpos)})
+                    self.readEnvironment()
+                    # TODO: if the data sink needs it ?
+                    # session.data.updateMetainfo()
+                    session.data.putResults(FINAL, diff)
+                    session.data.finishPoint()
+                    last = read
+                    devpos = new_devpos
+                    for det in detlist:
+                        det.duringMeasureHook(looptime - starttime)
+                    point += 1
             device.wait()  # important for simulation
         finally:
             session.endActionScope()
@@ -566,7 +595,6 @@ class ContinuousScan(Scan):
                 device.wait()
             except Exception:
                 device.log.warning('could not stop %s' % device, exc=1)
-            device.speed = original_speed
             self.endScan()
 
 
