@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'serialsink', 'livesink', 'dmnsink'],
+    datasinks = ['conssink', 'serialsink', 'livesink', 'dmnsink'],
     notifiers = [],
 )
 

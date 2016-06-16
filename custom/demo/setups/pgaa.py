@@ -2,6 +2,7 @@ description = 'virtual PGAA devices'
 group = 'basic'
 
 sysconfig = dict(
+    datasinks = ['filesink'],
 )
 
 devices = dict(

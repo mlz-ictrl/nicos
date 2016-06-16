@@ -9,6 +9,7 @@ includes = ['cryo', 'source']
 
 sysconfig = dict(
     instrument = 'tas',
+    datasinks = ['filesink'],
 )
 
 devices = dict(

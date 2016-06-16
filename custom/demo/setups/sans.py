@@ -4,7 +4,9 @@ group = 'basic'
 sysconfig = dict(
     instrument = 'sans',
     datasinks = ['BerSANSImageSink', 'RawImageSink',
-                 'LivePNGSinkLog', 'LivePNGSink'],
+                 'LivePNGSinkLog', 'LivePNGSink',
+                 'filesink',
+                ],
 )
 
 excludes = ['detector', 'qmchannel']
