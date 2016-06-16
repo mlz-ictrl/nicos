@@ -6,6 +6,7 @@ servername = 'STRESSICTRL'
 nameservice = 'stressictrl'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'
+nethost = 'stressisrv.stressi.frm2'
 
 # SOF: OMGS=-2048 TTHS=-3319.25 PHIS=-7380.47 CHIS=1114.74 OMGM=0 TTHM=0 TRANSM=0
 # XT=1033.53 YT=10242.9 ZT=1022 XE=0 YE=0 ZE=0 PSZ=0 PSW=0 PSH=0 PST=0 SST=0
@@ -106,6 +107,20 @@ devices = dict(
                  unit = 'mm',
                  abslimits = (700, 1700),
                 ),
+    hv1   = device('devices.taco.VoltageSupply',
+                   description = 'ISEG HV power supply 1',
+                   requires = {'level': 'admin'},
+                   tacodevice = '//%s/stressi/det/hv1' % (nethost,),
+                   abslimits = (0, 3200),
+#                  ramp = 120,
+                  ),
+    hv2   = device('devices.taco.VoltageSupply',
+                   description = 'ISEG HV power supply 2',
+                   requires = {'level': 'admin'},
+                   tacodevice = '//%s/stressi/det/hv2' % (nethost,),
+                   abslimits = (-2500, 0),
+#                  ramp = 120,
+                  ),
 )
 
 startupcode='''

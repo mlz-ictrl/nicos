@@ -16,5 +16,12 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'MUX3 38 4 ttyS1 1',
                  lowlevel = True,
-    )
+                ),
+    wav = device('devices.generic.manual.ManualMove',
+                 description = 'The incoming wavelength',
+                 fmtstr = '%.1f',
+                 default = 1.7,
+                 unit = 'AA',
+                 abslimits = (0.9, 2.5),
+                ),
 )
