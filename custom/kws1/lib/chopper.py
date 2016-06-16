@@ -69,9 +69,10 @@ class ChopperParams(Moveable):
 
     def doStart(self, pos):
         if pos[0] == 0:
-            self._attached_freq1._setROParam('target', 0)
-            self._attached_phase1._setROParam('target', 0)
-            self._attached_phase2._setROParam('target', 0)
+            for dev in (self._attached_freq1, self._attached_phase1,
+                        self._attached_phase2):
+                dev.resetTimeout(0)
+                dev._setROParam('target', 0)
             self._attached_motor1.start(0)
             self._attached_motor2.start(0)
             return

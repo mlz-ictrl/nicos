@@ -405,6 +405,14 @@ class HasTimeout(DeviceMixinBase):
             return remaining < 0
         return False
 
+    def resetTimeout(self, target):
+        """Method called to reset the timeout when the device is started to
+        a new target.
+        """
+        self._timeoutActionCalled = False
+        timesout = self._getTimeoutTimes(self.read(), target, currenttime())
+        self._setROParam('_timesout', timesout)
+
     def _combinedStatus(self, maxage=0):
         """Create a combined status from doStatus, isAtTarget and timedOut
 

@@ -1476,9 +1476,7 @@ class Moveable(Waitable):
             raise LimitError(self, 'moving to %s is not allowed: %s' %
                              (self.format(pos, unit=True), why))
         if isinstance(self, HasTimeout):
-            self._timeoutActionCalled = False
-            self._setROParam('_timesout', self._getTimeoutTimes(self.read(), pos,
-                                                                currenttime()))
+            self.resetTimeout(pos)
         if self._sim_active:
             self._setROParam('target', pos)
             self._sim_setValue(pos)
