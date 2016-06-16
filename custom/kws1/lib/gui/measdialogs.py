@@ -416,6 +416,33 @@ class DevicesWidget(QWidget):
         self.table.removeRow(ix)
 
 
+# Devices that should not appear in the list of additional devices to move,
+# because they are already covered by the detector/collimation/... dialog.
+DEV_BLACKLIST = set((
+    'ap_sam',
+    'chopper',
+    'chopper_params',
+    'collimation',
+    'coll_guides',
+    'det_nosave',
+    'det_x',
+    'det_y',
+    'det_z',
+    'detector',
+    'flipper',
+    'lenses',
+    'pol_switch',
+    'polarizer',
+    'sam_rot',
+    'sam_trans_1',
+    'sam_trans_2',
+    'selector',
+    'selector_speed',
+    'selector_lambda',
+    'shutter',
+))
+
+
 class DevicesDialog(QDialog):
 
     def __init__(self, parent, measdef, client):
@@ -430,10 +457,10 @@ class DevicesDialog(QDialog):
         self.frame.layout().setContentsMargins(0, 0, 10, 0)
         self.frame.layout().addStretch()
 
-        # XXX: only those from non-core setups!
         devlist = client.getDeviceList('nicos.core.device.Moveable')
         for dev in devlist:
-            QListWidgetItem(dev, self.devList)
+            if dev not in DEV_BLACKLIST:
+                QListWidgetItem(dev, self.devList)
 
         self._widgets = []
 
