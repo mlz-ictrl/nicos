@@ -228,7 +228,8 @@ class Chopper(Moveable):
 
     def doStart(self, value):
         if value == 'off':
-            self._attached_daq.mode = 'standard'
+            if self._attached_daq.mode == 'tof':  # don't touch realtime
+                self._attached_daq.mode = 'standard'
             self._attached_params.start((0, 0))
             return
         reso = float(value.strip('%')) / 100.0

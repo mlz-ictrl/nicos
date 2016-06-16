@@ -44,6 +44,9 @@ def SetupRealtime(channels, interval, progression, trigger):
     detector.tofchannels = channels
     detector.tofinterval = interval
     detector.tofprogression = progression
+    # let the detector calculate the preset
+    detector.prepare()
+    detector.setPreset(t=0)
     printinfo('Detector presets set to realtime mode.')
 
 
@@ -53,7 +56,7 @@ def SetupNormal():
     detector = session.getDevice('det')
     # just set it to standard mode, TOF mode will be set by the chopper preset
     detector.mode = 'standard'
-    printinfo('Detector presets set to normal mode.')
+    printinfo('Detector presets set to standard or TOF mode.')
 
 
 # The order in which the main instrument components are moved.  This is
@@ -136,8 +139,13 @@ def kwscount(**arguments):
     factor = session.experiment.sample.timefactor
     if factor > 0:
         meastime *= factor
-    printinfo('Now counting for %d seconds...' % meastime)
     det = session.getDevice('det')
+    if det.mode in ('standard', 'tof'):
+        printinfo('Now counting for %d seconds...' % meastime)
+    elif det.mode == 'realtime':
+        printinfo('Now counting (real-time)...')
+    elif det.mode == 'realtime_external':
+        printinfo('Now waiting for signal to start real-time counting...')
     # set the parameter that will allow the watchdog to act on
     # failure conditions
     det.kwscounting = True

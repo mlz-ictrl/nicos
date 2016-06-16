@@ -165,7 +165,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>number of external signal:</string>
+         <string>Number of external signals:</string>
         </property>
        </widget>
       </item>

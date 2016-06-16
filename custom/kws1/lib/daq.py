@@ -63,7 +63,8 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
             self._dev.DevJudidt2Init()
 
     def _configure(self, tofsettings):
-        self._dev.DevJudidt2Init()
+        if self._mode != SIMULATION:
+            self._dev.DevJudidt2Init()
         value = self.mode
         if value == 'standard':
             self._setup_standard()
@@ -75,27 +76,30 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
             self._setup_tof(True, tofsettings)
 
     def _setup_standard(self):
-        self._dev.DevJudidt2SetMode(0)
+        if self._mode != SIMULATION:
+            self._dev.DevJudidt2SetMode(0)
         self.slices = []
         self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
-        if ext_trigger:
-            self._dev.DevJudidt2SetMode(2)
-            # number of external signal, != 1 not supported
-            self._dev.DevJudidt2SetRtParam(1)
-        else:
-            self._dev.DevJudidt2SetMode(1)
         # set timing of TOF slices
         channels, interval, q = tofsettings
         times = [0]
         for i in range(channels):
             times.append(times[-1] + int(interval * q**i))
         self.slices = times
-        times = [channels] + times
-        self._dev.DevJudidt2SetTofParam(times)
         self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels),
                                    np.uint32)
+        if self._mode == SIMULATION:
+            return
+        if ext_trigger:
+            self._dev.DevJudidt2SetMode(2)
+            # number of external signal, != 1 not supported
+            self._dev.DevJudidt2SetRtParam(1)
+        else:
+            self._dev.DevJudidt2SetMode(1)
+        times = [channels] + times
+        self._dev.DevJudidt2SetTofParam(times)
 
     def doPrepare(self):
         self._dev.DevJudidt2ClrRecoHistoAll()
@@ -173,7 +177,7 @@ class VirtualJDaqChannel(VirtualImage):
     def doReadArray(self, quality):
         res = VirtualImage.doReadArray(self, quality)
         if self.mode != 'standard':
-            return np.array([res] * (len(self.slices) - 1))
+            return np.repeat(np.expand_dims(res, 2), len(self.slices) - 1, 2)
         return res
 
 
@@ -223,9 +227,8 @@ class KWSDetector(Detector):
             if isinstance(ch, FPGAChannelBase):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
-        if self._mode != SIMULATION:
-            self._jdaq._configure((self.tofchannels, self.tofinterval,
-                                   self.tofprogression))
+        self._jdaq._configure((self.tofchannels, self.tofinterval,
+                               self.tofprogression))
         Detector.doPrepare(self)
 
     def doStart(self):
