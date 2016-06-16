@@ -211,8 +211,8 @@ class KWSDetector(Detector):
     def doSetPreset(self, **preset):
         # override time preset in realtime mode
         if self.mode in ('realtime', 'realtime_external'):
-            # set counter card preset to last RT slice plus
-            preset = {'t': self._jdaq.slices[-1] / 1000000.0 + 2.0}
+            # set counter card preset to last RT slice
+            preset = {'t': self._jdaq.slices[-1] / 1000000.0}
         Detector.doSetPreset(self, **preset)
 
     def doPrepare(self):
