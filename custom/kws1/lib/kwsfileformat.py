@@ -55,10 +55,10 @@ Cyclus_Number Reduce_Data Date_field from to
 %(Sample.samplename)s | %(Sample.comment)s
 
 (* Collimation discription *)
-Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y Polarization
+Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y Polarization Lenses
           [m]         [m]         [mm]         [mm]
-%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s
-%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s
+%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s %(lenses)12s
+%(coll_guides)13s %(coll_guides)11s %(coll_x)12s %(coll_y)12s %(polarizer)12s %(lenses)12s
 
 (* Detector Discription *)
 Li6 Detector is in normal mode. Angle: 0.00 grd
