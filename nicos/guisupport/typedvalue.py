@@ -230,6 +230,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return EditWidget(parent, typ, curvalue, fmtstr or '%.4g',
                           allow_enter=allow_enter)
     elif typ == bool:
+        if allow_buttons:
+            return ButtonWidget(parent, [True, False])
         return ComboWidget(parent, [True, False], curvalue)
     elif typ == params.vec3:
         return MultiWidget(parent, (float, float, float), curvalue, client,
