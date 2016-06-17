@@ -39,6 +39,9 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
                              type=float, default=0., unit='main',
                              settable=True, category='offsets', chatty=True,
                              ),
+        'gear': Param('Ratio between motor and encoder',
+                      type=float, default=1.0, settable=False,
+                      ),
         '_started': Param('Indicator to signal motor is started',
                           type=bool, default=False, settable=False,
                           ),
@@ -128,3 +131,14 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
 
     def doSetPosition(self, pos):
         pass
+
+    def doReadSpeed(self):
+        tmp = self.config.split()
+        # 114 stands for an axis with motor and encoder. The  7th entry
+        # is the number of motor steps and the  6th entry the number of
+        # encoder steps.  The ratio between both gives the speed of the
+        # axis. It must be multiplied by the gear.
+        if int(tmp[1]) == 114:
+            return self.gear * float(tmp[6]) / float(tmp[5])
+        else:
+            return 0.0
