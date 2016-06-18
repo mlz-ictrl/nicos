@@ -525,7 +525,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return None
         if self.target is None:
             return None
-        if self.setpoint == self.target:
+        if 'setpoint' not in self.parameters or self.setpoint == self.target:
             # ramp finished, look at history to estimate from last point
             # outside
             now = currenttime()
