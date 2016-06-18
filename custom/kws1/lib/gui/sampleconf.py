@@ -194,11 +194,11 @@ class ConfigEditDialog(QDialog):
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_readpos.ui'))
         if not dlg.exec_():
             return
-        if dlg.transBox.isChecked():
-            self._addRow('sam_rot', self._readDev('sam_rot'))
         if dlg.rotBox.isChecked():
-            self._addRow('sam_trans_1', self._readDev('sam_trans_1'))
-            self._addRow('sam_trans_2', self._readDev('sam_trans_2'))
+            self._addRow('sam_rot', self._readDev('sam_rot'))
+        if dlg.transBox.isChecked():
+            self._addRow('sam_trans_x', self._readDev('sam_trans_x'))
+            self._addRow('sam_trans_y', self._readDev('sam_trans_y'))
         if dlg.hexaBox.isChecked():
             for axis in ('dt', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz'):
                 self._addRow('hexapod_' + axis,
@@ -283,8 +283,8 @@ class KWSSamplePanel(Panel):
                     timefactor = 1.0,
                     aperture = (15.7, 18.5, 10, 10),
                     position = {
-                        'sam_trans_1': round(trans + j * row_step, 1),
-                        'sam_trans_2': round(height + i * level_step, 1),
+                        'sam_trans_x': round(trans + j * row_step, 1),
+                        'sam_trans_y': round(height + i * level_step, 1),
                     },
                 )
                 self.configs.append(config)

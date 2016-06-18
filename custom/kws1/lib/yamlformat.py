@@ -50,8 +50,8 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
         orient = meas['sample']['orientation']
         orient['rotation_angle'] = self._readdev('sam_rot')
-        orient['x_displacement'] = self._readdev('sam_trans_1')
-        orient['y_displacement'] = self._readdev('sam_trans_2')
+        orient['x_displacement'] = self._readdev('sam_trans_x')
+        orient['y_displacement'] = self._readdev('sam_trans_y')
 
         if 'hexapod' in session.loaded_setups:
             hexapod = orient['hexapod']

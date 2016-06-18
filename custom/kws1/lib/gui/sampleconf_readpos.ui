@@ -43,7 +43,7 @@
    <item>
     <widget class="QCheckBox" name="transBox">
      <property name="text">
-      <string>Sample translations (sam_trans_1, sam_trans_2)</string>
+      <string>Sample translations (sam_trans_x, sam_trans_y)</string>
      </property>
     </widget>
    </item>

@@ -63,8 +63,8 @@ _shutter = Block('Shutter', [
 
 _sample = Block('Sample', [
     BlockRow(Field(name='Rotation', dev='sam_rot'),
-             Field(name='Trans. 1', dev='sam_trans_1'),
-             Field(name='Trans. 2', dev='sam_trans_2')),
+             Field(name='Trans X', dev='sam_trans_x'),
+             Field(name='Trans Y', dev='sam_trans_y')),
     BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
 ])
 
