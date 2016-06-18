@@ -699,6 +699,8 @@ class NicosCmdClient(NicosClient):
                     self.run(arg)
                     self.put_client('Command queued.')
             else:
+                if arg.startswith(':'):
+                    self.simulating = True
                 self.run(arg)
         elif cmd in ('r', 'run', 'run!'):
             if not arg:
