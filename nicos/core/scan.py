@@ -531,7 +531,7 @@ class ContinuousScan(Scan):
                         for (detname, (vals, _)) in iteritems(read)}
                 looptime = currenttime()
                 actualpos = [0.5 * (devpos + new_devpos)]
-                session.data.beginPoint()
+                session.data.beginTemporaryPoint()
                 session.data.putValues({device.name: (None, actualpos)})
                 self.readEnvironment()
                 session.data.putResults(FINAL, diff)
