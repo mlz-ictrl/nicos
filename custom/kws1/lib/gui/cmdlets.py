@@ -132,6 +132,8 @@ class MeasureTable(Cmdlet):
                 if element.eltype == 'time':
                     total_time += element.getValue()
         self.table.resizeRowsToContents()
+        if self.rtBox.isChecked():
+            total_time = self.rt_settings['totaltime'] * len(table)
         self.totalTime.setText(formatDuration(total_time))
         self.changed()
 

@@ -513,28 +513,23 @@ class RtConfigDialog(QDialog):
         'intervalunit': 0,  # us
         'progq': 1.0,
         'trigger': 'external',
+        'totaltime': 0.,    # s
     }
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         loadUi(self, findResource('custom/kws1/lib/gui/rtconfig.ui'))
         self.progBox.setValidator(DoubleValidator(self))
-        self.chanBox.valueChanged.connect(self._recalc)
-        self.intervalBox.valueChanged.connect(self._recalc)
-        self.intervalUnitBox.currentIndexChanged.connect(self._recalc)
-        self.linBtn.toggled.connect(self._recalc)
-        self.progBtn.toggled.connect(self._recalc)
-        self.progBox.textChanged.connect(self._recalc)
+        self.chanBox.valueChanged.connect(self._update_time)
+        self.intervalBox.valueChanged.connect(self._update_time)
+        self.intervalUnitBox.currentIndexChanged.connect(self._update_time)
+        self.linBtn.toggled.connect(self._update_time)
+        self.progBtn.toggled.connect(self._update_time)
+        self.progBox.textChanged.connect(self._update_time)
 
-    def _recalc(self):
-        settings = self.getSettings()
-        q = settings['progq']
-        tottime = 0
-        interval = settings['interval'] * \
-            {0: 1e-6, 1: 1e-3, 2: 1.0}[settings['intervalunit']]
-        for i in range(settings['channels']):
-            tottime += int(interval * q**i)
-        self.totalLbl.setText('Total time: %s' % formatDuration(tottime))
+    def _update_time(self):
+        self.totalLbl.setText('Total time: %s' %
+                              formatDuration(self.getSettings()['totaltime']))
 
     def setSettings(self, settings):
         self.chanBox.setValue(settings['channels'])
@@ -549,14 +544,22 @@ class RtConfigDialog(QDialog):
             self.extBtn.setChecked(True)
         else:
             self.immBtn.setChecked(True)
-        self._recalc()
+        self._update_time()
 
     def getSettings(self):
         progq = float(self.progBox.text())
-        return {
+        settings = {
             'channels': self.chanBox.value(),
             'interval': self.intervalBox.value(),
             'intervalunit': self.intervalUnitBox.currentIndex(),
             'progq': 1.0 if self.linBtn.isChecked() else progq,
             'trigger': 'external' if self.extBtn.isChecked() else 'immediate',
         }
+        tottime = 0
+        interval = settings['interval'] * \
+            {0: 1, 1: 1e3, 2: 1e6}[settings['intervalunit']]
+        q = settings['progq']
+        for i in range(settings['channels']):
+            tottime += int(interval * q**i)
+        settings['totaltime'] = tottime / 1000000.
+        return settings
