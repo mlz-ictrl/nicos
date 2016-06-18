@@ -355,6 +355,10 @@ class Watchdog(BaseCacheClient):
             self.log.info('condition %r normal again' % entry.condition)
             self._conditions.discard(eid)
         else:
+            if eid in self._watch_grace:
+                if currenttime() <= self._watch_grace[eid][0]:
+                    # still within gracetime
+                    return
             if eid in self._conditions:
                 # warning has already been given
                 return
