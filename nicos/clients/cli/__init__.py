@@ -328,7 +328,7 @@ class NicosCmdClient(NicosClient):
         # zero-width control characters; ESC[K means "clear whole line"
         self.prompt = '\x01' + colorize(
             self.stcolmap[status],
-            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s %s \x01' %
+            '\r\x1b[K\x02# ' + (self.instrument or '') + '[%s%s]%s %s \x01' %
             (self.modemap[self.current_mode], status, pending,
              self.spy_mode and 'spy>' or '>>')) + '\x02'
         os.write(self.wakeup_pipe_w, b' ')
@@ -507,7 +507,7 @@ class NicosCmdClient(NicosClient):
                 self.put_error(data)
             # and we ignore all other signals
         except Exception as e:
-            self.put_error('In event handler: %s.' % e)
+            self.put_error('In %s event handler: %s.' % (name, e))
 
     # -- reconnect handling
 
