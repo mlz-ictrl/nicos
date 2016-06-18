@@ -146,10 +146,4 @@ def kwscount(**arguments):
         printinfo('Now counting (real-time)...')
     elif det.mode == 'realtime_external':
         printinfo('Now waiting for signal to start real-time counting...')
-    # set the parameter that will allow the watchdog to act on
-    # failure conditions
-    det.kwscounting = True
-    try:
-        count(t=meastime)
-    finally:
-        det.kwscounting = False
+    count(t=meastime)

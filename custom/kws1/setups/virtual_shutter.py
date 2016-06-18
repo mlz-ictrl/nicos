@@ -9,4 +9,8 @@ devices = dict(
                         description = 'virtual shutter',
                         states = ['open', 'closed'],
                        ),
+    sixfold_shutter = device('devices.generic.ManualSwitch',
+                        description = 'Sixfold shutter status',
+                        states = ['open', 'closed'],
+                       ),
 )

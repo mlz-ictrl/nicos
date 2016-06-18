@@ -233,12 +233,15 @@ class KWSDetector(Detector):
 
     def doStart(self):
         self._attached_shutter.maw('open')
+        self.kwscounting = True
         Detector.doStart(self)
 
     def doFinish(self):
         Detector.doFinish(self)
+        self.kwscounting = False
         self._attached_shutter.maw('closed')
 
     def doStop(self):
         Detector.doStop(self)
+        self.kwscounting = False
         self._attached_shutter.maw('closed')

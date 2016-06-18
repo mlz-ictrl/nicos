@@ -12,7 +12,23 @@ watchlist = [
          scriptaction = 'pausecount',
          gracetime = 1,
          type = 'default',
-    )
+    ),
+    dict(condition = 'det_kwscounting and det_mode != "realtime" and '
+                     'det_mode != "realtime_external" and '
+                     'shutter_value != "open"',
+         message = 'Shutter closed, count paused',
+         scriptaction = 'pausecount',
+         gracetime = 1,
+         type = 'default',
+    ),
+    dict(condition = 'det_kwscounting and det_mode != "realtime" and '
+                     'det_mode != "realtime_external" and '
+                     'sixfold_shutter_value != "open"',
+         message = 'Sixfold shutter closed, count paused',
+         scriptaction = 'pausecount',
+         gracetime = 1,
+         type = 'default',
+    ),
 ]
 
 includes = ['notifiers']

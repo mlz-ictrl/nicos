@@ -22,4 +22,9 @@ devices = dict(
                          output = 'shutter_set',
                          input = 'shutter_in',
                         ),
+    sixfold_shutter = device('devices.taco.NamedDigitalInput',
+                         description = 'Sixfold shutter status',
+                         mapping = {'closed': 0, 'open': 1},
+                         tacodevice = '//tacodb.taco.frm2/frm2/shutter/sixfold',
+                        ),
 )
