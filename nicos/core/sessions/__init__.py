@@ -296,6 +296,8 @@ class Session(object):
             if param == 'value':
                 dev._sim_value = value
                 dev._sim_min = dev._sim_max = dev._sim_old_value = None
+                if hasattr(dev, 'doUpdateValue'):
+                    umethods_to_call.append((dev.doUpdateValue, value))
             # "status" is ignored: simulated devices are always "OK"
             elif param == 'name':
                 # "name" is not necessary and leads to mixups with aliases
