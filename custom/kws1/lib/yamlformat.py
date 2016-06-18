@@ -122,7 +122,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             tof['number_of_channels'] = image.shape[2]
             tof['channel_duration'] = self._flowlist(
                 [d / 1000000. for d in detimg.slices])
-            det1['axes'] = self._flowlist(['tof', 'x', 'y'])
+            det1['axes'] = self._flowlist(['x', 'y', 'tof'])
         else:
             det1['axes'] = self._flowlist(['x', 'y'])
         det1['pixel_width'] = 5.3

@@ -174,8 +174,10 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
     def _writedet_tof(self, w, image, fp):
         detimg = session.getDevice('det_img')
         cp = session.getDevice('chopper_params')
-        w('(* Chopper freq=%f Hz, phase=%f deg *)\n' % tuple(cp.read()))
-        w('\n')
+        chop_params = cp.read()
+        if chop_params[0] != 0:  # no chopper in realtime mode
+            w('(* Chopper freq=%f Hz, phase=%f deg *)\n' % tuple(chop_params))
+            w('\n')
         nslots = image.shape[2]
         w('(* Detector Time Slices: %d slices, unit=us *)\n' % nslots)
         w(' '.join('%8d' % s for s in detimg.slices))
