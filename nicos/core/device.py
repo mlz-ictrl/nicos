@@ -209,6 +209,10 @@ class DeviceMeta(DeviceMixinMeta):
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
                     elif self._mode == SIMULATION:
+                        if wmethod and not getattr(self, '_sim_active', False):
+                            rv = wmethod(self, value)
+                            if rv is not None:
+                                value = rv
                         if umethod:
                             umethod(self, value)
                         if chatty:
