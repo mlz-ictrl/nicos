@@ -318,6 +318,14 @@ class DetsetDialog(QDialog):
         del self._rows[ix]
         self.table.removeRow(ix)
 
+    @pyqtSlot()
+    def on_clearBtn_clicked(self):
+        if self._edit:
+            self._stopEdit()
+        del self._rows[:]
+        while self.table.rowCount():
+            self.table.removeRow(0)
+
 
 class DevicesWidget(QWidget):
     remove = pyqtSignal(object)
