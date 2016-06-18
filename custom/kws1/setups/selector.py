@@ -22,7 +22,7 @@ devices = dict(
                              precision = [10.0],
                             ),
 
-    selector_speed  = device('devices.tango.WindowTimeoutAO',
+    selector_speed  = device('kws1.selector.SelectorSpeed',
                              description = 'Selector speed control',
                              tangodevice = tango_base + 'selector/speed',
                              unit = 'rpm',

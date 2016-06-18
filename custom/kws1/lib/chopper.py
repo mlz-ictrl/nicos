@@ -25,7 +25,8 @@
 """Class for KWS chopper control."""
 
 from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
-    listof, oneof, intrange, floatrange, PositionError, MASTER
+    listof, oneof, intrange, floatrange, PositionError, MASTER, SIMULATION
+from nicos.devices.tango import WindowTimeoutAO
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
 from nicos.kws1.selector import SelectorSwitcher
@@ -34,8 +35,22 @@ from nicos.kws1.detector import DetectorPosSwitcher
 # neutron speed at 1A, in m/ms
 SPEED = 3.956
 
-FREQ_PRECISION = 1.0
+FREQ_PRECISION = 0.1
 PHASE_PRECISION = 1.0
+
+
+class ChopperFrequency(WindowTimeoutAO):
+    """Chopper frequency setting with timing."""
+
+    def doTime(self, old, new):
+        if old is None or new is None:
+            return 0.
+        if old == new:
+            return 20.                   # phase adjustment
+        total = 30.                      # phase adjustment
+        total += abs(old - new) / 0.25   # frequency speedup
+        total += 60. if new == 0 else 0  # complete stop adds ~1min
+        return total
 
 
 class ChopperParams(Moveable):
@@ -71,8 +86,13 @@ class ChopperParams(Moveable):
         if pos[0] == 0:
             for dev in (self._attached_freq1, self._attached_phase1,
                         self._attached_phase2):
-                dev.resetTimeout(0)
-                dev._setROParam('target', 0)
+                if self._mode == SIMULATION:
+                    dev.start(0)
+                else:
+                    # we don't want to actually move the Tango device to zero,
+                    # this is already accomplished by switching the drives off
+                    dev.resetTimeout(0)
+                    dev._setROParam('target', 0)
             self._attached_motor1.start(0)
             self._attached_motor2.start(0)
             return
@@ -148,6 +168,8 @@ class Chopper(Moveable):
     settings for the detector.  Presets depend on the target wavelength as well
     as the detector position.
     """
+
+    hardware_access = False
 
     attached_devices = {
         'selector':    Attach('Selector preset switcher', SelectorSwitcher),

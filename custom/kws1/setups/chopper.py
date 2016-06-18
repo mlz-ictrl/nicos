@@ -37,7 +37,7 @@ devices = dict(
                              timeout = 1800.0,
                              lowlevel = True,
                             ),
-    chopper1_freq   = device('devices.tango.WindowTimeoutAO',
+    chopper1_freq   = device('kws1.chopper.ChopperFrequency',
                              description = 'Frequency of the first chopper',
                              tangodevice = tango_base + 'chopper/freq1',
                              unit = 'Hz',

@@ -27,6 +27,16 @@
 from nicos.core import Moveable, Attach, Param, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.kws1.detector import DetectorPosSwitcher
+from nicos.devices.tango import WindowTimeoutAO
+
+
+class SelectorSpeed(WindowTimeoutAO):
+    """
+    Control selector speed.
+    """
+
+    def doTime(self, old, new):
+        return abs(new - old) / 110.0
 
 
 class SelectorLambda(Moveable):
@@ -79,6 +89,9 @@ class SelectorSwitcher(MultiSwitcher):
     attached_devices = {
         'det_pos':  Attach('Detector preset device', DetectorPosSwitcher),
     }
+
+    def doUpdateValue(self, position):
+        self._attached_det_pos._updateMapping(position)
 
     def _getWaiters(self):
         return self._attached_moveables
