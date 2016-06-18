@@ -25,7 +25,7 @@
 """Commandlets for KWS(-1)."""
 
 from PyQt4.QtCore import pyqtSlot
-from PyQt4.QtGui import QDialog, QTableWidgetItem
+from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.utils import findResource, formatDuration
@@ -52,6 +52,10 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selSamples_clicked(self):
+        if not self.client.connected:
+            QMessageBox.warning(self, 'Error', 'You must be connected to '
+                                'a daemon to be able to select samples.')
+            return
         dlg = SampleDialog(self, self.measdef, self.client)
         if dlg.exec_() != QDialog.Accepted:
             return
@@ -60,6 +64,10 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selDetsets_clicked(self):
+        if not self.client.connected:
+            QMessageBox.warning(self, 'Error', 'You must be connected to '
+                                'a daemon to be able to select settings.')
+            return
         dlg = DetsetDialog(self, self.measdef, self.client)
         if dlg.exec_() != QDialog.Accepted:
             return
@@ -68,6 +76,10 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selDevices_clicked(self):
+        if not self.client.connected:
+            QMessageBox.warning(self, 'Error', 'You must be connected to '
+                                'a daemon to be able to select devices.')
+            return
         dlg = DevicesDialog(self, self.measdef, self.client)
         if dlg.exec_() != QDialog.Accepted:
             return
