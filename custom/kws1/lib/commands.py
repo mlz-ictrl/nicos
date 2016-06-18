@@ -127,9 +127,8 @@ def kwscount(**arguments):
     # start devices
     for dev, value in devs:
         dev = session.getDevice(dev, Moveable)
-        if dev.read() != value:
-            move(dev, value)
-            waiters.append(dev)
+        move(dev, value)
+        waiters.append(dev)
     # select and wait for sample here
     if sample is not None:
         session.experiment.sample.select(sample)

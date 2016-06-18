@@ -84,6 +84,8 @@ class ChopperParams(Moveable):
 
     def doStart(self, pos):
         if pos[0] == 0:
+            if self._attached_motor1.read(0) == self._attached_motor2.read(0) == 0:
+                return
             for dev in (self._attached_freq1, self._attached_phase1,
                         self._attached_phase2):
                 if self._mode == SIMULATION:
