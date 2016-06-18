@@ -659,6 +659,17 @@ class NicosCmdClient(NicosClient):
         finally:
             self.in_question = False
 
+    def plot_data(self, xterm_mode):
+        try:
+            xs, ys, _, names = self.eval(
+                '__import__("nicos").commands.analyze._getData()[:4]')
+            plotlines = txtplot(xs, ys, names[0], names[1], xterm_mode)
+        except Exception as err:
+            self.put_error('Could not plot: %s.' % str(err))
+        else:
+            for line in plotlines:
+                self.put(line)
+
     def stop_query(self, how):
         """Called on Ctrl-C (if running) or when "/stop" is entered."""
         self.put_client('== %s ==' % how)
@@ -859,16 +870,7 @@ class NicosCmdClient(NicosClient):
             self.spy_mode = not self.spy_mode
             self.set_status(self.status)
         elif cmd == 'plot':
-            try:
-                xs, ys, _, names = self.eval(
-                    '__import__("nicos").commands.analyze._getData()[:4]')
-                plotlines = txtplot(xs, ys, names[0], names[1],
-                                    xterm_mode=(arg == 'x'))
-            except Exception as err:
-                self.put_error('Could not plot: %s.' % str(err))
-            else:
-                for line in plotlines:
-                    self.put(line)
+            self.plot_data(xterm_mode=(arg == 'x'))
         else:
             self.put_error('Unknown command %r.' % cmd)
 
