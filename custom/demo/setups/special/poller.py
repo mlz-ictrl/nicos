@@ -8,7 +8,7 @@ sysconfig = dict(
 devices = dict(
     Poller = device('services.poller.Poller',
                     alwayspoll = [],
-                    neverpoll = ['detector', 'image', 'events', 'adet', ],
-                    blacklist = [],
+                    neverpoll = ['detector'],
+                    blacklist = ['adet', 'image', 'events', 'det'],
                    ),
 )
