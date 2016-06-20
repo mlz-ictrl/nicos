@@ -836,7 +836,7 @@ def SetDataReceivers(*emails):
         propinfo['user_email'] = list(emails)
         exp._setROParam('propinfo', propinfo)
         if emails:
-            printinfo('data retrieval email will be sent to '
+            printinfo('data retrieval email will be sent to ' +
                       ', '.join(emails))
         else:
             printinfo('no data retrieval emails will be sent')
