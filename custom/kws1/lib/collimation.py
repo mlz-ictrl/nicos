@@ -26,7 +26,7 @@
 
 from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
     status, intrange, dictof, listof, tupleof, oneof, HasLimits, Param, \
-    PositionError, ConfigurationError
+    ConfigurationError
 from nicos.devices.generic.slit import TwoAxisSlit
 from nicos.devices.tango import Motor as TangoMotor
 
@@ -144,8 +144,7 @@ class Collimation(Moveable):
 
         guidelen = self._attached_guides.read(maxage)
         if guidelen not in self.slitpos:
-            raise PositionError(self, 'collimation length %d m not at slit '
-                                'position' % guidelen)
+            return 'unknown'
         slitvals = [slit.read(maxage) for slit in self._attached_slits]
         for (posname, (pos_guidelen, pos_w, pos_h)) in self.mapping.items():
             if pos_guidelen != guidelen:
@@ -160,9 +159,7 @@ class Collimation(Moveable):
                         matches(h, slit.openpos[1])
             if ok:
                 return posname
-
-        raise PositionError(self, 'current slit position is not a preset for '
-                            'collimation length %d m' % guidelen)
+        return 'unknown'
 
     def doStart(self, target):
         pos_guidelen, pos_w, pos_h = self.mapping[target]
