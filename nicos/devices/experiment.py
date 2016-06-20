@@ -623,6 +623,8 @@ class Experiment(Device):
                 continue
             filelist = os.listdir(tmpldir)
             for fn in filelist:
+                if fn == 'README':
+                    continue
                 if self.mailtemplate and fn.startswith(self.mailtemplate):
                     continue
                 if self.reporttemplate and fn.startswith(self.reporttemplate):
