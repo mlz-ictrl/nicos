@@ -24,7 +24,7 @@
 
 """Commandlets for KWS(-1)."""
 
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, SIGNAL
 from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
@@ -49,6 +49,7 @@ class MeasureTable(Cmdlet):
         for loop in LOOPS:
             self.outerLoop.addItem(loop)
         self.outerLoop.setCurrentIndex(0)
+        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
 
     @pyqtSlot()
     def on_selSamples_clicked(self):
@@ -106,6 +107,10 @@ class MeasureTable(Cmdlet):
                     self.updateTable()
                 break
         self.innerLoop.setCurrentIndex(0)
+
+    def on_client_experiment(self, data):
+        # reset everything
+        self.on_rtBox_toggled(False)
 
     def on_rtBox_toggled(self, state):
         self.rtConfBtn.setEnabled(state)
