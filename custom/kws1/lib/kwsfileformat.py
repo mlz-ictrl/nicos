@@ -41,7 +41,7 @@ KWS1_MEASUREMENT KFA-IFF spectrum_data file version V-5.00
 
 %(filename)s
 
-Standard_Sample measurement started by Mr(s). %(Exp.users)s at %(startD)s %(startT)s
+Standard_Sample measurement started by Mr(s). kws1 at %(startdate)s
 
 (* Statistics *)
 Measurement produced 0 Informations 0 Warnings 0 Errors 0 Fatals
@@ -64,21 +64,22 @@ Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y Polarization Lenses
 Li6 Detector is in normal mode. Angle: 0.00 grd
 Offset Z_Position X_Position Y_Position
    [m]        [m]       [mm]       [mm]
-%(Sample.detoffset)6s %(det_z)10s %(det_x)10s %(det_y)10s
-%(Sample.detoffset)6s %(det_z)10s %(det_x)10s %(det_y)10s
+%(detoffset_m)6s %(det_z)10s %(det_x)10s %(det_y)10s
+%(detoffset_m)6s %(det_z)10s %(det_x)10s %(det_y)10s
 
 (* Sample discription *)
 Sample_Nr Sample_Pos Thickness Beamwindow_X Beamwindow_Y Time_Factor
                 [mm]      [mm]         [mm]         [mm]           *
-%(Sample.samplenumber)9s %(sam_rot)10s %(Sample.thickness)9s %(ap_sam.width())12s \
+%(Sample.samplenumber)9s %(sam_trans_x)10s %(Sample.thickness)9s %(ap_sam.width())12s \
 %(ap_sam.height())12s %(Sample.timefactor)11s
+%(Sample.samplenumber)9s %(sam_trans_y)10s         0 %(ap_sam.centerx())12s \
+%(ap_sam.centery())12s
 
 (* Temperature discription *)
 %(sample_env_0)s
 %(sample_env_1)s
 %(sample_env_2)s
 %(sample_env_3)s
-%(sample_env_4)s
 
 (* Data_field and Time per Data_Field *)
 Data_Field     Time Time_Factor  Repetition
@@ -88,8 +89,8 @@ Data_Field     Time Time_Factor  Repetition
 Selector Monitor_1 Monitor_2 Monitor_3
 %(selctr)8s %(mon1)9s %(mon2)9s %(mon3)9s
 
-(* Measurement stop state *)
-measurement STOPPED by USER command
+%(hexapod_0)s
+%(hexapod_1)s
 
 (* Calculate measurement time = Time per Data_field*Time_Factor*Repetition *)
 %(exptime)8s
@@ -123,21 +124,35 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
                 val = str(val)
             sample_env[i] = '%s is Active %s %s' % (info.name, val, info.unit)
 
+        if 'hexapod' in session.loaded_setups:
+            hexapod_0 = '(* Hexapod position (tx, ty, tz, rx, ry, rz, dt) *)'
+            hexapod_1 = ''
+            for axis in ('tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'dt'):
+                try:
+                    hexapod_1 += ' %9.3f' % session.getDevice('hexapod_' + axis).read()
+                except Exception:
+                    hexapod_1 += ' unknown'
+        else:
+            hexapod_0 = '(* Measurement stop state *)'
+            hexapod_1 = 'measurement STOPPED by USER command'
+
         # write header
         data = DeviceValueDict()
         data.update(
-            startD=strftime('%m/%d/%Y', localtime(self.dataset.started)),
-            startT=strftime('%r', localtime(self.dataset.started)),
+            startdate=strftime('%d-%b-%Y %H:%M:%S.00',
+                               localtime(self.dataset.started)),
             filename = path.basename(fp.filepath),
             coll_x = '%d' % session.getDevice(_collslit).width.read(),
             coll_y = '%d' % session.getDevice(_collslit).height.read(),
             exptime = '%d min' % (_exposuretime / 60.),
             realtime = '%d sec' % _exposuretime,
+            detoffset_m = session.experiment.sample.detoffset / 1000.,
             sample_env_0 = sample_env[0],
             sample_env_1 = sample_env[1],
             sample_env_2 = sample_env[2],
             sample_env_3 = sample_env[3],
-            sample_env_4 = sample_env[4],
+            hexapod_0 = hexapod_0,
+            hexapod_1 = hexapod_1,
         )
         w(KWSHEADER % data)
 
