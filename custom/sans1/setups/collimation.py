@@ -55,7 +55,8 @@ devices = dict(
                         description = 'Attenuator',
                         #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
                         #mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
-                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new att_m position!!!
+                        #mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new att_m position!!!
+                        mapping = dict(open=-4.3, x1000=92.8, x100=187.8, x10=282.8, dia10=377.8), #new att_m position!!
                         moveable = 'att_m',
                         blockingmove = False,
                         pollinterval = 15,
