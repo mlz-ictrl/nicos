@@ -141,7 +141,6 @@ _sans1det = Column(
                 ),
         BlockRow(
                  Field(name='events', dev='det1_ev', width=13),
-                 Field(name='TISANE', dev='TISANE_det_pulses', width=13),
                 ),
         BlockRow(
                  Field(name='mon 1', dev='det1_mon1', width=13),
@@ -438,6 +437,62 @@ _julabo = Column(
     ),
 )
 
+_tisane_fg1 = Column(
+    Block('TISANE Frequency Generator 1 - Sample', [
+        BlockRow(
+                Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
+                ),
+        BlockRow(
+                Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
+                Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+                ),
+        BlockRow(
+                Field(name='Shape', key='tisane_fg1/shape', width=12),
+                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+                ),
+        ],
+        setups='tisane',
+    ),
+)
+
+_tisane_fg2 = Column(
+    Block('TISANE Frequency Generator 2 - Detector', [
+        BlockRow(
+                Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
+                ),
+        BlockRow(
+                Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
+                Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V', width=12),
+                ),
+        BlockRow(
+                Field(name='Shape', key='tisane_fg2/shape', width=12),
+                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
+                ),
+        ],
+        setups='tisane',
+    ),
+)
+
+_tisane_fc = Column(
+    Block('TISANE Frequency Counter', [
+        BlockRow(
+                Field(name='Frequency', dev='tisane_fc', format='%.2e', width=12),
+                ),
+        ],
+        setups='tisane',
+    ),
+)
+
+_tisane_counts = Column(
+    Block('TISANE Counts', [
+        BlockRow(
+                Field(name='Counts', dev='TISANE_det_pulses', width=12),
+                ),
+        ],
+        setups='tisane',
+    ),
+)
+
 _live = Column(
     Block('Live image of Detector', [
         BlockRow(
@@ -468,7 +523,8 @@ devices = dict(
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
-                                     _newports, _julabo),
+                                     _newports, _julabo, _tisane_counts, _tisane_fc,
+                                     _tisane_fg1, _tisane_fg2),
                                  Row(_live),
                                ],
                     ),

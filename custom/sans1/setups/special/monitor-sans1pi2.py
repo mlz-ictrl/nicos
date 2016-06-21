@@ -435,6 +435,54 @@ _julabo_plot = Block('Julabo plot', [
     setups='julabo',
 )
 
+_tisane_fg1 = Block('TISANE Frequency Generator 1 - Sample', [
+    BlockRow(
+             Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
+             ),
+    BlockRow(
+             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
+             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+             ),
+    BlockRow(
+             Field(name='Shape', key='tisane_fg1/shape', width=12),
+             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+             ),
+    ],
+    setups='tisane',
+)
+
+_tisane_fg2 = Block('TISANE Frequency Generator 2 - Detector', [
+    BlockRow(
+             Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
+             ),
+    BlockRow(
+             Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
+             Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V', width=12),
+             ),
+    BlockRow(
+             Field(name='Shape', key='tisane_fg2/shape', width=12),
+             Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
+             ),
+    ],
+    setups='tisane',
+)
+
+_tisane_fc = Block('TISANE Frequency Counter - Chopper', [
+    BlockRow(
+             Field(name='Frequency', dev='tisane_fc', format='%.2e', width=12),
+             ),
+    ],
+    setups='tisane',
+)
+
+_tisane_counts = Block('TISANE Counts', [
+    BlockRow(
+             Field(name='Counts', dev='TISANE_det_pulses', width=12),
+             ),
+    ],
+    setups='tisane',
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      description='Status monitor',
@@ -449,9 +497,17 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _sc2, _ccmsanssc, _st2, _st1, *newports),
-                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet, _sans1julabo),
-                                    Column(_htf01_plot, _htf03_plot, _spinflipper, _julabo_plot) + Column(*T_Ts_plot),
+                                    Column(_sc1, _sc2, _ccmsanssc, _st2, _st1,
+                                           *newports),
+                                    Column(_tisane_counts, _tisane_fc,
+                                           _tisane_fg1, _tisane_fg2,
+                                           _htf01, _htf03,
+                                           _ccmsans, _ccmsans_temperature,
+                                           _miramagnet, _amagnet,
+                                           _sans1julabo),
+                                    Column(_htf01_plot, _htf03_plot,
+                                           _spinflipper, _julabo_plot) + \
+                                           Column(*T_Ts_plot),
                                     Column(*ccrs) + Column(*cryos) + Column(_birmag),
                                    ),
                                 Row(
