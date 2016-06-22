@@ -59,7 +59,10 @@ def get_nicos_version(abbrev=4):
     # if we have a git version, it is authoritative
     if git_version:
         if git_version != release_version:
-            write_release_version(git_version)
+            try:
+                write_release_version(git_version)
+            except Exception:
+                pass
         return git_version
     elif release_version:
         return release_version
