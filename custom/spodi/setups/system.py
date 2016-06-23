@@ -49,7 +49,7 @@ group = 'lowlevel'
 #       'devices.notifiers.Notifier' or a subclass.
 
 sysconfig = dict(
-    cache = 'spodictrl-new.spodi.frm2',
+    cache = 'spodictrl.spodi.frm2',
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],

@@ -38,7 +38,7 @@ devices = dict(
                       # use only 'localhost' if the cache is really running on
                       # the same machine, otherwise use the official computer
                       # name
-                      cache = 'spodictrl-new.spodi.frm2',
+                      cache = 'spodictrl.spodi.frm2',
                       notifiers = notifiers,
                       mailreceiverkey = 'email/receivers',
                       watch = watchlist,
