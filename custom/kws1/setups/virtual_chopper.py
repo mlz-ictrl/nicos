@@ -16,8 +16,6 @@ devices = dict(
 
     chopper_params  = device('kws1.chopper.ChopperParams',
                              description = 'Chopper frequency and opening',
-                             motor1 = 'chopper1_motor',
-                             motor2 = 'chopper2_motor',
                              freq1 = 'chopper1_freq',
                              freq2 = 'chopper2_freq',
                              phase1 = 'chopper1_phase',
@@ -55,18 +53,6 @@ devices = dict(
                              abslimits = (0, 100),
                              precision = 0.1,
                              lowlevel = True,
-                            ),
-    chopper1_motor  = device('devices.generic.VirtualMotor',
-                             description = 'Motor switch of the first chopper',
-                             lowlevel = True,
-                             abslimits = (0, 1),
-                             unit = '',
-                            ),
-    chopper2_motor  = device('devices.generic.VirtualMotor',
-                             description = 'Motor switch of the second chopper',
-                             lowlevel = True,
-                             abslimits = (0, 1),
-                             unit = '',
                             ),
 )
 

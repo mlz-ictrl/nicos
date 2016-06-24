@@ -25,7 +25,7 @@
 """Class for KWS chopper control."""
 
 from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
-    listof, oneof, intrange, floatrange, PositionError, MASTER, SIMULATION
+    listof, oneof, intrange, floatrange, PositionError, MASTER
 from nicos.devices.tango import WindowTimeoutAO
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
@@ -61,8 +61,6 @@ class ChopperParams(Moveable):
     hardware_access = False
 
     attached_devices = {
-        'motor1': Attach('The motor switch of the first chopper', Moveable),
-        'motor2': Attach('The motor switch of the second chopper', Moveable),
         'freq1':  Attach('The frequency of the first chopper', Moveable),
         'freq2':  Attach('The frequency of the second chopper', Moveable),
         'phase1': Attach('The phase of the first chopper', Moveable),
@@ -84,40 +82,30 @@ class ChopperParams(Moveable):
 
     def doStart(self, pos):
         if pos[0] == 0:
-            if self._attached_motor1.read(0) == self._attached_motor2.read(0) == 0:
+            if self._attached_freq1.read(0) == 0:
                 return
-            for dev in (self._attached_freq1, self._attached_phase1,
-                        self._attached_phase2):
-                if self._mode == SIMULATION:
-                    dev.start(0)
-                else:
-                    # we don't want to actually move the Tango device to zero,
-                    # this is already accomplished by switching the drives off
-                    dev.resetTimeout(0)
-                    dev._setROParam('target', 0)
-            self._attached_motor1.start(0)
-            self._attached_motor2.start(0)
+            for dev in (self._attached_phase1, self._attached_phase2,
+                        self._attached_freq1, self._attached_freq2):
+                dev.start(0)
             return
         (freq, opening) = pos
-        self._attached_freq1.start(freq)  # second chopper will set the same
+        self._attached_freq1.start(freq)
+        self._attached_freq2.start(freq)
         # calculate phases of the two choppers (they should be around 180deg)
         p0 = 90.0 - opening  # p0: phase difference for given opening angle
         p1 = 180.0 - p0/2.0
         p2 = 180.0 + p0/2.0
         self._attached_phase1.start(p1)
         self._attached_phase2.start(p2)
-        if self._attached_motor1.read(0) + self._attached_motor2.read(0) != 2:
-            self._attached_motor1.start(1)
-            self._attached_motor2.start(1)
 
     # doStatus provided by adevs is enough
 
     def doRead(self, maxage=0):
-        if self._attached_motor1.read(maxage) == 0:
-            return (0.0, 0.0)
         freq = self._attached_freq1.read(maxage)
         p1 = self._attached_phase1.read(maxage)
         p2 = self._attached_phase2.read(maxage)
+        if freq == p1 == p2 == 0:
+            return (0.0, 0.0)
         opening = 90.0 - (p2 - p1)
         return (freq, opening)
 
