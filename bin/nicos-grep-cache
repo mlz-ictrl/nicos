@@ -96,13 +96,13 @@ Hint: to select everything for one argument, use . as argument.''')
     parser.add_argument('-b', '--table', dest='table', action='store_true',
                         help='output timestamp and value suitable for reading'
                         'in with another program')
-    parser.add_argument('device', nargs=1,
+    parser.add_argument('device',
                         help='regular expression matched against the NICOS'
                         ' device names')
-    parser.add_argument('day', nargs=1,
+    parser.add_argument('day',
                         help='is matched against the date of the cache file'
                         ' in format YYYY-MM-DD')
-    parser.add_argument('searchterm', nargs=1,
+    parser.add_argument('searchterm',
                         help='is matched against entries in the cache file')
 
     opts = parser.parse_args()
