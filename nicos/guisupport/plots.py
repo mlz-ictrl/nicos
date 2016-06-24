@@ -99,6 +99,7 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.keyindices = {}
         self.plotcurves = {}
         self.series = {}
+        self.legendobj = None
 
         QwtPlot.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -123,12 +124,6 @@ class TrendPlot(QwtPlot, NicosWidget):
         grid = QwtPlotGrid()
         grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
         grid.attach(self)
-        if self.props['legend']:
-            self.legendobj = QwtLegend(self)
-            self.legendobj.setMidLineWidth(100)
-            self.insertLegend(self.legendobj, QwtPlot.TopLegend)
-        else:
-            self.legendobj = None
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
         self.zoomer.initMousePattern(2)  # don't bind middle button
@@ -180,6 +175,13 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             self.setMinimumSize(
                 QSize(self._scale * (self.props['width'] + .5),
                       self._scale * (self.props['height'] + .5)))
+        elif pname == 'legend':
+            if value:
+                self.legendobj = QwtLegend(self)
+                self.legendobj.setMidLineWidth(100)
+            else:
+                self.legendobj = None
+            self.insertLegend(self.legendobj, QwtPlot.TopLegend)
         NicosWidget.propertyUpdated(self, pname, value)
 
     def setFont(self, font):
