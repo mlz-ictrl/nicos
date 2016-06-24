@@ -161,7 +161,7 @@ _measblock = Block('Measurement', [
     BlockRow(Field(key='det/timechannels', name='Time channels'),),
     BlockRow(Field(name='Time', dev='timer', format='%.1f'),
              Field(name='Monitor', key='det/rates', item=[1, 1], format='%.1f'),
-             Field(name='Counts', key='det/rates', item=[0, 1], format='%.1f'),
+             Field(name='Counts', key='det/rates', item=[1, 0], format='%.1f'),
             ),
     ],
 )
