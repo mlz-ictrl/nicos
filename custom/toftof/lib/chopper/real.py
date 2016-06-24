@@ -110,6 +110,9 @@ class Controller(TacoDevice, BaseChopperController):
         while self._read(DES_CMD) != C_READY:
             sleep(0.04)
 
+    def doRead(self, maxage=0):
+        return BaseChopperController.doRead(self, maxage)
+
     def doInit(self, mode):
         phases = [0, 0]
         try:

@@ -64,6 +64,9 @@ class BaseChopperController(HasTimeout, Readable):
         'timeout': Override(default=90),
     }
 
+    def _readspeeds(self):
+        return [0] * 8
+
     def _getparams(self):
         return (self.wavelength, self.speed, self.ratio,
                 self.crc, self.slittype)
