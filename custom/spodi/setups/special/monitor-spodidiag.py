@@ -23,6 +23,8 @@ _ngpressblock = Block('Neutron guide pressure', [
                  devices=['p1_nguide', 'p2_nguide', 'p3_nguide'],
                  names=['Pressure 1', 'Pressure 2', 'Pressure 3'],
                  legend=True,
+                 plotwindow=12*3600,
+                 height=50,
                  width=50),
     ),
     ])
@@ -38,6 +40,8 @@ _ngo2block = Block('Neutron guide oxygen', [
                  devices=['o2_nguide', 'o2part_nguide'],
                  names=['O2', 'O2 part pressure'],
                  legend=True,
+                 plotwindow=12*3600,
+                 height=50,
                  width=50),
     ),
     ])
@@ -52,6 +56,8 @@ _ngtempblock = Block('Neutron guide', [
                  devices=['T_nguide'],
                  names=['Temperature'],
                  legend=True,
+                 plotwindow=12*3600,
+                 height=50,
                  width=50),
     ),
     ])
