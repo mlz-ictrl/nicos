@@ -1,0 +1,15 @@
+Dear user(s),
+
+please find attached {{proposal}}.zip, a compressed file containing
+the data and script files from your recent experiment {{proposal}}
+(from {{from_date}} to {{to_date}}) on KWS-1.
+
+Please let us know about the quality of the data and your satisfaction
+with our support. Do not forget to submit an experimental report,
+especially if you will ask for further beam time.
+
+If you have further questions concerning this experiment, please always
+include the proposalnumber ({{proposal}}) in your communication.
+
+Regards,
+  The KWS-1 Team

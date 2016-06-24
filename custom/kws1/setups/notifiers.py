@@ -5,7 +5,8 @@ group = 'lowlevel'
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'kws1@frm2.tum.de',
-                      copies = [('g.brandl@fz-juelich.de', 'all'),   # for now
+                      copies = [('g.brandl@fz-juelich.de', 'all'),
+                                ('a.feoktystov@fz-juelich.de', 'all'),
                                ],
                       subject = '[KWS-1]',
                       mailserver = 'mailhost.frm2.tum.de',

@@ -47,7 +47,7 @@ Standard_Sample measurement started by Mr(s). kws1 at %(startdate)s
 Measurement produced 0 Informations 0 Warnings 0 Errors 0 Fatals
 
 Cyclus_Number Reduce_Data Date_field from to
-%(Exp.proposal)13s          NO               0  0
+%(counter)13s          NO               0  0
 
 (* Comment *)
 %(Exp.localcontact)s | %(Exp.users)s
@@ -139,8 +139,9 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         # write header
         data = DeviceValueDict()
         data.update(
-            startdate=strftime('%d-%b-%Y %H:%M:%S.00',
-                               localtime(self.dataset.started)),
+            startdate = strftime('%d-%b-%Y %H:%M:%S.00',
+                                 localtime(self.dataset.started)),
+            counter = self.dataset.counter,
             filename = path.basename(fp.filepath),
             coll_x = '%d' % session.getDevice(_collslit).width.read(),
             coll_y = '%d' % session.getDevice(_collslit).height.read(),

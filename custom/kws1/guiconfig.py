@@ -44,6 +44,7 @@ tools = [
     cmdtool('Detector live view', 'KWSlive'),
     cmdtool('Server control (Marche)', 'marche-gui'),
     tool('Hexapod manual control', 'nicos.kws1.gui.tools.hexapod.HexapodTool'),
+    cmdtool('NICOS status', 'nicos-monitor'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
     tool('Calculator', 'calculator.CalculatorTool'),

@@ -281,7 +281,7 @@ class KWSSamplePanel(Panel):
                     detoffset = -335.0,
                     thickness = 1.0,
                     timefactor = 1.0,
-                    aperture = (15.7, 18.5, 10, 10),
+                    aperture = (0, 0, 10, 10),
                     position = {
                         'sam_trans_x': round(trans + j * row_step, 1),
                         'sam_trans_y': round(height + i * level_step, 1),

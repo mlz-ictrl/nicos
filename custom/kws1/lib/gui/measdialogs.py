@@ -466,6 +466,7 @@ DEV_BLACKLIST = set((
     'selector_speed',
     'selector_lambda',
     'shutter',
+    'sixfold_shutter',
 ))
 
 
