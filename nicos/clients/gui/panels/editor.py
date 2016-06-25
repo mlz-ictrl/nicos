@@ -608,8 +608,12 @@ class EditorPanel(Panel):
         self.waiting_sim_result = False
 
         # show timing
-        self.simTotalTime.setText(formatDuration(timing, precise=False))
-        self.simFinished.setText(formatEndtime(timing))
+        if timing < 0:
+            self.simTotalTime.setText('Error occurred')
+            self.simFinished.setText('See messages')
+        else:
+            self.simTotalTime.setText(formatDuration(timing, precise=False))
+            self.simFinished.setText(formatEndtime(timing))
 
         # device ranges
         for devname, (_dval, dmin, dmax, aliases) in iteritems(devinfo):

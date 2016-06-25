@@ -82,8 +82,8 @@ class SimLogSender(logging.Handler):
             msg[3] += '\n'
         self.socket.send(serialize(msg))
 
-    def finish(self):
-        stoptime = self.session.clock.time
+    def finish(self, exception=False):
+        stoptime = -1 if exception else self.session.clock.time
         devinfo = {}
         for devname in self.devices:
             dev = self.session.devices.get(devname)
@@ -159,14 +159,16 @@ class SimulationSession(Session):
         # Set up log handlers to output everything.
         session.log_sender.begin_exec()
         # Execute the script code.
+        exception = False
         try:
             exec_(code, session.namespace)
         except:  # pylint: disable=W0702
             session.log.exception('Exception in dry run')
+            exception = True
         else:
             session.log.info('Dry run finished')
         finally:
-            session.log_sender.finish()
+            session.log_sender.finish(exception)
 
         # Shut down.
         session.shutdown()

@@ -465,7 +465,11 @@ class NicosCmdClient(NicosClient):
                 self.showhelp(data[1])
             elif name == 'simresult':
                 if self.simulating:
+                    self.simulating = False
                     timing, devinfo = data  # pylint: disable=W0633
+                    if timing < 0:
+                        self.put_client('Dry run resulted in an error.')
+                        return
                     self.put_client('Simulated minimum runtime: %s '
                                     '(finishes approximately %s). Device ranges:' %
                                     (formatDuration(timing, precise=False),
@@ -478,7 +482,6 @@ class NicosCmdClient(NicosClient):
                             aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
                             self.put('#   %-*s: %10s  <->  %-10s %s' %
                                      (dnwidth, devname, dmin, dmax, aliascol))
-                self.simulating = False
             elif name == 'mode':
                 self.current_mode = data
                 self.set_status(self.status)

@@ -313,6 +313,9 @@ for this event should be serialized.
    :arg: The result of the dry run as a tuple of (estimated minimum time in
        seconds, dictionary of devices and their moving range).
 
+       If an exception occurred during simulation, the minimum time returned
+       is -1.
+
 .. daemonevt:: showhelp
 
    The user requested help to be shown.
