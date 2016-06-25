@@ -58,7 +58,7 @@ class KWSSample(Sample):
     def _applyKwsParams(self, parameters):
         # these keys must be present when dealing with KWS1 samples, but are
         # *not* present in the dummy sample created on experiment start
-        self.aperture = parameters.get('aperture', (0.0, 0.0, 20.0, 20.0))
+        self.aperture = parameters.get('aperture', (0, 0, 0, 0))
         self.position = parameters.get('position', {})
         self.timefactor = parameters.get('timefactor', 1.0)
         self.thickness = parameters.get('thickness', 0.0)
@@ -75,10 +75,12 @@ class KWSSample(Sample):
 
         self.log.info('moving to position of sample %s (%s)...' %
                       (number, parameters['name']))
-        ap = session.getDevice('ap_sam')
-        ap.opmode = 'offcentered'  # to be sure
-        ap.move(self.aperture)
-        waitdevs = [ap]
+        waitdevs = []
+        if self.aperture != (0, 0, 0, 0):
+            ap = session.getDevice('ap_sam')
+            ap.opmode = 'offcentered'  # to be sure
+            ap.move(self.aperture)
+            waitdevs.append(ap)
         for devname, devpos in self.position.iteritems():
             dev = session.getDevice(devname)
             dev.move(devpos)
