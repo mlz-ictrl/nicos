@@ -555,6 +555,17 @@ class DetEnvPanel(Panel, DlgUtils):
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
 
+    @qtsig('')
+    def on_envHelpBtn_clicked(self):
+        self.showInfo('''\
+The devices selected as "environment" get special treatment in some places, \
+depending on the instrument.
+
+For instruments with scans, they will get their own column in scan tables.
+
+For other instruments, they will get written to the data file where \
+sample environment is placed.''')
+
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
         if role == QDialogButtonBox.ApplyRole:
