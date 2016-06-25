@@ -529,7 +529,9 @@ class DetEnvPanel(Panel, DlgUtils):
             Qt.ItemIsEnabled
 
         # fill detectors
-        detectors = self.client.getDeviceList('nicos.core.device.Measurable')
+        detectors = self.client.getDeviceList(
+            'nicos.core.device.Measurable',
+            exclude_class='nicos.devices.generic.detector.PassiveChannel')
         self._orig_detlist = self.client.eval('session.experiment.detlist', [])
         for detname in detectors:
             item = QListWidgetItem(detname, self.detectors)
