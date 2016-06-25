@@ -24,7 +24,7 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtGui import QInputDialog
+from PyQt4.QtGui import QDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
 
 from nicos.clients.gui.panels import Panel, PanelDialog
@@ -87,9 +87,17 @@ class ExpInfoPanel(Panel):
 
     @qtsig('')
     def on_remarkBtn_clicked(self):
-        remark, ok = QInputDialog.getText(self, 'New remark',
-            'Please enter the remark.  The remark will be added to the logbook '
-            'as a heading and will also appear in the data files.')
-        if not ok or not remark:
+        dlg = QDialog(self)
+        loadUi(dlg, 'expinfo_remark.ui', 'panels')
+
+        def callback():
+            self.showInfo('The remark will be added to the logbook as a '
+                          'heading and will also appear in the data files.')
+        dlg.buttonBox.helpRequested.connect(callback)
+
+        for ch in dlg.findChildren(NicosWidget):
+            ch.setClient(self.client)
+        dlg.remarkEdit.setFocus()
+        if not dlg.exec_():
             return
-        self.client.run('Remark(%r)' % remark)
+        self.client.run('Remark(%r)' % dlg.remarkEdit.getValue())
