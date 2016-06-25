@@ -7,8 +7,6 @@ sysconfig = dict(
                  'LivePNGSinkLog', 'LivePNGSink'],
 )
 
-modules = ['sans1.commands']
-
 excludes = ['detector', 'qmchannel']
 includes = ['cryo', 'source']
 
