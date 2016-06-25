@@ -347,6 +347,12 @@ class DevicesWidget(QWidget):
         self._edit = None
         self._rows = []
 
+    def keyPressEvent(self, event):
+        # do not close the whole dialog when pressing Enter in an input box
+        if event.key() == Qt.Key_Return:
+            return
+        return QDialog.keyPressEvent(self, event)
+
     def getDef(self):
         if self._edit:
             self._stopEdit()
