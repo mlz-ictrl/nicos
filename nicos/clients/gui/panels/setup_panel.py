@@ -135,7 +135,9 @@ class ExpPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_finishButton_clicked(self):
-        self.client.run('FinishExperiment()')
+        if self.client.run('FinishExperiment()', noqueue=True) is None:
+            self.showError('Could not finish experiment, a script '
+                           'is still running.')
 
     @qtsig('')
     def on_queryDBButton_clicked(self):
@@ -232,7 +234,10 @@ class ExpPanel(Panel, DlgUtils):
                 args['user'] = users
             code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
                                                    for i in args.items())
-            self.client.run(code)
+            if self.client.run(code, noqueue=False) is None:
+                self.showError('Could not start new experiment, a script is '
+                               'still running.')
+                return
             done.append('New experiment started.')
         else:
             if title != self._orig_proposal_info[1]:
@@ -407,12 +412,14 @@ class SetupsPanel(Panel, DlgUtils):
         elif role == QDialogButtonBox.RejectRole:
             self._close()
         elif role == QDialogButtonBox.ResetRole:
-            self.client.run('NewSetup()')
-            self.showInfo('Current setups reloaded.')
-            # Close the window only in case of use in a dialog, not in a
-            # tabbed window or similiar
-            if isinstance(self.parent(), QDialog):
-                self._close()
+            if self.client.run('NewSetup()', noqueue=True) is None:
+                self.showError('Could not reload setups, a script is running.')
+            else:
+                self.showInfo('Current setups reloaded.')
+                # Close the window only in case of use in a dialog, not in a
+                # tabbed window or similiar
+                if isinstance(self.parent(), QDialog):
+                    self._close()
 
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
@@ -504,7 +511,10 @@ class SetupsPanel(Panel, DlgUtils):
         else:
             cmd = 'NewSetup'
         if setups:
-            self.client.run('%s(%s)' % (cmd, ', '.join(map(repr, setups))))
+            if self.client.run('%s(%s)' % (cmd, ', '.join(map(repr, setups))),
+                               noqueue=True) is None:
+                self.showError('Could not load setups, a script is running.')
+                return
         for name, wid in self._aliasWidgets.items():
             self.client.run('%s.alias = %s' % (name, wid.getSelection()))
         if setups or self._aliasWidgets:

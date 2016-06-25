@@ -383,17 +383,27 @@ class NicosClient(object):
                 self._write(command, args)
                 ret, data = self._read()
                 if ret == NAK:
-                    raise ErrorResponse(data)
+                    if not kwds.get('noerror', False):
+                        raise ErrorResponse(data)
+                    else:
+                        return None
                 if self.compat_proto:
                     return self._compat_transform_reply(command, data)
                 return data
         except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
-    def run(self, code, filename=None):
+    def run(self, code, filename=None, noqueue=False):
         """Run a piece of code."""
         self.last_action_at = currenttime()
-        self.last_reqno = self.ask('queue', filename or '', code)
+        if noqueue:
+            new_reqno = self.ask('start', filename or '', code, noerror=True)
+            if new_reqno is not None:
+                self.last_reqno = new_reqno
+            else:
+                return None
+        else:
+            self.last_reqno = self.ask('queue', filename or '', code)
         return self.last_reqno
 
     def eval(self, expr, default=Ellipsis, stringify=False):
