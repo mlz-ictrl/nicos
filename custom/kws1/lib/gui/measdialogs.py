@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QDialog, QListWidgetItem, QTableWidgetItem, QLabel, \
-    QVBoxLayout, QFrame, QWidget
+    QVBoxLayout, QFrame, QWidget, QTableWidgetSelectionRange
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.utils import DoubleValidator
@@ -287,12 +287,15 @@ class DetsetDialog(QDialog):
         ix = self.table.currentRow()
         if ix < 0 or ix == self.table.rowCount() - 1:
             return
-        for j in range(self.table.columnCount()):
+        ncols = self.table.columnCount()
+        for j in range(ncols):
             item = self.table.takeItem(ix, j)
             self.table.setItem(ix, j, self.table.takeItem(ix + 1, j))
             self.table.setItem(ix + 1, j, item)
         self._rows[ix], self._rows[ix + 1] = self._rows[ix + 1], self._rows[ix]
         self.table.setCurrentCell(ix + 1, self.table.currentColumn())
+        self.table.setRangeSelected(
+            QTableWidgetSelectionRange(ix + 1, 0, ix + 1, ncols - 1), True)
 
     @pyqtSlot()
     def on_upBtn_clicked(self):
@@ -301,12 +304,15 @@ class DetsetDialog(QDialog):
         ix = self.table.currentRow()
         if ix < 0 or ix == 0:
             return
-        for j in range(self.table.columnCount()):
+        ncols = self.table.columnCount()
+        for j in range(ncols):
             item = self.table.takeItem(ix, j)
             self.table.setItem(ix, j, self.table.takeItem(ix - 1, j))
             self.table.setItem(ix - 1, j, item)
         self._rows[ix], self._rows[ix - 1] = self._rows[ix - 1], self._rows[ix]
         self.table.setCurrentCell(ix - 1, self.table.currentColumn())
+        self.table.setRangeSelected(
+            QTableWidgetSelectionRange(ix - 1, 0, ix - 1, ncols - 1), True)
 
     @pyqtSlot()
     def on_delBtn_clicked(self):
@@ -392,12 +398,15 @@ class DevicesWidget(QWidget):
         ix = self.table.currentRow()
         if ix < 0 or ix == self.table.rowCount() - 1:
             return
-        for j in range(self.table.columnCount()):
+        ncols = self.table.columnCount()
+        for j in range(ncols):
             item = self.table.takeItem(ix, j)
             self.table.setItem(ix, j, self.table.takeItem(ix + 1, j))
             self.table.setItem(ix + 1, j, item)
         self._rows[ix], self._rows[ix + 1] = self._rows[ix + 1], self._rows[ix]
         self.table.setCurrentCell(ix + 1, self.table.currentColumn())
+        self.table.setRangeSelected(
+            QTableWidgetSelectionRange(ix + 1, 0, ix + 1, ncols - 1), True)
 
     @pyqtSlot()
     def on_upBtn_clicked(self):
@@ -406,12 +415,15 @@ class DevicesWidget(QWidget):
         ix = self.table.currentRow()
         if ix < 0 or ix == 0:
             return
-        for j in range(self.table.columnCount()):
+        ncols = self.table.columnCount()
+        for j in range(ncols):
             item = self.table.takeItem(ix, j)
             self.table.setItem(ix, j, self.table.takeItem(ix - 1, j))
             self.table.setItem(ix - 1, j, item)
         self._rows[ix], self._rows[ix - 1] = self._rows[ix - 1], self._rows[ix]
         self.table.setCurrentCell(ix - 1, self.table.currentColumn())
+        self.table.setRangeSelected(
+            QTableWidgetSelectionRange(ix - 1, 0, ix - 1, ncols - 1), True)
 
     @pyqtSlot()
     def on_delBtn_clicked(self):
