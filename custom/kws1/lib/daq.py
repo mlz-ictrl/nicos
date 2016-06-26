@@ -25,6 +25,7 @@
 from time import sleep
 
 import numpy as np
+import PyTango
 
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
     listof, intrange, ConfigurationError, SIMULATION
@@ -34,15 +35,14 @@ from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
     Detector
 from nicos.devices.generic.virtual import VirtualImage
 from nicos.jcns.fpga import FPGAChannelBase
-
-import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
 PIXELS = 128
 
 
-class JDaqChannel(ImageChannelMixin, ActiveChannel):
+class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
         'rtswitch':    Attach('SPS switch for realtime mode', Moveable),
@@ -57,14 +57,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
                              category='general'),
     }
 
-    def doPreinit(self, mode):
-        if mode != SIMULATION:
-            self._dev = TacoDevice.TacoDevice(self.tacodevice)
-            self._dev.DevJudidt2Init()
-
     def _configure(self, tofsettings):
-        if self._mode != SIMULATION:
-            self._dev.DevJudidt2Init()
         value = self.mode
         if value == 'standard':
             self._setup_standard()
@@ -77,7 +70,7 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
 
     def _setup_standard(self):
         if self._mode != SIMULATION:
-            self._dev.DevJudidt2SetMode(0)
+            self._dev.measureMode = 0
         self.slices = []
         self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
 
@@ -93,20 +86,23 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
         if self._mode == SIMULATION:
             return
         if ext_trigger:
-            self._dev.DevJudidt2SetMode(2)
-            # number of external signal, != 1 not supported
-            self._dev.DevJudidt2SetRtParam(1)
+            # RT measurement
+            self._dev.measureMode = 2
+            # number of external signals, != 1 not tested yet
+            self._dev.rtParameter = 1
         else:
-            self._dev.DevJudidt2SetMode(1)
-        times = [channels] + times
-        self._dev.DevJudidt2SetTofParam(times)
+            # TOF measurement -- since the detector starts a TOF sweep
+            # when the inhibit signal is taken away, this also works for
+            # realtime without external signal
+            self._dev.measureMode = 1
+        self._dev.tofRange = times
 
     def doPrepare(self):
-        self._dev.DevJudidt2ClrRecoHistoAll()
+        self._dev.Clear()
 
     def doStart(self):
         self.readresult = [0]
-        self._dev.DevJudidt2Start()
+        self._dev.Start()
         if self.mode == 'realtime_external':
             self.log.debug('triggering RT start')
             self._attached_rtswitch.move(1)
@@ -114,20 +110,20 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
             self._attached_rtswitch.move(0)
 
     def doPause(self):
-        self._dev.DevJudidt2Stop()
+        self._dev.Stop()
         return True
 
     def doResume(self):
-        self._dev.DevJudidt2Start()
+        self._dev.Start()
 
     def doFinish(self):
-        self._dev.DevJudidt2Stop()
+        self._dev.Stop()
 
     def doStop(self):
         self.doFinish()
 
     def doStatus(self, maxage=0):
-        if self._dev.DevJudidt2GetStatus()[-1] == 1:
+        if self._dev.State() == PyTango.DevState.MOVING:
             return status.BUSY, 'counting'
         return status.OK, 'idle'
 
@@ -136,15 +132,12 @@ class JDaqChannel(ImageChannelMixin, ActiveChannel):
 
     def doReadArray(self, quality):
         if quality in (FINAL, INTERRUPTED):
-            if self.mode == 'standard':
-                array = self._dev.DevJudidt2GetRecoHistoSlot(0)
-            else:
-                array = self._dev.DevJudidt2GetRecoHistoAll()
-            arr = np.array(array, np.uint32)
             shape = self.arraydesc.shape
-            if self.mode != 'standard':
-                arr = arr[:shape[0]*shape[1]*shape[2]]
-            arr = arr.reshape(shape)
+            if self.mode == 'standard':
+                array = self._dev.GetBlock([0, shape[0]*shape[1]])
+            else:
+                array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
+            arr = np.array(array, np.uint32).reshape(shape)
             self.readresult = [arr.sum()]
             return arr
         # live image handled in separate application - KWSLive

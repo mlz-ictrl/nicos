@@ -21,7 +21,7 @@ devices = dict(
 
     det_img    = device('kws1.daq.JDaqChannel',
                         description = 'Image for the large KWS detector',
-                        tacodevice = '//phys.kws1.frm2/kws1/jdaq/1',
+                        tangodevice = 'tango://phys.kws1.frm2:10000/kws1/imagechannel/det',
                         rtswitch = 'rtswitch',
                        ),
 

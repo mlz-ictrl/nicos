@@ -47,7 +47,8 @@ def SetupRealtime(channels, interval, progression, trigger):
     # let the detector calculate the preset
     detector.prepare()
     detector.setPreset(t=0)
-    printinfo('Detector presets set to realtime mode.')
+    printinfo('Detector presets set to realtime mode%s.' %
+              (' with external trigger' if trigger == 'external' else ''))
 
 
 @usercommand
