@@ -58,7 +58,8 @@ _lenses = Block('Lenses', [
 ])
 
 _shutter = Block('Shutter', [
-    BlockRow(Field(name='Setting', dev='shutter', istext=True, width=10)),
+    BlockRow(Field(name='Shutter', dev='shutter', istext=True, width=9),
+             Field(name='Sixfold', dev='sixfold_shutter', istext=True, width=9)),
 ])
 
 _sample = Block('Sample', [

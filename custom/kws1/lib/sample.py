@@ -74,7 +74,7 @@ class KWSSample(Sample):
         self._applyKwsParams(parameters)
 
         self.log.info('moving to position of sample %s (%s)...' %
-                      (number, parameters['name']))
+                      (number, parameters['name'] or 'unnamed'))
         waitdevs = []
         if self.aperture != (0, 0, 0, 0):
             ap = session.getDevice('ap_sam')
