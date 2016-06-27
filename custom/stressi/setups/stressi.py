@@ -1,4 +1,4 @@
-description = 'STRESS-SPEC setup'
+description = 'STRESS-SPEC setup with sample table'
 
 group = 'basic'
 
