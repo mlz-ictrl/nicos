@@ -505,8 +505,8 @@ devices = dict(
                                 Row(
                                     Column(_sc1, _sc2, _ccmsanssc, _st2, _st1),
                                     Column(_tisane_counts, _tisane_fc,
-                                           _tisane_fg1, _tisane_fg2,
-                                           _htf01, _htf03,
+                                           _tisane_fg1, _tisane_fg2),
+                                    Column(_htf01, _htf03,
                                            _ccmsans, _miramagnet, _amagnet,
                                            _sans1julabo, *newports),
                                     Column(_ccmsans_temperature),
