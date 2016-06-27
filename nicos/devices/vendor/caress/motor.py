@@ -90,8 +90,10 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
         target += (self.coderoffset + self.offset)
         timeout = 0
         if hasattr(self._caressObject, 'drive_module'):
+            val = CARESS.Value(f=target)
+            self.log.debug('%r' % val.f)
             result = self._caress_guard(self._caressObject.drive_module, 0,
-                                        self._cid, target, timeout)
+                                        self._cid, val, timeout)
             if result[0] != CARESS.OK:
                 raise NicosError(self, 'Could not start the device')
         else:

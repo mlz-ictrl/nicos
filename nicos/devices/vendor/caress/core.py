@@ -224,11 +224,13 @@ class CARESSDevice(HasCommunication):
     def _read(self):
         if hasattr(self._caressObject, 'read_module'):
             # result = self._caressObject.read_module(0x80000000, self._cid)
-            result, status, val = self._caressObject.read_module(0, self._cid)
+            result, state, val = self._caressObject.read_module(0, self._cid)
             if result != CARESS.OK:
                 raise CommunicationError(self,
                                          'Could not read the CARESS module')
-            return (status, val.l,)
+            if hasattr(val, 'f'):
+                return (state, val.f)
+            return (state, val.l,)
         else:
             _ = ()
             result = self._caressObject.read_module_orb(0, self._cid, _)
