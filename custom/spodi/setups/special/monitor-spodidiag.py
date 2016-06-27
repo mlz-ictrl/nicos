@@ -24,8 +24,8 @@ _ngpressblock = Block('Neutron guide pressure', [
                  names=['Pressure 1', 'Pressure 2', 'Pressure 3'],
                  legend=True,
                  plotwindow=12*3600,
-                 height=50,
-                 width=50),
+                 height=35,
+                 width=38),
     ),
     ])
 
@@ -37,12 +37,12 @@ _ngo2block = Block('Neutron guide oxygen', [
     ),
     BlockRow(
              Field(widget='nicos.guisupport.plots.TrendPlot',
-                 devices=['o2_nguide', 'o2part_nguide'],
-                 names=['O2', 'O2 part pressure'],
+                 devices=['o2_nguide'],
+                 names=['O2 content'],
                  legend=True,
                  plotwindow=12*3600,
-                 height=50,
-                 width=50),
+                 height=35,
+                 width=38),
     ),
     ])
 
@@ -57,8 +57,8 @@ _ngtempblock = Block('Neutron guide', [
                  names=['Temperature'],
                  legend=True,
                  plotwindow=12*3600,
-                 height=50,
-                 width=50),
+                 height=35,
+                 width=38),
     ),
     ])
 
@@ -91,6 +91,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
+                     fontsize = 15,
                      layout = [Row(_expcolumn), Row(_ngpresscolumn, _ngo2column, _ngtempcolumn)],
                     ),
 )
