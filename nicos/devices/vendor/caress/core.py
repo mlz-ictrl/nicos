@@ -43,8 +43,8 @@ try:
 except ImportError:
     omniORB = None
 
-from nicos.core import Param, Override, absolute_path, status, SIMULATION, \
-    HasCommunication
+from nicos.core import Param, Override, absolute_path, none_or, status, \
+    SIMULATION, HasCommunication
 
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
@@ -85,15 +85,17 @@ class CARESSDevice(HasCommunication):
 
     _orb = None
 
+    _kind = None
+
     parameters = {
         'config': Param('Device configuration/setup string',
-                        type=str, mandatory=True,
+                        type=str, mandatory=True, settable=False,
                         ),
         'nameserver': Param('Computer name running the CORBA name service',
                             type=str, mandatory=True,
                             ),
         'objname': Param('Name of the CORBA object',
-                         type=str, mandatory=True,
+                         type=none_or(str), mandatory=False, default=None,
                          ),
         'caresspath': Param('Directory of the CARESS installation',
                             type=absolute_path,
@@ -134,8 +136,14 @@ class CARESSDevice(HasCommunication):
         self.log.debug('Get CARESS device ID: %r' % (res,))
         return res
 
+    def _is_corba_device(self):
+        return self._device_kind() == CORBA_DEVICE
+
     def _device_kind(self):
-        return int(self.config.split(' ', 2)[1])
+        if not self._kind:
+            tmp = self.config.split(None, 2)
+            self._kind = int(tmp[1]) if len(tmp) > 1 else 0
+        return self._kind
 
     def _initObject(self):
         if not self._orb:
@@ -147,10 +155,15 @@ class CARESSDevice(HasCommunication):
         if not rootContext:
             raise CommunicationError(self, 'Failed to narrow the root naming'
                                      ' context')
-        if self._device_kind() == CORBA_DEVICE:
+        if self._is_corba_device():
             try:
-                obj = rootContext.resolve([CosNaming.NameComponent(
-                                          self.objname, 'caress_object'), ])
+                tmp = self.objname.split('.') if self.objname else \
+                    self.config.split()[2].split('.')
+                if len(tmp) < 2:
+                    tmp.append('caress_object')
+                self.log.debug('%r' % tmp)
+                obj = rootContext.resolve([CosNaming.NameComponent(tmp[0],
+                                                                   tmp[1]), ])
             except CosNaming.NamingContext.NotFound as ex:
                 raise ConfigurationError(self, 'Name not found: %s' % (ex,))
             self._caressObject = obj._narrow(CARESS.CORBADevice)
@@ -170,11 +183,11 @@ class CARESSDevice(HasCommunication):
         if hasattr(self._caressObject, 'init_module_orb'):
             self._caressObject.init_module = self._caressObject.init_module_orb
 
-        self._cid = self._getCID(self.config.split(' ', 2)[0])
+        self._cid = self._getCID(self.config.split(None, 2)[0])
 
     def _init(self):
         try:
-            if self._device_kind() == CORBA_DEVICE:
+            if self._is_corba_device():
                 res = self._caressObject.init_module(INIT_NORMAL, self._cid,
                                                      self.config)
             else:
