@@ -38,21 +38,20 @@ from nicos.core.errors import CommunicationError, ConfigurationError, \
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
     LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, LOAD_NORMAL, \
-    INIT_NORMAL, INIT_CONNECT, INIT_REINIT, ON_LINE
+    INIT_NORMAL, INIT_REINIT, ON_LINE
 
 
 class QMesydaqCaressDevice(CARESSDevice):
 
     def _init(self):
         try:
+            if not self._is_corba_device():
+                raise ConfigurationError(self, 'Must be configured as '
+                                         '"CORBA_device" (ID=500)')
             _config = ' '.join(self.config.split()[3:])
             self.log.debug('Reduced config: %s' % _config)
-            if self._is_corba_device():
-                res = self._caressObject.init_module(INIT_NORMAL, self._cid,
+            res = self._caressObject.init_module(INIT_NORMAL, self._cid,
                                                      _config)
-            else:
-                res = self._caressObject.init_module(INIT_CONNECT, self._cid,
-                                                     self._config)
             self.log.debug('Init module (Connect): %r' % (res,))
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                 res = self._caressObject.init_module(INIT_REINIT, self._cid,
