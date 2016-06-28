@@ -37,24 +37,41 @@ from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, ProgrammingError, InvalidValueError
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
-    LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, LOAD_NORMAL
+    LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, LOAD_NORMAL, \
+    INIT_NORMAL, INIT_CONNECT, INIT_REINIT, ON_LINE
 
 
-class Channel(CARESSDevice, ActiveChannel):
+class QMesydaqCaressDevice(CARESSDevice):
 
-    parameters = {
-        'runnumber': Param('Run number',
-                           type=int, settable=True,
-                           ),
-        'counterfile': Param('File storing the run number',
-                             type=str, default='runid.txt',
-                             ),
-    }
+    def _init(self):
+        try:
+            _config = ' '.join(self.config.split()[3:])
+            self.log.info('%s' % _config)
+            if self.self._is_corba_device():
+                res = self._caressObject.init_module(INIT_NORMAL, self._cid,
+                                                     _config)
+            else:
+                res = self._caressObject.init_module(INIT_CONNECT, self._cid,
+                                                     self._config)
+            self.log.debug('Init module (Connect): %r' % (res,))
+            if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
+                res = self._caressObject.init_module(INIT_REINIT, self._cid,
+                                                     _config)
+                self.log.debug('Init module (Re-Init): %r' % (res,))
+                if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
+                    self.log.error('Init module (Re-Init): %r (%d, %s)' %
+                                   (res, self._cid, _config))
+                    raise NicosError(self, 'Could not initialize module!')
+            self._initialized = True
+        except CORBA.TRANSIENT as err:
+            raise CommunicationError(self, 'could not init CARESS module %r '
+                                     '(%d: %s)' % (err, self._cid, self.config)
+                                     )
 
     def doInit(self, mode):
-        CARESSDevice.doInit(self, mode)
         if mode == SIMULATION:
             return
+        CARESSDevice.doInit(self, mode)
         if hasattr(self._caressObject, 'is_counting_module'):
             is_counting = \
                 self._caress_guard(self._caressObject.is_counting_module,
@@ -66,6 +83,18 @@ class Channel(CARESSDevice, ActiveChannel):
         self.log.debug('Counting module: %r' % (is_counting,))
         if not is_counting:
             raise ConfigurationError(self, 'Object is not a measurable module')
+
+
+class Channel(QMesydaqCaressDevice, ActiveChannel):
+
+    parameters = {
+        'runnumber': Param('Run number',
+                           type=int, settable=True,
+                           ),
+        'counterfile': Param('File storing the run number',
+                             type=str, default='runid.txt',
+                             ),
+    }
 
     def doSetPreset(self, **preset):
         raise ProgrammingError(self, 'Channel.setPreset should not be called')
@@ -173,30 +202,14 @@ class Counter(CounterChannelMixin, Channel):
         return [self._caress_guard(self._read)[1]]
 
 
-class Image(CARESSDevice, QMesyDAQImage):
+class Image(QMesydaqCaressDevice, QMesyDAQImage):
     """Channel for CARESS that returns the image, histogram, or spectrogram."""
 
     def doInit(self, mode):
+        QMesydaqCaressDevice.doInit(self, mode)
         lconfig = self.config.split()
-        tmpconfig = lconfig[:2] + lconfig[5:]
-        self._width = int(tmpconfig[2])
-        self._height = int(tmpconfig[3])
-        self._setROParam('config', ' '.join(tmpconfig))
-        CARESSDevice.doInit(self, mode)
-        self._setROParam('config', ' '.join(lconfig))
-        if mode == SIMULATION:
-            return
-        if hasattr(self._caressObject, 'is_counting_module'):
-            is_counting = \
-                self._caress_guard(self._caressObject.is_counting_module,
-                                   self._cid)
-        else:
-            is_counting = self._device_kind() in [1, 2, 5, 8, 19, 20, 58, 59,
-                                                  63, 64, 74, 101, 102, 109,
-                                                  113, 116, 117, 121, 122]
-        self.log.debug('Counting module: %r' % (is_counting,))
-        if not is_counting:
-            raise ConfigurationError(self, 'Object is not a measurable module')
+        self._width = int(lconfig[5])
+        self._height = int(lconfig[6])
         if mode == MASTER:
             # self.readImage()  # also set arraydesc
             pass
@@ -273,14 +286,15 @@ class Image(CARESSDevice, QMesyDAQImage):
             self.readresult = [data.sum()]
             return data
         elif res[2] in [0, 1]:  # 2D array
-            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]), dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
+            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]),
+                                       dtype='<u4')
+            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
+            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None

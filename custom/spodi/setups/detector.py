@@ -68,7 +68,7 @@ devices = dict(
                   fmtstr = '%.2f',
                   unit = 's',
                   nameserver = '%s' % (nameservice,),
-                  config = 'TIM1 500 qmesydaq.caress_object timer 1',
+                  config = 'TIM1 500 qmesydaq.caress_object timer 500',
                   caresspath = caresspath,
                   toolpath = toolpath,
                   lowlevel = True,
@@ -80,8 +80,8 @@ devices = dict(
                    nameserver = '%s' % (nameservice,),
                    caresspath = caresspath,
                    toolpath = toolpath,
-                   config = 'HISTOGRAM 500 qmesydaq.caress_object histogram 16'
-                            ' 256 0',
+                   config = 'HISTOGRAM 500 qmesydaq.caress_object histogram 0'
+                            ' 80 256',
                    lowlevel = True,
                   ),
     histogram = device('frm2.qmesydaqsinks.HistogramSink',
