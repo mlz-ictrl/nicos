@@ -106,10 +106,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             self._load_preset(LOADSLAVE)
             # self._start(0)
         else:
-            if isinstance(self, (Timer,)):
-                value = 5 * int(self.preselection * 100)
-            else:
-                value = int(self.preselection)
+            value = int(self.preselection)
             self._load_preset(LOADMASTER, value)
             self._start(0)
             self.runnumber += 1
@@ -189,17 +186,19 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
     def doWriteRunnumber(self, value):
         writeFile(self._counterpath, [str(value)])
 
-
-class Timer(TimerChannelMixin, Channel):
-
-    def doRead(self, maxage=0):
-        return [(self._caress_guard(self._read)[1] / 100.) / 5]
-
-
-class Counter(CounterChannelMixin, Channel):
-
     def doRead(self, maxage=0):
         return [self._caress_guard(self._read)[1]]
+
+
+class Timer(TimerChannelMixin, Channel):
+    """Timer for CARESS."""
+
+    pass
+
+class Counter(CounterChannelMixin, Channel):
+    """Counter for CARESS."""
+
+    pass
 
 
 class Image(QMesydaqCaressDevice, QMesyDAQImage):
