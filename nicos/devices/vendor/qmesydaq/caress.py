@@ -46,8 +46,8 @@ class QMesydaqCaressDevice(CARESSDevice):
     def _init(self):
         try:
             _config = ' '.join(self.config.split()[3:])
-            self.log.info('%s' % _config)
-            if self.self._is_corba_device():
+            self.log.debug('Reduced config: %s' % _config)
+            if self._is_corba_device():
                 res = self._caressObject.init_module(INIT_NORMAL, self._cid,
                                                      _config)
             else:
