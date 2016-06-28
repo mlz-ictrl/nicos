@@ -8,7 +8,7 @@ nethost = setupname
 
 devices = {
     'sth_%s_m' % setupname: device('frm2.newport.Motor',
-                                   tacodevice = '//%s/newport/newportmc/motor' % (nethost,),
+                                   tacodevice = '//%s/box/newportmc/motor' % (nethost,),
                                    lowlevel = True,
                                   ),
 
