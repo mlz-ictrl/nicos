@@ -31,6 +31,9 @@ from nicos.core.errors import ConfigurationError, NicosError
 from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
     ACTIVE, ACTIVE1
 
+EKF_44520_ABS = 114  # EKF 44520 motor control, abs. encoder, VME
+EKF_44520_INCR = 115  # EKF 44520 motor control, incr. encoder, VME
+
 
 class Motor(HasOffset, CARESSDevice, AbstractMotor):
 
@@ -52,7 +55,7 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
     }
 
     def doInit(self, mode):
-        # BaseMotor.doInit(self, mode)
+        # AbstractMotor.doInit(self, mode)
         CARESSDevice.doInit(self, mode)
         self._setROParam('_started', False)
         if session.sessiontype == POLLER or mode == SIMULATION:
@@ -134,11 +137,10 @@ class Motor(HasOffset, CARESSDevice, AbstractMotor):
 
     def doReadSpeed(self):
         tmp = self.config.split()
-        # 114 stands for an axis with motor and encoder. The  7th entry
-        # is the number of motor steps and the  6th entry the number of
-        # encoder steps.  The ratio between both gives the speed of the
-        # axis. It must be multiplied by the gear.
-        if int(tmp[1]) == 114:
-            return self.gear * float(tmp[6]) / float(tmp[5])
-        else:
-            return 0.0
+        # The  7th entry is the number of motor steps and the  6th entry the
+        # number of encoder steps.  The ratio between both gives the speed of
+        # the axis. It must be multiplied by the gear.
+        if len(tmp) > 1:
+            if int(tmp[1]) == EKF_44520_ABS:
+                return self.gear * float(tmp[6]) / float(tmp[5])
+        return 0.0
