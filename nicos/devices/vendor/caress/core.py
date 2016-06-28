@@ -92,7 +92,7 @@ class CARESSDevice(HasCommunication):
                         type=str, mandatory=True, settable=False,
                         ),
         'nameserver': Param('Computer name running the CORBA name service',
-                            type=str, mandatory=True,
+                            type=none_or(str), mandatory=False, default=None,
                             ),
         'objname': Param('Name of the CORBA object',
                          type=none_or(str), mandatory=False, default=None,
@@ -185,18 +185,38 @@ class CARESSDevice(HasCommunication):
 
         self._cid = self._getCID(self.config.split(None, 2)[0])
 
+    def _normalized_config(self):
+        tmp = self.config.split()
+        if tmp[2].count(':'):
+            tmp[2] = tmp[2].split(':/')[1]
+            return ' '.join(tmp)
+        else:
+            return self.config
+
+    def _name_server(self):
+        tmp = self.config.split()
+        if tmp[2].count(':'):
+            return tmp[2].split(':')[0]
+        elif self.nameserver:
+            return self.nameserver
+        else:
+            raise ConfigurationError(self, 'No name server configured. Please '
+                                     'use the "nameserver" parameter or put it'
+                                     'into the "config" parameter.')
+
     def _init(self):
         try:
+            _config = self._normalized_config()
             if self._is_corba_device():
                 res = self._caressObject.init_module(INIT_NORMAL, self._cid,
-                                                     self.config)
+                                                     _config)
             else:
                 res = self._caressObject.init_module(INIT_CONNECT, self._cid,
-                                                     self.config)
+                                                     _config)
             self.log.debug('Init module (Connect): %r' % (res,))
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                 res = self._caressObject.init_module(INIT_REINIT, self._cid,
-                                                     self.config)
+                                                     _config)
                 self.log.debug('Init module (Re-Init): %r' % (res,))
                 if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                     self.log.error('Init module (Re-Init): %r (%d, %s)' %
@@ -212,8 +232,8 @@ class CARESSDevice(HasCommunication):
             return
         if not omniORB:
             raise ConfigurationError(self, 'There is no CORBA module found')
-        self._initORB(['-ORBInitRef', 'NameService=corbaname::%s' %
-                       (self.nameserver, ), ])
+        self._initORB(['-ORBInitRef',
+                       'NameService=corbaname::%s' % self._name_server(), ])
         self._initObject()
         self._init()
 
