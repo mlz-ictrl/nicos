@@ -245,7 +245,9 @@ _ccmsanssc = Column(
     Block('Magnet Sample Changer', [
          BlockRow(
             Field(name='Position', dev='ccmsanssc_axis'),
-            Field(name='SampleChanger', dev='ccmsanssc_position'),
+        ),
+         BlockRow(
+            Field(name='SampleChanger', dev='ccmsanssc_position', format='%i'),
         ),
         ],
         setups='ccmsanssc',

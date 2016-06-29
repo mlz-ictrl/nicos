@@ -43,7 +43,7 @@ _sc2 = Block('Sample Changer 2', [
 
 _ccmsanssc = Block('Magnet Sample Changer', [
     BlockRow(Field(name='Position', dev='ccmsanssc_axis'),),
-    BlockRow(Field(name='SampleChanger', dev='ccmsanssc_position'),),
+    BlockRow(Field(name='SampleChanger', dev='ccmsanssc_position', format='%i'),),
     ],
     setups='ccmsanssc',
 )
