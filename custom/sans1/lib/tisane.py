@@ -31,15 +31,21 @@ from nicos.devices.tango import NamedDigitalOutput
 class Burst(NamedDigitalOutput):
     parameters = {
         'frequency': Param('Frequency of the signal.', unit='Hz',
-                           type=floatrange(2e-3, 1e7), settable=True),
+                           type=floatrange(2e-3, 1e7), settable=True,
+                           category='experiment'),
         'amplitude': Param('Amplitude (V_PP) of the signal.', unit='V',
-                           type=floatrange(1e-3, 10), settable=True),
+                           type=floatrange(1e-3, 10), settable=True,
+                           category='experiment'),
         'offset': Param('Offset of the signal.', unit='V',
-                           type=floatrange(-10, 10), settable=True),
+                           type=floatrange(-10, 10), settable=True,
+                           category='experiment'),
         'shape': Param('Shape of the signal.', settable=True,
-                           type=oneof('sine', 'square', 'ramp')),
+                           type=oneof('sine', 'square', 'ramp'),
+                           category='experiment'),
         'duty' : Param('Dutycycle for square, assymetry for ramp.',
-                           type=intrange(0,100), unit='%', settable=True),
+                           type=intrange(0,100), unit='%', settable=True,
+                           category='experiment'),
+
     }
     parameter_overrides = {
         'mapping': Override(mandatory=False, default=dict(On=1,Off=0)),
@@ -91,8 +97,4 @@ class Burst(NamedDigitalOutput):
     def doWriteShape(self, value):
         self._dev.SetProperties(['shape', '%s' % value])
         return self.doReadShape()
-
-
-
-
 
