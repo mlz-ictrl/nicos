@@ -128,7 +128,13 @@ class Image(BaseChannel, QMesyDAQImage):
     parameters = {
         'readout': Param('Readout mode of the Detector', settable=True,
                          type=oneof('raw', 'mapped', 'amplitude'),
-                         default='mapped', mandatory=False, chatty=True)
+                         default='mapped', mandatory=False, chatty=True),
+        'listmode': Param('Should the Detector write list mode data files',
+                          type=bool, default=False, chatty=False,
+                          prefercache=False, settable=True),
+        'histogram': Param('Should the Detector write histogram data files',
+                           type=bool, default=False, chatty=False,
+                           prefercache=False, settable=True),
     }
 
     taco_class = Detector
@@ -140,15 +146,6 @@ class Image(BaseChannel, QMesyDAQImage):
     def doStart(self):
         self.readresult = [0]
         BaseChannel.doStart(self)
-
-    def doWriteReadout(self, value):
-        try:
-            self._taco_guard(self._dev.deviceOff)
-            self._taco_guard(self._dev.deviceUpdateResource, 'histogram',
-                             value)
-        finally:
-            self._taco_guard(self._dev.deviceOn)
-        return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
 
     def doRead(self, maxage=0):
         return self.readresult
@@ -177,16 +174,31 @@ class Image(BaseChannel, QMesyDAQImage):
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
 
+    def doReadIsmaster(self):
+        return False
+
+    def doWriteListmode(self, value):
+        self._taco_update_resource('writelistmode', '%s' % value)
+        return self._taco_guard(self._dev.deviceQueryResource, 'writelistmode')
+
+    def doWriteHistogram(self, value):
+        self._taco_update_resource('writehistogram', '%s' % value)
+        return self._taco_guard(self._dev.deviceQueryResource, 'writehistogram')
+
+    def doWriteReadout(self, value):
+        self._taco_update_resource('histogram', '%s' % value)
+        return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
+
     def doWriteListmodefile(self, value):
-        self._taco_guard(self._dev.deviceUpdateResource, 'lastlistfile', '%s' %
-                         value)
+        self._taco_update_resource('lastlistfile', '%s' % value)
+        return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
+
+#   def doReadListmodefile(self):
+#       return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
 
     def doWriteHistogramfile(self, value):
-        self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile', '%s' %
-                         value)
+        self._taco_update_resource('lasthistfile', '%s' % value)
+        return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile')
 
-    def doReadListmodefile(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile'),
-
-    def doReadHistogramfile(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile'),
+#   def doReadHistogramfile(self):
+#       return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile')
