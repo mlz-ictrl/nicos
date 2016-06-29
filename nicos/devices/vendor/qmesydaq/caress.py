@@ -75,10 +75,6 @@ class QMesydaqCaressDevice(CARESSDevice):
             is_counting = \
                 self._caress_guard(self._caressObject.is_counting_module,
                                    self._cid)
-        else:
-            is_counting = self._device_kind() in [1, 2, 5, 8, 19, 20, 58, 59,
-                                                  63, 64, 74, 101, 102, 109,
-                                                  113, 116, 117, 121, 122]
         self.log.debug('Counting module: %r' % (is_counting,))
         if not is_counting:
             raise ConfigurationError(self, 'Object is not a measurable module')
