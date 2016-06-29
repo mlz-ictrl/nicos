@@ -38,13 +38,29 @@ class Image(ImageChannelMixin, PassiveChannel):
         'listmodefile': Param('List mode data file name (if it is empty, no '
                               'file will be written)',
                               type=str, settable=True, default='',
+                              category='instrument',
                               ),
         'histogramfile': Param('Histogram data file name (if it is empty, no '
                                'file will be written)',
                                type=str, settable=True, default='',
+                               category='instrument',
                                ),
+        'configfile': Param('Used detector configuration file',
+                            type=str, settable=False, volatile=True,
+                            category='instrument',
+                            ),
+        'calibrationfile': Param('Used detector calibration file',
+                                 type=str, settable=False, volatile=True,
+                                 category='instrument',
+                                 ),
     }
 
     def valueInfo(self):
         return Value('%s.sum' % self, type='counter', errors='sqrt',
                      unit='cts', fmtstr='%d'),
+
+    def doReadCalibrationfile(self):
+        return NotImplementedError('Implement "doReadCalibrationfile"')
+
+    def doReadConfigfile(self):
+        return NotImplementedError('Implement "doReadConfigfile"')

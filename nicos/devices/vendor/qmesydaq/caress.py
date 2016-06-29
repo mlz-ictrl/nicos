@@ -305,3 +305,12 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
 
     def doWriteHistogramfile(self, value):
         self._set_option(text='mesydaq_histogramfile=%s' % value)
+
+    def doReadConfigfile(self):
+        # return self._taco_guard(self._dev.deviceQueryResource, 'configfile')
+        return ''
+
+    def doReadCalibrationfile(self):
+        # return self._taco_guard(self._dev.deviceQueryResource,
+        #                         'calibrationfile')
+        return ''

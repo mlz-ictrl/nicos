@@ -193,6 +193,13 @@ class Image(BaseChannel, QMesyDAQImage):
         self._taco_update_resource('lastlistfile', '%s' % value)
         return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
 
+    def doReadConfigfile(self):
+        return self._taco_guard(self._dev.deviceQueryResource, 'configfile')
+
+    def doReadCalibrationfile(self):
+        return self._taco_guard(self._dev.deviceQueryResource,
+                                'calibrationfile')
+
 #   def doReadListmodefile(self):
 #       return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
 
