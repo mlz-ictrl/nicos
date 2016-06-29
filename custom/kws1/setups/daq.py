@@ -23,6 +23,8 @@ devices = dict(
                         description = 'Image for the large KWS detector',
                         tangodevice = 'tango://phys.kws1.frm2:10000/kws1/imagechannel/det',
                         rtswitch = 'rtswitch',
+                        timer = 'timer',
+                        fmtstr = '%d (%.1f cps)',
                        ),
 
     det_mode   = device('devices.generic.ReadonlyParamDevice',
@@ -46,6 +48,7 @@ devices = dict(
                         images = ['det_img'],
                         others = [],
                         shutter = 'shutter',
+                        liveinterval = 2.0,
                        ),
 )
 

@@ -28,7 +28,7 @@ import numpy as np
 import PyTango
 
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
-    listof, intrange, ConfigurationError, SIMULATION
+    listof, intrange, ConfigurationError, SIMULATION, Measurable
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
@@ -46,6 +46,7 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
         'rtswitch':    Attach('SPS switch for realtime mode', Moveable),
+        'timer':       Attach('The timer channel', Measurable),
     }
 
     parameters = {
@@ -128,18 +129,36 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         return status.OK, 'idle'
 
     def valueInfo(self):
-        return (Value(name='total', type='counter', fmtstr='%d'),)
+        return (Value(name='total', type='counter', fmtstr='%d'),
+                Value(name='rate', type='other', fmtstr='%.1f'))
+
+    _last = None
 
     def doReadArray(self, quality):
+        shape = self.arraydesc.shape
+        if self.mode == 'standard':
+            array = self._dev.GetBlock([0, shape[0]*shape[1]])
+        else:
+            array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
+        arr = np.array(array, np.uint32).reshape(shape)
+        cur = arr.sum(), self._attached_timer.read(0)[0]
+
         if quality in (FINAL, INTERRUPTED):
-            shape = self.arraydesc.shape
-            if self.mode == 'standard':
-                array = self._dev.GetBlock([0, shape[0]*shape[1]])
-            else:
-                array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
-            arr = np.array(array, np.uint32).reshape(shape)
-            self.readresult = [arr.sum()]
+            self.readresult = [cur[0], cur[0] / cur[1] if cur[1] else 0]
             return arr
+
+        if cur[1] == 0:
+            rate = 0.0
+        elif self._last is None or self._last[1] > cur[1]:
+            rate = cur[0] / cur[1]
+        elif self._last[1] == cur[1]:
+            rate = 0.0
+        else:
+            rate = (cur[0] - self._last[0]) / (cur[1] - self._last[1])
+
+        self._last = cur
+        self.readresult = [cur[0], rate]
+
         # live image handled in separate application - KWSLive
         return None
 

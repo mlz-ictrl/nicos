@@ -81,7 +81,8 @@ _hexapod = Block('Hexapod', [
 
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
-             Field(name='Total counts', dev='det_img')),
+             Field(name='Total', dev='det_img', item=0, format='%d'),
+             Field(name='Rate', dev='det_img', item=1, format='%.1f')),
     BlockRow(Field(name='Mon1', dev='mon1rate'),
              Field(name='Mon2', dev='mon2rate'),
              Field(name='Mon3', dev='mon3rate')),
