@@ -11,6 +11,10 @@ group = 'basic'
 nethost = 'sans1srv.sans1.frm2'
 tangobase = 'tango://sans1hw.sans1.frm2:10000'
 
+sysconfig = dict(
+    datasinks = ['Histogram', 'Listmode',]
+)
+
 devices = dict(
     tisane_fc = device('devices.tango.Sensor',
                        description = "Frequency counter for chopper signal",

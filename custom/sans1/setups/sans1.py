@@ -8,6 +8,10 @@ includes = ['collimation', 'detector', 'sample_table_1', 'det1',
 
 excludes = ['tisane']
 
+sysconfig = dict(
+    datasinks = ['Histogram',]
+)
+
 devices = dict(
     det1    = device('devices.generic.Detector',
                      description = 'QMesyDAQ Image type Detector1',
@@ -18,3 +22,7 @@ devices = dict(
                      liveinterval = 30.0,
                     ),
 )
+
+startupcode = '''
+det1._attached_images[0].listmode = False
+'''
