@@ -432,6 +432,7 @@ class SequencerMixin(DeviceMixinBase):
             self._seq_stopflag = True
 
     def doReset(self):
+        self._seq_was_stopped = False
         self._set_seq_status(status.OK, 'idle')
 
     #
