@@ -480,8 +480,10 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     @lazy_property
     def _history(self):
         if self._cache:
-            self._cache. addCallback(self, 'value', self._cacheCB)
+            self._cache.addCallback(self, 'value', self._cacheCB)
             self._subscriptions.append(('value', self._cacheCB))
+            t = currenttime()
+            return self._cache.history(self, 'value', t - self.window, t)
         return []
 
     # use values determined by poller or waitForStatus loop to fill our history
