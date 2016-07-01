@@ -25,7 +25,7 @@
 """Class for KWS chopper control."""
 
 from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
-    listof, oneof, intrange, floatrange, PositionError, MASTER
+    listof, oneof, intrange, floatrange, PositionError, MASTER, HasPrecision
 from nicos.devices.tango import WindowTimeoutAO
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
@@ -34,9 +34,6 @@ from nicos.kws1.detector import DetectorPosSwitcher
 
 # neutron speed at 1A, in m/ms
 SPEED = 3.956
-
-FREQ_PRECISION = 0.1
-PHASE_PRECISION = 1.0
 
 
 class ChopperFrequency(WindowTimeoutAO):
@@ -61,10 +58,10 @@ class ChopperParams(Moveable):
     hardware_access = False
 
     attached_devices = {
-        'freq1':  Attach('The frequency of the first chopper', Moveable),
-        'freq2':  Attach('The frequency of the second chopper', Moveable),
-        'phase1': Attach('The phase of the first chopper', Moveable),
-        'phase2': Attach('The phase of the second chopper', Moveable),
+        'freq1':  Attach('The frequency of the first chopper', HasPrecision),
+        'freq2':  Attach('The frequency of the second chopper', HasPrecision),
+        'phase1': Attach('The phase of the first chopper', HasPrecision),
+        'phase2': Attach('The phase of the second chopper', HasPrecision),
     }
 
     parameter_overrides = {
@@ -113,8 +110,8 @@ class ChopperParams(Moveable):
         # take precision into account
         tfreq, topen = self.target
         rfreq, ropen = pos
-        return abs(tfreq - rfreq) < FREQ_PRECISION and \
-            abs(topen - ropen) < PHASE_PRECISION
+        return abs(tfreq - rfreq) < self._attached_freq1.precision and \
+            abs(topen - ropen) < self._attached_phase1.precision
 
 
 def calculate(lam, spread, reso, shade, l, dtau, n_max):
@@ -256,8 +253,9 @@ class Chopper(Moveable):
         params = self._attached_params.read(maxage)
         if params[0] < 1.0:
             return 'off'
-        if abs(params[0] - self.calcresult[0]) < FREQ_PRECISION and \
-           abs(params[1] - self.calcresult[1]) < PHASE_PRECISION:
+        # TODO: take from isAtTarget
+        if abs(params[0] - self.calcresult[0]) < self._attached_params._attached_freq1.precision and \
+           abs(params[1] - self.calcresult[1]) < self._attached_params._attached_phase1.precision:
             if self._attached_daq.mode == 'tof' and \
                self._attached_daq.tofchannels == self.channels and \
                self._attached_daq.tofinterval == self.calcresult[2] and \

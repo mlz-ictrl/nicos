@@ -50,8 +50,8 @@ watchlist = [
          type = 'default',
          setup = 'waterjulabo',
     ),
-    dict(condition = 'det_kwscounting and (chopper1_freq_status == ALARM or '
-                     'chopper2_freq_status == ALARM)',
+    dict(condition = 'det_kwscounting and (chopper1_freq_status[0] == WARN or '
+                     'chopper2_freq_status[0] == WARN)',
          message = 'Chopper off, but not in parking position',
          gracetime = 1,
          type = 'default',
