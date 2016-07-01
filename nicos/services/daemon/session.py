@@ -194,4 +194,6 @@ class DaemonSession(NoninteractiveSession):
 
     def watchdogEvent(self, event, time, data):
         """Handle a watchdog alarm event."""
+        if event == 'warning':
+            self.log.warning('WATCHDOG ALERT: %s' % data)
         self.emitfunc('watchdog', (event, time, data))
