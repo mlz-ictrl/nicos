@@ -29,7 +29,7 @@ from nicos.core import Moveable, Param, Override, Attach, SIMULATION, \
 from nicos.devices.generic import MultiSwitcher
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev
 
-POL_SETTINGS = ['out', 'up', 'down', 'alter']
+POL_SETTINGS = ['out', 'up', 'down']
 
 
 class PolSwitcher(SequencerMixin, MultiSwitcher):
@@ -120,7 +120,6 @@ class Polarizer(Moveable):
         flipper_pos = self._attached_flipper.read(maxage)
         if switcher_pos == 'unknown' or flipper_pos == 'unknown':
             return 'unknown'
-        # Never returns "alter".
         if switcher_pos == 'ng':
             return 'out'
         # Polarizer is a transmission supermirror => without flipper we get
@@ -142,10 +141,3 @@ class Polarizer(Moveable):
                 self._attached_flipper.start('on')
             elif target == 'down':
                 self._attached_flipper.start('off')
-            elif target == 'alter':
-                if self._attached_flipper.read(0) == 'on':
-                    self._setROParam('target', 'down')
-                    self._attached_flipper.start('off')
-                else:
-                    self._setROParam('target', 'up')
-                    self._attached_flipper.start('on')
