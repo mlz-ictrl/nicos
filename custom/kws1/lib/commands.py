@@ -27,7 +27,6 @@
 from nicos import session
 from nicos.core import Moveable, multiWait, UsageError, DeviceAlias
 from nicos.commands import usercommand
-from nicos.commands.device import move
 from nicos.commands.measure import count, SetEnvironment
 from nicos.commands.output import printinfo
 from nicos.pycompat import listitems
@@ -115,7 +114,8 @@ def kwscount(**arguments):
         arguments['lenses'] = 'out-out-out'
     if 'chopper' not in arguments:
         arguments['chopper'] = 'off'
-
+    # leave space between kwscounts
+    session.log.info('')
     # measurement time
     meastime = arguments.pop('time', 0)
     # select sample
@@ -128,9 +128,17 @@ def kwscount(**arguments):
     # add moved devices to sampleenv
     _fixupSampleenv(devs)
     # start devices
-    for dev, value in devs:
-        dev = session.getDevice(dev, Moveable)
-        move(dev, value)
+    for devname, value in devs:
+        dev = session.getDevice(devname, Moveable)
+        dev.start(value)
+        if devname == 'selector':
+            dev2 = session.getDevice('selector_speed')
+            session.log.info('%-12s --> %s (%s)' % (devname, dev.format(value), dev2.format(dev2.target, unit=True)))
+        elif devname == 'chopper':
+            dev2 = session.getDevice('chopper_params')
+            session.log.info('%-12s --> %s (%s)' % (devname, dev.format(value), dev2.format(dev2.target, unit=True)))
+        else:
+            session.log.info('%-12s --> %s' % (devname, dev.format(value, unit=True)))
         waiters.append(dev)
     # select and wait for sample here
     if sample is not None:

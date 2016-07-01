@@ -102,7 +102,7 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self._dev.Clear()
 
     def doStart(self):
-        self.readresult = [0]
+        self.readresult = [0, 0.0]
         self._dev.Start()
         if self.mode == 'realtime_external':
             self.log.debug('triggering RT start')
@@ -111,11 +111,11 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
             self._attached_rtswitch.move(0)
 
     def doPause(self):
-        self._dev.Stop()
+        # no stop necessary, gate will be cleared by counter card
         return True
 
     def doResume(self):
-        self._dev.Start()
+        pass
 
     def doFinish(self):
         self._dev.Stop()
@@ -129,8 +129,9 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         return status.OK, 'idle'
 
     def valueInfo(self):
-        return (Value(name='total', type='counter', fmtstr='%d'),
-                Value(name='rate', type='other', fmtstr='%.1f'))
+        return (Value(name='total', type='counter', fmtstr='%d',
+                      errors='sqrt', unit='cts'),
+                Value(name='rate', type='monitor', fmtstr='%.1f', unit='cps'))
 
     _last = None
 

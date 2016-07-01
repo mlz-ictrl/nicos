@@ -51,7 +51,7 @@ devices = dict(
                          description = "polarizer rotation",
                          tangodevice = tango_base + "fzjs7/polarisator_rot",
                          unit = "deg",
-                         precision = 0.01,
+                         precision = 0.08,
                          fmtstr = "%.2f",
                          lowlevel = True,
                         ),

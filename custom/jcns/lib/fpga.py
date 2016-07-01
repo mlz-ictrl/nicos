@@ -31,7 +31,7 @@ masters, e.g. counting on time and count rate.
 """
 
 from nicos.core import status, Param, Override, Value, intrange, UsageError, \
-    Readable
+    Readable, MASTER
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin
@@ -113,6 +113,9 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
     def doStatus(self, maxage=0):
         # Normal mode: Gate is active
         if self._dev.DevFPGACountGateStatus():
+            if self.extmode and self.extwait and self._mode == MASTER:
+                self.log.info('external signal arrived, counting...')
+                self.extwait = False
             return (status.BUSY, 'counting')
         elif self.extmode and self.extwait:
             # External mode: there is no status indication of "waiting",

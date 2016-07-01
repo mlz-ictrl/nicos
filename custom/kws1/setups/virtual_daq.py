@@ -25,18 +25,21 @@ devices = dict(
                        ),
 
     mon1       = device('devices.generic.virtual.VirtualCounter',
-                        description = 'monitor',
+                        description = 'Monitor 1 (before selector)',
                         type = 'monitor',
+                        fmtstr = '%d',
                        ),
 
     mon2       = device('devices.generic.virtual.VirtualCounter',
-                        description = 'monitor',
+                        description = 'Monitor 2 (after selector)',
                         type = 'monitor',
+                        fmtstr = '%d',
                        ),
 
     mon3       = device('devices.generic.virtual.VirtualCounter',
-                        description = 'monitor',
+                        description = 'Monitor 3 (in detector beamstop)',
                         type = 'monitor',
+                        fmtstr = '%d',
                        ),
 
     kwsformat  = device('kws1.kwsfileformat.KWSFileSink',

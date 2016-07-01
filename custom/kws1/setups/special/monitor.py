@@ -40,9 +40,10 @@ _collimation = Block('Collimation', [
              Field(name='Ap. 2m', dev='aperture_02', istext=True, width=10)),
 ])
 
-_polarizer = Block('Polarizer', [
-    BlockRow(Field(name='Setting', dev='polarizer', istext=True),
+_polarizer = Block('Polarizer/Lenses', [
+    BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
              Field(name='Flipper', dev='flipper', istext=True)),
+    BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
 ])
 
 _detector = Block('Detector', [
@@ -51,10 +52,6 @@ _detector = Block('Detector', [
         Field(devices=['det_z', 'det_x', 'det_y'],
               widget='nicos.kws1.monitorwidgets.Tube', width=30, height=10)
     ),
-])
-
-_lenses = Block('Lenses', [
-    BlockRow(Field(name='Setting', dev='lenses', istext=True, width=17)),
 ])
 
 _shutter = Block('Shutter', [
@@ -93,7 +90,7 @@ _peltier = Block('Peltier/Julabo', [
 ], setups='peltier')
 
 _peltierplot = Block('', [
-    BlockRow(Field(plot='TT', dev='T_peltier', width=40, height=25, plotwindow=24*3600),
+    BlockRow(Field(plot='TT', dev='T_peltier', width=40, height=25, plotwindow=2*3600),
              Field(plot='TT', dev='T_julabo'),
              Field(plot='TT', key='T_peltier/setpoint'),
              Field(plot='TT', key='T_julabo/setpoint')),
@@ -113,8 +110,8 @@ devices = dict(
                      layout = [
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _shutter, _peltier),
-                             Column(_collimation, _polarizer, _lenses, _daq),
-                             Column(_sample, _hexapod, _detector, _peltierplot)),
+                             Column(_collimation, _sample, _polarizer, _daq),
+                             Column(_hexapod, _detector, _peltierplot)),
                      ],
                     ),
 )
