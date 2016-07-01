@@ -64,8 +64,10 @@ class VirtualMotor(HasOffset, Motor):
     _thread = None
 
     def doInit(self, mode):
-        if self.curstatus[0] < status.OK:  # clean up old status values
-            self._setROParam('curstatus', (status.OK, ''))
+        # set current value to be at target on init, helps with devices
+        # that switch between being virtual and real
+        if self.target is not None and mode == MASTER:
+            self.curvalue = self.target
 
     def doStart(self, pos):
         pos = float(pos) + self.offset
