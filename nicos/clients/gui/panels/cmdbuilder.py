@@ -127,13 +127,19 @@ class CommandPanel(Panel):
             self.commandInput.setText(url[5:])
             self.commandInput.setFocus()
 
+    def clearCmdlet(self):
+        self.value_collection.update(self.current_cmdlet.getValues())
+        self.current_cmdlet.removeSelf()
+        self.current_cmdlet = None
+
     def selectCmdlet(self, cmdlet):
         if self.current_cmdlet:
-            self.value_collection.update(self.current_cmdlet.getValues())
-            self.current_cmdlet.removeSelf()
+            self.clearCmdlet()
         inst = cmdlet(self.frame, self.client)
         inst.setValues(self.value_collection)
-        inst.buttons.setVisible(False)
+        inst.buttons.upBtn.setVisible(False)
+        inst.buttons.downBtn.setVisible(False)
+        inst.cmdletRemove.connect(self.clearCmdlet)
         inst.line.setVisible(False)
         self.frame.layout().insertWidget(0, inst)
         self.current_cmdlet = inst
