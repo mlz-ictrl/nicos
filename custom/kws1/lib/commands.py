@@ -25,10 +25,10 @@
 """Custom commands for KWS(-1)."""
 
 from nicos import session
-from nicos.core import Moveable, multiWait, UsageError
+from nicos.core import Moveable, multiWait, UsageError, DeviceAlias
 from nicos.commands import usercommand
 from nicos.commands.device import move
-from nicos.commands.measure import count
+from nicos.commands.measure import count, SetEnvironment
 from nicos.commands.output import printinfo
 from nicos.pycompat import listitems
 
@@ -64,8 +64,8 @@ def SetupNormal():
 # important because for our switchers, the available targets depend on other
 # devices' targets.  For example, the detector mapping changes depending on
 # the selector target.
-ORDER = ['selector', 'detector', 'chopper', 'collimation',
-         'polarizer', 'lenses']
+DEFAULT = ['selector', 'detector', 'chopper', 'collimation',
+           'polarizer', 'lenses']
 
 
 @usercommand
@@ -96,7 +96,7 @@ def kwscount(**arguments):
     def sort_key(kv):
         try:
             # main components move first, in selected order
-            return (0, ORDER.index(kv[0]))
+            return (0, DEFAULT.index(kv[0]))
         except ValueError:
             # all other devices move last, sorted by devname
             return (1, kv[0])
@@ -125,6 +125,8 @@ def kwscount(**arguments):
     # the order is important!
     devs = listitems(arguments)
     devs.sort(key=sort_key)
+    # add moved devices to sampleenv
+    _fixupSampleenv(devs)
     # start devices
     for dev, value in devs:
         dev = session.getDevice(dev, Moveable)
@@ -147,3 +149,25 @@ def kwscount(**arguments):
     elif det.mode == 'realtime_external':
         printinfo('Now waiting for signal to start real-time counting...')
     count(t=meastime)
+
+
+def _fixupSampleenv(devs):
+    """Add moved devices to sample env, remove aliases that point to
+    devices that are being added.
+    """
+    envlist = session.experiment.envlist
+    aliases = {dev.alias: dev.name for dev in session.experiment.sampleenv
+               if isinstance(dev, DeviceAlias)}
+    to_add = []
+    to_remove = set()
+    for devname, _ in devs:
+        if devname in DEFAULT:
+            continue
+        if devname in envlist:
+            continue
+        to_add.append(devname)
+        if devname in aliases:
+            to_remove.add(aliases[devname])
+    new_envlist = [n for n in envlist if n not in to_remove] + to_add
+    if new_envlist != envlist:
+        SetEnvironment(*new_envlist)
