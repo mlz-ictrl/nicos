@@ -338,6 +338,41 @@ class CScan(CommonScan):
         return start, end, abs(end - start) / (2*npoints + 1) / ctime, ctime
 
 
+class TimeScan(Cmdlet):
+
+    name = 'Time scan'
+    category = 'Scan'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client, 'timescan.ui')
+
+    def on_infBox_toggled(self, on):
+        self.numpoints.setEnabled(not on)
+
+    def getValues(self):
+        return {'scanpoints': self.numpoints.value(),
+                'counttime': self.seconds.value(),
+                'countinf': self.infBox.isChecked()}
+
+    def setValues(self, values):
+        if 'scanpoints' in values:
+            self.numpoints.setValue(values['scanpoints'])
+        if 'counttime' in values:
+            self.seconds.setValue(int(values['counttime']))
+        if 'countinf' in values:
+            self.infBox.setChecked(bool(values['countinf']))
+
+    def isValid(self):
+        return self.markValid(self.seconds, self.seconds.value() > 0)
+
+    def generate(self, mode):
+        npoints = -1 if self.infBox.isChecked() else self.numpoints.value()
+        counttime = self.seconds.value()
+        if mode == 'simple':
+            return 'timescan %s %s' % (npoints, counttime)
+        return 'timescan(%s, %s)' % (npoints, counttime)
+
+
 class ContScan(Cmdlet):
 
     name = 'Continuous Scan'
@@ -541,5 +576,6 @@ def register(cmdlet):
         all_categories.append(cmdlet.category)
 
 
-for cmdlet in [Move, Count, Scan, CScan, ContScan, Sleep, Configure, NewSample]:
+for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan,
+               Sleep, Configure, NewSample]:
     register(cmdlet)
