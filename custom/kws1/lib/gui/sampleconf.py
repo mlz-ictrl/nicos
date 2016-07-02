@@ -234,18 +234,23 @@ class KWSSamplePanel(Panel):
         menu.addAction(self.actionCopyAll)
         self.copyBtn.setMenu(menu)
 
+        menu = QMenu(self)
+        menu.addAction(self.actionEmpty)
+        menu.addAction(self.actionGenerate)
+        self.createBtn.setMenu(menu)
+
         self.configs = []
         self.dirty = False
         self.filename = None
 
     @pyqtSlot()
-    def on_newFileBtn_clicked(self):
+    def on_actionEmpty_triggered(self):
         self.fileGroup.setEnabled(False)
         self.sampleGroup.setEnabled(True)
         self.dirty = True
 
     @pyqtSlot()
-    def on_genFileBtn_clicked(self):
+    def on_actionGenerate_triggered(self):
         dlg = QDialog(self)
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_gen.ui'))
         dlg.transBox.setValidator(DoubleValidator(self))
@@ -299,6 +304,20 @@ class KWSSamplePanel(Panel):
         self.fileGroup.setEnabled(False)
         self.sampleGroup.setEnabled(True)
         self.dirty = True
+
+    @pyqtSlot()
+    def on_retrieveBtn_clicked(self):
+        sampleconf = self.client.eval('session.experiment.samples', [])
+        sampleconf = sorted(sampleconf.items())
+        self.configs = [c[1] for c in sampleconf]
+        for config in self.configs:
+            newitem = QListWidgetItem(config['name'], self.list)
+        # select the last item
+        self.list.setCurrentItem(newitem)
+        self.on_list_itemClicked(newitem)
+
+        self.fileGroup.setEnabled(False)
+        self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
