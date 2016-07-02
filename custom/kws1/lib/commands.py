@@ -145,10 +145,7 @@ def kwscount(**arguments):
         session.experiment.sample.select(sample)
     # now wait for everyone else
     multiWait(waiters)
-    # count, take timefactor into account
-    factor = session.experiment.sample.timefactor
-    if factor > 0:
-        meastime *= factor
+    # count
     det = session.getDevice('det')
     if det.mode in ('standard', 'tof'):
         printinfo('Now counting for %d seconds...' % meastime)
