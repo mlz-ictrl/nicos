@@ -76,14 +76,13 @@ def rgrep(dev, dt, rex, opts):
 
 def main():
     parser = argparse.ArgumentParser(usage='''\
-%(prog)s [options] device datetime searchterm
+%(prog)s [options] device date searchterm
 
-All of "device", "datetime" and "searchterm" are regular expressions.
+All of "device", "date" and "searchterm" are regular expressions.
 
-    * "device" is matched against the NICOS device name of the cache files.
-    * "datetime" is matched against the date/time of the cache files,
-      in format YYYY-MM-DD.
-    * "searchterm" is matched against entries in the cache file.
+    * "device" is matched against the NICOS device name of cache files.
+    * "date" is matched against the date of cache files (format YYYY-MM-DD).
+    * "searchterm" is matched against entries in cache files.
 
 Hint: to select everything for one argument, use . as argument.''')
     parser.add_argument('-d', '--cache-dir', dest='cachedir',
