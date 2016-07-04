@@ -100,7 +100,8 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
             rgb_arr[..., 0] = LUT_r[norm_arr]
             rgb_arr[..., 1] = LUT_g[norm_arr]
             rgb_arr[..., 2] = LUT_b[norm_arr]
-            Image.fromarray(rgb_arr, 'RGB').save(self.sink.filename)
+            Image.frombuffer('RGB', data.shape, rgb_arr, 'raw')\
+                .save(self.sink.filename)
         except Exception:
             self.log.warning('could not save live PNG', exc=1)
         self._last_saved = currenttime()
