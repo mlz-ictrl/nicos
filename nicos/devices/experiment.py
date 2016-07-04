@@ -1137,7 +1137,7 @@ class ImagingExperiment(Experiment):
         self._setROParam('lastopenbeamimage', '')
 
     def new(self, *args, **kwargs):
-        Experiment.new(*args, **kwargs)
+        Experiment.new(self, *args, **kwargs)
         self._clearImgPaths()
 
 
