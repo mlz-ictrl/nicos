@@ -85,7 +85,8 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
         if self.sink.log10:
             zeros = (image == 0)
             image = np.log10(image)
-            norm_arr = image.astype(float) * 255. / (max_pixel or 1)
+            max_pixel_log = np.log10(max_pixel) if max_pixel else 1
+            norm_arr = image.astype(float) * 255. / max_pixel_log
             norm_arr = norm_arr.astype(np.uint8)
             norm_arr[zeros] = 0
         else:
