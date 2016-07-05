@@ -5,7 +5,7 @@ group = 'lowlevel'
 devices = dict(
     emailer  = device('devices.notifiers.Mailer',
                       description = 'Notifier service to send emails',
-                      sender = 'nicos.toftof@frm2.tum.de',
+                      sender = 'toftof@frm2.tum.de',
                       copies = [('wiebke.lohstroh@frm2.tum.de', 'all'),
                                # ('Josef.Huber@frm2.tum.de', 'all'),
                                 ('zachary.evenson@frm2.tum.de', 'all'),

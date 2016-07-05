@@ -5,7 +5,7 @@ group = 'lowlevel'
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       description = 'Notifications via email',
-                      sender = 'andreas.wilhelm@frm2.tum.de',
+                      sender = 'sans1@frm2.tum.de',
                       copies = [('andreas.wilhelm@frm2.tum.de', 'important'),
                                 ('Andre.Heinemann@hzg.de', 'important'),
                                 ('sebastian.busch@hzg.de', 'important'),
@@ -15,7 +15,7 @@ devices = dict(
                      ),
     warning = device('devices.notifiers.Mailer',
                      description = 'warning notifcations via email',
-                     sender = 'andreas.wilhelm@frm2.tum.de',
+                     sender = 'sans1@frm2.tum.de',
                      copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                      subject = 'SANS-1 Warning',
                      mailserver='mailhost.frm2.tum.de',
@@ -23,7 +23,7 @@ devices = dict(
 
     info    = device('devices.notifiers.Mailer',
                      description = 'info notifcations via email',
-                     sender = 'andreas.wilhelm@frm2.tum.de',
+                     sender = 'sans1@frm2.tum.de',
                      copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                      subject = 'SANS-1 Info',
                     ),
