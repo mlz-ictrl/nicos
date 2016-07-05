@@ -76,6 +76,7 @@ class TearOffTabBar(QTabBar):
         if not (event.buttons() & Qt.LeftButton):
             return
         if not self._dragStartPos.isNull() and \
+           self.tabAt(self._dragStartPos) != -1 and \
            (event.pos() - self._dragStartPos).manhattanLength() \
            < QApplication.startDragDistance():
             self._dragInitiated = True
