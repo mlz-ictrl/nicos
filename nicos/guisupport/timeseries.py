@@ -132,12 +132,12 @@ class TimeSeries(object):
         self.x = np.zeros(self.minsize)
         self.y = np.zeros(self.minsize)
 
-    def init_from_history(self, history, starttime, valueindex=-1):
+    def init_from_history(self, history, starttime, endtime, valueindex=-1):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
-        x = np.zeros(3 * len(history))
-        y = np.zeros(3 * len(history))
+        x = np.zeros(3 * len(history) + 2)
+        y = np.zeros(3 * len(history) + 2)
         i = 0
         vtime = value = None  # stops pylint from complaining
         for vtime, value in history:
@@ -172,11 +172,17 @@ class TimeSeries(object):
             x[i] = ltime = max(vtime, starttime)
             y[i] = lvalue = value
             i += 1
-        # In case the final value was discarded because it came too fast,
-        # add it anyway, because it will potentially be the last one for
-        # longer, and synthesized.
         if i and y[i-1] != value:
+            # In case the final value was discarded because it came too fast,
+            # add it anyway, because it will potentially be the last one for
+            # longer, and synthesized.
             x[i] = vtime
+            y[i] = value
+            i += 1
+        elif i and x[i-1] < endtime - self.interval:
+            # In case the final value is very old, synthesize a point
+            # right away at the end of the interval.
+            x[i] = endtime
             y[i] = value
             i += 1
         self.n = self.real_n = i

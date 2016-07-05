@@ -105,7 +105,8 @@ class View(QObject):
                                     meta[0].get(key), meta[1].get(key))
                 self.series[key, index] = series
                 if history:
-                    series.init_from_history(history, fromtime, index)
+                    series.init_from_history(history, fromtime,
+                                             totime or currenttime(), index)
                 else:
                     series.init_empty()
             self._key_indices.setdefault(key, []).extend(real_indices)
