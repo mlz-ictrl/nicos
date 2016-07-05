@@ -383,6 +383,9 @@ class KWSSamplePanel(Panel):
         if item:
             item.widget().deleteLater()
 
+    def on_list_currentItemChanged(self, item, previous):
+        self.on_list_itemClicked(item)
+
     def on_list_itemClicked(self, item):
         self._clearDisplay()
         index = self.list.row(item)
