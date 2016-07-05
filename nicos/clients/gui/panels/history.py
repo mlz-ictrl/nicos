@@ -30,8 +30,8 @@ import sys
 from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
 
-from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
-    QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
+from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
+    QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, QMessageBox
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
     pyqtSignature as qtsig
 
@@ -49,7 +49,7 @@ from nicos.pycompat import cPickle as pickle, iteritems, integer_types
 
 
 class View(QObject):
-    def __init__(self, name, keys_indices, interval, fromtime, totime,
+    def __init__(self, widget, name, keys_indices, interval, fromtime, totime,
                  yfrom, yto, window, meta, dlginfo, query_func):
         QObject.__init__(self)
         self.name = name
@@ -89,6 +89,10 @@ class View(QObject):
                         if log is None:
                             from __main__ import log  # pylint: disable=E0611
                         log.error('Error getting history for %s.' % key)
+                        QMessageBox.warning(widget, 'Error',
+                                            'Could not get history for %s, '
+                                            'there are no values to show.\n'
+                                            'Is it spelled correctly?' % key)
                         history = []
                     hist_cache[key] = history
                 else:
@@ -418,7 +422,7 @@ class BaseHistoryWindow(object):
                 return
         else:
             yfrom = yto = None
-        view = View(name, keys_indices, interval, fromtime, totime,
+        view = View(self, name, keys_indices, interval, fromtime, totime,
                     yfrom, yto, window, meta, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
