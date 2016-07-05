@@ -1,0 +1,2 @@
+class TacoDevice:
+    pass
