@@ -138,11 +138,12 @@ def queryProposal(pnumber, instrument=None):
     if not permissions:
         raise InvalidValueError('no permissions entry in database')
     instrumentnames = instrumentnames.replace('poli-heidi', 'poli')
+    instrumentnames = instrumentnames.replace('kws ', 'kws-')
     instruments = set(instrumentnames.split(','))
     if instrument is not None and (instrument.lower() not in instruments):
         session.log.error('proposal %s is not a proposal for '
                           '%s, but for %s, cannot use proposal information' %
-                          (pnumber, instrument, instrumentnames))
+                          (pnumber, instrument, '/'.join(instruments)))
         # avoid data leakage
         return instrument, {'wrong_instrument': instruments}
     # structure of returned data: (title, user, prop_name, prop_value)
