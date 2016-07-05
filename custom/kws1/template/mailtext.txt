@@ -9,7 +9,7 @@ with our support. Do not forget to submit an experimental report,
 especially if you will ask for further beam time.
 
 If you have further questions concerning this experiment, please always
-include the proposalnumber ({{proposal}}) in your communication.
+include the proposal number ({{proposal}}) in your communication.
 
 Regards,
   The KWS-1 Team

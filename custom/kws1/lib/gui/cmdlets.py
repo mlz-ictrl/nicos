@@ -110,7 +110,7 @@ class MeasureTable(Cmdlet):
 
     def on_client_experiment(self, data):
         # reset everything
-        self.on_rtBox_toggled(False)
+        self.rtBox.setChecked(False)
 
     def on_rtBox_toggled(self, state):
         self.rtConfBtn.setEnabled(state)

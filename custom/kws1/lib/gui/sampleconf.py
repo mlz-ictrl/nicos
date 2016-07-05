@@ -309,12 +309,14 @@ class KWSSamplePanel(Panel):
     def on_retrieveBtn_clicked(self):
         sampleconf = self.client.eval('session.experiment.samples', [])
         sampleconf = sorted(sampleconf.items())
-        self.configs = [c[1] for c in sampleconf]
+        self.configs = [c[1] for c in sampleconf if 'thickness' in c[1]]
+        newitem = None
         for config in self.configs:
             newitem = QListWidgetItem(config['name'], self.list)
         # select the last item
-        self.list.setCurrentItem(newitem)
-        self.on_list_itemClicked(newitem)
+        if newitem:
+            self.list.setCurrentItem(newitem)
+            self.on_list_itemClicked(newitem)
 
         self.fileGroup.setEnabled(False)
         self.sampleGroup.setEnabled(True)
@@ -334,10 +336,12 @@ class KWSSamplePanel(Panel):
         else:
             self.fileGroup.setEnabled(False)
             self.sampleGroup.setEnabled(True)
+            newitem = None
             for config in self.configs:
                 newitem = QListWidgetItem(config['name'], self.list)
             # select the last item
-            self.list.setCurrentItem(newitem)
+            if newitem:
+                self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
             self.filename = fn
 
