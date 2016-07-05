@@ -212,7 +212,8 @@ class DevicesPanel(Panel):
         # map lowercased devname -> tree widget item
         self._devitems = {}
         # map lowercased devname ->
-        # [value, status, fmtstr, unit, expired, fixed, classes]
+        # [value, status, fmtstr, unit, expired, fixed, classes,
+        #  valuetimestamp, statustimestamp]
         self._devinfo = {}
         self.tree.clear()
 
@@ -319,11 +320,12 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', False, False, []]
+        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', False, False, [],
+                                   0, 0]
 
         # let the cache handler process all properties
         for key, value in iteritems(params):
-            self.on_client_cache((None, ldevname + '/' + key, OP_TELL,
+            self.on_client_cache((0, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
     def on_client_setup(self, setuplists):
@@ -366,7 +368,7 @@ class DevicesPanel(Panel):
             self._update_view()
 
     def on_client_cache(self, data):
-        (_time, key, op, value) = data
+        (time, key, op, value) = data
         if '/' not in key:
             return
         ldevname, subkey = key.split('/')
@@ -377,6 +379,8 @@ class DevicesPanel(Panel):
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
         if subkey == 'value':
+            if time < devinfo[7]:
+                return
             if not value:
                 fvalue = ''
             else:
@@ -385,6 +389,7 @@ class DevicesPanel(Panel):
                     fvalue = tuple(fvalue)
             devinfo[0] = fvalue
             devinfo[4] = op != OP_TELL
+            devinfo[7] = time
             try:
                 fmted = devinfo[2] % fvalue
             except Exception:
@@ -395,11 +400,14 @@ class DevicesPanel(Panel):
                     fmted + ' ' + devinfo[3])
             devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
         elif subkey == 'status':
+            if time < devinfo[8]:
+                return
             if not value:
                 status = (UNKNOWN, '?')
             else:
                 status = cache_load(value)
             devinfo[1] = status
+            devinfo[8] = time
             devitem.setText(2, str(status[1]))
             if status[0] not in statusIcon:
                 # old or wrong status constant
