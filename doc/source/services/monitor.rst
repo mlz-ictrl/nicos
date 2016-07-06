@@ -189,7 +189,8 @@ The recognized keys are:
   The item could be a single number if the value is a simple list or tuple,
   but if it is a multidimensional array it could be a list.  The first entry
   indexes the first dimension of the array, the second entry the second dimension,
-  and so on.  Examples ::
+  and so on.  Examples::
+
      1, [1], [1, 1]
 
   See the "Triple Axis" block above: the current Q/E space position (which is
