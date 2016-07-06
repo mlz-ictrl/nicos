@@ -184,10 +184,10 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         # no readresult by default
         return ()
 
-    def doPrepare(self):
+    def doStart(self):
+        # ignore prep in time calc
         self._dev.prepareAcq()
 
-    def doStart(self):
         self._setROParam('_starttime', time.time())
         self._setROParam('_curexpotime', self.expotime)
 
