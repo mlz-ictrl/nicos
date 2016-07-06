@@ -14,8 +14,18 @@ Release 2.9.0
     a new value "alias_config", instead of unconditionally setting aliases
     from startup code.
 
-  - The "instrument" and other special devices are now (attempted to be) created
-    when accessed, not only once at setup loading time.
+  - The "instrument" and other special devices are now (attempted to be)
+    created when accessed, not only once at setup loading time.
+
+  - Add basic EPICS support.
+
+  - Add basic CARESS support.
+
+  - 'Multi' sample support.
+
+  - Introduction of a new setup type 'configdata'.
+
+  - Detector related mixins.
 
 * GUI
 
@@ -23,9 +33,25 @@ Release 2.9.0
 
   - Can now turn off display of watchdog warnings in the status monitor setup.
 
+  - Display a status information if a privileged user is connected to daemon.
+
+  - View only connection (or mode) to daemon.
+
+  - Instrument specific sorted display of loaded setups.
+
+  - Attach/detach windows/tabs/panels and restore after restart.
+
+* Internal changes
+
+  - Completely reworked data api.
+
 * Other
 
-  - Added some demo devices for presentations.
+  - Added some demo devices and instruments for presentations.
+
+  - sxtal: single crystal commands and functions.
+
+  - Simple communication protocol support.
 
 
 Release 2.8.0
