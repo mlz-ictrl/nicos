@@ -26,6 +26,12 @@ Temperature Controller
 
 .. autoclass:: Controller()
 
+.. automodule:: nicos.toftof.lascon
+
+.. autoclass:: Lascon()
+.. autoclass:: TemperatureController()
+.. autoclass:: TemperatureSensor()
+
 Neutron Guide/Collimation
 -------------------------
 
@@ -55,9 +61,17 @@ Detector
 
 .. automodule:: nicos.toftof.tofcounter
 
-.. autoclass:: TofCounter()
+.. autoclass:: Monitor()
+.. autoclass:: Timer()
+.. autoclass:: Image()
 
-.. automodule:: nicos.toftof.measurement
+.. automodule:: nicos.toftof.detector
 
-.. autoclass:: TofTofMeasurement()
+.. autoclass:: Detector()
 
+Data formats
+------------
+
+.. automodule:: nicos.toftof.datasinks
+
+.. autoclass:: TofImageSink()

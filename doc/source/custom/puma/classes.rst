@@ -15,7 +15,7 @@ Instrument specific devices
 
 .. automodule:: nicos.puma.focus
 
-.. autoclass:: focus_Axis()
+.. autoclass:: FocusAxis()
 
 .. automodule:: nicos.puma.ipc_puma
 

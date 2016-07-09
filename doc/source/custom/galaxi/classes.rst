@@ -37,6 +37,6 @@ Distances
 File formats
 ------------
 
-.. automodule:: nicos.galaxi.galaxifileformat
+.. automodule:: nicos.galaxi.mythendatasink
 
-.. autoclass:: GALAXIFileFormat()
+.. autoclass:: MythenImageSink()

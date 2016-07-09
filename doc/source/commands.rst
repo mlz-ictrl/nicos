@@ -44,12 +44,6 @@ Experiment-related commands
 
 .. autofunction:: NewExperiment
 
-.. autofunction:: NewSample
-.. autofunction:: SetSample
-.. autofunction:: SelectSample
-.. autofunction:: ClearSamples
-.. autofunction:: ListSamples
-
 .. autofunction:: Remark
 .. autofunction:: LogEntry
 .. autofunction:: FinishExperiment
@@ -191,8 +185,18 @@ one of your loaded setups.  Additionally, your experiment device has to be an
 .. autofunction:: openbeamimage
 .. autofunction:: darkimage
 
+Sample related functions
+------------------------
+
+.. module:: nicos.commands.sample
+
+.. autofunction:: NewSample
+.. autofunction:: SetSample
+.. autofunction:: SelectSample
+.. autofunction:: ClearSamples
+.. autofunction:: ListSamples
+
 Sample utility functions
 ------------------------
-.. module:: nicos.commands.sample
 
 .. autofunction:: activation
