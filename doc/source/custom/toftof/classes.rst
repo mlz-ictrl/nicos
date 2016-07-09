@@ -5,7 +5,7 @@ Chopper
 
 .. autoclass:: Controller()
 .. autoclass:: SpeedReadout()
-.. autoclass:: PropertyChanger()
+.. .. autoclass:: PropertyChanger()
 .. autoclass:: Wavelength()
 .. autoclass:: Speed()
 .. autoclass:: Ratio()
