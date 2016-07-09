@@ -3,9 +3,8 @@
 Components of the NICOS system
 ==============================
 
-NICOS is a control system with several components.  They come in the form of
-executables located in the ``bin`` subdirectory of the NICOS source.  These
-components are:
+The NICOS components come in the form of executables located in the ``bin``
+subdirectory of the NICOS source:
 
 
 .. index:: nicos-aio, nicos-ipython, nicos-gui, nicos-client

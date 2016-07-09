@@ -12,6 +12,7 @@ module, so for example both ``devices.generic.Slit`` and
 setup file.
 
 .. toctree::
+   :maxdepth: 1
 
    axis
    slit

@@ -1,22 +1,7 @@
-NICOS is an instrument control system which allows a 24/7 remote control of
-scientific instruments.  It was developed at the FRM II (as a part of the MLZ)
-to control the neutron experiments. It is not limited in use for these
-instruments since it was designed to be very flexible.
+Overview
+========
 
-One major goal during the development of NICOS was, that it must be open for
-extensions.
-
-The flexibility in use is mainly given by the syntax for the so-called user
-scripts.  The user may program their experiment(s) for long term running as well
-as for interactive use.
-
-The language for the user scripts is Python with some minor restrictions.  For
-example, it is not allowed to re-assign any names pointing to instrument
-specific devices and commands (functions).
-
-.. rst-class:: big
-
-Overview: Parts of a NICOS system
+NICOS is a control system with several components:
 
 * Execution daemon
 
@@ -87,3 +72,10 @@ Overview: Parts of a NICOS system
   and informs the user about problems.  This can be done by pop-ups in the user
   interface, sending an email, sending a text message etc.
 
+* Status Monitor
+
+  Some of the instrument resposible are used to look at there instrument parameters
+  to find out the current state of the instrument.  In former time the looked at
+  their electronic racks, but in nower time the classical racks are more or less
+  gone.  To fill this gap a status monitor was developped, which is highly
+  configurable according to the requirements of the instrument.

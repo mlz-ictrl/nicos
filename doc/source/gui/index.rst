@@ -8,6 +8,7 @@ widgets and panels can be implemented (using Qt base classes and techniques)
 with a few APIs provided by the NICOS base library.
 
 .. toctree::
+   :maxdepth: 1
 
    designer
    widgets

@@ -7,6 +7,7 @@ because most device-specific communication is handled by TACO servers, which
 present a standard interface to NICOS described :ref:`here <taco>`.
 
 .. toctree::
+   :maxdepth: 1
 
    ipc
    toni

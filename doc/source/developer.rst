@@ -1,6 +1,6 @@
-**************
-For Developers
-**************
+*****************
+Developer's Guide
+*****************
 
 Here you can find the necessary information if you  want to configure or
 extend NICOS for your instrument. Remember to also check the
@@ -10,6 +10,8 @@ development environment and coding  guidelines.
 .. toctree::
    :maxdepth: 1
 
+   overview
+   components
    deviceapi
    classes/index
    gui/index

@@ -5,7 +5,7 @@ This chapter describes all of the NICOS services, their configuration and their
 use.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    initscript
    cache

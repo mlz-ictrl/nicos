@@ -3,8 +3,7 @@ General information
 *******************
 
 .. toctree::
+   :hidden:
 
-   changes
-   glossary
 
 General information about NICOS.

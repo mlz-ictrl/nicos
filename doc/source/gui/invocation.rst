@@ -3,8 +3,6 @@ GUI invocation
 
 The NICOS GUI is invoked with the ``nicos-gui`` script.
 
-For configuration of the interface please see :ref:`gui-config`.
-
 Usage of the script::
 
    nicos-gui [options] [username@server [password]]
@@ -28,3 +26,8 @@ Log file
 The NICOS GUI writes a log file with all unhandled tracebacks that are printed
 to the console in abbreviation.  The log file can be found in
 ``~/.config/nicos/log``.
+
+Configuration
+-------------
+
+For configuration of the interface please see :ref:`gui-config`.

@@ -5,9 +5,10 @@ Taco classes
 ============
 
 These classes serve to interface with Taco devices.  Generally the corresponding
-Taco Python modules need to be installed; for example, the temperature control
-classes need the ``Temperature`` module from the ``taco-client-temperature``
-package.
+Taco Python modules need to be installed.
+
+For example, the temperature control classes need the ``Temperature`` module from
+the ``taco-client-temperature`` package.
 
 For a description of the TACO system at FRM II see `this documentation
 <https://forge.frm2.tum.de/wiki/projects:taco:index>`_.
@@ -17,6 +18,7 @@ for example both ``devices.taco.AnalogOutput`` and ``devices.taco.io.AnalogOutpu
 are valid entries for the class name in a setup file.
 
 .. toctree::
+   :maxdepth: 1
 
    core
    detector
