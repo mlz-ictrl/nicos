@@ -449,7 +449,7 @@ class Detector(Measurable):
     def doInfo(self):
         ret = []
         for dev in self._masters:
-            for key in self._presetkeys.keys():
+            for key in self._presetkeys:
                 if self._presetkeys[key].name == dev.name:
                     if key.startswith('mon'):
                         ret.append(('mode', 'monitor', 'monitor', '',

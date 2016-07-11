@@ -33,7 +33,7 @@ from nicos.devices.generic.virtual import VirtualMotor
 from nicos.toftof import calculations as calc
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
-from .base import BaseChopperController
+from nicos.toftof.chopper.base import BaseChopperController
 
 
 class Disc(VirtualMotor):

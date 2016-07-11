@@ -22,4 +22,4 @@
 #
 # *****************************************************************************
 
-from .legacy import TofImageSink
+from nicos.toftof.datasinks.legacy import TofImageSink
