@@ -45,17 +45,6 @@ devices = dict(
                         description = 'daemonsink',
                        ),
 
-    Histogram = device('frm2.qmesydaqsinks.HistogramSink',
-                       description = 'Histogram data written via QMesyDAQ',
-                       image = 'det1_image',
-                       filenametemplate = ['%(pointcounter)07d.mtxt'],
-                      ),
-    Listmode = device('frm2.qmesydaqsinks.ListmodeSink',
-                      description = 'Listmode data written via QMesyDAQ',
-                      image = 'det1_image',
-                      filenametemplate = ['%(pointcounter)07d.mdat'],
-                     ),
-
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       # only specify if differing from Exp.dataroot
