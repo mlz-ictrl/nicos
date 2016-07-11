@@ -503,7 +503,8 @@ devices = dict(
                      layout = [
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _sc2, _ccmsanssc, _st2, _st1),
+                                    Column(_ccmsanssc),
+                                    Column(_sc1, _sc2, _st2, _st1),
                                     Column(_tisane_counts, _tisane_fc,
                                            _tisane_fg1, _tisane_fg2),
                                     Column(_htf01, _htf03,
