@@ -169,7 +169,8 @@ class ExpPanel(Panel, DlgUtils):
                                                              sample)))
                 self.notifEmails.setPlainText(
                     decodeAny(result.get('user_email', emails)))
-                self.dataEmails.setPlainText(decodeAny(dataEmails))
+                self.dataEmails.setPlainText(
+                    '\n'.join(decodeAny(addr) for addr in dataEmails))
                 # check permissions:
                 failed = []
                 yes = 'yes'
