@@ -160,7 +160,7 @@ class MeasureTable(Cmdlet):
             out.append('SetupRealtime(%d, %d, %f, %s)' % (
                 self.rt_settings['channels'],
                 self.rt_settings['interval'] * (10 **
-                {0: 1, 1: 3, 2: 6}[self.rt_settings['intervalunit']]),
+                {0: 0, 1: 3, 2: 6}[self.rt_settings['intervalunit']]),
                 self.rt_settings['progq'],
                 srepr(self.rt_settings['trigger']),
             ))
