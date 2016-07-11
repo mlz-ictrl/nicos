@@ -222,4 +222,3 @@ devices = dict(
                    #~ ),
 # pump devices of 172.17.17.10 are at modbus-tacodevice //sans1srv.sans.frm2/sans1/coll/pump
 )
-

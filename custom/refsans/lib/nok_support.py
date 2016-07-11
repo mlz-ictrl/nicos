@@ -403,5 +403,3 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
 
         # GO
         self._startSequence(sequence)
-
-

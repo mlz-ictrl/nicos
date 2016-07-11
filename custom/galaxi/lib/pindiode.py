@@ -34,6 +34,7 @@ from nicos.core.device import Measurable, Moveable
 from nicos.core.params import Attach
 from nicos.core import status, Value
 
+
 class SingleDetectors(Measurable):
 
     attached_devices = {
@@ -112,4 +113,3 @@ class SingleDetectors(Measurable):
                 return status.ERROR, 'Timeout in PIN diode device.'
             return status.BUSY, 'The device is in MOVING state.'
         return status.OK, 'The device is in ON state.'
-

@@ -2,7 +2,7 @@ description = 'wut readout'
 
 includes = []
 
-#group = 'lowlevel'
+# group = 'lowlevel'
 
 devices = dict(
     s1_wut1 = device('sans1.wut.WutValue',
@@ -24,4 +24,3 @@ devices = dict(
                             unit = 'mA',
     ),
 )
-

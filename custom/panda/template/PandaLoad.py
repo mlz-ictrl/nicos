@@ -905,4 +905,3 @@ if __name__ == '__main__':
     plt.ylabel('H/K (r.l.u.)') #fontsize =
     #~ plt.savefig('map_7T7.pdf')
     plt.show()
-

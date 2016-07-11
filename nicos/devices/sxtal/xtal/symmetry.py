@@ -242,4 +242,3 @@ def _test():
             _testlaue(sym)
         tf3.description = 'Laue uniqds for %s' % sym
         yield tf3, sym
-

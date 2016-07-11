@@ -270,4 +270,3 @@ class DigitalValue(Readable):
 
     def doStatus(self, maxage=0):
         return status.OK, ''
-

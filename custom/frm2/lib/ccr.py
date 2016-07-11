@@ -353,9 +353,8 @@ class PLCLimits(AnalogInput, Moveable):
     valuetype = limits
 
     def doStart(self, target):
-        self._dev.SetParam([[min(target)],['UserMin']])
-        self._dev.SetParam([[max(target)],['UserMax']])
+        self._dev.SetParam([[min(target)], ['UserMin']])
+        self._dev.SetParam([[max(target)], ['UserMax']])
 
     def doRead(self, maxage=0):
-        return self._dev.GetParam('UserMin'),self._dev.GetParam('UserMax')
-
+        return self._dev.GetParam('UserMin'), self._dev.GetParam('UserMax')

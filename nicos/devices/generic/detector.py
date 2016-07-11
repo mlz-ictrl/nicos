@@ -566,4 +566,3 @@ class GatedDetector(Detector):
     def doFinish(self):
         Detector.doFinish(self)
         self._disable_gates()
-

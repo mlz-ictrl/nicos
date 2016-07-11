@@ -32,12 +32,13 @@ from nicos.core.params import Param, ArrayDesc
 from nicos.devices.tango import PyTangoDevice
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.devices.generic.detector import TimerChannelMixin, ImageChannelMixin,\
-     ActiveChannel, Detector
+    ActiveChannel, Detector
 
 P_TIME = 't'
 P_FRAMES = 'f'
 
 DATASIZE = 1280
+
 
 class MythenTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
     """
@@ -51,14 +52,14 @@ class MythenTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
                               type=float, settable=False, userparam=False),
     }
 
-    def doInit(self,mode):
+    def doInit(self, mode):
         self._setROParam('_stoptime', time.time())
 
     def doRead(self, maxage=0):
         if self._stoptime:
             return [min(self._stoptime - self._starttime,
                         self.preselection)]
-        return [round((time.time() - self._starttime),3)]
+        return [round((time.time() - self._starttime), 3)]
 
     def valueInfo(self):
         return (Value(name='time', fmtstr='%.2f'),)
@@ -138,7 +139,7 @@ class MythenImage(PyTangoDevice, ImageChannelMixin, ActiveChannel):
 
     def doStatus(self, maxage=0):
         if PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
-            info ='Remaining exposure time:    ' + str(self.remaining) + ' s'
+            info = 'Remaining exposure time:    ' + str(self.remaining) + ' s'
             return (status.BUSY, info)
         else:
             return PyTangoDevice.doStatus(self, 0)
@@ -167,7 +168,7 @@ class MythenImage(PyTangoDevice, ImageChannelMixin, ActiveChannel):
 
     def valueInfo(self):
         return tuple(Value('frame-%d' % i, fmtstr='%d')
-                     for i in range(1,self.frames +1))
+                     for i in range(1, self.frames + 1))
 
     def doReadArray(self, quality):
         """Returns all frames reshaped as 2D numpy array"""
@@ -198,4 +199,3 @@ class MythenDetector(Detector):
             Detector.doSetPreset(self, **new_preset)
         if P_FRAMES in preset:
             myimage.doWriteFrames(preset[P_FRAMES])
-

@@ -1,6 +1,3 @@
-
-
-
 description = "servos on micropython"
 group = "optional"
 includes = []
@@ -39,4 +36,3 @@ devices = dict(
                 offset = 90,
                ),
 )
-

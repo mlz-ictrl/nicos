@@ -11,4 +11,3 @@ devices = dict(
                    tangodevice = tango_base + "/ls455/field",
                   ),
 )
-

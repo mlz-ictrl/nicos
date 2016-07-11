@@ -103,5 +103,3 @@ typelist = {'k': Kappa,
             'g': GMatrix,
             'n': NEuler,
             }
-
-

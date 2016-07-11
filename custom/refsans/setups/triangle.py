@@ -32,4 +32,3 @@ devices = dict(
 
 startupcode = """
 """
-

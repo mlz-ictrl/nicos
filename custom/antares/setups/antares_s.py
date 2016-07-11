@@ -3,4 +3,3 @@ group = 'basic'
 
 excludes = ['antares_l']
 includes = ['basic', 'sbl', 'huber', 'detector_translation']
-

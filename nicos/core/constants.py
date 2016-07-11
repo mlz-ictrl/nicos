@@ -50,4 +50,3 @@ BLOCK = 'block'
 
 # data display
 NOT_AVAILABLE = 'n/a'
-

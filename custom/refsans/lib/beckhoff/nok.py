@@ -683,5 +683,3 @@ class BeckhoffMotorHSlit(BeckhoffMotorBase):
     def HW_firmwareReset(self):
         # see docu for MAGIC NUMBER
         self._HW_writeParameter('firmwareReset', 0x544b4531)
-
-

@@ -40,4 +40,3 @@ class NPGZImageSinkHandler(SingleFileSinkHandler):
 class NPGZFileSink(ImageSink):
     fileFormat = "NPGZ"
     handlerclass = NPGZImageSinkHandler
-

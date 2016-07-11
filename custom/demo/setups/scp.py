@@ -45,4 +45,3 @@ devices = dict(
                         unit='deg',
                        ),
 )
-

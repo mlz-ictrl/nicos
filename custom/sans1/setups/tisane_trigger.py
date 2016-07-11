@@ -2,7 +2,7 @@ description = 'tisane_trigger'
 
 includes = []
 
-#group = 'lowlevel'
+# group = 'lowlevel'
 
 devices = dict(
     tisane_trigger = device('sans1.tisane_trigger.WutValue',
@@ -15,4 +15,3 @@ devices = dict(
                             unit = 'V',
     ),
 )
-

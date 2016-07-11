@@ -47,8 +47,7 @@ class MythenImageSinkHandler(SingleFileSinkHandler):
 
         w('#\n')
         w('# User: %s\n' % session.experiment.users)
-        w('# Sample: %s\n' %
-                             session.experiment.sample.samplename)
+        w('# Sample: %s\n' % session.experiment.sample.samplename)
         w('#\n')
         w('#' + '-'*79 + '\n')
 
@@ -296,7 +295,7 @@ class MythenImageSink(ImageSink):
     """Saves GALAXI image data"""
 
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False,
+        'filenametemplate':  Override(mandatory=False, settable=False,
                                       userparam=False,
                                       default=['%(Exp.users)s'
                                                '_%(session.experiment.sample.'
@@ -306,4 +305,3 @@ class MythenImageSink(ImageSink):
     }
 
     handlerclass = MythenImageSinkHandler
-
