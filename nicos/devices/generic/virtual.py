@@ -693,7 +693,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                  t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) +
                  t * 20 * np.exp(-xx**2/sigma2) *
                  np.exp(-(yy+dst)**2/sigma2)).astype(int)
-        return np.random.poisson(beam)
+        return np.random.poisson(np.ascontiguousarray(beam.T))
 
     def doEstimateTime(self, elapsed):
         return self._timer.remaining_time()
