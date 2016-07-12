@@ -157,6 +157,8 @@ class ConfigEditDialog(QDialog):
         devlist = self.client.getDeviceList(
             'nicos.core.device.Moveable',
             special_clause='d.valuetype is float')
+        devlist = [item for item in devlist
+                   if item.startswith(('sam_', 'hexapod_'))]
         dlg = QDialog(self)
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_adddev.ui'))
         dlg.widget = None

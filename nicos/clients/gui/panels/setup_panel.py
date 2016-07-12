@@ -84,7 +84,9 @@ class ExpPanel(Panel, DlgUtils):
         self._orig_email = sum(emails, [])
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
         propinfo = self.client.eval('session.experiment.propinfo')
-        self._orig_datamails = propinfo.get("user_email", [])
+        self._orig_datamails = propinfo.get('user_email', '')
+        if not isinstance(self._orig_datamails, list):
+            self._orig_datamails = self._orig_datamails.splitlines()
         self.dataEmails.setPlainText(decodeAny('\n'.join(self._orig_datamails)))
 
     def on_client_connected(self):
