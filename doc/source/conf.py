@@ -27,9 +27,6 @@ sys.path.insert(0, os.path.abspath('..'))  # for custom extensions
 
 import nicos
 
-# _dark  = '#0b2c47'
-# _light = '#175791'
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -48,7 +45,7 @@ extensions = [
     'ext.daemondoc',
     'ext.tacostubs',
     'ext.devicedoc',
-    'alabaster',
+    #'alabaster',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -150,10 +147,10 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import alabaster
-
-html_theme = 'alabaster'
-# html_theme = 'classic'
+# import alabaster
+# html_theme = 'alabaster'
+import sphinx_rtd_theme
+html_theme = 'sphinx_rtd_theme'
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -161,29 +158,13 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {
-    'logo': 'nicos-logo.png',
-    # 'sidebarbgcolor': '#EDF1F3',
-    # 'relbarbgcolor': '#DBDEDE',
-    # 'relbartextcolor': 'black',
-    # 'relbarlinkcolor': _dark,
-    # 'bgcolor': 'white',
-    # 'footerbgcolor': 'white',
-    # 'bodyfont': 'Arial, sans-serif',
-    # 'headfont': 'Arial, sans-serif',
-    # 'headbgcolor': 'white',
-    # 'headtextcolor': _dark,
-    # 'headlinkcolor': 'white',
-    # 'linkcolor': _light,
-    # 'visitedlinkcolor': _light,
-    # 'sidebartextcolor': 'black',
-    # 'sidebarlinkcolor': _dark,
-    # 'footertextcolor': 'black',
-    # 'stickysidebar': True,
-    # 'codebgcolor': '#F5F7F6',
+    # 'logo': 'nicos-logo.png',
+    'logo_only': True,
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [alabaster.get_path()]
+# html_theme_path = [alabaster.get_path()]
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
@@ -198,7 +179,7 @@ html_title = 'NICOS documentation'
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = '_static/nicos-logo.png'
+html_logo = '../../resources/nicos-logo.svg'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

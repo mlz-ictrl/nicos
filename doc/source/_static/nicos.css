@@ -1,33 +1,10 @@
-@import url('classic.css');
-
-.big {
-    font-size: 130%;
-    border: 1px solid #ccc;
-    padding: 5px;
+div.wy-side-nav-search
+{
+    background-color:#2d83af;
 }
 
-.big em {
-    font-style: normal !important;
+div.wy-side-nav-search > div.version
+{
+    color:#000000;
 }
 
-th {
-    background-color: #edf1f3;
-    vertical-align: middle;
-    border: 1px solid #aaa !important;
-}
-
-td {
-    border: 1px solid #aaa !important;
-}
-
-.row-odd {
-    background-color: #f9f8f7;
-}
-
-dl.class, dl.function, dl.data {
-    border-bottom: 1px solid #999;
-}
-
-div.viewcode-block:target {
-    background-color: white;
-}

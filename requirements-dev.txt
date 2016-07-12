@@ -9,3 +9,4 @@ memory_profiler
 line_profiler
 --extra-index-url https://forge.frm2.tum.de/simple
 noseglobalconf>=0.0.2
+sphinx_rtd_theme
