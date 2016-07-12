@@ -101,6 +101,7 @@ def acquire(point, preset):
         raise
     sleep(delay)
     try:
+        quality = None
         while True:
             looptime = currenttime()
             for det in list(detset):
