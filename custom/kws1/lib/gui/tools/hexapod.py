@@ -95,22 +95,40 @@ class HexapodTool(QMainWindow, DlgUtils):
         try:
             return getattr(dev, cmd)(*args)
         except Exception as err:
-            self.showError('Could not execute %s on hexapod:\n%s' % (cmd, err))
-            raise
+            # try once to switch device On
+            try:
+                dev.On()
+                return getattr(dev, cmd)(*args)
+            except Exception as err:
+                self.showError('Could not execute %s on hexapod:\n%s' %
+                               (cmd, err))
+                raise
 
     def query_attr(self, dev, attr):
         try:
             return getattr(dev, attr)
         except Exception as err:
-            self.showError('Could not query %s on hexapod:\n%s' % (attr, err))
-            raise
+            # try once to switch device On
+            try:
+                dev.On()
+                return getattr(dev, attr)
+            except Exception as err:
+                self.showError('Could not query %s on hexapod:\n%s' %
+                               (attr, err))
+                raise
 
     def set_attr(self, dev, attr, value):
         try:
             setattr(dev, attr, value)
         except Exception as err:
-            self.showError('Could not set %s on hexapod:\n%s' % (attr, err))
-            raise
+            # try once to switch device On
+            try:
+                dev.On()
+                setattr(dev, attr, value)
+            except Exception as err:
+                self.showError('Could not set %s on hexapod:\n%s' %
+                               (attr, err))
+                raise
 
     @pyqtSlot()
     def on_butExit_clicked(self):

@@ -113,10 +113,10 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         w = fp.write
 
         # sample envs
-        sample_env = ['Temperature dummy line'] * 5
+        sample_env = ['Temperature dummy line'] * 4
         for (i, (info, val)) in enumerate(zip(self.dataset.envvalueinfo,
                                               self.dataset.envvaluelist)):
-            if i >= 5:  # only five lines allowed
+            if i >= 4:  # only four lines allowed
                 break
             try:
                 val = info.fmtstr % val
