@@ -218,6 +218,7 @@ devices = dict(
                      valuefont = 'Consola',
                      fontsize = 12,#12
                      padding = 0,#3
+                     showwatchdog = False,
                      layout = [
                                  Row(_selcolumn, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
