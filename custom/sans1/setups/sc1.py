@@ -50,8 +50,8 @@ devices = dict(
                                },
                     fallback = 0,
                     fmtstr = '%d',
-                    precision = [0.05, 0.05, 100], # for use without nicos
-                    #~ precision = [0.05, 0.05, 0], # for use with nicos
+                    precision = [0.05, 0.05],
+                    # precision = [0.05, 0.05, 100], # for use without nicos
                     blockingmove = False,
                     lowlevel = False,
                    ),
