@@ -4,16 +4,23 @@ description = 'Andor DV434 CCD camera'
 
 group = 'optional'
 
+includes = ['filesavers']
+
 tango_base = 'tango://nectarccd02.nectar.frm2:10000/nectar/'
 nethost = 'nectarsrv.nectar.frm2'  # taco
 
 devices = dict(
-    FITSFileSaver = device('devices.datasinks.FITSImageSink',
-        description = 'Saves image data in FITS format',
-        filenametemplate = ['%(pointcounter)08d.fits'],
-    ),
+    timer   = device('devices.vendor.lima.LimaCCDTimer',
+                     description = 'The camera\'s internal timer',
+                     tangodevice = tango_base + 'detector/limaccd',
+                    ),
 
-    # TODO: create a generic.Detector device to use the channels
+    det     = device('devices.generic.Detector',
+                     description = 'The Andor Neo sCMOS camera detector',
+                     images = ['ccd'],
+                     timers = ['timer'],
+                    ),
+
     ccd = device('devices.vendor.lima.Andor2LimaCCD',
         description = 'The CCD detector',
         tangodevice = tango_base + 'detector/limaccd',
@@ -81,7 +88,7 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(ccd)
+SetDetectors(det)
 
 ## override hw setting to known good values.
 ccd.rotation = 0
