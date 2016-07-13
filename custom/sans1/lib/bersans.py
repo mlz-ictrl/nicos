@@ -218,7 +218,9 @@ MesyDAQFile=%(Histfile)s
 ListModeFile=%(Listfile)s
 QMesyDAQ_setup_file=%(Setupfile)s
 LookUpTable=%(LookUpTable)s
+"""
 
+TISANEHEADER = """
 tisane_counts=%(tisane_det_pulses)s
 tisane_fc=%(tisane_fc)s
 
@@ -318,7 +320,10 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         self.log.debug('nicosheader starts with: %40s' % nicosheader)
 
         # write Header
-        for line in BERSANSHEADER.split('\n'):
+        header = BERSANSHEADER
+        if 'tisane' in session.explicit_setups:
+            header += TISANEHEADER
+        for line in header.split('\n'):
             self.log.debug('testing header line: %r' % line)
             self.log.debug(line % metadata)
             fp.write(to_utf8(line % metadata))
