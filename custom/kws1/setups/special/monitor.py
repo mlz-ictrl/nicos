@@ -58,11 +58,17 @@ _shutter = Block('Shutter', [
 ])
 
 _sample = Block('Sample', [
+    BlockRow(Field(name='Trans X', dev='sam_trans_x'),
+             Field(name='Trans Y', dev='sam_trans_y')),
+    BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
+], setups='not sample_rotation')
+
+_sample_withrot = Block('Sample', [
     BlockRow(Field(name='Rotation', dev='sam_rot'),
              Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y')),
     BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
-])
+], setups='sample_rotation')
 
 _hexapod = Block('Hexapod', [
     BlockRow(Field(name='TX', dev='hexapod_tx'),
@@ -94,6 +100,25 @@ _peltierplot = Block('', [
              Field(plot='TT', key='T_julabo/setpoint')),
 ], setups='peltier')
 
+_julabo = Block('Julabo', [
+    BlockRow('T_julabo')
+], setups='waterjulabo and not peltier')
+
+_julaboplot = Block('', [
+    BlockRow(Field(plot='JT', dev='T_julabo', width=40, height=25, plotwindow=2*3600),
+             Field(plot='JT', key='T_julabo/setpoint')),
+], setups='waterjulabo and not peltier')
+
+_et = Block('Eurotherm', [
+    BlockRow('T_et')
+], setups='eurotherm')
+
+_etplot = Block('', [
+    BlockRow(Field(plot='ET', dev='T_et', width=40, height=25, plotwindow=2*3600),
+             Field(plot='ET', key='T_et/setpoint')),
+], setups='eurotherm')
+
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'KWS-1 status',
@@ -101,15 +126,15 @@ devices = dict(
                      # Use only 'localhost' if the cache is really running on
                      # the same machine, otherwise use the hostname (official
                      # computer name) or an IP address.
-                     cache = 'localhost',# 'phys.kws1.frm2',
+                     cache = 'phys.kws1.frm2',
                      font = 'Luxi Sans',
                      valuefont = 'Bitstream Vera Sans Mono',
                      padding = 0,
                      layout = [
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _polarizer, _daq),
-                             Column(_shutter, _collimation, _detector, _sample),
-                             Column(_hexapod, _peltier, _peltierplot)),
+                             Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
+                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
                      ],
                     ),
 )
