@@ -57,7 +57,7 @@ devices = dict(
                             pollinterval = 15,
                             fmtstr = '%d',
                             lowlevel = True,
-                            precision = 1,
+                            precision = 3,
                            ),
     det1_hv_ax    = device('sans1.hv.Sans1HV',
                            description = 'high voltage of detector 1',
