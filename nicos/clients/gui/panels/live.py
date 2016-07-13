@@ -268,6 +268,7 @@ class LiveDataPanel(Panel):
             # show always latest live image
             if self._no_direct_display:
                 self._no_direct_display = False
+                d = None
                 if self._last_fname and path.isfile(self._last_fname) and \
                    self._last_tag in self._allowed_tags:
                     d = LWData(self._last_fname)
