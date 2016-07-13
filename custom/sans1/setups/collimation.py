@@ -134,7 +134,7 @@ devices = dict(
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
-                        lowlevel = True,
+                        lowlevel = False,
                         precision = 0.05,
                        ),
     col_20a_a  = device('devices.generic.Axis',
