@@ -37,7 +37,7 @@ devices = dict(
                                 switch = 'ccmsanssc_switch',
                                 switchvalues = (2, 1),
                                 fmtstr = '%.2f',
-                                precision = 0.01,
+                                precision = 0.05,
                                 dragerror = 5,
                                ),
 

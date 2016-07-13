@@ -13,7 +13,7 @@ devices = dict(
                           fmtstr = '%.0f',
                           timeout = 600,
                           warnlimits = (3099, 28300),
-                          precision = 6,
+                          precision = 10,
                           comdelay = 30,
                           maxage = 35,
                          ),
