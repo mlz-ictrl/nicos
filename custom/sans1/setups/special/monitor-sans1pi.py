@@ -156,7 +156,7 @@ _temp_garching = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-            Field(devices=['det1_z', 'det1_x','det1_omega', 'det_pos2'],
+            Field(devices=['det1_z', 'det1_x', 'det1_omg', 'det_pos2'],
                   widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
         ),
         BlockRow(
