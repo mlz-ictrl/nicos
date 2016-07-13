@@ -215,6 +215,9 @@ Operation=
 
 %%Comment
 MesyDAQFile=%(Histfile)s
+ListModeFile=%(Listfile)s
+QMesyDAQ_setup_file=%(Setupfile)s
+LookUpTable=%(LookUpTable)s
 
 tisane_counts=%(tisane_det_pulses)s
 tisane_fc=%(tisane_fc)s
@@ -263,9 +266,16 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
                              "using 0.0 instead", exc=1)
 
         try:
-            Histfile = session.getDevice('det1_image').histogramfile
+            det1_image = session.getDevice('det1_image')
+            Histfile = det1_image.histogramfile
+            Listfile = det1_image.listmodefile.split('\'')[1]
+            Setupfile = det1_image.configfile
+            LookUpTable = det1_image.calibrationfile
         except Exception:
             Histfile = ''
+            Listfile = ''
+            Setupfile = 'setup'
+            LookUpTable = 'lookup'
 
         metadata = DeviceValueDict(
             fileName = self._file.filepath,
@@ -286,6 +296,9 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Sum_Moni1 = '%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
             Sum_Moni2 = '%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
             Histfile = Histfile,
+            Listfile = Listfile,
+            Setupfile = Setupfile,
+            LookUpTable = LookUpTable,
         )
 
         nicosheader = []
