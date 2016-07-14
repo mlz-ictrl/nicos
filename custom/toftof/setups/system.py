@@ -65,8 +65,9 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    livesink   = device('devices.datasinks.LiveViewSink',
+    livesink   = device('toftof.datasinks.ToftofLiveViewSink',
                         lowlevel = True,
+                        detinfofile = '/opt/nicos/custom/toftof/detinfo.dat',
                        ),
     tofsink = device('toftof.datasinks.TofImageSink',
                      filenametemplate = ['%(pointcounter)08d_0000.raw'],
