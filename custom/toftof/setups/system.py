@@ -67,12 +67,10 @@ devices = dict(
 
     livesink   = device('toftof.datasinks.ToftofLiveViewSink',
                         lowlevel = True,
-                        detinfofile = '/opt/nicos/custom/toftof/detinfo.dat',
                        ),
     tofsink = device('toftof.datasinks.TofImageSink',
                      filenametemplate = ['%(pointcounter)08d_0000.raw'],
                      lowlevel = True,
-                     detinfofile = '/opt/nicos/custom/toftof/detinfo.dat',
                     ),
     Space = device('devices.generic.FreeSpace',
                    description = 'The amount of free space for storing data',

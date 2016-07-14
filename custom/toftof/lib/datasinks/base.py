@@ -24,7 +24,7 @@
 
 """Base data sink classes (new API) for TOFTOF."""
 
-from nicos.core import Override, Param
+from nicos.core import Override
 from nicos.core.data import DataSinkHandler
 from nicos.devices.datasinks.image import ImageSink
 
@@ -44,14 +44,6 @@ class TofSinkHandler(DataSinkHandler):
 
 class TofSink(ImageSink):
 
-    parameters = {
-        'detinfofile': Param('Path to the detector-info file',
-                             type=str, settable=False,
-                             default='custom/toftof/detinfo.dat',
-                             # mandatory=True,
-                             ),
-    }
-
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
@@ -59,32 +51,3 @@ class TofSink(ImageSink):
                                               '%(proposal)s_%(scancounter)s'
                                               '_%(pointnumber)s.raw']),
     }
-
-    def doInit(self, mode):
-        self._import_detinfo()
-
-    def _import_detinfo(self):
-        with open(self.detinfofile, 'U') as fp:
-            self._detinfo = list(fp)
-        for line in self._detinfo:
-            if not line.startswith('#'):
-                break
-        dmap = {}  # maps "Total" (ElNr) to 2theta
-        dinfo = [None]  # dinfo[EntryNr]
-        for line in self._detinfo:
-            if not line.startswith('#'):
-                ls = line.split()
-                if 'None' not in ls[13]:
-                    dmap[int(ls[12])] = float(ls[5])
-                dinfo.append(
-                    list(map(int, ls[:5])) + [float(ls[5])] +
-                    list(map(int, ls[6:8])) + [float(ls[8])] +
-                    list(map(int, ls[9:13])) +
-                    [' '.join(ls[13:-2]).strip("'")] +
-                    list(map(int, ls[-2:]))
-                )
-        self._detinfolength = len(dinfo)
-        self._detinfo_parsed = dinfo
-        self.log.debug(self._detinfo_parsed)
-        self._anglemap = tuple((i - 1) for i in sorted(dmap,
-                                                       key=dmap.__getitem__))

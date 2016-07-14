@@ -45,6 +45,7 @@ devices = dict(
                  pollinterval = 0.5,
                  liveinterval = 10.0,
                  saveintervals = [30., ],
+                 detinfofile = 'custom/toftof/detinfo.dat',
                  # fileformats = ['tofdatasaver'],
                  # subdir = 'toftof',
                  # numinputs = 1024,
@@ -371,7 +372,6 @@ devices = dict(
                ),
     tofsink = device('toftof.datasinks.TofImageSink',
                      filenametemplate = ['%(pointcounter)08d_0000.raw'],
-                     detinfofile = 'custom/toftof/detinfo.dat',
                      lowlevel = True,
                     ),
 )

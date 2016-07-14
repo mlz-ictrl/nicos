@@ -367,8 +367,8 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
 
     def _retrieve_detinfo(self):
         if self._detinfo is None:
-            info = self.panel.client.eval('tofsink._detinfo_parsed, '
-                                          'tofsink._anglemap', None)
+            info = self.panel.client.eval('det._detinfo_parsed, '
+                                          'det._anglemap', None)
             if not info:
                 return self.showError('Cannot retrieve detector info.')
             self._lambda = self.panel.client.eval('chWL()', None)

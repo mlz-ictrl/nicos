@@ -213,8 +213,8 @@ class TofImageSinkHandler(TofSinkHandler):
         f.write('Plattform: %s\n' % os.uname()[0])
         # The detector information length is not correct it has 1 line more
         # than the number of the detectors
-        f.write('aDetInfo(%u,%u): \n' % (14, self.sink._detinfolength - 1))
-        f.write('%s' % ''.join(self.sink._detinfo))
+        f.write('aDetInfo(%u,%u): \n' % (14, self.detector._detinfolength - 1))
+        f.write('%s' % ''.join(self.detector._detinfo))
         f.write('aData(%u,%u): \n' % (data.shape[0], data.shape[1]))
         np.savetxt(f, data, '%d')
         syncFile(f)
