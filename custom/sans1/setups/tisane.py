@@ -59,5 +59,5 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(det1)
+det1._attached_images[0].listmode = True
 '''
