@@ -279,6 +279,21 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Setupfile = 'setup'
             LookUpTable = 'lookup'
 
+        try:
+            Listfile = session.getDevice('det1_image').listmodefile.split('\'')[1]
+        except Exception:
+            Listfile = ''
+
+        try:
+            Setupfile = session.getDevice('det1_image').configfile
+        except Exception:
+            Setupfile = 'setup'
+
+        try:
+            LookUpTable = session.getDevice('det1_image').calibrationfile
+        except Exception:
+            LookUpTable = 'lookup'
+
         metadata = DeviceValueDict(
             fileName = self._file.filepath,
             fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
