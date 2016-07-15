@@ -164,12 +164,17 @@ class Detector(GenericDetector):
         meastime = float(ret[0])
         monitor = int(ret[1])
         counts = int(ret[2])
+        if meastime >= self._attached_timers[0].preselection:
+            difftim = meastime = 0
+        else:
+            difftim = meastime - self._last_time
+
         monrate = monitor / meastime if meastime else 0
-        difftim = meastime - self._last_time
         if monitor == 0 and self._last_moncounts > 0:
             self._last_moncounts = 0
         monrate_inst = (monitor - self._last_moncounts) / difftim if difftim \
             else 0
+
         detrate = counts / meastime if meastime else 0
         if counts == 0 and self._last_counts > 0:
             self._last_counts = 0
