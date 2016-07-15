@@ -198,7 +198,7 @@ def rscan(dev, *args, **kwargs):
             dev.speed = speed
         else:
             raise UsageError("missing preset parameter t.")
-        RScan(devs, values, move, multistep, detlist, envlist, preset,
-              scaninfo, waitbeforecount=False).run()
+        RScan(devs, values[:-1], values[1:], move, multistep, detlist,
+              envlist, preset, scaninfo).run()
     finally:
         dev.speed = oldspeed
