@@ -210,7 +210,6 @@ _p_filter = Column(
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     showwatchdog = False,
                      title = 'SANS-1 status monitor',
                      loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',
