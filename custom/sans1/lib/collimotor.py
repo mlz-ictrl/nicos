@@ -519,8 +519,8 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
                              else self.refpos - 100))
         seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
         seq.append(SeqMethod(self, '_HW_reference'))
-        seq.append(SeqMethod(self, 'doSetPosition', self.refpos))
         seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        seq.append(SeqMethod(self, 'doSetPosition', self.refpos))
         return seq
 
     #
