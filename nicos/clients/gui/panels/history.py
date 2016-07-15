@@ -27,6 +27,7 @@
 
 import os
 import sys
+import operator
 from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
 
@@ -101,10 +102,11 @@ class View(QObject):
                 # specified, add a plot for each item
                 if history:
                     first_value = history[0][1]
-                    if index == -1 and isinstance(first_value, (list, tuple)):
-                        real_indices = list(range(len(first_value)))
+                    if not index and isinstance(first_value, (list, tuple)):
+                        real_indices = tuple((i,) for i in
+                                             range(len(first_value)))
             for index in real_indices:
-                name = '%s[%d]' % (key, index) if index > -1 else key
+                name = '%s[%s]' % (key, ','.join(map(str, index))) if index else key
                 series = TimeSeries(name, interval, window, self,
                                     meta[0].get(key), meta[1].get(key))
                 self.series[key, index] = series
@@ -148,9 +150,10 @@ class View(QObject):
             return
         for index in self._key_indices[key]:
             series = self.series[key, index]
-            if index > -1:
+            if index:
+                value = reduce(operator.getitem, index, value)
                 try:
-                    series.add_value(vtime, value[index])
+                    series.add_value(vtime, value)
                 except (TypeError, IndexError):
                     continue
             else:

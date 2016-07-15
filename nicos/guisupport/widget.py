@@ -53,6 +53,7 @@ class NicosListener(object):
         self.registerKeys()
 
     def _newDevinfo(self, valueindex, unit, fmtstr, isdevice):
+        valueindex = tuple(map(int, valueindex))
         return attrdict(
             {'value': '-',
              'valueindex': valueindex,
@@ -66,7 +67,7 @@ class NicosListener(object):
              'expired': True,
              'isdevice': isdevice})
 
-    def registerDevice(self, dev, valueindex=-1, unit='', fmtstr=''):
+    def registerDevice(self, dev, valueindex=(), unit='', fmtstr=''):
         self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
         self._devmap[self._source.register(self, dev + '/value')] = dev
         self._devmap[self._source.register(self, dev + '/status')] = dev
@@ -76,7 +77,7 @@ class NicosListener(object):
         if not fmtstr:
             self._devmap[self._source.register(self, dev + '/fmtstr')] = dev
 
-    def registerKey(self, valuekey, statuskey='', valueindex=-1,
+    def registerKey(self, valuekey, statuskey='', valueindex=(),
                     unit='', fmtstr=''):
         self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr,
                                                   False)
@@ -133,14 +134,9 @@ class NicosListener(object):
         # it's either /value, or any key registered as value
         # first, apply item selection
         if value is not None:
-            if isinstance(devinfo.valueindex, list):
+            if devinfo.valueindex:
                 try:
                     fvalue = reduce(operator.getitem, devinfo.valueindex, value)
-                except Exception:
-                    fvalue = NOT_AVAILABLE
-            elif devinfo.valueindex >= 0:
-                try:
-                    fvalue = value[devinfo.valueindex]
                 except Exception:
                     fvalue = NOT_AVAILABLE
             else:

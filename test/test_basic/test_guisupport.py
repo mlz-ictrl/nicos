@@ -28,7 +28,8 @@ in dependence of loaded_setups.
 
 from __future__ import print_function
 
-from nicos.guisupport.utils import checkSetupSpec, DoubleValidator
+from nicos.guisupport.utils import checkSetupSpec, DoubleValidator, \
+    extractKeyAndIndex
 
 # Importing this AFTER nicos.guisupport to have the correct SIP API set.
 from PyQt4.QtGui import QValidator
@@ -117,3 +118,18 @@ def test_double_validator():
         validator.setBottom(args[1])
         validator.setTop(args[2])
         assert validator.validate(args[0], 0)[0] == QValidator.Invalid
+
+
+def test_extract_key_and_index():
+    assert extractKeyAndIndex('dev') == ('dev/value', ())
+    assert extractKeyAndIndex('dev.key') == ('dev/key', ())
+    assert extractKeyAndIndex('dev.key[0]') == ('dev/key', (0,))
+    assert extractKeyAndIndex('dev.key[0,1]') == ('dev/key', (0, 1))
+    assert extractKeyAndIndex('dev[0,1]') == ('dev/value', (0, 1))
+    assert extractKeyAndIndex('dev.key[0, 1]') == ('dev/key', (0, 1))
+    assert extractKeyAndIndex('dev.key[ 0, 1]') == ('dev/key', (0, 1))
+    assert extractKeyAndIndex('dev.key[ 0 , 1]') == ('dev/key', (0, 1))
+    assert extractKeyAndIndex('dev.key[ 0 , 1 ]') == ('dev/key', (0, 1))
+    assert extractKeyAndIndex('dev.key[10 , 11]') == ('dev/key', (10, 11))
+    assert extractKeyAndIndex('dev.key[0') == ('dev/key[0', ())
+    assert extractKeyAndIndex('dev.key0]') == ('dev/key0]', ())

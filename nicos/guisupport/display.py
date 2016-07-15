@@ -203,7 +203,7 @@ class ValueDisplay(NicosWidget, QWidget):
         'unit':       PropDef(str, '', 'Unit of the value to display next to '
                               'the name; if "dev" is given this defaults to '
                               'the unit set in NICOS'),
-        'item':       PropDef(int, -1, 'Item to extract from a value that is '
+        'item':       PropDef('QStringList', [], 'Item to extract from a value that is '
                               'a sequence of items'),
         'format':     PropDef(str, '', 'Python format string to use for the '
                               'value; if "dev" is given this defaults to the '

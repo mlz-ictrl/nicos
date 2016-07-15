@@ -27,8 +27,10 @@
 NICOS value plot widget.
 """
 
-import numpy as np
+import operator
 from time import time as currenttime
+
+import numpy as np
 
 from PyQt4.QtCore import SIGNAL
 
@@ -132,7 +134,7 @@ class TimeSeries(object):
         self.x = np.zeros(self.minsize)
         self.y = np.zeros(self.minsize)
 
-    def init_from_history(self, history, starttime, endtime, valueindex=-1):
+    def init_from_history(self, history, starttime, endtime, valueindex=()):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
@@ -141,13 +143,13 @@ class TimeSeries(object):
         i = 0
         vtime = value = None  # stops pylint from complaining
         for vtime, value in history:
-            if valueindex > -1:
-                try:
-                    value = value[valueindex]
-                except (TypeError, IndexError):
-                    continue
             if value is None:
                 continue
+            if valueindex:
+                try:
+                    value = reduce(operator.getitem, valueindex, value)
+                except (TypeError, IndexError):
+                    continue
             delta = vtime - ltime
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string

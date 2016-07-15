@@ -26,6 +26,8 @@
 NICOS value plot widget.
 """
 
+import operator
+
 from time import time as currenttime, strftime, localtime
 
 from PyQt4.QtGui import QWidget, QPen, QBrush
@@ -205,26 +207,6 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             self.setAxisAutoScale(QwtPlot.yLeft)
             self.zoomer.setZoomBase()
 
-    def addcurve(self, key, index, title):
-        series = self.series[key, index] = TimeSeries(
-            key, self.props['plotinterval'], self.props['plotwindow'], self)
-        series.init_empty()
-        curve = QwtPlotCurve(title)
-        self.plotcurves[series] = curve
-        curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
-        self.ncurves += 1
-        curve.attach(self)
-        curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-        if self.legendobj:
-            self.legendobj.find(curve).setIdentifierWidth(30)
-        self.ctimers[curve] = QTimer(singleShot=True)
-
-        # record the current value at least every 5 seconds, to avoid curves
-        # not updating if the value doesn't change
-        def update():
-            series.synthesize_value()
-        self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
-
     def on_timeSeriesUpdate(self, series):
         curve = self.plotcurves[series]
         curve.setData(series.x[:series.n], series.y[:series.n])
@@ -242,13 +224,35 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             # restrict time of value to 1 minute past at
             # maximum, so that it doesn't get culled by the windowing
             time = max(time, currenttime() - 60)
-            if index >= 0:
+            if index:
                 try:
-                    series.add_value(time, value[index])
-                except (ValueError, IndexError):
+                    fvalue = reduce(operator.getitem, index, value)
+                    series.add_value(time, fvalue)
+                except Exception:
                     pass
             else:
                 series.add_value(time, value)
+
+    def addcurve(self, key, index, title):
+        series = TimeSeries(key, self.props['plotinterval'],
+                            self.props['plotwindow'], self)
+        series.init_empty()
+        curve = QwtPlotCurve(title)
+        self.plotcurves[series] = curve
+        curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
+        self.ncurves += 1
+        curve.attach(self)
+        curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        if self.legendobj:
+            self.legendobj.find(curve).setIdentifierWidth(30)
+        self.series[key, index] = series
+
+        # record the current value at least every 5 seconds, to avoid curves
+        # not updating if the value doesn't change
+        def update():
+            series.synthesize_value()
+        self.ctimers[curve] = QTimer(singleShot=True)
+        self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
 
     def registerKeys(self):
         for key, name in zip_longest(self.props['devices'], self.props['names']):
