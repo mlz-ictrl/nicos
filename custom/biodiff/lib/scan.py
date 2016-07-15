@@ -41,7 +41,7 @@ from nicos.jcns.shutter import OPEN
 
 class RScan(Scan):
 
-    def moveTo(self, position, wait=True):
+    def moveDevices(self, devices, positions, wait=True):
         if wait:
             # stop running microstep sequence if wait is true because
             # in the following code the attached motor will be used which will
@@ -50,20 +50,15 @@ class RScan(Scan):
             #  busy but the attached motor is just busy when it gets a move
             #  command from the sequence)
             # A general stop for microstepping motors avoids this interference.
-            for dev in self._devices:
+            for dev in devices:
                 if isinstance(dev, MicrostepMotor):
                     dev.stop()
                     dev.wait()
             # movement and counting separate
             # do not use software based micro stepping
-            where = [(dev._attached_motor, pos) if isinstance(dev,
-                                                              MicrostepMotor)
-                     else (dev, pos)
-                     for dev, pos in zip(self._devices, position)]
-            where = zip(*where)
-            return self.moveDevices(where[0], where[1], wait)
-        else:
-            return Scan.moveTo(self, position, wait)
+            devices = [dev._attached_motor if isinstance(dev, MicrostepMotor)
+                       else dev for dev in devices]
+        return Scan.moveDevices(self, devices, positions, wait)
 
     def preparePoint(self, num, xvalues):
         if num > 0:  # skip starting point, because of range scan (0..1, ...)
