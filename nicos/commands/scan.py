@@ -339,9 +339,11 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     If the "speed" is not explicitly given, it is set to 1/5 of the normal
     speed of the device.  This is very useful for peak searches.
 
-    Example:
+    Examples:
 
     >>> contscan(phi, 0, 10)
+    >>> contscan(phi, 0, 10, speed=1)
+    >>> contscan(phi, 0, 10, timedelta=1)
 
     The phi device will move continuously from 0 to 10, with reduced speed.  In
     contrast to a `sweep`, the detectors are read out every *timedelta* seconds
