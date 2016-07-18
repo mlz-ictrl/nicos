@@ -167,6 +167,9 @@
        <string>det.rates[1][1]</string>
       </stringlist>
      </property>
+     <property name="legend" stdset="0">
+      <bool>true</bool>
+     </property>
      <property name="names" stdset="0">
       <stringlist>
        <string>Monitor</string>
