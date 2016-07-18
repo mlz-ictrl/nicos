@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from os.path import relpath
-
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
@@ -33,7 +31,7 @@ from nicos.commands.device import maw
 from nicos.commands.scan import manualscan
 
 
-__all__ = ['tomo', 'openbeamimage', 'darkimage']
+__all__ = ['tomo']
 
 
 @usercommand
@@ -60,79 +58,3 @@ def tomo(nangles, moveable=None, imgsperangle=1, *detlist, **preset):
             # Capture the desired amount of images
             for _ in range(imgsperangle):
                 count(*detlist, **preset)
-
-
-@usercommand
-@helparglist('shutter, [detectors], [presets]')
-def openbeamimage(shutter=None, *detlist, **preset):
-    """Acquire an open beam image."""
-    exp = session.experiment
-    det = exp.detectors[0]
-
-    # TODO: better ideas for shutter control
-    if shutter:
-        # Shutter was given, so open it
-        maw(shutter, 'open')
-    else:
-        # No shutter; try the lima way
-        oldmode = det.shuttermode
-        det.shuttermode = 'auto'
-
-    try:
-        det.subdir = relpath(exp.openbeamdir, exp.datapath)
-        return count(*detlist, **preset)
-    finally:
-
-        if shutter:
-            maw(shutter, 'closed')
-        else:
-            det.shuttermode = oldmode
-
-        lastImg = det.read(0)
-        if lastImg:
-            # only show the path relative to the proposalpath
-            lastImg = lastImg[0]
-        else:
-            lastImg = ''
-
-        printinfo('last open beam image is %r' % lastImg)
-        exp._setROParam('lastopenbeamimage', lastImg)
-        det.subdir = ''
-
-
-@usercommand
-@helparglist('shutter, [detectors], [presets]')
-def darkimage(shutter=None, *detlist, **preset):
-    """Acquire a dark image."""
-    exp = session.experiment
-    det = exp.detectors[0]
-
-    # TODO: better ideas for shutter control
-    if shutter:
-        # Shutter was given, so open it
-        maw(shutter, 'closed')
-    else:
-        # No shutter; try the lima way
-        oldmode = det.shuttermode
-        det.shuttermode = 'always_closed'
-
-    try:
-        det.subdir = relpath(exp.darkimagedir, exp.datapath)
-        return count(*detlist, **preset)
-    finally:
-
-        if shutter:
-            maw(shutter, 'open')
-        else:
-            det.shuttermode = oldmode
-
-        lastImg = det.read(0)
-        if lastImg:
-            # only show the path relative to the proposalpath
-            lastImg = lastImg[0]
-        else:
-            lastImg = ''
-
-        printinfo('last dark image is %r' % lastImg)
-        exp._setROParam('lastdarkimage', lastImg)
-        det.subdir = ''
