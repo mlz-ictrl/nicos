@@ -784,7 +784,7 @@ def mailaddress(val=None):
     return val
 
 
-def absolute_path(val=''):
+def absolute_path(val=path.sep):
     """an absolute file path"""
     val = str(val)
     if path.isabs(val):
