@@ -432,7 +432,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         # check only the others and return BUSY
         # also ignore the limit switch bits
         # if statval & (0xfff8) == 0x0100:
-        if statval & (0xffe0) == 0x0100:
+        if statval & (0x7fe0) == 0x0100:
             return status.BUSY, '0x010x!'
 
         # status Stuff
@@ -465,6 +465,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
                 msg.append('Overtemperature (T>125 degC)')
             if errval & 0b1111111101000000:
                 msg.append('Unknown Error 0x%04x' % errval)
+
 
         # informational stuff
         if statval & (1 << 4):
