@@ -6,7 +6,8 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 sysconfig = dict(
-    datasinks = ['BerSANSFileSaver', 'LivePNGSink', 'LivePNGSinkLog'],
+    datasinks = ['BerSANSFileSaver', 'LivePNGSink', 'LivePNGSinkLog',
+                 'DetectorSetup', 'DetectorCalibration'],
 )
 
 devices = dict(
@@ -42,14 +43,32 @@ devices = dict(
                        image = 'det1_image',
                        subdir = 'mtxt',
                        filenametemplate = ['%(pointcounter)07d.mtxt'],
+                       lowlevel = True,
                       ),
     Listmode = device('frm2.qmesydaqsinks.ListmodeSink',
                       description = 'Listmode data written via QMesyDAQ',
                       image = 'det1_image',
                       subdir = 'list',
                       filenametemplate = ['%(pointcounter)07d.mdat'],
+                      lowlevel = True,
                      ),
-
+    DetectorSetup = device('sans1.copysink.CopySink',
+                           description = 'Save the current detector setup file',
+                           source = 'configfile',
+                           subdir = 'configs',
+                           path = '/data/qmesydaq/configs/configuration_2016_07_13',
+                           filenametemplate = ['config_%(pointcounter)07d.mcfg'],
+                           lowlevel = True,
+                          ),
+    DetectorCalibration = device('sans1.copysink.CopySink',
+                                 description = 'Save the current detector '
+                                               'calibration file',
+                                 source = 'calibrationfile',
+                                 subdir = 'configs',
+                                 path = '/data/qmesydaq/configs/pos_calibration_2016_07_13',
+                                 filenametemplate = ['calib_%(pointcounter)07d.txt'],
+                                 lowlevel = True,
+                                ),
     det1_mon1 = device('devices.vendor.qmesydaq.taco.Counter',
                        description = 'QMesyDAQ Counter0',
                        tacodevice = '//%s/sans1/qmesydaq/counter0' % nethost,
