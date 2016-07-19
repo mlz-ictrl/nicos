@@ -3,7 +3,7 @@
 description = 'Sample table'
 
 
-includes = ['motorbus1', 'motorbus2', 'motorbus4', 'motorbus5', 'motorbus11']
+includes = ['motorbus1', 'motorbus2', 'motorbus4', 'motorbus5', 'motorbus3']
 
 devices = dict(
     st_phi = device('devices.vendor.ipc.Motor',
@@ -108,7 +108,7 @@ devices = dict(
 # Tilting
 
     st_sgx = device('devices.vendor.ipc.Motor',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 64, #67
                     slope = -3200,
                     unit = 'deg',
@@ -118,7 +118,7 @@ devices = dict(
                    ),
 
     st_sgy = device('devices.vendor.ipc.Motor',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 65, #68
                     slope = -3200,
                     unit = 'deg',
@@ -128,7 +128,7 @@ devices = dict(
                    ),
 
     co_sgx = device('devices.vendor.ipc.Coder',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 70,
                     slope = -8192,
                     zerosteps = 33515429,
@@ -137,7 +137,7 @@ devices = dict(
                    ),
 
     co_sgy = device('devices.vendor.ipc.Coder',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 71,
                     slope = -8192,
                     zerosteps = 33521006,
@@ -170,7 +170,7 @@ devices = dict(
 # Translation
 
     st_stx = device('devices.vendor.ipc.Motor',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 66,
                     slope = -6250.0, #2015.03.09
                     unit = 'mm',
@@ -180,7 +180,7 @@ devices = dict(
                    ),
 
     st_sty = device('devices.vendor.ipc.Motor',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 67, #65
                     slope = -6250.0, #2015.03.09,
                     unit = 'mm',
@@ -190,7 +190,7 @@ devices = dict(
                    ),
 
     co_stx = device('devices.vendor.ipc.Coder',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 74,
                     slope = -194.53,    #2015.02.20
                     zerosteps = 4591.8, #2015.02.20
@@ -199,7 +199,7 @@ devices = dict(
                    ),
 
     co_sty = device('devices.vendor.ipc.Coder',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 75,
                     slope = -189,
                     zerosteps = 5138,
@@ -233,7 +233,7 @@ devices = dict(
                    ),
 
     st_stz = device('devices.vendor.ipc.Motor',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 68, #64
                     slope = -40000,
                     unit = 'mm',
@@ -243,7 +243,7 @@ devices = dict(
                    ),
 
     co_stz = device('devices.vendor.ipc.Coder',
-                    bus = 'motorbus11',
+                    bus = 'motorbus3',
                     addr = 76,
                     slope = 190,
                     zerosteps = 4968,

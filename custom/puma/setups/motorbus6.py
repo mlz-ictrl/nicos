@@ -11,7 +11,7 @@ devices = dict(
 
 # motorbus for slit1 (old motorbus6)
     motorbus6a = device('devices.vendor.ipc.IPCModBusTaco',
-                        tacodevice = 'puma/rs485/s22',
+                        tacodevice = 'puma/rs485/moxa1_6',
                         bustimeout = 0.1,
                         lowlevel = True,
                        ),

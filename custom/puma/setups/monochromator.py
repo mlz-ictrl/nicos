@@ -33,7 +33,7 @@ devices = dict(
 
 #   co_mtt = device('devices.vendor.ipc.Coder',
     co_mtt = device('devices.vendor.ipc.Resolver',
-                    bus = 'motorbus9',
+                    bus = 'motorbus8',
                     addr = 120,
                     slope = -182.044,
                     zerosteps = 61180,
@@ -45,7 +45,7 @@ devices = dict(
 
 #   co_mth = device('devices.vendor.ipc.Coder',
     co_mth = device('devices.vendor.ipc.Resolver',
-                    bus = 'motorbus9',
+                    bus = 'motorbus8',
                     addr = 121,
                     slope = -181.638,
                     zerosteps = 32823,
@@ -54,7 +54,7 @@ devices = dict(
                    ),
 
     io_flag = device('devices.vendor.ipc.Input',
-                    bus = 'motorbus8',
+                    bus = 'motorbus9',
                     addr = 102,
                     first = 9,
                     last = 9,
@@ -63,7 +63,7 @@ devices = dict(
                    ),
 
     polyswitch = device('devices.vendor.ipc.Output',
-                        bus = 'motorbus8',
+                        bus = 'motorbus9',
                         addr = 115,
                         first = 0,
                         last = 0,

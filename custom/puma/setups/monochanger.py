@@ -108,7 +108,7 @@ devices = dict(
                    ),
 
     io_mag = device('devices.vendor.ipc.Input',
-                    bus = 'motorbus8',
+                    bus = 'motorbus9',
                     addr = 106,
                     first = 3,
                     last = 6,
@@ -130,7 +130,7 @@ devices = dict(
 
 # Magnetic Lock
     mlock_op = device('devices.vendor.ipc.Input',
-                      bus = 'motorbus8',
+                      bus = 'motorbus9',
                       addr = 101,
                       first = 0,
                       last = 3,
@@ -139,7 +139,7 @@ devices = dict(
                      ),
 
     mlock_cl = device('devices.vendor.ipc.Input',
-                      bus = 'motorbus8',
+                      bus = 'motorbus9',
                       addr = 101,
                       first = 5,
                       last = 8,
@@ -148,7 +148,7 @@ devices = dict(
                      ),
 
     mlock_set = device('devices.vendor.ipc.Output',
-                       bus = 'motorbus8',
+                       bus = 'motorbus9',
                        addr = 110,
                        first = 0,
                        last = 3,
@@ -167,7 +167,7 @@ devices = dict(
                     ),
 # Greifer (grip)
     gr_stat = device('devices.vendor.ipc.Input',
-                     bus = 'motorbus8',
+                     bus = 'motorbus9',
                      addr = 101,
                      first = 14,
                      last = 15,
@@ -176,7 +176,7 @@ devices = dict(
                     ),
 
     gr_set = device('devices.vendor.ipc.Output',
-                    bus = 'motorbus8',
+                    bus = 'motorbus9',
                     addr = 110,
                     first = 5,
                     last = 5,
@@ -198,7 +198,7 @@ devices = dict(
 
 # 3R coupling
     r3_set = device('devices.vendor.ipc.Output',
-                    bus = 'motorbus8',
+                    bus = 'motorbus9',
                     addr = 110,
                     first = 4,
                     last = 4,
@@ -218,7 +218,7 @@ devices = dict(
 
 # holdstat
     holdstat_io = device('devices.vendor.ipc.Input',
-                         bus = 'motorbus8',
+                         bus = 'motorbus9',
                          addr = 101,
                          first = 9,
                          last = 12,
@@ -234,7 +234,7 @@ devices = dict(
                      ),
 # holdstat
     monostat_io = device('devices.vendor.ipc.Input',
-                         bus = 'motorbus8',
+                         bus = 'motorbus9',
                          addr = 106,
                          first = 0,
                          last = 2,
