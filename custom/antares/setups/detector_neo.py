@@ -9,7 +9,7 @@ includes = ['shutters', 'filesavers']
 tango_base = 'tango://antaresccd02.antares.frm2:10000/antares/'
 
 devices = dict(
-    timer   = device('devices.vendor.lima.LimaCCDTimer',
+    timer_neo   = device('devices.vendor.lima.LimaCCDTimer',
                      description = 'The camera\'s internal timer',
                      tangodevice = tango_base + 'detector/limaccd',
                     ),
@@ -25,7 +25,7 @@ devices = dict(
                      rotation = 90,
                      openfastshutter = False,
                     ),
-    neoTemp = device('devices.vendor.lima.Andor3TemperatureController',
+    temp_neo = device('devices.vendor.lima.Andor3TemperatureController',
                      description = 'The CMOS chip temperature',
                      tangodevice = tango_base + 'detector/neo',
                      maxage = 5,
@@ -36,15 +36,15 @@ devices = dict(
                      fmtstr = '%.0f',
                     ),
 
-    det     = device('devices.generic.Detector',
+    det_neo     = device('devices.generic.Detector',
                      description = 'The Andor Neo sCMOS camera detector',
                      images = ['neo'],
-                     timers = ['timer'],
+                     timers = ['timer_neo'],
                     ),
 )
 
 startupcode = '''
-SetDetectors(det)
+SetDetectors(det_neo)
 
 ## override hw setting to known good values.
 neo.rotation = 90
