@@ -27,7 +27,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
 from nicos.commands.output import printinfo
 from nicos.commands.measure import count
-from nicos.commands.device import maw
+from nicos.commands.device import move, wait
 from nicos.commands.scan import manualscan
 
 
@@ -35,25 +35,40 @@ __all__ = ['tomo']
 
 
 @usercommand
-@helparglist('nangles, moveable, imgsperangle=1, [detectors], [presets]')
-def tomo(nangles, moveable=None, imgsperangle=1, *detlist, **preset):
+@helparglist('nangles, moveables, imgsperangle=1, [detectors], [presets]')
+def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     """Performs a tomography by scanning over 360 deg in nangles steps
-    and capturing a desired amount of images (imgsperangle) per step."""
+    and capturing a desired amount of images (imgsperangle) per step.
+    The scanning movement will be done by all given moveables.
+
+    Examples:
+
+    # single moveable
+    >>> tomo(10, sry)
+
+    # multiple moveables
+    >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3])
+    """
 
     printinfo('Starting tomography scan.')
-    if moveable is None:
+    if moveables is None:
         # TODO: currently, sry is the common name on nectar and antares for the
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
-        moveable = session.getDevice('sry')
+        moveables = [session.getDevice('sry')]
+
+    if not isinstance(moveables, list):
+        moveables = [moveables]
 
     printinfo('Performing 360 deg scan.')
 
     angles = [180.0] + floatrange(0.0, 360.0, num=nangles).tolist()
-    with manualscan(moveable):
+    with manualscan(*moveables):
         for angle in angles:
             # Move the given movable to the target angle
-            maw(moveable, angle)
+            for entry in moveables:
+                move(entry, angle)
+            wait(*moveables)
 
             # Capture the desired amount of images
             for _ in range(imgsperangle):
