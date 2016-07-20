@@ -51,7 +51,7 @@ class QMesydaqCaressDevice(CARESSDevice):
             _config = ' '.join(self.config.split()[3:])
             self.log.debug('Reduced config: %s' % _config)
             res = self._caressObject.init_module(INIT_NORMAL, self._cid,
-                                                     _config)
+                                                 _config)
             self.log.debug('Init module (Connect): %r' % (res,))
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                 res = self._caressObject.init_module(INIT_REINIT, self._cid,
@@ -195,6 +195,7 @@ class Timer(TimerChannelMixin, Channel):
     """Timer for CARESS."""
 
     pass
+
 
 class Counter(CounterChannelMixin, Channel):
     """Counter for CARESS."""
