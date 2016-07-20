@@ -43,9 +43,9 @@ _sampleTableBlock = Block('Sample table', [
 )
 
 _kappaBlock = Block('Mini-kappa', [
-    BlockRow(Field(name='kappa', dev='minikappa_kappa',)),
-    BlockRow(Field(name='phi', dev='minikappa_phi',)),
-    BlockRow(Field(name='omega', dev='minikappa_omega',)),
+    BlockRow(Field(name='kappa', dev='kappa_minikappa',)),
+    BlockRow(Field(name='phi', dev='phi_minikappa',)),
+    BlockRow(Field(name='omega', dev='omega_minikappa',)),
     ],
     setups='kappa',
 )
