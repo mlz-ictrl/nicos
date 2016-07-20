@@ -39,7 +39,7 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
 _detectorikonlcolumn = Column(
     Block('Detector Andor IkonL', [
     BlockRow(
-        Field(name='Last Image', key='ikonl.lastfilename', width=60),
+        Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
     BlockRow(
         Field(name='Status', key='ikonl/status', width=25, item=1),
@@ -62,7 +62,7 @@ _detectorikonlcolumn = Column(
 _detectorneocolumn = Column(
     Block('Detector Andor Neo', [
     BlockRow(
-        Field(name='Last Image', key='neo.lastfilename', width=60),
+        Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
     BlockRow(
         Field(name='Status', key='neo/status', width=25, item=1),
