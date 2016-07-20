@@ -22,117 +22,54 @@
 #
 # *****************************************************************************
 
-from os.path import relpath
-
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
 from nicos.commands.output import printinfo
 from nicos.commands.measure import count
-from nicos.commands.device import maw
+from nicos.commands.device import move, wait
 from nicos.commands.scan import manualscan
 
 
-__all__ = ['tomo', 'openbeamimage', 'darkimage']
+__all__ = ['tomo']
 
 
 @usercommand
-@helparglist('nangles, moveable, imgsperangle=1, [detectors], [presets]')
-def tomo(nangles, moveable=None, imgsperangle=1, *detlist, **preset):
+@helparglist('nangles, moveables, imgsperangle=1, [detectors], [presets]')
+def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     """Performs a tomography by scanning over 360 deg in nangles steps
-    and capturing a desired amount of images (imgsperangle) per step."""
+    and capturing a desired amount of images (imgsperangle) per step.
+    The scanning movement will be done by all given moveables.
+
+    Examples:
+
+    # single moveable
+    >>> tomo(10, sry)
+
+    # multiple moveables
+    >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3])
+    """
 
     printinfo('Starting tomography scan.')
-    if moveable is None:
+    if moveables is None:
         # TODO: currently, sry is the common name on nectar and antares for the
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
-        moveable = session.getDevice('sry')
+        moveables = [session.getDevice('sry')]
+
+    if not isinstance(moveables, list):
+        moveables = [moveables]
 
     printinfo('Performing 360 deg scan.')
 
     angles = [180.0] + floatrange(0.0, 360.0, num=nangles).tolist()
-    with manualscan(moveable):
+    with manualscan(*moveables):
         for angle in angles:
             # Move the given movable to the target angle
-            maw(moveable, angle)
+            for entry in moveables:
+                move(entry, angle)
+            wait(*moveables)
 
             # Capture the desired amount of images
             for _ in range(imgsperangle):
                 count(*detlist, **preset)
-
-
-@usercommand
-@helparglist('shutter, [detectors], [presets]')
-def openbeamimage(shutter=None, *detlist, **preset):
-    """Acquire an open beam image."""
-    exp = session.experiment
-    det = exp.detectors[0]
-
-    # TODO: better ideas for shutter control
-    if shutter:
-        # Shutter was given, so open it
-        maw(shutter, 'open')
-    else:
-        # No shutter; try the lima way
-        oldmode = det.shuttermode
-        det.shuttermode = 'auto'
-
-    try:
-        det.subdir = relpath(exp.openbeamdir, exp.datapath)
-        return count(*detlist, **preset)
-    finally:
-
-        if shutter:
-            maw(shutter, 'closed')
-        else:
-            det.shuttermode = oldmode
-
-        lastImg = det.read(0)
-        if lastImg:
-            # only show the path relative to the proposalpath
-            lastImg = lastImg[0]
-        else:
-            lastImg = ''
-
-        printinfo('last open beam image is %r' % lastImg)
-        exp._setROParam('lastopenbeamimage', lastImg)
-        det.subdir = ''
-
-
-@usercommand
-@helparglist('shutter, [detectors], [presets]')
-def darkimage(shutter=None, *detlist, **preset):
-    """Acquire a dark image."""
-    exp = session.experiment
-    det = exp.detectors[0]
-
-    # TODO: better ideas for shutter control
-    if shutter:
-        # Shutter was given, so open it
-        maw(shutter, 'closed')
-    else:
-        # No shutter; try the lima way
-        oldmode = det.shuttermode
-        det.shuttermode = 'always_closed'
-
-    try:
-        det.subdir = relpath(exp.darkimagedir, exp.datapath)
-        return count(*detlist, **preset)
-    finally:
-
-        if shutter:
-            maw(shutter, 'open')
-        else:
-            det.shuttermode = oldmode
-
-        lastImg = det.read(0)
-        if lastImg:
-            # only show the path relative to the proposalpath
-            lastImg = lastImg[0]
-        else:
-            lastImg = ''
-
-        printinfo('last dark image is %r' % lastImg)
-        exp._setROParam('lastdarkimage', lastImg)
-        det.subdir = ''

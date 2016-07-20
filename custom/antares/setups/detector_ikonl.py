@@ -9,7 +9,16 @@ includes = ['shutters', 'filesavers']
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
-    # TODO: configure generic.Detector device to use the channel
+    timer_ikonl   = device('devices.vendor.lima.LimaCCDTimer',
+                     description = 'The camera\'s internal timer',
+                     tangodevice = tango_base + 'detector/limaccd',
+                    ),
+
+    det_ikonl     = device('devices.generic.Detector',
+                     description = 'The Andor Neo sCMOS camera detector',
+                     images = ['ikonl'],
+                     timers = ['timer_ikonl'],
+                    ),
     ikonl = device('antares.detector.AntaresIkonLCCD',
                  description = 'The Andor Ikon L CCD camera detector',
                  tangodevice = tango_base + 'detector/limaccd',
@@ -26,7 +35,7 @@ devices = dict(
                  hsspeed = 1,
                  pgain = 1,
                 ),
-    ikonlTemp = device('devices.vendor.lima.Andor2TemperatureController',
+    temp_ikonl = device('devices.vendor.lima.Andor2TemperatureController',
                      description = 'The CCD chip temperature',
                      tangodevice = tango_base + 'detector/ikonl',
                      maxage = 5,
@@ -39,7 +48,7 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(ikonl)
+SetDetectors(det_ikonl)
 
 ## override hw setting to known good values.
 ikonl.rotation = 90
