@@ -119,9 +119,15 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             if result[0] != 0:
                 raise NicosError(self, 'Could not start the module')
 
-    def doFinish(self):
+    def _stop(self):
         self._break(0)
         self._break(1)
+
+    def doStop(self):
+        self._stop()
+
+    def doFinish(self):
+        self._stop()
 
     def _break(self, kind=0):
         if hasattr(self._caressObject, 'stop_module'):
