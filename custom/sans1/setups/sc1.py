@@ -2,7 +2,7 @@ description = 'sample changer 1 devices'
 
 group = 'optional'
 
-includes = ['sample_changer']#, 'sample_table_2']  # includes 'sample_table_1'
+includes = ['sample_changer', 'sample_table_1']  # includes 'sample_table_1'
 
 nethost = 'sans1srv.sans1.frm2'
 

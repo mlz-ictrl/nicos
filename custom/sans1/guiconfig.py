@@ -70,7 +70,7 @@ config = ('Default', [
                           # image='custom/sans1/lib/gui/sampleChanger11.png',
                           image='custom/sans1/lib/gui/sampleChanger22.png',
                           # positions = 11, setups='!setup22',)),
-                          positions = 22, setups='sc1',
+                          positions = 22, setups=['sc1', 'sc2'],
                          ),
                 ),
             )
