@@ -43,11 +43,12 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
 
     Examples:
 
-    # single moveable
-    >>> tomo(10, sry)
-
-    # multiple moveables
-    >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3])
+    >>> tomo(10, sry) # single moveable
+    >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
+    >>> tomo(10, sry, 5) # multiple images per angle
+    >>> tomo(10, sry, t=1) # tomography with 1s exposure time
+    >>> tomo(10, sry, 1, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
+    >>> tomo(10, sry, 5, det_neo, det_ikonl, t=1) # full version
     """
 
     printinfo('Starting tomography scan.')

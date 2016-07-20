@@ -1402,8 +1402,10 @@ class Moveable(Waitable):
                 # special case: in simulation mode, doReadUserlimits is not called,
                 # so the limits are not set from the absolute limits, and are always
                 # (0, 0) except when set in the setup file
+                # Set them directly (bypassing pos check, as this may work at
+                # this point for simulation)
                 if self.userlimits == (0.0, 0.0):
-                    self.userlimits = self.abslimits
+                    self._params['userlimits'] = self.abslimits
 
     @usermethod
     def isAllowed(self, pos):
