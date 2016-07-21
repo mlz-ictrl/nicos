@@ -164,10 +164,17 @@ class TofImageSinkHandler(TofSinkHandler):
             f.write('Status: %5.1f %% completed\n' %
                     (100. * int(info[1]) / preset))
         else:
-            if float(info[0]) < preset:
-                f.write('ToGo: %.0f s\n' % (preset - float(info[0])))
-            f.write('Status: %5.1f %% completed\n' %
-                    (100. * float(info[0]) / preset))
+            # This code looks a little bit strange, but this is due to the
+            # problem of the buggy TACO timer device which sets the time to
+            # the preset during a stop. This will also be done if the timer
+            # is not finished yet. If the time between start time and current
+            # time is less then the preset the counting is running or stopped
+            time = min(currenttime() - self.dataset.started, float(info[0]))
+            if time > preset:
+                time = preset
+            if time < preset:
+                f.write('ToGo: %.0f s\n' % (preset - time))
+            f.write('Status: %5.1f %% completed\n' % (100. * time / preset))
 
         tempfound = False
         for dev in session.experiment.sampleenv:
