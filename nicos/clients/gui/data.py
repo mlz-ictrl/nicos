@@ -88,6 +88,13 @@ def name_unit(name, unit):
     return name
 
 
+def try_index(seq, index):
+    try:
+        return seq[index]
+    except IndexError:
+        return 0.
+
+
 class DataHandler(QObject):
     def __init__(self, client):
         QObject.__init__(self)
@@ -135,6 +142,12 @@ class DataHandler(QObject):
         dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
                                           dataset.xunits[dataset.xindex])
         dataset.curves = self._init_curves(dataset)
+        for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
+            try:
+                self._update_curves(dataset, xvalues, yvalues)
+            except Exception:
+                from nicos.clients.gui.main import log
+                log.error('Error adding datapoint', exc=1)
         self.emit(SIGNAL('datasetAdded'), dataset)
 
     def add_existing_dataset(self, dataset, origins=()):
@@ -226,12 +239,12 @@ class DataHandler(QObject):
                 currentset.datax[key].append(val)
                 done.add(key)
         for index, name in currentset.normindices:
-            currentset.datanorm[name].append(yvalues[index])
+            currentset.datanorm[name].append(try_index(yvalues, index))
         for curve in currentset.curves:
-            curve.datay.append(yvalues[curve.yindex])
+            curve.datay.append(try_index(yvalues, curve.yindex))
             if curve.dyindex >= 0:
-                curve.datady.append(yvalues[curve.dyindex])
+                curve.datady.append(try_index(yvalues, curve.dyindex))
             elif curve.dyindex == -2:
-                curve.datady.append(np.sqrt(yvalues[curve.yindex]))
+                curve.datady.append(np.sqrt(try_index(yvalues, curve.yindex)))
             else:
                 curve.datady.append(0)

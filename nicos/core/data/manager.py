@@ -90,7 +90,10 @@ class DataManager(object):
         else:
             self._clean((BLOCK,))
             dataset = ScanDataset(**kwds)
-        return self._init(dataset)
+        dataset = self._init(dataset)
+        # XXX: when to clean these up?
+        self._last_scans.append(dataset)
+        return dataset
 
     def _updatePointKeywords(self, kwds):
         """If a scan is currently on the stack, apply the relevant devices
@@ -133,8 +136,6 @@ class DataManager(object):
             return
         scan = self._stack.pop()
         self._finish(scan)
-        # XXX: when to clean these up?
-        self._last_scans.append(scan)
 
     def finishBlock(self):
         """Finish the current block dataset."""

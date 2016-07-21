@@ -255,15 +255,18 @@ class ScanDataset(BaseDataset):
 
     @property
     def devvaluelists(self):
-        return [subset.devvaluelist for subset in self.subsets]
+        return [subset.devvaluelist for subset in self.subsets
+                if subset.finished]
 
     @property
     def envvaluelists(self):
-        return [subset.envvaluelist for subset in self.subsets]
+        return [subset.envvaluelist for subset in self.subsets
+                if subset.finished]
 
     @property
     def detvaluelists(self):
-        return [subset.detvaluelist for subset in self.subsets]
+        return [subset.detvaluelist for subset in self.subsets
+                if subset.finished]
 
 
 class SubscanDataset(ScanDataset):
