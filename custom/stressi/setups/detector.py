@@ -32,7 +32,9 @@ nethost = 'stressisrv.stressi.frm2'
 
 
 sysconfig = dict(
-    datasinks = ['histogram', 'listmode'],
+    datasinks = ['histogram',
+#                'listmode'
+                ],
 )
 
 # ;MESYTEC PSD histogram (2D)
