@@ -129,12 +129,6 @@ class Image(BaseChannel, QMesyDAQImage):
         'readout': Param('Readout mode of the Detector', settable=True,
                          type=oneof('raw', 'mapped', 'amplitude'),
                          default='mapped', mandatory=False, chatty=True),
-        'listmode': Param('Should the Detector write list mode data files',
-                          type=bool, default=False, chatty=False,
-                          prefercache=False, settable=True),
-        'histogram': Param('Should the Detector write histogram data files',
-                           type=bool, default=False, chatty=False,
-                           prefercache=False, settable=True),
     }
 
     taco_class = Detector

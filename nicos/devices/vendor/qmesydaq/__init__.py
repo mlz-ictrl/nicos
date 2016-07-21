@@ -53,6 +53,12 @@ class Image(ImageChannelMixin, PassiveChannel):
                                  type=str, settable=False, volatile=True,
                                  category='instrument',
                                  ),
+        'listmode': Param('Should the Detector write list mode data files',
+                          type=bool, default=False, chatty=False,
+                          prefercache=False, settable=True),
+        'histogram': Param('Should the Detector write histogram data files',
+                           type=bool, default=False, chatty=False,
+                           prefercache=False, settable=True),
     }
 
     def valueInfo(self):
