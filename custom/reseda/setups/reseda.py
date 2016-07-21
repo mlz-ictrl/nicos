@@ -1,7 +1,5 @@
 description = 'NICOS startup setup'
 
-group = 'basic'
+group = 'lowlevel'
 
-includes = ['powersupply', 'temperature', 'capacitance',
-            'atts_slits', 'frequencies', 'motors',
-           ]
+includes = ['motors', 'temperature', 'atts_slits', 'astrium', 'crane']
