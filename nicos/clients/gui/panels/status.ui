@@ -214,6 +214,14 @@
     <string>Finish current measurement early, continue</string>
    </property>
   </action>
+  <action name="actionFinishEarlyAndStop">
+   <property name="text">
+    <string>&amp;Finish current measurement early and stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Finish current measurement early, stop</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
