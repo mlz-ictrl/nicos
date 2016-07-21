@@ -50,7 +50,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'stressictrl.stressi.frm2',
-    instrument = None,
+    instrument = 'Stressi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email', 'smser'],
@@ -83,12 +83,22 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
-                      description = 'experiment object',
+    Exp      = device('frm2.experiment.Experiment',
+                      description = 'The current running experiment',
                       dataroot = '/data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'p0',
                       sample = 'Sample',
+                      propdb = '/opt/nicos/propdb',
+                      propprefix = 'p',
+                      mailsender = 'stressi@frm2.tum.de',
+                      # managerights = dict(enableDirMode=0o775,
+                      #                     enableFileMode=0o664,
+                      #                     disableDirMode=0o550,
+                      #                     disableFileMode=0o440,
+                      #                     owner='stressi', group='stressi',
+                      #                    ),
+                      elog = True,
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
