@@ -348,8 +348,10 @@ class KWSSamplePanel(Panel):
             self.filename = fn
 
     def on_buttonBox_clicked(self, button):
-        if self.buttonBox.buttonRole(button) != QDialogButtonBox.ApplyRole:
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.RejectRole:
             return
+        do_apply = role == QDialogButtonBox.ApplyRole
         if self.dirty:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getSaveFileName(self, 'Save sample file',
@@ -364,8 +366,9 @@ class KWSSamplePanel(Panel):
         except Exception as err:
             self.showError('Could not write file: %s' % err)
         else:
-            self.client.run(script, self.filename)
-            self.showInfo('Sample info has been transferred to the daemon.')
+            if do_apply:
+                self.client.run(script, self.filename)
+                self.showInfo('Sample info has been transferred to the daemon.')
             self._close()
 
     def on_buttonBox_rejected(self):
