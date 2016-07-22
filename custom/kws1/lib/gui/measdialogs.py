@@ -29,13 +29,14 @@ from collections import OrderedDict
 
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QDialog, QListWidgetItem, QTableWidgetItem, QLabel, \
-    QVBoxLayout, QFrame, QWidget, QTableWidgetSelectionRange
+    QVBoxLayout, QFrame, QWidget, QTableWidgetSelectionRange, QFileDialog
 
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 from nicos.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
     Polarizer, Collimation, MeasTime, Sample, Device
+from nicos.kws1.gui.sampleconf import parse_sampleconf
 
 
 SAMPLES = 'samples'
@@ -58,6 +59,7 @@ class MeasDef(object):
         self.samples = []
         self.detsets = []
         self.devices = []
+        self.samplefile = None
 
     def getElements(self):
         elements = [
@@ -107,28 +109,42 @@ class MeasDef(object):
         return result
 
 
-class SampleDialog(QDialog):
+class SampleDialog(DlgUtils, QDialog):
 
     def __init__(self, parent, measdef, client):
         self.measdef = measdef
+        self.samplefile = None
         self.client = client
+        DlgUtils.__init__(self, 'Sample selection')
         QDialog.__init__(self, parent)
         loadUi(self, findResource('custom/kws1/lib/gui/samples.ui'))
 
-        self._selected = set()
-        self._times = {}
-        sampleconfigs = client.eval('Exp.samples', None) or {}
-        for number, sample in sampleconfigs.items():
-            item = QListWidgetItem(sample['name'], self.allList)
-            item.setData(SAMPLE_NUM, number)
-            self._times[number] = sample.get('timefactor', 1.0)
+        self._init_samplefile = False
+        self.samplefile = measdef.samplefile
+        if self.samplefile is not None:
+            self._init_samplefile = True
+            self.on_sampleFileBtn_toggled(True)
+            self._init_samplefile = False
+        else:
+            self.on_currentSamplesBtn_toggled(True)
 
-        if measdef.samples:
-            for sam in measdef.samples[0]:
+        if self.measdef.samples:
+            for sam in self.measdef.samples[0]:
                 newitem = QListWidgetItem(sam['sample'].getValue(),
                                           self.selList)
                 newitem.setData(SAMPLE_NUM, sam['sample'].extra[0])
                 self._selected.add(sam['sample'].extra[0])
+
+    def _reinit(self, sampleconfigs):
+        self.selList.clear()
+        self.allList.clear()
+        self._selected = set()
+        self._times = {}
+
+        for number, sample in sampleconfigs.items():
+            item = QListWidgetItem(sample['name'], self.allList)
+            item.setData(SAMPLE_NUM, number)
+            self._times[number] = sample.get('timefactor', 1.0)
 
     def toDefs(self):
         results = []
@@ -138,6 +154,43 @@ class SampleDialog(QDialog):
                 'sample', self.client, item.text(),
                 extra=(num, self._times.get(num, 1.0)))))
         return [results]
+
+    def on_sampleFileBtn_toggled(self, on):
+        if not on:
+            return
+        if not self._init_samplefile:
+            initialdir = self.client.eval('session.experiment.scriptpath', '')
+            fn = QFileDialog.getOpenFileName(self, 'Open sample file',
+                                             initialdir, 'Sample files (*.py)')
+            if not fn:
+                self.currentSamplesBtn.setChecked(True)
+                return
+        else:
+            fn = self.samplefile
+        try:
+            configs = parse_sampleconf(fn)
+        except Exception as err:
+            self.showError('Could not read file: %s\n\n'
+                           'Are you sure this is a sample file?' % err)
+            self.currentSamplesBtn.setChecked(True)
+            return
+        self.samplefile = fn
+        self.sampleFileLbl.setText(fn)
+        self.sampleFileBtn.setChecked(True)
+        self._reinit(dict(enumerate(configs)))
+
+    @pyqtSlot()
+    def on_fileSelectBtn_clicked(self):
+        if self.sampleFileBtn.isChecked():
+            self.on_sampleFileBtn_toggled(True)
+        else:
+            self.sampleFileBtn.setChecked(True)
+
+    def on_currentSamplesBtn_toggled(self, on):
+        if not on:
+            return
+        self.samplefile = None
+        self._reinit(self.client.eval('Exp.samples', None) or {})
 
     @pyqtSlot()
     def on_rightBtn_clicked(self):
