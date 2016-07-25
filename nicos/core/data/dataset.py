@@ -342,10 +342,11 @@ class ScanData(object):
 
             # convert metainfo to headerinfo
             self.headerinfo = {}
-            for (devname, key), (_, val, unit, category) in \
-                    iteritems(dataset.metainfo):
-                catlist = self.headerinfo.setdefault(category, [])
-                catlist.append((devname, key, (val + ' ' + unit).strip()))
+            if dataset.subsets:
+                for (devname, key), (_, val, unit, category) in \
+                        iteritems(dataset.metainfo):
+                    catlist = self.headerinfo.setdefault(category, [])
+                    catlist.append((devname, key, (val + ' ' + unit).strip()))
 
     # info derived from valueinfo
     @lazy_property
