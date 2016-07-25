@@ -225,8 +225,11 @@ class TofImageSinkHandler(TofSinkHandler):
         if quality == LIVE:
             return
         if self.detector.name in results:
-            info = results[self.detector.name][0]
-            data = results[self.detector.name][1][0]
+            result = results[self.detector.name]
+            if result is None:
+                return
+            info = result[0]
+            data = result[1][0]
             if data is not None:
                 rates = self.detector.rates
                 rates = reduce(operator.add, rates)

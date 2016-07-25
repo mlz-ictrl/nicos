@@ -44,6 +44,7 @@ from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 
 __all__ = [
     'NewSample', 'SetSample', 'SelectSample', 'ClearSamples', 'ListSamples',
+    'activation', 'powderfit',
 ]
 
 ACTIVATIONURL = 'https://webapps.frm2.tum.de/intranet/activation/'

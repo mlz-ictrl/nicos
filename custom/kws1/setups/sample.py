@@ -47,13 +47,6 @@ devices = dict(
                            top = "ap_sam_y1",
                           ),
 
-    sam_rot       = device("devices.tango.Motor",
-                           description = "sample rotation",
-                           tangodevice = tango_base + "fzjs7/sample_axis_0",
-                           unit = "deg",
-                           precision = 0.01,
-                           fmtstr = "%.2f",
-                          ),
     sam_trans_x   = device("devices.tango.Motor",
                            description = "sample translation left-right",
                            tangodevice = tango_base + "fzjs7/sample_axis_1",

@@ -88,7 +88,10 @@ class LiveViewSinkHandler(DataSinkHandler):
 
     def putResults(self, quality, results):
         if self.detector.name in results:
-            data = results[self.detector.name][1][0]
+            result = results[self.detector.name]
+            if result is None:
+                return
+            data = result[1][0]
             if data is not None:
                 if len(data.shape) == 2:
                     (resX, resY), resZ = data.shape, 1

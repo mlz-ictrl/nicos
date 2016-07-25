@@ -14,5 +14,6 @@ devices = dict(
                        description = 'lens I/O device',
                        abslimits = (0, 7),
                        unit = '',
+                       lowlevel = True,
                       ),
 )

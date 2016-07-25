@@ -138,7 +138,10 @@ class RawImageSinkHandler(DataSinkHandler):
         if quality == LIVE:
             return
         if self.detector.name in results:
-            data = results[self.detector.name][1][0]
+            result = results[self.detector.name]
+            if result is None:
+                return
+            data = result[1][0]
             if data is not None:
                 self._writeData(self._datafile, data)
                 session.notifyDataFile('raw', self._datafile.filepath)

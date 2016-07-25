@@ -482,6 +482,7 @@ class MainWindow(QMainWindow, DlgUtils):
         if self.helpWindow is None:
             self.helpWindow = HelpWindow(self, self.client)
         self.helpWindow.showHelp(data)
+        self.helpWindow.activateWindow()
 
     def on_client_clientexec(self, data):
         # currently used for client-side plot using matplotlib; data is

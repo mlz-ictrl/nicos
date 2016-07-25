@@ -196,8 +196,9 @@ class PointDataset(BaseDataset):
         """Trim objects that are not required to be kept after finish()."""
         BaseDataset.trimResult(self)
         # remove arrays from memory in cached datasets
-        for (key, (reads, _)) in iteritems(self.results):
-            self.results[key] = (reads, [])
+        for (key, value) in iteritems(self.results):
+            if value is not None:
+                self.results[key] = (value[0], [])
 
     @property
     def valuestats(self):
@@ -254,15 +255,18 @@ class ScanDataset(BaseDataset):
 
     @property
     def devvaluelists(self):
-        return [subset.devvaluelist for subset in self.subsets]
+        return [subset.devvaluelist for subset in self.subsets
+                if subset.finished]
 
     @property
     def envvaluelists(self):
-        return [subset.envvaluelist for subset in self.subsets]
+        return [subset.envvaluelist for subset in self.subsets
+                if subset.finished]
 
     @property
     def detvaluelists(self):
-        return [subset.detvaluelist for subset in self.subsets]
+        return [subset.detvaluelist for subset in self.subsets
+                if subset.finished]
 
 
 class SubscanDataset(ScanDataset):
@@ -342,10 +346,11 @@ class ScanData(object):
 
             # convert metainfo to headerinfo
             self.headerinfo = {}
-            for (devname, key), (_, val, unit, category) in \
-                    iteritems(dataset.metainfo):
-                catlist = self.headerinfo.setdefault(category, [])
-                catlist.append((devname, key, (val + ' ' + unit).strip()))
+            if dataset.subsets:
+                for (devname, key), (_, val, unit, category) in \
+                        iteritems(dataset.metainfo):
+                    catlist = self.headerinfo.setdefault(category, [])
+                    catlist.append((devname, key, (val + ' ' + unit).strip()))
 
     # info derived from valueinfo
     @lazy_property
