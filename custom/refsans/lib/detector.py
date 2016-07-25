@@ -191,7 +191,10 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         if quality == LIVE:
             return
         if self.detector.name in results:
-            image = results[self.detector.name][1][0]
+            result = results[self.detector.name]
+            if result is None:
+                return
+            image = result[1][0]
             self.log.debug("results: %r" % results)
             self._file = session.data.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],

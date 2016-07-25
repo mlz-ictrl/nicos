@@ -115,7 +115,10 @@ class SingleFileSinkHandler(DataSinkHandler):
            quality not in (FINAL, INTERRUPTED):
             return
         if self.detector.name in results:
-            image = results[self.detector.name][1][0]
+            result = results[self.detector.name]
+            if result is None:
+                return
+            image = result[1][0]
             if self.defer_file_creation:
                 self._createFile()
                 self.writeHeader(self._file, self.dataset.metainfo, image)
