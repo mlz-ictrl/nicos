@@ -341,7 +341,7 @@ def set(dev, parameter, value):  # pylint: disable=W0622
     prevalue = getattr(dev, parameter)
     setattr(dev, parameter, value)
     # if yes, we already got a message
-    if not dev.parameters[parameter].chatty:
+    if parameter in dev.parameters and not dev.parameters[parameter].chatty:
         dev.log.info('%s set to %r (was %r)' %
                      (parameter, getattr(dev, parameter), prevalue))
 
