@@ -8,6 +8,7 @@ devices = dict(
                       sender = 'spheres@frm2.tum.de',
                       copies = [('s.rainow@fz-juelich.de', 'all'),],
                       subject = 'NICOS',
+                      mailserver = 'mailhost.frm2.tum.de',
                       lowlevel = True,
                      ),
 
