@@ -196,8 +196,9 @@ class PointDataset(BaseDataset):
         """Trim objects that are not required to be kept after finish()."""
         BaseDataset.trimResult(self)
         # remove arrays from memory in cached datasets
-        for (key, (reads, _)) in iteritems(self.results):
-            self.results[key] = (reads, [])
+        for (key, value) in iteritems(self.results):
+            if value is not None:
+                self.results[key] = (value[0], [])
 
     @property
     def valuestats(self):
