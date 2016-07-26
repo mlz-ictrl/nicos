@@ -24,8 +24,7 @@
 
 """Class for MIRA shutter readout/operation."""
 
-import time
-
+from nicos import session
 from nicos.core import usermethod, Param, ModeError, Readable, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.core import SIMULATION, SLAVE
@@ -77,6 +76,6 @@ class Shutter(PyTangoDevice, Readable):
         elif self._sim_active:
             return
         self._dev.WriteOutputBit([self.switchoffset, 1])
-        time.sleep(0.5)
+        session.delay(0.5)
         self._dev.WriteOutputBit([self.switchoffset, 0])
         self.log.info('instrument shutter closed')

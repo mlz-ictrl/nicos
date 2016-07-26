@@ -22,11 +22,10 @@
 #
 # *****************************************************************************
 
-import time
-
 import numpy
 from PyTango import DevState
 
+from nicos import session
 from nicos.core import Moveable, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
@@ -127,7 +126,7 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
                            "Check again after a short delay."
                            % (status.BUSY, st))
-            time.sleep(5)
+            session.delay(5)
             st, msg = PyTangoDevice.doStatus(self, 0)
             self.log.debug("doStatus: recheck result: %d" % st)
         self._lastStatus = st

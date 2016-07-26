@@ -24,7 +24,7 @@
 
 """Scan classes, new API."""
 
-from time import sleep, time as currenttime
+from time import time as currenttime
 from contextlib import contextmanager
 
 from nicos.commands.output import printwarning
@@ -446,7 +446,7 @@ class SweepScan(Scan):
         elif self._delay:
             # wait between points, but only from the second point on
             session.action('Delay')
-            sleep(self._delay)
+            session.delay(self._delay)
         Scan.preparePoint(self, num, xvalues)
         if session.mode == SIMULATION:
             self._sim_start = session.clock.time
@@ -533,7 +533,7 @@ class ContinuousScan(Scan):
                 det.start(t=preset)
             last = {det.name: (det.read(), ()) for det in detlist}
             while device.status(0)[0] == status.BUSY:
-                sleep(self._timedelta)
+                session.delay(self._timedelta)
                 session.breakpoint(3)
                 new_devpos = device.read(0)
                 read = {det.name: (det.read(), ()) for det in detlist}

@@ -22,11 +22,10 @@
 #
 # *****************************************************************************
 
-from time import sleep
-
 import numpy as np
 import PyTango
 
+from nicos import session
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
     listof, intrange, ConfigurationError, SIMULATION, Measurable
 from nicos.core.constants import FINAL, INTERRUPTED
@@ -107,7 +106,7 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         if self.mode == 'realtime_external':
             self.log.debug('triggering RT start')
             self._attached_rtswitch.move(1)
-            sleep(1)
+            session.delay(1)
             self._attached_rtswitch.move(0)
 
     def doPause(self):

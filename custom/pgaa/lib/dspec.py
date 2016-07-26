@@ -24,8 +24,7 @@
 
 """ Classes to access to the DSpec detector """
 
-import time
-
+from nicos import session
 from nicos.core import Measurable, Moveable, Readable, Attach, Param, status
 # from nicos.devices.taco.io import DigitalOutput, DigitalInput
 # from nicos.core.mixins import HasTimeout
@@ -53,7 +52,7 @@ class DSPec(Measurable):
             self.doStop()
             self.doWait()
         self._attached_set_ready.move(0)
-        time.sleep(self.startsleeptime)
+        session.delay(self.startsleeptime)
         self._attached_set_ready.move(1)
 
     def doFinish(self):

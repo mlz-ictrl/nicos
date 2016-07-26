@@ -26,6 +26,7 @@
 
 from time import sleep, time as currenttime
 
+from nicos import session
 from nicos.core import status, oneof, Device, Param, Override, NicosError, \
     ProgrammingError, MoveError, HasTimeout, Attach
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
@@ -253,7 +254,7 @@ class S7Motor(HasTimeout, NicosMotor):
         bus.write(0, 'bit', 0, 3)      # hebe stopbit auf
         while self.doStatus()[0] == status.BUSY:
             self.doStop()
-            sleep(1)
+            session.delay(1)
         self.log.info('Status is now:' + self.doStatus()[1])
 
     def _doStatus(self, maxage=0):
@@ -347,7 +348,7 @@ class S7Motor(HasTimeout, NicosMotor):
         # if hw still busy, wait until movement is done.
         # DO NOT STOP THE SPS (looses a few steps)
         while self.doStatus()[0] == status.BUSY:
-            sleep(self._base_loop_delay)
+            session.delay(self._base_loop_delay)
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
         self.log.debug('starting to ' + self.fmtstr % position + ' %s' %

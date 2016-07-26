@@ -26,7 +26,7 @@
 """NICOS core utility functions."""
 
 import sys
-from time import sleep, localtime, time as currenttime
+from time import localtime, time as currenttime
 from collections import namedtuple
 
 from nicos import session
@@ -206,7 +206,7 @@ def multiWait(devices):
                     eta_str = ('estimated %s left / ' % formatDuration(max(eta))
                                if eta else '')
                     session.action(eta_str + target_str)
-                sleep(delay)
+                session.delay(delay)
                 eta_update += delay
         if first_exc:
             reraise(*first_exc)
@@ -222,7 +222,7 @@ def waitForStatus(dev, delay=0.3, ignore_errors=False):
     """
     try:
         while not dev.isCompleted():
-            sleep(delay)
+            session.delay(delay)
     except NicosError:
         if ignore_errors:
             return

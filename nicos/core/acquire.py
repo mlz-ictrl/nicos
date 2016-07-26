@@ -24,7 +24,7 @@
 
 """Basic data acquisition, new API."""
 
-from time import sleep, time as currenttime
+from time import time as currenttime
 
 from nicos import session
 from nicos.core.errors import NicosError
@@ -60,7 +60,7 @@ def _wait_for_continuation(delay, only_pause=False):
             if exp.pausecount != current_msg:
                 current_msg = exp.pausecount
                 session.log.warning('counting paused: ' + current_msg)
-            sleep(delay)
+            session.delay(delay)
             # also allow the daemon to pause here
             session.breakpoint(3)
             if session.countloop_request:
@@ -99,7 +99,7 @@ def acquire(point, preset):
     except:
         session.endActionScope()
         raise
-    sleep(delay)
+    session.delay(delay)
     try:
         quality = None
         while True:
@@ -134,7 +134,7 @@ def acquire(point, preset):
                 else:
                     for det in detset:
                         det.resume()
-            sleep(delay)
+            session.delay(delay)
     except BaseException as e:
         point.finished = currenttime()
         if e.__class__.__name__ != 'ControlStop':

@@ -25,10 +25,9 @@
 
 """Haake/Julabo thermostat Protocol NICOS driver."""
 
-from time import sleep
-
 from IO import StringIO
 
+from nicos import session
 from nicos.core import status, intrange, oneof, Moveable, \
     Param, Override, HasWindowTimeout, HasLimits
 from nicos.devices.taco.core import TacoDevice
@@ -64,20 +63,20 @@ class Controller(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
             # switch thermostat on if it is off
             if self._comm("in_mode_05") == "0":
                 self._write("out_mode_05 1")
-                sleep(2)  # ???
+                session.delay(2)  # ???
             # set correct external sensor setting
             if self._comm("in_mode_04") != str(self.intern_extern):
                 self._write("out_mode_04 %d" % self.intern_extern)
-                sleep(2)  # ???
+                session.delay(2)  # ???
             # set correct setpoint (T1)
             if self._comm("in_mode_01") != "0":
                 self._write("out_mode_01 0")
-                sleep(2)  # ???
+                session.delay(2)  # ???
         if self.thermostat_type == "JulaboF32HD":
             self._write("out_sp_00 %s" % pos)
         elif self.thermostat_type == "HaakeDC50":
             self._write("W S0 %f" % (pos,))
-        sleep(1)  # ???
+        session.delay(1)  # ???
 
     def doRead(self, maxage=0):
         # return current temperature

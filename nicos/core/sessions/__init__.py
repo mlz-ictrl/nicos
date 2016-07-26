@@ -31,10 +31,10 @@ Only for internal usage by functions and methods.
 
 import os
 import sys
-import time
 import inspect
 import logging
 from os import path
+from time import sleep, time as currenttime
 
 import numpy
 
@@ -1217,7 +1217,7 @@ class Session(object):
         """
         if eventtype == 'start':
             # record starting time to decide whether to send notification
-            self._script_start = time.time()
+            self._script_start = currenttime()
             self._script_text = data
         elif eventtype == 'exception':
             self.logUnhandledException(data)
@@ -1225,7 +1225,7 @@ class Session(object):
             try:
                 exception = formatException(exc_info=data)
                 self.notifyConditionally(
-                    time.time() - self._script_start,
+                    currenttime() - self._script_start,
                     'Error in script',
                     'An error occurred in the executed script:\n\n' +
                     exception + '\n\nThe script was:\n\n' +
@@ -1326,10 +1326,19 @@ class Session(object):
 
     def breakpoint(self, level):
         """Allow breaking or stopping the script at a well-defined time.
+        *level* can be:
 
-        *level* can be 1 to indicate a breakpoint "after current scan" or 2 to
-        indicate a breakpoint "after current scan point".
+        - 1 to indicate a breakpoint "after current scan"
+        - 2 to indicate a breakpoint "after current scan point"
+        - 3 to indicate a breakpoint "during counting"
+        - 5 to indicate a breakpoint for "immediate stop"
         """
+
+    def delay(self, secs):
+        """Sleep for a small time, allow immediate stop before and after."""
+        self.breakpoint(5)
+        sleep(secs)
+        self.breakpoint(5)
 
     def checkAccess(self, required):
         """Check if the current user fulfills the requirements given in the

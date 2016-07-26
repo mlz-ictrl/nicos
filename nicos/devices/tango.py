@@ -30,10 +30,10 @@ MLZ TANGO interface for the respective device classes.
 """
 
 import re
-from time import sleep
 
 import PyTango
 
+from nicos import session
 from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, \
     dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
@@ -198,7 +198,7 @@ class PyTangoDevice(HasCommunication):
     def _hw_wait(self):
         """Wait until hardware status is not BUSY."""
         while PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
-            sleep(self._base_loop_delay)
+            session.delay(self._base_loop_delay)
 
     def doVersion(self):
         return [(self.tangodevice, self._dev.version)]

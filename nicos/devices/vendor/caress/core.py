@@ -24,7 +24,6 @@
 
 """Devices via the CARESS device service."""
 
-import time
 import sys
 import subprocess
 
@@ -43,9 +42,9 @@ try:
 except ImportError:
     omniORB = None
 
+from nicos import session
 from nicos.core import Param, Override, absolute_path, none_or, status, \
     SIMULATION, HasCommunication
-
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
 
@@ -292,11 +291,11 @@ class CARESSDevice(HasCommunication):
             tries = self.comtries - 1
             while True and tries > 0:
                 self.log.warning('Remaining tries: %d' % tries)
-                time.sleep(self.comdelay)
+                session.delay(self.comdelay)
                 if isinstance(err, CORBA.TRANSIENT):
                     CARESSDevice.doShutdown(self)
                     CARESSDevice.doInit(self, self._mode)
-                time.sleep(self.comdelay)
+                session.delay(self.comdelay)
                 try:
                     return function(*args)
                 except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:

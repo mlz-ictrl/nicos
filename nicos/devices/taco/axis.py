@@ -25,11 +25,10 @@
 
 """NICOS axis classes."""
 
-from time import sleep
-
 import TACOStates
 from Motor import Motor as TACOMotor
 
+from nicos import session
 from nicos.core import ModeError, Moveable, Param, Attach, SLAVE, anytype, \
     oneof, requires, status, tupleof, usermethod
 from nicos.devices.abstract import Axis as AbstractAxis, CanReference
@@ -107,7 +106,7 @@ class Axis(CanReference, TacoDevice, AbstractAxis):
         self._taco_guard(self._dev.deviceReset)
         while self._taco_guard(self._dev.deviceState) \
                                   in (TACOStates.INIT, TACOStates.RESETTING):
-            sleep(0.3)
+            session.delay(0.3)
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)
         if self.read() != self.refpos:
@@ -226,7 +225,7 @@ class HoveringAxis(SequencerMixin, Axis):
     def _hw_wait(self):
         # overridden: query Axis status, not HoveringAxis status
         while Axis.doStatus(self, 0)[0] == status.BUSY:
-            sleep(self._base_loop_delay)
+            session.delay(self._base_loop_delay)
 
     def doStart(self, target):
         if self._seq_is_running():

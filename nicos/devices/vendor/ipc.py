@@ -28,11 +28,11 @@
 import select
 import socket
 from threading import RLock
-from time import sleep
 
 from IO import StringIO
 from RS485Client import RS485Client  # pylint: disable=F0401
 
+from nicos import session
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
@@ -330,7 +330,7 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
         response = ''
         self._dev.write(request)
         for _i in range(self.comtries):
-            sleep(self.bustimeout)
+            session.delay(self.bustimeout)
             try:
                 data = self._dev.read()
             except Exception:
@@ -560,7 +560,7 @@ class Coder(NicosCoder):
         except NicosError:
             pass
         else:
-            sleep(0.5)
+            session.delay(0.5)
 
     def _fromsteps(self, value):
         return float((value - self.zerosteps) / self.slope)
@@ -571,7 +571,7 @@ class Coder(NicosCoder):
                 value = self._attached_bus.get(self.addr, 150)
             except NicosError:
                 self._endatclearalarm()
-                sleep(1)
+                session.delay(1)
                 # try again
                 value = self._attached_bus.get(self.addr, 150)
         except NicosError as e:
@@ -613,9 +613,9 @@ class Coder(NicosCoder):
             return
         try:
             self._attached_bus.send(self.addr, 155, 185, 3)
-            sleep(0.5)
+            session.delay(0.5)
             self._attached_bus.send(self.addr, 157, 0, 3)
-            sleep(0.5)
+            session.delay(0.5)
             self.doReset()
         except Exception:
             raise CommunicationError(self, 'cannot clear alarm for encoder')
@@ -653,7 +653,7 @@ class Resolver(Coder):
         if self.firmware >= 6:
             try:
                 self._attached_bus.send(self.addr, 153)
-                sleep(0.5)
+                session.delay(0.5)
             except NicosError:
                 self.log.warning('Resetting failed!', exc=1)
         else:
@@ -939,7 +939,7 @@ class Motor(HasTimeout, NicosMotor):
         else:
             bus.send(self.addr, 34)
         bus.send(self.addr, 46, abs(diff), 6)
-        sleep(0.1)  # moved here from doWait.
+        session.delay(0.1)  # moved here from doWait.
 
     def doReset(self):
         bus = self._attached_bus
@@ -957,10 +957,10 @@ class Motor(HasTimeout, NicosMotor):
         minstep = bus.get(self.addr, 132)
         maxstep = bus.get(self.addr, 131)
         bus.send(self.addr, 31)  # reset card
-        sleep(0.2)
+        session.delay(0.2)
         if self._hwtype == 'triple':
             # triple cards need a LONG time for resetting
-            sleep(2)
+            session.delay(2)
         # update state
         bus.send(self.addr, 41, speed, 3)
         bus.send(self.addr, 42, accel, 3)
@@ -973,7 +973,7 @@ class Motor(HasTimeout, NicosMotor):
             self._attached_bus.send(self.addr, 52)
         else:
             self._attached_bus.send(self.addr, 33)
-        sleep(0.2)
+        session.delay(0.2)
 
     def doRead(self, maxage=0):
         value = self._attached_bus.get(self.addr, 130)
@@ -1334,7 +1334,7 @@ class SlitMotor(HasTimeout, NicosMotor):
         self._setROParam('target', self.resetpos)
         steps = self._tosteps(self.resetpos)
         self._attached_bus.send(self.addr, self.side+160, steps, 4)
-        sleep(0.3)
+        session.delay(0.3)
         self._hw_wait()
 
     def doStop(self):

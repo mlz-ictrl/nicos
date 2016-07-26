@@ -24,8 +24,7 @@
 
 """Device class for the shutter cylinder device."""
 
-import time
-
+from nicos import session
 from nicos.core import Moveable, Readable, NicosError, Param, Attach
 
 
@@ -52,16 +51,16 @@ class SH_Cylinder(Moveable):
                              'button near the door.')
 
         self._attached_io_air.move(0)
-        time.sleep(self.timedelay)
+        session.delay(self.timedelay)
 
         if self._attached_io_ref.read(0) != 1:
             raise NicosError(self, 'Cannot close the shutter!')
 
         if position != -1:
             self._attached_io_pos.move(position)
-            time.sleep(self.timedelay)
+            session.delay(self.timedelay)
             self._attached_io_air.move(1)
-            time.sleep(self.timedelay)
+            session.delay(self.timedelay)
 
     def doRead(self, maxage=0):
         if self._attached_io_ref.read(0) == 1:
@@ -72,7 +71,7 @@ class SH_Cylinder(Moveable):
     def _checkAir(self):
         if self._attached_io_ref.read(0) == 1:
             self._attached_io_air.move(1)
-            time.sleep(self.timedelay)
+            session.delay(self.timedelay)
             if self._attached_io_ref.read(0) == 1:
                 return 0
         return 1

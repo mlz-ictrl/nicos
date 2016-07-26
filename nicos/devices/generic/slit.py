@@ -24,8 +24,7 @@
 
 """NICOS slit device."""
 
-from time import sleep
-
+from nicos import session
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
     AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, \
     multiWait, Attach
@@ -181,12 +180,12 @@ class Slit(CanReference, Moveable):
         if tr < cr and tl < cl:
             # both move to smaller values, need to start right blade first
             al.move(tl * f)
-            sleep(self._delay)
+            session.delay(self._delay)
             ar.move(tr)
         elif tr > cr and tl > cl:
             # both move to larger values, need to start left blade first
             ar.move(tr)
-            sleep(self._delay)
+            session.delay(self._delay)
             al.move(tl * f)
         else:
             # don't care
@@ -194,11 +193,11 @@ class Slit(CanReference, Moveable):
             al.move(tl * f)
         if tb < cb and tt < ct:
             ab.move(tb * f)
-            sleep(self._delay)
+            session.delay(self._delay)
             at.move(tt)
         elif tb > cb and tt > ct:
             at.move(tt)
-            sleep(self._delay)
+            session.delay(self._delay)
             ab.move(tb * f)
         else:
             at.move(tt)

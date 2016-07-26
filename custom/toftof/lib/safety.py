@@ -25,8 +25,7 @@
 
 """TOFTOF safety system readout."""
 
-from time import sleep
-
+from nicos import session
 from nicos.core import Readable, Moveable, Override, Attach, status, oneofdict
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
@@ -87,11 +86,11 @@ class Shutter(Moveable):
     def doStart(self, target):
         if target == 'open':
             self._attached_open.start(1)
-            sleep(0.01)
+            session.delay(0.01)
             self._attached_open.start(0)
         else:
             self._attached_close.start(1)
-            sleep(0.01)
+            session.delay(0.01)
             self._attached_close.start(0)
 
     def doStop(self):

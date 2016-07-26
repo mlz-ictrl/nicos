@@ -28,12 +28,12 @@ This module contains some classes for NICOS - EPICS integration.
 
 import threading
 
+from nicos import session
 from nicos.core import CommunicationError, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, \
     SIMULATION, anytype, floatrange, none_or, status
 from nicos.core.mixins import HasWindowTimeout
 from nicos.utils import HardwareStub
-from time import sleep
 
 # ca.clear_cache() only works from the main thread
 if not isinstance(threading.currentThread(), threading._MainThread):
@@ -182,7 +182,7 @@ class EpicsDevice(DeviceMixinBase):
         pv.put(value, use_complete=True)
 
         while not pv.put_complete:
-            sleep(update_rate)
+            session.delay(update_rate)
 
 
 class EpicsReadable(EpicsDevice, Readable):

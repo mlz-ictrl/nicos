@@ -24,8 +24,6 @@
 
 """Monochromator changer"""
 
-import time
-
 from nicos import session
 from nicos.core import PositionError, Moveable, Readable, Param, Attach, \
     oneof, dictof, anytype, multiWait
@@ -269,9 +267,9 @@ class Mchanger(Moveable):
         try:
             dev.start(pos)
             if devicename == 'r3':  # R3 does not wait!
-                time.sleep(2)
+                session.delay(2)
             if devicename == 'grip':  # grip does not wait!
-                time.sleep(2)
+                session.delay(2)
             dev.wait()
         except Exception:
             if devicename == 'lift':  # most probably it is touching the limit switch

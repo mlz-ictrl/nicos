@@ -25,7 +25,6 @@
 """NICOS-TACO base classes."""
 
 import sys
-from time import sleep
 
 import TACOStates
 from TACOClient import TACOError
@@ -47,6 +46,7 @@ try:
 except ImportError:
     DevErr_RPCTimedOut     = 2
 
+from nicos import session
 from nicos.core import status, tacodev, floatrange, Param, SIMULATION, \
     Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
     InvalidValueError, HasCommunication
@@ -157,8 +157,8 @@ class TacoDevice(HasCommunication):
         if self.loglevel == 'debug':
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
-            raise ProgrammingError('missing taco_class attribute in class '
-                                   + self.__class__.__name__)
+            raise ProgrammingError('missing taco_class attribute in class ' +
+                                   self.__class__.__name__)
         if mode != SIMULATION:
             self._dev = self._create_client()
 
@@ -188,7 +188,7 @@ class TacoDevice(HasCommunication):
     def doStatus(self, maxage=0):
         for i in range(self.comtries or 1):
             if i:
-                sleep(self.comdelay)
+                session.delay(self.comdelay)
             tacoState = self._taco_guard(self._dev.deviceState)
             if tacoState != TACOStates.FAULT:
                 break
@@ -311,13 +311,13 @@ class TacoDevice(HasCommunication):
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries), exc=True)
                 while True:
-                    sleep(self.comdelay)
+                    session.delay(self.comdelay)
                     tries -= 1
                     try:
                         if self.taco_resetok and \
                            self._dev.deviceState() == TACOStates.FAULT:
                             self._dev.deviceInit()
-                            sleep(self.comdelay)
+                            session.delay(self.comdelay)
                         ret = function(*args)
                         self.log.debug('TACO return: %r' % (ret,))
                         return ret
@@ -359,7 +359,7 @@ class TacoDevice(HasCommunication):
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries))
                 while True:
-                    sleep(self.comdelay)
+                    session.delay(self.comdelay)
                     tries -= 1
                     try:
                         return function(*args)

@@ -24,13 +24,12 @@
 
 """TACO power supply classes."""
 
-from time import sleep
-
 import DEVERRORS
-from PowerSupply import CurrentControl, VoltageControl # pylint: disable=F0401
+from PowerSupply import CurrentControl, VoltageControl  # pylint: disable=F0401
 
+from nicos import session
 from nicos.core import Moveable, HasOffset, HasLimits, Param, \
-     MoveError, NicosError
+    MoveError, NicosError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -65,7 +64,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
 
     def doStart(self, value, fromvarcheck=False):
         self._taco_guard(self._dev.write, value + self.offset)
-        sleep(0.5)  # wait until server goes into "moving" status
+        session.delay(0.5)  # wait until server goes into "moving" status
         if self.variance > 0:
             newvalue = self.wait()
             maxdelta = value * (self.variance/100.) + 0.1

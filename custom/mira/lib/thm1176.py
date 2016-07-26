@@ -27,10 +27,10 @@
 import os
 import re
 import math
-import time
 import fcntl
 import struct
 
+from nicos import session
 from nicos.core import status, Measurable, Param, Value, usermethod, \
     CommunicationError, ModeError
 from nicos.core import SIMULATION, SLAVE
@@ -72,7 +72,7 @@ class THM(Measurable):
             fcntl.ioctl(dfile, USBDEVFS_RESET)
             self.log.debug('USBDEVFS_RESET ioctl done')
             os.close(dfile)
-            time.sleep(2.5)
+            session.delay(2.5)
         if self._io is not None:
             try:
                 os.close(self._io)
@@ -108,7 +108,7 @@ class THM(Measurable):
             self.log.debug('exception in query: %s' % err)
             if t == 0:
                 raise CommunicationError(self, 'error querying: %s' % err)
-            time.sleep(0.5)
+            session.delay(0.5)
             self.doReset()
             return self._query(q, binary, t-1)
         self._check_status()
@@ -120,10 +120,10 @@ class THM(Measurable):
         except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error executing: %s' % err)
-            time.sleep(0.5)
+            session.delay(0.5)
             self.doReset()
             self._execute(q, t-1)
-        time.sleep(wait)
+        session.delay(wait)
         self._check_status()
 
     def _check_status(self, t=3):
@@ -133,7 +133,7 @@ class THM(Measurable):
         except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error getting status: %s' % err)
-            time.sleep(0.5)
+            session.delay(0.5)
             self.doReset()
             return self._check_status(t-1)
         if status != '0':

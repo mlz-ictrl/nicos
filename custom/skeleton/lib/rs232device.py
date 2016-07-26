@@ -28,11 +28,10 @@ Skeleton module for using directly or TACO attached RS232 devices.
 Please remember to change the class names if copying from this file!
 """
 
-from time import sleep
-
 from IO import StringIO
 import serial
 
+from nicos import session
 from nicos.core import Readable, Moveable, Param, CommunicationError, NicosError
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
@@ -82,7 +81,7 @@ class RS232Example(Readable):
             value = self._dev.readline()
         except ValueError:
             # retry communication/handle error after a bit of sleeping
-            sleep(0.2)
+            session.delay(0.2)
             self._dev.write('%s\n' % query)
             try:
                 value = self._dev.readline()

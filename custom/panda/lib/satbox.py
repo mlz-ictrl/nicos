@@ -26,12 +26,10 @@
 
 from Modbus import Modbus
 
-from time import sleep
-
-from nicos.devices.taco import TacoDevice
-
+from nicos import session
 from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof,\
     oneof, SIMULATION, status, HasTimeout, Override
+from nicos.devices.taco import TacoDevice
 
 
 class SatBox(HasTimeout, TacoDevice, Moveable):
@@ -129,7 +127,7 @@ class SatBox(HasTimeout, TacoDevice, Moveable):
                          (self.slave_addr, self.addr_out) + tuple(which))
         if self.readout == 'output':
             # if we have no readback, give blades time to react
-            sleep(1)
+            session.delay(1)
 
     def doIsAllowed(self, target):
         if not (0 <= target <= sum(self.blades)):

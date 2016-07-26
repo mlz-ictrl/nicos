@@ -24,8 +24,6 @@
 
 """Module with specific commands for POLI."""
 
-import time
-
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.device import maw, move
@@ -46,10 +44,10 @@ def lubricate_liftingctr(startpos, endpos):
     maw(motor, startpos)
     printinfo('Switching output on for 10 sec...')
     move(ldev, 1)
-    time.sleep(10)
+    session.delay(10)
     move(ldev, 0)
     printinfo('Waiting 15 sec...')
-    time.sleep(15)
+    session.delay(15)
     maw(motor, endpos)
     printinfo('Lubrication is done.')
 

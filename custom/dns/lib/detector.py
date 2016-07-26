@@ -23,10 +23,9 @@
 #
 # *****************************************************************************
 
-from time import sleep
-
 import numpy
 
+from nicos import session
 from nicos.core import Value, SIMULATION
 from nicos.core.params import Param, Attach, dictof, tupleof, intrange, \
     ArrayDesc
@@ -89,7 +88,7 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doFinish(self):
         self._dev.Stop()
-        sleep(0.2)
+        session.delay(0.2)
         PyTangoDevice._hw_wait(self)
 
     def doStop(self):
