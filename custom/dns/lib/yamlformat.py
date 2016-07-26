@@ -113,9 +113,9 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         meas['setup']['polarization'] = self._readdev('field')
 
         monitor = meas['monitor']
-        if 'mon0' in session.devices:
+        if 'mon1' in session.devices:
             monitor['is_in_place'] = True
-            monitor['counts'] = self._readdev('mon0')[0]
+            monitor['counts'] = self._readdev('mon1')[0]
         else:
             monitor['is_in_place'] = False
 

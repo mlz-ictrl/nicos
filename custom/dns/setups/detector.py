@@ -30,7 +30,7 @@ devices = dict(
     det          = device('dns.detector.DNSDetector',
                           description = 'Tof detector',
                           timers = ['timer'],
-                          monitors = ['mon0'],
+                          monitors = ['mon1'],
                           images = ['dettof'],
                           flipper = 'flipper',
                          ),

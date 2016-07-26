@@ -39,9 +39,9 @@ from nicos.devices.tango import PyTangoDevice
 P_TIME = 't'
 P_TIME_SF = 'tsf'
 P_TIME_NSF = 'tnsf'
-P_MON = 'mon0'
-P_MON_SF = 'mon0sf'
-P_MON_NSF = 'mon0nsf'
+P_MON = 'mon1'
+P_MON_SF = 'mon1sf'
+P_MON_NSF = 'mon1nsf'
 
 
 class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):

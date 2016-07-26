@@ -10,7 +10,7 @@ devices = dict(
                    description = "ZEA-2 counter card time",
                    tangodevice = tango_base + 'count/0',
                   ),
-    mon0  = device("jcns.fpga.FPGACounterChannel",
+    mon1  = device("jcns.fpga.FPGACounterChannel",
                    description = "ZEA-2 counter card monitor",
                    tangodevice = tango_base + 'count/0',
                    channel = 0,

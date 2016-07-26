@@ -33,7 +33,7 @@ _firstcolumn = Column(
 
 _secondcolumn = Column(
     Block('Detector', [
-        BlockRow('mon0', 'timer'),
+        BlockRow('mon1', 'timer'),
         ],
     ),
 
