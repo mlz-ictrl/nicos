@@ -138,9 +138,12 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         shape = self.arraydesc.shape
         if self.mode == 'standard':
             array = self._dev.GetBlock([0, shape[0]*shape[1]])
+            arr = np.array(array, np.uint32).reshape(shape)
         else:
             array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
-        arr = np.array(array, np.uint32).reshape(shape)
+            arr = np.array(array, np.uint32).reshape((shape[2], shape[0], shape[1]))
+            arr = np.swapaxes(np.swapaxes(arr, 0, 2), 0, 1)
+            arr = arr.reshape(shape)
         cur = arr.sum(), self._attached_timer.read(0)[0]
 
         if quality in (FINAL, INTERRUPTED):
