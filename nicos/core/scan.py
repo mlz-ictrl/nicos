@@ -236,11 +236,12 @@ class Scan(object):
             raise  # pylint: disable=misplaced-bare-raise
 
     def moveDevices(self, devices, positions, wait=True):
-        """Move to *where*, which is a list of (dev, position) tuples.
+        """Move a given list of *devices* to the given list of *positions*.
         On errors, call handleError, which decides when the scan may continue.
 
-        Returns a dictionary mapping devices to timestamp and final positions
-        if *wait* is True, and None otherwise.
+        If *wait* is true, returns ``{devname: (None, final position)}``.
+        This is intended to be given to `DataManager.putValues` which expects
+        ``{devname: (timestamp or None, value)}``.  Else ``None``.
         """
         skip = None
         waitdevs = []
@@ -259,15 +260,27 @@ class Scan(object):
         if not wait:
             return
         waitresults = {}
+
         try:
-            # remember the read values so that they can be used for the data point
+            # remember the read values so they can be used for the data point
             for (dev, value) in iteritems(multiWait(waitdevs)):
+                # (None, value): None identifies the 'main' value
                 waitresults[dev.name] = (None, value)
         except NicosError as err:
             self.handleError('wait', err)
-            # XXX(dataapi): at least read the remaining devs?
+
         if skip:
             raise SkipPoint
+
+        for dev in waitdevs:
+            # if devices failed to move but we continue, get some read values
+            if dev.name in waitresults:
+                continue
+            try:
+                waitresults[dev.name] = (None, dev.read())
+            except NicosError:
+                waitresults[dev.name] = (None, [None] * len(dev.valueInfo()))
+
         return waitresults
 
     def readPosition(self):
