@@ -351,6 +351,20 @@
     <string>Automatic scaling in y direction</string>
    </property>
   </action>
+  <action name="actionFitCosine">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fit cosine</string>
+   </property>
+   <property name="iconText">
+    <string>Peak fit (PV)</string>
+   </property>
+   <property name="toolTip">
+    <string>Fit Cosine function</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

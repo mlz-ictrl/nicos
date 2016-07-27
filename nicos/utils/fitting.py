@@ -25,7 +25,7 @@
 """Utilities for function fitting."""
 
 from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, \
-    pi, sqrt, exp, log, piecewise
+    pi, sqrt, exp, log, cos, piecewise
 
 try:
     from scipy.optimize.minpack import leastsq
@@ -240,6 +240,27 @@ class LinearFit(PredefinedFit):
                                   ('', '%.3f /h' % (res.m * 3600), '')]
         else:
             res.label_contents = [('Slope', '%.3f' % res.m, '')]
+
+
+class CosineFit(PredefinedFit):
+    """Fits with a cosine including offset."""
+
+    fit_title = 'cosine fit'
+    fit_params = ['A', 'f', 'x0', 'B']
+
+    def fit_model(self, x, A, f, x0, B):
+        return B + A * cos(2 * pi * f * (x - x0))
+
+    def process_result(self, res):
+        res.label_x = res.x0
+        res.label_y = min(res.curve_x)
+        res.label_contents = [
+            ('Freq', res.f, res.df),
+            ('Omega', 2 * pi * res.f, 2 * pi * res.df),
+            ('Center', res.x0, res.dx0),
+            ('Ampl', res.A, res.dA),
+            ('Offset', res.B, res.dB),
+        ]
 
 
 class PolyFit(PredefinedFit):

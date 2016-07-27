@@ -32,7 +32,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 import numpy as np
 
 from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
-    PearsonVIIFit, TcFit, FitError
+    PearsonVIIFit, TcFit, CosineFit, FitError
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
@@ -99,6 +99,23 @@ class LinearFitter(Fitter):
         (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         m0 = (y2-y1) / (x2-x1)
         f = LinearFit([m0, y1 - m0*x1], xmin=x1, xmax=x2, timeseries=True)
+        return f.run_or_raise(*self.data)
+
+
+class CosineFitter(Fitter):
+    title = 'cosine fit'
+    picks = ['Maximum', 'Next minimum']
+
+    def model(self, x, A, f, x0, B):
+        return B + A * np.cos(2 * np.pi * f * (x - x0))
+
+    def do_fit(self):
+        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+        a = abs(y1 - y2) / 2.
+        b = (y1 + y2) / 2.
+        width = abs(x1 - x2)
+        freq = 1/(width * 2.)
+        f = CosineFit([a, freq, x1, b])
         return f.run_or_raise(*self.data)
 
 

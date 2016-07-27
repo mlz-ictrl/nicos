@@ -41,7 +41,8 @@ from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.clients.gui.widgets.plotting import DataSetPlot, GaussFitter, \
-    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter
+    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter, \
+    CosineFitter
 from nicos.pycompat import itervalues
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -197,7 +198,7 @@ class ScansPanel(Panel):
             self.actionXAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
-            self.actionFitTc, self.actionFitArby,
+            self.actionFitTc, self.actionFitCosine, self.actionFitArby,
         ]:
             action.setEnabled(on)
 
@@ -235,6 +236,7 @@ class ScansPanel(Panel):
             menu2.addAction(self.actionFitPeakPV)
             menu2.addAction(self.actionFitPeakPVII)
             menu2.addAction(self.actionFitTc)
+            menu2.addAction(self.actionFitCosine)
             menu2.addSeparator()
             menu2.addAction(self.actionFitArby)
             self.menus = [menu1, menu2]
@@ -599,6 +601,10 @@ class ScansPanel(Panel):
     @qtsig('')
     def on_actionFitTc_triggered(self):
         self.currentPlot.beginFit(TcFitter, self.actionFitTc)
+
+    @qtsig('')
+    def on_actionFitCosine_triggered(self):
+        self.currentPlot.beginFit(CosineFitter, self.actionFitCosine)
 
     @qtsig('')
     def on_actionFitArby_triggered(self):
