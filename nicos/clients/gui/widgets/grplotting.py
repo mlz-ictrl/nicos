@@ -121,7 +121,7 @@ class NicosPlotCurve(PlotCurve):
 
 class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
-    GR_MARKER_SIZE = 1.
+    GR_MARKER_SIZE = 1.0
     HAS_AUTOSCALE = True
     SAVE_EXT = '.svg'
 
@@ -255,6 +255,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             for curve in axis.getCurves():
                 curve.markertype = markertype
         self.hasSymbols = on
+        gr.setmarkersize(NicosGrPlot.GR_MARKER_SIZE)
         self.update()
 
     def setLines(self, on):
