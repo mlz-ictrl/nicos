@@ -12,6 +12,7 @@ devices = dict(
     chopper         = device('kws1.chopper.Chopper',
                              description = 'high-level chopper/TOF presets',
                              resolutions = [1, 2.5, 5, 10],
+                             fmtstr = '%.2f Hz, %.0f deg',
                              selector = 'selector',
                              det_pos = 'detector',
                              params = 'chopper_params',
