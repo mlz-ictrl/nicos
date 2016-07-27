@@ -64,7 +64,9 @@ class DoubleValidator(QDoubleValidator):
         return QDoubleValidator.validate(self, string, pos)
 
 
-index_re = re.compile(r'\[(\s*[0-9]+\s*(,\s*[0-9]+\s*)*)\]$')
+keyexpr_re = re.compile(r'([a-zA-Z_0-9./]+)'              # device or key
+                        r'(?:\[([0-9]+(?:,[0-9]+)*)\])?'  # indices
+                        r'(\*[0-9.]+)?([+-][0-9.]+)?$')   # offset/scale
 
 
 def extractKeyAndIndex(spec):
@@ -72,24 +74,31 @@ def extractKeyAndIndex(spec):
     given by the user.  This takes into account the following changes:
 
     * '/' can be replaced by '.'
-    * If it is not in the form 'dev/key', '/value' is automatically
-      appended
-    * Subitems can be specified as a list.
-      Examples:
-
-          det.rates[0,1]
-          dev.keys[10]
+    * If it is not in the form 'dev/key', '/value' is automatically appended.
+    * Subitems can be specified as a list: ``dev.keys[10], det.rates[0,1]``.
+    * A scale factor can be added with ``*X``.
+    * An offset can be added with ``+X`` or ``-X``.
     """
-    key = spec.lower().replace('.', '/')
-    index = ()
-    if '[' in spec:
-        s = index_re.search(key)
-        if s is not None:
-            key = s.string[:s.start()].strip()
-            index = eval(s.group(1) + ',')
+    match = keyexpr_re.match(spec.replace(' ', ''))
+    if not match:
+        return spec.lower().replace('.', '/'), (), 1.0, 0
+    key, index, scale, offset = match.groups()
+    key = key.lower().replace('.', '/')
     if '/' not in key:
         key += '/value'
-    return key, index
+    try:
+        index = tuple(map(int, index.split(','))) if index is not None else ()
+    except ValueError:
+        index = ()
+    try:
+        scale = float(scale[1:]) if scale is not None else 1.0
+    except ValueError:
+        scale = 1.0
+    try:
+        offset = float(offset) if offset is not None else 0.0
+    except ValueError:
+        offset = 0.0
+    return key, index, scale, offset
 
 
 def checkSetupSpec(setupspec, setups, compat='or', log=None):

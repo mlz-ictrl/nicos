@@ -77,7 +77,7 @@ class View(QObject):
                                              'Querying history...',
                                              force_display=True)
 
-        for _, (key, index) in iterator:
+        for _, (key, index, scale, offset) in iterator:
             real_indices = [index]
             history = None
             self.uniq_keys.add(key)
@@ -107,8 +107,8 @@ class View(QObject):
                                              range(len(first_value)))
             for index in real_indices:
                 name = '%s[%s]' % (key, ','.join(map(str, index))) if index else key
-                series = TimeSeries(name, interval, window, self,
-                                    meta[0].get(key), meta[1].get(key))
+                series = TimeSeries(name, interval, scale, offset, window,
+                                    self, meta[0].get(key), meta[1].get(key))
                 self.series[key, index] = series
                 if history:
                     series.init_from_history(history, fromtime,
@@ -210,10 +210,17 @@ class NewViewDialog(QDialog, DlgUtils):
                       '3d    (3 days)\n')
 
     def showDeviceHelp(self):
-        self.showInfo('Enter a comma-separated list of device names or '
-                      'parameters (as "device.parameter").  Example:\n\n'
-                      'T, T.setpoint\n\nshows the value of device T, and the '
-                      'value of the T.setpoint parameter.')
+        self.showInfo(
+            'Enter a comma-separated list of device names or '
+            'parameters (as "device.parameter").  Example:\n\n'
+            'T, T.setpoint\n\nshows the value of device T, and the '
+            'value of the T.setpoint parameter.\n\n'
+            'More options:\n'
+            '- use [i] to select subitems by index, e.g. motor.status[0]\n'
+            '- use *x to scale the values by a constant, e.g. '
+            'T*100, T.heaterpower\n'
+            '- use +x or -x to add an offset to the values, e.g. '
+            'T+5 or combined T*100+5\n')
 
     def toggleCustomY(self, on):
         self.customYFrom.setEnabled(on)
@@ -442,7 +449,7 @@ class BaseHistoryWindow(object):
         units = {}
         mappings = {}
         seen = set()
-        for key, _ in keys_indices:
+        for key, _, _, _ in keys_indices:
             if key in seen or not key.endswith('/value'):
                 continue
             seen.add(key)

@@ -111,13 +111,15 @@ class TimeSeries(object):
     """
     minsize = 500
 
-    def __init__(self, name, interval, window, signal_obj, info=None,
-                 mapping=None):
+    def __init__(self, name, interval, scale, offset, window, signal_obj,
+                 info=None, mapping=None):
         self.name = name
         self.signal_obj = signal_obj
         self.info = info
         self.interval = interval
         self.window = window
+        self.scale = scale
+        self.offset = offset
         self.x = None
         self.y = None
         self.n = 0
@@ -128,7 +130,9 @@ class TimeSeries(object):
 
     @property
     def title(self):
-        return self.name + (' (' + self.info + ')' if self.info else '')
+        return (self.name + ('*%g' % self.scale if self.scale != 1 else '') +
+                ('%+g' % self.offset if self.offset else '') +
+                (' (' + self.info + ')' if self.info else ''))
 
     def init_empty(self):
         self.x = np.zeros(self.minsize)
@@ -158,6 +162,8 @@ class TimeSeries(object):
                 # other values we can't use
                 else:
                     continue
+            else:
+                value = value * self.scale + self.offset
             if delta < self.interval:
                 # value comes too fast -> ignore
                 lvalue = value
@@ -203,9 +209,10 @@ class TimeSeries(object):
             return
         delta = currenttime() - self._last_update_time
         if delta > self.interval:
-            self.add_value(self.x[self.n - 1] + delta, self.last_y, real=False)
+            self.add_value(self.x[self.n - 1] + delta, self.last_y, real=False,
+                           use_scale=False)
 
-    def add_value(self, vtime, value, real=True):
+    def add_value(self, vtime, value, real=True, use_scale=True):
         if not isinstance(value, number_types):
             if isinstance(value, string_types):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
@@ -214,6 +221,8 @@ class TimeSeries(object):
                     sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
             else:
                 return
+        elif use_scale:
+            value = value * self.scale + self.offset
         n, x, y = self.n, self.x, self.y
         real_n = self.real_n
         self.last_y = value
