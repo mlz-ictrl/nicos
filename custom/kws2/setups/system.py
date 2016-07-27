@@ -30,7 +30,7 @@ devices = dict(
                       description = 'experiment object',
                       dataroot = 'data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'maintenance',
                       sample = 'Sample',
                      ),
 

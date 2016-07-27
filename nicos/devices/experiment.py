@@ -366,6 +366,18 @@ class Experiment(Device):
     #
 
     def doInit(self, mode):
+        # check that service proposal is actually resolved as service
+        if self.propprefix:
+            try:
+                int(self.serviceexp)
+            except ValueError:
+                pass
+            else:
+                raise ConfigurationError(self, 'the serviceexp parameter '
+                                         'must be set to %r, not just %r'
+                                         % (self.propprefix + self.serviceexp,
+                                            self.serviceexp))
+
         instname = session.instrument and session.instrument.instrument or ''
         if self._attached_sample.name != 'Sample':
             raise ConfigurationError(self, 'the sample device must now be '
