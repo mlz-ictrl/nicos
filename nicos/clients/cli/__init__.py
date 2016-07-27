@@ -636,12 +636,14 @@ class NicosCmdClient(NicosClient):
         for reqno, script in sorted(iteritems(self.pending_requests)):
             if 'name' in script and script['name']:
                 short = script['name']
-            else:
+            elif 'script' in script:
                 lines = script['script'].splitlines()
                 if len(lines) == 1:
                     short = lines[0]
                 else:
                     short = lines[0] + ' ...'
+            else:
+                short = '(stop)'
             self.put('# %s  %s' % (colorize('blue', '%4d' % reqno), short))
         self.put_client('End of pending list.')
 

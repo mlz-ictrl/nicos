@@ -160,7 +160,7 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
 
         w("# Active_Stop_Unit           TIMER\n")
         w("#  Timer                    %6.1f sec\n" % readdev('timer')[0])
-        w("#  Monitor           %16d\n" % readdev('mon0')[0])
+        w("#  Monitor           %16d\n" % readdev('mon1')[0])
         w("#\n")
         begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(self.dataset.started))
         end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(currenttime()))
