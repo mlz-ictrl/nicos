@@ -20,6 +20,7 @@ devices = dict(
                              freq2 = 'chopper2_freq',
                              phase1 = 'chopper1_phase',
                              phase2 = 'chopper2_phase',
+                             fmtstr = '%.2f Hz, %.0f deg',
                             ),
 
     chopper1_phase  = device('devices.generic.VirtualMotor',
