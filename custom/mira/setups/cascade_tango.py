@@ -1,7 +1,8 @@
-description = 'CASCADE detector'
+description = 'CASCADE detector (Tango version)'
 group = 'lowlevel'
 
 includes = ['detector', 'gas']
+excludes = ['cascade_win']
 
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 

@@ -64,11 +64,11 @@ _column1 = Column(
         ],
         setups='magnet5',
     ),
-    Block('HTS Magnet', [
-        BlockRow(Field(name='Target', dev='B_ccmhts01'),
-                 Field(name='Readback', dev='B_ccmhts01_readback')),
+    Block('2.2T Magnet (HTS)', [
+        BlockRow(Field(name='Target', dev='B_ccm2a'),
+                 Field(name='Readback', dev='B_ccm2a_readback')),
         ],
-        setups='ccmhts01',
+        setups='ccm2a',
     ),
     Block('3He cell', [
         BlockRow(Field(name='Polarization', dev='pol', width=7),
@@ -151,8 +151,8 @@ _column2 = Column(
                  Field(name='Control', dev='T'), Field(dev='Ts', name='Sample')),
         BlockRow(Field(name='A', dev='T_ccr21_A'), Field(name='B', dev='T_ccr21_B'),
                  Field(name='C', dev='T_ccr21_C'), Field(name='D', dev='T_ccr21_D')),
-        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
-                 Field(name='D', key='t/d'), Field(name='p', dev='ccr21_p1')),
+        BlockRow(Field(name='P', key='t_ccr21_tube/p'), Field(name='I', key='t_ccr21_tube/i'),
+                 Field(name='D', key='t_ccr21_tube/d'), Field(name='p', dev='ccr21_p1')),
         ],
         setups='ccr21',
     ),

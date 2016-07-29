@@ -67,7 +67,7 @@ tools = [
     tool('Neutron calculations', 'website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('MIRA Wiki', 'website.WebsiteTool',
-         url='http://mira2.mira.frm2:8080/'),
+         url='http://wiki.frm2.tum.de/mira:index'),
     tool('Phone database', 'website.WebsiteTool',
          url='http://www.mlz-garching.de/ueber-mlz/telefonverzeichnis.html'),
     tool('Report NICOS bug or request enhancement',

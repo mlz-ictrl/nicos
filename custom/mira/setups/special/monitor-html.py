@@ -44,6 +44,12 @@ _column3 = Column(
         ],
         setups='cascade',
     ),
+    Block('2.2T Magnet (HTS)', [
+        BlockRow(Field(name='Target', dev='B_ccm2a'),
+                 Field(name='Readback', dev='B_ccm2a_readback')),
+        ],
+        setups='ccm2a',
+    ),
     Block('3He cell', [
         BlockRow(Field(name='Polarization', dev='pol', width=7),
                  Field(name='Guide field', dev='He_GF')),
@@ -133,6 +139,16 @@ _column2 = Column(
                  Field(name='D', key='t_ccr11/d'), Field(name='p', dev='ccr11_p1')),
         ],
         setups='ccr11',
+    ),
+    Block('Cryostat (CCR21)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='Control', dev='T'), Field(dev='Ts', name='Sample')),
+        BlockRow(Field(name='A', dev='T_ccr21_A'), Field(name='B', dev='T_ccr21_B'),
+                 Field(name='C', dev='T_ccr21_C'), Field(name='D', dev='T_ccr21_D')),
+        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+                 Field(name='D', key='t/d'), Field(name='p', dev='ccr21_p1')),
+        ],
+        setups='ccr21',
     ),
     Block('Furnace (IRF01)', [
         BlockRow(Field(name='Setpoint', key='t_irf01/setpoint', unitkey='t_irf01/unit', format='%.2f'),
@@ -251,7 +267,6 @@ _column1 = Column(
                  Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7,)),
         ],
-        setups='reactor',
     ),
 )
 

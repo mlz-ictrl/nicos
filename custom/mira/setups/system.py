@@ -9,9 +9,9 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
-modules = ['commands.standard', 'commands.taco']
+modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Exp      = device('mira.experiment.MiraExperiment',

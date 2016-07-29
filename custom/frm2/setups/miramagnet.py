@@ -13,7 +13,7 @@ devices = dict(
                             fmtstr = '%.1f',
                            ),
     B_miramagnet   = device('devices.generic.CalibratedMagnet',
-                            currentsource = 'I',
+                            currentsource = 'I_miramagnet',
                             description = 'MIRA magnetic field',
                             # no abslimits: they are automatically determined from I
                             unit = 'T',

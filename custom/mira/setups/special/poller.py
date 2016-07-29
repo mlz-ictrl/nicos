@@ -15,5 +15,5 @@ devices = dict(
                     alwayspoll = ['ubahn', 'meteo', 'memograph', 'radmon'],
                     neverpoll = ['gaussmeter'],
                     loglevel = 'info',
-                    blacklist = ['psd']),
+                    blacklist = ['psd_channel']),
 )

@@ -155,8 +155,12 @@ class LiveDataPanel(Panel):
             self._runtime = runtime
             self._filename = filename
         else:
-            # print 'Unsupported live data format:', params
-            self._format = None
+            if filename:
+                self._filename = filename
+                self._format = filename[-3:]
+            else:
+                # print 'Unsupported live data format:', params
+                self._format = None
 
     def on_client_livedata(self, data):
         if self._format not in ('pad', 'tof'):
@@ -255,7 +259,7 @@ class LiveDataPanel(Panel):
     @qtsig('')
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.GetPlot().GetZoomer().zoomRect()
-        self.client.run('psd.roi = (%s, %s, %s, %s)' %
+        self.client.run('psd_channel.roi = (%s, %s, %s, %s)' %
                         (int(zoom.left()), int(zoom.top()),
                          int(zoom.right()), int(zoom.bottom())))
 
