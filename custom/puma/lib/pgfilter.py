@@ -24,8 +24,7 @@
 
 """Device class for PUMA PG filter."""
 
-import time
-
+from nicos import session
 from nicos.core import Moveable, Readable, status, NicosError, oneof, Attach
 
 
@@ -56,7 +55,7 @@ class PGFilter(Moveable):
                 self.log.info('PG filter: illegal input')
                 return
 
-            time.sleep(2)
+            session.delay(2)
 
             if self.doStatus()[0] == status.ERROR:
                 raise NicosError(self, 'PG filter is not readable, please '

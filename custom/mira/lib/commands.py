@@ -24,8 +24,6 @@
 
 """Module for MIRA specific commands."""
 
-import time
-
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo
@@ -40,14 +38,14 @@ def FlushCryo():
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas, 'on')
     while Pcryo.read() < 995:
-        time.sleep(1)
-    time.sleep(5)
+        session.delay(1)
+    session.delay(5)
     read(Pcryo)
     move(CryoGas, 'off')
     move(CryoVac,'on')
     while Pcryo.read() > 0.15:
-        time.sleep(1)
-    time.sleep(5)
+        session.delay(1)
+    session.delay(5)
     read(Pcryo)
     move(CryoVac, 'off')
     printinfo('Cryo flushed!')
@@ -59,7 +57,7 @@ def SetCryoGas(target):
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas,'on')
     while Pcryo.read() < target:
-        time.sleep(0.01)
+        session.delay(0.01)
     move(CryoGas,'off')
 
 @usercommand
@@ -69,5 +67,5 @@ def SetCryoVac(target):
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoVac,'on')
     while Pcryo.read() > target:
-        time.sleep(0.01)
+        session.delay(0.01)
     move(CryoVac,'off')

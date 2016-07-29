@@ -24,11 +24,11 @@
 
 """Devices for the Refsans NOK system."""
 
-import time
 import struct
 
 from Modbus import Modbus
 
+from nicos import session
 from nicos.utils import bitDescription, clamp
 from nicos.core import Param, Override, status, SIMULATION, usermethod, \
     requires, TimeoutError, Readable, oneof, limits, floatrange, NicosError, \
@@ -240,7 +240,7 @@ class PumpstandIO(TacoDevice, Readable):
         self._writeU32(14, int(cmd))
 
         self.log.debug('checking reaction')
-        time.sleep(0.1)
+        session.delay(0.1)
         for _ in range(10):
             ack = bool(self._HW_readACK())
             nack = bool(self._HW_readNACK())

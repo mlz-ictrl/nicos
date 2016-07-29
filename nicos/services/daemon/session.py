@@ -58,7 +58,9 @@ class DaemonSession(NoninteractiveSession):
     # these objects are such a piece of code (the number designates the level)
     _bpcode = [None, compile("pass", "<break>1", "exec"),
                compile("pass", "<break>2", "exec"),
-               compile("pass", "<break>3", "exec")]
+               compile("pass", "<break>3", "exec"),
+               compile("pass", "<break>4", "exec"),
+               compile("pass", "<break>5", "exec")]
 
     def _initLogging(self, prefix=None, console=True):
         NoninteractiveSession._initLogging(self, prefix, console)

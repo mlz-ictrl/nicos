@@ -25,10 +25,11 @@
 
 """TOFTOF chopper calculations and chopper control (MACCON)."""
 
-from time import sleep, time as currenttime
+from time import time as currenttime
 
 import IO
 
+from nicos import session
 from nicos.core import ADMIN, NicosError, SIMULATION, status, requires
 
 from nicos.devices.taco import TacoDevice
@@ -101,14 +102,14 @@ class Controller(TacoDevice, BaseChopperController):
         self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
         # wait for controller to process current commands
         while self._read(DES_CMD) != C_READY:
-            sleep(0.04)
+            session.delay(0.04)
 
     def _write_multi(self, *values):
         tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
         self._taco_guard(self._dev.writeLine, tstr)
         # wait for controller to process current commands
         while self._read(DES_CMD) != C_READY:
-            sleep(0.04)
+            session.delay(0.04)
 
     def doRead(self, maxage=0):
         return BaseChopperController.doRead(self, maxage)
@@ -252,7 +253,7 @@ class Controller(TacoDevice, BaseChopperController):
                              'are running!')
         if not self._is_cal():
             self._taco_guard(self._dev.writeLine, '$$$')
-            sleep(3)
+            session.delay(3)
             self._write(DES_CMD, C_CALIBRATE)
             self._setROParam('speed', 0)
         self._setROParam('changetime', currenttime())

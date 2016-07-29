@@ -24,8 +24,7 @@
 
 """MIRA special high voltage power supply device."""
 
-import time
-
+from nicos import session
 from nicos.core import Param
 from nicos.devices.tango import Actuator
 
@@ -44,5 +43,5 @@ class CascadeIsegHV(Actuator):
                              'is supplied with counting gas!  Waiting '
                              'for %d seconds before ramping up the HV.'
                              % self.waittime)
-            time.sleep(self.waittime)
+            session.delay(self.waittime)
         return Actuator.doStart(self, value)

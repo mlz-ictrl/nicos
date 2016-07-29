@@ -24,8 +24,7 @@
 
 """Class for controlling the KWS flipper."""
 
-from time import sleep
-
+from nicos import session
 from nicos.core import HasTimeout, Moveable, Attach, Override, status, oneof, \
     SIMULATION
 
@@ -88,5 +87,5 @@ class Flipper(HasTimeout, Moveable):
         # The output sometimes seems not to come on.  Therefore,
         # switch it off manually and try again...
         self._attached_output.start(0)
-        sleep(1)
+        session.delay(1)
         self.start(self.target)

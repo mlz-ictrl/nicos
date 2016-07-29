@@ -80,7 +80,7 @@ devices = dict(
                       description = 'experiment object',
                       dataroot = '/home/jcns/nicos-data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'service',
                       sample = 'Sample',
                      ),
 

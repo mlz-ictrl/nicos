@@ -41,7 +41,7 @@ from nicos.services.daemon.utils import formatScript, fixupScript, \
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, STATUS_IDLE, \
-    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING
+    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_INBREAK, STATUS_STOPPING
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.core import SIMULATION, SLAVE, MASTER
 from nicos.pycompat import queue, exec_, text_type
@@ -327,7 +327,10 @@ class ExecutionController(Controller):
         self.namespace.pop('NicosSetup', None)
 
     def _observer(self, status, lineno):
-        self.eventfunc('status', (status, lineno))
+        if status != STATUS_INBREAK:
+            # Do not go into pause state immediately, since we will skip
+            # many breakpoints if not on the highest level.
+            self.eventfunc('status', (status, lineno))
 
     def _breakfunc(self, frame, flag):
         # check level of breakpoint reached
@@ -337,12 +340,13 @@ class ExecutionController(Controller):
         else:
             bplevel = BREAK_AFTER_LINE
         # flag is a tuple (mode, required stoplevel, user name)
-        if flag[1] < bplevel or flag[0] == 'stop':
+        if flag[1] < bplevel or flag[0] in ('stop', 'emergency stop'):
             # don't pause/stop here...
             self.set_continue(flag)
         else:
             self.log.info('script paused in %s' % self.current_location())
             session.log.info('Script paused by %s' % flag[2])
+            self.eventfunc('status', (STATUS_INBREAK, self.lineno))
         new_flag = self.wait_for_continue()
         # new_flag is either a flag coming from Handler.stop(), from
         # Handler.continue() or the old one from above
@@ -424,7 +428,7 @@ class ExecutionController(Controller):
         session.log.warn('Immediate stop requested by ' + suffix)
         self.block_all_requests()
         if self.status == STATUS_RUNNING:
-            self.set_stop(('emergency stop', 5, user.name))
+            self.set_break(('emergency stop', 5, user.name))
         else:
             # in break
             self.set_continue(('emergency stop', 5, user.name))

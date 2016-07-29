@@ -5,7 +5,7 @@ main_window = tabbed(
         vsplit(
             hsplit(
                 vsplit(
-                    panel('cmdbuilder.CommandPanel', modules=['poli.gui.cmdlets']),
+                    panel('cmdbuilder.CommandPanel'),
                     panel('status.ScriptStatusPanel'),
                 ),
             ),
@@ -23,7 +23,7 @@ main_window = tabbed(
     )),
     ('Script Editor',
         vsplit(
-            panel('scriptbuilder.CommandsPanel', modules=['poli.gui.cmdlets']),
+            panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
                 tools = [
                     tool('Scan Generator', 'scan.ScanTool')

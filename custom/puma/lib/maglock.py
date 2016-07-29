@@ -25,8 +25,7 @@
 
 """Magnetic Lock."""
 
-import time
-
+from nicos import session
 from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, \
     Attach, listof
 
@@ -73,7 +72,7 @@ class MagLock(Moveable):
             self.log.info('Maglock: illegal input')
             return
 
-        time.sleep(2)  # XXX!
+        session.delay(2)  # XXX!
 
         if self.read(0) != position:
             raise NicosError(self, 'maglock returned wrong position!')

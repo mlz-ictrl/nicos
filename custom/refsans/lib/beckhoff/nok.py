@@ -24,11 +24,11 @@
 
 """Devices for the Refsans NOK system."""
 
-import time
 import struct
 
 from Modbus import Modbus
 
+from nicos import session
 from nicos.utils import bitDescription
 from nicos.core import Param, Override, status, UsageError, SIMULATION, \
     CommunicationError, HasTimeout, usermethod, requires, DeviceMixinBase, \
@@ -182,7 +182,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         tmpval |= ((mask & int(value)) << int(bit))
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
-        time.sleep(0.1) # work around race conditions....
+        session.delay(0.1) # work around race conditions....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r' % value)
@@ -340,19 +340,19 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     def _HW_reference(self):
         """Do the referencing and update position to refpos"""
         self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets ???
-        time.sleep(0.5)
+        session.delay(0.5)
         self._writeControlBit(4, 0)
 
     def _HW_stop(self):
         """stop any actions"""
         self._writeControlBit(6, 1)     # docu: bit6 = stop, autoresets ???
-        time.sleep(0.1)
+        session.delay(0.1)
         self._writeControlBit(6, 0)
 
     def _HW_ACK_Error(self):
         """acknowledge any error"""
         self._writeControlBit(7, 1)     # docu: bit7 = stop, autoresets ???
-        time.sleep(0.1)
+        session.delay(0.1)
         self._writeControlBit(7, 0)
 
     # more advanced stuff: setting/getting parameters
@@ -446,14 +446,14 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
         # XXX timeout?
         # XXX rework !
         for _ in range(1000):
-            time.sleep(0.1)
+            session.delay(0.1)
             statval = self._readStatusWord()
             # if motor moving==0 and target reached==1 -> Ok
             if (statval & 0b10100000 == 0) and (statval & 0b01000000):
                 return
             # limit switch triggered or stop issued
             if statval & (7<<10):
-                time.sleep(0.5)
+                session.delay(0.5)
                 return
         raise TimeoutError("HW still BUSY after 100s")
 
@@ -466,7 +466,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
         self._HW_wait_while_BUSY()
         # now just go where commanded....
         self._HW_start(self._phys2steps(target))
-        time.sleep(0.1)
+        session.delay(0.1)
         if self._HW_readStatusWord() & (1<<10):
             raise MoveError('Limit switch hit by HW')
         if self._HW_readStatusWord() & (1<<11):

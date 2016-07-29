@@ -81,7 +81,7 @@ class SingleDetectors(Measurable):
                 if time.time() > self._timeval:
                     self.log.warning('Pinstate timeout in prepare')
                     return
-                time.sleep(0.02)
+                session.delay(0.02)
 
     def doStart(self):
         self.log.debug('Integral start')
@@ -91,7 +91,7 @@ class SingleDetectors(Measurable):
             if time.time() > self._timeval:
                 self.log.warning('Pinstate timeout in start')
                 return
-            time.sleep(0.02)
+            session.delay(0.02)
 
     def doStop(self):
         self.log.debug('Pintimer stop')

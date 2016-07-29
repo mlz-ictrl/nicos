@@ -24,11 +24,11 @@
 
 """Devices for the SANS-1 collimation system."""
 
-import time
 import struct
 
 from Modbus import Modbus
 
+from nicos import session
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
@@ -244,7 +244,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         tmpval |= (int(value) << int(bit))
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
-        time.sleep(0.1)  # work around race conditions....
+        session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r' % value)
@@ -395,13 +395,13 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     def _HW_wait_while_BUSY(self):
         # XXX timeout?
         while not self._seq_stopflag:
-            time.sleep(0.1)
+            session.delay(0.1)
             statval = self._readStatusWord()
             # if motor moving==0 and target reached==1 -> break
             if (statval & (1 << 7) == 0) and (statval & (1 << 6)):
                 break
             if statval & (3 << 10):  # limit switch triggered or stop issued
-                time.sleep(0.1)
+                session.delay(0.1)
                 break
 
     def _HW_status(self):

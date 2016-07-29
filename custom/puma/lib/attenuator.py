@@ -24,8 +24,7 @@
 
 """Attenuator class for PUMA."""
 
-import time
-
+from nicos import session
 from nicos.core import Moveable, Readable, status, NicosError, HasLimits
 from nicos.core import Attach, SIMULATION
 
@@ -84,7 +83,7 @@ class Attenuator(HasLimits, Moveable):
                                "filterlist[i]: %d" %
                                (position, temp, result, self._filterlist[i]))
             self._attached_io_set.move(result)
-            time.sleep(3)
+            session.delay(3)
 
             if self.doStatus()[0] != status.OK:
                 raise NicosError(self, 'attenuator returned wrong position')

@@ -59,6 +59,19 @@ class NicosPlotAxes(PlotAxes):
             dy = ytick
         return xmin - dx, xmax + dx, ymin - dy, ymax + dy
 
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            xmin, xmax = original_win[:2]
+            cmin, cmax = vc.xmin, vc.xmax
+            new_x = curvechanged.x[-1]
+            if cmax > xmax and new_x > xmax:
+                return original_win
+            elif cmin < xmin and new_x < xmin:
+                return original_win
+        return PlotAxes.doAutoScale(self, curvechanged)
+
 
 class NicosTimePlotAxes(NicosPlotAxes):
 

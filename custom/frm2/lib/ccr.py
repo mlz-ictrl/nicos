@@ -25,8 +25,8 @@
 """Support classes for the CCR TACO boxes"""
 
 import IO
-import time
 
+from nicos import session
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
     ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
     floatrange, tacodev, status, Attach, limits
@@ -287,7 +287,7 @@ class CompressorSwitch(NamedDigitalOutput):
             self._taco_guard(self._dev.write, 1)
         else:
             self._taco_guard(self._off.write, 1)
-        time.sleep(self.sleeptime)
+        session.delay(self.sleeptime)
 
     def _read(self):
         return self._taco_guard(self._readback.read)

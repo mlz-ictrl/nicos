@@ -25,7 +25,7 @@
 """Meta classes and Mixins for usage in NICOS."""
 
 import threading
-from time import sleep, time as currenttime
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, status
@@ -601,7 +601,7 @@ class HasCommunication(DeviceMixinBase):
                     else:
                         name = getattr(function, '__name__', 'communication')
                         self._com_warn(tries, name, err, info)
-                    sleep(self.comdelay)
+                    session.delay(self.comdelay)
 
     def _com_return(self, result, info):
         """Process *result*, the return value of communication.

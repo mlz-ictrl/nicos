@@ -24,8 +24,7 @@
 
 """Axis with brake control for SANS-1 sample changer sword."""
 
-from time import sleep
-
+from nicos import session
 from nicos.core import Attach, Moveable, Param, anytype, tupleof, status
 from nicos.devices.generic.axis import Axis
 
@@ -59,8 +58,8 @@ class SwordAxis(Axis):
 
     def _preMoveAction(self):
         self._adevs['switch'].maw(self.switchvalues[1])
-        sleep(self.startdelay)
+        session.delay(self.startdelay)
 
     def _postMoveAction(self):
-        sleep(self.stopdelay)
+        session.delay(self.stopdelay)
         self._adevs['switch'].maw(self.switchvalues[0])

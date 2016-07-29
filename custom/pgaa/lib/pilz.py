@@ -25,8 +25,8 @@
 """ Classes to access to the switches via the Pilz Box """
 
 import IO
-import time
 
+from nicos import session
 from nicos.core import tacodev, Param, status
 from nicos.devices.taco.io import NamedDigitalOutput
 from nicos.core.mixins import HasTimeout
@@ -66,15 +66,15 @@ class Switch(HasTimeout, NamedDigitalOutput):
 
     def _writeValue(self, value):
         self._taco_guard(self._dev.write, value)
-        time.sleep(self._sleeptime)
+        session.delay(self._sleeptime)
 
     def _enableRemote(self):
         self._taco_guard(self._remote.write, 1)
-        time.sleep(self._sleeptime)
+        session.delay(self._sleeptime)
 
     def _disableRemote(self):
         self._taco_guard(self._remote.write, 0)
-        time.sleep(self._sleeptime)
+        session.delay(self._sleeptime)
 
     def doStart(self, target):
         """ At first we have to enable the remote control and after writing
@@ -106,4 +106,4 @@ class Attenuator(Switch):
 
     def _writeValue(self, value):
         self._taco_guard(self._dev.write, 1)
-        time.sleep(self._sleeptime)
+        session.delay(self._sleeptime)

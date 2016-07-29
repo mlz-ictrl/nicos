@@ -28,7 +28,7 @@ import sys
 import types
 import inspect
 import re
-from time import time as currenttime, sleep
+from time import time as currenttime
 
 import numpy
 
@@ -833,7 +833,7 @@ class Device(object):
             except CacheLockError:
                 if currenttime() > start + timeout:
                     raise CommunicationError(self, 'device locked in cache')
-                sleep(self._base_loop_delay * 3)
+                session.delay(self._base_loop_delay * 3)
             else:
                 break
 
@@ -1594,7 +1594,7 @@ class Moveable(Waitable):
     def _hw_wait(self):
         """Wait until hardware status is not BUSY."""
         while self.doStatus(0)[0] == status.BUSY:
-            sleep(self._base_loop_delay)
+            session.delay(self._base_loop_delay)
 
     @usermethod
     def maw(self, target):

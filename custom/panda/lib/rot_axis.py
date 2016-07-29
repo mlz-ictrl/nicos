@@ -24,8 +24,7 @@
 
 """PANDA rotary axis for NICOS."""
 
-from time import sleep
-
+from nicos import session
 from nicos.core import Param, NicosError, none_or, ConfigurationError, status
 from nicos.core.utils import devIter
 from nicos.devices.generic.axis import Axis
@@ -97,7 +96,7 @@ class RefAxis(Axis):
             # helper: wait until the motor HW is no longer busy
             def wait_for_motor(m):
                 while m.doStatus()[0] == status.BUSY:
-                    sleep(m._base_loop_delay)
+                    session.delay(m._base_loop_delay)
                 m.poll()
 
             self.stop()  # make sure the axis code does not interfere
@@ -121,8 +120,8 @@ class RefAxis(Axis):
             # wait until a) refswitch fires or b) movement finished
             wait_for_motor(m)
             if not refsw(m) and self._checkTargetPosition(self.read(0),
-                                                         self.abslimits[0],
-                                                         error=False):
+                                                          self.abslimits[0],
+                                                          error=False):
                 self.log.error('Referencing: No refswitch found!!! Exiting')
                 self.start(oldpos)
                 return
@@ -230,7 +229,7 @@ class RotAxis(RefAxis):
 
     def _postMoveAction(self):
         if self._wrapped:
-            sleep(self.wrapwaittime)
+            session.delay(self.wrapwaittime)
 
     def doReference(self, gotopos=None):  # pylint: disable=W0221
         """references this axis by finding the reference switch and then
@@ -269,7 +268,7 @@ class RotAxis(RefAxis):
             # helper: wait until the motor HW is no longer busy
             def wait_for_motor(m):
                 while m.doStatus()[0] == status.BUSY:
-                    sleep(m._base_loop_delay)
+                    session.delay(m._base_loop_delay)
                 m.poll()
 
             self.stop()  # make sure the axis code does not interfere
