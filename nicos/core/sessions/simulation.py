@@ -76,8 +76,8 @@ class SimLogSender(logging.Handler):
                 dev._sim_max = None
         self.level = 0
 
-    def emit(self, record, entries=TRANSMIT_ENTRIES):  # pylint: disable=W0221
-        msg = [getattr(record, e) for e in entries]
+    def emit(self, record):
+        msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
         self.socket.send(serialize(msg))

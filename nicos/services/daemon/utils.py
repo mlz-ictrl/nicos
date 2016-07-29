@@ -110,8 +110,8 @@ class DaemonLogHandler(logging.Handler):
         self.daemon = daemon
         self.ctrl = daemon._controller
 
-    def emit(self, record, entries=TRANSMIT_ENTRIES):  # pylint: disable=W0221
-        msg = [getattr(record, e) for e in entries]
+    def emit(self, record):
+        msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
         # record which request caused this message
