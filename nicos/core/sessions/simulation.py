@@ -51,11 +51,13 @@ class SimLogSender(logging.Handler):
     Log handler sending messages to the original daemon via a pipe.
     """
 
-    def __init__(self, port, session):
+    def __init__(self, port, session, finish_only=False):
         logging.Handler.__init__(self)
         self.socket = nicos_zmq_ctx.socket(zmq.PUSH)
         self.socket.connect('tcp://127.0.0.1:%d' % port)
         self.session = session
+        self.finish_only = finish_only
+        self.starttime = None
         self.devices = []
         self.aliases = []
 
@@ -77,10 +79,11 @@ class SimLogSender(logging.Handler):
         self.level = 0
 
     def emit(self, record):
-        msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
-        if not hasattr(record, 'nonl'):
-            msg[3] += '\n'
-        self.socket.send(serialize(msg))
+        if not self.finish_only:
+            msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
+            if not hasattr(record, 'nonl'):
+                msg[3] += '\n'
+            self.socket.send(serialize(msg))
 
     def finish(self, exception=False):
         stoptime = -1 if exception else self.session.clock.time
