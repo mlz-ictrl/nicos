@@ -138,17 +138,20 @@ class ATT(HoveringAxis):
         'stargate': Attach('stargate switch device', Stargate),
     }
 
-    def doStart(self, value):
+    def _preMoveAction(self):
         self._attached_stargate.start(
-            self._attached_stargate.get_chevrons_for_att(value))
-        HoveringAxis.doStart(self, value)
+            self._attached_stargate.get_chevrons_for_att(self.target))
+        HoveringAxis._preMoveAction(self)
 
     def doStatus(self, maxage=0):
-        retval = HoveringAxis.doRead(self, maxage)
-        sgstat = self._attached_stargate.status(maxage)[0]
-        if sgstat == status.BUSY:
-            return status.BUSY, 'stargate is moving'
+        sgstat = self._attached_stargate.status(maxage)
+        if sgstat[0] == status.BUSY:
+            return status.BUSY, 'stargate moving'
+        axstat = HoveringAxis.doStatus(self, maxage)
+        if axstat[0] == status.BUSY:
+            return axstat
+        axvalue = HoveringAxis.doRead(self, maxage)
         chevrons = list(self._attached_stargate.read(maxage))
-        if chevrons != self._attached_stargate.get_chevrons_for_att(retval):
+        if chevrons != self._attached_stargate.get_chevrons_for_att(axvalue):
             return status.ERROR, 'invalid stargate position for att angle'
-        return HoveringAxis.doStatus(self, maxage)
+        return axstat
