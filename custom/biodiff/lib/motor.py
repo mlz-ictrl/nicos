@@ -148,3 +148,11 @@ maxspeed: %.4f
         t = time.time() - t
         self.log.info("Movement finished, time elapsed %.4f." % t)
         return res
+
+    def doStop(self):
+        if not self._seq_is_running():
+            self._stopAction(-1)
+        BaseSequencer.doStop(self)
+
+    def _stopAction(self, _nr):
+        self._attached_motor.stop()
