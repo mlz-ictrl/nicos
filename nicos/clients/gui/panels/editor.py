@@ -602,6 +602,7 @@ class EditorPanel(Panel):
                 self.simOutViewErrors.addMessage(message)
 
     def on_client_simresult(self, data):
+        self.actionSimulate.setEnabled(True)
         (timing, devinfo) = data
         if not self.waiting_sim_result:
             return
@@ -704,6 +705,7 @@ class EditorPanel(Panel):
             return
         if not self.checkDirty(self.currentEditor, askonly=True):
             return
+        self.actionSimulate.setEnabled(False)
         self.client.tell('simulate', self.filenames[self.currentEditor], script,
                          'editorsim')
         self.waiting_sim_result = True

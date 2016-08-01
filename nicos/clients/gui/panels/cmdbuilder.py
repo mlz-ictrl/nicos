@@ -57,6 +57,7 @@ class CommandPanel(Panel):
 
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
+        self.connect(client, SIGNAL('simresult'), self.on_client_simresult)
 
     def postInit(self):
         self.console = self.window.getPanel('Console')
@@ -168,7 +169,11 @@ class CommandPanel(Panel):
         script = self.commandInput.text()
         if not script:
             return
+        self.simBtn.setEnabled(False)
         self.client.tell('simulate', '', script, 'sim')
+
+    def on_client_simresult(self, data):
+        self.simBtn.setEnabled(True)
 
     @qtsig('')
     def on_runBtn_clicked(self):
