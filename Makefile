@@ -69,7 +69,6 @@ test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
 	@COVERAGE_PROCESS_START=.coveragerc NOSE_REDNOSE=1 $(PYTHON) `which nosetests` $(T) -d -v --with-id --with-coverage --cover-package=nicos --traverse-namespace $(O); \
 	RESULT=$$?; \
-	`which coverage || which python-coverage` combine; \
 	`which coverage || which python-coverage` html -d cover; \
 	echo "nosetest: $$RESULT"; \
 	exit $$RESULT
