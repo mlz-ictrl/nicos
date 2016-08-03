@@ -89,14 +89,14 @@ _htf03 = Block('HTF03', [
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=40, plotwindow=1800,
+              width=70, height=35, plotwindow=1800,
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['30min', 'Setpoint', 'Target'],
               ),
     ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=40, plotwindow=12*3600,
+              width=70, height=35, plotwindow=12*3600,
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['12h', 'Setpoint', 'Target'],
               ),
