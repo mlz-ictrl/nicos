@@ -159,7 +159,7 @@ devices = dict(
                    addr = 63,
                    slope = -2500,
                    unit = 'mm',
-                   abslimits = (-6.1, 7.1),
+                   abslimits = (-7.1, 7.1),
                    zerosteps = 500000,
                    lowlevel = True,
                   ),
