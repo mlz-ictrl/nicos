@@ -201,7 +201,7 @@ class Monitor(BaseMonitor):
         master.setWindowTitle(self.title)
         self._bgcolor = master.palette().color(QPalette.Window)
 
-        timefont  = QFont(self.font, self._fontsizebig + self._fontsize)
+        timefont  = QFont(self.font, self._timefontsize)
         blockfont = QFont(self.font, self._fontsizebig)
         warnfont  = QFont(self.font, self._fontsizebig)
         warnfont.setBold(True)

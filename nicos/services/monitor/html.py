@@ -299,7 +299,7 @@ class Monitor(BaseMonitor):
 
         headprops = dict(
             fs = self._fontsize,
-            fst = self._fontsize + self._fontsizebig,
+            fst = self._timefontsize,
             fsb = self._fontsizebig,
             ff = self.font,
             ffm = self.valuefont or self.font,

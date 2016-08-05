@@ -12,6 +12,8 @@ from nicos.core.sessions.simple import NoninteractiveSession
 parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--fontsize', dest='fontsize', type=int,
                     help='base font size')
+parser.add_argument('--timefontsize', dest='timefontsize', type=int,
+                    help='time font size')
 parser.add_argument('-p', '--padding', dest='padding', type=int,
                     help='base padding')
 parser.add_argument('-g', '--geometry', dest='geometry', type=str,

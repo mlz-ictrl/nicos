@@ -46,6 +46,7 @@ class TestOptions(object):
     fontsize = 12
     padding = 0
     geometry = 'fullscreen'
+    timefontsize = None
 
 
 def test_monitor():

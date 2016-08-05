@@ -32,7 +32,7 @@ from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import listof, oneof, Param, Override
+from nicos.core import listof, oneof, none_or, Param, Override
 from nicos.utils import watchFileContent, createThread
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, \
     OP_WILDCARD, cache_load
@@ -59,6 +59,8 @@ class Monitor(BaseCacheClient):
         'valuefont': Param('Font name for the value displays', type=str),
         'fontsize':  Param('Basic font size', type=int, default=12,
                            settable=True),
+        'timefontsize': Param('Time headline font size', type=none_or(int),
+                              default=None, settable=True),
         'padding':   Param('Padding for the display fields', type=int,
                            default=2, settable=True),
         'geometry':  Param('Geometry for status window',
@@ -109,7 +111,9 @@ class Monitor(BaseCacheClient):
 
         self._fontsize = options.fontsize or self.fontsize
         self._fontsizebig = int(self._fontsize * 1.2)
-        self._padding  = options.padding or self.padding
+        self._timefontsize = (options.timefontsize or self.timefontsize or
+                              (self._fontsizebig + self._fontsize))
+        self._padding = options.padding or self.padding
         self._geometry = options.geometry or self.geometry
 
         if self._geometry and self._geometry != 'fullscreen':
