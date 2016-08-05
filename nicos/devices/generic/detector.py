@@ -154,7 +154,7 @@ class CounterChannelMixin(DeviceMixinBase):
 
     parameters = {
         'type': Param('Type of channel: monitor or counter',
-                      type=oneof('monitor', 'counter'), mandatory=True),
+                      type=oneof('monitor', 'counter', 'other'), mandatory=True),
     }
 
     parameter_overrides = {
