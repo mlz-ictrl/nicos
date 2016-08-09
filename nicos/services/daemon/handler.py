@@ -114,7 +114,9 @@ class SizedQueue(queue.Queue):
         queue.Queue._init(self, maxsize)
 
     def _qsize(self):
-        return self.nbytes
+        # limit to self.maxsize because of equality test
+        # for full queues in python 2.7
+        return min(self.maxsize, self.nbytes)
 
     def _put(self, item):
         # size of the queue item should never be zero, so add one
