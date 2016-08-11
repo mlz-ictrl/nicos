@@ -110,6 +110,8 @@ def test_tas_device():
 
     tas.scanmode = 'CKF'
     tas.scanconstant = 2.662
+    tas.scatteringsense = [1, -1, 1]
+    tas.energytransferunit = 'THz'
     mono.unit = ana.unit = 'A-1'
 
     # test the correct driving of motors
@@ -180,8 +182,15 @@ def test_tas_device():
 def test_error_handling():
     # check that if one subdev errors out, we wait for the other subdevs
     tas = session.getDevice('Tas')
+    mono = session.getDevice('t_mono')
+    ana = session.getDevice('t_ana')
     mfh = session.getDevice('t_mfh')
     phi = session.getDevice('t_phi')
+    tas.scanmode = 'CKF'
+    tas.scanconstant = 2.662
+    tas.scatteringsense = [-1, 1, -1]
+    tas.energytransferunit = 'THz'
+    mono.unit = ana.unit = 'A-1'
     tas([1.01, 0, 0, 1])
     phi.speed = 1
     mfh._status_exception = PositionError(mfh, 'wrong position')
@@ -236,6 +245,7 @@ def test_tas_commands():
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57
+    tas.energytransferunit = 'THz'
 
     # calpos()/pos()
     for args in [
@@ -246,12 +256,17 @@ def test_tas_commands():
         (Q(0.5, 0.5, 0.5, 0),),
         (Q(0.5, 0.5, 0.5, 0), 1.57)
     ]:
+        # move tas to known position
+        tas([0.4, 0.4, 0.4, 0.2])
         calpos(*args)
         pos()
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
+        # move tas to known position
+        tas([0.4, 0.4, 0.4, 0.2])
         pos(*args)
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
 
+    tas([0.4, 0.4, 0.4, 0.2])
     assert session.testhandler.warns(calpos, 0.7, 0.7, 0.7, 0)
     calpos(0.5, 0.5, 0.5, 0)
     assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
@@ -283,6 +298,9 @@ def test_helper_commands():
 
 def test_resolution():
     tas = session.getDevice('Tas')
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 2.662
+    tas([1.01, 0, 0, 1])
     tas.collimation = '20 30 40 50'
     cell = tas._attached_cell
     cfg, par = _resmat_args((1, 1, 0, 0), {})
@@ -323,6 +341,8 @@ def test_canreflect():
 def test_virtualdet():
     tas = session.getDevice('Tas')
     tdet = session.getDevice('vtasdet')
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 1.57
     tas.maw([1, 0, 0, 0])
     countres = count(tdet, 1)
     assert countres[0] == 1.0
