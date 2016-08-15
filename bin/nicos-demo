@@ -66,14 +66,17 @@ def cleanup():
     pgid = None
     for nice_name, proc, prof in reversed(background_processes):
         try:
-            if not pgid:
+            if not pgid and hasattr(os, 'getpgid'):
                 pgid = os.getpgid(proc.pid)
-            if prof == 'mprof':
+            if prof == 'mprof' or os.name == 'nt':
                 parent = psutil.Process(proc.pid)
-                for c in parent.children():
+                children = parent.children()
+                proc.terminate()
+                for c in children:
                     c.terminate()
                 sleep(0.5)
-            proc.terminate()
+            else:
+                proc.terminate()
         except OSError as e:
             # might already have terminated early
             echo('could not stop %s %s: %s\n' % (nice_name, e))
