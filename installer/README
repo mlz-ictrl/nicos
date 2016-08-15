@@ -1,0 +1,5 @@
+To build the exe file, invoke:
+
+pyinstaller nicos-gui.spec
+
+Currently requires the latest git master version of PyInstaller.
