@@ -80,7 +80,7 @@ class VirtualImage(BaseImage):
         except IOError:
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual TOF image' % self.datafile)
-            self._rawdata = np.zero(self.sizes[0] * self.sizes[1])
+            self._rawdata = np.zeros(self.sizes[0] * self.sizes[1])
 
     def _generate(self, t):
         return np.random.poisson(t * self._rawdata).reshape(self.sizes)
