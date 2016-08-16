@@ -107,7 +107,10 @@ class SpeedReadout(Readable):
                 for v in self._attached_chopper._readspeeds_actual()]
 
     def doStatus(self, maxage=0):
-        return status.OK, 'no status info'
+        stat = self._attached_chopper.status(maxage)
+        if stat[0] != status.OK:
+            return stat[0], 'changing'
+        return status.OK, 'idle'
 
 
 class PropertyChanger(Moveable):
@@ -121,7 +124,10 @@ class PropertyChanger(Moveable):
     }
 
     def doStatus(self, maxage=0):
-        return status.OK, 'no status info'
+        stat = self._attached_chopper.status(maxage)
+        if stat[0] != status.OK:
+            return stat[0], 'changing'
+        return status.OK, 'idle'
 
     def doRead(self, maxage=0):
         return getattr(self._attached_chopper, self._prop)
