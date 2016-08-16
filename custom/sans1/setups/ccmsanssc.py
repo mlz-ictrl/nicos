@@ -46,7 +46,8 @@ devices = dict(
                                 moveable = 'ccmsanssc_axis',
                                 mapping = {1: 4, 2: 69, 3: 134, 4: 199, 5: 264,
                                            6: 329, 7: 394, 8: 459, 9: 524, 10: 589},
-                                precision = 0.01,
+                                precision = 0.1,
+                                fmtstr = '%d',
                                ),
 )
 

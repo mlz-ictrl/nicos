@@ -45,6 +45,7 @@ class Sans1Sample(NicosSample):
             NicosSample.new(self, parameters)
         else:
             self.set(self.samplenumber, parameters)
+            self._applyParams(self.samplenumber, parameters)
 
     def _applyParams(self, number, parameters):
         if number > 0:

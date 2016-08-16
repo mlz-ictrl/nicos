@@ -76,6 +76,7 @@ devices = dict(
                         refpos = -9.1,
                         abslimits = (-400, 600),
                         lowlevel = True,
+                        precision = 0.0025,
                         autozero = 80,
                        ),
 
@@ -111,6 +112,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     ng_pol_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -159,6 +161,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_20a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -206,6 +209,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_20b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -253,6 +257,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_16a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -331,6 +336,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_16b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -378,6 +384,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_12a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -425,6 +432,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_12b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -472,6 +480,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_8a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -519,6 +528,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_8b_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -536,7 +546,7 @@ devices = dict(
 
     bg2        = device('sans1.collimotor.Sans1ColliSlit',
                         description = 'Background slit2',
-                        mapping = {'28mm':0, '20mm':90, '12mm':180, 'open':270 },
+                        mapping = {'28mm':0, '20mm':90, '12mm':180, 'open':274 },
                         moveable = 'bg2_m',
                         table = 'col_8b',
                         activeposition = 'col',
@@ -596,6 +606,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_4a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -643,6 +654,7 @@ devices = dict(
                         abslimits = (-400, 600),
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_4b_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -691,6 +703,7 @@ devices = dict(
                         autopower = 'on',
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_2a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -740,6 +753,7 @@ devices = dict(
                         #fixedby = ('setupfile', 99),      # deny release!
                         #~ autozero = 100,
                         autozero = None, # no auto referencing with an axis !!!
+                        precision = 0.0025,
                         lowlevel = True,
                        ),
     col_2b_c   = device('sans1.collimotor.Sans1ColliCoder',

@@ -24,6 +24,7 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
+import os
 from time import strftime, localtime, time as currenttime
 import numpy as np
 
@@ -295,7 +296,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             LookUpTable = 'lookup'
 
         metadata = DeviceValueDict(
-            fileName = self._file.filepath,
+            fileName = os.path.basename(self._file.filepath),
             fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
             fileTime = strftime('%r', localtime(self.dataset.started)),
             FromDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),

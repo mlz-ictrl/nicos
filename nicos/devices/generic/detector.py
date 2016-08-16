@@ -494,7 +494,7 @@ class DetectorForecast(Readable):
         # closest to the preselection
         fraction_complete = 0
         for m in self._attached_det._masters:
-            p = m.preselection
+            p = float(m.preselection)
             if p > 0:
                 fraction_complete = max(fraction_complete,
                                         counter_values[m] / p)
