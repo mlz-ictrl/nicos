@@ -110,6 +110,7 @@ no_msg = object()
 class SizedQueue(queue.Queue):
     """A Queue that limits the total size of event messages"""
     def _init(self, maxsize):
+        assert maxsize > 0
         self.nbytes = 0
         queue.Queue._init(self, maxsize)
 
