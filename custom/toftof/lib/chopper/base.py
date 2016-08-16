@@ -71,6 +71,10 @@ class BaseChopperController(HasTimeout, Readable):
         return (self.wavelength, self.speed, self.ratio,
                 self.crc, self.slittype)
 
+    def _change(self, name, value):
+        raise NotImplementedError('please use a proper derived class and '
+                                  'implement "_change" method!')
+
     def doRead(self, maxage=0):
         """Read average speed from all choppers."""
         speeds = self._readspeeds()
@@ -121,6 +125,7 @@ class PropertyChanger(Moveable):
     """
     attached_devices = {
         'chopper': Attach('Chopper controller', BaseChopperController),
+        'chdelay': Attach('Setting chopper delay', Moveable),
     }
 
     def doStatus(self, maxage=0):
@@ -133,6 +138,12 @@ class PropertyChanger(Moveable):
         return getattr(self._attached_chopper, self._prop)
 
     def doStart(self, target):
+        ch5_90deg_offset = self._attached_chopper.ch5_90deg_offset
+        chwl, chspeed, chratio, chst = self._chopper_params(target)
+        _chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
+                                              ch5_90deg_offset)
+        self.log.debug('setting chopper delay to : %d' % _chdelay)
+        self._attached_chdelay.move(_chdelay)
         self._attached_chopper._change(self._prop, target)
 
     def doReadTarget(self):
@@ -147,6 +158,10 @@ class Wavelength(HasLimits, PropertyChanger):
     }
     valuetype = float
 
+    def _chopper_params(self, target):
+        _, chspeed, chratio, _, chst = self._attached_chopper._getparams()
+        return target, chspeed, chratio, chst
+
 
 class Speed(HasLimits, PropertyChanger):
     """The speed parameter device of the chopper."""
@@ -155,6 +170,10 @@ class Speed(HasLimits, PropertyChanger):
         'unit': Override(mandatory=False, default='rpm'),
     }
     valuetype = float
+
+    def _chopper_params(self, target):
+        chwl, _, chratio, _, chst = self._attached_chopper._getparams()
+        return chwl, target, chratio, chst
 
 
 class Ratio(PropertyChanger):
@@ -165,6 +184,10 @@ class Ratio(PropertyChanger):
         'fmtstr': Override(default='%d'),
     }
     valuetype = oneof(*range(1, 11))
+
+    def _chopper_params(self, target):
+        chwl, chspeed, _, _, chst = self._attached_chopper._getparams()
+        return chwl, chspeed, target, chst
 
 
 class CRC(PropertyChanger):
@@ -178,6 +201,10 @@ class CRC(PropertyChanger):
     }
     valuetype = oneof(0, 1)
 
+    def _chopper_params(self, target):
+        chwl, chspeed, chratio, _, chst = self._attached_chopper._getparams()
+        return chwl, chspeed, chratio, chst
+
 
 class SlitType(PropertyChanger):
     """The slit type parameter device of the chopper."""
@@ -187,3 +214,7 @@ class SlitType(PropertyChanger):
         'fmtstr': Override(default='%d'),
     }
     valuetype = oneof(0, 1, 2)
+
+    def _chopper_params(self, target):
+        chwl, chspeed, chratio, _, _ = self._attached_chopper._getparams()
+        return chwl, chspeed, chratio, target

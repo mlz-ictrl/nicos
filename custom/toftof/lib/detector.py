@@ -111,19 +111,13 @@ class Detector(GenericDetector):
         self._user_comment = preset.pop('info', 'No comment')
         GenericDetector.doSetPreset(self, **preset)
 
-    def doStart(self):
-        try:
-            if self._attached_rc.read(0) != 'on':
-                self.log.warning('radial collimator is not moving!')
-        except NicosError:
-            self.log.warning('could not check radial collimator', exc=1)
-
+    def _update(self):
         self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, _, chst = self._attached_chopper._getparams()
 
         _timeinterval = calc.calculateTimeInterval(chspeed, chratio)
         self.log.debug('setting time interval : %f' % _timeinterval)
-        self.timeinterval = _timeinterval
+        self.doWriteTimeinterval(_timeinterval)
 
         if chspeed > 150:
             # calculate chopper delay from chopper parameters
@@ -139,12 +133,20 @@ class Detector(GenericDetector):
             _ctrdelay = calc.calculateCounterDelay(chwl, chspeed, chratio,
                                                    self.userdelay,
                                                    ch5_90deg_offset)
-            self.log.debug('setting counter delay to : %d' % _ctrdelay)
-            self.delay = _ctrdelay
+            self.doWriteDelay(_ctrdelay)
         else:
             _chdelay = 0
             self.log.debug('setting chopper delay to : %d' % _chdelay)
             self._attached_chdelay.move(_chdelay)
+
+    def doStart(self):
+        try:
+            if self._attached_rc.read(0) != 'on':
+                self.log.warning('radial collimator is not moving!')
+        except NicosError:
+            self.log.warning('could not check radial collimator', exc=1)
+
+        self._update()
 
         self._last_time = 0
         self._last_counts = 0
@@ -188,10 +190,11 @@ class Detector(GenericDetector):
         return ret
 
     def doReadDelay(self):
+        self._update()
         return self._attached_images[0].delay
 
     def doWriteDelay(self, value):
-        self.log.debug('set detector delay: %d' % value)
+        self.log.debug('setting counter delay to : %d' % value)
         self._attached_images[0].delay = value
 
     def doReadTimechannels(self):
@@ -201,12 +204,14 @@ class Detector(GenericDetector):
         self._attached_images[0].timechannels = value
 
     def doReadTimeinterval(self):
+        self._update()
         return self._attached_images[0].timeinterval
 
     def doWriteTimeinterval(self, value):
         self._attached_images[0].timeinterval = value
 
     def doReadChannelwidth(self):
+        self._update()
         return self._attached_images[0].channelwidth
 
     def doReadNuminputs(self):
