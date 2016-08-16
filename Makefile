@@ -104,13 +104,13 @@ release:
 
 help:
 	@echo "Important targets:"
-	@echo "  inplace       - build everything for running NICOS from here"
+	@echo "  install-inplace - build everything for running NICOS from here"
 	@echo
 	@echo "Development targets:"
-	@echo "  check         - run setup checks"
-	@echo "  test          - run test suite"
-	@echo "  test-coverage - run test suite with coverage reporting"
-	@echo "  lint          - check source with pylint"
-	@echo "  changelint    - check source with pylint (only files in last commit)"
-	@echo "  manualrelease - create tarball for official release (for manual usage)"
-	@echo "  release       - create tarball for official release(jenkins usage)"
+	@echo "  setupcheck      - run setup checks"
+	@echo "  test            - run test suite"
+	@echo "  test-coverage   - run test suite with coverage reporting"
+	@echo "  lint            - check source with pylint"
+	@echo "  changelint      - check source with pylint (only files in last commit)"
+	@echo "  manualrelease   - create tarball for official release (for manual usage)"
+	@echo "  release         - create tarball for official release(jenkins usage)"
