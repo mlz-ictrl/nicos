@@ -1,5 +1,5 @@
-Instrument specific classes
----------------------------
+Epics related devices
+---------------------
 
 .. automodule:: nicos.essiip.epics_motor
 
