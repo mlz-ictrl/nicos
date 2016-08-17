@@ -2,7 +2,7 @@
 ESSIIP
 ======
 
-ESS Instrument Integration Project
+`ESS <https://europeanspallationsource.se/>`_ Instrument Integration Project.
 
 Instrument setups
 =================
