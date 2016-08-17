@@ -24,6 +24,7 @@ devices = dict(
                          abslimits = (1, 10),
                          dvalue = 3.455,
                          scatteringsense = -1,
+                         crystalside = -1,
                          fixed = 'Please give me correct parameters first !',
                          fixedby = ('brain', 99),
                         ),

@@ -117,8 +117,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                           settable=True, category='instrument'),
         'reltheta': Param('True if theta position is relative to two-theta',
                           type=bool, default=False, category='instrument'),
-        # XXX explanation?
-        'sidechange': Param('', type=int, default=False, userparam=False),
         'focmode':  Param('Focussing mode', default='manual', settable=True,
                           type=oneof('manual', 'flat', 'horizontal',
                                      'vertical', 'double'),
@@ -135,6 +133,11 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                             type=float, default=0, settable=True),
         'scatteringsense': Param('Default scattering sense when not used '
                                  'in triple-axis mode', type=oneof(1, -1)),
+        'crystalside': Param('Scattering sense for which theta is two-theta/2 '
+                             '(for the other sense it needs to be offset by '
+                             '180 degrees to avoid scattering from the back '
+                             'of the crystal holder)',
+                             type=oneof(1, -1), mandatory=True),
     }
 
     parameter_overrides = {
@@ -171,11 +174,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                              'and n=%s' % (self.dvalue, self.order))
         tt = 2.0 * angle * self._scatsense  # twotheta with correct sign
         th = angle * self._scatsense      # absolute theta with correct sign
+        th = (angle - 90.0) * self._scatsense + 90.0 * self.crystalside
+        # correct for theta axis mounted on top of two-theta table
         if self.reltheta:
-            # if theta is relative to twotheta, then theta = - twotheta / 2
-            th = -th
-        # analyser scattering side
-        th += 90 * self.sidechange * (1 - self._scatsense)
+            th -= tt
 
         self._attached_twotheta.start(tt)
         self._attached_theta.start(th)
@@ -232,15 +234,12 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return True, ''
 
     def _get_angles(self, maxage):
-        tt = self._scatsense * self._attached_twotheta.read(maxage)
+        tt = self._attached_twotheta.read(maxage)
         th = self._attached_theta.read(maxage)
-        # analyser scattering side
-        th -= 90 * self.sidechange * (1 - self._scatsense)
-        th *= self._scatsense  # make it positive
         if self.reltheta:
-            # if theta is relative to twotheta then theta = - twotheta / 2
-            th = -th
-        return tt, th
+            th += tt
+        th = (th - 90.0 * self.crystalside) * self._scatsense + 90.0
+        return tt * self._scatsense, th
 
     def doRead(self, maxage=0):
         # the scattering angle is deciding

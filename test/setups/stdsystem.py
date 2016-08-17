@@ -94,6 +94,7 @@ devices = dict(
                       focmode = 'horizontal',
                       abslimits = (0.1, 10),
                       dvalue = 3.325,
+                      crystalside = 1,
                      ),
 
     t_mth    = device('devices.generic.VirtualMotor',
@@ -120,12 +121,13 @@ devices = dict(
                       reltheta = True,
                       abslimits = (0.1, 10),
                       dvalue = 3.325,
+                      crystalside = 1,
                      ),
 
     t_ath    = device('devices.generic.VirtualMotor',
                       curvalue = 10,
                       unit = 'deg',
-                      abslimits = (-180, 180),
+                      abslimits = (-180, 270),
                       jitter = 0.02,
                       precision = 0.05,
                      ),

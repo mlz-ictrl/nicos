@@ -31,6 +31,7 @@ devices = dict(
                          abslimits = (1, 10),
                          dvalue = 3.355,
                          scatteringsense = -1,
+                         crystalside = -1,
                         ),
     mfh_pg_step = device('panda.mcc2.MCC2Motor',
                          description = 'horizontal focusing MOTOR of PG monochromator',

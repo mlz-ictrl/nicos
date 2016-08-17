@@ -47,6 +47,7 @@ devices = dict(
                     focusv = None,
                     abslimits = (0.1, 10),
                     dvalue = 3.325,
+                    crystalside = -1,
                    ),
 
     vana   = device('devices.tas.Monochromator',
@@ -58,6 +59,7 @@ devices = dict(
                     focusv = None,
                     abslimits = (0.1, 10),
                     dvalue = 3.325,
+                    crystalside = -1,
                    ),
 
     vmth   = device('devices.generic.VirtualMotor',

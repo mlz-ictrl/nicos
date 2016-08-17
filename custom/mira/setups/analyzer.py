@@ -63,6 +63,7 @@ devices = dict(
                       abslimits = (0.1, 10),
                       dvalue = 3.355,
                       scatteringsense = -1,
+                      crystalside = -1,
                      ),
 
     stargate = device('mira.stargate.Stargate',

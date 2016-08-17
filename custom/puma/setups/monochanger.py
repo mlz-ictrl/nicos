@@ -291,6 +291,7 @@ devices = dict(
                         abslimits = (1, 60),
                         dvalue = 3.1415,
                         scatteringsense = -1,
+                        crystalside = -1,
                         fixed = 'Dummy monochromator, DONT USE FOR EXPERIMENTS!',
                         fixedby = ('brain', 30),
                        ),

@@ -34,6 +34,7 @@ devices = dict(
                     focush = None,
                     focusv = None,
                     abslimits = (0.1, 10),
+                    crystalside = -1,
                    ),
 
     vath   = device('devices.generic.VirtualMotor',

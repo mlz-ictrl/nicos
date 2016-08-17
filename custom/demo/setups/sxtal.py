@@ -77,6 +77,7 @@ devices = dict(
                       abslimits = (0.1, 10),
                       warnlimits = (1.0, 3.0),
                       scatteringsense = -1,
+                      crystalside = -1,
                      ),
 
     mth      = device('devices.generic.VirtualMotor',

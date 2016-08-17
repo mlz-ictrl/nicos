@@ -78,6 +78,7 @@ devices = dict(
                                 abslimits = (1, 10),
                                 dvalue = 3.355,
                                 scatteringsense = -1,
+                                crystalside = -1,
                                 fixed = 'DO NOT USE THIS DUMMY DEVICE! please set mono.alias to another device.',
                                 fixedby = ('NICOS', 99),
                                 lowlevel = True,
@@ -91,6 +92,7 @@ devices = dict(
                       focush = None,
                       focusv = None,
                       abslimits = (0.1, 10),
+                      crystalside = -1,
                      ),
 
     ath      = device('devices.generic.VirtualMotor',

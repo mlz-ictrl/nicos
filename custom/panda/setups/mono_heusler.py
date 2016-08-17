@@ -28,6 +28,7 @@ devices = dict(
                               abslimits = (1, 10),
                               dvalue = 3.45,
                               scatteringsense = -1,
+                              crystalside = -1,
                              ),
     # for MFV_heusler motor, only one limit switch (-) is connected as a reference switch
     mfv_heusler_step = device('panda.mcc2.MCC2Motor',
@@ -87,6 +88,7 @@ devices = dict(
                               hfocuspars = [-478,483.74,-154.68,16.644], #2013-11 2nd
                               dvalue = 3.45,
                               scatteringsense = -1,
+                              crystalside = -1,
                              ),
     afh_heusler_step = device('panda.ipc.Motor',
                               description = 'stepper for horizontal focus of heusler ana',

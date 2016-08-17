@@ -79,6 +79,7 @@ devices = dict(
                       focusv = None,
                       abslimits = (0.1, 10),
                       dvalue = 3.325,
+                      crystalside = -1,
                      ),
 
     t_mth    = device('devices.generic.VirtualMotor',
@@ -105,6 +106,7 @@ devices = dict(
                       reltheta = True,
                       abslimits = (0.1, 10),
                       dvalue = 3.325,
+                      crystalside = -1,
                      ),
 
     t_ath    = device('devices.generic.VirtualMotor',

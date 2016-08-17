@@ -81,6 +81,7 @@ devices = dict(
                         abslimits = (1, 7.5),
                         dvalue = 3.355,
                         scatteringsense = -1,
+                        crystalside = -1,
                        ),
 
 #    mono_pg004 = device('devices.tas.Monochromator',
@@ -121,6 +122,7 @@ devices = dict(
                         abslimits = (3.5, 18.5),       # :FIXTHIS:
                         dvalue = 1.278,           # :FIXTHIS:
                         scatteringsense = -1,
+                        crystalside = -1,
                        ),
 
 #    mono_cu111 = device('devices.tas.Monochromator',
@@ -138,6 +140,7 @@ devices = dict(
 #                        abslimits = (1, 18),       # :FIXTHIS:
 #                        dvalue = 2.08717,           # :FIXTHIS:
 #                        scatteringsense = -1,
+#                        crystalside = -1,
 #                       ),
 
 #    mono_ge311 = device('devices.tas.Monochromator',
@@ -175,6 +178,7 @@ devices = dict(
                         abslimits = (1, 5),
                         dvalue = 3.355,
                         scatteringsense = -1,
+                        crystalside = -1,
                        ),
 
     ana_ge311  = device('devices.tas.Monochromator',
@@ -190,6 +194,7 @@ devices = dict(
                         abslimits = (1, 60),
                         dvalue = 1.706,
                         scatteringsense = -1,
+                        crystalside = -1,
                        ),
 )
 

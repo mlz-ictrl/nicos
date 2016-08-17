@@ -66,6 +66,7 @@ devices = dict(
                       focusv = None,
                       abslimits = (0.1, 10),
                       warnlimits = (1.0, 3.0),
+                      crystalside = -1,
                      ),
 
     mth      = device('devices.generic.VirtualMotor',
@@ -93,12 +94,13 @@ devices = dict(
                       focush = None,
                       focusv = None,
                       abslimits = (0.1, 10),
+                      crystalside = -1,
                      ),
 
     ath      = device('devices.generic.VirtualMotor',
                       description = 'analyzer rocking angle',
                       unit = 'deg',
-                      abslimits = (-90, 90),
+                      abslimits = (-180, 180),
                       precision = 0.05,
                       speed = 0.5,
                      ),
