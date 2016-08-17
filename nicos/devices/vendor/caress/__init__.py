@@ -22,5 +22,6 @@
 #
 # *****************************************************************************
 
+from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.motor import Motor
 from nicos.devices.vendor.caress.mux import MUX
