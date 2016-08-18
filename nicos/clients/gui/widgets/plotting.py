@@ -236,6 +236,9 @@ def prepareData(x, y, dy, norm):
     """
     # make arrays
     x = np.array(x)
+    # replace complex data types (strings...) by numbers
+    if not x.dtype.isbuiltin:
+        x = np.zeros(x.shape)
     y = np.array(y, float)
     dy = np.array(dy, float)
     # normalize
