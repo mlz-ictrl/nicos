@@ -1,5 +1,5 @@
-Changelog for NICOS
-===================
+Changelog
+=========
 
 Release 2.9.0
 -------------
@@ -602,8 +602,8 @@ Release 2.1.2
 
 - Fixed simulation mode not working with no cache configured.
 
-Release 2.1.1 (2012-03-22)
---------------------------
+Release 2.1.1
+-------------
 
 - Fixed an elog bug that caused elog to quit on Unicode errors.
 
@@ -623,8 +623,8 @@ Release 2.1.1 (2012-03-22)
 - Fixed a bug in simulation mode that would cause exceptions when
   wait()ing for fixed devices.
 
-Release 2.1.0 (2012-03-14)
---------------------------
+Release 2.1.0
+-------------
 
 - Introduced the "Measurable.duringMeasureHook()" and
   "Measurable.save()/doSave()" methods.
@@ -734,7 +734,7 @@ Release 2.0.1
 - The Axis now correctly resets the error state on multiple positioning
   tries.
 
-Release 2.0.0 (2012-01-11)
---------------------------
+Release 2.0.0
+-------------
 
 - Initial release.

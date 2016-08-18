@@ -246,6 +246,21 @@ class ScanDataset(BaseDataset):
 
         BaseDataset.__init__(self, **kwds)
 
+    def trimResult(self):
+        """Trim objects that are not required to be kept after finish()."""
+        BaseDataset.trimResult(self)
+        # keep only valuelists in all points but the first (which serves as
+        # metadata for the scan)
+        for subset in self.subsets[1:]:
+            if isinstance(subset, PointDataset):
+                # create the lazy properties if not yet done
+                # pylint: disable=pointless-statement
+                (subset.devvaluelist, subset.envvaluelist, subset.detvaluelist)
+                # clear all other data
+                for d in (subset.metainfo, subset.values, subset._valuestats,
+                          subset.canonical_values, subset.results):
+                    d.clear()
+
     @property
     def metainfo(self):
         # The metainfo is the same as for the first datapoint / subscan.
