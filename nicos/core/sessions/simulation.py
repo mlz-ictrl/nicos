@@ -138,14 +138,17 @@ class SimulationSession(Session):
         sys.stdout = LoggingStdout(sys.stdout)
 
         try:
-            # Load the initial setup and handle becoming master.
-            session.handleInitialSetup('startup', SIMULATION)
+            # Initialize the session in simulation mode.
+            session._mode = SIMULATION
 
             # Load the setups from the original system, this should give the
             # information about the cache address.
+            session.log.info('loading simulation mode setups: %s' %
+                             ', '.join(setups))
             session.loadSetup(setups, allow_startupcode=False)
 
             # Synchronize setups and cache values.
+            session.log.info('synchronizing to master session')
             session.simulationSync()
 
             # Set session to always abort on errors.
