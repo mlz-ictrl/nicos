@@ -806,6 +806,7 @@ def relative_path(val=''):
 
 
 def expanded_path(val=''):
+    """an absolute filepath which expands also '~' and $var constructs"""
     return path.expanduser(path.expandvars(val))
 
 
