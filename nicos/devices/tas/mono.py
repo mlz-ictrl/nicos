@@ -131,8 +131,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                             category='instrument'),
         'vfocusflat': Param('Vertical focus value for flat mono',
                             type=float, default=0, settable=True),
-        'scatteringsense': Param('Default scattering sense when not used '
-                                 'in triple-axis mode', type=oneof(1, -1)),
+        'scatteringsense': Param('Scattering sense', type=oneof(1, -1),
+                                 chatty=True, userparam=False, settable=True),
         'crystalside': Param('Scattering sense for which theta is two-theta/2 '
                              '(for the other sense it needs to be offset by '
                              '180 degrees to avoid scattering from the back '
@@ -150,9 +150,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doInit(self, mode):
         # warnings about manual focus
         self._focwarnings = 3
-
-        # can be re-set by TAS object
-        self._scatsense = self.scatteringsense
 
         # need to consider rounding effects since a difference of 0.0104 is
         # rounded to 0.010 so the combined axisprecision need to be larger than
@@ -172,9 +169,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         except ValueError:
             raise LimitError(self, 'wavelength not reachable with d=%.3f A '
                              'and n=%s' % (self.dvalue, self.order))
-        tt = 2.0 * angle * self._scatsense  # twotheta with correct sign
-        th = angle * self._scatsense      # absolute theta with correct sign
-        th = (angle - 90.0) * self._scatsense + 90.0 * self.crystalside
+        tt = 2.0 * angle * self.scatteringsense  # twotheta with correct sign
+        th = angle * self.scatteringsense  # absolute theta with correct sign
+        th = (angle - 90.0) * self.scatteringsense + 90.0 * self.crystalside
         # correct for theta axis mounted on top of two-theta table
         if self.reltheta:
             th -= tt
@@ -225,7 +222,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         except ValueError:
             return False, 'wavelength not reachable with d=%.3f A and n=%s' % \
                 (self.dvalue, self.order)
-        ttvalue = 2.0 * self._scatsense * theta
+        ttvalue = 2.0 * self.scatteringsense * theta
         ttdev = self._attached_twotheta
         ok, why = ttdev.isAllowed(ttvalue)
         if not ok:
@@ -238,18 +235,19 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         th = self._attached_theta.read(maxage)
         if self.reltheta:
             th += tt
-        th = (th - 90.0 * self.crystalside) * self._scatsense + 90.0
-        return tt * self._scatsense, th
+        th = (th - 90.0 * self.crystalside) * self.scatteringsense + 90.0
+        return tt * self.scatteringsense, th
 
     def doRead(self, maxage=0):
         # the scattering angle is deciding
-        tt = self._scatsense * self._attached_twotheta.read(maxage)
+        tt = self.scatteringsense * self._attached_twotheta.read(maxage)
         return from_k(wavevector(self.dvalue, self.order, tt/2.0), self.unit)
 
     def doStatus(self, maxage=0):
         # order is important here.
         const, text = multiStatus(((name, self._adevs[name]) for name in
-            ['theta', 'twotheta', 'focush', 'focusv']), maxage)
+                                   ['theta', 'twotheta', 'focush', 'focusv']),
+                                  maxage)
         if const == status.OK:  # all idle; check also angle relation
             tt, th = self._get_angles(maxage)
             if abs(tt - 2.0*th) > self._axisprecision:
@@ -268,7 +266,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 self._attached_theta.precision, self._axisprecision))
 
     def doReadPrecision(self):
-        if not hasattr(self, '_scatsense'):
+        if not hasattr(self, 'scatteringsense'):
             # object not yet intialized
             return 0
         # the precision depends on the angular precision of theta and twotheta

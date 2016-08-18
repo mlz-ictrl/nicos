@@ -23,9 +23,8 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import UsageError, LimitError, ConfigurationError, \
-    ComputationError, NicosError, PositionError, MoveError, \
-    status
+from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
+    InvalidValueError, ComputationError, NicosError, PositionError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
 from nicos.commands.measure import count
@@ -136,7 +135,8 @@ def test_tas_device():
     tas.scatteringsense = [-1, 1, -1]
     tas([1, 0, 0, 1])
     assertAlmostEqual(phi(), 46.6, 1)  # now with "+" sign
-    assert raises(ConfigurationError, setattr, tas, 'scatteringsense', [2, 0, 2])
+    assert raises(ConfigurationError, setattr, tas, 'scatteringsense',
+                  [2, 0, 2])
 
     # test energytransferunit
     mono(1)
@@ -145,7 +145,7 @@ def test_tas_device():
     assertAlmostEqual(tas()[3], -6.216, 3)
     tas.energytransferunit = 'THz'
     assertAlmostEqual(tas()[3], -1.503, 3)
-    assert raises(ConfigurationError, setattr, tas, 'energytransferunit', 'A-1')
+    assert raises(InvalidValueError, setattr, tas, 'energytransferunit', 'A-1')
 
     # test scanmode
     tas.scanmode = 'CKI'

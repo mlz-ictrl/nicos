@@ -28,7 +28,7 @@
 from math import pi
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-    ConfigurationError, ComputationError, LimitError, oneof, multiStatus, Attach
+    InvalidValueError, ComputationError, LimitError, oneof, multiStatus, Attach
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
 from nicos.devices.tas import spurions
@@ -72,8 +72,10 @@ class TAS(Instrument, Moveable):
                               type=bool, default=True, settable=True,
                               category='instrument'),
         'scatteringsense': Param('Scattering sense', default=(1, -1, 1),
-                                 type=tupleof(int, int, int), settable=True,
-                                 category='instrument'),
+                                 type=tupleof(oneof(1, -1),
+                                              oneof(1, -1),
+                                              oneof(1, -1)), settable=True,
+                                 chatty=True, category='instrument'),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
         'collimation':  Param('Collimation settings', type=str,
@@ -105,6 +107,15 @@ class TAS(Instrument, Moveable):
         self._last_calpos = None
         self._waiters = []
 
+        if self.scatteringsense[0] != self._attached_mono.scatteringsense:
+            self.log.warning('%s.scatteringsense is not the same as '
+                             '%s.scatteringsense[0], please reset %s' %
+                             (self._attached_mono, self, self))
+        if self.scatteringsense[2] != self._attached_ana.scatteringsense:
+            self.log.warning('%s.scatteringsense is not the same as '
+                             '%s.scatteringsense[0], please reset %s' %
+                             (self._attached_ana, self, self))
+
     def doShutdown(self):
         for name in ['h', 'k', 'l', 'E']:
             if name in self.__dict__:
@@ -135,7 +146,7 @@ class TAS(Instrument, Moveable):
                 ok, why = dev.isAllowed(value)
             if not ok:
                 return ok, 'target position %s outside limits for %s: %s' % \
-                       (dev.format(value, unit=True), dev, why)
+                    (dev.format(value, unit=True), dev, why)
         return True, ''
 
     def _sim_getMinMax(self):
@@ -146,7 +157,11 @@ class TAS(Instrument, Moveable):
                             '%.4f' % self._sim_min[i], '%.4f' % self._sim_max[i]))
         return ret
 
+    def doReset(self):
+        self.doWriteScatteringsense(self.scatteringsense)
+
     def doStart(self, pos):
+        self.doWriteScatteringsense(self.scatteringsense)
         qh, qk, ql, ny = pos
         ny = self._thz(ny)
         angles = self._attached_cell.cal_angles(
@@ -193,27 +208,23 @@ class TAS(Instrument, Moveable):
             return multiStatus(((name, self._adevs[name]) for name in
                                 ['mono', 'ana', 'phi', 'psi', 'alpha']), maxage)
 
-    def doWriteScatteringsense(self, val):
-        for v in val:
-            if v not in [-1, 1]:
-                raise ConfigurationError('invalid scattering sense %s' % v)
-
     def doWriteScanmode(self, val):
         if val == 'DIFF':
             self.log.warning('Switching to two-axis mode; you are responsible '
                              'for moving the analyzer axes to the desired '
                              'position')
 
-    def doUpdateScatteringsense(self, val):
-        self._attached_mono._scatsense = val[0]
-        self._attached_ana._scatsense = val[2]
+    def doWriteScatteringsense(self, val):
+        self._attached_mono.scatteringsense = val[0]
+        self._attached_ana.scatteringsense = val[2]
 
     def doReadUnit(self):
         return 'rlu rlu rlu %s' % self.energytransferunit
 
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
-            raise ConfigurationError('invalid energy transfer unit: %r' % val)
+            raise InvalidValueError(self,
+                                    'invalid energy transfer unit: %r' % val)
         if self._cache:
             self._cache.invalidate(self, 'value')
         self.unit = 'rlu rlu rlu %s' % val
