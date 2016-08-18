@@ -1,6 +1,6 @@
-==================
-Sample environment
-==================
+======================
+MLZ Sample environment
+======================
 
 Basic setups
 ============

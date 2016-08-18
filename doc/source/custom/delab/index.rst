@@ -1,6 +1,6 @@
-===================
-Detector laboratory
-===================
+==========================
+FRM II Detector laboratory
+==========================
 
 Laboratory setups
 =================
