@@ -45,8 +45,8 @@ def teardown_module():
 
 
 def basicCacheTest(name, setup):
+    cache = startCache(setup)
     try:
-        cache = startCache(setup)
         sleep(1)
         cc = session.cache
         testval = 'test1'
@@ -75,8 +75,8 @@ def restartServerCacheTest(name, setup):
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
     sleep(1)
+    cache = startCache(setup)
     try:
-        cache = startCache(setup)
         sleep(1)
         cc.flush()
         cachedval2 = cc.get_explicit('testcache', key, None)
