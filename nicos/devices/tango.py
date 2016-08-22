@@ -789,6 +789,10 @@ class DetectorChannel(PyTangoDevice, ActiveChannel):
     Base class for detector channels.
     """
 
+    def valueInfo(self):
+        # no readresult by default
+        return ()
+
     def doReadIsmaster(self):
         # if the channel is passive, it will always return False here
         return self._dev.active
@@ -829,12 +833,16 @@ class TimerChannel(TimerChannelMixin, DetectorChannel):
     """
     Detector channel to measure time.
     """
+    def doRead(self, maxage=0):
+        return self._dev.value
 
 
 class CounterChannel(CounterChannelMixin, DetectorChannel):
     """
     Detector channel to count events.
     """
+    def doRead(self, maxage=0):
+        return self._dev.value
 
 
 class ImageChannel(ImageChannelMixin, DetectorChannel):
