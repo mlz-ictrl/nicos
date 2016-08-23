@@ -76,7 +76,7 @@ class VoltageSwitcher(Switcher):
 
 
 class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
-    """work around a bug either in the taco server or in thehv supply itself
+    """work around a bug either in the taco server or in the hv supply itself
 
     basically the idle status is returned at the end of the ramp,
     even if the output voltage is nowhere near the target value
@@ -92,6 +92,8 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
         'precision': Override(volatile=True),
     }
 
+    _last_st = status.OK, ''
+
     def timeoutAction(self):
         if self.target is not None:
             self.log.warning('Timeout! retrying once to reach ' +
@@ -102,6 +104,15 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
     def doStart(self, target):  # pylint: disable=W0221
         self._stopflag = False
         TacoVoltageSupply.doStart(self, target)
+
+    def doStatus(self, maxage=0):
+        # suppress intermittent tripped messages
+        st = TacoVoltageSupply.doStatus(self, maxage)
+        if 'tripped' in st[1]:
+            if 'tripped' not in self._last_st[1]:
+                st = (status.WARN, st[1])
+        self._last_st = st
+        return st
 
     def doStop(self):
         self._stopflag = True
