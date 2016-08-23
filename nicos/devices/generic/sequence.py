@@ -432,6 +432,10 @@ class SequencerMixin(DeviceMixinBase):
             self._seq_stopflag = True
 
     def doReset(self):
+        if self._seq_is_running():
+            self.log.error("cannot reset the device because it is busy, "
+                           "please stop it first.")
+            return
         self._seq_was_stopped = False
         self._set_seq_status(status.OK, 'idle')
 
