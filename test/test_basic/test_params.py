@@ -25,7 +25,7 @@
 """NICOS parameter utilities tests."""
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-    tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
+    tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
     subdir, nicosdev, nonemptystring, host, ipv4, dictwith, Attach
 from nicos.core.errors import ProgrammingError, ConfigurationError
@@ -214,6 +214,27 @@ def test_tangodev():
 
     for key, invalidname in invalid_names.items():
         assert raises(ValueError, tangodev, invalidname), key
+
+
+def test_pvname():
+    valid_names = [
+        'a', 'a:b', 'a:b.r',
+        'g.3:g<u>',
+        'a-b:G.f', 'a_g;t',
+    ]
+
+    invalid_names = {
+        'a,b': 'Comma is not allowed in PV-names.',
+        'g{}': 'Curly braces are not allowed in PV-names.'
+    }
+
+    assert pvname() == ''
+
+    for valid in valid_names:
+        assert pvname(valid) == valid
+
+    for invalid, reason in invalid_names.items():
+        assert raises(ValueError, pvname, invalid), reason
 
 
 def test_anytype():

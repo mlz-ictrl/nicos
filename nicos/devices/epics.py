@@ -31,7 +31,7 @@ import threading
 from nicos import session
 from nicos.core import CommunicationError, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, \
-    SIMULATION, anytype, floatrange, none_or, status
+    SIMULATION, anytype, floatrange, none_or, status, pvname
 from nicos.core.mixins import HasWindowTimeout
 from nicos.utils import HardwareStub
 
@@ -52,8 +52,6 @@ __all__ = [
     'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
     'EpicsWindowTimeoutDevice',
 ]
-
-pvname = str  # TODO: create validator
 
 # Map PV data type to NICOS value type.
 FTYPE_TO_VALUETYPE = {

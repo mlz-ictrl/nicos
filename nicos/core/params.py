@@ -758,6 +758,22 @@ def tangodev(val=None):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
 
+# Valid characters for PV-names are documented in the EPICS base manual:
+#   http://www.aps.anl.gov/epics/base/R3-15/3-docs/AppDevGuide/node7.html
+pvname_re = re.compile(r'^[a-z0-9_:\.\[\]<>;-]+$', re.IGNORECASE)
+
+
+def pvname(val=None):
+    """a valid EPICS PV-name"""
+    if val in ('', None):
+        return ''
+
+    val = str(val)
+    if not pvname_re.match(val):
+        raise ValueError('%r is not a valid PV name' % val)
+    return val
+
+
 # see http://stackoverflow.com/questions/3217682/checking-validity-of-email-in-django-python
 # for source
 
