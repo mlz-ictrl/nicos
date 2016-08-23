@@ -328,3 +328,12 @@ def test_hascomm():
 
     bus._replyontry = 2
     assert bus.communicate('test') == 'test'
+
+
+def test_special_params():
+    # check that special parameter names cannot be used in "parameters"
+    for param in ('value', 'status'):
+        assert raises(ProgrammingError,
+                      type, "Dev", (Device,),
+                      dict(__module__='dummy',
+                           parameters={param: Param('...')}))

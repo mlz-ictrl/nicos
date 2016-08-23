@@ -156,6 +156,10 @@ class DeviceMeta(DeviceMixinMeta):
             if not isinstance(info, Param):
                 raise ProgrammingError('%r device %r parameter info should be '
                                        'a Param object' % (name, param))
+            if param in ('value', 'status'):
+                raise ProgrammingError('%r device: parameter names "value" '
+                                       'and "status" are reserved and cannot '
+                                       'be used' % (name, ))
 
             # process overrides
             override = newtype.parameter_overrides.get(param)
