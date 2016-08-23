@@ -1,5 +1,6 @@
-.PHONY: install clean install-inplace test lint jenkinslintall jenkinslint changelint \
-	check test-coverage manualrelease release help install-requirements
+.PHONY: clean clean-demo install inplace-install install-venv install-requirements \
+	check setupcheck test testall test-coverage lint jenkinslintall jenkinslint \
+	changelint manualrelease release help
 
 SHELL=/bin/bash
 
@@ -104,9 +105,12 @@ release:
 
 help:
 	@echo "Important targets:"
-	@echo "  install-inplace - build everything for running NICOS from here"
+	@echo "  install         - install to $(DESTDIR)$(PREFIX)"
+	@echo "  inplace-install - create links from /usr/bin and /etc/init.d to here"
+	@echo "  install-venv    - install into a Python virtual environment"
 	@echo
 	@echo "Development targets:"
+	@echo "  clean-demo      - clean up files created by nicos-demo"
 	@echo "  setupcheck      - run setup checks"
 	@echo "  test            - run test suite"
 	@echo "  test-coverage   - run test suite with coverage reporting"
