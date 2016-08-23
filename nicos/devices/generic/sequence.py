@@ -92,9 +92,11 @@ class SeqDev(SequenceItem):
     """Moves the given device to the given target and waits until it is there.
 
     Also works for Measurables/detectors by supporting keyworded arguments.
+    If you want to be able to interrupt the movement, set the keyword argument
+    ``stoppable=True`` when calling the constructor.
     """
-    def __init__(self, dev, target):
-        SequenceItem.__init__(self, dev=dev, target=target)
+    def __init__(self, dev, target, stoppable=False):
+        SequenceItem.__init__(self, dev=dev, target=target, stoppable=stoppable)
 
     def check(self):
         res = self.dev.isAllowed(self.target)
@@ -115,6 +117,10 @@ class SeqDev(SequenceItem):
 
     def __repr__(self):
         return '%s -> %s' % (self.dev.name, self.dev.format(self.target))
+
+    def stop(self):
+        if self.stoppable:
+            self.dev.stop()
 
 
 class SeqParam(SequenceItem):
@@ -359,8 +365,10 @@ class SequencerMixin(DeviceMixinBase):
                                 if action.isCompleted():
                                     waiters.remove(action)
                     if self._seq_stopflag:
-                        self._seq_was_stopped = True
                         self.log.debug('Stopflag caught!')
+                        self._seq_was_stopped = True
+                        for dev in waiters:
+                            dev.stop()
                         break
                     # 0.1s - code execution time
                     t = .1 - (currenttime() - t)
