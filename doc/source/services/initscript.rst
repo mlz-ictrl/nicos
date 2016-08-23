@@ -4,7 +4,7 @@ The NICOS init.d script
 =======================
 
 For Unix systems, NICOS provides a ``init.d`` script in ``etc/nicos-system``
-which is by default installed to ``/etc/init.d``.
+which is by default linked into ``/etc/init.d``.
 
 The init script manages all the NICOS services configured in ``nicos.conf`` (see
 below).  It supports the usual commands such as ::
@@ -20,6 +20,13 @@ However, it also can manage one individual service by giving the name after the
 command, such as ::
 
   /etc/init.d/nicos-system restart poller
+
+The init script determines the instrument from the first of these sources:
+
+* The ``INSTRUMENT`` environment variable
+* An ``INSTRUMENT=inst`` line in ``/etc/default/nicos-system``
+* The default mechanism of the NICOS services, i.e. the "middle part" of
+  hostname of the system (``machine.instrument.tld``)
 
 
 Configuration
