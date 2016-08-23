@@ -24,11 +24,14 @@
 
 """NICOS axis test suite."""
 
+import os.path
+
 from nicos import session
 from nicos.core import ConfigurationError
 from nicos.core.sessions.utils import MASTER
+from nicos.core.sessions.setups import readSetups
 
-from test.utils import raises
+from test.utils import raises, rootdir, ErrorLogged
 
 
 def setup_module():
@@ -64,3 +67,8 @@ def test_sysconfig():
 
     session.unloadSetup()
     assert 'datasinks' not in session.current_sysconfig
+
+
+def test_device_names():
+    assert raises(ErrorLogged, readSetups,
+                  os.path.join(rootdir, '..', 'faulty_setups'), session.log)

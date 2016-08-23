@@ -31,6 +31,7 @@ from os import path
 
 from nicos.utils import make_load_config
 from nicos.pycompat import exec_, iteritems, listitems
+from nicos.core.params import nicosdev_re
 
 
 SETUP_GROUPS = set([
@@ -138,6 +139,13 @@ def readSetup(infodict, filepath, logger):
         logger.exception('An error occurred while processing '
                          'setup %r: %s' % (filepath, err))
         return
+    devices = fixup_stacked_devices(logger, ns.get('devices', {}))
+    for devname in devices:
+        if not nicosdev_re.match(devname):
+            logger.exception('While processing setup %r: device name %r is '
+                             'invalid, names must be Python identifiers' %
+                             (filepath, devname))
+            return
     info = {
         'description': ns.get('description', modname),
         'group': ns.get('group', 'optional'),
@@ -145,7 +153,7 @@ def readSetup(infodict, filepath, logger):
         'includes': ns.get('includes', []),
         'excludes': ns.get('excludes', []),
         'modules': ns.get('modules', []),
-        'devices': fixup_stacked_devices(logger, ns.get('devices', {})),
+        'devices': devices,
         'alias_config': ns.get('alias_config', {}),
         'startupcode': ns.get('startupcode', ''),
         'display_order': ns.get('display_order', 50),

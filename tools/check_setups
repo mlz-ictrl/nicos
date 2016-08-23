@@ -30,6 +30,7 @@ from nicos import config
 from nicos.core.errors import ConfigurationError
 from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
     fixup_stacked_devices
+from nicos.core.params import nicosdev_re
 from nicos.utils import importString
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
@@ -162,6 +163,12 @@ class SetupChecker(object):
         return True
 
     def check_device(self, devname, devconfig, is_special=False):
+        # check for valid name
+        if not nicosdev_re.match(devname):
+            self.log_error('%s: device name is invalid (must be a valid '
+                           'Python identifier)' % devname,
+                           extra=self.find_deventry(devname))
+        # check for format of config entry
         if not isinstance(devconfig, tuple) or len(devconfig) != 2:
             self.log_error('%s: device entry has wrong format (should be '
                            'device() or a 2-entry tuple)' % devname,
