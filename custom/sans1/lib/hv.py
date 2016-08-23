@@ -178,7 +178,7 @@ class Sans1HV(BaseSequencer):
         now = currenttime()
 
         # below first rampstep is treated as poweroff
-        if target < self.rampsteps[0][0]:
+        if target <= self.rampsteps[0][0]:
             # fast ramp
             seq.append(SeqParam(hvdev, 'ramp', self.fastramp))
             seq.append(SeqDev(disdev, 1 if self.read() > target else 0))
@@ -193,6 +193,8 @@ class Sans1HV(BaseSequencer):
             seq.append(SeqParam(hvdev, 'ramp', self.fastramp))
             seq.append(SeqDev(disdev, 1 if self.read() > target else 0))
             seq.append(SeqDev(hvdev, target))
+            # retry if target not reached
+            seq.append(SeqMethod(hvdev, 'start', target))
             return seq
 
         # long sequence
@@ -219,6 +221,10 @@ class Sans1HV(BaseSequencer):
         seq.append(SeqDev(hvdev, target))  # be sure...
         seq.append(SeqMethod(hvdev, 'poll'))  # force a read
         return seq
+
+    def _waitFailed(self, step, action, exc_info):
+        # signal single retry of the action
+        return True
 
     def doRead(self, maxage=0):
         voltage = self._attached_supply.read(maxage)
