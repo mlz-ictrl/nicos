@@ -28,6 +28,11 @@ import os
 import sys
 from os import path
 
+from nicos import session
+
+from test.utils import TestSession, cleanup, startCache, killSubprocess
+
+cache = None
 
 cuspath = path.join(path.dirname(__file__), '..', '..', 'custom')
 for subdir in os.listdir(cuspath):
@@ -36,8 +41,14 @@ for subdir in os.listdir(cuspath):
 
 
 def setup_package():
-    sys.stderr.write('\nSetting up custom test...\n')
+    global cache  # pylint: disable=W0603
+    sys.stderr.write('\nSetting up custom test, cleaning old test dir...\n')
+    session.__class__ = TestSession
+    session.__init__('test_custom')
+    cleanup()
+    cache = startCache()
 
 
 def teardown_package():
-    sys.stderr.write('\n')
+    session.shutdown()
+    killSubprocess(cache)
