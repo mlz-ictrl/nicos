@@ -68,11 +68,9 @@ testall:
 
 test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
-	@COVERAGE_PROCESS_START=.coveragerc NOSE_REDNOSE=1 $(PYTHON) `which nosetests` $(T) -d -v --with-id --with-coverage --cover-package=nicos --traverse-namespace $(O); \
-	RESULT=$$?; \
-	`which coverage || which python-coverage` html -d cover; \
-	echo "nosetest: $$RESULT"; \
-	exit $$RESULT
+	@COVERAGE_PROCESS_START=.coveragerc NOSE_REDNOSE=1 \
+		$(PYTHON) `which nosetests` $(T) -v --with-id -d --traverse-namespace \
+		--with-coverage --cover-package=nicos --cover-package=custom --cover-html $(O)
 
 lint:
 	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)
