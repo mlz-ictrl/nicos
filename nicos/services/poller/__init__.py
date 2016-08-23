@@ -327,6 +327,9 @@ class Poller(Device):
         self.log.info('%s poller startup complete' % setup)
 
     def _checker(self, setupname):
+        if setupname not in session._setup_info:
+            # setup was removed since, do not try to watch it
+            return
         fn = session._setup_info[setupname]['filename']
         if not path.isfile(fn):
             self.log.warning('setup watcher could not find %r' % fn)
