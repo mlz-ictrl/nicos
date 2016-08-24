@@ -18,14 +18,15 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   pedersen
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
 # line to long
 # pylint: disable=C0301
-"""
-Write esmeralda compatible hbin images
+"""Writes esmeralda compatible hbin images.
+
+The header looks like::
 
    !!---- Example of header written in a binary file, the first item is the total length of the header string
    !!---- ===================================================================================================
@@ -63,9 +64,10 @@ Write esmeralda compatible hbin images
    !!---- ..... binary data follows the line above
 
 
-   note: the binary data starts with:
-   4*(3+nmots+nenv) 4-byte binary data ( time, monitor, counts + motor vals + env vals)
-   then follows the image data
+.. note::
+   the binary data starts with:
+   4*(3 + nmots + nenv) 4-byte binary data (time, monitor, counts + motor vals + env vals)
+   followed by the image data
 """
 
 import numpy
