@@ -182,6 +182,9 @@ one of your loaded setups.  Additionally, your experiment device has to be an
 .. module:: nicos.commands.imaging
 
 .. autofunction:: tomo
+
+.. module:: nicos.frm2.commands.imaging
+
 .. autofunction:: openbeamimage
 .. autofunction:: darkimage
 
