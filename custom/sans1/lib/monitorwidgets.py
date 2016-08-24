@@ -43,11 +43,11 @@ class Tube2(NicosWidget, QWidget):
 
     properties = {
         'devices':   PropDef('QStringList', []),
-        'height':    PropDef(int, 10),
-        'width':     PropDef(int, 30),
-        'name':      PropDef(str, ''),
-        'posscale':  PropDef(float, 20000),
-        'color':     PropDef('QColor', _magenta.color()),
+        'height':    PropDef(int, 10, 'Widget height in characters'),
+        'width':     PropDef(int, 30, 'Widget width in characters'),
+        'name':      PropDef(str, '', 'Display name'),
+        'posscale':  PropDef(float, 20000, 'Length of the tube'),
+        'color':     PropDef('QColor', _magenta.color(), 'Color of the tube'),
     }
 
     def sizeHint(self):
@@ -178,10 +178,10 @@ class BeamOption(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'dev':       PropDef(str, ''),
-        'height':    PropDef(int, 4),
-        'width':     PropDef(int, 10),
-        'name':      PropDef(str, ''),
+        'dev':       PropDef(str, '', 'NICOS device name'),
+        'height':    PropDef(int, 4, 'Widget height in characters'),
+        'width':     PropDef(int, 10, 'Widget width in characters'),
+        'name':      PropDef(str, '', 'Display name'),
     }
 
     def sizeHint(self):
@@ -240,12 +240,12 @@ class CollimatorTable(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'dev':       PropDef(str, ''),
+        'dev':       PropDef(str, '', 'NICOS device name'),
         'options':   PropDef('QStringList', []),
         'disabled_options':   PropDef('QStringList', []),
-        'height':    PropDef(int, 4),
-        'width':     PropDef(int, 10),
-        'name':      PropDef(str, ''),
+        'height':    PropDef(int, 4, 'Widget height in characters'),
+        'width':     PropDef(int, 10, 'Widget width in characters'),
+        'name':      PropDef(str, '', 'Display name'),
     }
 
     def registerKeys(self):

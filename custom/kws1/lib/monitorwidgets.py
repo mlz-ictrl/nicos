@@ -64,8 +64,8 @@ class Tube(NicosWidget, QWidget):
 
     properties = {
         'devices':   PropDef('QStringList', []),
-        'height':    PropDef(int, 10),
-        'width':     PropDef(int, 30),
+        'height':    PropDef(int, 10, 'Widget height in characters'),
+        'width':     PropDef(int, 30, 'Widget width in characters'),
         'name':      PropDef(str, ''),
         'posscale':  PropDef(float, 20),
         'color':     PropDef('QColor', _grey.color()),

@@ -61,7 +61,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
             QWidget.setFocus(self)
 
     properties = {
-        'dev':         PropDef(str, ''),
+        'dev':         PropDef(str, '', 'Device name'),
         'useButtons':  PropDef(bool, False,
                                'Use buttons for values with few choices?'),
         'allowEnter':  PropDef(bool, True,
@@ -140,7 +140,7 @@ class DeviceParamEdit(DeviceValueEdit):
         'kind of widget'
 
     properties = {
-        'param':       PropDef(str, ''),
+        'param':       PropDef(str, '', 'Parameter name'),
     }
 
     def propertyUpdated(self, pname, value):

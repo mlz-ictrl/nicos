@@ -40,6 +40,18 @@ Existing widgets are:
 All widgets are provided in the Qt designer when starting it :ref:`in the
 correct way <gui-designer>`.
 
+.. _widget_sizes:
+
+Widget size
+-----------
+
+The size of a widget will be configured in terms of characters.  This helps the
+user to get a feeling what will be the size of the widget.  The size of the a
+character depends not only on the font size it also depends on the font type.
+
+As the unit for the widget sizes will be taken the width of the character '0'
+(Zero) of the valuefont.
+
 
 Widget interface
 ----------------

@@ -108,18 +108,18 @@ class VRefsans(NicosWidget, QWidget):
         self._fulllength = sum(self._length)
 
     properties = {
-        'nok0dev':   PropDef(str, ''),
-        'nok1dev':   PropDef(str, ''),
-        'nok2dev':   PropDef(str, ''),
-        'nok3dev':   PropDef(str, ''),
-        'nok4dev':   PropDef(str, ''),
-        'nok5adev':  PropDef(str, ''),
-        'nok5bdev':  PropDef(str, ''),
-        'nok6dev':   PropDef(str, ''),
-        'nok7dev':   PropDef(str, ''),
-        'nok8dev':   PropDef(str, ''),
-        'height':    PropDef(int, 30),
-        'width':     PropDef(int, 40),
+        'nok0dev':   PropDef(str, '', 'NOK 0 device'),
+        'nok1dev':   PropDef(str, '', 'NOK 1 device'),
+        'nok2dev':   PropDef(str, '', 'NOK 2 device'),
+        'nok3dev':   PropDef(str, '', 'NOK 3 device'),
+        'nok4dev':   PropDef(str, '', 'NOK 4 device'),
+        'nok5adev':  PropDef(str, '', 'NOK 5a device'),
+        'nok5bdev':  PropDef(str, '', 'NOK 5b device'),
+        'nok6dev':   PropDef(str, '', 'NOK 6 device'),
+        'nok7dev':   PropDef(str, '', 'NOK 7 device'),
+        'nok8dev':   PropDef(str, '', 'NOK 8 device'),
+        'height':    PropDef(int, 30, 'Widget height in characters'),
+        'width':     PropDef(int, 40, 'Widget width in characters'),
     }
 
     def registerKeys(self):

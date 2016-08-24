@@ -79,9 +79,12 @@ class BaseLed(QLabel, NicosWidget):
         self.registerKey(self.props['key'])
 
     properties = {
-        'ledStatus':   PropDef(bool, True),
-        'ledInverted': PropDef(bool, False),
-        'ledColor':    PropDef(str, 'green'),
+        'ledStatus':   PropDef(bool, True, 'Status to display the "On color" '
+                               '(bright)'),
+        'ledInverted': PropDef(bool, False, 'Status to display the "Off color" '
+                               '(dark)'),
+        'ledColor':    PropDef(str, 'green', 'Color of the LED (default is '
+                               'green)'),
     }
 
     def propertyUpdated(self, pname, value):
@@ -129,8 +132,8 @@ class StatusLed(BaseLed):
     designer_icon = ':/leds/yellow_on'
 
     properties = {
-        'dev':   PropDef(str, ''),
-        'key':   PropDef(str, ''),
+        'dev':   PropDef(str, '', 'Device name'),
+        'key':   PropDef(str, '', 'Key name of the device'),
     }
 
     def propertyUpdated(self, pname, value):

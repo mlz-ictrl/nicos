@@ -99,17 +99,17 @@ class VTas(NicosWidget, QWidget):
         self._targetkeymap = {}
 
     properties = {
-        'mthdev':    PropDef(str, ''),
-        'mttdev':    PropDef(str, ''),
-        'sthdev':    PropDef(str, ''),
-        'sttdev':    PropDef(str, ''),
-        'athdev':    PropDef(str, ''),
-        'attdev':    PropDef(str, ''),
-        'Lmsdev':    PropDef(str, ''),
-        'Lsadev':    PropDef(str, ''),
-        'Laddev':    PropDef(str, ''),
-        'height':    PropDef(int, 30),
-        'width':     PropDef(int, 40),
+        'mthdev':    PropDef(str, '', 'Monochromator rocking angle device'),
+        'mttdev':    PropDef(str, '', 'Monochromator scattering angle device'),
+        'sthdev':    PropDef(str, '', 'Sample rotation device'),
+        'sttdev':    PropDef(str, '', 'Sample scattering angle device'),
+        'athdev':    PropDef(str, '', 'Analyzer rocking angle device'),
+        'attdev':    PropDef(str, '', 'Analyzer scattering angle device'),
+        'Lmsdev':    PropDef(str, '', 'Distance monochromator->sample device'),
+        'Lsadev':    PropDef(str, '', 'Distance sample->analyzer device'),
+        'Laddev':    PropDef(str, '', 'Distance analyzer->detector device'),
+        'height':    PropDef(int, 30, 'Widget height in characters'),
+        'width':     PropDef(int, 40, 'Widget width in characters'),
     }
 
     def registerKeys(self):

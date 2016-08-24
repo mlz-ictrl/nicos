@@ -222,7 +222,8 @@ The recognized keys are:
   set to a space (empty string would mean the default unit) to avoid displaying
   redundant "rlu".
 
-* ``width`` -- controls the width of the field, as a number of characters.
+* ``width`` -- controls the width of the field, as a number of characters (see
+  :ref:`widget_sizes`).
 
 Special widgets
 ^^^^^^^^^^^^^^^
@@ -237,7 +238,7 @@ them is the "trend plot" widget, which is selected by giving a ``plot`` key:
   plotted in the same plot if they have the same identifier.
 
   The ``width`` property can be given for plots too, in the same unit as for
-  other values (characters).
+  other values (characters) (see :ref:`widget_sizes`).
 
 * ``height`` -- controls the minimum height of the plotting widget, as a number
   of characters.
@@ -259,7 +260,7 @@ Another special widget is the picture widget, which is selected by giving a
   (absolute or relative to the NICOS root).
 
   ``width`` and ``height`` can be given to scale the picture in terms of
-  characters.
+  characters (see :ref:`widget_sizes`).
 
 * ``name`` -- if given, used as a caption above the picture.
 
