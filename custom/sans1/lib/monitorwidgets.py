@@ -1,9 +1,10 @@
 #  -*- coding: utf-8 -*-
 
+from nicos.guisupport.widget import NicosWidget, PropDef
+
 from PyQt4.QtCore import QSize, Qt
 from PyQt4.QtGui import QBrush, QColor, QPainter, QPen, QWidget
 from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
-from nicos.guisupport.widget import NicosWidget, PropDef
 
 
 _magenta = QBrush(QColor('#A12F86'))
