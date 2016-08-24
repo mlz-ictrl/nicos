@@ -112,7 +112,8 @@ def fixup_stacked_devices(logger, devdict):
                     newname = add_new_dev(devname, subname, config)
                     dev[1][subname] = newname
                     patched = True
-                elif isinstance(config, (tuple, list)):
+                elif isinstance(config, (tuple, list)) and \
+                        any(isinstance(e, Device) for e in config):
                     dev[1][subname] = list(config)
                     for idx, item in enumerate(config):
                         if isinstance(item, Device):

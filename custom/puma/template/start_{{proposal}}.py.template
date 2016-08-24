@@ -3,7 +3,7 @@
 # This script is for Proposal {{proposal#proposalnumber}}
 
 # Samplename is set in NewExperiment from the Proposaldb
-Sample.samplename='{{sample#name of the sample}}'
+# Sample.samplename='{{sample:Sample name#name of the sample}}'
 
 # correct lattice pars by *soll/ist
 a={{a:6.283#lattice constant a}}

@@ -2,6 +2,8 @@
 TREFF
 =====
 
+Experimental beam line at FRM II.
+
 Instrument setups
 =================
 

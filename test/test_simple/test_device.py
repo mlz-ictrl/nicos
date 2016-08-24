@@ -52,6 +52,8 @@ class Dev1(Device):
 class Dev2(HasLimits, HasOffset, Moveable):
     attached_devices = {
         'attached': Attach('Test attached device', Dev1),
+        'attlist':  Attach('Test list of attached devices', Dev1, multiple=True,
+                           optional=True),
     }
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42,
@@ -181,6 +183,15 @@ def test_attached_devices_property():
     dev2 = session.getDevice('dev2_1')
     # stupid name: _attached_<name of attachment>
     assert dev2._attached_attached == dev1
+
+
+def test_inline_attached_devices():
+    dev0 = session.getDevice('dev2_0')
+    single = session.getDevice('dev2_0_attached')
+    assert dev0._attached_attached == single
+    list1 = session.getDevice('dev2_0_attlist1')
+    list2 = session.getDevice('dev2_0_attlist2')
+    assert dev0._attached_attlist == [list1, list2]
 
 
 def test_params():

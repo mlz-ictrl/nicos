@@ -31,6 +31,8 @@ devices = dict(
                  ),
     dev2_0 = device('test.test_simple.test_device.Dev2',
                     attached = device('test.test_simple.test_device.Dev1'),
+                    attlist = [device('test.test_simple.test_device.Dev1'),
+                               device('test.test_simple.test_device.Dev1')],
                     param2 = 1,
                     unit = 'mm',
                     abslimits = (0, 10),
