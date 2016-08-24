@@ -25,7 +25,7 @@
 """
 This module contains some classes for NICOS - EPICS integration.
 """
-
+from __future__ import absolute_import
 import threading
 
 from nicos import session
@@ -40,12 +40,15 @@ if not isinstance(threading.currentThread(), threading._MainThread):
     raise ImportError('the nicos.devices.epics module must be first '
                       'imported from the main thread')
 
-epics = __import__('epics')
+import epics
 
 # Clear the EPICS cache of CA connections, which are (somehow) kept across
 # subprocesses.  This call ensures fresh connections for each process, since
 # it is called once at import time, before epics objects can be created.
-epics.ca.clear_cache()
+try:
+    epics.ca.clear_cache()
+except epics.ca.ChannelAccessException as err:
+    raise ImportError(err.message)
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsMoveable',
