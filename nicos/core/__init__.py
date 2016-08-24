@@ -40,9 +40,9 @@ from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
     usermethod, requires
 from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
     INFO_CATEGORIES, listof, nonemptylistof, tupleof, dictof, setof, tacodev, \
-    tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-    nicosdev, relative_path, absolute_path, subdir, mailaddress, limits, \
-    dictwith, host
+    tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
+    none_or, nicosdev, relative_path, absolute_path, subdir, mailaddress, \
+    limits, dictwith, host
 from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler
 from nicos.core.acquire import acquire, read_environment, DevStatistics

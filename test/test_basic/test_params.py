@@ -25,9 +25,10 @@
 """NICOS parameter utilities tests."""
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-    tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-    none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-    subdir, nicosdev, nonemptystring, host, ipv4, dictwith, Attach
+    tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, \
+    oneofdict, none_or, limits, mailaddress, Param, Value, absolute_path, \
+    relative_path, subdir, nicosdev, nonemptystring, host, ipv4, dictwith, \
+    Attach
 from nicos.core.errors import ProgrammingError, ConfigurationError
 
 from test.utils import raises
