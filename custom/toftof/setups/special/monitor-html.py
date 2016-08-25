@@ -113,6 +113,12 @@ _biofurnaceblock = Block('Sample environment', [
     setups='biofurnace',
 )
 
+_temperatureblock = Block('Sample environment', [
+    BlockRow(Field(name='Sample Temperatur', dev='T',)),
+    ],
+    setups='ccr* or cci* or htf* or biofurnace',
+)
+
 _pressureblock = Block('Sample environment', [
     BlockRow(Field(name='Pressure', dev='pressure',)),
     ],
@@ -181,8 +187,9 @@ _col2 = Column(
     _reactorblock,
 #   _samplecoolingblock,
 #   _collimationblock,
-    _ccrblock,
     _ngblock,
+    _temperatureblock,
+    _ccrblock,
     _htfblock,
     _biofurnaceblock,
     _pressureblock,
