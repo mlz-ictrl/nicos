@@ -16,8 +16,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
     parameter_overrides = {
         # readpv and writepv are determined automatically from the base-PV
-        'readpv': Override(mandatory=False, userparam=False, settable=False, hidden=True),
-        'writepv': Override(mandatory=False, userparam=False, settable=False, hidden=True),
+        'readpv': Override(mandatory=False, userparam=False, settable=False),
+        'writepv': Override(mandatory=False, userparam=False, settable=False),
 
         # speed may change from outside, can't rely on cache
         'speed': Override(volatile=True),
