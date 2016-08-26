@@ -312,7 +312,7 @@ class PumpstandPressure(Readable):
         'iodev' : Attach('IO Device', PumpstandIO),
     }
     parameters = {
-        'chamber':          Param('chamber of pumpenstand',
+        'chamber':          Param('Chamber of pumpenstand',
                                   type=oneof('SFK', 'CB', 'SR'),
                                   mandatory=True, settable=False,
                                   userparam=False, default='SR'),
@@ -367,11 +367,11 @@ class PumpstandPump(Moveable):
     }
     valuetype = oneof(-1, 0, 1)
     parameters = {
-        'chamber':          Param('chamber of pumpenstand',
+        'chamber':          Param('Chamber of pumpenstand',
                                   type=oneof('SFK', 'CB', 'SR'),
                                   mandatory=True, settable=False,
                                   userparam=False, default='SR'),
-        'pumptime':         Param('max pumping time', settable=True, unit='s',
+        'pumptime':         Param('Max pumping time', settable=True, unit='s',
                                   type=floatrange(0, 4294967), default=10*3600,
                                   volatile=True, chatty=True),
     }

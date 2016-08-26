@@ -40,8 +40,8 @@ class VirtualSXtalDetector(Measurable):
                             type=bool, default=False, settable=True),
         'background': Param('Instrumental background', unit='cts/s',
                             default=1.0, settable=True),
-        'peakwidth':   Param('Apparent peakwidth (rlu)', type=vec3,
-                            default=(0.001,0.002,0.003), settable=True),
+        'peakwidth':  Param('Apparent peakwidth (rlu)', type=vec3,
+                            default=(0.001, 0.002, 0.003), settable=True),
     }
 
     def doInit(self, mode):

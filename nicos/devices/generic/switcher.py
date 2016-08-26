@@ -215,7 +215,7 @@ class MultiSwitcher(MappedMoveable):
 
     parameters = {
         'precision': Param('List of allowed deviations (1 or N) from target '
-                           'position, or None to disable.', mandatory=True,
+                           'position, or None to disable', mandatory=True,
                            type=none_or(listof(none_or(floatrange(0))))),
         'blockingmove': Param('Should we wait for the move to finish?',
                               mandatory=False, default=True, settable=True,

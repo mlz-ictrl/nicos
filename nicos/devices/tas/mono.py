@@ -111,29 +111,29 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     parameters = {
         'dvalue':   Param('d-value of the reflection used', unit='A',
                           mandatory=True, settable=True, category='instrument'),
-        'mosaic':   Param('mosaicity of the crystal', unit='deg', default=0.5,
+        'mosaic':   Param('Mosaicity of the crystal', unit='deg', default=0.5,
                           settable=True, category='instrument'),
-        'order':    Param('order of reflection to use', type=int, default=1,
+        'order':    Param('Order of reflection to use', type=int, default=1,
                           settable=True, category='instrument'),
-        'reltheta': Param('true if theta position is relative to two-theta',
+        'reltheta': Param('True if theta position is relative to two-theta',
                           type=bool, default=False, category='instrument'),
         # XXX explanation?
         'sidechange': Param('', type=int, default=False, userparam=False),
-        'focmode':  Param('focussing mode', default='manual', settable=True,
+        'focmode':  Param('Focussing mode', default='manual', settable=True,
                           type=oneof('manual', 'flat', 'horizontal',
                                      'vertical', 'double'),
                           category='instrument'),
-        'hfocuspars': Param('horizontal focus polynomial coefficients',
+        'hfocuspars': Param('Horizontal focus polynomial coefficients',
                             type=listof(float), default=[0.], settable=True,
                             category='instrument'),
-        'hfocusflat': Param('horizontal focus value for flat mono',
+        'hfocusflat': Param('Horizontal focus value for flat mono',
                             type=float, default=0, settable=True),
-        'vfocuspars': Param('vertical focus polynomial coefficients',
+        'vfocuspars': Param('Vertical focus polynomial coefficients',
                             type=listof(float), default=[0.], settable=True,
                             category='instrument'),
-        'vfocusflat': Param('vertical focus value for flat mono',
+        'vfocusflat': Param('Vertical focus value for flat mono',
                             type=float, default=0, settable=True),
-        'scatteringsense': Param('default scattering sense when not used '
+        'scatteringsense': Param('Default scattering sense when not used '
                                  'in triple-axis mode', type=oneof(1, -1)),
     }
 

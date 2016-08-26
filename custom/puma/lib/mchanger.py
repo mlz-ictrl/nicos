@@ -48,10 +48,10 @@ class Mchanger(Moveable):
     }
 
     parameters = {
-        'changing_positions': Param('dictionary of devices and positions '
+        'changing_positions': Param('Dictionary of devices and positions '
                                     'for monochromator change', mandatory=True,
                                     type=dictof(str, anytype), settable=False),
-        'init_positions': Param('dictionary of devices and positions '
+        'init_positions': Param('Dictionary of devices and positions '
                                 'for monochromator start', mandatory=True,
                                 type=dictof(str, anytype), settable=False),
         'mapping': Param('Mapping of valid Changer states to '

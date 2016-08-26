@@ -344,7 +344,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         'mode':      Param('PID control or open loop heater mode',
                            settable=True, default='manualpid',
                            type=oneof('manualpid', 'manual', 'openloop')),
-        'speedup':   Param('speed up simulation by a factor', settable=True,
+        'speedup':   Param('Speed up simulation by a factor', settable=True,
                            default=1, unit='', type=floatrange(0.01, 100)),
     }
 
@@ -604,7 +604,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     """
 
     parameters = {
-        'sizes': Param('Detector size in pixel (x, y)',
+        'sizes': Param('Detector size in pixels (x, y)',
                        settable=False,
                        type=tupleof(intrange(1, 1024), intrange(1, 1024)),
                        default=(128, 128),

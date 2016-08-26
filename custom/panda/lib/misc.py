@@ -32,7 +32,7 @@ from nicos.devices.taco import AnalogOutput
 class PrecisionAnalogOut(AnalogOutput):
 
     parameters = {
-        'precision': Param('Moving Precision',
+        'precision': Param('Moving precision',
                            type=float, settable=True, default=1e-3),
     }
 

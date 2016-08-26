@@ -102,10 +102,10 @@ class LDAPAuthenticator(Authenticator):
     """
 
     parameters = {
-        'server': Param('Ldap server',
+        'server': Param('LDAP server',
                         type=str,
                         mandatory=True),
-        'port':   Param('Ldap port',
+        'port':   Param('LDAP port',
                         type=int,
                         default=389),
         'userbasedn':  Param('Base dn to query users.',
@@ -115,7 +115,7 @@ class LDAPAuthenticator(Authenticator):
                              '"%(username)s"', type=str,
                              default='(&(uid=%(username)s)'
                              '(objectClass=posixAccount))'),
-        'groupbasedn': Param('Base dn to query groups.',
+        'groupbasedn': Param('Base dn to query groups',
                              type=str,
                              mandatory=True),
         'groupfilter': Param('Filter for querying groups. '

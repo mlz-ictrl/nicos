@@ -368,7 +368,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
 class BerSANSImageSink(ImageSink):
 
     parameters = {
-        'flipimage': Param('flip image after reading from det?',
+        'flipimage': Param('Flip image after reading from det?',
                            type=oneof('none', 'leftright', 'updown', 'both'),
                            default='updown', mandatory=True, unit=''),
     }

@@ -37,7 +37,7 @@ class PowerSupplyU(TacoDevice, Readable):
     taco_class = StringIO
 
     parameters = {
-        'channel': Param('channel of the power supply', type=int,
+        'channel': Param('Channel of the power supply', type=int,
                          mandatory=True),
     }
 
@@ -67,7 +67,7 @@ class PowerSupplyA(TacoDevice, Readable):
     taco_class = StringIO
 
     parameters = {
-        'channel': Param('channel of the power supply', type=int,
+        'channel': Param('Channel of the power supply', type=int,
                          mandatory=True),
     }
 

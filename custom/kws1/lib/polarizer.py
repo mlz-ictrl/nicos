@@ -40,7 +40,7 @@ class PolSwitcher(SequencerMixin, MultiSwitcher):
     """
 
     parameters = {
-        'movepos':  Param('position (xv, yv, xh, yh) while rotating',
+        'movepos':  Param('Position (xv, yv, xh, yh) while rotating',
                           type=tupleof(float, float, float, float),
                           default=(5., 5., 5., 5.)),
     }

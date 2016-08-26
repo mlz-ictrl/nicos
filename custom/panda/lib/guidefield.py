@@ -93,7 +93,7 @@ class VectorCoil(AnalogOutput):
                              category='general',
                              ),
         'calibrationcurrent': Param('Current in A which created the field '
-                                    'given as Parameter orientation.',
+                                    'given as Parameter orientation',
                                     settable=True, default=1., type=float,
                                     unit='A',
                                     category='general',
@@ -148,13 +148,13 @@ class GuideField(MappedMoveable):
     }
     parameters = {
         'background': Param('Static magnetic field which is always present and'
-                            ' should be corrected.',
+                            ' should be corrected',
                             type=tupleof(float, float, float), unit='mT',
                             settable='True', default=(0., 0., 0.),
                             category='general',
                             ),
-        'field':      Param('absolute value of the desired field at the '
-                            'sample position.',
+        'field':      Param('Absolute value of the desired field at the '
+                            'sample position',
                             type=floatrange(0.1, 100), unit='mT',
                             settable='True', default=25.,
                             category='general',

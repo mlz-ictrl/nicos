@@ -68,7 +68,7 @@ class TAS(Instrument, Moveable):
                               type=bool, default=True, settable=True,
                               category='instrument'),
         'psi360':       Param('Whether the range of psi is 0-360 deg '
-                              '(otherwise -180-180 deg is assumed).',
+                              '(otherwise -180-180 deg is assumed)',
                               type=bool, default=True, settable=True,
                               category='instrument'),
         'scatteringsense': Param('Scattering sense', default=(1, -1, 1),

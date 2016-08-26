@@ -98,8 +98,8 @@ class KFlipper(BaseFlipper):
     parameters = {
         'compcurrent': Param('Current in A for the compensation coils, if active',
                              settable=True, type=float, unit='A'),
-        'flipcurrent': Param('polynomial in wavevector to calculate the '
-                             'correct flipping current.',
+        'flipcurrent': Param('Polynomial in wavevector to calculate the '
+                             'correct flipping current',
                              settable=True, type=nonemptylistof(float),
                              unit='A'),  # actually A * Angstroms ** index
     }

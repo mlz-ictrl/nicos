@@ -211,7 +211,7 @@ class KWSDetector(Detector):
                        Param('Progression q of TOF intervals (t_i = dt * q^i)',
                              type=float, default=1.0, settable=True,
                              category='general'),
-        'kwscounting': Param('True when taking data with kwscount().',
+        'kwscounting': Param('True when taking data with kwscount()',
                              type=bool, default=False, settable=True,
                              userparam=False),
     }

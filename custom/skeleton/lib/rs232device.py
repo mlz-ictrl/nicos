@@ -55,9 +55,9 @@ class RS232Example(Readable):
     parameters = {
         'port': Param('RS232 port', type=str,
                       settable=False, mandatory=True),
-        'param1': Param('first param', unit='Hz', settable=False,
+        'param1': Param('First param', unit='Hz', settable=False,
                         category='general'),
-        'param2': Param('second param', unit='Vrms',
+        'param2': Param('Second param', unit='Vrms',
                         settable=True, category='general'),
     }
 
@@ -116,9 +116,9 @@ class RS232TACOExample(TacoDevice, Moveable):
     """
 
     parameters = {
-        'param1': Param('first param', unit='Hz', settable=False,
+        'param1': Param('First param', unit='Hz', settable=False,
                         category='general'),
-        'param2': Param('second param', unit='Vrms',
+        'param2': Param('Second param', unit='Vrms',
                         settable=True, category='general'),
     }
 

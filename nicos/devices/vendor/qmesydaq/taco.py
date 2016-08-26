@@ -76,7 +76,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
     """
 
     parameters = {
-        'channels': Param('tuple of active channels (1 based)', settable=True,
+        'channels': Param('Tuple of active channels (1 based)', settable=True,
                           type=listof(int)),
     }
 

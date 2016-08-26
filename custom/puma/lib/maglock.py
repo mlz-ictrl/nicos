@@ -42,7 +42,7 @@ class MagLock(Moveable):
     valuetype = oneof('open', 'closed')
 
     parameters = {
-        'states':    Param('List of state names.', type=listof(str),
+        'states':    Param('List of state names', type=listof(str),
                            mandatory=True),
     }
 #    parameters = {

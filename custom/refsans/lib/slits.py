@@ -328,8 +328,8 @@ class SlitAxis(AutoDevice, Moveable):
     }
 
     parameters = {
-        'index': Param('which index of the super slit is used for this device', type=int, userparam=False),
-        'opmode': Param('mode of the super slit to be used for this device', type=str, userparam=False),
+        'index': Param('Which index of the super slit is used for this device', type=int, userparam=False),
+        'opmode': Param('Mode of the super slit to be used for this device', type=str, userparam=False),
     }
 
     valuetype = float

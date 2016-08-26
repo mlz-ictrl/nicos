@@ -52,10 +52,10 @@ class MCC2core(Device):
         'channel':     Param('Channel of MCC2 to use (X or Y)',
                              type=oneof('X', 'Y'), default='Y',
                              prefercache=False),
-        'addr':        Param('address of MCC2 to use (0 to 15)',
+        'addr':        Param('Address of MCC2 to use (0 to 15)',
                              type=intrange(0, 15), default=0,
                              prefercache=False),
-        'temperature': Param('temperature of MCC-2 unit in °C',
+        'temperature': Param('Temperature of MCC-2 unit in °C',
                              type=int, settable=False, volatile=True),
     }
 
@@ -197,14 +197,14 @@ class MCC2Coder(MCC2core, NicosCoder):
     codertypes = ('none', 'incremental', 'ssi-binary', 'ssi-gray')
 
     parameters = {
-        'slope':     Param('coder units per degree of rotation', type=float,
+        'slope':     Param('Coder units per degree of rotation', type=float,
                            default=1, settable=True, unit='1/main',
                            prefercache=False),
-        'zerosteps': Param('coder steps at physical zero', type=int,
+        'zerosteps': Param('Coder steps at physical zero', type=int,
                            default=0, settable=True, prefercache=False),
-        'codertype': Param('type of encoder', type=oneof(*codertypes),
+        'codertype': Param('Type of encoder', type=oneof(*codertypes),
                            default='none', settable=True, prefercache=False),
-        'coderbits': Param('number of bits of ssi-encoder', default=0,
+        'coderbits': Param('Number of bits of ssi-encoder', default=0,
                            type=intrange(0, 31), settable=True,
                            prefercache=False),
     }
@@ -236,12 +236,12 @@ class MCC2Poti(MCC2core, NicosCoder):
     """Class for the readout of a MCC2-A/D converter"""
 
     parameters = {
-        'slope':     Param('coder units per degree of rotation', type=float,
+        'slope':     Param('Coder units per degree of rotation', type=float,
                            default=1, settable=True, unit='1/main',
                            prefercache=False),
-        'zerosteps': Param('coder steps at physical zero', type=int,
+        'zerosteps': Param('Coder steps at physical zero', type=int,
                            default=0, settable=True, prefercache=False),
-        'coderbits': Param('number of bits of ssi-encoder', default=10,
+        'coderbits': Param('Number of bits of ssi-encoder', default=10,
                            type=int, settable=False, mandatory=False,
                            prefercache=False),
     }
@@ -288,7 +288,7 @@ class MCC2Motor(MCC2core, NicosMotor):
         'movecurrent': Param('Current whenever motor is moving at speed',
                              type=floatrange(0, 2.5), unit='A',
                              prefercache=False, settable=True),
-        'linear':      Param('linear stage (as opposed to choppered stage)',
+        'linear':      Param('Linear stage (as opposed to choppered stage)',
                              type=bool, settable=False, volatile=True),
     }
 

@@ -175,7 +175,7 @@ class UDCReadableDevice(UDCReadable):
     Please create for read only use of your device an object from this class.
     """
     parameters = {
-        'path':   Param('The path string of the init-file for this device.',
+        'path':   Param('The path string of the init-file for this device',
                         type=str, mandatory=True, userparam=False),
     }
 
@@ -230,10 +230,10 @@ class UDCReadableCaressDevice(UDCReadable):
         'corba_server_name': Param('The name of the CORBA-Server '
                                    'as a string for this device',
                                    type=str, mandatory=True, userparam=False),
-        'corba_device_name': Param('The name of the device as a string.',
+        'corba_device_name': Param('The name of the device as a string',
                                    type=str, mandatory=True, userparam=False),
         'corba_init_line':   Param('The parameter line from the Hardware_'
-                                   'Modules.dat as a string for this device.',
+                                   'Modules.dat as a string for this device',
                                    type=str, mandatory=True, userparam=False),
     }
 

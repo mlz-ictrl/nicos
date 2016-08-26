@@ -259,7 +259,7 @@ class ComtecHeaderSink(ImageSink):
     }
 
     parameters = {
-        'fast_basepath': Param('mount point of the fast data storage',
+        'fast_basepath': Param('Mount point of the fast data storage',
                                type=str, default='/', settable=False),
     }
 

@@ -206,7 +206,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
         "file": Param("Image file location on maatel computer",
                       type=str, settable=True, volatile=True,
                       category="general"),
-        "readout_millis": Param("Timeout in ms for the readout.",
+        "readout_millis": Param("Timeout in ms for the readout",
                                 type=int, settable=True, default=60000),
     }
 

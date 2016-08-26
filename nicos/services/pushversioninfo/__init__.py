@@ -61,7 +61,7 @@ class PushVersionInfo(BaseCacheClient):
     parameters = {
         'update_uri': Param('URI to send version information to, or None to '
                             'disable. Version info is directly appended to '
-                            'the URI, encoded as a query parameter.',
+                            'the URI, encoded as a query parameter',
                             type=none_or(str), mandatory=True),
         'infokey':    Param('URI parameter key for the info dict', type=str,
                             mandatory=True),

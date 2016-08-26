@@ -127,10 +127,10 @@ class NOKPosition(Coder):
         'poly'            : Param('Polynomial coefficients in ascending order',
                                    type=nonemptylistof(float), settable=True,
                                    mandatory=True, default=0.),
-        'length'          : Param('length... ????',
+        'length'          : Param('Length... ????',
                                    type=float, mandatory=False),
         # fun stuff, not really needed....
-        'serial'          : Param('serial number',
+        'serial'          : Param('Serial number',
                                    type=int, mandatory=False),
     }
 
@@ -179,7 +179,7 @@ class NOKPosition(Coder):
 class NOKMotorIPC(CanReference, IPCMotor):
     """Basically a IPCMotor with referencing."""
     parameters = {
-        'refpos' : Param('reference position in phys. units', unit='main',
+        'refpos' : Param('Reference position in phys. units', unit='main',
                           type=none_or(float), mandatory=True ),
     }
 
@@ -273,9 +273,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
         'nok_motor'         : Param('Position of the motor for this NOK',
                                     type=tupleof(float, float), settable=False,
                                     unit='mm'),
-        'inclinationlimits' : Param('allowed range for the positional difference',
+        'inclinationlimits' : Param('Allowed range for the positional difference',
                                     type=limits, mandatory=True),
-        'backlash'          : Param('backlash correction in phys. units',
+        'backlash'          : Param('Backlash correction in phys. units',
                                     type=float, default=0., unit='main'),
     }
 

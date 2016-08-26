@@ -45,7 +45,7 @@ class CollimationSlit(TwoAxisSlit):
     """Two-axis slit with an additional parameter for the "open" position."""
 
     parameters = {
-        'openpos':   Param('position to move slit completely open',
+        'openpos':   Param('Position to move slit completely open',
                            type=tupleof(float, float), default=(50.0, 50.0)),
     }
 
@@ -119,9 +119,9 @@ class Collimation(Moveable):
     }
 
     parameters = {
-        'slitpos': Param('positions of the attached slits', unit='m',
+        'slitpos': Param('Positions of the attached slits', unit='m',
                          type=listof(int), mandatory=True),
-        'mapping': Param('maps position name to guide and slit w/h',
+        'mapping': Param('Maps position name to guide and slit w/h',
                          type=dictof(str, tupleof(int, float, float)),
                          mandatory=True),
     }

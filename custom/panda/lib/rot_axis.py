@@ -34,7 +34,7 @@ from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 class RefAxis(Axis):
     parameters = {
-        'refpos':   Param('reference position',
+        'refpos':   Param('Reference position',
                           type=none_or(float), default=None),
         'autoref':  Param('Number of movements before autoreferencing, '
                           'None/0=disable, >0:count all moves, <0:count only '
@@ -203,9 +203,9 @@ class RotAxis(RefAxis):
     _wrapped = False
 
     parameters = {
-        'wraparound': Param('axis wraps around above this value',
+        'wraparound': Param('Axis wraps around above this value',
                             type=float, default=360.),
-        'wrapwaittime': Param('time to wait after wraparound', unit='s',
+        'wrapwaittime': Param('Time to wait after wraparound', unit='s',
                               settable=True, type=float, default=0.),
     }
 

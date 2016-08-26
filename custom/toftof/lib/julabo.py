@@ -43,7 +43,7 @@ class Controller(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         'thermostat_type': Param('Type of thermostat',
                                  type=oneof('JulaboF32HD', 'HaakeDC50'),
                                  default='JulaboF32HD'),
-        'intern_extern': Param('internal(0) or external(1) temperature sensor',
+        'intern_extern': Param('Internal(0) or external(1) temperature sensor',
                                type=intrange(0, 1), default=1),
     }
 

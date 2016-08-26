@@ -151,9 +151,9 @@ class Experiment(Device):
                                 type=oneof('abort', 'report'), settable=True,
                                 default='report'),
         'lastscan':       Param('Last used value of the scan counter - '
-                                'ONLY for display purposes!', type=int),
+                                'ONLY for display purposes', type=int),
         'lastpoint':      Param('Last used value of the point counter - '
-                                'ONLY for display purposes!', type=int),
+                                'ONLY for display purposes', type=int),
         'samples':        Param('Information about all defined samples',
                                 type=dictof(int, dictof(str, anytype)),
                                 settable=True, userparam=False),

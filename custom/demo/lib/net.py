@@ -39,15 +39,15 @@ from nicos.utils import createThread
 class Network(Readable):
 
     parameters = {
-        'interval':  Param('interval for load detection',
+        'interval':  Param('Interval for load detection',
                            type=floatrange(0.1, 60), default=0.1,
                            settable=True,),
-        'interface': Param('network interface device (None=all)',
+        'interface': Param('Network interface device (None=all)',
                            type=oneof(None, *net_io_counters(True).keys()),
                            default=None, settable=True,),
-        'direction': Param('transport direction', type=oneof('tx', 'rx'),
+        'direction': Param('Transport direction', type=oneof('tx', 'rx'),
                            default='tx', settable=True,),
-        'lastvalue': Param('last obtained value', type=float,
+        'lastvalue': Param('Last obtained value', type=float,
                            userparam=False, mandatory=False, default=0.0),
     }
 

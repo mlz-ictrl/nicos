@@ -386,7 +386,7 @@ class Changer(BaseSequencer):
         'mono_in_lift':  Param('Which mono is in the lift',
                                type=oneof('PG', 'Si', 'Cu', 'Heusler', 'None'),
                                default='None', settable=True, userparam=False),
-        'exchangepos':   Param('dict of device names to positional values for '
+        'exchangepos':   Param('Dict of device names to positional values for '
                                'changing monos',
                                type=dict, settable=False, userparam=False),
     }

@@ -131,15 +131,15 @@ class Sans1HV(BaseSequencer):
     }
 
     parameters = {
-        'ramp':       Param('current ramp speed (volt per minute)',
+        'ramp':       Param('Current ramp speed (volt per minute)',
                             type=int, unit='main/min', settable=True,
                             volatile=True),
-        'lasthv':     Param('when was hv applied last (timestamp)',
+        'lasthv':     Param('When was hv applied last (timestamp)',
                             type=float, userparam=False, default=0.0,
                             mandatory=False, settable=False),
         'maxofftime': Param('Maximum allowed Off-time for fast ramp-up',
                             type=int, unit='s', default=4 * 3600),
-        'slowramp':   Param('slow ramp-up speed (volt per minute)',
+        'slowramp':   Param('Slow ramp-up speed (volt per minute)',
                             type=int, unit='main/min', default=120),
         'fastramp':   Param('Fast ramp-up speed (volt per minute)',
                             type=int, unit='main/min', default=1200),

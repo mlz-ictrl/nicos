@@ -37,7 +37,7 @@ class TemperatureSensor(TacoDevice, Readable):
     taco_class = StringIO
 
     parameters = {
-        'address': Param('device address',
+        'address': Param('Device address',
                          type=intrange(0, 97), default=0, settable=False,),
     }
 

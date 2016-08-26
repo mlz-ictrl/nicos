@@ -35,9 +35,9 @@ from nicos.laue.psldrv import PSLdrv
 class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     parameters = {
-        'address': Param('inet address', type=str,
+        'address': Param('Inet address', type=str,
                          default=''),
-        'port': Param('port', type=int,
+        'port': Param('Port', type=int,
                       default='50000'),
         'imagewidth': Param('Image width',
                             type=int, default=2000, category='general'),
