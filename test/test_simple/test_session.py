@@ -71,4 +71,4 @@ def test_sysconfig():
 
 def test_device_names():
     assert raises(ErrorLogged, readSetups,
-                  os.path.join(rootdir, '..', 'faulty_setups'), session.log)
+                  [os.path.join(rootdir, '..', 'faulty_setups'),], session.log)
