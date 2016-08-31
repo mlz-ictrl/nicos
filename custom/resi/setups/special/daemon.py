@@ -4,7 +4,7 @@ group = 'special'
 devices = dict(
     Auth   = device('services.daemon.auth.Authenticator'),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'resi1',
+                    server = 'resictrl.resi.frm2',
                     loglevel = 'debug',
                     authenticators = ['Auth'],
                    ),

@@ -3,7 +3,7 @@ description = 'minimal NICOS startup setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'resi1',
+    cache = 'resictrl.resi.frm2',
 )
 
 includes = []

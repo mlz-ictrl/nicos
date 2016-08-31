@@ -4,7 +4,7 @@ group = 'special'
 
 includes = []
 
-sysconfig = dict(cache='localhost')
+sysconfig = dict(cache='resictrl.resi.frm2')
 
 devices = dict(
     Poller=device('services.poller.Poller',

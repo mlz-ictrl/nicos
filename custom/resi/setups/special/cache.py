@@ -7,11 +7,11 @@ devices = dict(
     DBmem     = device('services.cache.server.MemoryCacheDatabase',
                     loglevel = 'info'),
     DBfile     = device('services.cache.server.FlatfileCacheDatabase',
-                    storepath = '/home/resi/pedersen/nicos-cache',
+                    storepath = '/data/nicos/cache',
                     loglevel = 'info'),
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DBmem',
-                    server = 'resi1',
+                    server = 'resictrl.resi.frm2',
                     loglevel = 'info'),
 )

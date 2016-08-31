@@ -2,7 +2,7 @@ description = 'system setup only'
 group = 'basic'
 
 sysconfig = dict(
-    cache = 'resi1',
+    cache = 'resictrl.resi.frm2',
     instrument = 'resiInstrument',
     experiment = 'Exp',
     notifiers = ['email'],
