@@ -791,11 +791,6 @@ class Session(object):
 
         Called by sessions during startup.
         """
-        # If simulation mode is wanted, we need to set that before loading any
-        # initial setup.
-        if mode == SIMULATION:
-            self._mode = SIMULATION
-
         # Create the initial instrument setup.
         self.startMultiCreate()
         try:
@@ -803,9 +798,7 @@ class Session(object):
         finally:
             self.endMultiCreate()
 
-        if mode == SIMULATION:
-            self.log.info('starting in simulation mode')
-        elif mode == MAINTENANCE:
+        if mode == MAINTENANCE:
             self.setMode(MAINTENANCE)
         elif mode == SLAVE:
             # Try to become master if the setup didn't already switch modes.

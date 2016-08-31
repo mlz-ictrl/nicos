@@ -838,7 +838,7 @@ class EditorPanel(Panel):
                 text = f.read()
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
-        self.editor.setText(text)
+        self.currentEditor.setText(text)
         self.clearSimPane()
 
     def openRecentFile(self):
