@@ -49,7 +49,6 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     }
 
     parameters = {
-        'tacodevice':  Param('Old TACO device name', type=str),
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True, category='general'),
         'slices':      Param('Calculated TOF slices', userparam=False,
