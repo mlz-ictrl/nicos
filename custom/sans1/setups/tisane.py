@@ -2,45 +2,20 @@ description = 'tisane setup for SANS1'
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'astrium', 'memograph',
-            'manual', 'guidehall', 'outerworld', 'pressure_filter']
+            'manual', 'guidehall', 'outerworld', 'pressure_filter',
+            'frequency']
 
 excludes = ['sans1']
 
 group = 'basic'
 
 nethost = 'sans1srv.sans1.frm2'
-tangobase = 'tango://sans1hw.sans1.frm2:10000'
 
 sysconfig = dict(
     datasinks = ['Histogram', 'Listmode',]
 )
 
 devices = dict(
-    tisane_fc = device('devices.tango.Sensor',
-                       description = "Frequency counter for chopper signal",
-                       tangodevice = "%s/sans1/tisane/fc1_frequency" % tangobase,
-                       unit = "Hz",
-                      ),
-    tisane_fg1 = device('sans1.tisane.Burst',
-                        description = "Signal-generator for sample tisane signal",
-                        tangodevice = "%s/sans1/tisane/fg1_burst" % tangobase,
-                        frequency = 1000,
-                        amplitude = 2.5,
-                        offset = 1.3,
-                        shape = 'square',
-                        duty = 50,
-                        mapping = dict(On=1, Off=0),
-                       ),
-    tisane_fg2 = device('sans1.tisane.Burst',
-                        description = "Signal-generator for detector tisane signal",
-                        tangodevice = "%s/sans1/tisane/fg2_burst" % tangobase,
-                        frequency = 1000,
-                        amplitude = 5.0,
-                        offset = 1.3,
-                        shape = 'square',
-                        duty = 50,
-                        mapping = dict(On=1, Off=0),
-                       ),
     det1    = device('devices.generic.GatedDetector',
                      description = 'QMesyDAQ Image type Detector1',
                      timers = ['det1_timer'],
