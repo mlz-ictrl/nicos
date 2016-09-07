@@ -80,7 +80,7 @@ def init(log):
 def getDeviceClasses(instrumentPrefix):
     modkeys = []
     if instrumentPrefix is not None:
-        for mod in modules.keys():
+        for mod in modules:
             if mod.startswith(instrumentPrefix):
                 modkeys.append(mod)
             elif mod.startswith('devices'):

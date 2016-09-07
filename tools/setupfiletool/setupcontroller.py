@@ -69,7 +69,7 @@ def init(logger):
         if os.path.isdir(os.path.join(setup_root, item)):
             setup_directories[item] = []
 
-    for setup_directory in setup_directories.keys():
+    for setup_directory in list(setup_directories):
         abspath = os.path.join(setup_root, setup_directory)
         if not os.path.isdir(os.path.join(abspath, 'setups')):
             setup_directories[setup_directory] = []

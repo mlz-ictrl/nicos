@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
             newUser = User(userTuple[0], userTuple[1], userTuple[2])
             self.users[userTuple[0]] = newUser  # convert to editable users
 
-        for key in self.users.keys():
+        for key in self.users:
             self.userList.addItem(key)  # put users in gui (list widget)
 
         self.userList.setEnabled(True)

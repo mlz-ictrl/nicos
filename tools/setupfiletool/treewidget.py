@@ -59,7 +59,7 @@ class TreeWidget(TreeWidgetContextMenu):
         # list of topLevelItems representing the directories in
         # */nicos-core/custom: for example instruments, ...
         self.topLevelItems = []
-        for directory in setupcontroller.setup_directories.keys():
+        for directory in setupcontroller.setup_directories:
             self.topLevelItems.append(
                 QTreeWidgetItem([directory], ItemTypes.Directory))
         self.addTopLevelItems(self.topLevelItems)

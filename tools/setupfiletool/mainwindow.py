@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.workarea.addWidget(self.labelHeader)
 
         self.treeWidget.loadNicosData()
-        for directory in sorted(setupcontroller.setup_directories.keys()):
+        for directory in sorted(setupcontroller.setup_directories):
             instrumentAction = self.instrumentMenu.addAction(directory)
             instrumentAction.triggered.connect(
                 self.treeWidget.setInstrumentMode)
