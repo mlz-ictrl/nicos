@@ -311,7 +311,10 @@ class KWSSamplePanel(Panel):
     def on_retrieveBtn_clicked(self):
         sampleconf = self.client.eval('session.experiment.samples', [])
         sampleconf = sorted(sampleconf.items())
-        self.configs = [c[1] for c in sampleconf if 'thickness' in c[1]]
+        self.configs = [dict(c[1]) for c in sampleconf if 'thickness' in c[1]]
+        # convert readonlydict to normal dict
+        for config in self.configs:
+            config['position'] = dict(config['position'].items())
         newitem = None
         for config in self.configs:
             newitem = QListWidgetItem(config['name'], self.list)
