@@ -458,6 +458,23 @@ _tisane_fg1 = Block('TISANE Frequency Generator 1 - Sample', [
     setups='tisane',
 )
 
+_fg1 = Block('Frequency Generator 1 - Sample', [
+    BlockRow(
+             Field(name='On/Off', dev='tisane_fg1', width=12),
+             Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
+             ),
+    BlockRow(
+             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
+             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+             ),
+    BlockRow(
+             Field(name='Shape', key='tisane_fg1/shape', width=12),
+             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+             ),
+    ],
+    setups='frequency',
+)
+
 _tisane_fg2 = Block('TISANE Frequency Generator 2 - Detector', [
     BlockRow(
              Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
@@ -506,7 +523,7 @@ devices = dict(
                                 Row(
                                     Column(_ccmsanssc),
                                     Column(_sc1, _sc2, _st2, _st1),
-                                    Column(_tisane_counts, _tisane_fc,
+                                    Column(_fg1, _tisane_counts, _tisane_fc,
                                            _tisane_fg1, _tisane_fg2),
                                     Column(_htf01, _htf03,
                                            _ccmsans, _miramagnet, _amagnet,

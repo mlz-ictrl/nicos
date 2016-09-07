@@ -37,7 +37,7 @@ devices = dict(
                                 switch = 'ccmsanssc_switch',
                                 switchvalues = (2, 1),
                                 fmtstr = '%.2f',
-                                precision = 0.05,
+                                precision = 0.1,
                                 dragerror = 5,
                                ),
 
@@ -46,7 +46,7 @@ devices = dict(
                                 moveable = 'ccmsanssc_axis',
                                 mapping = {1: 4, 2: 69, 3: 134, 4: 199, 5: 264,
                                            6: 329, 7: 394, 8: 459, 9: 524, 10: 589},
-                                precision = 0.1,
+                                precision = 0.2,
                                 fmtstr = '%d',
                                ),
 )
