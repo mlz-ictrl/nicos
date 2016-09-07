@@ -1,4 +1,4 @@
-description = 'FRM-II infra-red furnace'
+description = 'FRM II infra-red furnace'
 
 group = 'plugplay'
 

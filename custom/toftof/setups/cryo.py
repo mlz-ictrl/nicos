@@ -1,4 +1,4 @@
-description = 'FRM-II cryo box with two LakeShore controllers'
+description = 'FRM II cryo box with two LakeShore controllers'
 
 group = 'optional'
 

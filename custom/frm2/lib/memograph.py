@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
+# NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,7 @@
 """Show values read out from a Memograph web UI.
 
 Memographs are the logging system for 'cooling water' related data in the
-neutron guide hall of the FRM-II.
+neutron guide hall of the FRM II.
 """
 
 from nicos.core import Param, Readable, Override, CommunicationError, \

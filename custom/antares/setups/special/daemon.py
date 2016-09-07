@@ -6,7 +6,7 @@ group = 'special'
 
 devices = dict(
     UserDBAuth = device('frm2.proposaldb.Authenticator',
-                        description = 'FRM-II user office authentication',
+                        description = 'FRM II user office authentication',
                        ),
     Auth       = device('services.daemon.auth.ListAuthenticator',
                         description = 'Authentication device',

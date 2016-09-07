@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
+# NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -78,7 +78,7 @@ class ProposalDB(object):
 
 
 def queryCycle():
-    """Query the FRM-II proposal database for the current cycle."""
+    """Query the FRM II proposal database for the current cycle."""
     today = datetime.date.today()
     with ProposalDB() as cur:
         cur.execute('''
@@ -94,7 +94,7 @@ def queryCycle():
 
 
 def queryProposal(pnumber, instrument=None):
-    """Query the FRM-II proposal database for information about the given
+    """Query the FRM II proposal database for information about the given
     proposal number.
     """
     if not isinstance(pnumber, integer_types):
@@ -170,7 +170,7 @@ def queryProposal(pnumber, instrument=None):
 
 
 def queryUser(user):
-    """Query the FRM-II proposal database for the user ID and password hash."""
+    """Query the FRM II proposal database for the user ID and password hash."""
     with ProposalDB() as cur:
         count = cur.execute('''
             SELECT user_id, user_password FROM nuke_users WHERE username=%s
@@ -186,7 +186,7 @@ def queryUser(user):
 
 class Authenticator(BaseAuthenticator):
     """
-    Authenticates against the FRM-II user office database.
+    Authenticates against the FRM II user office database.
     """
 
     def pw_hashing(self):

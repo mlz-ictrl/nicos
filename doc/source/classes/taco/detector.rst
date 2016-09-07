@@ -1,4 +1,4 @@
-Taco FRM-II detector classes
+Taco FRM II detector classes
 ============================
 
 .. module:: nicos.devices.taco.detector

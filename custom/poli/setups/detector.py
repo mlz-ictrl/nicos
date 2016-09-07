@@ -32,7 +32,7 @@ devices = dict(
                   ),
 
     det   = device('devices.generic.Detector',
-                   description = 'FRM-II multichannel counter card',
+                   description = 'FRM II multichannel counter card',
                    timers = ['timer'],
                    monitors = ['mon1', 'mon2'],
                    counters = ['ctr1'],

@@ -1,4 +1,4 @@
-description = '3He/4He dilution unit from FRM-II Sample environment group'
+description = '3He/4He dilution unit from FRM II Sample environment group'
 
 group = 'plugplay'
 

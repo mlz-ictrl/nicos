@@ -1,4 +1,4 @@
-description = 'FRM-II CCR box with LakeShore LS336 controller'
+description = 'FRM II CCR box with LakeShore LS336 controller'
 
 group = 'plugplay'
 

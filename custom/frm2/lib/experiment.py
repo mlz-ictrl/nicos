@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
+# NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ from nicos.devices.experiment import Experiment as BaseExperiment, \
 
 
 class Experiment(BaseExperiment):
-    """Typical experiment at the FRM-II facility.
+    """Typical experiment at the FRM II facility.
 
     With access to the user office proposal database information the experiment
     related information could be take over without any human interaction except
@@ -168,8 +168,8 @@ class Experiment(BaseExperiment):
 
 
 class ImagingExperiment(Experiment, BaseImagingExperiment):
-    """FRM-II specific imaging experiment which provides all imaging experiment
-    functionalities plus all the FRM-II specific features.
+    """FRM II specific imaging experiment which provides all imaging experiment
+    functionalities plus all the FRM II specific features.
     """
 
     parameters = {

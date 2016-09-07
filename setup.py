@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
+# NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -138,7 +138,7 @@ setup(
     author_email = 'georg.brandl@frm2.tum.de',
     maintainer = 'Jens Krueger',
     maintainer_email = 'jens.krueger@frm2.tum.de',
-    description = 'The Networked Instrument COntrol System of the FRM-II',
+    description = 'The Networked Instrument Control System of the MLZ',
     url = 'https://forge.frm2.tum.de/projects/NICOS/',
     cmdclass = {'install': nicosinstall},
     packages = find_packages(),

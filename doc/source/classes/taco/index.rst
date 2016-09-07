@@ -9,7 +9,7 @@ Taco Python modules need to be installed; for example, the temperature control
 classes need the ``Temperature`` module from the ``taco-client-temperature``
 package.
 
-For a description of the TACO system at FRM-II see `this documentation
+For a description of the TACO system at FRM II see `this documentation
 <https://forge.frm2.tum.de/wiki/projects:taco:index>`_.
 
 All classes described here are re-exported in the :mod:`nicos.devices.taco` module, so

@@ -1,4 +1,4 @@
-description = 'FRM-II high temperature furnace'
+description = 'FRM II high temperature furnace'
 
 group = 'optional'
 

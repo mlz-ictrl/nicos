@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 #  pylint: disable=unidiomatic-typecheck
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
+# NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under

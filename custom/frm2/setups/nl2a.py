@@ -1,4 +1,4 @@
-description = 'FRM-II neutron guide line 2a shutter'
+description = 'FRM II neutron guide line 2a shutter'
 
 group = 'lowlevel'
 

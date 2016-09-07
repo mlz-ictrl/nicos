@@ -1,4 +1,4 @@
-description = '3He insert from FRM-II Sample environment group'
+description = '3He insert from FRM II Sample environment group'
 
 group = 'plugplay'
 

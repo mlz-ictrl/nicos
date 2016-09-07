@@ -291,7 +291,7 @@ Release 2.5.0
     to manipulating "Sample.psi0" by hand.
 
   - Added the "activation()" command to query sample activation from the NICOS
-    command line using the new FRM-II web-based activation calculator.
+    command line using the new FRM II web-based activation calculator.
 
   - Removed several unused or now obsolete commands: "Remember()", "LogAttach()",
     "Edit()".
@@ -514,8 +514,8 @@ Release 2.2.0
 - Restructured the "nicos" Python package layout.  Custom libraries
   will have to be adapted.
 
-- Added common FRM-II sample environment and reactor setups.  They are
-  installed by default for FRM-II instruments.
+- Added common FRM II sample environment and reactor setups.  They are
+  installed by default for FRM II instruments.
 
 - Added "sweep" scan command.
 
