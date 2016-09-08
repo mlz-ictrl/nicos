@@ -327,7 +327,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#
+# TODO visit from time to time https://github.com/sphinx-doc/sphinx/issues/1907
 latex_logo = '_static/nicos-logo.eps'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
