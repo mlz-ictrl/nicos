@@ -15,4 +15,5 @@ functions check :doc:`developer`.
    setups
    services/index
    gui/config
+   classes/index
    customind

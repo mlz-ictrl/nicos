@@ -13,7 +13,6 @@ development environment and coding  guidelines.
    overview
    components
    deviceapi
-   classes/index
    gui/index
    sessionapi
    coreapi
