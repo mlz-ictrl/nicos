@@ -190,7 +190,7 @@ class ScansPanel(Panel):
 
     def enablePlotActions(self, on):
         for action in [
-            self.actionSavePlot, self.actionPrint,
+            self.actionSavePlot, self.actionPrint, self.actionResetPlot,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
             self.actionScaleX, self.actionScaleY,
