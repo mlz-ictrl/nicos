@@ -26,6 +26,7 @@
 
 import ast
 import sys
+import time
 import weakref
 import traceback
 from os import path
@@ -38,17 +39,14 @@ from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
 from nicos.core.utils import system_user
 from nicos.services.daemon.utils import formatScript, fixupScript, \
-    updateLinecache, ScriptQueue
+    updateLinecache, ScriptQueue, parseScript, splitBlocks
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, STATUS_IDLE, \
-    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_INBREAK, STATUS_STOPPING
+    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_INBREAK, STATUS_STOPPING, SIM_STATES
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import exec_, text_type
-
-# compile flag to activate new division
-CO_DIVISION = 0x2000
+from nicos.pycompat import exec_
 
 
 class RequestError(Exception):
@@ -116,6 +114,10 @@ class ScriptRequest(Request):
             text += '\n'
         self.text = text
         self.curblock = -1
+        self.runtimes = []
+        self.blockStart = -1
+        self.simstate = SIM_STATES['pending']
+        self.eta = -1
 
     def serialize(self):
         return {'reqid': self.reqid, 'name': self.name, 'script': self.text,
@@ -126,36 +128,12 @@ class ScriptRequest(Request):
             return '%s: %r' % (self.name, self.text)
         return repr(self.text)
 
-    def parse(self, splitblocks=True, compilecode=True):
-        if compilecode:
-            def compiler(src):
-                if not isinstance(src, text_type):
-                    src = src.decode('utf-8')
-                return compile(src + '\n', '<script>', 'single', CO_DIVISION)
-        else:
-            compiler = lambda src: src
-        if '\n' not in self.text:
-            # if the script is a single line, compile it like a line
-            # in the interactive interpreter, so that expression
-            # results are shown
-            self.code = [session.commandHandler(self.text, compiler)]
-            self.blocks = None
-            return
-        pycode = self.text
-        # check for SPM scripts
-        if self.format != 'py':
-            pycode = session.scriptHandler(self.text,
-                                           self.name or '', lambda c: c)
-        # replace bare except clauses in the code with "except Exception"
-        # so that ControlStop is not caught
-        pycode = fixupScript(pycode)
-        if not splitblocks:
-            # no splitting desired
-            self.code = [compiler(pycode)]
-            self.blocks = None
-        else:
-            # long script: split into blocks
-            self.code, self.blocks = self._splitblocks(pycode)
+    def parse(self):
+        self.code, self.blocks = parseScript(self.text, self.name, self.format,
+                                             compilecode=True)
+        # prefill runtimes with 0 so the results of the simulation can come in
+        # any order
+        self.resetSimstate()
 
     def execute(self, controller):
         """Execute the script in the given namespace, using "controller"
@@ -179,6 +157,8 @@ class ScriptRequest(Request):
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
                 self.curblock += 1
+                self.blockStart = time.time()
+                self.emitETA(controller)
                 controller.start_exec(self.code[self.curblock],
                                       controller.namespace,
                                       None,
@@ -191,6 +171,24 @@ class ScriptRequest(Request):
             if self.name:
                 session.elogEvent('scriptend', self.name)
 
+    def emitETA(self, controller):
+        if self.simstate == SIM_STATES['success']:
+            self.eta = self.blockStart + sum(self.runtimes[self.curblock:])
+
+        controller.eventfunc('eta', (self.simstate, self.eta))
+
+    def setSimstate(self, state):
+        if state in SIM_STATES:
+            self.simstate = SIM_STATES[state]
+
+    def resetSimstate(self):
+        self.setSimstate('pending')
+        if self.blocks:
+            self.runtimes = [0] * len(self.blocks)
+        else:
+            self.runtimes = []
+        self.eta = -1
+
     def update(self, text, reason, controller, user):
         """Update the code with a new script.
 
@@ -201,7 +199,7 @@ class ScriptRequest(Request):
         if not self.blocks:
             raise ScriptError('cannot update single-line script')
         text = fixupScript(text)
-        newcode, newblocks = self._splitblocks(text)
+        newcode, newblocks = splitBlocks(text)
         # stop execution after the current block
         self._run.clear()
         curblock = self.curblock  # this may be off by one
@@ -226,6 +224,7 @@ class ScriptRequest(Request):
                 session.experiment.scripts = scr
             updateLinecache('<script>', text)
             self.code, self.blocks = newcode, newblocks
+            self.resetSimstate()
             # let the client know of the update
             controller.eventfunc('processing', self.serialize())
             updatemsg = 'UPDATE (%s)' % reason if reason else 'UPDATE'
@@ -234,21 +233,13 @@ class ScriptRequest(Request):
             # let the script continue execution in any case
             self._run.set()
 
-    def _splitblocks(self, text):
-        """Parse a script into multiple blocks."""
-        codelist = []
-        if not isinstance(text, text_type):
-            text = text.decode('utf-8')
-        mod = ast.parse(text + '\n', '<script>')
-        assert isinstance(mod, ast.Module)
-        # construct an individual compilable unit for each block
-        for toplevel in mod.body:
-            new_mod = ast.Module()
-            new_mod.body = [toplevel]
-            # do not change the name (2nd parameter); the controller
-            # depends on that
-            codelist.append(compile(new_mod, '<script>', 'exec', CO_DIVISION))
-        return codelist, mod.body
+    def updateRuntime(self, block, time):
+        try:
+            self.runtimes[block] = time
+        # in case a new simulation has been triggered by editing the script
+        # and removing blocks
+        except IndexError:
+            pass
 
     def _compare(self, a, b):
         """Recursively compare two AST nodes for equality."""
@@ -294,12 +285,13 @@ class ExecutionController(Controller):
     working of the Controller object and the trace function.
     """
 
-    def __init__(self, log, eventfunc, startupsetup, simmode):
+    def __init__(self, log, eventfunc, startupsetup, simmode, autosim):
         self.log = log              # daemon logger object
         self.eventfunc = eventfunc  # event emitting callback
         self.setup = startupsetup   # first setup on start
+        # start in simulation mode?
         self.simmode = simmode and SIMULATION or SLAVE
-                                    # start in simulation mode?
+        self.autosim = autosim      # simulate script when running it?
 
         self.queue = ScriptQueue()  # user scripts get put here
         self.current_script = None  # currently executed script
@@ -448,11 +440,12 @@ class ExecutionController(Controller):
         # execute code in the script namespace (this is called not from
         # the script thread, but from a handle thread)
         temp_request = ScriptRequest(code, None, user)
-        temp_request.parse(splitblocks=False)
+        temp_request.parse()
         session.log.log(INPUT, formatScript(temp_request, '---'))
         self.last_handler = weakref.ref(handler)
         try:
-            exec_(temp_request.code[0], self.namespace)
+            for block in temp_request.code:
+                exec_(block, self.namespace)
         finally:
             self.last_handler = None
 
@@ -472,10 +465,17 @@ class ExecutionController(Controller):
         finally:
             self.last_handler = None
 
-    def simulate_script(self, code, name, user, prefix):
+    def simulate_script(self, uuid, code, name, user):
         req = ScriptRequest(code, name, user)
-        req.parse(splitblocks=False, compilecode=False)
-        session.runSimulation(req.code[0], wait=False, prefix='(%s) ' % prefix)
+        # use a uuid provided from client
+        if uuid:
+            req.reqid = uuid
+        self.simulate_request(req)
+
+    def simulate_request(self, request, quiet=False):
+        code, _ = parseScript(request.text, request.name, compilecode=False)
+        session.runSimulation(code[0], request.reqid, wait=False,
+                              quiet=quiet)
 
     def add_watch_expression(self, val):
         self.watchlock.acquire()
@@ -615,6 +615,9 @@ class ExecutionController(Controller):
             # check if currently executed script needs update
             if reqid == self.current_script.reqid or reqid is None:
                 self.current_script.update(newcode, reason, self, user)
+                if session.cache and self.autosim:
+                    self.simulate_request(self.current_script, quiet=True)
+                    self.current_script.setSimstate('running')
                 return
 
             # update queued script with newuser and code
@@ -646,6 +649,9 @@ class ExecutionController(Controller):
                 # get a script (or other request) from the queue
                 request = self.queue.get()
 
+                if session.cache and self.autosim:
+                    self.simulate_request(request, quiet=True)
+                    request.setSimstate('running')
                 self.reqid_work = request.reqid
                 self.log.info('processing request %s', request.reqid)
                 if isinstance(request, EmergencyStopRequest):

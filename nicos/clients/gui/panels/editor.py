@@ -28,6 +28,7 @@ import io
 import sys
 import time
 from os import path
+from uuid import uuid1
 from logging import WARNING
 
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
@@ -288,6 +289,7 @@ class EditorPanel(Panel):
         self.menus = None
         self.bar = None
         self.current_status = None
+        self.simuuid = ''
         self.recentf_actions = []
         self.searchdlg = None
         self.menuRecent = QMenu('Recent files')
@@ -342,8 +344,7 @@ class EditorPanel(Panel):
         self.activeGroup.addAction(self.actionSimulate)
         self.activeGroup.addAction(self.actionUpdate)
 
-        self.waiting_sim_result = False
-        self.connect(self.client, SIGNAL('message'), self.on_client_message)
+        self.connect(self.client, SIGNAL('simmessage'), self.on_client_simmessage)
         self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
         if self.client.connected:
             self.on_client_connected()
@@ -601,22 +602,18 @@ class EditorPanel(Panel):
         if key.endswith('/scriptpath'):
             self.on_client_connected()
 
-    def on_client_message(self, message):
-        if message[-1] != '(editorsim) ':
+    def on_client_simmessage(self, simmessage):
+        if simmessage[5] != self.simuuid:
             return
-        message = list(message)
-        message[-1] = ''  # remove "editorsim" prefix for output
-        if self.waiting_sim_result:
-            self.simOutView.addMessage(message)
-            if message[2] >= WARNING:
-                self.simOutViewErrors.addMessage(message)
+        self.simOutView.addMessage(simmessage)
+        if simmessage[2] >= WARNING:
+            self.simOutViewErrors.addMessage(simmessage)
 
     def on_client_simresult(self, data):
         self.actionSimulate.setEnabled(True)
-        (timing, devinfo) = data
-        if not self.waiting_sim_result:
+        (timing, devinfo, uuid) = data
+        if uuid != self.simuuid:
             return
-        self.waiting_sim_result = False
 
         # show timing
         if timing < 0:
@@ -716,9 +713,9 @@ class EditorPanel(Panel):
         if not self.checkDirty(self.currentEditor, askonly=True):
             return
         self.actionSimulate.setEnabled(False)
+        self.simuuid = str(uuid1())
         self.client.tell('simulate', self.filenames[self.currentEditor], script,
-                         'editorsim')
-        self.waiting_sim_result = True
+                         self.simuuid)
         self.clearSimPane()
         self.simPane.show()
 

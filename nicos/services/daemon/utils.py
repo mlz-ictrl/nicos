@@ -25,15 +25,21 @@
 """Utilities for the NICOS daemon."""
 
 import re
+import ast
 import time
 import logging
 import linecache
 from threading import Lock, Event
 
-from nicos.utils.loggers import ACTION, TRANSMIT_ENTRIES
+from nicos import session
+from nicos.utils.loggers import ACTION, recordToMessage
+from nicos.pycompat import text_type
 
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
+
+# compile flag to activate new division
+CO_DIVISION = 0x2000
 
 # -- General utilities --------------------------------------------------------
 
@@ -70,6 +76,57 @@ def fixupScript(script):
     # Replace bare except clauses by "except Exception" to prevent
     # catching the ControlStop exception used by pyctl
     return _bare_except.sub(r'\1except Exception:', script)
+
+
+# pylint: disable=redefined-builtin
+def parseScript(script, name=None, format=None, compilecode=True):
+    if compilecode:
+        def compiler(src):
+            if not isinstance(src, text_type):
+                src = src.decode('utf-8')
+            return compile(src + '\n', '<script>', 'single', CO_DIVISION)
+    else:
+        compiler = lambda src: src
+    if '\n' not in script:
+        # if the script is a single line, compile it like a line
+        # in the interactive interpreter, so that expression
+        # results are shown
+        code = [session.commandHandler(script, compiler)]
+        blocks = None
+    else:
+        pycode = script
+        # check for SPM scripts
+        if format != 'py':
+            pycode = session.scriptHandler(script, name or '', lambda c: c)
+        # replace bare except clauses in the code with "except Exception"
+        # so that ControlStop is not caught
+        pycode = fixupScript(pycode)
+        if not compilecode:
+            # no splitting desired
+            code = [compiler(pycode)]
+            blocks = None
+        else:
+            # long script: split into blocks
+            code, blocks = splitBlocks(pycode)
+
+    return code, blocks
+
+
+def splitBlocks(text):
+    """Parse a script into multiple blocks."""
+    codelist = []
+    if not isinstance(text, text_type):
+        text = text.decode('utf-8')
+    mod = ast.parse(text + '\n', '<script>')
+    assert isinstance(mod, ast.Module)
+    # construct an individual compilable unit for each block
+    for toplevel in mod.body:
+        new_mod = ast.Module()
+        new_mod.body = [toplevel]
+        # do not change the name (2nd parameter); the controller
+        # depends on that
+        codelist.append(compile(new_mod, '<script>', 'exec', CO_DIVISION))
+    return codelist, mod.body
 
 
 def updateLinecache(name, script):
@@ -112,11 +169,7 @@ class DaemonLogHandler(logging.Handler):
         self.ctrl = daemon._controller
 
     def emit(self, record):
-        msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
-        if not hasattr(record, 'nonl'):
-            msg[3] += '\n'
-        # record which request caused this message
-        msg.append(self.ctrl.reqid_work)
+        msg = recordToMessage(record, self.ctrl.reqid_work)
         if record.levelno != ACTION:
             # do not cache ACTIONs, they do not contribute to useful output if
             # received after the fact (this should also lower memory consumption

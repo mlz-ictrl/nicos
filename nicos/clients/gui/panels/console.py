@@ -77,6 +77,7 @@ class ConsolePanel(Panel):
 
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
+        self.connect(client, SIGNAL('simmessage'), self.on_client_simmessage)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
         self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
@@ -166,9 +167,11 @@ class ConsolePanel(Panel):
         self.outView.scrollToBottom()
 
     def on_client_message(self, message):
-        if message[-1] == '(editorsim) ':
-            return
         self.outView.addMessage(message)
+
+    def on_client_simmessage(self, simmessage):
+        if simmessage[-1] == '0':
+            self.outView.addMessage(simmessage)
 
     def on_client_experiment(self, data):
         (_, proptype) = data

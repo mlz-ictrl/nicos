@@ -4,7 +4,7 @@ main_window = docked(
     tabbed(
         ('Command line',
          vsplit(
-            panel('status.ScriptStatusPanel'),
+            panel('status.ScriptStatusPanel', eta=True),
             # panel('watch.WatchPanel'),
             panel('console.ConsolePanel',
                   watermark='resources/nicos-watermark.png'),

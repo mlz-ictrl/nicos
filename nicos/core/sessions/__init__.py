@@ -1313,11 +1313,11 @@ class Session(object):
 
     # -- Simulation support ---------------------------------------------------
 
-    def runSimulation(self, code, wait=True, prefix='(sim) '):
+    def runSimulation(self, code, uuid='0', wait=True, quiet=False):
         """Spawn a simulation of *code*.
 
-        If *wait* is true, wait until the process is finished.  *prefix* is the
-        prefix given to all log messages.
+        If *wait* is true, wait until the process is finished.
+        If *quiet* is true, only results will be emitted.
         """
         if not self.cache:
             raise NicosError('cannot start dry run, no cache is configured')
@@ -1354,8 +1354,8 @@ class Session(object):
                   setup in self.explicit_setups or
                   self._setup_info[setup]['extended'].get('dynamic_loaded')]
         user = self.getExecutingUser()
-        supervisor = SimulationSupervisor(self._sandbox_helper,
-                                          code, prefix, setups, user, emitter)
+        supervisor = SimulationSupervisor(self._sandbox_helper, uuid, code,
+                                          setups, user, emitter, quiet=quiet)
         supervisor.start()
         if wait:
             supervisor.join()

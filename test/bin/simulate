@@ -35,9 +35,9 @@ class TestSimulationSession(SimulationSession):
 
 args = sys.argv[1:]
 if len(args) < 5:
-    raise SystemExit('Usage: nicos-simulate port prefix setups user code')
+    raise SystemExit('Usage: nicos-simulate sock setups user code uuid')
 sock = args[0]
-prefix = args[1]
+uuid = args[1]
 setups = args[2].split(',')
 user = args[3]
 code = args[4]
@@ -54,4 +54,4 @@ config.setup_subdirs = setup_subdirs
 config.sandbox_simulation = bool(which('nicos-sandbox-helper'))
 
 selfDestructAfter(10)
-TestSimulationSession.run(sock, prefix, setups, user, code)
+TestSimulationSession.run(sock, uuid, setups, user, code)

@@ -42,23 +42,33 @@ from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.protocols.daemon import serialize, unserialize
+from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
-from nicos.utils.loggers import TRANSMIT_ENTRIES
+from nicos.utils.loggers import recordToMessage
 from nicos.utils.messaging import nicos_zmq_ctx
 from nicos.pycompat import iteritems, exec_, cPickle as pickle
 
 
+# a message to be logged
+SIM_MESSAGE = 0x01
+# the duration for a single codeblock
+SIM_BLOCK_RES = 0x02
+# the duration for the whole code
+SIM_END_RES = 0x03
+
+
 class SimLogSender(logging.Handler):
     """
-    Log handler sending messages to the original daemon via a pipe.
+    Log handler sending SIM_EVENTS to the original daemon via a pipe.
     """
 
-    def __init__(self, socket, session, finish_only=False):
+    def __init__(self, socket, session, uuid, quiet=False):
         logging.Handler.__init__(self)
         self.socket = socket
         self.session = session
-        self.finish_only = finish_only
+        self.quiet = quiet
         self.starttime = None
+        self.simuuid = uuid
         self.devices = []
         self.aliases = []
 
@@ -77,11 +87,13 @@ class SimLogSender(logging.Handler):
         self.level = 0
 
     def emit(self, record):
-        if not self.finish_only:
-            msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
-            if not hasattr(record, 'nonl'):
-                msg[3] += '\n'
-            self.socket.send(serialize(msg))
+        if not self.quiet:
+            msg = recordToMessage(record, self.simuuid)
+            self.socket.send(serialize((SIM_MESSAGE, msg)))
+
+    def send_block_result(self, block, time):
+        self.socket.send(serialize((SIM_BLOCK_RES,
+                                    [block, time, self.simuuid])))
 
     def finish(self, exception=False):
         stoptime = -1 if exception else self.session.clock.time
@@ -100,7 +112,8 @@ class SimLogSender(logging.Handler):
                 devname = session.devices[adev.alias].name
                 if devname in devinfo:
                     devinfo[devname][3].append(adev.name)
-        self.socket.send(serialize((stoptime, devinfo)))
+        self.socket.send(serialize((SIM_END_RES,
+                                    [stoptime, devinfo, self.simuuid])))
 
 
 class SimulationSession(Session):
@@ -115,7 +128,7 @@ class SimulationSession(Session):
         self.log_sender.level = logging.ERROR  # log only errors before code starts
 
     @classmethod
-    def run(cls, sock, prefix, setups, user, code):
+    def run(cls, sock, uuid, setups, user, code, quiet=False):
         session.__class__ = cls
 
         socket = nicos_zmq_ctx.socket(zmq.DEALER)
@@ -126,9 +139,8 @@ class SimulationSession(Session):
         data = socket.recv()
         db = pickle.loads(data) if data else None
 
-        session.globalprefix = prefix
         # send log messages back to daemon if requested
-        session.log_sender = SimLogSender(socket, session)
+        session.log_sender = SimLogSender(socket, session, uuid, quiet)
 
         username, level = user.rsplit(',', 1)
         session._user = User(username, int(level))
@@ -176,7 +188,13 @@ class SimulationSession(Session):
         # Execute the script code.
         exception = False
         try:
-            exec_(code, session.namespace)
+            last_clock = session.clock.time
+            code, _ = parseScript(code)
+            for i, c in enumerate(code):
+                exec_(c, session.namespace)
+                time = session.clock.time - last_clock
+                last_clock = session.clock.time
+                session.log_sender.send_block_result(i, time)
         except:  # pylint: disable=W0702
             session.log.exception('Exception in dry run')
             exception = True
@@ -190,7 +208,6 @@ class SimulationSession(Session):
 
     def _initLogging(self, prefix=None, console=True):
         Session._initLogging(self, prefix, console=False)
-        self.log.manager.globalprefix = self.globalprefix
         self.log.addHandler(self.log_sender)
 
     def getExecutingUser(self):
@@ -206,16 +223,16 @@ class SimulationSupervisor(Thread):
     socket and displaying/sending them to the client.
     """
 
-    def __init__(self, sandbox, code, prefix, setups, user, emitter,
-                 more_args=None):
+    def __init__(self, sandbox, uuid, code, setups, user, emitter,
+                 more_args=None, quiet=False):
         Thread.__init__(self, target=self._target,
                         name='SimulationSupervisor',
-                        args=(sandbox, emitter, prefix, setups, code, user,
-                              more_args or []))
+                        args=(sandbox, uuid, code, setups, user, emitter,
+                              more_args or [], quiet))
         # "daemonize this thread" attribute, not referring to the NICOS daemon.
         self.daemon = True
 
-    def _target(self, sandbox, emitter, prefix, setups, code, user, args):
+    def _target(self, sandbox, uuid, code, setups, user, emitter, args, quiet):
         socket = nicos_zmq_ctx.socket(zmq.DEALER)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
@@ -235,10 +252,11 @@ class SimulationSupervisor(Thread):
             prefixargs = []
         scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         userstr = '%s,%d' % (user.name, user.level)
+        if quiet:
+            args.append('--quiet')
         proc = createSubprocess(prefixargs +
-                                [sys.executable, scriptname,
-                                 sockname, prefix, ','.join(setups),
-                                 userstr, code] + args)
+                                [sys.executable, scriptname, sockname, uuid,
+                                 ','.join(setups), userstr, code] + args)
         if sandbox:
             if not session.current_sysconfig.get('cache'):
                 raise NicosError('no cache is configured')
@@ -250,23 +268,37 @@ class SimulationSupervisor(Thread):
             res = poller.poll(500)
             if not res:
                 if proc.poll() is not None:
+                    if emitter:
+                        request = emitter.current_script()
+                        if request.reqid == uuid:
+                            request.setSimstate('failed')
+                            request.emitETA(emitter._controller)
                     session.log.warning('Dry run has terminated prematurely')
                     return
                 continue
-            msg = unserialize(socket.recv())
-            if isinstance(msg, list):
-                # it's a message
+            msgtype, msg = unserialize(socket.recv())
+            if msgtype == SIM_MESSAGE:
                 if emitter:
-                    emitter.emit_event('message', msg)
+                    emitter.emit_event('simmessage', msg)
                 else:
-                    record = logging.LogRecord(msg[0], msg[2], msg[5],
+                    record = logging.LogRecord(msg[0], msg[2], '',
                                                0, msg[3], (), None)
                     record.message = msg[3].rstrip()
                     session.log.handle(record)
-            else:
-                # it's the result
+            elif msgtype == SIM_BLOCK_RES:
                 if emitter:
-                    emitter.emit_event('simresult', msg)
+                    block, duration, uuid = msg
+                    request = emitter.current_script()
+                    if request.reqid == uuid:
+                        request.updateRuntime(block, duration)
+            elif msgtype == SIM_END_RES:
+                if emitter:
+                    if not quiet:
+                        emitter.emit_event('simresult', msg)
+                    request = emitter.current_script()
+                    if request.reqid == uuid:
+                        request.setSimstate('success')
+                        request.emitETA(emitter._controller)
                 # In the console session, the summary is printed by the
                 # sim() command.
                 socket.close()

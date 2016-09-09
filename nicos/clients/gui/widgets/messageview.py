@@ -135,14 +135,15 @@ class MessageView(QTextBrowser):
 
     def formatMessage(self, message, actions=True):
         # message is a sequence:
-        # (logger, time, levelno, message, exc_text, prefix, reqid)
+        # (logger, time, levelno, message, exc_text, reqid)
         fmt = None
         levelno = message[2]
         if message[0] == 'nicos':
             name = ''
         else:
             name = '%-10s: ' % message[0]
-        name = message[5] + name
+        if message[5] == '0':  # simulation result started by console
+            name = '(sim) ' + name
         if levelno == ACTION:
             if actions and self._actionlabel:
                 action = message[3].strip()

@@ -29,7 +29,7 @@ import sys
 import time
 import traceback
 from os import path
-from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
+from logging import addLevelName, Logger, LogRecord, Formatter, \
     Handler, DEBUG, INFO, WARNING, ERROR
 
 from nicos import session
@@ -47,9 +47,6 @@ INPUT  = INFO + 6
 
 loglevels = {'debug': DEBUG, 'info': INFO, 'action': ACTION, 'warning': WARNING,
              'error': ERROR, 'input': INPUT}
-
-TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
-                    'filename')
 
 
 class NicosLogger(Logger):
@@ -121,8 +118,7 @@ class NicosLogger(Logger):
         Logger.log(self, ACTION, msg)
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
-        record = LogRecord(self.name, level, self.manager.globalprefix,
-                           0, msg, args, exc_info, '')
+        record = LogRecord(self.name, level, '', 0, msg, args, exc_info, '')
 
         try:
             record.message = (msg % args) if args else msg
@@ -377,13 +373,23 @@ class ELogHandler(Handler):
             # do not write ACTIONs to logfiles, they're only informative
             # also do not write messages from simulation mode
             return
-        msg = [getattr(record, e) for e in TRANSMIT_ENTRIES]
-        if not hasattr(record, 'nonl'):
-            msg[3] += '\n'
+        msg = recordToMessage(record, '')
         session.elogEvent('message', msg)
+
+
+def recordToMessage(record, reqid):
+    """
+    Format a log record as a list of interesting entries (a message) for the
+    daemon-client protocol.
+    """
+
+    msg = [getattr(record, e) for e in ('name', 'created', 'levelno',
+                                        'message', 'exc_text')] + [reqid]
+    if not hasattr(record, 'nonl'):
+        msg[3] += '\n'
+    return msg
 
 
 def initLoggers():
     addLevelName(ACTION, 'ACTION')
     addLevelName(INPUT, 'INPUT')
-    Manager.globalprefix = ''

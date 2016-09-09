@@ -241,7 +241,10 @@ def formatDuration(secs, precise=True):
 
 
 def formatEndtime(secs):
-    return strftime('%A, %H:%M', localtime(currenttime() + secs))
+    if secs > 60 * 60 * 24 * 7:
+        return strftime('%A, %d %b %H:%M', localtime(currenttime() + secs))
+    else:
+        return strftime('%A, %H:%M', localtime(currenttime() + secs))
 
 
 def formatDocstring(s, indentation=''):

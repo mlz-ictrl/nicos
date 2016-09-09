@@ -24,16 +24,19 @@
 
 """NICOS GUI script status panel component."""
 
+from time import time
+
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
     QActionGroup, QPixmap, QColor
 from PyQt4.QtCore import Qt, QTimer, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
+from nicos.utils import formatEndtime
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
-    BREAK_AFTER_LINE
+    BREAK_AFTER_LINE, SIM_STATES
 
 
 class ScriptQueue(object):
@@ -141,6 +144,7 @@ class ScriptStatusPanel(Panel):
         self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
         self.connect(client, SIGNAL('rearranged'), self.on_client_rearranged)
         self.connect(client, SIGNAL('updated'), self.on_client_updated)
+        self.connect(client, SIGNAL('eta'), self.on_client_eta)
 
         bar = QToolBar('Script control')
         bar.setObjectName(bar.windowTitle())
@@ -196,6 +200,11 @@ class ScriptStatusPanel(Panel):
             self.actionStop.setText('Abort current script')
             self.actionStop2.setToolTip(tooltip)
 
+        self.showETA = bool(options.get('eta', False))
+        self.etaWidget.hide()
+
+        self.dateformat = options.get('dateformat', '%Y/%m/%d %H:%M:%S')
+
     def setViewOnly(self, viewonly):
         self.activeGroup.setEnabled(not viewonly)
 
@@ -232,6 +241,9 @@ class ScriptStatusPanel(Panel):
             self.statusLabel.hide()
             setBackgroundColor(self.traceView, self.idle_color)
         self.traceView.update()
+
+        if status == 'idle':
+            self.etaWidget.hide()
 
     def setScript(self, script):
         self.traceView.clear()
@@ -275,6 +287,24 @@ class ScriptStatusPanel(Panel):
         for reqid in requests:
             self.script_queue.remove(reqid)
 
+    def on_client_eta(self, data):
+        if not self.showETA:
+            return
+
+        state, eta = data
+
+        if state == SIM_STATES['pending']:
+            self.etaWidget.hide()
+        elif state == SIM_STATES['running']:
+            self.etaLabel.setText('Calculating...')
+            self.etaWidget.show()
+        elif state == SIM_STATES['success'] and eta > time():
+            self.etaLabel.setText(formatEndtime(eta - time()))
+            self.etaWidget.show()
+        elif state == SIM_STATES['failed']:
+            self.etaLabel.setText('Could not calculate ETA')
+            self.etaWidget.show()
+
     def on_client_initstatus(self, state):
         self.setScript(state['script'])
         self.current_request['script'] = state['script']
@@ -282,6 +312,8 @@ class ScriptStatusPanel(Panel):
         self.on_client_status(state['status'])
         for req in state['requests']:
             self.on_client_request(req)
+        if self.showETA:
+            self.on_client_eta(state['eta'])
 
     def on_client_status(self, data):
         _status, line = data

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>824</width>
+    <height>701</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,21 @@
         <property name="verticalSpacing">
          <number>4</number>
         </property>
-        <item row="3" column="0">
+        <item row="1" column="0" colspan="5">
+         <widget class="QListWidget" name="queueView">
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="4">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Queued commands:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="5">
          <widget class="QWidget" name="widget" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
@@ -82,7 +96,7 @@
             <number>2</number>
            </property>
            <item>
-            <spacer name="horizontalSpacer_3">
+            <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -151,19 +165,62 @@
           </layout>
          </widget>
         </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="label_3">
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="etaWidget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label">
           <property name="text">
-           <string>Queued commands:</string>
+           <string>Estimated Finishing Time:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QListWidget" name="queueView">
-          <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
+        <item>
+         <widget class="QLabel" name="etaLabel">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>End of time</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

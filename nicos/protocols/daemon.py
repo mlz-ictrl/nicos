@@ -211,6 +211,10 @@ DAEMON_EVENTS = {
     'updated':     (True, 0x1018),
     # order of queued scripts changed
     'rearranged':  (True, 0x1019),
+    # estimated finishing time for the currently running script
+    'eta':         (True, 0x101A),
+    # message sent out while simulating
+    'simmessage':  (True, 0x101B),
 }
 
 event2code, code2event = {}, {}
@@ -218,3 +222,13 @@ for _name, (_, _number) in DAEMON_EVENTS.items():
     _enc = _codefmt.pack(_number)
     event2code[_name] = _enc
     code2event[_enc] = _name
+
+
+# possible states of ETA simulation
+
+SIM_STATES = {
+    'pending': 0x01,
+    'running': 0x02,
+    'success': 0x03,
+    'failed': 0x04,
+}

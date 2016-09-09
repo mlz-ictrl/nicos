@@ -39,6 +39,7 @@ import threading
 import ctypes
 import ctypes.util
 from os import path
+from uuid import uuid1
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from collections import OrderedDict
@@ -129,8 +130,6 @@ class NicosCmdClient(NicosClient):
         self.current_mode = MASTER
         # messages queueing up while the editor is running
         self.message_queue = []
-        # whether we have initiated a simulation lately
-        self.simulating = False
         # whether a stop is pending
         self.stop_pending = False
         # whether we are in debugging mode
@@ -143,6 +142,8 @@ class NicosCmdClient(NicosClient):
         self.tsize = terminalSize()
         # output stream to print to
         self.out = sys.stdout
+        # uuid of the last simulation
+        self.simuuid = ''
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -369,12 +370,8 @@ class NicosCmdClient(NicosClient):
         except Exception:
             pass
 
-    def put_message(self, msg):
+    def put_message(self, msg, sim=False):
         """Handles the "message" signal."""
-        if msg[5] == '(sim) ' and not self.simulating:
-            return
-        elif msg[5] == '(editorsim) ':
-            return
         if msg[0] == 'nicos':
             namefmt = ''
         else:
@@ -403,7 +400,9 @@ class NicosCmdClient(NicosClient):
                 timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('red', timefmt + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
-        self.put(msg[5] + newtext)
+        if sim:
+            newtext = '(sim) ' + newtext
+        self.put(newtext)
 
     # pylint: disable=W0221
     def signal(self, name, data=None, exc=None):
@@ -474,10 +473,13 @@ class NicosCmdClient(NicosClient):
                 self.set_status('disconnected')
             elif name == 'showhelp':
                 self.showhelp(data[1])
+            elif name == 'simmessage':
+                if data[5] in [self.simuuid, '0']:
+                    if not self.in_editing:
+                        self.put_message(data, sim=True)
             elif name == 'simresult':
-                if self.simulating:
-                    self.simulating = False
-                    timing, devinfo = data  # pylint: disable=W0633
+                if data and data[2] in [self.simuuid, '0']:
+                    timing, devinfo, _ = data  # pylint: disable=W0633
                     if timing < 0:
                         self.put_client('Dry run resulted in an error.')
                         return
@@ -762,8 +764,6 @@ class NicosCmdClient(NicosClient):
                     self.run(arg)
                     self.put_client('Command queued.')
             else:
-                if arg.startswith(':'):
-                    self.simulating = True
                 self.run(arg)
         elif cmd in ('r', 'run', 'run!'):
             if not arg:
@@ -820,11 +820,9 @@ class NicosCmdClient(NicosClient):
                 except Exception as e:
                     self.put_error('Unable to open file: %s.' % e)
                     return
-                self.simulating = True
-                self.tell('simulate', fpath, code, 'sim')
+                self.simulate(fpath, code)
             else:
-                self.simulating = True
-                self.tell('simulate', '', arg, 'sim')
+                self.simulate('', arg)
         elif cmd in ('e', 'edit'):
             self.edit_file(arg)
         elif cmd == 'break':
@@ -918,6 +916,10 @@ class NicosCmdClient(NicosClient):
             self.put_error('Unknown command %r.' % cmd)
 
     # -- command-line completion support
+
+    def simulate(self, fpath, code):
+        self.simuuid = str(uuid1())
+        self.tell('simulate', fpath, code, self.simuuid)
 
     def complete_filename(self, fn, word):
         """Try to complete a script filename."""

@@ -256,8 +256,7 @@ class DevicesPanel(Panel):
 
     def on_client_message(self, message):
         # show warnings and errors emitted by the current command in a window
-        if len(message) < 7 or message[6] != self._exec_reqid or \
-           message[2] < WARNING:
+        if message[5] != self._exec_reqid or message[2] < WARNING:
             return
         msg = '%s: %s' % (message[0], message[3].strip())
         if self._error_window is None:

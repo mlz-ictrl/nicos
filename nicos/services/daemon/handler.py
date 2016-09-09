@@ -49,7 +49,7 @@ from nicos.services.daemon.script import ScriptRequest, ScriptError, \
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
-    DAEMON_COMMANDS, event2code
+    DAEMON_COMMANDS, SIM_STATES, event2code
 from nicos.pycompat import queue, socketserver, string_types
 
 
@@ -604,7 +604,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.write(STX, retval)
 
     @command()
-    def simulate(self, name, code, prefix):
+    def simulate(self, name, code, uuid=None):
         """Simulate a named script by forking into simulation mode.
 
         :param name: name of the script (typically the filename)
@@ -615,8 +615,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         self.log.debug('running simulation\n%s', code)
         try:
-            self.controller.simulate_script(code, name or None, self.user,
-                                            prefix)
+            self.controller.simulate_script(uuid, code,
+                                            name or None, self.user)
         except SPMError as err:
             self.write(NAK, 'syntax error in script: %s' % err)
         except Exception as err:
@@ -672,6 +672,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         self.write(STX, dict(
             status   = (self.controller.status, self.controller.lineno),
             script   = current_script and current_script.text or '',
+            eta      = current_script and (current_script.simstate,
+                                           current_script.eta)
+                       or (SIM_STATES['pending'], 0),
             watch    = self.controller.eval_watch_expressions(),
             requests = request_queue,
             mode     = session.mode,

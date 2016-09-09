@@ -162,13 +162,16 @@ class NicosDaemon(Device):
                                 'allowed.'),
         'simmode':        Param('Whether to always start in dry run mode',
                                 type=bool),
+        'autosimulate':   Param('Whether to simulate scripts when running them',
+                                type=bool, default=False)
     }
 
     def doInit(self, mode):
         self._stoprequest = False
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,
-                                               'startup', self.simmode)
+                                               'startup', self.simmode,
+                                               self.autosimulate)
 
         # check that all configured authenticators use the same hashing method
         self._pw_hashing = 'sha1'

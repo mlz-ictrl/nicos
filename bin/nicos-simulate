@@ -33,10 +33,12 @@ sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('sock', type=str, help='0MQ communication address')
-parser.add_argument('prefix', type=str, help='prefix')
+parser.add_argument('uuid', type=str, help='the uuid of the code')
 parser.add_argument('setups', help='comma separated list of setup files')
 parser.add_argument('user', type=str, help='user name,user Level')
 parser.add_argument('code', type=str, help='code to be executed')
+parser.add_argument('--quiet', help='send only results', action='store_true',
+                    default=False)
 
 opts = parser.parse_args()
 
@@ -45,5 +47,5 @@ if hasattr(signal, 'alarm'):
     signal.alarm(600)
 
 from nicos.core.sessions.simulation import SimulationSession
-SimulationSession.run(opts.sock, opts.prefix, opts.setups.split(','),
-                      opts.user, opts.code)
+SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
+                      opts.user, opts.code, opts.quiet)
