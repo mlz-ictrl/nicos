@@ -321,7 +321,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'NICOS.tex', u'NICOS Documentation',
+    ('documentation', 'NICOS.tex', u'NICOS Documentation',
      author, 'manual', False),
 ]
 
