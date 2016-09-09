@@ -1,8 +1,5 @@
-MIRA instrument
-===============
-
-Custom device classes
----------------------
+`MIRA <http://www.mlz-garching.de/mira>`_
+=========================================
 
 .. module:: nicos.mira.phytron
 

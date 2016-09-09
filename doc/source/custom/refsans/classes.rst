@@ -1,5 +1,6 @@
-Instrument specific devices
----------------------------
+`REFSANS <http://www.mlz-garching.de/refsans>`_
+===============================================
+
 
 .. automodule:: nicos.refsans.nok_support
 
@@ -17,9 +18,3 @@ Instrument specific devices
 .. autoclass:: Opening()
 .. autoclass:: Slit()
 .. autoclass:: SlitAxis()
-
-Instrument specific widgets
----------------------------
-
-.. automodule:: nicos.refsans.monitorwidgets
-.. autoclass:: VRefsans()

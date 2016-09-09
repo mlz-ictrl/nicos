@@ -1,5 +1,5 @@
-Instrument specific classes
----------------------------
+FRM II Detector laboratory
+==========================
 
 .. automodule:: nicos.delab.acqiris
 

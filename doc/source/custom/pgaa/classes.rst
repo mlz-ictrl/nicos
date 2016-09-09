@@ -1,5 +1,5 @@
-PGAA specific classes
----------------------
+`PGAA <http://www.mlz-garching.de/pgaa>`_
+=========================================
 
 .. automodule:: nicos.pgaa.pilz
 

@@ -1,0 +1,21 @@
+================================
+FRM II Neutron guide hall (West)
+================================
+
+Instrument setups
+=================
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/*
+
+Service setups
+==============
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/special/*

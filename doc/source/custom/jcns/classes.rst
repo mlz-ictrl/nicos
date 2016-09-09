@@ -1,5 +1,5 @@
-JCNS specific devices
----------------------
+JCNS
+====
 
 .. automodule:: nicos.jcns.fpga
 .. autoclass:: FPGAChannelBase()

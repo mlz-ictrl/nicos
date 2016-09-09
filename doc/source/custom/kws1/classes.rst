@@ -1,5 +1,5 @@
-Instrument specific classes
----------------------------
+`KWS-1 <http://www.mlz-garching.de/kws-1>`_
+===========================================
 
 .. automodule:: nicos.kws1.axis
 .. autoclass:: DeltaAxis()
@@ -53,11 +53,3 @@ Instrument specific classes
 .. automodule:: nicos.kws1.yamlformat
 .. autoclass:: YAMLFileSinkHandler()
 .. autoclass:: YAMLFileSink()
-
-Instrument specific widgets
----------------------------
-
-.. automodule:: nicos.kws1.monitorwidgets
-.. autoclass:: Tube()
-.. autoclass:: Collimation()
-

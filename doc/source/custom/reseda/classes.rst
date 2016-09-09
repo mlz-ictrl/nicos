@@ -1,5 +1,6 @@
-Instrument specific devices
----------------------------
+`RESEDA <http://www.mlz-garching.de/reseda>`_
+=============================================
+
 
 .. automodule:: nicos.reseda.current
 

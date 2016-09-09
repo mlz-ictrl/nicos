@@ -1,5 +1,5 @@
-Instrument specific devices
----------------------------
+`BIODIFF <http://www.mlz-garching.de/biodiff>`_
+===============================================
 
 .. automodule:: nicos.biodiff.detector
 

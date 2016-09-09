@@ -1,5 +1,6 @@
-Instrument specific classes
----------------------------
+V20
+===
+
 
 .. automodule:: nicos.v20.distancedevice
 

@@ -1,5 +1,5 @@
-Instrument specific devices
----------------------------
+`DNS <http://www.mlz-garching.de/dns>`_
+=======================================
 
 .. automodule:: nicos.dns.detector
 .. autoclass:: TofChannel()

@@ -1,5 +1,6 @@
-Instrument specific devices
----------------------------
+`PUMA <http://www.mlz-garching.de/puma>`_
+=========================================
+
 
 .. automodule:: nicos.puma.attenuator
 

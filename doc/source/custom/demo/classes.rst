@@ -1,5 +1,5 @@
-Demo specific classes
----------------------
+Demo
+====
 
 .. automodule:: nicos.demo.cpuload
 .. autoclass:: CPULoad()
@@ -14,10 +14,3 @@ Demo specific classes
 .. automodule:: nicos.demo.servo
 .. autoclass:: SerComIO()
 .. autoclass:: MicroPythonServo()
-
-Demo specific widgets
----------------------
-
-.. automodule:: nicos.demo.monitorwidgets
-.. autoclass:: VTas()
-

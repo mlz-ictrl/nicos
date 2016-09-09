@@ -1,5 +1,5 @@
-Epics related devices
----------------------
+ESSIIP
+======
 
 .. automodule:: nicos.essiip.epics_motor
 

@@ -16,3 +16,4 @@ distribution.
    tango
    epics
    vendor/index
+   custom

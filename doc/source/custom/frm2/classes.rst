@@ -1,5 +1,5 @@
-FRMII specific classes
-----------------------
+`FRM II <http://www.frm2.tum.de>`_
+==================================
 
 .. automodule:: nicos.frm2.proposaldb
 

@@ -1,5 +1,6 @@
-Instrument specific classes
----------------------------
+`SANS-1 <http://www.mlz-garching.de/sans-1>`_
+=============================================
+
 
 .. automodule:: nicos.sans1.bersans
 
@@ -40,11 +41,3 @@ Instrument specific classes
 .. automodule:: nicos.sans1.spinflipper
 
 .. autoclass:: SpinflipperPower()
-
-Instrument specific widgets
----------------------------
-
-.. automodule:: nicos.sans1.monitorwidgets
-.. autoclass:: Tube2()
-.. autoclass:: BeamOption()
-.. autoclass:: CollimatorTable()

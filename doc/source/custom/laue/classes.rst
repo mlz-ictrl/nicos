@@ -1,5 +1,6 @@
-Instrument specific classes
----------------------------
+LAUE
+====
+
 
 .. automodule:: nicos.laue.fileformats
 .. autoclass:: ASCIIFileFormat()
