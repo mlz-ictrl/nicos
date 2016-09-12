@@ -24,7 +24,7 @@ _column1 = Column(
         setups='mieze'
     ),
     Block('TAS display', [
-        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=18,
+        BlockRow(Field(widget='nicos.guisupport.tas.TasWidget', width=30, height=18,
                        mthdev='m2th', mttdev='m2tt', sthdev='sth', sttdev='stt',
                        athdev='ath', attdev='att')),
         ],

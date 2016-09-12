@@ -70,7 +70,7 @@ _tasblock = Block('Triple-axis', [
              Field(dev='mono', name='ki', min=1.55, max=1.6),
              Field(dev='ana', name='kf'),
              Field(key='tas/energytransferunit', name='Unit')),
-    BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas',
+    BlockRow(Field(widget='nicos.guisupport.tas.TasWidget',
                    width=40, height=30,
                    mthdev='mth',
                    mttdev='mtt',

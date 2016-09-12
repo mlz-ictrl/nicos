@@ -22,25 +22,27 @@
 #
 # *****************************************************************************
 
-"""vtas widget"""
+"""vtas widget."""
 
-from math import sin, cos, pi
+from math import cos, pi, sin
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
 from PyQt4.QtCore import Qt, QSize, QPointF, QPoint
 
-from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
+from nicos.core.status import BUSY, OK, ERROR, NOTREACHED, WARN
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
 _red = QBrush(QColor('#FF3333'))
+_orange = QBrush(QColor('#FF9900'))
 _nobrush = QBrush()
 
 statusbrush = {
     BUSY: _yellow,
     ERROR: _red,
+    WARN: _orange,
     NOTREACHED: _red,
     OK: _white,
 }
@@ -64,8 +66,20 @@ sampletablebrush = QBrush(QColor('#66ff66'))
 anatablebrush = QBrush(QColor('#6666ff'))
 dettablebrush = QBrush(QColor('#ff66ff'))
 
+# Definitions like in C
+pi_2 = pi / 2
+pi_4 = pi / 4
 
-class VTas(NicosWidget, QWidget):
+# Conversion factor degree to radian
+deg2rad = pi / 180.
+
+monoradius = 40
+sampleradius = 20
+anaradius = 30
+detradius = 20
+halowidth = 20
+
+class TasWidget(NicosWidget, QWidget):
 
     designer_description = 'Display of the TAS table configuration'
 
@@ -140,89 +154,119 @@ class VTas(NicosWidget, QWidget):
                      self.props['height'] * self._scale + 2)
 
     def paintEvent(self, event):
-        w, h = self.width * self._scale, self.height * self._scale
+        s = self.size()
+        w, h = s.width(), s.height()
+        # calculate the maximum length if all elements in a line
+        maxL = self.values['Lms'] + self.values['Lsa'] + self.values['Lad']
+        # add the size of the Monochromator and detector
+        scale = min((w / 2 - anaradius) / float(maxL),
+                    (h - monoradius - anaradius) / float(maxL))
+
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         painter.setPen(QColor('black'))
         painter.setBrush(_white)
-        painter.drawRect(1, 1, w, h)
+        painter.drawRect(0, 0, w, h)
 
         # determine positions
 
         # incoming beam
         if self.values['mth'] < 0:
-            bx, by = 4, 50
+            bx, by = 3, h - (2 + monoradius)
         else:
-            bx, by = 4, h + 2 - 50
+            bx, by = 3, 2 + monoradius
         # monochromator
-        mx, my = w/2.5, by
+        mx, my = w / 2., by
+
         # sample
-        L = self.values['Lms'] / 10.  # length is in mm -- scale down a bit
-        mttangle = self.values['mtt'] * pi/180.
-        sx, sy = mx + L*cos(mttangle), my - L*sin(mttangle)
-        mttangle_t = self.targets['mtt'] * pi/180.
-        sx_t, sy_t = mx + L*cos(mttangle_t), my - L*sin(mttangle_t)
+        L = self.values['Lms'] * scale  # length is in mm -- scale down a bit
+        mttangle = self.values['mtt'] * deg2rad
+        mttangle_t = self.targets['mtt'] * deg2rad
+        if self.values['mth'] < 0:
+            mttangle = -mttangle
+            mttangle_t = -mttangle_t
+
+        sx, sy = mx + L * cos(mttangle), my - L * sin(mttangle)
+        sx_t, sy_t = mx + L * cos(mttangle_t), my - L * sin(mttangle_t)
+
         # analyzer
-        L = self.values['Lsa'] / 10.  # length is in mm -- scale down a bit
-        sttangle = self.values['stt'] * pi/180.
-        ax, ay = sx + L * cos(sttangle + mttangle), sy - L * sin(sttangle +
-                                                                 mttangle)
-        sttangle_t = self.targets['stt'] * pi/180.
-        ax_t, ay_t = sx_t + L*cos(sttangle_t + mttangle_t), \
-            sy_t - L*sin(sttangle_t + mttangle_t)
+        L = self.values['Lsa'] * scale  # length is in mm -- scale down a bit
+        sttangle = self.values['stt'] * deg2rad
+        sttangle_t = self.targets['stt'] * deg2rad
+        if self.values['sth'] < 0:
+            sttangle = mttangle - sttangle
+            sttangle_t = mttangle_t - sttangle_t
+        else:
+            sttangle = mttangle + sttangle
+            sttangle_t = mttangle_t + sttangle_t
+        ax, ay = sx + L * cos(sttangle), sy - L * sin(sttangle)
+        ax_t, ay_t = sx_t + L * cos(sttangle_t), sy_t - L * sin(sttangle_t)
+
         # detector
-        L = self.values['Lad'] / 10.  # length is in mm -- scale down a bit
-        attangle = self.values['att'] * pi/180.
-        dx, dy = ax + L*cos(attangle + sttangle + mttangle), \
-            ay - L*sin(attangle + sttangle + mttangle)
-        attangle_t = self.targets['att'] * pi/180.
-        dx_t, dy_t = ax_t + L*cos(attangle_t + sttangle_t + mttangle_t), \
-            ay_t - L*sin(attangle_t + sttangle_t + mttangle_t)
+        L = self.values['Lad'] * scale  # length is in mm -- scale down a bit
+        attangle = self.values['att'] * deg2rad
+        attangle_t = self.targets['att'] * deg2rad
+        if self.values['ath'] < 0:
+            attangle = sttangle - attangle
+            attangle_t = sttangle_t - attangle_t
+        else:
+            attangle = sttangle + attangle
+            attangle_t = sttangle_t + attangle_t
+
+        dx, dy = ax + L * cos(attangle), ay - L * sin(attangle)
+        dx_t, dy_t = ax_t + L * cos(attangle_t), ay_t - L * sin(attangle_t)
 
         # draw table "halos"
         painter.setPen(nopen)
         if self.status['mth'] != OK:
             painter.setBrush(statusbrush[self.status['mth']])
-            painter.drawEllipse(QPoint(mx, my), 60, 60)
+            painter.drawEllipse(QPoint(mx, my), monoradius + halowidth,
+                                monoradius + halowidth)
         elif self.status['mtt'] != OK:
             painter.setBrush(statusbrush[self.status['mtt']])
-            painter.drawEllipse(QPoint(mx, my), 60, 60)
+            painter.drawEllipse(QPoint(mx, my), monoradius + halowidth,
+                                monoradius + halowidth)
         if self.status['sth'] != OK:
             painter.setBrush(statusbrush[self.status['sth']])
-            painter.drawEllipse(QPoint(sx, sy), 50, 50)
+            painter.drawEllipse(QPoint(sx, sy), sampleradius + halowidth,
+                                sampleradius + halowidth)
         elif self.status['stt'] != OK:
             painter.setBrush(statusbrush[self.status['stt']])
-            painter.drawEllipse(QPoint(sx, sy), 50, 50)
+            painter.drawEllipse(QPoint(sx, sy), sampleradius + halowidth,
+                                sampleradius + halowidth)
         if self.status['ath'] != OK:
             painter.setBrush(statusbrush[self.status['ath']])
-            painter.drawEllipse(QPoint(ax, ay), 50, 50)
+            painter.drawEllipse(QPoint(ax, ay), anaradius + halowidth,
+                                anaradius + halowidth)
         elif self.status['att'] != OK:
             painter.setBrush(statusbrush[self.status['att']])
-            painter.drawEllipse(QPoint(ax, ay), 50, 50)
+            painter.drawEllipse(QPoint(ax, ay), anaradius + halowidth, anaradius
+                               + halowidth)
 
         # draw table targets
         painter.setPen(targetpen)
         painter.setBrush(_nobrush)
-        painter.drawEllipse(QPoint(sx_t, sy_t), 29.5, 29.5)
-        painter.drawEllipse(QPoint(ax_t, ay_t), 29.5, 29.5)
-        painter.drawEllipse(QPoint(dx_t, dy_t), 19.5, 19.5)
+        painter.drawEllipse(QPoint(sx_t, sy_t), sampleradius - .5,
+                            sampleradius - .5)
+        painter.drawEllipse(QPoint(ax_t, ay_t), anaradius - .5, anaradius - .5)
+        painter.drawEllipse(QPoint(dx_t, dy_t), detradius - .5, detradius - .5)
 
         # draw the tables
         painter.setPen(defaultpen)
         painter.setBrush(monotablebrush)
-        painter.drawEllipse(QPoint(mx, my), 40, 40)
+        painter.drawEllipse(QPoint(mx, my), monoradius, monoradius)
         painter.setBrush(sampletablebrush)
-        painter.drawEllipse(QPoint(sx, sy), 30, 30)
+        painter.drawEllipse(QPoint(sx, sy), sampleradius, sampleradius)
         painter.setBrush(anatablebrush)
-        painter.drawEllipse(QPoint(ax, ay), 30, 30)
+        painter.drawEllipse(QPoint(ax, ay), anaradius, anaradius)
         painter.setBrush(dettablebrush)
-        painter.drawEllipse(QPoint(dx, dy), 20, 20)
+        painter.drawEllipse(QPoint(dx, dy), detradius, detradius)
         painter.setBrush(_white)
         painter.setPen(nopen)
-        painter.drawEllipse(QPoint(mx, my), 20, 20)
+        painter.drawEllipse(QPoint(mx, my), monoradius / 2, monoradius / 2)
         # painter.drawEllipse(QPoint(sx, sy), 20, 20)
-        painter.drawEllipse(QPoint(ax, ay), 15, 15)
+        painter.drawEllipse(QPoint(ax, ay), anaradius / 2, anaradius / 2)
         # painter.drawEllipse(QPoint(dx, dy), 20, 20)
 
         beam = QPolygonF([
@@ -233,32 +277,39 @@ class VTas(NicosWidget, QWidget):
 
         # draw mono crystals
         painter.setPen(monopen)
-        mthangle = self.values['mth'] * pi/180.
-        painter.drawLine(mx - 10*cos(mthangle), my + 10*sin(mthangle),
-                         mx + 10*cos(mthangle), my - 10*sin(mthangle))
-        athangle = self.values['ath'] * pi/180.
-        alpha = athangle + sttangle + mttangle
-        painter.drawLine(ax - 10*cos(alpha), ay + 10*sin(alpha),
-                         ax + 10*cos(alpha), ay - 10*sin(alpha))
+        mthangle = -self.values['mth'] * deg2rad
+        painter.drawLine(mx + 10 * cos(mthangle), my - 10 * sin(mthangle),
+                         mx - 10 * cos(mthangle), my + 10 * sin(mthangle))
+
+        # draw ana crystals
+        athangle = -self.values['ath'] * deg2rad
+        alpha = athangle + sttangle
+        # TODO if the angle is too small then it could be that the ath value
+        # must be turned by 90 deg (PANDA: chair setup) ??
+        if attangle < 0 and alpha < attangle:
+            alpha += pi_2
+        painter.drawLine(ax + 10 * cos(alpha), ay - 10 * sin(alpha),
+                         ax - 10 * cos(alpha), ay + 10 * sin(alpha))
 
         # draw sample
         painter.setPen(samplepen)
         painter.setBrush(samplebrush)
-        sthangle = self.values['sth'] * pi/180.
-        alpha = sthangle + mttangle + pi/4.
+        sthangle = self.values['sth'] * deg2rad
+        alpha = sthangle + mttangle + pi_4
         # painter.drawRect(sx - 5, sy - 5, 10, 10)
         sz = 10
         painter.drawPolygon(QPolygonF([
-            QPointF(sx + sz*cos(alpha), sy - sz*sin(alpha)),
-            QPointF(sx + sz*cos(alpha+pi/2), sy - sz*sin(alpha+pi/2)),
-            QPointF(sx + sz*cos(alpha+pi), sy - sz*sin(alpha+pi)),
-            QPointF(sx + sz*cos(alpha+3*pi/2), sy - sz*sin(alpha+3*pi/2)),
-            QPointF(sx + sz*cos(alpha), sy - sz*sin(alpha))]))
+            QPointF(sx + sz * cos(alpha), sy - sz * sin(alpha)),
+            QPointF(sx + sz * cos(alpha + pi_2), sy - sz * sin(alpha + pi_2)),
+            QPointF(sx - sz * cos(alpha), sy + sz * sin(alpha)),
+            QPointF(sx - sz * cos(alpha + pi_2), sy + sz * sin(alpha + pi_2)),
+            QPointF(sx + sz * cos(alpha), sy - sz * sin(alpha))]))
+
         painter.setPen(samplecoordpen)
-        painter.drawLine(sx - 3*sz*cos(alpha-pi/4), sy + 3*sz*sin(alpha-pi/4),
-                         sx + 3*sz*cos(alpha-pi/4), sy - 3*sz*sin(alpha-pi/4))
-        painter.drawLine(sx - 3*sz*cos(alpha-3*pi/4), sy + 3*sz*sin(alpha-3*pi/4),
-                         sx + 3*sz*cos(alpha-3*pi/4), sy - 3*sz*sin(alpha-3*pi/4))
+        sr = sampleradius
+        for angle in [alpha - pi_4, alpha - 3 * pi_4]:
+            painter.drawLine(sx - sr * cos(angle), sy + sr * sin(angle),
+                             sx + sr * cos(angle), sy - sr * sin(angle))
 
         # draw detector
         painter.setPen(monopen)
