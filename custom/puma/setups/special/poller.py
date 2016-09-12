@@ -4,7 +4,7 @@ group = 'special'
 includes = []
 
 sysconfig = dict(
-    cache = 'pumahw'
+    cache = 'pumahw.puma.frm2'
 )
 
 devices = dict(

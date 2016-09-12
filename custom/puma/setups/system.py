@@ -5,7 +5,7 @@ description = 'system setup for PUMA'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'pumahw',
+    cache = 'pumahw.puma.frm2',
     instrument = 'puma',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
