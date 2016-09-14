@@ -62,8 +62,9 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         finished = currenttime()
         header = {}
 
-        for (dev, param), (_, strvalue, _, _) in iteritems(info):
-            header['%s/%s' % (dev, param)] = strvalue
+        for (dev, param), (_, strvalue, unit, _) in iteritems(info):
+            header['%s/%s' % (dev, param)] = ('%s %s' % (strvalue,
+                                                         unit)).strip()
 
         header = OrderedDict(
             [('begintime',
