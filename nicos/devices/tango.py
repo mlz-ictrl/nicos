@@ -863,6 +863,10 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
                            settable=False, mandatory=False, volatile=True),
     }
 
+    def doInit(self, mode):
+        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.roiSize),
+                                   dtype='<u4')
+
     def doReadSize(self):
         return self._dev.detectorSize.tolist()
 
