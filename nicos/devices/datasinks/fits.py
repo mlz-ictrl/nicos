@@ -60,15 +60,18 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
     def _buildHeader(self, info, hdu):
 
         finished = currenttime()
-        header = OrderedDict({
-            'begintime': strftime('%Y-%m-%d %H:%M:%S',
-                                  localtime(self.dataset.started)),
-            'endtime':   strftime('%Y-%m-%d %H:%M:%S',
-                                  localtime(finished))
-        })
+        header = {}
 
         for (dev, param), (_, strvalue, _, _) in iteritems(info):
             header['%s/%s' % (dev, param)] = strvalue
+
+        header = OrderedDict(
+            [('begintime',
+              strftime('%Y-%m-%d %H:%M:%S', localtime(self.dataset.started))),
+             ('endtime',
+              strftime('%Y-%m-%d %H:%M:%S', localtime(finished)))
+            ] + sorted(header.items())
+        )
 
         for key, value in iteritems(header):
             # The FITS standard defines max 8 characters for a header key.
