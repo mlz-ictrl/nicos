@@ -26,16 +26,13 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="opaqueResize">
-      <bool>true</bool>
-     </property>
-     <property name="handleWidth">
-      <number>6</number>
-     </property>
-     <widget class="QWidget" name="verticalLayoutWidget">
+     <widget class="QWidget" name="selectionWidget" native="true">
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
         <number>5</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
        </property>
        <item>
         <widget class="QLabel" name="label">
@@ -64,6 +61,8 @@
         </widget>
        </item>
       </layout>
+      <zorder>viewList</zorder>
+      <zorder>label</zorder>
      </widget>
      <widget class="QFrame" name="plotFrame">
       <property name="sizePolicy">
@@ -103,6 +102,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionUnzoom">

@@ -1104,6 +1104,22 @@ class ViewPlot(NicosGrPlot):
         self.series2curve = {}
         NicosGrPlot.__init__(self, parent, window, timeaxis=True)
         self.setSymbols(False)
+        self.setDetailsVisibility()
+
+    def setDetailsVisibility(self, on=True):
+        if on:
+            self._plot.title = self.titleString()
+            self._plot.xlabel = self.xaxisName()
+            self._plot.ylabel = self.yaxisName()
+            self._axes.setXtickCallback(self.xtickCallBack)
+            self._axes.setYtickCallback(None)
+        else:
+            self._plot.title = ''
+            self._plot.xlabel = ''
+            self._plot.ylabel = ''
+            self._axes.setXtickCallback(self.notickCallBack)
+            self._axes.setYtickCallback(self.notickCallBack)
+        InteractiveGRWidget.update(self)
 
     def cleanup(self):
         self.view = None
@@ -1220,6 +1236,9 @@ class ViewPlot(NicosGrPlot):
 
         for curve, filename in zip(curvedata, filenames):
             np.savetxt(filename, curve, fmt='%s')
+
+    def notickCallBack(self, x, y, _svalue, value):
+        pass  # don't show any ticks
 
 
 def convertXCol(fmtno, x, *ys):

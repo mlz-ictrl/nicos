@@ -304,6 +304,8 @@ Nicos includes a comprehensive set of Panels for most general use cases:
      :alt: history panel
      :align: center
 
+.. autoclass:: nicos.clients.gui.panels.history.BareHistoryPanel()
+
 .. autoclass:: nicos.clients.gui.panels.live.LiveDataPanel()
      :no-members:
 

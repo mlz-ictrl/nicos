@@ -37,7 +37,7 @@ from nicos.clients.gui.utils import DlgUtils, enumerateWithProgress, loadUi, \
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
     PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
-from nicos.core import Param, listof
+from nicos.core import Param, listof, ConfigurationError
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QCursor, QDateTime, \
@@ -1155,8 +1155,6 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
         PlotPanel.__init__(self, parent, client, options)
         BaseHistoryWindow.__init__(self)
 
-        self.actionClose.setVisible(False)
-
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Policy.Fixed)
@@ -1198,8 +1196,8 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
 
     def gethistory_callback(self, key, fromtime, totime, interval):
         return split_query(fromtime, totime, interval, lambda fr, to, interval:
-                           self.client.ask('gethistory', key, str(fr), str(to),
-                                           interval, default=[]))
+        self.client.ask('gethistory', key, str(fr), str(to),
+                        interval, default=[]))
 
     def on_client_disconnected(self):
         self._disconnected_since = currenttime()
@@ -1222,6 +1220,103 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
         )
 
 
+class BareHistoryPanel(BaseHistoryWindow, PlotPanel):
+    """
+    A panel that only displays one plot with any number of keys.
+
+    Options:
+
+    * ``device_keys`` (mandatory) -- String of coma separated cache keys.
+      appending ':<duration>' will adjust the displayed time frame (default ':1h')
+
+    * ``detailthreshold`` (default [0, 0]) -- Plot details will only be
+      displayed if plot height and width exceed these values.
+
+    * ``plotsettings`` (default {}) -- Dictionary containing the following keys:
+        - ``legend`` (default True) -- Display the legend at the bottom of the plot.
+        - ``symbols`` (default False) -- Display a symbol at every datapoint.
+        - ``lines`` (default True) -- Connect the symbols with lines.
+        - ``xscale`` (default True) -- Autoscale the X axis.
+        - ``yscale`` (default True) -- Autoscale the Y axis.
+    """
+
+    DEFAULT_SETTINGS = dict(
+        legend=True,
+        xscale=True,
+        yscale=True,
+        symbols=False,
+        lines=True
+    )
+
+    def __init__(self, parent, client, options):
+        PlotPanel.__init__(self, parent, client, options)
+        BaseHistoryWindow.__init__(self)
+
+        # hide side panel for changing views
+        self.selectionWidget.hide()
+
+        # key to display
+        try:
+            self.device_keys = [options['device_keys']]
+        except KeyError:
+            raise ConfigurationError('BareHistoryPanel needs "device_keys" '
+                                     'to display.') from None
+        # threshold for detail display
+        self.detailthreshold = options.get('detailthreshold', [0, 0])
+
+        self.plotsettings = self.DEFAULT_SETTINGS.copy()
+        self.plotsettings.update(options.get('plotsettings', {}))
+
+        self.client.cache.connect(self.newvalue_callback)
+        self.client.connected.connect(self.on_client_connected)
+
+    def getMenus(self):
+        return []
+
+    def getToolbars(self):
+        return []
+
+    def gethistory_callback(self, key, fromtime, totime, interval):
+        return split_query(fromtime, totime, interval, lambda fr, to, interval:
+                           self.client.ask('gethistory', key, str(fr), str(to),
+                                           interval, default=[]))
+
+    def on_client_connected(self):
+        old_views, self.viewStack = self.viewStack, []
+        for view in old_views:
+            self.clearView(view)
+        self.openViews(self.device_keys)
+        self.applyPlotSettings(self.currentPlot, self.plotsettings)
+
+    def _createViewFromDialog(self, info, row=None):
+        view = BaseHistoryWindow._createViewFromDialog(self, info, row)
+        self.applyPlotSettings(view.plot, self.plotsettings)
+        return view
+
+    def applyPlotSettings(self, plot, plotsettings):
+        # set actual 'bare' options
+        self._autoscale(plotsettings.get('xscale'),
+                        plotsettings.get('yscale'))
+        plot.setMouseZoomEnabled(False)
+        plot.setMouseSelectionEnabled(False)
+        plot.setMouseTracking(False)
+        plot.setMousePanEnabled(False)
+        self.showPlotDetails(self.shouldDisplayDetails(self.width(), self.height()))
+
+    def shouldDisplayDetails(self, width, height):
+        return width > self.detailthreshold[0] \
+            and height > self.detailthreshold[1]
+
+    def showPlotDetails(self, on=True):
+        if self.currentPlot:
+            self.currentPlot.setDetailsVisibility(on)
+
+    def resizeEvent(self, event):
+        self.showPlotDetails(self.shouldDisplayDetails(event.size().width(),
+                                                       event.size().height()))
+        return BaseHistoryWindow.resizeEvent(self, event)
+
+
 class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
     newValue = pyqtSignal(object)
@@ -1237,6 +1332,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
         BaseHistoryWindow.__init__(self)
         self.splitter.setSizes([20, 80])
+        self.actionClose.setVisible(True)
 
         DlgUtils.__init__(self, 'History viewer')
 
