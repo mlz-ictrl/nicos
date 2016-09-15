@@ -13,7 +13,7 @@
    height="213.32399"
    id="svg3185"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="nicos-logo.svg"
    inkscape:export-filename="/home/jkrueger/sources/nicos-core/resources/nicos-logo-high.png"
    inkscape:export-xdpi="299.88486"
@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="258.70577"
-     inkscape:cy="76.331344"
+     inkscape:zoom="4"
+     inkscape:cx="451.74408"
+     inkscape:cy="96.331344"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -81,7 +81,7 @@
        points="681.259,-158.922 681.259,-256.557 743.662,-158.922 745.767,-158.922 745.767,-276.568 1043.317,-276.568 1028.953,-257.696 1041.886,-257.696 1064.59,-286.977 736.085,-286.977 736.085,-185.479 673.758,-286.977 671.717,-286.977 671.547,-158.922   "
        id="polyline115" />
     <g
-       transform="translate(-545.21136,606.53475)"
+       transform="translate(-547.21136,606.53475)"
        id="g177"
        style="fill:#003161;fill-opacity:1">
       <path
