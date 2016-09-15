@@ -12,5 +12,6 @@ Detector classes
    .. autoclass:: CounterChannelMixin()
 
 .. autoclass:: Detector()
+.. autoclass:: GatedDetector()
 
 .. autoclass:: DetectorForecast()

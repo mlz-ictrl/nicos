@@ -95,6 +95,7 @@ The result is used to create the status string.
 .. autoclass:: SeqCall
 .. autoclass:: SeqMethod
 .. autoclass:: SeqSleep
+.. autoclass:: SeqNOP
 
 .. autoclass:: SequencerMixin()
 
@@ -115,6 +116,7 @@ The result is used to create the status string.
 
   .. automethod:: doStart
 
+.. autoclass:: MeasureSequencer()
 
 LockedDevice
 ------------

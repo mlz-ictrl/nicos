@@ -13,3 +13,9 @@ testing purposes.
 
 .. autoclass:: VirtualTimer()
 .. autoclass:: VirtualCounter()
+.. autoclass:: VirtualCounter()
+
+.. autoclass:: VirtualTemperature()
+.. autoclass:: VirtualRealTemperature()
+.. autoclass:: VirtualImage()
+.. autoclass:: VirtualScanningDetector()

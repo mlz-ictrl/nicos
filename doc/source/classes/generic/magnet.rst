@@ -5,3 +5,4 @@ Magnet support classes
 
 .. autoclass:: BipolarSwitchingMagnet()
 
+.. autoclass:: CalibratedMagnet()

@@ -1,5 +1,5 @@
-Parameter device
-================
+Parameter devices
+=================
 
 .. module:: nicos.devices.generic.paramdev
 

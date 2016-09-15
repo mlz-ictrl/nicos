@@ -237,7 +237,7 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
     Details of the switching need to be implemented in subclasses.
     This class contains the sequencing logic needed to reverse the field.
     Also a non-linear relationship between field and current
-    is possible (see ``CalibratedMagnet``).
+    is possible (see :class:`.CalibratedMagnet`).
     """
 
     def _get_field_polarity(self):
