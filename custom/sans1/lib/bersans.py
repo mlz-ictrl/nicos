@@ -188,7 +188,7 @@ Moni1Z=0.000000
 
 %%Counter
 Sum=%(Sum)s
-Time=%(Time)s
+Time=%(det1_time)s
 Moni1=%(det1_mon1)s
 Moni2=%(det1_mon2)s
 Sum/Time=%(Sum_Time)s
@@ -257,13 +257,15 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             SD = 0
 
         finished = currenttime()
-        totalTime = finished - self.dataset.started
+        # totalTime = finished - self.dataset.started
         Sum = image.sum()
         Moni1 = 0
         Moni2 = 0
+        Time = 0
         try:
             Moni1 = float(session.getDevice('det1_mon1').read()[0])
             Moni2 = float(session.getDevice('det1_mon2').read()[0])
+            Time = float(session.getDevice('det1_time').read()[0])
         except Exception:
             self.log.warning("can't determine all monitors, "
                              "using 0.0 instead", exc=1)
@@ -308,9 +310,10 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             DataSizeY = shape[0],
             Environment = '_'.join(session.explicit_setups),
             SD = SD,
-            Sum = '%d' % Sum, Time='%.6f' % totalTime,
-            Moni1 = '%d' % Moni1, Moni2='%d' % Moni2,
-            Sum_Time = '%.6f' % (Sum / totalTime) if totalTime else 'Inf',
+            Sum = '%d' % Sum,
+            Moni1 = '%d' % Moni1,
+            Moni2 = '%d' % Moni2,
+            Sum_Time = '%.6f' % (Sum / Time) if Time else 'Inf',
             Sum_Moni1 = '%.6f' % (Sum / Moni1) if Moni1 else 'Inf',
             Sum_Moni2 = '%.6f' % (Sum / Moni2) if Moni2 else 'Inf',
             Histfile = Histfile,
