@@ -8,7 +8,6 @@ distribution.
    :maxdepth: 1
 
    system
-   abstract
    generic/index
    polarized
    tas

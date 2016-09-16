@@ -19,9 +19,6 @@ Axis-related classes
 
 .. autoclass:: Axis()
 
-..
-   .. autoclass:: CanReference()
-
 
 Mapping device classes
 ----------------------
