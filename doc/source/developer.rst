@@ -15,5 +15,5 @@ development environment and coding  guidelines.
    deviceapi
    gui/index
    sessionapi
-   coreapi
+   coreapi/index
    protocols/index

@@ -85,6 +85,8 @@ except the **description** entry:
    A dictionary of devices, where the key is the device name and the value is a
    device definition, see :ref:`deviceentries` below.
 
+.. _setup_modules:
+
 ``modules``
    A list of Python module names where additional user commands are loaded from.
 

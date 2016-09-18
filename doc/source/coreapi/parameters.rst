@@ -1,52 +1,3 @@
-=================
-Further NICOS API
-=================
-
-.. module:: nicos.core
-
-Most API elements described here are used when writing new device classes.  They
-are defined in submodules of :mod:`nicos.core`, but re-exported in
-:mod:`nicos.core` for easier importing.
-
-Exceptions
-==========
-
-.. module:: nicos.core.errors
-
-The :mod:`nicos.core.errors` module defines several exceptions that are used
-throughout the system.  They are re-exported in :mod:`nicos.core`.
-
-The following exceptions can be used when writing custom devices:
-
-.. autoexception:: NicosError()
-
-.. autoexception:: InvalidValueError()
-
-.. autoexception:: UsageError()
-
-.. autoexception:: ConfigurationError()
-
-.. autoexception:: ModeError()
-
-.. autoexception:: AccessError()
-
-.. autoexception:: ProgrammingError()
-
-.. autoexception:: PositionError()
-
-.. autoexception:: MoveError()
-
-.. autoexception:: LimitError()
-
-.. autoexception:: CommunicationError()
-
-.. autoexception:: TimeoutError()
-
-.. autoexception:: HardwareError()
-
-.. autoexception:: CacheLockError()
-
-
 Parameter definition
 ====================
 
@@ -62,6 +13,8 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
 .. autoclass:: Value
 
 .. autoclass:: Attach(self, description, devclass, optional=False, multiple=False)
+
+.. autoclass:: ArrayDesc
 
 .. data:: INFO_CATEGORIES
 
@@ -186,81 +139,32 @@ etc.), but also do more validation of the parameter.
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
 
+.. function:: setof
 
-Status values
-=============
+   Create a converter that accepts only sets with element types given by the
+   *element_converter*.  Examples::
 
-.. module:: nicos.core.status
+       Param(..., type=setof(int))
+       Param(..., type=setof(tacodev))
 
-The :mod:`nicos.core.status` module defines the status constants that are used
-as the first item of the tuple that `.Device.status` returns.  The whole
-`status` module is re-exported in :mod:`nicos.core`.
+.. module:: nicos.core.params
 
-.. data:: OK
+.. autofunction:: nicosdev
 
-   The device is in a ready or idle state with no errors.
+.. autofunction:: host
 
-.. data:: BUSY
+.. autofunction:: nonemptystring
 
-   The device is in a busy state (moving or waiting for completion).
+.. autofunction:: pvname
 
-.. data:: NOTREACHED
+.. autofunction:: ipv4
 
-   The device has not reached its target/setpoint.
+.. autofunction:: absolute_path
 
-.. data:: ERROR
+.. autofunction:: relative_path
 
-   The device is in an error state.
+.. autofunction:: expanded_path
 
-.. data:: UNKNOWN
+.. autofunction:: subdir
 
-   The state of the device is not known.
-
-.. data:: statuses
-
-   A dictionary mapping these status values, which are integers, to their
-   lowercased name (i.e., ``statuses[ERROR] == 'error'``).
-
-
-Utilities
-=========
-
-.. currentmodule:: nicos.core.device
-
-The :mod:`nicos.core.device` module defines some decorators for device methods:
-
-.. autofunction:: usermethod
-
-.. autofunction:: requires
-
-.. module:: nicos.core.utils
-
-The :mod:`nicos.core.utils` module also defines some utility functions.  They
-are re-exported in :mod:`nicos.core`.
-
-.. autofunction:: multiStatus
-
-.. autofunction:: multiWait
-
-.. autofunction:: waitForStatus
-
-.. autofunction:: multiStop
-
-.. autofunction:: multiReset
-
-
-Writing commands
-================
-
-.. module:: nicos.commands
-
-Writing a custom user command is easy: just write a normal function and apply
-the `usercommand` decorator.  The docstring of the function is the help for the
-command.  A user command should raise `.UsageError` when used improperly: the
-command help is shown automatically when such an error is raised.
-
-In order to make user commands available in the NICOS namespace, they must be in
-a module that is mentioned by a `modules` list in a loaded setup (see
-:ref:`setups`).
-
-.. autofunction:: usercommand
+.. autofunction:: string
