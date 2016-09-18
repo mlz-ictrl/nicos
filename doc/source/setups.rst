@@ -173,9 +173,9 @@ The parameters are given as keyword arguments.  Here are some example
 
    devices = dict(
        p   = device('devices.taco.AnalogInput',
-                     description = 'detector gas pressure',
-                     tacodevice = 'mira/ccr/pressure',
-                     unit = 'bar'),
+                    description = 'detector gas pressure',
+                    tacodevice = 'mira/ccr/pressure',
+                    unit = 'bar'),
 
        mth_motor = device('devices.taco.Motor',
                           tacodevice = 'mira/motor/mth',
