@@ -1,3 +1,5 @@
+.. _write-a-new-device:
+
 Writing a new device class
 ==========================
 
@@ -6,8 +8,8 @@ to create new device classes for specialized tasks.  This *tutorial* should help
 you to do it in a NICOS like way.
 
 But, first of all have a deep look into the :doc:`existing devices classes
-<../classes/index>` if they would fulfill your requirements.  Please have in
-mind that most of the devices have a number of parameters which can be
+<../classes/index>` to see if they would fulfill your requirements.  Please bear
+in mind that most of the devices have a number of parameters which can be
 configured in a setup file.
 
 Sometimes there exists a device class which is very similiar to your requests,

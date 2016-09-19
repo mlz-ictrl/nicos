@@ -3,3 +3,4 @@
 *.RTF diff=astextplain
 *.py eol=lf
 README eol=lf
+*.png diff=exif

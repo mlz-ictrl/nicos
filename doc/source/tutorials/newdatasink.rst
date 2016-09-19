@@ -1,5 +1,7 @@
-Creating a new data sink
-========================
+.. _write-a-new-data-sink:
+
+Writing a new data sink
+=======================
 
 .. todo::
 

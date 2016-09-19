@@ -1,3 +1,5 @@
+.. _nicos-services:
+
 NICOS services/processes
 ========================
 

@@ -12,7 +12,6 @@ For a full overview over available classes and their functions check
 
    install
    nicosconf
-   newsetup
    setups
    services/index
    gui/config

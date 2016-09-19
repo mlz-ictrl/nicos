@@ -1,7 +1,7 @@
-.. _create-new-command:
+.. _write-a-new-command:
 
-Creating a new command
-----------------------
+Writing a new command
+---------------------
 
 Creating a new custom user command is easy: just write a normal function and
 apply the `~nicos.commands.usercommand` decorator::

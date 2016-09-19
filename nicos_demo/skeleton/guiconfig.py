@@ -39,17 +39,6 @@ windows = [
 ]
 
 tools = [
-    # tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         # If you are not at the FRM II facility you have to change this
-         # reporting address
-         # receiver='useroffice@mlz-garching.de',
-         # If you are not at FRM II facility you have to change your mail
-         # server
-         # mailserver='smtp.frm2.tum.de',
-         # Please change the sender address to a valid, instrument specific
-         # address
-    #      sender='demo@frm2.tum.de',
-    #     ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
          'nicos.clients.gui.tools.website.WebsiteTool',
