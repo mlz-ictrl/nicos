@@ -14,7 +14,6 @@ _experiment = Block('Experiment', [
              Field(name='Last file', key='exp/lastpoint')),
 ])
 
-
 _selector = Block('Selector', [
     BlockRow(Field(name='Preset', dev='selector', istext=True, width=10)),
     BlockRow(Field(name='Lambda', dev='selector_lambda'),
@@ -36,14 +35,14 @@ _collimation = Block('Collimation', [
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
                             'aperture_08', 'aperture_04', 'aperture_02'],
                    widget='nicos.kws1.monitorwidgets.Collimation',
-                   width=70, height=12)),
+                   width=70, height=13)),
 ])
 
 _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
-              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
+              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=13)
     ),
 ])
 
@@ -95,7 +94,7 @@ _peltier = Block('Peltier/Julabo', [
 ], setups='peltier')
 
 _peltierplot = Block('', [
-    BlockRow(Field(plot='TT', dev='T_peltier', width=40, height=25, plotwindow=2*3600),
+    BlockRow(Field(plot='TT', dev='T_peltier', width=30, height=25, plotwindow=2*3600),
              Field(plot='TT', dev='T_julabo'),
              Field(plot='TT', key='T_peltier/setpoint'),
              Field(plot='TT', key='T_julabo/setpoint')),
@@ -106,7 +105,7 @@ _julabo = Block('Julabo', [
 ], setups='waterjulabo and not peltier')
 
 _julaboplot = Block('', [
-    BlockRow(Field(plot='JT', dev='T_julabo', width=40, height=25, plotwindow=2*3600),
+    BlockRow(Field(plot='JT', dev='T_julabo', width=30, height=25, plotwindow=2*3600),
              Field(plot='JT', key='T_julabo/setpoint')),
 ], setups='waterjulabo and not peltier')
 
@@ -115,27 +114,45 @@ _et = Block('Eurotherm', [
 ], setups='eurotherm')
 
 _etplot = Block('', [
-    BlockRow(Field(plot='ET', dev='T_et', width=40, height=25, plotwindow=2*3600),
+    BlockRow(Field(plot='ET', dev='T_et', width=30, height=25, plotwindow=2*3600),
              Field(plot='ET', key='T_et/setpoint')),
 ], setups='eurotherm')
+
+_ccr = Block('Cryostat (CCR11)', [
+    BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+             Field(name='Tube', dev='T'), Field(dev='Ts', name='Sample')),
+    BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+             Field(name='D', key='t/d'), Field(name='p', dev='ccr11_p2')),
+    ],
+    setups='ccr11',
+)
+
+_ccrplot = Block('', [
+    BlockRow(Field(plot='CCR', dev='T', width=30, height=25, plotwindow=2*3600),
+             Field(plot='CCR', key='T/setpoint'),
+             Field(plot='CCR', key='Ts')),
+], setups='ccr11')
+
+_magnet = Block('Electromagnet', [
+    BlockRow(Field(name='Current', dev='I_jem1')),
+], setups='jem1')
 
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'KWS-1 status',
                      loglevel = 'info',
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
                      cache = 'phys.kws1.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Bitstream Vera Sans Mono',
-                     padding = 0,
+                     font = 'Droid Sans',
+                     valuefont = 'Droid Sans Mono',
+                     fontsize = 14,
+                     padding = 3,
                      layout = [
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _polarizer, _daq),
                              Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
+                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot,
+                                    _julabo, _julaboplot, _ccr, _ccrplot, _magnet)),
                      ],
                     ),
 )

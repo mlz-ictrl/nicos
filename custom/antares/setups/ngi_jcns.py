@@ -16,6 +16,7 @@ devices = dict(
                    abslimits = (-400, 400),
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.01,
                   ),
 
     G0ry  = device('devices.tango.Motor',
@@ -26,6 +27,7 @@ devices = dict(
                    abslimits = (-1, 400),
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.01,
                   ),
 
     G0tx  = device('devices.tango.Motor',
@@ -36,6 +38,7 @@ devices = dict(
                    abslimits = (-9, 400),
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.01,
                   ),
 
     G1rz  = device('devices.tango.Motor',
@@ -46,6 +49,7 @@ devices = dict(
                    abslimits = (-400, 400),
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.0005,
                   ),
 
     G1tz  = device('devices.tango.Motor',
@@ -56,6 +60,7 @@ devices = dict(
                    abslimits = (-99999, 99999),  # Really?!
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.05,
                   ),
 
     G12rz = device('devices.tango.Motor',
@@ -67,5 +72,6 @@ devices = dict(
                    userlimits = (-250, 250),
                    maxage = 5,
                    pollinterval = 3,
+                   precision = 0.01,
                   ),
 )

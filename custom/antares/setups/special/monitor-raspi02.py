@@ -145,6 +145,17 @@ _ngiblock = Block('Neutron Grating Interferometer', [
     setups='ngi',
 )
 
+_ngi_jcnsblock = Block('Neutron Grating Interferometer', [
+    BlockRow(
+        Field(name='G0rz', dev='G0rz'), Field(name='G0ry', dev='G0ry'), Field(name='G0tx', dev='G0tx'),
+        ),
+    BlockRow(
+        Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
+        ),
+    ],
+    setups='ngi_jcns',
+)
+
 _cryomanipulatorblock = Block('Cryostat Manipulator', [
     BlockRow(
         Field(name='ctx', dev='ctx'), Field(name='cty', dev='cty'), Field(name='cry', dev='cry'),
@@ -171,6 +182,7 @@ _rightcolumn = Column(
     _sockets6block,
     _sockets7block,
     _ngiblock,
+    _ngi_jcnsblock,
 )
 
 devices = dict(

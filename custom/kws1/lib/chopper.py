@@ -190,7 +190,7 @@ class Chopper(Moveable):
     }
 
     def doInit(self, mode):
-        self.valuetype = oneof('off',
+        self.valuetype = oneof('off', 'manual',
                                *('%.1f%%' % v for v in self.resolutions))
 
     def _getWaiters(self):
@@ -218,6 +218,10 @@ class Chopper(Moveable):
             if self._attached_daq.mode == 'tof':  # don't touch realtime
                 self._attached_daq.mode = 'standard'
             self._attached_params.start((0, 0))
+            return
+        elif value == 'manual':
+            if self._attached_daq.mode == 'standard':
+                self._attached_daq.mode = 'tof'
             return
         reso = float(value.strip('%')) / 100.0
 
@@ -250,6 +254,8 @@ class Chopper(Moveable):
         self._attached_daq.tofprogression = 1.0  # linear channel widths
 
     def doRead(self, maxage=0):
+        if self.target == 'manual':
+            return 'manual'
         params = self._attached_params.read(maxage)
         if params[0] < 1.0:
             return 'off'

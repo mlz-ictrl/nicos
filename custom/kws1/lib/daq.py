@@ -27,7 +27,7 @@ import PyTango
 
 from nicos import session
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
-    listof, intrange, ConfigurationError, SIMULATION, Measurable
+    listof, intrange, ConfigurationError, SIMULATION, Measurable, MASTER
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
@@ -137,9 +137,12 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         shape = self.arraydesc.shape
         if self.mode == 'standard':
             array = self._dev.GetBlock([0, shape[0]*shape[1]])
+            arr = np.array(array, np.uint32).reshape(shape)
         else:
             array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
-        arr = np.array(array, np.uint32).reshape(shape)
+            arr = np.array(array, np.uint32).reshape((shape[2], shape[0], shape[1]))
+            arr = np.swapaxes(np.swapaxes(arr, 0, 2), 0, 1)
+            arr = arr.reshape(shape)
         cur = arr.sum(), self._attached_timer.read(0)[0]
 
         if quality in (FINAL, INTERRUPTED):
@@ -222,6 +225,8 @@ class KWSDetector(Detector):
             raise ConfigurationError(self, 'KWSDetector needs a JDaqChannel '
                                      'as attached image')
         self._jdaq = self._attached_images[0]
+        if session_mode == MASTER:
+            self.kwscounting = False
 
     def doWriteMode(self, mode):
         self._jdaq.mode = mode

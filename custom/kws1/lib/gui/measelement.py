@@ -197,7 +197,8 @@ class Chopper(MeasElement):
 
     def createWidget(self, parent, client):
         resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-        self._values = ['off'] + ['%.1f%%' % v for v in (resos or [])]
+        self._values = ['off'] + ['%.1f%%' % v
+                                  for v in (resos or [])] + ['manual']
         self._widget = QComboBox(parent)
         self._widget.addItems(self._values)
         if self.value is not None and self.value in self._values:
@@ -244,6 +245,7 @@ class MeasTime(MeasElement):
         layout = QHBoxLayout()
         self._widget.number = QSpinBox(self._widget)
         self._widget.number.setValue(30)
+        self._widget.number.setMaximum(10000)
         self._widget.unit = QComboBox(self._widget)
         self._widget.unit.addItems(['sec', 'min', 'hr'])
         self._widget.unit.setCurrentIndex(1)

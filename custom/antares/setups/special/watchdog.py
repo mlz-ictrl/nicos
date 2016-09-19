@@ -20,12 +20,6 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = '(center3_sens2_value - center3_sens1_value) < 15',
-         message = 'He pressure in flight tubes too low',
-         type = 'critical',
-         setup = 'center3',
-         gracetime = 300,
-        ),
     dict(condition = 'reactorpower_value < 19',
          message = 'Possible Reactor Shutdown! Reactor power < 19MW',
          type = 'critical',
@@ -43,7 +37,7 @@ watchlist = [
 includes = ['notifiers', ]
 
 notifiers = {
-    'default':  ['warning'],
+    'default':  ['warning', 'smser'],
     'critical': ['warning', 'smser'],
 }
 
