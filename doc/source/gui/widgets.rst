@@ -28,8 +28,8 @@ Existing widgets are:
 :class:`.TrendPlot` (in nicos.guisupport.plots)
    Displays a time series of one or more devices/cache values.
 
-:class:`.ValueLed` and :class:`.StatusLed` (in nicos.guisupport.led)
-   Displays a boolean value or a device status as a stylized LED.
+:class:`.ValueLed`, :class:`.StatusLed`, and :class:`.ClickableOutputLed` (in nicos.guisupport.led)
+   Display a boolean value or a device status as a stylized LED.
 
 :class:`.DeviceValueEdit` and :class:`.DeviceParamEdit` (in nicos.guisupport.typedvalue)
    Displays a widget (or a number of widgets) suitable for editing the value
