@@ -347,6 +347,21 @@ Existing widget classes
       status to display.
 
 
+.. class:: ClickableOutputLed
+
+   An LED like image that shows its device's state and changes it on click.
+   The LED then changes its color to orange until the value is updated in
+   the cache.
+
+   .. attribute:: stateActive
+
+      The equivalent to 'ON' for the selected device (green).
+
+   .. attribute:: stateInactive
+
+      The equivalent to 'OFF' for the selected device (red).
+
+
 .. module:: nicos.guisupport.typedvalue
 
 .. class:: DeviceValueEdit
@@ -402,21 +417,6 @@ Existing widget classes
       Set the current value of the widget.  If the value does not match the
       valuetype of the device, the widget will be initialized with an "empty"
       value depending on the valuetype.
-
-
-.. class:: ClickableOutputLed
-
-   An LED like image that shows its device's state and changes it on click.
-   The LED then changes its color to orange until the value is updated in
-   the cache.
-
-   .. attribute:: stateActive
-
-      The equivalent to 'ON' for the selected device (green).
-
-   .. attribute:: stateInactive
-
-      The equivalent to 'OFF' for the selected device (red).
 
 
 .. class:: DeviceParamEdit
