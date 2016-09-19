@@ -129,9 +129,9 @@ and attributes you can use and override when you implement your own widget.
    .. method:: registerKey(valuekey, statuskey='', valueindex=-1, unit='', fmtstr='')
 
 
-An example widget::
+.. todo::
 
-   # TBW.
+   An example widget
 
 
 Existing widget classes
