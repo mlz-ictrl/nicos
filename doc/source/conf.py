@@ -43,6 +43,7 @@ extensions = [
     #'rst2pdf.pdfbuilder',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
     'ext.setupdoc',
     'ext.daemondoc',
     'ext.tacostubs',
