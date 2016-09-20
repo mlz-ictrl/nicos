@@ -76,7 +76,7 @@ Miscellaneous commands
 .. autofunction:: SetErrorAbort
 .. autofunction:: SetSimpleMode
 
-   .. XXX See :ref:`spm`.
+   See spm_.
 
 Device commands
 ---------------
@@ -203,3 +203,11 @@ Sample utility functions
 ------------------------
 
 .. autofunction:: activation
+
+
+Simple parameter mode
+---------------------
+
+.. _spm:
+
+.. automodule:: nicos.core.spm

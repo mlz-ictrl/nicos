@@ -30,7 +30,8 @@ The syntax is very simple and allows no variables, loops or conditionals: a
 command line consists of a command and optional arguments, separated by spaces.
 
 Arguments can be numbers, device names, strings and symbols (words that signify
-a command option).  Strings can be quoted or unquoted.
+a command option).  Strings can be quoted or unquoted as long as they start with
+a nondigit character.
 
 Examples::
 
