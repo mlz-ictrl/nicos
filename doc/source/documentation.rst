@@ -9,6 +9,6 @@ Documentation
    :maxdepth: 2
 
    user
-   instresp
+   installconfig
    developer
    glossary
