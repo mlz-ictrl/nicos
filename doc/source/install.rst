@@ -119,7 +119,9 @@ help for an individual device.
 Configure and build the distribution at an instrument
 -----------------------------------------------------
 
-.. XXX this needs to be changed!
+.. todo::
+
+   this needs to be changed!
 
 For specific instruments, we will set up a set of setups and customizations for
 that instrument.  When this is done, the installation process looks like this::

@@ -158,7 +158,9 @@ except the **description** entry:
 
       extended = dict(dynamic_loaded = True)
 
-.. XXX document "extended" more once we have use for it. PANDA uses it now !!!
+.. todo::
+
+   document "extended" more once we have use for it. PANDA uses it now !!!
 
 
 .. _deviceentries:

@@ -40,7 +40,9 @@ functionality of the specific instrument.  It is selected in setups using
 Data Sinks
 ----------
 
-.. XXX adapt this
+.. todo::
+
+   adapt this
 
 These data sinks provide different ways of processing measured data.  They can
 be configured in setups like normal devices and selected in :ref:`sysconfig`.
