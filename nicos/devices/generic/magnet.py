@@ -41,8 +41,10 @@ from nicos.devices.generic.sequence import SeqDev, BaseSequencer
 class CalibratedMagnet(HasLimits, Moveable):
     """Base clase for magnet supplies having an bipolar current source.
 
-    Use this for magnets which can be calibrated, i.e. where:
+    Use this for magnets which can be calibrated, i.e. where::
+
         B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)
+
     works reasonably well.
     Coefficients c0..c4 are given as 'calibration' parameter.
     """
