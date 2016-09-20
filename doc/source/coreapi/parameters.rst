@@ -1,7 +1,7 @@
 Parameter definition
 ====================
 
-.. module:: nicos.core.params
+.. currentmodule:: nicos.core.params
 
 The :mod:`nicos.core.params` module defines various helpers that are used when
 writing device classes.  They are re-exported in :mod:`nicos.core`.
