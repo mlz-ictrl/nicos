@@ -81,7 +81,7 @@ Requirements
 
 If not supplied by the distribution (see below), most dependencies
 (except PytQt, PyQwt, sip) can be installed from the
-python package repository:
+python package repository: ::
 
   pip install -r requirements.txt
 
@@ -91,7 +91,7 @@ For xBuntu 12.04: install pip ::
 
   sudo apt-get install python-pip
 
-If your system pip is too old (pip >=1.4 is required) you can update with:
+If your system pip is too old (pip >=1.4 is required) you can update with: ::
 
   sudo pip install --upgrade pip
   hash -r
