@@ -1,7 +1,7 @@
 Parameter definition
 ====================
 
-.. currentmodule:: nicos.core.params
+.. module:: nicos.core.params
 
 The :mod:`nicos.core.params` module defines various helpers that are used when
 writing device classes.  They are re-exported in :mod:`nicos.core`.
@@ -147,7 +147,6 @@ etc.), but also do more validation of the parameter.
        Param(..., type=setof(int))
        Param(..., type=setof(tacodev))
 
-.. module:: nicos.core.params
 
 .. autofunction:: nicosdev
 
