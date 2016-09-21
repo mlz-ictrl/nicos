@@ -334,7 +334,7 @@ class KWSSamplePanel(Panel):
         if not fn:
             return
         try:
-            self.configs = self._parse(fn)
+            self.configs = parse_sampleconf(fn)
         except Exception as err:
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
@@ -492,21 +492,6 @@ class KWSSamplePanel(Panel):
         self._copy_key('thickness')
         self._copy_key('timefactor')
 
-    def _parse(self, filename):
-        builtin_ns = vars(builtins).copy()
-        for name in ('__import__', 'open', 'exec', 'execfile'):
-            builtin_ns.pop(name, None)
-        mocksample = MockSample()
-        ns = {'__builtins__': builtin_ns,
-              'ClearSamples': mocksample.reset,
-              'SetSample': mocksample.define}
-        with open(filename, 'r') as fp:
-            exec_(fp, ns)
-        # The script needs to call this, if it doesn't it is not a sample file.
-        if not mocksample.reset_called:
-            raise ValueError('the script never calls ClearSamples()')
-        return mocksample.configs
-
     def _generate(self, filename):
         script = ['# KWS sample file for NICOS\n',
                   '# Written: %s\n\n' % time.asctime(),
@@ -539,3 +524,19 @@ class MockSample(object):
             if key not in entry:
                 raise ValueError('missing key %r in sample entry' % key)
         self.configs.append(entry)
+
+
+def parse_sampleconf(filename):
+    builtin_ns = vars(builtins).copy()
+    for name in ('__import__', 'open', 'exec', 'execfile'):
+        builtin_ns.pop(name, None)
+    mocksample = MockSample()
+    ns = {'__builtins__': builtin_ns,
+          'ClearSamples': mocksample.reset,
+          'SetSample': mocksample.define}
+    with open(filename, 'r') as fp:
+        exec_(fp, ns)
+    # The script needs to call this, if it doesn't it is not a sample file.
+    if not mocksample.reset_called:
+        raise ValueError('the script never calls ClearSamples()')
+    return mocksample.configs
