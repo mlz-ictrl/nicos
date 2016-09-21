@@ -93,7 +93,11 @@ script has run for more than a few seconds.
 Notifiers can be configured in setups like normal devices and are selected in
 :ref:`sysconfig`.  They are also used by the :ref:`watchdog <watchdog>` service.
 
-.. autoclass:: Notifier()
+.. todo::
+
+   add the ``Notifier`` class to the developer section.
+
+.. .. autoclass:: Notifier()
 
 .. autoclass:: Mailer()
 .. autoclass:: SMSer()
