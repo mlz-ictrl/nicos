@@ -50,6 +50,9 @@ the cache.
 Setup file
 ----------
 
+The setup file for the cache service is by default:
+``custom/<instrument_name>/setups/special/cache.py``.
+
 A simple setup file for the cache could look like this::
 
   description = 'setup for the cache server'
@@ -67,11 +70,30 @@ A simple setup file for the cache could look like this::
   )
 
 The main device ("Server") has a ``server`` parameter that defines the network
-address (``host:port`` with the default port being 14869) on which the cache
-listens.
+address on which the cache listens.
+The setup shows the cache is listening at ``localhost:14869`` since the default
+port is ``14869``.
 
-There is an attached device for the server, the cache database.  There are
-several classes that can be used here:
+There is an attached device for the server, the cache database.  In our example
+it is a :class:`FlatfileCacheDatabase <nicos.services.cache.database.FlatfileCacheDatabase>`,
+which stores the data under directory ``data/cache`` in the current directory.
+
+There are :ref:`several database classes <cache_databases>` that can be used
+here.
+
+
+Server class
+------------
+
+.. module:: nicos.services.cache.server
+
+.. autoclass:: CacheServer()
+
+
+Cache databases
+---------------
+
+.. _cache_databases:
 
 .. module:: nicos.services.cache.database
 

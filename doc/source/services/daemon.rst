@@ -47,6 +47,9 @@ the daemon.
 Setup file
 ----------
 
+The setup file for the daemon is by default:
+``custom/<instrument_name>/setups/special/daemon.py``.
+
 A simple setup file for the daemon could look like this::
 
   description = 'setup for the execution daemon'
@@ -69,27 +72,25 @@ A simple setup file for the daemon could look like this::
   )
 
 The Daemon device needs to have a ``server`` parameter that specifies the
-listening address ``host:port`` (the default port being 1301).
+listening address ``host:port``, in our example ``localhost:1301`` since the
+default port is ``1301``.
 
 It also has a list attached devices, the ``authenticators``.  Authenticators
 determine if the login name and password presented in clients are accepted by
-the daemon, and which user level the user gets.
+the daemon, and which user level the user gets.  There are different
+:ref:`authenicator classes <authenticator_classes>`.
 
-There are several other parameters that can be configured, but the standard
-setting is usually sufficient:
+In our example the password for the user ``guest`` is empty meaning no password
+is needed to authenticate.
 
-* ``maxlogins`` -- maximum number of simultaneous clients served, default 10
-* ``updateinterval`` -- interval in which watch expressions are checked and
-  updates sent to the clients, default 0.2 s
-* ``trustedhosts`` -- a list of host names or addresses that are allowed to log
-  in; the default is an empty list, which means that all hosts are allowed
-* ``simmode`` -- whether to start the daemon in dry-run/simulation mode
+.. warning::
 
-The ``simmode`` parameter is useful if you want to configure two daemon
-instances, one running normally and one running exclusively in simulation mode.
-For this purpose the possibility of multiple daemon setups (see above) also
-comes in handy.
+   The example makes also the other passwords visible to you. This should be
+   strictly avoided. You should set the hash values instead of using the
+   technique displayed in the setup taken from the Demo instrument.
 
+There are :class:`several other parameters <nicos.services.daemon.NicosDaemon>`
+that can be configured, but the standard setting is usually sufficient.
 
 .. _userlevels:
 
@@ -99,9 +100,30 @@ User levels
 There are three user levels: GUEST, USER, and ADMIN.  A higher user level can
 stop scripts running started by a lower user level.
 
+.. note::
+
+   The order of the user level is ``GUEST -> USER -> ADMIN`` where GUEST is the
+   lowest level.
+
 Also, individual devices and methods can be defined as requiring a certain user
 level, see :func:`.requires` and the `.Moveable.requires` parameter.
 
+
+Daemon class
+------------
+
+.. module:: nicos.services.daemon
+
+.. autoclass:: NicosDaemon()
+
+.. note::
+
+   The ``simmode`` parameter is useful if you want to configure two daemon
+   instances, one running normally and one running exclusively in simulation mode.
+   For this purpose the possibility of multiple daemon setups (see above) also
+   comes in handy.
+
+.. _authenticator_classes:
 
 Authenticator classes
 ---------------------

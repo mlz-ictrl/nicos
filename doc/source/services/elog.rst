@@ -41,6 +41,9 @@ experiment object is true.
 Setup file
 ----------
 
+The setup file for the electronic logbook daemon is by default:
+``custom/<instrument_name>/setups/special/elog.py``.
+
 A simple setup file for the poller could look like this::
 
   description = 'setup for the electronic logbook'
@@ -52,4 +55,12 @@ A simple setup file for the poller could look like this::
                       ),
   )
 
-The Logbook device has only one important parameter, the *cache* to connect to.
+The :class:`Logbook <nicos.services.elog.Logbook>` device has only one important
+parameter, the *cache* to connect to.
+
+Server class
+------------
+
+.. module:: nicos.services.elog
+
+.. autoclass:: Logbook()

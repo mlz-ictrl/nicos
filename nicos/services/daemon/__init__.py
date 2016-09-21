@@ -146,15 +146,20 @@ class NicosDaemon(Device):
 
     parameters = {
         'server':         Param('Address to bind to (host or host[:port])',
-                                type=host, mandatory=True),
-        'maxlogins':      Param('Maximum number of logins', type=int,
+                                type=host, mandatory=True,
+                                ext_desc='The default port is ``1301``.'),
+        'maxlogins':      Param('Maximum number of simultaneous clients '
+                                'served', type=int,
                                 default=10),
         'reuseaddress':   Param('Whether to set SO_REUSEADDR', type=bool,
                                 default=True),
-        'updateinterval': Param('Update interval for watch expressions',
+        'updateinterval': Param('Interval for watch expressions checking and'
+                                ' sending updates to the clients',
                                 type=float, unit='s', default=0.2),
-        'trustedhosts':   Param('Trusted hosts allowed to log in',
-                                type=listof(str)),
+        'trustedhosts':   Param('A list of trusted hosts allowed to log in',
+                                type=listof(str),
+                                ext_desc='An empty list means all hosts are '
+                                'allowed.'),
         'simmode':        Param('Whether to always start in dry run mode',
                                 type=bool),
     }

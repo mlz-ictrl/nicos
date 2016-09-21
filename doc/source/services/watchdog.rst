@@ -45,6 +45,9 @@ the watchdog.
 Setup file
 ----------
 
+The setup file for the watchdog daemon is by default:
+``custom/<instrument_name>/setups/special/watchdog``.
+
 A simple setup file for the watchdog could look like this::
 
   description = 'setup for the NICOS watchdog'
@@ -70,6 +73,7 @@ A simple setup file for the watchdog could look like this::
            precondtion = 'reactorpower_value > 19',
            precondtime = 600,
            gracetime = 120,
+           setup = 'reactor',
            message = 'reactor power loss',
            scriptaction = 'stop'),
   ]
@@ -80,7 +84,7 @@ A simple setup file for the watchdog could look like this::
                         sender = 'root@demo'),
 
       smser    = device('devices.notifiers.SMSer',
-                        receivers = [...]),
+                        receivers = ['01721234567']),
 
       Watchdog = device('services.watchdog.Watchdog',
                         cache = 'localhost:14869',
@@ -178,3 +182,19 @@ specification can have these keys:
 
    The action should not take longer than 60 seconds; in case it does the process
    will be forcibly aborted.
+
+Additionally to the actions which could be define the Watchdog may also be used
+to send some messages. For this purpose exist some
+:ref:`notifier classes <notifiers>`.
+
+.. todo::
+
+   Description of the settings and working mechanism of the notifiers in the
+   Watchdog
+
+Server class
+------------
+
+.. module:: nicos.services.watchdog
+
+.. autoclass:: Watchdog

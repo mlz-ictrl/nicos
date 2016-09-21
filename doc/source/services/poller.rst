@@ -48,6 +48,9 @@ the poller.
 Setup file
 ----------
 
+The setup file for the poller service is by default:
+``custom/<instrument_name>/setups/special/poller.py``.
+
 A simple setup file for the poller could look like this::
 
   description = 'setup for the poller'
@@ -67,10 +70,28 @@ A simple setup file for the poller could look like this::
                      ),
   )
 
-The cache to connect to must be given in the ``sysconfig`` dictionary.
+The cache to connect to must be given in the ``sysconfig`` dictionary entry::
+
+  cache = 'host:port'
+
+where the default port of the cache service is used if the port is omitted.
 
 The poller device has several parameters, none of which must be specified.
-These are:
+
+Server class
+------------
+
+.. module:: nicos.services.poller
+
+.. autoclass:: Poller()
+
+.. todo::
+
+   Inconsistencies between class doc and added doc for:
+
+   - autosetup
+   - poll
+   - alwayspoll
 
 **autosetup**
   If true (the default), the poller automatically starts subprocesses for each
@@ -93,7 +114,9 @@ These are:
   A list of **devices** that should never be polled even if the setups they
   appear in are polled.
 
-  This should be used for devices that do not allow concurrent connections from
-  the NICOS master and the poller processes.  (Although the master should use
-  the values acquired by the poller via cache instead of asking the hardware,
-  this may not always work due to timing.)
+  .. note::
+
+    This should be used for devices that do not allow concurrent connections
+    from the NICOS master and the poller processes.  (Although the master
+    should use the values acquired by the poller via cache instead of asking
+    the hardware, this may not always work due to timing.)

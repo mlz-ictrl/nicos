@@ -37,6 +37,10 @@ except the **description** entry:
 
       description = 'triple-axis measurement setup'
 
+.. note::
+
+   It's a good pratice to add the description to every setup file and device.
+
 .. _setup_group:
 
 ``group``
