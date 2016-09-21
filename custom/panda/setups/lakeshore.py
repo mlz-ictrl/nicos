@@ -31,22 +31,6 @@ devices = dict(
                        tacodevice = 'panda/ls340/sensord',
                        maxage = 2,
                       ),
-
-
-#~   cc_compressor_wut = device('panda.wechsler.Beckhoff',
-                             #~ host='compressor.panda.frm2',
-                             #~ description='WUT-IO device to switch compressors on/off',
-                             #~ addr=1,
-                             #~ lowlevel=True,
-                            #~ ),
-#~   cc_compressor_switch = device('panda.satbox.SatBox',
-                                #~ bus='cc_compressor_wut',
-                                #~ description='Temporary HACK to switch CC-compressor on (1) or off(0)',
-                                #~ widths=[1],
-                                #~ fmtstr='%d',
-                                #~ unit='mm',
-                               #~ ),
-
 )
 
 alias_config = {

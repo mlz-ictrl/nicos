@@ -131,12 +131,11 @@ lakeshore = Block('LakeShore', [
 
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=25, height=25, plotwindow=300,
-              devices=['t_ls340/setpoint', 't_ls340_a', 't_ls340_b'],
-              names=['Setpoint', 'A', 'B'],
+        Field(dev='T', plot='T',
+            plotwindow=12*3600, width=100, height=40),
+        Field(dev='Ts', plot='T',
+            plotwindow=12*3600, width=100, height=40),
         ),
-    ),
     ],
     setups='lakeshore',
 )
@@ -304,10 +303,14 @@ vti = Block('VTI', [
 #        Field(key='vti/heater',name='Heater (%)'),
 #    ),
     BlockRow(
-        Field(dev='NV'),
-        Field(dev='vti_pressure', name='p(NV)'),
         Field(dev='LHe'),
         Field(dev='LN2'),
+    ),
+    BlockRow(
+        Field(dev='NV'),
+        Field(dev='vti_pressure', name='p(UP)'),
+        Field(dev='pressure_ls', name='p(DOWN)'),
+        Field(key='vti_pressure/setpoint', name='setpoint'),
     ),
     ],
     setups='variox',
@@ -344,10 +347,21 @@ foki = Block('Foki', [
     ],
 )
 
+tas = Block('TAS', [
+        BlockRow(Field(name='H', dev='panda', item=0, format='%.3f', unit=''),
+                 Field(name='K', dev='panda', item=1, format='%.3f', unit=''),
+                 Field(name='L', dev='panda', item=2, format='%.3f', unit=''),
+                 Field(name='E', dev='panda', item=3, format='%.3f', unit='')),
+        BlockRow(Field(name='Mode', key='panda/scanmode'),
+                 Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
+                 Field(name='Unit', key='panda/energytransferunit')),
+        ],
+)
+
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, magnet75, magnet14t5, vti)
 
-column3 = Column(magnet75supp, kelvinox, foki) + \
+column3 = Column(tas) + Column(magnet75supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

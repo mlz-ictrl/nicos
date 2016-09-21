@@ -6,18 +6,17 @@ group = 'optional'
 
 
 devices = dict(
-    busX = device('devices.vendor.ipc.IPCModBusTaco',
-                  #tacodevice = '//pandasrv/panda/moxa/port8',  #old rack, old connectors
-                  tacodevice = '//pandasrv/panda/moxa/port5',
+    bus5c = device('devices.vendor.ipc.IPCModBusTaco',
+                  tacodevice = '//pandasrv/panda/moxa/port5',  #mono rack
                   bustimeout = 0.1,
                   loglevel = 'info',
                   lowlevel = True,
                  ),
 
-    # STT is first device and has 1 stepper, 0 poti, 1 coder
+
     saph_mot = device('devices.vendor.ipc.Motor',
                       description = 'Motor to move the saphire filter',
-                      bus = 'busX',
+                      bus = 'bus5c',
                       #addr = 66, #old rack, old connectors
                       addr = 88,
                       slope = 412.8,

@@ -6,8 +6,13 @@ includes = ['system']
 
 group = 'lowlevel'
 
+# BUS 2 (sample table)
 # channel  1     2   3   4   5   6   7   8
 #        sth_st stt sgx sgy stx sty stz ---
+
+# BUS 4 (spare one)
+# channel  1     2   3   4   5   6   7   8
+#        sth_st  --- --- --- --- --- --- ca2
 
 # eases address settings: 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
 MOTOR = lambda x: 0x50 + x

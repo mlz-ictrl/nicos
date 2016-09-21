@@ -36,7 +36,7 @@ devices = dict(
                       ),
 
     panda = device('devices.instrument.Instrument',
-                    description = 'the spectrometer panda',
+                    description = 'the PANDA spectrometer',
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind ' +
                                   '<astrid.schneidewind@frm2.tum.de>',

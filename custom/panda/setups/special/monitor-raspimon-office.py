@@ -1,4 +1,4 @@
-description = 'setup for the status monitor'
+description = 'setup for the status monitor in Astrids office'
 
 group = 'special'
 
@@ -175,7 +175,7 @@ cryos = []
 cryosupps = []
 cryoplots = []
 cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
-                ccidu1='Dilution-insert', ccidu2='Dilution-insert')
+                cci3he4he1='Dilution-insert', cci3he4he2='Dilution-insert')
 for cryo, name in cryodict.items():
     cryos.append(
         Block('%s %s' % (name, cryo.title()), [
@@ -403,18 +403,16 @@ column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs)
 column3 = Column(magnet75supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
-column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
-          Column(vtiplot)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     title = 'PANDA status monitor',
+                     title = 'PANDA office status monitor',
                      loglevel = 'info',
                      cache = 'phys.panda.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
-                     fontsize = 17,
+                     fontsize = 15,
                      valuefont = 'Luxi Sans',
-                     layout = [Row(expcolumn), Row(column1, column2, column3, column4)],
+                     layout = [Row(expcolumn), Row(column1, column2, column3)],
                      )
 )
