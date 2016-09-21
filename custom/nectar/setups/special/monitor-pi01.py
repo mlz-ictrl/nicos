@@ -33,7 +33,7 @@ _translationColumn = Column(
 _detectorblock = Column(
     Block('Detector', [
         BlockRow(
-            Field(name='Last Image', key='ccd.lastfilename'),
+            Field(name='Last Image', key='exp/lastpoint'),
         ),
         BlockRow(
             Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status', width=15, item=1),

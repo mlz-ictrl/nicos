@@ -60,6 +60,7 @@ class MeasureTable(Cmdlet):
         dlg = SampleDialog(self, self.measdef, self.client)
         if dlg.exec_() != QDialog.Accepted:
             return
+        self.measdef.samplefile = dlg.samplefile
         self.measdef.samples = dlg.toDefs()
         self.updateTable()
 
@@ -156,6 +157,9 @@ class MeasureTable(Cmdlet):
 
     def generate(self, mode):
         out = []
+        if self.measdef.samplefile is not None:
+            out.append('run(%s)' % srepr(self.measdef.samplefile))
+            out.append('')
         if self.rtBox.isChecked():
             out.append('SetupRealtime(%d, %d, %f, %s)' % (
                 self.rt_settings['channels'],
