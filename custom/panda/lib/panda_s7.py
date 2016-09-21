@@ -371,7 +371,7 @@ class S7Motor(HasTimeout, NicosMotor):
     def doRead(self, maxage=0):
         """Read the incremental encoder."""
         bus = self._attached_bus
-        self.log.debug('read: ' + self.fmtstr % self.sign*bus.read('float', 4)
+        self.log.debug('read: ' + self.fmtstr % (self.sign*bus.read('float', 4))
                        + ' %s' % self.unit)
         self.log.debug('MBarm at: ' + self.fmtstr % bus.read('float', 12)
                        + ' %s' % self.unit)
