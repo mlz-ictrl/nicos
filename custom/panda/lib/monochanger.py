@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""PANDA Monochromator changer hardware classes. FOR TESTING ONLY !"""
+"""PANDA Monochromator changer hardware classes. FOR TESTING ONLY!"""
 
 from struct import pack, unpack
 from time import sleep, time as currenttime
@@ -33,6 +33,7 @@ from Modbus import Modbus as TacoModBus
 from nicos import session
 from nicos.core import Readable, Moveable, status, SIMULATION, usermethod, \
     Device
+from nicos.core.device import HasOffset
 from nicos.core.utils import multiWait
 from nicos.core.params import Param, Override, Attach, intrange, oneof
 from nicos.core.errors import ConfigurationError, MoveError, NicosError, \
@@ -44,7 +45,7 @@ from nicos.utils import createThread
 
 
 class Beckhoff(TacoDevice, Device):
-    """Modbus based interfacing module for beckhoff PLC's
+    """Modbus based interfacing module for Beckhoff PLCs.
 
     compared to the TACO Server for the same purpose it has the
     following improvements:
@@ -304,7 +305,7 @@ class HWError(NicosError):
 #
 class SeqCheckStatus(SequenceItem):
     def __init__(self, dev, status, *args, **kwargs):
-        SequenceItem.__init__(dev=dev, status=status, args=args, kwargs=kwargs)
+        SequenceItem.__init__(self, dev=dev, status=status, args=args, kwargs=kwargs)
 
     def run(self):
         if hasattr(self.status, '__iter__'):
@@ -319,7 +320,7 @@ class SeqCheckStatus(SequenceItem):
 
 class SeqCheckPosition(SequenceItem):
     def __init__(self, dev, position, *args, **kwargs):
-        SequenceItem.__init__(dev=dev, position=position, args=args,
+        SequenceItem.__init__(self, dev=dev, position=position, args=args,
                               kwargs=kwargs)
 
     def run(self):
@@ -335,7 +336,7 @@ class SeqCheckPosition(SequenceItem):
 
 class SeqSetAttr(SequenceItem):
     def __init__(self, obj, key, value):
-        SequenceItem.__init__(obj=obj, key=key, value=value)
+        SequenceItem.__init__(self, obj=obj, key=key, value=value)
 
     def run(self):
         setattr(self.obj, self.key, self.value)
@@ -343,7 +344,7 @@ class SeqSetAttr(SequenceItem):
 
 class SeqCheckAttr(SequenceItem):
     def __init__(self, obj, key, value=None, values=None):
-        SequenceItem.__init__(obj=obj, key=key, value=value, values=values)
+        SequenceItem.__init__(self, obj=obj, key=key, value=value, values=values)
 
     def run(self):
         if self.value is not None:
@@ -361,49 +362,55 @@ class SeqCheckAttr(SequenceItem):
 #
 class Changer(BaseSequencer):
     attached_devices = {
-        'lift':          Attach('Lift moving a mono up or down between 4 '
-                                'positions', Moveable),
-        'magazine':      Attach('Magazine holding the monos and having 4 '
-                                'positions', Moveable),
-        'liftclamp':     Attach('clamp holding the mono in the lift',
-                                Moveable),
-        'magazineclamp': Attach('clamp holding the mono in the magazine',
-                                Moveable),
-        'tableclamp':    Attach('clamp holding the mono on the table',
-                                Moveable),
-        'inhibitrelay':  Attach('Inhibit to the remaining motor controllers',
-                                Moveable),
-        'enable':        Attach('to enable operation of the changer',
-                                Moveable),
-        'magazineocc':   Attach('readout for occupancy of the magazine',
-                                Moveable),
+        'lift':           Attach('Lift moving a mono up or down between 4 '
+                                 'positions', Moveable),
+        'magazine':       Attach('Magazine holding the monos and having 4 '
+                                 'positions', Moveable),
+        'liftclamp':      Attach('Clamp holding the mono in the lift',
+                                 Moveable),
+        'magazineclamp':  Attach('Clamp holding the mono in the magazine',
+                                 Moveable),
+        'tableclamp':     Attach('Clamp holding the mono on the table',
+                                 Moveable),
+        'inhibitrelay':   Attach('Inhibit to the remaining motor controllers',
+                                 Moveable),
+        'enable':         Attach('To enable operation of the changer',
+                                 Moveable),
+        'magazineocc':    Attach('Readout for occupancy of the magazine',
+                                 Readable),
+        'magazinestatus': Attach('Readout for status of magazine load position',
+                                 Readable),
     }
 
     parameters = {
-        'mono_on_table': Param('Name of Mono on the Monotable',
-                               type=oneof('PG', 'Si', 'Cu', 'Heusler', 'None'),
-                               default='None', settable=True, userparam=False),
-        'mono_in_lift':  Param('Which mono is in the lift',
-                               type=oneof('PG', 'Si', 'Cu', 'Heusler', 'None'),
-                               default='None', settable=True, userparam=False),
-        'exchangepos':   Param('Dict of device names to positional values for '
-                               'changing monos',
-                               type=dict, settable=False, userparam=False),
+        'mono_on_table':   Param('Name of Mono on the Monotable',
+                                 type=oneof('PG', 'Si', 'Cu', 'Heusler',
+                                            'None', 'empty frame'),
+                                 default='None', settable=True, userparam=False),
+        'mono_in_lift':    Param('Which mono is in the lift',
+                                 type=oneof('PG', 'Si', 'Cu', 'Heusler',
+                                            'None', 'empty frame'),
+                                 default='None', settable=True, userparam=False),
+        'exchangepos':     Param('dict of device names to positional values '
+                                 'for changing monos',
+                                 type=dict, settable=False, userparam=False),
+        'precisionchange': Param('dict of device names and pairs of (normal '
+                                 'value, change value) of the precision',
+                                 type=dict, settable=False, userparam=False),
     }
 
     parameter_overrides = {
-        'requires': Override(default={'level': 'admin'},),
+        'requires': Override(default={'level': 'admin'}),
     }
 
-    positions = ['101', '110', '011', '111']  # CounterClockwise
-    monos = ['Heusler', 'PG', 'Si', 'Cu']  # assigned monos
-    shields = ['111', '111', '111', '111']  # which magazinslot after changing
-    # (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
-    valuetype = oneof(monos + ['None'])
+    positions = ['101', '110', '011', '111'] # CounterClockwise
+    monos = ['empty frame', 'PG', 'Si', 'Cu'] # assigned monos
+    shields = ['111','111','111','111'] # which magzinslot after changing
+       #    (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
+    valuetype = oneof(*(monos + ['None']))
 
-    def PrepareChange(self):
-        '''prueft, ob alle Bedingungen fuer einen Wechsel gegeben sind und
-        stellt diese ggfs. her'''
+    def PrepareChange(self) :
+        '''is checking whether all the conditions for a change of mono are met'''
 
         # if not(self.SecShutter_is_closed()):
         #     raise UsageError(self, 'Secondary Shutter needs to be closed, '
@@ -414,7 +421,7 @@ class Changer(BaseSequencer):
         # read all inputs and check for problems
         if not(self._attached_magazine.read() in self.positions):
             raise HWError(self, 'Unknown Magazine-Position !')
-        if self._attached_lift.read() != 2:
+        if self._attached_lift.read() != '2':
             raise HWError(self, 'Lift not at parking position!')
         if self._attached_liftclamp.read() != 'close':
             raise HWError(self, 'liftclamp should be closed!')
@@ -426,16 +433,40 @@ class Changer(BaseSequencer):
             raise HWError(self, 'There is mono %s in the lift, please change '
                                 'manually!' % self.mono_in_lift)
 
-        # TODO: store old values of positions and offsets someplace to
+        # XXX TODO: store old values of positions and offsets someplace to
         # recover after changing back
+        self.log.info('will change position of several devices to the '
+                      'changing position, moving back is not yet implemented')
+
+        # enhance precision of the devices
+        for devname, prec in self.precisionchange.items():
+            dev = session.getDevice(devname)
+            dev.precision = prec[1]
+            self.log.debug('changing precision of the %s device to the %f' %
+                           (devname, prec[1]))
 
         # go to the place where a change is possible
         devs = []
         for devname, pos in self.exchangepos.items():
             dev = session.getDevice(devname)
-            dev.start(pos)
+            # remove after implementation of moving back
+            self.log.info('position of the %s device was %f' % (devname, dev()))
+            if isinstance(dev, HasOffset):
+                dev.start(pos - dev.offset)
+                self.log.debug('moving %s to the position %f - offset of %f' %
+                               (devname, pos, dev.offset))
+            else:
+                dev.start(pos)
+                self.log.debug('moving %s to the position %f' % (devname, pos))
             devs.append(dev)
         multiWait(devs)
+
+        # put precision back to normal
+        for devname, prec in self.precisionchange.items():
+            dev = session.getDevice(devname)
+            dev.precision = prec[0]
+            self.log.debug('changing precision of the %s device back to the %f' %
+                           (devname, prec[0]))
 
         try:
             dev = session.getDevice('focibox')
@@ -443,12 +474,14 @@ class Changer(BaseSequencer):
             dev.comm('XMA', forcechannel=False)
             dev.comm('YMA', forcechannel=False)
             dev.driverenable = False
+            self.log.info('focus motors disabled')
         except NicosError as err:
             self.log.error('Problem disabling foci', err)
 
         # switch on inhibit and enable
-        self._attached_enable.maw(0xef14)
+        self._attached_enable.maw(0xef16)
         self._attached_inhibitrelay.maw('on')
+        self.log.info('changer enabled and inhibit active')
 
     def FinishChange(self):
         self._attached_inhibitrelay.maw('off')
@@ -460,15 +493,18 @@ class Changer(BaseSequencer):
 
     def CheckMagazinSlotEmpty(self, slot):
         # checks if the given slot in the magazin is empty
+        if self._attached_magazineocc.status(0)[0] != status.OK:
+            raise UsageError(self, 'Magazine occupancy switches are in warning state!')
         index = self.positions.index(slot)
-        if (self._attached_magazineocc.read() >> index) & 1:
+        if not((self._attached_magazineocc.read() >> index*2) & 1):
             raise UsageError(self, 'Position %r is already occupied!' % slot)
 
     def CheckMagazinSlotUsed(self, slot):
-        # checks if the given slot in the magazin is used
-        # (contains a monoframe)
-        index = self.positions.index(slot) + 4
-        if (self._attached_magazineocc.read() >> index) & 1:
+        # checks if the given slot in the magazin is used (contains a monoframe)
+        if self._attached_magazineocc.status(0)[0] != status.OK:
+            raise UsageError(self, 'Magazine occupancy switches are in warning state!')
+        index = self.positions.index(slot)
+        if (self._attached_magazineocc.read() >> index*2) & 1:
             raise UsageError(self, 'Position %r is empty!' % slot)
 
     def _start(self, seq):
@@ -490,7 +526,7 @@ class Changer(BaseSequencer):
         # check preconditions
         seq.append(SeqCheckStatus(self._attached_magazine, status.OK))
         seq.append(SeqCheckStatus(self._attached_lift, status.OK))
-        seq.append(SeqCheckPosition(self._attached_lift, 2))
+        seq.append(SeqCheckPosition(self._attached_lift, '2'))
         seq.append(SeqCheckPosition(self._attached_liftclamp, 'close'))
         seq.append(SeqCheckPosition(self._attached_magazine, magpos))
         seq.append(SeqCheckPosition(self._attached_magazineclamp, 'close'))
@@ -498,21 +534,21 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckAttr(self, 'mono_in_lift', 'None'))
         # transfer mono to lift
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
         seq.append(SeqMethod(self._attached_liftclamp, 'start', 'close'))
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
         seq.append(SeqDev(self._attached_liftclamp, 'close'))
         seq.append(SeqMethod(self._attached_magazineclamp, 'start', 'open'))
         # rattle a little
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
         seq.append(SeqDev(self._attached_magazineclamp, 'open'))
         # move (with mono) to parking position
         seq.append(SeqSetAttr(self, 'mono_in_lift',
                               self.monos[self.positions.index(magpos)]))
-        seq.append(SeqDev(self._attached_lift, 2))  # park position
+        seq.append(SeqDev(self._attached_lift, '2')) # park position
         seq.append(SeqDev(self._attached_magazineclamp, 'close'))
         # Magazin should not contain a mono now
         seq.append(SeqMethod(self, 'CheckMagazinSlotEmpty', magpos))
@@ -530,7 +566,7 @@ class Changer(BaseSequencer):
         # check preconditions
         seq.append(SeqCheckStatus(self._attached_magazine, status.OK))
         seq.append(SeqCheckStatus(self._attached_lift, status.OK))
-        seq.append(SeqCheckPosition(self._attached_lift, 2))
+        seq.append(SeqCheckPosition(self._attached_lift, '2'))
         seq.append(SeqCheckPosition(self._attached_liftclamp, 'close'))
         seq.append(SeqCheckPosition(self._attached_magazine, magpos))
         seq.append(SeqCheckPosition(self._attached_magazineclamp, 'close'))
@@ -539,26 +575,26 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckAttr(self, 'mono_in_lift',
                                 values=[m for m in self.monos if m != 'None']))
         # prepare magazin
-        seq.append(SeqDev(self._adev['magazineclamp'], 'open'))
-        seq.append(SeqDev(self._adev['magazineclamp'], 'close'))
-        seq.append(SeqDev(self._adev['magazineclamp'], 'open'))
-        seq.append(SeqDev(self._adev['magazineclamp'], 'close'))
-        seq.append(SeqDev(self._adev['magazineclamp'], 'open'))
+        seq.append(SeqDev(self._attached_magazineclamp, 'open'))
+        seq.append(SeqDev(self._attached_magazineclamp, 'close'))
+        seq.append(SeqDev(self._attached_magazineclamp, 'open'))
+        seq.append(SeqDev(self._attached_magazineclamp, 'close'))
+        seq.append(SeqDev(self._attached_magazineclamp, 'open'))
         # transfer mono to lift
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
-        seq.append(SeqMethod(self._adev['magazineclamp'], 'start', 'close'))
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
+        seq.append(SeqMethod(self._attached_magazineclamp, 'start', 'close'))
         # rattle a little
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
-        seq.append(SeqDev(self._attached_lift, 3))  # almost top position
-        seq.append(SeqDev(self._adev['magazineclamp'], 'close'))
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
+        seq.append(SeqDev(self._attached_lift, '3')) # almost top position
+        seq.append(SeqDev(self._attached_magazineclamp, 'close'))
         seq.append(SeqMethod(self._attached_liftclamp, 'start', 'open'))
-        seq.append(SeqDev(self._attached_lift, 4))  # top position
-        seq.append(SeqDev(self._attached_lift, 3))  # top position
+        seq.append(SeqDev(self._attached_lift, '4')) # top position
+        seq.append(SeqDev(self._attached_lift, '3')) # top position
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
-        seq.append(SeqDev(self._attached_lift, 2))  # park position
+        seq.append(SeqDev(self._attached_lift, '2')) # park position
         seq.append(SeqDev(self._attached_liftclamp, 'close'))
         # move (without mono) to parking position
         seq.append(SeqSetAttr(self, 'mono_in_lift', 'None'))
@@ -575,7 +611,7 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckStatus(self._attached_tableclamp, status.OK))
         seq.append(SeqCheckStatus(self._attached_liftclamp, status.OK))
         seq.append(SeqCheckStatus(self._attached_lift, status.OK))
-        seq.append(SeqCheckPosition(self._attached_lift, 2))
+        seq.append(SeqCheckPosition(self._attached_lift, '2'))
         seq.append(SeqCheckPosition(self._attached_liftclamp, 'close'))
         seq.append(SeqCheckPosition(self._attached_tableclamp, 'close'))
         # there shall be a mono in the lift!
@@ -585,18 +621,17 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckAttr(self, 'mono_on_table', 'None'))
         # transfer mono to table
         seq.append(SeqDev(self._attached_tableclamp, 'open'))
-        seq.append(SeqDev(self._attached_lift, 1))  # bottom position
+        seq.append(SeqDev(self._attached_lift, '1')) # bottom position
         seq.append(SeqDev(self._attached_tableclamp, 'close'))
-
         # move (without mono) to parking position
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
 
         def func(self):
             self.mono_on_table, self.mono_in_lift = self.mono_in_lift, 'None'
         seq.append(SeqCall(func, self))
-        # seq.append(SeqSetAttr(self, 'mono_on_table', self.mono_in_lift))
-        # seq.append(SeqSetAttr(self, 'mono_in_lift', 'None'))
-        seq.append(SeqDev(self._attached_lift, 2))  # park position
+        #~ seq.append(SeqSetAttr(self, 'mono_on_table', self.mono_in_lift))
+        #~ seq.append(SeqSetAttr(self, 'mono_in_lift', 'None'))
+        seq.append(SeqDev(self._attached_lift, '2')) # park position
         seq.append(SeqDev(self._attached_liftclamp, 'close'))
         # TODO: change foci alias and reactivate foci
         return seq
@@ -613,7 +648,7 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckStatus(self._attached_tableclamp, status.OK))
         seq.append(SeqCheckStatus(self._attached_liftclamp, status.OK))
         seq.append(SeqCheckStatus(self._attached_lift, status.OK))
-        seq.append(SeqCheckPosition(self._attached_lift, 2))
+        seq.append(SeqCheckPosition(self._attached_lift, '2'))
         seq.append(SeqCheckPosition(self._attached_liftclamp, 'close'))
         seq.append(SeqCheckPosition(self._attached_tableclamp, 'close'))
         # there shall be no mono in the lift, but one on the table
@@ -623,17 +658,16 @@ class Changer(BaseSequencer):
                    )
         # transfer mono to lift
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
-        seq.append(SeqDev(self._attached_lift, 1))  # bottom position
+        seq.append(SeqDev(self._attached_lift, '1')) # bottom position
         seq.append(SeqDev(self._attached_liftclamp, 'close'))
         seq.append(SeqDev(self._attached_tableclamp, 'open'))
-
         # move (with mono) to parking position
         def func(self):
             self.mono_on_table, self.mono_in_lift = 'None', self.mono_on_table
         seq.append(SeqCall(func, self))
-        # seq.append(SeqSetAttr(self, 'mono_on_table', 'None'))
-        # seq.append(SeqSetAttr(self, 'mono_in_lift', self.mono_on_table))
-        seq.append(SeqDev(self._attached_lift, 2))  # park position
+        #~ seq.append(SeqSetAttr(self, 'mono_on_table', 'None'))
+        #~ seq.append(SeqSetAttr(self, 'mono_in_lift', self.mono_on_table))
+        seq.append(SeqDev(self._attached_lift, '2')) # park position
         seq.append(SeqDev(self._attached_tableclamp, 'close'))
         return seq
 
@@ -663,6 +697,11 @@ class Changer(BaseSequencer):
                              'table, %s is!' % (old, self.mono_on_table))
 
         seq = []
+        # 0) move magazine to mono position
+        magpos_to_put = self.positions[self.monos.index(old)]
+        seq.append(SeqMethod(self, 'CheckMagazinSlotEmpty', magpos_to_put))
+        seq.append(SeqDev(self._attached_magazine,
+                              magpos_to_put))
         # 1) move away the old mono, if any
         if old != 'None':
             seq.extend(self._gen_table2lift())
@@ -676,7 +715,7 @@ class Changer(BaseSequencer):
             seq.append(SeqDev(self._attached_magazine,
                               self.shields[self.monos.index(whereto)]))
 
-        seq.append(SeqDev(self._attached_enable, 0))
+        #seq.append(SeqDev(self._attached_enable, 0)) - will be done in FinishChange
         seq.append(SeqMethod(self, 'FinishChange'))
         self._start(seq)
         self.wait()
@@ -684,18 +723,16 @@ class Changer(BaseSequencer):
     @usermethod
     def printstatusinfo(self):
         self.log.info('PLC is %s' %
-                      ('enabled' if self._attached_enable.read() == 0xef14 else
-                       'disabled'))
-        self.log.info('Inhibit_realy is %s' %
-                      self._attached_inhibitrelay.read())
-        liftposnames = {1: 'Absetzposition',
-                        2: 'Parkposition',
-                        3: 'untere Ablage',
-                        4: 'obere Ablage'}
-        self.log.info('lift is at %s' %
-                      liftposnames[self._attached_lift.read()])
+                      ('enabled' if self._attached_enable.read() == 0xef16
+                       else 'disabled'))
+        self.log.info('Inhibit_relay is %s' % self._attached_inhibitrelay.read())
+        liftposnames = {'1': 'Monotable loading',
+                        '2': 'Park position',
+                        '3': 'Bottom storage',
+                        '4': 'Upper storage'}
+        self.log.info('lift is at %s' % liftposnames[self._attached_lift.read()])
         try:
-            magpos = self._attached_magazine.read(0)
+            magpos = self._attached_magazine.read()
             self.log.info('magazine is at %r which is assigned to %s' % (
                           magpos, self.monos[self.positions.index(magpos)]))
         except Exception:
@@ -704,7 +741,12 @@ class Changer(BaseSequencer):
             self.log.info('%s is %s' % (n, self._adevs[n].read()))
         occ = self._attached_magazineocc.read(0)
         for i in range(4):
-            self.log.info('magazineslot %r is %s empty and %s occupied' %
-                          (self.positions[i],
-                           '' if (occ >> i) & 1 else 'not',
-                           '' if (occ >> (i+4)) & 1 else 'not'))
+            self.log.info('magazineslot %r is %sempty and its readouts are %sbroken' % (
+                          self.positions[i],
+                          '' if (occ>>i*2) & 1 else 'not ',
+                          '' if (occ>>i*2+1) & 1 else 'not '))
+        if self._attached_magazinestatus.read() == 'free':
+            self.log.info('Magazine is currently free to load monochromator')
+        else:
+            self.log.info('Magazine is currently occupied with monochromator '
+                          'and cannot load another')

@@ -136,12 +136,20 @@ class MCC2Monoframe(MCC2core, Readable):
     }
 
     monocodes = {   # input triple : (led_num, name)
-        '000': (None, 'empty'),
+        '000': (None, 'None'),
         '111': (1,    'Cu'),
         '011': (2,    'Si'),
-        '101': (3,    'Heusler'),
+        '100': (3,    'empty frame'),
         '110': (4,    'PG'),
+        '101': (5,    'Heusler'),
     }
+
+    def doInit(self, mode):
+        if mode != SIMULATION:
+            # TODO: check if mono was changed
+            self.doRead()
+        # if changed, disable driver:
+        # self.comm('A08R')    # disable enable_pin
 
     def doRead(self, maxage=0):
         self.comm('A1R2R3R4R')  # all LEDs off
@@ -160,7 +168,10 @@ class MCC2Monoframe(MCC2core, Readable):
             # set LED
             led = self.monocodes[monoh][0]
             if led:
-                self.comm('A%dS' % led)
+                if led < 5:
+                    self.comm('A%dS' % led)
+                else:
+                    self.comm('A1S2R3S4R')
             else:
                 # set all to indicate empty to distinguish from no power....
                 self.comm('A1S2S3S4S')
