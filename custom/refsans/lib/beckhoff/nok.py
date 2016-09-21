@@ -483,7 +483,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
         self._HW_stop()
 
     def doReset(self):
-        self._HW_ACK_Errors()
+        self._HW_ACK_Error()
 
     def doReadFirmware(self):
         return 'V%.1f' % (0.1 * self._HW_readParameter(253))
