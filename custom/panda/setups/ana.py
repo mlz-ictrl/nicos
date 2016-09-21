@@ -7,6 +7,8 @@ excludes = ['bambus']
 
 group = 'lowlevel'
 
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
+
 # channel 1   2   3   4   5   6    7       8
 #        ath att agx --- --- aty afh_pg afh_heu
 
@@ -63,21 +65,13 @@ devices = dict(
                      circular = -360, # map values to -180..0..180 degree
                      lowlevel = True,
                     ),
-    anablocks_beckhoff = device('panda.wechsler.Beckhoff',
-                                host = 'anablocks.panda.frm2',
-                                lowlevel = True,
-                               ),
     anablocks = device('panda.ana.AnaBlocks',
-                       beckhoff = 'anablocks_beckhoff',
-                       powertime = 20,
+                       tangodevice = tango_base + 'analyzer/plc_blockcontrol',
                        lowlevel = True,
                       ),
     att = device('panda.ana.ATT_Axis',
                  description = 'Analyser two theta',
                  anablocks = 'anablocks',
-                 windowsize = 11.5,
-                 blockwidth = 15.12,
-                 blockoffset = -7.7,
                  motor = 'att_step',
                  coder = 'att_enc',
                  obs = [],
@@ -86,14 +80,17 @@ devices = dict(
                  maxtries = 10,
                  offset = 0.54568,
                 ),
-    #~ att = device('devices.generic.Axis',
-                 #~ motor = 'att_step',
-                 #~ coder = 'att_enc',
-                 #~ obs = [],
-                 #~ precision = 0.05,
-                 #~ jitter=1,
-                 #~ maxtries=50
-                #~ ),
+    # temporary disable of the ATT axis to allow movement
+    # att = device('devices.generic.Axis',
+    #             description = 'Analyser two theta',
+    #             motor = 'att_step',
+    #             coder = 'att_enc',
+    #             obs = [],
+    #             precision = 0.05,
+    #             jitter = 0.5,
+    #             maxtries = 10,
+    #             offset = 0.54568,
+    #            ),
 
     # ath is second device and has 1 stepper, 0 poti, 1 coder
     ath_step = device('devices.vendor.ipc.Motor',

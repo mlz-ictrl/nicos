@@ -24,180 +24,63 @@
 
 """Analysator stuff for PANDA"""
 
-from nicos.core import Param, usermethod, Moveable, Attach, status
+from nicos.core import Param, Attach, oneofdict, status
 from nicos.devices.generic.axis import Axis
+from nicos.devices.tango import AnalogOutput
 
-from nicos.panda.wechsler import Beckhoff
+ACTIONMODES = {0: 'alldown', 1: 'default', 2: 'dooropen', 3: 'service'}
+R_ACTIONMODES = {'alldown': 0, 'default': 1, 'dooropen': 2, 'service': 3}
 
 
-class AnaBlocks(Moveable):
-    attached_devices = {
-        'beckhoff': Attach('X', Beckhoff),
-    }
-
+class AnaBlocks(AnalogOutput):
     parameters = {
-        'powertime': Param('How long to power pushing down blocks', type=int,
-                           default=10, settable=True),
-        'unit':      Param('unit = ""', type=str, default='', settable=False),
+        'actionmode':  Param('Block behavior',
+                             type=oneofdict(ACTIONMODES),
+                             default='default',
+                             settable=True, volatile=True),
+        'powertime':   Param('How long to power pushing down blocks', type=int,
+                             settable=True, volatile=True),
+        'windowsize':  Param('Window size', volatile=True, unit='deg'),
+        'blockwidth':  Param('Block width', volatile=True, unit='deg'),
+        'blockoffset': Param('Block offset', volatile=True, unit='deg'),
     }
 
-    valuetype = int
+    def doReadActionmode(self):
+        return ACTIONMODES[self._dev.GetParam('Param200')]
 
-    def doInit(self, mode):
-        self._timer = None
-        # disable beckhoff watchdog
-        self._attached_beckhoff.WriteWordOutput(0x1120, 0)
+    def doWriteActionmode(self, value):
+        mode = R_ACTIONMODES[value]
+        self._dev.SetParam([[mode], ['Param200']])
 
-        # enable user regs
-        # self._attached_beckhoff.WriteReg( 4, 31, 0x1235)
-        # make sure it has worked, or bail out early!
-        # assert( self._attached_beckhoff.ReadReg( 4, 31 ) == 0x1235 )
-        # disable watchdog
-        # self._attached_beckhoff.WriteReg( 4, 32, self._attached_beckhoff.ReadReg( 4, 32 ) | 4 )
+    def doReadPowertime(self):
+        return self._dev.GetParam('Param204')
 
-    # define a input helper
-    def input2(self, which):
-        try:
-            return ''.join([str(i) for i in self._attached_beckhoff.ReadBitsOutput(which, 2)])
-        except Exception:
-            return ''.join([str(i) for i in self._attached_beckhoff.ReadBitsOutput(which, 2)])
+    def doWritePowertime(self, value):
+        self._dev.SetParam([[value], ['Param204']])
 
-    def output2(self, where, what):
-        if what in ['00', 0]:
-            self._attached_beckhoff.WriteBitsOutput(where, [0, 0])  # both coils off
-        elif what in ['10', 1]:
-            self._attached_beckhoff.WriteBitsOutput(where, [0, 1])  # move down
-        elif what in ['01', 2]:
-            self._attached_beckhoff.WriteBitsOutput(where, [1, 0])  # move up
-        elif what in ['11', 3]:
-            # both coils energized, AVOID THIS!
-            self._attached_beckhoff.WriteBitsOutput(where, [1, 1])
+    def doReadWindowsize(self):
+        return self._dev.GetParam('Param201')
 
-    def myread(self):
-        return ''.join(['1' if self._attached_beckhoff.ReadBitOutput(i) else '0'
-                        for i in range(34, -2, -2)])
+    def doReadBlockwidth(self):
+        return self._dev.GetParam('Param202')
 
-    def doRead(self, maxage=0):
-        return int(eval('0b' + self.myread()))
-
-    def doStatus(self, maxage=0):
-        r = ''
-        for i in range(0, 36, 2):
-            j = self._attached_beckhoff.ReadBitOutput(i) + \
-                2 * self._attached_beckhoff.ReadBitOutput(i + 1)
-            r = ['_', '1', '0', 'X'][j] + r
-        return status.OK, 'idle: ' + r
-
-    def doStart(self, pattern, force=None):
-        if self._timer:
-            try:
-                self._timer.cancel()
-            except Exception:
-                pass
-            try:
-                self._timer.join(0.1)
-            except Exception:
-                pass
-            self._timer = None
-        if pattern is not None:
-            old = self.doRead()
-            for i in range(18):
-                # try to be clever: only activate/deactivate bits which differ
-                # from current status....
-                if (pattern >> i) & 1 and (old >> i) & 1:
-                    self.log.debug('skipping block %d' % (i+1))
-                    continue        # skip equal bits
-                if (pattern >> i) & 1:   # bit is set:
-                    self.log.debug('block %d is going up' % (i+1))
-                    self.output2(2*i, '01')
-                else:
-                    self.log.debug('block %d is going down' % (i+1))
-                    self.output2(2*i, '10')
-        elif force:
-            for k, v in force:
-                self.output2(k, v)
-        if self.powertime > 0:
-            import threading
-            self._timer = threading.Timer(self.powertime, self.powersaver)
-            self._timer.start()  # switch off down's after powertime seconds
-
-    @usermethod
-    def doTest19(self, what):
-        self.doStart(None, force=[(36, what)])
-
-    def powersaver(self):
-        for i in range(0, 38, 2):
-            if self.input2(i) == '01':
-                self.log.debug('Save Power in AnaBlock %d' % (i/2+1))
-                self.output2(i, 0)
+    def doReadBlockoffset(self):
+        return self._dev.GetParam('Param203')
 
 
 class ATT_Axis(Axis):
     attached_devices = {
-        'anablocks': Attach('AnaBlocks-device', AnaBlocks),
+        'anablocks': Attach('AnaBlocks device', AnaBlocks),
     }
-
-    parameters = {
-        'windowsize':  Param('Window size', default=11.5, unit='deg'),
-        'blockwidth':  Param('Block width', default=15.12, unit='deg'),
-        'blockoffset': Param('Block offset', default=-7.7, unit='deg'),
-    }
-
-    def doInit(self, mode):
-        Axis.doInit(self, mode)
 
     def _duringMoveAction(self, position):
-        self._move_blocks(position)
+        if self._attached_anablocks.status()[0] != status.BUSY:
+            self._attached_anablocks.start(position)
 
     def _postMoveAction(self):
-        self._move_blocks(self.read())
+        self._attached_anablocks._hw_wait()
+        self._attached_anablocks.start(self.read())
 
     def doReset(self):
         Axis.doReset(self)
-        self._move_blocks(self.read())
-
-    def _move_blocks(self, pos):
-        # calculate new block positions
-        code = 0
-        uwl = pos + self.windowsize/2.0
-        lwl = pos - self.windowsize/2.0
-        for j in range(18):
-            lbl = self.blockwidth*(8-j) + self.blockoffset
-            ubl = self.blockwidth*(9-j) + self.blockoffset
-            blockup = 0
-            if ubl >= lwl:  # block is not left to window
-                if lbl <= uwl:  # block is not right to window
-                    blockup = 1
-            code += blockup << j
-        self._attached_anablocks.start(code)
-
-    @usermethod
-    def testblockup(self):
-        self._attached_anablocks.doTest19('01')
-
-    @usermethod
-    def testblockdown(self):
-        self._attached_anablocks.doTest19('10')
-
-    @usermethod
-    def allblocksdown(self):
-        self._attached_anablocks.start(0)
-
-    @usermethod
-    def doorblocksup(self):
-        self._attached_anablocks.start(63 | self._attached_anablocks.target)
-
-    @usermethod
-    def doorblocksdown(self):
-        self._move_blocks(self.target)
-
-    @usermethod
-    def allblocksup(self):
-        self._attached_anablocks.start(0x3ffff)   # all 18 blocks up
-
-    @usermethod
-    def printstatusinfo(self):
-        blocks = bin(self._attached_anablocks.read())[2:]
-        # fill up to 18 chars
-        blocks = '0' * (18 - len(blocks)) + blocks
-        self.log.info('blocks up: %s' % blocks)
+        self._postMoveAction()
