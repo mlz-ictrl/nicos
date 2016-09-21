@@ -11,7 +11,6 @@
     <file alias="finish">icons/media-playback-stop-grey.png</file>
     <file alias="pausecount">icons/media-playback-pause-red.png</file>
     <file alias="simulate">icons/media-playback-start-2.png</file>
-    <file>nicos-logo.png</file>
     <file alias="setup">icons/preferences-system.png</file>
     <file alias="idleexc">icons/opexcl.png</file>
     <file alias="live">icons/applications-multimedia.png</file>
