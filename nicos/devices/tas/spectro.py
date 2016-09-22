@@ -113,7 +113,7 @@ class TAS(Instrument, Moveable):
                              (self._attached_mono, self, self))
         if self.scatteringsense[2] != self._attached_ana.scatteringsense:
             self.log.warning('%s.scatteringsense is not the same as '
-                             '%s.scatteringsense[0], please reset %s' %
+                             '%s.scatteringsense[2], please reset %s' %
                              (self._attached_ana, self, self))
 
     def doShutdown(self):
