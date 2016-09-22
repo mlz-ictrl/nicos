@@ -221,8 +221,9 @@ class DeviceMeta(DeviceMixinMeta):
                             umethod(self, value)
                         if chatty:
                             oldvalue = self._params[param]
-                            self.log.info('%s set to %r (was %r)' %
-                                          (param, value, oldvalue))
+                            if value != oldvalue:
+                                self.log.info('%s set to %r (was %r)' %
+                                              (param, value, oldvalue))
                         self._params[param] = value
                         return
                     oldvalue = getattr(self, param)
@@ -234,8 +235,9 @@ class DeviceMeta(DeviceMixinMeta):
                     if umethod:
                         umethod(self, value)
                     if chatty:
-                        self.log.info('%s set to %r (was %r)' % (param, value,
-                                                                 oldvalue))
+                        if value != oldvalue:
+                            self.log.info('%s set to %r (was %r)' %
+                                          (param, value, oldvalue))
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)
