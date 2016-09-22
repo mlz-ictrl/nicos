@@ -84,6 +84,7 @@ class LiveDataPanel(Panel):
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(client, SIGNAL('setup'), self.on_client_connected)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("setLog10(bool)"))

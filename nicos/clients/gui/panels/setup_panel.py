@@ -58,8 +58,8 @@ class ExpPanel(Panel, DlgUtils):
 
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'),
-                     self.on_client_connected)
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
         self.connect(self.client, SIGNAL('experiment'),
                      self.on_client_experiment)
 
@@ -317,9 +317,8 @@ class SetupsPanel(Panel, DlgUtils):
         self._reload_btn = QPushButton('Reload current setup')
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'),
-                     self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
 
     def on_client_connected(self):
         # fill setups
@@ -368,9 +367,6 @@ class SetupsPanel(Panel, DlgUtils):
                                               QDialogButtonBox.Close)
             self.buttonBox.addButton(self._reload_btn,
                                      QDialogButtonBox.ResetRole)
-
-    def on_client_setup(self, data):
-        self.on_client_connected()
 
     def on_basicSetup_currentItemChanged(self, item, old):
         if item and item.text() != '<keep current>':
@@ -534,8 +530,8 @@ class DetEnvPanel(Panel, DlgUtils):
 
         if self.client.connected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'),
-                     self.on_client_connected)
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
 
     def on_client_connected(self):
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \

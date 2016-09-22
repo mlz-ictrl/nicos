@@ -316,6 +316,8 @@ class Session(object):
         """Return the current instrument device."""
         if self._instrument is not None:
             return self._instrument
+        if self.checkParallel():
+            return None
         configured = self.current_sysconfig.get('instrument')
         if not configured:
             return AttributeRaiser(ConfigurationError,
@@ -330,6 +332,8 @@ class Session(object):
         """Return the current experiment device."""
         if self._experiment is not None:
             return self._experiment
+        if self.checkParallel():
+            return None
         configured = self.current_sysconfig.get('experiment')
         if not configured:
             return AttributeRaiser(ConfigurationError,
@@ -344,6 +348,8 @@ class Session(object):
         """Return the list of configured data sinks."""
         if self._datasinks is not None:
             return self._datasinks
+        if self.checkParallel():
+            return []
         if not self.current_sysconfig.get('datasinks'):
             return []
         self._datasinks = self._createSysconfig('datasinks')
@@ -354,6 +360,8 @@ class Session(object):
         """Return the list of configured notifiers."""
         if self._notifiers is not None:
             return self._notifiers
+        if self.checkParallel():
+            return []
         if not self.current_sysconfig.get('notifiers'):
             return []
         self._notifiers = self._createSysconfig('notifiers')
@@ -937,6 +945,9 @@ class Session(object):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:
+                if self.checkParallel():
+                    raise NicosError('cannot create devices in parallel '
+                                     'threads')
                 dev = self.createDevice(dev, replace_classes=replace_classes)
             else:
                 dev = self._deviceNotFound(dev, source)

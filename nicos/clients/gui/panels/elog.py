@@ -55,6 +55,7 @@ class ELogPanel(Panel, DlgUtils):
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
         self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
 
         self.activeGroup = QActionGroup(self)

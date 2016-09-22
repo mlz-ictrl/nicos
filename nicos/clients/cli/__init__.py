@@ -486,6 +486,8 @@ class NicosCmdClient(NicosClient):
                 self.current_mode = data
                 self.set_status(self.status)
             elif name == 'setup':
+                self.scriptpath = self.eval('session.experiment.scriptpath',
+                                            '.')
                 self.instrument = self.eval('session.instrument.instrument',
                                             self.instrument)
             elif name == 'debugging':

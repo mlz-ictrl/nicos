@@ -141,7 +141,8 @@ class DaemonSession(NoninteractiveSession):
         return NoninteractiveSession.checkAccess(self, required)
 
     def checkParallel(self):
-        return self.script_thread_id != threading.current_thread().ident
+        return self.script_thread_id and \
+            self.script_thread_id != threading.current_thread().ident
 
     def showHelp(self, obj=None):
         try:

@@ -96,6 +96,7 @@ class SANSPanel(Panel):
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(client, SIGNAL('setup'), self.on_client_connected)
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
