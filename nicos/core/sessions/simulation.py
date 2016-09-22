@@ -197,7 +197,9 @@ class SimulationSupervisor(Thread):
     def __init__(self, session, code, prefix):
         scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         daemon = getattr(session, 'daemon_device', None)
-        setups = session.explicit_setups
+        setups = [setup for setup in session.loaded_setups if
+                  setup in session.explicit_setups or
+                  session._setup_info[setup]['extended'].get('dynamic_loaded')]
         user = session.getExecutingUser()
         Thread.__init__(self, target=self._target,
                         args=(daemon, scriptname, prefix, setups, code, user),
