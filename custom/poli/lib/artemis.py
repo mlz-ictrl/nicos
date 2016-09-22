@@ -27,7 +27,7 @@
 import os
 import time
 
-from nicos.core import Param, Measurable, TimeoutError, Value
+from nicos.core import Param, Measurable, TimeoutError, Value, status
 
 
 class ArtemisCapture(Measurable):
@@ -46,6 +46,9 @@ class ArtemisCapture(Measurable):
     def doRead(self, maxage=0):
         return [self._lastfile]
 
+    def doStatus(self, maxage=0):
+        return status.OK, 'idle'
+
     def valueInfo(self):
         return Value(self.name + '.file', type='filename', fmtstr='%s'),
 
@@ -54,17 +57,22 @@ class ArtemisCapture(Measurable):
             self._timeout = preset['t']
 
     def doStart(self):
+        self.log.debug('camera doStart')
         self._existing = set(os.listdir(self.datapath))
         self._lastfile = ''
         self._started = time.time()
 
     def doFinish(self):
+        self.log.debug('camera doFinish')
         self._started = 0
 
     def doStop(self):
         self.doFinish()
 
     def doIsCompleted(self):
+        if self._started == 0:
+            return True
+        # self.log.debug('camera doIsCompleted')
         newset = set(os.listdir(self.datapath))
         diff = newset - self._existing
         if diff:
@@ -72,8 +80,10 @@ class ArtemisCapture(Measurable):
                 self.log.warning('more than one new file found!')
             self._existing = newset
             self._lastfile = diff.pop()
+            self._started = 0
             return True
         if self._started + self._timeout < time.time():
+            self._started = 0
             raise TimeoutError(self, 'no new image appeared within %d sec' %
                                self._timeout)
         return False
