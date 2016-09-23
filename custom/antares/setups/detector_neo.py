@@ -55,4 +55,3 @@ SetDetectors(det_neo)
 ## override hw setting to known good values.
 neo.rotation = 90
 '''
-
