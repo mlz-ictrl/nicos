@@ -19,3 +19,11 @@ Service setups
     :glob:
 
     setups/special/*
+
+Custom commands
+===============
+
+.. toctree::
+    :maxdepth: 1
+
+    commands
