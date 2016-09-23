@@ -14,7 +14,7 @@ devices = dict(
                       description = 'timer for the Neutron camera',
                       tangodevice = tango_base + 'sxccd/timer',
                      ),
-    camimage = device('devices.tango.ImageChannel',
+    camimage = device('frm2.camera.CameraImage',
                       description = 'image for the Neutron camera',
                       tangodevice = tango_base + 'sxccd/image',
                      ),
