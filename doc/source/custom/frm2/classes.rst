@@ -32,3 +32,6 @@
 
 .. autoclass:: UBahn()
 
+.. automodule:: nicos.frm2.camera
+
+.. autoclass:: CameraImage()
