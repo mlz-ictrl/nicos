@@ -341,8 +341,9 @@ class HasTimeout(DeviceMixinBase):
     movement, or to an iterable of tuples describing what action is supposedly
     performed and at which time it should be finished.
     If there is a doTime method, it is used to calculate the length of an
-    intermediary 'ramping' phase and timeout. In any case a last phase is added
-    which takes `timeout` seconds to time out.
+    intermediary 'ramping' phase and timeout. This may be followed by other
+    phases. If `timeout` is not None, a last phase is added which takes
+    `timeout` seconds to time out.
 
     You may set the `timeout` parameter to None in which case the device will
     never time out.
@@ -384,10 +385,11 @@ class HasTimeout(DeviceMixinBase):
         _combinedStatus returning individual status text's (e.g. to
         differentiate between 'ramping' and 'stabilization').
         """
+        if self.timeout is None:
+            return None
         res = [('start', current_time)]
         if hasattr(self, 'doTime'):
-            res.append(('', current_time + self.doTime(current_pos,
-                                                       target_pos)))
+            res.append(('', res[-1][1] + self.doTime(current_pos, target_pos)))
         res.append(('', res[-1][1] + (self.timeout or 0)))
         return res
 
@@ -482,6 +484,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     In any case the last read value is used to determine `isAtTarget`.
     If the value is outside the defined window for longer than
     :attr:`~HasTimeout.timeout` seconds after the HW is no longer busy.
+    Also we add a stabilising phase in the timeouttimes list.
     """
     parameters = {
         'window':    Param('Time window for checking stabilization', unit='s',
@@ -516,6 +519,28 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         # remove oldest entries, but keep one stale
         if stale > 1:
             del self._history[:stale - 1]
+
+    def _getTimeoutTimes(self, current_pos, target_pos, current_time):
+        """Calculates timestamps for timeouts
+
+        returns an iterable of tuples (status_string, timestamp) with ascending
+        timestamps.
+        First timestamp has to be `current_time` which is the only argument to
+        this.
+        The last timestamp will be used as the final timestamp to determine if
+        the device's movement timed out or not.
+        Additional timestamps (in between) may be set if need for
+        _combinedStatus returning individual status text's (e.g. to
+        differentiate between 'ramping' and 'stabilization').
+        """
+        res = HasTimeout._getTimeoutTimes(self, current_pos, target_pos,
+                                          current_time)
+        if not res:
+            return None
+        # we just append the window time after the timeout time
+        # logically wrong order, but nobody uses the strings anyway
+        res.append(('', res[-1][1] + self.window))
+        return res
 
     def isAtTarget(self, val):
         ct = currenttime()
