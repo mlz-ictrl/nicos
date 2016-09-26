@@ -268,6 +268,9 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
             self.setAxisAutoScale(QwtPlot.yLeft)
             self.zoomer.setZoomBase()
 
+    def setBackgroundColor(self, color):
+        self.setCanvasBackground(color)
+
     def setFonts(self, font, bold, larger):
         self.setFont(font)
         self.titleLabel().setFont(larger)

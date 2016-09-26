@@ -198,6 +198,9 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             mask |= PlotAxes.SCALE_Y
         self.setAutoScale(mask)
 
+    def setBackgroundColor(self, color):
+        pass  # not implemented
+
     def setFonts(self, font, bold, larger):
         pass  # not implemented
 

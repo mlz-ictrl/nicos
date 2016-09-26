@@ -756,8 +756,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
         for view in self.views:
             if view.plot:
-                view.plot.setCanvasBackground(back)
-                view.plot.replot()
+                view.plot.setBackgroundColor(back)
+                view.plot.update()
 
         bold = QFont(font)
         bold.setBold(True)

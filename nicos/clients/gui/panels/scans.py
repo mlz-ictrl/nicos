@@ -161,7 +161,7 @@ class ScansPanel(Panel):
         self.user_color = back
 
         for plot in itervalues(self.setplots):
-            plot.setCanvasBackground(back)
+            plot.setBackgroundColor(back)
             plot.update()
 
         bold = QFont(font)

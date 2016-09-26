@@ -287,6 +287,9 @@ class NicosPlot(DlgUtils):
         larger.setPointSize(font.pointSize() * 1.6)
         self.setFonts(font, bold, larger)
 
+    def setBackgroundColor(self, color):
+        raise NotImplementedError
+
     def setFonts(self, font, bold, larger):
         raise NotImplementedError
 
