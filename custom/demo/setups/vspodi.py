@@ -102,10 +102,10 @@ devices = dict(
                  unit = 'AA',
                  abslimits = (0.9, 2.5),
                 ),
-    spodisink = device(# 'stressi.datasinks.CaressScanfileSink',
-                       'devices.datasinks.SerializedSink',
+    spodisink = device('spodi.datasinks.CaressHistogram',
+                       description = 'SPODI specific histogram file format',
                        lowlevel = True,
-                       # filenametemplate = ['m2%(scancounter)08d.dat'],
+                       filenametemplate = ['m1%(pointcounter)08d.dat'],
                       ),
 #   hv1   = device('devices.generic.virtual.VirtualMotor',
 #                  description = 'ISEG HV power supply 1',
@@ -129,6 +129,4 @@ display_order = 40
 
 startupcode = '''
 SetDetectors(adet)
-CreateDevice('basedet')
-# SetDetectors(basedet)
 '''
