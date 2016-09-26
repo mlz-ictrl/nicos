@@ -5,7 +5,7 @@
 
 .. autoclass:: MultiSwitcher()
 
-.. automodule:: nicos.poli.lubrication.py
+.. automodule:: nicos.poli.lubrication
 
 .. autoclass:: LubeSwitch()
 
