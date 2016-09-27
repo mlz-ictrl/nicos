@@ -241,6 +241,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doRead(self, maxage=0):
         # the scattering angle is deciding
         tt = self.scatteringsense * self._attached_twotheta.read(maxage)
+        if tt == 0.0:
+            return 0.0
         return from_k(wavevector(self.dvalue, self.order, tt/2.0), self.unit)
 
     def doStatus(self, maxage=0):
@@ -270,7 +272,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             # object not yet intialized
             return 0
         # the precision depends on the angular precision of theta and twotheta
-        lam = from_k(to_k(self.read(), self.unit), 'A')
+        val = self.read()
+        if val == 0.0:
+            return 0.0
+        lam = from_k(to_k(val, self.unit), 'A')
         dtheta = self._attached_theta.precision + \
             self._attached_twotheta.precision
         dlambda = abs(2.0 * self.dvalue *
