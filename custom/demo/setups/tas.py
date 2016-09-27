@@ -216,6 +216,7 @@ alias_config = {
 startupcode = '''
 if mth() == 0:
     mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
+    reset(tas)
     mono(1.55)
     kf(1.55)
     Sample.lattice = [3.5, 3.5, 3.5]
