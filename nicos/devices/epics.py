@@ -235,13 +235,27 @@ class EpicsMoveable(EpicsDevice, Moveable):
                         type=pvname, mandatory=True),
         'writepv': Param('PV for writing device target',
                          type=pvname, mandatory=True),
+        'targetpv': Param('Optional target readback PV.',
+                          type=none_or(pvname), mandatory=False)
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+        'target': Override(volatile=True),
     }
 
     pv_parameters = set(('readpv', 'writepv'))
 
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
+    def _get_pv_parameters(self):
+        """
+        Overriden from EpicsDevice. If the targetpv parameter is specified,
+        the PV-object should be created accordingly. Otherwise, just return
+        the mandatory pv_parameters.
+        """
+        if self.targetpv:
+            return self.pv_parameters | set(('targetpv',))
+
+        return self.pv_parameters
 
     def doInit(self, mode):
         intype = FTYPE_TO_VALUETYPE.get(self._pvs['readpv'].ftype, anytype)
@@ -253,8 +267,30 @@ class EpicsMoveable(EpicsDevice, Moveable):
             raise ConfigurationError(self, 'Output PV %r does not have the '
                                            'correct data type' % self.writepv)
 
+        if self.targetpv:
+            target_type = FTYPE_TO_VALUETYPE.get(
+                self._pvs['targetpv'].ftype, anytype)
+
+            if target_type != self.valuetype:
+                raise ConfigurationError(
+                    self, 'Target PV %r does not have the '
+                          'correct data type' % self.targetpv)
+
     def doReadUnit(self):
         return self._get_pvctrl('readpv', 'units', '')
+
+    def doReadTarget(self):
+        """
+        In many cases IOCs provide a readback of the setpoint, here represented
+        as targetpv. Since this is not provided everywhere, it should still be
+        possible to get the target, which is then assumed to be retained in the
+        PV represented by writepv.
+        """
+        if self.targetpv:
+            return self._get_pv('targetpv')
+
+        value = self._params.get('target')
+        return value if value is not None else self._config.get('target')
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
