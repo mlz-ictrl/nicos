@@ -1,5 +1,5 @@
-from nicos.devices.epics import EpicsAnalogMoveable, pvname
-from nicos.core import status, Param, Override
+from nicos.devices.epics import EpicsAnalogMoveable
+from nicos.core import status, Param, Override, pvname
 from nicos.devices.abstract import Motor, HasOffset, CanReference
 
 
