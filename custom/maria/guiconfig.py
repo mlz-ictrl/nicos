@@ -63,6 +63,7 @@ main_window = tabbed(
 windows = []
 
 tools = [
+    cmdtool('Server control (Marche)', 'marche-gui'),
     tool('Downtime report', 'downtime.DownTimeTool',
          receiver='f.carsughi@fz-juelich.de',
          mailserver='smtp.frm2.tum.de',
