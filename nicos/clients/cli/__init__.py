@@ -572,7 +572,7 @@ class NicosCmdClient(NicosClient):
         if not arg:
             self.put_error('Need a file name as argument.')
             return
-        fpath = path.join(self.scriptpath, arg)
+        fpath = path.join(self.scriptpath, path.expanduser(arg))
         if not os.environ.get('EDITOR'):
             os.environ['EDITOR'] = 'vi'
         self.in_editing = True
@@ -733,7 +733,7 @@ class NicosCmdClient(NicosClient):
                         return
                 self.put_error('Need a file name as argument.')
                 return
-            fpath = path.join(self.scriptpath, arg)
+            fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
                 code = open(fpath).read()
             except Exception as e:
@@ -754,7 +754,7 @@ class NicosCmdClient(NicosClient):
             if not arg:
                 self.put_error('Need a file name as argument.')
                 return
-            fpath = path.join(self.scriptpath, arg)
+            fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
                 code = open(fpath).read()
             except Exception as e:
@@ -766,7 +766,7 @@ class NicosCmdClient(NicosClient):
             if not arg:
                 self.put_error('Need a file name or code as argument.')
                 return
-            fpath = path.join(self.scriptpath, arg)
+            fpath = path.join(self.scriptpath, path.expanduser(arg))
             self.last_filename = fpath
             # detect whether we have a filename or potential Python code
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
