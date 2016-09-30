@@ -30,7 +30,7 @@ from time import time as currenttime
 import IO
 
 from nicos import session
-from nicos.core import ADMIN, NicosError, SIMULATION, status, requires
+from nicos.core import ADMIN, NicosError, SIMULATION, requires, status
 
 from nicos.devices.taco import TacoDevice
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
@@ -90,6 +90,7 @@ C_NO_CMD = 9
 
 class Controller(TacoDevice, BaseChopperController):
     """The main controller device of the chopper."""
+
     taco_class = IO.StringIO
 
     # XXX: maybe HasWindowTimeout is better suited here....
@@ -100,13 +101,6 @@ class Controller(TacoDevice, BaseChopperController):
 
     def _write(self, n, v):
         self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
-        # wait for controller to process current commands
-        while self._read(DES_CMD) != C_READY:
-            session.delay(0.04)
-
-    def _write_multi(self, *values):
-        tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
-        self._taco_guard(self._dev.writeLine, tstr)
         # wait for controller to process current commands
         while self._read(DES_CMD) != C_READY:
             session.delay(0.04)
@@ -156,6 +150,24 @@ class Controller(TacoDevice, BaseChopperController):
                 return False
         return True
 
+    def _writevalues(self, axis, gear=None, speed=None, phase=None, param=None):
+        values = [(AXIS_ID, axis)]
+        if gear is not None:
+            values.append((PAR_GEAR, gear,))
+        if speed is not None:
+            values.append((PAR_SPEED, speed,))
+        if phase is not None:
+            values.append((PAR_POS, phase,))
+        if param is not None:
+            values.append((SET_PARAM, param,))
+        values.append((DES_CMD, C_ACCEPT,))
+
+        tstr = ' '.join('M%04d=%d' % x for x in values)
+        self._taco_guard(self._dev.writeLine, tstr)
+        # wait for controller to process current commands
+        while self._read(DES_CMD) != C_READY:
+            session.delay(0.04)
+
     def _change(self, name, value):
         """Internal interface to change a chopper value."""
         if not self._is_cal():
@@ -183,44 +195,15 @@ class Controller(TacoDevice, BaseChopperController):
             phases.append(int(round(100.0 * phi)))
         r1, r2 = (2, -1.0) if self.crc == 0 else (1, 1.0)
         rr = self.ratio + 1
-        self._write_multi(AXIS_ID, 1,
-                          PAR_GEAR, 0,
-                          PAR_SPEED, self.speed,
-                          PAR_POS, phases[1],
-                          SET_PARAM, int(round(self.wavelength * 1000.0)),
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 2,
-                          PAR_GEAR, r1,
-                          PAR_SPEED, r2 * self.speed,
-                          PAR_POS, phases[2],
-                          SET_PARAM, int(self.slittype + 1),
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 3,
-                          PAR_GEAR, 1,
-                          PAR_SPEED, self.speed,
-                          PAR_POS, phases[3],
-                          SET_PARAM, int(self.crc + 1),
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 4,
-                          PAR_GEAR, 1,
-                          PAR_SPEED, self.speed,
-                          PAR_POS, phases[4],
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 5,
-                          PAR_GEAR, rr,
-                          PAR_SPEED, -1 * self.speed,
-                          PAR_POS, phases[5],
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 6,
-                          PAR_GEAR, 1,
-                          PAR_SPEED, self.speed,
-                          PAR_POS, phases[6],
-                          DES_CMD, C_ACCEPT)
-        self._write_multi(AXIS_ID, 7,
-                          PAR_GEAR, r1,
-                          PAR_SPEED, r2 * self.speed,
-                          PAR_POS, phases[7],
-                          DES_CMD, C_ACCEPT)
+        self._writevalues(1, 0, self.speed, phases[1],
+                          int(round(self.wavelength * 1000.0)))
+        self._writevalues(2, r1, r2 * self.speed, phases[2],
+                          int(self.slittype + 1))
+        self._writevalues(3, 1, self.speed, phases[3], int(self.crc + 1))
+        self._writevalues(4, 1, self.speed, phases[4])
+        self._writevalues(5, rr, -1 * self.speed, phases[5])
+        self._writevalues(6, 1, self.speed, phases[6])
+        self._writevalues(7, r1, r2 * self.speed, phases[7])
         self._setROParam('phases', phases)
         self._setROParam('changetime', currenttime())
 
@@ -228,11 +211,7 @@ class Controller(TacoDevice, BaseChopperController):
         self._phases = [0] + [4500] * 7
         self._setROParam('speed', 0)
         for ch in range(1, 8):
-            self._write_multi(AXIS_ID, ch,
-                              PAR_GEAR, 0,
-                              PAR_SPEED, self.speed,
-                              PAR_POS, self._phases[ch],
-                              DES_CMD, C_ACCEPT)
+            self._writevalues(ch, 0, self.speed, self._phases[ch])
         self._setROParam('changetime', currenttime())
 
     def _readspeeds(self):
@@ -341,11 +320,7 @@ class Controller(TacoDevice, BaseChopperController):
         self._setROParam('phases', [0, -26, 1, 19, 13, 1, -13, 62])
         self._setROParam('speed', 0)
         for ch in range(1, 8):
-            self._write_multi(AXIS_ID, ch,
-                              PAR_GEAR, 0,
-                              PAR_SPEED, self.speed,
-                              PAR_POS, self.phases[ch] + angle,
-                              DES_CMD, C_ACCEPT)
+            self._writevalues(ch, 0, self.speed, self.phases[ch] + angle)
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
@@ -358,11 +333,7 @@ class Controller(TacoDevice, BaseChopperController):
             raise NicosError(self, 'invalid chopper number')
         self._adjust()
         self._setROParam('speed', 0)
-        self._write_multi(AXIS_ID, ch,
-                          PAR_GEAR, 0,
-                          PAR_SPEED, self.speed,
-                          PAR_POS, int(round(angle * 100.0)),
-                          DES_CMD, C_ACCEPT)
+        self._writevalues(ch, 0, self.speed, int(round(angle * 100.0)))
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
@@ -373,8 +344,5 @@ class Controller(TacoDevice, BaseChopperController):
         self._discSpeed = ds / 7.0
         if ch < 1 or ch > 7:
             raise NicosError(self, 'invalid chopper number')
-        self._write_multi(AXIS_ID, ch,
-                          PAR_GEAR, 0,
-                          PAR_SPEED, ds,
-                          DES_CMD, C_ACCEPT)
+        self._writevalues(ch, 0, ds)
         self._setROParam('changetime', currenttime())
