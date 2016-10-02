@@ -871,7 +871,7 @@ def host(val=''):
     if not isinstance(val, string_types):
         raise ValueError('must be a string!')
     if val.count(':') > 1:
-        raise ValueError('%r is not in the form host_name[:port]')
+        raise ValueError('%r is not in the form host_name[:port]' % val)
     if ':' in val:
         _, p = val.split(':')
         try:
