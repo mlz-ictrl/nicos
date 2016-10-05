@@ -40,6 +40,11 @@ from nicos.biodiff.detector import BiodiffDetector
 from nicos.jcns.shutter import OPEN
 
 
+def underlying_motor(devices):
+    return [dev._attached_motor if isinstance(dev, MicrostepMotor) else dev
+            for dev in devices]
+
+
 class RScan(Scan):
 
     def moveDevices(self, devices, positions, wait=True):
@@ -57,8 +62,7 @@ class RScan(Scan):
                     waitForStatus(dev, ignore_errors=True)
             # movement and counting separate
             # do not use software based micro stepping
-            devices = [dev._attached_motor if isinstance(dev, MicrostepMotor)
-                       else dev for dev in devices]
+            devices = underlying_motor(devices)
         return Scan.moveDevices(self, devices, positions, wait)
 
     def preparePoint(self, num, xvalues):
@@ -92,6 +96,20 @@ class RScan(Scan):
             finally:
                 raise  # pylint: disable=misplaced-bare-raise
         return Scan.handleError(self, what, err)
+
+    def beginScan(self):
+        # since for every scan interval the underlying motor will be driven
+        # to the starting point as described in `moveDevices` instead of the
+        # originating motor it is necessary to replace the motor with the
+        # underlying one in the dataset. Otherwise datasets will contain
+        # ``None`` values because ``resdict`` in `PointDataset._reslist` will
+        # contain just values for the underlying motor although values for
+        # the originating/microstepping motor are requested.
+        copydevices = list(self._devices)
+        self._devices = underlying_motor(self._devices)
+        ret = Scan.beginScan(self)
+        self._devices = copydevices
+        return ret
 
 
 def _fixType(dev, args, mkpos):
