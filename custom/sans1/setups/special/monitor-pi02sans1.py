@@ -442,23 +442,7 @@ _julabo_plot = Block('Julabo plot', [
     setups='julabo',
 )
 
-_tisane_fg1 = Block('TISANE Frequency Generator 1 - Sample', [
-    BlockRow(
-             Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
-             ),
-    BlockRow(
-             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
-             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
-             ),
-    BlockRow(
-             Field(name='Shape', key='tisane_fg1/shape', width=12),
-             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
-             ),
-    ],
-    setups='tisane',
-)
-
-_fg1 = Block('Frequency Generator 1 - Sample', [
+_fg1 = Block('FG 1 - Sample', [
     BlockRow(
              Field(name='On/Off', dev='tisane_fg1', width=12),
              Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
@@ -475,7 +459,7 @@ _fg1 = Block('Frequency Generator 1 - Sample', [
     setups='frequency',
 )
 
-_tisane_fg2 = Block('TISANE Frequency Generator 2 - Detector', [
+_fg2 = Block('FG 2 - Detector', [
     BlockRow(
              Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
              ),
@@ -488,15 +472,15 @@ _tisane_fg2 = Block('TISANE Frequency Generator 2 - Detector', [
              Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
              ),
     ],
-    setups='tisane',
+    setups='frequency',
 )
 
-_tisane_fc = Block('TISANE Frequency Counter', [
+_fc = Block('TISANE FC', [
     BlockRow(
              Field(name='Frequency', dev='tisane_fc', format='%.2e', width=12),
              ),
     ],
-    setups='tisane',
+    setups='frequency',
 )
 
 _tisane_counts = Block('TISANE Counts', [
@@ -523,8 +507,8 @@ devices = dict(
                                 Row(
                                     Column(_ccmsanssc),
                                     Column(_sc1, _sc2, _st2, _st1),
-                                    Column(_fg1, _tisane_counts, _tisane_fc,
-                                           _tisane_fg1, _tisane_fg2),
+                                    Column(_tisane_counts, _fg1),
+                                    Column(_fc, _fg2),
                                     Column(_htf01, _htf03,
                                            _ccmsans, _miramagnet, _amagnet,
                                            _sans1julabo, *newports),
