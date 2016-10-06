@@ -23,5 +23,6 @@ devices = dict(
                  default = 1.7,
                  unit = 'AA',
                  abslimits = (0.9, 2.5),
+                 requires =  {'level': 'admin',},
                 ),
 )

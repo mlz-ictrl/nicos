@@ -104,6 +104,7 @@ devices = dict(
                  default = 1050,
                  unit = 'mm',
                  abslimits = (700, 1700),
+                 requires =  {'level': 'admin',},
                 ),
     hv1   = device('devices.taco.VoltageSupply',
                    description = 'ISEG HV power supply 1',
