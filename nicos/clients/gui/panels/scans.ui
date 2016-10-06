@@ -219,7 +219,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit &amp;Gauß peak</string>
+    <string>Fit &amp;Gaussian peak</string>
    </property>
    <property name="iconText">
     <string>Peak fit</string>
