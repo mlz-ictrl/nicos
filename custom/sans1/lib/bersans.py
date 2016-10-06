@@ -188,7 +188,7 @@ Moni1Z=0.000000
 
 %%Counter
 Sum=%(Sum)s
-Time=%(det1_time)s
+Time=%(det1_timer)s
 Moni1=%(det1_mon1)s
 Moni2=%(det1_mon2)s
 Sum/Time=%(Sum_Time)s
@@ -265,7 +265,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         try:
             Moni1 = float(session.getDevice('det1_mon1').read()[0])
             Moni2 = float(session.getDevice('det1_mon2').read()[0])
-            Time = float(session.getDevice('det1_time').read()[0])
+            Time = float(session.getDevice('det1_timer').read()[0])
         except Exception:
             self.log.warning("can't determine all monitors, "
                              "using 0.0 instead", exc=1)
