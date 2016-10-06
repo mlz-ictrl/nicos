@@ -299,6 +299,11 @@ class SetupChecker(object):
             self.log_error("'include' list should be called 'includes'",
                            extra=self.find_global('include'))
 
+        # check for common misspelling of "excludes"
+        if 'exclude' in self.ns:
+            self.log_error("'exclude' list should be called 'excludes'",
+                           extra=self.find_global('exclude'))
+
         if os.path.basename(self.filename) == 'startup.py':
             if len(self.ns.get('includes', [])) > 0:
                 self.log_error("The 'includes' in 'startup.py' must be empty!",
