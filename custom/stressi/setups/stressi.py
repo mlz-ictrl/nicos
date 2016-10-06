@@ -3,7 +3,7 @@ description = 'STRESS-SPEC setup with sample table'
 group = 'basic'
 
 includes = ['system', 'sampletable', 'monochromator', 'detector',
-            'primaryslit', 'slits', ]
+            'primaryslit', 'slits', 'secondaryslit']
 
 servername = 'VME'
 
