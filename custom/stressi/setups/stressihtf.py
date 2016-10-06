@@ -9,7 +9,7 @@ nethost = setupname
 devices = {
     'T_%s' % setupname: device('devices.taco.TemperatureController',
                                description = 'The sample temperature',
-                               tacodevice = '//%s/htf/et/control' % nethost,
+                               tacodevice = '//%s/box/et/control' % nethost,
                                abslimits = (0, 2000),
                                unit = 'C',
                                fmtstr = '%.1f',
