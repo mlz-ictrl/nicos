@@ -80,6 +80,20 @@ except the **description** entry:
 
       includes = ['base', 'mono1', 'sample', 'detector']
 
+``excludes``
+   A list of names of setups that must **not** be loaded if this setup file
+   should be loaded. If one of this is loaded and you try to load this file,
+   an error message will be generated.
+
+   Possible uses of this directive:
+
+   - setups which contain the same device in different configurations
+   - setups that would disturb the current setup when loaded
+
+   Example::
+
+      excludes = ['eulerian_huber', 'eulerian_newport']
+
 ``sysconfig``
    A dictionary with basic system configuration values.  See :ref:`sysconfig`
    below.  This is generally only put in one very basic setup file that is
