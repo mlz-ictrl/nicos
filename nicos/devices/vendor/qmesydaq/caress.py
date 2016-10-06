@@ -37,8 +37,8 @@ from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, ProgrammingError, InvalidValueError
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
-    LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, LOAD_NORMAL, \
-    INIT_NORMAL, INIT_REINIT, ON_LINE
+    LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, \
+    LOAD_NORMAL, INIT_NORMAL, INIT_REINIT, ON_LINE
 
 
 class QMesydaqCaressDevice(CARESSDevice):
