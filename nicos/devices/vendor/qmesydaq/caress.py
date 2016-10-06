@@ -214,6 +214,8 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
         if mode == MASTER:
             # self.readImage()  # also set arraydesc
             pass
+        if self._mode == SIMULATION:
+            return
         self._set_option(text='mesydaq_32bit=True')
 
     def doStart(self):
