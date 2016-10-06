@@ -1,0 +1,15 @@
+Dear user,
+
+please find attached a file containing your data and script files, as well as the
+electronic logbook from your recent experiment {{proposal}} (from {{from_date}}
+to {{to_date}}) on STRESS-SPEC.
+
+Please let us know about the quality of the data and your satisfaction with our
+support, and do not forget to submit an experimental report (a template should
+have been included in the attached file).
+
+If you have further questions concerning this experiment, please include the
+proposal number ({{proposal}}) in your communication.
+
+Regards,
+  The STRESS-SPEC Team
