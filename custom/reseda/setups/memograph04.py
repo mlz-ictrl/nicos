@@ -1,4 +1,4 @@
-description = 'memograph02 readout'
+description = 'memograph04 readout'
 
 includes = []
 
