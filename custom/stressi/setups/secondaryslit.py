@@ -39,7 +39,7 @@ devices = dict(
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
                  config = 'SST 115 11 0x00f1f000 3 100 200 20 1 0 0 0 0 1 3000'
-                          '1 10 0 0 0',
+                          ' 1 10 0 0 0',
                 ),
     mot1 = device('devices.vendor.caress.Motor',
                   description = 'RadColli=ZE',
