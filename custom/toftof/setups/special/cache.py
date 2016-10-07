@@ -4,7 +4,7 @@ group = 'special'
 
 devices = dict(
     DB     = device('services.cache.server.FlatfileCacheDatabase',
-                    storepath = '/users/cache',
+                    storepath = '/data/cache',
                     loglevel = 'info',
                    ),
 
