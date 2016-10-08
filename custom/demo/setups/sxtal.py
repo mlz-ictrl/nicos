@@ -13,7 +13,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    sxtal = device('devices.sxtal.instrument.SXTal',
+    sxtal = device('devices.sxtal.instrument.EulerSXTal',
         description = 'virtual sxtal diffractometer',
         instrument = 'VSXTAL',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
