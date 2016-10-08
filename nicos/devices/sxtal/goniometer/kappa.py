@@ -131,6 +131,11 @@ class Kappa(PositionBase):
         """
         return self.asE().asN()
 
+    def asL(self):
+        """ Conversion. Part of Position subclass protocol.
+        """
+        return self.asC().asL()
+
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.
         """

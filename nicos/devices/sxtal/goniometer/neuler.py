@@ -104,6 +104,11 @@ class NEuler(PositionBase):
         """
         return self.asE().asG()
 
+    def asL(self):
+        """ Conversion. Part of Position subclass protocol.
+        """
+        return self.asE().asL()
+
     def Alternate(self):
         """ The alternate N-position that has the same orientation.
         """

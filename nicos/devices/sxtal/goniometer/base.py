@@ -43,6 +43,7 @@ def PositionFactory(ptype, **kwds):
                         'g' for goniometermatrix,
                         'b' for bisecting,
                         'c' for C-vector,
+                        'l' for lifting counter,
 
                         a suffix 'r' may be used to signal angles in radians
 
@@ -54,6 +55,7 @@ def PositionFactory(ptype, **kwds):
             if ptype='b': theta, phi, chi, psi
             if ptype='c': c, psi, signtheta
             if ptype='g': theta, matrix
+            if ptype='l': gamma, omega, nu, signtheta
 
 
         matrix= 3x3-matrix, c= 3-vector, dx in mm, angles in radians.
@@ -95,6 +97,7 @@ from nicos.devices.sxtal.goniometer.neuler import NEuler
 from nicos.devices.sxtal.goniometer.cvector import CVector
 from nicos.devices.sxtal.goniometer.gmatrix import GMatrix
 from nicos.devices.sxtal.goniometer.bisect import Bisecting
+from nicos.devices.sxtal.goniometer.lifting import Lifting
 
 typelist = {'k': Kappa,
             'e': Euler,
@@ -102,4 +105,5 @@ typelist = {'k': Kappa,
             'c': CVector,
             'g': GMatrix,
             'n': NEuler,
+            'l': Lifting,
             }

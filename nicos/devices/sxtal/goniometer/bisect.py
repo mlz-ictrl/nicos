@@ -153,6 +153,9 @@ class Bisecting(PositionBase):
         """
         return self.asE().asN()
 
+    def asL(self):
+        return self.asC().asL()
+
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.
         """

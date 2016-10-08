@@ -262,6 +262,41 @@ class EulerSXTal(SXTalBase):
             return -np.sqrt(-w2)
 
 
+class LiftingSXTal(SXTalBase):
+
+    attached_devices = {
+        'gamma':  Attach('gamma device', Moveable),
+        'omega':  Attach('omega device', Moveable),
+        'nu':     Attach('nu device (counter lifting axis)', Moveable),
+    }
+
+    def _extractPos(self, pos):
+        return [
+            ('gamma', np.rad2deg(pos.gamma)),
+            ('omega', np.rad2deg(pos.omega)),
+            ('nu',    np.rad2deg(pos.nu)),
+        ]
+
+    def _convertPos(self, pos):
+        return pos.asL()
+
+    def _readPos(self, maxage=0):
+        return PositionFactory('l',
+                               gamma=self._attached_gamma.read(maxage),
+                               omega=self._attached_omega.read(maxage),
+                               nu=self._attached_nu.read(maxage))
+
+    def _createPos(self, gamma, omega, nu):  # pylint: disable=W0221
+        return PositionFactory('l', gamma=gamma, omega=omega, nu=nu)
+
+    def getScanWidthFor(self, hkl):
+        """Get scanwidth.
+
+        TODO: make this dependent on angles.
+        """
+        return 5.0
+
+
 class SXTalIndex(AutoDevice, Moveable):
     """
     "Partial" devices for the H, K, L indices of the SXTAL instrument.

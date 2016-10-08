@@ -130,6 +130,11 @@ class GMatrix(PositionBase):
         """
         return self.asE().asN()
 
+    def asL(self):
+        """ Conversion. Part of Position subclass protocol.
+        """
+        return self.asE().asL()
+
     def Xrot(self, angle):
         """ Rotate 'angle' (clockwise) around the X axis.
         """

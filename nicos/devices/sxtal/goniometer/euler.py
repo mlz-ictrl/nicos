@@ -130,6 +130,11 @@ class Euler(PositionBase):
             kappa=normalangle(kappa),
             phi=normalangle(phi))
 
+    def asL(self):
+        """ Conversion. Part of Position subclass protocol.
+        """
+        return self.asC().asL()
+
     def asE(self):
         """ Conversion. Part of Position subclass protocol.
         """
