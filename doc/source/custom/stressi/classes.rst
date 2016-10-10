@@ -15,3 +15,10 @@ Data formats
 .. automodule:: nicos.stressi.datasinks
 
 .. autoclass:: CaressScanfileSink()
+
+Wave length
+-----------
+
+.. automodule:: nicos.stressi.wavelength
+
+.. autoclass:: Wavelength()
