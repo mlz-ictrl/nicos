@@ -24,7 +24,8 @@
 
 """Motor device via the CARESS device service."""
 
-from nicos.core import HasOffset, Override, Param
+from nicos import session
+from nicos.core import HasOffset, Override, POLLER, Param
 from nicos.devices.abstract import Motor as AbstractMotor
 from nicos.devices.vendor.caress.base import Driveable
 
@@ -33,6 +34,7 @@ EKF_44520_INCR = 115  # EKF 44520 motor control, incr. encoder, VME
 
 
 class Motor(HasOffset, Driveable, AbstractMotor):
+    """Device accessing the CARESS axes with and without encoder."""
 
     parameters = {
         'coderoffset': Param('Encoder offset',
@@ -55,7 +57,10 @@ class Motor(HasOffset, Driveable, AbstractMotor):
         Driveable.doStart(self, target + (self.coderoffset + self.offset))
 
     def doRead(self, maxage=0):
-        return Driveable.doRead(self, maxage) - (self.coderoffset + self.offset)
+        raw = Driveable.doRead(self, maxage)
+        if raw is None and session.sessiontype == POLLER:
+            return None
+        return raw - (self.coderoffset + self.offset)
 
     def doSetPosition(self, pos):
         pass
@@ -69,4 +74,6 @@ class Motor(HasOffset, Driveable, AbstractMotor):
             if int(tmp[1]) == EKF_44520_ABS:
                 return self.gear * float(tmp[6]) / float(tmp[5])
         # in all other cases give the configured parameter back
-        return self._params['speed']
+        if 'speed' in self._params:
+            return self._params['speed']
+        return 0.0

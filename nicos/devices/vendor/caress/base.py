@@ -25,13 +25,14 @@
 """Devices via the CARESS device service."""
 
 from nicos import session
-from nicos.core import HasLimits, Moveable, Param, status, SIMULATION, POLLER
+from nicos.core import HasLimits, Moveable, POLLER, Param, SIMULATION, status
 from nicos.core.errors import ConfigurationError, NicosError
-from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
-    ACTIVE, ACTIVE1
+from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
+    CARESSDevice, CORBA
 
 
 class Driveable(HasLimits, CARESSDevice, Moveable):
+    """Base class to all CARESS driveable devices."""
 
     parameters = {
         '_started': Param('Indicator to signal device is started',
@@ -49,13 +50,13 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
         if hasattr(self._caressObject, 'is_readable_module'):
             is_readable = \
                 self._caress_guard(self._caressObject.is_readable_module,
-                                   self._cid)
+                                   self.cid)
         self.log.debug('Readable module: %r' % (is_readable,))
 
         if hasattr(self._caressObject, 'is_drivable_module'):
             is_drivable = \
                 self._caress_guard(self._caressObject.is_drivable_module,
-                                   self._cid)
+                                   self.cid)
         else:
             is_drivable = self._device_kind() in [3, 7, 13, 14, 15, 23, 24, 25,
                                                   28, 29, 30, 31, 32, 33, 37,
@@ -76,12 +77,12 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
             val = CARESS.Value(f=target)
             self.log.debug('%r' % val.f)
             result = self._caress_guard(self._caressObject.drive_module, 0,
-                                        self._cid, val, timeout)
+                                        self.cid, val, timeout)
             if result[0] != CARESS.OK:
                 raise NicosError(self, 'Could not start the device')
         else:
             params = []
-            params.append(CORBA.Any(CORBA._tc_long, self._cid))
+            params.append(CORBA.Any(CORBA._tc_long, self.cid))
             params.append(CORBA.Any(CORBA._tc_long, 0))  # status placeholder
             params.append(CORBA.Any(CORBA._tc_long, 2))  # 2 values
             params.append(CORBA.Any(CORBA._tc_long, 5))  # type 32 bit float
@@ -94,9 +95,6 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
                 raise NicosError(self, 'Could not start the device')
         self._setROParam('_started', True)
 
-    def doRead(self, maxage=0):
-        return self._caress_guard(self._read)[1]
-
     def doStatus(self, maxage=0):
         state = CARESSDevice.doStatus(self, maxage)
         if self._started and state[0] == status.OK:
@@ -107,11 +105,11 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
     def doStop(self):
         if hasattr(self._caressObject, 'stop_module'):
             result = self._caress_guard(self._caressObject.stop_module, 11,
-                                        self._cid)
+                                        self.cid)
             if result in [(CARESS.OK, ACTIVE), (CARESS.OK, ACTIVE1)]:
                 raise NicosError(self, 'Could not stop the module')
         else:
             result = self._caress_guard(self._caressObject.stop_module_orb, 11,
-                                        self._cid)
+                                        self.cid)
             if result in [(0, ACTIVE), (0, ACTIVE1)]:
                 raise NicosError(self, 'Could not stop the module')

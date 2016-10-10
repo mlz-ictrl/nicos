@@ -24,8 +24,8 @@
 
 """Devices via the CARESS device service."""
 
-import sys
 import subprocess
+import sys
 
 try:
     from omniORB import CORBA
@@ -43,8 +43,8 @@ except ImportError:
     omniORB = None
 
 from nicos import session
-from nicos.core import Param, Override, absolute_path, none_or, status, \
-    SIMULATION, HasCommunication
+from nicos.core import HasCommunication, Override, POLLER, Param, SIMULATION, \
+    absolute_path, none_or, status
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
 
@@ -56,6 +56,7 @@ LOADSLAVE = 15
 RESETMODULE = 16
 SPECIALLOAD = 18
 
+MODULE_ERROR = -1
 NOT_ACTIVE = 1
 ACTIVE = 2
 DONE = 3
@@ -65,6 +66,8 @@ COMBO_ACTIVE = 6
 
 OFF_LINE = 0
 ON_LINE = 1
+MANUAL_MODE = 2
+NOT_DEFINED = 3
 
 INIT_NORMAL = 0
 INIT_REINIT = 1
@@ -76,8 +79,6 @@ READBLOCK_MULTI = 2
 
 LOAD_NORMAL = 0
 
-CARESS_MAPS = {}
-
 
 class CARESSDevice(HasCommunication):
     """The CARESS base device."""
@@ -85,6 +86,18 @@ class CARESSDevice(HasCommunication):
     _orb = None
 
     _kind = None
+
+    _used_counter = 0
+
+    _caressObject = None
+
+    _initialized = False
+
+    _caress_name = ''
+
+    _caress_maps = {}
+
+    _caress_initialized = False
 
     parameters = {
         'config': Param('Device configuration/setup string',
@@ -104,6 +117,12 @@ class CARESSDevice(HasCommunication):
                           type=absolute_path, default='/opt/caress',
                           settable=False,
                           ),
+        'absdev': Param('CORBA object is a the legacy absdev device',
+                        type=bool, default=True, settable=False),
+        'loadblock': Param('Additional init block',
+                           type=str, settable=False, default=''),
+        'cid': Param('CARESS device ID',
+                     type=int, settable=False, userparam=False),
     }
 
     parameter_overrides = {
@@ -111,32 +130,35 @@ class CARESSDevice(HasCommunication):
         'comdelay': Override(default=0.2),
     }
 
-    _initialized = False
-
     def _initORB(self, args):
         if not self._orb:
             self._orb = CORBA.ORB_init(args, CORBA.ORB_ID)
 
     def _getCID(self, device):
+        if session.sessiontype == POLLER:
+            while not self.cid:
+                session.delay(0.5)
+            return self.cid
         self.log.debug('Get CARESS device ID: %r' % (device,))
         answer = subprocess.Popen('cd %s && %s/dump_u1 -n %s' %
                                   (self.caresspath, self.toolpath, device, ),
                                   shell=True,
                                   stdout=subprocess.PIPE).stdout.read()
+        self._caress_name = device
         if answer in ('', None):
-            if device not in CARESS_MAPS:
-                if not len(CARESS_MAPS):
-                    CARESS_MAPS[device] = 4096
-                else:
-                    CARESS_MAPS[device] = 1 + max(CARESS_MAPS.values())
-            res = CARESS_MAPS[device]
+            if not CARESSDevice._caress_maps:
+                CARESSDevice._caress_maps[device] = 4096
+            elif device not in CARESSDevice._caress_maps:
+                CARESSDevice._caress_maps[device] = 1 + \
+                    max(CARESSDevice._caress_maps.values())
+            res = CARESSDevice._caress_maps[device]
         else:
             res = int(answer.split('=')[1])
         self.log.debug('Get CARESS device ID: %r' % (res,))
         return res
 
     def _is_corba_device(self):
-        return self._device_kind() == CORBA_DEVICE
+        return self._device_kind() == CORBA_DEVICE and (not self.absdev)
 
     def _device_kind(self):
         if not self._kind:
@@ -149,9 +171,9 @@ class CARESSDevice(HasCommunication):
             raise ProgrammingError(self, 'Programmer forgot to call _initORB')
 
         obj = self._orb.resolve_initial_references('NameService')
-        rootContext = obj._narrow(CosNaming.NamingContext)
+        _root_context = obj._narrow(CosNaming.NamingContext)
 
-        if not rootContext:
+        if not _root_context:
             raise CommunicationError(self, 'Failed to narrow the root naming'
                                      ' context')
         if self._is_corba_device():
@@ -161,8 +183,8 @@ class CARESSDevice(HasCommunication):
                 if len(tmp) < 2:
                     tmp.append('caress_object')
                 self.log.debug('%r' % tmp)
-                obj = rootContext.resolve([CosNaming.NameComponent(tmp[0],
-                                                                   tmp[1]), ])
+                obj = _root_context.resolve([CosNaming.NameComponent(tmp[0],
+                                                                     tmp[1]), ])
             except CosNaming.NamingContext.NotFound as ex:
                 raise ConfigurationError(self, 'Name not found: %s' % (ex,))
             self._caressObject = obj._narrow(CARESS.CORBADevice)
@@ -182,11 +204,15 @@ class CARESSDevice(HasCommunication):
         if hasattr(self._caressObject, 'init_module_orb'):
             self._caressObject.init_module = self._caressObject.init_module_orb
 
-        self._cid = self._getCID(self.config.split(None, 2)[0])
+        _cid = self._getCID(self.config.split(None, 2)[0])
+        if session.sessiontype != POLLER:
+            self._setROParam('cid', _cid)
+            if self._cache:
+                self._cache.invalidate(self, 'cid')
 
     def _normalized_config(self):
         tmp = self.config.split()
-        if tmp[2].count(':'):
+        if tmp[2].count(':') and not self.absdev:
             tmp[2] = tmp[2].split(':/')[1]
             return ' '.join(tmp)
         else:
@@ -194,7 +220,7 @@ class CARESSDevice(HasCommunication):
 
     def _name_server(self):
         tmp = self.config.split()
-        if tmp[2].count(':'):
+        if tmp[2].count(':') and not self.absdev:
             return tmp[2].split(':')[0]
         elif self.nameserver:
             return self.nameserver
@@ -205,26 +231,57 @@ class CARESSDevice(HasCommunication):
 
     def _init(self):
         try:
+            if session.sessiontype != POLLER:
+                if hasattr(self._caressObject, 'init_system_orb'):
+                    if not CARESSDevice._caress_initialized:
+                        self.log.warning(self, 'initialize the CARESS absdev container')
+                        if self._caressObject.init_system_orb(0)[0] in \
+                           (0, CARESS.OK):
+                            CARESSDevice._caress_initialized = True
+                        else:
+                            raise CommunicationError(self, 'could not initialize '
+                                                     'CARESS absdev container')
+
             _config = self._normalized_config()
-            if self._is_corba_device():
-                res = self._caressObject.init_module(INIT_NORMAL, self._cid,
-                                                     _config)
+
+            res = self._caressObject.init_module(INIT_CONNECT, self.cid,
+                                                 _config)
+            self.log.debug(self, 'INIT_CONNECT: %r' % ((res, )))
+            if res[0] in (0, CARESS.OK):
+                if res[1] == OFF_LINE:
+                    res = self._caressObject.init_module(INIT_REINIT, self.cid,
+                                                         _config)
             else:
-                res = self._caressObject.init_module(INIT_CONNECT, self._cid,
+                res = self._caressObject.init_module(INIT_NORMAL, self.cid,
                                                      _config)
             self.log.debug('Init module (Connect): %r' % (res,))
-            if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-                res = self._caressObject.init_module(INIT_REINIT, self._cid,
-                                                     _config)
-                self.log.debug('Init module (Re-Init): %r' % (res,))
-                if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-                    self.log.error('Init module (Re-Init): %r (%d, %s)' %
-                                   (res, self._cid, self.config))
-                    raise NicosError(self, 'Could not initialize module!')
+            if res[0] not in (0, CARESS.OK) or res[1] == OFF_LINE:
+                raise NicosError(self, 'Could not initialize module! (%r) %d' %
+                                 ((res,), self._device_kind()))
+            # res = self._caressObject.init_module(INIT_REINIT, self.cid,
+            #                                          _config)
+            # self.log.debug('Init module (Re-Init): %r' % (res,))
+            # if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
+            #     self.log.error('Init module (Re-Init): %r (%d, %s)' %
+            #                    (res, self.cid, self.config))
+            if self._device_kind() == CORBA_DEVICE:
+                if self.absdev:
+                    res = self._caressObject \
+                        .char_loadblock_module_orb(0, self.cid, 1,
+                                                   len(self.loadblock), 16,
+                                                   self.loadblock)
+                else:
+                    val = CARESS.Value(ab=self.loadblock)
+                    res = self._caressObject \
+                        .loadblock_module(0, self.cid, 1,
+                                          len(self.loadblock), 16, val)
             self._initialized = True
+            if not self._is_corba_device():
+                CARESSDevice._used_counter += 1
+
         except CORBA.TRANSIENT as err:
             raise CommunicationError(self, 'could not init CARESS module %r '
-                                     '(%d: %s)' % (err, self._cid, self.config))
+                                     '(%d: %s)' % (err, self.cid, self.config))
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -237,29 +294,52 @@ class CARESSDevice(HasCommunication):
         self._init()
 
     def doShutdown(self):
+        if session.mode == SIMULATION:
+            return
+        if session.sessiontype != POLLER:
+            if self._caressObject and hasattr(self._caressObject,
+                                              'release_system_orb'):
+                if CARESSDevice._used_counter:
+                    CARESSDevice._used_counter -= 1
+                    if not CARESSDevice._used_counter:
+                        if self._caressObject.release_system_orb(0)[0] in \
+                           (0, CARESS.OK):
+                            CARESSDevice._caress_maps.clear()
+                            CARESSDevice._caress_initialized = False
+                        else:
+                            raise NicosError(self, 'Could not release CARESS')
+            self._setROParam('cid', 0)
+            if self._cache:
+                self._cache.invalidate(self, 'cid')
         self._orb = None
         self._initialized = False
 
     def _read(self):
+        if not self.cid:
+            raise InvalidValueError(self, 'Connection lost to CARESS')
         if hasattr(self._caressObject, 'read_module'):
-            # result = self._caressObject.read_module(0x80000000, self._cid)
-            result, state, val = self._caressObject.read_module(0, self._cid)
+            # result = self._caressObject.read_module(0x80000000, self.cid)
+            result, state, val = self._caressObject.read_module(0, self.cid)
             if result != CARESS.OK:
                 raise CommunicationError(self,
-                                         'Could not read the CARESS module')
+                                         'Could not read the CARESS module: %d'
+                                         % self.cid)
             if hasattr(val, 'f'):
                 return (state, val.f)
             return (state, val.l,)
         else:
             _ = ()
-            result = self._caressObject.read_module_orb(0, self._cid, _)
+            self.log.debug(self, 'read module: %d' % self.cid)
+            result = self._caressObject.read_module_orb(0, self.cid, _)
             self.log.debug('read_module: %r' % (result,))
             if result[0] != 0:
                 raise CommunicationError(self,
-                                         'Could not read the CARESS module')
-            if result[1][0].value() != self._cid:
-                raise NicosError(self, 'Answer from wrong module!: %d %r' %
-                                 (self._cid, result[1][0]))
+                                         'Could not read the CARESS module: %d'
+                                         % self.cid)
+            if result[1][0].value() != self.cid:
+                raise CommunicationError(self,
+                                         'Answer from wrong module!: %d %r' %
+                                         (self.cid, result[1][0]))
             if result[1][1].value() == OFF_LINE:
                 raise NicosError(self, 'Module is off line!')
             if result[1][2].value() < 1:
@@ -267,17 +347,25 @@ class CARESSDevice(HasCommunication):
             return result[1][1].value(), result[1][4].value()
 
     def doRead(self, maxage=0):
-        return self._caress_guard(self._read)[1]
+        try:
+            return self._caress_guard(self._read)[1]
+        except (InvalidValueError, CommunicationError, NicosError):
+            if session.sessiontype == POLLER:
+                return None
+            raise
 
     def doStatus(self, maxage=0):
-        state = self._caress_guard(self._read)[0]
-        if state == OFF_LINE:
-            return status.ERROR, 'device is offline'
-        elif state in (ACTIVE, ACTIVE1, COMBO_ACTIVE):
-            return status.BUSY, ''
-        else:
-            return status.OK, 'idle or paused'
-        return status.OK, 'idle'
+        try:
+            state = self._caress_guard(self._read)[0]
+            if state == OFF_LINE:
+                return status.ERROR, 'device is offline'
+            elif state in (ACTIVE, ACTIVE1, COMBO_ACTIVE):
+                return status.BUSY, 'moving or in manual mode'
+            elif state == DONE:
+                return status.OK, 'idle or paused'
+            return status.OK, 'idle'
+        except (InvalidValueError, CommunicationError, NicosError) as e:
+            return status.ERROR, e.message
 
     def _caress_guard_nolog(self, function, *args):
 
