@@ -13,6 +13,27 @@ _expcolumn = Column(
                  Field(name='Last file', key='exp/lastscan'))]),
 )
 
+_sampletable = Block('Sample table', [
+    BlockRow(
+        Field(dev='xt', format='%.1f'),
+        Field(dev='yt'),
+        Field(dev='zt',format='%.2f'),
+        Field(dev='omgs'),
+        Field(dev='tths'),
+    ),
+    ],
+    setups = 'sampletable',
+)
+
+_eulerian = Block('Eulerian', [
+     BlockRow(
+        Field(dev='chis'),
+        Field(dev='phis'),
+    )
+    ],
+    setups = 'eulerian*',
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
@@ -24,6 +45,6 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn),],
+                     layout = [Row(_expcolumn), Row(Column(_sampletable)), Row(Column(_eulerian))],
                     ),
 )
