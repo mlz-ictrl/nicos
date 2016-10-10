@@ -1,7 +1,8 @@
-description = 'Secondary slit CARESS HWB xDevices'
+description = 'Primary slit Huber automatic'
 
 group = 'optional'
 
+excludes = ['primaryslit_manual']
 
 servername = 'VME'
 
@@ -31,24 +32,32 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    sst = device('devices.vendor.caress.Motor',
-                 description = 'HWB SST',
+
+    psw = device('devices.vendor.caress.Motor',
+                 description = 'HWB PSW',
+                 fmtstr = '%.2f',
+                 unit = 'mm',
+                 coderoffset = -2049.02,
+                 abslimits = (0, 7),
+                 nameserver = '%s' % (nameservice,),
+                 objname = '%s' % (servername),
+                 config = 'PSW 114 11 0x00f1c000 4 4096 1000 100 2 24 50 0 0 1'
+                          ' 3000 1 10 0 0 0',
+                 ),
+    psh = device('devices.vendor.caress.Motor',
+                 description = 'HWB PSH',
                  fmtstr = '%.2f',
                  unit = 'mm',
                  coderoffset = 0,
-                 abslimits = (-15, 15),
+                 abslimits = (0, 17),
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
-                 config = 'SST 115 11 0x00f1f000 3 100 200 20 1 0 0 0 0 1 3000'
-                          ' 1 10 0 0 0',
-                ),
-
-     ssw = device('devices.generic.ManualMove',
-                 description = 'Secondary Slit Width',
-                 fmtstr = '%.1f',
-                 default = 1,
-                 unit = 'mm',
-                 abslimits = (0, 30),
-                 requires =  {'level': 'admin',},
-                ),
+                 config = 'PSH 115 11 0x00f1d000 2 100 100 10 1 0 0 0 0 1 '
+                          '3000 1 10 0 0 0',
+                 ),
 )
+
+startupcode = '''
+# psh.userlimits = psh.abslimits
+# psw.userlimits = psw.abslimits
+'''
