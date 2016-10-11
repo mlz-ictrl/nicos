@@ -109,7 +109,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                   category='general'),
         'rotation':         Param('Rotation',
                                   type=oneof(0, 90, 180, 270), settable=True,
-                                  default=0, volatile=True, category='general'),
+                                  default=0, category='general'),
         'expotime':         Param('Exposure time',
                                   type=float, settable=False, volatile=True,
                                   category='general'),
@@ -172,10 +172,19 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         if mode != SIMULATION:
             self._initOptionalComponents()
 
+        # set some dummy roi to avoid strange lima rotation behaviour
+        self._writeRawRoi((0, 0, 1, 1))
+        # ensure NO rotation
+        self._dev.image_rotation = 'NONE'
+        # set full detector size as roi
+        self._writeRawRoi((0, 0, 0, 0))
+        # cache full detector size
+        self._full_shape = (self.imagewidth, self.imageheight)
+
     def doInit(self, mode):
         # Determine image type
-        shape = (self.imagewidth, self.imageheight)
-        self.arraydesc = ArrayDesc('data', shape, self._getImageType())
+        self.arraydesc = ArrayDesc('data', self._full_shape,
+                                   self._getImageType())
 
     def doShutdown(self):
         self._hwDev.shutdown()
@@ -237,10 +246,15 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         return self._dev.image_height
 
     def doReadRoi(self):
-        return tuple(self._dev.image_roi.tolist())
+        rawRoi = self._readRawRoi()
+        if rawRoi == ((0, 0) + self._full_shape):
+            return (0, 0, 0, 0)
+
+        return self._rotateRoi(rawRoi, self.rotation)
 
     def doWriteRoi(self, value):
-        self._dev.image_roi = value
+        rotatedRoi = self._unrotateRoi(value, self.rotation)
+        self._writeRawRoi(rotatedRoi)
 
     def doReadBin(self):
         return tuple(self._dev.image_bin.tolist())
@@ -254,20 +268,10 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doWriteFlip(self, value):
         self._dev.image_flip = value
 
-    def doReadRotation(self):
-        rot = self._dev.image_rotation
-
-        if rot == 'NONE':
-            return 0
-        else:
-            return int(rot)
-
     def doWriteRotation(self, value):
-        writeVal = str(value)
-        if value == 0:
-            writeVal = 'NONE'
+        desiredRoi = self.doReadRoi()
+        self._writeRawRoi(self._unrotateRoi(desiredRoi, value))
 
-        self._dev.image_rotation = writeVal
 
     def doReadExpotime(self):
         return self._dev.acq_expo_time
@@ -310,14 +314,14 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doReadArray(self, quality):
         response = self._dev.readImage(0)
-        imgDataStr = response[1]  # response is a tuple (type name, data)
+        img_data_str = response[1]  # response is a tuple (type name, data)
 
         dt = numpy.dtype(self._getImageType())
         dt = dt.newbyteorder('<')
 
-        imgData = numpy.frombuffer(imgDataStr, dt, offset=64)
-        imgData = numpy.reshape(imgData, (self.imageheight, self.imagewidth))
-        return imgData
+        img_data = numpy.frombuffer(img_data_str, dt, offset=64)
+        img_data = numpy.reshape(img_data, (self.imageheight, self.imagewidth))
+        return numpy.rot90(img_data, self.rotation / 90)
 
     def _initOptionalComponents(self):
         try:
@@ -341,3 +345,100 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         }
 
         return mapping.get(imageType, numpy.uint32)
+
+    def _unrotateRoi(self, roi, rotation):
+        self.log.debug('Rotate roi %r by %r' % (roi, rotation))
+        w, h = self._full_shape
+
+        # transformation matrix for no rotation
+        transmat = numpy.matrix([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ])
+
+        if rotation == 90:
+            transmat = numpy.matrix([
+                [0, -1, w],
+                [1,  0, 0],
+                [0,  0, 1]
+            ])
+        elif rotation == 180:
+            transmat = numpy.matrix([
+                [-1,  0, h],
+                [ 0, -1, w],
+                [ 0,  0, 1]
+            ])
+        elif rotation == 270:
+            transmat = numpy.matrix([
+                [ 0, 1, 0],
+                [-1, 0, h],
+                [ 0, 0, 1]])
+
+        result = self._transformRoi(roi, transmat)
+        self.log.debug('\t=> %r' % (result,))
+        return result
+
+    def _rotateRoi(self, roi, rotation):
+        self.log.debug('UNrotate roi %r from %r' % (roi, rotation))
+        w, h = self._full_shape
+
+        # transformation matrix for no rotation
+        transmat = numpy.matrix([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ])
+
+        if rotation == 90:
+            transmat = numpy.matrix([
+                [ 0, 1, 0],
+                [-1, 0, w],
+                [ 0, 0, 1]
+            ])
+        elif rotation == 180:
+            transmat = numpy.matrix([
+                [-1,  0, h],
+                [ 0, -1, w],
+                [ 0,  0, 1]
+            ])
+        elif rotation == 270:
+            transmat = numpy.matrix([
+                [0, -1, h],
+                [1,  0, 0],
+                [0,  0, 1]])
+
+        result = self._transformRoi(roi, transmat)
+        self.log.debug('\t=> %r' % (result, ))
+        return result
+
+    def _transformRoi(self, roi, transmat):
+        x, y, roi_width, roi_height = roi
+
+        topleft = numpy.matrix([
+            [x],
+            [y],
+            [1]
+        ])
+
+        bottomright = numpy.matrix([
+            [x+roi_width],
+            [y+roi_height],
+            [1]
+        ])
+
+        topleft = transmat * topleft
+        bottomright = transmat * bottomright
+
+        x_max = max(topleft.item(0), bottomright.item(0))
+        x_min = min(topleft.item(0), bottomright.item(0))
+        y_max = max(topleft.item(1), bottomright.item(1))
+        y_min = min(topleft.item(1), bottomright.item(1))
+
+        return (x_min, y_min, x_max - x_min, y_max - y_min)
+
+    def _readRawRoi(self):
+        return tuple(self._dev.image_roi.tolist())
+
+    def _writeRawRoi(self, value):
+        self._dev.image_roi = value
