@@ -8,30 +8,84 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=40,
-                       istext=True, maxlen=40),
-                 Field(name='Last file', key='exp/lastscan'))]),
-)
-
-_sampletable = Block('Sample table', [
-    BlockRow(
-        Field(dev='xt', format='%.1f'),
-        Field(dev='yt'),
-        Field(dev='zt',format='%.2f'),
-        Field(dev='omgs'),
-        Field(dev='tths'),
-    ),
+                 Field(name='Last file', key='exp/lastscan')),
+        BlockRow(Field(name='Current status', key='exp/action', width=40,
+                       istext=True, maxlen=40)),
     ],
-    setups = 'sampletable',
+    )
 )
 
-_eulerian = Block('Eulerian', [
-     BlockRow(
-        Field(dev='chis'),
-        Field(dev='phis'),
-    )
+_sampletable = Column(
+    Block('Monochromator', [
+        BlockRow(Field(name='Crystal', dev='transm', istext=True)),
+        BlockRow(Field(name='Wave length', dev='wav',)),
+    ]
+    ),
+    Block('Sample table', [
+        BlockRow(Field(dev='xt', format='%.1f')),
+        BlockRow(Field(dev='yt')),
+        BlockRow(Field(dev='zt', format='%.2f')),
+        BlockRow(Field(dev='omgs')),
+        BlockRow(Field(dev='tths')),
+    ],
+    setups = 'sampletable or vstressi',
+    ),
+    Block('Robot', [
+        BlockRow(Field(dev='robx')),
+        BlockRow(Field(dev='roby')),
+        BlockRow(Field(dev='robz')),
+        BlockRow(Field(dev='chir')),
+        BlockRow(Field(dev='phir')),
+        BlockRow(Field(dev='omgr')),
+        BlockRow(Field(dev='tthr')),
+        BlockRow(Field(dev='robt')),
+        BlockRow(Field(dev='robs')),
+        BlockRow(Field(dev='robsl')),
+        BlockRow(Field(dev='robsj')),
+        BlockRow(Field(dev='robsr')),
+    ],
+    setups = 'robot*',
+    ),
+)
+
+_measurement = Column(
+    Block('Measurement', [
+        BlockRow(Field(dev='adet'),)
+    ],
+    ),
+    Block('Gauge volume', [
+        BlockRow(Field(dev='pst'),
+                 Field(dev='psz'),
+                 Field(dev='psw'),
+                 Field(dev='psh'),),
+        BlockRow(Field(dev='sst'),
+                 Field(dev='ssw'),),
+        BlockRow(Field(dev='mot1'),),
+        BlockRow(Field(dev='rad_fhwm'),),
+    ],
+    ),
+)
+
+_eulerian = Column(
+    Block('', [
+        BlockRow(Field(dev='ReactorPower',)),
+        BlockRow(Field(dev='hv1',),
+                 Field(dev='hv2',)),
+    ],
+    ),
+    Block('Eulerian', [
+        BlockRow(Field(dev='chis')),
+        BlockRow(Field(dev='phis')),
     ],
     setups = 'eulerian*',
+    ),
+    Block('Tesile machine', [
+        BlockRow(Field(dev='teload',)),
+        BlockRow(Field(dev='tepos',)),
+        BlockRow(Field(dev='teext',)),
+    ],
+    setups = 'tensile',
+    ),
 )
 
 devices = dict(
@@ -45,6 +99,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn), Row(Column(_sampletable)), Row(Column(_eulerian))],
+                     layout = [Row(_expcolumn),
+                               Row(_sampletable, _measurement, _eulerian)],
                     ),
 )
