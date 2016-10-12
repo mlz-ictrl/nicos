@@ -1521,8 +1521,6 @@ class Moveable(Waitable):
         by evaluating the `speed` or `ramp` parameters, if they are defined.
         If no calculation can be performed, return 0.
         """
-        if old_value is None or target is None:
-            return 0.
         # speed is in physical units per second and ramp is per minute
         if 'speed' in self.parameters and self.speed != 0:
             return abs(target - old_value) / self.speed
@@ -1548,7 +1546,9 @@ class Moveable(Waitable):
         if self._sim_active:
             time = 0
             try:
-                time = self.doTime(self._sim_old_value, self._sim_value)
+                if self._sim_old_value is not None and \
+                   self._sim_value is not None:
+                    time = self.doTime(self._sim_old_value, self._sim_value)
             except Exception:
                 self.log.warning('could not time movement', exc=1)
             if self._sim_started is not None:
