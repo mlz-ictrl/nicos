@@ -6,6 +6,8 @@ sysconfig = dict(
     instrument = 'VSTRESSI',
 )
 
+includes = ['source',]
+
 devices = dict(
     VSTRESSI = device('devices.instrument.Instrument',
                       description = 'Virtual STRESSI instrument',
