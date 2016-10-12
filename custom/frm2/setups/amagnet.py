@@ -4,76 +4,89 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-taco_host = setupname
+tango_base = 'tango://%s.antares.frm2:10000/box/' % setupname
 
 devices = dict(
-    amagnet_onoff = device('antares.switches.ToggleSwitch',
-                      description = 'Garfield magnet: on/off switch',
-                      tacodevice = '//%s/amagnet/beckhoff/onoff' % taco_host,
-                      readback = '//%s/amagnet/beckhoff/honoff' % taco_host,
-                      mapping = { 1 : 'on', 0 : 'off'},
-                      lowlevel = True,
-                     ),
-    amagnet_polarity = device('antares.switches.ReadbackSwitch',
-                      description = 'Garfield magnet: polarity (+/-) switch',
-                      tacodevice = '//%s/amagnet/beckhoff/posneg' % taco_host,
-                      readback = '//%s/amagnet/beckhoff/hpos' % taco_host,
-                      mapping = { 1 : '+', 2 : '-'},
-                      rwmapping = { 0 : 2 },
-                      lowlevel = True,
-                     ),
-    amagnet_connection = device('antares.switches.ReadbackSwitch',
-                      description = 'Garfield magnet: connection switch',
-                      tacodevice = '//%s/amagnet/beckhoff/serpar' % taco_host,
-                      readback = '//%s/amagnet/beckhoff/hpar' % taco_host,
-                      mapping = {1: 'par', 2: 'ser'},
-                      rwmapping = {0: 2},
-                      #~ lowlevel = True,
-                     ),
-    #~ amagnet_temp1 = device('devices.taco.AnalogInput',
-                         #~ description = 'Taco device for temperature 1',
-                         #~ tacodevice = '//%s/amagnet/beckhoff/temp1' % taco_host,
-                         #~ unit = 'K',
-                        #~ ),
-    #~ amagnet_temp2 = device('devices.taco.AnalogInput',
-                         #~ description = 'Taco device for temperature 2',
-                         #~ tacodevice = '//%s/amagnet/beckhoff/temp2' % taco_host,
-                         #~ unit = 'K',
-                        #~ ),
-
-    #~ amagnet_temp3 = device('devices.taco.AnalogInput',
-                         #~ description = 'Taco device for temperature 3',
-                         #~ tacodevice = '//%s/amagnet/beckhoff/temp3' % taco_host,
-                         #~ unit = 'K',
-                        #~ ),
-
-    #~ amagnet_temp4 = device('devices.taco.AnalogInput',
-                         #~ description = 'Taco device for temperature 4',
-                         #~ tacodevice = '//%s/amagnet/beckhoff/temp4' % taco_host,
-                         #~ unit = 'K',
-                        #~ ),
-    amagnet_current = device('devices.taco.CurrentSupply',
-                         description = 'Taco device for the magnet power supply (current mode)',
-                         tacodevice = '//%s/amagnet/lambda/out' % taco_host,
-                         unit = 'A',
-                         abslimits = (0, 200),
-                         lowlevel = True,
-                        ),
+    amagnet_onoff = device('devices.tango.NamedDigitalOutput',
+        description = 'Garfield magnet: on/off switch',
+        tangodevice = tango_base + 'plc/_enable',
+        mapping = dict(
+            on = 1, off = 0
+        ),
+    ),
+    amagnet_polarity = device('devices.tango.NamedDigitalOutput',
+        description = 'Garfield magnet: polarity (+/-) switch',
+        tangodevice = tango_base + 'plc/_polarity',
+        # 0 is shorting the power-supply: only if current is zero!
+        # there is an interlock in the plc:
+        # if there is current, switching polarity is forbidden
+        # if polarity is short, powersupply is disabled
+        mapping = {'+1': 1,
+                   '0': 0,
+                   '-1': -1},
+        lowlevel = True,
+    ),
+    amagnet_symmetry = device('devices.tango.NamedDigitalOutput',
+        description = 'Garfield magnet: par/ser switch selecting (a)symmetric mode',
+        tangodevice = tango_base + 'plc/_symmetric',
+        # symmetric is ser, asymmetric is par
+        mapping = dict(
+            symmetric = 1, short = 0, unsymmetric = -1
+        ),
+        lowlevel = True,
+    ),
+    amagnet_T1 = device('devices.tango.AnalogInput',
+        description = 'Temperature1 of the coils system',
+        tangodevice = tango_base + 'plc/_t1',
+        unit = 'K',
+        warnlimits = (0, 50),
+    ),
+    amagnet_T2 = device('devices.tango.AnalogInput',
+        description = 'Temperature2 of the coils system',
+        tangodevice = tango_base + 'plc/_t2',
+        unit = 'K',
+        warnlimits = (0, 50),
+    ),
+    amagnet_T3 = device('devices.tango.AnalogInput',
+        description = 'Temperature3 of the coils system',
+        tangodevice = tango_base + 'plc/_t3',
+        unit = 'K',
+        warnlimits = (0, 50),
+    ),
+    amagnet_T4 = device('devices.tango.AnalogInput',
+        description = 'Temperature4 of the coils system',
+        tangodevice = tango_base + 'plc/_t4',
+        unit = 'K',
+        warnlimits = (0, 50),
+    ),
+    amagnet_current = device('devices.tango.PowerSupply',
+        description = 'Device for the magnet power supply (current mode)',
+        tangodevice = tango_base + 'lambda/curr',
+        unit = 'A',
+        abslimits = (0, 200),
+        lowlevel = True,
+    ),
     # by convention this needs to be B_%(setupname)s
-    B_amagnet = device('frm2.magnet.GarfieldMagnet',
-                         description = 'magnetic field device, handling polarity switching and stuff',
-                         currentsource = 'amagnet_current',
-                         onoffswitch = 'amagnet_onoff',
-                         polswitch = 'amagnet_polarity',
-                         unit = 'T',
-                         # B(I) = c[0]*I + c[1]*erf(c[2]*I) + c[3]*atan(c[4]*I)
-                         # 2014/02/10: calibration from 9002_00009120.dat .. 9002_00009122.dat
-                         #~ calibration = (0.0018467, -0.0346142, 0.021774, 0.0638581, 0.0541159),
-                         # 2014/09/11: calibration_garfield.dat from Sebastion M. (sans1)
-                         calibration = (0.00186485, -0.0289753, -0.0587453, -0.0143078, -0.0399828),
-                         userlimits = (-0.35, 0.35),
-                        ),
+    B_amagnet = device('frm2.amagnet.GarfieldMagnet',
+        description = 'magnetic field device, handling polarity switching and stuff',
+        currentsource = 'amagnet_current',
+        onoffswitch = 'amagnet_onoff',
+        polswitch = 'amagnet_polarity',
+        symmetry = 'amagnet_symmetry',
+        unit = 'T',
+        # B(I) = c[0]*I + c[1]*erf(c[2]*I) + c[3]*atan(c[4]*I)
+        # 2016/10/12: Kalibrierkuve.xls from T.Reimann
+        calibrationtable = dict(
+            symmetric = (
+                0.00186517, 0.0431937, -0.185956, 0.0599757, 0.194042
+            ),
+            short = (0.0, 0.0, 0.0, 0.0, 0.0),
+            unsymmetric = (
+                0.00136154, 0.027454, -0.120951, 0.0495289, 0.110689
+            ),
+        ),
+        userlimits = (-0.35, 0.35),
+    ),
 )
-alias_config = {
-    'B': {'B_amagnet': 100},
-}
+
+alias_config = {'B': {'B_amagnet': 100},}

@@ -26,8 +26,9 @@
 Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 """
 
-from nicos.core import Moveable, Attach
-from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep
+from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof, \
+    status, HasLimits
+from nicos.devices.generic.sequence import SeqDev, SeqSleep
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 
 
@@ -45,13 +46,49 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
     attached_devices = {
         'onoffswitch': Attach('Switch to set for on/off', Moveable),
         'polswitch':   Attach('Switch to set for polarity', Moveable),
+        'symmetry':    Attach('Switch to read for symmetry', Moveable),
     }
 
+    parameters = {
+        'calibrationtable': Param('Map of Coefficients for calibration  per symmetry setting',
+                                  type=dictof(str, tupleof(
+                                      float, float, float, float, float)),
+                                  mandatory=True,),
+    }
+
+    parameter_overrides = {
+        'calibration': Override(volatile=True, settable=False, mandatory=False),
+    }
+
+    def doWriteUserlimits(self, limits):
+        abslimits = self.abslimits
+        # include 0 in limits
+        newlimits = (max(limits[0], abslimits[0], 0),
+                     min(limits[1], abslimits[1], 0))
+        HasLimits.doWriteUserlimits(self, newlimits)
+        # intentionally not calling CalibratedMagnet.doWriteUserlimits
+        # we do not want to change the limits of the current source
+        return newlimits
+
+    def doReadCalibration(self):
+        symval = self._attached_symmetry.read()
+        return self.calibrationtable.get(symval, (0.0, 0.0, 0.0, 0.0, 0.0))
+
+    def doWriteCalibration(self, cal):
+        symval = self._attached_symmetry.read()
+        self.calibrationtable[symval] = cal
+
     def _get_field_polarity(self):
-        sign = -1 if self._attached_polswitch.read() == '-' else +1
+        sign = int(self._attached_polswitch.read())
         if self._attached_onoffswitch.read() == 'off':
             return 0
         return sign
+
+    def doReset(self):
+        if self._attached_onoffswitch.status()[0] == status.ERROR:
+            self._attached_onoffswitch.reset()
+            self._attached_onoffswitch.move('on')
+            # immediate action, no need to wait....
 
     def _seq_set_field_polarity(self, polarity, sequence):
         if polarity == 0:
@@ -61,13 +98,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
 
         sequence.append(SeqDev(onoff, 'off'))
         sequence.append(SeqSleep(0.3, 'disabling power'))
-        sequence.append(SeqDev(pol, '+' if polarity > 0 else '-'))
+        sequence.append(SeqDev(pol, '%d' % polarity))
         sequence.append(SeqSleep(0.3, 'switching polarity'))
         sequence.append(SeqDev(onoff, 'on'))
         sequence.append(SeqSleep(0.3, 'enabling power'))
-        try:
-            sequence.append(SeqMethod(self._attached_currentsource._dev,
-                                      'deviceOn'))
-            sequence.append(SeqSleep(0.3, 're-enabling power source'))
-        except Exception:
-            pass  # would fail on non taco devices and is only needed on those
