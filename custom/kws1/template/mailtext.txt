@@ -1,8 +1,7 @@
 Dear user(s),
 
-please find attached {{proposal}}.zip, a compressed file containing
-the data and script files from your recent experiment {{proposal}}
-(from {{from_date}} to {{to_date}}) on KWS-1.
+with this email you receive the data and script files from your recent
+experiment {{proposal}} (from {{from_date}} to {{to_date}}) on KWS-1.
 
 Please let us know about the quality of the data and your satisfaction
 with our support. Do not forget to submit an experimental report,
