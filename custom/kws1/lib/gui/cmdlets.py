@@ -116,7 +116,7 @@ class MeasureTable(Cmdlet):
     def on_rtBox_toggled(self, state):
         self.rtConfBtn.setEnabled(state)
         # clears current table!
-        self.measdef = MeasDef(state)
+        self.measdef = MeasDef(state, self.measdef.loops)
         self.updateTable()
 
     @pyqtSlot()

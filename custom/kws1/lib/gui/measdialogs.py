@@ -53,9 +53,9 @@ SAMPLE_NUM = 32
 
 
 class MeasDef(object):
-    def __init__(self, rtmode):
+    def __init__(self, rtmode, loops=None):
         self.rtmode = rtmode
-        self.loops = LOOPS[:]
+        self.loops = loops or LOOPS[:]
         self.samples = []
         self.detsets = []
         self.devices = []
