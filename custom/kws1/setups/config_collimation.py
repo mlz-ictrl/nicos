@@ -5,6 +5,7 @@ COLLIMATION_PRESETS = {
     '2m (30x30)':   dict(guides=2,  ap_x=30,   ap_y=30),
     '4m (30x30)':   dict(guides=4,  ap_x=30,   ap_y=30),
     '8m (30x30)':   dict(guides=8,  ap_x=30,   ap_y=30),
+    '8m (40x40)':   dict(guides=8,  ap_x=40,   ap_y=40),
     '8m (6x6) Tr':  dict(guides=8,  ap_x=6,    ap_y=6),
     '14m (30x30)':  dict(guides=14, ap_x=30,   ap_y=30),
     '20m (30x30)':  dict(guides=20, ap_x=30,   ap_y=30),
