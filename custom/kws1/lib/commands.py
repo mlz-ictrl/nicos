@@ -46,6 +46,8 @@ def SetupRealtime(channels, interval, progression, trigger):
     # let the detector calculate the preset
     detector.prepare()
     detector.setPreset(t=0)
+    rtswitch = session.getDevice('det_ext_rt')
+    rtswitch.move(1 if trigger == 'external' else 0)
     printinfo('Detector presets set to realtime mode%s.' %
               (' with external trigger' if trigger == 'external' else ''))
 
@@ -56,6 +58,8 @@ def SetupNormal():
     detector = session.getDevice('det')
     # just set it to standard mode, TOF mode will be set by the chopper preset
     detector.mode = 'standard'
+    rtswitch = session.getDevice('det_ext_rt')
+    rtswitch.move(0)
     printinfo('Detector presets set to standard or TOF mode.')
 
 

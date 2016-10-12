@@ -25,7 +25,6 @@
 import numpy as np
 import PyTango
 
-from nicos import session
 from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
     listof, intrange, ConfigurationError, SIMULATION, Measurable, MASTER
 from nicos.core.constants import FINAL, INTERRUPTED
@@ -44,7 +43,6 @@ PIXELS = 128
 class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
-        'rtswitch':    Attach('SPS switch for realtime mode', Moveable),
         'timer':       Attach('The timer channel', Measurable),
     }
 
@@ -102,11 +100,6 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     def doStart(self):
         self.readresult = [0, 0.0]
         self._dev.Start()
-        if self.mode == 'realtime_external':
-            self.log.debug('triggering RT start')
-            self._attached_rtswitch.move(1)
-            session.delay(1)
-            self._attached_rtswitch.move(0)
 
     def doPause(self):
         # no stop necessary, gate will be cleared by counter card

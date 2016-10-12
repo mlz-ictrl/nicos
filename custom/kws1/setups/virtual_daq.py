@@ -9,6 +9,12 @@ sysconfig = dict(
 )
 
 devices = dict(
+    det_ext_rt = device('devices.generic.manual.ManualSwitch',
+                        description = 'Switch for external-start realtime mode',
+                        lowlevel = True,
+                        states = ['on', 'off', 1, 0],
+                       ),
+
     det_img    = device('kws1.daq.VirtualJDaqChannel',
                         description = 'Image for the large KWS detector',
                        ),
