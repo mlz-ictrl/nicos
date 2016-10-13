@@ -22,8 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, status, oneof, Override, ConfigurationError, \
-    HasLimits, HasPrecision, Moveable
+import re
+
+from nicos.core import Param, status, oneof, Override, HasLimits, \
+    HasPrecision, Moveable
 from nicos.devices.tango import PyTangoDevice
 from .generic import GenericLimaCCD
 from .optional import LimaCooler
@@ -38,6 +40,10 @@ class Andor2LimaCCD(GenericLimaCCD):
     HSSPEEDS = [5, 3, 1, 0.05]  # Values from sdk manual
     VSSPEEDS = [38.55, 76.95]  # Values from sdk manual
     PGAINS = [1, 2, 4]  # Values from sdk manual
+
+    HSSPEED_RE = re.compile(r'ADC0_(\d+\.\d+|\d+)MHZ')
+    VSSPEED_RE = re.compile(r'(\d+\.\d+)USEC')
+    PGAIN_RE = re.compile(r'X(\d)')
 
     parameters = {
         'hsspeed': Param('Horizontal shift speed',
@@ -56,43 +62,25 @@ class Andor2LimaCCD(GenericLimaCCD):
     }
 
     def doReadHsspeed(self):
-        index = self._hwDev._dev.adc_speed
-
-        try:
-            return self.HSSPEEDS[index]
-        except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown hs speed '
-                                     '(index: %d)' % index)
+        val = float(self.HSSPEED_RE.match(self._hwDev._dev.adc_speed).group(1))
+        return val
 
     def doWriteHsspeed(self, value):
-        index = self.HSSPEEDS.index(value)
-        self._hwDev._dev.adc_speed = index
+        self._hwDev._dev.adc_speed = 'ADC0_%sMHZ' % value
 
     def doReadVsspeed(self):
-        index = self._hwDev._dev.vs_speed
-
-        try:
-            return self.VSSPEEDS[index]
-        except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown vs speed '
-                                     '(index: %d)' % index)
+        val = float(self.VSSPEED_RE.match(self._hwDev._dev.vs_speed).group(1))
+        return val
 
     def doWriteVsspeed(self, value):
-        index = self.VSSPEEDS.index(value)
-        self._hwDev._dev.vs_speed = index
+        self._hwDev._dev.vs_speed = '%sUSEC' % value
 
     def doReadPgain(self):
-        index = self._hwDev._dev.p_gain
-
-        try:
-            return self.PGAINS[index]
-        except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown preamplifier '
-                                     'gain (index: %d)' % index)
+        val = float(self.PGAIN_RE.match(self._hwDev._dev.p_gain).group(1))
+        return val
 
     def doWritePgain(self, value):
-        index = self.PGAINS.index(value)
-        self._hwDev._dev.p_gain = index
+        self._hwDev._dev.p_gain = 'X%s' % value
 
 
 class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
