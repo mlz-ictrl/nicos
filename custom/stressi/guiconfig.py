@@ -15,7 +15,12 @@ main_window = docked(
 )
 
 windows = [
-    window('Editor', 'editor', panel('editor.EditorPanel')),
+    window('Editor', 'editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel'),
+        ),
+    ),
     window('Scans', 'plotter', panel('scans.ScansPanel')),
     window('History', 'find', panel('history.HistoryPanel')),
     window('Logbook', 'table', panel('elog.ELogPanel')),
