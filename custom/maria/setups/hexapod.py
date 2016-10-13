@@ -8,19 +8,21 @@ excludes = []
 tango_base = "tango://phys.maria.frm2:10000/maria/"
 
 devices = dict(
-    omega  = device("devices.tango.Motor",
+    omega  = device("maria.motor.Motor",
                     description = "Hexapod base rotation table",
                     tangodevice = tango_base + "hexapodbase/dt",
                     unit = "deg",
                     precision = 0.01,
                     fmtstr = "%.2f",
+                    invert = True,
                    ),
-    detarm = device("devices.tango.Motor",
+    detarm = device("maria.motor.Motor",
                     description = "Hexapod detector arm rotation",
                     tangodevice = tango_base + "hexapodbase/da",
                     unit = "deg",
                     precision = 0.01,
                     fmtstr = "%.2f",
+                    invert = True,
                    ),
     rx     = device("devices.tango.Motor",
                     description = "Hexapod rotation around X",
