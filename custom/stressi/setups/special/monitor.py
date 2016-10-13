@@ -50,7 +50,9 @@ _sampletable = Column(
 
 _measurement = Column(
     Block('Measurement', [
-        BlockRow(Field(dev='adet'),)
+        BlockRow(Field(name='timer', key='tim1/value'),
+                 Field(name='monitor', key='mon/value'),
+                 Field(nam='counts', key='image/value'),)
     ],
     ),
     Block('Gauge volume', [
