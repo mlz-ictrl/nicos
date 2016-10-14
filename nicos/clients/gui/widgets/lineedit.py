@@ -127,7 +127,7 @@ class HistoryLineEdit(QLineEdit):
             prefix = self.text()[:self.cursorPosition()]
             self.stepHistoryUntil(prefix, 'down')
 
-        elif key_code == Qt.Key_Return:
+        elif key_code == Qt.Key_Return or key_code == Qt.Key_Enter:
             # accept - add to history and do normal processing
             self._current = -1
             text = self.text()
