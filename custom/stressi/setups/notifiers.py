@@ -12,6 +12,7 @@ devices = dict(
                                ],
                       subject = 'STRESSI',
                       lowlevel = True,
+                      mailserver ='mailhost.frm2.tum.de',
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
