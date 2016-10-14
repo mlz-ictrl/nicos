@@ -16,11 +16,6 @@ _expcolumn = Column(
 )
 
 _sampletable = Column(
-    Block('Monochromator', [
-        BlockRow(Field(name='Crystal', dev='transm', istext=True)),
-        BlockRow(Field(name='Wave length', dev='wav',)),
-    ]
-    ),
     Block('Sample table', [
         BlockRow(Field(dev='xt', format='%.1f')),
         BlockRow(Field(dev='yt')),
@@ -29,6 +24,12 @@ _sampletable = Column(
         BlockRow(Field(dev='tths')),
     ],
     setups = 'sampletable or vstressi',
+    ),
+    Block('Eulerian', [
+        BlockRow(Field(dev='chis')),
+        BlockRow(Field(dev='phis')),
+    ],
+    setups = 'eulerian*',
     ),
     Block('Robot', [
         BlockRow(Field(dev='robx')),
@@ -52,19 +53,35 @@ _measurement = Column(
     Block('Measurement', [
         BlockRow(Field(name='timer', key='tim1/value'),
                  Field(name='monitor', key='mon/value'),
-                 Field(nam='counts', key='image/value'),)
+                 Field(name='counts', key='image/value'),)
     ],
     ),
-    Block('Gauge volume', [
+    Block('Primary slit', [
         BlockRow(Field(dev='pst'),
                  Field(dev='psz'),
                  Field(dev='psw'),
                  Field(dev='psh'),),
+    ],
+    setups = 'primaryslit*',
+    ),
+    Block('Secondary optics', [
         BlockRow(Field(dev='sst'),
                  Field(dev='ssw'),),
-        BlockRow(Field(dev='mot1'),),
-        BlockRow(Field(dev='rad_fhwm'),),
     ],
+    setups = 'secondaryslit',
+    ),
+    Block('Radial collimator', [
+        BlockRow(Field(dev='mot1'),
+                 Field(dev='rad_fwhm'),),
+    ],
+    setups = 'radial',
+    ),
+    Block('Tesile machine', [
+        BlockRow(Field(dev='teload',)),
+        BlockRow(Field(dev='tepos',)),
+        BlockRow(Field(dev='teext',)),
+    ],
+    setups = 'tensile',
     ),
 )
 
@@ -75,18 +92,15 @@ _eulerian = Column(
                  Field(dev='hv2',)),
     ],
     ),
-    Block('Eulerian', [
-        BlockRow(Field(dev='chis')),
-        BlockRow(Field(dev='phis')),
-    ],
-    setups = 'eulerian*',
+    Block('Monochromator', [
+        BlockRow(Field(name='Crystal', dev='transm', istext=True)),
+        BlockRow(Field(name='Wave length', dev='wav',)),
+    ]
     ),
-    Block('Tesile machine', [
-        BlockRow(Field(dev='teload',)),
-        BlockRow(Field(dev='tepos',)),
-        BlockRow(Field(dev='teext',)),
+    Block('Sample Temperature', [
+         BlockRow(Field(dev='T')),
     ],
-    setups = 'tensile',
+    setups = 'stressihtf or htf* or ccr*',
     ),
 )
 
