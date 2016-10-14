@@ -7,7 +7,7 @@ devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'stressi@frm2.tum.de',
                       copies = [('michael.hofmann@frm2.tum.de', 'all'),   # gets all messages
-                                ('weimin.gan@frm2.tum.de', 'all'),   # gets all messages
+                                ('weimin.gan@hzg.de', 'all'),   # gets all messages
                                 ('joana.kornmeier@frm2.tum.de', 'important'), # gets only important messages
                                ],
                       subject = 'STRESSI',
