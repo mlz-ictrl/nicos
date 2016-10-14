@@ -172,6 +172,11 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         if mode != SIMULATION:
             self._initOptionalComponents()
 
+        if self._dev.camera_model.startswith('SIMCAM'):
+            self.log.warn('Using lima simulation camera! If that\'s not '
+                          'intended, please check the cables and '
+                          'restart the camera and the lima server')
+
         # set some dummy roi to avoid strange lima rotation behaviour
         # (not at 0, 0 to avoid possible problems with strides)
         self._writeRawRoi((5, 5, 5, 5))
