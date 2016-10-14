@@ -32,6 +32,7 @@ from nicos.commands.output import printwarning
 from nicos import session
 from nicos.core import status
 from nicos.core.device import Readable
+from nicos.core.mixins import HasLimits
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
@@ -509,18 +510,36 @@ class ContinuousScan(Scan):
 
     def prepareScan(self, position):
         device = self._devices[0]
-        ok, why = device.isAllowed(self._startpositions[0][0])
+        start, end = self._startpositions[0][0], self._endpositions[0][0]
+        self._distance = abs(end - start)
+        direction = int(end > start)  # 1 if positive, 0 if negative
+
+        ok, why = device.isAllowed(start)
         if not ok:
-            raise LimitError('Cannot move to start value for %s: %s' %
-                             (device, why))
-        ok, why = device.isAllowed(self._endpositions[0][0])
+            if isinstance(device, HasLimits):
+                start = device.userlimits[1 - direction]
+                ok, why = device.isAllowed(start)
+                if ok:
+                    self._startpositions[0][0] = start
+                    printwarning('Scan start restricted to limits (%s)' %
+                                 device.format(start, unit=True))
+            if not ok:
+                raise LimitError('Cannot move to start value for %s: %s' %
+                                 (device, why))
+        ok, why = device.isAllowed(end)
         if not ok:
-            raise LimitError('Cannot move to end value for %s: %s' %
-                             (device, why))
+            if isinstance(device, HasLimits):
+                end = device.userlimits[direction]
+                ok, why = device.isAllowed(end)
+                if ok:
+                    self._endpositions[0][0] = end
+                    printwarning('Scan end restricted to limits (%s)' %
+                                 device.format(end, unit=True))
+            if not ok:
+                raise LimitError('Cannot move to end value for %s: %s' %
+                                 (device, why))
         Scan.prepareScan(self, position)
 
-        self._distance = abs(self._endpositions[0][0] -
-                             self._startpositions[0][0])
         # guess the number of points
         self._npoints = int(self._distance / self._speed / self._timedelta) + 1
 
