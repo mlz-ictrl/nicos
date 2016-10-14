@@ -221,6 +221,7 @@ class CommonScan(Cmdlet):
         self.step.textChanged.connect(self.on_range_change)
         self.numpoints.valueChanged.connect(self.on_range_change)
         self.seconds.valueChanged.connect(self.changed)
+        self.contBox.toggled.connect(self.changed)
 
     def on_device_change(self, text):
         unit = self.client.getDeviceParam(text, 'unit')
@@ -233,6 +234,7 @@ class CommonScan(Cmdlet):
                 'scanstart': self.start.text(),
                 'scanstep': self.step.text(),
                 'scanpoints': self.numpoints.value(),
+                'scancont': self.contBox.isChecked(),
                 'counttime': self.seconds.value()}
 
     def setValues(self, values):
@@ -245,6 +247,8 @@ class CommonScan(Cmdlet):
             self.numpoints.setValue(values['scanpoints'])
         if 'counttime' in values:
             self.seconds.setValue(int(values['counttime']))
+        if 'scancont' in values:
+            self.contBox.setChecked(values['scancont'])
 
     def isValid(self):
         # NOTE: cannot use "return markValid() and markValid() and ..." because
@@ -258,11 +262,20 @@ class CommonScan(Cmdlet):
         return all(valid)
 
     def generate(self, mode):
-        if mode == 'simple':
-            return self.cmdname + ' %(dev)s %(scanstart)s %(scanstep)s ' \
-                '%(scanpoints)s %(counttime)s' % self.getValues()
-        return self.cmdname + '(%(dev)s, %(scanstart)s, %(scanstep)s, ' \
-            '%(scanpoints)s, %(counttime)s)' % self.getValues()
+        values = self.getValues()
+        if self.contBox.isChecked():
+            start, end, speed, delta = self._getContParams(values)
+            if mode == 'simple':
+                return 'contscan %s %s %s %s %s' % (values['dev'], start, end,
+                                                    speed, delta)
+            return 'contscan(%s, %s, %s, %s, %s)' % (values['dev'], start, end,
+                                                     speed, delta)
+        else:
+            if mode == 'simple':
+                return self.cmdname + ' %(dev)s %(scanstart)s %(scanstep)s ' \
+                    '%(scanpoints)s %(counttime)s' % values
+            return self.cmdname + '(%(dev)s, %(scanstart)s, %(scanstep)s, ' \
+                '%(scanpoints)s, %(counttime)s)' % values
 
 
 class Scan(CommonScan):
@@ -283,6 +296,14 @@ class Scan(CommonScan):
             endpos = '%.3f %s' % (start + (numpoints-1)*step, self.unit1.text())
         self.endPos.setText(endpos)
         self.changed()
+
+    def _getContParams(self, values):
+        start, step, npoints, ctime = (float(values['scanstart']),
+                                       float(values['scanstep']),
+                                       float(values['scanpoints']),
+                                       values['counttime'])
+        end = start + (npoints - 1) * step
+        return start, end, abs(end - start) / npoints / ctime, ctime
 
 
 class CScan(CommonScan):
@@ -306,6 +327,15 @@ class CScan(CommonScan):
         self.edgePos.setText(edgepos)
         self.totalPoints.setText('Total: %d points' % (2 * numpoints + 1))
         self.changed()
+
+    def _getContParams(self, values):
+        center, step, npoints, ctime = (float(values['scanstart']),
+                                        float(values['scanstep']),
+                                        float(values['scanpoints']),
+                                        values['counttime'])
+        start = center - npoints * step
+        end = center + npoints * step
+        return start, end, abs(end - start) / (2*npoints + 1) / ctime, ctime
 
 
 class ContScan(Cmdlet):
