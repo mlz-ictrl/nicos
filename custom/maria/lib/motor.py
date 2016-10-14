@@ -26,6 +26,8 @@
 """Tango motor with offset and the possibility to invert the axis."""
 
 from nicos.core import HasOffset, Param
+from nicos.core.device import Moveable
+from nicos.core.params import Attach, Override
 from nicos.devices.tango import Motor as TangoMotor
 
 
@@ -49,3 +51,38 @@ class Motor(HasOffset, TangoMotor):
     def doWriteOffset(self, value):
         HasOffset.doWriteOffset(self, value)
         return self._invertPosition(value)
+
+
+class MasterSlaveMotor(Moveable):
+
+    attached_devices = {
+        "master": Attach("Master motor controlling the movement", Moveable),
+        "slave": Attach("Slave motor following master motor movement",
+                        Moveable),
+    }
+
+    parameters = {
+        "scale": Param("Factor applied to master target position as slave "
+                       "position", type=float, default=1),
+    }
+
+    parameter_overrides = {
+        "unit": Override(mandatory=False),
+    }
+
+    def _slavePos(self, pos):
+        return self.scale * pos
+
+    def doRead(self, maxage=0):
+        return self._attached_master.read(maxage)
+
+    def doStart(self, pos):
+        self._attached_master.move(pos)
+        self._attached_slave.move(self._slavePos(pos))
+
+    def doIsAllowed(self, pos):
+        return self._attached_master.isAllowed(pos) and \
+               self._attached_slave.isAllowed(self._slavePos(pos))
+
+    def doReadUnit(self):
+        return self._attached_master.unit
