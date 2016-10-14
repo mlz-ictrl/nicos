@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-"""Tango motor with offset and the possibility to invert the axis."""
-
 from nicos.core import HasOffset, Param
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Override
@@ -32,6 +30,7 @@ from nicos.devices.tango import Motor as TangoMotor
 
 
 class Motor(HasOffset, TangoMotor):
+    """Tango motor with offset and the possibility to invert the axis."""
 
     parameters = {
         "invert": Param("Invert axis", type=bool, settable=True, default=False),
@@ -42,15 +41,28 @@ class Motor(HasOffset, TangoMotor):
 
     def doRead(self, maxage=0):
         pos = TangoMotor.doRead(self, maxage)
-        return self._invertPosition(pos - self.offset)
+        res = self._invertPosition(pos) - self.offset
+        self.log.debug("[read]  raw: %.3f  res: %.3f    offset: %.3f"
+                       % (pos, res, self.offset))
+        return res
 
     def doStart(self, target):
-        pos = self._invertPosition(target) + self.offset
+        pos = self._invertPosition(target + self.offset)
+        self.log.debug("[start] raw: %.3f  res: %.3f    offset: %.3f"
+                       % (target, pos, self.offset))
         return TangoMotor.doStart(self, pos)
 
-    def doWriteOffset(self, value):
-        HasOffset.doWriteOffset(self, value)
-        return self._invertPosition(value)
+    def doReadRefpos(self):
+        return self._invertPosition(TangoMotor.doReadRefpos(self))
+
+    def doReadAbslimits(self):
+        limits = map(self._invertPosition, TangoMotor.doReadAbslimits(self))
+        return min(limits), max(limits)
+
+    def doSetPosition(self, value):
+        return TangoMotor.doSetPosition(self,
+                                        self._invertPosition(value +
+                                                             self.offset))
 
 
 class MasterSlaveMotor(Moveable):
