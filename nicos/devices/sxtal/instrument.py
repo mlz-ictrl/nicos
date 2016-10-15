@@ -18,13 +18,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   pedersen
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""
-Base single crystal instrument (euler geometry)
-"""
+"""Base single crystal instrument (Euler geometry)."""
 
 from collections import namedtuple
 import numpy as np

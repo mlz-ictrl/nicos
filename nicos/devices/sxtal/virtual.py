@@ -18,11 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Virtual TAS devices."""
+"""Virtual SXTAL devices."""
 
 from time import time as currenttime
 import numpy as np

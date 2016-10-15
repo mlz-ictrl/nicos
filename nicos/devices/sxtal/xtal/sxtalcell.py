@@ -18,23 +18,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   pedersen
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""
-Single crystal cell, internally stored as nonius rmat
+"""Single crystal cell, internally stored as nonius rmat.
 
-    The RMAT matrix part is a 3x3 matrix with the columns representing the
-    reciprocal vectors a*, b* and c* in the laboratory coordinate system
-    x,y,z (X pointing to the source, Z pointing to the Zenith, and
-    Y pointing along the cross-product Z*X, pointing to the positive
-    theta side of the Kappa goniometer)
-    at the goniostat zero-position (kappa=0, omega=0, phi=0).
+The RMAT matrix part is a 3x3 matrix with the columns representing the
+reciprocal vectors a*, b* and c* in the laboratory coordinate system x,y,z (X
+pointing to the source, Z pointing to the Zenith, and Y pointing along the
+cross-product Z*X, pointing to the positive theta side of the Kappa goniometer)
+at the goniostat zero-position (kappa=0, omega=0, phi=0).
 
-    Relation to the TAS UB matrix:
-      rmat = UB^T / 2* pi
-
+Relation to the TAS UB matrix:
+  rmat = UB^T / 2* pi
 """
 
 from collections import namedtuple
@@ -97,8 +94,9 @@ def matrixfromcell(a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0):
     return mat
 
 
-def matfromrcell(astar, bstar=None, cstar=None, alphastar=None, betastar=None, gammastar=None):
-    """Make standard-orientation reciprocal cell matrix from reciprocal cell
+def matfromrcell(astar, bstar=None, cstar=None, alphastar=None, betastar=None,
+                 gammastar=None):
+    """Make standard-orientation reciprocal cell matrix from reciprocal cell.
     """
     if isinstance(astar, CellParam):
         cell = astar
@@ -118,12 +116,12 @@ def matfromrcell(astar, bstar=None, cstar=None, alphastar=None, betastar=None, g
 
 
 def SXTalCellType(val=None):
-    '''A single crystal cell: either a SXTalCell object,
-     a 3x3 orientation matrix or a dict with the following keys:
-     a , b[opt], c[opt], alpha[opt], gamma[opt], bravais[opt].
-     Optional axes a set to the previous axis length,
-     optional angles to 90°, bravais top 'P' if omitted'''
-
+    """A single crystal cell: either a SXTalCell object,
+    a 3x3 orientation matrix or a dict with the following keys:
+    a , b[opt], c[opt], alpha[opt], gamma[opt], bravais[opt].
+    Optional axes a set to the previous axis length,
+    optional angles to 90°, bravais top 'P' if omitted.
+    """
     if isinstance(val, SXTalCell):
         return val
     if isinstance(val, np.ndarray):
@@ -136,7 +134,8 @@ def SXTalCellType(val=None):
 class SXTalCell(object):
 
     @classmethod
-    def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0, bravais='P', laue='1'):
+    def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0,
+                bravais='P', laue='1'):
         _mat, lpi = matfromrcell(a, b, c, alpha, beta, gamma)
         return cls(np.transpose(lpi), bravais, laue)
 
@@ -146,8 +145,8 @@ class SXTalCell(object):
         self.laue = symmetry.Laue(laue)
 
     def __str__(self):
-        return 'Cell: a=%.4f b=%.4f c=%.4f alpha=%.3f° beta=%.3f° gamma=%.3f°' \
-                % self.cellparams()
+        return ('Cell: a=%.4f b=%.4f c=%.4f alpha=%.3fdeg beta=%.3fdeg '
+                'gamma=%.3fdeg' % self.cellparams())
 
     def directmatrix(self):
         return np.linalg.inv(self.rmat)
@@ -169,18 +168,12 @@ class SXTalCell(object):
             raise RuntimeError("Zero axis length")
 
     def hkl(self, c):
-        """Calculate the HKL indices for the given C vector"""
+        """Calculate the HKL indices for the given C vector."""
         return np.dot(np.linalg.inv(self.rmat.T), c)
 
     def CVector(self, hkl):
         """Calculate a c-vector in 0-goniometer position for a reflection.
-
-        parameters:
-
-            ``'hkl'``: a single reflection (array of 3 elements)
-
-        return value :
-            the c-vector of hkl (3-vector)
+        `hkl` is a single reflection (array of 3 elements).
         """
         return np.dot(self.rmat.T, hkl)
 
@@ -223,22 +216,23 @@ class SXTalCell(object):
             theta for the reflection
         """
         if wavelength is None:
-            raise RuntimeError("Cannot calculate theta without knowing hardware or wavelength")
+            raise RuntimeError('Cannot calculate theta without knowing '
+                               'hardware or wavelength')
         invd = np.linalg.norm(self.CVector(hkl))
         sintheta = invd * wavelength / 2.0
         return np.rad2deg(np.arcsin(sintheta))
 
     # pylint: disable=too-many-locals
-    def dataset(self, invdmin, invdmax,
-                uhmin=-512, uhmax=512, ukmin=-512, ukmax=512, ulmin=-512, ulmax=512, uniq=False):
-        '''Calculate a set of reflections for the given bravais lattice
+    def dataset(self, invdmin, invdmax, uhmin=-512, uhmax=512, ukmin=-512,
+                ukmax=512, ulmin=-512, ulmax=512, uniq=False):
+        """Calculate a set of reflections for the given bravais lattice.
 
         parameters:
             ``'invdmin'`` min reciprocal lattice spacing to measure
             ``'invdmax'`` max reciprocal lattice spacing to measure
 
             ``'u{h,k,l}{min,max}'`` : limit h,k,l to the specified range
-        '''
+        """
 
         celmatrix = np.linalg.inv(self.rmat)
         avec, bvec, cvec = celmatrix.T
@@ -326,4 +320,4 @@ def _test():
     assert np.allclose(hkl, (2, -3, 1))
     assert cell1.Theta((1, 0, 0), 1.0) == np.rad2deg(np.arcsin(1 / 10.))
     cell2 = SXTalCell.fromabc(5., c=10., gamma=120.)
-    assert  np.allclose(cell2.cellparams() , (5., 5., 10., 90., 90., 120.))
+    assert np.allclose(cell2.cellparams(), (5., 5., 10., 90., 90., 120.))

@@ -18,13 +18,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   pedersen
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""
-Tools for handling orientation calculations
-"""
+"""Tools for handling orientation calculations."""
 
 import numpy as np
 import scipy.optimize
@@ -33,19 +31,12 @@ from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 
 
 def _norm(mat):
-    '''
-    calculate matrix of norm 1
-    @param mat: Matrix
-    @type mat: array (3x3)
-    '''
-
+    """Calculate matrix of norm 1."""
     return mat / np.linalg.norm(mat, axis=0)
 
 
 def _CompleteMatrix(vec1, vec2):
-    '''
-    Create a (orthogonal)  3x3-matrix from two non-colinear vectors
-    '''
+    """Create a (orthogonal) 3x3-matrix from two non-colinear vectors."""
     vec3 = np.cross(vec1, vec2)
     mat = np.array((vec1, vec2, vec3))
     vec2 = np.cross(mat[2], mat[0])
@@ -59,14 +50,13 @@ class orient(object):
         self.cell = SXTalCell.fromabc(a, b, c, alpha, beta, gamma)
 
     def Reorient(self, hkl1, pos1, hkl2, pos2):
-        '''
-        Calculate orientation matrix from two indexed positions
+        """Calculate orientation matrix from two indexed positions.
+
         hkl1: index of reflection 1
         pos1: position of reflection 1 (goniometer.position object)
         hkl2: index of reflection 2
         pos2: position of reflection 2
-        '''
-
+        """
         gmat = self.cell.CMatrix()
         cv_h1 = self.cell.CVector(hkl1)
         cv_h2 = self.cell.CVector(hkl2)
@@ -85,10 +75,10 @@ class orient(object):
         return cell
 
     def RefineOrientation(self, reflexlist):
-        '''Simple least-squares optimization
+        """Simple least-squares optimization.
 
-         *reflexlist: list of tuples (hkl, centered position)
-         '''
+        *reflexlist: list of tuples (hkl, centered position)
+        """
         ubmat = self.cell.CMatrix()
         hkls = [r[0] for r in reflexlist]
         cmeas = [p[1].asC().c for p in reflexlist]
@@ -102,7 +92,8 @@ class orient(object):
             err = np.array(cobs) - ccalc
             return np.power(err, 2).sum()
 
-        ubmat = scipy.optimize.fmin(residual, np.array(ubmat).flatten(), args=(cmeas, hkls))
+        ubmat = scipy.optimize.fmin(residual, np.array(ubmat).flatten(),
+                                    args=(cmeas, hkls))
         ubmat = ubmat.reshape(3, 3)
         new_cell = SXTalCell(np.transpose(ubmat))
         return new_cell
