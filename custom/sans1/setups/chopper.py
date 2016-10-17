@@ -1,6 +1,6 @@
 description = 'setup for the astrium chopper'
 
-group = 'lowlevel'
+group = 'optional'
 
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/chopper'
 
