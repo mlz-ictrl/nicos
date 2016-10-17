@@ -20,18 +20,49 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='selector_rpm', dev='selector_rpm', width=14),
-                 Field(name='selector_lambda', dev='selector_lambda', width=14),
+                 Field(name='selector_rpm', dev='selector_rpm', width=12),
                 ),
        BlockRow(
-                Field(name='selector_ng', dev='selector_ng', width=14),
-                Field(name='selector_tilt', dev='selector_tilt', width=14, format = '%.1f'),
+                 Field(name='selector_lambda', dev='selector_lambda', width=12),
+                ),
+       BlockRow(
+                Field(name='selector_ng', dev='selector_ng', width=12),
+                ),
+       BlockRow(
+                Field(name='selector_tilt', dev='selector_tilt', width=12, format = '%.1f'),
                ),
         BlockRow(
-                 Field(name='water flow', dev='selector_wflow', width=14, format = '%.1f'),
-                 Field(name='rotor temp.', dev='selector_rtemp', width=14, format = '%.1f'),
+                 Field(name='water flow', dev='selector_wflow', width=12, format = '%.1f'),
+                ),
+       BlockRow(
+                 Field(name='rotor temp.', dev='selector_rtemp', width=12, format = '%.1f'),
                 ),
         ],
+    ),
+)
+
+_tisane = Column(
+    Block('Tisane', [
+        BlockRow(
+                 Field(name='DRU', dev='chopper_dru_rpm', width=12),
+                ),
+       BlockRow(
+                 Field(name='Chopper 1', dev='chopper_ch1_speed', width=12, format = '%.1f'),
+                ),
+       BlockRow(
+                Field(name='Chopper 2', dev='chopper_ch2_speed', width=12, format = '%.1f'),
+                ),
+       BlockRow(
+                Field(name='Phase 1', dev='chopper_ch1_phase', width=12, format = '%.1f'),
+               ),
+        BlockRow(
+                 Field(name='Phase 2', dev='chopper_ch2_phase', width=12, format = '%.1f'),
+                ),
+       BlockRow(
+                 Field(name='water flow', dev='chopper_waterflow', width=12, format = '%.2'),
+                ),
+        ],
+    setups='chopper',
     ),
 )
 
@@ -220,7 +251,7 @@ devices = dict(
                      fontsize = 12,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_selcolumn, _collimationcolumn, _sampleaperture),
+                                 Row(_selcolumn, _tisane, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
                                  #Row(_sans1general),
                                  Row(_ubahncolumn, _pressurecolumn, _p_filter),
