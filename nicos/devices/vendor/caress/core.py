@@ -234,7 +234,7 @@ class CARESSDevice(HasCommunication):
             if session.sessiontype != POLLER:
                 if hasattr(self._caressObject, 'init_system_orb'):
                     if not CARESSDevice._caress_initialized:
-                        self.log.warning(self, 'initialize the CARESS absdev container')
+                        self.log.debug(self, 'initialize the CARESS absdev container')
                         if self._caressObject.init_system_orb(0)[0] in \
                            (0, CARESS.OK):
                             CARESSDevice._caress_initialized = True
