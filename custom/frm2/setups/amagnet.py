@@ -24,7 +24,6 @@ devices = dict(
         mapping = {'+1': 1,
                    '0': 0,
                    '-1': -1},
-        lowlevel = True,
     ),
     amagnet_symmetry = device('devices.tango.NamedDigitalOutput',
         description = 'Garfield magnet: par/ser switch selecting (a)symmetric mode',
@@ -33,7 +32,6 @@ devices = dict(
         mapping = dict(
             symmetric = 1, short = 0, unsymmetric = -1
         ),
-        lowlevel = True,
     ),
     amagnet_T1 = device('devices.tango.AnalogInput',
         description = 'Temperature1 of the coils system',
@@ -64,7 +62,6 @@ devices = dict(
         tangodevice = tango_base + 'lambda/curr',
         unit = 'A',
         abslimits = (0, 200),
-        lowlevel = True,
     ),
     # by convention this needs to be B_%(setupname)s
     B_amagnet = device('frm2.amagnet.GarfieldMagnet',
