@@ -105,8 +105,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                   default=(1, 1), volatile=True, category='general'),
         'flip':             Param('Flipping (x,y)',
                                   type=tupleof(bool, bool), settable=True,
-                                  default=(False, False), volatile=True,
-                                  category='general'),
+                                  default=(False, False), category='general'),
         'rotation':         Param('Rotation',
                                   type=oneof(0, 90, 180, 270), settable=True,
                                   default=0, category='general'),
@@ -253,14 +252,11 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doReadRoi(self):
         rawRoi = self._readRawRoi()
-        if rawRoi == ((0, 0) + self._full_shape):
-            return (0, 0, 0, 0)
-
-        return self._rotateRoi(rawRoi, self.rotation)
+        return self._convRoiFromLima(rawRoi, self.rotation, self.flip)
 
     def doWriteRoi(self, value):
-        rotatedRoi = self._unrotateRoi(value, self.rotation)
-        self._writeRawRoi(rotatedRoi)
+        value = self._convRoiToLima(value, self.rotation, self.flip)
+        self._writeRawRoi(value)
 
     def doReadBin(self):
         return tuple(self._dev.image_bin.tolist())
@@ -268,16 +264,15 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doWriteBin(self, value):
         self._dev.image_bin = value
 
-    def doReadFlip(self):
-        return tuple(self._dev.image_flip.tolist())
-
     def doWriteFlip(self, value):
-        self._dev.image_flip = value
+        roi = self.doReadRoi()
+        roi = self._convRoiToLima(roi, self.rotation, value)
+        self._writeRawRoi(roi)
 
     def doWriteRotation(self, value):
-        desiredRoi = self.doReadRoi()
-        self._writeRawRoi(self._unrotateRoi(desiredRoi, value))
-
+        roi = self.doReadRoi()
+        roi = self._convRoiToLima(roi, value, self.flip)
+        self._writeRawRoi(roi)
 
     def doReadExpotime(self):
         return self._dev.acq_expo_time
@@ -327,7 +322,13 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
         img_data = numpy.frombuffer(img_data_str, dt, offset=64)
         img_data = numpy.reshape(img_data, (self.imageheight, self.imagewidth))
-        return numpy.rot90(img_data, self.rotation / 90)
+        img_data = numpy.rot90(img_data, self.rotation / 90)
+        if self.flip[0]:
+            img_data = numpy.fliplr(img_data)
+        if self.flip[1]:
+            img_data = numpy.flipud(img_data)
+
+        return img_data
 
     def _initOptionalComponents(self):
         try:
@@ -352,9 +353,27 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
         return mapping.get(imageType, numpy.uint32)
 
+    def _convRoiToLima(self, roi, rotation, flip):
+        if roi == (0,0,0,0):
+            return (0, 0) + self._full_shape
+
+        roi = self._flipRoi(roi, rotation, flip)
+        roi = self._unrotateRoi(roi, rotation)
+
+        return roi
+
+    def _convRoiFromLima(self, roi, rotation, flip):
+        if roi == ((0, 0) + self._full_shape):
+            return (0, 0, 0, 0)
+
+        roi = self._rotateRoi(roi, rotation)
+        roi = self._flipRoi(roi, rotation, flip)
+
+        return roi
+
     def _unrotateRoi(self, roi, rotation):
-        self.log.debug('Rotate roi %r by %r' % (roi, rotation))
-        w, h = self._full_shape
+        self.log.debug('UNrotate roi %r by %r' % (roi, rotation))
+        w, h = self._full_shape[0] - 1, self._full_shape[1] - 1
 
         # transformation matrix for no rotation
         transmat = numpy.matrix([
@@ -371,8 +390,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             ])
         elif rotation == 180:
             transmat = numpy.matrix([
-                [-1,  0, h],
-                [ 0, -1, w],
+                [-1,  0, w],
+                [ 0, -1, h],
                 [ 0,  0, 1]
             ])
         elif rotation == 270:
@@ -386,8 +405,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         return result
 
     def _rotateRoi(self, roi, rotation):
-        self.log.debug('UNrotate roi %r from %r' % (roi, rotation))
-        w, h = self._full_shape
+        self.log.debug('Rotate roi %r from %r' % (roi, rotation))
+        w, h = self._full_shape[0] - 1, self._full_shape[1] - 1
 
         # transformation matrix for no rotation
         transmat = numpy.matrix([
@@ -404,8 +423,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             ])
         elif rotation == 180:
             transmat = numpy.matrix([
-                [-1,  0, h],
-                [ 0, -1, w],
+                [-1,  0, w],
+                [ 0, -1, h],
                 [ 0,  0, 1]
             ])
         elif rotation == 270:
@@ -418,6 +437,31 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         self.log.debug('\t=> %r' % (result, ))
         return result
 
+    def _flipRoi(self, roi, rotation, flip):
+        self.log.debug('Flip roi %r by %r' % (roi, flip))
+        w, h = self._full_shape
+
+        if rotation in [90, 270]:
+            w, h = h, w
+
+        x_bot_left, y_bot_left, rw, rh = roi
+        x_top_right = x_bot_left + rw - 1
+        y_top_right = y_bot_left + rh - 1
+
+        if flip[0]:
+            x_bot_left = (w - 1) - x_bot_left
+            x_top_right = (w - 1) - x_top_right
+        if flip[1]:
+            y_bot_left = (h - 1) - y_bot_left
+            y_top_right = (h - 1) - y_top_right
+
+        x_bot_left = min(x_bot_left, x_top_right)
+        y_bot_left = min(y_bot_left, y_top_right)
+
+        result =  (x_bot_left, y_bot_left, rw, rh)
+        self.log.debug('\t=> %r' % (result,))
+        return result
+
     def _transformRoi(self, roi, transmat):
         x, y, roi_width, roi_height = roi
 
@@ -428,8 +472,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         ])
 
         bottomright = numpy.matrix([
-            [x+roi_width],
-            [y+roi_height],
+            [x+roi_width - 1],
+            [y+roi_height - 1],
             [1]
         ])
 
@@ -441,7 +485,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         y_max = max(topleft.item(1), bottomright.item(1))
         y_min = min(topleft.item(1), bottomright.item(1))
 
-        return (x_min, y_min, x_max - x_min, y_max - y_min)
+        return (x_min, y_min, x_max - x_min + 1 , y_max - y_min + 1)
 
     def _readRawRoi(self):
         return tuple(self._dev.image_roi.tolist())
