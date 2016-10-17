@@ -12,6 +12,6 @@ devices = dict(
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
                  config = 'MUX3 38 4 ttyS1 1',
-                 lowlevel = True,
+                 lowlevel = False,
                 ),
 )
