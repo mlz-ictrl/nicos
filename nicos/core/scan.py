@@ -551,9 +551,6 @@ class ContinuousScan(Scan):
 
         self.beginScan()
 
-        # XXX(dataapi): update metainfo here
-        session.data.updateMetainfo()
-
         device = self._devices[0]
         detlist = self._detlist
         point = 0
@@ -590,6 +587,8 @@ class ContinuousScan(Scan):
                             for (detname, (vals, _)) in iteritems(read)}
                     actualpos = [0.5 * (devpos + new_devpos)]
                     session.data.beginTemporaryPoint()
+                    if point == 0:
+                        session.data.updateMetainfo()
                     session.data.putValues({device.name: (None, actualpos)})
                     self.readEnvironment()
                     # TODO: if the data sink needs it ?
