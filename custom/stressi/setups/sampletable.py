@@ -49,7 +49,7 @@ devices = dict(
                   userlimits = (-200, 200),
                   nameserver = '%s' % (nameservice,),
                   objname = '%s' % (servername),
-                  config = 'OMGS 114 11 0x00f1c000 1 4096 2000 200 2 24 50 1 0 1 3000 1 10 0 0  0',
+                  config = 'OMGS 114 11 0x00f1c000 1 4096 2048 200 2 24 50 1 0 1 3000 1 10 0 0  0',
                  ),
     xt = device('devices.vendor.caress.Motor',
                 description = 'HWB XT',

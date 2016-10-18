@@ -17,6 +17,7 @@ devices = dict(
                              det_pos = 'detector',
                              params = 'chopper_params',
                              daq = 'det',
+                             channels = 64,
                             ),
 
     chopper_params  = device('kws1.chopper.ChopperParams',

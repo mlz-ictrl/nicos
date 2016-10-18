@@ -234,7 +234,7 @@ class CARESSDevice(HasCommunication):
             if session.sessiontype != POLLER:
                 if hasattr(self._caressObject, 'init_system_orb'):
                     if not CARESSDevice._caress_initialized:
-                        self.log.warning(self, 'initialize the CARESS absdev container')
+                        self.log.debug(self, 'initialize the CARESS absdev container')
                         if self._caressObject.init_system_orb(0)[0] in \
                            (0, CARESS.OK):
                             CARESSDevice._caress_initialized = True
@@ -302,7 +302,7 @@ class CARESSDevice(HasCommunication):
                 if CARESSDevice._used_counter:
                     CARESSDevice._used_counter -= 1
                     if not CARESSDevice._used_counter:
-                        if self._caressObject.release_system_orb(0)[0] in \
+                        if self._caressObject.release_system_orb(0) in \
                            (0, CARESS.OK):
                             CARESSDevice._caress_maps.clear()
                             CARESSDevice._caress_initialized = False

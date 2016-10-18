@@ -95,8 +95,8 @@ _peltier = Block('Peltier/Julabo', [
 
 _peltierplot = Block('', [
     BlockRow(Field(plot='TT', dev='T_peltier', width=30, height=25, plotwindow=2*3600),
-             Field(plot='TT', dev='T_julabo'),
              Field(plot='TT', key='T_peltier/setpoint'),
+             Field(plot='TT', dev='T_julabo'),
              Field(plot='TT', key='T_julabo/setpoint')),
 ], setups='peltier')
 

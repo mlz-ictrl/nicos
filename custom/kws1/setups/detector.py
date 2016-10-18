@@ -61,4 +61,11 @@ devices = dict(
                         precision = 0.01,
                         lowlevel = True,
                        ),
+
+    det_y_desync = device("devices.tango.DigitalOutput",
+                          description = "disables synchronized movement of det_y and det_y2 when set to 1",
+                          tangodevice = tango_base + "fzjdp_digital/det_y_desync",
+                          fmtstr = "%#x",
+                          lowlevel = True,
+                         ),
 )

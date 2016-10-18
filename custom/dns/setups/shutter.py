@@ -3,7 +3,7 @@
 description = 'DNS shutter digital in- and outputs'
 group = 'lowlevel'
 
-includes = ['reactor', 'nl6']
+includes = ['reactor']
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
