@@ -36,5 +36,7 @@ class CameraImage(ImageChannel):
         # need to wait for readout of the CCD
         self._hw_wait()
         value = ImageChannel.doReadArray(self, quality)
+
         # due to dimension order expectations in the current image savers
-        return value.T
+        rs = tuple(self._dev.roiSize)
+        return value.ravel().reshape((rs[1], rs[0]))
