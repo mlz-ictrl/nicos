@@ -56,7 +56,7 @@ class Bravais(object):
         else:
             return Bravais.conditions['P'](*hkl)
 
-symbols = ('-1', '2/m', '4/mmm', '6/mmm', '4/m', '6/m',
+symbols = ('1', '-1', '2/m', '4/mmm', '6/mmm', '4/m', '6/m',
            '-3m1', '-31m', '-3', 'R-3m1', 'R-31m', 'R-3',
            'm3m', 'm3')
 
@@ -214,7 +214,8 @@ def _testlaue(sym):
                        for h in range(-2, 3)])
     l = Laue(sym)
     res = l.uniqds(lauein)
-    assert np.array_equiv(uniq[sym], res)
+    if sym in uniq:
+        assert np.array_equiv(uniq[sym], res)
 
 
 # Note: no gen_if_verbose decorator here, the
