@@ -1,6 +1,96 @@
 Changelog
 =========
 
+Release 2.10.0
+--------------
+
+* GUI
+
+  - Allow to configure the timefont size as well. This is useful for
+    non full-screen display, as they otherwise get quite large.
+
+  - Add cosine as standard fitting function
+
+  - cmdlets: offer a box for continuous scanning for scan/cscan
+
+  - Add "finish early and stop" action
+
+  - Disable dry run buttons during dry run
+
+  - Add the TAS setup to the Qt designer lib
+
+  - Display elements of multi-dimensional arrays in status monitor. This
+    access is implemented as listed indices on key values in the configuration.
+
+* Command line client
+
+  - support ~/x paths for /edit, /run etc
+
+* Commands
+
+  - Reimplementation of 'contscan' with respecting the device limits
+
+  - In 'scan' command the device values will read after reaching point
+
+  - 'tomo' command with multiple moveable devices
+
+* Tools
+
+  - add 'reformat_setup' tool to format the setup files
+
+  - 'check_setups' gives errors in case of using 'exclude' instead of 'excludes'
+
+* LIMA support
+  - implement image flipping and rotation
+
+* CARESS support
+
+  - Fix some problems with the simulation
+
+  - Add 'Driveable' base class
+
+  - Add missing doStop for the active channels
+
+  - Add 'histogram' and 'listmode' in QMesyDAQ module
+
+* EPICS support
+
+  - Add a validator for EPICS PV-names
+
+  - Make epics test-safe
+
+* Demo version
+
+  - Improve start/stop of the processes on Windows
+
+  - Add a virtual STRESS-SPEC instrument
+
+  - Clean up startup state
+
+* Documentation
+
+  - Change the HTML style sheet to the 'readthedoc' style
+
+  - Rearrange and rename the documentation menus
+
+  - add some missed documentation
+
+  - Restructure the PDF documentation
+
+  - Add links to the customers in the custom entries
+
+* Other
+
+  - Add a new parameter tof configure the preferred scattering side of the
+    monochromator or analyzer crystal
+
+  - Improve the test suite
+
+  - Allow stopping sequencer devices with stop()
+
+  - Fits data sink: add unit to header key values and order the keys in header
+
+
 Release 2.9.0
 -------------
 
