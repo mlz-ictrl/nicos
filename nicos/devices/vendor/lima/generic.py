@@ -171,20 +171,23 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         if mode != SIMULATION:
             self._initOptionalComponents()
 
-        if self._dev.camera_model.startswith('SIMCAM'):
-            self.log.warn('Using lima simulation camera! If that\'s not '
-                          'intended, please check the cables and '
-                          'restart the camera and the lima server')
+            if self._dev.camera_model.startswith('SIMCAM'):
+                self.log.warn('Using lima simulation camera! If that\'s not '
+                              'intended, please check the cables and '
+                              'restart the camera and the lima server')
 
-        # set some dummy roi to avoid strange lima rotation behaviour
-        # (not at 0, 0 to avoid possible problems with strides)
-        self._writeRawRoi((5, 5, 5, 5))
-        # ensure NO rotation
-        self._dev.image_rotation = 'NONE'
-        # set full detector size as roi
-        self._writeRawRoi((0, 0, 0, 0))
-        # cache full detector size
-        self._full_shape = (self.imagewidth, self.imageheight)
+            # set some dummy roi to avoid strange lima rotation behaviour
+            # (not at 0, 0 to avoid possible problems with strides)
+            self._writeRawRoi((5, 5, 5, 5))
+            # ensure NO rotation
+            self._dev.image_rotation = 'NONE'
+            # set full detector size as roi
+            self._writeRawRoi((0, 0, 0, 0))
+            # cache full detector size
+            self._full_shape = (self.imagewidth, self.imageheight)
+        else:
+            # some dummy shape for simulation
+            self._full_shape = (2048, 2048)
 
     def doInit(self, mode):
         # Determine image type
