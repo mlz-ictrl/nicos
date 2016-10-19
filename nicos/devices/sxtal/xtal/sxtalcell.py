@@ -276,10 +276,10 @@ class SXTalCell(object):
             chkl = curh * ahkl
             usedd = curh * stepused
             leftd = np.sqrt(max(0, invdmax ** 2 - usedd ** 2))
-            lmink = int(np.ceil(chkl[1] - b * leftd / cbb))
-            lmaxk = int(np.floor(chkl[1] + b * leftd / cbb))
-            lminl = int(np.ceil(chkl[2] - c * leftd / ccc))
-            lmaxl = int(np.floor(chkl[2] + c * leftd / ccc))
+            lmink = max(int(np.ceil(chkl[1] - b * leftd / cbb)), mink)
+            lmaxk = min(int(np.floor(chkl[1] + b * leftd / cbb)), maxk)
+            lminl = max(int(np.ceil(chkl[2] - c * leftd / ccc)), minl)
+            lmaxl = min(int(np.floor(chkl[2] + c * leftd / ccc)), maxl)
             numk = lmaxk - lmink + 1
             numl = lmaxl - lminl + 1
             numzone = numk * numl
