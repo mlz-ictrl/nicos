@@ -104,8 +104,11 @@ class MonitorWindow(QMainWindow):
 
     def do_reconfigure(self, emitdict):
         self._reconfiguring = True
-        for (layout, blockbox), enabled in iteritems(emitdict):
-            blockbox.enableDisplay(layout, enabled)
+        for (layout, item), enabled in iteritems(emitdict):
+            if layout is None:
+                item.setVisible(enabled)
+            else:
+                item.enableDisplay(layout, enabled)
         self.layout().activate()
 
 
@@ -114,8 +117,7 @@ class BlockBox(QFrame):
     definite frame around it.
     """
 
-    def __init__(self, parent, text, font, config=None):
-        config = config or {}
+    def __init__(self, parent, text, font, config):
         if config.get('frames', True):
             QFrame.__init__(self, parent, frameShape=QFrame.Panel,
                             frameShadow=QFrame.Raised, lineWidth=2)
@@ -127,6 +129,9 @@ class BlockBox(QFrame):
                                  autoFillBackground=True, font=font)
             self._label.resize(self._label.sizeHint())
             self._label.show()
+
+        self._onlyfields = []
+        self.setups = config.get('setups', None)
 
     def moveEvent(self, event):
         self._repos()
@@ -186,7 +191,6 @@ class Monitor(BaseMonitor):
         self._qtapp = QApplication(['qtapp'], organizationName='nicos',
                                    applicationName='gui')
         self._master = master = MonitorWindow()
-        master.show()
 
         if self._geometry == 'fullscreen':
             master.showFullScreen()
@@ -270,6 +274,7 @@ class Monitor(BaseMonitor):
                 field['min'] = repr(field['min'])
             if 'max' in field:
                 field['max'] = repr(field['max'])
+            setups = field.get('setups', None)
 
             if 'gui' in field:
                 resource = findResource(field.pop('gui'))
@@ -282,6 +287,7 @@ class Monitor(BaseMonitor):
                                   (resource, err))
                 for child in instance.findChildren(NicosWidget):
                     _setup(child)
+                instance.setups = setups
                 return instance
             elif 'widget' in field:
                 widget_class = self._class_import(field.pop('widget'))
@@ -290,6 +296,7 @@ class Monitor(BaseMonitor):
                     _setup(widget)
                 for child in widget.findChildren(NicosWidget):
                     _setup(child)
+                widget.setups = setups
                 return widget
             elif 'plot' in field and plot_available:
                 # XXX make this more standard
@@ -306,14 +313,17 @@ class Monitor(BaseMonitor):
                 self._plots[field['plot']] = plotwidget
                 plotwidget.devices = [field.get('dev', field.get('key', ''))]
                 plotwidget.names = [field.get('name', field.get('dev', field.get('key', '')))]
+                plotwidget.setups = setups
                 return plotwidget
             elif 'picture' in field:
                 picwidget = PictureDisplay(groupframe)
                 picwidget.filepath = field['picture']
+                picwidget.setups = setups
                 return _setup(picwidget)
             else:
                 display = ValueDisplay(groupframe, colorScheme=colorScheme,
                                        showExpiration=self.noexpired)
+                display.setups = setups
                 return _setup(display)
 
         # now iterate through the layout and create the widgets to display it
@@ -324,7 +334,7 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 columnlayout = QVBoxLayout(spacing=0.8*blheight)
                 for block in column:
-                    blockconfig = block[1] if len(block) > 1 else None
+                    blockconfig = block[1] if len(block) > 1 else {}
                     block = block[0]
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
@@ -344,16 +354,18 @@ class Monitor(BaseMonitor):
                                 if fieldwidget:
                                     rowlayout.addWidget(fieldwidget)
                                     rowlayout.addSpacing(self._padding)
+                                    if fieldwidget.setups:
+                                        if blockbox.setups:
+                                            blockbox._onlyfields.append(fieldwidget)
+                                        else:
+                                            self._onlyfields.append(fieldwidget)
+                                            # start hidden
+                                            fieldwidget.setHidden(True)
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
-                    if blockconfig:
-                        setups = blockconfig.get('setups', [])
+                    if blockbox.setups:
+                        self._onlyblocks.append((blocklayout_outer, blockbox))
                         blockbox.setHidden(True)  # start hidden
-                        setupnames = [setups] if isinstance(setups, string_types) \
-                                     else setups
-                        for setupname in setupnames:
-                            self._onlymap.setdefault(setupname, []).append(
-                                (blocklayout_outer, blockbox))
                     blocklayout.addSpacing(0.3 * blheight)
                     blockbox.setLayout(blocklayout)
                     blocklayout_outer.addWidget(blockbox)
@@ -376,6 +388,7 @@ class Monitor(BaseMonitor):
         self._statuslabel = QLabel(font=stbarfont)
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
+        master.show()
 
     def signalKeyChange(self, obj, *args):
         self._master.keyChange.emit(obj, args)
@@ -410,9 +423,16 @@ class Monitor(BaseMonitor):
 
     def reconfigureBoxes(self):
         emitdict = {}
-        for setup, boxes in iteritems(self._onlymap):
-            enabled = checkSetupSpec(setup, self._setups,
-                                     compat='and', log=self.log)
-            for k in boxes:
-                emitdict[k] = emitdict.get(k, True) and enabled
+        fields = []
+        for (layout, box) in self._onlyblocks:
+            emitdict[layout, box] = checkSetupSpec(box.setups, self._setups,
+                                                   compat='and', log=self.log)
+            # check fields inside the block, if the block isn't invisible
+            if emitdict[layout, box]:
+                fields.extend(box._onlyfields)
+        # always check fields not in a setup controlled group
+        fields.extend(self._onlyfields)
+        for field in fields:
+            emitdict[None, field] = checkSetupSpec(field.setups, self._setups,
+                                                   compat='and', log=self.log)
         self._master.reconfigure.emit(emitdict)

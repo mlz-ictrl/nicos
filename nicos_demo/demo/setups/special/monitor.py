@@ -3,26 +3,18 @@ group = 'special'
 
 _expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=40,
-                       istext=True, maxlen=40),
-                 Field(name='Last scan file', key='exp/lastscan'),
-                )
-        ],
-        setups='tas',
-    ),
-    Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=40,
-                       istext=True, maxlen=40),
-                 Field(name='Last Image file', key='exp/lastpoint'),
-                ),
-        ],
-        setups='sans or refsans',
+        BlockRow(
+            Field(name='Proposal', key='exp/proposal', width=7),
+            Field(name='Title',    key='exp/title',    width=20, istext=True,
+                  maxlen=20),
+            Field(name='Current status', key='exp/action', width=40,
+                  istext=True, maxlen=40),
+            Field(name='Last scan file', key='exp/lastscan',
+                  setups='tas'),
+            Field(name='Last image file', key='exp/lastpoint',
+                  setups='sans'),
+        )
+    ],
     ),
 )
 
@@ -126,7 +118,7 @@ _sansblock = Block('SANS', [
               widget='nicos_mlz.sans1.gui.monitorwidgets.BeamOption',
               width=10, height=4),
         Field(dev='det_HV', name='Detector HV', format='%d'),
-        Field(key='det/lastcounts', name='Counts on det', format='%d')
+        Field(key='det/lastcounts', name='Counts on det', format='%d', setups='sans and misc')
     ),
     '---',
     BlockRow(
@@ -167,11 +159,8 @@ devices = dict(
         colors = 'light',
         layout = [
             Row(_expcolumn),
-            Row(
-                _leftcolumn,
-                _rightcolumn,
-            ),
-            Row(_pgaacolumn)
+            Row(_leftcolumn, _rightcolumn),
+            Row(_pgaacolumn),
         ],
     ),
 )

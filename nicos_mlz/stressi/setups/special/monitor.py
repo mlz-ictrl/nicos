@@ -62,13 +62,13 @@ _measurement = Column(
                  Field(dev='psw'),
                  Field(dev='psh'),),
     ],
-    setups = 'primaryslit*',
+    setups = 'primaryslit* or vstressi',
     ),
     Block('Secondary optics', [
         BlockRow(Field(dev='sst'),
                  Field(dev='ssw'),),
     ],
-    setups = 'secondaryslit',
+    setups = 'secondaryslit or vstressi',
     ),
     Block('Radial collimator', [
         BlockRow(Field(dev='mot1'),

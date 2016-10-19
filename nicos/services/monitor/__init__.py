@@ -137,8 +137,10 @@ class Monitor(BaseCacheClient):
         self._selecttimeout = 0.2
         # maps keys to field-dicts defined in self.layout (see above)
         self._keymap = {}
-        # maps "only" entries to block boxes to hide
-        self._onlymap = {}
+        # blocks to hide conditionally
+        self._onlyblocks = []
+        # fields to hide conditionally (only if not in a block)
+        self._onlyfields = []
         # remembers loaded setups
         self._setups = set()
         # master active?

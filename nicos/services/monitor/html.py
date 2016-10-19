@@ -37,6 +37,10 @@ from threading import RLock
 try:
     from gr import pygr
     import gr
+
+    # required for import order on Py3
+    import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
+    from nicos.guisupport.plots import NicosTimePlotAxes
 except ImportError:
     pygr = None
 
@@ -44,11 +48,8 @@ from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import iteritems, from_utf8, string_types, escape_html
+from nicos.pycompat import from_utf8, string_types, escape_html
 from nicos.services.monitor.icon import nicos_icon
-# required for import order on Py3
-import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
-from nicos.guisupport.plots import NicosTimePlotAxes
 from nicos.utils import checkSetupSpec, extractKeyAndIndex
 
 
@@ -114,6 +115,10 @@ class Field(object):
     # for pictures
     picture = None   # file name
 
+    # conditional hiding
+    setups = None    # setupspec for which should be shown (None = always)
+    enabled = True   # if the field is currently shown
+
     def __init__(self, prefix, desc):
         if isinstance(desc, string_types):
             desc = {'dev': desc}
@@ -151,10 +156,11 @@ class Field(object):
 
 
 class Block(object):
-    def __init__(self, config=None):
-        config = config or {}
+    def __init__(self, config):
         self.enabled = True
         self.content = []
+        self.setups = config.get('setups')
+        self._onlyfields = []
 
     def add(self, p):
         self.content.append(p)
@@ -173,8 +179,11 @@ class Label(object):
         self.text = text
         self.fore = fore
         self.back = back
+        self.enabled = True
 
     def __str__(self):
+        if not self.enabled:
+            return ''
         return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
                 (self.cls, self.fore, self.width, self.back, self.text))
@@ -185,6 +194,10 @@ TIMEFMT = '%H:%M:%S'
 
 
 class Plot(object):
+
+    # if the field should be displayed
+    enabled = True
+
     def __init__(self, window, width, height):
         self.window = window
         self.width = width
@@ -234,6 +247,8 @@ class Plot(object):
             self.data[curve][:] = [ts[i:], yy[i:]]
 
     def __str__(self):
+        if not self.enabled:
+            return ''
         with self.lock:
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
                 try:
@@ -266,6 +281,9 @@ class Plot(object):
 
 class Picture(object):
 
+    # if the field should be displayed
+    enabled = True
+
     def __init__(self, filepath, width, height, name):
         self.filepath = filepath
         self.width = width
@@ -273,6 +291,8 @@ class Picture(object):
         self.name = name
 
     def __str__(self):
+        if not self.enabled:
+            return ''
         s = ''
         if self.name:
             s += '<div class="label">%s</div><br>' % self.name
@@ -344,9 +364,10 @@ class Monitor(BaseMonitor):
             if 'widget' in config or 'gui' in config:
                 self.log.warning('ignoring "widget" or "gui" element in HTML '
                                  'monitor configuration')
-                return
+                return None
             field = Field(self._prefix, config)
             field.updateKeymap(self._keymap)
+
             if field.plot and pygr:
                 p = self._plots.get(field.plot)
                 if not p:
@@ -372,13 +393,14 @@ class Monitor(BaseMonitor):
                     cls += ' istext'
                 vlabel = field._valuelabel = Label(cls, fore='white')
                 blk.add(vlabel)
+            return field
 
         for superrow in self.layout:
             add('<tr><td class="center">\n')
             for column in superrow:
                 add('  <table class="column"><tr><td>')
                 for block in column:
-                    blockconfig = block[1] if len(block) > 1 else None
+                    blockconfig = block[1] if len(block) > 1 else {}
                     block = block[0]
                     blk = Block(blockconfig)
                     blk.add('<div class="block">')
@@ -392,17 +414,18 @@ class Monitor(BaseMonitor):
                             blk.add('<tr><td class="center">')
                             for field in row:
                                 blk.add('\n      <table class="field"><tr><td>')
-                                _create_field(blk, field)
+                                f = _create_field(blk, field)
+                                if f and f.setups:
+                                    if blk.setups:
+                                        blk._onlyfields.append(f)
+                                    else:
+                                        self._onlyfields.append(f)
                                 blk.add('</td></tr></table> ')
                             blk.add('\n    </td></tr>')
                     blk.add('</table>\n  </div>')
                     add(blk)
-                    if blockconfig:
-                        setups = blockconfig.get('setups', [])
-                        setupnames = [setups] if isinstance(setups, string_types) \
-                                     else setups
-                        for setupname in setupnames:
-                            self._onlymap.setdefault(setupname, []).append(blk)
+                    if blk.setups:
+                        self._onlyblocks.append(blk)
                 add('</td></tr></table>\n')
             add('</td></tr>')
         add('</table>\n')
@@ -495,7 +518,19 @@ class Monitor(BaseMonitor):
             self._warnlabel.text = ''
 
     def reconfigureBoxes(self):
-        for setup, boxes in iteritems(self._onlymap):
-            for block in boxes:
-                block.enabled = checkSetupSpec(setup, self._setups,
-                                               compat='and', log=self.log)
+        fields = []
+        for block in self._onlyblocks:
+            block.enabled = checkSetupSpec(block.setups, self._setups,
+                                           compat='and', log=self.log)
+            # check fields inside the block, if the block isn't invisible
+            if block.enabled:
+                fields.extend(block._onlyfields)
+        # always check fields not in a setup controlled group
+        fields.extend(self._onlyfields)
+        for field in fields:
+            field.enabled = checkSetupSpec(field.setups, self._setups,
+                                           compat='and', log=self.log)
+            if hasattr(field, '_namelabel'):
+                field._namelabel.enabled = field.enabled
+            if hasattr(field, '_valuelabel'):
+                field._valuelabel.enabled = field.enabled
