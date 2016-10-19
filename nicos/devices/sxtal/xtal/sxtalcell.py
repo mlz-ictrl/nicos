@@ -116,19 +116,39 @@ def matfromrcell(astar, bstar=None, cstar=None, alphastar=None, betastar=None,
 
 
 def SXTalCellType(val=None):
-    """A single crystal cell: either a SXTalCell object,
-    a 3x3 orientation matrix or a dict with the following keys:
-    a , b[opt], c[opt], alpha[opt], gamma[opt], bravais[opt].
+    """NICOS parameter validator for a single crystal cell.  Input can be:
+
+    * a SXTalCell object
+    * a 3x3 orientation matrix (array or list)
+    * a tuple of (matrix, bravais[opt], laue[opt])
+    * a list with [a, b, c, alpha, beta, gamma, bravais[opt], laue[opt]]
+    * a dict with the following keys:
+      a, b[opt], c[opt], alpha[opt], beta[opt], gamma[opt],
+      bravais[opt], laue[opt].
+
     Optional axes a set to the previous axis length,
-    optional angles to 90°, bravais top 'P' if omitted.
+    optional angles to 90deg, bravais top 'P' if omitted.
     """
     if isinstance(val, SXTalCell):
         return val
-    if isinstance(val, np.ndarray):
-        return SXTalCell(val)
-    if isinstance(val, dict):
+    elif isinstance(val, dict):
         return SXTalCell.fromabc(**val)
-    raise ValueError('Wrong cell specification')
+    elif isinstance(val, np.ndarray) and val.shape == (3, 3):
+        return SXTalCell(val)
+    elif isinstance(val, tuple) and isinstance(val[0], np.ndarray) and \
+            val[0].shape == (3, 3):
+        bravais = val[1] if len(val) > 1 else 'P'
+        laue = val[2] if len(val) > 2 else '1'
+        return SXTalCell(val[0], bravais, laue)
+    elif isinstance(val, list) and len(val) == 3 and isinstance(val[0], list):
+        return SXTalCell(val)
+    elif isinstance(val, (list, tuple)) and len(val) >= 6:
+        bravais = val[6] if len(val) > 6 else 'P'
+        laue = val[7] if len(val) > 7 else '1'
+        return SXTalCell.fromabc(a=val[0], b=val[1], c=val[2],
+                                 alpha=val[3], beta=val[4], gamma=val[5],
+                                 bravais=bravais, laue=laue)
+    raise ValueError('wrong cell specification')
 
 
 class SXTalCell(object):

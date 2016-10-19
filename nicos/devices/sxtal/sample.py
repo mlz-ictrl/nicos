@@ -26,65 +26,103 @@
 Single crystal sample device
 """
 
-from numpy import array
-
+from nicos.core import Param, floatrange, dictof, listof, oneof
 from nicos.devices.sample import Sample
-from nicos.core.params import Param, floatrange
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
+from nicos.devices.sxtal.xtal import symmetry
 
 
 class SXTalSample(Sample):
     parameters = {
-                   'cell': Param('Unit cell with matrix', type=SXTalCellType,
-                                 settable=True, mandatory=False,
-                                 default=SXTalCell.fromabc(5)),
-                  'a': Param('a', type=float, settable=False,
-                             volatile=True),
-                  'b': Param('b', type=float, settable=False,
-                             volatile=True),
-                  'c': Param('c', type=float, settable=False,
-                             volatile=True),
-                  'alpha': Param('alpha', type=floatrange(1., 179.), settable=False,
-                                 volatile=True),
-                  'beta': Param('beta', type=floatrange(1., 179.), settable=False,
-                                volatile=True),
-                  'gamma': Param('gamma', type=floatrange(1., 179.), settable=False,
-                                 volatile=True),
-                  'rmat': Param('rmat', type=array, settable=False,
-                                volatile=True, default=None),
-                  }
+        'cell':      Param('Unit cell with matrix', type=SXTalCellType,
+                           settable=True, mandatory=False,
+                           default=SXTalCell.fromabc(5)),
+        'a':         Param('a', type=float, settable=False,
+                           volatile=True, category='sample'),
+        'b':         Param('b', type=float, settable=False,
+                           volatile=True, category='sample'),
+        'c':         Param('c', type=float, settable=False,
+                           volatile=True, category='sample'),
+        'alpha':     Param('alpha', type=floatrange(1., 179.), settable=False,
+                           volatile=True, category='sample'),
+        'beta':      Param('beta', type=floatrange(1., 179.), settable=False,
+                           volatile=True, category='sample'),
+        'gamma':     Param('gamma', type=floatrange(1., 179.), settable=False,
+                           volatile=True, category='sample'),
+        'rmat':      Param('rmat', type=listof(listof(float)), settable=False,
+                           volatile=True, default=None, category='sample'),
+        'bravais':   Param('Bravais lattice',
+                           type=oneof(*symmetry.Bravais.conditions),
+                           volatile=True, settable=True, default='P',
+                           category='sample'),
+        'laue':      Param('Laue group', type=oneof(*symmetry.symbols),
+                           volatile=True, settable=True, default='1',
+                           category='sample'),
 
-    def doReadA(self, maxage=0):
+        'peaklists': Param('Lists of peaks for scanning', userparam=False,
+                           type=dictof(str, list), settable=True),
+        'poslists':  Param('Lists of positions for indexing', userparam=False,
+                           type=dictof(str, list), settable=True),
+    }
+
+    def clear(self):
+        """Clear experiment-specific information."""
+        Sample.clear(self)
+        self.peaklists = []
+        self.poslists = []
+
+    def doReadA(self):
         return self.cell.cellparams().a
 
-    def doReadB(self, maxage=0):
+    def doReadB(self):
         return self.cell.cellparams().b
 
-    def doReadC(self, maxage=0):
+    def doReadC(self):
         return self.cell.cellparams().c
 
-    def doReadAlpha(self, maxage=0):
+    def doReadAlpha(self):
         return self.cell.cellparams().alpha
 
-    def doReadBeta(self, maxage=0):
+    def doReadBeta(self):
         return self.cell.cellparams().beta
 
-    def doReadGamma(self, maxage=0):
+    def doReadGamma(self):
         return self.cell.cellparams().gamma
 
-    def doReadRmat(self, maxage=0):
-        return self.cell.rmat
+    def doReadRmat(self):
+        return self.cell.rmat.tolist()
 
-    def doWriteCell(self, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0, bravais='P'):
-        if isinstance(a, SXTalCell):
-            self._params['cell'] = a
-        elif isinstance(a, array):
-            self._params['cell'] = SXTalCell(a, bravais)
-        else:
-            self._params['cell'] = SXTalCell.fromabc(a, b, c, alpha, beta, gamma, bravais)
-        self._setROParam('a', self.doReadA(0))
-        self._setROParam('b', self.doReadB(0))
-        self._setROParam('c', self.doReadC(0))
-        self._setROParam('alpha', self.doReadAlpha(0))
-        self._setROParam('beta', self.doReadBeta(0))
-        self._setROParam('gamma', self.doReadGamma(0))
+    def doReadBravais(self):
+        return self.cell.bravais.bravais
+
+    def doWriteBravais(self, value):
+        self.cell.bravais = symmetry.Bravais(value)
+
+    def doReadLaue(self):
+        return self.cell.laue.laue
+
+    def doWriteLaue(self, value):
+        self.cell.laue = symmetry.Laue(value)
+
+    def doWriteCell(self, cell):
+        params = cell.cellparams()
+        self._setROParam('a', params.a)
+        self._setROParam('b', params.b)
+        self._setROParam('c', params.c)
+        self._setROParam('alpha', params.alpha)
+        self._setROParam('beta', params.beta)
+        self._setROParam('gamma', params.gamma)
+        self._setROParam('rmat', cell.rmat.tolist())
+        self._setROParam('bravais', cell.bravais.bravais)
+        self._setROParam('laue', cell.laue.laue)
+
+        self.log.info('New sample cell set. Parameters:')
+        self.log.info('a = %8.3f  b = %8.3f  c = %8.3f' % (params.a, params.b,
+                                                           params.c))
+        self.log.info('alpha = %8.3f  beta = %8.3f  gamma = %8.3f' %
+                      (params.alpha, params.beta, params.gamma))
+        self.log.info('Bravais: %s  Laue: %s' % (cell.bravais.bravais,
+                                                 cell.laue.laue))
+        self.log.info('UB matrix:')
+        for row in cell.rmat.T:
+            self.log.info('%8.4f %8.4f %8.4f' % tuple(row))
