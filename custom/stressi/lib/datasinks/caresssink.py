@@ -323,7 +323,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d = OrderedDict()
         ds = self.dataset
         d['STEP'] = ds.npoints
-        d[ds.devices[0].name.upper()] = 0
+        if ds.devices:
+            d[ds.devices[0].name.upper()] = 0
+        else:
+            d['TIM'] = 0
         self._write_setv(d)
         d1 = OrderedDict()
         d1.clear()
@@ -341,6 +344,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                     d1['SLITM_L'] = -value[1] / 2.
                 elif device == 'slite':
                     d1['SLITM_E'] = value
+                elif device == 'transm':
+                    d1[device] = session.getDevice('transm'). \
+                        _attached_moveable.read()
+                    self.log.debug('TRANSM value %f' % d1[device])
+                elif device == 'wav':
+                    d1[device] = value or 0.
                 elif device not in ['UBahn', 'wav', 'ysd']:
                     try:
                         d1[device] = value
@@ -348,15 +357,21 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                         # print('%s.%s = %r' % (device, key, value))
                         d1[device.name] = 0.
         self._write_read(d1)
-        d[ds.devices[0].name.upper()] = (float(ds.startpositions[0][0]),
-                                         float(ds.startpositions[-1][0]))
+        if ds.devices:
+            d[ds.devices[0].name.upper()] = (float(ds.startpositions[0][0]),
+                                             float(ds.startpositions[-1][0]))
+        else:
+            d['TIM'] = (0, 1000000)
         self._write_sgen(d)
         self._write_spec()
         self._write_string('DATE', time.strftime('%d-%b-%Y'))
         self._write_string('TIME', time.strftime('%H:%M:%S'))
 
     def _write_defdata(self, dev, master):
-        devname = dev.name.upper()
+        if isinstance(dev, str):
+            devname = dev.upper()
+        else:
+            devname = dev.name.upper()
         self._defdata('SETVALUES(%s)' % ' '.join(['STEP', devname]))
         if self._scan_type == 'SGEN2':
             mastervalues = 'SL1(TTHS ADET CHIS %s TIM1 MON)' % devname
@@ -493,7 +508,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_general(bycategory['general'])
         if 'experiment' in bycategory:
             self._write_comment(bycategory['experiment'])
-        self._write_defdata(self.dataset.devices[0], master)
+        if self.dataset.devices:
+            self._write_defdata(self.dataset.devices[0], master)
+        else:
+            self._write_defdata('TIM', master)
         self._flush()
         self._wrote_header = True
 
@@ -528,7 +546,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
         self._string('SETVALUES')
         self._write_integer(point.number)
-        self._write_float(point.devvaluelist[0])
+        if point.devvaluelist:
+            self._write_float(point.devvaluelist[0])
+        else:
+            self._write_float(0.)
         self._string('MASTER1VALUES')
         for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
             if info.type == 'time':
@@ -541,12 +562,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             chis = session.getDevice('chis').read()
         except ConfigurationError:
             chis = 0
-        for (dev, key), (v, _, _, _) in iteritems(self.dataset.metainfo):
-            if key == 'value':
-                if dev == 'tths':
-                    tths = v
-                elif dev == 'chis':
-                    chis = v
         self._write_float(tths)
         for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
             self.log.debug('%s: %r' % (info.type, val))
@@ -571,7 +586,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self._file_write(buf)
         if self._scan_type == 'SGEN2':
             self._write_float(chis)
-            self._write_float(point.devvaluelist[0])
+            if point.devvaluelist:
+                self._write_float(point.devvaluelist[0])
+            else:
+                self._write_float(0.0)
             self._write_integer(tim1)
         for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
             if info.type == 'monitor':
