@@ -345,10 +345,11 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     >>> contscan(phi, 0, 10, speed=1)
     >>> contscan(phi, 0, 10, timedelta=1)
 
-    The phi device will move continuously from 0 to 10, with reduced speed.  In
-    contrast to a `sweep`, the detectors are read out every *timedelta* seconds
-    (the default is one second), and each delta between count values is one
-    scan point, so that no counts are lost.
+    The phi device will move continuously from 0 to 10, with *speed* (the
+    default is 1/5th of the current device speed).  In contrast to a `sweep`,
+    detectors are read out every *timedelta* seconds (the default is 1 second),
+    and each delta between count values is one scan point, so that no counts
+    are lost.
 
     By default, the detectors are those selected by SetDetectors().  They can
     be replaced by a custom set of detectors by giving them as arguments:
