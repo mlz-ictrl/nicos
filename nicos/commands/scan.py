@@ -179,10 +179,11 @@ def cscan(dev, *args, **kwargs):
                  in zip(centers, steps)] for i in range(2*numperside+1)]
     scanstr = _infostr('cscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
+    subscan = kwargs.pop(SUBSCAN, False)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo, subscan=kwargs.get(SUBSCAN, False)).run()
+         scaninfo, subscan=subscan).run()
 
 
 @usercommand

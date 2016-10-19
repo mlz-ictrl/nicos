@@ -123,11 +123,6 @@ devices = dict(
         background = 1,
         realtime = True,
     ),
-    intensity = device('devices.generic.detector.DummyDetector',
-        description = 'dummy for hkl scan',
-        lowlevel = True,
-        unit = 'cts'
-    ),
     Shutter = device('devices.generic.ManualSwitch',
         description = 'Instrument shutter',
         states = ['open', 'closed']
