@@ -118,6 +118,9 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc('liveparams', (tag, filename, '', 0, 0, 0, 0))
         self.emitfunc('livedata', '')
 
+    def notifyFitCurve(self, dataset, title, xvalues, yvalues):
+        self.emitfunc('datacurve', (title, xvalues, yvalues))
+
     def breakpoint(self, level):
         exec_(self._bpcode[level])
 

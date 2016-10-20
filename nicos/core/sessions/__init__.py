@@ -1328,6 +1328,16 @@ class Session(object):
         * filename - a string giving the filename of the data.
         """
 
+    def notifyFitCurve(self, dataset, title, xvalues, yvalues):
+        """Notify clients that a new fit curve has been created and should
+        be displayed for the given dataset.
+
+        The parameters are:
+
+        * title - a string describing the fit.
+        * xvalues, yvalues - lists of data points.
+        """
+
     def breakpoint(self, level):
         """Allow breaking or stopping the script at a well-defined time.
         *level* can be:

@@ -196,12 +196,13 @@ def poly(n, *columns):
 
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
-    xs, ys, dys = _getData(columns)[:3]
+    xs, ys, dys, _, ds = _getData(columns)
     fit = PolyFit(n, [1] * (n+1))
     res = fit.run(xs, ys, dys)
     if res._failed:
         printinfo('Fit failed.')
         return FitResult((None, None))
+    session.notifyFitCurve(ds, 'poly(%d)' % n, res.curve_x, res.curve_y)
     descrs = ['a_%d' % i for i in range(n+1)]
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
@@ -239,11 +240,12 @@ def gauss(*columns):
             center = values[0]
             # now work with fitted peak center
     """
-    xs, ys, dys = _getData(columns)[:3]
+    xs, ys, dys, _, ds = _getData(columns)
     fit = GaussFit([0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0])
     res = fit.run(xs, ys, dys)
     if res._failed:
         return None, None
+    session.notifyFitCurve(ds, 'gauss', res.curve_x, res.curve_y)
     descrs = ['center', 'amplitude', 'FWHM', 'background']
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
