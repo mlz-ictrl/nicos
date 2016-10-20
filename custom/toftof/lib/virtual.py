@@ -76,14 +76,18 @@ class VirtualImage(BaseImage):
         BaseImage.doInit(self, mode)
         try:
             with open(self.datafile, 'rb') as fp:
-                self._rawdata = 0.01 * np.load(fp)
+                self._rawdata = 0.01 * np.load(fp).reshape(self.sizes)
+            self.log.warning(self, '%r' % (self._rawdata.shape,))
+            # eliminate monitor entries
+            self._rawdata[956] = np.zeros(self._rawdata.shape[1])
         except IOError:
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual TOF image' % self.datafile)
-            self._rawdata = np.zeros(self.sizes[0] * self.sizes[1])
+            self._rawdata = np.zeros(self.sizes[0] *
+                                     self.sizes[1]).reshape(self.sizes)
 
     def _generate(self, t):
-        return np.random.poisson(t * self._rawdata).reshape(self.sizes)
+        return np.random.poisson(t * self._rawdata)
 
     def doReadChannelwidth(self):
         return int(1.0 + self.timeinterval / (calc.ttr * 1024))
