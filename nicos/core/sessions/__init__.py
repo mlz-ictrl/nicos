@@ -1325,13 +1325,14 @@ class Session(object):
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
         """Send new live data to clients.
 
         The parameters are:
 
         * tag - a string describing the type of data that is sent.  It is used
           by clients to determine if they can display this data.
+        * filename - the filename displayed for cached data.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
         * nx, ny, nt - three integers giving the dimensions of the data array,

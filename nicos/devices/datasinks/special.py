@@ -99,7 +99,11 @@ class LiveViewSinkHandler(DataSinkHandler):
                     (resX, resY), resZ = data.shape, 1
                 else:
                     resX, resY, resZ = data.shape
-                session.updateLiveData('Live', '<u4', resX, resY, resZ,
+                if self.dataset.filenames and self.dataset.filenames[0]:
+                    filename = self.dataset.filenames[0]
+                else:
+                    filename = self.sink.filenametemplate[0] % self.dataset.counter
+                session.updateLiveData('Live', filename,'<u4', resX, resY, resZ,
                                        currenttime() - self.dataset.started,
                                        memory_buffer(data.astype('<u4')))
 
@@ -108,10 +112,9 @@ class LiveViewSink(ImageSink):
     """A DataSink that sends images to attached clients for live preview."""
 
     parameter_overrides = {
-        # this is not really used, so we give it a default that would
-        # raise if used as a template filename
+        # this is fixed string for labeling cached live data
         'filenametemplate': Override(mandatory=False, userparam=False,
-                                     default=['']),
+                                     default=['<Live>@%d']),
     }
 
     handlerclass = LiveViewSinkHandler

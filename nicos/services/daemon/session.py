@@ -110,8 +110,8 @@ class DaemonSession(NoninteractiveSession):
         NoninteractiveSession.setMode(self, mode)
         self.emitfunc('mode', mode)
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
-        self.emitfunc('liveparams', (tag, '', dtype, nx, ny, nt, time))
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+        self.emitfunc('liveparams', (tag, filename, dtype, nx, ny, nt, time))
         self.emitfunc('livedata', data)
 
     def notifyDataFile(self, tag, filename):
