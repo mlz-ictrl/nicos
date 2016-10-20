@@ -864,8 +864,11 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
     }
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.roiSize),
-                                   dtype='<u4')
+        if mode != SIMULATION:
+            shape = tuple(self._dev.roiSize)
+        else:
+            shape = (256, 256)  # select some arbitrary shape
+        self.arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
 
     def doReadSize(self):
         return self._dev.detectorSize.tolist()
