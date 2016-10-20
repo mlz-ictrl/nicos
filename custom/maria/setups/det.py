@@ -28,6 +28,7 @@ devices = dict(
     det           = device("devices.generic.Detector",
                            description = "Denex detector",
                            timers = ["timer"],
+                           monitors = ["mon0", "mon1"],
                            images = ["detimg"],
                            liveinterval = 1.,
                           ),
