@@ -32,7 +32,7 @@ devices = dict(
     # aflipper (3HE) has inverted up/down mapping
     aflipper = device("maria.pyro4.NamedDigitalOutput",
                       description = "Pyro4 Device",
-                      pyro4device = "PYRO:he3.cell@172.25.32.39:50555",
+                      pyro4device = "PYRO:he3.cell@3he.maria.frm2:50555",
                       hmackey = "iamverysecret",
                       mapping = {
                           "down": 0,
