@@ -18,7 +18,7 @@ _expcolumn = Column(
 
 _tablecolumn = Column(
     Block('Sample table', [
-        BlockRow(Field(dev=u'omega'), Field(dev='twotheta'),
+        BlockRow(Field(dev=u'omega'), Field(dev='gamma'),
                  Field(dev='chi1'), Field(dev='chi2')),
         ],
     ),
