@@ -145,11 +145,6 @@ class Detector(MeasureSequencer):
         self.log.debug('doReadArrays: %d/%d: %d, %r' % (
             self._step, self.resosteps, self._array_data.sum(),
             self._array_data.shape))
-        if self.resosteps == 1:
-            # self.log.info('1 STEP')
-            ret = self._attached_detector.readArrays(FINAL)[0]
-            y, x = ret.shape
-            return ret.reshape((x, y))
         return [self._array_data]
 
     def _generateSequence(self, *args, **kwargs):
