@@ -43,5 +43,6 @@ alias_config = {
     'T':  {'T_%s' % setupname: 100},
     'Ts': {'T_%s_A' % setupname: 110,
            'T_%s_B' % setupname: 100,
+           'T_%s' % setupname: 120,
           },
 }
