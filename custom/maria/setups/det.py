@@ -6,7 +6,7 @@ group = "basic"
 includes = ["counter"]
 
 sysconfig = dict(
-    datasinks = ['NPGZFileSink', 'LiveViewSink'],
+    datasinks = ["NPGZFileSink", "YAMLSaver", "LiveViewSink"],
 )
 
 tango_base = "tango://phys.maria.frm2:10000/maria"
@@ -16,7 +16,12 @@ devices = dict(
                            description = "Saves image data in numpy text "
                                          "format",
                            filenametemplate = ["%(proposal)s_"
-                                               "%(pointcounter)08d.gz"],
+                                               "%(pointcounter)010d.gz"],
+                          ),
+    YAMLSaver     = device("maria.yamlformat.YAMLFileSink",
+                           filenametemplate = ["%(proposal)s_"
+                                           "%(pointcounter)010d.yaml"],
+                           lowlevel = True,
                           ),
     LiveViewSink  = device("devices.datasinks.LiveViewSink",
                            description = "Sends image data to LiveViewWidget",
