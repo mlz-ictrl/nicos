@@ -1149,6 +1149,7 @@ class Session(object):
         log_path = path.join(config.nicos_root, config.logging_path)
         if console:
             self.log.addHandler(ColoredConsoleHandler())
+        self._master_handler = None
         try:
             if prefix == 'nicos':
                 self.log.addHandler(NicosLogfileHandler(
@@ -1159,7 +1160,6 @@ class Session(object):
                 self.log.addHandler(self._master_handler)
             else:
                 self.log.addHandler(NicosLogfileHandler(log_path, prefix))
-                self._master_handler = None
         except (IOError, OSError) as err:
             self.log.error('cannot open log file: %s' % err)
 
