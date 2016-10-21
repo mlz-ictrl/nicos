@@ -69,7 +69,7 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('maria.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/data',
                       managerights = dict(enableDirMode=0o775,
