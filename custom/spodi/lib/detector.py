@@ -124,7 +124,8 @@ class Detector(MeasureSequencer):
         # Detector is not busy anymore, but to early to consider it as
         # 'not busy'
         self._det_run = False
-        imgret = self._attached_detector.readArrays(FINAL)[0]
+        imgret = self._attached_detector.readArrays(FINAL)[0].astype('<u4',
+                                                                     order='F')
         # self.log.info('%r' % (imgret,))
         self._array_data[self._step::self.resosteps] = imgret
 
@@ -200,10 +201,11 @@ class Detector(MeasureSequencer):
         self._step_size = self.range / value
         if not self._arraydesc:
             self._arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
-            self._array_data = np.zeros(shape, dtype='<u4')
+            self._array_data = np.zeros(shape, dtype='<u4', order='F')
         else:
             self._arraydesc.shape = shape
-            self._array_data = np.resize(self._array_data, shape)
+            self._array_data = np.resize(self._array_data,
+                                         shape).astype('<u4', order='F')
             self._array_data.fill(0)
         if self._mode != SIMULATION:
             self._cache.put(self, 'fmtstr', self._fmtstr(value))
