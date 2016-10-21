@@ -94,6 +94,7 @@ devices = dict(
                   detector = 'basedet',
                   pollinterval = None,
                   maxage = 86400,
+                  liveinterval = 1,
                  ),
     wav = device('devices.generic.manual.ManualMove',
                  description = 'The incoming wavelength',
