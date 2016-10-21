@@ -191,6 +191,7 @@ devices = dict(
                        description = 'demo 2D detector',
                        distance = 'det1_z',
                        collimation = 'guide',
+                       sizes = (128, 128),
                       ),
     det      = device('devices.generic.detector.GatedDetector',
                       description = 'demo 2D detector',

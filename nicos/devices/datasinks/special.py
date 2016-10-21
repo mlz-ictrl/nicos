@@ -69,7 +69,7 @@ class DaemonSink(DataSink):
     handlerclass = DaemonSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=[SCAN, SUBSCAN]),
+        'settypes': Override(default=[SCAN, SUBSCAN]),
     }
 
     def isActive(self, dataset):
@@ -147,5 +147,5 @@ class SerializedSink(DataSink):
     handlerclass = SerializedSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=[SCAN, SUBSCAN]),
+        'settypes': Override(default=[SCAN, SUBSCAN]),
     }

@@ -42,8 +42,9 @@ class ToftofLiveViewSinkHandler(TofSinkHandler):
             data = results[self.detector.name][1][0]
             if data is not None:
                 if len(data.shape) == 2:
-                    treated = data[self.detector._anglemap, :].astype('<u4')
-                    (resY, resX), resZ = treated.shape, 1
+                    treated = data[self.detector._anglemap, :].astype('<u4',
+                                                                      order='F')
+                    (resX, resY), resZ = treated.shape, 1
                     session.updateLiveData('Live', '<u4', resX, resY, resZ,
                                            currenttime() - self.dataset.started,
                                            memory_buffer(treated))

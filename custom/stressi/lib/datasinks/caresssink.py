@@ -426,6 +426,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'MOT1', 'TRANS']
             self._write_exptype(exptype)
         self._detvalues = None
+        self._lastdetvalues = np.zeros(256 * 256).reshape((256, 256))
 
     def putMetainfo(self, metainfo):
         self.log.debug('put meta info: %r' % metainfo)
@@ -530,16 +531,27 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
         # the image data are hopefully always at this place
         try:
-            self._detvalues = point.results.values()[0][1][0]
+            detvalues = point.results.values()[0][1][0]
         except Exception:
             try:
                 # try to read image date ourselves
-                self._detvalues = session.getDevice('image').readArray(FINAL)
+                detvalues = session.getDevice('image').readArray(FINAL)
             except Exception:
                 # create empty data set
                 self.log.error('Could not get the image data!')
-                self._detvalues = np.array([[1, ], ])
-                self._detvalues.resize((256, 256))
+                detvalues = np.array([[1, ], ])
+                detvalues.resize((256, 256))
+
+        if self._scan_type == 'SGEN2':
+            if detvalues.shape == self._lastdetvalues.shape:
+                self._detvalues = detvalues - self._lastdetvalues
+                self._lastdetvalues = detvalues
+            else:
+                self.log.error('%r %r' % (detvalues.shape,
+                                            self._lastdetvalues.shape))
+        else:
+            self._detvalues = detvalues
+
         self.log.debug('storing results %r' % self._detvalues)
 
         self._write_header(point.metainfo)
@@ -615,6 +627,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._wrote_header = False
         self._scan_file = False
         self._detvalues = None
+        self._lastdetvalues = np.zeros(256 * 256)
 
 
 class CaressScanfileSink(FileSink):
