@@ -311,6 +311,7 @@ class DataManager(object):
         """Expand the given *nametemplates* with the current counter values."""
         if isinstance(nametemplates, string_types):
             nametemplates = [nametemplates]
+        exc = None  # stores first exception if any
         # translate entries
         filenames = []
         for nametmpl in nametemplates:
@@ -319,12 +320,19 @@ class DataManager(object):
             try:
                 filename = nametmpl % DeviceValueDict(kwds)
             except KeyError as err:
-                raise KeyError('can\'t create datafile, illegal key %s in '
-                               'filename template %r!' % (err, nametmpl))
+                if not exc:
+                    exc = KeyError('can\'t create datafile, illegal key %s in '
+                                   'filename template %r!' % (err, nametmpl))
+                continue
             except TypeError as err:
-                raise TypeError('error expanding data file name: %s, check '
-                                'filename template %r!' % (err, nametmpl))
+                if not exc:
+                    exc = TypeError('error expanding data file name: %s, check '
+                                    'filename template %r!' % (err, nametmpl))
+                continue
             filenames.append(filename)
+        if exc and not filenames:
+            # pylint: disable=raising-bad-type
+            raise exc
         return filenames
 
     def getFilenames(self, dataset, nametemplates, *subdirs, **kwargs):
