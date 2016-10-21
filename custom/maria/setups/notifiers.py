@@ -7,7 +7,7 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     mailer    = device('devices.notifiers.Mailer',
                        sender = 'maria@frm2.tum.de',
-                       copies = [('m.mattauch@fz-juelich.de', 'all'),
+                       copies = [('s.mattauch@fz-juelich.de', 'all'),
                                  ('a.koutsioumpas@fz-juelich.de', 'all'),
                                  ('c.felder@fz-juelich.de', 'important'),
                                  ('alerts.sw.zea2@fz-juelich.de', 'important'),
