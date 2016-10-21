@@ -11,16 +11,22 @@ sysconfig = dict(
 
 tango_base = "tango://phys.maria.frm2:10000/maria"
 
+basename = "%(proposal)s_%(session.experiment.sample.samplename)s_"
+scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
+countbasename = basename + "%(pointpropcounter)010d"
+
 devices = dict(
     NPGZFileSink  = device("maria.npsaver.NPGZFileSink",
                            description = "Saves image data in numpy text "
                                          "format",
-                           filenametemplate = ["%(proposal)s_"
-                                               "%(pointcounter)010d.gz"],
+                           filenametemplate = [scanbasename + ".gz",
+                                               countbasename + ".gz",
+                                              ],
                           ),
     YAMLSaver     = device("maria.yamlformat.YAMLFileSink",
-                           filenametemplate = ["%(proposal)s_"
-                                           "%(pointcounter)010d.yaml"],
+                           filenametemplate = [scanbasename + ".yaml",
+                                               countbasename + ".yaml",
+                                              ],
                            lowlevel = True,
                           ),
     LiveViewSink  = device("devices.datasinks.LiveViewSink",
