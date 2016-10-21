@@ -32,14 +32,16 @@ from os import path
 from nicos import session
 from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.device import maw, move, read
-from nicos.commands.scan import cscan, contscan
+from nicos.commands.scan import cscan, contscan, _infostr
 from nicos.commands.analyze import center_of_mass, gauss
 from nicos.commands.output import printinfo, printwarning, printerror
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
-from nicos.core import Moveable, UsageError, NicosError, SIMULATION
-from nicos.pycompat import number_types
-from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
+from nicos.core import Readable, Measurable, Moveable, UsageError, NicosError
+from nicos.core.constants import SIMULATION
+from nicos.core.spm import spmsyntax, Bare
+from nicos.core.scan import Scan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
+from nicos.pycompat import number_types, iteritems, string_types
 from nicos.utils import printTable
 
 __all__ = [
@@ -48,6 +50,9 @@ __all__ = [
     'calpos',
     'pos',
     'rp',
+    'qscan',
+    'qcscan',
+    'omscan',
     'PosListClear',
     'PosListDefine',
     'PosListAdd',
@@ -328,6 +333,175 @@ def pos(*args, **kwds):
         pos = _convert_q_arg(args, 'pos')
         instr._calpos(pos, checkonly=False)
     maw(instr, pos[:4])
+
+
+def _getQ(v, name):
+    try:
+        if len(v) == 3:
+            return list(v)
+        else:
+            raise TypeError
+    except TypeError:
+        raise UsageError('%s must be a sequence of (h, k, l)' % name)
+
+
+def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+    preset, detlist, envlist, move, multistep = {}, [], None, [], []
+    for arg in args:
+        if isinstance(arg, string_types):
+            scaninfo = arg + ' - ' + scaninfo
+        elif isinstance(arg, number_types):
+            preset['t'] = arg
+        elif isinstance(arg, Measurable):
+            detlist.append(arg)
+        elif isinstance(arg, Readable):
+            if envlist is None:
+                envlist = []
+            envlist.append(arg)
+        else:
+            raise UsageError('unsupported qscan argument: %r' % arg)
+    for key, value in iteritems(kwargs):
+        if key == 'h' or key == 'H':
+            Q[0] = value
+        elif key == 'k' or key == 'K':
+            Q[1] = value
+        elif key == 'l' or key == 'L':
+            Q[2] = value
+        elif key == 'dh' or key == 'dH':
+            dQ[0] = value
+        elif key == 'dk' or key == 'dK':
+            dQ[1] = value
+        elif key == 'dl' or key == 'dL':
+            dQ[2] = value
+        elif key in session.devices and \
+                isinstance(session.devices[key], Moveable):
+            if isinstance(value, list):
+                if multistep and len(value) != len(multistep[-1][1]):
+                    raise UsageError('all multi-step arguments must have the '
+                                     'same length')
+                multistep.append((session.devices[key], value))
+            else:
+                move.append((session.devices[key], value))
+        else:
+            preset[key] = value
+    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
+
+
+class QScan(Scan):
+    """
+    Special scan class for scans with a sxtal instrument in Q space.
+    """
+
+    def __init__(self, positions, firstmoves=None, multistep=None,
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 subscan=False):
+        inst = session.instrument
+        if not isinstance(inst, SXTalBase):
+            raise NicosError('cannot do a Q scan, your instrument device '
+                             'is not a sxtal device')
+        Scan.__init__(self, [inst], positions, [],
+                      firstmoves, multistep, detlist, envlist, preset,
+                      scaninfo, subscan)
+        self._envlist[0:0] = [inst._attached_gamma,
+                              inst._attached_omega, inst._attached_nu]
+        if inst in self._envlist:
+            self._envlist.remove(inst)
+
+    def shortDesc(self):
+        comps = []
+        if len(self._startpositions) > 1:
+            for i in range(3):
+                if self._startpositions[0][0][i] != \
+                   self._startpositions[1][0][i]:
+                    comps.append('HKL'[i])
+        if self.dataset and self.dataset.counter > 0:
+            return 'Scan %s #%s' % (','.join(comps) or 'Q',
+                                    self.dataset.counter)
+        return 'Scan %s' % (','.join(comps) or 'Q')
+
+    def beginScan(self):
+        if len(self._startpositions) > 1:
+            # determine first varying index as the plotting index
+            for i in range(3):
+                if self._startpositions[0][0][i] != \
+                   self._startpositions[1][0][i]:
+                    self._xindex = i
+                    break
+        Scan.beginScan(self)
+
+
+@usercommand
+@helparglist('Q, dQ, numpoints, ...')
+@spmsyntax(Bare, Bare, Bare)
+def qscan(Q, dQ, numpoints, *args, **kwargs):
+    """Perform a single-sided Q step scan.
+
+    The *Q* and *dQ* arguments should be lists of 3 components.
+
+    Example:
+
+    >>> qscan((1, 0, 0), (0, 0, 0.1), 11, mon1=100000)
+
+    will perform an L scan at (100) with the given monitor counts per point.
+    """
+    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
+    scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    if all(v == 0 for v in dQ) and numpoints > 1:
+        raise UsageError('scanning with zero step width')
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2])]
+              for i in range(numpoints)]
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+    scan.run()
+
+
+@usercommand
+@helparglist('Q, dQ, numperside, ...')
+@spmsyntax(Bare, Bare, Bare)
+def qcscan(Q, dQ, numperside, *args, **kwargs):
+    """Perform a centered Q step scan.
+
+    The *Q* and *dQ* arguments should be lists of 3 components.
+
+    Example:
+
+    >>> qcscan((1, 0, 0), (0.001, 0, 0), 20, mon1=1000)
+
+    will perform a longitudinal scan around (100) with the given monitor counts
+    per point.
+    """
+    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
+    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    if all(v == 0 for v in dQ) and numperside > 0:
+        raise UsageError('scanning with zero step width')
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2])]
+              for i in range(-numperside, numperside+1)]
+    scan = QScan(values, move, multistep, detlist, envlist, preset,
+                 scaninfo)
+    scan.run()
+
+
+@usercommand
+@helparglist('hkl, [width], [speed], [timedelta]')
+def omscan(hkl, width=None, speed=None, timedelta=None, **kwds):
+    instr = session.instrument
+    if not isinstance(instr, SXTalBase):
+        raise NicosError('your instrument is not a sxtal diffractometer')
+    if width is None:
+        width = instr.getScanWidthFor(hkl)
+    calc = dict(instr._extractPos(instr._calcPos(hkl)))
+    om1 = calc['omega'] - width / 2.
+    om2 = calc['omega'] + width / 2.
+    cur_om = instr._attached_omega.read()
+    if abs(cur_om - om1) > abs(cur_om - om2):
+        om1, om2 = om2, om1
+    maw(instr._attached_gamma, calc['gamma'],
+        instr._attached_nu, calc['nu'],
+        instr._attached_omega, om1)
+    contscan(instr._attached_omega, om1, om2, speed, timedelta)
 
 
 @usercommand
