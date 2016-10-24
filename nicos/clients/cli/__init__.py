@@ -712,7 +712,10 @@ class NicosCmdClient(NicosClient):
                 reply = self.ask_question('A script is already running, '
                                           'queue or execute anyway?', chars='qxn')
                 if reply == 'x':
-                    self.tell('exec', arg)
+                    if self.status != 'idle':
+                        self.tell('exec', arg)
+                    else:
+                        self.run(arg)
                 elif reply == 'q':
                     self.run(arg)
                     self.put_client('Command queued.')

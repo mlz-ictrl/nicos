@@ -230,5 +230,8 @@ class CommandLineEdit(HistoryLineEdit):
             if result == QMessageBox.Cancel:
                 return
             elif result == QMessageBox.Apply:
-                action = 'execute'
+                if self.current_status != 'idle':
+                    # if still busy try immediate execution, may raise,
+                    # else just queue it
+                    action = 'execute'
         self.execRequested.emit(script, action)
