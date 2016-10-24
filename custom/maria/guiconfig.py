@@ -29,7 +29,8 @@ main_window = tabbed(
         vsplit(
             hsplit(
                 vsplit(
-                    panel('cmdbuilder.CommandPanel'),
+                    panel('cmdbuilder.CommandPanel',
+                          modules=['maria.gui.cmdlets']),
                     panel('status.ScriptStatusPanel'),
                 ),
             ),
