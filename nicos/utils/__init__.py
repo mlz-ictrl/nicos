@@ -1178,3 +1178,21 @@ def make_load_config(filepath):
             raise ConfigurationError('value named %s not found in config '
                                      'setup %s' % (element, setupname))
     return load_config
+
+
+def tabulated(widths, iterable, maxwidth=20):
+    """Return strings from iterable spaced as columns with given widths.
+
+    When an entry is is wider than the current width, update the widths.
+    """
+    result = []
+    for i, item in enumerate(iterable):
+        result.append(item)
+        if i < len(widths):
+            width = widths[i]
+            if len(item) > width:
+                width = widths[i] = min(len(item), maxwidth)
+            result.append(' ' * (width - len(item) + 1))
+        else:
+            result.append(' ')
+    return ''.join(result).rstrip()

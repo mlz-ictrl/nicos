@@ -31,6 +31,7 @@ from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, DataSink, DataSinkHandler, \
     INFO_CATEGORIES, Override, Param
+from nicos.utils import tabulated
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import TextIOWrapper, iteritems
 
@@ -50,29 +51,35 @@ class ConsoleScanSinkHandler(DataSinkHandler):
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._indent = '' if self.dataset.settype != SUBSCAN else ' ' * 6
+        self._colwidths = []
+        self._rulerlen = 100
 
     def begin(self):
         ds = self.dataset
+        valueinfo = ds.devvalueinfo + ds.envvalueinfo + ds.detvalueinfo
+        # we write every data value as a column except for arrays
+        names = ['#'] + [v.name for v in valueinfo]
+        units = [''] + [v.unit for v in valueinfo]
+        # minimum column length is 8: fits well for -123.456
+        self._colwidths = [max(len(name), len(unit), 8)
+                           for (name, unit) in zip(names, units)]
+        self._rulerlen = max(100, sum(self._colwidths))
         if ds.settype != SUBSCAN:
-            printinfo('=' * 100)
+            printinfo('=' * self._rulerlen)
             printinfo('Starting scan:      ' + (ds.info or ''))
             printinfo('Started at:         ' +
                       strftime(TIMEFMT, localtime(ds.started)))
             printinfo('Scan number:        ' + str(ds.counter))
             for filename in ds.filenames:
                 printinfo('Filename:           ' + filename)
-            printinfo('-' * 100)
+            printinfo('-' * self._rulerlen)
         else:
             printinfo()
             for filename in ds.filenames:
                 printinfo(self._indent + 'Filename: ' + filename)
-        valueinfo = ds.devvalueinfo + ds.envvalueinfo + ds.detvalueinfo
-        # we write every data value as a column except for arrays
-        names = [v.name for v in valueinfo]
-        units = [v.unit for v in valueinfo]
-        printinfo(self._indent + '\t'.join(map(str, ['#'] + names)).expandtabs())
-        printinfo(self._indent + '\t'.join([''] + units).expandtabs())
-        printinfo(self._indent + '-' * (100 - len(self._indent)))
+        printinfo(self._indent + tabulated(self._colwidths, names))
+        printinfo(self._indent + tabulated(self._colwidths, units))
+        printinfo(self._indent + '-' * self._rulerlen)
 
     def addSubset(self, point):
         if point.settype != POINT:
@@ -82,23 +89,22 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             pointstr = '%s/%s' % (len(ds.subsets), ds.npoints)
         else:
             pointstr = str(len(ds.subsets))
-        printinfo(self._indent + '\t'.join(
-            [pointstr] +
-            [safe_format(info.fmtstr, val) for (info, val) in
-             zip(ds.devvalueinfo, point.devvaluelist)] +
-            [safe_format(info.fmtstr, val) for (info, val) in
-             zip(ds.envvalueinfo, point.envvaluelist)] +
-            [safe_format(info.fmtstr, val) for (info, val) in
-             zip(ds.detvalueinfo, point.detvaluelist)] +
-            point.filenames
-        ).expandtabs())
+        cols = ([pointstr] +
+                [safe_format(info.fmtstr, val) for (info, val) in
+                 zip(ds.devvalueinfo, point.devvaluelist)] +
+                [safe_format(info.fmtstr, val) for (info, val) in
+                 zip(ds.envvalueinfo, point.envvaluelist)] +
+                [safe_format(info.fmtstr, val) for (info, val) in
+                 zip(ds.detvalueinfo, point.detvaluelist)] +
+                point.filenames)
+        printinfo(self._indent + tabulated(self._colwidths, cols))
 
     def end(self):
         if self.dataset.settype != SUBSCAN:
-            printinfo('-' * 100)
+            printinfo('-' * self._rulerlen)
             printinfo('Finished at:        ' +
                       strftime(TIMEFMT, localtime(self.dataset.finished)))
-            printinfo('=' * 100)
+            printinfo('=' * self._rulerlen)
         else:
             printinfo()
 
