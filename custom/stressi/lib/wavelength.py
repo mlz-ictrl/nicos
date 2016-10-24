@@ -26,20 +26,30 @@
 
 from math import pi, sin, asin
 
-from nicos.core import Attach, HasLimits, Moveable, Override, Param, \
-    PositionError, status
-from nicos.core.params import floatrange
+from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
+    Param, SIMULATION, multiStop, status
+from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.generic import Switcher
+from nicos.stressi.mixins import TransformMove
+
+
+class TransformedMoveable(HasPrecision, TransformMove, Moveable):
+
+    valuetype = float
+
+    hardware_access = False
 
 
 class Wavelength(HasLimits, Moveable):
     """Device for adjusting initial/final wavelength."""
 
     parameters = {
-        'precision': Param('Precision of the device value (allowed deviation '
-                           'of stable values from target)', unit='deg',
-                           type=floatrange(0), default=0.005,
-                           settable=True, category='precisions'),
+        'crystal': Param('Used crystal',
+                         type=str, unit='', settable=False, volatile=True,
+                         category='instrument'),
+        'plane': Param('Used scattering plane of the crystal', type=str,
+                       unit='', mandatory=True, settable=True,
+                       category='instrument'),
     }
 
     parameter_overrides = {
@@ -56,44 +66,44 @@ class Wavelength(HasLimits, Moveable):
 
     hardware_access = False
 
-    # Since the real tthm value differs from the displayed value at the PLC the
-    # value must be corrected via:
-    # y = m * x + n
-    # we use the following values for m and n:
-    _m = 1.0 / 0.959
-    _n = -11.5 / 0.956
-
     _lut = {
-            # the combinations are the 311, 511, 711
-            'Ge': [(48.01841, 1.7058), (38.56841, 1.08879),
-                   (34.19841, 0.79221)],
+            'Ge': {'311': [1.7058, 9.45, 0.65],
+                   '511': [1.08879, 0.0, 0.65],
+                   '711': [0.79221, -4.37, 0.65]},
             # 511, 400, 311
-            'Si': [(54.15841, 1.0452), (38.36841, 1.35773),
-                   (63.60841, 1.6376)],
-            # The PG monochromator gives all 3 reflexes at a single position
-            # we prefer the value for the (400)
+            'Si': {'511': [1.0452, 15.79, 0.45],
+                   '400': [1.35773, 0.0, 0.45],
+                   '311': [1.6376, 25.24, 0.45]},
             # 400, 200, 600
-            'PG': [(38.56841, 1.6771), (38.56841, 3.3542),
-                   (38.56841, 1.11807)],
+            'PG': {'400': [1.6771, 0.0, 0.0],
+                   '200': [3.3542, 0.0, 0.0],
+                   '600': [1.11807, 0.0, 0.0]},
             }
 
-    def _isAt(self, target, value):
-        self.log.debug('%f - %f : %f', target, value, self.precision)
-        ret = abs(target - value) <= self.precision
-        self.log.debug('%r', ret)
-        return ret
+    def _crystal(self, maxage):
+        crystal = self._attached_crystal.read(maxage)
+        if crystal in self._lut:
+            return self._lut[crystal]
+        return None
 
     def _d(self, maxage=0):
-        self._crystal = self._attached_crystal.read(maxage)
-        self._omgm = self._attached_omgm.read(maxage)
-        if self._crystal in self._lut:
-            for omg, d in self._lut[self._crystal]:
-                if self._isAt(omg, self._omgm):
-                    return d
+        crystal = self._crystal(maxage)
+        if crystal:
+            p = crystal.get(self.plane, None)
+            if p:
+                return p[0]
         raise PositionError('No valid setup of the monochromator')
 
     def _getWaiters(self):
-        return [self._attached_base]
+        return self._adevs
+
+    def doInit(self, mode):
+        crystal = self._crystal(0)
+        if crystal:
+            if 'plane' not in self._params:
+                self._param['plane'] = p = crystal.values()[1]
+                if self._mode != SIMULATION:
+                    self._cache.put(self, 'plane', p)
 
     def doStatus(self, maxage=0):
         for dev in (self._attached_base, self._attached_omgm,
@@ -109,19 +119,45 @@ class Wavelength(HasLimits, Moveable):
 
     def doRead(self, maxage=0):
         try:
-            mono = self._m * self._attached_base.read(maxage) + self._n
+            mono = self._attached_base.read(maxage)
             return 2 * self._d(maxage) * sin(mono * pi / (2 * 180.))
         except PositionError:
             return None
 
     def doStart(self, target):
-        mono = (asin(target / (2 * self._d(0))) / pi * 360. - self._n) / self._m
-        self.log.info('%s would be moved to %.3f', self._attached_base, mono)
-        # self._attached_base.start(mono)
+        crystal = self._crystal(0)
+        if not crystal:
+            raise PositionError(self, 'Not valid setup')
+        tthm = asin(target / (2 * self._d(0))) / pi * 360.
+        plane = crystal.get(self.plane, None)
+        if not plane:
+            raise ConfigurationError(self, 'No valid mono configuration')
+        omgm = tthm / 2.0 + plane[1] + plane[2]
+        self.log.debug(self._attached_base, 'will be moved to %.3f' % tthm)
+        self.log.debug(self._attached_omgm, 'will be moved to %.3f' % omgm)
+        if self._attached_base.isAllowed(tthm) and \
+           self._attached_omgm.isAllowed(omgm):
+            self._attached_base.start(tthm)
+            self._attached_omgm.start(omgm)
 
     def doStop(self):
-        # self._attached_base.stop()
-        pass
+        multiStop(self._adevs)
 
     def doReadUnit(self):
         return 'AA'
+
+    def doReadCrystal(self):
+        crystal = self._attached_crystal.read(0)
+        if crystal in self._lut:
+            return crystal
+        return None
+
+    def doWritePlane(self, target):
+        crystal = self._crystal(0)
+        if crystal:
+            if not crystal.get(target, None):
+                raise ValueError('The "%s" plane is not allowed for "%s" crystal'
+                                 % (target, crystal))
+        else:
+            raise PositionError('No valid setup of the monochromator')
+        return target

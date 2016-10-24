@@ -22,3 +22,13 @@ Wave length
 .. automodule:: nicos.stressi.wavelength
 
 .. autoclass:: Wavelength()
+.. autoclass:: TransformedMoveable()
+
+Mixins
+------
+
+.. automodule:: nicos.stressi.mixins
+
+.. autoclass:: TransformRead()
+.. autoclass:: TransformMove()
+.. autoclass:: Formula()
