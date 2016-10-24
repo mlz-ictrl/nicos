@@ -352,6 +352,8 @@ class ScansPanel(Panel):
                         key = '%s_%s' % (dev, name) if name != 'value' else dev
                         self.metaTable.setItem(i, 0, QTableWidgetItem(key))
                         self.metaTable.setItem(i, 1, QTableWidgetItem(value))
+                        if self.metaTable.columnSpan(i, 0) == 2:
+                            self.metaTable.setSpan(i, 0, 1, 1)
                         i += 1
                     i += 1
             self.metaTable.resizeRowsToContents()
