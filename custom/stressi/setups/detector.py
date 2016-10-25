@@ -98,8 +98,8 @@ devices = dict(
                   monitors = ['mon'],
                   counters = [],
                   images = ['image'],
-                  maxage = 3,
-                  pollinterval = 0.5,
+                  pollinterval = None,
+                  liveinterval = 1.,
                  ),
     ysd = device('devices.generic.ManualMove',
                  description = 'Distance detector to sample',
@@ -116,6 +116,10 @@ devices = dict(
                    abslimits = (0, 3200),
 #                  ramp = 120,
                   ),
+    hv1_current = device('devices.taco.AnalogInput',
+                         description = 'ISEG HV power supply 1 current',
+                         tacodevice = '//%s/stressi/det/current1' % (nethost,),
+                        ),
     hv2   = device('devices.taco.VoltageSupply',
                    description = 'ISEG HV power supply 2',
                    requires = {'level': 'admin'},
@@ -123,6 +127,10 @@ devices = dict(
                    abslimits = (-2500, 0),
 #                  ramp = 120,
                   ),
+    hv2_current = device('devices.taco.AnalogInput',
+                         description = 'ISEG HV power supply 2 current',
+                         tacodevice = '//%s/stressi/det/current2' % (nethost,),
+                        ),
 )
 
 startupcode='''
