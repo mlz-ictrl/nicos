@@ -30,7 +30,7 @@ from nicos.core import Moveable, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
-from nicos.core.constants import FINAL
+from nicos.core.constants import FINAL, SIMULATION
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
 from nicos.jcns.shutter import OPEN, CLOSE
@@ -82,6 +82,10 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
     def doInit(self, mode):
         self._lastStatus = None
         self._moveTo = None
+        if mode == SIMULATION:
+            self._mapStart = {}
+            self._mapStop = {}
+            return
         self._mapStart = {
             ImagePlateDrum.POS_ERASE: self._dev.StartErasureProcess,
             ImagePlateDrum.POS_EXPO: self._dev.MoveExpoPosition,
