@@ -25,6 +25,10 @@ watchlist = [
          message = 'NL1 or sixfold shutter closed',
          type = 'critical',
         ),
+    dict(condition = 'selector_speed_status[0] == ERROR',
+         message = 'Selector in error status; check Windows software!',
+         type = 'critical',
+        ),
 ]
 
 includes = ['notifiers']
