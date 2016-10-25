@@ -61,8 +61,8 @@ class orient(object):
         cv_h1 = self.cell.CVector(hkl1)
         cv_h2 = self.cell.CVector(hkl2)
 
-        cv_p1 = np.array(pos1.as_C().c)
-        cv_p2 = np.array(pos2.as_C().c)
+        cv_p1 = np.array(pos1.asC().c)
+        cv_p2 = np.array(pos2.asC().c)
 
         bmat = _norm(_CompleteMatrix(cv_p1, cv_p2))
         amat = _norm(_CompleteMatrix(cv_h1, cv_h2))
