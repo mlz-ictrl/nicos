@@ -50,7 +50,9 @@ class SXTalSample(Sample):
         'gamma':     Param('gamma', type=floatrange(1., 179.), settable=False,
                            volatile=True, category='sample'),
         'rmat':      Param('rmat', type=listof(listof(float)), settable=False,
-                           volatile=True, default=None, category='sample'),
+                           volatile=True, default=None),
+        'ubmatrix':  Param('UB matrix (rmat^T)', type=listof(listof(float)),
+                           volatile=True, category='sample'),
         'bravais':   Param('Bravais lattice',
                            type=oneof(*symmetry.Bravais.conditions),
                            volatile=True, settable=True, default='P',
@@ -91,6 +93,9 @@ class SXTalSample(Sample):
 
     def doReadRmat(self):
         return self.cell.rmat.tolist()
+
+    def doReadUbmatrix(self):
+        return self.cell.rmat.T.tolist()
 
     def doReadBravais(self):
         return self.cell.bravais.bravais
