@@ -60,6 +60,8 @@ __all__ = [
     'PosListRemove',
     'IndexPeaks',
     'AcceptIndexing',
+    'RefineMatrix',
+    'AcceptRefinement',
     'GenDataset',
     'ScanDataset',
 ]
@@ -935,3 +937,100 @@ def ScanDataset(name, speed=None, timedelta=None):
             contscan(instr._attached_omega, om1, om2, speed, timedelta)
         finally:
             session.endActionScope()
+
+
+@usercommand
+@helparglist('param=value, ...')
+def RefineMatrix(listname='default', **kwds):
+    """Refine the UB matrix with the given parameters.
+
+    All given parameters are constant, all others are free.
+
+    Possible parameters:
+
+    * ``a``: first lattice parameter
+    * ``b``: second lattice parameter, can also be ``'a'``
+    * ``c``: third lattice parameter, can also be ``'a'``
+    * ``alpha``: first angle
+    * ``beta``: second angle, can also be ``'alpha'``
+    * ``gamma``: third angle, can also be ``'alpha'``
+    * ``wavelength``
+    * ``delta_gamma``, ``delta_nu``: offsets for detector axes
+    """
+    sample = session.experiment.sample
+    instr = session.instrument
+
+    lists = dict(sample.poslists)
+    if listname not in lists:
+        printwarning('Position list %r does not exist' % listname)
+        return
+    posl = lists[listname]
+    init_lambda = instr.wavelength
+    init_offsets = [instr._attached_gamma.offset, instr._attached_nu.offset]
+
+    RefineMatrix._last_result = None
+    printinfo('Refining matrix with %d reflections from position list...' %
+              len(posl))
+
+    o = orient(sample.cell)
+    new_cell, p = o.RefineOrientation(posl, kwds, init_lambda, ['gamma', 'nu'],
+                                      init_offsets)
+
+    printinfo('')
+    printinfo('Cell parameters:')
+    printinfo(u'Initial:    a = %8.4f   b = %8.4f   c = %8.4f   '
+              u'α = %7.3f   β = %7.3f   γ = %7.3f'
+              % sample.cell.cellparams())
+    printinfo(u'Final:      a = %8.4f   b = %8.4f   c = %8.4f   '
+              u'α = %7.3f   β = %7.3f   γ = %7.3f'
+              % (p.a, p.b, p.c, p.alpha, p.beta, p.gamma))
+    printinfo(u'Errors: +/-     %8.4f       %8.4f       %8.4f   '
+              u'    %7.3f       %7.3f       %7.3f'
+              % (p.errors['a'], p.errors['b'], p.errors['c'],
+                 p.errors['alpha'], p.errors['beta'], p.errors['gamma']))
+
+    printinfo('')
+    printinfo(u'Initial:    λ = %8.4f   Δγ = %7.3f   Δν = %7.3f'
+              % ((init_lambda,) + tuple(init_offsets)))
+    printinfo(u'Final:      λ = %8.4f   Δγ = %7.3f   Δν = %7.3f'
+              % (p.wavelength, p.delta_gamma, p.delta_nu))
+    printinfo(u'Errors: +/-     %8.4f        %7.3f        %7.3f'
+              % (p.errors['wavelength'], p.errors['delta_gamma'],
+                 p.errors['delta_nu']))
+
+    printinfo('')
+    printinfo('New UB matrix:')
+    for row in new_cell.rmat.T:
+        printinfo('%8.4f %8.4f %8.4f' % tuple(row))
+
+    printinfo('')
+    printinfo('Use AcceptRefinement() to use this refined data.')
+
+    RefineMatrix._last_result = (new_cell, p.wavelength,
+                                 p.delta_gamma, p.delta_nu)
+
+RefineMatrix._last_result = None
+
+
+@usercommand
+def AcceptRefinement():
+    """Accept the last refinement performed by `RefineMatrix()`.
+
+    Example:
+
+    >>> AcceptRefinement()
+    """
+    sample = session.experiment.sample
+    instr = session.instrument
+
+    if RefineMatrix._last_result is None:
+        printerror('No refinement performed yet.')
+        return
+
+    new_cell, new_wl, delta_gamma, delta_nu = RefineMatrix._last_result
+
+    sample.cell = new_cell
+
+    instr._attached_mono._adjust(new_wl, 'A')
+    instr._attached_gamma.offset = delta_gamma
+    instr._attached_nu.offset = delta_nu
