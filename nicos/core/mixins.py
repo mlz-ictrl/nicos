@@ -136,11 +136,9 @@ class HasLimits(DeviceMixinBase):
     parameters = {
         'userlimits': Param('User defined limits of device value', unit='main',
                             type=limits, settable=True, chatty=True,
-                            category='limits',),
+                            category='limits', fmtstr='main'),
         'abslimits':  Param('Absolute limits of device value', unit='main',
-                            type=limits, mandatory=True,
-                            # category='limits'
-                            ),
+                            type=limits, mandatory=True, fmtstr='main'),
     }
 
     @property
@@ -247,7 +245,8 @@ class HasOffset(DeviceMixinBase):
     """
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
-                         settable=True, category='offsets', chatty=True),
+                         settable=True, category='offsets', chatty=True,
+                         fmtstr='main'),
     }
 
     def doWriteOffset(self, value):
@@ -278,7 +277,7 @@ class HasPrecision(DeviceMixinBase):
     parameters = {
         'precision': Param('Precision of the device value (allowed deviation '
                            'of stable values from target)', unit='main',
-                           type=floatrange(0),
+                           fmtstr='main', type=floatrange(0),
                            settable=True, category='precisions'),
     }
 
@@ -350,7 +349,8 @@ class HasTimeout(DeviceMixinBase):
     """
     parameters = {
         'timeout':   Param('Time limit for the device to reach its target'
-                           ', or None', unit='s', type=none_or(float),
+                           ', or None', unit='s', fmtstr='%.1f',
+                           type=none_or(float),
                            settable=True, mandatory=False, chatty=True),
         '_timesout': Param('Device movement should finish between these '
                            'timestamps',
@@ -488,7 +488,8 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     """
     parameters = {
         'window':    Param('Time window for checking stabilization', unit='s',
-                           default=60.0, settable=True, category='general'),
+                           default=60.0, fmtstr='%.1f', settable=True,
+                           category='general'),
     }
 
     parameter_overrides = {
@@ -600,7 +601,7 @@ class HasCommunication(DeviceMixinBase):
         'comtries':  Param('Maximum retries for communication',
                            type=intrange(1, 100), default=3, settable=True),
         'comdelay':  Param('Delay between retries', unit='s', default=0.1,
-                           settable=True),
+                           fmtstr='%.1f', settable=True),
     }
 
     @lazy_property
