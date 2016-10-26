@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""vtas widget."""
+"""TAS specific display widgets."""
 
 from math import cos, pi, sin
 
@@ -79,9 +79,11 @@ anaradius = 30
 detradius = 20
 halowidth = 20
 
-class TasWidget(NicosWidget, QWidget):
 
-    designer_description = 'Display of the TAS table configuration'
+class TasWidget(NicosWidget, QWidget):
+    """Display of the TAS table configuration."""
+
+    designer_description = __doc__
 
     def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
