@@ -278,7 +278,7 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
             ),
     ],
-    setups='spinflipper',
+    setups='spinflip',
 )
 
 newports = []
@@ -445,7 +445,7 @@ _julabo_plot = Block('Julabo plot', [
 _fg1 = Block('FG 1 - Sample', [
     BlockRow(
              Field(name='On/Off', dev='tisane_fg1', width=12),
-             Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
+             Field(name='Frequency', key='tisane_fg1/frequency', format='%.3f', unit='Hz', width=12),
              ),
     BlockRow(
              Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
@@ -461,7 +461,8 @@ _fg1 = Block('FG 1 - Sample', [
 
 _fg2 = Block('FG 2 - Detector', [
     BlockRow(
-             Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
+             Field(name='On/Off', dev='tisane_fg2', width=12),
+             Field(name='Frequency', key='tisane_fg2/frequency', format='%.3f', unit='Hz', width=12),
              ),
     BlockRow(
              Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
