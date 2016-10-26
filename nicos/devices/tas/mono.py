@@ -162,8 +162,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         multiReset(listvalues(self._adevs))
         self._focwarnings = 3
 
-    def doStart(self, pos):
-        k = to_k(pos, self.unit)
+    def _calc_angles(self, k):
         try:
             angle = thetaangle(self.dvalue, self.order, k)
         except ValueError:
@@ -175,7 +174,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # correct for theta axis mounted on top of two-theta table
         if self.reltheta:
             th -= tt
+        return th, tt
 
+    def doStart(self, pos):
+        th, tt = self._calc_angles(to_k(pos, self.unit))
         self._attached_twotheta.start(tt)
         self._attached_theta.start(th)
         self._movefoci(self.focmode, self.hfocuspars, self.vfocuspars)
@@ -339,3 +341,13 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         theta = thetaangle(self.dvalue, self.order, k)
         exp = vertical and -1 or +1
         return 0.5*(1./l1 + 1./l2)*sin(radians(abs(theta)))**exp
+
+    def _adjust(self, newvalue, unit):
+        """Adjust the offsets of theta and twotheta to let the device value
+        match the given value.
+        """
+        th, tt = self._calc_angles(to_k(newvalue, unit))
+        thdiff = self._attached_theta.read(0) - th
+        ttdiff = self._attached_twotheta.read(0) - tt
+        self._attached_theta.offset += thdiff
+        self._attached_twotheta.offset += ttdiff
