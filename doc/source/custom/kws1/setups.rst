@@ -19,11 +19,3 @@ Service setups
     :glob:
 
     setups/special/*
-
-Custom widgets
-==============
-
-.. toctree::
-    :maxdepth: 1
-
-    widgets

@@ -18,3 +18,10 @@
 .. autoclass:: Opening()
 .. autoclass:: Slit()
 .. autoclass:: SlitAxis()
+
+Instrument specific widgets
+---------------------------
+
+.. automodule:: nicos.refsans.monitorwidgets
+
+.. autoclass:: VRefsans()

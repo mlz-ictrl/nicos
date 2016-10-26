@@ -53,3 +53,11 @@
 .. automodule:: nicos.kws1.yamlformat
 .. autoclass:: YAMLFileSinkHandler()
 .. autoclass:: YAMLFileSink()
+
+Instrument specific widgets
+---------------------------
+
+.. automodule:: nicos.kws1.monitorwidgets
+
+.. autoclass:: Tube()
+.. autoclass:: Collimation()
