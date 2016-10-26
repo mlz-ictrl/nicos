@@ -270,7 +270,7 @@ Another special widget is the picture widget, which is selected by giving a
 Other widgets have to be specified by a key named ``widget``:
 
 * ``widget`` -- if set, this names a class (with fully-qualified module name)
-  such as ``nicos.demo.monitorwidgets.VTas`` that takes over the display for
+  such as ``nicos.guisupport.tas.TasWidget`` that takes over the display for
   this field.  The additional accepted keys are defined by the widget.
 
 Another possibility is to use Qt Designer to create a custom widget layout and
