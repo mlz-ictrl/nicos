@@ -1,3 +1,6 @@
+`SPODI <http://www.mlz-garching.de/spodi>`_
+===========================================
+
 Detector
 --------
 
