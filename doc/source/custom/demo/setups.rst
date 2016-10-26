@@ -26,10 +26,3 @@ Service setups
     :glob:
 
     setups/special/*
-
-Demo specific widgets
-====================-
-
-.. automodule:: nicos.guisupport.tas
-.. autoclass:: TasWidget()
-
