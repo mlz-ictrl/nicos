@@ -40,6 +40,7 @@ from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
 
 from nicos.core import Device
+from nicos.guisupport.widget import NicosWidget
 
 
 class PyParameter(PyClassmember):
@@ -89,7 +90,7 @@ def new_handle_signature(self, sig, signode):
 PyModulelevel.handle_signature = new_handle_signature
 
 
-class DeviceDocumenter(ClassDocumenter):
+class NicosClassDocumenter(ClassDocumenter):
     priority = 20
 
     def add_directive_header(self, sig):
@@ -107,78 +108,92 @@ class DeviceDocumenter(ClassDocumenter):
                     self.add_line('   Bases: %s' % ', '.join(bases),
                                   '<autodoc>')
 
+    def _format_methods(self, methodlist, orig_indent):
+        myclsname = self.object.__module__ + '.' + self.object.__name__
+        basecmdinfo = []
+        n = 0
+        for name, (args, doc, funccls, is_usermethod) in sorted(methodlist):
+            if not is_usermethod:
+                continue
+            func = getattr(self.object, name)
+            funccls = func.__module__ + '.' + funccls.__name__
+            if funccls != myclsname:
+                basecmdinfo.append((funccls, name))
+                continue
+            if n == 0:
+                self.add_line('**User methods**', '<autodoc>')
+                self.add_line('', '<autodoc>')
+            self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
+            self.add_line('', '<autodoc>')
+            self.indent += self.content_indent
+            if not doc:
+                self.env.app.warn('%s.%s: usermethod has no documentation' %
+                                  (myclsname, name))
+            for line in doc.splitlines():
+                self.add_line(line, '<doc of %s.%s>' % (self.object, name))
+            self.add_line('', '<autodoc>')
+            self.indent = orig_indent
+            n += 1
+        if basecmdinfo:
+            self.add_line('', '<autodoc>')
+            self.add_line('Methods inherited from the base classes: ' +
+                          ', '.join('`~%s.%s`' % i for i in basecmdinfo),
+                          '<autodoc>')
+            self.add_line('', '<autodoc>')
+
+    def _format_attached_devices(self, attachedlist):
+        self.add_line('**Attached devices**', '<autodoc>')
+        self.add_line('', '<autodoc>')
+        for adev, attach in sorted(attachedlist):
+            if (isinstance(attach.multiple, list) and attach.multiple[0] > 1) \
+               or isinstance(attach.multiple, bool):
+                n = ''
+                if isinstance(attach.multiple, list):
+                    if len(attach.multiple) > 1:
+                        n = '%d to %d ' % attach.multiple
+                    else:
+                        n = '%d ' % attach.multiple[0]
+                atype = 'a list of %s`~%s.%s`' % (
+                    n, attach.devclass.__module__,
+                    attach.devclass.__name__)
+            else:
+                atype = '`~%s.%s`' % (attach.devclass.__module__,
+                                      attach.devclass.__name__)
+            if attach.optional:
+                atype += ' (optional)'
+            descr = attach.description + \
+                (not attach.description.endswith('.') and '.' or '')
+            self.add_line('.. parameter:: %s' % adev, '<autodoc>')
+            self.add_line('', '<autodoc>')
+            self.add_line('   %s Type: %s.' % (descr, atype), '<autodoc>')
+        self.add_line('', '<autodoc>')
+
     def document_members(self, all_members=False):
-        if not issubclass(self.object, Device) and not \
-           hasattr(self.object, 'parameters'):
+        if not issubclass(self.object, Device) and \
+           not issubclass(self.object, NicosWidget):
             return ClassDocumenter.document_members(self, all_members)
+
         if self.doc_as_attr:
             return
         orig_indent = self.indent
-        myclsname = self.object.__module__ + '.' + self.object.__name__
-        basecmdinfo = []
+
+        if hasattr(self.object, 'properties'):
+            self._format_properties(self.object.properties.items(), orig_indent)
+
         if hasattr(self.object, 'methods'):
-            n = 0
-            for name, (args, doc, funccls, is_usermethod) in \
-                    sorted(self.object.methods.items()):
-                if not is_usermethod:
-                    continue
-                func = getattr(self.object, name)
-                funccls = func.__module__ + '.' + funccls.__name__
-                if funccls != myclsname:
-                    basecmdinfo.append((funccls, name))
-                    continue
-                if n == 0:
-                    self.add_line('**User methods**', '<autodoc>')
-                    self.add_line('', '<autodoc>')
-                self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
-                self.add_line('', '<autodoc>')
-                self.indent += self.content_indent
-                if not doc:
-                    self.env.app.warn('%s.%s: usermethod has no documentation.'
-                                      % (myclsname, name))
-                for line in doc.splitlines():
-                    self.add_line(line, '<doc of %s.%s>' % (self.object, name))
-                self.add_line('', '<autodoc>')
-                self.indent = orig_indent
-                n += 1
-            if basecmdinfo:
-                self.add_line('', '<autodoc>')
-                self.add_line('Methods inherited from the base classes: ' +
-                              ', '.join('`~%s.%s`' % i for i in basecmdinfo),
-                              '<autodoc>')
-                self.add_line('', '<autodoc>')
+            self._format_methods(self.object.methods.items(), orig_indent)
+
         if getattr(self.object, 'attached_devices', None):
-            self.add_line('**Attached devices**', '<autodoc>')
-            self.add_line('', '<autodoc>')
-            for adev, attach in sorted(self.object.attached_devices.items()):
-                if (isinstance(attach.multiple, list)
-                    and attach.multiple[0] > 1) \
-                   or isinstance(attach.multiple, bool):
-                    n = ''
-                    if isinstance(attach.multiple, list):
-                        if len(attach.multiple) > 1:
-                            n = '%d to %d ' % attach.multiple
-                        else:
-                            n = '%d ' % attach.multiple[0]
-                    atype = 'a list of %s`~%s.%s`' % (
-                        n, attach.devclass.__module__,
-                        attach.devclass.__name__)
-                else:
-                    atype = '`~%s.%s`' % (attach.devclass.__module__,
-                                          attach.devclass.__name__)
-                if attach.optional:
-                    atype += ' (optional)'
-                descr = attach.description + \
-                    (not attach.description.endswith('.') and '.' or '')
-                self.add_line('.. parameter:: %s' % adev, '<autodoc>')
-                self.add_line('', '<autodoc>')
-                self.add_line('   %s Type: %s.' % (descr, atype), '<autodoc>')
-            self.add_line('', '<autodoc>')
+            self._format_attached_devices(self.object.attached_devices.items())
+
+        if not hasattr(self.object, 'parameters'):
+            return
 
         mandatoryparaminfo = []
         optionalparaminfo = []
         baseparaminfo = []
 
+        myclsname = self.object.__module__ + '.' + self.object.__name__
         for param, info in sorted(self.object.parameters.items()):
             if not info.userparam:
                 continue
@@ -215,6 +230,28 @@ class DeviceDocumenter(ClassDocumenter):
                           ', '.join('`~%s.%s`' % (info.classname or '', name)
                                     for (name, info) in baseparaminfo),
                           '<autodoc>')
+
+    def _format_properties(self, propertiesinfolist, orig_indent):
+        self.add_line('', '<autodoc>')
+        self.add_line('**Parameters**', '<autodoc>')
+        self.add_line('', '<autodoc>')
+
+        for param, info in sorted(propertiesinfolist):
+            if isinstance(info.ptype, type):
+                ptype = info.ptype.__name__
+            else:
+                ptype = info.ptype or '?'
+            addinfo = [ptype]  # info.doc info.ptype, info.default
+            self.add_line('.. parameter:: %s : %s' %
+                          (param, ', '.join(addinfo)), '<autodoc>')
+            self.add_line('', '<autodoc>')
+            descr = info.doc or ''
+            if descr and not descr.endswith(('.', '!', '?')):
+                descr += '.'
+            self.indent += self.content_indent
+            self.add_line(descr, '<%s.%s description>' % (self.object, param))
+            # self.add_line('', '<autodoc>')
+            self.indent = orig_indent
 
     def _format_parameters(self, paraminfolist, orig_indent):
         for (param, info) in paraminfolist:
@@ -272,7 +309,7 @@ def process_signature(app, objtype, fullname, obj, options, args, retann):
 def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)
     app.add_directive_to_domain('py', 'derivedparameter', PyDerivedParameter)
-    app.add_autodocumenter(DeviceDocumenter)
+    app.add_autodocumenter(NicosClassDocumenter)
     app.connect('autodoc-process-signature', process_signature)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
     return {'parallel_read_safe': True,

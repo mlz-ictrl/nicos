@@ -44,7 +44,7 @@ extensions = [
     'ext.setupdoc',
     'ext.daemondoc',
     'ext.tacostubs',
-    'ext.devicedoc',
+    'ext.nicosclassdoc',
     #'alabaster',
 ]
 
