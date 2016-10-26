@@ -253,7 +253,8 @@ class NicosWidget(NicosListener):
 
     # define properties
     properties = {
-        'valueFont': PropDef('QFont', QFont('monospace')),
+        'valueFont': PropDef('QFont', QFont('monospace'), 'Font used for '
+                             'displaying values'),
     }
 
     # dictionary for storing current property values
