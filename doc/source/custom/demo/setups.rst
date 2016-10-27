@@ -30,6 +30,6 @@ Service setups
 Demo specific widgets
 ====================-
 
-.. automodule:: nicos.demo.monitorwidgets
-.. autoclass:: VTas()
+.. automodule:: nicos.guisupport.tas
+.. autoclass:: TasWidget()
 

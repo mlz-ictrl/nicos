@@ -16,7 +16,7 @@
 .. autoclass:: CCRControl()
 .. autoclass:: CompressorSwitch()
 
-.. automodule:: nicos.frm2.magnet
+.. automodule:: nicos.frm2.amagnet
 
 .. autoclass:: GarfieldMagnet()
 
