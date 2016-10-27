@@ -141,6 +141,9 @@ Existing widget classes
 
 .. class:: ValueDisplay
 
+   .. figure:: valuedisplay.png
+      :align: center
+
    A widget that displays a value from the cache.  It consists of two labels,
    one for the value name and one for the actual value.  Foreground and
    background colors of both labels are used to display additional information,
@@ -220,6 +223,9 @@ Existing widget classes
 
 .. class:: ValueLabel
 
+   .. figure:: valuelabel.png
+      :align: center
+
    A single label that displays a value from the cache without any styling.
 
    Properties:
@@ -238,6 +244,9 @@ Existing widget classes
 
 
 .. class:: PictureDisplay
+
+   .. figure:: picturedisplay.png
+      :align: center
 
    A widget that displays a picture in the status monitor. The picture is
    updated in intervals of 'refresh' seconds.
@@ -268,6 +277,9 @@ Existing widget classes
 .. module:: nicos.guisupport.plots
 
 .. class:: TrendPlot
+
+   .. figure:: trendplot.png
+      :align: center
 
    Displays time series of one or more values.
 
@@ -309,6 +321,9 @@ Existing widget classes
 
 .. class:: ValueLed
 
+   .. figure:: valueled.png
+      :align: center
+
    An LED like image that shows if the value is either true (nonzero) or equals a
    set goal value.
 
@@ -330,6 +345,9 @@ Existing widget classes
 
 .. class:: StatusLed
 
+   .. figure:: statusled.png
+      :align: center
+
    An LED like image that shows a device status constant:
 
    * green = OK
@@ -348,6 +366,9 @@ Existing widget classes
 
 
 .. class:: ClickableOutputLed
+
+   .. figure:: clickableoutputled.png
+      :align: center
 
    An LED like image that shows its device's state and changes it on click.
    The LED then changes its color to orange until the value is updated in
