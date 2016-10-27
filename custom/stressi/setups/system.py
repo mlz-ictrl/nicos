@@ -52,7 +52,7 @@ sysconfig = dict(
     cache = 'stressictrl.stressi.frm2',
     instrument = 'Stressi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'daemonsink', ],
+    datasinks = ['conssink', 'daemonsink', 'livesink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -109,6 +109,10 @@ devices = dict(
                      ),
 
     daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
+
+    livesink   = device('devices.datasinks.LiveViewSink',
                         lowlevel = True,
                        ),
 
