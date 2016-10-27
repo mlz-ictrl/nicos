@@ -37,11 +37,9 @@ devices = dict(
                   nameserver = '%s' % (nameservice,),
                   objname = '%s' % (servername),
                   # TODO Check the right settings
-                  config = 'PHIS 114 11 0x00f1c000 2 2048 2040 204 2 24 50 1 0'
-                           ' 1 5000 1 10 0 0 0',
-                  # config = 'PHIS 114 11 0x00f1d000 4 2048 510 51 2 24 50 1 0'
+                  # config = 'PHIS 114 11 0x00f1c000 2 2048 2040 204 2 24 50 1 0'
                   #          ' 1 5000 1 10 0 0 0',
-                  # config = 'PHIS 115 11 0x00f1d000 4 50 20 2 1 0 0 0 0 '
-                  #          '1 5000 1 10 0 0 0',
+                  config = 'PHIS 114 11 0x00f1f000 3 2048 2040 204 2 24 50 1 0'
+                           ' 1 5000 1 10 0 0 0',
                  ),
 )
