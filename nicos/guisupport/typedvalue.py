@@ -140,7 +140,7 @@ class DeviceParamEdit(DeviceValueEdit):
         'kind of widget'
 
     properties = {
-        'param':       PropDef(str, '', 'Parameter name'),
+        'param': PropDef(str, '', 'Parameter name'),
     }
 
     def propertyUpdated(self, pname, value):
