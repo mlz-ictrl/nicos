@@ -234,13 +234,15 @@ class CARESSDevice(HasCommunication):
             if session.sessiontype != POLLER:
                 if hasattr(self._caressObject, 'init_system_orb'):
                     if not CARESSDevice._caress_initialized:
-                        self.log.debug(self, 'initialize the CARESS absdev container')
+                        self.log.debug(self, 'initialize the CARESS absdev '
+                                       'container')
                         if self._caressObject.init_system_orb(0)[0] in \
                            (0, CARESS.OK):
                             CARESSDevice._caress_initialized = True
                         else:
-                            raise CommunicationError(self, 'could not initialize '
-                                                     'CARESS absdev container')
+                            raise CommunicationError(self, 'could not '
+                                                     'initialize CARESS absdev'
+                                                     ' container')
 
             _config = self._normalized_config()
 
@@ -274,7 +276,7 @@ class CARESSDevice(HasCommunication):
                     val = CARESS.Value(ab=self.loadblock)
                     res = self._caressObject \
                         .loadblock_module(0, self.cid, 1,
-                                          len(self.loadblock), 16, val)
+                                          len(self.loadblock), val)  # 16, val)
             self._initialized = True
             if not self._is_corba_device():
                 CARESSDevice._used_counter += 1

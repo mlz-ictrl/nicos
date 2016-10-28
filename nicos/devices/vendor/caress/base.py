@@ -34,6 +34,8 @@ from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
 class Driveable(HasLimits, CARESSDevice, Moveable):
     """Base class to all CARESS driveable devices."""
 
+    hardware_access = True
+
     parameters = {
         '_started': Param('Indicator to signal device is started',
                           type=bool, default=False, settable=False,

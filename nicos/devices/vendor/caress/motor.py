@@ -38,6 +38,8 @@ EKF_44520_INCR = 115  # EKF 44520 motor control, incr. encoder, VME
 class Motor(HasOffset, Driveable, AbstractMotor):
     """Device accessing the CARESS axes with and without encoder."""
 
+    hardware_access = True
+
     parameters = {
         'coderoffset': Param('Encoder offset',
                              type=float, default=0., unit='main',
