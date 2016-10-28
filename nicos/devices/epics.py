@@ -48,7 +48,15 @@ import epics
 try:
     epics.ca.clear_cache()
 except epics.ca.ChannelAccessException as err:
-    raise ImportError(err.message)
+    # python 2.x
+    if hasattr(err, 'message'):
+        msg = err.message
+    # python 3.x
+    elif hasattr(err, 'args'):
+        msg = err.args[0]
+    else:
+        msg = 'error in epics channel access setup'
+    raise ImportError(msg)
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsMoveable',
