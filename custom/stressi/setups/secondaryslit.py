@@ -39,7 +39,7 @@ devices = dict(
                  abslimits = (-15, 15),
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
-                 config = 'SST 115 11 0x00f1c000 2 100 200 20 1 0 0 0 0 1 3000'
+                 config = 'SST 115 11 0x00f1f000 3 100 200 20 1 0 0 0 0 1 3000'
                           ' 1 10 0 0 0',
                 ),
 
