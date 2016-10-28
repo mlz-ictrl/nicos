@@ -26,8 +26,10 @@
 
 from nicos import session
 from nicos.core import HasOffset, Override, POLLER, Param
+from nicos.core.errors import NicosError
 from nicos.devices.abstract import Motor as AbstractMotor
 from nicos.devices.vendor.caress.base import Driveable
+from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE
 
 EKF_44520_ABS = 114  # EKF 44520 motor control, abs. encoder, VME
 EKF_44520_INCR = 115  # EKF 44520 motor control, incr. encoder, VME
@@ -52,6 +54,7 @@ class Motor(HasOffset, Driveable, AbstractMotor):
 
     def doInit(self, mode):
         Driveable.doInit(self, mode)
+        self._set_speed(self.config)
 
     def doStart(self, target):
         Driveable.doStart(self, target + (self.coderoffset + self.offset))
@@ -65,15 +68,35 @@ class Motor(HasOffset, Driveable, AbstractMotor):
     def doSetPosition(self, pos):
         pass
 
-    def doReadSpeed(self):
-        tmp = self.config.split()
+    def _set_speed(self, config):
+        tmp = config.split()
         # The  7th entry is the number of motor steps and the  6th entry the
         # number of encoder steps.  The ratio between both gives the speed of
         # the axis. It must be multiplied by the gear.
         if len(tmp) > 1:
-            if int(tmp[1]) == EKF_44520_ABS:
-                return self.gear * float(tmp[6]) / float(tmp[5])
-        # in all other cases give the configured parameter back
-        if 'speed' in self._params:
-            return self._params['speed']
-        return 0.0
+            if int(tmp[1]) == EKF_44520_ABS and len(tmp) > 6:
+                speed = self.gear * float(tmp[6]) / float(tmp[5])
+                self._params['speed'] = speed
+                if self._cache:
+                    self._cache.put(self, 'speed', speed)
+
+    def doWriteSpeed(self, speed):
+        tmp = self.config.split()
+        # In case of using an EKF module the speed could be set
+        # The speed will be calculated in respect to the number of coder values
+        # per unit tmp[5] value and set into tmp[6] value. The new
+        # configuration line will be send to the CARESS device driver to reinit
+        # this module
+        if len(tmp) > 1:
+            if int(tmp[1]) == EKF_44520_ABS and len(tmp) > 6:
+                sp = int(float(tmp[5]) * speed / self.gear)
+                tmp[6] = '%d' % sp
+                # the acceleration value should be roughly 1/10th of the speed
+                tmp[7] = '%d' % (sp / 10)
+                _config = ' '.join(tmp)
+                res = self._caressObject.init_module(INIT_REINIT, self.cid,
+                                                     _config)
+                if res[0] not in (0, CARESS.OK) or res[1] == OFF_LINE:
+                    raise NicosError(self, 'Could not set speed to module!'
+                                     '(%r) %d' % ((res,), self._device_kind()))
+        self._params['speed'] = speed
