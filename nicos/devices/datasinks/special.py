@@ -28,11 +28,11 @@ from os import path
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Override, DataSink, DataSinkHandler
+from nicos.core import DataSink, DataSinkHandler, Override
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import ScanData
-from nicos.pycompat import cPickle as pickle, memory_buffer
 from nicos.devices.datasinks.image import ImageSink
+from nicos.pycompat import cPickle as pickle, memory_buffer
 
 
 class DaemonSinkHandler(DataSinkHandler):
@@ -60,8 +60,10 @@ class DaemonSinkHandler(DataSinkHandler):
 
 
 class DaemonSink(DataSink):
-    """A DataSink that sends scan datasets to connected GUI clients for live
-    plotting.  Only active for daemon sessions.
+    """A DataSink that sends scan datasets to connected GUI clients.
+
+    The data will be send for live plotting.  The sink is only active for
+    daemon sessions.
     """
 
     activeInSimulation = False
@@ -103,7 +105,7 @@ class LiveViewSinkHandler(DataSinkHandler):
 
 
 class LiveViewSink(ImageSink):
-    """A data sink that sends images to attached clients for live preview."""
+    """A DataSink that sends images to attached clients for live preview."""
 
     parameter_overrides = {
         # this is not really used, so we give it a default that would
@@ -137,7 +139,7 @@ class SerializedSinkHandler(DataSinkHandler):
 
 
 class SerializedSink(DataSink):
-    """A data sink that writes serialized datasets to a single file.
+    """A DataSink that writes serialized datasets to a single file.
 
     Can be used to retrieve and redisplay past datasets.
     """
