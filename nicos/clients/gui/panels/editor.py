@@ -262,6 +262,14 @@ if has_scintilla:
 
 
 class EditorPanel(Panel):
+    """Provides a text editor specialized for entering scripts.
+
+    Together with actions such as `Run` or `Simulate` it gives the user the
+    opportunity to create and check measurement scripts.  The editor widget
+    uses `QScintilla` if it is installed, and a standard text edit box
+    otherwise.
+    """
+
     panelName = 'User editor'
 
     def __init__(self, parent, client):

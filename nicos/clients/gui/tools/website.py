@@ -31,6 +31,13 @@ from nicos.clients.gui.utils import loadUi
 
 
 class WebsiteTool(QDialog):
+    """A dialog that just displays a website using the Qt HTML view.
+
+    Options:
+
+      * ``url`` -- the URL of the web site.
+    """
+
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'website.ui', 'tools')

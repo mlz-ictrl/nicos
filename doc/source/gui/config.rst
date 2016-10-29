@@ -180,25 +180,18 @@ Each panel is implemented by a class inheriting from
 Panels can provide menus and toolbars; these are all collected by the window
 they are displayed in.
 
+Delivered panels
+----------------
+
 Panels that come with NICOS are:
 
-``console.ConsolePanel``
-   Provides a console-like interface where commands can be entered and the
-   output from the NICOS daemon is displayed.
-
-   Options:
-
-   * ``hasinput`` (default True) -- if set to False, the input box is hidden and
-     the console is just an output view.
-   * ``hasmenu`` (default True) -- if set to False, the console does not provide
-     its menu (containing actions for the output view such as Save or Print).
+.. autoclass:: nicos.clients.gui.panels.console.ConsolePanel()
 
 .. figure:: consolepanel.png
      :alt: console panel
      :align: center
 
-``commandline.CommandLinePanel``
-   Provides just an input box for entering commands and no output view.
+.. autoclass:: nicos.clients.gui.panels.commandline.CommandLinePanel()
 
 .. figure:: commandlinepanel.png
      :alt: command line panel
@@ -206,161 +199,86 @@ Panels that come with NICOS are:
 
 .. _commandbuilder-commandpanel:
 
-``cmdbuilder.CommandPanel``
-   Provides a panel where the user can click-and-choose a NICOS command with the
-   help of GUI elements known as "cmdlets".
-
-   Options:
-
-   * ``modules`` (default [ ]) -- TODO
+.. autoclass:: nicos.clients.gui.panels.cmdbuilder.CommandPanel()
 
 .. figure:: commandbuilder.png
      :alt: command panel
      :align: center
 
-``devices.DevicesPanel``
-   Provides a graphical list of NICOS devices and their current values.  The
-   user can operate basic device functions (move, stop, reset) by selecting an
-   item from the list, which opens a control dialog.
-
-   Options:
-
-   * ``useicons`` (default True) -- if set to False, the list widget does not
-     display status icons for the devices.
+.. autoclass:: nicos.clients.gui.panels.devices.DevicesPanel()
 
 .. figure:: devicepanel.png
      :alt: device panel
      :align: center
 
-``editor.EditorPanel``
-   Provides a text editor specialized for entering scripts, together with
-   actions such as Run or Simulate.  The editor widget is QScintilla if it is
-   installed, and a standard text edit box otherwise.
+.. autoclass:: nicos.clients.gui.panels.editor.EditorPanel()
 
 .. figure:: editorpanel.png
      :alt: editor panel
      :align: center
 
-``elog.ELogPanel``
-   Provides a HTML widget for the electronic logbook.
+.. autoclass:: nicos.clients.gui.panels.elog.ELogPanel()
 
 .. figure:: elogpanel.png
      :alt: electronic logbook panel
      :align: center
 
-``errors.ErrorPanel``
-   Provides an output view similar to the ConsolePanel, but that only displays
-   messages with the WARNING and ERROR loglevel.
+.. autoclass:: nicos.clients.gui.panels.errors.ErrorPanel()
 
 .. figure:: errorpanel.png
      :alt: error panel
      :align: center
 
-``expinfo.ExpInfoPanel``
-   Provides a panel with several labels that display basic information about the
-   current experiment, such as experiment title, sample name and user name.
-
-   It also provides several buttons with which the user can change proposal
-   info, sample properties, scan environment and setups.
-
-   Options:
-
-   * ``sample_panel`` -- what to show when the user clicks on the "Sample"
-     button.  The value must be a panel configuration, e.g. ``panel('...')`` or
-     ``tabbed(...)``.
-
-     There are several panels that are useful for this:
-
-     - ``nicos.clients.gui.panels.setup_panel.GenericSamplePanel`` -- a panel
-       that only shows a single input box for the sample name.
-     - ``nicos.clients.gui.panels.setup_panel.TasSamplePanel`` -- a panel that
-       also shows input boxes for triple-axis sample properties (such as lattice
-       constants).
+.. autoclass:: nicos.clients.gui.panels.expinfo.ExpInfoPanel()
 
 .. figure:: experimentinfopanel.png
      :alt: experiment info panel
      :align: center
 
-``history.HistoryPanel``
-   Provides a panel where the user can create time series plots of any cache
-   values.
+.. autoclass:: nicos.clients.gui.panels.history.HistoryPanel()
 
 .. figure:: historypanel.png
      :alt: history panel
      :align: center
 
-``live.LivePanel``
-   Provides a generic "detector live view" for 2-D images.  For most
-   instruments, a specific panel must be implemented that takes care of the
-   individual live display needs.
-
-   Options:
-
-   * ``instrument`` -- the instrument name that is passed on to the livewidget
-     module.
+.. autoclass:: nicos.clients.gui.panels.live.LiveDataPanel()
 
 .. figure:: livewidgetpanel.png
      :scale: 75%
      :alt: livewidget panel
      :align: center
 
-``logviewer.LogViewerPanel``
-   Provides a possibility to view various NICOS log files.
+.. autoclass:: nicos.clients.gui.panels.logviewer.LogViewerPanel()
 
 .. figure:: logviewerpanel.png
      :alt: log viewer panel
      :align: center
 
-``scans.ScansPanel``
-   Provides a display for the scans of the current experiment.
+.. autoclass:: nicos.clients.gui.panels.scans.ScansPanel()
 
 .. figure:: scanspanel.png
      :alt: scans panel
      :align: center
 
-``scriptbuilder.CommandsPanel``
-   Provides a panel where the user can click-and-choose multiple NICOS commands
-   with cmdlets (similar to the
-   :ref:`cmdbuilder.CommandPanel <commandbuilder-commandpanel>` but for multiple
-   commands).
-
-   Options:
-
-   * ``modules`` (default [ ]) -- TODO
+.. autoclass:: nicos.clients.gui.panels.scriptbuilder.CommandsPanel()
 
 .. figure:: scriptbuilderpanel.png
      :alt: script builder panel
      :align: center
 
-``status.ScriptStatusPanel``
-   Provides a view of the currently executed script, and the current position in
-   it.  The panel also displays queued scripts.
-
-   Options:
-
-   * ``stopcounting`` (default False) -- Configure the stop button behaviour,
-     if is set to ``True``, the execution of a script will be aborted, otherwise
-     a counting will be finished first before the script will be stopped.
+.. autoclass:: nicos.clients.gui.panels.status.ScriptStatusPanel()
 
 .. figure:: scriptstatuspanel.png
      :alt: script status panel
      :align: center
 
-``watch.WatchPanel``
-   Provides a way to enter "watch expressions" similar to a debugger and
-   evaluate them regularly.
+.. autoclass:: nicos.clients.gui.panels.watch.WatchPanel()
 
 .. figure:: watchpanel.png
      :alt: console panel
      :align: center
 
-``generic.GenericPanel``
-   Provides a generic implementation of Panel that can display any ``.ui`` file
-   using NICOS GUI widgets (see :ref:`gui-widgets`).
-
-   Options:
-
-   * ``uifile`` -- the path to the UI file to display
+.. autoclass:: nicos.clients.gui.panels.generic.GenericPanel()
 
 .. figure:: genericpanel.png
      :alt: generic panel
@@ -406,45 +324,30 @@ Tools
    Represents a tool sub-menu.  The ``subitems`` are again ``tool``, ``cmdtool``
    or ``menu`` items.
 
+Delivered tools
+---------------
 
 Tools that come with NICOS are:
 
-``calculator.CalculatorTool``
-   A dialog with several tabs for several neutron-related calculations (elastic
-   scattering, conversion between wavelength and energy etc.)
+.. autoclass:: nicos.clients.gui.tools.calculator.CalculatorTool()
 
 .. figure:: calculatortool.png
      :alt: calculator tool
      :align: center
 
-``commands.CommandsTool``
-   A dialog that displays a list of buttons that start shell commands.  This can
-   be used for maintenance commands that the user should be able to start
-   without knowing the command.
-
-   Options:
-
-   * ``commands`` -- a list of tuples ``(text, shellcommand)``.  For each of
-     them a button is created in the dialog.
+.. autoclass:: nicos.clients.gui.tools.commands.CommandsTool()
 
 .. figure:: commandstool.png
      :alt: commands tool
      :align: center
 
-``estop.EmergencyStopTool``
-   A small window with a big "emergency stop" button that stays on top of other
-   windows, and when clicked triggers an "immediate stop" action in NICOS.
+.. autoclass:: nicos.clients.gui.tools.estop.EmergencyStopTool()
 
 .. figure:: emergencystoptool.png
      :alt: emergency stop tool
      :align: center
 
-``website.WebsiteTool``
-   A dialog that just displays a website using the Qt HTML view.
-
-   Options:
-
-   * ``url`` -- the URL of the web site.
+.. autoclass:: nicos.clients.gui.tools.website.WebsiteTool()
 
 .. figure:: websitetool.png
      :scale: 50%

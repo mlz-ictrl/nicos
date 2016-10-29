@@ -35,6 +35,11 @@ from nicos.pycompat import iteritems
 
 
 class WatchPanel(Panel):
+    """Provides a way to enter "watch expressions".
+
+    It works similar to a debugger and evaluates the expressions regularly.
+    """
+
     panelName = 'Watch'
 
     def __init__(self, parent, client):

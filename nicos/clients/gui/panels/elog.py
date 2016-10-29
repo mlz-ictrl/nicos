@@ -39,6 +39,8 @@ from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 
 
 class ELogPanel(Panel, DlgUtils):
+    """Provides a HTML widget for the electronic logbook."""
+
     panelName = 'Electronic logbook'
 
     def __init__(self, parent, client):

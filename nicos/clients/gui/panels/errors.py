@@ -37,6 +37,12 @@ from nicos.guisupport.utils import setBackgroundColor
 
 
 class ErrorPanel(Panel):
+    """Provides an output view similar to the ConsolePanel.
+
+    In comparison to the ConsolePanel it only displays messages with the
+    WARNING and ERROR loglevel.
+    """
+
     panelName = 'Error window'
 
     def __init__(self, parent, client):

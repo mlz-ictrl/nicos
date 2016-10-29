@@ -36,6 +36,15 @@ from nicos.guisupport.widget import NicosWidget
 
 
 class GenericPanel(Panel):
+    """Provides a generic implementation of Panel to display any ``.ui`` file.
+
+    The ``.ui`` file may also use NICOS GUI widgets (see :ref:`gui-widgets`).
+
+    Options:
+
+    * ``uifile`` -- the path to the UI file to display
+    """
+
     panelName = 'Generic'  # XXX this is not unique
 
     def __init__(self, parent, client):

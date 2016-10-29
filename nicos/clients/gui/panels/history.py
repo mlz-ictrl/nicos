@@ -638,6 +638,8 @@ class BaseHistoryWindow(object):
 
 
 class HistoryPanel(Panel, BaseHistoryWindow):
+    """Provides a panel to show time series plots of any cache values."""
+
     panelName = 'History viewer'
 
     def __init__(self, parent, client):

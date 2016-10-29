@@ -32,6 +32,8 @@ from nicos.guisupport.utils import setBackgroundColor
 
 
 class CommandLinePanel(Panel):
+    """Provides just an input box for entering commands and no output view."""
+
     panelName = 'CommandLinePanel'
 
     def __init__(self, parent, client):

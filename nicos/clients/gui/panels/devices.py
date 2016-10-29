@@ -59,15 +59,6 @@ backgroundBrush = {
     NOTREACHED: QBrush(QColor('#ff6655')),
 }
 
-statusIcon = {
-    OK:         QIcon(':/leds/status_green'),
-    WARN:       QIcon(':/leds/status_warn'),
-    BUSY:       QIcon(':/leds/status_yellow'),
-    UNKNOWN:    QIcon(':/leds/status_white'),
-    ERROR:      QIcon(':/leds/status_red'),
-    NOTREACHED: QIcon(':/leds/status_red'),
-}
-
 # keys: (expired, fixed)
 valueBrush = {
     (False, False):  QBrush(),
@@ -116,7 +107,28 @@ class SetupTreeWidgetItem(QTreeWidgetItem):
 
 
 class DevicesPanel(Panel):
+    """Provides a graphical list of NICOS devices and their current values.
+
+    The user can operate basic device functions (move, stop, reset) by
+    selecting an item from the list, which opens a control dialog.
+
+    Options:
+
+    * ``useicons`` (default True) -- if set to False, the list widget does not
+      display status icons for the devices.
+    """
+
     panelName = 'Devices'
+
+
+    def _create_icons(self):
+        self.statusIcon = {}
+        self.statusIcon[OK] = QIcon(':/leds/status_green')
+        self.statusIcon[WARN] = QIcon(':/leds/status_warn')
+        self.statusIcon[BUSY] = QIcon(':/leds/status_yellow')
+        self.statusIcon[UNKNOWN] = QIcon(':/leds/status_white')
+        self.statusIcon[ERROR] = QIcon(':/leds/status_red')
+        self.statusIcon[NOTREACHED] = QIcon(':/leds/status_red')
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -169,6 +181,8 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('device'), self.on_client_device)
         self.connect(client, SIGNAL('setup'), self.on_client_setup)
         self.connect(client, SIGNAL('message'), self.on_client_message)
+
+        self._create_icons()
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
@@ -316,7 +330,7 @@ class DevicesPanel(Panel):
         devitem.setFont(0, lowlevelFont[lowlevel_device])
 
         if self.useicons:
-            devitem.setIcon(0, statusIcon[OK])
+            devitem.setIcon(0, self.statusIcon[OK])
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
@@ -409,11 +423,11 @@ class DevicesPanel(Panel):
             devinfo[1] = status
             devinfo[8] = time
             devitem.setText(2, str(status[1]))
-            if status[0] not in statusIcon:
+            if status[0] not in self.statusIcon:
                 # old or wrong status constant
                 return
             if self.useicons:
-                devitem.setIcon(0, statusIcon[status[0]])
+                devitem.setIcon(0, self.statusIcon[status[0]])
                 devitem.setForeground(2, foregroundBrush[status[0]])
                 devitem.setBackground(2, backgroundBrush[status[0]])
             else:
@@ -428,7 +442,7 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg.statuslabel.setText(status[1])
-                dlg.statusimage.setPixmap(statusIcon[status[0]].pixmap(16, 16))
+                dlg.statusimage.setPixmap(self.statusIcon[status[0]].pixmap(16, 16))
                 setForegroundBrush(dlg.statuslabel, foregroundBrush[status[0]])
                 setBackgroundBrush(dlg.statuslabel, backgroundBrush[status[0]])
         elif subkey == 'fmtstr':

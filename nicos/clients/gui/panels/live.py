@@ -56,6 +56,17 @@ FILETYPES = {'fits': TYPE_FITS, 'raw': TYPE_RAW, 'tiff': TYPE_TIFF, 'TIFF': TYPE
 
 
 class LiveDataPanel(Panel):
+    """Provides a generic "detector live view" for 2-D images.
+
+    For most instruments, a specific panel must be implemented that takes care
+    of the individual live display needs.
+
+    Options:
+
+    * ``instrument`` -- the instrument name that is passed on to the livewidget
+      module.
+    """
+
     panelName = 'Live data view'
     bar = None
     menu = None

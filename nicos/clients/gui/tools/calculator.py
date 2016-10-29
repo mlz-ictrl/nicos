@@ -57,6 +57,12 @@ neutron_fields = ['L', 'K', 'E', 'Ny', 'T', 'V']
 
 
 class CalculatorTool(QDialog):
+    """Provides a dialog for several neutron-related calculations.
+
+    The dialog offers several tabs for calculations (elastic scattering,
+    conversion between wavelength and energy etc.)
+    """
+
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'calculator.ui', 'tools')

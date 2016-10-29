@@ -53,6 +53,12 @@ class PicButton(QAbstractButton):
 
 
 class EmergencyStopTool(QMainWindow):
+    """A small window with a big "emergency stop" button.
+
+    This window will stay on top of other windows, and when clicked triggers
+    an "immediate stop" action in NICOS.
+    """
+
     def __init__(self, parent, client, **settings):
         QMainWindow.__init__(self, parent)
         self.client = client

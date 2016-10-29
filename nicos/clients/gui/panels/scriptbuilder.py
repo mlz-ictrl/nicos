@@ -34,6 +34,17 @@ from nicos.utils import importString
 
 
 class CommandsPanel(Panel):
+    """Provides a panel to create via click-and-choose multiple NICOS commands.
+
+    This panel allows the user to create a series of NICOS commands with
+    cmdlets (similar to the `.cmdbuilder.CommandPanel` but for multiple
+    commands).
+
+    Options:
+
+    * ``modules`` (default [ ]) -- list of additional Python modules that
+      contain cmdlets and should be loaded.
+    """
     panelName = 'Commands'
 
     def __init__(self, parent, client):

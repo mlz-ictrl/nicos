@@ -40,6 +40,19 @@ from nicos.guisupport.utils import setBackgroundColor
 
 
 class ConsolePanel(Panel):
+    """Provides a console-like interface.
+
+    The commands can be entered and the output from the NICOS daemon is
+    displayed.
+
+    Options:
+
+    * ``hasinput`` (default True) -- if set to False, the input box is hidden
+      and the console is just an output view.
+    * ``hasmenu`` (default True) -- if set to False, the console does not
+      provide its menu (containing actions for the output view such as Save
+      or Print).
+    """
     panelName = 'Console'
 
     def __init__(self, parent, client):

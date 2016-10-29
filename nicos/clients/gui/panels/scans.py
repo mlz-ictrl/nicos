@@ -84,6 +84,8 @@ arby_functions = {
 
 
 class ScansPanel(Panel):
+    """Provides a display for the scans of the current experiment."""
+
     panelName = 'Scans'
 
     def __init__(self, parent, client):

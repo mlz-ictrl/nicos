@@ -34,6 +34,17 @@ from nicos.clients.gui.utils import loadUi
 
 
 class CommandsTool(QDialog):
+    """The dialog displays a list of buttons that start shell commands.
+
+    This can be used for maintenance commands that the user should be able to
+    start without knowing the command.
+
+    Options:
+
+    * ``commands`` -- a list of tuples ``(text, shellcommand)``.  For each of
+      them a button is created in the dialog.
+    """
+
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'commands.ui', 'tools')

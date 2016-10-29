@@ -35,6 +35,8 @@ from nicos.clients.gui.utils import loadUi, DlgUtils
 
 
 class LogViewerPanel(Panel, DlgUtils):
+    """Provides a possibility to view various NICOS log files."""
+
     panelName = 'Log viewer'
 
     def __init__(self, parent, client):

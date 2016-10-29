@@ -35,6 +35,28 @@ from nicos.guisupport.widget import NicosWidget
 
 
 class ExpInfoPanel(Panel):
+    """Provides a panel with several labels displaying basic experiment info.
+
+    This is for example the experiment title, sample name, and user name.
+
+    It also provides several buttons with which the user can change proposal
+    info, sample properties, scan environment and setups.
+
+    Options:
+
+    * ``sample_panel`` -- what to show when the user clicks on the "Sample"
+      button.  The value must be a panel configuration, e.g. ``panel('...')``
+      or ``tabbed(...)``.
+
+      There are several panels that are useful for this:
+
+      - ``nicos.clients.gui.panels.setup_panel.GenericSamplePanel`` -- a panel
+        that only shows a single input box for the sample name.
+      - ``nicos.clients.gui.panels.setup_panel.TasSamplePanel`` -- a panel that
+        also shows input boxes for triple-axis sample properties (such as
+        lattice constants).
+    """
+
     panelName = 'Experiment Info'
 
     def __init__(self, parent, client):

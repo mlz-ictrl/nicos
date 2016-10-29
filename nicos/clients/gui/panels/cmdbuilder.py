@@ -36,6 +36,17 @@ from nicos.utils import importString
 
 
 class CommandPanel(Panel):
+    """Provides a panel where the user can click-and-choose a NICOS command.
+
+    The command can be generated with the help of GUI elements known as
+    "cmdlets".
+
+    Options:
+
+    * ``modules`` (default ``[]``) -- list of additional Python modules that
+      contain cmdlets and should be loaded.
+    """
+
     panelName = 'Command'
 
     def __init__(self, parent, client):
