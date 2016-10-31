@@ -876,12 +876,13 @@ class Experiment(Device):
 
         # get start of proposal from cache history
         hist, d = [], 7
+        # default to 'exp not yet started times'
+        to_time = from_time = time.time()
         while not hist and d < 60:
             hist = self.history('proposal', -d * 24)
             d += 7
         if hist:
             from_time = hist[-1][0]
-        to_time = time.time()
         from_date = time.strftime('%a, %d. %b %Y', time.localtime(from_time))
         to_date = time.strftime('%a, %d. %b %Y', time.localtime(to_time))
 
