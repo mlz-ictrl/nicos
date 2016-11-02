@@ -80,17 +80,17 @@ def centerpeak(*args, **kwargs):
     * all further keyword arguments (like ``t=1``) are used as detector
       presets.
 
-    Examples:
+    Examples::
 
-    # default scan without special options, count 2 seconds
-    >>> centerpeak(omega, gamma, 2)
-    # scan with device-specific step size and number of steps
-    >>> centerpeak(omega, gamma, step_omega=0.05, steps_omega=20, t=1)
-    # allow a large number of rounds with very small convergence window
-    # (1/5 of step size)
-    >>> centerpeak(omega, gamma, rounds=10, convergence=0.2, t=1)
-    # center using Gaussian peak fits
-    >>> centerpeak(omega, gamma, fit='gauss', t=1)
+      # default scan without special options, count 2 seconds
+      >>> centerpeak(omega, gamma, 2)
+      # scan with device-specific step size and number of steps
+      >>> centerpeak(omega, gamma, step_omega=0.05, steps_omega=20, t=1)
+      # allow a large number of rounds with very small convergence window
+      # (1/5 of step size)
+      >>> centerpeak(omega, gamma, rounds=10, convergence=0.2, t=1)
+      # center using Gaussian peak fits
+      >>> centerpeak(omega, gamma, fit='gauss', t=1)
 
     Fit functions:
 
