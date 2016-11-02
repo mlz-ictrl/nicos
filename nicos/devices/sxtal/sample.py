@@ -70,8 +70,9 @@ class SXTalSample(Sample):
     def clear(self):
         """Clear experiment-specific information."""
         Sample.clear(self)
-        self.peaklists = []
-        self.poslists = []
+        self.cell = SXTalCell.fromabc(5)
+        self.peaklists = {}
+        self.poslists = {}
 
     def new(self, parameters):
         """Accepts several ways to spell new cell params."""
