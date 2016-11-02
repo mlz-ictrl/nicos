@@ -29,8 +29,8 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.device import maw, move
 from nicos.commands.scan import cscan, contscan
 from nicos.commands.analyze import center_of_mass, gauss
-from nicos.commands.output import printinfo
-from nicos.core import Moveable, UsageError, NicosError
+from nicos.commands.output import printinfo, printerror
+from nicos.core import Moveable, UsageError
 from nicos.pycompat import number_types
 
 
@@ -175,12 +175,14 @@ def centerpeak(*args, **kwargs):
                 maxvalue = center + abs(stepsizes[dev] * nsteps[dev])
                 if params is None:
                     maw(dev, center)
-                    raise NicosError('no Gaussian fit found in this scan')
+                    printerror('no Gaussian fit found in this scan')
+                    return
                 fit_center = params[0]
                 if not minvalue <= fit_center <= maxvalue:
                     maw(dev, center)
-                    raise NicosError('Gaussian fit center outside '
-                                     'scanning area')
+                    printerror('Gaussian fit center outside '
+                               'scanning area')
+                    return
                 thisround[dev] = fit_center
             maw(dev, thisround[dev])
         printinfo('*' * 100)
