@@ -554,9 +554,9 @@ def PosListShow(listname='default'):
             calcpos = None
         items.append((
             '%d' % (i + 1),
-            '' if item[1] is None else '%d' % item[1][0],
-            '' if item[1] is None else '%d' % item[1][1],
-            '' if item[1] is None else '%d' % item[1][2],
+            '' if item[1] is None else '%.4g' % item[1][0],
+            '' if item[1] is None else '%.4g' % item[1][1],
+            '' if item[1] is None else '%.4g' % item[1][2],
             '%.3f' % R2D(item[0].gamma),
             '%.3f' % R2D(item[0].omega),
             '%.3f' % R2D(item[0].nu),
@@ -769,8 +769,8 @@ n                                ! extended output
     hkl2 = [int(round(float(ix))) for ix in peaks[p2]]
     new_cell = or_calc.Reorient(hkl1, pos1, hkl2, pos2)
     IndexPeaks._last_result = (new_cell.rmat, (dgamma, dnu), listname, peaks)
-    printinfo('Using (%d %d %d) and (%d %d %d) to calculate UB matrix:' %
-              (tuple(hkl1) + tuple(hkl2)))
+    printinfo('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate '
+              'UB matrix:' % (tuple(hkl1) + tuple(hkl2)))
     for row in new_cell.rmat.T:
         printinfo('%8.4f %8.4f %8.4f' % tuple(row))
     printinfo('')
@@ -909,8 +909,8 @@ def ScanDataset(name, speed=None, timedelta=None):
 
     for i, (hkl, width) in enumerate(all_pos):
         printinfo('')
-        printinfo('*** Scanning: (%4d %4d %4d)' % tuple(hkl))
-        session.beginActionScope('HKL %d/%d: (%4d %4d %4d)' % (
+        printinfo('*** Scanning: (%4.4g %4.4g %4.4g)' % tuple(hkl))
+        session.beginActionScope('HKL %d/%d: (%4.4g %4.4g %4.4g)' % (
             i+1, len(all_pos), hkl[0], hkl[1], hkl[2]
         ))
         try:
