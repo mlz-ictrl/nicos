@@ -54,6 +54,7 @@ _polarizer = Block('Polarizer/Lenses', [
 
 _shutter = Block('Shutter', [
     BlockRow(Field(name='Shutter', dev='shutter', istext=True, width=9),
+             Field(name='NL-3b', dev='nl3b_shutter', istext=True, width=9),
              Field(name='Sixfold', dev='sixfold_shutter', istext=True, width=9)),
 ])
 

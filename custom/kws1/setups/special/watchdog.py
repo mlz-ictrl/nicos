@@ -9,7 +9,7 @@ watchlist = [
                      'selector_speed_precision',
          message = 'Selector outside of target speed, count paused',
          scriptaction = 'pausecount',
-         gracetime = 1,
+         gracetime = 10,
          type = 'default',
     ),
     dict(condition = 'det_kwscounting and '
@@ -26,8 +26,9 @@ watchlist = [
          gracetime = 1,
          type = 'default',
     ),
-    dict(condition = 'det_kwscounting and sixfold_shutter_value != "open"',
-         message = 'Sixfold shutter closed, count paused',
+    dict(condition = 'det_kwscounting and (sixfold_shutter_value != "open" or '
+                     'nl3b_shutter_value != "open")',
+         message = 'Sixfold or NL3b shutter closed, count paused',
          scriptaction = 'pausecount',
          gracetime = 1,
          type = 'default',

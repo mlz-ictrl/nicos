@@ -67,11 +67,11 @@ class SelectorLambda(Moveable):
     def doIsAllowed(self, value):
         if value == 0:
             return False, 'zero wavelength not allowed'
-        speed = int(60 * self.constant / value)
+        speed = int(round(60 * self.constant / value))
         return self._attached_seldev.isAllowed(speed)
 
     def doStart(self, value):
-        speed = int(60 * self.constant / value)
+        speed = int(round(60 * self.constant / value))
         self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)
 
