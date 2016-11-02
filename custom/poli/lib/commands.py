@@ -884,11 +884,13 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
 
 @usercommand
 @helparglist('name, [speed], [timedelta]')
-def ScanDataset(name, speed=None, timedelta=None):
+def ScanDataset(name, speed=None, timedelta=None, start=1):
     """Do an omega-scan over all HKL reflections in a given CSV dataset.
 
     Takes a CSV file created by `GenDataset()` (maybe edited) and does a
     continuous omega scan over all HKLs in the list.
+
+    Use ``start=N`` to start at a different line than the first.
     """
     instr = session.instrument
     root = session.experiment.samplepath
@@ -907,12 +909,19 @@ def ScanDataset(name, speed=None, timedelta=None):
 
     printinfo('%d reflections read.' % len(all_pos))
 
-    for i, (hkl, width) in enumerate(all_pos):
+    if start != 1:
+        if len(all_pos) < start:
+            printinfo('Nothing to do.')
+            return
+        else:
+            printinfo('Starting at reflection number %d.' % start)
+            all_pos = all_pos[start - 1:]
+
+    for i, (hkl, width) in enumerate(all_pos, start=start):
         printinfo('')
-        printinfo('*** Scanning: (%4.4g %4.4g %4.4g)' % tuple(hkl))
-        session.beginActionScope('HKL %d/%d: (%4.4g %4.4g %4.4g)' % (
-            i+1, len(all_pos), hkl[0], hkl[1], hkl[2]
-        ))
+        info = (i, len(all_pos) + start - 1, hkl[0], hkl[1], hkl[2])
+        printinfo('*** Scanning %d/%d: (%4.4g %4.4g %4.4g)' % info)
+        session.beginActionScope('HKL %d/%d: (%4.4g %4.4g %4.4g)' % info)
         try:
             calc = dict(instr._extractPos(instr._calcPos(hkl)))
             om1 = calc['omega'] - width / 2.
