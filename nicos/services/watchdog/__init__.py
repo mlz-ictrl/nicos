@@ -74,12 +74,25 @@ class Precondition(object):
         self.update(value, time)
 
     def __repr__(self):
-        return '%s %s %s' % (self._value,
-                             ctime(self._pretime) if self._pretime else None,
-                             ctime(self._grace_time) if self._grace_time else
-                             None)
+        return '(%r) %r value:%s pretime:%s gracetime:%s' % (
+                self._entry.condition, self._entry.precondtime, self._value,
+                ctime(self._pretime) if self._pretime else None,
+                ctime(self._grace_time) if self._grace_time else None)
 
     def fulfilled(self, time):
+        if self._value == VALID and self._precondtime(time):
+            if self._entry.gracetime:
+                self._value = PRECONDITIONED
+            else:
+                self._value = FULFILLED
+        if self._value == PRECONDITIONED:
+            if self._grace_time is None:
+                self._grace_time = time
+            self._value = GRACETIMING
+        if self._value == GRACETIMING:
+            if self._gracetime(time):
+                self._value = FULFILLED
+                self._grace_time = None
         return self._value == FULFILLED
 
     def update(self, value, time):
@@ -87,6 +100,11 @@ class Precondition(object):
             if not self._value:
                 self._value = VALID
                 self._pretime = time
+                if self._precondtime(currenttime()):
+                    if self._entry.gracetime:
+                        self._value = PRECONDITIONED
+                    else:
+                        self._value = FULFILLED
             elif self._value == VALID and self._precondtime(time):
                 if self._entry.gracetime:
                     self._value = PRECONDITIONED
@@ -252,12 +270,12 @@ class Watchdog(BaseCacheClient):
         # put key in db
         self._keydict[key[len(self._prefix):].replace('/', '_').lower()] = \
             cache_load(value)
-        # handle preconditions
-        if key in self._prekeymap:
-            self._update_preconditions(self._prekeymap[key], time, key, op, value)
         # handle warning conditions
         if key in self._keymap:
             self._update_conditions(self._keymap[key], time, key, op, value)
+        # handle preconditions
+        if key in self._prekeymap:
+            self._update_preconditions(self._prekeymap[key], time, key, op, value)
 
     def _update_conditions(self, entries, time, key, op, value):
         for entry in entries:
@@ -306,11 +324,11 @@ class Watchdog(BaseCacheClient):
             time = float(time)
             if eid not in self._preconditions:
                 self._preconditions[eid] = Precondition(entry, value, time)
-            else:
+            elif eid not in self._watch_grace:
                 self._preconditions[eid].update(value, time)
-            self.log.debug('precondition %r is now %s' %
-                           (entry.precondition, value))
             precondition = self._preconditions[eid]
+            self.log.debug('precondition %r is now %s' % (entry.precondition,
+                                                          value))
             self.log.debug('%r : %r' % (entry.precondition, precondition))
             self.log.debug('precondition %r is fulfilled now %s' %
                            (entry.precondition, precondition.fulfilled(time)))
