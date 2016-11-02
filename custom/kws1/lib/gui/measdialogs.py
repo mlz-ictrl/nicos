@@ -504,6 +504,7 @@ DEV_BLACKLIST = set((
     'collimation',
     'coll_guides',
     'det_nosave',
+    'det_ext_rt',
     'det_x',
     'det_y',
     'det_z',

@@ -17,7 +17,7 @@ devices = dict(
     det_ext_rt = device('devices.tango.NamedDigitalOutput',
                         description = 'Switch for external-start realtime mode',
                         tangodevice = tango_base + 'fzjdp_digital/rtswitch',
-                        lowlevel = True,
+                        lowlevel = False,
                         mapping = {'off': 0, 'on': 1},
                        ),
 
