@@ -633,7 +633,7 @@ log = None
 
 
 def usage():
-    print('usage: %s [options] [host[:port] [user_name [password]]]' % sys.argv[0])
+    print('usage: %s [options] [user_name[:password[@host[:port]]]]' % sys.argv[0])
     print('   -h|--help : print this page')
     print("   -c|--config-file file_name : use the configuration file"
           " 'file_name'")
@@ -725,8 +725,6 @@ def main(argv):
         if parsed:
             cdata = ConnectionData(**parsed)
             cdata.viewonly = viewonly
-            if len(args) > 1:
-                cdata.password = args[1]
             mainwindow.setConnData(cdata)
             mainwindow.client.connect(mainwindow.conndata)
     mainwindow.startup()

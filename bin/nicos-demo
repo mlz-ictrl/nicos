@@ -204,7 +204,7 @@ elif not opts.nodaemon:
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
-            guiargs.extend([opts.guiuser, ''] + opts.restargs)
+            guiargs.extend([opts.guiuser] + opts.restargs)
             spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()
