@@ -963,6 +963,8 @@ class NicosCmdClient(NicosClient):
         try:
             self.command('reconnect', '')
             while 1:
+                if self.debug_mode:
+                    self.debug_repl()
                 try:
                     cmd = self.readline(self.prompt)
                 except KeyboardInterrupt:
@@ -974,8 +976,6 @@ class NicosCmdClient(NicosClient):
                     self.command('quit', '')
                     return 0
                 except StateChange:
-                    if self.debug_mode:
-                        self.debug_repl()
                     continue
                 ret = self.handle(cmd)
                 if ret is not None:

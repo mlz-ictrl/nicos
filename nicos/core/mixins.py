@@ -182,11 +182,11 @@ class HasLimits(DeviceMixinBase):
             raise ConfigurationError(
                 self, 'user minimum (%s, offset %s) above the user '
                 'maximum (%s, offset %s)' % (umin, offset, umax, offset))
-        if umin < amin:
+        if umin < amin - abs(amin * 1e-12):
             raise ConfigurationError(
                 self, 'user minimum (%s, offset %s) below the '
                 'absolute minimum (%s)' % (umin, offset, amin))
-        if umax > amax:
+        if umax > amax + abs(amax * 1e-12):
             raise ConfigurationError(
                 self, 'user maximum (%s, offset %s) above the '
                 'absolute maximum (%s)' % (umax, offset, amax))
