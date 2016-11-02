@@ -262,14 +262,16 @@ class VirtualCounter(VirtualChannel):
         self.log.debug('counting to %d cts with %d cts/s' %
                        (self.preselection, self.countrate))
         try:
+            fcurrent = float(self.curvalue)
             rate = abs(self.countrate)
             while not self._stopflag:
                 if self.ismaster and self.curvalue >= self.preselection:
                     self.curvalue = self.preselection
                     break
                 time.sleep(self._base_loop_delay)
-                self.curvalue += int(random.randint(int(rate * 0.9), rate) *
-                                     self._base_loop_delay)
+                fcurrent += random.randint(int(rate * 0.9), rate) * \
+                            self._base_loop_delay
+                self.curvalue = int(fcurrent)
         finally:
             self.curstatus = (status.OK, 'idle')
 
