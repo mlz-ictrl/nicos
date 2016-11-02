@@ -79,8 +79,9 @@ class Notifier(Device):
 class Mailer(Notifier):
     """Sends notifications via e-mail.
 
-    If a Mailer is configured as a notifier, the receiver addresses (not copies)
-    can be set by `.SetMailReceivers`.
+    If a Mailer is configured as a notifier (the Mailer device is in the list
+    of `notifiers` in the `sysconfig` entry), the receiver addresses (not
+    copies) can be set by `.SetMailReceivers`.
     """
 
     parameters = {
