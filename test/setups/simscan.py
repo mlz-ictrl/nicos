@@ -62,7 +62,7 @@ devices = dict(
     ctr1     = device('devices.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
-                      countrate = 2000,
+                      countrate = 2000.,
                       fmtstr = '%d',
                      ),
 

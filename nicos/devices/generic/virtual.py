@@ -31,6 +31,7 @@ import threading
 from math import exp, atan
 
 import numpy as np
+from numpy.random import normal
 
 from nicos import session
 from nicos.utils import clamp, createThread
@@ -248,7 +249,10 @@ class VirtualCounter(VirtualChannel):
     """
 
     parameters = {
-        'countrate':  Param('The maximum countrate', type=int, default=1000,
+        'countrate':  Param('The maximum countrate', type=float, default=1000.,
+                            settable=False),
+        'gentype':  Param('Type of generating function',
+                            type=oneof('const', 'gauss'), default='gauss',
                             settable=False),
         'type':       Param('Type of channel: monitor or counter',
                             type=oneof('monitor', 'counter'), mandatory=True),
@@ -258,20 +262,30 @@ class VirtualCounter(VirtualChannel):
         'unit': Override(default='cts'),
     }
 
+    def doInit(self, mode):
+        VirtualChannel.doInit(self, mode)
+        self._fcurrent = 0.
+        if self.gentype == 'const':
+            self._generator = lambda x: self.countrate * x
+        elif self.gentype == 'gauss':
+            self._generator = lambda x: normal(loc=self.countrate,
+                                              scale=self.countrate / 10.) * x
+
+    def doStart(self):
+        self._fcurrent = 0.
+        VirtualChannel.doStart(self)
+
     def _counting(self):
         self.log.debug('counting to %d cts with %d cts/s' %
                        (self.preselection, self.countrate))
         try:
-            fcurrent = float(self.curvalue)
-            rate = abs(self.countrate)
             while not self._stopflag:
                 if self.ismaster and self.curvalue >= self.preselection:
                     self.curvalue = self.preselection
                     break
                 time.sleep(self._base_loop_delay)
-                fcurrent += random.randint(int(rate * 0.9), rate) * \
-                            self._base_loop_delay
-                self.curvalue = int(fcurrent)
+                self._fcurrent += max(0, self._generator(self._base_loop_delay))
+                self.curvalue = int(self._fcurrent)
         finally:
             self.curstatus = (status.OK, 'idle')
 
