@@ -119,6 +119,8 @@ class SingleFileSinkHandler(DataSinkHandler):
             if result is None:
                 return
             image = result[1][0]
+            if image is None:
+                return
             if self.defer_file_creation:
                 self._createFile()
                 self.writeHeader(self._file, self.dataset.metainfo, image)
