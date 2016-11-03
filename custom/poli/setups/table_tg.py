@@ -1,6 +1,7 @@
 description = 'POLI sample table'
 
 group = 'lowlevel'
+includes = ['alias_sth']
 excludes = ['table']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
@@ -161,3 +162,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 )
+
+alias_config = {
+    'sth': {'omega': 100}
+}

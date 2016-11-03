@@ -12,7 +12,7 @@ devices = dict(
                       doi = 'http://dx.doi.org/10.17815/jlsrf-1-22',
                       mono = 'wavelength',
                       gamma = 'gamma',
-                      omega = 'omega',
+                      omega = 'sth',
                       nu = 'liftingctr',
                      ),
 

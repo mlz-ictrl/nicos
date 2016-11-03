@@ -67,6 +67,6 @@ devices = dict(
                  pollinterval = 5,
                  maxage = 10,
                  coordinates = 'opposite',
-                 opmode = 'offcentered',
+                 opmode = '4blades_opposite',
                 ),
 )
