@@ -103,7 +103,7 @@ def requires(**access):
 class DeviceMeta(DeviceMixinMeta):
     """
     A metaclass that automatically adds properties for the class' parameters,
-    and determines a list of user methods ("commands").
+    and determines a list of user methods.
 
     It also merges these attributes defined in the class with those defined in
     all base classes:

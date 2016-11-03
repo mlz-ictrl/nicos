@@ -91,7 +91,8 @@ class Monitor(FRMCounterChannel):
         FRMCounterChannel.doPrepare(self)
 
     def valueInfo(self):
-        return Value(self.name, unit=self.unit, type='monitor', fmtstr=self.fmtstr),
+        return Value(self.name, unit=self.unit, type='monitor',
+                     fmtstr=self.fmtstr),
 
 
 class Timer(FRMTimerChannel):
@@ -133,7 +134,8 @@ class Timer(FRMTimerChannel):
         FRMTimerChannel.doPrepare(self)
 
     def valueInfo(self):
-        return Value(self.name, unit=self.unit, type='time', fmtstr=self.fmtstr),
+        return Value(self.name, unit=self.unit, type='time',
+                     fmtstr=self.fmtstr),
 
 
 class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
