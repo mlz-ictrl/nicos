@@ -787,7 +787,7 @@ def notify(*args):
         subject, text = args  # pylint: disable=unbalanced-tuple-unpacking
         session.notify(subject, text, important=False)
     else:
-        raise UsageError("Usage: Notify('text') or Notify('subject', 'text')")
+        raise UsageError("Usage: notify('text') or notify('subject', 'text')")
 
 
 @usercommand
