@@ -27,8 +27,8 @@
 from nicos import session
 from nicos.core import ADMIN, AccessError, CommunicationError, \
     ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
-    LimitError, Moveable, Param, ProgrammingError, UsageError, requires, status, \
-    usermethod, Attach
+    LimitError, Moveable, Param, ProgrammingError, UsageError, NicosError, \
+    requires, status, usermethod, Attach
 from nicos.core.sessions.utils import MAINTENANCE
 from test.utils import raises
 
@@ -212,7 +212,7 @@ def test_params():
     assert 'doWriteParam2' in methods_called
     assert 'doUpdateParam2' in methods_called
     # nonexisting parameters
-    assert raises(UsageError, setattr, dev2, 'param3', 1)
+    assert raises(NicosError, setattr, dev2, 'param3', 1)
     # test legacy getPar/setPar API
     dev2.setPar('param2', 7)
     assert dev2.getPar('param2') == 8

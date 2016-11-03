@@ -385,7 +385,7 @@ class Device(object):
         # disallow modification of public attributes that are not parameters
         if name not in dir(self.__class__) and name[0] != '_' and \
            not name.startswith('print'):
-            raise UsageError(self, 'device has no parameter %s, use '
+            raise NicosError(self, 'device has no parameter %s, use '
                              'ListParams(%s) to show all' % (name, self))
         else:
             object.__setattr__(self, name, value)
