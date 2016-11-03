@@ -116,9 +116,12 @@ class DeviceDocumenter(ClassDocumenter):
         orig_indent = self.indent
         myclsname = self.object.__module__ + '.' + self.object.__name__
         basecmdinfo = []
-        if hasattr(self.object, 'commands'):
+        if hasattr(self.object, 'methods'):
             n = 0
-            for name, (args, doc) in sorted(self.object.commands.items()):
+            for name, (args, doc, _, is_usermethod) in \
+                    sorted(self.object.methods.items()):
+                if not is_usermethod:
+                    continue
                 func = getattr(self.object, name)
                 funccls = func.__module__ + '.' + func.__self__.__class__.__name__
                 if funccls != myclsname:
@@ -140,6 +143,7 @@ class DeviceDocumenter(ClassDocumenter):
                 self.add_line('Methods inherited from the base classes: ' +
                               ', '.join('`~%s.%s`' % i for i in basecmdinfo),
                               '<autodoc>')
+                self.add_line('', '<autodoc>')
         if getattr(self.object, 'attached_devices', None):
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
