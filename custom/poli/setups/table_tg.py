@@ -155,6 +155,16 @@ devices = dict(
                       abslimits = (-5, 30),
                       precision = 0.01,
                      ),
+#    liftingctr = device('devices.generic.VirtualMotor',
+#                      description = 'lifting counter axis',
+#                      pollinterval = 15,
+#                      maxage = 61,
+#                      fmtstr = '%.2f',
+#                      abslimits = (-5, 30),
+#                      precision = 0.01,
+#                      unit = 'deg',
+#                     ),
+
 
     lubrication = device('poli.lubrication.LubeSwitch',
                       description = 'lubrication switch',

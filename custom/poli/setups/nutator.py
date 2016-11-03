@@ -36,7 +36,8 @@ devices = dict(
                          coder = 'co_nutator1',
                          obs = [],
                          fmtstr = '%.2f',
-                         precision = 0.1,
+                         precision = 0.2,
+                         dragerror = 45,
                         ),
     nutator2    = device('devices.generic.Axis',
                          description = 'nutator2 axis',
@@ -44,6 +45,7 @@ devices = dict(
                          coder = 'co_nutator2',
                          obs = [],
                          fmtstr = '%.2f',
-                         precision = 0.1,
+                         precision = 0.2,
+                         dragerror = 45,
                         ),
 )
