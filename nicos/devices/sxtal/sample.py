@@ -73,6 +73,44 @@ class SXTalSample(Sample):
         self.peaklists = []
         self.poslists = []
 
+    def new(self, parameters):
+        """Accepts several ways to spell new cell params."""
+        lattice = parameters.pop('lattice', None)
+        if lattice is not None:
+            try:
+                parameters['a'], parameters['b'], parameters['c'] = lattice
+            except Exception:
+                self.log.warning('invalid lattice spec ignored, should be '
+                                 '[a, b, c]')
+        angles = parameters.pop('angles', None)
+        if angles is not None:
+            try:
+                parameters['alpha'], parameters['beta'], \
+                    parameters['gamma'] = angles
+            except Exception:
+                self.log.warning('invalid angles spec ignored, should be '
+                                 '[alpha, beta, gamma]')
+        a = parameters.pop('a', None)
+        if a is None:
+            self.log.warning('using dummy lattice constant of 5 A')
+            a = 5.0
+        b = parameters.pop('b', a)
+        c = parameters.pop('c', a)
+        alpha = parameters.pop('alpha', 90.0)
+        beta = parameters.pop('beta', 90.0)
+        gamma = parameters.pop('gamma', 90.0)
+        # TODO: map spacegroup/bravais/laue with triple-axis
+        bravais = parameters.pop('bravais', 'P')
+        laue = parameters.pop('laue', '1')
+        if 'cell' not in parameters:
+            parameters['cell'] = [a, b, c, alpha, beta, gamma, bravais, laue]
+        Sample.new(self, parameters)
+
+    def _applyParams(self, number, parameters):
+        Sample._applyParams(self, number, parameters)
+        if 'cell' in parameters:
+            self.cell = parameters['cell']
+
     def doReadA(self):
         return self.cell.cellparams().a
 
