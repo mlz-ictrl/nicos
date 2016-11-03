@@ -279,7 +279,7 @@ class ExpPanel(Panel, DlgUtils):
 
 
 class AliasWidget(QFrame):
-    def __init__(self, parent, name, selections):
+    def __init__(self, parent, name, selections, preselect):
         QFrame.__init__(self, parent)
         self.name = name
         self.selections = selections
@@ -287,17 +287,23 @@ class AliasWidget(QFrame):
         layout.addWidget(QLabel(name, self))
         self.combo = QComboBox(self)
         self.combo.addItems(selections)
-        self.combo.setCurrentIndex(0)
+        if preselect in selections:
+            self.combo.setCurrentIndex(selections.index(preselect))
+        else:
+            self.combo.setCurrentIndex(0)
         layout.addWidget(self.combo)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
-    def setSelections(self, selections):
+    def setSelections(self, selections, preselect):
         if selections != self.selections:
             self.selections = selections
             self.combo.clear()
             self.combo.addItems(selections)
-            self.combo.setCurrentIndex(0)
+            if preselect in selections:
+                self.combo.setCurrentIndex(selections.index(preselect))
+            else:
+                self.combo.setCurrentIndex(0)
 
     def getSelection(self):
         return self.combo.currentText()
@@ -313,10 +319,13 @@ class SetupsPanel(Panel, DlgUtils):
 
         self.aliasGroup.hide()
         self._aliasWidgets = {}
+        self._alias_config = None
 
         self._setupinfo = {}
         self._loaded = set()
         self._loaded_basic = None
+        self._prev_aliases = {}
+        self._prev_alias_config = None
 
         self._reload_btn = QPushButton('Reload current setup')
         if self.client.connected:
@@ -328,6 +337,9 @@ class SetupsPanel(Panel, DlgUtils):
         # fill setups
         self._setupinfo = self.client.eval('session.readSetupInfo()', {})
         all_loaded = self.client.eval('session.loaded_setups', set())
+        self._prev_aliases = self.client.eval(
+            '{d.name: d.alias for d in session.devices.values() '
+            'if "alias" in d.parameters}', {})
         self._loaded = set()
         self._loaded_basic = None
         self.basicSetup.clear()
@@ -363,6 +375,7 @@ class SetupsPanel(Panel, DlgUtils):
                     item.setCheckState(Qt.Checked if name in all_loaded
                                        else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
+        self._prev_alias_config = self._alias_config
         if self.client.viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
             self.buttonBox.removeButton(self._reload_btn)
@@ -483,14 +496,21 @@ class SetupsPanel(Panel, DlgUtils):
             alias_config[aliasname].sort(key=lambda x: -x[1])
         # create/update widgets
         layout = self.aliasGroup.layout()
+        # only preselect previous aliases if we have the same choices for them
+        # as in the beginning
         for aliasname in sorted(alias_config):
+            preselect = self._prev_alias_config is None or \
+                (alias_config.get(aliasname) ==
+                 self._prev_alias_config.get(aliasname))
             selections = [x[0] for x in alias_config[aliasname]]
             if aliasname in self._aliasWidgets:
-                self._aliasWidgets[aliasname].setSelections(selections)
+                self._aliasWidgets[aliasname].setSelections(
+                    selections,
+                    preselect and self._prev_aliases.get(aliasname))
             else:
-                wid = self._aliasWidgets[aliasname] = AliasWidget(self,
-                                                                  aliasname,
-                                                                  selections)
+                wid = self._aliasWidgets[aliasname] = AliasWidget(
+                    self, aliasname, selections,
+                    preselect and self._prev_aliases.get(aliasname))
                 layout.addWidget(wid)
         for name, wid in listitems(self._aliasWidgets):
             if name not in alias_config:
@@ -500,6 +520,7 @@ class SetupsPanel(Panel, DlgUtils):
             self.aliasGroup.show()
         else:
             self.aliasGroup.hide()
+        self._alias_config = alias_config
 
     def applyChanges(self):
         cmd = 'NewSetup'
