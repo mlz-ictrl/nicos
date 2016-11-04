@@ -40,6 +40,11 @@ except ImportError:
     PIL = None
 
 try:
+    import quickyaml
+except ImportError:
+    quickyaml = None
+
+try:
     import yaml
 except ImportError:
     yaml = None
@@ -235,8 +240,26 @@ def test_fits_sink():
     assert hdu.header['Exp/proposal'] == 'p1234'
 
 
-@requires(yaml, 'PyYAML library missing')
-def test_yaml_sink():
+@requires(quickyaml, 'QuickYAML library missing')
+def test_yaml_sink_1():
+    yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
+    assert path.isfile(yamlfile)
+    if not yaml:  # only do string level check if the yaml loader is not available
+        with open(yamlfile) as df:
+            data = df.read()
+    # note: whitespace is significant in the following lines!
+            assert '''instrument:
+    name: Tas''' in data
+            assert '''experiment:
+    number: p1234
+    proposal: p1234''' in data
+            assert '''    sample:
+        description:
+            name: mysample''' in data
+
+
+@requires(quickyaml and yaml, 'QuickYAML/PyYAML libraries missing')
+def test_yaml_sink_2():
     yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
     assert path.isfile(yamlfile)
     contents = yaml.load(open(yamlfile))
