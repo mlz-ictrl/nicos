@@ -152,7 +152,10 @@ def acquire(point, preset):
             except Exception:
                 det.log.exception('error reading measurement data')
                 res = None
-            session.data.putResults(INTERRUPTED, {det.name: res})
+            try:
+                session.data.putResults(INTERRUPTED, {det.name: res})
+            except Exception:
+                det.log.exception('error saving measurement data')
         raise
     finally:
         point.finished = currenttime()
