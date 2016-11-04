@@ -24,12 +24,14 @@
 
 """Basic data acquisition, new API."""
 
+import sys
 from time import time as currenttime
 
 from nicos import session
 from nicos.core.errors import NicosError
 from nicos.core.constants import SIMULATION, INTERRUPTED, FINAL
 from nicos.core.params import Value
+from nicos.pycompat import reraise
 
 
 def _wait_for_continuation(delay, only_pause=False):
@@ -136,6 +138,7 @@ def acquire(point, preset):
                         det.resume()
             session.delay(delay)
     except BaseException as e:
+        exc_info = sys.exc_info()
         point.finished = currenttime()
         if e.__class__.__name__ != 'ControlStop':
             session.log.warning('Exception during count, trying to save data',
@@ -156,7 +159,7 @@ def acquire(point, preset):
                 session.data.putResults(INTERRUPTED, {det.name: res})
             except Exception:
                 det.log.exception('error saving measurement data')
-        raise
+        reraise(*exc_info)
     finally:
         point.finished = currenttime()
         session.endActionScope()

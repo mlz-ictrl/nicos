@@ -24,6 +24,7 @@
 
 """Scan classes, new API."""
 
+import sys
 from time import time as currenttime
 from contextlib import contextmanager
 
@@ -40,7 +41,7 @@ from nicos.core.acquire import acquire, read_environment
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
 from nicos.utils import Repeater
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import iteritems, number_types, reraise
 
 
 # Exceptions at which a scan point is measured anyway.
@@ -347,12 +348,13 @@ class Scan(object):
                                              self._endpositions[i], wait=False)
                     except SkipPoint:
                         continue
-                    except:
+                    except:  # pylint: disable=bare-except
+                        exc_info = sys.exc_info()
                         try:
                             self.finishPoint()
                         except Exception:
                             session.log.exception('could not finish point')
-                        raise
+                        reraise(*exc_info)
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
