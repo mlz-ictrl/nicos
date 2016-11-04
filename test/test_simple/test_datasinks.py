@@ -45,7 +45,7 @@ except ImportError:
     yaml = None
 
 from nicos import session, config
-from nicos.utils import readFile
+from nicos.utils import readFile, updateFileCounter
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
 
@@ -74,13 +74,10 @@ def setup_module():
     dataroot = path.join(config.nicos_root, 'testdata')
     os.makedirs(dataroot)
 
-    # setup test of data file migration
-    session.cache.put(exp, 'scancounter', 'scancounter')
-    session.cache.put(exp, 'imagecounter', 'pointcounter')
-    with open(path.join(dataroot, 'scancounter'), 'w') as fp:
-        fp.write('42')
-    with open(path.join(dataroot, 'pointcounter'), 'w') as fp:
-        fp.write('167')
+    counter = path.join(dataroot, exp.counterfile)
+    open(counter, 'w').close()
+    updateFileCounter(counter, 'scan', 42)
+    updateFileCounter(counter, 'point', 167)
 
     exp._setROParam('dataroot', dataroot)
     exp.new(1234, user='testuser', localcontact=exp.localcontact)

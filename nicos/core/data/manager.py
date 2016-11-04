@@ -38,7 +38,7 @@ from nicos.core.data.dataset import PointDataset, ScanDataset, \
 from nicos.core.data.sink import DataFile
 from nicos.pycompat import iteritems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
-    updateFileCounter, readFile, writeFile
+    updateFileCounter
 
 
 class DataManager(object):
@@ -260,7 +260,8 @@ class DataManager(object):
 
         exp = session.experiment
         if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
-            self._tryMigrateCounters()
+            session.log.warning('creating new empty file counter file at %s'
+                                % path.join(exp.dataroot, exp.counterfile))
         if session.mode == SIMULATION:
             raise ProgrammingError('assignCounter should not be called in '
                                    'simulation mode')
@@ -424,33 +425,3 @@ class DataManager(object):
         self.linkFiles(filepath, filepaths[1:])
 
         return datafile
-
-    def _tryMigrateCounters(self):
-        """Counter file migration: create the new counter file from previous
-        scan and image counter files.
-
-        TODO: remove this method in a future release.
-        """
-        exp = session.experiment
-        counterpath = path.join(exp.dataroot, exp.counterfile)
-        cache = session.cache
-        if cache:
-            # scan- and image counter files from previous version
-            scountname = cache.get(exp, 'scancounter')
-            icountname = cache.get(exp, 'imagecounter')
-        else:
-            # assume the default values
-            scountname = 'scancounter'
-            icountname = 'imagecounter'
-        scount = icount = 0
-        if scountname is not None:
-            scount = int(readFile(path.join(exp.dataroot, scountname))[0])
-        if icountname is not None:
-            icount = int(readFile(path.join(exp.dataroot, icountname))[0])
-        if scount + icount > 0:
-            lines = ['scan %s\n' % scount, 'point %s\n' % icount]
-            writeFile(counterpath, lines)
-            session.log.info('The new file counter file %r has been created.' %
-                             counterpath)
-            session.log.warning('Please check that datasinks filenametemplate '
-                                'cache keys do not contain %(counter).')
