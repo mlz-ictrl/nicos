@@ -29,7 +29,10 @@ from nicos.core.data import DataSink, DataSinkHandler
 class DiObHandler(DataSinkHandler):
     def end(self):
         exp = session.experiment
-        last_img = self.dataset.filepaths[0]
+        try:
+            last_img = self.dataset.filepaths[0]
+        except IndexError:
+            return
 
         if exp.curimgtype == 'openbeam':
             self.log.info('last open beam image is %r' % last_img)
