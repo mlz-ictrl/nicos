@@ -31,7 +31,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="verticalLayoutWidget">
+     <widget class="QWidget" name="pastFilesWidget" native="true">
       <layout class="QVBoxLayout" name="listLayout">
        <property name="spacing">
         <number>5</number>

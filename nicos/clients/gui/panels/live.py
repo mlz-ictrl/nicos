@@ -69,6 +69,9 @@ class LiveDataPanel(Panel):
       displayed.  If not set data from all configured detectors will be shown.
     * ``cachesize`` (default 20) - Number of entries in the live data cache.
       The live data cache allows to display of previous taken data.
+    * ``liveonlyindex`` (default None) - Enable live only view. This disables
+      interaction with the liveDataPanel and only displays the dataset of the
+      set index.
     """
 
     panelName = 'Live data view'
@@ -116,8 +119,13 @@ class LiveDataPanel(Panel):
         self.setControlsEnabled(False)
         self.set2DControlsEnabled(False)
 
-        # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
-        #                         Integrate | Histogram)
+        # hide fileselection in liveonly mode
+        self._liveOnlyIndex = options.get('liveonlyindex', None)
+        if self._liveOnlyIndex is not None:
+            self.pastFilesWidget.hide()
+            self.statusBar.hide()
+            # disable interactions with the plot
+            self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
         self.liveitems = []
         self.setLiveItems(1)
@@ -136,14 +144,7 @@ class LiveDataPanel(Panel):
         self.detectorskey = None
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
-        # self.widget.setInstrumentOption(self._instrument)
-        # if self._instrument == 'toftof':
-        #     self.widget.setAxisLabels('time channels', 'detectors')
-        # elif self._instrument == 'imaging':
-        #     self.widget.setControls(ShowGrid | Logscale | Grayscale |
-        #                             Normalize | Darkfield | Despeckle |
-        #                             CreateProfile | Histogram | MinimumMaximum)
-        #     self.widget.setStandardColorMap(True, False)
+
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
@@ -156,7 +157,7 @@ class LiveDataPanel(Panel):
 
         # configure caching
         self._cachesize = options.get('cachesize', self._cachesize)
-        if self._cachesize < 1:
+        if self._cachesize < 1 or self._liveOnlyIndex is not None:
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
@@ -177,6 +178,8 @@ class LiveDataPanel(Panel):
                 item.setData(FILETAG, 'live')
                 self.fileList.insertItem(self.fileList.count(), item)
                 self.liveitems.append(item)
+            if self._liveOnlyIndex is not None:
+                self.fileList.setCurrentRow(self._liveOnlyIndex)
         if n == 1:
             self.liveitems[0].setText('<Live>')
         else:
@@ -210,8 +213,11 @@ class LiveDataPanel(Panel):
         # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
-        self.widget.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE,
-                                      self.on_mousemove_gr)
+
+        # liveonly mode does not display a status bar
+        if self._liveOnlyIndex is None:
+            self.widget.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE,
+                                          self.on_mousemove_gr)
 
         self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)
@@ -245,6 +251,9 @@ class LiveDataPanel(Panel):
         settings.setValue('geometry', self.saveGeometry())
 
     def getMenus(self):
+        if self._liveOnlyIndex is not None:
+            return []
+
         if not self.menu:
             menu = QMenu('&Live data', self)
             menu.addAction(self.actionOpen)
@@ -265,6 +274,9 @@ class LiveDataPanel(Panel):
         yield from self._livewidgets.values()
 
     def getToolbars(self):
+        if self._liveOnlyIndex is not None:
+            return []
+
         return [self.toolbar]
 
     def on_mousemove_gr(self, event):
@@ -549,6 +561,10 @@ class LiveDataPanel(Panel):
                     self.fileList.takeItem(row)
 
     def add_to_flist(self, filename, fformat, ftag, uid=None, scroll=True):
+        # liveonly mode doesn't display a filelist
+        if self._liveOnlyIndex is not None:
+            return
+
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(FILENAME, filename)
