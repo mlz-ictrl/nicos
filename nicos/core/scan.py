@@ -348,7 +348,10 @@ class Scan(object):
                     except SkipPoint:
                         continue
                     except:
-                        self.finishPoint()
+                        try:
+                            self.finishPoint()
+                        except Exception:
+                            session.log.exception('could not finish point')
                         raise
                     try:
                         # measure...
@@ -397,7 +400,13 @@ class SweepScan(Scan):
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, subscan=False):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
+        # for sweeps the dry run usually shows only one step; in the case of
+        # multisteps we take the first N
+        self._simpoints = 1
         self._numpoints = numpoints
+        if multistep:
+            self._simpoints = len(multistep[0][1])
+            self._numpoints = numpoints * self._simpoints
         self._sweepdevices = devices
         if numpoints < 0:
             points = Repeater([])
@@ -437,6 +446,15 @@ class SweepScan(Scan):
         Scan.endScan(self)
 
     def preparePoint(self, num, xvalues):
+        if session.mode == SIMULATION and num > self._simpoints:
+            session.log.info('skipping %d points...' %
+                             (self._numpoints - self._simpoints))
+            duration = session.clock.time - self._sim_start
+            session.clock.tick(duration * (self._numpoints -
+                                           self._simpoints))
+            if self._numpoints < 0 and not self._sweepdevices:
+                session.log.info('would scan indefinitely, skipping...')
+            raise StopScan
         if num == 1:
             self._etime.started = currenttime()
             if self._sweeptargets:
@@ -454,22 +472,12 @@ class SweepScan(Scan):
 
     def finishPoint(self):
         Scan.finishPoint(self)
-        if session.mode == SIMULATION:
-            if self._numpoints > 1:
-                session.log.info('skipping %d points...' %
-                                 (self._numpoints - 1))
-                duration = session.clock.time - self._sim_start
-                session.clock.tick(duration * (self._numpoints - 1))
-            elif self._numpoints < 0:
-                if self._sweepdevices:
-                    for dev in self._sweepdevices:
-                        dev.wait()
-                else:
-                    session.log.info('would scan indefinitely, skipping...')
-            raise StopScan
         if self._sweepdevices:
             if not any(dev.status()[0] == status.BUSY
                        for dev in self._sweepdevices):
+                if session.mode == SIMULATION:
+                    for dev in self._sweepdevices:
+                        dev.wait()
                 raise StopScan
 
 

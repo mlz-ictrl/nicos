@@ -77,6 +77,10 @@ class Param(object):
     - *unit*: unit of the parameter for informational purposes; in there, the
       substring 'main' is replaced by the device unit when presented.
 
+    - *fmtstr*: how to format the parameter in output.  If 'main', the fmtstr
+      for the main device value is used instead (also works for tuples of
+      values).
+
     - *category*: category of the parameter when returned by `.Device.info()`
       or ``None`` to ignore the parameter.  See `INFO_CATEGORIES` for the list
       of possible categories.
@@ -115,8 +119,8 @@ class Param(object):
     # pylint: disable=W0622
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
-                 unit=None, category=None, preinit=False, prefercache=None,
-                 userparam=True, chatty=False, ext_desc=''):
+                 unit=None, fmtstr='%r', category=None, preinit=False,
+                 prefercache=None, userparam=True, chatty=False, ext_desc=''):
         self.type = fixup_conv(type)
         if default is self._notset:
             default = type()
@@ -125,6 +129,7 @@ class Param(object):
         self.settable = settable
         self.volatile = volatile
         self.unit = unit
+        self.fmtstr = fmtstr
         self.category = category
         self.description = description
         self.preinit = preinit

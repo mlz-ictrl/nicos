@@ -504,12 +504,21 @@ class Experiment(Device):
 
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
-        self.sample.clear()
+        try:
+            self.sample.clear()
+        except Exception:
+            self.sample.log.warning('could not clear sample info', exc=1)
         self.samples = {}
         self.envlist = []
         for notifier in session.notifiers:
-            notifier.reset()
-        session.data.reset()
+            try:
+                notifier.reset()
+            except Exception:
+                notifier.log.warning('could not clear notifier info', exc=1)
+        try:
+            session.data.reset()
+        except Exception:
+            self.log.warning('could not clear data manager info', exc=1)
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)

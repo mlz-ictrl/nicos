@@ -222,8 +222,10 @@ class DeviceMeta(DeviceMixinMeta):
                         if chatty:
                             oldvalue = self._params[param]
                             if value != oldvalue:
-                                self.log.info('%s set to %r (was %r)' %
-                                              (param, value, oldvalue))
+                                valuestr = self.formatParam(param, value)
+                                oldvstr = self.formatParam(param, oldvalue)
+                                self.log.info('%s set to %s (was %s)' %
+                                              (param, valuestr, oldvstr))
                         self._params[param] = value
                         return
                     oldvalue = getattr(self, param)
@@ -236,8 +238,10 @@ class DeviceMeta(DeviceMixinMeta):
                         umethod(self, value)
                     if chatty:
                         if value != oldvalue:
-                            self.log.info('%s set to %r (was %r)' %
-                                          (param, value, oldvalue))
+                            valuestr = self.formatParam(param, value)
+                            oldvstr = self.formatParam(param, oldvalue)
+                            self.log.info('%s set to %s (was %s)' %
+                                          (param, valuestr, oldvstr))
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)
@@ -385,7 +389,7 @@ class Device(object):
         # disallow modification of public attributes that are not parameters
         if name not in dir(self.__class__) and name[0] != '_' and \
            not name.startswith('print'):
-            raise UsageError(self, 'device has no parameter %s, use '
+            raise NicosError(self, 'device has no parameter %s, use '
                              'ListParams(%s) to show all' % (name, self))
         else:
             object.__setattr__(self, name, value)
@@ -538,27 +542,29 @@ class Device(object):
                     if cfgvalue != value:
                         cfgvalue = self._validateType(cfgvalue, param, paraminfo)
                     if cfgvalue != value:
+                        valuestr = self.formatParam(param, value)
+                        cfgvstr = self.formatParam(param, cfgvalue)
                         prefercache = paraminfo.prefercache
                         if prefercache is None:
                             prefercache = paraminfo.settable
                         if lastconfig and lastconfig.get(param) != cfgvalue:
                             self.log.warning(
-                                'value of %s from cache (%r) differs from '
-                                'configured value (%r), using configured '
+                                'value of %s from cache (%s) differs from '
+                                'configured value (%s), using configured '
                                 'since it was changed in the setup file' %
-                                (param, value, cfgvalue))
+                                (param, valuestr, cfgvstr))
                             value = cfgvalue
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
-                                'value of %s from cache (%r) differs from '
-                                'configured value (%r), using cached' %
-                                (param, value, cfgvalue))
+                                'value of %s from cache (%s) differs from '
+                                'configured value (%s), using cached' %
+                                (param, valuestr, cfgvstr))
                         else:
                             self.log.warning(
-                                'value of %s from cache (%r) differs from '
-                                'configured value (%r), using configured' %
-                                (param, value, cfgvalue))
+                                'value of %s from cache (%s) differs from '
+                                'configured value (%s), using configured' %
+                                (param, valuestr, cfgvstr))
                             value = cfgvalue
                             self._cache.put(self, param, value)
                 elif not paraminfo.settable and paraminfo.prefercache is False:
@@ -569,10 +575,12 @@ class Device(object):
                     if defvalue != value:
                         defvalue = self._validateType(defvalue, param, paraminfo)
                     if defvalue != value:
+                        valuestr = self.formatParam(param, value)
+                        defvstr = self.formatParam(param, paraminfo.default)
                         self.log.warning(
-                            'value of %s from cache (%r) differs from '
-                            'default value (%r), using default' %
-                            (param, value, paraminfo.default))
+                            'value of %s from cache (%s) differs from '
+                            'default value (%s), using default' %
+                            (param, valuestr, defvstr))
                         value = paraminfo.default
                         self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
@@ -692,6 +700,24 @@ class Device(object):
         if self._cache:
             self._cache.put(self, param, value)
 
+    def formatParam(self, param, value, use_repr=True):
+        """Format a parameter value according to its fmtstr."""
+        if isinstance(value, list):
+            value = tuple(value)
+        fmtstr = self.parameters[param].fmtstr
+        if fmtstr == '%r' and not use_repr:
+            fmtstr = '%s'
+        if fmtstr == 'main':
+            if isinstance(value, tuple):
+                fmtstr = '(' + ', '.join((self.fmtstr,) * len(value)) + ')'
+            else:
+                fmtstr = self.fmtstr
+        try:
+            ret = fmtstr % value
+        except (TypeError, ValueError):
+            ret = repr(value)
+        return ret
+
     def _setMode(self, mode):
         """Set a new execution mode."""
         self._mode = mode
@@ -760,7 +786,9 @@ class Device(object):
                                  name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
-            ret.append((name, parvalue, str(parvalue), parunit, category))
+            ret.append((name, parvalue,
+                        self.formatParam(name, parvalue, use_repr=False),
+                        parunit, category))
         return ret
 
     def shutdown(self):
@@ -892,14 +920,17 @@ class Readable(Device):
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status (zero to '
                               'never use cached values, or None to cache them '
-                              'indefinitely)', unit='s', settable=True,
-                              type=none_or(floatrange(0, 24 * 3600)), default=12),
+                              'indefinitely)', unit='s', fmtstr='%.1f',
+                              default=12, settable=True,
+                              type=none_or(floatrange(0, 24 * 3600))),
         'pollinterval': Param('Polling interval for value and status (or None '
-                              'to disable polling)', unit='s', settable=True,
-                              type=none_or(floatrange(0.5, 24 * 3600)), default=5),
+                              'to disable polling)', unit='s', fmtstr='%.1f',
+                              default=5, settable=True,
+                              type=none_or(floatrange(0.5, 24 * 3600))),
         'warnlimits':   Param('Range in which the device value should be '
                               'in normal operation; warnings may be triggered '
                               'when it is outside', settable=True, chatty=True,
+                              unit='main', fmtstr='main',
                               type=none_or(tupleof(anytype, anytype))),
     }
 
@@ -1358,7 +1389,8 @@ class Moveable(Waitable):
 
     parameters = {
         'target': Param('Last target position of a start() action',
-                        unit='main', type=anytype, default=None),
+                        unit='main', fmtstr='main', type=anytype,
+                        default=None),
         'fixed':  Param('None if the device is not fixed, else a string '
                         'describing why', settable=False, userparam=False,
                         type=str),

@@ -185,12 +185,13 @@ class SMSer(Notifier):
         self.log.debug('sending SMS to %s' % ', '.join(receivers))
         try:
             for receiver in receivers:
-                proc = subprocess.Popen(['sendsms', '-d', receiver, '-m', body,
-                                         self.server],
+                proc = subprocess.Popen(['sendsms', '-Q', '-d', receiver,
+                                         '-m', body, self.server],
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT)
                 out = proc.communicate()[0]
-                if 'message queued' not in out and 'message successfully sent' not in out:
+                if 'message queued' not in out and \
+                   'message successfully sent' not in out:
                     raise RuntimeError('unexpected output %r' % out.strip())
         except Exception:
             self.log.exception('sendsms failed')

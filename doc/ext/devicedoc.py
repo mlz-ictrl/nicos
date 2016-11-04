@@ -118,12 +118,12 @@ class DeviceDocumenter(ClassDocumenter):
         basecmdinfo = []
         if hasattr(self.object, 'methods'):
             n = 0
-            for name, (args, doc, _, is_usermethod) in \
+            for name, (args, doc, funccls, is_usermethod) in \
                     sorted(self.object.methods.items()):
                 if not is_usermethod:
                     continue
                 func = getattr(self.object, name)
-                funccls = func.__module__ + '.' + func.__self__.__class__.__name__
+                funccls = func.__module__ + '.' + funccls.__name__
                 if funccls != myclsname:
                     basecmdinfo.append((funccls, name))
                     continue
@@ -133,6 +133,9 @@ class DeviceDocumenter(ClassDocumenter):
                 self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
                 self.add_line('', '<autodoc>')
                 self.indent += self.content_indent
+                if not doc:
+                    self.env.app.warn('%s.%s: usermethod has no documentation.'
+                                      % (myclsname, name))
                 for line in doc.splitlines():
                     self.add_line(line, '<doc of %s.%s>' % (self.object, name))
                 self.add_line('', '<autodoc>')

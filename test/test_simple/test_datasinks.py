@@ -71,6 +71,7 @@ def setup_module():
     session.setMode(MASTER)
 
     exp = session.experiment
+    exp.finish()
     dataroot = path.join(config.nicos_root, 'testdata')
     os.makedirs(dataroot)
 

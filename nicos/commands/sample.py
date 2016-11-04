@@ -32,7 +32,7 @@ from numpy import sqrt, pi, sin, arcsin, radians, degrees
 
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.commands.analyze import FitResult
 from nicos.utils import printTable
@@ -137,6 +137,7 @@ def ListSamples():
 
 
 @usercommand
+@parallel_safe
 def activation(formula=None, instrument=None,
                flux=None, cdratio=0, fastratio=0,
                mass=None, exposure=24, getdata=False):
@@ -354,6 +355,7 @@ def _extract_powder_data(num, dataset):
 
 
 @usercommand
+@parallel_safe
 def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
               spacegroup=1):
     """Fit powder peaks of a cubic powder sample to calibrate instrument

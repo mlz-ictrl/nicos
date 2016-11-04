@@ -788,7 +788,11 @@ class Session(object):
             for target, _ in self.alias_config[aliasname]:
                 if target in self.devices:
                     if aliasdev.alias != target:
-                        aliasdev.alias = target
+                        try:
+                            aliasdev.alias = target
+                        except Exception:
+                            self.log.exception('could not set %s alias' %
+                                               aliasdev)
                     break
             else:
                 self.log.warning('none of the desired targets for alias %s '

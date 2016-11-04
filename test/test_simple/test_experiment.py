@@ -182,5 +182,6 @@ def test_expandenv_dataroot():
     dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
     exp._setROParam('dataroot', dataroot2)
     assert_equal(exp.dataroot, path.expandvars(dataroot2))
+    exp.finish()
     exp.new('p888', 'etitle2', 'me2 <m.e2@me.net>', 'you2')
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)
