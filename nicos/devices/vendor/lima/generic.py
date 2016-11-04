@@ -31,6 +31,7 @@ from nicos.core import ArrayDesc, Param, Device, AutoDevice, status, tupleof, \
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
     ActiveChannel, TimerChannelMixin
+from nicos.core import INTERRUPTED
 from .optional import LimaShutter
 
 
@@ -317,7 +318,11 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         raise HardwareError('Not supported')
 
     def doReadArray(self, quality):
+        if quality == INTERRUPTED:
+            return None
+
         response = self._dev.readImage(0)
+
         img_data_str = response[1]  # response is a tuple (type name, data)
 
         dt = numpy.dtype(self._getImageType())
