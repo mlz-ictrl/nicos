@@ -348,7 +348,10 @@ class Scan(object):
                     except SkipPoint:
                         continue
                     except:
-                        self.finishPoint()
+                        try:
+                            self.finishPoint()
+                        except Exception:
+                            session.log.exception('could not finish point')
                         raise
                     try:
                         # measure...
