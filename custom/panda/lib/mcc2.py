@@ -89,6 +89,7 @@ class MCC2core(Device):
 
     @usermethod
     def store(self):
+        """Stores the current settings to the NVRAM of the motor controller."""
         return self.comm('SA')
 
     def _pushParams(self):
@@ -316,6 +317,15 @@ class MCC2Motor(MCC2core, NicosMotor):
 
     @usermethod
     def printcurrents(self):
+        """Print the settings of the currents.
+
+        The MCC-2 motor controller has different settings for the:
+            - idle current
+            - moving current
+            - ramp current
+
+        These settings will be displayed.
+        """
         if self.linear:
             const = 0.05
         else:

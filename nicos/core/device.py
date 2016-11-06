@@ -2256,6 +2256,7 @@ class DeviceAlias(Device):
 
     @usermethod
     def info(self):
+        """Return "device information" from the original device."""
         # override to use the object's "info" but add a note about the alias
         ret = []
         if isinstance(self._obj, Device):
@@ -2264,6 +2265,7 @@ class DeviceAlias(Device):
 
     @usermethod
     def version(self):
+        """Return a list of versions for original device."""
         v = []
         if isinstance(self._obj, Device):
             v = self._obj.version()
