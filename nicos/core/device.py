@@ -45,7 +45,7 @@ from nicos.core.params import Param, Override, Value, floatrange, oneof, \
 from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
     ProgrammingError, UsageError, LimitError, ModeError, PositionError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
-from nicos.utils import loggers, getVersions, parseDateString
+from nicos.utils import loggers, getVersions, parseDateString, deprecated
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
     string_types, integer_types, number_types
 
@@ -411,6 +411,7 @@ class Device(object):
         # Used for pickling the device e.g. when sending between daemon and GUI
         return (str, (self._name,))
 
+    @deprecated(since='2.10', comment='Please use "dev.name" instead.')
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
@@ -418,6 +419,7 @@ class Device(object):
                              'ListParams(%s) to show all' % (name, self))
         return getattr(self, name.lower())
 
+    @deprecated(since='2.10', comment='Please use "dev.name = value" instead.')
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:

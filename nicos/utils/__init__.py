@@ -51,9 +51,33 @@ try:
 except ImportError:
     pwd = grp = None
 
-from nicos import config, nicos_version, custom_version
+from nicos import config, nicos_version, custom_version, session
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.pycompat import iteritems, string_types, text_type, exec_
+
+
+def deprecated(since=nicos_version, comment=''):
+    """This is a decorator which can be used to mark functions as deprecated.
+
+    It will result in a warning being emitted when the function is used.
+
+    The parameter ``since`` should contain the NICOS version number on which
+    the deprecation starts.
+
+    The ``comment`` should contain a hint to the user, what should be used
+    instead.
+    """
+    def deco(f):
+        msg = '%r is deprecated since version %r.' % (f.__name__, since)
+
+        @wraps(f)
+        def new_func(*args, **options):
+            for l in [msg, comment]:
+                session.log.warn(l)
+            return f(*args, **options)
+        new_func.__doc__ += ' %s %s' % (msg, comment)
+        return new_func
+    return deco
 
 
 class attrdict(dict):

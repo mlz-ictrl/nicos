@@ -139,11 +139,18 @@ possible with the device:
 
    .. automethod:: history
 
-   .. method:: getPar(name)
-               setPar(name, value)
+   These are compatibility methods from the old NICOS system.  Parameter access
+   is now done via a property for every parameter.
 
-      These are compatibility methods from the old NICOS system.  Parameter
-      access is now done via a property for every parameter.
+   .. method:: getPar(name)
+
+      .. deprecated:: 2.10
+         Use ``dev.name`` instead.
+
+   .. method:: setPar(name, value)
+
+      .. deprecated:: 2.10
+         Use ``dev.name = value`` instead.
 
    .. rubric:: Parameter access
 
