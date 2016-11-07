@@ -34,9 +34,9 @@ from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, TimerChannelMixin
-from nicos.devices.vendor.caress.core import CARESS, CORBA, INIT_NORMAL, \
-    INIT_REINIT, LOAD_NORMAL, LOADMASTER, LOADSLAVE, OFF_LINE, ON_LINE, \
-    READBLOCK_NORMAL, RESETMODULE, CARESSDevice
+from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, CORBA, \
+    INIT_NORMAL, INIT_REINIT, LOAD_NORMAL, LOADMASTER, LOADSLAVE, OFF_LINE, \
+    ON_LINE, READBLOCK_NORMAL, RESETMODULE, CARESSDevice
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 from nicos.utils import readFile, writeFile
 
@@ -46,8 +46,8 @@ class QMesydaqCaressDevice(CARESSDevice):
     def _init(self, cid):
         try:
             if not self._is_corba_device():
-                raise ConfigurationError(self, 'Must be configured as '
-                                         '"CORBA_device" (ID=500)')
+                raise ConfigurationError(
+                    self, 'Must be configured as "CORBA_device" (ID=500)')
             _config = ' '.join(self.config.split()[3:])
             self.log.debug('reduced config: %s', _config)
             res = self._caressObject.init_module(INIT_NORMAL, cid, _config)
@@ -61,9 +61,9 @@ class QMesydaqCaressDevice(CARESSDevice):
                     raise NicosError(self, 'Could not initialize module!')
             self._initialized = True
         except CORBA.TRANSIENT as err:
-            raise CommunicationError(self, 'could not init CARESS module %r '
-                                     '(%d: %s)' % (err, cid, self.config)
-                                     )
+            raise CommunicationError(
+                self, 'could not init CARESS module %r (%d: %s)' % (
+                    err, cid, self.config)) from err
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -116,13 +116,22 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             raise NicosError(self, 'Could not start the module')
 
     def _stop(self, kind=0):
-        self._break(0)
-        self._break(1)
-
-    def doStop(self):
-        self._stop()
+        if hasattr(self._caressObject, 'stop_module'):
+            result = self._caress_guard(self._caressObject.stop_module, 11,
+                                        self._cid)
+        else:
+            result = self._caress_guard(self._caressObject.stop_module_orb, 11,
+                                        self._cid)
+        if result in [(CARESS.OK, ACTIVE), (CARESS.OK, ACTIVE1), (0, ACTIVE),
+                      (0, ACTIVE1)]:
+            raise NicosError(self, 'Could not stop the module')
 
     def doFinish(self):
+        self._break(0)
+        self._break(1)
+        self._stop()
+
+    def doStop(self):
         self._stop()
 
     def _break(self, kind=0):
@@ -146,8 +155,8 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
     def _reset(self):
         try:
             self._load_preset(RESETMODULE)
-        except NicosError:
-            raise NicosError(self, 'Could not reset module')
+        except NicosError as err:
+            raise NicosError(self, 'Could not reset module') from err
 
     def _load_preset(self, kind, preset=0):
         if hasattr(self._caressObject, 'load_module'):
@@ -241,33 +250,32 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
                                        READBLOCK_NORMAL, self.cid, _start,
                                        _end, _type)
                 if result != CARESS.OK:
-                    raise CommunicationError(self,
-                                             'Could not read the CARESS '
-                                             'module')
+                    raise CommunicationError(
+                        self, 'Could not read the CARESS module')
                 result, _status, data = \
                     self._caress_guard(self._caressObject.readblock_module,
                                        READBLOCK_NORMAL, self.cid, _start,
                                        _end)
                 if result != CARESS.OK:
-                    raise CommunicationError(self,
-                                             'Could not read the CARESS '
-                                             'module')
+                    raise CommunicationError(
+                        self, 'Could not read the CARESS module')
                 # self.log.warning('%r', data)
                 return [self._width, self._height, 1] + data.al
             except CORBA.COMM_FAILURE as ex:
-                raise CommunicationError(self, 'Could not read the CARESS '
-                                         'module : %s' % (ex, ))
+                raise CommunicationError(
+                    self, 'Could not read the CARESS module : %s' % ex) from ex
         else:
             _ = ()
             result = self._caress_guard(self._caressObject.read_module_orb, 0,
                                         self.cid, _)
             self.log.debug('read_module: %r', result)
             if result[0] != 0:
-                raise CommunicationError(self,
-                                         'Could not read the CARESS module')
+                raise CommunicationError(
+                    self, 'Could not read the CARESS module')
             if result[1][0].value() != self.cid:
-                raise NicosError(self, 'Answer from wrong module!: %d %r' %
-                                 (self.cid, result[1][0]))
+                raise NicosError(
+                    self, 'Answer from wrong module!: %d %r' % (
+                        self.cid, result[1][0]))
             if result[1][1].value() == OFF_LINE:
                 raise NicosError(self, 'Module is off line!')
             if result[1][2].value() < 1:
