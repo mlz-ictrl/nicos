@@ -43,8 +43,6 @@ Setting up the new instrument customization
 Building and installing
 -----------------------
 
-* Check if the build process works with ``make all``.
-
 * Now you should be able to do an installation with ``make install``, or if the
   machine hostname does not include the instrument name, ``make install
   INSTRUMENT=instname PREFIX=<installation_path>``.
@@ -78,9 +76,6 @@ Adding setups and libraries
 
 GUI configuration
 -----------------
-
-* On machines that should run only the GUI, use ``make install-gui`` instead of
-  ``make install``.
 
 * A custom GUI config file can go under ``custom/instname/guiconfig.py``,
   see :ref:`gui-config`.  It is easiest to use the one under ``custom/demo``
