@@ -55,19 +55,22 @@ def test_textclient():
     stdout, _ = client.communicate(b'''\
 /log 100
 /help
+NewSetup('daemonmain')
+/wait
 /edit test.py
-/sim read
-NewSetup
+/sim read()
 /wait
-read
+NewSetup()
 /wait
-help read
+read()
 /wait
-set t_alpha speed 1
+help(read)
 /wait
-maw t_alpha 100
+set(t_alpha, 'speed', 1)
+/wait
+maw(t_alpha, 100)
 /wait 0.1
-maw t_alpha 200
+maw(t_alpha, 200)
 Q
 /wait 0.1
 /pending

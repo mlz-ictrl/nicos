@@ -27,6 +27,7 @@ from __future__ import print_function
 import time
 
 from test.utils import getDaemonPort, raises
+from nose.tools import with_setup
 
 from nicos import nicos_version
 from nicos.clients.base import NicosClient, ConnectionData
@@ -61,6 +62,27 @@ class TestClient(NicosClient):
             if time.time() > starttime + timeout:
                 raise AssertionError('timeout in iter_signals')
 
+    def wait_idle(self, exc=False):
+        while True:
+            if self._estatus == STATUS_IDLE:
+                break
+            if self._estatus == STATUS_IDLEEXC:
+                if exc:
+                    raise AssertionError('test failed with exception')
+                break
+            time.sleep(0.05)
+
+    def run_and_wait(self, command, name=None):
+        idx = len(client._signals)
+        self.run(command, name)
+        # wait for daemon to start running
+        for sig in self.iter_signals(idx, 1):
+            if sig[0] == 'status':
+                break
+        # wait for idle status
+        self.wait_idle()
+
+
 client = None
 
 
@@ -71,6 +93,9 @@ def setup_module():
     client.connect(ConnectionData('localhost', getDaemonPort(), 'user', 'user'))
     assert ('connected', None, None) in client._signals
 
+    # wait until initial setup is done
+    client.wait_idle()
+
 
 def teardown_module():
     if client.connected:
@@ -78,29 +103,36 @@ def teardown_module():
         client.disconnect()
 
 
-def test_simple():
+def start_simple_mode():
+    client.run_and_wait('SetSimpleMode(True)')
 
-    def wait_idle():
-        while True:
-            time.sleep(0.05)
-            st = client.ask('getstatus')
-            if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
-                break
 
+def finish_simple_mode():
+    if client.connected:
+        try:
+            client.run_and_wait('SetSimpleMode False')
+        except Exception:
+            pass
+
+
+def loading_setup():
+    client.run_and_wait("NewSetup('daemonmain')")
+
+
+def test_version():
     # getversion
     assert client.ask('getversion') == nicos_version
 
-    # wait until initial setup is done
-    wait_idle()
 
+def test_startup_setup():
     # eval
     setups = client.eval('session.explicit_setups')
     assert setups == ['startup']
 
-    # queue
-    client.run('SetSimpleMode(True)')
-    client.run('NewSetup daemonmain')
-    wait_idle()
+
+@with_setup(start_simple_mode, finish_simple_mode)
+def test_simple():
+    client.run_and_wait('NewSetup daemonmain')
 
     # getstatus
     status = client.ask('getstatus')
@@ -127,36 +159,25 @@ def test_simple():
         client.viewonly = False
 
     # wait until command is done
-    while True:
-        time.sleep(0.05)
-        if client._estatus == STATUS_IDLE:
-            break
-        if client._estatus == STATUS_IDLEEXC:
-            raise AssertionError('test failed with exception')
+    client.wait_idle(True)
 
 
+@with_setup(loading_setup)
 def test_encoding():
-    client.run('''\
+    client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
 scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
 ''', 'Meßzeit.py')
 
-    # wait until command is done
-    while True:
-        time.sleep(0.05)
-        if client._estatus == STATUS_IDLE:
-            break
-        if client._estatus == STATUS_IDLEEXC:
-            raise AssertionError('test script failed with exception')
 
-
+@with_setup(loading_setup)
 def test_htmlhelp():
     # NOTE: everything run with 'queue' will not show up in the coverage report,
     # since the _pyctl trace function replaces the trace function from coverage,
     # so if we want HTML help generation to get into the report we use 'exec'
-    client.tell('exec', 'help')
-    time.sleep(0.1)
+    client.tell('exec', 'help()')
+    time.sleep(0.05)
     for sig in client._signals:
         if sig[0] == 'showhelp':
             # default help page is the index page
@@ -165,8 +186,8 @@ def test_htmlhelp():
             break
     else:
         assert False, 'help request not arrived'
-    client.tell('exec', 'help t_phi')
-    time.sleep(0.1)
+    client.tell('exec', 'help(t_phi)')
+    time.sleep(0.05)
     for sig in client._signals:
         if sig[0] == 'showhelp' and sig[1][0] == 'dev:t_phi':
             # default help page is the index page
@@ -176,9 +197,11 @@ def test_htmlhelp():
         assert False, 'help request not arrived'
 
 
+@with_setup(loading_setup)
 def test_simulation():
+    client.run_and_wait("NewSetup('daemonmain')")
     idx = len(client._signals)
-    client.tell('simulate', '', 'read', 'sim')
+    client.tell('simulate', '', 'read()', 'sim')
     for name, _data, _exc in client.iter_signals(idx, timeout=5.0):
         if name == 'simresult':
             return

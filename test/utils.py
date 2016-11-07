@@ -38,7 +38,7 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from nose.tools import istest, assert_raises  # pylint: disable=E0611
+from nose.tools import istest, assert_raises  # pylint: disable=W0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
