@@ -14,6 +14,7 @@ _experiment = Block('Experiment', [
              Field(name='Last file', key='exp/lastpoint')),
 ])
 
+
 _selector = Block('Selector', [
     BlockRow(Field(name='Preset', dev='selector', istext=True, width=10)),
     BlockRow(Field(name='Lambda', dev='selector_lambda'),
@@ -26,8 +27,8 @@ _selector = Block('Selector', [
 
 _chopper = Block('Chopper', [
     BlockRow(Field(name='Preset', dev='chopper', istext=True, width=17)),
-    BlockRow(Field(name='Frequency', dev='chopper_params', unit='Hz', item=0),
-             Field(name='Opening', dev='chopper_params', unit='deg', item=1)),
+    BlockRow(Field(name='Frequency', dev='chopper_params[0]', unit='Hz'),
+             Field(name='Opening', dev='chopper_params[1]', unit='deg')),
 ])
 
 _collimation = Block('Collimation', [
@@ -39,14 +40,17 @@ _collimation = Block('Collimation', [
 ])
 
 _detector = Block('Detector', [
-    BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
+    BlockRow(Field(name='Preset', dev='detector', istext=True, width=17),
+             Field(name='GE HV', dev='ep01_HV')),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
               widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
     ),
 ])
 
-_lenses = Block('Lenses', [
+_polarizer = Block('Polarizer/Lenses', [
+    BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
+             Field(name='Flipper', dev='flipper', istext=True)),
     BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
 ])
 
@@ -68,10 +72,20 @@ _sample_withrot = Block('Sample', [
     BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
 ], setups='sample_rotation')
 
+_hexapod = Block('Hexapod', [
+    BlockRow(Field(name='TX', dev='hexapod_tx'),
+             Field(name='TY', dev='hexapod_ty'),
+             Field(name='TZ', dev='hexapod_tz')),
+    BlockRow(Field(name='RX', dev='hexapod_rx'),
+             Field(name='RY', dev='hexapod_ry'),
+             Field(name='RZ', dev='hexapod_rz')),
+    BlockRow(Field(name='Table', dev='hexapod_dt')),
+], setups='hexapod')
+
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
-             Field(name='Total', dev='det_img', item=0, format='%d'),
-             Field(name='Rate', dev='det_img', item=1, format='%.1f')),
+             Field(name='Total', dev='det_img[0]', format='%d'),
+             Field(name='Rate', dev='det_img[1]', format='%.1f')),
     BlockRow(Field(name='Mon1', dev='mon1rate'),
              Field(name='Mon2', dev='mon2rate'),
              Field(name='Mon3', dev='mon3rate')),
@@ -109,7 +123,7 @@ _etplot = Block('', [
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     title = 'KWS-1 status',
+                     title = 'KWS-2 status',
                      loglevel = 'info',
                      # Use only 'localhost' if the cache is really running on
                      # the same machine, otherwise use the hostname (official
@@ -120,9 +134,9 @@ devices = dict(
                      padding = 0,
                      layout = [
                          Row(Column(_experiment)),
-                         Row(Column(_selector, _chopper, _lenses, _daq),
+                         Row(Column(_selector, _chopper, _polarizer, _daq),
                              Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
+                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
                      ],
                     ),
 )

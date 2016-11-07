@@ -13,5 +13,6 @@ includes = [
     'virtual_chopper',
     'virtual_collimation',
     'virtual_lenses',
+    'virtual_polarizer',
     'virtual_daq',
 ]

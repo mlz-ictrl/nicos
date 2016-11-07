@@ -14,11 +14,12 @@ sysconfig = dict(
 tango_base = "tango://phys.kws2.frm2:10000/kws2/"
 
 devices = dict(
-    det_img    = device('kws1.daq.KWSImageChannel',
-                        description = 'Image for the large KWS detector',
-                        tangodevice = tango_base + 'gedet/image',
-                        timer = 'timer',
-                        fmtstr = '%d (%.1f cps)',
+    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
+                        lowlevel = True,
+                       ),
+
+    yamlformat = device('kws1.yamlformat.YAMLFileSink',
+                        lowlevel = True,
                        ),
 
     det_mode   = device('devices.generic.ReadonlyParamDevice',
@@ -27,12 +28,19 @@ devices = dict(
                         parameter = 'mode',
                        ),
 
-    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
-                        lowlevel = True,
+    det_img_ge = device('kws2.daq.GEImageChannel',
+                        description = 'Image for the large KWS detector',
+                        tangodevice = tango_base + 'ge/det',
+                        timer = 'timer',
+                        highvoltage = 'gedet_HV',
+                        fmtstr = '%d (%.1f cps)',
                        ),
 
-    yamlformat = device('kws1.yamlformat.YAMLFileSink',
-                        lowlevel = True,
+    det_img_jum = device('kws1.daq.KWSImageChannel',
+                        description = 'Image for the small KWS detector',
+                        tangodevice = tango_base + 'jumiom/det',
+                        timer = 'timer',
+                        fmtstr = '%d (%.1f cps)',
                        ),
 
     det        = device('kws1.daq.KWSDetector',
@@ -44,8 +52,13 @@ devices = dict(
                         shutter = 'shutter',
                         liveinterval = 2.0,
                        ),
+
+    det_img    = device('devices.generic.DeviceAlias',
+                        alias = 'det_img_ge',
+                        devclass = 'kws1.daq.KWSImageChannel',
+                       ),
 )
 
 extended = dict(
-    poller_cache_reader = ['shutter'],
+    poller_cache_reader = ['shutter', 'gedet_HV'],
 )

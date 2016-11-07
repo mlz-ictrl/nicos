@@ -1,39 +1,64 @@
 # Setup for the GE detector
 description = 'large GE He-3 detector'
 group = 'lowlevel'
+display_order = 24
 
-import sys
-sys.path.insert(0, '/home/kws2/local/gedetector/test/py')
-try:
-    import common
-except ImportError:  # Jenkins/local
-    class common(object):
-        mnames = dict(("ep%02d" % i, "") for i in range(1, 19))
+excludes = ['virtual_gedet']
+
+eps = configdata('config_gedet.EIGHT_PACKS')
+hv_values = configdata('config_gedet.HV_VALUES')
+pv_common = configdata('config_gedet.PV_VALUES_COMMON')
+pv_single = configdata('config_gedet.PV_VALUES_SINGLE')
+pv_scales = configdata('config_gedet.PV_SCALES')
 
 tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
-devices = dict()
+devices = dict(
+    ep_HV_all = device('kws2.gedet.MultiHV',
+                       ephvs = [epname + '_HV' for (epname, _) in eps],
+                       lowlevel = True,
+                       stepsettle = 2,
+                       finalsettle = 30,
+                      ),
+    gedet_HV  = device('kws2.gedet.HVSwitcher',
+                       description = 'switches the GE detector HV',
+                       moveable = 'ep_HV_all',
+                       mapping = {
+                           'off': (0,) * len(eps),
+                           'on':  tuple(hv_values[n[0]] for n in eps),
+                       },
+                       pv_values = {
+                           epicsid: pv_common + pv_single[epname] + pv_scales[epname]
+                           for (epname, epicsid) in eps
+                       },
+                       fallback = 'inbetween',
+                       precision = 25,
+                      ),
+)
 
 
-for ep in range(1, 19):
-    epname = 'ep%02d' % ep
+for (epname, epicsid) in eps:
     devices[epname + '_T']  = device('devices.epics.EpicsReadable',
                                      description = epname + ' FPGA temperature',
-                                     readpv = common.mnames[epname] + ':FpgaTemperature',
+                                     readpv = epicsid + ':FpgaTemperature',
+                                     lowlevel = True,
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr = '%.1f',
                                      warnlimits = (25, 75))
     devices[epname + '_TB'] = device('devices.epics.EpicsReadable',
                                      description = epname + ' board temperature',
-                                     readpv = common.mnames[epname] + ':RsppTemperature',
+                                     readpv = epicsid + ':RsppTemperature',
+                                     lowlevel = True,
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr='%.1f',
                                      warnlimits = (25, 45))
-    devices[epname + '_HV'] = device('devices.epics.EpicsReadable',
+    devices[epname + '_HV'] = device('devices.epics.EpicsAnalogMoveable',
                                      description = epname + ' HV setting',
-                                     readpv = common.mnames[epname] + ':HighVoltage_R',
+                                     readpv = epicsid + ':HighVoltage_R',
+                                     writepv = epicsid + ':HighVoltage_W',
+                                     lowlevel = True,
                                      unit = 'V',
                                      pollinterval = 10,
                                      fmtstr = '%.0f',

@@ -43,6 +43,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
         'timer':       Attach('The timer channel', Measurable),
+        'highvoltage': Attach('The high voltage switch', Moveable, optional=True),
     }
 
     parameters = {
@@ -103,6 +104,8 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self._dev.tofRange = times
 
     def doPrepare(self):
+        if self._attached_highvoltage:
+            self._attached_highvoltage.maw('on')
         self._dev.Prepare()
 
     def doStart(self):

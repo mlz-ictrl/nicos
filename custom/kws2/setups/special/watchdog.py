@@ -26,8 +26,9 @@ watchlist = [
          gracetime = 1,
          type = 'default',
     ),
-    dict(condition = 'det_kwscounting and sixfold_shutter_value != "open"',
-         message = 'Sixfold shutter closed, count paused',
+    dict(condition = 'det_kwscounting and (sixfold_shutter_value != "open" or '
+                     'nl3a_shutter_value != "open")',
+         message = 'Sixfold or NL3a shutter closed, count paused',
          scriptaction = 'pausecount',
          gracetime = 1,
          type = 'default',

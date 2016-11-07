@@ -13,5 +13,6 @@ includes = [
     'chopper',
     'collimation',
     'lenses',
+    'virtual_polarizer',
     'daq',
 ]

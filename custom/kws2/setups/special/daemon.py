@@ -43,3 +43,8 @@ devices = dict(
                     loglevel = 'info',
                    ),
 )
+
+# Always import pyepics in the main thread first.
+startupcode = '''
+import nicos.devices.epics
+'''

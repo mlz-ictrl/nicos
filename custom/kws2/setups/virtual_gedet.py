@@ -1,0 +1,38 @@
+# Setup for the GE detector
+description = 'large GE He-3 detector (virtual)'
+group = 'lowlevel'
+display_order = 24
+
+eps = configdata('config_gedet.EIGHT_PACKS')
+hv_values = configdata('config_gedet.HV_VALUES')
+
+devices = dict(
+    ep_HV_all = device('kws2.gedet.MultiHV',
+                       ephvs = [epname + '_HV' for (epname, _) in eps],
+                       lowlevel = True,
+                       stepsettle = 2,
+                       finalsettle = 5,
+                      ),
+    gedet_HV  = device('kws2.gedet.HVSwitcher',
+                       description = 'switches the GE detector HV',
+                       moveable = 'ep_HV_all',
+                       mapping = {
+                           'off': (0,) * 18,
+                           'on':  tuple(hv_values[n[0]] for n in eps),
+                       },
+                       pv_values = {},
+                       fallback = 'inbetween',
+                       precision = 5,
+                      ),
+)
+
+
+for (epname, _) in eps:
+    devices[epname + '_HV'] = device('devices.generic.VirtualMotor',
+                                     description = epname + ' HV setting',
+                                     lowlevel = True,
+                                     unit = 'V',
+                                     pollinterval = 10,
+                                     fmtstr = '%.0f',
+                                     abslimits = (0, 1600),
+                                     warnlimits = (1520, 1540))
