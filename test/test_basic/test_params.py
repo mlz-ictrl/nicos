@@ -354,6 +354,7 @@ def test_nicosdev():
 def test_string_params():
     assert raises(ValueError, nonemptystring, '')
 
+
 def test_host():
     assert host('localhost') == 'localhost'
     assert host('localhost:14869') == 'localhost:14869'
@@ -365,6 +366,7 @@ def test_host():
     assert raises(ValueError, host, 'localhost:0')
     assert raises(ValueError, host, 'localhost:65536')
     assert raises(ValueError, host, 'localhost:port')
+
 
 def test_ipv4():
     assert ipv4('1.2.3.4') == '1.2.3.4'
