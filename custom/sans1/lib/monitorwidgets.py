@@ -1,4 +1,29 @@
 #  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2016 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""Special widgets for the SANS1 statusmonitor."""
+
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 
@@ -42,7 +67,8 @@ class Tube2(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'devices':   PropDef('QStringList', []),
+        'devices':   PropDef('QStringList', [],'position, shift and tilt of '
+                             'det1, position of det2'),
         'height':    PropDef(int, 10, 'Widget height in characters'),
         'width':     PropDef(int, 30, 'Widget width in characters'),
         'name':      PropDef(str, '', 'Display name'),
@@ -227,6 +253,20 @@ class BeamOption(NicosWidget, QWidget):
 
 
 class CollimatorTable(NicosWidget, QWidget):
+    """Displays a list of 'beam options' as a vertical stack.
+
+    Options are displayed as vertical stack of named elements drawn on top
+    of a centered blue line ('the beam').
+    If the device value is in 'options', the correspondig element is drawn
+    on top of 'the beam' by moving the whole stack vertically.
+    If the device value is in 'disabled_options', the whole
+    stack of options is vertically shifted 'out of beam'.
+    Other values are ignored as they are considered temporary
+    (while moving an option).
+
+    If the device state happens to be in error, the name label is
+    displayed in red to indicate the error.
+    """
 
     designer_description = 'SANS-1 collimator table'
 
@@ -240,9 +280,13 @@ class CollimatorTable(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'dev':       PropDef(str, '', 'NICOS device name'),
-        'options':   PropDef('QStringList', []),
-        'disabled_options':   PropDef('QStringList', []),
+        'dev':       PropDef(str, '', 'NICOS device name of a switcher'),
+        'options':   PropDef('QStringList', [], 'list of valid switcher-values'
+                             ' to display in top-down order (first element '
+                             'will be displayed on top location)'),
+        'disabled_options':   PropDef('QStringList', [],
+                                      'list of valid switcher values for which '
+                                      'all options are display out-of-beam'),
         'height':    PropDef(int, 4, 'Widget height in characters'),
         'width':     PropDef(int, 10, 'Widget width in characters'),
         'name':      PropDef(str, '', 'Display name'),
