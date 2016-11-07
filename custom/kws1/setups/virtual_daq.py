@@ -15,7 +15,7 @@ devices = dict(
                         states = ['on', 'off', 1, 0],
                        ),
 
-    det_img    = device('kws1.daq.VirtualJDaqChannel',
+    det_img    = device('kws1.daq.VirtualKWSImageChannel',
                         description = 'Image for the large KWS detector',
                        ),
 

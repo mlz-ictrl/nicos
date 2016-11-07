@@ -21,7 +21,7 @@ devices = dict(
                         mapping = {'off': 0, 'on': 1},
                        ),
 
-    det_img    = device('kws1.daq.JDaqChannel',
+    det_img    = device('kws1.daq.KWSImageChannel',
                         description = 'Image for the large KWS detector',
                         tangodevice = 'tango://phys.kws1.frm2:10000/kws1/imagechannel/det',
                         timer = 'timer',

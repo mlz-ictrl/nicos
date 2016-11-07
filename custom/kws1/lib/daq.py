@@ -40,7 +40,7 @@ RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
 PIXELS = 128
 
 
-class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
+class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
         'timer':       Attach('The timer channel', Measurable),
@@ -158,7 +158,7 @@ class JDaqChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         return None
 
 
-class VirtualJDaqChannel(VirtualImage):
+class VirtualKWSImageChannel(VirtualImage):
 
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
@@ -213,22 +213,22 @@ class KWSDetector(Detector):
 
     def doInit(self, session_mode):
         if not self._attached_images or \
-           not isinstance(self._attached_images[0],
-                          (JDaqChannel, VirtualJDaqChannel)):
-            raise ConfigurationError(self, 'KWSDetector needs a JDaqChannel '
+           not isinstance(self._attached_images[0], (KWSImageChannel,
+                                                     VirtualKWSImageChannel)):
+            raise ConfigurationError(self, 'KWSDetector needs a KWSChannel '
                                      'as attached image')
-        self._jdaq = self._attached_images[0]
+        self._img = self._attached_images[0]
         if session_mode == MASTER:
             self.kwscounting = False
 
     def doWriteMode(self, mode):
-        self._jdaq.mode = mode
+        self._img.mode = mode
 
     def doSetPreset(self, **preset):
         # override time preset in realtime mode
         if self.mode in ('realtime', 'realtime_external'):
             # set counter card preset to last RT slice
-            preset = {'t': self._jdaq.slices[-1] / 1000000.0}
+            preset = {'t': self._img.slices[-1] / 1000000.0}
         Detector.doSetPreset(self, **preset)
 
     def doPrepare(self):
@@ -236,8 +236,8 @@ class KWSDetector(Detector):
             if isinstance(ch, FPGAChannelBase):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
-        self._jdaq._configure((self.tofchannels, self.tofinterval,
-                               self.tofprogression))
+        self._img._configure((self.tofchannels, self.tofinterval,
+                              self.tofprogression))
         Detector.doPrepare(self)
 
     def doStart(self):

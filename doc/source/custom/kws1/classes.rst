@@ -16,8 +16,8 @@
 .. autoclass:: Collimation()
 
 .. automodule:: nicos.kws1.daq
-.. autoclass:: JDaqChannel()
-.. autoclass:: VirtualJDaqChannel()
+.. autoclass:: KWSImageChannel()
+.. autoclass:: VirtualKWSImageChannel()
 .. autoclass:: KWSDetector()
 
 .. automodule:: nicos.kws1.detector
