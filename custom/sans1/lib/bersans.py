@@ -55,6 +55,7 @@ ToDate=%(ToDate)s
 ToTime=%(ToTime)s
 Title=%(Exp.title)s
 User=%(Exp.users)s
+Command=%(Command)s
 
 %%Sample
 SampleName=%(Sample.samplename)s
@@ -320,6 +321,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Listfile = Listfile,
             Setupfile = Setupfile,
             LookUpTable = LookUpTable,
+            Command = self.dataset.info,
         )
 
         nicosheader = []
