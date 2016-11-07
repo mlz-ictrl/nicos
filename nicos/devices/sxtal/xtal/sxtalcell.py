@@ -119,8 +119,8 @@ def SXTalCellType(val=None):
     """NICOS parameter validator for a single crystal cell.  Input can be:
 
     * a SXTalCell object
-    * a 3x3 orientation matrix (array or list)
-    * a tuple of (matrix, bravais[opt], laue[opt])
+    * a 3x3 UB matrix (array or list)
+    * a tuple of (UB matrix, bravais[opt], laue[opt])
     * a list with [a, b, c, alpha, beta, gamma, bravais[opt], laue[opt]]
     * a dict with the following keys:
       a, b[opt], c[opt], alpha[opt], beta[opt], gamma[opt],
@@ -134,14 +134,14 @@ def SXTalCellType(val=None):
     elif isinstance(val, dict):
         return SXTalCell.fromabc(**val)
     elif isinstance(val, np.ndarray) and val.shape == (3, 3):
-        return SXTalCell(val)
+        return SXTalCell(val.T)
     elif isinstance(val, tuple) and isinstance(val[0], np.ndarray) and \
             val[0].shape == (3, 3):
         bravais = val[1] if len(val) > 1 else 'P'
         laue = val[2] if len(val) > 2 else '1'
-        return SXTalCell(val[0], bravais, laue)
+        return SXTalCell(val[0].T, bravais, laue)
     elif isinstance(val, list) and len(val) == 3 and isinstance(val[0], list):
-        return SXTalCell(val)
+        return SXTalCell(np.array(val).T)
     elif isinstance(val, (list, tuple)) and len(val) >= 6:
         bravais = val[6] if len(val) > 6 else 'P'
         laue = val[7] if len(val) > 7 else '1'

@@ -50,7 +50,7 @@ class SXTalSample(Sample):
         'gamma':     Param('gamma', type=floatrange(1., 179.), settable=False,
                            volatile=True, category='sample'),
         'rmat':      Param('rmat', type=listof(listof(float)), settable=False,
-                           volatile=True, default=None),
+                           volatile=True, default=None, userparam=False),
         'ubmatrix':  Param('UB matrix (rmat^T)', type=listof(listof(float)),
                            volatile=True, category='sample'),
         'bravais':   Param('Bravais lattice',
