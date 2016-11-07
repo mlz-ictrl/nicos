@@ -151,7 +151,7 @@ class TrendPlot(QwtPlot, NicosWidget):
         'devices':      PropDef('QStringList', [], '''
 List of devices or cache keys that the plot should display.
 
-For devices, use device name, For keys, use cache key with "." or "/" separator,
+For devices use device name. For keys use cache key with "." or "/" separator,
 e.g. T.heaterpower.
 
 To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
