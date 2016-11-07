@@ -276,6 +276,10 @@ def test_floatrange():
 def test_oneof():
     assert oneof(0, 1)(1) == 1
     assert oneof(2, 3)() == 2
+    assert oneof(None)() is None
+    assert oneof(None)(None) is None
+    assert oneof()() is None
+    assert oneof()(None) is None
     assert raises(ValueError, oneof(0, 1), '0')
     assert raises(ValueError, oneof(0, 1), 2)
     assert raises(ValueError, oneof(0, 1), 'x')
