@@ -46,8 +46,10 @@ def SetupRealtime(channels, interval, progression, trigger):
     # let the detector calculate the preset
     detector.prepare()
     detector.setPreset(t=0)
-    rtswitch = session.getDevice('det_ext_rt')
-    rtswitch.move(1 if trigger == 'external' else 0)
+    # switch SPS output that triggers signal routing relays (only KWS1)
+    if 'det_ext_rt' in session.configured_devices:
+        rtswitch = session.getDevice('det_ext_rt')
+        rtswitch.move(1 if trigger == 'external' else 0)
     printinfo('Detector presets set to realtime mode%s.' %
               (' with external trigger' if trigger == 'external' else ''))
 
