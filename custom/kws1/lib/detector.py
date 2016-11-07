@@ -25,7 +25,7 @@
 """Detector switcher for KWS."""
 
 from nicos.core import Param, Override, oneof, dictof, dictwith, MASTER, \
-    ConfigurationError
+    ConfigurationError, DeviceMixinBase
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.pycompat import iteritems
 
@@ -39,7 +39,19 @@ class oneof_detector(oneof):
                              'selector setting' % val)
 
 
-class DetectorPosSwitcher(MultiSwitcher):
+class DetectorPosSwitcherMixin(DeviceMixinBase):
+
+    parameters = {
+        'offsets':  Param('Offsets to correct TOF chopper-detector length '
+                          'for the errors in the det_z axis value',
+                          type=dictof(float, float),
+                          mandatory=True),
+        'mapkey':   Param('Last selector position for mapping',
+                          type=str, settable=True, userparam=False),
+    }
+
+
+class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
     """Switcher for the detector position.
 
     This controls the X, Y and Z components of the detector position.  Presets
@@ -51,12 +63,6 @@ class DetectorPosSwitcher(MultiSwitcher):
                           type=dictof(str, dictof(str, dictwith(
                               x=float, y=float, z=float))),
                           mandatory=True),
-        'offsets':  Param('Offsets to correct TOF chopper-detector length '
-                          'for the errors in the det_z axis value',
-                          type=dictof(float, float),
-                          mandatory=True),
-        'mapkey':   Param('Last selector position for mapping',
-                          type=str, settable=True, userparam=False),
     }
 
     parameter_overrides = {

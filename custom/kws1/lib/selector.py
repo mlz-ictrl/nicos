@@ -26,7 +26,7 @@
 
 from nicos.core import Moveable, Attach, Param, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
-from nicos.kws1.detector import DetectorPosSwitcher
+from nicos.kws1.detector import DetectorPosSwitcherMixin
 from nicos.devices.tango import WindowTimeoutAO
 
 
@@ -87,7 +87,7 @@ class SelectorSwitcher(MultiSwitcher):
     }
 
     attached_devices = {
-        'det_pos':  Attach('Detector preset device', DetectorPosSwitcher),
+        'det_pos':  Attach('Detector preset device', DetectorPosSwitcherMixin),
     }
 
     def doUpdateValue(self, position):

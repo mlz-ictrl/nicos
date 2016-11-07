@@ -30,7 +30,7 @@ from nicos.devices.tango import WindowTimeoutAO
 from nicos.utils import clamp
 from nicos.kws1.daq import KWSDetector
 from nicos.kws1.selector import SelectorSwitcher
-from nicos.kws1.detector import DetectorPosSwitcher
+from nicos.kws1.detector import DetectorPosSwitcherMixin
 
 # neutron speed at 1A, in m/ms
 SPEED = 3.956
@@ -160,7 +160,8 @@ class Chopper(Moveable):
 
     attached_devices = {
         'selector':    Attach('Selector preset switcher', SelectorSwitcher),
-        'det_pos':     Attach('Detector preset switcher', DetectorPosSwitcher),
+        'det_pos':     Attach('Detector preset switcher',
+                              DetectorPosSwitcherMixin),
         'daq':         Attach('KWSDetector device', KWSDetector),
         'params':      Attach('Chopper param device', Moveable),
     }
