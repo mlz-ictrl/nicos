@@ -47,13 +47,13 @@ Building and installing
 
 * Now you should be able to do an installation with ``make install``, or if the
   machine hostname does not include the instrument name, ``make install
-  INSTRUMENT=instname``.
+  INSTRUMENT=instname PREFIX=<installation_path>``.
 
-* Check the generated ``$ROOTDIR/nicos.conf`` for obvious errors.  See
+* Check the generated ``$PREFIX/nicos.conf`` for obvious errors.  See
   :ref:`nicosconf` for a description.
 
 * If you did the install as root, the Makefile will have created a symlink to
-  the init script (``$ROOTDIR/etc/nicos-system``) under
+  the init script (``$PREFIX/etc/nicos-system``) under
   ``/etc/init.d/nicos-system``, else you have to symlink it yourself.  Check if
   the init script works with ``/etc/init.d/nicos-system start``.
 
