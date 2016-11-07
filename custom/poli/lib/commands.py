@@ -30,7 +30,7 @@ from nicos.commands.device import maw, move
 from nicos.commands.scan import cscan, contscan
 from nicos.commands.analyze import center_of_mass, gauss
 from nicos.commands.output import printinfo, printerror
-from nicos.core import Moveable, UsageError
+from nicos.core import Moveable, UsageError, SIMULATION
 from nicos.pycompat import number_types
 
 
@@ -167,7 +167,9 @@ def centerpeak(*args, **kwargs):
             else:
                 cscan(dev, center, stepsizes[dev], nsteps[dev], *devices,
                       **preset)
-            if fit == 'center_of_mass':
+            if session.mode == SIMULATION:
+                thisround[dev] = center
+            elif fit == 'center_of_mass':
                 thisround[dev] = center_of_mass()
             elif fit == 'gauss':
                 params, _ = gauss()
@@ -191,7 +193,11 @@ def centerpeak(*args, **kwargs):
             diff = abs(lastround[dev] - thisround[dev])
             printinfo('%-10s center: %8.6g -> %8.6g (delta %8.6g)' %
                       (dev, lastround[dev], thisround[dev], diff))
-            if diff > convergence * stepsizes[dev]:
+            if session.mode == SIMULATION:
+                again = i < 1
+                if i == 1:
+                    printinfo('=> dry run: limiting to 2 rounds')
+            elif diff > convergence * stepsizes[dev]:
                 if i == nrounds - 1:
                     printinfo('=> would need another round, but command '
                               'limited to %d rounds' % nrounds)
