@@ -1,10 +1,12 @@
-description = 'system setup'
+# -*- coding: utf-8 -*-
 
+description = 'system setup'
 group = 'lowlevel'
+display_order = 80
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = None,
+    instrument = 'KWS2',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email'],
@@ -12,7 +14,7 @@ sysconfig = dict(
 
 includes = ['notifiers']
 
-modules = ['nicos.commands.standard']
+modules = ['commands.standard']
 
 devices = dict(
     KWS2     = device('devices.instrument.Instrument',
@@ -22,16 +24,26 @@ devices = dict(
                       responsible = 'A. Radulescu <a.radulescu@fz-juelich.de>',
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('kws1.sample.KWSSample',
                       description = 'Sample object',
                      ),
 
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('frm2.experiment.Experiment',
                       description = 'experiment object',
-                      dataroot = 'data',
+                      dataroot = '/data',
                       sendmail = True,
+                      mailsender = 'kws2@frm2.tum.de',
+                      mailserver = 'mailhost.frm2.tum.de',
                       serviceexp = 'maintenance',
                       sample = 'Sample',
+                      propdb = '/home/jcns/.nicos_proposaldb',
+                      managerights = dict(),
+                      # KWS2TODO: reinstate this
+#                      managerights = dict(enableDirMode=0o775,
+#                                          enableFileMode=0o664,
+#                                          disableDirMode=0o500,
+#                                          disableFileMode=0o400,
+#                                          owner='jcns', group='games'),
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
