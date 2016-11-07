@@ -28,7 +28,7 @@ from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, \
     oneofdict, none_or, limits, mailaddress, Param, Value, absolute_path, \
     relative_path, subdir, nicosdev, nonemptystring, host, ipv4, dictwith, \
-    Attach
+    Attach, setof
 from nicos.core.errors import ProgrammingError, ConfigurationError
 
 from test.utils import raises
@@ -283,6 +283,13 @@ def test_oneof():
     assert raises(ValueError, oneof(0, 1), '0')
     assert raises(ValueError, oneof(0, 1), 2)
     assert raises(ValueError, oneof(0, 1), 'x')
+
+
+def test_setof():
+    SETTYPES = (1, 2, 3, 4)
+    assert setof(*SETTYPES)() == frozenset()
+    assert setof(*SETTYPES)([1]) == frozenset([1])
+    assert raises(ValueError, setof(*SETTYPES), [5])
 
 
 def test_oneofdict():
