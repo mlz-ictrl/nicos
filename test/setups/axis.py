@@ -48,7 +48,9 @@ devices = dict(
                   loopdelay = 0.02,
                   loglevel = 'debug',
                  ),
-
+    aliasAxis = device('nicos.devices.generic.DeviceAlias',
+                       alias = 'axis',
+                      ),
     limit_axis = device('nicos.devices.generic.Axis',
                         motor = 'motor',
                         coder = 'coder',

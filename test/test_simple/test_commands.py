@@ -37,7 +37,7 @@ from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
     status, stop, reset, get, getall, setall, fix, release, adjust, \
     version, history, info, limits, resetlimits, ListParams, ListMethods, \
-    ListDevices
+    ListDevices, unfix, reference, finish
 from nicos.commands.device import set  # pylint: disable=W0622
 from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
@@ -168,6 +168,8 @@ def test_sample_commands():
 def test_device_commands():
     motor = session.getDevice('motor')
     coder = session.getDevice('coder')
+    alias = session.getDevice('aliasAxis')
+    exp = session.getDevice('Exp')
 
     # check move()
     positions = (min(motor.abslimits), 0, max(motor.abslimits))
@@ -206,6 +208,9 @@ def test_device_commands():
     # check stop()
     stop()
     stop(motor)
+    # check stop moving motor
+    move(motor, 10)
+    stop(motor)
 
     # check reset()
     reset(motor)
@@ -229,6 +234,8 @@ def test_device_commands():
     move(motor, 10)
     release(motor)
     assert motor.curvalue == 0
+    assert raises(UsageError, release, ())
+    assert raises(UsageError, unfix, ())
 
     # check adjust()
     move(motor, 1)
@@ -241,12 +248,18 @@ def test_device_commands():
 
     # check version()
     version(motor)
+    # check the NICOS version
+    version()
 
     # check history()
     history(motor)
     history(motor, 'value')
+    # check history of parameter and automatic adding of fromtime
+    history(motor, 'speed')
     history(motor, -24)
     history(motor, 24)
+    # check adjusting totime
+    history(motor, totime = 10)
     history(motor, 'value', -24)
     for timespec in ['1 week', '30 minutes', '2012-01-01',
                      '2012-01-01 14:00', '14:00']:
@@ -260,15 +273,28 @@ def test_device_commands():
     motor.userlimits = (1, 1)
     resetlimits(motor, coder)
     assert motor.userlimits == motor.abslimits
+    # check resetting of all devices having limits
+    motor.userlimits = (-0.5, 0.5)
+    resetlimits()
+    assert motor.userlimits == motor.abslimits
 
     # check ListParams(), ListMethods(), ListDevices()
     ListParams(motor)
+    # ListParams of the 'aliased' device
+    ListParams(alias)
     ListMethods(motor)
+    # exp contains 'usermethods' which should be listed too
+    ListMethods(exp)
     ListDevices()
 
     # check count()
     assert raises(UsageError, count, motor)
     count()
+
+    # check finish
+    finish()
+
+    assert raises(ErrorLogged, reference, motor)
 
 
 def test_command_exceptionhandling():
