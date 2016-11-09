@@ -850,6 +850,8 @@ class Session(object):
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
         if self._spmode:
+            if command.startswith('.'):
+                command = command[1:]
             return compiler(self._spmhandler.handle_line(command))
         try:
             return compiler(command)
