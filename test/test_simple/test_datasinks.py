@@ -27,7 +27,6 @@
 import os
 import time
 from os import path
-from logging import Handler
 
 try:
     import pyfits
@@ -54,24 +53,12 @@ from nicos.utils import readFile, updateFileCounter
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
 
-from test.utils import assert_response, requires
+from test.utils import requires, checkResponse, cleanLog
 
 year = time.strftime('%Y')
-handler = None
-
-
-class ListHandler(Handler):
-    def __init__(self):
-        Handler.__init__(self)
-        self.messages = []
-
-    def emit(self, record):
-        self.messages.append(self.format(record))
 
 
 def setup_module():
-    global handler  # pylint: disable=global-statement
-
     session.loadSetup('data')
     session.setMode(MASTER)
 
@@ -95,19 +82,15 @@ def setup_module():
     det = session.getDevice('det')
     tdev = session.getDevice('tdev')
     session.experiment.setEnvironment([])
+    cleanLog()
 
-    handler = ListHandler()
-    session.addLogHandler(handler)
-    try:
-        scan(m, 0, 1, 5, det, tdev, t=0.005)
-    finally:
-        session.log.removeHandler(handler)
-        session._log_handlers.remove(handler)
+    scan(m, 0, 1, 5, det, tdev, t=0.005)
 
 
 def teardown_module():
     session.cache.clear(session.experiment)
     session.unloadSetup()
+    cleanLog()
 
 
 def test_sink_class():
@@ -132,10 +115,10 @@ def test_sink_class():
 
 
 def test_console_sink():
-    assert '=' * 100 in handler.messages
-    assert_response(handler.messages,
-                    matches=r'Starting scan:      scan\(motor2'
-                            r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
+    checkResponse(matches='=' * 100)
+    checkResponse(matches=
+                  r'Starting scan:      scan\(motor2'
+                  r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
 
 def test_filecounters():

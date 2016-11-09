@@ -76,7 +76,7 @@ def gen_if_verbose(func):
             for f_args in func():
                 def run(r_args):
                     r_args[0](*r_args[1:])
-                run.description =f_args[0].description
+                run.description = f_args[0].description
                 yield run, f_args
         else:
             @istest
@@ -102,25 +102,6 @@ def requires(condition, message=''):
             return func(*args, **kwds)
         return new_func
     return deco
-
-
-def assert_response(resp, contains=None, matches=None):
-    """Check for specific strings in a response array.
-
-    resp: iterable object containing reponse strings
-    contains: string to check for presence, does string comparison
-    matches: regexp to search for in response
-    """
-    if contains:
-        assert contains in resp, "Response does not contain %r" % contains
-
-    if matches:
-        reg = re.compile(matches)
-        for sub in resp:
-            found = reg.findall(sub)
-            if len(found):
-                return True
-        assert False, "Response does not match %r" % matches
 
 
 # from unittest.TestCase
@@ -150,8 +131,26 @@ def assertNotAlmostEqual(first, second, places=7, msg=None):
             (msg or '%r == %r within %r places' % (first, second, places))
 
 
+def checkResponse(contains=None, matches=None, absent=False):
+    '''Check response messages for the presence/absence of string
+
+        *contains*  strinf checked for string equality in messages
+        *matches* regex to search in messages
+        *absent* if True,check for absence of string
+    '''
+    from nicos import session
+    if absent:
+        return session.testhandler.assert_notresponse(contains, matches)
+    return session.testhandler.assert_response(contains, matches)
+
+
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
+
+
+def cleanLog():
+    from nicos import session
+    session.testhandler.clearcapturedmessages()
 
 
 class TestLogHandler(ColoredConsoleHandler):
@@ -160,6 +159,7 @@ class TestLogHandler(ColoredConsoleHandler):
         self._warnings = []
         self._raising = True
         self._messages = 0
+        self._capturedmessages = []
 
     def emit(self, record):
         if record.levelno >= ERROR and self._raising:
@@ -168,10 +168,71 @@ class TestLogHandler(ColoredConsoleHandler):
             self._warnings.append(record)
         else:
             self._messages += 1
+            self._capturedmessages.append(self.xformat(record))
         ColoredConsoleHandler.emit(self, record)
+
+    def xformat(self, record):
+        if record.name == 'nicos':
+            namefmt = ''
+        else:
+            namefmt = '%(name)-10s: '
+        fmtstr = '%s%%(levelname)s: %%(message)s' % namefmt
+        fmtstr = '%(filename)s' + fmtstr
+        s = fmtstr % record.__dict__
+        return s
+
+    def clearcapturedmessages(self):
+        self._capturedmessages = []
+
+    def dump_messages(self, where=''):
+        '''Helper to get message content for test preparation'''
+        print ("#" * 10 + ' ' + where + ' ' + '#' * 10, file=sys.stderr)
+        for m in self._capturedmessages:
+            print(m, file=sys.stderr)
+        print ("#" * 60, file=sys.stderr)
 
     def enable_raising(self, raising):
         self._raising = raising
+
+    def assert_response(self, contains=None, matches=None):
+        """Check for specific strings in a response array.
+
+        resp: iterable object containing reponse strings
+        contains: string to check for presence, does string comparison
+        matches: regexp to search for in response
+        """
+        if contains:
+            assert contains in self._capturedmessages, \
+                "Response does not contain %r" % contains
+
+        if matches:
+            reg = re.compile(matches)
+            for sub in self._capturedmessages:
+                found = reg.findall(sub)
+                if len(found):
+                    return True
+            self.dump_messages('')
+            assert False, "Response does not match %r" % matches
+
+    def assert_notresponse(self, contains=None, matches=None):
+        """Check for the absences of specific strings in a response array.
+
+        resp: iterable object containing reponse strings
+        contains: string to check for absence, does string comparison
+        matches: regexp to search for in response
+        """
+        if contains:
+            assert contains not in self._capturedmessages, \
+                "Response does contain %r" % contains
+
+        if matches:
+            reg = re.compile(matches)
+            for sub in self._capturedmessages:
+                found = reg.findall(sub)
+                if len(found):
+                    self.dump_messages('')
+                    assert False, "Response does match %r" % matches
+        return True
 
     def warns(self, func, *args, **kwds):
         """check if a warning is emitted
@@ -253,6 +314,7 @@ class TestSession(Session):
         if code is None:
             return
         exec_(code, self.namespace)
+
 
 config.user = None
 config.group = None

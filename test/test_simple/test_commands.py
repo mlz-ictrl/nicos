@@ -27,6 +27,7 @@
 import os
 import shutil
 import tempfile
+import timeit
 
 from nicos import session
 from nicos.core import UsageError, LimitError
@@ -53,45 +54,69 @@ from nicos.commands.output import printdebug, printinfo, printwarning, \
     printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged, raises, cleanLog, checkResponse
+from nose.tools import with_setup
 
 
 def setup_module():
     session.loadSetup('axis')
     session.setMode(MASTER)
+    cleanLog()
 
 
 def teardown_module():
     session.unloadSetup()
+    cleanLog()
 
 
+@with_setup(cleanLog, cleanLog)
 def test_output_commands():
-    printdebug('a', 'b')
-    printinfo('testing...')
+    printdebug('printdebugtest1', 'printdebugtest2')
+    checkResponse(matches=r'printdebugtest1 printdebugtest2')
+    printinfo('printinfo testing...')
+    checkResponse(matches=r'printinfo testing\.\.\.')
     try:
-        1/0
+        1 / 0
     except ZeroDivisionError:
         assert session.testhandler.warns(printwarning, 'warn!', exc=1)
     assert raises(ErrorLogged, printerror, 'error!')
     assert raises(ErrorLogged, printexception, 'exception!')
 
 
+@with_setup(cleanLog, cleanLog)
 def test_basic_commands():
-    dev = session.getDevice('motor')
-
     help(help)
+    checkResponse(matches=r'Usage: help\(\[object\]\)')
+    checkResponse(matches=r'>>> help\(\) {12}# show list of commands')
     ListCommands()
+    checkResponse(matches=r'name {48}description')
+    # explicitly no check on help text!
+    checkResponse(matches=r'ClearCache\(dev, \.\.\.\)')
 
-    d = dir(dev)
-    assert 'start' in d
-    assert 'doStart' not in d
-    assert '_get_from_cache' not in d
-    d = dir()
-    assert 'd' in d
 
-    sleep(0.02)
+@with_setup(cleanLog, cleanLog)
+def test_sleep_command():
+    '''test sleep command
 
+    test a longer and a shorter sleep, the error should be smaller for
+    the longer sleep
+    (0.1 -> 3% error, 0.01 -> 30%error)'''
+    tosleep = 0.1
+    used = timeit.timeit(lambda: sleep(tosleep), number=10)
+    assert tosleep < used < 10.3 * tosleep
+    checkResponse(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
+    tosleep = 0.01
+    used = timeit.timeit(lambda: sleep(tosleep), number=10)
+    assert tosleep < used < 13 * tosleep
+
+
+@with_setup(cleanLog, cleanLog)
+def test_setup_commands():
     ListSetups()
+    checkResponse(matches=r'axis            yes')  # axis should be loaded
+    checkResponse(matches=r'stdsystem       yes')  # stdsystem  loaded
+    checkResponse(matches=r'cache              ')  # cache not loaded
+
     NewSetup('axis')
     AddSetup()  # should list all setups but not fail
     AddSetup('slit')
@@ -100,9 +125,12 @@ def test_basic_commands():
     assert 'slit' not in session.configured_devices
     assert session.testhandler.warns(RemoveSetup, 'blah')
 
+
+def test_devicecreation_commands():
     assert 'motor' not in session.devices
     CreateDevice('motor')
     assert 'motor' in session.devices
+
     RemoveDevice('motor')
     assert raises(UsageError, RemoveDevice)
     assert 'motor' not in session.devices
@@ -112,6 +140,9 @@ def test_basic_commands():
     assert 'coder' in session.devices
     assert 'coder' not in session.explicit_devices
 
+
+@with_setup(cleanLog, cleanLog)
+def test_experiment_commands():
     exp = session.getDevice('Exp')
 
     NewExperiment(1234, 'Test experiment', 'L. Contact <l.contact@frm2.tum.de>',
@@ -120,7 +151,10 @@ def test_basic_commands():
     assert exp.title == 'Test experiment'
     AddUser('F. X. User', 'user@example.com')
     assert 'F. X. User <user@example.com>' in exp.users
-    NewSample('MnSi', lattice=[4.58]*3, angles=[90]*3)
+    NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
+    checkResponse(matches=r'Exp       : INFO: experiment directory is now test/root/data')
+    checkResponse(matches=r'Exp       : INFO: User "F. X. User <user@example.com>" added')
+
     FinishExperiment()
 
     Remark('hi')
@@ -130,11 +164,14 @@ def test_basic_commands():
     SetMode(MASTER)
     assert raises(UsageError, SetMode, 'blah')
 
+
+def test_clearcache():
     motor = session.getDevice('motor')
     ClearCache('motor', motor)
 
     with UserInfo('userinfo'):
         assert session._actionStack[-1] == 'userinfo'
+    checkResponse(matches=r'INFO: cleared cached information for motor')
 
 
 def test_run_command():
@@ -159,10 +196,17 @@ def test_sample_commands():
     SelectSample('abc')
     assert exp.sample.samplename == 'abc'
 
+    cleanLog()
+    ListSamples()
+    checkResponse(matches=r'number  sample name  param')
+    checkResponse(matches=r'0       abc')
+    checkResponse(matches=r'1       def          45')
+
+    cleanLog()
     ClearSamples()
     assert exp.samples == {}
-
-    ListSamples()
+    checkResponse(matches=r'0       abc', absent=True)
+    checkResponse(matches=r'1       def          45', absent=True)
 
 
 def test_device_commands():
@@ -171,6 +215,14 @@ def test_device_commands():
     alias = session.getDevice('aliasAxis')
     exp = session.getDevice('Exp')
 
+    dev = session.getDevice('motor')
+    d = dir(dev)
+    assert 'start' in d
+    assert 'doStart' not in d
+    assert '_get_from_cache' not in d
+    d = dir()
+    assert 'd' in d
+
     # check move()
     positions = (min(motor.abslimits), 0, max(motor.abslimits))
     for pos in positions:
@@ -178,7 +230,7 @@ def test_device_commands():
         motor.wait()
         assert motor.curvalue == pos
 
-    assert raises(LimitError, move, motor, max(motor.abslimits)+1)
+    assert raises(LimitError, move, motor, max(motor.abslimits) + 1)
 
     assert raises(UsageError, move)
     assert raises(UsageError, move, motor, 1, motor)
@@ -204,7 +256,6 @@ def test_device_commands():
 
     # check status()
     status()
-
     # check stop()
     stop()
     stop(motor)
@@ -259,7 +310,7 @@ def test_device_commands():
     history(motor, -24)
     history(motor, 24)
     # check adjusting totime
-    history(motor, totime = 10)
+    history(motor, totime=10)
     history(motor, 'value', -24)
     for timespec in ['1 week', '30 minutes', '2012-01-01',
                      '2012-01-01 14:00', '14:00']:
@@ -295,6 +346,10 @@ def test_device_commands():
     finish()
 
     assert raises(ErrorLogged, reference, motor)
+    checkResponse(matches=r'Device status')
+    checkResponse(matches=r'axis       status:   ok: idle')
+    checkResponse(matches=r'INFO: t_mono         status:   ok: theta=idle,'
+                  ' twotheta=idle, focush=fine, focusv=fine')
 
 
 def test_command_exceptionhandling():
