@@ -255,8 +255,8 @@ class NicosLogfileHandler(StreamHandler):
         StreamHandler.__init__(self, self._open())
         # determine time of first midnight from now on
         t = time.localtime()
-        self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
-                                        t[6], t[7], t[8])) + SECONDS_PER_DAY
+        self.rollover_at = time.mktime((t[0], t[1], t[2] + 1,
+                                        0, 0, 0, 0, 0, -1))
         self.setFormatter(NicosLogfileFormatter(LOGFMT, DATEFMT))
         self.disabled = False
 
@@ -320,7 +320,9 @@ class NicosLogfileHandler(StreamHandler):
             self.baseFilename = self._pathnameprefix + '-' + \
                 time.strftime(self._dayfmt) + '.log'
         self.stream = self._open()
-        self.rollover_at += SECONDS_PER_DAY
+        t = time.localtime()
+        self.rollover_at = time.mktime((t[0], t[1], t[2] + 1,
+                                        0, 0, 0, 0, 0, -1))
 
 
 class ColoredConsoleHandler(StreamHandler):
