@@ -184,7 +184,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             # was already closed; so we can ignore this
             pass
         server.unregister_handler(self.ident)
-        self.log.debug('handler unregistered')
+        self.log.info('handler unregistered')
 
     def write(self, prefix, msg=no_msg):
         """Write a message to the client."""
@@ -267,7 +267,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.clientnames = [ip]
         else:
             self.clientnames = [host] + aliases + addrlist
-        self.log.debug('connection from %s' % self.clientnames)
+        self.log.info('connection from %s' % self.clientnames)
 
         # check trusted hosts list, if nonempty
         if self.daemon.trustedhosts:
@@ -377,7 +377,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                     break
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s' % (event, repr(data)[:1000]))
-        self.log.debug('closing event connection')
+        self.log.info('closing event connection')
         closeSocket(sock)
         # also close the main connection if not already done
         closeSocket(self.sock)
