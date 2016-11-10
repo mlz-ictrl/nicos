@@ -93,7 +93,7 @@ devices = dict(
                                      enableFileMode=0o664,
                                      disableDirMode=0o550,
                                      disableFileMode=0o440,
-                                     owner='kompassuser', group='kompassuser',
+                                     owner='kompassuser', group='kompass',
                                     ),
                  elog = True,
                  counterfile = 'counter',
