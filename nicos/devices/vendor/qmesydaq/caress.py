@@ -110,14 +110,12 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
         if hasattr(self._caressObject, 'start_module'):
             result = self._caress_guard(self._caressObject.start_module, kind,
                                         self.cid, self.runnumber, 0)
-            if result[0] != CARESS.OK:
-                raise NicosError(self, 'Could not start the module')
         else:
             result = \
                 self._caress_guard(self._caressObject.start_acquisition_orb,
                                    kind, self.runnumber, 0)
-            if result[0] != 0:
-                raise NicosError(self, 'Could not start the module')
+        if result[0] not in (0, CARESS.OK):
+            raise NicosError(self, 'Could not start the module')
 
     def _stop(self):
         self._break(0)
@@ -133,14 +131,12 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
         if hasattr(self._caressObject, 'stop_module'):
             result = self._caress_guard(self._caressObject.stop_module, kind,
                                         self.cid)
-            if result[0] != CARESS.OK:
-                raise NicosError('Could not set module into paused state!')
         elif self.ismaster:
             result = \
                 self._caress_guard(self._caressObject.stop_acquisition_orb,
                                    kind)
-            if result[0] != 0:
-                raise NicosError('Could not set module into paused state!')
+        if result[0] not in [0, CARESS.OK]:
+            raise NicosError('Could not set module into paused state!')
 
     def doPause(self):
         self._break(0)
@@ -158,8 +154,6 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
                                                 kind, self.cid,
                                                 CARESS.Value(l=preset))
             self.log.debug('Preset module: %r, %r' % (result, loaded))
-            if result != CARESS.OK:
-                raise NicosError(self, 'Could not reset module')
         else:
             params = []
             params.append(CORBA.Any(CORBA._tc_long, self.cid))
@@ -171,8 +165,8 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             result = self._caress_guard(self._caressObject.load_module_orb,
                                         kind, params, 0)
             self.log.debug('Preset module: %r' % (result,))
-            if result[0] != 0:
-                raise NicosError(self, 'Could not reset module')
+        if result[0] not in [0, CARESS.OK]:
+            raise NicosError(self, 'Could not reset module')
 
     def doReset(self):
         self._reset()
