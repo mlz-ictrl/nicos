@@ -70,7 +70,6 @@ class TestClient(NicosClient):
             if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
                 break
 
-
     def wait_for_idlesignal(self, exc=False):
         while True:
             if self._estatus == STATUS_IDLE:
@@ -145,8 +144,8 @@ def test_simple():
     status = client.ask('getstatus')
     assert status['status'] == (STATUS_IDLE, -1)      # execution status
     assert status['script'] == 'NewSetup daemonmain'  # current script
-    assert status['mode']   == MASTER                 # current mode
-    assert status['watch']  == {}                     # no watch expressions
+    assert status['mode'] == MASTER                   # current mode
+    assert status['watch'] == {}                      # no watch expressions
     assert status['setups'][1] == ['daemonmain']      # explicit setups
     assert status['requests'] == []                   # no requests queued
 
@@ -169,7 +168,7 @@ def test_simple():
     client.wait_for_idlesignal(True)
 
 
-@with_setup(partial(loading_setup,'daemonmain'))
+@with_setup(partial(loading_setup, 'daemonmain'))
 def test_encoding():
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
@@ -178,11 +177,12 @@ scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
 ''', 'Meßzeit.py', wait_for_sig=True)
 
 
-@with_setup(partial(loading_setup,'daemonmain'))
+@with_setup(partial(loading_setup, 'daemonmain'))
 def test_htmlhelp():
-    # NOTE: everything run with 'queue' will not show up in the coverage report,
-    # since the _pyctl trace function replaces the trace function from coverage,
-    # so if we want HTML help generation to get into the report we use 'exec'
+    # NOTE: everything run with 'queue' will not show up in the coverage
+    # report, since the _pyctl trace function replaces the trace function from
+    # coverage, so if we want HTML help generation to get into the report we
+    # use 'exec'
     client._signals = []
     client.tell('exec', 'help()')
     for name, data, _exc in client.iter_signals(0, timeout=5.0):
@@ -204,7 +204,7 @@ def test_htmlhelp():
         assert False, 'help request not arrived'
 
 
-@with_setup(partial(loading_setup,'daemonmain'))
+@with_setup(partial(loading_setup, 'daemonmain'))
 def test_simulation():
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
