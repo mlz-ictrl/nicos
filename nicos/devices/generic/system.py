@@ -51,8 +51,8 @@ class FreeSpace(Readable):
     """
 
     parameters = {
-        'path':     Param('The path to the filesystem mount point (or None to '
-                          'check the experiment data directory',
+        'path':     Param('The path to the filesystem mount point (or "None" '
+                          'to check the experiment data directory).',
                           type=none_or(str), default=None),
         'minfree':  Param('Minimum free space for "ok" status',
                           unit='GiB', default=5, settable=True),
