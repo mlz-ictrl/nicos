@@ -72,10 +72,18 @@ devices = dict(
                     coder = 'co_att',
                     obs = [],
                     precision = 0.01,
-                    offset = -0.133, # offset = 0.379, focused before magnet used 16.09.2014
+                    offset = -0.369, # offset = 0.379, focused before magnet used 16.09.2014
 #                   offset = 0.307, # with collimator
                     maxtries = 30,
                    ),
+
+#    att    = device('devices.generic.VirtualMotor',
+#                    description = 'Scattering angle two-theta of analyser',
+#                   ),
+#
+#    ath    = device('devices.generic.VirtualMotor',
+#                    description = 'Scattering angle two-theta of analyser',
+#                   ),
 
     ath    = device('devices.generic.Axis',
                     description = 'Rocking angle theta of analyser',
@@ -83,8 +91,8 @@ devices = dict(
                     coder = 'co_ath',
                     obs = [],
                     precision = 0.01,
-#                   offset = -0.678, #with collimator
-                    offset = -0.946, # offset = -0.719, focussed before magnet used 16.09.2014
+##                   offset = -0.678, #with collimator
+                    offset = -0.470, # offset = -0.719, focussed before magnet used 16.09.2014
                     maxtries = 8,
                    ),
 

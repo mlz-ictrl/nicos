@@ -131,7 +131,8 @@ devices = dict(
                     bus = 'motorbus3',
                     addr = 70,
                     slope = -8192,
-                    zerosteps = 33515429,
+                    zerosteps = 33466203,
+                    circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-) from PANDA
                     unit = 'deg',
                     lowlevel = True,
                    ),
@@ -140,7 +141,8 @@ devices = dict(
                     bus = 'motorbus3',
                     addr = 71,
                     slope = -8192,
-                    zerosteps = 33521006,
+                    zerosteps = 33553860,
+                    circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-) from PANDA
                     unit = 'deg',
                     lowlevel = True,
                    ),
