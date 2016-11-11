@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import time
 
+from functools import partial
 from test.utils import getDaemonPort, raises
 from nose.tools import with_setup
 
@@ -62,7 +63,15 @@ class TestClient(NicosClient):
             if time.time() > starttime + timeout:
                 raise AssertionError('timeout in iter_signals')
 
-    def wait_idle(self, exc=False):
+    def wait_idle(self):
+        while True:
+            time.sleep(0.05)
+            st = client.ask('getstatus')
+            if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
+                break
+
+
+    def wait_for_idlesignal(self, exc=False):
         while True:
             if self._estatus == STATUS_IDLE:
                 break
@@ -72,15 +81,13 @@ class TestClient(NicosClient):
                 break
             time.sleep(0.05)
 
-    def run_and_wait(self, command, name=None):
-        idx = len(client._signals)
+    def run_and_wait(self, command, name=None, wait_for_sig=False):
         self.run(command, name)
-        # wait for daemon to start running
-        for sig in self.iter_signals(idx, 1):
-            if sig[0] == 'status':
-                break
         # wait for idle status
-        self.wait_idle()
+        if wait_for_sig:
+            self.wait_for_idlesignal(exc=True)
+        else:
+            self.wait_idle()
 
 
 client = None
@@ -115,8 +122,8 @@ def finish_simple_mode():
             pass
 
 
-def loading_setup():
-    client.run_and_wait("NewSetup('daemonmain')")
+def loading_setup(setup):
+    client.run_and_wait("NewSetup('%s')" % setup)
 
 
 def test_version():
@@ -159,47 +166,46 @@ def test_simple():
         client.viewonly = False
 
     # wait until command is done
-    client.wait_idle(True)
+    client.wait_for_idlesignal(True)
 
 
-@with_setup(loading_setup)
+@with_setup(partial(loading_setup,'daemonmain'))
 def test_encoding():
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
 scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
-''', 'Meßzeit.py')
+''', 'Meßzeit.py', wait_for_sig=True)
 
 
-@with_setup(loading_setup)
+@with_setup(partial(loading_setup,'daemonmain'))
 def test_htmlhelp():
     # NOTE: everything run with 'queue' will not show up in the coverage report,
     # since the _pyctl trace function replaces the trace function from coverage,
     # so if we want HTML help generation to get into the report we use 'exec'
+    client._signals = []
     client.tell('exec', 'help()')
-    time.sleep(0.05)
-    for sig in client._signals:
-        if sig[0] == 'showhelp':
+    for name, data, _exc in client.iter_signals(0, timeout=5.0):
+        if name == 'showhelp':
             # default help page is the index page
-            assert sig[1][0] == 'index'
-            assert sig[1][1].startswith('<html>')
+            assert data[0] == 'index'
+            assert data[1].startswith('<html>')
             break
     else:
         assert False, 'help request not arrived'
+    client._signals = []
     client.tell('exec', 'help(t_phi)')
-    time.sleep(0.05)
-    for sig in client._signals:
-        if sig[0] == 'showhelp' and sig[1][0] == 'dev:t_phi':
+    for name, data, _exc in client.iter_signals(0, timeout=5.0):
+        if name == 'showhelp' and data[0] == 'dev:t_phi':
             # default help page is the index page
-            assert sig[1][1].startswith('<html>')
+            assert data[1].startswith('<html>')
             break
     else:
         assert False, 'help request not arrived'
 
 
-@with_setup(loading_setup)
+@with_setup(partial(loading_setup,'daemonmain'))
 def test_simulation():
-    client.run_and_wait("NewSetup('daemonmain')")
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
     for name, _data, _exc in client.iter_signals(idx, timeout=5.0):
