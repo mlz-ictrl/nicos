@@ -27,7 +27,7 @@ name = 'test_data setup'
 includes = ['stdsystem', 'scanning']
 
 sinklist = ['testsink1', 'testsink2', 'asciisink', 'consolesink', 'daemonsink',
-            'livesink', 'rawsink', 'srawsink', 'bersanssink']
+            'livesink', 'rawsink', 'srawsink', 'bersanssink', 'serialsink',]
 
 # These sinks cannot be created if the modules are not present.
 # Omit them from the datasinks list in that case.
@@ -60,6 +60,7 @@ devices = dict(
     testsink2   = device('test.utils.TestSink',
                          settypes = ['point'],
                          detectors = ['det']),
+    serialsink  = device('nicos.devices.datasinks.SerializedSink'),
     asciisink   = device('nicos.devices.datasinks.AsciiScanfileSink'),
     consolesink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink  = device('nicos.devices.datasinks.DaemonSink'),

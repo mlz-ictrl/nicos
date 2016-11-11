@@ -49,9 +49,12 @@ except ImportError:
     yaml = None
 
 from nicos import session, config
+from nicos.pycompat import cPickle as pickle
 from nicos.utils import readFile, updateFileCounter
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
+
+from nose.tools import assert_raises
 
 from test.utils import requires, checkResponse, cleanLog
 
@@ -202,6 +205,32 @@ def test_bersans_sink():
     assert 'User=testuser' in contents  # BerSANS headers
     assert 'Exp_proposal=p1234' in contents  # NICOS headers
     assert ('0,' * 127 + '0') in contents  # data
+
+
+def test_serialized_sink():
+    serial_file = path.join(session.experiment.datapath, '.all_datasets')
+    assert path.isfile(serial_file)
+    try:
+        with open(serial_file, 'rb') as fp:
+            datasets = pickle.load(fp)
+    except Exception:
+        assert False, 'could not read serialized sink'
+    assert len(datasets) == 1
+    assert datasets[43]
+    assert_raises(KeyError, lambda: datasets[41])
+    data = datasets[43]
+    assert data.samplecounter == 1
+    assert data.counter == 43
+    assert data.propcounter == 1
+    assert data.samplecounter == 1
+    assert data.number == 0
+    assert data.started
+    assert data.finished
+    assert data.info == 'scan(motor2, 0, 1, 5, det, tdev, t=0.005)'
+    assert len(data.metainfo)
+    assert len(data.envvaluelists)
+    assert len(data.devvaluelists)
+    assert len(data.detvaluelists)
 
 
 @requires(PIL, 'PIL library missing')
