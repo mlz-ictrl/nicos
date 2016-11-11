@@ -78,9 +78,9 @@ class Wavelength(HasLimits, Moveable):
             }
 
     def _isAt(self, target, value):
-        self.log.debug('%f - %f : %f' % (target, value, self.precision))
+        self.log.debug('%f - %f : %f', target, value, self.precision)
         ret = abs(target - value) <= self.precision
-        self.log.debug('%r' % ret)
+        self.log.debug('%r', ret)
         return ret
 
     def _d(self, maxage=0):
@@ -116,7 +116,7 @@ class Wavelength(HasLimits, Moveable):
 
     def doStart(self, target):
         mono = (asin(target / (2 * self._d(0))) / pi * 360. - self._n) / self._m
-        self.log.info(self._attached_base, 'would be moved to %.3f' % mono)
+        self.log.info('%s would be moved to %.3f', self._attached_base, mono)
         # self._attached_base.start(mono)
 
     def doStop(self):

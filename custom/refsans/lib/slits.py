@@ -143,12 +143,12 @@ class Slit(CanReference, Moveable):
         # sanity checks (raising here would prevent the device from being
         #                created, so you can adjust the wrong value!)
         if self.leftshape not in self.leftshapes:
-            self.log.warning('unknown left shape %r, using %r instead' % \
-                             (self.leftshape, list(self.leftshapes)[0]))
+            self.log.warning('unknown left shape %r, using %r instead',
+                             self.leftshape, list(self.leftshapes)[0])
             self._setROParam('leftshape', list(self.leftshapes)[0])
         if self.rightshape not in self.rightshapes:
-            self.log.warning('unknown right shape %r, using %r instead' % \
-                             (self.rightshape, list(self.rightshapes)[0]))
+            self.log.warning('unknown right shape %r, using %r instead',
+                             self.rightshape, list(self.rightshapes)[0])
             self._setROParam('rightshape', list(self.rightshapes)[0])
 
         # init private stuff
@@ -225,10 +225,10 @@ class Slit(CanReference, Moveable):
     def doReference(self):
         for m in self._motors:
             if isinstance(m, CanReference):
-                self.log.info('referencing %s...' % m)
+                self.log.info('referencing %s...', m)
                 m.reference()
             else:
-                self.log.warning('%s cannot be referenced!' % m)
+                self.log.warning('%s cannot be referenced!', m)
 
     def valueInfo(self):
         if self.opmode == RAW:

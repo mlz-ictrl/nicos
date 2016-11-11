@@ -146,7 +146,7 @@ class SimulationSession(Session):
 
             # Load the setups from the original system, this should give the
             # information about the cache address.
-            session.log.info('loading simulation mode setups: %s' %
+            session.log.info('loading simulation mode setups: %s',
                              ', '.join(setups))
             session.loadSetup(setups, allow_startupcode=False)
 

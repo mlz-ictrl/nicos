@@ -76,14 +76,14 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         for i in range(max(1, self.comtries) - 1, -1, -1):
             try:
                 reply = str(self._client.communicate(msg))
-                self.log.debug('cascade reply: %r; expected was: %r' %
-                               (reply, expectedReply))
+                self.log.debug('cascade reply: %r; expected was: %r',
+                               reply, expectedReply)
                 if expectedReply and reply != expectedReply:
                     self._raise_reply(errMsg, reply)
                 return reply
             except CommunicationError as e:
-                self.log.warning('Communication failed: %s; reset and retry' %
-                                 str(e))
+                self.log.warning('Communication failed: %s; reset and retry',
+                                 e)
                 if i:
                     self.reset()
                     sleep(self.comdelay)
@@ -109,7 +109,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         st = self._client.communicate('CMD_status_cdr')
         if st == '':
             raise CommunicationError(self, 'no response from server')
-        # self.log.debug('got status %r' % st)
+        # self.log.debug('got status %r', st)
         return dict(v.split('=') for v in str(st[4:]).split(' '))
 
     #
@@ -173,7 +173,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         else:
             raise CommunicationError(self, 'could not connect to server')
         # reset parameters in case the server forgot them
-        self.log.info('re-setting to %s mode' % self.mode.upper())
+        self.log.info('re-setting to %s mode', self.mode.upper())
         self.doWriteMode(self.mode)
         self.doWritePreselection(self.preselection)
 

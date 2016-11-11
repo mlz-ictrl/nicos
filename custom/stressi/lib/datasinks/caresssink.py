@@ -347,7 +347,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 elif device == 'transm':
                     d1[device] = session.getDevice('transm'). \
                         _attached_moveable.read()
-                    self.log.debug('TRANSM value %f' % d1[device])
+                    self.log.debug('TRANSM value %f', d1[device])
                 elif device == 'wav':
                     d1[device] = value or 0.
                 elif device not in ['UBahn', 'wav', 'ysd']:
@@ -385,8 +385,8 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
-        self.log.debug('detector %r' % detector)
-        self.log.debug('init: %r' % dataset.settype)
+        self.log.debug('detector %r', detector)
+        self.log.debug('init: %r', dataset.settype)
         self._file = None
         self._fname = None
         self._template = sink.filenametemplate
@@ -394,7 +394,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._scan_file = False
 
     def prepare(self):
-        self.log.debug('prepare: %r' % self.dataset.settype)
+        self.log.debug('prepare: %r', self.dataset.settype)
         session.data.assignCounter(self.dataset)
         _file = None
         if self.dataset.settype == SCAN:
@@ -406,8 +406,8 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 #                                               self._template[0])
         if _file:
             self._file = _file
-        self.log.debug('%s %r %r' % (self.dataset.settype, self._scan_file,
-                                     self._file.filepath))
+        self.log.debug('%s %r %r', self.dataset.settype, self._scan_file,
+                       self._file.filepath)
 
     def begin(self):
         ds = self.dataset
@@ -429,10 +429,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._lastdetvalues = np.zeros(256 * 256).reshape((256, 256))
 
     def putMetainfo(self, metainfo):
-        self.log.debug('put meta info: %r' % metainfo)
+        self.log.debug('put meta info: %r', metainfo)
         for dev, key in metainfo:
-            self.log.debug('put meta info: %s.%s = %r' %
-                           (dev, key, metainfo[dev, key][0]))
+            self.log.debug('put meta info: %s.%s = %r',
+                           dev, key, metainfo[dev, key][0])
         self._write_header(metainfo)
         return
 
@@ -462,7 +462,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         if self._scan_type != 'SGEN2':
             if 'presets' in bycategory:
                 for device, key, value in bycategory['presets']:
-                    # self.log.info('%s.%s = %r' % (device, key, value))
+                    # self.log.info('%s.%s = %r', device, key, value)
                     if device == 'adet' and key == 'preset':
                         if self.dataset.metainfo[device, 'mode'][1] == 'time':
                             master = 'TIM1'
@@ -519,15 +519,14 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def putValues(self, value):
         if self.dataset.settype == POINT:
             return
-        self.log.info('put values (%s): %r' % (self.dataset.settype, value))
+        self.log.info('put values (%s): %r', self.dataset.settype, value)
 
     def addSubset(self, point):
-        self.log.debug('add subset: %s' % point.settype)
+        self.log.debug('add subset: %s', point.settype)
         if point.settype != POINT:
             return
 
-        self.log.debug('%r - %r' % (self.dataset.detvalueinfo,
-                                    point.detvaluelist))
+        self.log.debug('%r - %r', self.dataset.detvalueinfo, point.detvaluelist)
 
         # the image data are hopefully always at this place
         try:
@@ -547,12 +546,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self._detvalues = detvalues - self._lastdetvalues
                 self._lastdetvalues = detvalues
             else:
-                self.log.error('%r %r' % (detvalues.shape,
-                                            self._lastdetvalues.shape))
+                self.log.error('%r %r', detvalues.shape,
+                               self._lastdetvalues.shape)
         else:
             self._detvalues = detvalues
 
-        self.log.debug('storing results %r' % self._detvalues)
+        self.log.debug('storing results %r', self._detvalues)
 
         self._write_header(point.metainfo)
 
@@ -576,7 +575,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             chis = 0
         self._write_float(tths)
         for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
-            self.log.debug('%s: %r' % (info.type, val))
+            self.log.debug('%s: %r', info.type, val)
             if info.type == 'counter':
                 addvalues = (tths, )
                 buf = '%c' % 0x80
@@ -587,7 +586,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 if self._detvalues is None:
                     self.log.error('No detector data!')
                 else:
-                    self.log.debug('%r' % self._detvalues.size)
+                    self.log.debug('%r', self._detvalues.size)
                     buf += '%s%c' % (self._len(self._detvalues.size), 0x81)
                 buf += '%s' % self._len(1)
                 for v in addvalues:
@@ -609,7 +608,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._detvalues = None
 
     def putResults(self, quality, results):
-        self.log.info('put results (%r): %r' % (quality, results))
+        self.log.info('put results (%r): %r', quality, results)
         if quality != FINAL and self.dataset.settype != POINT:
             return
 

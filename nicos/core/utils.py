@@ -276,7 +276,7 @@ def _multiMethod(baseclass, method, devices):
             if not first_exc:
                 first_exc = sys.exc_info()
             else:
-                dev.log.exception('during %s()' % method)
+                dev.log.exception('during %s()', method)
     if first_exc:
         reraise(*first_exc)
 
@@ -435,7 +435,7 @@ class DeviceValueDict(object):
                                 pass
                         # TODO: handle kwargs
                         args = tuple(args)
-                        session.log.debug('calling %s%r' % (dev, args))
+                        session.log.debug('calling %s%r', dev, args)
                         dev = dev(*args)
                     elif hasattr(dev, sub):
                         dev = getattr(dev, sub)
@@ -445,15 +445,15 @@ class DeviceValueDict(object):
                         dev = dev[sub]
                     else:
                         session.log.warning("invalid key %r requested, "
-                                            "returning %r" % (key, res),
+                                            "returning %r", key, res,
                                             exc=1)
                         break
                 else:
                     # stringify result
                     res = str(dev)
         except Exception:
-            session.log.warning("invalid key %r requested, returning %r" %
-                                (key, res), exc=1)
+            session.log.warning("invalid key %r requested, returning %r",
+                                key, res, exc=1)
         if isinstance(res, bytes):
             res = to_ascii_escaped(res)
         if isinstance(res, DeviceValue):

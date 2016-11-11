@@ -264,7 +264,7 @@ class MultiSwitcher(MappedMoveable):
                 raise InvalidValueError(self, 'target value %r not accepted '
                                         'by device %s' % (t, d.name))
         for d, t in zip(moveables, target):
-            self.log.debug('moving %r to %r' % (d, t))
+            self.log.debug('moving %r to %r', d, t)
             d.start(t)
         if self.blockingmove:
             multiWait(moveables)

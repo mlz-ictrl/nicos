@@ -82,9 +82,9 @@ class RefAxis(Axis):
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
-                self.log.info(self, 'would reference')
+                self.log.info('would reference')
             else:
-                self.log.error(self, 'Can\'t reference if not in master or '
+                self.log.error('Can\'t reference if not in master or '
                                'maintenance mode!')
             return
 
@@ -132,14 +132,14 @@ class RefAxis(Axis):
                           'refswitch')
             steps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200]
             for stepsize in steps:
-                self.log.debug('trying %s' % self.format(stepsize, unit=True))
+                self.log.debug('trying %s', self.format(stepsize, unit=True))
                 m.doStart(m.doRead() + stepsize)
                 wait_for_motor(m)
                 if not refsw(m):
                     break
             else:
                 self.log.error('Referencing: RefSwitch still active after '
-                               '%.1f %s, exiting!' % (sum(steps), self.unit))
+                               '%.1f %s, exiting!', sum(steps), self.unit)
                 self.start(oldpos)
                 return
 
@@ -149,7 +149,7 @@ class RefAxis(Axis):
             tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
             while not(refsw(m)) and tries > 0:
-                self.log.debug('Another %d slots left to try' % tries)
+                self.log.debug('Another %d slots left to try', tries)
                 try:
                     m.doStart(m.doRead() - stepsize / 3.)  # pylint: disable=W0631
                 except NicosError:
@@ -162,8 +162,7 @@ class RefAxis(Axis):
             m.speed = oldspeed
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after '
-                               '%.1f %s, exiting!' % (self.wraparound,
-                                                      self.unit))
+                               '%.1f %s, exiting!', self.wraparound, self.unit)
                 self.start(oldpos)
                 return
 
@@ -171,19 +170,18 @@ class RefAxis(Axis):
             # => we are at refpos, communicate this to the motor
             self.poll()
             self.log.info('Found Refswitch at %.2f, should have been at %.2f, '
-                          'lost %.3f %s' % (m.doRead(), self.refpos,
-                                            m.doRead() - self.refpos,
-                                            self.unit))
+                          'lost %.3f %s', m.doRead(), self.refpos,
+                          m.doRead() - self.refpos, self.unit)
 
             for d in devIter(self._adevs):
                 if hasattr(d, 'setPosition'):
                     try:
                         d.setPosition(self.refpos)
                     except NicosError as e:
-                        self.log.error(e)
+                        self.log.error(str(e))
             self.poll()
 
-            self.log.info('Referenced, moving to position (%.2f)...' % oldpos)
+            self.log.info('Referenced, moving to position (%.2f)...', oldpos)
             self.start(oldpos)
             self._moves = 0
         finally:
@@ -254,9 +252,9 @@ class RotAxis(RefAxis):
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
-                self.log.info(self, 'would reference')
+                self.log.info('would reference')
             else:
-                self.log.error(self, 'Can\'t reference if not in master or '
+                self.log.error('Can\'t reference if not in master or '
                                'maintenance mode!')
             return
 
@@ -307,16 +305,15 @@ class RotAxis(RefAxis):
             self.log.info('Referencing: FAST Mode: looking for inactive '
                           'refswitch')
             while refsw(m) and tries > 0:
-                self.log.debug('Another %d 10 %s slots left to try' %
-                               (tries, self.unit))
+                self.log.debug('Another %d 10 %s slots left to try',
+                               tries, self.unit)
                 # This should never fail unless something is broken
                 m.doStart(m.doRead() + 10)
                 wait_for_motor(m)
                 tries -= 1
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still active after '
-                               '%.1f %s, exiting!' % (self.wraparound,
-                                                      self.unit))
+                               '%.1f %s, exiting!', self.wraparound, self.unit)
                 self.doStart(oldpos)
                 return
 
@@ -326,8 +323,8 @@ class RotAxis(RefAxis):
             tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
             while not(refsw(m)) and tries > 0:
-                self.log.debug('Another %d 3 %s slots left to try'
-                               % (tries, self.unit))
+                self.log.debug('Another %d 3 %s slots left to try',
+                               tries, self.unit)
                 try:
                     m.doStart(m.doRead() - 3)
                 except NicosError:
@@ -340,8 +337,7 @@ class RotAxis(RefAxis):
             m.speed = oldspeed
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after '
-                               '%.1f %s, exiting!' % (self.wraparound,
-                                                      self.unit))
+                               '%.1f %s, exiting!', self.wraparound, self.unit)
                 self.doStart(oldpos)
                 return
 
@@ -349,20 +345,19 @@ class RotAxis(RefAxis):
             # => we are at refpos, communicate this to the motor
             self.poll()
             self.log.info('Found Refswitch at %.1f, should have been at %.1f, '
-                          'lost %.2f %s' % (m.doRead() % self.wraparound,
-                                            self.refpos, abs(m.doRead() %
-                                                             self.wraparound -
-                                                             self.refpos),
-                                            self.unit))
+                          'lost %.2f %s',
+                          m.doRead() % self.wraparound, self.refpos,
+                          abs(m.doRead() % self.wraparound - self.refpos),
+                          self.unit)
             for d in devIter(self._adevs):
                 if hasattr(d, 'setPosition'):
                     try:
                         d.setPosition(self.refpos)
                     except NicosError as e:
-                        self.log.error(e)
+                        self.log.error(str(e))
             self.poll()
 
-            self.log.info('Referenced, moving to position (%.2f)...' % oldpos)
+            self.log.info('Referenced, moving to position (%.2f)...', oldpos)
             self.start(oldpos)
             self._moves = 0
         finally:

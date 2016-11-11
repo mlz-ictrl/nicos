@@ -152,7 +152,7 @@ class Experiment(BaseExperiment):
         kwds['user_email'] = info.get('user_email', '')
         # display info about values we got.
         if what:
-            self.log.info('Filled in %s from proposal database' %
+            self.log.info('Filled in %s from proposal database',
                           ', '.join(what))
         # make sure we can relay on certain fields to be set, even if they are
         # not in the DB
@@ -217,8 +217,8 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
 
         Experiment.newSample(self, parameters)
 
-        self.log.debug('new sample path: %s' % self.samplepath)
-        self.log.debug('new data path: %s' % self.datapath)
-        self.log.debug('new dark image path: %s' % self.darkimagedir)
-        self.log.debug('new open beam image path: %s' % self.openbeamdir)
-        self.log.debug('new measurement image path: %s' % self.photodir)
+        self.log.debug('new sample path: %s', self.samplepath)
+        self.log.debug('new data path: %s', self.datapath)
+        self.log.debug('new dark image path: %s', self.darkimagedir)
+        self.log.debug('new open beam image path: %s', self.openbeamdir)
+        self.log.debug('new measurement image path: %s', self.photodir)

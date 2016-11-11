@@ -65,7 +65,7 @@ class Logbook(BaseCacheClient):
         try:
             trylock()
         except CacheLockError as err:
-            self.log.info('another elog is already active: %s' %
+            self.log.info('another elog is already active: %s',
                           sessionInfo(err.locked_by))
             sys.exit(-1)
         else:
@@ -93,13 +93,13 @@ class Logbook(BaseCacheClient):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
-        # self.log.info('got %s=%r' % (key, value))
+        # self.log.info('got %s=%r', key, value)
         if key in self._handler.handlers:
             try:
                 value = cache_load(value)
                 self._handler.handlers[key](time, value)
             except Exception:
-                self.log.exception('Error in handler for: %s=%r' % (key, value))
+                self.log.exception('Error in handler for: %s=%r', key, value)
 
     def _wait_data(self):
         if self._islocked:

@@ -224,8 +224,8 @@ class DeviceMeta(DeviceMixinMeta):
                             if value != oldvalue:
                                 valuestr = self.formatParam(param, value)
                                 oldvstr = self.formatParam(param, oldvalue)
-                                self.log.info('%s set to %s (was %s)' %
-                                              (param, valuestr, oldvstr))
+                                self.log.info('%s set to %s (was %s)',
+                                              param, valuestr, oldvstr)
                         self._params[param] = value
                         return
                     oldvalue = getattr(self, param)
@@ -240,8 +240,8 @@ class DeviceMeta(DeviceMixinMeta):
                         if value != oldvalue:
                             valuestr = self.formatParam(param, value)
                             oldvstr = self.formatParam(param, oldvalue)
-                            self.log.info('%s set to %s (was %s)' %
-                                          (param, valuestr, oldvstr))
+                            self.log.info('%s set to %s (was %s)',
+                                          param, valuestr, oldvstr)
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)
@@ -532,8 +532,8 @@ class Device(object):
                         value = self._validateType(value, param, paraminfo)
                     except ConfigurationError as e:
                         self.log.warning('value of %s from cache (%r) is invalid: %r'
-                                         ' using default handling instead.' %
-                                         (param, value, e))
+                                         ' using default handling instead.',
+                                         param, value, e)
                         value = Ellipsis
             if value is not Ellipsis:
                 if param in self._ownparams:
@@ -553,20 +553,20 @@ class Device(object):
                             self.log.warning(
                                 'value of %s from cache (%s) differs from '
                                 'configured value (%s), using configured '
-                                'since it was changed in the setup file' %
-                                (param, valuestr, cfgvstr))
+                                'since it was changed in the setup file',
+                                param, valuestr, cfgvstr)
                             value = cfgvalue
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
                                 'value of %s from cache (%s) differs from '
-                                'configured value (%s), using cached' %
-                                (param, valuestr, cfgvstr))
+                                'configured value (%s), using cached',
+                                param, valuestr, cfgvstr)
                         else:
                             self.log.warning(
                                 'value of %s from cache (%s) differs from '
-                                'configured value (%s), using configured' %
-                                (param, valuestr, cfgvstr))
+                                'configured value (%s), using configured',
+                                param, valuestr, cfgvstr)
                             value = cfgvalue
                             self._cache.put(self, param, value)
                 elif not paraminfo.settable and paraminfo.prefercache is False:
@@ -581,8 +581,8 @@ class Device(object):
                         defvstr = self.formatParam(param, paraminfo.default)
                         self.log.warning(
                             'value of %s from cache (%s) differs from '
-                            'default value (%s), using default' %
-                            (param, valuestr, defvstr))
+                            'default value (%s), using default',
+                            param, valuestr, defvstr)
                         value = paraminfo.default
                         self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
@@ -594,8 +594,8 @@ class Device(object):
                 notfromcache.append(param)
             if paraminfo.category is not None:
                 if paraminfo.category not in ALLOWED_CATEGORIES:
-                    self.log.error('parameter %s uses illegal category %r!' %
-                                   (param, paraminfo.category))
+                    self.log.error('parameter %s uses illegal category %r!',
+                                   param, paraminfo.category)
                 else:
                     self._infoparams.append((paraminfo.category, param,
                                              paraminfo.unit))
@@ -618,7 +618,7 @@ class Device(object):
 
         # warn about parameters that weren't present in cache
         if self._cache and notfromcache:
-            self.log.info('these parameters were not present in cache: ' +
+            self.log.info('these parameters were not present in cache: %s',
                           ', '.join(notfromcache))
 
         self._infoparams.sort()
@@ -674,7 +674,7 @@ class Device(object):
                 value = rmethod()
             except NicosError:
                 self.log.warning('could not read initial value for parameter '
-                                 '%s from device' % param)
+                                 '%s from device', param)
             else:
                 done = True
         if not done and param in self._params:
@@ -784,8 +784,7 @@ class Device(object):
             try:
                 parvalue = getattr(self, name)
             except Exception as err:
-                self.log.warning('error getting %s parameter' %
-                                 name, exc=err)
+                self.log.warning('error getting %s parameter', name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
             ret.append((name, parvalue,
@@ -978,8 +977,8 @@ class Readable(Device):
             # save the last known value
             try:
                 self._sim_value = self.read()  # cached value is ok here
-                self.log.debug('last value before simulation mode is %r' %
-                               (self._sim_value,))
+                self.log.debug('last value before simulation mode is %r',
+                               self._sim_value)
             except Exception as err:
                 self.log.warning('error reading last value', exc=err)
         self._sim_active = sim_active
@@ -1337,10 +1336,11 @@ class Waitable(Readable):
             try:
                 position = self.read(0)
             except Exception:
-                self.log.debug('isCompleted: status %r' % formatStatus(st))
+                self.log.debug('isCompleted: status %r', formatStatus(st))
             else:
-                self.log.debug('isCompleted: status %r at %s' % (
-                    formatStatus(st), self.format(position, unit=True)))
+                self.log.debug('isCompleted: status %r at %s',
+                               formatStatus(st),
+                               self.format(position, unit=True))
         if st[0] in self.busystates:
             return False
         elif st[0] in self.errorstates:
@@ -1433,11 +1433,13 @@ class Moveable(Waitable):
                     self.userlimits = restricted_limits
             else:
                 if umin < amin:
-                    self.log.warning('user minimum (%s) below absolute minimum (%s), '
-                                     'please check and re-set limits' % (umin, amin))
+                    self.log.warning('user minimum (%s) below absolute '
+                                     'minimum (%s), please check and re-set '
+                                     'limits', umin, amin)
                 if umax > amax:
-                    self.log.warning('user maximum (%s) above absolute maximum (%s), '
-                                     'please check and re-set limits' % (umax, amax))
+                    self.log.warning('user maximum (%s) above absolute '
+                                     'maximum (%s), please check and re-set '
+                                     'limits', umax, amax)
             if self._mode == SIMULATION:
                 # special case: in simulation mode, doReadUserlimits is not called,
                 # so the limits are not set from the absolute limits, and are always
@@ -1501,11 +1503,11 @@ class Moveable(Waitable):
                 # this may raise if the position values are not numbers
                 if abs(self.read() - pos) <= getattr(self, 'precision', 0):
                     self.log.debug('device fixed; start() allowed since '
-                                   'already at desired position %s' % pos)
+                                   'already at desired position %s', pos)
                     return
             except Exception:
                 pass
-            self.log.warning('device fixed, not moving: %s' % self.fixed)
+            self.log.warning('device fixed, not moving: %s', self.fixed)
             return
         if self.requires:
             try:
@@ -1598,9 +1600,9 @@ class Moveable(Waitable):
         pos = self.read(0)
         # check reached value to be equal to target
         if not self.isAtTarget(pos):
-            self.log.warning('did not reach target %s, last value is %s'
-                             % (self.format(self.target, unit=True),
-                                self.format(pos, unit=True)))
+            self.log.warning('did not reach target %s, last value is %s',
+                             self.format(self.target, unit=True),
+                             self.format(pos, unit=True))
 
     def isAtTarget(self, pos):
         """Check if the device has arrived at its target.
@@ -1665,7 +1667,7 @@ class Moveable(Waitable):
         elif self._sim_active:
             return
         if self.fixed:
-            self.log.debug('device fixed, not stopping: %s' % self.fixed)
+            self.log.debug('device fixed, not stopping: %s', self.fixed)
             return
         if self.requires:
             try:
@@ -1691,7 +1693,7 @@ class Moveable(Waitable):
         eu = session.getExecutingUser()
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
-            self.log.error('device was fixed by %r already' % self.fixedby[0])
+            self.log.error('device was fixed by %r already', self.fixedby[0])
             return False
         else:
             if self.status()[0] == status.BUSY:
@@ -1711,7 +1713,7 @@ class Moveable(Waitable):
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
             self.log.error('device was fixed by %r and you are not allowed '
-                           'to release it' % self.fixedby[0])
+                           'to release it', self.fixedby[0])
             return False
         else:
             self._setROParam('fixed', '')
@@ -2149,7 +2151,7 @@ class DeviceAlias(Device):
             self._cls = session._nicos_import(modname, clsname)
         except Exception:
             self.log.warning('could not import class %r; using Device as the '
-                             'alias devclass', exc=1)
+                             'alias devclass', devclass, exc=1)
             self._cls = Device
         Device.__init__(self, name, **config)
         # update the configured alias device - we do this after the init
@@ -2218,15 +2220,15 @@ class DeviceAlias(Device):
         for target, _ in session.alias_config.get(self._name, []):
             if target != devname and target in session.configured_devices:
                 self.log.warning('could not find aliased device %s, '
-                                 'pointing to %s instead' % (devname, target))
+                                 'pointing to %s instead', devname, target)
                 new_target = target
                 break
         else:
             # then, check the config file
             fromconfig = self._config.get('alias', '')
             self.log.warning('could not find aliased device %s, pointing '
-                             'to target from setup file (%s)' %
-                             (devname, fromconfig or 'nothing'))
+                             'to target from setup file (%s)',
+                             devname, fromconfig or 'nothing')
             new_target = fromconfig
         # if we have a potential new target, check if we can get hold of it
         if new_target:
@@ -2235,8 +2237,8 @@ class DeviceAlias(Device):
                                   source=self)
             except Exception:
                 # all hope is lost!
-                self.log.warning('could not find %s either, pointing to nothing'
-                                 % new_target)
+                self.log.warning('could not find %s either, pointing to '
+                                 'nothing', new_target)
                 new_target = ''
         # now make the new choice of alias permanent, including in the cache
         # (which we must do with _setROParam since we might not be master yet)

@@ -67,7 +67,6 @@ disable=access-member-before-definition
         ,protected-access
         ,redefined-outer-name
         ,broad-except
-        ,logging-not-lazy
         ,no-self-use
         ,duplicate-code
         ,bad-continuation
@@ -171,7 +170,7 @@ notes=FIXME,XXX,TODO
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format
-logging-modules=logging
+logging-modules=logging, nicos.utils.loggers
 
 
 [BASIC]

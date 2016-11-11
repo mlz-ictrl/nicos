@@ -52,7 +52,7 @@ class TubeConditioner(PyTangoDevice, Moveable):
     def doStart(self, value):
         interval = self._attached_interval.read()
         if value < 0 or value > interval:
-            self.log.warning('Value must be in [0; %.3f]' % interval)
+            self.log.warning('Value must be in [0; %.3f]', interval)
         elif self._attached_time.read(0) + value > interval:
             self.log.debug('Start cond')
             self._dev.StartCond()

@@ -99,7 +99,7 @@ class NOKMonitoredVoltage(AnalogInput):
                                            (value, self.reflimits[0]))
             if abs(value) < self.reflimits[1]:
                 self.log.warning('Reference voltage (%.2f) seems rather low, should be '
-                                  'above %.2f' % (value, self.reflimits[1]))
+                                 'above %.2f', value, self.reflimits[1])
         return value
 
     def doStatus(self, maxage=0):
@@ -161,16 +161,16 @@ class NOKPosition(Coder):
         poti = self._attached_measure.read(maxage)
         ref = self._attached_reference.read(maxage)
 
-        self.log.debug('Poti vs. Reference value: %f / %f' %(poti, ref))
+        self.log.debug('Poti vs. Reference value: %f / %f', poti, ref)
 
         # apply simple scaling
         value = poti / ref
 
-        self.log.debug('uncorrected value: %f' % value)
+        self.log.debug('uncorrected value: %f', value)
         result = 0.
         for i, ai in enumerate(self.poly):
             result += ai * (value ** i)
-        self.log.debug('final result: %f' % result)
+        self.log.debug('final result: %f', result)
 
         return result
 

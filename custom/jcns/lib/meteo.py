@@ -79,7 +79,7 @@ class MeteoStation(HasOffset, Readable):
         if _thirdparty_available:
             res = requests.get(_REST_URL + '/' + self.location + '/' +
                                self.query + "/by-height/%.1f" % self.height)
-            self.log.debug("REST-statuscode: %d" % res.status_code)
+            self.log.debug("REST-statuscode: %d", res.status_code)
             if res.status_code == 200:
                 result = res.json()[MeteoStation._MAP_REST[self.query]]["value"]
                 self._status = status.OK, ''
@@ -91,7 +91,7 @@ class MeteoStation(HasOffset, Readable):
         return result
 
     def doRead(self, maxage=0):
-        self.log.debug("maxage=%d" % maxage)
+        self.log.debug("maxage=%d", maxage)
         result = self._query()
         if result is not None:
             result += self.offset
@@ -103,7 +103,7 @@ class MeteoStation(HasOffset, Readable):
         return self._status
 
     def doWriteUnit(self, value):
-        self.log.debug("unit=%s" % str(value))
+        self.log.debug("unit=%s", value)
         if value == 'K':
             self.offset = 273.15
         else:

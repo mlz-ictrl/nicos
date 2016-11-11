@@ -127,7 +127,7 @@ class Detector(MeasureSequencer):
         self._det_run = False
         imgret = self._attached_detector.readArrays(FINAL)[0].astype('<u4',
                                                                      order='F')
-        # self.log.info('%r' % (imgret,))
+        # self.log.info('%r', imgret)
         self._array_data[self._step::self.resosteps] = imgret
 
     def _incStep(self):
@@ -144,9 +144,9 @@ class Detector(MeasureSequencer):
         self._det_run = True
 
     def doReadArrays(self, quality):
-        self.log.debug('doReadArrays: %d/%d: %d, %r' % (
-            self._step, self.resosteps, self._array_data.sum(),
-            self._array_data.shape))
+        self.log.debug('doReadArrays: %d/%d: %d, %r',
+                       self._step, self.resosteps, self._array_data.sum(),
+                       self._array_data.shape)
         return [self._array_data]
 
     def _generateSequence(self, *args, **kwargs):
@@ -210,8 +210,8 @@ class Detector(MeasureSequencer):
             self._array_data.fill(0)
         if self._mode != SIMULATION:
             self._cache.put(self, 'fmtstr', self._fmtstr(value))
-        self.log.debug('%r' % self._arraydesc)
-        self.log.debug('stepsize: %f' % self._step_size)
+        self.log.debug('%r', self._arraydesc)
+        self.log.debug('stepsize: %f', self._step_size)
 
     def doWriteResosteps(self, value):
         self._set_resosteps(value)

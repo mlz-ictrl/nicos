@@ -264,10 +264,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         tt, th = self._get_angles(0)
         if abs(tt - 2.0*th) > self._axisprecision:
             self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
-                             '%s = 2 * %s' % (tt, 2.0*th, th))
-            self.log.info('precisions: tt:%s, th:%s, combined: %s' % (
-                self._attached_twotheta.precision,
-                self._attached_theta.precision, self._axisprecision))
+                             '%s = 2 * %s', tt, 2.0*th, th)
+            self.log.info('precisions: tt:%s, th:%s, combined: %s',
+                          self._attached_twotheta.precision,
+                          self._attached_theta.precision, self._axisprecision)
 
     def doReadPrecision(self):
         if not hasattr(self, 'scatteringsense'):

@@ -115,19 +115,19 @@ class Channel(ActiveChannel):
         self._cid = c_id
 
         is_status = self._caressObject.is_status_module(self._cid)
-        self.log.debug('Status module: %r' % (is_status,))
+        self.log.debug('Status module: %r', is_status)
 
         is_readable = self._caressObject.is_readable_module(self._cid)
-        self.log.debug('Readable module: %r' % (is_readable,))
+        self.log.debug('Readable module: %r', is_readable)
 
         is_drivable = self._caressObject.is_drivable_module(self._cid)
-        self.log.debug('Driveble module: %r' % (is_drivable,))
+        self.log.debug('Driveble module: %r', is_drivable)
 
         is_counting = self._caressObject.is_counting_module(self._cid)
-        self.log.debug('Counting module: %r' % (is_counting,))
+        self.log.debug('Counting module: %r', is_counting)
 
         needs_reference = self._caressObject.needs_reference_module(self._cid)
-        self.log.debug('Needs reference module: %r' % (needs_reference,))
+        self.log.debug('Needs reference module: %r', needs_reference)
 
         if not is_readable or not is_counting:
             raise ConfigurationError(self, 'Object is not a readable counting'
@@ -135,22 +135,22 @@ class Channel(ActiveChannel):
         try:
             result = self._caressObject.get_attribute(self._cid,
                                                       'detector_channels')
-            self.log.debug('Get attribute "detector_channels": %r' % (result,))
+            self.log.debug('Get attribute "detector_channels": %r', result)
         except CARESS.ErrorDescription as ex:
-            self.log.info('Attribute "detector_channels" not found: %s' % ex)
+            self.log.info('Attribute "detector_channels" not found: %s', ex)
 
         try:
             result = self._caressObject.get_attribute(self._cid,
                                                       'detector_pixelwidth')
-            self.log.debug('Get attribute "detector_pixelwidth": %r' % result)
+            self.log.debug('Get attribute "detector_pixelwidth": %r', result)
         except CARESS.ErrorDescription as ex:
-            self.log.info('Attribute "detector_pixelwidth" not found: %s' % ex)
+            self.log.info('Attribute "detector_pixelwidth" not found: %s', ex)
 
         self._initialized = False
 
     def _init(self, mode):
         result = self._caressObject.init_module(0, self._cid, mode)
-        self.log.debug('Init module: %r' % (result,))
+        self.log.debug('Init module: %r', result)
         if result != (CARESS.OK, ON_LINE):
             raise NicosError(self, 'Could not initialize module!')
         self._initialized = True
@@ -180,7 +180,7 @@ class Channel(ActiveChannel):
             value = CARESS.Value(l=int(self.preselection))
         elif isinstance(self.preselection, integer_types):
             value = CARESS.Value(l=self.preselection)
-        self.log.debug('preselection: %r' % (value,))
+        self.log.debug('preselection: %r', value)
         result = self._caressObject.load_module(LOADMASTER, self._cid, value)
         if result != (CARESS.OK, LOADED):
             raise NicosError(self, 'Could not set the preset value')
@@ -226,7 +226,7 @@ class Channel(ActiveChannel):
     def _reset(self):
         result = self._caressObject.load_module(RESETMODULE, self._cid,
                                                 CARESS.Value(l=0))
-        self.log.debug('Reset module: %r' % (result,))
+        self.log.debug('Reset module: %r', result)
         if result != (CARESS.OK, LOADED):
             raise NicosError(self, 'Could not reset module')
 
@@ -235,7 +235,7 @@ class Channel(ActiveChannel):
 
     def _read(self):
         result = self._caressObject.read_module(1, self._cid)
-        self.log.debug('read_module: %r' % (result,))
+        self.log.debug('read_module: %r', result)
         if result[0] != CARESS.OK:
             raise CommunicationError(self, 'Could not read the CARESS module')
         return result[1:]
@@ -300,6 +300,6 @@ class Counter(CounterChannelMixin, Channel):
         result = self._caressObject.loadblock_module(
             SPECIALLOAD, self._cid, 1, len(self.config),
             CARESS.Value(s=self.config))
-        self.log.debug('Load block module: %r' % (result,))
+        self.log.debug('Load block module: %r', result)
         if result != (CARESS.OK, LOADED):
             raise ConfigurationError(self, 'Could not load block module')

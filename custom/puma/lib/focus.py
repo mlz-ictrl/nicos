@@ -58,5 +58,5 @@ class FocusAxis(Axis):
             self.backlash = self.startpos - target
         else:
             self.backlash = 0
-        self.log.debug('backlash is now : %.3f' % self.backlash)
+        self.log.debug('backlash is now: %.3f', self.backlash)
         Axis.doStart(self, target)

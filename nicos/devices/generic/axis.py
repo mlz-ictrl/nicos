@@ -123,7 +123,7 @@ class Axis(CanReference, AbstractAxis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision' %
+            self.log.debug('not moving, already at %.4f within precision',
                            target)
             return
 
@@ -198,7 +198,7 @@ class Axis(CanReference, AbstractAxis):
         self._attached_motor.setPosition(self._getReading())
         if not self._hascoder:
             self.log.info('reset done; use %s.reference() to do a reference '
-                          'drive' % self)
+                          'drive', self)
 
     def doReference(self):
         """Do a reference drive, if the motor supports it."""
@@ -210,7 +210,7 @@ class Axis(CanReference, AbstractAxis):
         if isinstance(motor, CanReference):
             motor.reference()
         else:
-            self.log.error('motor %s does not have a reference routine' %
+            self.log.error('motor %s does not have a reference routine',
                            motor)
 
     def doStop(self):
@@ -278,7 +278,7 @@ class Axis(CanReference, AbstractAxis):
         occurs, and returns True otherwise.
         """
         diff = abs(self._attached_motor.read() - self._attached_coder.read())
-        self.log.debug('motor/coder diff: %s' % diff)
+        self.log.debug('motor/coder diff: %s', diff)
         maxdiff = self.dragerror
         if maxdiff <= 0:
             return True
@@ -304,7 +304,7 @@ class Axis(CanReference, AbstractAxis):
         """
         delta_last = self._lastdiff
         delta_curr = abs(pos - target)
-        self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
+        self.log.debug('position delta: %s, was %s', delta_curr, delta_last)
         # at the end of the move, the motor can slightly overshoot during
         # movement we also allow for small jitter, since airpads usually wiggle
         # a little resulting in non monotonic movement!
@@ -398,7 +398,7 @@ class Axis(CanReference, AbstractAxis):
                                 'error in post-move action: %s' % err)
 
     def __positioning(self, target, precise=True):
-        self.log.debug('start positioning, target is %s' % target)
+        self.log.debug('start positioning, target is %s', target)
         moving = False
         offset = self.offset
         tries = self.maxtries
@@ -440,7 +440,7 @@ class Axis(CanReference, AbstractAxis):
                     # target reached
                     moving = False
                 elif mstatus == status.ERROR:
-                    self.log.debug('motor in error status (%s), trying reset' %
+                    self.log.debug('motor in error status (%s), trying reset',
                                    mstatusinfo)
                     # motor in error state -> try resetting
                     newstatus = self._attached_motor.reset()
@@ -451,9 +451,9 @@ class Axis(CanReference, AbstractAxis):
                                             '%s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
-                        self.log.warning('last try: %s' % self._errorstate)
+                        self.log.warning('last try: %s', self._errorstate)
                     else:
-                        self.log.debug('target not reached, retrying: %s' %
+                        self.log.debug('target not reached, retrying: %s',
                                        self._errorstate)
                     self._errorstate = None
                     # target not reached, get the current position, set the

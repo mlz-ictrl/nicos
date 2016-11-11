@@ -96,7 +96,7 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
 
     def timeoutAction(self):
         if self.target is not None:
-            self.log.warning('Timeout! retrying once to reach ' +
+            self.log.warning('Timeout! retrying once to reach %s',
                              self.format(self.target, unit=True))
             # start() would clear timeoutActionCalled Flag
             self.start(self.target)
@@ -199,10 +199,10 @@ class Sans1HV(BaseSequencer):
 
         # long sequence
         self.log.warning('Voltage was down for more than %.2g hours, '
-                         'ramping up slowly, be patient!' %
-                         (self.maxofftime / 3600))
+                         'ramping up slowly, be patient!',
+                         self.maxofftime / 3600)
 
-        self.log.info('Voltage will be ready around %s' % strftime(
+        self.log.info('Voltage will be ready around %s', strftime(
             '%X', localtime(now + self.doTime(self.doRead(0), target))))
 
         seq.append(SeqParam(hvdev, 'ramp', self.slowramp))

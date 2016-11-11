@@ -54,7 +54,7 @@ class RadMon(Readable):
         out2, err2 = p2.communicate()
         out1 = out1.strip()
         out2 = out2.strip()
-        self.log.warning('out1=%r, out2=%r' % (out1, out2))
+        self.log.warning('out1=%r, out2=%r', out1, out2)
         if err1:
             raise NicosError(self, 'ERROR in mantissa')
         if err2:

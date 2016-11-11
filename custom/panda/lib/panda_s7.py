@@ -133,7 +133,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def doStop(self):
         """Stop the motor movement."""
-        self.log.debug('stopping at ' + self.fmtstr % self.doRead(0))
+        self.log.debug('stopping at %s', self.fmtstr % self.doRead(0))
         bus = self._attached_bus
         # Istwert als Sollwert schreiben
         bus.write(self.read() * self.sign, 'float', 8)
@@ -219,20 +219,20 @@ class S7Motor(HasTimeout, NicosMotor):
 
         for bnum in range(20, 25):
             byte = bus.read('byte', bnum)
-            self.log.info('### Byte %d = ' % bnum + bin(byte))
+            self.log.info('### Byte %d = %s', bnum, bin(byte))
             for i, (name, soll, don, doff) in enumerate(bit_desc[bnum]):
                 logger = self.log.info
                 if soll is not None and bool(byte & (1 << i)) != soll:
                     logger = self.log.warning
-                logger('%-35s %s' % (name, don if byte & (1 << i) else doff))
+                logger('%-35s %s', name, don if byte & (1 << i) else doff)
 
         nc_err = bus.read('byte', 19) + 256 * bus.read('byte', 18)
         nc_err_flag = bus.read('bit', 24, 5)
         sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
         if nc_err_flag:
-            self.log.warning('NC-Error: ' + hex(nc_err))
+            self.log.warning('NC-Error: %x', nc_err)
         if sps_err:
-            self.log.warning('SPS-Error: ' + hex(sps_err))
+            self.log.warning('SPS-Error: %x', sps_err)
 
     def doStatus(self, maxage=0):
         return self._doStatus()
@@ -255,7 +255,7 @@ class S7Motor(HasTimeout, NicosMotor):
         while self.doStatus()[0] == status.BUSY:
             self.doStop()
             session.delay(1)
-        self.log.info('Status is now:' + self.doStatus()[1])
+        self.log.info('Status is now: %s', self.doStatus()[1])
 
     def _doStatus(self, maxage=0):
         """Asks hardware and figures out status."""
@@ -274,19 +274,19 @@ class S7Motor(HasTimeout, NicosMotor):
         wm = bool(b20 & 0x08)
 
         if nc_err_flag:
-            self.log.debug('NC_ERR_FLAG SET, NC_ERR:'+hex(nc_err))
+            self.log.debug('NC_ERR_FLAG SET, NC_ERR: %x', nc_err)
         if sps_err != 0:
-            self.log.debug('SPS_ERR:'+hex(sps_err))
+            self.log.debug('SPS_ERR: %x', sps_err)
 
-        self.log.debug('Statusbytes=0x%02x:%02x:%02x:%02x:%02x, Wartungsmodus '
-                       % (b20, b21, b22, b23, b24) + ('an' if wm else 'aus'))
+        self.log.debug('Statusbytes=0x%02x:%02x:%02x:%02x:%02x, '
+                       'Wartungsmodus %s',
+                       b20, b21, b22, b23, b24, 'an' if wm else 'aus')
 
         # XXX HACK !!!  better repair hardware !!!
         if (nc_err != 0) or (nc_err_flag != 0) or (sps_err != 0):
             if self._last_warning + 15 < currenttime():
-                self.log.warning('SPS-ERROR: ' + hex(sps_err) + ', NC-ERROR: '
-                                 + hex(nc_err) + ', NC_ERR_FLAG: %d' %
-                                 nc_err_flag)
+                self.log.warning('SPS-ERROR: %x, NC-ERROR: %x, NC_ERR_FLAG: %d',
+                                 sps_err, nc_err, nc_err_flag)
                 self._last_warning = currenttime()
             # only 'allow' certain values to be ok for autoreset
             if sps_err in [0x1]:
@@ -310,8 +310,8 @@ class S7Motor(HasTimeout, NicosMotor):
         if wm:  # Wartungsmodus
             if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0:
                 # or (b23 & 0b00000011) != 0:
-                self.log.warning(self.name + ' in Error state!, ignored due to'
-                                 ' Wartungsmodus!!!')
+                self.log.warning('%s in Error state!, ignored due to'
+                                 ' Wartungsmodus!!!', self.name)
                 # continue checking....
         else:   # Normal operation
             # if ( b20 != 0b00010001 ) or (( b24 & 0b10111111 ) != 0)
@@ -351,8 +351,7 @@ class S7Motor(HasTimeout, NicosMotor):
             session.delay(self._base_loop_delay)
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
-        self.log.debug('starting to ' + self.fmtstr % position + ' %s' %
-                       self.unit)
+        self.log.debug('starting to %s', self.format(position, unit=True))
         # sleep(0.2)
         # 20091116 EF: round to 1 thousands, or SPS doesn't switch air off
         position = float(self.fmtstr % position) * self.sign
@@ -360,7 +359,7 @@ class S7Motor(HasTimeout, NicosMotor):
         # Sollwert schreiben
         bus.write(position, 'float', 8)
         self._minisleep()
-        self.log.debug("new target: "+self.fmtstr % self._gettarget())
+        self.log.debug("new target: %s", self.fmtstr % self._gettarget())
 
         bus.write(0, 'bit', 0, 3)            # hebe stopbit auf
         self._minisleep()
@@ -371,10 +370,10 @@ class S7Motor(HasTimeout, NicosMotor):
     def doRead(self, maxage=0):
         """Read the incremental encoder."""
         bus = self._attached_bus
-        self.log.debug('read: ' + self.fmtstr % (self.sign*bus.read('float', 4))
-                       + ' %s' % self.unit)
-        self.log.debug('MBarm at: ' + self.fmtstr % bus.read('float', 12)
-                       + ' %s' % self.unit)
+        self.log.debug('read: %s', self.format(self.sign*bus.read('float', 4),
+                                               unit=True))
+        self.log.debug('MBarm at: %s', self.format(bus.read('float', 12),
+                                                   unit=True))
         return self.sign*bus.read('float', 4)
 
     def doSetPosition(self, *args):
@@ -418,7 +417,7 @@ class Panda_mtt(Axis):
         curpos = self.motor.read(0)
         for v in self._pos_down:
             if curpos >= v-self.offset >= target:
-                self.log.debug('Blockchange at ' + self.fmtstr % v)
+                self.log.debug('Blockchange at %s', self.fmtstr % v)
                 # go close to block exchange pos
                 positions.append((v-self.offset+0.1, True))
                 # go to block exchange pos and exchange blocks
@@ -429,7 +428,7 @@ class Panda_mtt(Axis):
                 positions.append((v-self.offset-0.1, True))
         for v in self._pos_up:
             if curpos <= v-self.offset <= target:
-                self.log.debug('Blockchange at ' + self.fmtstr % v)
+                self.log.debug('Blockchange at %s', self.fmtstr % v)
                 # go close to block exchange pos
                 positions.append((v-self.offset-0.1, True))
                 # go to block exchange pos and exchange blocks
@@ -440,12 +439,12 @@ class Panda_mtt(Axis):
                 positions.append((v-self.offset+0.1, True))
 
         positions.append((target, True))  # last step: go to target
-        self.log.debug('Target positions are: ' + ', '.join([
+        self.log.debug('Target positions are: %s', ', '.join([
             self.fmtstr % p[0] for p in positions]))
 
         for (pos, precise) in positions:
             try:
-                self.log.debug('go to ' + self.fmtstr % pos)
+                self.log.debug('go to %s', self.fmtstr % pos)
                 self._Axis__positioning(pos, precise)
             except Exception as err:
                 self._setErrorState(MoveError,
@@ -466,5 +465,5 @@ class Panda_mtt(Axis):
              + 22*(int(abs(here - there) / 11) + 1.5))
         # 2009/08/24 EF for small movements, an additional 0.5 monoblock time
         # might be required for the arm to move to the right position
-        self.log.debug('calculated Move-Timeout is %d seconds' % t)
+        self.log.debug('calculated Move-Timeout is %d seconds', t)
         return t

@@ -84,15 +84,15 @@ class Jabberer(Notifier):
 
     def send(self, subject, body, what=None, short=None, important=True):
         receivers = self.receivers
-        self.log.debug('trying to send message to %s' % ', '.join(receivers))
+        self.log.debug('trying to send message to %s', ', '.join(receivers))
         for receiver in receivers:
             try:
                 msg = self._message(receiver, subject, body)
                 self._client.send(msg)
             except Exception:
-                self.log.exception('sending to %s failed' % receiver)
-        self.log.info('%sjabber message sent to %s' %
-                      (what and what + ' ' or '', ', '.join(receivers)))
+                self.log.exception('sending to %s failed', receiver)
+        self.log.info('%sjabber message sent to %s',
+                      what and what + ' ' or '', ', '.join(receivers))
 
     def _message(self, receiver, subject, body):
         """Create a message with the content as nicely formatted HTML in it."""

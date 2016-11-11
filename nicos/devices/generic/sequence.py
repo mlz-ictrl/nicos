@@ -279,9 +279,9 @@ class SequencerMixin(DeviceMixinBase):
                 try:
                     action.check()
                 except Exception as e:
-                    self.log.error('action.check for %r failed with %r' %
-                                   (action, e))
-                    self.log.debug('_checkFailed returned %r' %
+                    self.log.error('action.check for %r failed with %r',
+                                   action, e)
+                    self.log.debug('_checkFailed returned %r',
                                    self._checkFailed(i, action,
                                                      sys.exc_info()))
                     # if the above does not raise, consider this as OK
@@ -291,11 +291,11 @@ class SequencerMixin(DeviceMixinBase):
 
         # debug hint:
         if self.loglevel == 'debug':
-            self.log.debug('generated sequence has %d steps:' % len(sequence))
+            self.log.debug('generated sequence has %d steps:', len(sequence))
             for i, step in enumerate(sequence):
-                self.log.debug(' - step %d:' % (i + 1))
+                self.log.debug(' - step %d:', i + 1)
                 for action in step:
-                    self.log.debug('   - Action: %s' % repr(action))
+                    self.log.debug('   - Action: %r', action)
 
         self._set_seq_status(status.BUSY, '')
 
@@ -321,29 +321,29 @@ class SequencerMixin(DeviceMixinBase):
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
         try:
-            self.log.debug('Performing Sequence of %d steps' % len(sequence))
+            self.log.debug('Performing Sequence of %d steps', len(sequence))
             for i, step in enumerate(sequence):
                 self._set_seq_status(status.BUSY, 'action %d: ' %
                                      (i + 1) + '; '.join(map(repr, step)))
                 # start all actions by calling run and if that fails, retry
                 for action in step:
-                    self.log.debug(' - Action: %s' % repr(action))
+                    self.log.debug(' - Action: %r', action)
                     try:
                         action.run()
                     except Exception as e:
                         # if this raises, abort the sequence...
-                        self.log.debug('action.run raised %r' % e)
+                        self.log.debug('action.run raised %r', e)
                         code = self._runFailed(i, action, sys.exc_info())
-                        self.log.debug('_runFailed returned %r' % code)
+                        self.log.debug('_runFailed returned %r', code)
                         if code:
                             try:
                                 action.retry(code)
                             except Exception as e:
                                 self.log.debug('action.retry failed with '
-                                               '%r' % e)
-                                self.log.debug('_retryFailed returned %r' %
-                                               self._retryFailed(i, action,
-                                                     code, sys.exc_info()))
+                                               '%r', e)
+                                ret = self._retryFailed(i, action,
+                                                        code, sys.exc_info())
+                                self.log.debug('_retryFailed returned %r', ret)
 
                 # wait until all actions are finished
                 waiters = set(step)
@@ -357,10 +357,11 @@ class SequencerMixin(DeviceMixinBase):
                                 # wait finished
                                 waiters.remove(action)
                         except Exception as e:
-                            self.log.debug('action.isCompleted failed with %r' % e)
+                            self.log.debug('action.isCompleted failed with '
+                                           '%r', e)
                             # if this raises, abort the sequence...
                             code = self._waitFailed(i, action, sys.exc_info())
-                            self.log.debug('_waitFailed returned %r' % code)
+                            self.log.debug('_waitFailed returned %r', code)
                             if code:
                                 if action.isCompleted():
                                     waiters.remove(action)
@@ -378,7 +379,7 @@ class SequencerMixin(DeviceMixinBase):
                 # stop if requested
                 if self._seq_stopflag:
                     self._seq_was_stopped = True
-                    self.log.debug('stopping actions: ' +
+                    self.log.debug('stopping actions: %s',
                                    '; '.join(map(repr, step)))
                     self._set_seq_status(status.BUSY, 'stopping at step %d: ' %
                                          (i + 1) + '; '.join(map(repr, step)))
@@ -390,13 +391,12 @@ class SequencerMixin(DeviceMixinBase):
                                 action.stop()
                             except Exception as e:
                                 self.log.debug('action.stop failed with '
-                                               '%r' % e)
+                                               '%r', e)
                                 failed.append((action, e))
                             # signal those errors, captured earlier
                             for ac, e in failed:
-                                self.log.debug('_stopFailed returned %r' %
-                                               self._stopFailed(i, ac,
-                                                            sys.exc_info()))
+                                ret = self._stopFailed(i, ac, sys.exc_info())
+                                self.log.debug('_stopFailed returned %r', ret)
                     finally:
                         self._stopAction(i)
                         self._set_seq_status(status.NOTREACHED,
@@ -415,7 +415,7 @@ class SequencerMixin(DeviceMixinBase):
                                  self._seq_status[1])
             self.log.error(self._seq_status[1], exc=1)
         except Exception as e:
-            self.log.error(e, exc=1)
+            self.log.error('%s', e, exc=1)
 
     def doFinish(self):
         if self._seq_was_stopped:

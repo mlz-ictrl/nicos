@@ -72,7 +72,7 @@ class TestDaemonSession(DaemonSession):
                 self.log.addHandler(loggers.NicosLogfileHandler(log_path, prefix))
                 self._master_handler = None
         except (IOError, OSError) as err:
-            self.log.error('cannot open log file: %s' % err)
+            self.log.error('cannot open log file: %s', err)
 
 
 config.user = None

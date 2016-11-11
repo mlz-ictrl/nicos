@@ -61,7 +61,7 @@ class PGFilter(Moveable):
                 raise NicosError(self, 'PG filter is not readable, please '
                                  'check device!')
         finally:
-            self.log.info('PG filter: ', self.read(0))
+            self.log.info('PG filter: %s', self.read(0))
 
     def doRead(self, maxage=0):
         result = self._attached_io_status.doRead(0)

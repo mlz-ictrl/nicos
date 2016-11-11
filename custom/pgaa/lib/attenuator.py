@@ -61,11 +61,11 @@ class Attenuator(MultiSwitcher):
         # activation of sample and/or save the detector and them move out the
         # not needed ones
         for d, t in zip(moveables, target):
-            self.log.debug('moving %r to %r' % (d, t))
+            self.log.debug('moving %r to %r', d, t)
             if t == 'in':
                 d.start(t)
         for d, t in zip(moveables, target):
-            self.log.debug('moving %r to %r' % (d, t))
+            self.log.debug('moving %r to %r', d, t)
             if t == 'out':
                 d.start(t)
         if self.blockingmove:

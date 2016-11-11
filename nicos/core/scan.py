@@ -454,8 +454,8 @@ class SweepScan(Scan):
 
     def preparePoint(self, num, xvalues):
         if session.mode == SIMULATION and num > self._simpoints:
-            session.log.info('skipping %d points...' %
-                             (self._numpoints - self._simpoints))
+            session.log.info('skipping %d points...',
+                             self._numpoints - self._simpoints)
             duration = session.clock.time - self._sim_start
             session.clock.tick(duration * (self._numpoints -
                                            self._simpoints))
@@ -589,7 +589,7 @@ class ContinuousScan(Scan):
             while device.status(0)[0] == status.BUSY:
                 session.breakpoint(2)
                 sleeptime = max(0, looptime + self._timedelta - currenttime())
-                session.log.debug('Sleep time: %f' % sleeptime)
+                session.log.debug('Sleep time: %f', sleeptime)
                 with self.pointScope(point + 1):
                     session.delay(sleeptime)
                     looptime = currenttime()
@@ -622,12 +622,12 @@ class ContinuousScan(Scan):
                 try:
                     det.finish()
                 except Exception:
-                    session.log.warning('could not stop %s' % det, exc=1)
+                    session.log.warning('could not stop %s', det, exc=1)
             try:
                 device.stop()
                 device.wait()
             except Exception:
-                device.log.warning('could not stop %s' % device, exc=1)
+                device.log.warning('could not stop %s', device, exc=1)
             self.endScan()
 
 

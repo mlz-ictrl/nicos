@@ -115,7 +115,7 @@ class RFCurrent(HasLimits, Moveable):
                 curp2p = cur.read()
                 p2p = self.target
                 if abs(curp2p - p2p)/p2p > self.maxdelta/100.:
-                    self.log.debug('P2P %.4f, should be %.4f' % (curp2p, p2p))
+                    self.log.debug('P2P %.4f, should be %.4f', curp2p, p2p)
                     diff = curp2p - p2p
                     # negate diff: move in opposite direction of difference!
                     prevamp = curamp
@@ -123,12 +123,11 @@ class RFCurrent(HasLimits, Moveable):
                     ok, why = amp.isAllowed(nextamp)
                     if not ok:
                         self.log.warning('not setting new RF amplitude '
-                                         '%s: %s' % (amp.format(nextamp),
-                                                     why))
+                                         '%s: %s', amp.format(nextamp), why)
                         continue
-                    self.log.debug('setting amplitude to %s (was %s)' %
-                                   (amp.format(nextamp),
-                                    amp.format(prevamp)))
+                    self.log.debug('setting amplitude to %s (was %s)',
+                                   amp.format(nextamp),
+                                   amp.format(prevamp))
                     amp.move(nextamp)
             while not self.rfcontrol:
                 sleep(self.checktime)

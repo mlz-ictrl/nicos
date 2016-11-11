@@ -98,7 +98,7 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
         }
 
     def doStart(self, pos):
-        self.log.debug("doStart: pos: %s" % pos)
+        self.log.debug("doStart: pos: %s", pos)
         myStatus = self.status(0)
         if myStatus[0] == status.OK:
             self._moveTo = pos
@@ -128,11 +128,10 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
         st, msg = PyTangoDevice.doStatus(self, maxage)
         if self._lastStatus == status.BUSY and st != status.BUSY:
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
-                           "Check again after a short delay."
-                           % (status.BUSY, st))
+                           "Check again after a short delay.", status.BUSY, st)
             session.delay(5)
             st, msg = PyTangoDevice.doStatus(self, 0)
-            self.log.debug("doStatus: recheck result: %d" % st)
+            self.log.debug("doStatus: recheck result: %d", st)
         self._lastStatus = st
         return st, msg
 

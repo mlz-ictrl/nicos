@@ -117,12 +117,11 @@ class SatBox(HasTimeout, TacoDevice, Moveable):
                 which[self.blades.index(bladewidth)] = 1
                 pos -= bladewidth
         if pos != 0:
-            self.log.warning('Value %d impossible, trying %d instead!' %
-                             (rpos, rpos + 1))
+            self.log.warning('Value %d impossible, trying %d instead!',
+                             rpos, rpos + 1)
             return self.start(rpos + 1)
-        self.log.debug('setting blades: %s' %
-                       [s * b for s, b in zip(which, self.blades)]
-                       )
+        self.log.debug('setting blades: %s',
+                       [s * b for s, b in zip(which, self.blades)])
         self._taco_guard(self._dev.writeMultipleCoils,
                          (self.slave_addr, self.addr_out) + tuple(which))
         if self.readout == 'output':

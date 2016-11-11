@@ -102,8 +102,8 @@ class Beckhoff(TacoDevice, Device):
                     devname.append(chars >> 8)
                 devname = ''.join(chr(c) for c in devname if c)
                 self._devices[devadr] = (typecode, devname)
-                self.log.debug('Found Device %r with TypeCode 0x%04x at 0x%04x'
-                               % (devname, typecode, devadr))
+                self.log.debug('Found Device %r with TypCode 0x%04x at 0x%04x',
+                               devname, typecode, devadr)
                 devadr += typecode & 0xff
                 devid += 1
             if devid == 1:
@@ -230,7 +230,7 @@ class SimpleDiscreteOutput(SimpleDiscreteInput, Moveable):
         self.wait()
         self._attached_bus.WriteWord(self.addr + 1, target)
         readback = self._attached_bus.ReadWord(self.addr + 1)
-        self.log.debug('Wrote %x, read back %x' % (target, readback))
+        self.log.debug('Wrote %x, read back %x', target, readback)
         if readback != target:
             raise MoveError(self, 'target value %d not accepted, was reset to '
                                   '%d' % (target, readback))
@@ -254,7 +254,7 @@ class SimpleAnalogOutput(Moveable, SimpleAnalogInput):
         self.wait()
         self._attached_bus.WriteFloat(self.addr + 2, target)
         readback = self._attached_bus.ReadFloat(self.addr + 2)
-        self.log.debug('Wrote %g, read back %g' % (target, readback))
+        self.log.debug('Wrote %g, read back %g', target, readback)
         if readback != target:
             raise MoveError(self, 'target value %g not accepted, was reset to '
                                   '%g' % (target, readback))
@@ -263,7 +263,7 @@ class SimpleAnalogOutput(Moveable, SimpleAnalogInput):
 class FullDiscreteInput(SimpleDiscreteInput):
     def doStatus(self, maxage=0):
         Status = self._attached_bus.ReadWord(self.addr + 1)
-        self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
+        self.log.debug('Statusword = %s', bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
                                           bin(65536 | Status)[7:])
@@ -272,7 +272,7 @@ class FullDiscreteInput(SimpleDiscreteInput):
 class FullDiscreteOutput(SimpleDiscreteOutput):
     def doStatus(self, maxage=0):
         Status = self._attached_bus.ReadWord(self.addr + 2)
-        self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
+        self.log.debug('Statusword = %s', bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
                                           bin(65536 | Status)[7:])
@@ -281,7 +281,7 @@ class FullDiscreteOutput(SimpleDiscreteOutput):
 class FullAnalogInput(SimpleAnalogInput):
     def doStatus(self, maxage=0):
         Status = self._attached_bus.ReadWord(self.addr + 2)
-        self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
+        self.log.debug('Statusword = %s', bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
                                           bin(65536 | Status)[7:])
@@ -290,7 +290,7 @@ class FullAnalogInput(SimpleAnalogInput):
 class FullAnalogOutput(SimpleAnalogOutput):
     def doStatus(self, maxage=0):
         Status = self._attached_bus.ReadWord(self.addr + 4)
-        self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
+        self.log.debug('Statusword = %s', bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
                                           bin(65536 | Status)[7:])
@@ -442,22 +442,22 @@ class Changer(BaseSequencer):
         for devname, prec in self.precisionchange.items():
             dev = session.getDevice(devname)
             dev.precision = prec[1]
-            self.log.debug('changing precision of the %s device to the %f' %
-                           (devname, prec[1]))
+            self.log.debug('changing precision of the %s device to the %f',
+                           devname, prec[1])
 
         # go to the place where a change is possible
         devs = []
         for devname, pos in self.exchangepos.items():
             dev = session.getDevice(devname)
             # remove after implementation of moving back
-            self.log.info('position of the %s device was %f' % (devname, dev()))
+            self.log.info('position of the %s device was %f', devname, dev())
             if isinstance(dev, HasOffset):
                 dev.start(pos - dev.offset)
-                self.log.debug('moving %s to the position %f - offset of %f' %
-                               (devname, pos, dev.offset))
+                self.log.debug('moving %s to the position %f - offset of %f',
+                               devname, pos, dev.offset)
             else:
                 dev.start(pos)
-                self.log.debug('moving %s to the position %f' % (devname, pos))
+                self.log.debug('moving %s to the position %f', devname, pos)
             devs.append(dev)
         multiWait(devs)
 
@@ -465,8 +465,8 @@ class Changer(BaseSequencer):
         for devname, prec in self.precisionchange.items():
             dev = session.getDevice(devname)
             dev.precision = prec[0]
-            self.log.debug('changing precision of the %s device back to the %f' %
-                           (devname, prec[0]))
+            self.log.debug('changing precision of the %s device back to '
+                           'the %f', devname, prec[0])
 
         try:
             dev = session.getDevice('focibox')
@@ -476,7 +476,7 @@ class Changer(BaseSequencer):
             dev.driverenable = False
             self.log.info('focus motors disabled')
         except NicosError as err:
-            self.log.error('Problem disabling foci', err)
+            self.log.error('Problem disabling foci: %s', err)
 
         # switch on inhibit and enable
         self._attached_enable.maw(0xef16)
@@ -722,29 +722,29 @@ class Changer(BaseSequencer):
 
     @usermethod
     def printstatusinfo(self):
-        self.log.info('PLC is %s' %
-                      ('enabled' if self._attached_enable.read() == 0xef16
-                       else 'disabled'))
-        self.log.info('Inhibit_relay is %s' % self._attached_inhibitrelay.read())
+        self.log.info('PLC is %s',
+                      'enabled' if self._attached_enable.read() == 0xef16
+                      else 'disabled')
+        self.log.info('Inhibit_relay is %s', self._attached_inhibitrelay.read())
         liftposnames = {'1': 'Monotable loading',
                         '2': 'Park position',
                         '3': 'Bottom storage',
                         '4': 'Upper storage'}
-        self.log.info('lift is at %s' % liftposnames[self._attached_lift.read()])
+        self.log.info('lift is at %s', liftposnames[self._attached_lift.read()])
         try:
             magpos = self._attached_magazine.read()
-            self.log.info('magazine is at %r which is assigned to %s' % (
-                          magpos, self.monos[self.positions.index(magpos)]))
+            self.log.info('magazine is at %r which is assigned to %s',
+                          magpos, self.monos[self.positions.index(magpos)])
         except Exception:
             self.log.error('magazine is at an unknown position !!!')
         for n in 'liftclamp magazineclamp tableclamp'.split():
-            self.log.info('%s is %s' % (n, self._adevs[n].read()))
+            self.log.info('%s is %s', n, self._adevs[n].read())
         occ = self._attached_magazineocc.read(0)
         for i in range(4):
-            self.log.info('magazineslot %r is %sempty and its readouts are %sbroken' % (
+            self.log.info('magazineslot %r is %sempty and its readouts are %sbroken',
                           self.positions[i],
                           '' if (occ>>i*2) & 1 else 'not ',
-                          '' if (occ>>i*2+1) & 1 else 'not '))
+                          '' if (occ>>i*2+1) & 1 else 'not ')
         if self._attached_magazinestatus.read() == 'free':
             self.log.info('Magazine is currently free to load monochromator')
         else:

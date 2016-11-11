@@ -117,8 +117,8 @@ class PushVersionInfo(BaseCacheClient):
 
         try:
             urllib.request.urlopen(update_string)
-            self.log.debug('update sent successfully for %s' %
+            self.log.debug('update sent successfully for %s',
                            infodict.get('service', 'base'))
         except Exception:
-            self.log.debug('cannot send version information! (tried:\n%r\n)' %
+            self.log.debug('cannot send version information! (tried:\n%r\n)',
                            update_string, exc=True)

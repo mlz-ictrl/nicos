@@ -67,7 +67,7 @@ class VSDIO(TacoDevice, Readable):
         # reads a uint16 from self.address + addr
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + addr, 1))[0]
-        self.log.debug('_readU16(%d): -> %d' % (addr, value))
+        self.log.debug('_readU16(%d): -> %d', addr, value)
         return value
 
     def _readI16(self, addr):
@@ -76,13 +76,13 @@ class VSDIO(TacoDevice, Readable):
                                  (0, self.address + addr, 1))[0]
         if value > 32767:
             value = value - 65536
-        self.log.debug('_readI16(%d): -> %d' % (addr, value))
+        self.log.debug('_readI16(%d): -> %d', addr, value)
         return value
 
     def _writeU16(self, addr, value):
         # writes a uint16 to self.address+addr
         value = int(value)
-        self.log.debug('_writeU16(%d, %d)' % (addr, value))
+        self.log.debug('_writeU16(%d, %d)', addr, value)
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address + addr, value))
 
@@ -91,13 +91,13 @@ class VSDIO(TacoDevice, Readable):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + addr, 2))
         value = struct.unpack('=I', struct.pack('<2H', *value))[0]
-        self.log.debug('_readU32(%d): -> %d' % (addr, value))
+        self.log.debug('_readU32(%d): -> %d', addr, value)
         return value
 
     def _writeU32(self, addr, value):
         # writes a uint32 to self.address + addr
         value = int(value)
-        self.log.debug('_writeU32(%d, %d)' % (addr, value))
+        self.log.debug('_writeU32(%d, %d)', addr, value)
         value = struct.unpack('<2H', struct.pack('=I', value))
         self._taco_guard(self._dev.writeMultipleRegisters,
                          (0, self.address + addr) + value)
@@ -200,18 +200,17 @@ class VSDIO(TacoDevice, Readable):
         """output all available diagnostic values"""
         self.log.info("Analog Values:")
         for k, v in sorted(self._HW_AnalogChannels.items()):
-            self.log.info("%s: %.2f %s" % (
-                          k, v[1] * self._readI16(v[0]/2), v[2]))
+            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0]/2), v[2])
         self.log.info("Digital Values:")
         for k, v in sorted(self._HW_DigitalChannels.items()):
             if k.startswith('Merker'):
                 continue
-            self.log.info("%s: %s" % (
-                          k, 'SET' if self._readU16(v[0]/2) & (1<<v[1])
-                                      else 'clear'))
+            self.log.info("%s: %s", k,
+                          'SET' if self._readU16(v[0]/2) & (1<<v[1]) else 'clear')
         self.log.info("Merkerwords:")
         for i in range(16):
-            self.log.info("Merker%d..%d : 0x%04x" % (128+15+16*i, 128+16*i, self._readU16(160/2+i)))
+            self.log.info("Merker%d..%d : 0x%04x",
+                          128+15+16*i, 128+16*i, self._readU16(160/2+i))
 
 
 class AnalogValue(Readable):

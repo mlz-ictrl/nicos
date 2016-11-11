@@ -54,7 +54,7 @@ class MTT_Axis(Axis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision' %
+            self.log.debug('not moving, already at %.4f within precision',
                            target)
             return
 
@@ -156,7 +156,7 @@ class MTT_Axis(Axis):
                                 'error in post-move action: %s' % err)
 
     def _positioning(self, target, precise=True):
-        self.log.debug('start positioning, target is %s' % target)
+        self.log.debug('start positioning, target is %s', target)
         seen_inhibit = 0
         moving = False
         offset = self.offset
@@ -202,7 +202,7 @@ class MTT_Axis(Axis):
                     # target reached
                     moving = False
                 elif mstatus == status.ERROR:
-                    self.log.debug('motor in error status (%s), trying reset' %
+                    self.log.debug('motor in error status (%s), trying reset',
                                    mstatusinfo)
                     # motor in error state -> try resetting
                     newstatus = self._attached_motor.reset()
@@ -213,9 +213,9 @@ class MTT_Axis(Axis):
                                             '%s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
-                        self.log.warning('last try: %s' % self._errorstate)
+                        self.log.warning('last try: %s', self._errorstate)
                     else:
-                        self.log.debug('target not reached, retrying: %s' %
+                        self.log.debug('target not reached, retrying: %s',
                                        self._errorstate)
                     self._errorstate = None
                     # target not reached, get the current position, set the
@@ -294,7 +294,7 @@ class MTT_Axis(Axis):
         if inh == 1:
             self._attached_motor.stop()
             t = 20
-            self.log.debug('Waiting for MB. mtt = %s' % self.read(0))
+            self.log.debug('Waiting for MB. mtt = %s', self.read(0))
             while self._attached_io_flag.read(0) == 1:
                 sleep(1)
 #                print 'Waiting for MB'
@@ -303,6 +303,6 @@ class MTT_Axis(Axis):
                     self._setErrorState(MoveError, 'timeout occured during '
                                         'wait for mobile block change')
                     self._stoprequest = 2
-                    self.log.debug('Error state = %s' % self._errorstate)
+                    self.log.debug('Error state = %s', self._errorstate)
                     break
         return inh

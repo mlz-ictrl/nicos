@@ -182,8 +182,8 @@ class DNSDetector(Detector):
             new_preset = {P_MON: m}
         elif P_MON_SF in preset or P_MON_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
-                             '%s and %s or only %s.' %
-                             (P_MON_SF, P_MON_NSF, P_MON))
+                             '%s and %s or only %s.',
+                             P_MON_SF, P_MON_NSF, P_MON)
             return
         elif P_TIME_SF in preset and P_TIME_NSF in preset:
             if self._attached_flipper.read() == ON:
@@ -193,8 +193,8 @@ class DNSDetector(Detector):
             new_preset = {P_TIME: t}
         elif P_TIME_SF in preset or P_TIME_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
-                             '%s and %s or only %s.' %
-                             (P_TIME_SF, P_TIME_NSF, P_TIME))
+                             '%s and %s or only %s.',
+                             P_TIME_SF, P_TIME_NSF, P_TIME)
             return
         elif P_MON in preset:
             new_preset = {P_MON: preset[P_MON]}

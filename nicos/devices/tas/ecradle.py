@@ -96,10 +96,12 @@ class EulerianCradle(Moveable):
                                 self._attached_chi.userlimits,
                                 self._attached_omega.userlimits)
         psi, chi, om, _phi = ang
-        self.log.debug('euler angles: %s' % ang)
-        self.log.info('moving %s to %12s, %s to %12s' % (
-            self._attached_chi, self._attached_chi.format(chi, unit=True),
-            self._attached_omega, self._attached_omega.format(om, unit=True)))
+        self.log.debug('euler angles: %s', ang)
+        self.log.info('moving %s to %12s, %s to %12s',
+                      self._attached_chi,
+                      self._attached_chi.format(chi, unit=True),
+                      self._attached_omega,
+                      self._attached_omega.format(om, unit=True))
         self._attached_chi.move(chi)
         self._attached_omega.move(om)
         self._attached_chi.wait()
@@ -137,12 +139,10 @@ class EulerianCradle(Moveable):
                                 self._attached_chi.userlimits,
                                 self._attached_omega.userlimits)
         self.log.info('found scattering plane')
-        self.log.info('%s: %20s' % (
-            self._attached_chi,
-            self._attached_chi.format(ang[1], unit=True)))
-        self.log.info('%s: %20s' % (
-            self._attached_omega,
-            self._attached_omega.format(ang[2], unit=True)))
+        self.log.info('%s: %20s', self._attached_chi,
+                      self._attached_chi.format(ang[1], unit=True))
+        self.log.info('%s: %20s', self._attached_omega,
+                      self._attached_omega.format(ang[2], unit=True))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=(-180, 180), omlimits=(-180, 180)):
@@ -158,19 +158,19 @@ class EulerianCradle(Moveable):
         Bmat = self._Bmat
 
         # calculate phi from q, ki, kf
-        self.log.debug("Bmat = %s" % Bmat)
-        # was: ec_q = dot(Bmat, target_q)
+        self.log.debug("Bmat = %s", Bmat)
+        ##was: ec_q = dot(Bmat, target_q)
         ec_q = self._attached_cell.hkl2Qcart(*target_q)
-        self.log.debug("ec_q = %s" % ec_q)
+        self.log.debug("ec_q = %s", ec_q)
         phi = self._attached_cell.cal_phi(ec_q, ki, kf, sense)
-        self.log.debug("phi = %s" % phi)
+        self.log.debug("phi = %s", phi)
         ec_ql = norm(ec_q)
         ec_a = dot(Bmat, another)
 
         ec_al = norm(ec_a)
         ec_b  = cross(ec_q, ec_a)
         ec_bl = norm(ec_b)
-        self.log.debug('vector perp q and sp1 ec_b = %s' % ec_b)
+        self.log.debug('vector perp q and sp1 ec_b = %s', ec_b)
         if ec_bl < 0.01:
             # should be:
             # der Q-Vektor ist parallel zu sp1 (der erste Reflex)
@@ -179,22 +179,22 @@ class EulerianCradle(Moveable):
 
         # transform q and a to lab coordinates
         ec_r = dot(omat, ec_q/ec_ql)
-        self.log.debug('unit Q vector in lab system ec_r = %s' % ec_r)
+        self.log.debug('unit Q vector in lab system ec_r = %s', ec_r)
         ec_a = dot(omat, ec_a/ec_al)
-        self.log.debug('reflection 1 in lab system ec_a = %s' % ec_a)
+        self.log.debug('reflection 1 in lab system ec_a = %s', ec_a)
 
         # calculate Q1 defined by ki, kf and phi
 
         ec_q1 = array([ki-kf*cos(phi*D2R), -kf*sin(phi*D2R), 0])
-        self.log.debug('scattering vector as function of ki 2: ec_q1 = %s' % ec_q1)
+        self.log.debug('scattering vector as function of ki 2: ec_q1 = %s', ec_q1)
         ec_q1 = ec_q1/ec_ql
-        self.log.debug('unit scattering vector: ec_q1 = %s' % ec_q1)
+        self.log.debug('unit scattering vector: ec_q1 = %s', ec_q1)
 
         # calculate the angles
         ec_b = cross(ec_r, ec_a)
         ec_bl = norm(ec_b)
         ec_bl2 = sqrt(ec_b[0]**2 + ec_b[1]**2)
-        self.log.debug('B vector as ec_b = %s' % ec_b)
+        self.log.debug('B vector as ec_b = %s', ec_b)
 
         # now the case selection
 
@@ -263,9 +263,9 @@ class EulerianCradle(Moveable):
             ec_sipsi1 = ec_xlb*ec_xa*ec_q1[1]/ec_xah
             ec_sipsi2 = -ec_xh*ec_q1[0]/ec_xah
 
-        self.log.debug('cochi  = %s, sichi  = %s' % (ec_cochi, ec_sichi))
-        self.log.debug('copsi1 = %s, copsi2 = %s' % (ec_copsi1, ec_copsi2))
-        self.log.debug('sipsi1 = %s, sipsi2 = %s' % (ec_sipsi1, ec_sipsi2))
+        self.log.debug('cochi  = %s, sichi  = %s', ec_cochi, ec_sichi)
+        self.log.debug('copsi1 = %s, copsi2 = %s', ec_copsi1, ec_copsi2)
+        self.log.debug('sipsi1 = %s, sipsi2 = %s', ec_sipsi1, ec_sipsi2)
 
         #
         #   THE SIGNES OF OM AND CHI CAN BE CHOOSEN ARBITRARILY
@@ -290,15 +290,15 @@ class EulerianCradle(Moveable):
         ec_oml, ec_omu = omlimits
         for ec_xlom in [-1, 1]:   # has been do 8
             for ec_xlchi in [-1, 1]:  # has been do 9
-                self.log.debug('xlom, xlchi, xlb, mmm = %s, %s, %s, %s' %
-                               (ec_xlom, ec_xlchi, ec_xlb, ec_xlchi*ec_xlom*ec_xlb))
+                self.log.debug('xlom, xlchi, xlb, mmm = %s, %s, %s, %s',
+                               ec_xlom, ec_xlchi, ec_xlb, ec_xlchi*ec_xlom*ec_xlb)
                 if ec_xlchi*ec_xlom*ec_xlb < 0:
                     continue   # corresponds to: go to 9
                 ec_d1 = ec_xlom*ec_xlchi*ec_cochi
                 ec_d2 = ec_xlchi*ec_sichi
                 ec_cc = arctan2(ec_d2, ec_d1)/D2R
-                self.log.debug('xlom, xlchi, ec_cc = %s, %s, %s' %
-                               (ec_xlom, ec_xlchi, ec_cc))
+                self.log.debug('xlom, xlchi, ec_cc = %s, %s, %s',
+                               ec_xlom, ec_xlchi, ec_cc)
                 if ec_cc < -180:
                     ec_cc += 360
                 if ec_cc > 180:
@@ -308,12 +308,12 @@ class EulerianCradle(Moveable):
                 ec_d1 = ec_xlom*ec_copsi1 + ec_xlchi*ec_copsi2
                 ec_d2 = ec_xlom*ec_sipsi1 + ec_xlchi*ec_sipsi2
                 ec_p = arctan2(ec_d2, ec_d1)/D2R
-                self.log.debug('ec_p = %s' % ec_p)
+                self.log.debug('ec_p = %s', ec_p)
                 if ec_p < -180:
                     ec_p += 360.
                 if ec_p > 180:
                     ec_p -= 360.
-                self.log.debug('ec_p = %s' % ec_p)
+                self.log.debug('ec_p = %s', ec_p)
     #
     #         treatment of the third criterion
     #
@@ -342,7 +342,7 @@ class EulerianCradle(Moveable):
                 ec_d1 = ec_xlom*ec_coom
                 ec_d2 = ec_xlom*ec_siom
                 ec_om = arctan2(ec_d2, ec_d1)/D2R
-                self.log.debug('ec_om = %s' % ec_om)
+                self.log.debug('ec_om = %s', ec_om)
                 if ec_om < -180.:
                     ec_om += 360.
                 if ec_om > 180.:
@@ -489,11 +489,11 @@ class EulerianCradle(Moveable):
         # print 'd2_inv = \n', d2_inv
         ec_q1 = [cos((90-ang1[3]/2)*D2R), -sense*sin((90-ang1[3]/2)*D2R), 0]
         ec_q2 = [cos((90-ang2[3]/2)*D2R), -sense*sin((90-ang2[3]/2)*D2R), 0]
-        self.log.debug('ec_q1 = %s, ec_q2 = %s' % (ec_q1, ec_q2))
+        self.log.debug('ec_q1 = %s, ec_q2 = %s', ec_q1, ec_q2)
         ec_h1 = dot(self._Bmat, hkl1)
         ec_h2 = dot(self._Bmat, hkl2)
-        self.log.debug('ec_h1 = %s, ec_h2 = %s' % (ec_h1, ec_h2))
+        self.log.debug('ec_h1 = %s, ec_h2 = %s', ec_h1, ec_h2)
         ec_r1 = dot(d1_inv, ec_q1)
         ec_r2 = dot(d2_inv, ec_q2)
-        self.log.debug('ec_r1 = %s, ec_r2 = %s' % (ec_r1, ec_r2))
+        self.log.debug('ec_r1 = %s, ec_r2 = %s', ec_r1, ec_r2)
         return self.calc_orient(ec_h1, ec_h2, ec_r1, ec_r2)

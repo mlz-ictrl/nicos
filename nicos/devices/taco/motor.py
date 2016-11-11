@@ -75,7 +75,7 @@ class Motor(CanReference, TacoDevice, AbstractMotor):
         m1 = float(self._taco_guard(self._dev.deviceQueryResource, 'limitmin'))
         m2 = float(self._taco_guard(self._dev.deviceQueryResource, 'limitmax'))
         if m1 >= m2:
-            self.log.warning('TACO limitmin/max (%s, %s) are not usable' %
-                             (m1, m2))
+            self.log.warning('TACO limitmin/max (%s, %s) are not usable',
+                             m1, m2)
             return (0, 0)
         return (m1, m2)

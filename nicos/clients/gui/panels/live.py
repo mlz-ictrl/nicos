@@ -215,7 +215,7 @@ class LiveDataPanel(Panel):
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
         if not fname and normalized_type not in DATATYPES:
             self._last_format = self._last_fname = None
-            self.log.warning('Unsupported live data format: %s' % (params,))
+            self.log.warning('Unsupported live data format: %s', params)
             return
         self._last_tag = tag.lower()
         self._last_fname = fname

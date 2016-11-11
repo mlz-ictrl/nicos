@@ -52,17 +52,17 @@ def _wait_for_continuation(delay, only_pause=False):
             return True
         exp = session.experiment
         if req == 'finish':
-            session.log.warning('counting stopped: ' + current_msg)
+            session.log.warning('counting stopped: %s', current_msg)
             return False
         else:
-            session.log.warning('counting paused: ' + current_msg)
+            session.log.warning('counting paused: %s', current_msg)
         # allow the daemon to pause here, if we were paused by it
         session.breakpoint(3)
         # still check for other conditions
         while exp.pausecount:
             if exp.pausecount != current_msg:
                 current_msg = exp.pausecount
-                session.log.warning('counting paused: ' + current_msg)
+                session.log.warning('counting paused: %s', current_msg)
             session.delay(delay)
             # also allow the daemon to pause here
             session.breakpoint(3)
@@ -128,7 +128,7 @@ def acquire(point, preset):
                 for det in detset:
                     if not det.pause():
                         session.log.warning(
-                            'detector %r could not be paused' % det.name)
+                            'detector %r could not be paused', det.name)
                 if not _wait_for_continuation(delay):
                     for det in detset:
                         # next iteration of loop will see det is finished
@@ -190,7 +190,7 @@ def stop_acquire_thread():
     if session._thd_acquire and session._thd_acquire.isAlive():
         session.log.info('live() counting in progress, stopping detectors.')
         for det in session.data._current.detectors:
-            session.log.debug("stop detector: %s" % det)
+            session.log.debug("stop detector: %s", det)
             det.stop()
         session.log.debug("joining acquire thread")
         session._thd_acquire.join()

@@ -114,7 +114,7 @@ class CanReference(DeviceMixinBase):
         elif self._sim_active:
             return
         elif hasattr(self, 'fixed') and self.fixed:
-            self.log.error('device fixed, not referencing: %s' % self.fixed)
+            self.log.error('device fixed, not referencing: %s', self.fixed)
             return
         newpos = self.doReference(*args)
         if newpos is None:

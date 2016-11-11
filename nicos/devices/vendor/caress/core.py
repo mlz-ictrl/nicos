@@ -139,7 +139,7 @@ class CARESSDevice(HasCommunication):
             while not self.cid:
                 session.delay(0.5)
             return self.cid
-        self.log.debug('Get CARESS device ID: %r' % (device,))
+        self.log.debug('Get CARESS device ID: %r', device)
         answer = subprocess.Popen('cd %s && %s/dump_u1 -n %s' %
                                   (self.caresspath, self.toolpath, device, ),
                                   shell=True,
@@ -154,7 +154,7 @@ class CARESSDevice(HasCommunication):
             res = CARESSDevice._caress_maps[device]
         else:
             res = int(answer.split('=')[1])
-        self.log.debug('Get CARESS device ID: %r' % (res,))
+        self.log.debug('Get CARESS device ID: %r', res)
         return res
 
     def _is_corba_device(self):
@@ -182,7 +182,7 @@ class CARESSDevice(HasCommunication):
                     self.config.split()[2].split('.')
                 if len(tmp) < 2:
                     tmp.append('caress_object')
-                self.log.debug('%r' % tmp)
+                self.log.debug('%r', tmp)
                 obj = _root_context.resolve([CosNaming.NameComponent(tmp[0],
                                                                      tmp[1]), ])
             except CosNaming.NamingContext.NotFound as ex:
@@ -234,7 +234,7 @@ class CARESSDevice(HasCommunication):
             if session.sessiontype != POLLER:
                 if hasattr(self._caressObject, 'init_system_orb'):
                     if not CARESSDevice._caress_initialized:
-                        self.log.debug(self, 'initialize the CARESS absdev '
+                        self.log.debug('initialize the CARESS absdev '
                                        'container')
                         if self._caressObject.init_system_orb(0)[0] in \
                            (0, CARESS.OK):
@@ -248,7 +248,7 @@ class CARESSDevice(HasCommunication):
 
             res = self._caressObject.init_module(INIT_CONNECT, self.cid,
                                                  _config)
-            self.log.debug(self, 'INIT_CONNECT: %r' % ((res, )))
+            self.log.debug('INIT_CONNECT: %r', res)
             if res[0] in (0, CARESS.OK):
                 if res[1] == OFF_LINE:
                     res = self._caressObject.init_module(INIT_REINIT, self.cid,
@@ -256,16 +256,16 @@ class CARESSDevice(HasCommunication):
             else:
                 res = self._caressObject.init_module(INIT_NORMAL, self.cid,
                                                      _config)
-            self.log.debug('Init module (Connect): %r' % (res,))
+            self.log.debug('Init module (Connect): %r', res)
             if res[0] not in (0, CARESS.OK) or res[1] == OFF_LINE:
                 raise NicosError(self, 'Could not initialize module! (%r) %d' %
                                  ((res,), self._device_kind()))
             # res = self._caressObject.init_module(INIT_REINIT, self.cid,
             #                                          _config)
-            # self.log.debug('Init module (Re-Init): %r' % (res,))
+            # self.log.debug('Init module (Re-Init): %r', res)
             # if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-            #     self.log.error('Init module (Re-Init): %r (%d, %s)' %
-            #                    (res, self.cid, self.config))
+            #     self.log.error('Init module (Re-Init): %r (%d, %s)',
+            #                    res, self.cid, self.config)
             if self._device_kind() == CORBA_DEVICE:
                 if self.absdev:
                     res = self._caressObject \
@@ -331,9 +331,9 @@ class CARESSDevice(HasCommunication):
             return (state, val.l,)
         else:
             _ = ()
-            self.log.debug(self, 'read module: %d' % self.cid)
+            self.log.debug('read module: %d', self.cid)
             result = self._caressObject.read_module_orb(0, self.cid, _)
-            self.log.debug('read_module: %r' % (result,))
+            self.log.debug('read_module: %r', result)
             if result[0] != 0:
                 raise CommunicationError(self,
                                          'Could not read the CARESS module: %d'
@@ -380,7 +380,7 @@ class CARESSDevice(HasCommunication):
         except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:
             tries = self.comtries - 1
             while True and tries > 0:
-                self.log.warning('Remaining tries: %d' % tries)
+                self.log.warning('Remaining tries: %d', tries)
                 session.delay(self.comdelay)
                 if isinstance(err, CORBA.TRANSIENT):
                     CARESSDevice.doShutdown(self)

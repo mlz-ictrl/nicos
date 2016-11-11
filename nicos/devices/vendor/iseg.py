@@ -144,4 +144,4 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         if resp:
             raise CommunicationError(self, 'could not save ramp, reply from '
                                      'device: %r' % resp)
-        self.log.info('ramp set to %d V/min and stored in EEPROM' % (ramp*60))
+        self.log.info('ramp set to %d V/min and stored in EEPROM', ramp * 60)

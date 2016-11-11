@@ -167,7 +167,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
                 limits[i] = float(self._dev.deviceQueryResource(res))
             except Exception as err:
                 if str(err) != 'resource not supported':
-                    self.log.warning('Could not query %s: %s' % (res, err))
+                    self.log.warning('Could not query %s: %s', res, err)
         return tuple(limits)
 
     def doReadMaxheaterpower(self):
@@ -190,7 +190,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         # helper for all resources which need to stop the devices first.
         # do it, but give a warning
         self.log.warning('Stopping device to set %r, you may need to '
-                         'start/move it again.' % resource)
+                         'start/move it again.', resource)
         self._taco_guard(self._dev.stop)
         # do wait for real stop
         self._hw_wait()
@@ -223,5 +223,5 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
             self.__stop_and_set('usermax', limits[1])
         except Exception as err:
             if str(err) != 'resource not supported':
-                self.log.warning('Error during update of usermax resource: %s'
-                                 % err)
+                self.log.warning('Error during update of usermax resource: %s',
+                                 err)

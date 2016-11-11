@@ -70,8 +70,8 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
             maxdelta = value * (self.variance/100.) + 0.1
             if abs(newvalue - value) > maxdelta:
                 if not fromvarcheck:
-                    self.log.warning('value %s instead of %s exceeds variance'
-                                     % (newvalue, value))
+                    self.log.warning('value %s instead of %s exceeds variance',
+                                     newvalue, value)
                     self.doStart(value, fromvarcheck=True)
                 else:
                     raise MoveError(self,

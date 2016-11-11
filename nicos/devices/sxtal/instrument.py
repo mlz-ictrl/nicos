@@ -129,16 +129,14 @@ class SXTalBase(Instrument, Moveable):
                 ok = False
                 why += 'target position %s outside limits for %s: %s -- ' % \
                     (dev.format(value, unit=True), dev, devwhy)
-            self.log.info('%-14s %8.3f %s' % (dev.name + ':',
-                                              value,
-                                              dev.unit))
+            self.log.info('%-14s %8.3f %s', dev.name + ':', value, dev.unit)
         if ok:
             self._last_calpos = hkl
             if checkonly:
                 self.log.info('position allowed')
         else:
             if checkonly:
-                self.log.warning('position not allowed: ' + why[:-4])
+                self.log.warning('position not allowed: %s', why[:-4])
             else:
                 raise LimitError(self, 'position not allowed: ' + why[:-4])
 
@@ -146,7 +144,7 @@ class SXTalBase(Instrument, Moveable):
         """Implements the pos2hkl() command."""
         pos = self._createPos(**kwds).asC()
         hkl = session.experiment.sample.cell.hkl(pos.c)
-        self.log.info('pos: [%.4f, %.4f, %.4f]' % tuple(hkl))
+        self.log.info('pos: [%.4f, %.4f, %.4f]', *hkl)
 
     def doIsAllowed(self, hkl):
         try:

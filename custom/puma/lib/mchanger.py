@@ -78,7 +78,7 @@ class Mchanger(Moveable):
         try:
             carpos = self._startCheck()
             if carpos == target:
-                self.log.info(target + ' is already in the beam.')
+                self.log.info('%s is already in the beam.', target)
                 return
 
             self._move2start()
@@ -88,14 +88,14 @@ class Mchanger(Moveable):
             raise
 
         if carpos != 'None':
-            self.log.info('Remove ' + carpos)
+            self.log.info('Remove %s', carpos)
             self._focusOut()
             self._change_alias('None')
             self._moveUp(carpos)
 
         # now carpos is 'none' ....
         if target != 'None':
-            self.log.info('Put down ' + target)
+            self.log.info('Put down %s', target)
             self._moveDown(target)
             self._change_alias(target)
             self._focusOn()
@@ -121,7 +121,7 @@ class Mchanger(Moveable):
         return carpos
 
     def _move2start(self):
-        self.log.info('Move %s for monochromator change' %
+        self.log.info('Move %s for monochromator change',
                       ', '.join(sorted(self.changing_positions)))
 
         for dev, pos in self._changing_values.items():
@@ -141,7 +141,7 @@ class Mchanger(Moveable):
 #       self._attached_monochromator.fix('Monochromator change in progress')
 
         # test this!
-#       self.log.debug('Disabling Powerstages for %s' %
+#       self.log.debug('Disabling Powerstages for %s',
 #                       ', '.join(sorted(self.changing_positions)))
 #       for dev in self.changing_positions:
 #           dev.power = 'off'
@@ -178,7 +178,7 @@ class Mchanger(Moveable):
     def _finalize(self):
         ''' to be called after a successfull monochange'''
         # test this!
-#       self.log.debug('Enabling Powerstages for %s' %
+#       self.log.debug('Enabling Powerstages for %s',
 #                      ', '.join(sorted(self.changing_positions)))
 #       for dev in self._changing_values:
 #           dev.power = 'on'
@@ -239,8 +239,7 @@ class Mchanger(Moveable):
         aliastarget = self.mapping.get(pos, None)
         aliasdevice = self._attached_monochromator
         if aliastarget and hasattr(aliasdevice, 'alias'):
-            self.log.info('switching alias %r to %r' % (aliasdevice,
-                                                        aliastarget))
+            self.log.info('switching alias %r to %r', aliasdevice, aliastarget)
             aliasdevice.alias = session.getDevice(aliastarget)
         else:
             self.log.info('NOT changing Aliasdevice')
@@ -259,11 +258,11 @@ class Mchanger(Moveable):
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
-            self.log.info('Open %s' % dev.name)
+            self.log.info('Open %s', dev.name)
         elif pos == 'closed':
-            self.log.info('Close %s' % dev.name)
+            self.log.info('Close %s', dev.name)
         else:
-            self.log.info('Move %s to %r position' % (dev.name, pos))
+            self.log.info('Move %s to %r position', dev.name, pos)
         try:
             dev.start(pos)
             if devicename == 'r3':  # R3 does not wait!

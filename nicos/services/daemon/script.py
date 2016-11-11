@@ -347,8 +347,8 @@ class ExecutionController(Controller):
             # don't pause/stop here...
             self.set_continue(flag)
         else:
-            self.log.info('script paused in %s' % self.current_location())
-            session.log.info('Script paused by %s' % flag[2])
+            self.log.info('script paused in %s', self.current_location())
+            session.log.info('Script paused by %s', flag[2])
             self.eventfunc('status', (STATUS_INBREAK, self.lineno))
         new_flag = self.wait_for_continue()
         # new_flag is either a flag coming from Handler.stop(), from
@@ -356,13 +356,13 @@ class ExecutionController(Controller):
         if not new_flag:
             # new_flag == None means continue
             self.log.info('paused script continued')
-            session.log.info('Script continued by %s' % flag[2])
+            session.log.info('Script continued by %s', flag[2])
         elif new_flag[1] < bplevel:
             # didn't pause/stop here, try again on next breakpoint
             self.set_break(new_flag)
         elif new_flag[0] in ('stop', 'emergency stop'):
             # we can stop here, do it
-            self.log.info('paused script now stopped: %s' % (new_flag,))
+            self.log.info('paused script now stopped: %s', new_flag)
             self.set_stop(new_flag)
 
     def current_location(self, verbose=False):
@@ -404,9 +404,9 @@ class ExecutionController(Controller):
             if message:
                 suffix += ': ' + message
             if level == BREAK_AFTER_LINE:
-                session.log.info('Stop after command requested by ' + suffix)
+                session.log.info('Stop after command requested by %s', suffix)
             else:
-                session.log.info('Stop requested by ' + suffix)
+                session.log.info('Stop requested by %s', suffix)
             self.block_all_requests()
             self.set_break(('stop', level, user.name))
             if level >= BREAK_NOW:
@@ -428,7 +428,7 @@ class ExecutionController(Controller):
         suffix = user.name
         if message:
             suffix += ': ' + message
-        session.log.warn('Immediate stop requested by ' + suffix)
+        session.log.warn('Immediate stop requested by %s', suffix)
         self.block_all_requests()
         if self.status == STATUS_RUNNING:
             self.set_break(('emergency stop', 5, user.name))
@@ -576,7 +576,7 @@ class ExecutionController(Controller):
         # now execute emergency stop functions
         for (func, args) in self.estop_functions:
             try:
-                self.log.info('executing ESF: %s%s' % (func, args))
+                self.log.info('executing ESF: %s%s', func, args)
                 func(*args)
             except Exception:
                 self.log.exception('ESF raised error')
@@ -609,15 +609,15 @@ class ExecutionController(Controller):
                 request = self.queue.get()
                 self.reqno_work = request.reqno
                 if request.reqno in self.blocked_reqs:
-                    self.log.info('request %d blocked, continuing' %
+                    self.log.info('request %d blocked, continuing',
                                   request.reqno)
                     continue
-                self.log.info('processing request %d' % request.reqno)
+                self.log.info('processing request %d', request.reqno)
                 if isinstance(request, EmergencyStopRequest):
                     self.execute_estop(request.user)
                     continue
                 elif not isinstance(request, ScriptRequest):
-                    self.log.error('unknown request: %s' % request)
+                    self.log.error('unknown request: %s', request)
                     continue
                 # notify clients that we're processing this request now
                 self.eventfunc('processing', request.serialize())
@@ -643,7 +643,7 @@ class ExecutionController(Controller):
                         # queued before the "stop" command was given; scripts
                         # that are queued after that should be executed, so
                         # we don't block requests here
-                        session.log.info('Script stopped by %s' % (err.args[2],))
+                        session.log.info('Script stopped by %s', err.args[2])
                 except BdbQuit as err:  # pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
                 except Exception as err:  # pylint: disable=E0701

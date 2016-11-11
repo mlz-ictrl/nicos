@@ -36,7 +36,7 @@ class Motor(_Motor):
             _Motor.reset(self)
         else:
             self.log.warning('Resetting triple cards disabled. If you REALLY '
-                             'want to reset, use %s.reallyReset() method' %
+                             'want to reset, use %s.reallyReset() method',
                              self.name)
 
     @usermethod

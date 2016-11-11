@@ -67,7 +67,7 @@ class THM(Measurable):
             busno = int(usbbus_pat.search(devline).group(1))
             devno = int(usbdev_pat.search(devline).group(1))
             usbdevfsfile = '/proc/bus/usb/%03d/%03d' % (busno, devno)
-            self.log.debug('usbdevfs file is %s' % usbdevfsfile)
+            self.log.debug('usbdevfs file is %s', usbdevfsfile)
             dfile = os.open(usbdevfsfile, os.O_RDWR)
             fcntl.ioctl(dfile, USBDEVFS_RESET)
             self.log.debug('USBDEVFS_RESET ioctl done')
@@ -81,7 +81,7 @@ class THM(Measurable):
         self._io = os.open(self.device, os.O_RDWR)
         try:
             ident = self._query('*IDN?', binary=False, t=0)
-            self.log.debug('sensor identification: %s' % ident)
+            self.log.debug('sensor identification: %s', ident)
             self._execute('FORMAT INTEGER')
             self.doRead()
         except CommunicationError:
@@ -105,7 +105,7 @@ class THM(Measurable):
             if not binary:
                 ret = ret.decode()
         except OSError as err:
-            self.log.debug('exception in query: %s' % err)
+            self.log.debug('exception in query: %s', err)
             if t == 0:
                 raise CommunicationError(self, 'error querying: %s' % err)
             session.delay(0.5)
@@ -137,7 +137,7 @@ class THM(Measurable):
             self.doReset()
             return self._check_status(t-1)
         if status != '0':
-            self.log.warning('status byte = %s, clearing' % status)
+            self.log.warning('status byte = %s, clearing', status)
             os.write(self._io, b'*CLS\n')
 
     @usermethod

@@ -41,7 +41,7 @@ def createPanel(item, window, menuwindow, topwindow, log):
     try:
         cls = importString(item.clsname, prefixes=prefixes)
     except Exception:
-        log.exception('Could not import class %s to create panel' %
+        log.exception('Could not import class %s to create panel',
                       item.clsname)
         return None
     p = cls(menuwindow, window.client)
@@ -100,8 +100,8 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
         dw.setContentsMargins(6, 6, 6, 6)
         dockPos = item.options.get('dockpos', 'left')
         if dockPos not in dockPosMap:
-            log.warn('Illegal dockpos specification %s for panel %r'
-                     % (dockPos, title))
+            log.warn('Illegal dockpos specification %s for panel %r',
+                     dockPos, title)
             dockPos = 'left'
         menuwindow.addDockWidget(dockPosMap[dockPos], dw)
     return main

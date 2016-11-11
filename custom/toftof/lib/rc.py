@@ -67,7 +67,7 @@ class ModBusDriverHP(TacoDevice, Device):
             else:
                 raise ProgrammingError(self, 'unknown command: %s' % (istr2,))
         maxtry = self.maxtries
-        self.log.debug('bus write : %s' % (istr,))
+        self.log.debug('bus write: %s', istr)
         while 1:
             if hcmd[0] == 3:
                 ret = self._taco_guard(self._dev.communicate, istr)
@@ -181,7 +181,7 @@ class RadialCollimator(HasTimeout, Moveable):
 
     def doStop(self):
         self.log.info('note: radial collimator does not use stop() anymore, '
-                      'use move(%s, "off")' % self)
+                      'use move(%s, "off")', self)
 
     def _rc_status(self):
         try:
@@ -190,7 +190,7 @@ class RadialCollimator(HasTimeout, Moveable):
             raise CommunicationError(self, 'could not get the status of the '
                                      'motor axis of the radial collimator')
         val = int(ret[ret.find(":")+1:-1])
-        self.log.debug('_rc_status is %d, 0x%04x' % (val, val))
+        self.log.debug('_rc_status is %d, 0x%04x', val, val)
         return val
 
     def doStatus(self, maxage=0):

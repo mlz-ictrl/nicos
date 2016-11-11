@@ -59,13 +59,14 @@ class ResiExperiment(Experiment):
         except Exception:
             if path.exists(self.proposalsymlink):
                 self.log.error('"current" link to old experiment dir exists '
-                                'but cannot be read', exc=1)
+                               'but cannot be read', exc=1)
             else:
                 self.log.warning('no old experiment dir is currently set',
-                                  exc=1)
+                                 exc=1)
         else:
             if old_proposal.startswith('p'):
-                disableDirectory(self.proposalpath_of(old_proposal), logger=self.log)
+                disableDirectory(self.proposalpath_of(old_proposal),
+                                 logger=self.log)
             os.unlink(self.proposalsymlink)
 
         # query new cycle
@@ -75,7 +76,7 @@ class ResiExperiment(Experiment):
                 kwds['cycle'] = cycle
             except Exception:
                 self.log.error('cannot query reactor cycle, please give a '
-                                '"cycle" keyword to this function')
+                               '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
 
         # checks are done, set the new experiment

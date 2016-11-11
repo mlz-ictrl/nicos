@@ -58,7 +58,7 @@ class SafetyInputs(Readable):
         state = self._readHWState(maxage)
         self.log.info('val description')
         for i, bit in enumerate(bin(state)[2:][::-1]):
-            self.log.info('%s   %s' % (bit, bit_description[i]))
+            self.log.info('%s   %s', bit, bit_description[i])
         return state
 
     def doStatus(self, maxage=0):
@@ -95,7 +95,7 @@ class Shutter(Moveable):
 
     def doStop(self):
         self.log.info('note: shutter collimator does not use stop() anymore, '
-                      'use move(%s, "closed")' % self)
+                      'use move(%s, "closed")', self)
 
     def doRead(self, maxage=0):
         ret = self._attached_status.read(maxage)

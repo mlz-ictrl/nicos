@@ -138,5 +138,5 @@ def checkSetupSpec(setupspec, setups, compat='or', log=None):
         return eval(expr, ns)
     except Exception:  # wrong spec -> visible
         if log:
-            log.warning('invalid setup spec: %r' % setupspec)
+            log.warning('invalid setup spec: %r', setupspec)
         return True

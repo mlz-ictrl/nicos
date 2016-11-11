@@ -64,8 +64,8 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
         self._setROParam("maxspeed", self.microstep / self.maxmovetime)
         self._delay = self.maxtime
         if self.speed < 1e-8:
-            self.log.warning("Speed has not been set. Set maximum speed %.4f"
-                             % self.maxspeed)
+            self.log.warning("Speed has not been set. Set maximum speed %.4f",
+                             self.maxspeed)
             self.speed = self.maxspeed
 
     @property
@@ -104,25 +104,25 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
         self.log.debug("""
    delay: %.4f
 maxspeed: %.4f
- maxtime: %.4f""" % (delay, self.maxspeed, self.maxtime))
+ maxtime: %.4f""", delay, self.maxspeed, self.maxtime)
         if value < self.maxspeed or math.fabs(self.maxspeed - value) < 1e-5:
             self._delay = delay
         else:
-            raise LimitError(self, "Speed to high. Maximum speed is %.4f"
+            raise LimitError(self, "Speed too high. Maximum speed is %.4f"
                              % self.maxspeed)
 
     def doWriteMaxtime(self, value):
         self._setROParam("maxspeed", self.microstep / self._maxmovetime(value))
         if self.speed > self.maxspeed:
-            self.log.warning("Speed to high. Set speed to %.4f"
-                             % self.maxspeed)
+            self.log.warning("Speed too high. Set speed to %.4f",
+                             self.maxspeed)
             self.speed = self.maxspeed
 
     def doWriteMicrostep(self, value):
         self._setROParam("maxspeed", value / self.maxmovetime)
         if self.speed > self.maxspeed:
-            self.log.warning("Speed to high. Set speed to %.4f"
-                             % self.maxspeed)
+            self.log.warning("Speed too high. Set speed to %.4f",
+                             self.maxspeed)
             self.speed = self.maxspeed
 
     def doRead(self, maxage=0):
@@ -146,7 +146,7 @@ maxspeed: %.4f
         t = time.time()
         res = BaseSequencer._sequence(self, sequence)
         t = time.time() - t
-        self.log.info("Movement finished, time elapsed %.4f." % t)
+        self.log.info("Movement finished, time elapsed %.4f.", t)
         return res
 
     def doStop(self):

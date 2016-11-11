@@ -151,10 +151,10 @@ class DaemonSession(NoninteractiveSession):
         try:
             data = self._helper.generate(obj)
         except ValueError:
-            self.log.info('Sorry, no help exists for %r.' % obj)
+            self.log.info('Sorry, no help exists for %r.', obj)
             return
         except Exception:
-            self.log.warning('Could not generate the help for %r' % obj, exc=1)
+            self.log.warning('Could not generate the help for %r', obj, exc=1)
             return
         if not isinstance(obj, string_types):
             self.log.info('Showing help in the calling client...')
@@ -201,5 +201,5 @@ class DaemonSession(NoninteractiveSession):
     def watchdogEvent(self, event, time, data):
         """Handle a watchdog alarm event."""
         if event == 'warning':
-            self.log.warning('WATCHDOG ALERT: %s' % data)
+            self.log.warning('WATCHDOG ALERT: %s', data)
         self.emitfunc('watchdog', (event, time, data))

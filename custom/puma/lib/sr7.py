@@ -66,7 +66,7 @@ class SR7Shutter(HasTimeout, Moveable):
         self._attached_sr7set.start(self.positions.index(pos))
         if self.wait() != pos:
             raise PositionError(self, 'device returned wrong position')
-        self.log.info('SR7: %s' % pos)
+        self.log.info('SR7: %s', pos)
 
     def doRead(self, maxage=0):
         res = self.doStatus()[0]

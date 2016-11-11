@@ -114,7 +114,7 @@ class EthernetCommunicator(Communicator):
         Communicator.doInit(self, mode)
 
     def _connect(self):
-        self.log.info('Connecting to %r' % self.host)
+        self.log.info('Connecting to %r', self.host)
         self._sock = tcpSocket(self.host, defaultport=14728)
         # set connected true if tcpSocket does not raise a socket.error
         self._connected = True
@@ -163,7 +163,7 @@ class SerialCommunicator(Communicator):
     def _connect(self):
         try:
             self._dev = serial.Serial(self.devfile, timeout=self.timeout)
-            self.log.info('Connected to %r' % self.devfile)
+            self.log.info('Connected to %r', self.devfile)
             self._connected = True
         except serial.SerialException:
             raise serial.SerialException('Could not connect to %r' % self.devfile)

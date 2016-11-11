@@ -114,10 +114,10 @@ class Mailer(Notifier):
             ret = sendMail(self.mailserver, receivers, self.sender,
                            self.subject + ' -- ' + subject, body)
             if not ret:  # on error, ret is a list of errors
-                self.log.info('%smail sent to %s' % (
-                    what and what + ' ' or '', ', '.join(receivers)))
+                self.log.info('%smail sent to %s',
+                              what and what + ' ' or '', ', '.join(receivers))
             else:
-                self.log.warning('sending mail failed: %s' % ', '.join(ret))
+                self.log.warning('sending mail failed: %s', ', '.join(ret))
         if not self._checkRateLimit():
             return
         createThread('mail sender', send)
@@ -182,7 +182,7 @@ class SMSer(Notifier):
             return
         body = self.subject + ': ' + (short or body)
         body = self._transcode(body)[:160]
-        self.log.debug('sending SMS to %s' % ', '.join(receivers))
+        self.log.debug('sending SMS to %s', ', '.join(receivers))
         try:
             for receiver in receivers:
                 proc = subprocess.Popen(['sendsms', '-Q', '-d', receiver,
@@ -196,6 +196,6 @@ class SMSer(Notifier):
         except Exception:
             self.log.exception('sendsms failed')
             return False
-        self.log.info('%sSMS message sent to %s' % (
-            what and what + ' ' or '', ', '.join(receivers)))
+        self.log.info('%sSMS message sent to %s',
+                      what and what + ' ' or '', ', '.join(receivers))
         return True

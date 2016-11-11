@@ -88,8 +88,8 @@ class UDCReadable(Readable):
             self.log.debug("Init in simulation mode: release the connection")
             self._device.release()
             return
-        self.log.debug("Set internal polling interval to %d ms" %
-                       (int(self.pollinterval) * 500))
+        self.log.debug("Set internal polling interval to %d ms",
+                       int(self.pollinterval) * 500)
         self._device.setPollingIntervalTime_ms(int(self.pollinterval) * 500)
         self.log.debug("Init no simulation mode: connect to device")
 
@@ -115,7 +115,7 @@ class UDCReadable(Readable):
     def doStatus(self, maxage=0):
         if self._device.getIsConnected():
             devstatus = self._device.getStatus()
-            self.log.debug('status: %s' % devstatus)
+            self.log.debug('status: %s', devstatus)
             if devstatus == UDC.status_done:
                 return status.OK, 'done'
             elif devstatus == UDC.status_run:
@@ -151,14 +151,14 @@ class UDCWriteable(HasLimits, HasPrecision, UDCReadable, Moveable):
     It is not forbidden to create more than one client, but it can fail.
     """
     def _setPrecisionAndRanges(self):
-        self.log.debug("set Ranges: min=%s max=%s" % self.abslimits)
+        self.log.debug("set Ranges: min=%s max=%s", self.absmin, self.absmax)
         self._device.setRanges(*self.abslimits)
-        self.log.debug("set Tolerance: precision=%s" % self.precision)
+        self.log.debug("set Tolerance: precision=%s", self.precision)
         self._device.setToleranz(self.precision)
 
     # Functions from Moveable
     def doStart(self, pos):
-        self.log.debug("Start movement: target=%s" % pos)
+        self.log.debug("Start movement: target=%s", pos)
         self._device.setTargetValue(pos)
         self._device.start()
         self._device.waitToCmdExecuted()
@@ -190,7 +190,7 @@ class UDCReadableDevice(UDCReadable):
                                    "to create an instance with the type %s"
                                    % self.dev_type)
 
-        self.log.debug("Create UDevice from the dev_type %s" % self.dev_type)
+        self.log.debug("Create UDevice from the dev_type %s", self.dev_type)
         self._device = UDC.UDevice(self.dev_type)
         self._device.setSettingsFilePath(self.path)
 
@@ -215,8 +215,8 @@ class UDCWriteableDevice(UDCReadableDevice, UDCWriteable):
                                    "to create an instance with the type %s"
                                    % self.dev_type)
 
-        self.log.debug("Create UDeviceControllable from the dev_type %s"
-                       % self.dev_type)
+        self.log.debug("Create UDeviceControllable from the dev_type %s",
+                       self.dev_type)
         self._device = UDC.UDeviceControllable(self.dev_type)
         self._device.setSettingsFilePath(self.path)
 
@@ -238,11 +238,11 @@ class UDCReadableCaressDevice(UDCReadable):
     }
 
     def _setDeviceCaressParameter(self, device, mode):
-        self.log.debug("Set CORBA_Server_Name=" + self.corba_server_name)
+        self.log.debug("Set CORBA_Server_Name=%s", self.corba_server_name)
         device.setCorbaServerName(self.corba_server_name)
-        self.log.debug("Set CORBA_Device_Name=" + self.corba_device_name)
+        self.log.debug("Set CORBA_Device_Name=%s", self.corba_device_name)
         device.setCorbaDeviceName(self.corba_device_name)
-        self.log.debug("Set CORBA_Init_Line=" + self.corba_init_line)
+        self.log.debug("Set CORBA_Init_Line=%s", self.corba_init_line)
         device.setCorbaInitParameterLine(self.corba_init_line)
         device.setName(self.name)
         if mode == 'master':
@@ -270,7 +270,7 @@ class UDCReadableCaressDevice(UDCReadable):
                                    % self.dev_type)
 
         # Create the instance of the device
-        self.log.debug("Create UDevice from the dev_type %s" % self.dev_type)
+        self.log.debug("Create UDevice from the dev_type %s", self.dev_type)
         self._device = UDC.UDevice(self.dev_type)
 
         # Create a casted instance of the device.
@@ -309,7 +309,7 @@ class UDCWriteableCaressDevice(UDCReadableCaressDevice, UDCWriteable):
 
         if mode == 'slave':
             # Create the instance of the device
-            self.log.debug("Create UDevice from the dev_type %s" %
+            self.log.debug("Create UDevice from the dev_type %s",
                            self.dev_type)
             self._device = UDC.UDevice(self.dev_type)
             # Create a casted instance of the device.
@@ -319,7 +319,7 @@ class UDCWriteableCaressDevice(UDCReadableCaressDevice, UDCWriteable):
             self._setDeviceCaressParameter(deviceTemp, mode)
         else:
             # Create the instance of the device
-            self.log.debug("Create UDeviceControllable from the dev_type %s" %
+            self.log.debug("Create UDeviceControllable from the dev_type %s",
                            self.dev_type)
             self._device = UDC.UDeviceControllable(self.dev_type)
             # Create a casted instance of the device.

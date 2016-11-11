@@ -195,8 +195,8 @@ class TofImageSinkHandler(TofSinkHandler):
                 f.write('MinimumSampleTemperature: %10.4f K\n' % _min)
                 f.write('MaximumSampleTemperature: %10.4f K\n' % _max)
                 self.log.info('Sample: current: %.4f K, average: %.4f K, '
-                              'stddev: %.4f K, min: %.4f K, max: %.4f K' %
-                              (_ct, _mean, _std, _min, _max))
+                              'stddev: %.4f K, min: %.4f K, max: %.4f K',
+                              _ct, _mean, _std, _min, _max)
             elif dev.name == 'B':
                 _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                 f.write('AverageMagneticfield: %.4f %s\n' % (_mean, dev.unit))
@@ -225,7 +225,7 @@ class TofImageSinkHandler(TofSinkHandler):
         f.write('aData(%u,%u): \n' % (data.shape[0], data.shape[1]))
         np.savetxt(f, data, '%d')
         syncFile(f)
-        self.log.debug('Rename from %s to %s' % (f.filepath, fp.filepath))
+        self.log.debug('Rename from %s to %s', f.filepath, fp.filepath)
         os.rename(f.filepath, fp.filepath)
 
     def putResults(self, quality, results):
@@ -242,9 +242,9 @@ class TofImageSinkHandler(TofSinkHandler):
                 rates = reduce(operator.add, rates)
                 detrate, monrate, detrate_inst, monrate_inst = rates
                 self.log.info('Monitor: rate: %8.3f counts/s, instantaneous '
-                              'rate: %8.3f counts/s' % (monrate, monrate_inst))
+                              'rate: %8.3f counts/s', monrate, monrate_inst)
                 self.log.info('Signal: rate: %8.3f counts/s, instantaneous '
-                              'rate: %8.3f counts/s' % (detrate, detrate_inst))
+                              'rate: %8.3f counts/s', detrate, detrate_inst)
                 self.writeData(self._datafile, info, data)
 
     def end(self):

@@ -253,5 +253,5 @@ class SelectorLambda(Moveable):
 
     def doStart(self, value):
         speed = int(self._constant() / value)
-        self.log.debug('moving selector to %f rpm' % speed)
+        self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)

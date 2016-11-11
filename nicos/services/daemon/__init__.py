@@ -99,8 +99,8 @@ class Server(socketserver.TCPServer):
         while self.pending_clients[host, clid] is None:
             time.sleep(0.2)
         handler = self.pending_clients[host, clid]
-        self.daemon.log.debug('event connection from %s for handler #%d' %
-                              (host, handler.ident))
+        self.daemon.log.debug('event connection from %s for handler #%d',
+                              host, handler.ident)
         handler.event_sock = request
         createThread('event_sender %d' % handler.ident, handler.event_sender,
                      args=(request,))
@@ -224,7 +224,7 @@ class NicosDaemon(Device):
             try:
                 handler.event_queue.put((event, data), True, 0.05)
             except queue.Full:
-                self.log.warning('handler %s: event queue full' % handler.ident)
+                self.log.warning('handler %s: event queue full', handler.ident)
 
     def emit_event_private(self, event, data):
         """Emit an event to only the calling handler."""
@@ -235,7 +235,7 @@ class NicosDaemon(Device):
             try:
                 handler.event_queue.put((event, data), True, 0.05)
             except queue.Full:
-                self.log.warning('handler %s: event queue full' % handler.ident)
+                self.log.warning('handler %s: event queue full', handler.ident)
 
     def clear_handlers(self):
         """Remove all handlers."""
@@ -249,13 +249,13 @@ class NicosDaemon(Device):
                 name = active[tid].getName()
             else:
                 name = str(tid)
-            self.log.info('%s: %s' %
-                          (name, ''.join(traceback.format_stack(frame))))
+            self.log.info('%s: %s', name,
+                          ''.join(traceback.format_stack(frame)))
 
     def start(self):
         """Start the daemon's server."""
-        self.log.info('NICOS daemon v%s started, starting server on %s' %
-                      (nicos_version, self.server))
+        self.log.info('NICOS daemon v%s started, starting server on %s',
+                      nicos_version, self.server)
         # startup the script thread
         self._controller.start_script_thread()
         self._worker = createThread('daemon server', self._server.serve_forever,
@@ -267,7 +267,7 @@ class NicosDaemon(Device):
         self._worker.join()
 
     def quit(self, signum=None):
-        self.log.info('quitting on signal %s...' % signum)
+        self.log.info('quitting on signal %s...', signum)
         self._stoprequest = True
         self._server.shutdown()
         self._worker.join()

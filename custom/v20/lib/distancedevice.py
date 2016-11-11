@@ -92,10 +92,10 @@ class CenteredDistanceDevice(HasLimits, CanReference, Moveable):
     def doReference(self):
         for ax in self._axes:
             if isinstance(ax, CanReference):
-                self.log.info('referencing %s...' % ax)
+                self.log.info('referencing %s...', ax)
                 ax.reference()
             else:
-                self.log.warning('%s cannot be referenced' % ax)
+                self.log.warning('%s cannot be referenced', ax)
 
     def doRead(self, maxage=0):
         pos_a = self._attached_a.read(maxage)

@@ -80,7 +80,7 @@ def move(*dev_pos_list):
     >>> wait(dev, dev1, dev2)          # now wait for all of them
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos, unit=True))
+        dev.log.info('moving to %s', dev.format(pos, unit=True))
         dev.move(pos)
 
 
@@ -107,12 +107,12 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos, unit=True))
+        dev.log.info('moving to %s', dev.format(pos, unit=True))
         dev.move(pos)
         devs.append(dev)
     values = multiWait(devs)
     for dev in devs:
-        dev.log.info('at %20s %s' % (dev.format(values[dev]), dev.unit))
+        dev.log.info('at %20s %s', dev.format(values[dev]), dev.unit)
 
 
 @hiddenusercommand
@@ -154,7 +154,7 @@ def wait(*devlist):
             dev.log.exception('error waiting for device')
             continue
         if value is not None:
-            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
+            dev.log.info('at %20s %s', dev.format(value), dev.unit)
 
 
 @usercommand
@@ -192,13 +192,12 @@ def read(*devlist):
         if isinstance(dev, Moveable):
             target = dev.target
             if target is not None and dev.format(target) != dev.format(value):
-                dev.log.info('at %20s %-5s  (target: %20s %s)' %
-                             (dev.format(value), unit, dev.format(target),
-                              unit))
+                dev.log.info('at %20s %-5s  (target: %20s %s)',
+                             dev.format(value), unit, dev.format(target), unit)
             else:
-                dev.log.info('at %20s %-5s' % (dev.format(value), unit))
+                dev.log.info('at %20s %-5s', dev.format(value), unit)
         else:
-            dev.log.info('at %20s %-5s' % (dev.format(value), unit))
+            dev.log.info('at %20s %-5s', dev.format(value), unit)
 
 
 @usercommand
@@ -229,9 +228,9 @@ def status(*devlist):
             dev.log.exception('error reading status')
         else:
             if status[0] in (OK, BUSY):
-                dev.log.info('status is %s' % formatStatus(status))
+                dev.log.info('status is %s', formatStatus(status))
             else:
-                dev.log.warning('status is %s' % formatStatus(status))
+                dev.log.warning('status is %s', formatStatus(status))
 
 
 @usercommand
@@ -322,7 +321,7 @@ def reset(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
         status = dev.reset()
-        dev.log.info('reset done, status is now %s' % formatStatus(status))
+        dev.log.info('reset done, status is now %s', formatStatus(status))
 
 
 @usercommand
@@ -342,8 +341,8 @@ def set(dev, parameter, value):  # pylint: disable=W0622
     setattr(dev, parameter, value)
     # if yes, we already got a message
     if parameter in dev.parameters and not dev.parameters[parameter].chatty:
-        dev.log.info('%s set to %r (was %r)' %
-                     (parameter, getattr(dev, parameter), prevalue))
+        dev.log.info('%s set to %r (was %r)',
+                     parameter, getattr(dev, parameter), prevalue)
 
 
 @usercommand
@@ -361,7 +360,7 @@ def get(dev, parameter):
     >>> print phi.speed
     """
     value = getattr(session.getDevice(dev), parameter)
-    dev.log.info('parameter %s is %s' % (parameter, value))
+    dev.log.info('parameter %s is %s', parameter, value)
 
 
 @usercommand
@@ -408,7 +407,7 @@ def setall(param, value):
             continue
         prevalue = getattr(dev, param)
         setattr(dev, param, value)
-        dev.log.info('%s set to %r (was %r)' % (param, value, prevalue))
+        dev.log.info('%s set to %r (was %r)', param, value, prevalue)
 
 
 @usercommand
@@ -516,8 +515,8 @@ def adjust(dev, value, newvalue=None):
     else:
         diff = value - newvalue
     dev.offset += diff
-    dev.log.info('adjusted to %s, new offset is %.3f' %
-                 (dev.format(value, unit=True), dev.offset))
+    dev.log.info('adjusted to %s, new offset is %.3f',
+                 dev.format(value, unit=True), dev.offset)
 
 
 @usercommand
@@ -686,9 +685,9 @@ def resetlimits(*devlist):
         if dev.userlimits != newlim:
             dev.userlimits = newlim
             dev.log.info('limits reset to absolute limits, new range: '
-                         '%8s --- %8s %s'
-                         % (dev.format(dev.userlimits[0]),
-                            dev.format(dev.userlimits[1]), dev.unit))
+                         '%8s --- %8s %s',
+                         dev.format(dev.userlimits[0]),
+                         dev.format(dev.userlimits[1]), dev.unit)
 
 
 @usercommand
@@ -707,7 +706,7 @@ def reference(dev, *args):
         printerror('%s has no reference function' % dev)
         return
     newpos = dev.reference(*args)
-    dev.log.info('reference drive complete, position is now ' +
+    dev.log.info('reference drive complete, position is now %s',
                  dev.format(newpos, unit=True))
 
 

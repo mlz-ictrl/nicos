@@ -1072,8 +1072,8 @@ def watchFileTime(filename, log, interval=1.0, sleep=sleep):
             try:
                 return getmtime(filename)
             except OSError as err:
-                log.error('got exception checking for mtime of %r: %s' %
-                          (filename, err))
+                log.error('got exception checking for mtime of %r: %s',
+                          filename, err)
                 sleep(interval / 2)
                 # it's not a big problem if we never get out of the loop
                 continue
@@ -1095,8 +1095,8 @@ def watchFileContent(filename, log, interval=1.0, sleep=sleep):
                 with open(filename, 'r') as f:
                     return f.read().strip()
             except IOError as err:
-                log.error('got exception checking for content of %r: %s' %
-                          (filename, err))
+                log.error('got exception checking for content of %r: %s',
+                          filename, err)
                 sleep(interval / 2)
                 continue
     content = get_content()

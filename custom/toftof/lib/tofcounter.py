@@ -221,7 +221,7 @@ class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
 
     def doWriteDelay(self, value):
         self.doStop()
-        self.log.debug('set counter delay : %d' % value)
+        self.log.debug('set counter delay: %d', value)
         self._taco_guard(self._dev.setDelay, value)
 
     def doReadChannelwidth(self):

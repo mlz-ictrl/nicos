@@ -199,7 +199,7 @@ class SANSPanel(Panel):
         self._filename = fname
         if dtype not in DATATYPES:
             self._format = None
-            self.log.warning('Unsupported live data format: %r' % (params,))
+            self.log.warning('Unsupported live data format: %r', params)
             return
         self._format = dtype
         self._nx = nx

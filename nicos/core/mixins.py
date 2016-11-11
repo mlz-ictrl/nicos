@@ -191,8 +191,8 @@ class HasLimits(DeviceMixinBase):
 
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
-            self.log.info('setting userlimits from abslimits, which are %s'
-                          % (self.abslimits,))
+            self.log.info('setting userlimits from abslimits, which are %s',
+                          self.abslimits)
             return self.abslimits
         cfglimits = self._config['userlimits']
         self._checkLimits(cfglimits)
@@ -212,8 +212,9 @@ class HasLimits(DeviceMixinBase):
             outoflimits = not (value[0] <= curval <= value[1])
         if outoflimits:
             self.log.warning('current device value (%s) not within new '
-                             'userlimits (%s, %s)' %
-                             ((self.format(curval, unit=True),) + value))
+                             'userlimits (%s, %s)',
+                             self.format(curval, unit=True),
+                             value[0], value[1])
 
     def _adjustLimitsToOffset(self, value, diff):
         """Adjust the user limits to the given offset.
@@ -401,9 +402,9 @@ class HasTimeout(DeviceMixinBase):
         if self._timeoutTime is not None:
             remaining = self._timeoutTime - currenttime()
             if remaining > 0:
-                self.log.debug("%.2f s left before timeout" % remaining)
+                self.log.debug("%.2f s left before timeout", remaining)
             else:
-                self.log.debug("Timeout since %.2f s" % -remaining)
+                self.log.debug("Timeout since %.2f s", -remaining)
             return remaining < 0
         return False
 
@@ -644,8 +645,8 @@ class HasCommunication(DeviceMixinBase):
         Can also call _com_raise to abort early.
         """
         if retries == self.comtries - 1:
-            self.log.warning('%s failed, retrying up to %d times' %
-                             (name, retries), exc=1)
+            self.log.warning('%s failed, retrying up to %d times',
+                             name, retries, exc=1)
 
     def _com_raise(self, err, info):
         """Process the exception raised either by communication or _com_return.

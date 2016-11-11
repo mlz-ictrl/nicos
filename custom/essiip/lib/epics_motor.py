@@ -66,9 +66,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         speed = self._get_valid_speed(newValue)
 
         if speed != newValue:
-            self.log.warning(
-                'Selected speed {} is outside the parameter limits, using {} instead.'.format(
-                    newValue, speed))
+            self.log.warning('Selected speed %s is outside the parameter '
+                             'limits, using %s instead.', newValue, speed)
 
         self._put_pv('speed', speed)
 

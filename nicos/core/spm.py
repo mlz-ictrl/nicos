@@ -292,7 +292,7 @@ class SPMHandler(object):
                 return []
             return self.complete_command(cmdobj, tokens[1:], word)
         except Exception as err:
-            self.session.log.debug('error during completion: %s' % err)
+            self.session.log.debug('error during completion: %s', err)
             return []
 
     def complete_command(self, command, args, word):

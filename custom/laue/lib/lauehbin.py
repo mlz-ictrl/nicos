@@ -121,7 +121,7 @@ class HBINLaueFileFormat(ImageSink):
     def saveImage(self, info, data):
         # ensure numpy type, with float values for PIL
         npData = numpy.asarray(data, dtype='<u2')
-        self.log.info(npData.shape)
+        self.log.info('shape: %s', npData.shape)
         info.data['cols'] = npData.shape[0]
         info.data['rows'] = npData.shape[1]
 

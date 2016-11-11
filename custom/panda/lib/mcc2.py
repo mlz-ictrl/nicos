@@ -62,14 +62,14 @@ class MCC2core(Device):
     def comm(self, cmd, forcechannel=True):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
-        self.log.debug('comm: %r' % cmd)
+        self.log.debug('comm: %r', cmd)
         temp = self._attached_bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
         if len(temp) >= 2 and temp[0] == '\x02':  # strip beginning STX
             temp = temp[1:]
             if temp[-1] == '\x03':  # strip optional ending stx
                 temp = temp[:-1]
             if temp[0] == '\x06':
-                self.log.debug('  ->: %r' % temp)
+                self.log.debug('  ->: %r', temp)
                 return temp[1:]
             else:
                 self.log.debug('  ->: None')
@@ -99,7 +99,7 @@ class MCC2core(Device):
         for k, v in iteritems(t):
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
-                self.log.debug(self, 'Setting %r to %r' % (k, v))
+                self.log.debug('Setting %r to %r', k, v)
                 m(v)
         try:  # UGLY!
             self.idlecurrent = self._config['idlecurrent']
@@ -156,10 +156,10 @@ class MCC2Monoframe(MCC2core, Readable):
         self.comm('A1R2R3R4R')  # all LEDs off
 
         monoh = self.comm('ER1;2;3')
-        self.log.debug(self, 'mono_h code is ' + monoh)
+        self.log.debug('mono_h code is %s', monoh)
 
         monov = self.comm('ER5;6;7')
-        self.log.debug(self, 'mono_v code is ' + monov)
+        self.log.debug('mono_v code is %s', monov)
 
         if monoh != monov:
             raise HardwareError(self, 'monocodes from MFV and MFH are '
@@ -263,7 +263,7 @@ class MCC2Poti(MCC2core, NicosCoder):
         return (float(self.comm(r)) - self.zerosteps) / self.slope
 
     def doSetPosition(self, pos):
-        self.log.warning(self, 'No setPosition available! Request ignored....')
+        self.log.warning('No setPosition available! Request ignored....')
         return self.doRead(0)
 
 
@@ -334,9 +334,9 @@ class MCC2Motor(MCC2core, NicosMotor):
         xm = const * float(self.comm('XP41R'))
         xr = const * float(self.comm('XP42R'))
         self.log.info('MCC-2 currents of this axes are:')
-        self.log.info('idle: %f' % (xi))
-        self.log.info('move: %f' % (xm))
-        self.log.info('ramp: %f' % (xr))
+        self.log.info('idle: %f', xi)
+        self.log.info('move: %f', xm)
+        self.log.info('ramp: %f', xr)
 
     def doReadMccmovement(self):
         return self.movementTypes[int(self.comm('XP01R'))]
@@ -448,7 +448,7 @@ class MCC2Motor(MCC2core, NicosMotor):
         for _i in range(5):
             if self.comm('XS') == '':
                 return
-        self.log.error(self, 'Stopping failed! no ACK!')
+        self.log.error('Stopping failed! no ACK!')
 
     def doSetPosition(self, newpos):
         ''' set current position to given value'''

@@ -204,10 +204,10 @@ class Watchdog(BaseCacheClient):
             # some values cannot have defaults
             entryd = dict(entryd)  # convert back from readonlydict
             if not entryd['condition']:
-                self.log.warning('entry %s missing "condition" key' % entryd)
+                self.log.warning('entry %s missing "condition" key', entryd)
                 continue
             if not entryd['message']:
-                self.log.warning('entry %s missing "message" key' % entryd)
+                self.log.warning('entry %s missing "message" key', entryd)
                 continue
             if entryd.pop('pausecount', False):
                 self.log.warning('detected "pausecount" key in entry, use '
@@ -217,9 +217,8 @@ class Watchdog(BaseCacheClient):
             entry.id = i
             if entry.type and entry.type not in self._notifiers:
                 self.log.error('condition %r type is not valid, must be '
-                               'one of %r' %
-                               (entry.condition,
-                                ', '.join(map(repr, self._notifiers))))
+                               'one of %r', entry.condition,
+                               ', '.join(map(repr, self._notifiers)))
                 continue
             self._entries[i] = entry
             # find all cache keys that the condition evaluates, to get a
@@ -303,11 +302,11 @@ class Watchdog(BaseCacheClient):
                 except Exception:
                     if not self._first_update:
                         self.log.warning('error evaluating %r warning '
-                                         'condition' % key, exc=1)
+                                         'condition', key, exc=1)
                     continue
                 if entry.gracetime and value and eid not in self._watch_grace:
-                    self.log.info('condition %r triggered, awaiting grace time'
-                                  % entry.condition)
+                    self.log.info('condition %r triggered, awaiting grace time',
+                                  entry.condition)
                     self._watch_grace[eid] = [currenttime() + entry.gracetime,
                                               value]
                 else:
@@ -323,7 +322,7 @@ class Watchdog(BaseCacheClient):
             except Exception:
                 if not self._first_update:
                     self.log.warning('error evaluating %r warning '
-                                     'precondition' % key, exc=1)
+                                     'precondition', key, exc=1)
                 continue
             value = bool(value)
             time = float(time)
@@ -332,21 +331,21 @@ class Watchdog(BaseCacheClient):
             elif eid not in self._watch_grace:
                 self._preconditions[eid].update(value, time)
             precondition = self._preconditions[eid]
-            self.log.debug('precondition %r is now %s' % (entry.precondition,
-                                                          value))
-            self.log.debug('%r : %r' % (entry.precondition, precondition))
-            self.log.debug('precondition %r is fulfilled now %s' %
-                           (entry.precondition, precondition.fulfilled(time)))
+            self.log.debug('precondition %r is now %s',
+                           entry.precondition, value)
+            self.log.debug('%r : %r', entry.precondition, precondition)
+            self.log.debug('precondition %r is fulfilled now %s',
+                           entry.precondition, precondition.fulfilled(time))
 
     def _update_mailreceivers(self, emails):
-        self.log.info('updating any Mailer receivers to %s' % emails)
+        self.log.info('updating any Mailer receivers to %s', emails)
         for notifier in self._all_notifiers:
             if isinstance(notifier, Mailer):
                 # we're in slave mode, so _setROParam is necessary to set params
                 notifier._setROParam('receivers', emails)
 
     def _clear_warning(self, entry):
-        self.log.info('Clear warning for %r' % entry.condition)
+        self.log.info('Clear warning for %r', entry.condition)
         eid = entry.id
         if eid in self._watch_grace:
             del self._watch_grace[eid]
@@ -363,7 +362,7 @@ class Watchdog(BaseCacheClient):
         if not value:
             if eid in self._watch_grace:
                 self.log.info('condition %r went normal during gracetime/'
-                              'waiting for precondition' % entry.condition)
+                              'waiting for precondition', entry.condition)
                 del self._watch_grace[eid]
             if eid not in self._conditions:
                 return
@@ -375,7 +374,7 @@ class Watchdog(BaseCacheClient):
                 self._put_message('pausecount',
                                   ', '.join(self._pausecount.values()),
                                   timestamp=False)
-            self.log.info('condition %r normal again' % entry.condition)
+            self.log.info('condition %r normal again', entry.condition)
             self._conditions.discard(eid)
         else:
             if eid in self._watch_grace:
@@ -396,13 +395,13 @@ class Watchdog(BaseCacheClient):
                     # we should not emit a warning, but we need to re-check
                     # the precondition in a while
                     self.log.info('condition %r triggered, but precondition %r'
-                                  ' was not fulfilled for %d seconds' %
-                                  (entry.condition, entry.precondition,
-                                   entry.precondtime))
+                                  ' was not fulfilled for %d seconds',
+                                  entry.condition, entry.precondition,
+                                  entry.precondtime)
                     self._watch_grace[eid] = [t + entry.precondtime, value]
                     return
             self._conditions.add(eid)
-            self.log.info('got a new warning for %r' % entry.condition)
+            self.log.info('got a new warning for %r', entry.condition)
             warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + entry.message
             if entry.action:
                 warning_desc += ' -- executing %r' % entry.action
@@ -424,7 +423,7 @@ class Watchdog(BaseCacheClient):
             if entry.action:
                 self._put_message('action', entry.action)
                 self._spawn_action(entry.action)
-        self.log.debug('new conditions: %s' % self._conditions)
+        self.log.debug('new conditions: %s', self._conditions)
 
     def _wait_data(self):
         t = currenttime()
@@ -446,7 +445,7 @@ class Watchdog(BaseCacheClient):
                 self._process_warning(self._entries[eid], wentry[1])
 
     def _spawn_action(self, action):
-        self.log.warning('will execute action %r' % action)
+        self.log.warning('will execute action %r', action)
         script = path.join(config.nicos_root, 'bin', 'nicos-script')
         subprocess.Popen([sys.executable,
                           script,

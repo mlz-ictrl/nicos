@@ -276,10 +276,10 @@ class Monitor(BaseMonitor):
                 content = ''.join(map(str, self._content))
                 open(self.filename, 'w').write(content)
             except Exception:
-                self.log.error('could not write status to %r'
-                               % self.filename, exc=1)
+                self.log.error('could not write status to %r', self.filename,
+                               exc=1)
             else:
-                self.log.debug('wrote status to %r' % self.filename)
+                self.log.debug('wrote status to %r', self.filename)
 
     def closeGui(self):
         pass

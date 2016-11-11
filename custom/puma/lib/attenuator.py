@@ -50,8 +50,8 @@ class Attenuator(HasLimits, Moveable):
         for i in range(0, 5):
             stat2 += (((stat1 >> (2*i+1)) & 1) << i)
         self._attached_io_set.move(stat2)
-        self.log.debug("device status read from hardware: %s" % stat1)
-        self.log.debug("device status sent to hardware: %s" % stat2)
+        self.log.debug("device status read from hardware: %s", stat1)
+        self.log.debug("device status sent to hardware: %s", stat2)
 
     def doStart(self, position):
         try:
@@ -60,8 +60,8 @@ class Attenuator(HasLimits, Moveable):
                 return
             if position > self._filmax:
                 self.log.info('exceeding maximum filter thickness; '
-                              'switch to maximum %d %s'
-                              % (self._filmax, self.unit))
+                              'switch to maximum %d %s',
+                              self._filmax, self.unit)
                 position = self._filmax
 
             if self.doStatus()[0] == status.ERROR:
@@ -80,8 +80,8 @@ class Attenuator(HasLimits, Moveable):
                     position -= self._filterlist[i]
 
                 self.log.debug("position: %d, temp: %d result: %d, "
-                               "filterlist[i]: %d" %
-                               (position, temp, result, self._filterlist[i]))
+                               "filterlist[i]: %d",
+                               position, temp, result, self._filterlist[i])
             self._attached_io_set.move(result)
             session.delay(3)
 
@@ -90,10 +90,10 @@ class Attenuator(HasLimits, Moveable):
 
             if self.read(0) < actpos:
                 self.log.info('requested filter combination not possible; '
-                              'switched to %r %s thickness:'
-                              % (self.doRead(), self.unit))
+                              'switched to %r %s thickness:',
+                              self.doRead(), self.unit)
         finally:
-            self.log.info('new attenuation: %s %s' % (self.read(), self.unit))
+            self.log.info('new attenuation: %s %s', self.read(), self.unit)
 
     def doRead(self, maxage=0):
         if self.doStatus()[0] == status.OK:
@@ -102,7 +102,7 @@ class Attenuator(HasLimits, Moveable):
             readvalue = self._attached_io_status.doRead()
             for i in range(0, 5):
                 fil = (readvalue >> (i*2+1)) & 1
-                self.log.debug("filterstatus of %d: %d" % (i, fil))
+                self.log.debug("filterstatus of %d: %d", i, fil)
                 if fil == 1:
                     result += self._filterlist[i]
             return result

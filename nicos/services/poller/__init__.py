@@ -139,8 +139,9 @@ class Poller(Device):
                 timesout = lastpoll + dev.maxage - POLL_MIN_VALID_TIME
                 maxwait = min(nextpoll - ct, timesout - ct)
                 if do_log:
-                    self.log.debug('%-10s: maxwait is %g (nextpoll=%g, timesout=%g)'
-                                   % (dev, maxwait, nextpoll-ct, timesout-ct))
+                    self.log.debug('%-10s: maxwait is %g '
+                                   '(nextpoll=%g, timesout=%g)',
+                                   dev, maxwait, nextpoll-ct, timesout-ct)
 
                 # only wait for events if there is time, otherwise just poll
                 if maxwait > 0:
@@ -149,7 +150,7 @@ class Poller(Device):
                         # if the timeout is reached, this raises Queue.Empty
                         event = queue.get(True, maxwait)
                         if do_log:
-                            self.log.debug('%-10s: Event %s' % (dev, event))
+                            self.log.debug('%-10s: Event %s', dev, event)
 
                         # handle events....
                         # use pass to trigger a poll or continue to just fetch the next event
@@ -190,13 +191,13 @@ class Poller(Device):
                         pass  # just poll if timed out
                 else:
                     if do_log:
-                        self.log.debug('%-10s: ignoring events for one round' % dev)
+                        self.log.debug('%-10s: ignoring events for one round', dev)
 
                 # also do rate-limiting if too many events occur which would
                 # retrigger this device
                 if lastpoll + POLL_MIN_WAIT > currenttime():
                     if do_log:
-                        self.log.debug('%-10s: rate-limiting poll()' % dev)
+                        self.log.debug('%-10s: rate-limiting poll()', dev)
                     continue
 
                 # only poll if enabled
@@ -205,8 +206,8 @@ class Poller(Device):
                     # if the polling fails, raise into outer loop which handles this...
                     stval, rdval = dev.poll(i, maxage=maxage)
                     if do_log:
-                        self.log.debug('%-10s: status = %-25s, value = %s' %
-                                       (dev, stval, rdval))
+                        self.log.debug('%-10s: status = %-25s, value = %s',
+                                       dev, stval, rdval)
                     # adjust timing of we are no longer busy
                     if stval is not None and stval[0] != status.BUSY:
                         interval = dev.pollinterval
@@ -216,7 +217,7 @@ class Poller(Device):
                 # reset error count and waittime after first successful poll
                 if i == 1:
                     errstate[:] = [0, 10]
-                    self.log.info('%-10s: polled successfully' % dev)
+                    self.log.info('%-10s: polled successfully', dev)
             # end of while not self._stoprequest
         # end of poll_loop(dev)
 
@@ -224,7 +225,7 @@ class Poller(Device):
         dev = None
         registered = False
 
-        self.log.info('%-10s: starting main polling loop' % devname)
+        self.log.info('%-10s: starting main polling loop', devname)
         while not self._stoprequest:
             try:
                 if dev is None:
@@ -233,15 +234,15 @@ class Poller(Device):
                     with self._creation_lock:
                         dev = session.getDevice(devname)
                     if not isinstance(dev, Readable):
-                        self.log.info('%s is not a readable' % dev)
+                        self.log.info('%s is not a readable', dev)
                         return
                     if isinstance(dev, (DeviceAlias, CacheReader)):
                         self.log.info('%s is a DeviceAlias or a CacheReader, '
-                                      'not polling' % dev)
+                                      'not polling', dev)
                         return
 
                 if not registered:
-                    self.log.debug('%-10s: registering callbacks' % dev)
+                    self.log.debug('%-10s: registering callbacks', dev)
                     # keep track of some parameters via cache callback
                     # session.cache.addCallback(dev, 'value', reconfigure_dev_value)  # spams events
                     session.cache.addCallback(dev, 'target', reconfigure_dev_target)
@@ -264,11 +265,11 @@ class Poller(Device):
                 # only warn 5 times in a row, and later occasionally
                 if dev is None:
                     self.log.warning('%-10s: error creating device, '
-                                     'retrying in %d sec' %
-                                     (devname, errstate[1]), exc=True)
+                                     'retrying in %d sec',
+                                     devname, errstate[1], exc=True)
                 else:
                     self.log.warning('%-10s: error polling, retrying in '
-                                     '%d sec' % (dev, errstate[1]),
+                                     '%d sec', dev, errstate[1],
                                      exc=True)
                 if errstate[0] % 5 == 0:
                     # use exponential back-off for the wait time; in the worst
@@ -286,7 +287,7 @@ class Poller(Device):
         self._setup = setup
         if setup is None:
             return self._start_master()
-        self.log.info('%s poller starting' % setup)
+        self.log.info('%s poller starting', setup)
 
         if setup == '[dummy]':
             return
@@ -295,18 +296,18 @@ class Poller(Device):
             session.loadSetup(setup, allow_startupcode=False)
             for devname in session.getSetupInfo()[setup]['devices']:
                 if devname in self.blacklist:
-                    self.log.debug('not polling %s, it is blacklisted' % devname)
+                    self.log.debug('not polling %s, it is blacklisted', devname)
                     continue
                 # import the device class in the main thread; this is necessary
                 # for some external modules like Epics
-                self.log.debug('importing device class for %s' % devname)
+                self.log.debug('importing device class for %s', devname)
                 try:
                     session.importDevice(devname)
                 except Exception:
                     self.log.warning('%-10s: error importing device class, '
-                                     'not retrying this device', exc=True)
+                                     'not retrying this device', devname, exc=True)
                     continue
-                self.log.debug('starting thread for %s' % devname)
+                self.log.debug('starting thread for %s', devname)
                 queue = Queue.Queue()
                 worker = createThread('%s poller' % devname,
                                       self._worker_thread,
@@ -318,13 +319,13 @@ class Poller(Device):
                 sleep(0.0719)
 
         except ConfigurationError as err:
-            self.log.warning('Setup %r has failed to load!' % setup)
+            self.log.warning('Setup %r has failed to load!', setup)
             self.log.error(err, exc=True)
             self.log.warning('Not polling any devices!')
 
         # start a thread checking for modification of the setup file
         createThread('refresh checker', self._checker, args=(setup,))
-        self.log.info('%s poller startup complete' % setup)
+        self.log.info('%s poller startup complete', setup)
 
     def _checker(self, setupname):
         if setupname not in session._setup_info:
@@ -332,7 +333,7 @@ class Poller(Device):
             return
         fn = session._setup_info[setupname]['filename']
         if not path.isfile(fn):
-            self.log.warning('setup watcher could not find %r' % fn)
+            self.log.warning('setup watcher could not find %r', fn)
             return
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting poller process')
@@ -353,7 +354,7 @@ class Poller(Device):
             return self._quit_master(signum)
         if self._stoprequest:
             return  # already quitting
-        self.log.info('poller quitting on signal %s...' % signum)
+        self.log.info('poller quitting on signal %s...', signum)
         self._stoprequest = True
         for worker in self._workers:
             worker.queue.put('quit', False)  # wake up to quit
@@ -390,8 +391,8 @@ class Poller(Device):
                     name = active[tid].getName()
                 else:
                     name = str(tid)
-                self.log.info('%s: %s' %
-                              (name, ''.join(traceback.format_stack(frame))))
+                self.log.info('%s: %s', name,
+                              ''.join(traceback.format_stack(frame)))
 
     def _start_master(self):
         # the poller consists of two types of processes: one master process
@@ -445,7 +446,7 @@ class Poller(Device):
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
     def _reconfigure(self, key, value, time):
-        self.log.info('reconfiguring for new master setups %s' % value)
+        self.log.info('reconfiguring for new master setups %s', value)
         session.readSetups()
         old_setups = self._setups
 
@@ -471,7 +472,7 @@ class Poller(Device):
         # os.wait() itself in __del__
         self._children[setup] = process
         self._childpids[process.pid] = setup
-        session.log.info('started %s poller, PID %s' % (setup, process.pid))
+        session.log.info('started %s poller, PID %s', setup, process.pid)
 
     def _wait_master(self):
         # wait for children to terminate; restart them if necessary
@@ -492,11 +493,11 @@ class Poller(Device):
                 del self._children[setup]
                 if setup in self._setups and not self._stoprequest:
                     session.log.warning('%s poller terminated with %s, '
-                                        'restarting' % (setup, whyExited(ret)))
+                                        'restarting', setup, whyExited(ret))
                     self._start_child(setup)
                 else:
-                    session.log.info('%s poller terminated with %s' %
-                                     (setup, whyExited(ret)))
+                    session.log.info('%s poller terminated with %s',
+                                     setup, whyExited(ret))
         session.log.info('all pollers terminated')
 
     def _wait_master_nt(self):
@@ -514,17 +515,17 @@ class Poller(Device):
                     del self._children[setup]
                     if setup in self._setups and not self._stoprequest:
                         session.log.warning('%s poller terminated with %s, '
-                                            'restarting' % (setup, ret))
+                                            'restarting', setup, ret)
                         self._start_child(setup)
                         break
                     else:
-                        session.log.info('%s poller terminated with %s' %
-                                         (setup, ret))
+                        session.log.info('%s poller terminated with %s',
+                                         setup, ret)
         session.log.info('all pollers terminated')
 
     def _quit_master(self, signum=None):
         self._stoprequest = True
-        self.log.info('quitting on signal %s...' % signum)
+        self.log.info('quitting on signal %s...', signum)
         for pid in self._childpids:
             try:
                 os.kill(pid, signal.SIGTERM)

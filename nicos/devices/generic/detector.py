@@ -338,12 +338,12 @@ class Detector(Measurable):
                 self.log.warning('no master configured, detector may not stop')
             else:
                 self.log.warning('master setting for devices %s ignored by '
-                                 'detector' % ', '.join(should_be_masters -
-                                                        set(self._masters)))
-        self.log.debug("   presets: %s" % preset)
-        self.log.debug("presetkeys: %s" % self._presetkeys)
-        self.log.debug("   masters: %s" % self._masters)
-        self.log.debug("    slaves: %s" % self._slaves)
+                                 'detector', ', '.join(should_be_masters -
+                                                       set(self._masters)))
+        self.log.debug("   presets: %s", preset)
+        self.log.debug("presetkeys: %s", self._presetkeys)
+        self.log.debug("   masters: %s", self._masters)
+        self.log.debug("    slaves: %s", self._slaves)
 
     def doPrepare(self):
         for slave in self._slaves:

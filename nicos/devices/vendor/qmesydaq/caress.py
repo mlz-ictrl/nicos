@@ -49,17 +49,17 @@ class QMesydaqCaressDevice(CARESSDevice):
                 raise ConfigurationError(self, 'Must be configured as '
                                          '"CORBA_device" (ID=500)')
             _config = ' '.join(self.config.split()[3:])
-            self.log.debug('Reduced config: %s' % _config)
+            self.log.debug('Reduced config: %s', _config)
             res = self._caressObject.init_module(INIT_NORMAL, self.cid,
                                                  _config)
-            self.log.debug('Init module (Connect): %r' % (res,))
+            self.log.debug('Init module (Connect): %r', res)
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                 res = self._caressObject.init_module(INIT_REINIT, self.cid,
                                                      _config)
-                self.log.debug('Init module (Re-Init): %r' % (res,))
+                self.log.debug('Init module (Re-Init): %r', res)
                 if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-                    self.log.error('Init module (Re-Init): %r (%d, %s)' %
-                                   (res, self.cid, _config))
+                    self.log.error('Init module (Re-Init): %r (%d, %s)',
+                                   res, self.cid, _config)
                     raise NicosError(self, 'Could not initialize module!')
             self._initialized = True
         except CORBA.TRANSIENT as err:
@@ -75,7 +75,7 @@ class QMesydaqCaressDevice(CARESSDevice):
             is_counting = \
                 self._caress_guard(self._caressObject.is_counting_module,
                                    self.cid)
-        self.log.debug('Counting module: %r' % (is_counting,))
+        self.log.debug('Counting module: %r', is_counting)
         if not is_counting:
             raise ConfigurationError(self, 'Object is not a measurable module')
 
@@ -153,7 +153,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             result, loaded = self._caress_guard(self._caressObject.load_module,
                                                 kind, self.cid,
                                                 CARESS.Value(l=preset))
-            self.log.debug('Preset module: %r, %r' % (result, loaded))
+            self.log.debug('Preset module: %r, %r', result, loaded)
         else:
             params = []
             params.append(CORBA.Any(CORBA._tc_long, self.cid))
@@ -164,7 +164,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             params.append(CORBA.Any(CORBA._tc_long, 0))  # no next module
             result = self._caress_guard(self._caressObject.load_module_orb,
                                         kind, params, 0)
-            self.log.debug('Preset module: %r' % (result,))
+            self.log.debug('Preset module: %r', result)
         if result[0] not in [0, CARESS.OK]:
             raise NicosError(self, 'Could not reset module')
 
@@ -250,7 +250,7 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
                     raise CommunicationError(self,
                                              'Could not read the CARESS '
                                              'module')
-                # self.log.warning('%r' % data)
+                # self.log.warning('%r', data)
                 return [self._width, self._height, 1] + data.al
             except CORBA.COMM_FAILURE as ex:
                 raise CommunicationError(self, 'Could not read the CARESS '
@@ -259,7 +259,7 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
             _ = ()
             result = self._caress_guard(self._caressObject.read_module_orb, 0,
                                         self.cid, _)
-            self.log.debug('read_module: %r' % (result,))
+            self.log.debug('read_module: %r', result)
             if result[0] != 0:
                 raise CommunicationError(self,
                                          'Could not read the CARESS module')
@@ -297,7 +297,7 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
         return None
 
     def _set_option(self, text):
-        self.log.debug('set_option: %s' % text)
+        self.log.debug('set_option: %s', text)
         if hasattr(self._caressObject, 'loadblock_module'):
             self._caressObject.loadblock_module(LOAD_NORMAL, self.cid, 1,
                                                 len(text),

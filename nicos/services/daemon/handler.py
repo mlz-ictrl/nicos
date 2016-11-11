@@ -93,8 +93,8 @@ def command(needcontrol=False, needscript=None, name=None):
             except CloseConnection:
                 raise
             except Exception:
-                self.log.exception('exception executing command %s' %
-                                   (name or func.__name__))
+                self.log.exception('exception executing command %s',
+                                   name or func.__name__)
                 self.write(NAK, 'exception occurred executing command')
         wrapper.__name__ = func.__name__
         wrapper.orig_function = func
@@ -195,7 +195,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 ser_msg = serialize(msg)
                 self.sock.sendall(prefix + LENGTH.pack(len(ser_msg)) + ser_msg)
         except socket.error as err:
-            self.log.error('write: connection broken (%s)' % err)
+            self.log.error('write: connection broken (%s)', err)
             raise CloseConnection
 
     def read(self):
@@ -225,7 +225,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 self.write(NAK, 'invalid command or garbled data')
                 raise CloseConnection
         except socket.error as err:
-            self.log.error('read: connection broken (%s)' % err)
+            self.log.error('read: connection broken (%s)', err)
             raise CloseConnection
 
     def check_host(self):
@@ -237,7 +237,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 if allowed == possible:
                     return
         self.write(NAK, 'permission denied')
-        self.log.error('login attempt from untrusted host: %s' %
+        self.log.error('login attempt from untrusted host: %s',
                        self.clientnames)
         raise CloseConnection
 
@@ -267,7 +267,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.clientnames = [ip]
         else:
             self.clientnames = [host] + aliases + addrlist
-        self.log.info('connection from %s' % self.clientnames)
+        self.log.info('connection from %s', self.clientnames)
 
         # check trusted hosts list, if nonempty
         if self.daemon.trustedhosts:
@@ -297,8 +297,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         cmd, (credentials,) = self.read()
         if cmd != 'authenticate' or not isinstance(credentials, dict) or \
            not all(v in credentials for v in ('login', 'passwd', 'display')):
-            self.log.error('invalid login: %r, credentials=%r' %
-                           (cmd, credentials))
+            self.log.error('invalid login: %r, credentials=%r',
+                           cmd, credentials)
             self.write(NAK, 'invalid credentials')
             raise CloseConnection
 
@@ -314,8 +314,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         # check login data according to configured authentication
         login = credentials['login']
-        self.log.info('auth request: login=%r display=%r' %
-                      (login, credentials['display']))
+        self.log.info('auth request: login=%r display=%r', login,
+                      credentials['display'])
         if authenticators:
             auth_err = None
             for auth in authenticators:
@@ -326,7 +326,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                     auth_err = err  # Py3 clears "err" after the except block
                     continue
             else:  # no "break": all authenticators failed
-                self.log.error('authentication failed: %s' % auth_err)
+                self.log.error('authentication failed: %s', auth_err)
                 self.write(NAK, 'credentials not accepted')
                 raise CloseConnection
         else:
@@ -336,7 +336,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         os.environ['DISPLAY'] = credentials['display']
 
         # acknowledge the login
-        self.log.info('login succeeded, access level %d' % self.user.level)
+        self.log.info('login succeeded, access level %d', self.user.level)
         self.write(STX, dict(
             user_level = self.user.level,
         ))
@@ -376,7 +376,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                     self.log.warning('broken pipe/bad socket in event sender')
                     break
                 self.log.exception('exception in event sender; event: %s, '
-                                   'data: %s' % (event, repr(data)[:1000]))
+                                   'data: %s', event, repr(data)[:1000])
         self.log.info('closing event connection')
         closeSocket(sock)
         # also close the main connection if not already done
@@ -464,7 +464,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         elif self.controller.status == STATUS_INBREAK:
             self.write(NAK, 'script is already paused')
         else:
-            session.log.info('Pause requested by %s' % self.user.name)
+            session.log.info('Pause requested by %s', self.user.name)
             self.controller.set_break(('break', level, self.user.name))
             if level >= BREAK_NOW:
                 session.countloop_request = ('pause',
@@ -520,7 +520,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is stopping')
         else:
-            session.log.info('Early finish requested by %s' % self.user.name)
+            session.log.info('Early finish requested by %s', self.user.name)
             session.countloop_request = \
                 ('finish', 'Finished early by %s' % self.user.name)
         self.write(ACK)
@@ -538,7 +538,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             self.log.warning('immediate stop without script running')
         else:
-            self.log.warning('immediate stop request in %s' %
+            self.log.warning('immediate stop request in %s',
                              self.controller.current_location(True))
         self.controller.script_immediate_stop(self.user)
         self.write(ACK)
@@ -556,7 +556,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is stopping')
             return
-        self.log.debug('executing command in script context\n%s' % cmd)
+        self.log.debug('executing command in script context\n%s', cmd)
         try:
             self.controller.exec_script(cmd, self.user, self)
         except Exception:
@@ -571,7 +571,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :param stringify: (bool) if True, return the `repr` of the result
         :returns: result of evaluation or an error if exception raised
         """
-        self.log.debug('evaluating expression in script context\n%s' % expr)
+        self.log.debug('evaluating expression in script context\n%s', expr)
         try:
             retval = self.controller.eval_expression(expr, self, stringify)
         except Exception as err:
@@ -590,7 +590,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
            process
         :returns: ok or error (e.g. if simulation is not possible)
         """
-        self.log.debug('running simulation\n%s' % code)
+        self.log.debug('running simulation\n%s', code)
         try:
             self.controller.simulate_script(code, name or None, self.user,
                                             prefix)

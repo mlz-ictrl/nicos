@@ -61,7 +61,7 @@ class Motor(IPCMotor):
 #                     'method to write to EEPROM')
 
     def doWriteSteps(self, value):
-        self.log.debug('not setting new steps value: %s' % value)
+        self.log.debug('not setting new steps value: %s', value)
 #        self._adevs['bus'].send(self.addr, 43, value, 6)
         return
 
@@ -135,7 +135,7 @@ class Motor1(IPCMotor):
         if state & 1 and (state & 96 != 96):
             st = status.BUSY
             msg = ', moving' + msg
-        self.log.debug('status is %d:%s' % (st, msg[2:]))
+        self.log.debug('status is %d:%s', st, msg[2:])
         return st, msg[2:]
 
 

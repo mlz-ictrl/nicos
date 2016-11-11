@@ -93,7 +93,7 @@ class CascadeDetector(ImageChannel):
         oldmode = self.mode
         self._dev.Reset()
         # reset parameters in case the server forgot them
-        self.log.info('re-setting to %s mode' % oldmode.upper())
+        self.log.info('re-setting to %s mode', oldmode.upper())
         self.doWriteMode(oldmode)
         self.doWritePreselection(self.preselection)
 

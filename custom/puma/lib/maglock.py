@@ -77,7 +77,7 @@ class MagLock(Moveable):
         if self.read(0) != position:
             raise NicosError(self, 'maglock returned wrong position!')
         else:
-            self.log.info('Maglock: ', self.read(0))
+            self.log.info('Maglock: %s', self.read(0))
 
     def _read(self):
         '''return an internal string representation of the right sensing
@@ -93,7 +93,7 @@ class MagLock(Moveable):
                        [(self._attached_io_open.read(0) & bitmask) / bitmask,
                         (self._attached_io_closed.read(0) & bitmask) / bitmask]
                        ))
-        self.log.debug('Sensing switches are in State %s' % val)
+        self.log.debug('Sensing switches are in State %s', val)
         return ''.join(val)
 
     def doRead(self, maxage=0):

@@ -262,23 +262,22 @@ class PyTangoDevice(HasCommunication):
         def wrap(*args, **kwds):
             # handle different types for better debug output
             if category == 'cmd':
-                self.log.debug('[PyTango] command: %s%r' % (args[0], args[1:]))
+                self.log.debug('[PyTango] command: %s%r', args[0], args[1:])
             elif category == 'attr_read':
-                self.log.debug('[PyTango] read attribute: %s' % args[0])
+                self.log.debug('[PyTango] read attribute: %s', args[0])
             elif category == 'attr_write':
-                self.log.debug('[PyTango] write attribute: %s => %r'
-                               % (args[0], args[1:]))
+                self.log.debug('[PyTango] write attribute: %s => %r',
+                               args[0], args[1:])
             elif category == 'attr_query':
-                self.log.debug('[PyTango] query attribute properties: %s' %
+                self.log.debug('[PyTango] query attribute properties: %s',
                                args[0])
             elif category == 'constructor':
-                self.log.debug('[PyTango] device creation: %s' % args[0])
+                self.log.debug('[PyTango] device creation: %s', args[0])
             elif category == 'internal':
-                self.log.debug('[PyTango integration] internal: %s%r'
-                               % (func.__name__, args))
+                self.log.debug('[PyTango integration] internal: %s%r',
+                               func.__name__, args)
             else:
-                self.log.debug('[PyTango] call: %s%r'
-                               % (func.__name__, args))
+                self.log.debug('[PyTango] call: %s%r', func.__name__, args)
 
             info = category + ' ' + args[0] if args else category
             return self._com_retry(info, func, *args, **kwds)
@@ -291,17 +290,14 @@ class PyTangoDevice(HasCommunication):
     def _com_return(self, result, info):
         # explicit check for loglevel to avoid expensive reprs
         if self.loglevel == 'debug':
-            logStr = ''
-
             if isinstance(result, PyTango.DeviceAttribute):
-                logStr = '\t=> %s' % repr(result.value)[:300]
+                the_repr = repr(result.value)[:300]
             else:
                 # This line explicitly logs '=> None' for commands which
                 # does not return a value. This indicates that the command
                 # execution ended.
-                logStr = '\t=> %s' % repr(result)[:300]
-
-            self.log.debug(logStr)
+                the_repr = repr(result)[:300]
+            self.log.debug('\t=> %s', the_repr)
         return result
 
     def _tango_exc_desc(self, err):
@@ -321,15 +317,15 @@ class PyTangoDevice(HasCommunication):
         if self._tango_exc_reason(err) in FATAL_REASONS:
             self._com_raise(err, info)
         if retries == self.comtries - 1:
-            self.log.warning('%s failed, retrying up to %d times: %s' %
-                             (info, retries, self._tango_exc_desc(err)))
+            self.log.warning('%s failed, retrying up to %d times: %s',
+                             info, retries, self._tango_exc_desc(err))
 
     def _com_raise(self, err, info):
         reason = self._tango_exc_reason(err)
         exclass = REASON_MAPPING.get(
             reason, EXC_MAPPING.get(type(err), NicosError))
         fulldesc = self._tango_exc_desc(err)
-        self.log.debug('PyTango error: %s' % fulldesc)
+        self.log.debug('PyTango error: %s', fulldesc)
         raise exclass(self, fulldesc)
 
 

@@ -89,7 +89,7 @@ class View(QObject):
                         from nicos.clients.gui.main import log
                         if log is None:
                             from __main__ import log  # pylint: disable=E0611
-                        log.error('Error getting history for %s.' % key)
+                        log.error('Error getting history for %s.', key)
                         QMessageBox.warning(widget, 'Error',
                                             'Could not get history for %s, '
                                             'there are no values to show.\n'

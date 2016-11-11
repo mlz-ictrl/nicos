@@ -39,7 +39,7 @@ class TacoLoggerServer(BaseCacheClient):
         r, _, _ = select.select([self._syslogsock], [], [], 0.1)
         while r:
             msg, addr = self._syslogsock.recvfrom(1024)
-            # self.log.info('server: message: %s' % msg)
+            # self.log.info('server: message: %s', msg)
             self._queue.put('tacolog/msg=%r\n' % msg)
             r, _, _ = select.select([self._syslogsock], [], [], 0.1)
 
@@ -79,7 +79,7 @@ class TacoLoggerClient(BaseCacheClient):
             if prio <= 4:
                 self._window.emit(self._signal, message)
         except Exception:
-            self.log.warning('strange message received: %r' % value)
+            self.log.warning('strange message received: %r', value)
 
 
 default_cache = os.environ.get('TACOLOGGER_CACHE', 'localhost')

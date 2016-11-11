@@ -98,9 +98,9 @@ class CCRControl(HasLimits, Moveable):
         ok, why = self._attached_stick.isAllowed(sticktarget)
         if not ok:
             raise InvalidValueError(self, why)
-        self.log.debug('Moving %s to %r and %s to %r' %
-                       (self._attached_tube.name, tubetarget,
-                        self._attached_stick, sticktarget))
+        self.log.debug('Moving %s to %r and %s to %r',
+                       self._attached_tube.name, tubetarget,
+                       self._attached_stick, sticktarget)
         try:
             self._attached_tube.start(tubetarget)
         finally:
@@ -132,8 +132,8 @@ class CCRControl(HasLimits, Moveable):
                 raise ProgrammingError(self, 'unknown mode %r, don\'t know how'
                                        ' to handle it!' % self.regulationmode)
         else:
-            self.log.debug('ignoring mode, as target %r is above %s.absmax' %
-                           (target, self._attached_tube.name))
+            self.log.debug('ignoring mode, as target %r is above %s.absmax',
+                           target, self._attached_tube.name)
             self.__start_tube_stick(self._attached_tube.absmax, target)
 
     def doRead(self, maxage=0):
@@ -165,7 +165,7 @@ class CCRControl(HasLimits, Moveable):
     #
 
     def __set_param(self, attrname, value):
-        self.log.debug('Setting param %s to %r' % (attrname, value))
+        self.log.debug('Setting param %s to %r', attrname, value)
         setattr(self._attached_tube, attrname, value)
         setattr(self._attached_stick, attrname, value)
 
@@ -177,10 +177,10 @@ class CCRControl(HasLimits, Moveable):
             res = tubeval
         else:
             self.log.warning('%s.%s (%r) != %s.%s (%r), please set %s.%s to '
-                             'the desired value!' %
-                             (self._attached_tube.name, attrname, tubeval,
-                              self._attached_stick.name, attrname, stickval,
-                              self.name, attrname))
+                             'the desired value!',
+                             self._attached_tube.name, attrname, tubeval,
+                             self._attached_stick.name, attrname, stickval,
+                             self.name, attrname)
             # try to take the 'more important' one
             if self._attached_stick.target is not None and \
                self._attached_stick.target > self._attached_tube.absmax:
@@ -198,7 +198,7 @@ class CCRControl(HasLimits, Moveable):
                                                  self._attached_stick.name, attrname,
                                                  self.name, attrname))
 
-        self.log.debug('param %s is %r' % (attrname, res))
+        self.log.debug('param %s is %r', attrname, res)
         return res
 
     def doReadRamp(self):
@@ -212,8 +212,8 @@ class CCRControl(HasLimits, Moveable):
             return ramp
         clampramp = clamp(ramp, rampmin, rampmax)
         self.log.warning('Ramp parameter %.3g is outside of the allowed range '
-                         '%.3g..%.3g, setting it to %.3g' % (
-                             ramp, rampmin, rampmax, clampramp))
+                         '%.3g..%.3g, setting it to %.3g',
+                         ramp, rampmin, rampmax, clampramp)
         # clamp read value to allowed range and re-set it
         return self.doWriteRamp(clampramp)
 
@@ -224,13 +224,13 @@ class CCRControl(HasLimits, Moveable):
         if value == 0.0:
             value = rampmax
             self.log.warning('Ramp rate of 0 is deprecated, using %d '
-                             'K/min instead' % value)
+                             'K/min instead', value)
         self.__set_param('ramp', clamp(value, rampmin, rampmax))
         return self.__get_param('ramp')
 
     def doWriteRegulationmode(self, value):
         self.log.info('To use the new regulationmode %r, please start/move '
-                      '%s...' % (value, self.name))
+                      '%s...', value, self.name)
 
     def doReadSetpoint(self):
         if self._attached_stick.target is not None:

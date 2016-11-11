@@ -62,10 +62,10 @@ class ReadbackSwitch(NamedDigitalOutput):
     def doRead(self, maxage=0):
         value = self._taco_guard(self._readback.read)
 
-        self.log.debug('Read raw: %r' % value)
+        self.log.debug('Read raw: %r', value)
         value = self.rwmapping.get(value, value)
         value = self.mapping.get(value, value)
-        self.log.debug('Mapped value: %r' % value)
+        self.log.debug('Mapped value: %r', value)
         return value
 
     # def doStatus(self, maxage=0):

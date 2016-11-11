@@ -101,7 +101,7 @@ class SetupDepPanelMixin(QObject):
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
-        self.log.debug('Setups are: %r' % self.setupSpec)
+        self.log.debug('Setups are: %r', self.setupSpec)
 
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:

@@ -40,7 +40,7 @@ class PUMA(TAS):
                 dev = session.getDevice(devname)
                 coll = dev.read()
             except Exception:
-                self.log.warning('could not read collimation %s' % devname,
+                self.log.warning('could not read collimation %s', devname,
                                  exc=1)
                 coll = 'none'
             if coll == 'none':
@@ -49,12 +49,12 @@ class PUMA(TAS):
                 try:
                     ret.append(float(coll[:-1]))
                 except Exception:
-                    self.log.warning('unknown collimation setting %r for %s' %
-                                     (coll, devname))
+                    self.log.warning('unknown collimation setting %r for %s',
+                                     coll, devname)
                     ret.append(6000)
             else:
-                self.log.warning('unknown collimation setting %r for %s' %
-                                 (coll, devname))
+                self.log.warning('unknown collimation setting %r for %s',
+                                 coll, devname)
                 ret.append(6000)
 
         for devname in ['cb1', 'cb2', 'cb3', 'cb4']:
@@ -62,7 +62,7 @@ class PUMA(TAS):
                 dev = session.getDevice(devname)
                 coll = dev.read()
             except Exception:
-                self.log.warning('could not read collimation %s' % devname,
+                self.log.warning('could not read collimation %s', devname,
                                  exc=1)
                 ret.append(6000)
             else:
@@ -78,7 +78,7 @@ class PUMA(TAS):
                 dev = session.getDevice(devname)
                 l = dev.read()
             except Exception:
-                self.log.warning('could not read %s' % devname, exc=1)
+                self.log.warning('could not read %s', devname, exc=1)
                 l = 100
             lengths[devname] = l
 

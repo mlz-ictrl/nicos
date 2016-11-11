@@ -258,7 +258,7 @@ class Session(object):
             # reset certain global state
             self._manualscan = None
             self._currentscan = None
-        self.log.info('switched to %s mode' % mode)
+        self.log.info('switched to %s mode', mode)
 
     def setSPMode(self, on):
         """Switch simple parameter mode on or off."""
@@ -386,8 +386,8 @@ class Session(object):
             try:
                 return self.getDevice(configured, cls)
             except Exception:
-                self.log.exception('%s device %r failed to create' %
-                                   (key, configured))
+                self.log.exception('%s device %r failed to create',
+                                   key, configured)
                 raise
         else:
             devs = []
@@ -395,8 +395,8 @@ class Session(object):
                 try:
                     dev = self.getDevice(devname, cls)
                 except Exception:
-                    self.log.exception('%s device %r failed to create' %
-                                       (key, devname))
+                    self.log.exception('%s device %r failed to create',
+                                       key, devname)
                     raise
                 else:
                     devs.append(dev)
@@ -482,7 +482,7 @@ class Session(object):
         for setupname in setupnames[:]:
             if setupname in self.loaded_setups:
                 self.log.warning('setup %s is already loaded, use '
-                                 'NewSetup() without arguments to reload' %
+                                 'NewSetup() without arguments to reload',
                                  setupname)
                 setupnames.remove(setupname)
             elif self._setup_info.get(setupname, Ellipsis) is None:
@@ -503,11 +503,11 @@ class Session(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            self.log.info('importing module %s... ' % modname)
+            self.log.info('importing module %s... ', modname)
             try:
                 mod = self._nicos_import(modname)
             except Exception as err:
-                self.log.error('Exception importing %s: %s' % (modname, err))
+                self.log.error('Exception importing %s: %s', modname, err)
                 return
             for name, command in iteritems(mod.__dict__):
                 if getattr(command, 'is_usercommand', False):
@@ -541,8 +541,8 @@ class Session(object):
                     'please fix the file and try again'
                     % setupname)
             if name not in setupnames:
-                self.log.debug('loading include setup %r (%s)' %
-                               (name, info['description']))
+                self.log.debug('loading include setup %r (%s)',
+                               name, info['description'])
             if name in self.excluded_setups:
                 raise ConfigurationError('Cannot load setup %r, it is '
                                          'excluded by one of the current '
@@ -585,9 +585,9 @@ class Session(object):
            'system' not in self.loaded_setups:
             load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
-            self.log.info('loading setup %r (%s)' %
-                          (setupname,
-                           self._setup_info[setupname]['description']))
+            self.log.info('loading setup %r (%s)',
+                          setupname,
+                          self._setup_info[setupname]['description'])
             inner_load(setupname, sysconfig, devlist, startupcode)
 
         # sort the preferred aliases by priority
@@ -629,7 +629,7 @@ class Session(object):
                 except Exception:
                     if raise_failed:
                         raise
-                    self.log.exception('device %r failed to create' % devname)
+                    self.log.exception('device %r failed to create', devname)
                     failed_devs.append(devname)
 
         # validate and try to attach sysconfig devices
@@ -684,7 +684,7 @@ class Session(object):
         self.setupCallback(list(self.loaded_setups),
                            list(self.explicit_setups))
         if setupnames:
-            self.log.info('setups loaded: %s' % ', '.join(setupnames))
+            self.log.info('setups loaded: %s', ', '.join(setupnames))
 
     def unloadSetup(self):
         """Unload the current setup.
@@ -767,11 +767,11 @@ class Session(object):
         """Unexport the object with *name* from the NICOS namespace."""
         if name not in self.namespace:
             if warn:
-                self.log.warning('unexport: name %r not in namespace' % name)
+                self.log.warning('unexport: name %r not in namespace', name)
             return
         if name not in self._exported_names:
             if warn:
-                self.log.warning('unexport: name %r not exported by NICOS' %
+                self.log.warning('unexport: name %r not exported by NICOS',
                                  name)
         self.namespace.removeForbidden(name)
         del self.namespace[name]
@@ -791,7 +791,7 @@ class Session(object):
                 # complain about this; setups should make sure that the device
                 # exists when configuring it
                 self.log.warning('alias device %s does not exist, cannot set '
-                                 'its target' % aliasname)
+                                 'its target', aliasname)
                 continue
             aliasdev = self.getDevice(aliasname)
             for target, _ in self.alias_config[aliasname]:
@@ -800,12 +800,12 @@ class Session(object):
                         try:
                             aliasdev.alias = target
                         except Exception:
-                            self.log.exception('could not set %s alias' %
+                            self.log.exception('could not set %s alias',
                                                aliasdev)
                     break
             else:
                 self.log.warning('none of the desired targets for alias %s '
-                                 'actually exist' % aliasname)
+                                 'actually exist', aliasname)
 
     def handleInitialSetup(self, setup, mode=SLAVE):
         """Determine which setup to load, and try to become master.
@@ -837,7 +837,7 @@ class Session(object):
             setups = self.cache.get(self, 'mastersetupexplicit')
             if not setups or setups == ['startup']:
                 return
-            self.log.info('loading previously used master setups: ' +
+            self.log.info('loading previously used master setups: %s',
                           ', '.join(setups))
             self.unloadSetup()
             self.startMultiCreate()
@@ -892,13 +892,13 @@ class Session(object):
             from nicos.commands.basic import ListCommands
             ListCommands()
         elif isinstance(obj, Device):
-            self.log.info('%s is a device of class %s.' %
-                          (obj.name, obj.__class__.__name__))
+            self.log.info('%s is a device of class %s.',
+                          obj.name, obj.__class__.__name__)
             if obj.description:
-                self.log.info('Device description: %s' % obj.description)
+                self.log.info('Device description: %s', obj.description)
             if obj.__class__.__doc__:
                 lines = obj.__class__.__doc__.strip().splitlines()
-                self.log.info('Device class description: ' + lines[0])
+                self.log.info('Device class description: %s', lines[0])
                 for line in lines[1:]:
                     self.log.info(line)
             from nicos.commands.device import ListMethods, ListParams
@@ -993,10 +993,10 @@ class Session(object):
         """
         devclsname, devconfig = self.configured_devices[devname]
         if 'description' in devconfig:
-            self.log.info('creating device %r (%s)... ' %
-                          (devname, devconfig['description']))
+            self.log.info('creating device %r (%s)... ',
+                          devname, devconfig['description'])
         else:
-            self.log.info('creating device %r... ' % devname)
+            self.log.info('creating device %r... ', devname)
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = self._nicos_import(modname, clsname)
@@ -1065,9 +1065,9 @@ class Session(object):
     def destroyDevice(self, devname):
         """Shutdown a device and remove it from the list of created devices."""
         if devname not in self.devices:
-            self.log.warning('device %r not created' % devname)
+            self.log.warning('device %r not created', devname)
             return
-        self.log.info('shutting down device %r...' % devname)
+        self.log.info('shutting down device %r...', devname)
         dev = self.devices[devname]
         try:
             dev.shutdown()
@@ -1101,7 +1101,7 @@ class Session(object):
         if self._mode != MASTER:
             return
         parts = key.split('/')
-        self.log.debug('got PNP message: key %s, value %s' % (key, value))
+        self.log.debug('got PNP message: key %s, value %s', key, value)
         if key.endswith('/description'):
             self._pnp_cache['descriptions'][parts[1]] = value
             return
@@ -1123,13 +1123,12 @@ class Session(object):
 
     def pnpEvent(self, event, setupname, description):
         if event == 'added':
-            self.log.info('new sample environment detected: %s'
-                          % (description or ''))
-            self.log.info('load setup %r to activate' % setupname)
+            self.log.info('new sample environment detected: %s',
+                          description or '')
+            self.log.info('load setup %r to activate', setupname)
         elif event == 'removed':
-            self.log.info('sample environment removed: %s'
-                          % (description or ''))
-            self.log.info('unload setup %r to clear its devices' % setupname)
+            self.log.info('sample environment removed: %s', description or '')
+            self.log.info('unload setup %r to clear its devices', setupname)
 
     def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
@@ -1144,9 +1143,9 @@ class Session(object):
 
     def watchdogEvent(self, event, time, data):
         if event == 'warning':
-            self.log.warning('WATCHDOG ALERT: %s' % data)
+            self.log.warning('WATCHDOG ALERT: %s', data)
         elif event == 'action':
-            self.log.warning('Executing watchdog action: %s' % data)
+            self.log.warning('Executing watchdog action: %s', data)
 
     # -- Logging --------------------------------------------------------------
 
@@ -1176,7 +1175,7 @@ class Session(object):
             else:
                 self.log.addHandler(NicosLogfileHandler(log_path, prefix))
         except (IOError, OSError) as err:
-            self.log.error('cannot open log file: %s' % err)
+            self.log.error('cannot open log file: %s', err)
 
     def getLogger(self, name):
         """Return a new NICOS logger for the specified device name."""

@@ -109,27 +109,27 @@ class CacheDatabase(Device):
                    (not entry.ttl or entry.time + entry.ttl >= currenttime()):
                     # still locked by different client, deny (tell the client
                     # the current client_id though)
-                    self.log.debug('lock request %s=%s, but still locked by %s'
-                                   % (key, client_id, entry.value))
+                    self.log.debug('lock request %s=%s, but still locked by %s',
+                                   key, client_id, entry.value)
                     return key + OP_LOCK + entry.value + '\n'
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 600  # set a maximum time to live
-                    self.log.debug('lock request %s=%s ttl %s, accepted' %
-                                   (key, client_id, ttl))
+                    self.log.debug('lock request %s=%s ttl %s, accepted',
+                                   key, client_id, ttl)
                     self._locks[key] = Entry(time, ttl, client_id)
                     return key + OP_LOCK + '\n'
             # want to unlock?
             elif req == OP_LOCK_UNLOCK:
                 if entry and entry.value != client_id:
                     # locked by different client, deny
-                    self.log.debug('unlock request %s=%s, but locked by %s' %
-                                   (key, client_id, entry.value))
+                    self.log.debug('unlock request %s=%s, but locked by %s',
+                                   key, client_id, entry.value)
                     return key + OP_LOCK + entry.value + '\n'
                 else:
                     # unlocked or locked by same client, allow
-                    self.log.debug('unlock request %s=%s, accepted' %
-                                   (key, client_id))
+                    self.log.debug('unlock request %s=%s, accepted',
+                                   key, client_id)
                     self._locks.pop(key, None)
                     return key + OP_LOCK + '\n'
 
@@ -368,7 +368,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         db = {}
         for line in fd:
             if '\x00' in line:
-                self.log.warning('found nullbyte in store file %s' % filename)
+                self.log.warning('found nullbyte in store file %s', filename)
                 continue
             try:
                 subkey, time, hasttl, value = line.rstrip().split(None, 3)
@@ -385,12 +385,12 @@ class FlatfileCacheDatabase(CacheDatabase):
                     db[subkey].expired = True
             except Exception:
                 self.log.warning('could not interpret line from '
-                                 'cache file %s: %r' % (filename, line), exc=1)
+                                 'cache file %s: %r', filename, line, exc=1)
         return fd, db
 
     def _convert_storefile(self, filename, fd):
         # read whole content and write back in new format
-        self.log.info('converting store file %s to new format' % filename)
+        self.log.info('converting store file %s to new format', filename)
         content = fd.read()
         fd.seek(0, os.SEEK_SET)
         fd.write('# NICOS cache store file v2\n')
@@ -404,7 +404,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     db[subkey].expired = True
             except Exception:
                 self.log.warning('could not interpret line from '
-                                 'cache file %s: %r' % (filename, line), exc=1)
+                                 'cache file %s: %r', filename, line, exc=1)
             else:
                 # mark all entries as not expiring, mirroring old behavior
                 if value == '-':
@@ -432,7 +432,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         if not path.isdir(curdir):
             # ... but at least set the symlink correctly for today
             self.log.info('no previous values found, setting "lastday" link '
-                          'to %s/%s' % (self._year, self._currday))
+                          'to %s/%s', self._year, self._currday)
             self._set_lastday()
             return
         with self._cat_lock:
@@ -444,23 +444,23 @@ class FlatfileCacheDatabase(CacheDatabase):
                     self._cat[cat] = [fd, lock, db]
                     nkeys += len(db)
                 except Exception:
-                    self.log.warning('could not read cache file %s' % fn, exc=1)
+                    self.log.warning('could not read cache file %s', fn, exc=1)
             if do_rollover:
                 self._rollover()
-        self.log.info('loaded %d keys from files in %s' % (nkeys, curdir))
+        self.log.info('loaded %d keys from files in %s', nkeys, curdir)
 
     def clearDatabase(self):
-        self.log.info('clearing database from %s' % self._basepath)
+        self.log.info('clearing database from %s', self._basepath)
         self._clearDatabaseDir(self._basepath)
 
     def _clearDatabaseDir(self, _path):
         for fn in os.listdir(_path):
             filename = path.join(_path, fn)
             if os.path.isdir(filename) and not os.path.islink(filename):
-                self.log.info('removing cache directory %r' % filename)
+                self.log.info('removing cache directory %r', filename)
                 shutil.rmtree(filename)
             elif fn != '.keep':
-                self.log.info('removing cache file %r' % filename)
+                self.log.info('removing cache file %r', filename)
                 os.remove(filename)
 
     def _rollover(self):
@@ -589,7 +589,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                 fd.seek(0, os.SEEK_SET)
             for line in fd:
                 if '\x00' in line:
-                    self.log.warning('found nullbyte in file %s' % fn)
+                    self.log.warning('found nullbyte in file %s', fn)
                     continue
                 fields = line.rstrip().split(None, nsplit)
                 if fields[0] == subkey:
@@ -660,7 +660,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             cleanonce()
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
-        # self.log.debug('updating %s %s' % (key, value))
+        # self.log.debug('updating %s %s', key, value)
         if value is None:
             # deletes cannot have a TTL
             ttl = None

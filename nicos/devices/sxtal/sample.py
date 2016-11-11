@@ -133,12 +133,12 @@ class SXTalSample(Sample):
         self._setROParam('laue', cell.laue.laue)
 
         self.log.info('New sample cell set. Parameters:')
-        self.log.info('a = %8.3f  b = %8.3f  c = %8.3f' % (params.a, params.b,
-                                                           params.c))
-        self.log.info('alpha = %8.3f  beta = %8.3f  gamma = %8.3f' %
-                      (params.alpha, params.beta, params.gamma))
-        self.log.info('Bravais: %s  Laue: %s' % (cell.bravais.bravais,
-                                                 cell.laue.laue))
+        self.log.info('a = %8.3f  b = %8.3f  c = %8.3f',
+                      params.a, params.b, params.c)
+        self.log.info('alpha = %8.3f  beta = %8.3f  gamma = %8.3f',
+                      params.alpha, params.beta, params.gamma)
+        self.log.info('Bravais: %s  Laue: %s',
+                      cell.bravais.bravais, cell.laue.laue)
         self.log.info('UB matrix:')
         for row in cell.rmat.T:
-            self.log.info('%8.4f %8.4f %8.4f' % tuple(row))
+            self.log.info('%8.4f %8.4f %8.4f', *row)

@@ -77,12 +77,12 @@ class VirtualImage(BaseImage):
         try:
             with open(self.datafile, 'rb') as fp:
                 self._rawdata = 0.01 * np.load(fp).reshape(self.sizes)
-            self.log.warning(self, '%r' % (self._rawdata.shape,))
+            self.log.warning('%r', self._rawdata.shape)
             # eliminate monitor entries
             self._rawdata[956] = np.zeros(self._rawdata.shape[1])
         except IOError:
             self.log.warning('data file %s not present, returning empty array '
-                             'from virtual TOF image' % self.datafile)
+                             'from virtual TOF image', self.datafile)
             self._rawdata = np.zeros(self.sizes[0] *
                                      self.sizes[1]).reshape(self.sizes)
 

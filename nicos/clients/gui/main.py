@@ -494,7 +494,7 @@ class MainWindow(QMainWindow, DlgUtils):
                            funcname)
             func(*data[1:])
         except Exception:
-            self.log.exception('Error during clientexec:\n' +
+            self.log.exception('Error during clientexec:\n%s',
                                '\n'.join(traceback.format_tb(sys.exc_info()[2])))
 
     def on_client_plugplay(self, data):
@@ -669,7 +669,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'c:hv', ['config-file=', 'help'])
     except getopt.GetoptError as err:
-        log.error('%r' % str(err))
+        log.error('%s', err)
         usage()
         sys.exit(1)
 
@@ -714,8 +714,8 @@ def main(argv):
                     app.setStyleSheet(fd.read())
                 break
             except Exception:
-                log.warning('Error setting user style sheet from %s' % stylefile,
-                            exc=1)
+                log.warning('Error setting user style sheet from %s',
+                            stylefile, exc=1)
 
     mainwindow = MainWindow(log, gui_conf)
     log.addHandler(DebugHandler(mainwindow))

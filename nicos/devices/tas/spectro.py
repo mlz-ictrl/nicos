@@ -109,12 +109,12 @@ class TAS(Instrument, Moveable):
 
         if self.scatteringsense[0] != self._attached_mono.scatteringsense:
             self.log.warning('%s.scatteringsense is not the same as '
-                             '%s.scatteringsense[0], please reset %s' %
-                             (self._attached_mono, self, self))
+                             '%s.scatteringsense[0], please reset %s',
+                             self._attached_mono, self, self)
         if self.scatteringsense[2] != self._attached_ana.scatteringsense:
             self.log.warning('%s.scatteringsense is not the same as '
-                             '%s.scatteringsense[2], please reset %s' %
-                             (self._attached_ana, self, self))
+                             '%s.scatteringsense[2], please reset %s',
+                             self._attached_ana, self, self)
 
     def doShutdown(self):
         for name in ['h', 'k', 'l', 'E']:
@@ -169,17 +169,17 @@ class TAS(Instrument, Moveable):
             self.scatteringsense[1], self.axiscoupling, self.psi360)
         mono, ana, phi, psi, alpha = self._attached_mono, self._attached_ana, \
             self._attached_phi, self._attached_psi, self._attached_alpha
-        self.log.debug('moving phi/stt to %s' % angles[2])
+        self.log.debug('moving phi/stt to %s', angles[2])
         phi.start(angles[2])
-        self.log.debug('moving psi/sth to %s' % angles[3])
+        self.log.debug('moving psi/sth to %s', angles[3])
         psi.start(angles[3])
         if alpha is not None:
-            self.log.debug('moving alpha to %s' % angles[4])
+            self.log.debug('moving alpha to %s', angles[4])
             alpha.start(angles[4])
-        self.log.debug('moving mono to %s' % angles[0])
+        self.log.debug('moving mono to %s', angles[0])
         mono.start(from_k(angles[0], mono.unit))
         if self.scanmode != 'DIFF':
-            self.log.debug('moving ana to %s' % angles[1])
+            self.log.debug('moving ana to %s', angles[1])
             ana.start(from_k(angles[1], ana.unit))
         self._waiters = [mono, phi, psi]
         if alpha is not None:
@@ -269,7 +269,7 @@ class TAS(Instrument, Moveable):
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError as err:
             if checkonly:
-                self.log.error('cannot calculate position: %s' % err)
+                self.log.error('cannot calculate position: %s', err)
                 return
             else:
                 raise
@@ -288,20 +288,20 @@ class TAS(Instrument, Moveable):
                 ok = False
                 why += 'target position %s outside limits for %s: %s -- ' % \
                     (dev.format(value, unit=True), dev, devwhy)
-        self.log.info('ki:            %8.3f A-1' % angles[0])
+        self.log.info('ki:            %8.3f A-1', angles[0])
         if self.scanmode != 'DIFF':
-            self.log.info('kf:            %8.3f A-1' % angles[1])
-        self.log.info('2theta sample: %8.3f deg' % angles[2])
-        self.log.info('theta sample:  %8.3f deg' % angles[3])
+            self.log.info('kf:            %8.3f A-1', angles[1])
+        self.log.info('2theta sample: %8.3f deg', angles[2])
+        self.log.info('theta sample:  %8.3f deg', angles[3])
         if self._attached_alpha is not None:
-            self.log.info('alpha:         %8.3f deg' % angles[4])
+            self.log.info('alpha:         %8.3f deg', angles[4])
         if ok:
             self._last_calpos = pos
             if checkonly:
                 self.log.info('position allowed')
         else:
             if checkonly:
-                self.log.warning('position not allowed: ' + why[:-4])
+                self.log.warning('position not allowed: %s', why[:-4])
             else:
                 raise LimitError(self, 'position not allowed: ' + why[:-4])
 
@@ -315,7 +315,7 @@ class TAS(Instrument, Moveable):
                 kf = self.scanconstant
                 ki = self._attached_cell.cal_ki1(ny, kf)
             else:
-                self.log.error('cannot calculate position with scanmode %s' %
+                self.log.error('cannot calculate position with scanmode %s',
                                self.scanmode)
         elif 'ki' in kwds or 'kf' in kwds:
             ki = kwds.get('ki')
@@ -329,10 +329,10 @@ class TAS(Instrument, Moveable):
         if self.energytransferunit == 'meV':
             ny *= THZ2MEV
         hkl = self._calhkl([ki, kf, phi, psi])
-        self.log.info('ki: %8.3f A-1' % ki)
-        self.log.info('kf: %8.3f A-1' % kf)
-        self.log.info('pos: [%.4f, %.4f, %.4f, %.4f] rlu rlu rlu %s' %
-                      (tuple(hkl) + (ny, self.energytransferunit)))
+        self.log.info('ki: %8.3f A-1', ki)
+        self.log.info('kf: %8.3f A-1', kf)
+        self.log.info('pos: [%.4f, %.4f, %.4f, %.4f] rlu rlu rlu %s',
+                      *(tuple(hkl) + (ny, self.energytransferunit)))
 
     def _calhkl(self, angles):
         return self._attached_cell.angle2hkl(angles, self.axiscoupling)
@@ -488,8 +488,8 @@ class Wavevector(Moveable):
             self._attached_tas.scanconstant = pos
             msg = True
         if msg:
-            tas.log.info('scan mode is now %s at %s' %
-                         (self.scanmode, self.format(pos, unit=True)))
+            tas.log.info('scan mode is now %s at %s',
+                         self.scanmode, self.format(pos, unit=True))
 
     def doStop(self):
         self._attached_base.stop()
@@ -544,8 +544,8 @@ class Energy(Moveable):
             tas.scanconstant = pos
             msg = True
         if msg:
-            tas.log.info('scan mode is now %s at %s' %
-                         (self.scanmode, self.format(pos_e, unit=True)))
+            tas.log.info('scan mode is now %s at %s',
+                         self.scanmode, self.format(pos_e, unit=True))
 
     def doReadUnit(self):
         return self._attached_tas.energytransferunit
@@ -602,8 +602,8 @@ class Wavelength(Moveable):
             tas.scanconstant = pos
             msg = True
         if msg:
-            tas.log.info('scan mode is now %s at %s' %
-                         (self.scanmode, self.format(lam, unit=True)))
+            tas.log.info('scan mode is now %s at %s',
+                         self.scanmode, self.format(lam, unit=True))
 
     def doReadUnit(self):
         return 'AA'

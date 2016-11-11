@@ -148,7 +148,7 @@ class LiveDataPanel(Panel):
         self._runtime = runtime
         if dtype not in DATATYPES:
             self._format = None
-            self.log.warning('Unsupported live data format: %r' % params)
+            self.log.warning('Unsupported live data format: %r', params)
             return
         self._format = dtype
         self._nx = nx

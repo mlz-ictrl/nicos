@@ -321,12 +321,11 @@ class Experiment(Device):
             return
         if hasattr(os, 'symlink'):
             if path.islink(location):
-                self.log.debug('removing symlink %s' % location)
+                self.log.debug('removing symlink %s', location)
                 os.unlink(location)
             ensureDirectory(path.join(path.dirname(location), target),
                             **self.managerights)
-            self.log.debug('setting symlink %s to %s' %
-                           (location, target))
+            self.log.debug('setting symlink %s to %s', location, target)
             os.symlink(target, location)
 
     #
@@ -458,14 +457,14 @@ class Experiment(Device):
             proposal = '%s%d' % (self.propprefix, int(proposal))
         except ValueError:
             pass
-        self.log.debug('new proposal real name is %s' % proposal)
+        self.log.debug('new proposal real name is %s', proposal)
 
         if not proposal:
             raise UsageError('Proposal name/number cannot be empty')
 
         # check proposal type (can raise)
         proptype = self.getProposalType(proposal)
-        self.log.debug('new proposal type is %s' % proptype)
+        self.log.debug('new proposal type is %s', proptype)
 
         # check if we should finish the experiment first
         if proptype == 'user' and self.mustFinish:
@@ -485,9 +484,9 @@ class Experiment(Device):
         # need to enable before checking templated files...
         # if next proposal is of type 'user'
         if self.managerights and proptype == 'user':
-            self.log.debug('managerights: %s' % self.managerights)
-            self.log.debug('enableDirectory: %s'
-                           % self.proposalpath_of(proposal))
+            self.log.debug('managerights: %s', self.managerights)
+            self.log.debug('enableDirectory: %s',
+                           self.proposalpath_of(proposal))
             enableDirectory(self.proposalpath_of(proposal),
                             logger=self.log, **self.managerights)
 
@@ -537,9 +536,9 @@ class Experiment(Device):
         self.sample.new({'name': kwds.get('sample', '')})
 
         # debug output
-        self.log.info('experiment directory is now %s' % self.proposalpath)
-        self.log.info('script directory is now %s' % self.scriptpath)
-        self.log.info('data directory is now %s' % self.datapath)
+        self.log.info('experiment directory is now %s', self.proposalpath)
+        self.log.info('script directory is now %s', self.scriptpath)
+        self.log.info('data directory is now %s', self.datapath)
 
         # notify logbook
         session.elogEvent('newexperiment', (proposal, title))
@@ -554,7 +553,7 @@ class Experiment(Device):
             if self.templates:
                 kwds['proposal'] = self.proposal
                 self.handleTemplates(proposal, kwds)
-            self.log.info('New experiment %s started' % proposal)
+            self.log.info('New experiment %s started', proposal)
         else:
             if self.servicescript:
                 run(self.servicescript)
@@ -618,7 +617,7 @@ class Experiment(Device):
                 thd.join(5)
                 if thd.isAlive():
                     self.log.info("continuing zipping of proposal %s in "
-                                  "background" % self.proposal)
+                                  "background", self.proposal)
                 else:
                     thd = None
 
@@ -670,10 +669,10 @@ class Experiment(Device):
                                   'scripts', newfn)
 
             if path.isfile(finalname):
-                self.log.debug('skipping already translated file %r' % newfn)
+                self.log.debug('skipping already translated file %r', newfn)
                 continue
 
-            self.log.debug('checking template %r' % fn)
+            self.log.debug('checking template %r', fn)
             _, defaulted, missing = expandTemplate(content, kwargs)
             if missing:
                 allmissing.extend(missing)
@@ -710,22 +709,22 @@ class Experiment(Device):
             if istemplate:
                 newfn = fn[:-9]  # remove '.template' at end
                 newfn, _, _ = expandTemplate(newfn, kwargs)
-                self.log.debug('%s -> %s' % (fn, newfn))
+                self.log.debug('%s -> %s', fn, newfn)
             else:
-                self.log.debug('%s is no template, just copy it.' % fn)
+                self.log.debug('%s is no template, just copy it.', fn)
 
             finalname = path.join(self.scriptpath, newfn)
             if path.isfile(finalname):
-                self.log.info('not overwriting existing file %s' % newfn)
+                self.log.info('not overwriting existing file %s', newfn)
                 continue
 
             if istemplate:
-                self.log.debug('templating file content of %r' % fn)
+                self.log.debug('templating file content of %r', fn)
                 try:
                     content, _, _ = expandTemplate(content, kwargs)
                 except Exception:
-                    self.log.warning('could not translate template file %s' % fn,
-                                     exc=1)
+                    self.log.warning('could not translate template file %s',
+                                     fn, exc=1)
             # save result
             with open(finalname, 'w') as fp:
                 fp.write(content)
@@ -739,7 +738,7 @@ class Experiment(Device):
         """Zip all files in `proposalpath` folder into `pzip` (.zip) file."""
         self.log.info('zipping experiment data, please wait...')
         zipname = zipFiles(pzip, proposalpath)
-        self.log.info('zipping done: stored as ' + zipname)
+        self.log.info('zipping done: stored as %s', zipname)
         return zipname
 
     def _upload(self, pzip):
@@ -774,11 +773,11 @@ class Experiment(Device):
                 raise NicosError('need valid email address(es)')
 
         # read and translate mailbody template
-        self.log.debug('looking for template in %r' % self.templatepath)
+        self.log.debug('looking for template in %r', self.templatepath)
         try:
             mailbody = self.getTemplate(self.mailtemplate)
         except IOError:
-            self.log.warning('reading mail template %s failed' %
+            self.log.warning('reading mail template %s failed',
                              self.mailtemplate, exc=1)
             mailbody = 'See data in attachment.'
 
@@ -788,7 +787,7 @@ class Experiment(Device):
         topic = 'Your recent experiment %s on %s from %s to %s' % \
                 (proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
-        self.log.info('Sending data files via eMail to %s' % receivers)
+        self.log.info('Sending data files via eMail to %s', receivers)
         if os.stat(zipname).st_size < maxAttachmentSize:
             # small enough -> send directly
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
@@ -816,13 +815,13 @@ class Experiment(Device):
                                          exc=1)
                 # "hide" compressed file by moving it into the
                 # proposal directory
-                self.log.info('moving compressed file to ' + proposalpath)
+                self.log.info('moving compressed file to %s', proposalpath)
                 try:
                     os.rename(pzipfile, path.join(proposalpath,
                                                   path.basename(pzipfile)))
                 except Exception:
-                    self.log.warning('moving compressed file into proposal dir '
-                                     'failed', exc=1)
+                    self.log.warning('moving compressed file into proposal '
+                                     'dir failed', exc=1)
                     # at least withdraw the access rights
                     os.chmod(pzipfile,
                              self.managerights.get('disableFileMode',
@@ -846,8 +845,8 @@ class Experiment(Device):
         # create symlink
         ensureDirectory(path.dirname(self.customproposalsymlink))
         try:
-            self.log.debug('create custom proposal symlink %r -> %r' %
-                           (self.customproposalsymlink, self.proposalpath))
+            self.log.debug('create custom proposal symlink %r -> %r',
+                           self.customproposalsymlink, self.proposalpath)
             os.symlink(os.path.basename(self.proposalpath),
                        self.customproposalsymlink)
         except OSError:
@@ -867,7 +866,7 @@ class Experiment(Device):
             self.users = user
         else:
             self.users = self.users + ', ' + user
-        self.log.info('User "%s" added' % user)
+        self.log.info('User "%s" added', user)
 
     def newSample(self, parameters):
         """Hook called by the sample object to notify of new sample name.
@@ -931,12 +930,12 @@ class Experiment(Device):
         if not self.reporttemplate:
             return
         # read and translate ExpReport template
-        self.log.debug('looking for template in %r' % self.templatepath)
+        self.log.debug('looking for template in %r', self.templatepath)
         try:
             data = self.getTemplate(self.reporttemplate)
         except IOError:
             self.log.warning('reading experimental report template %s failed, '
-                             'please fetch a copy from the User Office' %
+                             'please fetch a copy from the User Office',
                              self.reporttemplate)
             return  # nothing to do about it.
 
@@ -990,7 +989,7 @@ class Experiment(Device):
         with open(path.join(self.proposalpath, newfn), 'w') as fp:
             fp.write(newcontent)
         self.log.info('An experimental report template was created at %r for '
-                      'your convenience.' % path.join(self.proposalpath, newfn))
+                      'your convenience.', path.join(self.proposalpath, newfn))
 
     def doWriteRemark(self, remark):
         if remark:
@@ -1013,13 +1012,13 @@ class Experiment(Device):
             try:
                 det = session.getDevice(detname, source=self)
             except Exception:
-                self.log.warning('could not create %r detector device' %
+                self.log.warning('could not create %r detector device',
                                  detname, exc=1)
                 all_created = False
             else:
                 if not isinstance(det, Measurable):
                     self.log.warning('cannot use device %r as a '
-                                     'detector: it is not a Measurable' % det)
+                                     'detector: it is not a Measurable', det)
                     all_created = False
                 else:
                     detlist.append(det)
@@ -1060,13 +1059,13 @@ class Experiment(Device):
                 else:
                     dev = session.getDevice(devname, source=self)
             except Exception:
-                self.log.warning('could not create %r environment device' %
+                self.log.warning('could not create %r environment device',
                                  devname, exc=1)
                 all_created = False
             else:
                 if not isinstance(dev, (Readable, DevStatistics)):
                     self.log.warning('cannot use device %r as '
-                                     'environment: it is not a Readable' % dev)
+                                     'environment: it is not a Readable', dev)
                     all_created = False
                 else:
                     devlist.append(dev)
@@ -1099,7 +1098,7 @@ class Experiment(Device):
         for devname in self.detlist:
             if devname not in session.configured_devices:
                 self.log.warning('removing device %r from detector list, it '
-                                 'does not exist in any loaded setup' % devname)
+                                 'does not exist in any loaded setup', devname)
             else:
                 newlist.append(devname)
         self.detlist = newlist
@@ -1109,7 +1108,7 @@ class Experiment(Device):
                 devname = devname.split(':')[0]
             if devname not in session.configured_devices:
                 self.log.warning('removing device %r from environment, it '
-                                 'does not exist in any loaded setup' % devname)
+                                 'does not exist in any loaded setup', devname)
             else:
                 newlist.append(devname)
         self.envlist = newlist

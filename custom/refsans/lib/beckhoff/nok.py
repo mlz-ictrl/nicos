@@ -168,13 +168,13 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     # access-helpers for accessing the fields inside the MotorControlBlock
     #
     def _readControlBit(self, bit):
-        self.log.debug('_readControlBit %d' % bit)
+        self.log.debug('_readControlBit %d', bit)
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address, 1))[0]
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value, numbits=1):
-        self.log.debug('_writeControlBit %r, %r' % (bit, value))
+        self.log.debug('_writeControlBit %r, %r', bit, value)
         tmpval = self._taco_guard(self._dev.readHoldingRegisters,
                                   (0, self.address, 1))[0]
         mask = (1 << numbits) - 1
@@ -185,7 +185,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         session.delay(0.1) # work around race conditions....
 
     def _writeDestination(self, value):
-        self.log.debug('_writeDestination %r' % value)
+        self.log.debug('_writeDestination %r', value)
         value = struct.unpack('<2H', struct.pack('=i', value))
         self._taco_guard(self._dev.writeMultipleRegisters,
                          (0, self.address + 2) + value)
@@ -193,20 +193,20 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     def _readStatusWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                 (0, self.address + 4, 1))[0]
-        self.log.debug('_readStatusWord %04x' % value)
+        self.log.debug('_readStatusWord %04x', value)
         return value
 
     def _readErrorWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                 (0, self.address + 5, 1))[0]
-        self.log.debug('_readErrorWord %04x' % value)
+        self.log.debug('_readErrorWord %04x', value)
         return value
 
     def _readPosition(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 6, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readPosition: -> %d steps' % value)
+        self.log.debug('_readPosition: -> %d steps', value)
         return value
 
     def _readUpperControlWord(self):
@@ -215,7 +215,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
                                 (0, self.address + 1, 1))[0]
 
     def _writeUpperControlWord(self, value):
-        self.log.debug('_writeUpperControlWord 0x%04x' % value)
+        self.log.debug('_writeUpperControlWord 0x%04x', value)
         value = int(value) & 0xffff
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address + 1, value))
@@ -224,14 +224,14 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 2, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readDestination: -> %d steps' % value)
+        self.log.debug('_readDestination: -> %d steps', value)
         return value
 
     def _readReturn(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 8, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readReturn: -> %d (0x%08x)' % (value, value))
+        self.log.debug('_readReturn: -> %d (0x%08x)', value, value)
         return value
 
     #
@@ -240,25 +240,25 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     #
     def _steps2phys(self, steps):
         value = steps / float(self.slope)
-        self.log.debug('_steps2phys: %r steps -> %s' %
-                       (steps, self.format(value, unit=True)))
+        self.log.debug('_steps2phys: %r steps -> %s',
+                       steps, self.format(value, unit=True))
         return value
 
     def _phys2steps(self, value):
         steps = int(value * float(self.slope))
-        self.log.debug('_phys2steps: %s -> %r steps' %
-                       (self.format(value, unit=True), steps))
+        self.log.debug('_phys2steps: %s -> %r steps',
+                       self.format(value, unit=True), steps)
         return steps
 
     def _speed2phys(self, speed):
-        self.log.debug('_speed2phys: %r speed -> %s/s' %
-                       (speed, self.format(speed, unit=True)))
+        self.log.debug('_speed2phys: %r speed -> %s/s',
+                       speed, self.format(speed, unit=True))
         return speed  / float(self.slope)
 
     def _phys2speed(self, value):
         speed = int(value * float(self.slope))
-        self.log.debug('_steps2phys: %s/s -> %r speed' %
-                       (self.format(value, unit=True), speed))
+        self.log.debug('_steps2phys: %s/s -> %r speed',
+                       self.format(value, unit=True), speed)
         return speed
 
     #
@@ -363,10 +363,10 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
             raise UsageError("Reading not possible for parameter index %d" % index)
 
         index = self.HW_readable_Params.get(index, index)
-        self.log.debug('readParameter %d' % index)
+        self.log.debug('readParameter %d', index)
         if self._readStatusWord() & (1<<7):
             raise UsageError(self, 'Can not access Parameters while Motor is '
-                                    'moving, please stop it first!')
+                             'moving, please stop it first!')
         # wait for inactive ACK/NACK
         self.log.debug('Wait for idle ACK/NACK bits')
         for _ in range(1000):
@@ -374,7 +374,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
                 break
         else:
             raise CommunicationError(self, 'HW still busy, can not read '
-                                            'Parameter, please retry later....')
+                                     'Parameter, please retry later')
 
         # index goes to bits 8..15, also set bit2 (4) = get_parameter
         self._writeUpperControlWord((index << 8) | 4)
@@ -385,11 +385,11 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
                 break
         else:
             raise CommunicationError(self, 'ReadPar command not recognized by '
-                                            'HW, please retry later....')
+                                     'HW, please retry later....')
 
         if self._readStatusWord() & (1<<14):
             raise CommunicationError(self, 'Reading of Parameter %r failed, '
-                                            'got a NACK' % index)
+                                     'got a NACK' % index)
         return self._readReturn()
 
     @requires(level='admin')
@@ -398,7 +398,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
             raise UsageError("Writing not possible for parameter index %d" % index)
 
         index = self.HW_writeable_Params.get(index, index)
-        self.log.debug('writeParameter %d:0x%04x' % (index, value))
+        self.log.debug('writeParameter %d:0x%04x', index, value)
 
         if store2eeprom:
             if self._HW_ReadStatusWord() & (1<<6) == 0:
@@ -408,7 +408,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
 
         if self._readStatusWord() & (1<<7):
             raise UsageError(self, 'Can not access Parameters while Motor is '
-                                    'moving, please stop it first!')
+                             'moving, please stop it first!')
 
         # wait for inactive ACK/NACK
         self.log.debug('Wait for idle ACK/NACK bits')
@@ -417,7 +417,7 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
                 break
         else:
             raise CommunicationError(self, 'HW still busy, can not write '
-                                            'Parameter, please retry later....')
+                                     'Parameter, please retry later')
 
         self._writeDestination(value)
         if store2eeprom:

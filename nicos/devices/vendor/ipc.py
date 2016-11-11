@@ -254,11 +254,11 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         if not ping:
             request += crc_ipc(request)
         request = STX + request + EOT
-        self.log.debug('sending %r' % convert(request))
+        self.log.debug('sending %r', convert(request))
         with self._lock:
             response = self._transmit(request, retlen)
         # now check data
-        self.log.debug('received %r' % convert(response))
+        self.log.debug('received %r', convert(response))
         if not response:
             raise CommunicationError(self, 'no response')
         elif response == ACK:
@@ -316,7 +316,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         s = chr(addr) + chr(cmd)
         if length > 0:
             s += '%0*d' % (length, param)
-        self.log.debug('sending %s to card %s' % (cmdname, addr))
+        self.log.debug('sending %s to card %s', cmdname, addr)
         return self._comm(s, retlen)
 
     def get(self, addr, cmd, param=0, length=0):
@@ -388,8 +388,8 @@ class IPCModBusTCP(IPCModBusRS232):
             self.log.debug('request sent')
 
             for i in range(self.comtries):
-                self.log.debug('waiting for response, try %d/%d' %
-                               (i, self.comtries))
+                self.log.debug('waiting for response, try %d/%d',
+                               i, self.comtries)
                 p = select.select([self._connection], [], [], self.bustimeout)
                 if self._connection in p[0]:
                     data = self._connection.recv(20)  # more than enough!
@@ -495,7 +495,7 @@ class Coder(NicosCoder):
             if self.confbyte != actual_confbyte:
                 self.doWriteConfbyte(self.confbyte)
                 self.log.warning('Confbyte mismatch between setup and card, '
-                                 'overriding card value to 0x%02x' %
+                                 'overriding card value to 0x%02x',
                                  self.confbyte)
         self._lasterror = None
 
@@ -578,7 +578,7 @@ class Coder(NicosCoder):
             # record last error to return it from doStatus()
             self._lasterror = str(e)
             raise
-        self.log.debug('value is %d steps' % value)
+        self.log.debug('value is %d steps', value)
         return value
 
     def doRead(self, maxage=0):
@@ -596,7 +596,7 @@ class Coder(NicosCoder):
             if self.circular < 0 and pos > -0.5*self.circular:
                 # subtract x to make it -x/2..0..x/2 (circular is negative here)
                 pos += self.circular
-        self.log.debug('position is ' + self.format(pos))
+        self.log.debug('position is %s', self.format(pos))
         return pos
 
     def doStatus(self, maxage=0):
@@ -639,7 +639,8 @@ class Resolver(Coder):
     def doReadConfbyte(self):
         confbyte = self._attached_bus.get(self.addr, 152)
         if confbyte != 16:
-            self.log.warning('Got unexpected confbyte setting %d (expected 16)' % confbyte)
+            self.log.warning('Got unexpected confbyte setting %d (expected 16)',
+                             confbyte)
         return confbyte
 
     def doWriteConfbyte(self, byte):
@@ -657,7 +658,8 @@ class Resolver(Coder):
             except NicosError:
                 self.log.warning('Resetting failed!', exc=1)
         else:
-            self.log.warning('Reset not supported by this firmware, please upgrade your HW!')
+            self.log.warning('Reset not supported by this firmware, please '
+                             'upgrade your HW!')
 
     def doStatus(self, maxage=0):
         # no way of determining a status
@@ -727,13 +729,13 @@ class Motor(HasTimeout, NicosMotor):
                 if self.confbyte != self.doReadConfbyte():
                     self.doWriteConfbyte(self.confbyte)
                     self.log.warning('Confbyte mismatch between setup and card,'
-                                     ' overriding card value to 0x%02x' %
+                                     ' overriding card value to 0x%02x',
                                      self.confbyte)
             # make sure that the card has the right "last steps"
             if self.steps != self.doReadSteps():
                 self.doWriteSteps(self.steps)
                 self.log.warning('Resetting stepper position to last known '
-                                 'good value %d' % self.steps)
+                                 'good value %d', self.steps)
             self._type = 'stepper motor, ' + self._hwtype
         else:
             self._type = 'simulated stepper'
@@ -914,23 +916,23 @@ class Motor(HasTimeout, NicosMotor):
         return self._attached_bus.get(self.addr, 130)
 
     def doWriteSteps(self, value):
-        self.log.debug('setting new steps value: %s' % value)
+        self.log.debug('setting new steps value: %s', value)
         self._attached_bus.send(self.addr, 43, value, 6)
 
     def doWritePrecision(self, precision):
         minprec = abs(2. / self.slope)
         if precision < minprec:
-            self.log.warning('Precision needs to be at least %.3f, adjusting.' %
+            self.log.warning('Precision needs to be at least %.3f, adjusting.',
                              minprec)
             return minprec
 
     def doStart(self, target):
         bus = self._attached_bus
         target = self._tosteps(target)
-        self.log.debug('target is %d steps' % target)
+        self.log.debug('target is %d steps', target)
         self._hw_wait()
         pos = self._tosteps(self.read(0))
-        self.log.debug('pos is %d steps' % pos)
+        self.log.debug('pos is %d steps', pos)
         diff = target - pos
         if diff == 0:
             return
@@ -980,7 +982,7 @@ class Motor(HasTimeout, NicosMotor):
         self._params['steps'] = value  # save last valid position in cache
         if self._cache:
             self._cache.put(self, 'steps', value)
-        self.log.debug('value is %d' % value)
+        self.log.debug('value is %d', value)
         return self._fromsteps(value)
 
     def doReadRelay(self):
@@ -1061,7 +1063,7 @@ class Motor(HasTimeout, NicosMotor):
         if state & 1 and (state & 96 != 96):
             st = status.BUSY
             msg = ', moving' + msg
-        self.log.debug('status is %d:%s' % (st, msg[2:]))
+        self.log.debug('status is %d:%s', st, msg[2:])
         return st, msg[2:]
 
     def doSetPosition(self, target):
@@ -1073,7 +1075,7 @@ class Motor(HasTimeout, NicosMotor):
         within that.  So we 'set' the position of the card instead of adjusting
         our zerosteps.
         """
-        self.log.debug('setPosition: %s' % target)
+        self.log.debug('setPosition: %s', target)
         value = self._tosteps(target)
         self.doWriteSteps(value)
         self._params['steps'] = value  # save last valid position in cache
@@ -1330,7 +1332,7 @@ class SlitMotor(HasTimeout, NicosMotor):
            self.doStatus()[0] != status.ERROR:
             return
         self.log.info('blade is blocked or not initialized, moving to reset '
-                      'position %s' % self.format(self.resetpos, unit=True))
+                      'position %s', self.format(self.resetpos, unit=True))
         self._setROParam('target', self.resetpos)
         steps = self._tosteps(self.resetpos)
         self._attached_bus.send(self.addr, self.side+160, steps, 4)

@@ -84,12 +84,12 @@ class SerComIO(Device):
 
     def communicate(self, cmd):
         with self._lock:
-            self.log.debug('cmd: %r' % cmd)
+            self.log.debug('cmd: %r', cmd)
             self._dev.write(cmd + CRLF)
             res = [l.strip() for l in self._dev.read(10000).splitlines()]
             res = [l for l in res if l if l != ">>>"]
             res = res[-1] if res else ''
-            self.log.debug('got: %r' % res)
+            self.log.debug('got: %r', res)
             return res
 
     def doShutdown(self):

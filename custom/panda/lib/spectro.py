@@ -37,7 +37,7 @@ class PANDA(TAS):
                 dev = session.getDevice(devname)
                 coll = dev.read()
             except Exception:
-                self.log.warning('could not read collimation %s' % devname,
+                self.log.warning('could not read collimation %s', devname,
                                  exc=1)
                 coll = 'none'
             if coll == 'none':
@@ -49,14 +49,14 @@ class PANDA(TAS):
             elif coll == '60m':
                 ret.append(60)
             else:
-                self.log.warning('unknown collimation setting %r for %s' %
-                                 (coll, devname))
+                self.log.warning('unknown collimation setting %r for %s',
+                                 coll, devname)
         for devname in ['cb1', 'cb2', 'cb3', 'cb4']:
             try:
                 dev = session.getDevice(devname)
                 coll = dev.read()
             except Exception:
-                self.log.warning('could not read collimation %s' % devname,
+                self.log.warning('could not read collimation %s', devname,
                                  exc=1)
                 ret.append(6000)
             else:
@@ -72,7 +72,7 @@ class PANDA(TAS):
                 dev = session.getDevice(devname)
                 l = dev.read()
             except Exception:
-                self.log.warning('could not read %s' % devname, exc=1)
+                self.log.warning('could not read %s', devname, exc=1)
                 l = 100
             lengths[devname] = l
 

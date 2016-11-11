@@ -161,8 +161,8 @@ class Sans1ColliCoder(TacoDevice, Coder):
         self._setROParam('steps',
                          struct.unpack('=i', struct.pack('<2H', *regs))[0])
         value = self.steps / self.slope
-        self.log.debug('doRead: %d steps -> %s' %
-                       (self.steps, self.format(value, unit=True)))
+        self.log.debug('doRead: %d steps -> %s',
+                       self.steps, self.format(value, unit=True))
         return round(value - self.zeropos, 3)
 
     def doStatus(self, maxage=0):
@@ -231,13 +231,13 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     # access-helpers for accessing the fields inside the MotorControlBlock
     #
     def _readControlBit(self, bit):
-        self.log.debug('_readControlBit %d' % bit)
+        self.log.debug('_readControlBit %d', bit)
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address, 1))[0]
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value):
-        self.log.debug('_writeControlBit %r, %r' % (bit, value))
+        self.log.debug('_writeControlBit %r, %r', bit, value)
         tmpval = self._taco_guard(self._dev.readHoldingRegisters,
                                   (0, self.address, 1))[0]
         tmpval &= ~(1 << int(bit))
@@ -247,7 +247,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
-        self.log.debug('_writeDestination %r' % value)
+        self.log.debug('_writeDestination %r', value)
         value = struct.unpack('<2H', struct.pack('=i', value))
         self._taco_guard(self._dev.writeMultipleRegisters,
                          (0, self.address + 2) + value)
@@ -255,20 +255,20 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     def _readStatusWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 4, 1))[0]
-        self.log.debug('_readStatusWord %04x' % value)
+        self.log.debug('_readStatusWord %04x', value)
         return value
 
     def _readErrorWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 5, 1))[0]
-        self.log.debug('_readErrorWord %04x' % value)
+        self.log.debug('_readErrorWord %04x', value)
         return value
 
     def _readPosition(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 6, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readPosition: -> %d steps' % value)
+        self.log.debug('_readPosition: -> %d steps', value)
         return value
 
     def _readUpperControlWord(self):
@@ -277,7 +277,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
                                 (0, self.address + 1, 1))[0]
 
     def _writeUpperControlWord(self, value):
-        self.log.debug('_writeUpperControlWord 0x%04x' % value)
+        self.log.debug('_writeUpperControlWord 0x%04x', value)
         value = int(value) & 0xffff
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address + 1, value))
@@ -286,14 +286,14 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 2, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readDestination: -> %d steps' % value)
+        self.log.debug('_readDestination: -> %d steps', value)
         return value
 
     def _readReturn(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + 8, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
-        self.log.debug('_readReturn: -> %d (0x%08x)' % (value, value))
+        self.log.debug('_readReturn: -> %d (0x%08x)', value, value)
         return value
 
     #
@@ -302,14 +302,14 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     #
     def _steps2phys(self, steps):
         value = steps / float(self.microsteps * self.slope)
-        self.log.debug('_steps2phys: %r steps -> %s' %
-                       (steps, self.format(value, unit=True)))
+        self.log.debug('_steps2phys: %r steps -> %s',
+                       steps, self.format(value, unit=True))
         return value
 
     def _phys2steps(self, value):
         steps = int(value * float(self.microsteps * self.slope))
-        self.log.debug('_phys2steps: %s -> %r steps' %
-                       (self.format(value, unit=True), steps))
+        self.log.debug('_phys2steps: %s -> %r steps',
+                       self.format(value, unit=True), steps)
         return steps
 
     def _speed2phys(self, speed):
@@ -362,7 +362,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
 
         loops = 10
         for loop in range(loops):
-            self.log.debug('setPosition: loop %d of %d' % (loop, loops))
+            self.log.debug('setPosition: loop %d of %d', loop, loops)
             self._writeDestination(self._phys2steps(value))
             # index=1: update current position
             self._writeUpperControlWord((1 << 8) | 1)
@@ -478,7 +478,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
             msg.append('load=%d' % (statval & 0x0007))
 
         msg = ', '.join(msg)
-        self.log.debug('_HW_Status returns %r' % ((code, msg), ))
+        self.log.debug('_HW_Status returns %r', (code, msg))
         return code, msg
 
     #
@@ -693,7 +693,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
     @usermethod
     @requires(level='user')
     def readParameter(self, index):
-        self.log.debug('readParameter %d' % index)
+        self.log.debug('readParameter %d', index)
         try:
             index = int(self._paridx.get(index, index))
         except ValueError:
@@ -732,7 +732,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
     @usermethod
     @requires(level='admin')
     def writeParameter(self, index, value, store2eeprom=False):
-        self.log.debug('writeParameter %d:0x%04x' % (index, value))
+        self.log.debug('writeParameter %d:0x%04x', index, value)
         if store2eeprom:
             self.log.warning('writeParameter stores to eeprom !')
         try:
@@ -925,24 +925,24 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
     # Parameter 30 : Features
     def doReadHw_Features(self):
         value = self.readParameter(30)
-        self.log.debug('Feature0: Inputfilter for encodersignals: %d'
-                       % (value & 1))
+        self.log.debug('Feature0: Inputfilter for encodersignals: %d',
+                       value & 1)
         self.log.debug('Feature1: Positionsrueckfuehrung (0=Encoder, '
-                       '1=Zaehler): %d' % ((value >> 1) & 1))
+                       '1=Zaehler): %d', (value >> 1) & 1)
         self.log.debug('Feature2: Zaehlrichtung encoder (0=mitlaufend, '
-                       '1=gegenlaufend): %d' % ((value >> 2) & 1))
-        self.log.debug('Feature3: Bremsrampe (0=linear, 1=exponentiell): %d'
-                       % ((value >> 3) & 1))
-        self.log.debug('Feature4: Eingang1 (0=Schliesser, 1=oeffner): %d'
-                       % ((value >> 4) & 1))
-        self.log.debug('Feature5: Eingang2 (0=Schliesser, 1=oeffner): %d'
-                       % ((value >> 5) & 1))
-        self.log.debug('Feature6: Eingang1 (0=referenz, 1=normal): %d'
-                       % ((value >> 6) & 1))
-        self.log.debug('Feature7: Eingang2 (0=referenz, 1=normal): %d'
-                       % ((value >> 7) & 1))
+                       '1=gegenlaufend): %d', (value >> 2) & 1)
+        self.log.debug('Feature3: Bremsrampe (0=linear, 1=exponentiell): %d',
+                       (value >> 3) & 1)
+        self.log.debug('Feature4: Eingang1 (0=Schliesser, 1=oeffner): %d',
+                       (value >> 4) & 1)
+        self.log.debug('Feature5: Eingang2 (0=Schliesser, 1=oeffner): %d',
+                       (value >> 5) & 1)
+        self.log.debug('Feature6: Eingang1 (0=referenz, 1=normal): %d',
+                       (value >> 6) & 1)
+        self.log.debug('Feature7: Eingang2 (0=referenz, 1=normal): %d',
+                       (value >> 7) & 1)
         self.log.debug('Feature8: Richtung der Referenzfahrt (0=negativ, '
-                       '1=positiv): %d' % ((value >> 8) & 1))
+                       '1=positiv): %d', (value >> 8) & 1)
         return value
 
     def doWriteHw_Features(self, value):

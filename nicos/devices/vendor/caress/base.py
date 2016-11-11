@@ -53,7 +53,7 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
             is_readable = \
                 self._caress_guard(self._caressObject.is_readable_module,
                                    self.cid)
-        self.log.debug('Readable module: %r' % (is_readable,))
+        self.log.debug('Readable module: %r', is_readable)
 
         if hasattr(self._caressObject, 'is_drivable_module'):
             is_drivable = \
@@ -68,16 +68,16 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
                                                   103, 105, 106, 107, 108, 110,
                                                   111, 112, 114, 115, 123, 124,
                                                   125, 126, ]
-        self.log.debug('Driveable module: %r' % (is_drivable,))
+        self.log.debug('Driveable module: %r', is_drivable)
         if not (is_drivable or is_readable):
             raise ConfigurationError(self, 'Object is not a moveable module')
 
     def doStart(self, target):
-        self.log.debug('target : %r' % (target,))
+        self.log.debug('target: %r', target)
         timeout = 0
         if hasattr(self._caressObject, 'drive_module'):
             val = CARESS.Value(f=target)
-            self.log.debug('%r' % val.f)
+            self.log.debug('%r', val.f)
             result = self._caress_guard(self._caressObject.drive_module, 0,
                                         self.cid, val, timeout)
             if result[0] != CARESS.OK:

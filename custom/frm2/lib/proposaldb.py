@@ -142,8 +142,8 @@ def queryProposal(pnumber, instrument=None):
     instruments = set(instrumentnames.split(','))
     if instrument is not None and (instrument.lower() not in instruments):
         session.log.error('proposal %s is not a proposal for '
-                          '%s, but for %s, cannot use proposal information' %
-                          (pnumber, instrument, '/'.join(instruments)))
+                          '%s, but for %s, cannot use proposal information',
+                          pnumber, instrument, '/'.join(instruments))
         # avoid data leakage
         return instrument, {'wrong_instrument': instruments}
     # structure of returned data: (title, user, prop_name, prop_value)

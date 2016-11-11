@@ -107,7 +107,7 @@ class CalibratedMagnet(HasLimits, Moveable):
             trycurr = 0.5 * (mincurr + maxcurr)
             tryfield = self._current2field(trycurr)
             if field == tryfield:
-                self.log.debug('current for %g T is %g A' % (field, trycurr))
+                self.log.debug('current for %g T is %g A', field, trycurr)
                 return trycurr  # Gotcha!
             elif field > tryfield:
                 # retry upper interval
@@ -121,7 +121,7 @@ class CalibratedMagnet(HasLimits, Moveable):
             if maxfield - minfield < 1e-4:
                 ratio = (field - minfield) / (maxfield - minfield)
                 trycurr = (maxcurr - mincurr) * ratio + mincurr
-                self.log.debug('current for %g T is %g A' % (field, trycurr))
+                self.log.debug('current for %g T is %g A', field, trycurr)
                 return trycurr
         raise ConfigurationError(self,
                                  '_current2field polynome not monotonic!')
@@ -196,7 +196,7 @@ class CalibratedMagnet(HasLimits, Moveable):
                 continue
             if fieldcolumn not in scan.ynames or \
                     currentcolumn not in scan.xnames:
-                self.log.info('%s is not a calibration scan' % scan.counter)
+                self.log.info('%s is not a calibration scan', scan.counter)
                 continue
             xindex = scan.xnames.index(currentcolumn)
             yindex = scan.ynames.index(fieldcolumn)

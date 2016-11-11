@@ -338,14 +338,14 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             nicosheader.append('%s=%s' % (devname_key, strvalue))
 
         nicosheader = b'\n'.join(sorted(map(to_ascii_escaped, nicosheader)))
-        self.log.debug('nicosheader starts with: %40s' % nicosheader)
+        self.log.debug('nicosheader starts with: %40s', nicosheader)
 
         # write Header
         header = BERSANSHEADER
         if 'tisane' in session.explicit_setups:
             header += TISANEHEADER
         for line in header.split('\n'):
-            self.log.debug('testing header line: %r' % line)
+            self.log.debug('testing header line: %r', line)
             self.log.debug(line % metadata)
             fp.write(to_utf8(line % metadata))
             fp.write(b'\n')

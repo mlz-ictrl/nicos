@@ -114,7 +114,7 @@ class CICacheClient(BaseCacheClient):
         key = key[len(self._prefix):]
         time = time and float(time)
         ttl = ttl and float(ttl) or None
-        # self.log.debug('got %s=%s' % (key, value))
+        # self.log.debug('got %s=%s', key, value)
         if key == END_MARKER:
             return
         entry = Entry(key, value, time, ttl, op == OP_TELLOLD)
@@ -143,7 +143,7 @@ class CICacheClient(BaseCacheClient):
         time = entry.time or currenttime()
         ttlstr = entry.ttl and '+%s' % entry.ttl or ''
         msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, entry.value)
-        # self.log.debug('putting %s=%s' % (key, value))
+        # self.log.debug('putting %s=%s', key, value)
         self._queue.put(msg)
         # the cache doesn't send this update back to us
         with self._dblock:

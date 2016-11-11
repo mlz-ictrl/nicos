@@ -116,7 +116,7 @@ class Detector(GenericDetector):
         chwl, chspeed, chratio, _, chst = self._attached_chopper._getparams()
 
         _timeinterval = calc.calculateTimeInterval(chspeed, chratio)
-        self.log.debug('setting time interval : %f' % _timeinterval)
+        self.log.debug('setting time interval: %f', _timeinterval)
         self.doWriteTimeinterval(_timeinterval)
 
         if chspeed > 150:
@@ -125,7 +125,7 @@ class Detector(GenericDetector):
             ch5_90deg_offset = self._attached_chopper.ch5_90deg_offset
             _chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
                                                   ch5_90deg_offset)
-            self.log.debug('setting chopper delay to : %d' % _chdelay)
+            self.log.debug('setting chopper delay to: %d', _chdelay)
             self._attached_chdelay.move(_chdelay)
 
             # select counter delay from chopper parameters
@@ -136,7 +136,7 @@ class Detector(GenericDetector):
             self.doWriteDelay(_ctrdelay)
         else:
             _chdelay = 0
-            self.log.debug('setting chopper delay to : %d' % _chdelay)
+            self.log.debug('setting chopper delay to: %d', _chdelay)
             self._attached_chdelay.move(_chdelay)
 
     def doStart(self):
@@ -194,7 +194,7 @@ class Detector(GenericDetector):
         return self._attached_images[0].delay
 
     def doWriteDelay(self, value):
-        self.log.debug('setting counter delay to : %d' % value)
+        self.log.debug('setting counter delay to: %d', value)
         self._attached_images[0].delay = value
 
     def doReadTimechannels(self):
@@ -239,6 +239,6 @@ class Detector(GenericDetector):
                 )
         self._detinfolength = len(dinfo)
         self._detinfo_parsed = dinfo
-        self.log.debug(self._detinfo_parsed)
+        self.log.debug('%s', self._detinfo_parsed)
         self._anglemap = tuple((i - 1) for i in sorted(dmap,
                                                        key=dmap.__getitem__))

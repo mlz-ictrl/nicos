@@ -66,7 +66,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         lmin = min(max(limits[0], abslimits[0]), 0)
         lmax = max(min(limits[1], abslimits[1]), 0)
         newlimits = (lmin, lmax)
-        self.log.debug('Set limits: %r' % (newlimits,))
+        self.log.debug('Set limits: %r', newlimits)
         HasLimits.doWriteUserlimits(self, newlimits)
         # intentionally not calling CalibratedMagnet.doWriteUserlimits
         # we do not want to change the limits of the current source

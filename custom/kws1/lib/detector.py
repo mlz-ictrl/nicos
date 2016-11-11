@@ -84,7 +84,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
 
     def _updateMapping(self, selpos):
         self.log.debug('updating the detector mapping for selector '
-                       'setting %s' % selpos)
+                       'setting %s', selpos)
         try:
             pos = self.presets.get(selpos, {})
             new_mapping = dict((k, [v['z'], v['x'], v['y']])

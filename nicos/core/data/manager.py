@@ -150,7 +150,7 @@ class DataManager(object):
 
         Finally dispatches corresponding sink handlers.
         """
-        self.log.debug('Created new dataset %s' % dataset)
+        self.log.debug('Created new dataset %s', dataset)
         if not skip_handlers:
             for sink in session.datasinks:
                 if sink.isActive(dataset):
@@ -168,17 +168,17 @@ class DataManager(object):
         """Finish leftover datasets that aren't instances of *upto*."""
         while self._stack and self._stack[-1].settype not in upto:
             last = self._stack.pop()
-            self.log.warning('Cleaning up %s from stack?!' % last)
+            self.log.warning('Cleaning up %s from stack?!', last)
             try:
                 self._finish(last)
             except Exception:
-                self.log.exception('while cleaning up dataset %s' % last)
+                self.log.exception('while cleaning up dataset %s', last)
 
     def _finish(self, dataset):
         """Finish up the dataset."""
         if dataset.finished is None:
             dataset.finished = currenttime()
-        self.log.debug('Finishing up %s' % dataset)
+        self.log.debug('Finishing up %s', dataset)
         dataset.dispatch('end')
         if self._stack:
             self._stack[-1].dispatch('addSubset', dataset)
@@ -260,8 +260,8 @@ class DataManager(object):
 
         exp = session.experiment
         if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
-            session.log.warning('creating new empty file counter file at %s'
-                                % path.join(exp.dataroot, exp.counterfile))
+            session.log.warning('creating new empty file counter file at %s',
+                                path.join(exp.dataroot, exp.counterfile))
         if session.mode == SIMULATION:
             raise ProgrammingError('assignCounter should not be called in '
                                    'simulation mode')
@@ -373,12 +373,12 @@ class DataManager(object):
             os.symlink if hasattr(os, 'symlink') else None
         if linkfunc:
             for linkpath in linkpaths:
-                self.log.debug('linking %r to %r' % (linkpath, filepath))
+                self.log.debug('linking %r to %r', linkpath, filepath)
                 try:
                     linkfunc(filepath, linkpath)
                 except OSError:
-                    self.log.warning('linking %r to %r failed, ignoring' %
-                                     (linkpath, filepath))
+                    self.log.warning('linking %r to %r failed, ignoring',
+                                     linkpath, filepath)
         else:
             self.log.warning('can\'t link datafiles, no os support!')
 
@@ -413,8 +413,8 @@ class DataManager(object):
         filepath = filepaths[0]
         shortpath = path.join(*subdirs + (filename,))
 
-        self.log.debug('creating file %r using fileclass %r' % (filename,
-                                                                fileclass))
+        self.log.debug('creating file %r using fileclass %r', filename,
+                       fileclass)
         datafile = fileclass(shortpath, filepath)
         exp = session.experiment
         if exp.managerights:

@@ -195,7 +195,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
             if result is None:
                 return
             image = result[1][0]
-            self.log.debug("results: %r" % results)
+            self.log.debug("results: %r", results)
             self._file = session.data.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],
                 self.sink.subdir)

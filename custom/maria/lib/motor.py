@@ -42,14 +42,14 @@ class Motor(HasOffset, TangoMotor):
     def doRead(self, maxage=0):
         pos = TangoMotor.doRead(self, maxage)
         res = self._invertPosition(pos) - self.offset
-        self.log.debug("[read]  raw: %.3f  res: %.3f    offset: %.3f"
-                       % (pos, res, self.offset))
+        self.log.debug("[read]  raw: %.3f  res: %.3f    offset: %.3f",
+                       pos, res, self.offset)
         return res
 
     def doStart(self, target):
         pos = self._invertPosition(target + self.offset)
-        self.log.debug("[start] raw: %.3f  res: %.3f    offset: %.3f"
-                       % (target, pos, self.offset))
+        self.log.debug("[start] raw: %.3f  res: %.3f    offset: %.3f",
+                       target, pos, self.offset)
         return TangoMotor.doStart(self, pos)
 
     def doReadRefpos(self):

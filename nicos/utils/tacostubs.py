@@ -93,4 +93,4 @@ def generate_stubs():
                 name, value = obj.split('=')
                 setattr(mod, name, eval(value))
         sys.modules[modname] = mod
-        root_log.info('generated TACO stub module %r' % modname)
+        root_log.info('generated TACO stub module %r', modname)

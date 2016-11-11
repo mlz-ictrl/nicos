@@ -355,10 +355,10 @@ def guessCorrectCommand(source, attribute=False):
             if poi in session.configured_devices:
                 if poi in session.devices:
                     session.log.info('Use CreateDevice(%r) to export the '
-                                     'device of this name' % str(poi))
+                                     'device of this name', str(poi))
                 else:
                     session.log.info('Use CreateDevice(%r) to try creating '
-                                     'the device of this name' % str(poi))
+                                     'the device of this name', str(poi))
                 return
         for key in allowed_keys:
             if key == poi:
@@ -369,7 +369,7 @@ def guessCorrectCommand(source, attribute=False):
         suggestions = [(base and base + '.' or '') + m[0]
                        for m in comp[:3] if m[1] > 2]
         if suggestions:
-            session.log.info('Did you mean: %s' % ', '.join(suggestions))
+            session.log.info('Did you mean: %s', ', '.join(suggestions))
     except Exception:
         pass
 

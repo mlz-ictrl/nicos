@@ -81,7 +81,7 @@ class VirtualMotor(HasOffset, Motor):
                                         self.__moving, (pos,))
         else:
             self.curstatus = (status.BUSY, 'virtual moving')
-            self.log.debug('moving to %s' % pos)
+            self.log.debug('moving to %s', pos)
             self.curvalue = pos
             self.curstatus = (status.OK, 'idle')
 
@@ -122,7 +122,7 @@ class VirtualMotor(HasOffset, Motor):
                     self.log.debug('thread stopped')
                     return
                 time.sleep(self._base_loop_delay)
-                self.log.debug('thread moving to %s' % value)
+                self.log.debug('thread moving to %s', value)
                 self.curvalue = value
                 if value == pos:
                     return
@@ -219,7 +219,7 @@ class VirtualTimer(VirtualChannel):
     is_timer = True
 
     def _counting(self):
-        self.log.debug('timing to %.3f' % (self.preselection,))
+        self.log.debug('timing to %.3f', self.preselection)
         finish_at = time.time() + self.preselection - self.curvalue
         try:
             while not self._stopflag:
@@ -276,8 +276,8 @@ class VirtualCounter(VirtualChannel):
         VirtualChannel.doStart(self)
 
     def _counting(self):
-        self.log.debug('counting to %d cts with %d cts/s' %
-                       (self.preselection, self.countrate))
+        self.log.debug('counting to %d cts with %d cts/s',
+                       self.preselection, self.countrate)
         try:
             while not self._stopflag:
                 if self.ismaster and self.curvalue >= self.preselection:
@@ -499,8 +499,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             heater = self.heater
 
             heatflow = self.__heatLink(regulation, sample)
-            self.log.debug('sample = %.5f, regulation = %.5f, heatflow = %.5g'
-                           % (sample, regulation, heatflow))
+            self.log.debug('sample = %.5f, regulation = %.5f, heatflow = %.5g',
+                           sample, regulation, heatflow)
             newsample = max(0,
                             sample + (self.__sampleLeak(sample) - heatflow) /
                             self.__sampleCP(sample) * h)
@@ -557,7 +557,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                 lastD = D
 
                 self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, '
-                               'heater = %.2f' % (P, I, D, heater))
+                               'heater = %.2f', P, I, D, heater)
 
                 # check for turn-around points to detect oscillations ->
                 # increase damper
@@ -587,8 +587,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                     self.setpoint = round(self.setpoint +
                                           clamp(self.target - self.setpoint,
                                                 -maxdelta, maxdelta), 3)
-                    self.log.debug('setpoint changes to %r (target %r)' %
-                                   (self.setpoint, self.target))
+                    self.log.debug('setpoint changes to %r (target %r)',
+                                   self.setpoint, self.target)
                 except (TypeError, ValueError):
                     # self.target might be None
                     pass
@@ -660,7 +660,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         try:
             while not self._stopflag:
                 elapsed = self._timer.elapsed_time()
-                self.log.debug('update image: elapsed = %.1f' % elapsed)
+                self.log.debug('update image: elapsed = %.1f', elapsed)
                 array = self._generate(self._base_loop_delay).astype('<u4')
                 self._buf = self._buf + array
                 self.readresult = [self._buf.sum()]

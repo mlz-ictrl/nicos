@@ -127,7 +127,7 @@ class Monitor(BaseCacheClient):
                 x, y = int(x), int(y)
                 self._geometry = (w, h, x, y)
             except Exception:
-                self.log.warning('invalid geometry %s' % self._geometry)
+                self.log.warning('invalid geometry %s', self._geometry)
                 self._geometry = None
 
         # timeout for select() call
@@ -162,7 +162,7 @@ class Monitor(BaseCacheClient):
         setupname = session.explicit_setups[0]
         fn = session._setup_info[setupname]['filename']
         if not path.isfile(fn):
-            self.log.warning('setup watcher could not find %r' % fn)
+            self.log.warning('setup watcher could not find %r', fn)
             return
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting monitor process')
@@ -228,7 +228,7 @@ class Monitor(BaseCacheClient):
             self._process_warnings(value)
             return
 
-        # self.log.debug('processing %s' % [time, ttl, key, op, value])
+        # self.log.debug('processing %s', [time, ttl, key, op, value])
 
         if key == self._prefix + 'session/master':
             self._masteractive = value and op != OP_TELLOLD
@@ -237,8 +237,8 @@ class Monitor(BaseCacheClient):
             self._setups = set(value)
             # reconfigure displayed blocks
             self.reconfigureBoxes()
-            self.log.info('reconfigured display for setups %s'
-                          % ', '.join(self._setups))
+            self.log.info('reconfigured display for setups %s',
+                          ', '.join(self._setups))
 
         expired = value is None or op == OP_TELLOLD
 
@@ -248,6 +248,6 @@ class Monitor(BaseCacheClient):
             self.signal(obj, 'keyChange', key, value, time, expired)
 
     def _process_warnings(self, warnings):
-        # self.log.debug('new warnings: %s' % warnings)
+        # self.log.debug('new warnings: %s', warnings)
         self._currwarnings = warnings
         self.switchWarnPanel(bool(warnings))

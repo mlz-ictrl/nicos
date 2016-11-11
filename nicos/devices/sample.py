@@ -80,8 +80,8 @@ class Sample(Device):
             raise InvalidValueError(self, 'cannot use None as sample number')
         info = session.experiment.samples.copy()
         if number in info:
-            self.log.warning('overwriting parameters for sample %s (%s)' %
-                             (number, info[number]['name']))
+            self.log.warning('overwriting parameters for sample %s (%s)',
+                             number, info[number]['name'])
         info[number] = parameters
         session.experiment.samples = info
 

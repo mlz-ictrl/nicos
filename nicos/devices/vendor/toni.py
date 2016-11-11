@@ -220,16 +220,16 @@ class Vacuum(Readable):
             ret = 10.0 ** (pressure / 4000.0 - 12.625)
             realunit = 'Torr'
         elif config & 32:
-            ret = 10.0 ** (pressure / 4000.0 - 10.5) # Pa
+            ret = 10.0 ** (pressure / 4000.0 - 10.5)  # Pa
             realunit = 'Pa'
         else:
-            ret = 10.0 ** (pressure / 4000.0 - 12.5) # mbar
+            ret = 10.0 ** (pressure / 4000.0 - 12.5)  # mbar
             realunit = 'mbar'
         if self.unit != realunit:
             if self._mode == MASTER:
                 self.unit = 'Torr'
             else:
-                self.log.warning('unit should be set to %s' % realunit)
+                self.log.warning('unit should be set to %s', realunit)
         return ret
 
     def doReadUnit(self):

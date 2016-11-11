@@ -79,7 +79,7 @@ class PumaFilter(HasTimeout, Moveable):
 
         if (self.doStatus()[0] == status.OK) and (motorpos != self.justpos):
             motorpos = motor.maw(self.justpos)
-            self.log.info('rotation angle of filter: %s' %
+            self.log.info('rotation angle of filter: %s',
                           motor.format(motorpos, unit=True))
 
     def doRead(self, maxage=0):

@@ -142,7 +142,7 @@ class PropertyChanger(Moveable):
         chwl, chspeed, chratio, chst = self._chopper_params(target)
         _chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
                                               ch5_90deg_offset)
-        self.log.debug('setting chopper delay to : %d' % _chdelay)
+        self.log.debug('setting chopper delay to: %d', _chdelay)
         self._attached_chdelay.move(_chdelay)
         self._attached_chopper._change(self._prop, target)
 

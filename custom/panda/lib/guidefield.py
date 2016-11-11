@@ -115,7 +115,7 @@ class AlphaStorage(VirtualMotor):
             try:
                 self._callback()  # pylint: disable=E1102
             except Exception as e:
-                self.log.error('Calling callback failed, %r' % e, exc=1)
+                self.log.error('Calling callback failed, %r', e, exc=1)
 
 
 class GuideField(MappedMoveable):
@@ -251,8 +251,8 @@ class GuideField(MappedMoveable):
         for i, d in enumerate(self.coils):
             check = d.isAllowed(F[i])
             if not check[0]:
-                self.log.error('Can\'t set %r to %s: %s' %
-                               (d, d.format(F[i], unit=True), check[1]), exc=1)
+                self.log.error('Can\'t set %r to %s: %s',
+                               d, d.format(F[i], unit=True), check[1], exc=1)
                 valueOk = False
 
         if not valueOk:

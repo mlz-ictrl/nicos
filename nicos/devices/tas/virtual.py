@@ -101,7 +101,7 @@ class VirtualTasDetector(Measurable):
         from nicos.commands.tas import _resmat_args
         taspos = self._attached_tas.read(0)
         mat = resmat(*_resmat_args(taspos, {}))
-        self.log.debug('virtual TAS det: MC simulation at %r' % taspos)
+        self.log.debug('virtual TAS det: MC simulation at %r', taspos)
         # monitor rate (assume constant flux distribution from source)
         # is inversely proportional to k_i
         ki = self._attached_tas._attached_mono.read(0)

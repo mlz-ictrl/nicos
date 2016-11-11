@@ -74,33 +74,48 @@ class NicosLogger(Logger):
                 # did an exception really occur?
                 if exc_info[0] is None:
                     exc_info = None
+        extramsgs = []
         if exc_info:
             if msgs:
-                msgs += ('-',)
+                extramsgs += ['-',]
             from nicos.core.errors import NicosError
             if issubclass(exc_info[0], NicosError):
-                msgs += (exc_info[0].category + ' -', exc_info[1],)
+                extramsgs += [exc_info[0].category + ' -', exc_info[1],]
             else:
-                msgs += (exc_info[0].__name__ + ' -', exc_info[1],)
-        msg = ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
-                       else text_type(msg) for msg in msgs)
-        return msg, exc_info
+                extramsgs += [exc_info[0].__name__ + ' -', exc_info[1],]
+
+        if not msgs:
+            msg = ''
+            args = ()
+        else:
+            msg = msgs[0]
+            if isinstance(msg, binary_type):
+                msg =from_maybe_utf8(msg)
+            else:
+                msg = text_type(msg)
+            args = msgs[1:]
+        if extramsgs:
+            if msg:
+                msg += ' '
+            msg += ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
+                                    else text_type(msg) for msg in extramsgs)
+        return msg, args, exc_info
 
     def error(self, *msgs, **kwds):
-        msg, exc_info = self._process(msgs, kwds)
-        Logger.error(self, msg, exc_info=exc_info, extra=kwds)
+        msg, args, exc_info = self._process(msgs, kwds)
+        Logger.error(self, msg, *args, exc_info=exc_info, extra=kwds)
 
     def warning(self, *msgs, **kwds):
-        msg, exc_info = self._process(msgs, kwds)
-        Logger.warning(self, msg, exc_info=exc_info, extra=kwds)
+        msg, args, exc_info = self._process(msgs, kwds)
+        Logger.warning(self, msg, *args, exc_info=exc_info, extra=kwds)
 
     def info(self, *msgs, **kwds):
-        msg, exc_info = self._process(msgs, kwds)
-        Logger.info(self, msg, exc_info=exc_info, extra=kwds)
+        msg, args, exc_info = self._process(msgs, kwds)
+        Logger.info(self, msg, *args, exc_info=exc_info, extra=kwds)
 
     def debug(self, *msgs, **kwds):
-        msg, exc_info = self._process(msgs, kwds)
-        Logger.debug(self, msg, exc_info=exc_info, extra=kwds)
+        msg, args, exc_info = self._process(msgs, kwds)
+        Logger.debug(self, msg, *args, exc_info=exc_info, extra=kwds)
 
     def action(self, msg):
         Logger.log(self, ACTION, msg)
@@ -108,7 +123,11 @@ class NicosLogger(Logger):
     def _log(self, level, msg, args, exc_info=None, extra=None):
         record = LogRecord(self.name, level, self.manager.globalprefix,
                            0, msg, args, exc_info, '')
-        record.message = msg  # we don't do args substitution on demand
+
+        try:
+            record.message = (msg % args) if  args else msg
+        except (KeyError, TypeError):
+            record.message = msg  # we don't do args substitution on demand
         if extra is not None:
             for key in extra:
                 record.__dict__[key] = extra[key]

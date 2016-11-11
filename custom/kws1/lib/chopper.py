@@ -238,12 +238,12 @@ class Chopper(Moveable):
                                 'selector or detector device not at preset')
 
         self.log.debug('chopper calc inputs: reso=%f, lam=%f, spread=%f, '
-                       'det_z=%f' % (reso, lam, spread, det_z))
+                       'det_z=%f', reso, lam, spread, det_z)
         freq, opening = calculate(lam, spread, reso, self.shade,
                                   20.0 + det_z + det_offset,
                                   self.tauoffset, self.nmax)
-        self.log.debug('calculated chopper settings: freq=%f, opening=%f' %
-                       (freq, opening))
+        self.log.debug('calculated chopper settings: freq=%f, opening=%f',
+                       freq, opening)
         interval = int(1000000.0 / (freq * self.channels))
         self.calcresult = freq, opening, interval
 

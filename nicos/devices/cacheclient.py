@@ -96,7 +96,7 @@ class BaseCacheClient(Device):
     def _connect(self, socket=socket):
         self._do_callbacks = False
         self._startup_done.clear()
-        self.log.debug('connecting to %s' % self.cache)
+        self.log.debug('connecting to %s', self.cache)
         try:
             self._socket = tcpSocket(self.cache, DEFAULT_CACHE_PORT,
                                      timeout=5)
@@ -104,7 +104,7 @@ class BaseCacheClient(Device):
             self._disconnect('unable to connect to %s: %s' %
                              (self.cache, err))
         else:
-            self.log.info('now connected to %s' % self.cache)
+            self.log.info('now connected to %s', self.cache)
             self._connected = True
             self._disconnect_warnings = 0
             try:
@@ -176,7 +176,7 @@ class BaseCacheClient(Device):
             line = match.group(1)
             i = match.end()
             if sync_str in line:
-                self.log.debug('process data: received sync: %r' % line)
+                self.log.debug('process data: received sync: %r', line)
                 self._synced = True
             else:
                 msgmatch = mmatch(from_utf8(line))
@@ -186,11 +186,11 @@ class BaseCacheClient(Device):
                     try:
                         self._handle_msg(**msgmatch.groupdict())
                     except Exception:
-                        self.log.exception('error handling message %r' %
+                        self.log.exception('error handling message %r',
                                            msgmatch.group())
             # continue loop
             match = lmatch(data, i)
-        # self.log.debug('processed %d items' % n)
+        # self.log.debug('processed %d items', n)
         return data[i:]
 
     def _worker_thread(self):
@@ -331,14 +331,14 @@ class BaseCacheClient(Device):
                     self._secsocket = tcpSocket(self.cache, DEFAULT_CACHE_PORT)
                 except Exception as err:
                     self.log.warning('unable to connect secondary socket '
-                                     'to %s: %s' % (self.cache, err))
+                                     'to %s: %s', self.cache, err)
                     self._secsocket = None
                     self._disconnect('secondary socket: could not connect')
                     raise CacheError('secondary socket could not be created')
 
             try:
                 # write request
-                # self.log.debug("get_explicit: sending %r" % tosend)
+                # self.log.debug("get_explicit: sending %r", tosend)
                 self._secsocket.sendall(to_utf8(tosend))
 
                 # give 10 seconds time to get the whole reply
@@ -366,7 +366,7 @@ class BaseCacheClient(Device):
         lmatch = line_pattern.match
         mmatch = msg_pattern.match
         i = 0
-        # self.log.debug("get_explicit: data =%r" % data)
+        # self.log.debug("get_explicit: data =%r", data)
         match = lmatch(data, i)
         while match:
             line = match.group(1)
@@ -375,7 +375,7 @@ class BaseCacheClient(Device):
             if not msgmatch:
                 # ignore invalid lines
                 continue
-            # self.log.debug('line processed: %r' % line)
+            # self.log.debug('line processed: %r', line)
             yield msgmatch
             match = lmatch(data, i)
 
@@ -424,7 +424,7 @@ class BaseCacheClient(Device):
         self._worker.join()
 
     def quit(self, signum=None):
-        self.log.info('quitting on signal %s...' % signum)
+        self.log.info('quitting on signal %s...', signum)
         self._stoprequest = True
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
@@ -534,7 +534,7 @@ class CacheClient(BaseCacheClient):
         key = key[len(self._prefix):]
         time = time and float(time)
         self._propagate((time, key, op, value))
-        # self.log.debug('got %s=%s' % (key, value))
+        # self.log.debug('got %s=%s', key, value)
         if not value or op == OP_TELLOLD:
             with self._dblock:
                 self._db.pop(key, None)
@@ -597,12 +597,12 @@ class CacheClient(BaseCacheClient):
         if entry is None:
             if self.is_connected():
                 if str(dev).lower() in self._inv_rewrites:
-                    self.log.debug('%s not in cache, trying rewritten' % dbkey)
+                    self.log.debug('%s not in cache, trying rewritten', dbkey)
                     return self.get(self._inv_rewrites[str(dev).lower()],
                                     key, default, mintime)
-                self.log.debug('%s not in cache' % dbkey)
+                self.log.debug('%s not in cache', dbkey)
             else:
-                self.log.debug('%s not in cache and no cache connection' % dbkey)
+                self.log.debug('%s not in cache and no cache connection', dbkey)
             return default
         value, time = entry
         if mintime and time < mintime:
@@ -654,7 +654,7 @@ class CacheClient(BaseCacheClient):
         dvalue = cache_dump(value)
         msg = '%r%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                      flag, OP_TELL, dvalue)
-        # self.log.debug('putting %s=%s' % (dbkey, value))
+        # self.log.debug('putting %s=%s', dbkey, value)
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))
         if key == 'value' and session.data:
@@ -685,7 +685,7 @@ class CacheClient(BaseCacheClient):
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
         msg = '%r%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
-        # self.log.debug('putting %s=%s' % (key, value))
+        # self.log.debug('putting %s=%s', key, value)
         self._queue.put(msg)
 
     def setRewrite(self, newprefix, oldprefix):
@@ -736,7 +736,7 @@ class CacheClient(BaseCacheClient):
         values and status from the hardware.
         """
         dbkey = ('%s/%s' % (dev, key)).lower()
-        self.log.debug('invalidating %s' % dbkey)
+        self.log.debug('invalidating %s', dbkey)
         with self._dblock:
             self._db.pop(dbkey, None)
 

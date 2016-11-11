@@ -139,17 +139,17 @@ def kwscount(**arguments):
         dev.start(value)
         if devname == 'selector':
             dev2 = session.getDevice('selector_speed')
-            session.log.info('%-12s --> %s (%s)' %
-                             (devname, dev.format(value),
-                              dev2.format(dev2.target, unit=True)))
+            session.log.info('%-12s --> %s (%s)',
+                             devname, dev.format(value),
+                             dev2.format(dev2.target, unit=True))
         elif devname == 'chopper':
             dev2 = session.getDevice('chopper_params')
-            session.log.info('%-12s --> %s (%s)' %
-                             (devname, dev.format(value),
-                              dev2.format(dev2.target, unit=True)))
+            session.log.info('%-12s --> %s (%s)',
+                             devname, dev.format(value),
+                             dev2.format(dev2.target, unit=True))
         else:
-            session.log.info('%-12s --> %s' %
-                             (devname, dev.format(value, unit=True)))
+            session.log.info('%-12s --> %s',
+                             devname, dev.format(value, unit=True))
         waiters.append(dev)
     # select and wait for sample here
     if sample is not None:

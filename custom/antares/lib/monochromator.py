@@ -112,7 +112,7 @@ class Monochromator(HasLimits, Moveable):
             self.log.debug('moving monochromator into beam')
 
         for d, v in zip(self.devices, ['in'] + list(self._from_lambda(target))):
-            self.log.debug('sending %s to %r' % (d.name, v))
+            self.log.debug('sending %s to %r', d.name, v)
             d.start(v)
 
     def doStatus(self, maxage=0):
@@ -135,12 +135,12 @@ class Monochromator(HasLimits, Moveable):
         # calculate lambda from phi1 and then check the other positions
         # for consistency...
         lam = self._to_lambda(*pos[1:])
-        self.log.debug('lambda seems to be %.4f Angstroms' % lam)
+        self.log.debug('lambda seems to be %.4f Angstroms', lam)
         compare_pos = self._from_lambda(lam)
         tol = [self.tolphi, self.tolphi, self.toltrans]
         for d, p, t, c in zip(self.devices[1:], pos[1:], tol, compare_pos):
-            self.log.debug('%s is at %s and should be at %s for %.4f Angstroms'
-                           % (d, d.format(p), d.format(c), lam))
+            self.log.debug('%s is at %s and should be at %s for %.4f '
+                           'Angstroms', d, d.format(p), d.format(c), lam)
             if abs(p-c) > t:
                 raise PositionError('%s is too far away for %.4f Angstroms' %
                                     (d, lam))

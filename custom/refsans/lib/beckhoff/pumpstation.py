@@ -81,13 +81,13 @@ class PumpstandIO(TacoDevice, Readable):
         # reads a uint16 from self.address + addr
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + addr, 1))[0]
-        self.log.debug('_readU16(%d): -> %d' % (addr, value))
+        self.log.debug('_readU16(%d): -> %d', addr, value)
         return value
 
     def _writeU16(self, addr, value):
         # writes a uint16 to self.address+addr
         value = int(value)
-        self.log.debug('_writeU16(%d, %d)' % (addr, value))
+        self.log.debug('_writeU16(%d, %d)', addr, value)
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address + addr, value))
 
@@ -96,13 +96,13 @@ class PumpstandIO(TacoDevice, Readable):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address + addr, 2))
         value = struct.unpack('=I', struct.pack('<2H', *value))[0]
-        self.log.debug('_readU32(%d): -> %d' % (addr, value))
+        self.log.debug('_readU32(%d): -> %d', addr, value)
         return value
 
     def _writeU32(self, addr, value):
         # writes a uint32 to self.address + addr
         value = int(value)
-        self.log.debug('_writeU32(%d, %d)' % (addr, value))
+        self.log.debug('_writeU32(%d, %d)', addr, value)
         value = struct.unpack('<2H', struct.pack('=I', value))
         self._taco_guard(self._dev.writeMultipleRegisters,
                          (0, self.address + addr) + value)
@@ -233,8 +233,8 @@ class PumpstandIO(TacoDevice, Readable):
         cmd = int(self._HW_CMDS.get(cmd, cmd))
 
         pswd = 16082008 + ((int(cmd) + int(par)) % 228)
-        self.log.debug('Initiate command %d with par %d and pswd %d' %
-                       (cmd, par, pswd))
+        self.log.debug('Initiate command %d with par %d and pswd %d',
+                       cmd, par, pswd)
         self._writeU32(16, int(par))
         self._writeU32(12, int(pswd))
         self._writeU32(14, int(cmd))
@@ -295,16 +295,16 @@ class PumpstandIO(TacoDevice, Readable):
         sb = self._attached_iodev._HW_readStatusByte()
         for idx, msg in sorted(self._HW_Status):
             if sb & (1 << idx):
-                self.log.info('Status %d: %s' % (idx, msg))
+                self.log.info('Status %d: %s', idx, msg)
         diags = self._attached_iodev._HW_read_outputs()
         for idx, msg in sorted(self._HW_Outputs):
             if diags & (1 << idx):
-                self.log.info('Output %d: %s' % (idx, msg))
+                self.log.info('Output %d: %s', idx, msg)
         alarms = self._attached_iodev._HW_readAlarms()
         for idx, msg in sorted(self._HW_Alarms + self._HW_Alarms_CB +
                                self._HW_Alarms_SR + self._HW_Alarms_SFK):
             if alarms & (1 << idx):
-                self.log.warn('Alarm %d: %s' % (idx, msg))
+                self.log.warn('Alarm %d: %s', idx, msg)
 
 
 class PumpstandPressure(Readable):

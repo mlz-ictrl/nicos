@@ -56,9 +56,9 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         _total_counts = image.sum()
 
         # for d, k in _metainfo.keys():
-        #     self.log.debug('writeData: %s.%s' % (d, k))
+        #     self.log.debug('writeData: %s.%s', d, k)
         #     if d == 'adet':
-        #         self.log.info(' %s.%s %r' % (d, k, _metainfo[d, k]))
+        #         self.log.info(' %s.%s %r', d, k, _metainfo[d, k])
 
         header = []
         date = strftime('%d.%m.%Y')

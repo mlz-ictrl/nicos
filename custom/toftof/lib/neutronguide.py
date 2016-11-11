@@ -50,10 +50,10 @@ class Switcher(GenericSwitcher):
     def _startRaw(self, target):
         """Initiate movement of the moveable to the translated raw value."""
         if isinstance(self._attached_moveable, CanReference):
-            self.log.info('referencing %s...' % self._attached_moveable)
+            self.log.info('referencing %s...', self._attached_moveable)
             self._attached_moveable.reference()
         else:
-            self.log.warning('%s cannot be referenced!' %
+            self.log.warning('%s cannot be referenced!',
                              self._attached_moveable)
         self._attached_moveable.start(target)
         if self.blockingmove:
@@ -90,7 +90,7 @@ class Motor(TacoMotor):
         TacoMotor.doStart(self, target)
 
     def _stepping_until(self, start, step, switch):
-        self.log.debug('Set position : %d' % (start))
+        self.log.debug('Set position: %d', start)
         self.doSetPosition(start)
         while self._attached_limitsw.read(0) == switch:
             start += step
@@ -109,8 +109,8 @@ class Motor(TacoMotor):
             self.speed = self.refspeed
             self._stepping_until(self.absmin, self.refstep, 0)
             self.doSetPosition(self.refpos)
-            self.log.info('Referenced to : %.2f' % self.refpos)
+            self.log.info('Referenced to: %.2f', self.refpos)
         except NicosError as err:
-            self.log.debug('exception in referencing : %s' % err)
+            self.log.debug('exception in referencing: %s', err)
         finally:
             self.speed = speed

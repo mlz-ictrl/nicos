@@ -101,7 +101,7 @@ class FRMChannel(BaseChannel, ActiveChannel):
                  IOCommon.MODE_PRESELECTION: 'preselection'}
         mode = self._taco_guard(self._dev.mode)
         if mode not in modes:
-            self.log.warning('Unknown mode %r encountered!' % mode)
+            self.log.warning('Unknown mode %r encountered!', mode)
             mode = IOCommon.MODE_NORMAL
         return modes[mode]
 

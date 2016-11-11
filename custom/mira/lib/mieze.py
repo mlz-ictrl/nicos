@@ -87,19 +87,19 @@ class MiezeMaster(Moveable):
         devs = sorted(setting.items())
         for devname, devvalue in devs:
             if devname.startswith('amp'):
-                self.log.debug('moving %r to %r' % (devname, 0))
+                self.log.debug('moving %r to %r', devname, 0)
                 dev = session.getDevice(devname)
                 dev.move(0)
         for devname, devvalue in devs:
             if devname.startswith('_') or devname.startswith('amp'):
                 continue
-            self.log.debug('moving %r to %r' % (devname, devvalue))
+            self.log.debug('moving %r to %r', devname, devvalue)
             dev = session.getDevice(devname)
             dev.move(devvalue)
         for devname, devvalue in devs:
             if not devname.startswith('amp'):
                 continue
-            self.log.debug('moving %r to %r' % (devname, devvalue))
+            self.log.debug('moving %r to %r', devname, devvalue)
             dev = session.getDevice(devname)
             dev.move(devvalue)
         self.setting = index
@@ -141,7 +141,7 @@ class MiezeMaster(Moveable):
                     values[valueidx[devname]] = str(devvalue)[:15]
             data.append((str(idx), setting['_name_'], '%.3f' %
                          setting['_tau_']) + tuple(values))
-        self.log.info('current MIEZE settings (%s):' % self.tuning)
+        self.log.info('current MIEZE settings (%s):', self.tuning)
         printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data,
                    printinfo)
 
@@ -154,7 +154,7 @@ class MiezeMaster(Moveable):
         tables = self.tunetables.copy()
         tables[name] = copy.deepcopy(self.curtable)
         self.tunetables = tables
-        self.log.info('current tuning saved as %r' % name)
+        self.log.info('current tuning saved as %r', name)
 
     @usermethod
     def removetuning(self, name):
@@ -164,7 +164,7 @@ class MiezeMaster(Moveable):
         tables = self.tunetables.copy()
         del tables[name]
         self.tunetables = tables
-        self.log.info('tuning %r removed' % name)
+        self.log.info('tuning %r removed', name)
 
     @usermethod
     def newsetting(self, name, **values):
@@ -183,8 +183,8 @@ class MiezeMaster(Moveable):
             setting[devname] = devvalue
         table[index] = setting
         self.curtable = table
-        self.log.info('created new MIEZE setting %r with index %s' %
-                      (name, index))
+        self.log.info('created new MIEZE setting %r with index %s',
+                      name, index)
 
     @usermethod
     def updatesetting(self, name, **values):
@@ -196,7 +196,7 @@ class MiezeMaster(Moveable):
             setting[devname] = devvalue
         table[index] = setting
         self.curtable = table
-        self.log.info('tuning for MIEZE setting %r updated' %
+        self.log.info('tuning for MIEZE setting %r updated',
                       table[index]['_name_'])
 
     @usermethod
@@ -206,7 +206,7 @@ class MiezeMaster(Moveable):
         table = self.curtable[:]
         setting = table.pop(index)
         self.curtable = table
-        self.log.info('removed MIEZE setting %r' % setting['_name_'])
+        self.log.info('removed MIEZE setting %r', setting['_name_'])
 
     @usermethod
     def ordersettings(self, *names):

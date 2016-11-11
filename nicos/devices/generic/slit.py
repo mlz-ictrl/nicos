@@ -210,10 +210,10 @@ class Slit(CanReference, Moveable):
     def doReference(self):
         for ax in self._axes:
             if isinstance(ax, CanReference):
-                self.log.info('referencing %s...' % ax)
+                self.log.info('referencing %s...', ax)
                 ax.reference()
             else:
-                self.log.warning('%s cannot be referenced' % ax)
+                self.log.warning('%s cannot be referenced', ax)
 
     def _doReadPositions(self, maxage):
         cl, cr, cb, ct = [d.read(maxage) for d in self._axes]
@@ -406,10 +406,10 @@ class TwoAxisSlit(CanReference, Moveable):
     def doReference(self):
         for ax in self._slits:
             if isinstance(ax, CanReference):
-                self.log.info('referencing %s...' % ax)
+                self.log.info('referencing %s...', ax)
                 ax.reference()
             else:
-                self.log.warning('%s cannot be referenced' % ax)
+                self.log.warning('%s cannot be referenced', ax)
 
     def doRead(self, maxage=0):
         return [d.read(maxage) for d in self._slits]
