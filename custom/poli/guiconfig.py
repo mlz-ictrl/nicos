@@ -34,7 +34,9 @@ main_window = tabbed(
     ('Logbook', panel('elog.ELogPanel')),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('live.LiveDataPanel')),
+]
 
 tools = [
     tool('Downtime report', 'downtime.DownTimeTool',
