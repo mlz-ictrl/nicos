@@ -419,9 +419,13 @@ class PictureDisplay(NicosWidget, QWidget):
         pass
 
     def setPicture(self):
-        pixmap = QPixmap(self._filePath)
         size = QSize(self.props['width'] * self._scale,
                      self.props['height'] * self._scale)
+        if isfile(self._filePath):
+            pixmap = QPixmap(self._filePath)
+        else:
+            pixmap = QPixmap(size)
+            pixmap.fill()
         if size.isEmpty():
             self.piclabel.setPixmap(pixmap)
         else:
