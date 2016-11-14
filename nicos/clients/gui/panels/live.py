@@ -200,6 +200,7 @@ class LiveDataPanel(Panel):
         self._toftof_profile.show()
 
     def on_client_connected(self):
+        self.client.tell('eventunmask', ['livedata', 'liveparams'])
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath or not path.isdir(datapath):
             self._showcached = True  # always show  cached data if datapath is not accessible

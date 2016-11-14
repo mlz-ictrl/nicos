@@ -45,11 +45,15 @@ class NicosGuiClient(NicosClient, QObject):
         logger.parent = parent_logger
         NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
+        self._event_mask = set(('livedata', 'liveparams'))
         QObject.connect(self, SIGNAL('cache'), self.on_cache_event)
         QObject.connect(self, SIGNAL('connected'), self.on_connected_event)
 
     def signal(self, name, *args):
         self.emit(SIGNAL(name), *args)
+
+    def connect(self, conndata, eventmask=None):
+        NicosClient.connect(self, conndata, self._event_mask)
 
     # key-notify registry
 

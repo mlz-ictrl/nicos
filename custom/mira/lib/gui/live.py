@@ -135,6 +135,7 @@ class LiveDataPanel(Panel):
         self.menu.popup(self.mapToGlobal(point))
 
     def on_client_connected(self):
+        self.client.tell('eventunmask', ['livedata', 'liveparams'])
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath:
             return
