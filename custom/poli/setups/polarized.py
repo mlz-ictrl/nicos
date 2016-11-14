@@ -2,7 +2,7 @@ description = 'Setup for polarized diffraction without cryopad'
 
 group = 'basic'
 
-includes = ['hecells', 'lifting_virt']
+includes = ['hecells', 'table_lifting']
 
 devices = dict(
 )

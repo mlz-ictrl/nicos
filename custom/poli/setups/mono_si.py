@@ -12,13 +12,11 @@ devices = dict(
                  description = 'Silicon monochromator horizontal focus',
                  tangodevice = tango_base + 'fzjs7/sih',
                  fmtstr = '%.2f',
-                 abslimits = (0, 10),
                 ),
     siv = device('devices.tango.Motor',
                  lowlevel = False,
                  description = 'Silicon monochromator vertical focus',
                  tangodevice = tango_base + 'fzjs7/siv',
                  fmtstr = '%.2f',
-                 abslimits = (0, 10),
                 ),
 )

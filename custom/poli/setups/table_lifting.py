@@ -1,6 +1,7 @@
 description = 'POLI lifting counter'
 
 group = 'lowlevel'
+excludes = ['table_lifting_virtual']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
@@ -23,19 +24,9 @@ devices = dict(
                       pollinterval = 15,
                       maxage = 61,
                       fmtstr = '%.2f',
-                      abslimits = (-4.2, 25),
+                      abslimits = (-4.2, 30),
                       precision = 0.01,
                      ),
-#    liftingctr = device('devices.generic.VirtualMotor',
-#                      description = 'lifting counter axis',
-#                      pollinterval = 15,
-#                      maxage = 61,
-#                      fmtstr = '%.2f',
-#                      abslimits = (-5, 30),
-#                      precision = 0.01,
-#                      unit = 'deg',
-#                     ),
-
     lubrication = device('poli.lubrication.LubeSwitch',
                       description = 'lubrication switch',
                       tangodevice = tango_base + 'fzjdp_digital/lubrication',

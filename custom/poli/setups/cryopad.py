@@ -2,7 +2,7 @@ description = 'Cryopad'
 
 group = 'basic'
 
-includes = ['nutator', 'cryopad_currents', 'hecells', 'lifting_virt']
+includes = ['nutator', 'cryopad_currents', 'hecells', 'table_lifting_virtual']
 
 devices = dict(
     Cryopad   = device('poli.cryopad.SXTalCryopad',

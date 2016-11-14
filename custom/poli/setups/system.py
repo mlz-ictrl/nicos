@@ -11,7 +11,7 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'poli.commands']
 
-includes = ['notifiers', 'table', 'mono', 'slits', 'reactor']
+includes = ['notifiers', 'table', 'mono', 'slits', 'reactor', 'shutter']
 
 devices = dict(
     POLI     = device('devices.sxtal.instrument.LiftingSXTal',
@@ -43,6 +43,7 @@ devices = dict(
                                           disableGroup='poli',
                                          ),
                       sendmail = True,
+                      mailsender = 'poli@frm2.tum.de',
                       serviceexp = 'p0',
                       sample = 'Sample',
                       propdb = '/home/jcns/.propdb',
