@@ -988,6 +988,34 @@ def formatException(cut=0, exc_info=None):
     return ''.join(res)
 
 
+def formatScriptError(exc_info, script_name, script_text):
+    """Format an error in the script for notifications."""
+    exception = formatException(exc_info=exc_info).splitlines()[-1]
+    # try to find the offending line
+    tb = exc_info[2]
+    lineno = None
+    while tb is not None:
+        if tb.tb_frame.f_code.co_filename in ('<script>', '<string>'):
+            lineno = tb.tb_lineno
+        tb = tb.tb_next
+    # try to format the line
+    if lineno is not None:
+        msg = 'The error was in line %d:\n\n' % lineno
+        minline = max(lineno-5, 0)
+        lines = script_text.splitlines(True)[minline:lineno+4]
+        for i, line in enumerate(lines, start=minline+1):
+            msg += '%4d %s | %s' % (i, '*' if i == lineno else ' ', line)
+    elif len(script_text) < 10000:
+        msg = 'The script was:\n\n' + script_text
+    else:
+        msg = ''
+    if script_name:
+        msg = 'Script name: %s\n\n' % script_name + msg
+    body = 'An error occurred in the executed script:\n\n' + \
+           exception + '\n\n' + msg
+    return body, exception
+
+
 # file counter utilities
 
 def readFileCounter(counterpath, key):

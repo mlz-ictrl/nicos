@@ -46,7 +46,7 @@ from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.core.utils import system_user
 from nicos.devices.notifiers import Notifier
-from nicos.utils import formatDocstring, formatException
+from nicos.utils import formatDocstring, formatScriptError
 from nicos.utils.loggers import initLoggers, NicosLogger, \
     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
@@ -142,6 +142,7 @@ class Session(object):
         self.countloop_request = None
         # when was the last script started?
         self._script_start = None
+        self._script_name = ''
         self._script_text = ''
 
         # cache connection
@@ -1226,19 +1227,17 @@ class Session(object):
         if eventtype == 'start':
             # record starting time to decide whether to send notification
             self._script_start = currenttime()
-            self._script_text = data
+            self._script_name = data[0]
+            self._script_text = data[1]
         elif eventtype == 'exception':
             self.logUnhandledException(data)
             # don't raise exceptions on exceptions
             try:
-                exception = formatException(exc_info=data)
+                body, short = formatScriptError(data, self._script_name,
+                                                self._script_text)
                 self.notifyConditionally(
                     currenttime() - self._script_start,
-                    'Error in script',
-                    'An error occurred in the executed script:\n\n' +
-                    exception + '\n\nThe script was:\n\n' +
-                    self._script_text, 'error notification',
-                    short='Exception: ' + exception.splitlines()[-1])
+                    'Error in script', body, 'error notification', short)
                 if isinstance(data[1], NameError):
                     guessCorrectCommand(self._script_text)
                 elif isinstance(data[1], AttributeError):

@@ -159,7 +159,7 @@ class ScriptRequest(Request):
         """Execute the script in the given namespace, using "controller"
         to execute individual blocks.
         """
-        session.scriptEvent('start', self.text)
+        session.scriptEvent('start', (self.name, self.text))
         session.countloop_request = None  # reset any pause flag from before
         # this is to allow the traceback module to report the script's
         # source code correctly

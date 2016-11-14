@@ -142,7 +142,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """Mostly copied from code.InteractiveInterpreter, but added better
         exception handling.
         """
-        session.scriptEvent('start', source)
+        session.scriptEvent('start', ('', source))
         try:
             exec_(codeobj, self.globals)
         except NicosInteractiveStop:
