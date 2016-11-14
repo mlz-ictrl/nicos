@@ -36,15 +36,16 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 14
+PROTO_VERSION = 15
 
 # old versions with which the client is still compatible
 # 10 -> 11: added RSA encryption of transmitted password
 # 11 -> 12: added return value to 'queue' command
 # 12 -> 13: 'authenticate' now returns user info dict
 # 13 -> 14: added 'finish' command
+# 14 -> 15: added 'eventunmask' command
 
-COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13]
+COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14]
 
 # message serialization/deserialization
 
@@ -138,6 +139,7 @@ DAEMON_COMMANDS = {
     'unlock':         0x62,
     'quit':           0x63,
     'authenticate':   0x64,  # only used during handshake
+    'eventunmask':    0x65,
 }
 
 ACTIVE_COMMANDS = set((

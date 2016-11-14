@@ -154,6 +154,7 @@ Miscellaneous auxiliary commands
 
 .. daemoncmd:: complete
 .. daemoncmd:: eventmask
+.. daemoncmd:: eventunmask
 .. daemoncmd:: getversion
 .. daemoncmd:: transfer
 

@@ -840,6 +840,16 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         self.write(ACK)
 
     @command()
+    def eventunmask(self, events):
+        """Enable sending of certain events to the client.
+
+        :param events: a serialized list of event names
+        :returns: ack
+        """
+        self.event_mask.difference_update(events)
+        self.write(ACK)
+
+    @command()
     def transfer(self, content):
         """Transfer a file to the server, encoded in base64.
 
