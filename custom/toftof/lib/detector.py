@@ -103,6 +103,9 @@ class Detector(GenericDetector):
         return set(['info']) | GenericDetector.presetInfo(self)
 
     def doInfo(self):
+        for p in ('timechannels', 'timeinterval', 'delay', 'channelwidth',
+                  'numinputs'):
+            self._pollParam(p)
         ret = GenericDetector.doInfo(self)
         ret.append(('usercomment', self._user_comment, self._user_comment, '',
                     'general'))

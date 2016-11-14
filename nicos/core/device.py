@@ -710,6 +710,25 @@ class Device(object):
         """
         return self.parameters[param]
 
+    def _getFromCache(self, name, func, maxage=None):
+        """Get *name* from the cache, or call *func* if outdated/not present.
+
+        If the *maxage* parameter is set, do not allow the value to be older
+        than that amount of seconds.
+        """
+        if not self._cache:
+            return func()
+        val = Ellipsis
+        if maxage != 0:
+            val = self._cache.get(
+                self, name, Ellipsis,
+                mintime=currenttime() - maxage if maxage is not None else 0)
+        if val is Ellipsis:
+            defmaxage = getattr(self, 'maxage', None)
+            val = func(defmaxage if maxage is None else maxage)
+            self._cache.put(self, name, val, currenttime(), defmaxage)
+        return val
+
     def formatParam(self, param, value, use_repr=True):
         """Format a parameter value according to its fmtstr."""
         if isinstance(value, list):
@@ -790,7 +809,8 @@ class Device(object):
         selfunit = getattr(self, 'unit', '')
         for category, name, unit in self._infoparams:
             try:
-                parvalue = getattr(self, name)
+                parvalue = self._getFromCache(
+                    name, lambda _maxage: getattr(self, name))
             except Exception as err:
                 self.log.warning('error getting %s parameter', name, exc=err)
                 continue
@@ -999,25 +1019,6 @@ class Readable(Device):
             raise UsageError(self, 'not a moveable device')
         return self.read()
 
-    def _get_from_cache(self, name, func, maxage=None):
-        """Get *name* from the cache, or call *func* if outdated/not present.
-
-        If the *maxage* parameter is set, do not allow the value to be older
-        than that amount of seconds.
-        """
-        if not self._cache:
-            return func()
-        val = None
-        # XXX decide if the second condition should be enabled
-        if maxage != 0:  # and self.hardware_access:
-            val = self._cache.get(
-                self, name,
-                mintime=currenttime() - maxage if maxage is not None else 0)
-        if val is None:
-            val = func(self.maxage if maxage is None else maxage)
-            self._cache.put(self, name, val, currenttime(), self.maxage)
-        return val
-
     def valueInfo(self):
         """Describe the values read by this device.
 
@@ -1051,7 +1052,7 @@ class Readable(Device):
         """
         if self._sim_active:
             return self._sim_value
-        return self._get_from_cache('value', self.doRead, maxage)
+        return self._getFromCache('value', self.doRead, maxage)
 
     @usermethod
     def status(self, maxage=None):
@@ -1076,7 +1077,7 @@ class Readable(Device):
         """
         if self._sim_active:
             return (status.OK, 'simulated ok')
-        return self._get_from_cache('status', self._combinedStatus, maxage)
+        return self._getFromCache('status', self._combinedStatus, maxage)
 
     def _combinedStatus(self, maxage=0):
         """Return the status of the device combined from hardware status and
@@ -1957,7 +1958,7 @@ class Measurable(Waitable):
         # always get fresh result from cache => maxage parameter is ignored
         if self._cache:
             self._cache.invalidate(self, 'value')
-        result = self._get_from_cache('value', self.doRead)
+        result = self._getFromCache('value', self.doRead)
         if not isinstance(result, list):
             return [result]
         return result

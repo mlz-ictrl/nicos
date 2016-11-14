@@ -198,6 +198,13 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     def doShutdown(self):
         self._hwDev.shutdown()
 
+    def doInfo(self):
+        for p in ('imagewidth', 'imageheight', 'roi', 'bin', 'flip',
+                  'rotation', 'expotime', 'cameramodel', 'shutteropentime',
+                  'shutterclosetime', 'shuttermode'):
+            self._pollParam(p)
+        return []
+
     def valueInfo(self):
         # no readresult by default
         return ()

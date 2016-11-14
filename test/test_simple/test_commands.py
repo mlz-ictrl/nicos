@@ -211,7 +211,7 @@ def test_device_commands():
     d = dir(dev)
     assert 'start' in d
     assert 'doStart' not in d
-    assert '_get_from_cache' not in d
+    assert '_getFromCache' not in d
     d = dir()
     assert 'd' in d
 

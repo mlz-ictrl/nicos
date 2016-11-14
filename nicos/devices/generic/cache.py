@@ -50,7 +50,7 @@ class CacheReader(Readable):
     *devname* is the NICOS device name configured in the setup.
     """
 
-    def _get_from_cache(self, name, func, maxage=None):
+    def _getFromCache(self, name, func, maxage=None):
         """Get *name* from the cache, or call *func* if outdated/not present.
 
         If the *maxage* parameter is set, do not allow the value to be older

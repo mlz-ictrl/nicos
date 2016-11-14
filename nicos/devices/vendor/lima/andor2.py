@@ -61,6 +61,11 @@ class Andor2LimaCCD(GenericLimaCCD):
         'hwdevice': Override(mandatory=True),
     }
 
+    def doInfo(self):
+        for p in ('hsspeed', 'vsspeed', 'pgain'):
+            self._pollParam(p)
+        return []
+
     def doReadHsspeed(self):
         val = float(self.HSSPEED_RE.match(self._hwDev._dev.adc_speed).group(1))
         return val

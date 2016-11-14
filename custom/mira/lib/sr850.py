@@ -91,6 +91,13 @@ class Amplifier(PyTangoDevice, Measurable):
     def doIsCompleted(self):
         return (time() > self._started + self._delay)
 
+    def doInfo(self):
+        # it is important that these values are correct in the metainfo!
+        for p in ('frequency', 'amplitude', 'phase', 'harmonic',
+                  'timeconstant', 'reserve', 'sensitivity'):
+            self._pollParam(p)
+        return []
+
     def doRead(self, maxage=0):
         xs, ys = [], []
         N = self.measurements

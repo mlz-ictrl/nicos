@@ -52,6 +52,11 @@ class Andor3LimaCCD(GenericLimaCCD):
                                volatile=True, category='general'),
     }
 
+    def doInfo(self):
+        for p in ('readoutrate', 'elshuttermode', 'framerate'):
+            self._pollParam(p)
+        return []
+
     def doReadReadoutrate(self):
         return int(self._hwDev._dev.adc_rate[3:])
 
