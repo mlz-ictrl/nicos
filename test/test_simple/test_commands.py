@@ -96,18 +96,15 @@ def test_basic_commands():
 
 @with_setup(cleanLog, cleanLog)
 def test_sleep_command():
-    '''test sleep command
-
-    test a longer and a shorter sleep, the error should be smaller for
-    the longer sleep
-    (0.1 -> 3% error, 0.01 -> 30%error)'''
+    # test a longer and a shorter sleep, the error should be smaller for
+    # the longer sleep (0.1 -> 10% error, 0.01 -> 30% error)
     tosleep = 0.1
-    used = timeit.timeit(lambda: sleep(tosleep), number=10)
-    assert tosleep < used < 10.3 * tosleep
+    used = timeit.timeit(lambda: sleep(tosleep), number=1)
+    assert tosleep < used < 1.1 * tosleep
     checkResponse(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
     tosleep = 0.01
-    used = timeit.timeit(lambda: sleep(tosleep), number=10)
-    assert tosleep < used < 13 * tosleep
+    used = timeit.timeit(lambda: sleep(tosleep), number=1)
+    assert tosleep < used < 1.3 * tosleep
 
 
 @with_setup(cleanLog, cleanLog)
