@@ -92,5 +92,5 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
         return self._reverseDev.read(0)
 
     def doPoll(self, nr, maxage):
-        _ = self.forward
-        _ = self.reverse
+        self._pollParam('forward', 1)
+        self._pollParam('reverse', 1)

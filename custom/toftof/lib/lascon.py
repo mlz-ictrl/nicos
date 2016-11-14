@@ -72,7 +72,7 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
         self.writeLine('SetSTemp 1 0 %f' % target)
 
     def doPoll(self, n, maxage):
-        self._pollParam('setpoint', 100)
+        self._pollParam('setpoint', 1)
 
     def doTime(self, oldvalue, newvalue):
         return self.window
