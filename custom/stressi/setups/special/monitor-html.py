@@ -76,7 +76,7 @@ _measurement = Column(
     ],
     setups = 'radial',
     ),
-    Block('Tesile machine', [
+    Block('Tensile machine', [
         BlockRow(Field(dev='teload',)),
         BlockRow(Field(dev='tepos',)),
         BlockRow(Field(dev='teext',)),
