@@ -137,6 +137,10 @@ class LiveDataPanel(Panel):
                                     Darkfield | Despeckle |
                                     CreateProfile | Histogram | MinimumMaximum)
             self.widget.setStandardColorMap(True, False)
+        elif self._instrument == 'poli':
+            self.widget.setControls(ShowGrid | Logscale | Grayscale |
+                                    Despeckle | CreateProfile | Histogram |
+                                    MinimumMaximum | BrightnessContrast)
         if self._instrument == 'dns':
             self.widget.setKeepAspect(False)
         else:
