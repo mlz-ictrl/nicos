@@ -128,5 +128,79 @@ class CenterPeak(Cmdlet):
             ', '.join('%s=%r' % i for i in kwargs) + ')'
 
 
+class RefineMatrix(Cmdlet):
+
+    name = 'Refine matrix'
+    category = 'Orientation'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client,
+                        findResource('custom/poli/lib/gui/refinematrix.ui'))
+        self._boxes = [self.aBox, self.bBox, self.cBox,
+                       self.aaBox, self.bbBox, self.ccBox,
+                       self.lamBox, self.dgBox, self.dnBox]
+        for box in self._boxes:
+            box.editTextChanged.connect(self.changed)
+        res = client.eval(
+            'session.experiment.sample.cell.cellparams(), '
+            'session.instrument.wavelength, '
+            'session.instrument._attached_gamma.offset, '
+            'session.instrument._attached_nu.offset', None)
+        if res:
+            params, lamda, dgamma, dnu = res
+        self.aBox.addItem('%.4f' % params[0])
+        self.bBox.addItem('%.4f' % params[1])
+        self.cBox.addItem('%.4f' % params[2])
+        self.aaBox.addItem('%.4f' % params[3])
+        self.bbBox.addItem('%.4f' % params[4])
+        self.ccBox.addItem('%.4f' % params[5])
+        self.lamBox.addItem('%.4f' % lamda)
+        self.dgBox.addItem('%.4f' % dgamma)
+        self.dnBox.addItem('%.4f' % dnu)
+        for box in (self.bBox, self.cBox):
+            box.addItem('= a')
+        for box in (self.bbBox, self.ccBox):
+            box.addItem('= alpha')
+        for box in self._boxes:
+            box.addItem('free')
+        self.acceptBox.toggled.connect(self.changed)
+
+    def getValues(self):
+        return {}
+
+    def setValues(self, values):
+        pass
+
+    def isValid(self):
+        valid = [self.markValid(
+            box, box.currentText() in ('free', '= a', '= alpha')
+            or isFloat(box.lineEdit())) for box in self._boxes]
+        return all(valid)
+
+    def generate(self, mode):
+        cmd = 'RefineMatrix'
+        kwargs = []
+        for (p, box) in zip('a b c alpha beta gamma wavelength '
+                            'delta_gamma delta_nu'.split(),
+                            self._boxes):
+            text = box.currentText()
+            if text == '= a':
+                kwargs.append((p, '\'a\''))
+            elif text == '= alpha':
+                kwargs.append((p, '\'alpha\''))
+            elif text != 'free':
+                kwargs.append((p, '%.4f' % float(text)))
+        if mode == 'simple':
+            code = cmd + ' ' + ' '.join('%s %s' % i for i in kwargs)
+            if self.acceptBox.isChecked():
+                code += '\nAcceptRefinement'
+        else:
+            code = cmd + '(' + ', '.join('%s=%s' % i for i in kwargs) + ')'
+            if self.acceptBox.isChecked():
+                code += '; AcceptRefinement()'
+        return code
+
+
 register(Lubrication)
 register(CenterPeak)
+register(RefineMatrix)
