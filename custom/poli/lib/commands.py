@@ -567,26 +567,24 @@ def PosListShow(listname='default'):
     items = []
     R2D = math.degrees
     for i, item in enumerate(lists[listname]):
-        if item[1] is not None:
-            calcpos = instr._calcPos(item[1])
-        else:
-            calcpos = None
+        calcpos = instr._calcPos(item[1]) if item[1] is not None else None
         items.append((
             '%d' % (i + 1),
-            '' if item[1] is None else '%.4g' % item[1][0],
-            '' if item[1] is None else '%.4g' % item[1][1],
-            '' if item[1] is None else '%.4g' % item[1][2],
             '%.3f' % R2D(item[0].gamma),
             '%.3f' % R2D(item[0].omega),
             '%.3f' % R2D(item[0].nu),
             '%.1f' % item[2][0],
             '%.1f' % item[2][1],
+            '' if item[1] is None else '%.4g' % item[1][0],
+            '' if item[1] is None else '%.4g' % item[1][1],
+            '' if item[1] is None else '%.4g' % item[1][2],
             '' if calcpos is None else '%.3f' % R2D(calcpos.gamma),
             '' if calcpos is None else '%.3f' % R2D(calcpos.omega),
             '' if calcpos is None else '%.3f' % R2D(calcpos.nu),
         ))
-    printTable(('pos#', 'h', 'k', 'l',
+    printTable(('pos#',
                 u'γ', u'ω', u'ν', u'I', u'σ(I)',
+                'h', 'k', 'l',
                 u'γ_calc', u'ω_calc', u'ν_calc'),
                items, printinfo)
 
