@@ -787,7 +787,7 @@ n                                ! extended output
     hkl1 = [int(round(float(ix))) for ix in peaks[p1]]
     hkl2 = [int(round(float(ix))) for ix in peaks[p2]]
     new_cell = or_calc.Reorient(hkl1, pos1, hkl2, pos2)
-    IndexPeaks._last_result = (new_cell.rmat, (dgamma, dnu), listname, peaks)
+    IndexPeaks._last_result = (new_cell.rmat.T, (dgamma, dnu), listname, peaks)
     printinfo('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate '
               'UB matrix:' % (tuple(hkl1) + tuple(hkl2)))
     for row in new_cell.rmat.T:
@@ -818,8 +818,8 @@ def AcceptIndexing():
     # apply calculated matrix to sample
     sample = session.experiment.sample
     b, l = sample.bravais, sample.laue
-    rmat, _offsets, listname, peaks = IndexPeaks._last_result
-    sample.cell = (rmat, b, l)
+    ubmat, _offsets, listname, peaks = IndexPeaks._last_result
+    sample.cell = (ubmat, b, l)
 
     # apply indexing to position list (for later refinement)
     lists = dict(sample.poslists)
