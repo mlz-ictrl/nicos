@@ -8,7 +8,7 @@ devices = dict(
                    sender = 'stressi@frm2.tum.de',
                    copies = [('michael.hofmann@frm2.tum.de', 'all'),  # gets all messages
                              ('weimin.gan@hzg.de', 'all'),  # gets all messages
-                             ('joana.kornmeier@frm2.tum.de', 'important'), # gets only important messages
+                             ('joana.kornmeier@frm2.tum.de', 'important'),  # gets only important messages
                             ],
                    subject = 'STRESS-SPEC',
                    lowlevel = True,
@@ -16,12 +16,11 @@ devices = dict(
                   ),
     hvemail = device('devices.notifiers.Mailer',
                      sender = 'stressi@frm2.tum.de',
-                     receivers = ['michael.hofmann@frm2.tum.de',   # gets all messages
-                                  'weimin.gan@hzg.de',   # gets all messages
-                                 ],
-                     copies = [('karl.zeitelhack@frm2.tum.de', 'important'),
+                     copies = [('michael.hofmann@frm2.tum.de', 'all'),  # gets all messages
+                               ('weimin.gan@hzg.de', 'all'),  # gets all messages
+                               ('karl.zeitelhack@frm2.tum.de', 'important'),
                                ('ilario.defendi@frm2.tum.de', 'important'),
-                               ('joana.kornmeier@frm2.tum.de', 'important'), # gets only important messages
+                               ('joana.kornmeier@frm2.tum.de', 'important'),  # gets only important messages
                               ],
                      subject = 'STRESS-SPEC',
                      lowlevel = True,
