@@ -71,6 +71,10 @@ __all__ = [
 def lubricate_liftingctr(startpos, endpos):
     """Lubricate the lifting counter, while starting from *startpos* and
     moving to *endpos*.
+
+    Example:
+
+    >>> lubricate_liftingctr(0, 20)
     """
     ldev = session.getDevice('lubrication')
     motor = session.getDevice('liftingctr')
@@ -115,15 +119,15 @@ def centerpeak(*args, **kwargs):
 
     Examples::
 
-      # default scan without special options, count 2 seconds
-      >>> centerpeak(omega, gamma, 2)
-      # scan with device-specific step size and number of steps
-      >>> centerpeak(omega, gamma, step_omega=0.05, steps_omega=20, t=1)
-      # allow a large number of rounds with very small convergence window
-      # (1/5 of step size)
-      >>> centerpeak(omega, gamma, rounds=10, convergence=0.2, t=1)
-      # center using Gaussian peak fits
-      >>> centerpeak(omega, gamma, fit='gauss', t=1)
+       # default scan without special options, count 2 seconds
+       >>> centerpeak(omega, gamma, 2)
+       # scan with device-specific step size and number of steps
+       >>> centerpeak(omega, gamma, step_omega=0.05, steps_omega=20, t=1)
+       # allow a large number of rounds with very small convergence window
+       # (1/5 of step size)
+       >>> centerpeak(omega, gamma, rounds=10, convergence=0.2, t=1)
+       # center using Gaussian peak fits
+       >>> centerpeak(omega, gamma, fit='gauss', t=1)
 
     Fit functions:
 
@@ -296,9 +300,12 @@ def pos2hkl(gamma=None, omega=None, nu=None):
     >>> pos2hkl()
     >>> rp()
 
-    The optional arguments are different instrument angles.
+    The optional arguments are different instrument angles:
 
     >>> pos2hkl(15.0, 72.4, -4.0)
+
+    calculates not for the current position, but for the given gamma, omega, nu
+    angles.
     """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
@@ -306,6 +313,8 @@ def pos2hkl(gamma=None, omega=None, nu=None):
     if not gamma:
         read(instr)
     else:
+        if omega is None or nu is None:
+            raise UsageError('must give either no angles or all angles')
         instr._reverse_calpos(gamma=gamma, omega=omega, nu=nu)
 
 rp = pos2hkl
@@ -489,6 +498,16 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
 @usercommand
 @helparglist('hkl, [width], [speed], [timedelta]')
 def omscan(hkl, width=None, speed=None, timedelta=None, **kwds):
+    """Perform a continuous omega scan at the specified Q point.
+
+    The default scan width is calculated from the instrumental resolution.
+
+    Examples:
+
+    >>> omscan((1, 0, 0))     # with default with, speed and timedelta
+    >>> omscan((1, 0, 0), 5)  # with a width of 5 degrees
+    >>> omscan((1, 0, 0), 5, 0.1, 1)   # with width, speed and timedelta
+    """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
         raise NicosError('your instrument is not a sxtal diffractometer')
@@ -891,6 +910,15 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
     continuous omega scan over all HKLs in the list.
 
     Use ``start=N`` to start at a different line than the first.
+
+    Examples::
+
+       # omega scan of  all peaks in "low_t" with default settings
+       >>> ScanDataset('low_t')
+       # same, but with speed 0.1 and timedelta 1 second
+       >>> ScanDataset('low_t', 0.1, 1)
+       # start at row 100
+       >>> ScanDataset('low_t', start=100)
     """
     instr = session.instrument
     root = session.experiment.samplepath
@@ -965,6 +993,15 @@ def RefineMatrix(listname='default', **kwds):
     * ``gamma``: third angle, can also be ``'alpha'``
     * ``wavelength``
     * ``delta_gamma``, ``delta_nu``: offsets for detector axes
+
+    Examples::
+
+       # refine wavelength and angle offsets
+       >>> RefineMatrix(a=6.12, b='a', c='a', alpha=90, beta=90, gamma=120)
+
+       # refine lattice parameter a = b = c
+       >>> RefineMatrix(alpha=90, beta=90, gamma=90, wavelength=1.15,
+                        delta_gamma=0, delta_nu=0)
     """
     sample = session.experiment.sample
     instr = session.instrument
