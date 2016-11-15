@@ -43,6 +43,7 @@ Requirements
 * Optional for the basic system:
   - the TACO Python libraries
   - scipy (for fitting)
+  - docutils (for formatting interactive help nicely)
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - pyserial (for TACO-less serial line communication)
   - matplotlib (for resolution plots)
@@ -112,7 +113,7 @@ xBuntu 12.04
 
 * Optional components:
 
-  apt-get install python-{mysqldb,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector}
+  apt-get install python-{mysqldb,docutils,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector}
 
 * GUI and status monitor:
 

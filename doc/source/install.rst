@@ -47,6 +47,7 @@ Requirements
 
   - the TACO Python libraries
   - scipy (for fitting and data analysis)
+  - docutils (for formatting interactive help nicely)
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - matplotlib (for resolution plots)
   - pyserial (for TACO-less serial line communication)
