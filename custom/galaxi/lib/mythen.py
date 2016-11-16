@@ -87,11 +87,11 @@ class MythenImage(PyTangoDevice, ImageChannelMixin, ActiveChannel):
         'kthresh':   Param('Energy threshold', type=float, unit='keV',
                            settable=True, volatile=True),
         'frames':    Param('Number of frames within an acquisition', type=int,
-                           settable=True, volatile = True),
+                           settable=True, volatile=True),
         'time':      Param('Exposure time of one frame', type=int, unit='s',
-                           settable=True, volatile = True),
+                           settable=True, volatile=True),
         'remaining': Param('Remaining exposure time', type=int, unit='s',
-                           volatile = True)
+                           volatile=True)
     }
 
     def doInit(self, mode):

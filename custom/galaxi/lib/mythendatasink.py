@@ -37,11 +37,11 @@ class MythenImageSinkHandler(SingleFileSinkHandler):
     def writeData(self, fp, data):
         w = fp.write
         w('#\n')
-        w('# GALAXI Data userid=%s,exp=%s,file=%s,sample=%s\n'
-                             % (session.experiment.users,
-                                str(session.experiment.lastscan),
-                                str(self.dataset.number),
-                                session.experiment.sample.samplename))
+        w('# GALAXI Data userid=%s,exp=%s,file=%s,sample=%s\n' %
+          (session.experiment.users,
+           str(session.experiment.lastscan),
+           str(self.dataset.number),
+           session.experiment.sample.samplename))
         w('#\n')
         w('#' + '-'*79 + '\n')
 
@@ -84,112 +84,111 @@ class MythenImageSinkHandler(SingleFileSinkHandler):
         w('#\n')
         w('#' + '-'*79 + '\n')
         w('#\n')
-        w('# MYTHEN DATA (number of detectors):  %d   frames:  %d\n'
-                          % (data.shape[1],data.shape[0]))
+        w('# MYTHEN DATA (number of detectors):  %d   frames:  %d\n' %
+          (data.shape[1], data.shape[0]))
         w('#\n')
         it = numpy.nditer(data, flags=['multi_index'], order='F')
-        while it.iterindex+1 < it.itersize  :
+        while it.iterindex+1 < it.itersize:
             fmtStr = ''.join(['%8d' % it.next() for _ in range(data.shape[0])])
             w('#   [%4d] %s\n' % (it.multi_index[1], fmtStr))
         w('#\n')
         fp.flush()
 
-
-    def _readoutBrukerAXS(self,w):
+    def _readoutBrukerAXS(self, w):
         """Read bruker devices"""
         w('#\n')
         w('# Bruker AXS\n')
         w('#\n')
         gen_vol = session.getDevice('gen_voltage')
         gen_cur = session.getDevice('gen_current')
-        w('# X-ray uptime              %9.3f %s\n' \
-                         % (self._devreadf('uptime'), self._devunit('uptime')))
-        w('# X-ray generator    %9.3f %s %9.3f %s\n' \
-                             %(float(gen_vol.read()), str(gen_vol.unit),
-                               float(gen_cur.read()), str(gen_cur.unit)))
-        w('# X-ray shutter                 %5s\n' \
-                         % self._devreadstr('shutter'))
-        w('# X-ray tube condition        %7s\n' \
-                         % self._devreadstr('tubecond'))
-        w('# Conditioning interval     %9.3f %s\n' \
-                         % (self._devreadf('interval'), self._devunit('interval')))
-        w('# Conditioning time         %9.3f %s\n' \
-                         % (self._devreadf('time'), self._devunit('time')))
-        w('# X-ray spot position       %9.3f %s\n' \
-                         % (self._devreadf('spotpos'), self._devunit('spotpos')))
-        w('# X-ray stigmator           %9.3f %s\n' \
-                         % (self._devreadf('stigmator'), self._devunit('stigmator')))
-        w('# X-ray vacuum info         %9.3f %s\n' \
-                         % (self._devreadf('stigmator'), self._devunit('stigmator')))
+        w('# X-ray uptime              %9.3f %s\n' %
+          (self._devreadf('uptime'), self._devunit('uptime')))
+        w('# X-ray generator    %9.3f %s %9.3f %s\n' %
+          (float(gen_vol.read()), str(gen_vol.unit),
+           float(gen_cur.read()), str(gen_cur.unit)))
+        w('# X-ray shutter                 %5s\n' %
+          self._devreadstr('shutter'))
+        w('# X-ray tube condition        %7s\n' %
+          self._devreadstr('tubecond'))
+        w('# Conditioning interval     %9.3f %s\n' %
+          (self._devreadf('interval'), self._devunit('interval')))
+        w('# Conditioning time         %9.3f %s\n' %
+          (self._devreadf('time'), self._devunit('time')))
+        w('# X-ray spot position       %9.3f %s\n' %
+          (self._devreadf('spotpos'), self._devunit('spotpos')))
+        w('# X-ray stigmator           %9.3f %s\n' %
+          (self._devreadf('stigmator'), self._devunit('stigmator')))
+        w('# X-ray vacuum info         %9.3f %s\n' %
+          (self._devreadf('stigmator'), self._devunit('stigmator')))
 
-    def _readoutCollimation(self,w):
+    def _readoutCollimation(self, w):
         """Read collimation devices"""
-        w('# Slit B1 width             %9.3f %s\n' \
-                             % (self._devreadf('b1b'), self._devunit('b1b')))
-        w('# Slit B1 heigth            %9.3f %s\n' \
-                             % (self._devreadf('b1h'), self._devunit('b1h')))
-        w('# Slit B1 horizontally      %9.3f %s\n' \
-                             % (self._devreadf('b1y'), self._devunit('b1y')))
-        w('# Slit B1 vertically        %9.3f %s\n' \
-                             % (self._devreadf('b1z'), self._devunit('b1z')))
+        w('# Slit B1 width             %9.3f %s\n' %
+          (self._devreadf('b1b'), self._devunit('b1b')))
+        w('# Slit B1 heigth            %9.3f %s\n' %
+          (self._devreadf('b1h'), self._devunit('b1h')))
+        w('# Slit B1 horizontally      %9.3f %s\n' %
+          (self._devreadf('b1y'), self._devunit('b1y')))
+        w('# Slit B1 vertically        %9.3f %s\n' %
+          (self._devreadf('b1z'), self._devunit('b1z')))
         w('#\n')
-        w('# Slit B2 width             %9.3f %s\n' \
-                             % (self._devreadf('b2b'), self._devunit('b2b')))
-        w('# Slit B2 heigth            %9.3f %s\n' \
-                             % (self._devreadf('b2h'), self._devunit('b2h')))
-        w('# Slit B2 horizontally      %9.3f %s\n' \
-                             % (self._devreadf('b2y'), self._devunit('b2y')))
-        w('# Slit B2 vertically        %9.3f %s\n' \
-                             % (self._devreadf('b2z'), self._devunit('b2z')))
+        w('# Slit B2 width             %9.3f %s\n' %
+          (self._devreadf('b2b'), self._devunit('b2b')))
+        w('# Slit B2 heigth            %9.3f %s\n' %
+          (self._devreadf('b2h'), self._devunit('b2h')))
+        w('# Slit B2 horizontally      %9.3f %s\n' %
+          (self._devreadf('b2y'), self._devunit('b2y')))
+        w('# Slit B2 vertically        %9.3f %s\n' %
+          (self._devreadf('b2z'), self._devunit('b2z')))
         w('#\n')
-        w('# Slit B3 width             %9.3f %s\n' \
-                             % (self._devreadf('b3b'), self._devunit('b3b')))
-        w('# Slit B3 heigth            %9.3f %s\n' \
-                             % (self._devreadf('b3h'), self._devunit('b3h')))
-        w('# Slit B3 horizontally      %9.3f %s\n' \
-                             % (self._devreadf('b3y'), self._devunit('b3y')))
-        w('# Slit B3 vertically        %9.3f %s\n' \
-                             % (self._devreadf('b3z'), self._devunit('b3z')))
+        w('# Slit B3 width             %9.3f %s\n' %
+          (self._devreadf('b3b'), self._devunit('b3b')))
+        w('# Slit B3 heigth            %9.3f %s\n' %
+          (self._devreadf('b3h'), self._devunit('b3h')))
+        w('# Slit B3 horizontally      %9.3f %s\n' %
+          (self._devreadf('b3y'), self._devunit('b3y')))
+        w('# Slit B3 vertically        %9.3f %s\n' %
+          (self._devreadf('b3z'), self._devunit('b3z')))
 
-    def _readoutJcnsmot(self,w):
+    def _readoutJcnsmot(self, w):
         """Read some motor devices"""
         w('#\n')
-        w('# BSPY axis                 %9.3f %s\n' \
-                             % (self._devreadf('bspy'), self._devunit('bspy')))
-        w('# BSPZ axis                 %9.3f %s\n' \
-                             % (self._devreadf('bspz'), self._devunit('bspz')))
+        w('# BSPY axis                 %9.3f %s\n' %
+          (self._devreadf('bspy'), self._devunit('bspy')))
+        w('# BSPZ axis                 %9.3f %s\n' %
+          (self._devreadf('bspz'), self._devunit('bspz')))
         w('#\n')
-        w('# Detector Z axis           %9.3f %s\n' \
-                             % (self._devreadf('detz'), self._devunit('detz')))
+        w('# Detector Z axis           %9.3f %s\n' %
+          (self._devreadf('detz'), self._devunit('detz')))
         w('#\n')
-        w('# PCHI axis                 %9.3f %s\n' \
-                             % (self._devreadf('pchi'), self._devunit('pchi')))
-        w('# POM axis                  %9.3f %s\n' \
-                             % (self._devreadf('pom'), self._devunit('pom')))
-        w('# PREFZ axis                %9.3f %s\n' \
-                             % (self._devreadf('prefz'), self._devunit('prefz')))
-        w('# PY axis                   %9.3f %s\n' \
-                             % (self._devreadf('py'), self._devunit('py')))
-        w('# PZ axis                   %9.3f %s\n' \
-                             % (self._devreadf('pz'), self._devunit('pz')))
+        w('# PCHI axis                 %9.3f %s\n' %
+          (self._devreadf('pchi'), self._devunit('pchi')))
+        w('# POM axis                  %9.3f %s\n' %
+          (self._devreadf('pom'), self._devunit('pom')))
+        w('# PREFZ axis                %9.3f %s\n' %
+          (self._devreadf('prefz'), self._devunit('prefz')))
+        w('# PY axis                   %9.3f %s\n' %
+          (self._devreadf('py'), self._devunit('py')))
+        w('# PZ axis                   %9.3f %s\n' %
+          (self._devreadf('pz'), self._devunit('pz')))
 
-    def _readoutXray(self,w):
+    def _readoutXray(self, w):
         """Read x-ray devices"""
         w('#\n')
-        w('# ROY axis                  %9.3f %s\n' \
-                             % (self._devreadf('roy'), self._devunit('roy')))
-        w('# ROZ axis                  %9.3f %s\n' \
-                             % (self._devreadf('roz'), self._devunit('roz')))
-        w('# ROBY axis                 %9.3f %s\n' \
-                             % (self._devreadf('roby'), self._devunit('roby')))
-        w('# ROBZ axis                 %9.3f %s\n' \
-                             % (self._devreadf('robz'), self._devunit('robz')))
-        w('# DOF chi axis              %9.3f %s\n' \
-                             % (self._devreadf('dofchi'), self._devunit('dofchi')))
-        w('# DOF omega axis            %9.3f %s\n' \
-                             % (self._devreadf('dofom'), self._devunit('dofom')))
+        w('# ROY axis                  %9.3f %s\n' %
+          (self._devreadf('roy'), self._devunit('roy')))
+        w('# ROZ axis                  %9.3f %s\n' %
+          (self._devreadf('roz'), self._devunit('roz')))
+        w('# ROBY axis                 %9.3f %s\n' %
+          (self._devreadf('roby'), self._devunit('roby')))
+        w('# ROBZ axis                 %9.3f %s\n' %
+          (self._devreadf('robz'), self._devunit('robz')))
+        w('# DOF chi axis              %9.3f %s\n' %
+          (self._devreadf('dofchi'), self._devunit('dofchi')))
+        w('# DOF omega axis            %9.3f %s\n' %
+          (self._devreadf('dofom'), self._devunit('dofom')))
 
-    def _readoutAbsorber(self,w):
+    def _readoutAbsorber(self, w):
         """Read absorber devices"""
         w('#\n#' + '-'*79 + '\n')
         w('#\n')
@@ -206,44 +205,40 @@ class MythenImageSinkHandler(SingleFileSinkHandler):
             w(' %3s ' % self._devreadstr(ab))
         w('\n')
 
-    def _readoutPindiodes(self,w):
+    def _readoutPindiodes(self, w):
         """Read pindioden devices"""
         w('#\n#' + '-'*79 + '\n')
         w('#\n')
         w('# PIN diodes\n')
         w('#\n')
-        w('# Ionisation chamber 1      %9.3f %s\n' \
-                             % (self._devreadf('ionichamber1'),
-                                self._devunit('ionichamber1')))
+        w('# Ionisation chamber 1      %9.3f %s\n' %
+          (self._devreadf('ionichamber1'), self._devunit('ionichamber1')))
         w('#\n')
-        w('# Ionisation chamber 2      %9.3f %s\n' \
-                             % (self._devreadf('ionichamber2'),
-                                self._devunit('ionichamber2')))
+        w('# Ionisation chamber 2      %9.3f %s\n' %
+          (self._devreadf('ionichamber2'), self._devunit('ionichamber2')))
         w('#\n')
-        w('# PIN diode in chamber 1 position  %3s\n' \
-                             % self._devreadstr('pindiode1_move'))
-        w('# PIN diode in chamber 1    %9.3f %s\n' \
-                             % (self._devreadf('pindiode1'), self._devunit('pindiode1')))
+        w('# PIN diode in chamber 1 position  %3s\n' %
+          self._devreadstr('pindiode1_move'))
+        w('# PIN diode in chamber 1    %9.3f %s\n' %
+          (self._devreadf('pindiode1'), self._devunit('pindiode1')))
         w('#\n')
-        w('# Calibrated PIN diode      %9.3f %s\n' \
-                             % (self._devreadf('pindiodecal'),
-                                self._devunit('pindiodecal')))
+        w('# Calibrated PIN diode      %9.3f %s\n' %
+          (self._devreadf('pindiodecal'), self._devunit('pindiodecal')))
         w('#\n')
-        w('# PIN diode behind sample position %3s\n' \
-                             % self._devreadstr('pindiodesample_move'))
-        w('# PIN diode behind sample   %9.3f %s\n' \
-                             % (self._devreadf('pindiodesample'),
-                                self._devunit('pindiodesample')))
+        w('# PIN diode behind sample position %3s\n' %
+          self._devreadstr('pindiodesample_move'))
+        w('# PIN diode behind sample   %9.3f %s\n' %
+          (self._devreadf('pindiodesample'), self._devunit('pindiodesample')))
 
-    def _readoutJcnsio(self,w):
+    def _readoutJcnsio(self, w):
         w('#\n')
         w('#' + '-'*79 + '\n')
         w('#\n')
         w('# GALAXi I/O devices\n')
         w('#\n')
-        w('# Detector distance     %4d %s\n' \
-                             % (int(session.getDevice('detdistance').read()),
-                               self._devunit('detdistance')))
+        w('# Detector distance     %4d %s\n' %
+          (int(session.getDevice('detdistance').read()),
+           self._devunit('detdistance')))
         w('#\n')
         w('# Detector tubes\n')
         w('#\n')

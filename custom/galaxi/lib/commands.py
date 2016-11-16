@@ -30,6 +30,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.galaxi.pilatus import PilatusDetector
 from nicos.commands.measure import count as nicos_count
 
+
 @usercommand
 @helparglist('number of rewrites, [presets]')
 def count(num=1, **preset):
@@ -37,7 +38,8 @@ def count(num=1, **preset):
 
     exp = session.experiment
     for _det in exp.detectors:
-        if isinstance(_det, PilatusDetector): _det.nextfilename = 'tmpcount.tif'
+        if isinstance(_det, PilatusDetector):
+            _det.nextfilename = 'tmpcount.tif'
     preset['temporary'] = True
     for _ in range(num):
         nicos_count(**preset)

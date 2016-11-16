@@ -73,15 +73,15 @@ class AbsorberDevice(HasLimits, Moveable):
                 elif index_nr < len(index)-1:
                     index_nr += 1
 
-    def _acombi(self,target):
+    def _acombi(self, target):
         bestValue = self.values[0]
         bestDifference = abs(target - bestValue)
         bestIndices = [0]
-        for val in range(1, pow(2,14) + 1):
+        for val in range(1, pow(2, 14) + 1):
             valueTmp = 1
             indicesTmp = []
             pos = 0
-            maxBit = int(log(val,2))
+            maxBit = int(log(val, 2))
             innerLoop = True
             while (pos <= maxBit) & innerLoop:
                 if valueTmp >= target:

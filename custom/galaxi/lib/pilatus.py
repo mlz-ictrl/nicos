@@ -40,18 +40,17 @@ class PilatusDetector(PyTangoDevice, Measurable):
     """Basic Tango device for Pilatus detector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
-    MXMAPPING = {'detdistance':'Detector_distance',
-                 'det2th':'Detector_2theta',
-                 'detz':'Detector_Voffset',
-                 'ionichamber2':'Flux',
+    MXMAPPING = {'detdistance': 'Detector_distance',
+                 'det2th': 'Detector_2theta',
+                 'detz': 'Detector_Voffset',
+                 'ionichamber2': 'Flux',
                  'absorber': 'Filter_transmission',
-                 'pchi':'Chi',
-                 'pom':'Omega'
-    }
+                 'pchi': 'Chi',
+                 'pom': 'Omega'}
 
     attached_devices = {
         'detdistance': Attach('Pilatus detector distance', Readable),
-#    '    det2th': Attach('Pilatus detector distance', Readable), -> Einbau!
+        # 'det2th': Attach('Pilatus detector distance', Readable), -> Einbau!
         'detz': Attach('Pilatus detector 2theta axis', Readable),
         'ionichamber2': Attach('Ionisation chamber 2', Readable),
         'absorber': Attach('Absorber attenuation', Readable),
@@ -208,7 +207,7 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doWriteMxsettings(self):
         mxValues = 'Wavelength ' + str(self.wavelength)
-        mxValues += (' ' + self.MXMAPPING['det2th'] +  ' 0')
+        mxValues += (' ' + self.MXMAPPING['det2th'] + ' 0')
         for adev in self._adevs:
             mxValues += (' ' + self.MXMAPPING[adev] + ' ')
             if adev == 'absorber':
@@ -234,7 +233,7 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doStatus(self, maxage=0):
         if PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
-            info ='Remaining exposure time:    ' + str(self.remaining) + ' s'
+            info = 'Remaining exposure time:    ' + str(self.remaining) + ' s'
             return (status.BUSY, info)
         else:
             return PyTangoDevice.doStatus(self, 0)
@@ -266,20 +265,22 @@ class PilatusDetector(PyTangoDevice, Measurable):
 class PilatusSinkHandler(DataSinkHandler):
     def prepare(self):
         session.data.assignCounter(self.dataset)
-        filename = session.data.getFilenames( self.dataset,
-                           self.sink.filenametemplate, self.sink.subdir)
+        filename = session.data.getFilenames(self.dataset,
+                                             self.sink.filenametemplate,
+                                             self.sink.subdir)
         self.sink._attached_detector.nextfilename = filename[0]
+
 
 class PilatusSink(FileSink):
     attached_devices = {
-        'detector' : Attach('Pilatus Detector', PilatusDetector)
+        'detector': Attach('Pilatus Detector', PilatusDetector)
     }
     parameter_overrides = {
-        'filenametemplate': Override(default=['%(session.experiment.users)s_'
-                                    '%(session.experiment.sample.samplename)s_'
-                                    '%(scancounter)s_%(pointnumber)s.tif'],
-                                    settable= False),
-
-         'settypes': Override(default=['point'])
+        'filenametemplate': Override(
+            default=['%(session.experiment.users)s_'
+                     '%(session.experiment.sample.samplename)s_'
+                     '%(scancounter)s_%(pointnumber)s.tif'],
+            settable=False),
+        'settypes': Override(default=['point']),
     }
     handlerclass = PilatusSinkHandler

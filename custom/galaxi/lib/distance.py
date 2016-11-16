@@ -37,7 +37,7 @@ class DetectorDistance(Readable):
 
     parameters = {
         'offset': Param('Minimum distance between Pilatus and sample',
-                         type=int, settable=True),
+                        type=int, settable=True),
     }
 
     hardware_access = False
@@ -48,7 +48,7 @@ class DetectorDistance(Readable):
 
     def doRead(self, maxage=0):
         distance = 0
-        for tube in enumerate(self._attached_detectubes,start=2):
+        for tube in enumerate(self._attached_detectubes, start=2):
             if tube[1].read(maxage) != 'up':
                 break
             distance += tube[0] / 2
