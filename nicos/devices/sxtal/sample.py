@@ -37,29 +37,24 @@ class SXTalSample(Sample):
         'cell':      Param('Unit cell with matrix', type=SXTalCellType,
                            settable=True, mandatory=False,
                            default=SXTalCell.fromabc(5)),
-        'a':         Param('a', type=float, settable=False,
-                           volatile=True, category='sample'),
-        'b':         Param('b', type=float, settable=False,
-                           volatile=True, category='sample'),
-        'c':         Param('c', type=float, settable=False,
-                           volatile=True, category='sample'),
-        'alpha':     Param('alpha', type=floatrange(1., 179.), settable=False,
-                           volatile=True, category='sample'),
-        'beta':      Param('beta', type=floatrange(1., 179.), settable=False,
-                           volatile=True, category='sample'),
-        'gamma':     Param('gamma', type=floatrange(1., 179.), settable=False,
-                           volatile=True, category='sample'),
-        'rmat':      Param('rmat', type=listof(listof(float)), settable=False,
-                           volatile=True, default=None, userparam=False),
+        'a':         Param('a', type=float, category='sample'),
+        'b':         Param('b', type=float, category='sample'),
+        'c':         Param('c', type=float, category='sample'),
+        'alpha':     Param('alpha', type=floatrange(1., 179.),
+                           category='sample'),
+        'beta':      Param('beta', type=floatrange(1., 179.),
+                           category='sample'),
+        'gamma':     Param('gamma', type=floatrange(1., 179.),
+                           category='sample'),
+        'rmat':      Param('rmat', type=listof(listof(float)),
+                           default=None, userparam=False),
         'ubmatrix':  Param('UB matrix (rmat^T)', type=listof(listof(float)),
-                           volatile=True, category='sample'),
+                           category='sample'),
         'bravais':   Param('Bravais lattice',
                            type=oneof(*symmetry.Bravais.conditions),
-                           volatile=True, settable=True, default='P',
-                           category='sample'),
+                           settable=True, default='P', category='sample'),
         'laue':      Param('Laue group', type=oneof(*symmetry.symbols),
-                           volatile=True, settable=True, default='1',
-                           category='sample'),
+                           settable=True, default='1', category='sample'),
 
         'peaklists': Param('Lists of peaks for scanning', userparam=False,
                            type=dictof(str, list), settable=True),
@@ -112,30 +107,6 @@ class SXTalSample(Sample):
         if 'cell' in parameters:
             self.cell = parameters['cell']
 
-    def doReadA(self):
-        return self.cell.cellparams().a
-
-    def doReadB(self):
-        return self.cell.cellparams().b
-
-    def doReadC(self):
-        return self.cell.cellparams().c
-
-    def doReadAlpha(self):
-        return self.cell.cellparams().alpha
-
-    def doReadBeta(self):
-        return self.cell.cellparams().beta
-
-    def doReadGamma(self):
-        return self.cell.cellparams().gamma
-
-    def doReadRmat(self):
-        return self.cell.rmat.tolist()
-
-    def doReadUbmatrix(self):
-        return self.cell.rmat.T.tolist()
-
     def doReadBravais(self):
         return self.cell.bravais.bravais
 
@@ -157,6 +128,7 @@ class SXTalSample(Sample):
         self._setROParam('beta', params.beta)
         self._setROParam('gamma', params.gamma)
         self._setROParam('rmat', cell.rmat.tolist())
+        self._setROParam('ubmatrix', cell.rmat.T.tolist())
         self._setROParam('bravais', cell.bravais.bravais)
         self._setROParam('laue', cell.laue.laue)
 
