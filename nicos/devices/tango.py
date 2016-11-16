@@ -592,6 +592,11 @@ class PowerSupply(HasTimeout, Actuator):
     def doReadCurrent(self):
         return self._dev.current
 
+    def doPoll(self, n, maxage):
+        if n % 5 == 0:
+            self._pollParam('voltage', 1)
+            self._pollParam('current', 1)
+
 
 class DigitalInput(PyTangoDevice, Readable):
     """
