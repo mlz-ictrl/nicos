@@ -4,6 +4,11 @@ group = 'special'
 
 
 watchlist = [
+    dict(condition = '(sixfold_value == "closed" or nl5_value == "closed") '
+                     'and reactorpower_value > 19',
+         message = 'NL5 or sixfold shutter closed',
+         type = 'critical',
+        ),
     dict(condition = 'sel_value < 6000',
          message = 'Problem with selector. Value below 6000rpm',
          gracetime = 2,
