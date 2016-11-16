@@ -30,7 +30,7 @@ from nicos import session
 from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
-from nicos.core.utils import waitForStatus
+from nicos.core.utils import waitForCompletion
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
 from nicos.commands.scan import _handleScanArgs, _infostr
@@ -59,7 +59,7 @@ class RScan(Scan):
             for dev in devices:
                 if isinstance(dev, MicrostepMotor):
                     dev.stop()
-                    waitForStatus(dev, ignore_errors=True)
+                    waitForCompletion(dev, ignore_errors=True)
             # movement and counting separate
             # do not use software based micro stepping
             devices = underlying_motor(devices)

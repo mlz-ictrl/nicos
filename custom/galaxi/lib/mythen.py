@@ -27,7 +27,7 @@
 
 import numpy
 import time
-from nicos.core import waitForStatus, status, usermethod, MASTER, Value
+from nicos.core import waitForCompletion, status, usermethod, MASTER, Value
 from nicos.core.params import Param, ArrayDesc
 from nicos.devices.tango import PyTangoDevice
 from nicos.core.constants import FINAL, INTERRUPTED
@@ -132,7 +132,7 @@ class MythenImage(PyTangoDevice, ImageChannelMixin, ActiveChannel):
 
     def doStart(self):
         self.log.debug('Mythen detector wait for status')
-        waitForStatus(self, ignore_errors=True)
+        waitForCompletion(self, ignore_errors=True)
         self.readresult = [0]
         self.log.debug('Mythen detector start')
         self._dev.Start()

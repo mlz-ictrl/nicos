@@ -40,7 +40,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     PositionError, TimeoutError
 from nicos.core.acquire import acquire, read_environment, stop_acquire_thread
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
-from nicos.core.utils import waitForStatus, multiWait
+from nicos.core.utils import waitForCompletion, multiWait
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types, reraise
 
@@ -178,7 +178,7 @@ class Scan(object):
                 det.prepare()
             # wait for preparation has been finished.
             for det in self._detlist:
-                waitForStatus(det)
+                waitForCompletion(det)
         except NicosError as err:
             self.handleError('prepare', err)
 

@@ -18,7 +18,9 @@ are re-exported in :mod:`nicos.core`.
 
 .. autofunction:: multiWait
 
-.. autofunction:: waitForStatus
+.. autofunction:: waitForCompletion
+
+.. autofunction:: waitForState
 
 .. autofunction:: multiStop
 

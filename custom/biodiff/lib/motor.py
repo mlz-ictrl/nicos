@@ -38,7 +38,7 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
     attached Moveable device.
     """
 
-    STATUS_TIME = .3  # waitForStatus 300 ms
+    STATUS_TIME = .3  # waitForCompletion 300 ms
     CODE_TIME = .05   # additional code execution time in polling routine
 
     attached_devices = {

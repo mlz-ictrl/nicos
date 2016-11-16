@@ -233,7 +233,7 @@ def waitForState(dev, state, delay=0.3, ignore_errors=False):
         raise
 
 
-def waitForStatus(dev, delay=0.3, ignore_errors=False):
+def waitForCompletion(dev, delay=0.3, ignore_errors=False):
     """Wait for *dev* to exit the busy state.
 
     Calls `isCompleted` until it returns true or raises.

@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Release [NEXT]
+--------------
+
+- Added new utility function "waitForState()" which will wait on a device
+  getting into a state passed to the function.
+
+- The "waitForStatus()" utility function has been renamed to
+  "waitForCompletion()" in order to clarify that this function will wait
+  for "doIsCompleted()" returning `True` and to avoid confusion with the
+  new "waitForState()" function.
+
+
 Release 2.10.0
 --------------
 

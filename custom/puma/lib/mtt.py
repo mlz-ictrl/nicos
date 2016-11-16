@@ -28,7 +28,7 @@ Takes into account the mobilblock and the additional shielding block change."""
 
 from time import sleep
 
-from nicos.core import status, MoveError, waitForStatus, Param, Readable, \
+from nicos.core import status, MoveError, waitForCompletion, Param, Readable, \
     Moveable, Attach
 from nicos.utils import createThread
 from nicos.devices.generic.axis import Axis
@@ -61,7 +61,7 @@ class MTT_Axis(Axis):
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
-            waitForStatus(self, ignore_errors=True)
+            waitForCompletion(self, ignore_errors=True)
             # raise NicosError(self, 'axis is moving now, please issue a stop '
             #                  'command and try it again')
 

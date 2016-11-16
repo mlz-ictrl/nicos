@@ -29,7 +29,7 @@ from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
     NicosError, PositionError, MoveError, floatrange, Param, Attach, \
-    waitForStatus
+    waitForCompletion
 from nicos.devices.abstract import Axis as AbstractAxis, Motor, Coder, \
     CanReference
 from nicos.utils import createThread
@@ -130,7 +130,7 @@ class Axis(CanReference, AbstractAxis):
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
-            waitForStatus(self, ignore_errors=True)
+            waitForCompletion(self, ignore_errors=True)
 
         if self._posthread:
             if self._posthread.isAlive():

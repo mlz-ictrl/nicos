@@ -47,7 +47,7 @@ from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler
 from nicos.core.acquire import acquire, read_environment, DevStatistics
 from nicos.core.scan import Scan
-from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
+from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user
 

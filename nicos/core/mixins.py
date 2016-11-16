@@ -505,7 +505,8 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return self._cache.history(self, 'value', t - self.window, t)
         return []
 
-    # use values determined by poller or waitForStatus loop to fill our history
+    # use values determined by poller or waitForCompletion loop
+    # to fill our history
     def _cacheCB(self, key, value, time):
         self._history.append((time, value))
         # clean out stale values, if more than one

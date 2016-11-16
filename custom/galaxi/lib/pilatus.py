@@ -24,7 +24,7 @@
 # *****************************************************************************
 """GALAXI Pilatus detector"""
 
-from nicos.core import DataSinkHandler, waitForStatus, status, usermethod
+from nicos.core import DataSinkHandler, waitForCompletion, status, usermethod
 from nicos.core.constants import MASTER
 from nicos.core.device import Readable, Measurable
 from nicos.core.params import Param, dictof, subdir, Override, Attach
@@ -229,7 +229,7 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doStart(self):
         self.log.debug('Pilatus detector wait for status')
-        waitForStatus(self, ignore_errors=True)
+        waitForCompletion(self, ignore_errors=True)
         self.log.debug('Pilatus detector start')
         self._dev.Start()
 
