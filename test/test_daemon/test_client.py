@@ -70,23 +70,19 @@ class TestClient(NicosClient):
             if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
                 break
 
-    def wait_for_idlesignal(self, exc=False):
-        while True:
-            if self._estatus == STATUS_IDLE:
-                break
-            if self._estatus == STATUS_IDLEEXC:
-                if exc:
-                    raise AssertionError('test failed with exception')
-                break
-            time.sleep(0.05)
-
-    def run_and_wait(self, command, name=None, wait_for_sig=False):
-        self.run(command, name)
+    def run_and_wait(self, command, name=None, allow_exc=False):
+        idx = len(self._signals)
+        reqno = self.run(command, name)
         # wait for idle status
-        if wait_for_sig:
-            self.wait_for_idlesignal(exc=True)
-        else:
-            self.wait_idle()
+        processing = False
+        for sig in self.iter_signals(idx, 5.0):
+            if sig[0] == 'processing' and sig[1]['reqno'] == reqno:
+                processing = True
+            if processing and sig[0] == 'status' and \
+               sig[1][0] in (STATUS_IDLE, STATUS_IDLEEXC):
+                if sig[1][0] == STATUS_IDLEEXC and not allow_exc:
+                    raise AssertionError('script failed with exception')
+                break
 
 
 client = None
@@ -165,7 +161,7 @@ def test_simple():
         client.viewonly = False
 
     # wait until command is done
-    client.wait_for_idlesignal(True)
+    client.wait_idle()
 
 
 @with_setup(partial(loading_setup, 'daemonmain'))
@@ -174,7 +170,7 @@ def test_encoding():
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
 scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
-''', 'Meßzeit.py', wait_for_sig=True)
+''', 'Meßzeit.py')
 
 
 @with_setup(partial(loading_setup, 'daemonmain'))
@@ -191,8 +187,6 @@ def test_htmlhelp():
             assert data[0] == 'index'
             assert data[1].startswith('<html>')
             break
-    else:
-        assert False, 'help request not arrived'
     client._signals = []
     client.tell('exec', 'help(t_phi)')
     for name, data, _exc in client.iter_signals(0, timeout=5.0):
@@ -200,8 +194,6 @@ def test_htmlhelp():
             # default help page is the index page
             assert data[1].startswith('<html>')
             break
-    else:
-        assert False, 'help request not arrived'
 
 
 @with_setup(partial(loading_setup, 'daemonmain'))
