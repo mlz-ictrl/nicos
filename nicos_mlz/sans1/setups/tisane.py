@@ -2,8 +2,8 @@ description = 'tisane setup for SANS1'
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'memograph',
-            'manual', 'guidehall', 'outerworld', 'pressure_filter', 
-            'slit']
+            'manual', 'guidehall', 'outerworld', 'pressure_filter',
+            'slit', 'nl4a']
 #            'frequency']
 
 excludes = ['sans1']

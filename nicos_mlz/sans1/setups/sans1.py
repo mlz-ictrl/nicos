@@ -5,7 +5,8 @@ group = 'basic'
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'memograph',
             'manual', 'guidehall', 'pressure_filter',
-            'slit', 'selector_tower', 'chopper_phase']
+            'slit', 'selector_tower', 'chopper_phase',
+            'nl4a']
 
 excludes = ['tisane']
 

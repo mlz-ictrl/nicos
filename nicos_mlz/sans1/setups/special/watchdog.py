@@ -18,6 +18,11 @@ watchlist = [
          type = 'critical',
          gracetime = 30,
     ),
+    dict(condition = '(sixfold_value == "closed" or nl4a_value == "closed") '
+                     'and reactorpower_value > 19',
+         message = 'NL4a or sixfold shutter closed',
+         type = 'critical',
+    ),
     dict(condition = 't_in_memograph_value > 20',
          message = 'Cooling water inlet temperature exceeds 20 C, check FAK40 and SANS-1 memograph!',
          #type = 'critical',
