@@ -19,8 +19,12 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = []
-#watchlist = [
+watchlist = [
+    dict(condition = 'nlashutter_value == "close" '
+                     'and reactorpower_value > 19',
+         message = 'NL6 or sixfold shutter closed',
+         type = 'critical',
+        ),
 #    dict(condition = 't_value > 100',
 #         message = 'Temperature too high',
 #         type = 'critical',
@@ -30,7 +34,7 @@ watchlist = []
 #         message = 'phi angle too high for current mono setting',
 #         gracetime = 5,
 #        ),
-#]
+]
 
 includes = ['notifiers']
 
