@@ -169,7 +169,7 @@ def test_encoding():
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
-scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
+scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
 ''', 'Meßzeit.py')
 
 

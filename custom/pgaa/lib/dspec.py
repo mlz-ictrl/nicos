@@ -74,4 +74,6 @@ class DSPec(Measurable):
             return status.OK, 'stopped'
 
     def doSetPreset(self, **preset):
+        if not preset:
+            return  # keep previous settings
         self._lastpreset = preset

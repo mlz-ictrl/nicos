@@ -193,9 +193,10 @@ class MythenDetector(Detector):
     def doSetPreset(self, **preset):
         self.log.debug('Mythen detector set preset')
         myimage = self._attached_images[0]
+        new_preset = {}  # keep previous settings
         if P_TIME in preset:
             myimage.doWriteTime(preset[P_TIME])
             new_preset = {P_TIME: preset[P_TIME]}
-            Detector.doSetPreset(self, **new_preset)
         if P_FRAMES in preset:
             myimage.doWriteFrames(preset[P_FRAMES])
+        Detector.doSetPreset(self, **new_preset)

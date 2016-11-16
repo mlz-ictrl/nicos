@@ -110,6 +110,8 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     def doSetPreset(self, **preset):
         self.log.debug('Pilatus detector set preset')
+        if not preset:
+            return  # keep previous settings
         if P_TIME in preset:
             self.doWriteTime(preset[P_TIME])
         if P_FRAMES in preset:

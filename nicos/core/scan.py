@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -37,7 +38,7 @@ from nicos.core.mixins import HasLimits
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
-from nicos.core.acquire import acquire, read_environment
+from nicos.core.acquire import acquire, read_environment, stop_acquire_thread
 from nicos.core.constants import SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForStatus, multiWait
 from nicos.utils import Repeater
@@ -306,6 +307,9 @@ class Scan(object):
     def run(self):
         if not self._subscan and getattr(session, '_currentscan', None):
             raise NicosError('cannot start scan while another scan is running')
+        # stop previous inner_count / acquisition thread if available
+        stop_acquire_thread()
+
         session._currentscan = self
         # XXX(dataapi): this is too early, dataset has no number yet
         session.beginActionScope(self.shortDesc())
@@ -320,6 +324,7 @@ class Scan(object):
         read_environment(self._envlist)
 
     def acquire(self, point, preset):
+        preset.pop("live", None)
         acquire(point, preset)
 
     def _inner_run(self):

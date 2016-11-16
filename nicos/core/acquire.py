@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -90,9 +91,8 @@ def acquire(point, preset):
     session.beginActionScope('Counting')
     if session.countloop_request:
         _wait_for_continuation(delay, only_pause=True)
-    if preset:
-        for det in point.detectors:
-            det.setPreset(**preset)
+    for det in point.detectors:
+        det.setPreset(**preset)
     session.data.updateMetainfo()
     point.started = currenttime()
     try:
@@ -183,6 +183,19 @@ def read_environment(envlist):
             val = [None] * len(dev.valueInfo())
         values[dev.name] = (currenttime(), val)
     session.data.putValues(values)
+
+
+def stop_acquire_thread():
+    """Stops an live() count if in progress."""
+    if session._thd_acquire and session._thd_acquire.isAlive():
+        session.log.info('live() counting in progress, stopping detectors.')
+        for det in session.data._current.detectors:
+            session.log.debug("stop detector: %s" % det)
+            det.stop()
+        session.log.debug("joining acquire thread")
+        session._thd_acquire.join()
+        session._thd_acquire = None
+        session.log.debug("acquire thread terminated.")
 
 
 class DevStatistics(object):

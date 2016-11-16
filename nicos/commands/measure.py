@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -30,12 +31,14 @@ from nicos.commands.output import printinfo, printwarning
 from nicos import session
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import UsageError, NicosError
-from nicos.core.acquire import acquire, read_environment, Average, MinMax
+from nicos.core.acquire import acquire, read_environment, Average, MinMax, \
+    stop_acquire_thread
 from nicos.core.utils import waitForStatus
 from nicos.pycompat import number_types, string_types, iteritems
+from nicos.utils import createThread
 
 __all__ = [
-    'count', 'preset',
+    'count', 'live', 'preset',
     'SetDetectors', 'AddDetector', 'ListDetectors',
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
     'avg', 'minmax',
@@ -46,11 +49,16 @@ class CountResult(list):
     __display__ = None
 
 
-def inner_count(detectors, preset, temporary=False):
+def inner_count(detectors, preset, temporary=False, threaded=False):
     """Inner counting function for normal counts with single-point dataset.
 
     If *temporary* is true, use a dataset without data sinks.
+    If *threaded* is true, do a non-blocking acquisition.
+
     """
+    # stop previous inner_count / acquisition thread if available
+    stop_acquire_thread()
+
     for det in detectors:
         det.prepare()
     for det in detectors:
@@ -64,10 +72,18 @@ def inner_count(detectors, preset, temporary=False):
     else:
         point = session.data.beginPoint(**args)
     read_environment(session.experiment.sampleenv)
-    try:
-        acquire(point, preset)
-    finally:
-        session.data.finishPoint()
+
+    def _acquire_func():
+        try:
+            acquire(point, preset)
+        finally:
+            session.data.finishPoint()
+
+    if threaded:
+        session._thd_acquire = createThread("acquire", _acquire_func)
+        return None
+    else:
+        _acquire_func()
     msg = []
     retval = []
     for det in detectors:
@@ -82,26 +98,9 @@ def inner_count(detectors, preset, temporary=False):
     return CountResult(retval)
 
 
-@usercommand
-@helparglist('[detectors], [presets]')
-def count(*detlist, **preset):
-    """Perform a single counting.
-
-    With preset arguments, this preset is used instead of the default preset.
-
-    With detector devices as arguments, these detectors are used instead of the
-    default detectors set with `SetDetectors()`.
-
-    Examples:
-
-    >>> count()             # count once with the default preset and detectors
-    >>> count(t=10)         # count once with time preset of 10 seconds
-    >>> count(psd, t=10)    # count 10 seconds with the psd detector
-
-    Within a manual scan, this command is also used to perform the count as one
-    point of the manual scan.
-    """
+def _count(*detlist, **preset):
     temporary = preset.pop('temporary', False)
+    live = preset.get('live', False)
     # sanitize detector list; support count(1) and count('info')
     detectors = []
     for det in detlist:
@@ -142,7 +141,44 @@ def count(*detlist, **preset):
         if not len(detectors) == has_sub == 1:
             raise NicosError('cannot acquire on normal and subscan detectors')
 
-    return inner_count(detectors, preset, temporary)
+    return inner_count(detectors, preset, temporary, live)
+
+
+@usercommand
+@helparglist('[detectors], [presets]')
+def count(*detlist, **preset):
+    """Perform a single counting.
+
+    With preset arguments, this preset is used instead of the default preset.
+
+    With detector devices as arguments, these detectors are used instead of the
+    default detectors set with `SetDetectors()`.
+
+    Examples:
+
+    >>> count()             # count once with the default preset and detectors
+    >>> count(t=10)         # count once with time preset of 10 seconds
+    >>> count(psd, t=10)    # count 10 seconds with the psd detector
+
+    Within a manual scan, this command is also used to perform the count as one
+    point of the manual scan.
+    """
+    preset.pop("live", None)
+    return _count(*detlist, **preset)
+
+
+@usercommand
+@helparglist('[detectors]')
+def live(*detlist):
+    """Count until stopped generating live data.
+
+    Examples:
+
+    >>> live()
+    >>> live(det)
+
+    """
+    return _count(*detlist, live=True)
 
 
 @usercommand

@@ -113,9 +113,10 @@ class Detector(MeasureSequencer):
         MeasureSequencer.doStart(self)
 
     def doSetPreset(self, **preset):
-        self._time_preset = preset['t'] if 't' in preset else 0
-        self._mon_preset = preset['mon1'] if 'mon1' in preset else \
-            preset['mon2'] if 'mon2' in preset else 0
+        if preset:
+            self._time_preset = preset['t'] if 't' in preset else 0
+            self._mon_preset = preset['mon1'] if 'mon1' in preset else \
+                preset['mon2'] if 'mon2' in preset else 0
         self._attached_detector.doSetPreset(**preset)
 
     def _read_value(self):

@@ -60,6 +60,8 @@ class VirtualSXtalDetector(Measurable):
             Value('ctr', unit='cts', type='counter', errors='sqrt', fmtstr='%d')
 
     def doSetPreset(self, **preset):
+        if not preset:
+            return  # keep previous settings
         self._lastpreset = preset
 
     def doStart(self):

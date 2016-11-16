@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -39,6 +40,7 @@ from time import sleep, time as currenttime
 import numpy
 
 from nicos import config, nicos_version, custom_version
+from nicos.core.acquire import stop_acquire_thread
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink, DataManager
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
@@ -149,6 +151,8 @@ class Session(object):
         self.cache = None
         # data manager
         self.data = DataManager() if self.has_datamanager else None
+        # acquire thread, needed for live()
+        self._thd_acquire = None
         # sysconfig devices
         self._instrument = None
         self._experiment = None
@@ -229,6 +233,9 @@ class Session(object):
             elif mode == MAINTENANCE:
                 self.log.warning('Switching from slave to maintenance mode: '
                                  "I'll trust that you know what you're doing!")
+        # stop previous inner_count / acquisition thread if available
+        stop_acquire_thread()
+
         self._mode = mode
         if self._master_handler:
             self._master_handler.enable(mode == MASTER)

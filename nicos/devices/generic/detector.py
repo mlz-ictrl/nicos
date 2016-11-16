@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
@@ -260,6 +261,7 @@ class Detector(Measurable):
     _last_live = 0
     _last_save = 0
     _last_save_index = 0
+    _last_preset = None
 
     # allow overwriting in derived classes
     def _presetiter(self):
@@ -283,6 +285,7 @@ class Detector(Measurable):
         for i, dev in enumerate(self._attached_images):
             if isinstance(dev, ActiveChannel):
                 yield ('img%d' % (i + 1), dev)
+        yield ('live', None)
 
     def doPreinit(self, mode):
         presetkeys = {}
@@ -306,7 +309,17 @@ class Detector(Measurable):
                 slaves.append(ch)
         self._masters, self._slaves = masters, slaves
 
+    def _getPreset(self, preset):
+        """Returns previous preset if no preset has been set."""
+        if not preset and self._last_preset:
+            return self._last_preset
+        if 'live' not in preset:
+            # do not store live as previous preset
+            self._last_preset = preset
+        return preset
+
     def doSetPreset(self, **preset):
+        preset = self._getPreset(preset)
         if not preset:
             # keep old settings
             return
@@ -314,7 +327,7 @@ class Detector(Measurable):
             master.ismaster = False
         should_be_masters = set()
         for name in preset:
-            if name in self._presetkeys:
+            if name in self._presetkeys and name != 'live':
                 dev = self._presetkeys[name]
                 dev.ismaster = True
                 dev.preselection = preset[name]
@@ -327,6 +340,10 @@ class Detector(Measurable):
                 self.log.warning('master setting for devices %s ignored by '
                                  'detector' % ', '.join(should_be_masters -
                                                         set(self._masters)))
+        self.log.debug("   presets: %s" % preset)
+        self.log.debug("presetkeys: %s" % self._presetkeys)
+        self.log.debug("   masters: %s" % self._masters)
+        self.log.debug("    slaves: %s" % self._slaves)
 
     def doPrepare(self):
         for slave in self._slaves:
@@ -404,8 +421,6 @@ class Detector(Measurable):
 
     def doStatus(self, maxage=0):
         self._getMasters()
-        if not self._masters:
-            return status.OK, 'idle'
         st, text = multiStatus(self._getWaiters(), maxage)
         if st == status.ERROR:
             return st, text
@@ -450,7 +465,7 @@ class Detector(Measurable):
         ret = []
         for dev in self._masters:
             for key in self._presetkeys:
-                if self._presetkeys[key].name == dev.name:
+                if self._presetkeys[key] and self._presetkeys[key].name == dev.name:
                     if key.startswith('mon'):
                         ret.append(('mode', 'monitor', 'monitor', '',
                                     'presets'))

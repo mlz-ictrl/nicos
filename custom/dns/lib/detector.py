@@ -173,6 +173,7 @@ class DNSDetector(Detector):
         return presets
 
     def doSetPreset(self, **preset):
+        new_preset = preset
         if P_MON_SF in preset and P_MON_NSF in preset:
             if self._attached_flipper.read() == ON:
                 m = preset[P_MON_SF]

@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -31,13 +32,15 @@ from nicos.core import UsageError, PositionError, CommunicationError, \
     NicosError, ModeError
 from nicos.core.scan import ContinuousScan
 
-from nicos.commands.measure import count, avg, minmax
+from nicos.commands.measure import count, live, avg, minmax
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.imaging import tomo
 from nicos.commands.tas import checkalign
 from nicos.core.sessions.utils import MASTER, SLAVE
+from nicos.core.status import BUSY, OK
+from nicos.core.utils import waitForState
 
 from test.utils import raises
 from nose import with_setup
@@ -138,7 +141,7 @@ def test_scan2():
         session.experiment.setEnvironment([])
 
         # scan with different detectors
-        scan(m, [0, 1], det, m=1)
+        scan(m, [0, 1], det, m=1, t=0.)
         dataset = session.data._last_scans[-1]
         assert dataset.devvaluelists == [[0.], [1.]]
         # 2 points, 5 detector channels
@@ -148,7 +151,7 @@ def test_scan2():
             ['timer', 'mon1', 'ctr1', 'ctr2', 'img.sum']
 
         # scan with multistep
-        scan(m, [0, 1], det, manual=[3, 4])
+        scan(m, [0, 1], det, manual=[3, 4], t=0.)
         dataset = session.data._last_scans[-1]
         assert dataset.devvaluelists == [[0., 3.], [0., 4.],
                                          [1., 3.], [1., 4.]]
@@ -186,7 +189,7 @@ def test_scan_invalidpreset():
     m = session.getDevice('motor')
     # invalid preset
     session.experiment.setDetectors([session.getDevice('det')])
-    assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5,
+    assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5, t=0.,
                                      warns_clear=True,
                                      warns_text='these preset keys were'
                                      ' not recognized by any of the detectors: .*')
@@ -312,7 +315,7 @@ def test_specialscans():
     m = session.getDevice('motor')
     det = session.getDevice('det')
 
-    checkoffset(m, 10, 0.05, 3, det, m=10)
+    checkoffset(m, 10, 0.05, 3, det, m=10, t=0.)
 
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
@@ -348,3 +351,30 @@ def test_tomo():
     sry.maw(0.0)
     tomo(10)
     assert sry.read() == 360.0
+
+
+def test_live_count():
+    det = session.getDevice('det')
+    m = session.getDevice('motor')
+
+    def _go_live(det):
+        live(det)
+        waitForState(det, BUSY)
+
+    _go_live(det)
+    det.stop()
+    waitForState(det, OK)
+
+    _go_live(det)
+    waitForState(det, BUSY)
+    count(det, t=0)
+
+    _go_live(det)
+    waitForState(det, BUSY)
+    scan(m, [0, 4, 5], 0., det)
+
+    count(t=0)
+    _go_live(det)
+    count()  # t=0
+    count()  # t=0
+    scan(m, [0, 4, 5], 0., det, live=1)  # live will be ignored

@@ -18,8 +18,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -213,6 +214,23 @@ def multiWait(devices):
     finally:
         session.endActionScope()
     return values
+
+
+def waitForState(dev, state, delay=0.3, ignore_errors=False):
+    """Wait for `dev` to getting into `state`.
+
+    Calls `status` until it returns `state` on its first element or raises.
+    """
+    try:
+        while True:
+            st = dev.status()[0]
+            if st == state:
+                break
+            session.delay(delay)
+    except:
+        if ignore_errors:
+            return
+        raise
 
 
 def waitForStatus(dev, delay=0.3, ignore_errors=False):
