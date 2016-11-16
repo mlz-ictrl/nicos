@@ -64,9 +64,10 @@ class DoubleValidator(QDoubleValidator):
         return QDoubleValidator.validate(self, string, pos)
 
 
-keyexpr_re = re.compile(r'([a-zA-Z_0-9./]+)'              # device or key
-                        r'(?:\[([0-9]+(?:,[0-9]+)*)\])?'  # indices
-                        r'(\*[0-9.]+)?([+-][0-9.]+)?$')   # offset/scale
+keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
+                        r'(?P<indices>(?:\[[0-9]+\])*)'
+                        r'(?P<scale>\*[0-9.]+)?'
+                        r'(?P<offset>[+-][0-9.]+)?$')
 
 
 def extractKeyAndIndex(spec):
@@ -75,30 +76,36 @@ def extractKeyAndIndex(spec):
 
     * '/' can be replaced by '.'
     * If it is not in the form 'dev/key', '/value' is automatically appended.
-    * Subitems can be specified as a list: ``dev.keys[10], det.rates[0,1]``.
+    * Subitems can be specified: ``dev.keys[10], det.rates[0][1]``.
     * A scale factor can be added with ``*X``.
     * An offset can be added with ``+X`` or ``-X``.
     """
     match = keyexpr_re.match(spec.replace(' ', ''))
     if not match:
         return spec.lower().replace('.', '/'), (), 1.0, 0
-    key, index, scale, offset = match.groups()
-    key = key.lower().replace('.', '/')
+    groups = match.groupdict()
+    key = groups['dev_or_key'].lower().replace('.', '/')
     if '/' not in key:
         key += '/value'
+    indices = groups['indices']
     try:
-        index = tuple(map(int, index.split(','))) if index is not None else ()
+        if indices is not None:
+            indices = tuple(map(int, indices[1:-1].split('][')))
+        else:
+            indices = ()
     except ValueError:
-        index = ()
+        indices = ()
+    scale = groups['scale']
     try:
         scale = float(scale[1:]) if scale is not None else 1.0
     except ValueError:
         scale = 1.0
+    offset = groups['offset']
     try:
         offset = float(offset) if offset is not None else 0.0
     except ValueError:
         offset = 0.0
-    return key, index, scale, offset
+    return key, indices, scale, offset
 
 
 def checkSetupSpec(setupspec, setups, compat='or', log=None):

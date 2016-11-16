@@ -45,7 +45,7 @@ from nicos.guisupport.display import ValueDisplay, PictureDisplay, \
     lightColorScheme
 from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
-from nicos.pycompat import iteritems, string_types, integer_types
+from nicos.pycompat import iteritems, string_types
 
 try:
     from nicos.guisupport.plots import TrendPlot
@@ -266,8 +266,6 @@ class Monitor(BaseMonitor):
                 field['min'] = repr(field['min'])
             if 'max' in field:
                 field['max'] = repr(field['max'])
-            if 'item' in field and isinstance(field['item'], integer_types):
-                field['item'] = [field['item']]
 
             if 'gui' in field:
                 resource = findResource(field.pop('gui'))

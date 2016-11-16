@@ -27,8 +27,8 @@ _selector = Block('Selector', [
 
 _chopper = Block('Chopper', [
     BlockRow(Field(name='Preset', dev='chopper', istext=True, width=17)),
-    BlockRow(Field(name='Frequency', dev='chopper_params', unit='Hz', item=0),
-             Field(name='Opening', dev='chopper_params', unit='deg', item=1)),
+    BlockRow(Field(name='Frequency', dev='chopper_params[0]', unit='Hz'),
+             Field(name='Opening', dev='chopper_params[1]', unit='deg')),
 ])
 
 _collimation = Block('Collimation', [
@@ -83,8 +83,8 @@ _hexapod = Block('Hexapod', [
 
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
-             Field(name='Total', dev='det_img', item=0, format='%d'),
-             Field(name='Rate', dev='det_img', item=1, format='%.1f')),
+             Field(name='Total', dev='det_img[0]', format='%d'),
+             Field(name='Rate', dev='det_img[1]', format='%.1f')),
     BlockRow(Field(name='Mon1', dev='mon1rate'),
              Field(name='Mon2', dev='mon2rate'),
              Field(name='Mon3', dev='mon3rate')),

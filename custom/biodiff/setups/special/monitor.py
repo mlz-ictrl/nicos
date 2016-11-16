@@ -56,7 +56,7 @@ _sampleStepperBlock = Block('Sample stepper', [
 )
 
 _activeDetectorBlock = Block('Active detector', [
-    BlockRow(Field(name='Detector', key='exp/detlist', item=0)),
+    BlockRow(Field(name='Detector', key='exp/detlist[0]')),
     ],
 )
 

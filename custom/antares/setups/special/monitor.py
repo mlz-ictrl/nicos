@@ -45,7 +45,7 @@ _detectorblock = Block('Detector', [
         Field(name='Last Image', key='ccd.lastfilename'),
         ),
     BlockRow(
-        Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status', width=15, item=1),
+        Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status[1]', width=15),
         ),
     BlockRow(
         Field(name='bin', key='ccd.bin'),

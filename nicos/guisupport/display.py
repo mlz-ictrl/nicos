@@ -203,8 +203,6 @@ class ValueDisplay(NicosWidget, QWidget):
         'unit':       PropDef(str, '', 'Unit of the value to display next to '
                               'the name; if "dev" is given this defaults to '
                               'the unit set in NICOS'),
-        'item':       PropDef('QStringList', [], 'Item to extract from a value that is '
-                              'a sequence of items'),
         'format':     PropDef(str, '', 'Python format string to use for the '
                               'value; if "dev" is given this defaults to the '
                               '"fmtstr" set in NICOS'),
@@ -299,12 +297,11 @@ class ValueDisplay(NicosWidget, QWidget):
 
     def registerKeys(self):
         if self.props['dev']:
-            self.registerDevice(self.props['dev'], self.props['item'],
+            self.registerDevice(self.props['dev'],
                                 self.props['unit'], self.props['format'])
         else:
             self.registerKey(self.props['key'], self.props['statuskey'],
-                             self.props['item'], self.props['unit'],
-                             self.props['format'])
+                             self.props['unit'], self.props['format'])
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         # check expired values

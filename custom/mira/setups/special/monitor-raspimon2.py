@@ -13,8 +13,8 @@ _column1 = Column(
         setups='htf01',
     ),
     Block('MIEZE', [
-        BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True, width=5),
-                 Field(name='tau', dev='mieze', item=1, unit='ps', width=7),
+        BlockRow(Field(name='Setting', dev='mieze[0]', istext=True, width=5),
+                 Field(name='tau', dev='mieze[1]', unit='ps', width=7),
                  Field(name='Tuning', key='mieze/tuning', istext=True, width=10)),
         BlockRow('dc1', 'freq1', 'amp1', 'coilamp1'),
         BlockRow('dc2', 'freq2', 'amp2', 'coilamp2'),

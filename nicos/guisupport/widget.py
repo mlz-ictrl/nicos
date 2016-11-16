@@ -41,6 +41,7 @@ from nicos.pycompat import add_metaclass, iteritems
 
 # Import resources file
 import nicos.guisupport.gui_rc  # pylint: disable=W0611
+from nicos.guisupport.utils import extractKeyAndIndex
 
 
 class NicosListener(object):
@@ -67,7 +68,9 @@ class NicosListener(object):
              'expired': True,
              'isdevice': isdevice})
 
-    def registerDevice(self, dev, valueindex=(), unit='', fmtstr=''):
+    def registerDevice(self, dev, unit='', fmtstr=''):
+        dev, valueindex, _scale, _offset = extractKeyAndIndex(dev)
+        dev = dev.split('/')[0]
         self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
         self._devmap[self._source.register(self, dev + '/value')] = dev
         self._devmap[self._source.register(self, dev + '/status')] = dev
@@ -77,8 +80,8 @@ class NicosListener(object):
         if not fmtstr:
             self._devmap[self._source.register(self, dev + '/fmtstr')] = dev
 
-    def registerKey(self, valuekey, statuskey='', valueindex=(),
-                    unit='', fmtstr=''):
+    def registerKey(self, valuekey, statuskey='', unit='', fmtstr=''):
+        valuekey, valueindex, _scale, _offset = extractKeyAndIndex(valuekey)
         self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr,
                                                   False)
         self._devmap[self._source.register(self, valuekey)] = valuekey

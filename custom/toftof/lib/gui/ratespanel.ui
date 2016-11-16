@@ -31,14 +31,8 @@
         <property name="format" stdset="0">
          <string>%.1f</string>
         </property>
-        <property name="item" stdset="0">
-         <stringlist>
-          <string>0</string>
-          <string>0</string>
-         </stringlist>
-        </property>
         <property name="key" stdset="0">
-         <string>det.rates</string>
+         <string>det.rates[0][0]</string>
         </property>
         <property name="name" stdset="0">
          <string>Rate</string>
@@ -62,14 +56,8 @@
         <property name="format" stdset="0">
          <string>%.1f</string>
         </property>
-        <property name="item" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>0</string>
-         </stringlist>
-        </property>
         <property name="key" stdset="0">
-         <string>det.rates</string>
+         <string>det.rates[1][0]</string>
         </property>
         <property name="name" stdset="0">
          <string>Inst. rate</string>
@@ -102,14 +90,8 @@
         <property name="format" stdset="0">
          <string>%.1f</string>
         </property>
-        <property name="item" stdset="0">
-         <stringlist>
-          <string>0</string>
-          <string>1</string>
-         </stringlist>
-        </property>
         <property name="key" stdset="0">
-         <string>det.rates</string>
+         <string>det.rates[0][1]</string>
         </property>
         <property name="name" stdset="0">
          <string>Rate</string>
@@ -133,14 +115,8 @@
         <property name="format" stdset="0">
          <string>%.1f</string>
         </property>
-        <property name="item" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>1</string>
-         </stringlist>
-        </property>
         <property name="key" stdset="0">
-         <string>det.rates</string>
+         <string>det.rates[1][1]</string>
         </property>
         <property name="name" stdset="0">
          <string>Inst. rate</string>
@@ -173,10 +149,10 @@
     <widget class="TrendPlot" name="trendPlot">
      <property name="devices" stdset="0">
       <stringlist>
-       <string>det.rates[0,0]</string>
-       <string>det.rates[0,1]</string>
-       <string>det.rates[1,0]</string>
-       <string>det.rates[1,1]</string>
+       <string>det.rates[0][0]</string>
+       <string>det.rates[0][1]</string>
+       <string>det.rates[1][0]</string>
+       <string>det.rates[1][1]</string>
       </stringlist>
      </property>
      <property name="legend" stdset="0">

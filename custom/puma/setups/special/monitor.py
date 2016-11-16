@@ -64,10 +64,10 @@ _detectorblock = Block('Detector', [
 )
 
 _tasblock = Block('Triple-axis', [
-    BlockRow(Field(dev='puma', item=0, name='H', format='%.3f', unit=' '),
-             Field(dev='puma', item=1, name='K', format='%.3f', unit=' '),
-             Field(dev='puma', item=2, name='L', format='%.3f', unit=' '),
-             Field(dev='puma', item=3, name='E', format='%.3f', unit=' ')),
+    BlockRow(Field(dev='puma[0]', name='H', format='%.3f', unit=' '),
+             Field(dev='puma[1]', name='K', format='%.3f', unit=' '),
+             Field(dev='puma[2]', name='L', format='%.3f', unit=' '),
+             Field(dev='puma[3]', name='E', format='%.3f', unit=' ')),
     BlockRow(Field(key='puma/scanmode', name='Mode'),
              Field(dev='mono', name='ki'),
              Field(dev='ana', name='kf'),
