@@ -13,6 +13,11 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = '(sixfold_value == "closed" or nl6_value == "closed") '
+                     'and reactorpower_value > 19',
+         message = 'NL6 or sixfold shutter closed',
+         type = 'critical',
+        ),
     dict(condition = 'cooltemp_value > 25',
          message = 'Cooling water temperature exceeds 25C, clean filter or check FAK40 or MIRA Leckmon!',
          type = 'critical',
