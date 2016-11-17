@@ -587,7 +587,7 @@ class ContinuousScan(Scan):
             last = {det.name: (det.read(), ()) for det in detlist}
 
             while device.status(0)[0] == status.BUSY:
-                session.breakpoint(3)
+                session.breakpoint(2)
                 sleeptime = max(0, looptime + self._timedelta - currenttime())
                 session.log.debug('Sleep time: %f' % sleeptime)
                 with self.pointScope(point + 1):
