@@ -139,3 +139,5 @@ def test_extract_key_and_index():
     assert extractKeyAndIndex('dev.key- 5') == ('dev/key', (), 1, -5)
     assert extractKeyAndIndex('dev.key*10 +5') == ('dev/key', (), 10, 5)
     assert extractKeyAndIndex('dev.key[0] * 10+5') == ('dev/key', (0,), 10, 5)
+    assert extractKeyAndIndex('dev*1.2e1 +5e-2') == ('dev/value', (), 12, 0.05)
+    assert extractKeyAndIndex('dev*1e+1+5e1') == ('dev/value', (), 10, 50)

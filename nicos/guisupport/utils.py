@@ -66,8 +66,8 @@ class DoubleValidator(QDoubleValidator):
 
 keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
                         r'(?P<indices>(?:\[[0-9]+\])*)'
-                        r'(?P<scale>\*[0-9.]+)?'
-                        r'(?P<offset>[+-][0-9.]+)?$')
+                        r'(?P<scale>\*[0-9.]+(?:[eE][+-]?[0-9]+)?)?'
+                        r'(?P<offset>[+-][0-9.]+(?:[eE][+-]?[0-9]+)?)?$')
 
 
 def extractKeyAndIndex(spec):
