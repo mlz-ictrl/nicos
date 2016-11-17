@@ -87,9 +87,9 @@ class EulerianCradle(Moveable):
         r1, r2 = value
         for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
             if all(v == 0 for v in val):
-                raise NicosError(self,
-                    'Please first set the Eulerian cradle orientation '
-                    'with the reflex1/2 and angles1/2 parameters')
+                raise NicosError(self, 'Please first set the Eulerian cradle '
+                                 'orientation with the reflex1/2 and '
+                                 'angles1/2 parameters')
         sense = self._attached_tas.scatteringsense[1]
         self._omat = self.calc_or(sense)
         ang = self.euler_angles(r1, r2, 2, 2, sense,
@@ -97,17 +97,17 @@ class EulerianCradle(Moveable):
                                 self._attached_omega.userlimits)
         psi, chi, om, _phi = ang
         self.log.debug('euler angles: %s' % ang)
-        self.log.info('moving %s to %12s, %s to %12s' % (self._attached_chi,
-                         self._attached_chi.format(chi, unit=True),
-                         self._attached_omega,
-                         self._attached_omega.format(om, unit=True)))
+        self.log.info('moving %s to %12s, %s to %12s' % (
+            self._attached_chi, self._attached_chi.format(chi, unit=True),
+            self._attached_omega, self._attached_omega.format(om, unit=True)))
         self._attached_chi.move(chi)
         self._attached_omega.move(om)
         self._attached_chi.wait()
         self._attached_omega.wait()
         self._attached_cell.orient1 = r1
         self._attached_cell.orient2 = r2
-        wantpsi = self._attached_cell.cal_angles(r1, 0, 'CKF', 2, sense,
+        wantpsi = self._attached_cell.cal_angles(
+            r1, 0, 'CKF', 2, sense,
             self._attached_tas.axiscoupling, self._attached_tas.psi360)[3]
         self._attached_cell.psi0 += wantpsi - psi
 
@@ -128,19 +128,21 @@ class EulerianCradle(Moveable):
             r1, r2 = r1
         for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
             if all(v == 0 for v in val):
-                raise NicosError(self,
-                    'Please first set the Eulerian cradle orientation '
-                    'with the reflex1/2 and angles1/2 parameters')
+                raise NicosError(self, 'Please first set the Eulerian cradle '
+                                 'orientation with the reflex1/2 and '
+                                 'angles1/2 parameters')
         sense = self._attached_tas.scatteringsense[1]
         self._omat = self.calc_or(sense)
         ang = self.euler_angles(r1, r2, 2, 2, sense,
                                 self._attached_chi.userlimits,
                                 self._attached_omega.userlimits)
         self.log.info('found scattering plane')
-        self.log.info('%s: %20s' % (self._attached_chi,
-                         self._attached_chi.format(ang[1], unit=True)))
-        self.log.info('%s: %20s' % (self._attached_omega,
-                         self._attached_omega.format(ang[2], unit=True)))
+        self.log.info('%s: %20s' % (
+            self._attached_chi,
+            self._attached_chi.format(ang[1], unit=True)))
+        self.log.info('%s: %20s' % (
+            self._attached_omega,
+            self._attached_omega.format(ang[2], unit=True)))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=(-180, 180), omlimits=(-180, 180)):
@@ -157,7 +159,7 @@ class EulerianCradle(Moveable):
 
         # calculate phi from q, ki, kf
         self.log.debug("Bmat = %s" % Bmat)
-        ##was: ec_q = dot(Bmat, target_q)
+        # was: ec_q = dot(Bmat, target_q)
         ec_q = self._attached_cell.hkl2Qcart(*target_q)
         self.log.debug("ec_q = %s" % ec_q)
         phi = self._attached_cell.cal_phi(ec_q, ki, kf, sense)
@@ -299,7 +301,7 @@ class EulerianCradle(Moveable):
                                (ec_xlom, ec_xlchi, ec_cc))
                 if ec_cc < -180:
                     ec_cc += 360
-                if ec_cc >  180:
+                if ec_cc > 180:
                     ec_cc -= 360
                 if ec_cc < ec_chil or ec_cc > ec_chiu:
                     continue
@@ -309,7 +311,7 @@ class EulerianCradle(Moveable):
                 self.log.debug('ec_p = %s' % ec_p)
                 if ec_p < -180:
                     ec_p += 360.
-                if ec_p >  180:
+                if ec_p > 180:
                     ec_p -= 360.
                 self.log.debug('ec_p = %s' % ec_p)
     #
@@ -334,9 +336,9 @@ class EulerianCradle(Moveable):
     #                         if((ec_x>ec_aa+55) and (ec_x<ec_aa+135.)):break    # go to 9
     #                         if(ec_cc<-150):continue                            # go to 11
     #                         if((ec_x>ec_aa-90) and (ec_x<ec_aa-35)):break      # go to 9
-    ##   11     continue
+    #   11     continue
     #                    break
-    ##   10   continue
+    #   10   continue
                 ec_d1 = ec_xlom*ec_coom
                 ec_d2 = ec_xlom*ec_siom
                 ec_om = arctan2(ec_d2, ec_d1)/D2R
@@ -346,7 +348,7 @@ class EulerianCradle(Moveable):
                 if ec_om > 180.:
                     ec_om -= 360.
                 if ec_om < ec_oml or ec_om > ec_omu:
-                    continue                 #  go to 9
+                    continue                 # go to 9
                 return array([ec_p, ec_cc, ec_om, phi])
 
         raise ComputationError('could not find a Eulerian cradle position for '
@@ -363,18 +365,18 @@ class EulerianCradle(Moveable):
         a = an_angle*D2R
         co = cos(a)
         si = sin(a)
-        result[0,0] = co
-        result[1,1] = co
-        result[2,2] = co
-        result[0,1] = -si*v[2]
-        result[0,2] = si*v[1]
-        result[1,2] = -si*v[0]
-        result[1,0] = -result[0,1]
-        result[2,0] = -result[0,2]
-        result[2,1] = -result[1,2]
+        result[0, 0] = co
+        result[1, 1] = co
+        result[2, 2] = co
+        result[0, 1] = -si*v[2]
+        result[0, 2] = si*v[1]
+        result[1, 2] = -si*v[0]
+        result[1, 0] = -result[0, 1]
+        result[2, 0] = -result[0, 2]
+        result[2, 1] = -result[1, 2]
         for i in range(3):
             for j in range(3):
-                result[i,j] += (1-co)*v[i]*v[j]
+                result[i, j] += (1-co)*v[i]*v[j]
         return result
 
     def calc_euler(self, psi, chi, om):
@@ -386,15 +388,15 @@ class EulerianCradle(Moveable):
         cochi = cos(chi*D2R)
         siom = sin(om*D2R)
         coom = cos(om*D2R)
-        temp[0,0] = copsi*coom - sipsi*cochi*siom
-        temp[0,1] = -copsi*siom - sipsi*cochi*coom
-        temp[0,2] = sipsi*sichi
-        temp[1,0] = sipsi*coom + copsi*cochi*siom
-        temp[1,1] = -sipsi*siom + copsi*cochi*coom
-        temp[1,2] = -copsi*sichi
-        temp[2,0] = sichi*siom
-        temp[2,1] = sichi*coom
-        temp[2,2] = cochi
+        temp[0, 0] = copsi*coom - sipsi*cochi*siom
+        temp[0, 1] = -copsi*siom - sipsi*cochi*coom
+        temp[0, 2] = sipsi*sichi
+        temp[1, 0] = sipsi*coom + copsi*cochi*siom
+        temp[1, 1] = -sipsi*siom + copsi*cochi*coom
+        temp[1, 2] = -copsi*sichi
+        temp[2, 0] = sichi*siom
+        temp[2, 1] = sichi*coom
+        temp[2, 2] = cochi
         return temp
 
     def calc_orient(self, h1, h2, r1, r2, mode='3x3'):
@@ -446,9 +448,9 @@ class EulerianCradle(Moveable):
         if xx2 > 0:
             a2 *= -1
         alfa1 = arctan2(a1, cos1)/D2R
-        #print alfa1
+        # print alfa1
         alfa2 = arctan2(a2, cos2)/D2R
-        #print alfa2
+        # print alfa2
         if abs(alfa1 - alfa2) > 0.7:
             raise ComputationError('error in orient: no solution for Omat')
         alfa = (alfa1 + alfa2)/2
@@ -477,14 +479,14 @@ class EulerianCradle(Moveable):
         cell.orient1 = [1, 0, 0]
         cell.orient2 = [0, 1, 0]
         self._Bmat = cell._matrix
-        #print 'd1 (psi=%f chi =%f om = %f\n' %(ang1[0],ang1[1],ang1[2]), \
-        #      self.calc_euler(ang1[0],ang1[1],ang1[2])
-        #print 'd2 (psi=%f chi =%f om = %f\n' %(ang2[0],ang2[1],ang2[2]), \
-        #      self.calc_euler(ang2[0],ang2[1],ang2[2])
+        # print 'd1 (psi=%f chi =%f om = %f\n' %(ang1[0],ang1[1],ang1[2]), \
+        #       self.calc_euler(ang1[0],ang1[1],ang1[2])
+        # print 'd2 (psi=%f chi =%f om = %f\n' %(ang2[0],ang2[1],ang2[2]), \
+        #       self.calc_euler(ang2[0],ang2[1],ang2[2])
         d1_inv = inv(self.calc_euler(ang1[0], ang1[1], ang1[2]))
         d2_inv = inv(self.calc_euler(ang2[0], ang2[1], ang2[2]))
-        #print 'd1_inv = \n', d1_inv
-        #print 'd2_inv = \n', d2_inv
+        # print 'd1_inv = \n', d1_inv
+        # print 'd2_inv = \n', d2_inv
         ec_q1 = [cos((90-ang1[3]/2)*D2R), -sense*sin((90-ang1[3]/2)*D2R), 0]
         ec_q2 = [cos((90-ang2[3]/2)*D2R), -sense*sin((90-ang2[3]/2)*D2R), 0]
         self.log.debug('ec_q1 = %s, ec_q2 = %s' % (ec_q1, ec_q2))
