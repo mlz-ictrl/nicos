@@ -451,3 +451,10 @@ Existing widget classes
       The name of the parameter (of the device selected with :attr:`dev`) whose
       value should be edited.
 
+
+.. module:: nicos.guisupport.tas
+
+.. autoclass:: TasWidget()
+
+   .. figure:: taswidget.png
+      :align: center

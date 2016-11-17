@@ -15,5 +15,4 @@ distribution.
    tango
    epics
    vendor/index
-   widgets
    custom
