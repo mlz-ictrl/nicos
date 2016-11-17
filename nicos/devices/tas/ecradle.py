@@ -117,6 +117,13 @@ class EulerianCradle(Moveable):
 
     @usermethod
     def calc_plane(self, r1, r2=None):
+        """Calculate chi and omega angles to get a scattering plane in which
+        the two given reflexes lie.
+
+        Example:
+
+        >>> ec.calc_plane([1, 0, 0], [2, 1, 0])
+        """
         if r2 is None:
             r1, r2 = r1
         for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
