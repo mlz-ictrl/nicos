@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>656</width>
-    <height>119</height>
+    <height>120</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
         </size>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Continuous scan&lt;/span&gt; device:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scan&lt;/span&gt; device:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -156,12 +156,12 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Device speed:</string>
+        <string>Step:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="speed">
+      <widget class="QLineEdit" name="step">
        <property name="text">
         <string>1</string>
        </property>
@@ -170,7 +170,7 @@
      <item>
       <widget class="QLabel" name="unit3">
        <property name="text">
-        <string>/second</string>
+        <string/>
        </property>
       </widget>
      </item>
