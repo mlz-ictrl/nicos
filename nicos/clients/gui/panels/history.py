@@ -151,9 +151,9 @@ class View(QObject):
         for index in self._key_indices[key]:
             series = self.series[key, index]
             if index:
-                value = reduce(operator.getitem, index, value)
                 try:
-                    series.add_value(vtime, value)
+                    v = reduce(operator.getitem, index, value)
+                    series.add_value(vtime, v)
                 except (TypeError, IndexError):
                     continue
             else:
