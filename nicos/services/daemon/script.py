@@ -164,7 +164,10 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         updateLinecache('<script>', self.text)
-        if session.experiment and session.mode == MASTER:
+        # note: checking session._experiment since using session.experiment
+        # would try to create the device, which means you can't execute any
+        # command when the experiment fails
+        if session._experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
@@ -181,7 +184,7 @@ class ScriptRequest(Request):
         finally:
             if self.name:
                 session.endActionScope()
-            if session.experiment and session.mode == MASTER:
+            if session._experiment and session.mode == MASTER:
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
                 session.elogEvent('scriptend', self.name)
@@ -215,7 +218,7 @@ class ScriptRequest(Request):
             # also set the updating user as the new user of the script
             # (but the old userlevel remains)
             self.user = user.name
-            if session.experiment and session.mode == MASTER:
+            if session._experiment and session.mode == MASTER:
                 scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
