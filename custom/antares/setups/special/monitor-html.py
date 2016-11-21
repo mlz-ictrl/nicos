@@ -42,7 +42,7 @@ _detectorikonlcolumn = Column(
         Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
     BlockRow(
-        Field(name='Status', key='ikonl/status', width=25, item=1),
+        Field(name='Status', key='ikonl/status[1]', width=25),
         Field(dev='ikonlTemp'),
         Field(name='hsspeed', key='ikonl.hsspeed', width=4),
         Field(name='vsspeed', key='ikonl.vsspeed', width=4),
@@ -65,7 +65,7 @@ _detectorneocolumn = Column(
         Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
     BlockRow(
-        Field(name='Status', key='neo/status', width=25, item=1),
+        Field(name='Status', key='neo/status[1]', width=25),
         Field(dev='neoTemp'),
         Field(name='elshuttermode', key='neo.elshuttermode', width=6),
         Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
@@ -226,12 +226,12 @@ _flipperblock = Block('Mezei-Flip', [
 
 _lockinblock = Block('Lock-In', [
     BlockRow(
-        Field(dev='sr830', name='X (V)', item=0, format='%1.6f', width=12),
-        Field(dev='sr830', name='Y (V)', item=1, format='%1.6f', width=12)#
+        Field(dev='sr830[0]', name='X (V)', format='%1.6f', width=12),
+        Field(dev='sr830[1]', name='Y (V)', format='%1.6f', width=12)#
         ),
     BlockRow(
-        Field(dev='sr830', name='abs (V)', item=2, format='%1.6f', width=12),
-        Field(dev='sr830', name='phase (deg)', item=3, width=12)
+        Field(dev='sr830[2]', name='abs (V)', format='%1.6f', width=12),
+        Field(dev='sr830[3]', name='phase (deg)', width=12)
         ),
     BlockRow(
 	Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20, plotwindow=1*3600),

@@ -10,7 +10,7 @@ _detectorcolumn = Column(
         Field(name='Last Image', key='ccd.lastfilename', width=50),
         ),
     BlockRow(
-        Field(name='CCD status', key='ccd/status', width=25, item=1),
+        Field(name='CCD status', key='ccd/status[1]', width=25),
         Field(dev='ccdTemp'),
         Field(name='hsspeed', key='ccd.hsspeed', width=4),
         Field(name='vsspeed', key='ccd.vsspeed', width=4),
@@ -116,8 +116,8 @@ _flipperblock = Block('Mezei-Flip', [
 
 _lockinblock = Block('Lock-In', [
     BlockRow(
-        Field(dev='sr850', name='X', item=0),
-        Field(dev='sr850', name='Y', item=1)
+        Field(dev='sr850[0]', name='X'),
+        Field(dev='sr850[1]', name='Y')
         ),
     ],
     setups='sr850',

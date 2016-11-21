@@ -34,19 +34,19 @@ _chopperblock = Block('Chopper system', [
 #            Field(name='Slit type', dev='chST'),
 #           ),
 #   '---',
-#   BlockRow(Field(name='Disk 1', dev='chDS', item=0, format='%.1f'),
-#            Field(name='Disk 2', dev='chDS', item=1, format='%.1f'),
+#   BlockRow(Field(name='Disk 1', dev='chDS[0]', format='%.1f'),
+#            Field(name='Disk 2', dev='chDS[1]', format='%.1f'),
 #           ),
 #   BlockRow(
-#            Field(name='Disk 3', dev='chDS', item=2, format='%.1f'),
-#            Field(name='Disk 4', dev='chDS', item=3, format='%.1f'),
+#            Field(name='Disk 3', dev='chDS[2]', format='%.1f'),
+#            Field(name='Disk 4', dev='chDS[3]', format='%.1f'),
 #           ),
 #   BlockRow(
-#            Field(name='Disk 5', dev='chDS', item=4, format='%.1f'),
+#            Field(name='Disk 5', dev='chDS[4]', format='%.1f'),
 #           ),
 #   BlockRow(
-#            Field(name='Disk 6', dev='chDS', item=5, format='%.1f'),
-#            Field(name='Disk 7', dev='chDS', item=6, format='%.1f'),
+#            Field(name='Disk 6', dev='chDS[5]', format='%.1f'),
+#            Field(name='Disk 7', dev='chDS[6]', format='%.1f'),
 #           ),
 #   '---',
 #   BlockRow(Field(name='Flow in (FAK40)', dev='flow_in_ch_cooling',),),
@@ -166,8 +166,8 @@ _slitblock = Block('Sample slit', [
 _measblock = Block('Measurement', [
     BlockRow(Field(key='det/timechannels', name='Time channels'),),
     BlockRow(Field(name='Time', dev='timer', format='%.1f'),
-             Field(name='Monitor', key='det/rates', item=[1, 1], format='%.1f'),
-             Field(name='Counts', key='det/rates', item=[1, 0], format='%.1f'),
+             Field(name='Monitor', key='det/rates[1][1]', format='%.1f'),
+             Field(name='Counts', key='det/rates[1][0]', format='%.1f'),
             ),
     ],
 )

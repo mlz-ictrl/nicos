@@ -348,10 +348,10 @@ foki = Block('Foki', [
 )
 
 tas = Block('TAS', [
-        BlockRow(Field(name='H', dev='panda', item=0, format='%.3f', unit=''),
-                 Field(name='K', dev='panda', item=1, format='%.3f', unit=''),
-                 Field(name='L', dev='panda', item=2, format='%.3f', unit=''),
-                 Field(name='E', dev='panda', item=3, format='%.3f', unit='')),
+        BlockRow(Field(name='H', dev='panda[0]', format='%.3f', unit=''),
+                 Field(name='K', dev='panda[1]', format='%.3f', unit=''),
+                 Field(name='L', dev='panda[2]', format='%.3f', unit=''),
+                 Field(name='E', dev='panda[3]', format='%.3f', unit='')),
         BlockRow(Field(name='Mode', key='panda/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='panda/energytransferunit')),
