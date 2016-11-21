@@ -204,7 +204,7 @@ class NicosCmdClient(NicosClient):
             raise EOFError
         elif readline_result is False:
             raise StateChange
-        return readline_result.decode(term_encoding)
+        return readline_result.decode(term_encoding, 'ignore')
 
     def put(self, string):
         """Put a line of output, preserving the prompt afterwards."""
