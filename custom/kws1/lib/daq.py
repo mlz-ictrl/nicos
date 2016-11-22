@@ -25,8 +25,8 @@
 import numpy as np
 import PyTango
 
-from nicos.core import status, Moveable, Value, Param, Attach, oneof, \
-    listof, intrange, ConfigurationError, SIMULATION, Measurable, MASTER
+from nicos.core import status, Moveable, Measurable, Value, Param, Attach, \
+    oneof, listof, tupleof, intrange, ConfigurationError, SIMULATION, MASTER
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
@@ -37,7 +37,6 @@ from nicos.devices.tango import PyTangoDevice
 
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
-PIXELS = 128
 
 
 class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
@@ -54,6 +53,12 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
                              category='general'),
     }
 
+    def doInit(self, mode):
+        if mode != SIMULATION:
+            self._resolution = tuple(self._dev.detectorSize)
+        else:
+            self._resolution = (128, 128, 1)
+
     def _configure(self, tofsettings):
         value = self.mode
         if value == 'standard':
@@ -69,7 +74,9 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         if self._mode != SIMULATION:
             self._dev.measureMode = 0
         self.slices = []
-        self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
+        dimensions = (self._resolution[0], self._resolution[1])
+        # (x, y)
+        self.arraydesc = ArrayDesc('data', dimensions, np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
         # set timing of TOF slices
@@ -78,8 +85,9 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         for i in range(channels):
             times.append(times[-1] + int(interval * q**i))
         self.slices = times
-        self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels),
-                                   np.uint32)
+        dimensions = (self._resolution[0], self._resolution[1], channels)
+        # (x, y, t)
+        self.arraydesc = ArrayDesc('data', dimensions, np.uint32)
         if self._mode == SIMULATION:
             return
         if ext_trigger:
@@ -166,12 +174,14 @@ class VirtualKWSImageChannel(VirtualImage):
         'slices':      Param('Calculated TOF slices', userparam=False,
                              unit='us', settable=True, type=listof(int),
                              category='general'),
+        'resolution':  Param('Detector width x height',
+                             type=tupleof(int, int), mandatory=True),
     }
 
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS), np.uint32)
+            self.arraydesc = ArrayDesc('data', self.resolution, np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q = tofsettings
@@ -179,7 +189,8 @@ class VirtualKWSImageChannel(VirtualImage):
             for i in range(channels):
                 times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', (PIXELS, PIXELS, channels), np.uint32)
+            self.arraydesc = ArrayDesc('data', self.resolution + (channels,),
+                                       np.uint32)
 
     def doReadArray(self, quality):
         res = VirtualImage.doReadArray(self, quality)
