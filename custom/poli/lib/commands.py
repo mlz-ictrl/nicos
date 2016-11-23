@@ -621,9 +621,9 @@ def PosListDefine(gamma, omega, nu, intensity, sigma=None, listname='default'):
     >>> PosListDefine(28.14, 56.7, -4.3, 1000)
     >>> PosListDefine(28.14, 56.7, -4.3, 1000, 100)  # with sigma intensity
     """
-    if isinstance(sigma, str):
-        sigma = None
+    if isinstance(sigma, string_types):
         listname = sigma
+        sigma = None
     pos = session.instrument._createPos(gamma=gamma, omega=omega, nu=nu)
     _add_to_pos_list(listname, pos, intensity, sigma)
 
@@ -641,9 +641,9 @@ def PosListAdd(intensity, sigma=None, listname='default'):
     >>> PosListAdd(1000, 10)       # same, with I = 1000 and sigmaI = 10
     >>> PosListAdd(1000, 'other')  # add to named (non default) position list
     """
-    if isinstance(sigma, str):
-        sigma = None
+    if isinstance(sigma, string_types):
         listname = sigma
+        sigma = None
     pos = session.instrument._readPos()
     _add_to_pos_list(listname, pos, intensity, sigma)
 
@@ -701,6 +701,9 @@ def IndexPeaks(max_deviation=0.2, listname='default'):
     If you want to manually run Indexus, you can use the generated input files
     as a template.
     """
+    if isinstance(max_deviation, string_types):
+        listname = max_deviation
+        max_deviation = 0.2
     sample = session.experiment.sample
     wavelength = session.getDevice('wavelength').read()
     lists = dict(sample.poslists)
