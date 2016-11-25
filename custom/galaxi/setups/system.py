@@ -88,10 +88,13 @@ devices = dict(
                     ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
-                      description = 'Device storing scanfiles in Ascii output format.',
+                      description = 'Device storing scanfiles in Ascii output '
+                                    'format.',
                       filenametemplate = ['%(session.experiment.users)s_'
-                                          '%(session.experiment.sample.samplename)s_'
-                                          '%(session.experiment.lastscan)s.dat'],
+                                          '%(session.experiment.sample.'
+                                          'filename)s_'
+                                          '%(session.experiment.'
+                                          'lastscan)s.dat'],
                     ),
     conssink = device('devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',

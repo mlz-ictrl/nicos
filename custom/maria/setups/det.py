@@ -11,7 +11,7 @@ sysconfig = dict(
 
 tango_base = "tango://phys.maria.frm2:10000/maria"
 
-basename = "%(proposal)s_%(session.experiment.sample.samplename)s_"
+basename = "%(proposal)s_%(session.experiment.sample.filename)s_"
 scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 

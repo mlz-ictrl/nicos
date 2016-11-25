@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -27,6 +28,7 @@
 
 from nicos import session
 from nicos.core import Device, Param, none_or, InvalidValueError
+from nicos.utils import safeName
 
 
 class Sample(Device):
@@ -50,6 +52,10 @@ class Sample(Device):
                               'among all defined samples', type=none_or(int),
                               settable=True),
     }
+
+    @property
+    def filename(self):
+        return safeName(self.samplename)
 
     def doWriteSamplename(self, name):
         if name:

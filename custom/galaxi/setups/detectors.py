@@ -53,7 +53,7 @@ devices = dict(
     mythensink      = device('galaxi.mythendatasink.MythenImageSink',
                              filenametemplate =
                               ['%(Exp.users)s_%(session.experiment.sample.'
-                               'samplename)s_%(scancounter)s_%(pointnumber)s'
+                               'filename)s_%(scancounter)s_%(pointnumber)s'
                                '.mydat'],
                              lowlevel = True,
                              detectors = ['mythen']
