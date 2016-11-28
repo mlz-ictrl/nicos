@@ -620,6 +620,7 @@ def PosListDefine(gamma, omega, nu, intensity, sigma=None, listname='default'):
 
     >>> PosListDefine(28.14, 56.7, -4.3, 1000)
     >>> PosListDefine(28.14, 56.7, -4.3, 1000, 100)  # with sigma intensity
+    >>> PosListDefine(28.14, 56.7, -4.3, 1000, 'list')  # with peak list
     """
     if isinstance(sigma, string_types):
         listname = sigma
@@ -1003,6 +1004,9 @@ def RefineMatrix(listname='default', **kwds):
        # refine lattice parameter a = b = c
        >>> RefineMatrix(alpha=90, beta=90, gamma=90, wavelength=1.15,
                         delta_gamma=0, delta_nu=0)
+
+       # use a different peak list
+       >>> RefineMatrix('listname', ...)
     """
     sample = session.experiment.sample
     instr = session.instrument
