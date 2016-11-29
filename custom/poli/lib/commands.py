@@ -47,6 +47,7 @@ from nicos.utils import printTable, createSubprocess
 __all__ = [
     'lubricate_liftingctr',
     'centerpeak',
+    'NewHeCell',
     'calpos',
     'pos',
     'rp',
@@ -247,6 +248,23 @@ def centerpeak(*args, **kwargs):
                 session.log.info('%-10s : %s', dev, dev.format(dev()))
             return
         lastround = thisround
+
+
+@usercommand
+def NewHeCell(m1, m2, pressure, length=13.0, T0=0.88):
+    """Notify NICOS of a newly installed Helium-3 polarizer cell.
+
+    - *m1* and *m2* should be monitor counts of the *before* and *after*
+      monitors taken without the cell installed.
+    - *pressure* is the He pressure in the cell, in bar.
+    - *length* is the length of the cell, in cm.
+    - *T0* is the transmission of the empty cell.
+
+    Example:
+
+    >>> NewHeCell(12000, 8000, 2.4)
+    """
+    session.getDevice('beam_pol').newCell(m1, m2, pressure, length, T0)
 
 
 def _convert_q_arg(args, funcname):
