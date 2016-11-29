@@ -128,8 +128,6 @@ class Poller(Device):
 
             i = 0
             lastpoll = 0  # last timestamp of succesfull poll
-            # en/disable debug logging
-            do_log = (self.loglevel == 'debug')
 
             while not self._stoprequest:
                 # determine maximum waiting time with a default of 1h
@@ -137,11 +135,11 @@ class Poller(Device):
                 nextpoll = lastpoll + (interval or 3600)
                 # note: dev.maxage is intended here!
                 timesout = lastpoll + dev.maxage - POLL_MIN_VALID_TIME
-                maxwait = min(nextpoll - ct, timesout - ct)
-                if do_log:
-                    self.log.debug('%-10s: maxwait is %g '
-                                   '(nextpoll=%g, timesout=%g)',
-                                   dev, maxwait, nextpoll-ct, timesout-ct)
+                dnext = nextpoll - ct
+                dto = timesout - ct
+                maxwait = min(dnext, dto)
+                self.log.debug('%-10s: maxwait is %g (nextpoll=%g, timesout=%g)',
+                               dev, maxwait, dnext, dto)
 
                 # only wait for events if there is time, otherwise just poll
                 if maxwait > 0:
@@ -149,8 +147,7 @@ class Poller(Device):
                     try:
                         # if the timeout is reached, this raises Queue.Empty
                         event = queue.get(True, maxwait)
-                        if do_log:
-                            self.log.debug('%-10s: Event %s', dev, event)
+                        self.log.debug('%-10s: Event %s', dev, event)
 
                         # handle events....
                         # use pass to trigger a poll or continue to just fetch the next event
@@ -190,14 +187,12 @@ class Poller(Device):
                     except Queue.Empty:
                         pass  # just poll if timed out
                 else:
-                    if do_log:
-                        self.log.debug('%-10s: ignoring events for one round', dev)
+                    self.log.debug('%-10s: ignoring events for one round', dev)
 
                 # also do rate-limiting if too many events occur which would
                 # retrigger this device
                 if lastpoll + POLL_MIN_WAIT > currenttime():
-                    if do_log:
-                        self.log.debug('%-10s: rate-limiting poll()', dev)
+                    self.log.debug('%-10s: rate-limiting poll()', dev)
                     continue
 
                 # only poll if enabled
@@ -205,9 +200,8 @@ class Poller(Device):
                     i += 1
                     # if the polling fails, raise into outer loop which handles this...
                     stval, rdval = dev.poll(i, maxage=maxage)
-                    if do_log:
-                        self.log.debug('%-10s: status = %-25s, value = %s',
-                                       dev, stval, rdval)
+                    self.log.debug('%-10s: status = %-25s, value = %s',
+                                   dev, stval, rdval)
                     # adjust timing of we are no longer busy
                     if stval is not None and stval[0] != status.BUSY:
                         interval = dev.pollinterval
