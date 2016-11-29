@@ -171,6 +171,7 @@ class Session(object):
                 'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos',
                 'arctan', 'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
             self.namespace[name] = getattr(numpy, name)
+        self.namespace['numpy'] = numpy
         # remove interactive Python interpreter stuff
         for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
             builtins.__dict__.pop(name, None)
