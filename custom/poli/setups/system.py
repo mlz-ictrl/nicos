@@ -11,18 +11,22 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'poli.commands']
 
-includes = ['notifiers']
+includes = ['notifiers', 'table', 'mono', 'slits', 'reactor']
 
 devices = dict(
-    POLI     = device('devices.instrument.Instrument',
+    POLI     = device('devices.sxtal.instrument.LiftingSXTal',
                       description = 'The POLI instrument',
                       responsible = 'V. Hutanu <vladimir.hutanu@frm2.tum.de>',
                       instrument = 'POLI',
                       doi = 'http://dx.doi.org/10.17815/jlsrf-1-22',
+                      mono = 'wavelength',
+                      gamma = 'gamma',
+                      omega = 'sth',
+                      nu = 'liftingctr',
                      ),
 
-    Sample   = device('poli.sample.Sample',
-                      description = 'The current used sample',
+    Sample   = device('devices.sxtal.sample.SXTalSample',
+                      description = 'The currently used sample',
                      ),
 
     # Configure dataroot here (usually /data).
@@ -61,4 +65,8 @@ devices = dict(
                       path = '/home/jcns/data',
                       minfree = 5,
                      ),
+)
+
+extended = dict(
+    poller_cache_reader = ['liftingctr']
 )

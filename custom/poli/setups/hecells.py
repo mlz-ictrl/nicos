@@ -1,7 +1,8 @@
-description = 'Spherical neutron polarimetry setup'
-group = 'basic'
+description = 'Setup for polarization with He cells'
 
-includes = ['detector', 'table_tg', 'mono', 'slits']
+group = 'lowlevel'
+
+includes = ['detector']
 
 sysconfig = dict(
     datasinks = ['hepolsink'],
