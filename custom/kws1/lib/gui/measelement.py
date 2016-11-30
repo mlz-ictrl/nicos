@@ -34,6 +34,12 @@ from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
 
 
+def num_sort(x):
+    """A sort key function to sort by a numeric prefix, then lexically."""
+    m = re.match(r'[\d.]+', x)
+    return (float(m.group()) if m else 0.0, x)
+
+
 class MeasElement(QObject):
     """Represents one setting for a measurement that can be manipulated."""
 
@@ -90,7 +96,7 @@ class ChoiceElement(MeasElement):
     def createWidget(self, parent, client):
         if self.CACHE_KEY:
             values = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-            values = list(values or [])
+            values = sorted(values or [], key=num_sort)
         else:
             values = self.VALUES
         self._values = values
@@ -170,10 +176,6 @@ class Detector(MeasElement):
             self._widget.setCurrentIndex(self._values.index(self.value))
 
     def otherChanged(self, eltype, value):
-        def num_sort(x):
-            m = re.match(r'[\d.]+', x)
-            return float(m.group()) if m else x
-
         if eltype == 'selector' and self._allvalues is not None:
             self._values = sorted(self._allvalues[value], key=num_sort)
             if self.value not in self._values:
