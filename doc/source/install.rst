@@ -33,52 +33,69 @@ Requirements
 
 * At least Python 2.7 or Python 3.3
 
-* numpy
+If not mentioned otherwise, Python packages are available from PyPi (https://pypi.python.org/pypi)
 
-* pyzmq version >= 2
-* nicos-pyctl
-* nicos-quickyaml
+* NICOS specific Python packages (available from http://forge.frm2.tum.de/simple)
 
-* For the provided SysV compatible init script:
+  - nicos-pyctl
+  - nicos-quickyaml
 
-  - psutil
+* Required Python packages
+
+  - numpy
+  - pyzmq version >= 2
+
+* For the provided SysV compatible init script
+
+  - psutil version >= 0.4 (recommended >= 2.0)
+
+* For hardware access (optional):
+
+  - the MLZ TACO Python libraries (See https://forge.frm2.tum.de/wiki/projects:software_distribution)
+  - pyserial (for TACO-less serial line communication)
+  - pyepics (for epcis interface)
+  - a working installation of omniORBpy (http://omniorb.sourceforge.net/) (for CARESS interface)
+  - PyTango8 (for TANGO interface, needs TANGO libraries)
 
 * Optional for the basic system:
 
-  - the TACO Python libraries
-  - scipy (for fitting and data analysis)
+  - scipy (for data fitting)
   - docutils (for formatting interactive help nicely)
-  - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - matplotlib (for resolution plots)
-  - pyserial (for TACO-less serial line communication)
   - gnuplot (for plots in the electronig logbook)
+  - Grace (for scanplot)
+  - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
   - pyfits (for the handling of FITS formatted files)
   - rsa (for encrypted daemon authentication)
   - ldap3 (for ldap authentication)
   - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)
 
-* For the client-server GUI and status monitor:
+* For the GUI and status monitor (Due to limitations in the used graphics
+  libraries, only Python2 (>=2.7.4) is supported):
 
-  - PyQt4
+  - PyQt4 (not installable with pip)
   - gr (optional, for plots)
-  - PyQwt (optional, for plots, alternate to gr)
+  - PyQwt (optional, for the transition period as an alternative to gr, for plots)
+    (not installable with pip)
   - QScintilla-python (optional, for the script editor component)
+    (not installable with pip)
   - scipy (optional, for fitting)
-  - nicos-livewidget (optional, for detector live view)
-  - cfitisio (optional, required by nicos-livewidget)
+  - nicos-livewidget (optional, for detector live view, available from
+    http://forge.frm2.tum.de/simple)
+  - cfitsio (optional, required by nicos-livewidget, this not a Python package)
   - python-redmine (optional, for the bug reporting dialog)
 
-* Under Windows:
-
-  - pyreadline (optional, for the console to work)
-  - colorama (optional, for colored console output)
-
-* To run the test suite:
+* For development (running tests, generating documentation):
 
   - nose
   - mock
   - coverage (optional)
+  - sphinx (for generating doc)
+
+* Under Windows:
+  - pyreadline (optional, for the console to work)
+  - colorama (optional, for colored console output)
 
 If not supplied by the distribution (see below), most dependencies
 (except PytQt, PyQwt, sip) can be installed from the
@@ -86,7 +103,7 @@ python package repository: ::
 
   pip install -r requirements.txt
 
-pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
+pip can be obtained from https://pip.pypa.io/en/stable/news/
 
 For xBuntu 12.04: install pip ::
 
@@ -96,6 +113,34 @@ If your system pip is too old (pip >=1.4 is required) you can update with: ::
 
   sudo pip install --upgrade pip
   hash -r
+
+
+Packages to install for common distributions
+--------------------------------------------
+
+xBuntu 12.04
+^^^^^^^^^^^^
+
+* Basic system:
+
+  apt-get install python python-{dev,zmq,numpy,scipy,psutil} gnuplot
+
+* Optional components:
+
+  apt-get install python-{mysqldb,docutils,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector}
+
+* GUI and status monitor:
+
+  apt-get install python-{qt4,qwt5-qt4,qscintilla2}
+
+* Development and documentation build:
+
+  apt-get install python-{sip-dev,qt4-dev,nose,mock,coverage,sphinx}
+
+* For the livewidget you have to install some development packages:
+
+  apt-get install libqwt5-qt4-dev libtiff5-dev libcfitsio3-dev
+
 
 
 Configure for experimenting
