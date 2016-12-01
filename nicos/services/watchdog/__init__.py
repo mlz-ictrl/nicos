@@ -157,6 +157,7 @@ class Watchdog(BaseCacheClient):
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
+        self.log.debug('-- WATCHDOG RUNNING IN DEBUG MODE --')
         # set to true during connect action
         self._first_update = False
         # current setups
@@ -288,10 +289,14 @@ class Watchdog(BaseCacheClient):
             if op == OP_TELLOLD or value is None:
                 # add it to the watchlist, and if the value doesn't come back
                 # in 10 minutes, we warn
+                self.log.debug('  EXPIRED key %r for condition [%2d] %r',
+                               key, eid, entry.condition)
                 self._watch_expired[eid] = [currenttime() + 600]
                 continue
             if op == OP_TELL:
                 # remove from expiration watchlist
+                self.log.debug('UNEXPIRED key %r for condition [%2d] %r',
+                               key, eid, entry.condition)
                 self._watch_expired.pop(eid, None)
                 try:
                     value = eval(entry.condition, self._keydict)
