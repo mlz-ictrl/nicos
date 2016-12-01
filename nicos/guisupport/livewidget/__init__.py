@@ -33,7 +33,7 @@ import gr
 from gr.pygr.base import GRMeta, GRVisibility
 from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
-    Coords2D
+    Coords2D, PlotCurve
 
 # from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT
 # from PyQt4.QtCore import pyqtSignature as qtsig, QSize
@@ -49,6 +49,9 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
 
 FILETYPES = ('fits',)
+
+COLOR_WHITE = 91
+COLOR_BLUE = 4
 
 
 def sgn(x):
@@ -99,6 +102,19 @@ class GRWidget(InteractiveGRWidget):
             np1 = Point(p0.x + sgn(delta_x) * abs(delta_y) / img_ratio, p1.y)
         return p0, np1
 
+    def _zoom(self, dpercent, p0):
+        plots = self._getPlotsForPoint(p0)
+        if len(plots) == 1:
+            self.widget.zoom(plots[0], dpercent, p0)
+
+    def _select(self, p0, p1):
+        plots = self._getPlotsForPoint(p0)
+        if len(plots) == 1:
+            self.widget.select(plots[0], p0, p1)
+
+    def mousePan(self, event):
+        self.widget.pan(event.getNDC(), event.getOffset())
+
 
 class Plot(OrigPlot):
     def __init__(self, widget, **kwds):
@@ -125,7 +141,10 @@ class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
 
     def drawGR(self):
         if self.visible:
+            color = gr.inqlinecolorind()
+            gr.setlinecolorind(COLOR_WHITE)
             gr.polyline(self.x, self.y)
+            gr.setlinecolorind(color)
 
 
 class LiveWidget(QWidget):
@@ -142,21 +161,80 @@ class LiveWidget(QWidget):
         self.setLayout(layout)
 
         self.gr.keepRatio = 0.999
-        self.plot = Plot(self, viewport=(.1, .95, .1, .95))
+        self.plot = Plot(self, viewport=(.1, .75, .1, .75))
         self.axes = Axes(self, viewport=self.plot.viewport)
+        self.plotyint = Plot(self, viewport=(.1, .75, .8, .95))
+        self.axesyint = Axes(self, viewport=self.plotyint.viewport,
+                             drawX=False, drawY=True)
+        self.plotxint = Plot(self, viewport=(.8, .95, .1, .75))
+        self.axesxint = Axes(self, viewport=self.plotxint.viewport,
+                             drawX=True, drawY=False)
+
+        vp = self.axesxint.viewport
+        self._charheight = .024 * (vp[3] - vp[2])
+
+        self.axes.setXtickCallback(self.xtick)
+        self.axesxint.setXtickCallback(self.xtick)
+        self.axesyint.setYtickCallback(self.yinttick)
 
         self.axes.setGrid(True)
         self.plot.addAxes(self.axes)
+        self.plotyint.addAxes(self.axesyint)
+        self.plotxint.addAxes(self.axesxint)
         self.surf = Cellarray([0], [0], [0],
                                         option=gr.OPTION_CELL_ARRAY)
+        self.curvey = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.curvex = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+
         self._rois = {}
         self.axes.addCurves(self.surf)
+        self.axesyint.addCurves(self.curvey)
+        self.axesxint.addCurves(self.curvex)
         self.gr.addPlot(self.plot)
+        self.gr.addPlot(self.plotyint)
+        self.gr.addPlot(self.plotxint)
+
+    def xtick(self, x, y, svalue, _value):
+        gr.setcharup(-1., 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
+        gr.text(x, y, svalue)
+
+    def yinttick(self, x, y, svalue, _value):
+        gr.setcharheight(self._charheight)
+        gr.text(x, y, svalue)
+
+    def _rescale(self):
+        """Rescales integral plots in respect to the main/cellarray plot."""
+        xmin, xmax, ymin, ymax = self.axes.getWindow()
+        _, _, y0, y1 = self.axesyint.getWindow()
+        x0, x1, _, _ = self.axesxint.getWindow()
+        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, y1)
+        self.axesxint.setWindow(x0, x1, ymin - .5, ymax - .5)
+        self.gr.update()
+
+    def zoom(self, master, dpercent, p0):
+        if self.plot == master:
+            w, h = self.width(), self.height()
+            self.plot.zoom(dpercent, p0, w, h)
+            self._rescale()
+
+    def select(self, master, p0, p1):
+        if self.plot == master:
+            w, h = self.width(), self.height()
+            self.plot.select(p0, p1, w, h)
+            self._rescale()
+
+    def pan(self, p0, dp):
+        w, h = self.width(), self.height()
+        self.plot.pan(dp, w, h)
+        self._rescale()
 
     def setData(self, data):
         self._axesratio = data.ny / float(data.nx)
         if (data.nx, data.ny) != self._axesrange:
             self.axes.setWindow(0, data.nx, 0, data.ny)
+            self.axesyint.setWindow(0, data.nx, 0, data.ny)
+            self.axesxint.setWindow(0, data.nx, 0, data.ny)
             #self.plot.viewport = (.1, .95, .1, .1 + .85 * self._axesratio)
             #self.axes.xtick = self.axes.ytick = 4
             #self.axes.majorx = self.axes.majory = 4
@@ -164,7 +242,14 @@ class LiveWidget(QWidget):
         self.surf.x = numpy.linspace(0, data.nx, data.nx)
         self.surf.y = numpy.linspace(0, data.ny, data.ny)
         self.surf.z = 1000 + 255 * data.arr / data.arr.max()
-        self.gr.update()
+        arr2d = data.arr.reshape((data.ny, data.nx))
+        self.curvey.x = numpy.arange(0, data.nx)
+        self.curvey.y = arr2d.sum(axis=0)
+        self.curvex.y = numpy.arange(0, data.ny)
+        self.curvex.x = arr2d.sum(axis=1)
+        self.axesyint.setWindow(0, data.nx, .1, self.curvey.y.max())
+        self.axesxint.setWindow(.1, self.curvex.x.max(), 0, data.ny)
+        self._rescale()
 
     def setROI(self, key, roi):
         x, y, width, height = roi
@@ -181,7 +266,10 @@ class LiveWidget(QWidget):
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[0],
                             0, self._axesrange[1])
-        self.gr.update()
+        nx, ny = len(self.curvey.x), len(self.curvex.y)
+        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
+        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
+        self._rescale()
 
     def printDialog(self):
         self.gr.printDialog()
