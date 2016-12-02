@@ -27,8 +27,8 @@
 import os
 import subprocess
 
+from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo
 from nicos.utils import printTable
 from nicos.pycompat import string_types
 
@@ -59,8 +59,8 @@ def TacoRes(dev):
         except Exception:
             rv = '<n/a>'
         items.append((res, info['info'], rv))
-    printinfo('TACO resources for %s:' % cl.deviceName())
-    printTable(('name', 'info', 'value'), items, printinfo)
+    session.log.info('TACO resources for %s:', cl.deviceName())
+    printTable(('name', 'info', 'value'), items, session.log.info)
 
 
 def _list_devices(server):
@@ -141,7 +141,7 @@ def TacoStatus(server=''):
 
     if server == '':
         server = os.getenv('NETHOST')
-    printinfo('Checking TACO devices on %s...' % bold(server))
+    session.log.info('Checking TACO devices on %s...', bold(server))
     for dev in sorted(_list_devices(server)):
         dev = '//%s/%s' % (server, dev)
         try:
@@ -175,7 +175,8 @@ def TacoStatus(server=''):
             else:
                 ok = state == st.DEVICE_NORMAL
 
-        printinfo('%s %s %s %s' % (darkgray('[' + disp.ljust(15) + ']'),
-                                   blue(dev.ljust(35)),
-                                   ok and darkgreen('  ok:') or red('FAIL:'),
-                                   ok and status or bold(status)))
+        session.log.info('%s %s %s %s',
+                         darkgray('[' + disp.ljust(15) + ']'),
+                         blue(dev.ljust(35)),
+                         ok and darkgreen('  ok:') or red('FAIL:'),
+                         ok and status or bold(status))

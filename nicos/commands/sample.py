@@ -33,7 +33,6 @@ from numpy import sqrt, pi, sin, arcsin, radians, degrees
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand, helparglist, parallel_safe
-from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.commands.analyze import FitResult
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
@@ -279,7 +278,7 @@ def _extract_powder_data(num, dataset):
                   for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo))
     if 'ki_value' not in values:
         if 'mono_value' not in values:
-            printwarning('dataset %d has no ki or mono value' % num)
+            session.log.warning('dataset %d has no ki or mono value', num)
             return
         ki = values['mono_value']
     else:
@@ -293,7 +292,7 @@ def _extract_powder_data(num, dataset):
             xs = [line[i] for line in dataset.xresults]
             break
     else:
-        printwarning('dataset %d has no 2-theta X values' % num)
+        session.log.warning('dataset %d has no 2-theta X values', num)
         return
 
     # normalization column (monitor > timer)
@@ -311,8 +310,8 @@ def _extract_powder_data(num, dataset):
             mcol = [j for j in range(len(dataset.ynames))
                     if dataset.yvalueinfo[j].type == 'time'][0]
         except IndexError:
-            printwarning('dataset %d has no column of type "monitor" '
-                         'or "time"' % num)
+            session.log.warning('dataset %d has no column of type "monitor" '
+                                'or "time"', num)
             return
     ms = [float(line[mcol]) for line in dataset.yresults]
 
@@ -321,7 +320,7 @@ def _extract_powder_data(num, dataset):
         ycol = [j for j in range(len(dataset.ynames))
                 if dataset.yvalueinfo[j].type == 'counter'][0]
     except IndexError:
-        printwarning('dataset %d has no Y column of type "counter"' % num)
+        session.log.warning('dataset %d has no Y column of type "counter"', num)
     else:
         ys = [line[ycol] for line in dataset.yresults]
 
@@ -337,7 +336,7 @@ def _extract_powder_data(num, dataset):
 
     numfitpoints = 5
     if len(xs) < numfitpoints:
-        printwarning('not enough datapoints in scan %d' % num)
+        session.log.warning('not enough datapoints in scan %d', num)
         return
     # now try to fit the peaks
     peaks = []  # collects infos for all peaks we will find...
@@ -347,7 +346,7 @@ def _extract_powder_data(num, dataset):
     fit = GaussFit(initpars)
     res = fit.run(xs, ys, dys)
     if res._failed:
-        printwarning('no Gauss fit found in dataset %d' % num)
+        session.log.warning('no Gauss fit found in dataset %d', num)
         return
     peaks.append([res.x0, res.dx0])
     return ki, peaks
@@ -381,8 +380,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
     if powder == 'YIG':
         a = 12.377932
         spacegroup = 230
-        printinfo('YIG: using cubic lattice constant of %.6f A' % a)
-        printinfo()
+        session.log.info('YIG: using cubic lattice constant of %.6f A', a)
+        session.log.info()
     else:
         if not isinstance(powder, float):
             raise UsageError('first argument must be either "YIG" or a '
@@ -426,13 +425,13 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             if num not in scans:
                 continue
             res = _extract_powder_data(num, dataset)
-            printdebug('powder_data from %d: %s' % (num, res))
+            session.log.debug('powder_data from %d: %s', num, res)
             if res:
                 ki, peaks = res  # pylint: disable=W0633
                 data.setdefault(ki, []).extend([None, p, dp, '#%d ' % num]
                                                for (p, dp) in peaks)
         if not data:
-            printwarning('no data found, check the scan numbers!')
+            session.log.warning('no data found, check the scan numbers!')
             return
     else:
         if scans:
@@ -509,35 +508,35 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
                        zip([el[1] for el in peaks], peaks_fit)) / len(peaks)
 
         out.extend(restxt)
-        printdebug('')
-        printdebug('-' * 80)
-        printdebug('Result from run with j=%d (RMS = %g):' % (j, rms))
+        session.log.debug('')
+        session.log.debug('-' * 80)
+        session.log.debug('Result from run with j=%d (RMS = %g):', j, rms)
         for line in out:
-            printdebug(line)
+            session.log.debug(line)
 
         if rms < bestrms:
             beststt0s = stt0s
             bestmtt0s = mtt0s
             bestrms = rms
             bestlines = out
-            printdebug('')
-            printdebug('*** new best result: RMS = %g' % rms)
+            session.log.debug('')
+            session.log.debug('*** new best result: RMS = %g', rms)
 
     if len(beststt0s) == 0:
-        printwarning('no fitted offsets available')
+        session.log.warning('no fitted offsets available')
         return
 
     for line in bestlines:
-        printinfo(line)
+        session.log.info(line)
 
     meanstt0 = sum(beststt0s)/len(beststt0s)
     meanmtt0 = sum(bestmtt0s)/len(bestmtt0s)
 
-    printinfo('Check errors (dki, dstt0)!  RMS = %.3g' % bestrms)
-    printinfo('')
-    printinfo('Adjust using:')
-    printinfo('mtt.offset += %.4f' % meanmtt0)
-    printinfo('mth.offset += %.4f' % (meanmtt0/2))
-    printinfo('stt.offset += %.4f' % meanstt0)
+    session.log.info('Check errors (dki, dstt0)!  RMS = %.3g', bestrms)
+    session.log.info('')
+    session.log.info('Adjust using:')
+    session.log.info('mtt.offset += %.4f', meanmtt0)
+    session.log.info('mth.offset += %.4f', meanmtt0 / 2)
+    session.log.info('stt.offset += %.4f', meanstt0)
 
     return FitResult((meanmtt0, meanstt0))

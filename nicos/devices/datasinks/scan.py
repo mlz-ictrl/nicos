@@ -28,7 +28,6 @@ from time import strftime, localtime
 
 from nicos import session
 from nicos.core.constants import POINT, SCAN, SUBSCAN
-from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, DataSink, DataSinkHandler, \
     INFO_CATEGORIES, Override, Param
 from nicos.utils import tabulated
@@ -65,21 +64,21 @@ class ConsoleScanSinkHandler(DataSinkHandler):
                            for (name, unit) in zip(names, units)]
         self._rulerlen = max(100, sum(self._colwidths))
         if ds.settype != SUBSCAN:
-            printinfo('=' * self._rulerlen)
-            printinfo('Starting scan:      ' + (ds.info or ''))
-            printinfo('Started at:         ' +
-                      strftime(TIMEFMT, localtime(ds.started)))
-            printinfo('Scan number:        ' + str(ds.counter))
+            session.log.info('=' * self._rulerlen)
+            session.log.info('Starting scan:      ' + (ds.info or ''))
+            session.log.info('Started at:         ' +
+                             strftime(TIMEFMT, localtime(ds.started)))
+            session.log.info('Scan number:        ' + str(ds.counter))
             for filename in ds.filenames:
-                printinfo('Filename:           ' + filename)
-            printinfo('-' * self._rulerlen)
+                session.log.info('Filename:           ' + filename)
+            session.log.info('-' * self._rulerlen)
         else:
-            printinfo()
+            session.log.info()
             for filename in ds.filenames:
-                printinfo(self._indent + 'Filename: ' + filename)
-        printinfo(self._indent + tabulated(self._colwidths, names))
-        printinfo(self._indent + tabulated(self._colwidths, units))
-        printinfo(self._indent + '-' * self._rulerlen)
+                session.log.info(self._indent + 'Filename: ' + filename)
+        session.log.info(self._indent + tabulated(self._colwidths, names))
+        session.log.info(self._indent + tabulated(self._colwidths, units))
+        session.log.info(self._indent + '-' * self._rulerlen)
 
     def addSubset(self, point):
         if point.settype != POINT:
@@ -97,16 +96,16 @@ class ConsoleScanSinkHandler(DataSinkHandler):
                 [safe_format(info.fmtstr, val) for (info, val) in
                  zip(ds.detvalueinfo, point.detvaluelist)] +
                 point.filenames)
-        printinfo(self._indent + tabulated(self._colwidths, cols))
+        session.log.info(self._indent + tabulated(self._colwidths, cols))
 
     def end(self):
         if self.dataset.settype != SUBSCAN:
-            printinfo('-' * self._rulerlen)
-            printinfo('Finished at:        ' +
-                      strftime(TIMEFMT, localtime(self.dataset.finished)))
-            printinfo('=' * self._rulerlen)
+            session.log.info('-' * self._rulerlen)
+            session.log.info('Finished at:        ' +
+                             strftime(TIMEFMT, localtime(self.dataset.finished)))
+            session.log.info('=' * self._rulerlen)
         else:
-            printinfo()
+            session.log.info()
 
 
 class ConsoleScanSink(DataSink):

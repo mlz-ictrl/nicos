@@ -78,7 +78,7 @@ def test_output_commands():
     try:
         1 / 0
     except ZeroDivisionError:
-        assert session.testhandler.warns(printwarning, 'warn!', exc=1)
+        assert session.testhandler.warns(printwarning, 'warn!')
     assert raises(ErrorLogged, printerror, 'error!')
     assert raises(ErrorLogged, printexception, 'exception!')
 

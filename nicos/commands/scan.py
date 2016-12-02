@@ -33,7 +33,6 @@ from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.core.scan import Scan
 from nicos.commands import usercommand, helparglist
-from nicos.commands.output import printwarning
 from nicos.pycompat import iteritems, number_types, string_types
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
@@ -265,13 +264,14 @@ def twodscan(dev1, start1, step1, numpoints1,
             dev1.maw(dev1value)
         except NicosError as err:
             if isinstance(err, CONTINUE_EXCEPTIONS):
-                printwarning('Positioning problem of %s at %s, scanning %s '
-                             'anyway' % (dev1, dev1.format(dev1value,
-                                                           unit=True),
-                                         dev2), exc=1)
+                session.log.warning('Positioning problem of %s at %s, '
+                                    'scanning %s anyway',
+                                    dev1, dev1.format(dev1value, unit=True),
+                                    dev2, exc=1)
             elif isinstance(err, SKIP_EXCEPTIONS):
-                printwarning('Skipping scan at %s = %s' %
-                             (dev1, dev1.format(dev1value, unit=True)), exc=1)
+                session.log.warning('Skipping scan at %s = %s',
+                                    dev1, dev1.format(dev1value, unit=True),
+                                    exc=1)
                 continue
             else:
                 raise

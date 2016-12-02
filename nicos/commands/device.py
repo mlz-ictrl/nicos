@@ -38,7 +38,6 @@ from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist, \
     parallel_safe
 from nicos.commands.basic import sleep
-from nicos.commands.output import printinfo, printerror
 from nicos.pycompat import builtins, itervalues, iteritems, number_types, \
     string_types
 
@@ -276,7 +275,7 @@ def stop(*devlist):
     while len(finished) != len(devlist):
         session.delay(Device._base_loop_delay)
     if stop_all:
-        printinfo('all devices stopped')
+        session.log.info('all devices stopped')
     return
 
 
@@ -387,7 +386,7 @@ def getall(*names):
                 pvalues.append(None)
         if any(v is not None for v in pvalues):
             items.append([name] + list(map(str, pvalues)))
-    printTable(('device',) + names, items, printinfo)
+    printTable(('device',) + names, items, session.log.info)
 
 
 @usercommand
@@ -436,10 +435,10 @@ def info(*devlist):
     for catname, catinfo in INFO_CATEGORIES:
         if catname not in bycategory:
             continue
-        printinfo(catinfo)
-        printinfo('=' * len(catinfo))
-        printTable(None, sorted(bycategory[catname]), printinfo, minlen=8)
-        printinfo()
+        session.log.info(catinfo)
+        session.log.info('=' * len(catinfo))
+        printTable(None, sorted(bycategory[catname]), session.log.info, minlen=8)
+        session.log.info()
 
 
 @usercommand
@@ -531,10 +530,9 @@ def version(*devlist):
             dev = session.getDevice(dev, Device)
             versions = dev.version()
             dev.log.info('relevant versions for this device:')
-            printTable(('module/component', 'version'), versions, printinfo)
+            printTable(('module/component', 'version'), versions, session.log.info)
     else:
-        printinfo('NICOS version: %s (rev %s)' %
-                  (nicos_version, nicos_revision))
+        session.log.info('NICOS version: %s (rev %s)', nicos_version, nicos_revision)
 
 
 @usercommand
@@ -591,7 +589,7 @@ def history(dev, key='value', fromtime=None, totime=None):
     ftime = time.strftime
     for t, v in hist:
         entries.append((ftime('%Y-%m-%d %H:%M:%S', ltime(t)), repr(v)))
-    printTable(('timestamp', 'value'), entries, printinfo)
+    printTable(('timestamp', 'value'), entries, session.log.info)
 
 
 @usercommand
@@ -630,24 +628,24 @@ def limits(*devlist):
             continue
         dev.log.info('limits for this device:')
         if isinstance(dev, HasOffset):
-            printinfo('       absolute limits (physical): %8s --- %8s %s' %
-                      (dev.format(dev.absmin), dev.format(dev.absmax),
-                       dev.unit))
-            printinfo('   user limits (including offset): %8s --- %8s %s' %
-                      (dev.format(dev.usermin), dev.format(dev.usermax),
-                       dev.unit))
-            printinfo('                current offset: %8s %s' %
-                      (dev.format(dev.offset), dev.unit))
-            printinfo('        => user limits (physical): %8s --- %8s %s' %
-                      (dev.format(dev.usermin + dev.offset),
-                       dev.format(dev.usermax + dev.offset), dev.unit))
+            session.log.info('       absolute limits (physical): %8s --- %8s %s',
+                             dev.format(dev.absmin), dev.format(dev.absmax),
+                             dev.unit)
+            session.log.info('   user limits (including offset): %8s --- %8s %s',
+                             dev.format(dev.usermin), dev.format(dev.usermax),
+                             dev.unit)
+            session.log.info('                current offset: %8s %s',
+                             dev.format(dev.offset), dev.unit)
+            session.log.info('        => user limits (physical): %8s --- %8s %s',
+                             dev.format(dev.usermin + dev.offset),
+                             dev.format(dev.usermax + dev.offset), dev.unit)
         else:
-            printinfo('   absolute limits: %8s --- %8s %s' %
-                      (dev.format(dev.absmin), dev.format(dev.absmax),
-                       dev.unit))
-            printinfo('       user limits: %8s --- %8s %s' %
-                      (dev.format(dev.usermin), dev.format(dev.usermax),
-                       dev.unit))
+            session.log.info('   absolute limits: %8s --- %8s %s',
+                             dev.format(dev.absmin), dev.format(dev.absmax),
+                             dev.unit)
+            session.log.info('       user limits: %8s --- %8s %s',
+                             dev.format(dev.usermin), dev.format(dev.usermax),
+                             dev.unit)
 
 
 @usercommand
@@ -703,7 +701,7 @@ def reference(dev, *args):
     try:
         dev = session.getDevice(dev, CanReference)
     except UsageError:
-        printerror('%s has no reference function' % dev)
+        session.log.error('%s has no reference function', dev)
         return
     newpos = dev.reference(*args)
     dev.log.info('reference drive complete, position is now %s',
@@ -750,7 +748,7 @@ def ListParams(dev):
             ptype = info.type.__doc__ or '?'
         items.append((name, vstr, unit, settable, ptype, info.description))
     printTable(('name', 'value', 'unit', 'r/w?', 'value type', 'description'),
-               items, printinfo)
+               items, session.log.info)
 
 
 @usercommand
@@ -779,7 +777,7 @@ def ListMethods(dev):
                 _list(base)
     _list(dev.__class__)
     dev.log.info('Device methods:')
-    printTable(('method', 'from class', 'description'), items, printinfo)
+    printTable(('method', 'from class', 'description'), items, session.log.info)
 
 
 @usercommand
@@ -792,9 +790,9 @@ def ListDevices():
 
     >>> ListDevices()
     """
-    printinfo('All created devices:')
+    session.log.info('All created devices:')
     items = []
     for devname in sorted(session.explicit_devices, key=lambda d: d.lower()):
         dev = session.devices[devname]
         items.append((dev.name, dev.__class__.__name__, dev.description))
-    printTable(('name', 'type', 'description'), items, printinfo)
+    printTable(('name', 'type', 'description'), items, session.log.info)

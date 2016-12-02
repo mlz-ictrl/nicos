@@ -44,8 +44,6 @@ from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist, \
     parallel_safe
-from nicos.commands.output import printinfo, printwarning, printexception, \
-    printerror
 from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
 from nicos.pycompat import builtins, exec_, iteritems
 
@@ -111,7 +109,7 @@ def ListCommands():
 
     >>> ListCommands()
     """
-    printinfo('Available commands:')
+    session.log.info('Available commands:')
     items = []
     for name, obj in session.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
@@ -132,7 +130,7 @@ def ListCommands():
             if not real_func.__name__.startswith('_'):
                 items.append((signature, docstring.splitlines()[0]))
     items.sort()
-    printTable(('name', 'description'), items, printinfo)
+    printTable(('name', 'description'), items, session.log.info)
 
 
 @usercommand
@@ -157,7 +155,7 @@ def sleep(secs):
         session.breakpoint(2)  # allow break and continue here
         session.action('%s left' % formatDuration(tmr.remaining_time()))
 
-    printinfo('sleeping for %.1f seconds...' % secs)
+    session.log.info('sleeping for %.1f seconds...', secs)
     session.beginActionScope('Sleeping')
     session.action('%s left' % formatDuration(secs))
     try:
@@ -202,7 +200,7 @@ def NewSetup(*setupnames):
         finally:
             session.endMultiCreate()
     except Exception:
-        printexception()
+        session.log.exception()
         session.loadSetup('startup')
     if current_mode == MASTER:
         # need to refresh master status
@@ -250,17 +248,18 @@ def RemoveSetup(*setupnames):
     original = current[:]
     for setupname in setupnames:
         if setupname not in session.loaded_setups:
-            printwarning('%r is not a loaded setup, ignoring' % setupname)
+            session.log.warning('%r is not a loaded setup, ignoring',
+                                setupname)
             continue
         if session._setup_info[setupname]['group'] == 'basic':
-            printerror('basic setups cannot be removed -- use NewSetup() '
-                       'to change setups instead')
+            session.log.error('basic setups cannot be removed -- use '
+                              'NewSetup() to change setups instead')
             return
         try:
             current.remove(setupname)
         except ValueError:
-            printwarning('the setup %r cannot be unloaded on its own '
-                         'because another setup includes it' % setupname)
+            session.log.warning('the setup %r cannot be unloaded on its own '
+                                'because another setup includes it', setupname)
     if current == original:
         return
     NewSetup(*current)
@@ -280,7 +279,7 @@ def ListSetups(listall=False):
 
     >>> ListSetups(True)
     """
-    printinfo('Available setups:')
+    session.log.info('Available setups:')
     items = []
     for name, info in iteritems(session.getSetupInfo()):
         if info is None:
@@ -294,7 +293,7 @@ def ListSetups(listall=False):
                       info['description'],
                       ', '.join(sorted(info['devices']))))
     items.sort()
-    printTable(('name', 'loaded', 'description', 'devices'), items, printinfo)
+    printTable(('name', 'loaded', 'description', 'devices'), items, session.log.info)
 
 
 @usercommand
@@ -377,8 +376,8 @@ def CreateAllDevices(**kwargs):
     """
     lowlevel = kwargs.get('lowlevel', False)
     if lowlevel and not session.checkUserLevel(ADMIN):
-        printerror('Creating all lowlevel devices is only allowed for admin '
-                   'users')
+        session.log.error('Creating all lowlevel devices is only allowed '
+                          'for admin users')
         lowlevel = False
 
     session.startMultiCreate()
@@ -389,7 +388,7 @@ def CreateAllDevices(**kwargs):
             try:
                 session.createDevice(devname, explicit=True)
             except NicosError:
-                printexception('error creating %s' % devname)
+                session.log.exception('error creating %s', devname)
     finally:
         session.endMultiCreate()
 
@@ -506,7 +505,7 @@ def SetMode(mode):
     try:
         session.setMode(mode)
     except ModeError:
-        printexception()
+        session.log.exception()
 
 
 @usercommand
@@ -521,11 +520,11 @@ def SetSimpleMode(enable):
     """
     session.setSPMode(enable)
     if enable:
-        printinfo('Simple parameter mode is now enabled. '
-                  'Use "SetSimpleMode false" to disable.')
+        session.log.info('Simple parameter mode is now enabled. '
+                         'Use "SetSimpleMode false" to disable.')
     else:
-        printinfo('Simple parameter mode is now disabled. '
-                  'Use "SetSimpleMode(True)" to enable.')
+        session.log.info('Simple parameter mode is now disabled. '
+                         'Use "SetSimpleMode(True)" to enable.')
 
 
 @usercommand
@@ -563,14 +562,14 @@ def ClearCache(*devnames):
                          'ClearCache(\'*\') to clear everything')
     if devnames == ('*',):
         session.cache.clear_all()
-        printinfo('cleared ALL cached information - you probably want to '
-                  'restart the session now')
+        session.log.info('cleared ALL cached information - you probably want '
+                         'to restart the session now')
         return
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
         session.cache.clear(devname)
-        printinfo('cleared cached information for %s' % devname)
+        session.log.info('cleared cached information for %s', devname)
 
 
 class _Scope(object):
@@ -646,11 +645,11 @@ def _RunScript(filename, statdevices, debug=False):
         starttime = session.clock.time
         for dev in statdevices:
             if not isinstance(dev, Readable):
-                printwarning('unable to collect statistics on %r' % dev)
+                session.log.warning('unable to collect statistics on %r', dev)
                 continue
             dev._sim_min = None
             dev._sim_max = None
-    printinfo('running user script: ' + fn)
+    session.log.info('running user script: %s', fn)
     try:
         fp = io.open(fn, 'r', encoding='utf-8')
     except Exception as e:
@@ -676,17 +675,19 @@ def _RunScript(filename, statdevices, debug=False):
                 if debug:
                     traceback.print_exc()
                 raise
-    printinfo('finished user script: ' + fn)
+    session.log.info('finished user script: %s', fn)
     if session.mode == SIMULATION:
-        printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime,
-                                 precise=False))
+        session.log.info('simulated minimum runtime: %s',
+                         formatDuration(session.clock.time - starttime,
+                                        precise=False))
         for dev in statdevices:
             if not isinstance(dev, Readable):
                 continue
-            printinfo('%s: min %s, max %s, last %s %s' % (
-                dev.name, dev.format(dev._sim_min), dev.format(dev._sim_max),
-                dev.format(dev._sim_value), dev.unit))
+            session.log.info('%s: min %s, max %s, last %s %s',
+                             dev.name,
+                             dev.format(dev._sim_min),
+                             dev.format(dev._sim_max),
+                             dev.format(dev._sim_value), dev.unit)
 
 
 @usercommand
@@ -700,9 +701,9 @@ def _RunCode(code, debug=False):
             traceback.print_exc()
         raise
     if session.mode == SIMULATION:
-        printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime,
-                                 precise=False))
+        session.log.info('simulated minimum runtime: %s',
+                         formatDuration(session.clock.time - starttime,
+                                        precise=False))
 
 
 @usercommand
@@ -807,11 +808,11 @@ def SetMailReceivers(*emails):
         if isinstance(notifier, Mailer):
             notifier.receivers = list(emails)
             if emails:
-                printinfo('mails will now be sent to ' + ', '.join(emails))
+                session.log.info('mails will now be sent to %s', ', '.join(emails))
             else:
-                printinfo('no email notifications will be sent')
+                session.log.info('no email notifications will be sent')
             return
-    printwarning('email notification is not configured in this setup')
+    session.log.warning('email notification is not configured in this setup')
 
 
 @usercommand
@@ -829,25 +830,25 @@ def SetDataReceivers(*emails):
     """
     exp = session.experiment
     if not exp.mailserver or not exp.mailsender:
-        printwarning('experimental data retrieval has not been configured '
-                     'in this setup')
+        session.log.warning('experimental data retrieval has not been '
+                            'configured in this setup')
     else:
         propinfo = dict(exp.propinfo)
         propinfo['user_email'] = list(emails)
         exp._setROParam('propinfo', propinfo)
         if emails:
-            printinfo('data retrieval email will be sent to ' +
-                      ', '.join(emails))
+            session.log.info('data retrieval email will be sent to %s',
+                             ', '.join(emails))
         else:
-            printinfo('no data retrieval emails will be sent')
+            session.log.info('no data retrieval emails will be sent')
 
 
 @usercommand
 def _trace():
     if session._lastUnhandled:
-        printinfo(''.join(traceback.format_exception(*session._lastUnhandled)))
+        session.log.info(''.join(traceback.format_exception(*session._lastUnhandled)))
     else:
-        printinfo('No previous traceback.')
+        session.log.info('No previous traceback.')
 
 
 class timer(object):
@@ -858,7 +859,7 @@ class timer(object):
 
     def __exit__(self, *args):
         duration = time.time() - self.starttime
-        printinfo('Elapsed time: %.3f s' % duration)
+        session.log.info('Elapsed time: %.3f s', duration)
 
 timer = timer()
 

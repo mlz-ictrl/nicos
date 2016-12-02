@@ -25,7 +25,6 @@
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
-from nicos.commands.output import printinfo
 from nicos.commands.measure import count
 from nicos.commands.device import move, wait
 from nicos.commands.scan import manualscan
@@ -51,7 +50,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     >>> tomo(10, sry, 5, det_neo, det_ikonl, t=1) # full version
     """
 
-    printinfo('Starting tomography scan.')
+    session.log.info('Starting tomography scan.')
     if moveables is None:
         # TODO: currently, sry is the common name on nectar and antares for the
         # sample rotation (phi - around y axis).  Is this convenience function
@@ -61,7 +60,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     if not isinstance(moveables, list):
         moveables = [moveables]
 
-    printinfo('Performing 360 deg scan.')
+    session.log.info('Performing 360 deg scan.')
 
     angles = [180.0] + floatrange(0.0, 360.0, num=nangles).tolist()
     with manualscan(*moveables):

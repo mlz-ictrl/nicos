@@ -25,15 +25,13 @@
 
 """New acquisition commands (scan and count)."""
 
-from nicos.commands import helparglist, usercommand, parallel_safe
-from nicos.commands.output import printinfo, printwarning
-
 from nicos import session
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import UsageError, NicosError
 from nicos.core.acquire import acquire, read_environment, Average, MinMax, \
     stop_acquire_thread
 from nicos.core.utils import waitForCompletion
+from nicos.commands import helparglist, usercommand, parallel_safe
 from nicos.pycompat import number_types, string_types, iteritems
 from nicos.utils import createThread
 
@@ -94,7 +92,7 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
                 retval.append(val)
     for filename in point.filenames:
         msg.append('file = %s' % filename)
-    printinfo('count: ' + ', '.join(msg))
+    session.log.info('count: %s', ', '.join(msg))
     return CountResult(retval)
 
 
@@ -124,16 +122,16 @@ def _count(*detlist, **preset):
     if not detectors:
         detectors = session.experiment.detectors
         if not detectors:
-            printwarning('counting without detector, use SetDetectors() '
-                         'to select which detector(s) you want to use')
+            session.log.warning('counting without detector, use SetDetectors()'
+                                ' to select which detector(s) you want to use')
     # check preset names for validity
     names = set(preset)
     for det in detectors:
         names.difference_update(det.presetInfo())
     if names:
-        printwarning('these preset keys were not recognized by any of '
-                     'the detectors: %s -- detectors are %s' %
-                     (', '.join(names), ', '.join(map(str, detectors))))
+        session.log.warning('these preset keys were not recognized by any of '
+                            'the detectors: %s -- detectors are %s',
+                            ', '.join(names), ', '.join(map(str, detectors)))
     # check detector types
     has_sub = sum(isinstance(det, SubscanMeasurable) for det in detectors)
     if has_sub > 0:
@@ -199,13 +197,13 @@ def preset(**preset):
     for det in session.experiment.detectors:
         names.difference_update(det.presetInfo())
         det.setPreset(**preset)
-    printinfo('new preset: ' +
-              ', '.join('%s=%s' % item for item in iteritems(preset)))
+    session.log.info('new preset: %s',
+                     ', '.join('%s=%s' % item for item in iteritems(preset)))
     if names:
-        printwarning('these preset keys were not recognized by any of '
-                     'the detectors: %s -- detectors are %s' %
-                     (', '.join(names),
-                      ', '.join(map(str, session.experiment.detectors))))
+        session.log.warning('these preset keys were not recognized by any of '
+                            'the detectors: %s -- detectors are %s',
+                            ', '.join(names),
+                            ', '.join(map(str, session.experiment.detectors)))
 
 
 @usercommand

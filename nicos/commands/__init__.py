@@ -25,7 +25,6 @@
 """Base package for NICOS commands."""
 
 import sys
-from time import sleep
 from functools import wraps
 
 from nicos import session
@@ -79,7 +78,6 @@ def usercommandWrapper(func):
     This is not done in the "usercommand" decorator since the function
     should stay usable as a regular function from nicos code.
     """
-    from nicos.commands.output import printerror
     parallel_safe = getattr(func, 'is_parallel_safe', False)
 
     @wraps(func)
@@ -99,7 +97,8 @@ def usercommandWrapper(func):
                 while traceback.tb_next:
                     traceback = traceback.tb_next
                 if traceback.tb_frame.f_code is wrapped.__code__:
-                    printerror('Invalid arguments for %s()' % func.__name__)
+                    session.log.error('Invalid arguments for %s()',
+                                      func.__name__)
                     help(func)
                 raise
             except UsageError:

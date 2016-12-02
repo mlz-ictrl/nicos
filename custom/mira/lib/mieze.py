@@ -34,7 +34,6 @@ from nicos.core.scan import Scan, ManualScan
 from nicos.utils import printTable
 from nicos.commands import usercommand
 from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, _ManualScan
-from nicos.commands.output import printinfo
 from nicos.pycompat import integer_types, string_types
 
 
@@ -122,7 +121,7 @@ class MiezeMaster(Moveable):
             data.append((name,
                          ', '.join(setting['_name_'] for setting in table)))
         self.log.info('all tuning tables:')
-        printTable(('name', 'settings'), data, printinfo)
+        printTable(('name', 'settings'), data, session.log.info)
 
     @usermethod
     def printtuning(self):
@@ -143,7 +142,7 @@ class MiezeMaster(Moveable):
                          setting['_tau_']) + tuple(values))
         self.log.info('current MIEZE settings (%s):', self.tuning)
         printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data,
-                   printinfo)
+                   session.log.info)
 
     @usermethod
     def savetuning(self, name):

@@ -27,7 +27,6 @@ import math
 from nicos import session
 from nicos.core.errors import UsageError
 from nicos.commands import usercommand, helparglist
-from nicos.commands.output import printinfo
 from nicos.commands.measure import count
 from nicos.commands.device import maw
 from nicos.commands.scan import manualscan
@@ -48,14 +47,14 @@ def grtomo(nangles, moveable=None, imgsperangle=1, img180=True, startpoint=0,
 
     see: https://en.wikipedia.org/wiki/Golden_angle
     """
-    printinfo('Starting golden ratio tomography scan.')
+    session.log.info('Starting golden ratio tomography scan.')
     if moveable is None:
         # TODO: currently, sry is the common name on nectar and antares for the
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
         moveable = session.getDevice('sry')
 
-    printinfo('Performing golden ratio scan.')
+    session.log.info('Performing golden ratio scan.')
 
     angles = []
     if img180 and startpoint == 0:
@@ -87,7 +86,7 @@ def alignsample(xpos, ypos, exposuretime=1, number_ob=15, number_di=15):
     stx = session.getDevice('stx')
     sty = session.getDevice('sty')
 
-    printinfo('Acquire openbeam and dark images')
+    session.log.info('Acquire openbeam and dark images')
     maw(sty, 1.0)
     maw(stx, 1.0)
 
@@ -98,4 +97,4 @@ def alignsample(xpos, ypos, exposuretime=1, number_ob=15, number_di=15):
 
     maw(stx, xpos)
     maw(sty, ypos)
-    printinfo('Sample is aligned')
+    session.log.info('Sample is aligned')

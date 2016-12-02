@@ -34,7 +34,6 @@ from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.device import maw, move, read
 from nicos.commands.scan import cscan, contscan, _infostr
 from nicos.commands.analyze import center_of_mass, gauss
-from nicos.commands.output import printinfo, printwarning, printerror
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
 from nicos.core import Readable, Measurable, Moveable, UsageError, NicosError
@@ -79,14 +78,14 @@ def lubricate_liftingctr(startpos, endpos):
     ldev = session.getDevice('lubrication')
     motor = session.getDevice('liftingctr')
     maw(motor, startpos)
-    printinfo('Switching output on for 10 sec...')
+    session.log.info('Switching output on for 10 sec...')
     move(ldev, 1)
     session.delay(10)
     move(ldev, 0)
-    printinfo('Waiting 15 sec...')
+    session.log.info('Waiting 15 sec...')
     session.delay(15)
     maw(motor, endpos)
-    printinfo('Lubrication is done.')
+    session.log.info('Lubrication is done.')
 
 
 @usercommand
@@ -190,8 +189,8 @@ def centerpeak(*args, **kwargs):
     # main loop
     lastround = dict((dev, dev.read()) for dev in devices)
     for i in range(nrounds):
-        printinfo('Round %d of %d' % (i + 1, nrounds))
-        printinfo('*' * 100)
+        session.log.info('Round %d of %d', i + 1, nrounds)
+        session.log.info('*' * 100)
         # results of last round
         thisround = {}
         for dev in devices:
@@ -214,37 +213,37 @@ def centerpeak(*args, **kwargs):
                 maxvalue = center + abs(stepsizes[dev] * nsteps[dev])
                 if params is None:
                     maw(dev, center)
-                    printerror('no Gaussian fit found in this scan')
+                    session.log.error('no Gaussian fit found in this scan')
                     return
                 fit_center = params[0]
                 if not minvalue <= fit_center <= maxvalue:
                     maw(dev, center)
-                    printerror('Gaussian fit center outside '
-                               'scanning area')
+                    session.log.error('Gaussian fit center outside '
+                                      'scanning area')
                     return
                 thisround[dev] = fit_center
             maw(dev, thisround[dev])
-        printinfo('*' * 100)
+        session.log.info('*' * 100)
         again = False
         for dev in devices:
             diff = abs(lastround[dev] - thisround[dev])
-            printinfo('%-10s center: %8.6g -> %8.6g (delta %8.6g)' %
-                      (dev, lastround[dev], thisround[dev], diff))
+            session.log.info('%-10s center: %8.6g -> %8.6g (delta %8.6g)',
+                             dev, lastround[dev], thisround[dev], diff)
             if session.mode == SIMULATION:
                 again = i < 1
                 if i == 1:
-                    printinfo('=> dry run: limiting to 2 rounds')
+                    session.log.info('=> dry run: limiting to 2 rounds')
             elif diff > convergence * stepsizes[dev]:
                 if i == nrounds - 1:
-                    printinfo('=> would need another round, but command '
-                              'limited to %d rounds' % nrounds)
+                    session.log.info('=> would need another round, but command'
+                                     ' limited to %d rounds', nrounds)
                 else:
-                    printinfo('=> needs another round')
+                    session.log.info('=> needs another round')
                 again = True
         if not again:
-            printinfo('=> found convergence on peak:')
+            session.log.info('=> found convergence on peak:')
             for dev in devices:
-                printinfo('%-10s : %s' % (dev, dev.format(dev())))
+                session.log.info('%-10s : %s', dev, dev.format(dev()))
             return
         lastround = thisround
 
@@ -538,9 +537,9 @@ def PosListClear(listname='default'):
     sample = session.experiment.sample
     lists = dict(sample.poslists)
     if listname not in lists:
-        printinfo('Created new position list %r' % listname)
+        session.log.info('Created new position list %r', listname)
     else:
-        printinfo('Cleared position list %r' % listname)
+        session.log.info('Cleared position list %r', listname)
     lists[listname] = []
     sample.poslists = lists
 
@@ -559,10 +558,10 @@ def PosListShow(listname='default'):
     instr = session.instrument
     lists = dict(sample.poslists)
     if listname not in lists:
-        printwarning('Position list %r does not exist' % listname)
+        session.log.warning('Position list %r does not exist', listname)
         return
     if not lists[listname]:
-        printinfo('<empty>')
+        session.log.info('<empty>')
         return
     items = []
     R2D = math.degrees
@@ -586,7 +585,7 @@ def PosListShow(listname='default'):
                 u'γ', u'ω', u'ν', u'I', u'σ(I)',
                 'h', 'k', 'l',
                 u'γ_calc', u'ω_calc', u'ν_calc'),
-               items, printinfo)
+               items, session.log.info)
 
 
 def _add_to_pos_list(listname, pos, intensity, sigma, hkl=None):
@@ -601,11 +600,11 @@ def _add_to_pos_list(listname, pos, intensity, sigma, hkl=None):
         if len(hkl) != 3:
             raise UsageError('HKL must be a list of 3 indices')
     if listname not in lists:
-        printinfo('Created new position list %r' % listname)
+        session.log.info('Created new position list %r', listname)
         lists[listname] = []
     lists[listname] = lists[listname] + [(pos, hkl, (intensity, sigma))]
     sample.poslists = lists
-    printinfo('Position list %r is now:' % listname)
+    session.log.info('Position list %r is now:', listname)
     PosListShow(listname)
 
 
@@ -662,15 +661,15 @@ def PosListRemove(idx, listname='default'):
     sample = session.experiment.sample
     lists = dict(sample.poslists)
     if listname not in lists:
-        printwarning('Position list %r does not exist' % listname)
+        session.log.warning('Position list %r does not exist', listname)
         return
     if idx < 1 or idx > len(lists[listname]):
-        printwarning('Position list does not have %d entries' % idx)
+        session.log.warning('Position list does not have %d entries', idx)
         return
     lists[listname] = [e for (i, e) in enumerate(lists[listname])
                        if i != idx - 1]
     sample.poslists = lists
-    printinfo('Position list %r is now:' % listname)
+    session.log.info('Position list %r is now:', listname)
     PosListShow(listname)
 
 
@@ -709,11 +708,11 @@ def IndexPeaks(max_deviation=0.2, listname='default'):
     wavelength = session.getDevice('wavelength').read()
     lists = dict(sample.poslists)
     if listname not in lists:
-        printwarning('Position list %r does not exist' % listname)
+        session.log.warning('Position list %r does not exist', listname)
         return
     posl = lists[listname]
     if len(posl) < 2:
-        printwarning('Cannot calculate: need at least two positions in list')
+        session.log.warning('Cannot calculate: need at least two positions in list')
         return
     params = (
         len(posl),
@@ -746,12 +745,12 @@ n                                ! extended output
             fp.write('%8.3f %8.3f %8.3f %8.2f %8.2f\n' % (
                 R2D(pos.gamma), R2D(pos.omega), R2D(pos.nu), intensity, sigma))
 
-    printinfo('Running Indexus...')
+    session.log.info('Running Indexus...')
     proc = subprocess.Popen(['indexus'], cwd=root, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
     output = proc.communicate()[0]
     if 'unable to find solution' in output:
-        printwarning('Indexus could not find a solution.')
+        session.log.warning('Indexus could not find a solution.')
         IndexPeaks._last_result = None
         return
 
@@ -771,9 +770,9 @@ n                                ! extended output
             elif line.startswith(' offset nu:'):
                 dnu = float(line.split()[2])
             elif line.startswith(' list:'):
-                printinfo('Indexed reflections:')
+                session.log.info('Indexed reflections:')
                 for line in lines:
-                    printinfo(line.rstrip())
+                    session.log.info(line.rstrip())
                     if not line.strip():
                         break
                     info = line.strip().strip('*').split()
@@ -790,15 +789,15 @@ n                                ! extended output
     hkl2 = [int(round(float(ix))) for ix in peaks[p2]]
     new_cell = or_calc.Reorient(hkl1, pos1, hkl2, pos2)
     IndexPeaks._last_result = (new_cell.rmat.T, (dgamma, dnu), listname, peaks)
-    printinfo('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate '
-              'UB matrix:' % (tuple(hkl1) + tuple(hkl2)))
+    session.log.info('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate'
+                     ' UB matrix:', *(tuple(hkl1) + tuple(hkl2)))
     for row in new_cell.rmat.T:
-        printinfo('%8.4f %8.4f %8.4f' % tuple(row))
-    printinfo('')
-    printinfo('Offsets:')
-    printinfo('  delta gamma = %8.4f   delta nu = %8.4f' % (dgamma, dnu))
-    printinfo('')
-    printinfo('Use AcceptIndexing() to use this indexing.')
+        session.log.info('%8.4f %8.4f %8.4f', *row)
+    session.log.info('')
+    session.log.info('Offsets:')
+    session.log.info('  delta gamma = %8.4f   delta nu = %8.4f', dgamma, dnu)
+    session.log.info('')
+    session.log.info('Use AcceptIndexing() to use this indexing.')
 
 IndexPeaks._last_result = None
 
@@ -814,7 +813,7 @@ def AcceptIndexing():
     >>> AcceptIndexing()
     """
     if IndexPeaks._last_result is None:
-        printerror('No indexing performed yet.')
+        session.log.error('No indexing performed yet.')
         return
 
     # apply calculated matrix to sample
@@ -826,11 +825,13 @@ def AcceptIndexing():
     # apply indexing to position list (for later refinement)
     lists = dict(sample.poslists)
     if listname not in lists:
-        printwarning('Position list %r does not exist anymore' % listname)
+        session.log.warning('Position list %r does not exist anymore',
+                            listname)
         return
     posl = list(lists[listname])
     if len(posl) != len(peaks):
-        printwarning('Position list %r changed after indexing' % listname)
+        session.log.warning('Position list %r changed after indexing',
+                            listname)
         return
     for i in range(len(posl)):
         posl[i] = (posl[i][0],
@@ -863,7 +864,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
     instr = session.instrument
     sample = session.experiment.sample
     root = session.experiment.samplepath
-    printinfo('Generating HKLs...')
+    session.log.info('Generating HKLs...')
     hkls = sample.cell.dataset(0, 100, uhmin=-hmax, uhmax=hmax,
                                ukmin=-kmax, ukmax=kmax,
                                ulmin=-lmax, ulmax=lmax,
@@ -890,8 +891,8 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
                                   '%.3f' % posdict['omega'],
                                   '%.3f' % posdict['nu'],
                                   '%.1f' % scanwidth])
-    printinfo('%d of %d reflections within instrument limits.' %
-              (len(all_pos), len(hkls)))
+    session.log.info('%d of %d reflections within instrument limits.',
+                     len(all_pos), len(hkls))
 
     fullpath = path.join(root, name + '.csv')
     with open(fullpath, 'w') as fp:
@@ -900,7 +901,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
         for row in all_pos:
             writer.writerow(row)
 
-    printinfo('Reflection list written to %s.' % fullpath)
+    session.log.info('Reflection list written to %s.', fullpath)
 
 
 @usercommand
@@ -925,7 +926,7 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
     instr = session.instrument
     root = session.experiment.samplepath
     fullpath = path.join(root, name + '.csv')
-    printinfo('Reading reflection list from %s.' % fullpath)
+    session.log.info('Reading reflection list from %s.', fullpath)
 
     all_pos = []
     with open(fullpath, 'r') as fp:
@@ -937,20 +938,20 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
             all_pos.append(([float(h), float(k), float(l)],
                             float(width.replace(',', '.'))))
 
-    printinfo('%d reflections read.' % len(all_pos))
+    session.log.info('%d reflections read.', len(all_pos))
 
     if start != 1:
         if len(all_pos) < start:
-            printinfo('Nothing to do.')
+            session.log.info('Nothing to do.')
             return
         else:
-            printinfo('Starting at reflection number %d.' % start)
+            session.log.info('Starting at reflection number %d.', start)
             all_pos = all_pos[start - 1:]
 
     for i, (hkl, width) in enumerate(all_pos, start=start):
-        printinfo('')
+        session.log.info('')
         info = (i, len(all_pos) + start - 1, hkl[0], hkl[1], hkl[2])
-        printinfo('*** Scanning %d/%d: (%4.4g %4.4g %4.4g)' % info)
+        session.log.info('*** Scanning %d/%d: (%4.4g %4.4g %4.4g)', *info)
         session.beginActionScope('HKL %d/%d: (%4.4g %4.4g %4.4g)' % info)
         try:
             calc = dict(instr._extractPos(instr._calcPos(hkl)))
@@ -969,10 +970,10 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
                     instr._attached_nu, calc['nu'],
                     instr._attached_omega, om1)
             except SKIP_EXCEPTIONS:
-                printwarning('Skipping scan', exc=1)
+                session.log.warning('Skipping scan', exc=1)
                 continue
             except CONTINUE_EXCEPTIONS:
-                printwarning('Positioning problem, continuing', exc=1)
+                session.log.warning('Positioning problem, continuing', exc=1)
             contscan(instr._attached_omega, om1, om2, speed, timedelta)
         finally:
             session.endActionScope()
@@ -1013,49 +1014,49 @@ def RefineMatrix(listname='default', **kwds):
 
     lists = dict(sample.poslists)
     if listname not in lists:
-        printwarning('Position list %r does not exist' % listname)
+        session.log.warning('Position list %r does not exist', listname)
         return
     posl = lists[listname]
     init_lambda = instr.wavelength
     init_offsets = [instr._attached_gamma.offset, instr._attached_nu.offset]
 
     RefineMatrix._last_result = None
-    printinfo('Refining matrix with %d reflections from position list...' %
-              len(posl))
+    session.log.info('Refining matrix with %d reflections from position '
+                     'list...', len(posl))
 
     o = orient(sample.cell)
     new_cell, p = o.RefineOrientation(posl, kwds, init_lambda, ['gamma', 'nu'],
                                       init_offsets)
 
-    printinfo('')
-    printinfo('Cell parameters:')
-    printinfo(u'Initial:    a = %8.4f   b = %8.4f   c = %8.4f   '
-              u'α = %7.3f   β = %7.3f   γ = %7.3f'
-              % sample.cell.cellparams())
-    printinfo(u'Final:      a = %8.4f   b = %8.4f   c = %8.4f   '
-              u'α = %7.3f   β = %7.3f   γ = %7.3f'
-              % (p.a, p.b, p.c, p.alpha, p.beta, p.gamma))
-    printinfo(u'Errors: +/-     %8.4f       %8.4f       %8.4f   '
-              u'    %7.3f       %7.3f       %7.3f'
-              % (p.errors['a'], p.errors['b'], p.errors['c'],
-                 p.errors['alpha'], p.errors['beta'], p.errors['gamma']))
+    session.log.info('')
+    session.log.info('Cell parameters:')
+    session.log.info(u'Initial:    a = %8.4f   b = %8.4f   c = %8.4f   '
+                     u'α = %7.3f   β = %7.3f   γ = %7.3f',
+                     *sample.cell.cellparams())
+    session.log.info(u'Final:      a = %8.4f   b = %8.4f   c = %8.4f   '
+                     u'α = %7.3f   β = %7.3f   γ = %7.3f',
+                     p.a, p.b, p.c, p.alpha, p.beta, p.gamma)
+    session.log.info(u'Errors: +/-     %8.4f       %8.4f       %8.4f   '
+                     u'    %7.3f       %7.3f       %7.3f',
+                     p.errors['a'], p.errors['b'], p.errors['c'],
+                     p.errors['alpha'], p.errors['beta'], p.errors['gamma'])
 
-    printinfo('')
-    printinfo(u'Initial:    λ = %8.4f   Δγ = %7.3f   Δν = %7.3f'
-              % ((init_lambda,) + tuple(init_offsets)))
-    printinfo(u'Final:      λ = %8.4f   Δγ = %7.3f   Δν = %7.3f'
-              % (p.wavelength, p.delta_gamma, p.delta_nu))
-    printinfo(u'Errors: +/-     %8.4f        %7.3f        %7.3f'
-              % (p.errors['wavelength'], p.errors['delta_gamma'],
-                 p.errors['delta_nu']))
+    session.log.info('')
+    session.log.info(u'Initial:    λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
+                     init_lambda, *init_offsets)
+    session.log.info(u'Final:      λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
+                     p.wavelength, p.delta_gamma, p.delta_nu)
+    session.log.info(u'Errors: +/-     %8.4f        %7.3f        %7.3f',
+                     p.errors['wavelength'], p.errors['delta_gamma'],
+                     p.errors['delta_nu'])
 
-    printinfo('')
-    printinfo('New UB matrix:')
+    session.log.info('')
+    session.log.info('New UB matrix:')
     for row in new_cell.rmat.T:
-        printinfo('%8.4f %8.4f %8.4f' % tuple(row))
+        session.log.info('%8.4f %8.4f %8.4f', *row)
 
-    printinfo('')
-    printinfo('Use AcceptRefinement() to use this refined data.')
+    session.log.info('')
+    session.log.info('Use AcceptRefinement() to use this refined data.')
 
     RefineMatrix._last_result = (new_cell, p.wavelength,
                                  p.delta_gamma, p.delta_nu)
@@ -1075,7 +1076,7 @@ def AcceptRefinement():
     instr = session.instrument
 
     if RefineMatrix._last_result is None:
-        printerror('No refinement performed yet.')
+        session.log.error('No refinement performed yet.')
         return
 
     new_cell, new_wl, delta_gamma, delta_nu = RefineMatrix._last_result

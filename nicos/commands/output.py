@@ -34,37 +34,29 @@ __all__ = [
 ]
 
 
-def _convertargs(msgs):
-    # backward compatibility helper, can be removed once printinfo() is
-    # switched to normal logging behavior
-    if len(msgs) > 1 and '%s' not in msgs[0]:
-        return (msgs[0] + ' %s' * (len(msgs) - 1),) + msgs[1:]
-    return msgs
-
-
 @hiddenusercommand
 @helparglist('message, ...')
 @parallel_safe
-def printdebug(*msgs, **kwds):
+def printdebug(*msgs):
     """Print a debug message."""
-    session.log.debug(*_convertargs(msgs), **kwds)
+    session.log.debug(' '.join('%s' for _ in msgs), *msgs)
 
 
 @usercommand
 @helparglist('message, ...')
 @parallel_safe
-def printinfo(*msgs, **kwds):
+def printinfo(*msgs):
     """Print a message.
 
     This function is equivalent to the standard Python "print" statement.
     """
-    session.log.info(*_convertargs(msgs), **kwds)
+    session.log.info(' '.join('%s' for _ in msgs), *msgs)
 
 
 @usercommand
 @helparglist('message, ...')
 @parallel_safe
-def printwarning(*msgs, **kwds):
+def printwarning(*msgs):
     """Print a warning message.
 
     In the output history, the message will be highlighted as a warning and
@@ -74,7 +66,7 @@ def printwarning(*msgs, **kwds):
 
     >>> printwarning('count rate < 1000 Hz')
     """
-    session.log.warning(*_convertargs(msgs), **kwds)
+    session.log.warning(' '.join('%s' for _ in msgs), *msgs)
 
 
 @usercommand
@@ -90,7 +82,7 @@ def printerror(*msgs):
 
     >>> printerror('scan failed, repeating this run')
     """
-    session.log.error(*_convertargs(msgs))
+    session.log.error(' '.join('%s' for _ in msgs), *msgs)
 
 
 @hiddenusercommand
@@ -98,4 +90,4 @@ def printerror(*msgs):
 @parallel_safe
 def printexception(*msgs):
     """Print an error message, and add info about the last exception."""
-    session.log.exception(*_convertargs(msgs))
+    session.log.exception(' '.join('%s' for _ in msgs), *msgs)

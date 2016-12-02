@@ -40,7 +40,6 @@ from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
-from nicos.commands.output import printinfo, printwarning
 
 
 __all__ = [
@@ -200,14 +199,14 @@ def poly(n, *columns):
     fit = PolyFit(n, [1] * (n+1))
     res = fit.run(xs, ys, dys)
     if res._failed:
-        printinfo('Fit failed.')
+        session.log.info('Fit failed.')
         return FitResult((None, None))
     session.notifyFitCurve(ds, 'poly(%d)' % n, res.curve_x, res.curve_y)
     descrs = ['a_%d' % i for i in range(n+1)]
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.5g' % par, '+/- %.5g' % err))
-    printTable(('parameter', 'value', 'error'), vals, printinfo)
+    printTable(('parameter', 'value', 'error'), vals, session.log.info)
     return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
@@ -250,7 +249,7 @@ def gauss(*columns):
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.4f' % par, '%.4f' % err))
-    printTable(('parameter', 'value', 'error'), vals, printinfo)
+    printTable(('parameter', 'value', 'error'), vals, session.log.info)
     return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
@@ -275,12 +274,12 @@ def center(dev, center, step, numpoints, *args, **kwargs):
     minvalue = center - step*numpoints
     maxvalue = center + step*numpoints
     if params is None:
-        printwarning('Gaussian fit failed, no centering done')
+        session.log.warning('Gaussian fit failed, no centering done')
     elif not minvalue <= params[0] <= maxvalue:
-        printwarning('Gaussian fit resulted in center outside scanning area, '
-                     'no centering done')
+        session.log.warning('Gaussian fit resulted in center outside scanning '
+                            'area, no centering done')
     else:
-        printinfo('centered peak for %s' % dev)
+        session.log.info('centered peak for %s', dev)
         maw(dev, params[0])
 
 
@@ -305,15 +304,16 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     minvalue = center - step*numpoints
     maxvalue = center + step*numpoints
     if params is None:
-        printwarning('Gaussian fit failed, offset unchanged')
+        session.log.warning('Gaussian fit failed, offset unchanged')
     elif not minvalue <= params[0] <= maxvalue:
-        printwarning('Gaussian fit resulted in center outside scanning area, '
-                     'offset unchanged')
+        session.log.warning('Gaussian fit resulted in center outside scanning '
+                            'area, offset unchanged')
     else:
         diff = params[0] - center
-        printinfo('center of Gaussian fit at %s' % dev.format(params[0], True))
-        printinfo('adjusting offset of %s by %s' % (dev, dev.format(diff,
-                                                                    True)))
+        session.log.info('center of Gaussian fit at %s',
+                         dev.format(params[0], True))
+        session.log.info('adjusting offset of %s by %s',
+                         dev, dev.format(diff, True))
         dev.offset += diff
 
 

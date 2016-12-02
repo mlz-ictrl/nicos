@@ -29,8 +29,6 @@ import sys
 from time import time as currenttime
 from contextlib import contextmanager
 
-from nicos.commands.output import printwarning
-
 from nicos import session
 from nicos.core import status
 from nicos.core.device import Readable
@@ -74,17 +72,18 @@ class Scan(object):
         if not detlist:
             detlist = session.experiment.detectors
         if not detlist:
-            printwarning('scanning without detector, use SetDetectors() '
-                         'to select which detector(s) you want to use')
+            session.log.warning('scanning without detector, use SetDetectors()'
+                                ' to select which detector(s) you want to use')
         # check preset names for validity (XXX duplication with count() command!)
         elif preset:
             names = set(preset)
             for det in detlist:
                 names.difference_update(det.presetInfo())
             if names:
-                printwarning('these preset keys were not recognized by any of '
-                             'the detectors: %s -- detectors are %s' %
-                             (', '.join(names), ', '.join(map(str, detlist))))
+                session.log.warning('these preset keys were not recognized by '
+                                    'any of the detectors: %s -- detectors are'
+                                    ' %s', ', '.join(names),
+                                    ', '.join(map(str, detlist)))
         if envlist == []:
             # special value [] to suppress all envlist devices
             allenvlist = []
@@ -208,27 +207,27 @@ class Scan(object):
         if isinstance(err, CONTINUE_EXCEPTIONS):
             # continue counting anyway
             if what == 'read':
-                printwarning('Readout problem', exc=1)
+                session.log.warning('Readout problem', exc=1)
             elif what == 'count':
-                printwarning('Counting problem', exc=1)
+                session.log.warning('Counting problem', exc=1)
             elif what == 'prepare':
-                printwarning('Prepare problem, skipping point', exc=1)
+                session.log.warning('Prepare problem, skipping point', exc=1)
                 # no point in measuring this point in any case
                 raise SkipPoint
             else:
-                printwarning('Positioning problem, continuing', exc=1)
+                session.log.warning('Positioning problem, continuing', exc=1)
             return
         elif isinstance(err, SKIP_EXCEPTIONS):
             if what == 'read':
-                printwarning('Readout problem', exc=1)
+                session.log.warning('Readout problem', exc=1)
             elif what == 'count':
-                printwarning('Counting problem', exc=1)
+                session.log.warning('Counting problem', exc=1)
                 # point is already skipped, no need to raise...
             elif what == 'prepare':
-                printwarning('Prepare problem, skipping point', exc=1)
+                session.log.warning('Prepare problem, skipping point', exc=1)
                 raise SkipPoint
             else:
-                printwarning('Skipping data point', exc=1)
+                session.log.warning('Skipping data point', exc=1)
                 raise SkipPoint
         # would also be possible:
         # elif ...:
@@ -536,8 +535,8 @@ class ContinuousScan(Scan):
                 ok, why = device.isAllowed(start)
                 if ok:
                     self._startpositions[0][0] = start
-                    printwarning('Scan start restricted to limits (%s)' %
-                                 device.format(start, unit=True))
+                    session.log.warning('Scan start restricted to limits (%s)',
+                                        device.format(start, unit=True))
             if not ok:
                 raise LimitError('Cannot move to start value for %s: %s' %
                                  (device, why))
@@ -548,8 +547,8 @@ class ContinuousScan(Scan):
                 ok, why = device.isAllowed(end)
                 if ok:
                     self._endpositions[0][0] = end
-                    printwarning('Scan end restricted to limits (%s)' %
-                                 device.format(end, unit=True))
+                    session.log.warning('Scan end restricted to limits (%s)',
+                                        device.format(end, unit=True))
             if not ok:
                 raise LimitError('Cannot move to end value for %s: %s' %
                                  (device, why))

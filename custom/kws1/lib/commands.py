@@ -28,7 +28,6 @@ from nicos import session
 from nicos.core import Moveable, multiWait, UsageError, DeviceAlias
 from nicos.commands import usercommand
 from nicos.commands.measure import count, SetEnvironment
-from nicos.commands.output import printinfo
 from nicos.pycompat import listitems
 
 
@@ -50,8 +49,8 @@ def SetupRealtime(channels, interval, progression, trigger):
     if 'det_ext_rt' in session.configured_devices:
         rtswitch = session.getDevice('det_ext_rt')
         rtswitch.move(1 if trigger == 'external' else 0)
-    printinfo('Detector presets set to realtime mode%s.' %
-              (' with external trigger' if trigger == 'external' else ''))
+    session.log.info('Detector presets set to realtime mode%s.',
+                     ' with external trigger' if trigger == 'external' else '')
 
 
 @usercommand
@@ -62,7 +61,7 @@ def SetupNormal():
     detector.mode = 'standard'
     rtswitch = session.getDevice('det_ext_rt')
     rtswitch.move(0)
-    printinfo('Detector presets set to standard or TOF mode.')
+    session.log.info('Detector presets set to standard or TOF mode.')
 
 
 # The order in which the main instrument components are moved.  This is
@@ -159,11 +158,12 @@ def kwscount(**arguments):
     # count
     det = session.getDevice('det')
     if det.mode in ('standard', 'tof'):
-        printinfo('Now counting for %d seconds...' % meastime)
+        session.log.info('Now counting for %d seconds...', meastime)
     elif det.mode == 'realtime':
-        printinfo('Now counting (real-time)...')
+        session.log.info('Now counting (real-time)...')
     elif det.mode == 'realtime_external':
-        printinfo('Now waiting for signal to start real-time counting...')
+        session.log.info('Now waiting for signal to start real-time '
+                         'counting...')
     count(t=meastime)
 
 

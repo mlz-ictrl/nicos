@@ -41,7 +41,6 @@ from nicos.commands import usercommand, hiddenusercommand, helparglist, \
     parallel_safe
 from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
-from nicos.commands.output import printinfo, printwarning
 from nicos.commands.analyze import gauss
 from nicos.pycompat import iteritems, string_types, number_types
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
@@ -420,7 +419,7 @@ def acc_bragg(h, k, l, ny, sc=None):
     """
     instr = session.instrument
     for line in check_acc_bragg(instr, h, k, l, ny, sc, verbose=True):
-        printinfo(line)
+        session.log.info(line)
 
 
 @usercommand
@@ -436,11 +435,11 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
     if kf is None:
         ana = instr._attached_ana
         kf = to_k(ana.read(), ana.unit)
-    printinfo('calculation of potential weak spurions due to higher harmonic '
-              'ki / kf combinations')
-    printinfo('calculated for kf = %6.3f A-1' % kf)
+    session.log.info('calculation of potential weak spurions due to higher '
+                     'harmonic ki / kf combinations')
+    session.log.info('calculated for kf = %6.3f A-1', kf)
     for line in check_ho_spurions(kf, dEmin, dEmax):
-        printinfo(line)
+        session.log.info(line)
 
 
 @usercommand
@@ -466,7 +465,7 @@ def powderrays(dlist, ki=None, phi=None):
         mono = instr._attached_mono
         ki = to_k(mono.read(), mono.unit)
     for line in check_powderrays(ki, dlist, phi):
-        printinfo(line)
+        session.log.info(line)
 
 
 def _resmat_args(args, kwds):
@@ -572,7 +571,7 @@ def rescal(*args, **kwds):
     for the resolution calculation to work.
     """
     for line in str(resmat(*_resmat_args(args, kwds))).splitlines():
-        printinfo(line)
+        session.log.info(line)
 
 
 @usercommand
@@ -591,7 +590,7 @@ def resplot(*args, **kwds):
     for the resolution calculation to work.
     """
     cfg, par = _resmat_args(args, kwds)
-    printinfo('plotting resolution in separate window, please wait...')
+    session.log.info('plotting resolution in separate window, please wait...')
     session.clientExec(plot_resatpoint, (cfg, par))
 
 
@@ -607,7 +606,7 @@ def resscan(*hkles, **kwds):
     if not hkles:
         raise UsageError('use qscan(..., plot="res") to plot scan resolution')
     cfg, par = _resmat_args(hkles[0], kwds)
-    printinfo('plotting scan resolution in separate window, please wait...')
+    session.log.info('plotting scan resolution in separate window, please wait...')
     session.clientExec(plot_resscan, (cfg, par, hkles))
 
 
@@ -679,11 +678,12 @@ def setalign(hkl, psival=None):
         psival = psi.read(0)
     diff = psicalc - psival
     sample = tas._attached_cell
-    printinfo('adjusting %s.psi0 by %s to %s' % (
-        sample, psi.format(diff, True), psi.format(sample.psi0 + diff, True)))
+    session.log.info('adjusting %s.psi0 by %s to %s',
+                     sample, psi.format(diff, True),
+                     psi.format(sample.psi0 + diff, True))
     sample.psi0 += diff
     newpsi = tas._calpos(target + (None, None), printout=False)[3]
-    printinfo('%s is now at %s' % (tuple(hkl), psi.format(newpsi, True)))
+    session.log.info('%s is now at %s', tuple(hkl), psi.format(newpsi, True))
 
 
 @usercommand
@@ -718,22 +718,22 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
     minvalue = center - step*numpoints
     maxvalue = center + step*numpoints
     if params is None:
-        printwarning('Gaussian fit failed, psi0 unchanged')
+        session.log.warning('Gaussian fit failed, psi0 unchanged')
     elif not minvalue <= params[0] <= maxvalue:
-        printwarning('Gaussian fit resulted in center outside scanning area, '
-                     'offset unchanged')
+        session.log.warning('Gaussian fit resulted in center outside scanning '
+                            'area, offset unchanged')
     else:
         # NOTE: this is the other way around compared to checkoffset
         diff = center - params[0]
-        printinfo('center of Gaussian fit at %s' % psi.format(params[0], True))
+        session.log.info('center of Gaussian fit at %s', psi.format(params[0], True))
         if accuracy is None:
             accuracy = params[2] * 0.1
         if abs(diff) < accuracy:
-            printinfo('alignment ok within %.3f degrees, not changing psi0'
-                      % accuracy)
+            session.log.info('alignment ok within %.3f degrees, not '
+                             'changing psi0', accuracy)
             return
         sample = tas._attached_cell
-        printwarning('adjusting %s.psi0 by %s' % (sample,
-                                                  psi.format(diff, True)))
+        session.log.warning('adjusting %s.psi0 by %s',
+                            sample, psi.format(diff, True))
         sample.psi0 += diff
     tas.maw(target)

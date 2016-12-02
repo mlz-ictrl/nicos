@@ -28,7 +28,6 @@ from os.path import join
 
 from nicos import session
 from nicos.commands import usercommand, helparglist
-from nicos.commands.output import printinfo, printwarning
 from nicos.commands.scan import scan
 from nicos.frm2.commands.imaging import tomo, \
     openbeamimage as _openbeamimage, \
@@ -53,12 +52,12 @@ def openbeamimage(shutter=None, *detlist, **preset):
     try:
         os.remove(dst)
     except OSError as e:
-        printwarning('Could not remove symlink: %s' % e)
+        session.log.warning('Could not remove symlink: %s', e)
 
     try:
         os.symlink(src, dst)
     except OSError as e:
-        printwarning('Could not create symlink: %s' % e)
+        session.log.warning('Could not create symlink: %s', e)
 
 
 @usercommand
@@ -75,12 +74,12 @@ def darkimage(shutter=None, *detlist, **preset):
     try:
         os.remove(dst)
     except OSError as e:
-        printwarning('Could not remove symlink: %s' % e)
+        session.log.warning('Could not remove symlink: %s', e)
 
     try:
         os.symlink(src, dst)
     except OSError as e:
-        printwarning('Could not create symlink: %s' % e)
+        session.log.warning('Could not create symlink: %s', e)
 
 
 @usercommand
@@ -100,6 +99,6 @@ def nGI_stepping(n_images, p=1, angle=0, *detlist, **preset):
 
     stepwidth = 1.6 / np.cos(angle*2*np.pi/360) * p / (n_images-1)
 
-    printinfo('Starting nGI scan.')
+    session.log.info('Starting nGI scan.')
 
     scan('G0tx', 0, stepwidth, n_images, *detlist, **preset)

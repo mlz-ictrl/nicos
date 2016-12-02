@@ -32,7 +32,6 @@ from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.utils import waitForCompletion
 from nicos.commands import usercommand, helparglist
-from nicos.commands.output import printwarning
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.devices.abstract import Motor as NicosMotor
 from nicos.biodiff.motor import MicrostepMotor
@@ -85,8 +84,8 @@ class RScan(Scan):
     def handleError(self, what, err):
         # consider all movement errors fatal
         if what in ('move', 'wait'):
-            printwarning('Positioning problem, stopping all moving motors '
-                         'and detectors', exc=1)
+            session.log.warning('Positioning problem, stopping all moving '
+                                'motors and detectors', exc=1)
             try:
                 for dev in self._devices:
                     if isinstance(dev, NicosMotor):
