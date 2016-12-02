@@ -275,9 +275,8 @@ def activation(formula=None, instrument=None,
 
 
 def _extract_powder_data(num, dataset):
-    values = dict(('%s_%s' % (dev, key), value)
-                  for key in dataset.headerinfo
-                  for (dev, key, value) in dataset.headerinfo[key])
+    values = dict(('%s_%s' % dev_key, val)
+                  for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo))
     if 'ki_value' not in values:
         if 'mono_value' not in values:
             printwarning('dataset %d has no ki or mono value' % num)
