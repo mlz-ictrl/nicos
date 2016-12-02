@@ -224,7 +224,7 @@ class Detector(GenericDetector):
             if not line.startswith('#'):
                 break
         dmap = {}  # maps "Total" (ElNr) to 2theta
-        dinfo = [None]  # dinfo[EntryNr]
+        dinfo = []  # dinfo[EntryNr]
         for line in self._detinfo:
             if not line.startswith('#'):
                 ls = line.split()
