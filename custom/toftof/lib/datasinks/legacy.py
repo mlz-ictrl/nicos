@@ -24,7 +24,6 @@
 
 """Data sink classes (new API) for NICOS."""
 
-import operator
 import os
 
 from time import asctime, localtime, strftime, time as currenttime
@@ -238,13 +237,6 @@ class TofImageSinkHandler(TofSinkHandler):
             info = result[0]
             data = result[1][0]
             if data is not None:
-                rates = self.detector.rates
-                rates = reduce(operator.add, rates)
-                detrate, monrate, detrate_inst, monrate_inst = rates
-                self.log.info('Monitor: rate: %8.3f counts/s, instantaneous '
-                              'rate: %8.3f counts/s', monrate, monrate_inst)
-                self.log.info('Signal: rate: %8.3f counts/s, instantaneous '
-                              'rate: %8.3f counts/s', detrate, detrate_inst)
                 self.writeData(self._datafile, info, data)
 
     def end(self):

@@ -24,15 +24,16 @@
 
 """TOFTOF detector."""
 
+import operator
+
 from time import time as currenttime
 
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
-# from nicos.core.constants import INTERMEDIATE
+from nicos.core.constants import INTERMEDIATE
 from nicos.devices.generic.detector import Detector as GenericDetector
 
-from nicos.toftof.chopper import BaseChopperController
-
 from nicos.toftof import calculations as calc
+from nicos.toftof.chopper import BaseChopperController
 
 
 class Detector(GenericDetector):
@@ -187,6 +188,18 @@ class Detector(GenericDetector):
         self._last_time = meastime
         self._last_counts = counts
         self._last_moncounts = monitor
+        return ret
+
+    def duringMeasureHook(self, elapsed):
+        ret = GenericDetector.duringMeasureHook(self, elapsed)
+        if ret == INTERMEDIATE:
+            rates = self.rates
+            rates = reduce(operator.add, rates)
+            detrate, monrate, detrate_inst, monrate_inst = rates
+            self.log.info('Monitor: rate: %8.3f counts/s, instantaneous '
+                          'rate: %8.3f counts/s', monrate, monrate_inst)
+            self.log.info('Signal: rate: %8.3f counts/s, instantaneous '
+                          'rate: %8.3f counts/s', detrate, detrate_inst)
         return ret
 
     def doReadDelay(self):
