@@ -120,6 +120,14 @@
     <string>Ctrl+L</string>
    </property>
   </action>
+  <action name="actionColormap">
+   <property name="text">
+    <string>&amp;Colormap</string>
+   </property>
+   <property name="toolTip">
+    <string>Select colormap</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

@@ -27,18 +27,22 @@
 
 import os
 from os import path
+from collections import OrderedDict
 
 import numpy
 
 from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
-    QToolBar
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL
+    QToolBar, QActionGroup
+from PyQt4.QtCore import QByteArray, QPoint, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
+from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.guisupport.livewidget import LiveWidget, Data, DATATYPES, FILETYPES
 from nicos.protocols.cache import cache_load
+
+COLORMAPS = OrderedDict(GR_COLORMAPS)
 
 FILENAME = Qt.UserRole
 FILEFORMAT = Qt.UserRole + 1
@@ -68,6 +72,29 @@ class LiveDataPanel(Panel):
         self.layout().addWidget(self.statusBar)
 
         self.widget = LiveWidget(self)
+
+        self.menuColormap = QMenu(self)
+        self.actionsColormap = QActionGroup(self)
+        activeMap = self.widget.getColormap()
+        for name, value in COLORMAPS.iteritems():
+            caption = name[0] + name[1:].lower()
+            action = self.menuColormap.addAction(caption)
+            action.setCheckable(True)
+            if activeMap == value:
+                action.setChecked(True)
+                self.actionColormap.setText(caption)
+            self.actionsColormap.addAction(action)
+            action.triggered.connect(self.on_colormap_triggered)
+        self.actionColormap.setMenu(self.menuColormap)
+
+        self.toolbar = QToolBar('Live data')
+        self.toolbar.addAction(self.actionPrint)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actionLogScale)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actionUnzoom)
+        self.toolbar.addAction(self.actionColormap)
+
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
         #                         Integrate | Histogram)
         self.widgetLayout.addWidget(self.widget)
@@ -116,6 +143,7 @@ class LiveDataPanel(Panel):
         menu.addSeparator()
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLogScale)
+        menu.addAction(self.actionColormap)
         return [menu]
 
     def getToolbars(self):
@@ -125,7 +153,19 @@ class LiveDataPanel(Panel):
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
-        return [bar]
+        bar.addAction(self.actionColormap)
+        return [self.toolbar]
+
+    def on_actionColormap_triggered(self):
+        w = self.toolbar.widgetForAction(self.actionColormap)
+        self.actionColormap.menu().popup(w.mapToGlobal(QPoint(0, w.height())))
+
+    def on_colormap_triggered(self):
+        action = self.actionsColormap.checkedAction()
+        self.widget.setColormap(COLORMAPS[action.text().upper()])
+        name = action.text()
+        self.actionColormap.setText(name[0] + name[1:].lower())
+
 
     def _register_rois(self, detectors):
         self.roikeys = []

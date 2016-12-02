@@ -251,6 +251,13 @@ class LiveWidget(QWidget):
         self.axesxint.setWindow(.1, self.curvex.x.max(), 0, data.ny)
         self._rescale()
 
+    def getColormap(self):
+        return self.surf.colormap
+
+    def setColormap(self, colormap):
+        self.surf.colormap = colormap
+        self.gr.update()
+
     def setROI(self, key, roi):
         x, y, width, height = roi
         xr, yt = x + width, y + height
