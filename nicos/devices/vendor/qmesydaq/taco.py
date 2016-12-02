@@ -95,7 +95,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
             # ch is 1 based, _data is 0 based
             total = sum([self._data[ch - 1] for ch in self.channels])
         else:
-            self.log.warning(self, 'not enough data returned, check config! '
+            self.log.warning('not enough data returned, check config! '
                              '(got %d elements, expected >=%d)',
                              len(res), expected)
             data = None

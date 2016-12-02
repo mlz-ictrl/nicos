@@ -54,7 +54,7 @@ def readSetups(paths, logger):
         for include in info['includes']:
             if not infodict.get(include):
                 logger.error('Setup %s includes setup %s which does not '
-                             'exist or has errors' % (name, include))
+                             'exist or has errors', name, include)
                 infodict[name] = None
 
     return infodict
@@ -91,8 +91,8 @@ def fixup_stacked_devices(logger, devdict):
         newname = '%s_%s' % (devname, subname)
         while newname in devdict:
             logger.error('Device %r already exists, but is also a '
-                         'subdevice of %r which should be renamed'
-                         % (newname, devname))
+                         'subdevice of %r which should be renamed',
+                         newname, devname)
             newname = '_' + newname
         # set subDevice lowlevel if not specified otherwise
         if 'lowlevel' not in devconfig[1]:
@@ -131,21 +131,21 @@ def readSetup(infodict, filepath, logger):
             code = modfile.read()
     except IOError as err:
         logger.exception('Could not read setup '
-                         'module %r: %s' % (filepath, err))
+                         'module %r: %s', filepath, err)
         return
     ns = prepareNamespace(modname, filepath)
     try:
         exec_(code, ns)
     except Exception as err:
         logger.exception('An error occurred while processing '
-                         'setup %r: %s' % (filepath, err))
+                         'setup %r: %s', filepath, err)
         return
     devices = fixup_stacked_devices(logger, ns.get('devices', {}))
     for devname in devices:
         if not nicosdev_re.match(devname):
             logger.exception('While processing setup %r: device name %r is '
-                             'invalid, names must be Python identifiers' %
-                             (filepath, devname))
+                             'invalid, names must be Python identifiers',
+                             filepath, devname)
             return
     info = {
         'description': ns.get('description', modname),
@@ -163,7 +163,7 @@ def readSetup(infodict, filepath, logger):
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
-                       'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
+                       'are: %s)', modname, ', '.join(SETUP_GROUPS))
         info['group'] = 'optional'
     if modname in infodict:
         # setup already exists; override/extend with new values
@@ -187,6 +187,6 @@ def readSetup(infodict, filepath, logger):
         oldinfo['extended'].update(info['extended'])
         oldinfo['filename'] = filepath
         logger.debug('%r setup partially merged with version '
-                     'from parent directory' % modname)
+                     'from parent directory', modname)
     else:
         infodict[modname] = info

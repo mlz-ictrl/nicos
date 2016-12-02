@@ -592,13 +592,13 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
             os.chown(filepath, owner, group)
         except OSError as e:
             if logger:
-                logger.debug('chown(%r, %d, %d) failed: %s' %
-                             (filepath, owner, group, e))
+                logger.debug('chown(%r, %d, %d) failed: %s',
+                             filepath, owner, group, e)
     try:
         os.chmod(filepath, mode)
     except OSError as e:
         if logger:
-            logger.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
+            logger.debug('chmod(%r, %o) failed: %s', filepath, mode, e)
         return True
     return False
 
