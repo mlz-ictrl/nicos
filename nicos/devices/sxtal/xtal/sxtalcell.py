@@ -45,8 +45,8 @@ CellParam = namedtuple('CellParam', ['a', 'b', 'c', 'alpha', 'beta', 'gamma'])
 
 
 def vecangle(v1, v2):
-    return np.rad2deg(
-        np.arccos(np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)))
+    lengths = np.linalg.norm(v1) * np.linalg.norm(v2)
+    return np.rad2deg(np.arccos(np.clip(np.dot(v1, v2) / lengths, -1.0, 1.0)))
 
 
 def fillCellParam(a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0):
@@ -341,3 +341,7 @@ def _test():
     assert cell1.Theta((1, 0, 0), 1.0) == np.rad2deg(np.arcsin(1 / 10.))
     cell2 = SXTalCell.fromabc(5., c=10., gamma=120.)
     assert np.allclose(cell2.cellparams(), (5., 5., 10., 90., 90., 120.))
+
+    v = [0.7757636541238411, 0.10320040939423603, 0.826801026407413]
+    a = vecangle(v, v)
+    assert not np.isnan(a)
