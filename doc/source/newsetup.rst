@@ -13,7 +13,7 @@ Preparations
   checkout -b work-X.Y`` to record local changes independent of the upstream
   branch.
 
-* Install all pre-requisites (see :ref:`requirements`).  If TACO is needed, make
+* Install all pre-requisites (see :doc:`install`).  If TACO is needed, make
   sure the Python client libraries are installed.
 
 * Run ``make`` and check if ``bin/nicos-demo`` works.  On X-less
