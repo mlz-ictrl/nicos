@@ -31,6 +31,8 @@ devices = dict(
                       dataroot = '/data/nicos',
                       propdb = '/sans1control/propdb',
                       sample = 'Sample',
+                      sendmail = True,
+                      mailsender = 'sans1@frm2.tum.de',
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',

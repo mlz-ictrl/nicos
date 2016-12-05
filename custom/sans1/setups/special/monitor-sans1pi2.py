@@ -41,6 +41,13 @@ _sc2 = Block('Sample Changer 2', [
     setups='sc2',
 )
 
+_sc_t = Block('Temperature Sample Changer', [
+    BlockRow(Field(name='sc_t_y', dev='sc_t_y'),),
+    BlockRow(Field(name='SampleChanger', dev='sc_t'),),
+    ],
+    setups='sc_t',
+)
+
 _ccmsanssc = Block('Magnet Sample Changer', [
     BlockRow(Field(name='Position', dev='ccmsanssc_axis'),),
     BlockRow(Field(name='SampleChanger', dev='ccmsanssc_position', format='%i'),),
@@ -513,7 +520,7 @@ devices = dict(
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
                                     Column(_ccmsanssc),
-                                    Column(_sc1, _sc2, _st2, _st1,
+                                    Column(_sc1, _sc2, _sc_t, _st2, _st1,
                                            *newports),
                                     Column(_tisane_counts, _fg1),
                                     Column(_fc, _fg2),
