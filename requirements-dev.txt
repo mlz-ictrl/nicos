@@ -3,7 +3,7 @@ nose>=1.1.2
 rednose>=1.1.0
 mock>=1.0
 PyYAML>=3.0
-Sphinx>=1.2.1
+Sphinx>=1.2.1,!=1.5
 rst2pdf>=0.16
 memory_profiler
 line_profiler
