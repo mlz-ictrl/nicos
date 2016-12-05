@@ -98,7 +98,7 @@ def test_basic_commands():
 def test_sleep_command():
     tosleep = 0.1
     used = timeit.timeit(lambda: sleep(tosleep), number=1)
-    assert tosleep < used < 1.2 * tosleep
+    assert tosleep < used < 1.3 * tosleep
     checkResponse(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
 
 
