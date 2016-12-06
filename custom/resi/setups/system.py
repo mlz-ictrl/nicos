@@ -17,7 +17,7 @@ devices = dict(
     Exp = device('resi.experiment.ResiExperiment',
                  description = 'The currently running experiment',
                  sample = 'Sample',
-                 dataroot = '/tmp/data/testdata',
+                 dataroot = '/data/data6/',
                 ),
 
     resiInstrument = device('devices.instrument.Instrument',

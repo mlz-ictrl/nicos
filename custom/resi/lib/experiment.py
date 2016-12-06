@@ -22,7 +22,6 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-
 """
 NICOS Resi Experiment.
 """
@@ -39,34 +38,43 @@ from nicos.frm2.proposaldb import queryCycle
 class ResiExperiment(Experiment):
 
     parameters = {
-        'cycle': Param('Current reactor cycle', type=str, settable=True),
+        'cycle': Param(
+            'Current reactor cycle', type=str, settable=True),
     }
+
+    def __init__(self, *args, **kw):
+        os.environ['DISPLAY'] = ':0'
+        Experiment.__init__(self, *args, **kw)
+        os.chdir(self.dataroot)
 
     def proposalpath_of(self, proposal):
         """deviate from default of <dataroot>/<year>/<proposal>"""
-        return path.join(self.dataroot, proposal)
+        return path.join(self.dataroot, 'zyklus' + str(self.cycle), proposal)
 
-    def new(self, proposal, title=None, **kwds):
+    def new(self, proposal, title=None, users=None, localcontact=None, **kwds):
         # Resi-specific handling of proposal number
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
         if proposal in ('template', 'current'):
-            raise UsageError(self, 'The proposal names "template" and "current"'
+            raise UsageError(self,
+                             'The proposal names "template" and "current"'
                              ' are reserved and cannot be used')
 
         try:
             old_proposal = path.basename(os.readlink(self.proposalsymlink))
         except Exception:
             if path.exists(self.proposalsymlink):
-                self.log.error('"current" link to old experiment dir exists '
-                               'but cannot be read', exc=1)
+                self.log.error(
+                    '"current" link to old experiment dir exists '
+                    'but cannot be read',
+                    exc=1)
             else:
-                self.log.warning('no old experiment dir is currently set',
-                                 exc=1)
+                self.log.warning(
+                    'no old experiment dir is currently set', exc=1)
         else:
             if old_proposal.startswith('p'):
-                disableDirectory(self.proposalpath_of(old_proposal),
-                                 logger=self.log)
+                disableDirectory(
+                    self.proposalpath_of(old_proposal), logger=self.log)
             os.unlink(self.proposalsymlink)
 
         # query new cycle
@@ -94,6 +102,7 @@ class ResiExperiment(Experiment):
         # create new data path and expand templates
         os.symlink(proposal, self.proposalsymlink)
         Experiment.datapathChanged(self)  # is this needed here?
+        os.chdir(self.datapath)
 
         self._handleTemplates(proposal, kwds)
 

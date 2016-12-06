@@ -32,12 +32,13 @@ from __future__ import print_function
 
 import sys
 import math
-sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
-sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
+sys.path.append('/home/resi/pedersen/workspace/singlecounter')
+sys.path.append('/home/resi/pedersen/workspace/nonius_new/app')
 
 from nicos.core import Moveable, Param, Attach
 from nicos.devices.sample import Sample
 from nicos.core import vec3, NicosError
+from nicos.core.status import OK, BUSY
 
 # imports from the nonius libs
 try:
@@ -119,13 +120,12 @@ class ResiDevice(Moveable):
         return ResiPositionProxy(self._hardware.GetPosition(maxage))
 
     def doStart(self, args):
-        print('args:', args)
         self._hardware.Goto(**args)
 
     def doStatus(self, maxage=0):
-        statustext = {0:'idle', 1:'moving'}
-        hwstatus = self._hardware.hw.isrunning()
-        return hwstatus, statustext[hwstatus]
+        statusmap = {0: (OK, 'idle'), 1: (BUSY, 'moving')}
+        hwstatus = self._hardware.hw.hwll.isrunning()
+        return statusmap[hwstatus][0], statusmap[hwstatus][1]
 
     def doInfo(self):
         info = list()
