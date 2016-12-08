@@ -727,7 +727,7 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
         diff = center - params[0]
         session.log.info('center of Gaussian fit at %s', psi.format(params[0], True))
         if accuracy is None:
-            accuracy = params[2] * 0.1
+            accuracy = min(params[2] * 0.05, 0.1)
         if abs(diff) < accuracy:
             session.log.info('alignment ok within %.3f degrees, not '
                              'changing psi0', accuracy)
