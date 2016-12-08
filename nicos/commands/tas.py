@@ -731,9 +731,9 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
         if abs(diff) < accuracy:
             session.log.info('alignment ok within %.3f degrees, not '
                              'changing psi0', accuracy)
-            return
-        sample = tas._attached_cell
-        session.log.warning('adjusting %s.psi0 by %s',
-                            sample, psi.format(diff, True))
-        sample.psi0 += diff
+        else:
+            sample = tas._attached_cell
+            session.log.warning('adjusting %s.psi0 by %s',
+                                sample, psi.format(diff, True))
+            sample.psi0 += diff
     tas.maw(target)
