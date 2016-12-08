@@ -523,7 +523,9 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             session.log.debug('*** new best result: RMS = %g', rms)
 
     if len(beststt0s) == 0:
-        session.log.warning('no fitted offsets available')
+        session.log.warning('No successful fit results!')
+        if ki is not None:
+            session.log.warning('Is the initial guess for ki too far off?')
         return
 
     for line in bestlines:
