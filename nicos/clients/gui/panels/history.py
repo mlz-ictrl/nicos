@@ -32,7 +32,8 @@ from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
-    QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, QMessageBox
+    QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, QMessageBox, \
+    QBrush, QColor
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
     pyqtSignature as qtsig
 
@@ -371,6 +372,13 @@ class BaseHistoryWindow(object):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
         self.on_viewList_currentItemChanged(item, None)
+        # is it a "saved from last time" item?
+        info = item.data(Qt.UserRole)
+        if info is not None:
+            row = self.viewList.row(item)
+            if self.askQuestion('Restore this view from last time?'):
+                self.viewList.takeItem(row)
+                self._createViewFromDialog(info, row)
 
     def on_logYinDomain(self, flag):
         if not flag:
@@ -384,7 +392,7 @@ class BaseHistoryWindow(object):
         for view in self.keyviews[key]:
             view.newValue(vtime, key, op, value)
 
-    def _createViewFromDialog(self, info):
+    def _createViewFromDialog(self, info, row=None):
         if not info['devices'].strip():
             return
         keys_indices = [extractKeyAndIndex(d.strip())
@@ -435,7 +443,11 @@ class BaseHistoryWindow(object):
         view = View(self, name, keys_indices, interval, fromtime, totime,
                     yfrom, yto, window, meta, info, self.gethistory_callback)
         self.views.append(view)
-        view.listitem = QListWidgetItem(view.name, self.viewList)
+        view.listitem = QListWidgetItem(view.name)
+        if row is not None:
+            self.viewList.insertItem(row, view.listitem)
+        else:
+            self.viewList.addItem(view.listitem)
         self.openView(view)
         if view.totime is None:
             for key in view.uniq_keys:
@@ -553,8 +565,8 @@ class BaseHistoryWindow(object):
         if newdlg.savePreset.isChecked():
             self.addPreset(info['name'], info)
         self.viewStack.pop()
-        self.clearView(view)
-        new_view = self._createViewFromDialog(info)
+        row = self.clearView(view)
+        new_view = self._createViewFromDialog(info, row)
         if new_view.plot.HAS_AUTOSCALE:
             self._autoscale(True, False)
 
@@ -587,14 +599,13 @@ class BaseHistoryWindow(object):
 
     def clearView(self, view):
         self.views.remove(view)
-        for i in range(self.viewList.count()):
-            if self.viewList.item(i) == view.listitem:
-                self.viewList.takeItem(i)
-                break
+        row = self.viewList.row(view.listitem)
+        self.viewList.takeItem(row)
         if view.totime is None:
             for key in view.uniq_keys:
                 self.keyviews[key].remove(view)
         view.cleanup()
+        return row
 
     @qtsig('')
     def on_actionSavePlot_triggered(self):
@@ -658,6 +669,11 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
         self.menus = None
         self.bar = None
+
+        for (name, view) in self.last_views:
+            item = QListWidgetItem(name, self.viewList)
+            item.setForeground(QBrush(QColor('#aaaaaa')))
+            item.setData(Qt.UserRole, view)
 
         self.splitter.restoreState(self.splitterstate)
         self.connect(self.client, SIGNAL('cache'), self.newvalue_callback)
@@ -754,10 +770,24 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                 self.presetdict = {}
         else:
             self.presetdict = {}
+        self.last_views = []
+        settings.beginGroup('views')
+        for key in settings.childKeys():
+            try:
+                info = pickle.loads(str(settings.value(key, b'', QByteArray)))
+                self.last_views.append((key, info))
+            except Exception:
+                pass
+        settings.endGroup()
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
         settings.setValue('presets', self.presetdict)
+        settings.beginGroup('views')
+        settings.remove('')
+        for view in self.views:
+            settings.setValue(view.name, pickle.dumps(view.dlginfo))
+        settings.endGroup()
 
     def setCustomStyle(self, font, back):
         self.user_font = font
