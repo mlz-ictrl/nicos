@@ -298,14 +298,17 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         except Exception:
             LookUpTable = 'lookup'
 
+        time_format = '%I:%M:%S %p'
+        date_format = '%m/%d/%Y'
+
         metadata = DeviceValueDict(
             fileName = os.path.basename(self._file.filepath),
-            fileDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
-            fileTime = strftime('%r', localtime(self.dataset.started)),
-            FromDate = strftime('%m/%d/%Y', localtime(self.dataset.started)),
-            FromTime = strftime('%r', localtime(self.dataset.started)),
-            ToDate = strftime('%m/%d/%Y', localtime(finished)),
-            ToTime = strftime('%r', localtime(finished)),
+            fileDate = strftime(date_format, localtime(self.dataset.started)),
+            fileTime = strftime(time_format, localtime(self.dataset.started)),
+            FromDate = strftime(date_format, localtime(self.dataset.started)),
+            FromTime = strftime(time_format, localtime(self.dataset.started)),
+            ToDate = strftime(date_format, localtime(finished)),
+            ToTime = strftime(time_format, localtime(finished)),
             DataSize = shape[0]*shape[1],
             DataSizeX = shape[1],
             DataSizeY = shape[0],
