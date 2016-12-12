@@ -445,60 +445,9 @@ class TASIndex(AutoDevice, Moveable):
         self._attached_tas.start(current)
 
 
-class Wavevector(Moveable):
+class TASConstant(Moveable):
     """
-    Device for adjusting initial/final wavevectors of the TAS and also setting
-    the scanmode.
-    """
-
-    parameters = {
-        'scanmode': Param('Scanmode to set', type=oneof(*SCANMODES),
-                          mandatory=True),
-    }
-
-    attached_devices = {
-        'base': Attach('Device to move (mono or ana)', Moveable),
-        'tas':  Attach('The spectrometer for setting scanmode', TAS),
-    }
-
-    valuetype = float
-
-    hardware_access = False
-
-    def doRead(self, maxage=0):
-        base = self._attached_base
-        return to_k(base.read(maxage), base.unit)
-
-    def doStatus(self, maxage=0):
-        return self._attached_base.status(maxage)
-
-    def _getWaiters(self):
-        return [self._attached_base]
-
-    def doStart(self, pos):
-        # first drive there, to determine if it is within limits
-        tas = self._attached_tas
-        mono = self._attached_base
-        mono.start(from_k(pos, mono.unit))
-        msg = False
-        if tas.scanmode != self.scanmode:
-            tas.scanmode = self.scanmode
-            msg = True
-        if tas.scanconstant != pos:
-            self._attached_tas.scanconstant = pos
-            msg = True
-        if msg:
-            tas.log.info('scan mode is now %s at %s',
-                         self.scanmode, self.format(pos, unit=True))
-
-    def doStop(self):
-        self._attached_base.stop()
-
-
-class Energy(Moveable):
-    """
-    Device for adjusting initial/final energy of the TAS and also setting
-    the scanmode.
+    Common class for TAS k, E and lambda pseudo-devices.
     """
 
     parameters = {
@@ -518,95 +467,101 @@ class Energy(Moveable):
     valuetype = float
 
     hardware_access = False
+
+    def doStatus(self, maxage=0):
+        return self._attached_base.status(maxage)
+
+    def _getWaiters(self):
+        return [self._attached_base]
+
+    def _start(self, k):
+        # first drive there, to determine if it is within limits
+        tas = self._attached_tas
+        base = self._attached_base
+        pos = from_k(k, base.unit)
+        base.start(pos)
+        msg = False
+        if tas.scanmode != self.scanmode:
+            tas.scanmode = self.scanmode
+            msg = True
+        if tas.scanconstant != pos:
+            tas.scanconstant = pos
+            msg = True
+        return msg
+
+    def doReadUnit(self):
+        # needed for "does volatile param have a doRead" checking
+        raise NotImplementedError
+
+    def doStop(self):
+        self._attached_base.stop()
+
+    def fix(self, reason=''):
+        # fix the base as well, avoids surprises
+        Moveable.fix(self, reason)
+        return self._attached_base.fix(reason)
+
+    def release(self):
+        Moveable.release(self)
+        return self._attached_base.release()
+
+
+class Wavevector(TASConstant):
+    """
+    Device for adjusting initial/final wavevectors of the TAS and also setting
+    the scanmode.
+    """
+
+    def doRead(self, maxage=0):
+        base = self._attached_base
+        return to_k(base.read(maxage), base.unit)
+
+    def doStart(self, pos):
+        tas = self._attached_tas
+        if self._start(pos):
+            tas.log.info('scan mode is now %s at %s',
+                         self.scanmode, self.format(pos, unit=True))
+
+    def doReadUnit(self):
+        return 'A-1'
+
+
+class Energy(TASConstant):
+    """
+    Device for adjusting initial/final energy of the TAS and also setting
+    the scanmode.
+    """
 
     def doRead(self, maxage=0):
         mono = self._attached_base
         return from_k(to_k(mono.read(maxage), mono.unit),
                       self._attached_tas.energytransferunit)
 
-    def doStatus(self, maxage=0):
-        return self._attached_base.status(maxage)
-
-    def _getWaiters(self):
-        return [self._attached_base]
-
     def doStart(self, pos_e):
-        # first drive there, to determine if it is within limits
         tas = self._attached_tas
-        mono = self._attached_base
-        pos = from_k(to_k(pos_e, tas.energytransferunit), mono.unit)
-        mono.start(pos)
-        msg = False
-        if tas.scanmode != self.scanmode:
-            tas.scanmode = self.scanmode
-            msg = True
-        if tas.scanconstant != pos:
-            tas.scanconstant = pos
-            msg = True
-        if msg:
+        if self._start(to_k(pos_e, tas.energytransferunit)):
             tas.log.info('scan mode is now %s at %s',
                          self.scanmode, self.format(pos_e, unit=True))
 
     def doReadUnit(self):
         return self._attached_tas.energytransferunit
 
-    def doStop(self):
-        self._attached_base.stop()
 
-
-class Wavelength(Moveable):
+class Wavelength(TASConstant):
     """
     Device for adjusting initial/final wavelength of the TAS and also setting
     the scanmode.
     """
 
-    parameters = {
-        'scanmode': Param('Scanmode to set', type=oneof(*SCANMODES),
-                          mandatory=True),
-    }
-
-    parameter_overrides = {
-        'unit':     Override(volatile=True),
-    }
-
-    attached_devices = {
-        'base': Attach('Device to move (mono or ana)', Moveable),
-        'tas':  Attach('The spectrometer for setting scanmode', TAS),
-    }
-
-    valuetype = float
-
-    hardware_access = False
-
     def doRead(self, maxage=0):
         mono = self._attached_base
         return 2 * pi / to_k(mono.read(maxage), mono.unit)
 
-    def _getWaiters(self):
-        return [self._attached_base]
-
-    def doStatus(self, maxage=0):
-        return self._attached_base.status(maxage)
-
     def doStart(self, lam):
-        # first drive there, to determine if it is within limits
         tas = self._attached_tas
-        mono = self._attached_base
-        pos = from_k(to_k(lam, 'A'), mono.unit)
-        mono.start(pos)
-        msg = False
-        if tas.scanmode != self.scanmode:
-            tas.scanmode = self.scanmode
-            msg = True
-        if tas.scanconstant != pos:
-            tas.scanconstant = pos
-            msg = True
-        if msg:
+        if self._start(to_k(lam, 'A')):
             tas.log.info('scan mode is now %s at %s',
                          self.scanmode, self.format(lam, unit=True))
 
     def doReadUnit(self):
         return 'AA'
-
-    def doStop(self):
-        self._attached_base.stop()
