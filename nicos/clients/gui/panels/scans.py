@@ -559,6 +559,12 @@ class ScansPanel(Panel):
             none_action.setCheckable(True)
             none_action.setChecked(True)
             none_action.triggered.connect(self.on_norm_action_triggered)
+            max_action = self.norm_menu.addAction('Maximum')
+            max_action.setCheckable(True)
+            if self.currentPlot.normalized == 'Maximum':
+                max_action.setChecked(True)
+                none_action.setChecked(False)
+            max_action.triggered.connect(self.on_norm_action_triggered)
             for _, name in self.currentPlot.dataset.normindices:
                 action = self.norm_menu.addAction(name)
                 action.setCheckable(True)

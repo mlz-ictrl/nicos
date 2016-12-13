@@ -557,7 +557,10 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
     def setCurveData(self, curve, plotcurve):
         xname = curve.default_xname \
             if self.current_xname == 'Default' else self.current_xname
-        norm = curve.datanorm[self.normalized] if self.normalized else None
+        if self.normalized == 'Maximum':
+            norm = [max(curve.datay)] * len(curve.datay)
+        else:
+            norm = curve.datanorm[self.normalized] if self.normalized else None
         x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
                                norm)
         if dy is not None:
