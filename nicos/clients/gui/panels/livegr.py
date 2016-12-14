@@ -288,3 +288,7 @@ class LiveDataPanel(Panel):
     @qtsig('')
     def on_actionPrint_triggered(self):
         self.widget.printDialog()
+
+    @qtsig('')
+    def on_actionLogScale_triggered(self):
+        self.widget.logscale(self.actionLogScale.isChecked())

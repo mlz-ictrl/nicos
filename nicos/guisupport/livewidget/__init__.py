@@ -26,6 +26,7 @@
 """NICOS livewidget with GR."""
 
 import numpy
+import numpy.ma
 
 from PyQt4.QtGui import QWidget, QHBoxLayout
 
@@ -152,8 +153,10 @@ class LiveWidget(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
+        self._data = None
         self._axesrange = (1, 1)
         self._axesratio = 1.0
+        self._logscale = False
 
         layout = QHBoxLayout()
         self.gr = GRWidget(self)
@@ -229,26 +232,37 @@ class LiveWidget(QWidget):
         self.plot.pan(dp, w, h)
         self._rescale()
 
+    def _updateZData(self):
+        if self._logscale:
+            arr = numpy.ma.log10(self._data.arr).filled(0)
+        else:
+            arr = self._data.arr
+        amax = arr.max()
+        if amax > 0:
+            arr = 255 * arr / amax
+        self.surf.z = 1000 + arr
+
     def setData(self, data):
+        self._data = data
         self._axesratio = data.ny / float(data.nx)
         if (data.nx, data.ny) != self._axesrange:
             self.axes.setWindow(0, data.nx, 0, data.ny)
-            self.axesyint.setWindow(0, data.nx, 0, data.ny)
-            self.axesxint.setWindow(0, data.nx, 0, data.ny)
+            self.axesyint.setWindow(0, data.nx, 1, data.ny)
+            self.axesxint.setWindow(1, data.nx, 0, data.ny)
             #self.plot.viewport = (.1, .95, .1, .1 + .85 * self._axesratio)
             #self.axes.xtick = self.axes.ytick = 4
             #self.axes.majorx = self.axes.majory = 4
         self._axesrange = (data.nx, data.ny)
         self.surf.x = numpy.linspace(0, data.nx, data.nx)
         self.surf.y = numpy.linspace(0, data.ny, data.ny)
-        self.surf.z = 1000 + 255 * data.arr / data.arr.max()
+        self._updateZData()
         arr2d = data.arr.reshape((data.ny, data.nx))
         self.curvey.x = numpy.arange(0, data.nx)
         self.curvey.y = arr2d.sum(axis=0)
         self.curvex.y = numpy.arange(0, data.ny)
         self.curvex.x = arr2d.sum(axis=1)
-        self.axesyint.setWindow(0, data.nx, .1, self.curvey.y.max())
-        self.axesxint.setWindow(.1, self.curvex.x.max(), 0, data.ny)
+        self.axesyint.setWindow(0, data.nx, 1, self.curvey.y.max())
+        self.axesxint.setWindow(1, self.curvex.x.max(), 0, data.ny)
         self._rescale()
 
     def getColormap(self):
@@ -280,3 +294,10 @@ class LiveWidget(QWidget):
 
     def printDialog(self):
         self.gr.printDialog()
+
+    def logscale(self, on):
+        self._logscale = on
+        self.axesxint.setLogX(on)
+        self.axesyint.setLogY(on)
+        self._updateZData()
+        self.gr.update()
