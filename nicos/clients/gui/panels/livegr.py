@@ -36,6 +36,8 @@ from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
 from PyQt4.QtCore import QByteArray, QPoint, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 from gr import COLORMAPS as GR_COLORMAPS
+from qtgr.events import GUIConnector
+from qtgr.events.mouse import MouseEvent
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -110,6 +112,9 @@ class LiveDataPanel(Panel):
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('cache'), self.on_cache)
 
+        guiConn = GUIConnector(self.widget.gr)
+        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mousemove_gr)
+
         self.roikeys = []
         self.detectorskey = None
 
@@ -156,6 +161,16 @@ class LiveDataPanel(Panel):
         bar.addAction(self.actionColormap)
         return [self.toolbar]
 
+    def on_mousemove_gr(self, event):
+        xyz = self.widget.getZValue(event)
+        if xyz:
+            fmt = '(%g, %g)'  # x, y data 1D integral plots
+            if len(xyz) == 3:
+                fmt += ': %g'  # x, y, z data for 2D image plot
+            self.statusBar.showMessage(fmt % xyz)
+        else:
+            self.statusBar.clearMessage()
+
     def on_actionColormap_triggered(self):
         w = self.toolbar.widgetForAction(self.actionColormap)
         self.actionColormap.menu().popup(w.mapToGlobal(QPoint(0, w.height())))
@@ -165,7 +180,6 @@ class LiveDataPanel(Panel):
         self.widget.setColormap(COLORMAPS[action.text().upper()])
         name = action.text()
         self.actionColormap.setText(name[0] + name[1:].lower())
-
 
     def _register_rois(self, detectors):
         self.roikeys = []

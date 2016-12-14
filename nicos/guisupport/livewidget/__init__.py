@@ -232,6 +232,18 @@ class LiveWidget(QWidget):
         self.plot.pan(dp, w, h)
         self._rescale()
 
+    def getZValue(self, event):
+        plots = self.gr._getPlotsForPoint(event.getNDC())
+        if plots and len(plots) == 1:
+            plot = plots[0]
+            pWC = event.getWC(plot.viewport)
+            if self._data and plot == self.plot:
+                nx, ny = self._data.nx, self._data.ny
+                x, y = int(pWC.x), int(pWC.y)
+                if 0 <= x < nx and 0 <= y < ny:
+                    return x, y, self._data.arr[y * nx + x]
+            return pWC.x, pWC.y
+
     def _updateZData(self):
         if self._logscale:
             arr = numpy.ma.log10(self._data.arr).filled(0)
