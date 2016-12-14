@@ -48,6 +48,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
     filetype = 'MLZ.YAML'  # to be overwritten in derived classes
     max_yaml_width = 120
     accept_final_images_only = True
+    yaml_array_handling = quickyaml.ARRAY_AS_SEQ
 
     def _readdev(self, devname, mapper=lambda x: x):
         try:
@@ -139,7 +140,8 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
 
         self._write_instr_data(meas, image)
 
-        quickyaml.Dumper(width=self.max_yaml_width).dump(o, fp)
+        quickyaml.Dumper(width=self.max_yaml_width,
+                         array_handling=self.yaml_array_handling).dump(o, fp)
         fp.flush()
 
     def _write_instr_data(self, meas_root, image):

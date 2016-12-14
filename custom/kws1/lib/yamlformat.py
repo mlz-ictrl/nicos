@@ -24,6 +24,8 @@
 
 """KWS-1 file format saver with YAML."""
 
+import quickyaml
+
 from nicos import session
 from nicos.core import Override
 from nicos.devices.datasinks.image import ImageSink
@@ -34,6 +36,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
     filetype = 'MLZ.KWS1.2.0-beta1'
     max_yaml_width = 10000
+    yaml_array_handling = quickyaml.ARRAY_AS_MAP
 
     def _write_instr_data(self, meas, image):
         expdev = session.experiment

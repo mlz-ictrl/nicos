@@ -1,7 +1,7 @@
 --extra-index-url https://forge.frm2.tum.de/simple
 nicoslivewidget>=1.2 ; python_version < '3.0'
 nicos-pyctl>=1.0
-nicos-quickyaml>=1.0.2
+nicos-quickyaml>=1.1.0
 #since PEP470 externally hosted files are not allowed anymore via pypi
 #mysql-connector-python>=1.0.7
 http://cdn.mysql.com/Downloads/Connector-Python/mysql-connector-python-2.0.4.zip#md5=3df394d89300db95163f17c843ef49df

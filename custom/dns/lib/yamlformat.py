@@ -26,6 +26,8 @@
 
 """DNS file format saver for the new YAML based format."""
 
+import quickyaml
+
 from nicos import session
 from nicos.core import Override
 from nicos.devices.datasinks.image import ImageSink
@@ -35,6 +37,7 @@ from nicos.frm2.yamlbase import YAMLBaseFileSinkHandler
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
     filetype = 'MLZ.DNS.2.0-beta3'
+    yaml_array_handling = quickyaml.ARRAY_AS_MAP
 
     def _write_instr_data(self, meas, image):
         expdev = session.experiment
