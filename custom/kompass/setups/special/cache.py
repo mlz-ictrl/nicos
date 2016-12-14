@@ -21,7 +21,7 @@ devices = dict(
                     # Binding the cache to the 'localhost' leads to trouble if
                     # some other NICOS services are running on different
                     # machines
-                    server = 'kompassctrl.kompass.frm2',
+                    server = '',
                     loglevel = 'info',
                    ),
 )
