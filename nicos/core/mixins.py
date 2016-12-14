@@ -386,12 +386,11 @@ class HasTimeout(DeviceMixinBase):
         _combinedStatus returning individual status text's (e.g. to
         differentiate between 'ramping' and 'stabilization').
         """
-        if self.timeout is None:
-            return None
         res = [('start', current_time)]
         if hasattr(self, 'doTime'):
             res.append(('', res[-1][1] + self.doTime(current_pos, target_pos)))
-        res.append(('', res[-1][1] + (self.timeout or 0)))
+        if self.timeout:
+            res.append(('', res[-1][1] + self.timeout))
         return res
 
     def isTimedOut(self):
@@ -399,6 +398,8 @@ class HasTimeout(DeviceMixinBase):
 
         Returns False unless there was a timeout in which case it returns True.
         """
+        if self.timeout is None:
+            return False
         if self._timeoutTime is not None:
             remaining = self._timeoutTime - currenttime()
             if remaining > 0:
