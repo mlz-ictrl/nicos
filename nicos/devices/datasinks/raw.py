@@ -24,13 +24,17 @@
 
 """Raw image formats."""
 
+import re
+from os import path
+
 import numpy as np
 
 from nicos import session
 from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, LIVE, \
     ConfigurationError
 from nicos.pycompat import iteritems, TextIOWrapper
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler, \
+    ImageFileReader
 
 
 class SingleRawImageSinkHandler(SingleFileSinkHandler):
@@ -180,3 +184,22 @@ class RawImageSink(ImageSink):
                                      'contain .raw which is then exchanged '
                                      'to .header and .log for additional '
                                      'data files')
+
+
+class RawImageFileReader(ImageFileReader):
+
+    @classmethod
+    def fromfile(cls, filename):
+        fheader = path.splitext(filename)[0] + '.header'
+        if path.isfile(fheader) and path.isfile(filename):
+            with open(fheader, 'r') as fd:
+                for line in fd:
+                    # TODO: ArrayDesc currently uses nx, ny, nz, ... as shape
+                    if line.startswith('ArrayDesc('):
+                        m = re.match(r'.*\((\d+),\s*(\d+)\).*dtype\('
+                                     r'\'(.*)\'\).*', line)
+                        if m:
+                            nx, ny = int(m.group(1)), int(m.group(2))
+                            dtype = m.group(3)
+                            return np.fromfile(filename, dtype).reshape((ny,
+                                                                         nx))

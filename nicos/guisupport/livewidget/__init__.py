@@ -25,6 +25,9 @@
 
 """NICOS livewidget with GR."""
 
+import re
+from os import path
+
 import numpy
 import numpy.ma
 
@@ -36,20 +39,16 @@ from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
     Coords2D, PlotCurve
 
-# from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT
-# from PyQt4.QtCore import pyqtSignature as qtsig, QSize
-
-try:
-    import pyfits
-except ImportError:
-    pyfits = None
+from nicos.devices.datasinks.raw import RawImageFileReader
 
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
 
-FILETYPES = ('fits',)
+FILETYPES = {
+    'raw': RawImageFileReader
+}
 
 COLOR_WHITE = 91
 COLOR_BLUE = 4
@@ -71,20 +70,6 @@ class Cellarray(gr.pygr.PlotSurface):
             # at lower left corner (mirror y)
             gr.cellarray(0, len(self.x), len(self.y), 0,
                          len(self.x), len(self.y), self.z)
-
-
-class Data(object):
-
-    def __init__(self, nx, ny, nz, fmt, data):
-        self.nx = nx
-        self.ny = ny
-        self.nz = nz
-        self.fmt = fmt
-        self.arr = numpy.frombuffer(data, fmt)
-
-    @classmethod
-    def fromfile(cls, filename, filetype=None):
-        pass
 
 
 class GRWidget(InteractiveGRWidget):
@@ -153,8 +138,8 @@ class LiveWidget(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
-        self._data = None
-        self._axesrange = (1, 1)
+        self._array = None
+        self._axesrange = (1, 1)  # y, x (rows, cols)
         self._axesratio = 1.0
         self._logscale = False
 
@@ -237,44 +222,48 @@ class LiveWidget(QWidget):
         if plots and len(plots) == 1:
             plot = plots[0]
             pWC = event.getWC(plot.viewport)
-            if self._data and plot == self.plot:
-                nx, ny = self._data.nx, self._data.ny
+            if (self._array is not None and plot == self.plot and
+                        self._array.shape >= 2):
+                ny, nx = self._array.shape[:2]
                 x, y = int(pWC.x), int(pWC.y)
                 if 0 <= x < nx and 0 <= y < ny:
-                    return x, y, self._data.arr[y * nx + x]
+                    return x, y, self._array[y, x]
             return pWC.x, pWC.y
 
     def _updateZData(self):
+        arr = self._array.ravel()
         if self._logscale:
-            arr = numpy.ma.log10(self._data.arr).filled(0)
-        else:
-            arr = self._data.arr
+            arr = numpy.ma.log10(arr).filled(0)
         amax = arr.max()
         if amax > 0:
             arr = 255 * arr / amax
         self.surf.z = 1000 + arr
 
-    def setData(self, data):
-        self._data = data
-        self._axesratio = data.ny / float(data.nx)
-        if (data.nx, data.ny) != self._axesrange:
-            self.axes.setWindow(0, data.nx, 0, data.ny)
-            self.axesyint.setWindow(0, data.nx, 1, data.ny)
-            self.axesxint.setWindow(1, data.nx, 0, data.ny)
-            #self.plot.viewport = (.1, .95, .1, .1 + .85 * self._axesratio)
-            #self.axes.xtick = self.axes.ytick = 4
-            #self.axes.majorx = self.axes.majory = 4
-        self._axesrange = (data.nx, data.ny)
-        self.surf.x = numpy.linspace(0, data.nx, data.nx)
-        self.surf.y = numpy.linspace(0, data.ny, data.ny)
+    def setData(self, array):
+        self._array = array
+        _nz, ny, nx = 1, 1, 1
+        n = len(array.shape)
+        if n >= 2:
+            nx = array.shape[n - 1]
+            ny = array.shape[n - 2]
+        if n == 3:
+            # TODO: Add support for three dimensional arrays
+            _nz = array.shape[n - 3]
+        self._axesratio = ny / float(nx)
+        if (ny, nx) != self._axesrange:
+            self.axes.setWindow(0, nx, 0, ny)
+            self.axesyint.setWindow(0, nx, 1, ny)
+            self.axesxint.setWindow(1, nx, 0, ny)
+        self._axesrange = (ny, nx)  # rows, cols
+        self.surf.x = numpy.linspace(0, nx, nx)
+        self.surf.y = numpy.linspace(0, ny, ny)
         self._updateZData()
-        arr2d = data.arr.reshape((data.ny, data.nx))
-        self.curvey.x = numpy.arange(0, data.nx)
-        self.curvey.y = arr2d.sum(axis=0)
-        self.curvex.y = numpy.arange(0, data.ny)
-        self.curvex.x = arr2d.sum(axis=1)
-        self.axesyint.setWindow(0, data.nx, 1, self.curvey.y.max())
-        self.axesxint.setWindow(1, self.curvex.x.max(), 0, data.ny)
+        self.curvey.x = numpy.arange(0, nx)
+        self.curvey.y = array.sum(axis=0)
+        self.curvex.y = numpy.arange(0, ny)
+        self.curvex.x = array.sum(axis=1)
+        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
+        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
         self._rescale()
 
     def getColormap(self):
@@ -297,8 +286,8 @@ class LiveWidget(QWidget):
         self.gr.update()
 
     def unzoom(self):
-        self.axes.setWindow(0, self._axesrange[0],
-                            0, self._axesrange[1])
+        self.axes.setWindow(0, self._axesrange[1],
+                            0, self._axesrange[0])
         nx, ny = len(self.curvey.x), len(self.curvex.y)
         self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
         self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)

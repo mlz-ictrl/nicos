@@ -41,7 +41,8 @@ from qtgr.events.mouse import MouseEvent
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
-from nicos.guisupport.livewidget import LiveWidget, Data, DATATYPES, FILETYPES
+from nicos.core.errors import NicosError
+from nicos.guisupport.livewidget import LiveWidget, DATATYPES, FILETYPES
 from nicos.protocols.cache import cache_load
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -130,8 +131,9 @@ class LiveDataPanel(Panel):
         #                             CreateProfile | Histogram | MinimumMaximum)
         #     self.widget.setStandardColorMap(True, False)
         # configure allowed file types
-        opt_filetypes = set(options.get('filetypes', FILETYPES))
-        self._allowed_tags = opt_filetypes & set(FILETYPES)
+        supported_filetypes = FILETYPES.keys()
+        opt_filetypes = set(options.get('filetypes', supported_filetypes))
+        self._allowed_tags = opt_filetypes & set(supported_filetypes)
         if self.client.connected:
             self.on_client_connected()
 
@@ -242,6 +244,13 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
 
+    def setDataFromFile(self, filename, tag):
+        if tag in FILETYPES:
+            array = FILETYPES[tag].fromfile(filename)
+            self.widget.setData(array)
+        else:
+            raise NicosError('Unsupported fileformat \'%s\'' % tag)
+
     def on_client_livedata(self, data):
         if self._last_fname and path.isfile(self._last_fname) and \
                         self._last_tag in self._allowed_tags:
@@ -255,12 +264,15 @@ class LiveDataPanel(Panel):
         if self._last_tag in self._allowed_tags or self._last_tag == 'live':
             if len(data) and self._last_format:
                 # we got live data with a specified format
-                self.widget.setData(
-                    Data(self._nx, self._ny, self._nz, self._last_format, data))
+                array = numpy.frombuffer(data, self._last_format)
+                if self._nz > 1:
+                    array = array.reshape((self._nz, self._ny, self._nx))
+                elif self._ny > 1:
+                    array = array.reshape((self._ny, self._nx))
+                self.widget.setData(array)
             elif self._last_fname:
                 # we got no live data, but a filename with the data
-                self.widget.setData(Data.fromfile(self._last_fname,
-                                                  self._last_tag))
+                self.setDataFromFile(self._last_fname, self._last_tag)
 
     def add_to_flist(self, filename, fformat, ftag, scroll=True):
         shortname = path.basename(filename)
@@ -290,7 +302,7 @@ class LiveDataPanel(Panel):
         else:
             # show image from file
             self._no_direct_display = True
-        self.widget.setData(Data.fromfile(fname, ftag))
+        self.setDataFromFile(fname, ftag)
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)

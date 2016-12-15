@@ -136,3 +136,15 @@ class SingleFileSinkHandler(DataSinkHandler):
     def end(self):
         if self._file:
             self._file.close()
+
+
+class ImageFileReader(object):
+
+    @classmethod
+    def fromfile(cls, filename):
+        """Reads an Image from `filename` and returns a numpy array with
+        correct shape.
+
+        Can raise an error in case the file is unreadable.
+        """
+        raise NotImplementedError('implement classmethod fromfile')
