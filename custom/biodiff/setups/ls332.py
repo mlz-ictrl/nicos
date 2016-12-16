@@ -3,6 +3,8 @@
 description = "Setup for the LakeShore 332 cryo temp. controller"
 group = "optional"
 
+includes = ["alias_T"]
+
 tango_base = "tango://phys.biodiff.frm2:10000/biodiff/"
 
 devices = dict(
