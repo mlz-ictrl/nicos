@@ -11,7 +11,6 @@ devices = dict(
                               ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
                               ('admin', 'ec326b6858b88a51ff1605197d664add', 'admin'),
                               ('andreas', 'da5121879fff54b08b69ec54d9ac2bf6', 'admin'),
-                              ('ralph', 'e543fdb4737f66b96e764d7303a15ae8', 'admin'),
                               ('andre', '1b2bc04a135d959e8da04733e24195da', 'admin'),
                               ('sebastian', '6c79a7389f572813edfe5fc873e099ce', 'admin'),
                               ('sbusch', 'b71e7f18a043b020b4935f6694a918cf', 'admin'),
