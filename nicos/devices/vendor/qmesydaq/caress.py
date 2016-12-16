@@ -146,7 +146,10 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
         self._start(1)
 
     def _reset(self):
-        self._load_preset(RESETMODULE)
+        try:
+            self._load_preset(RESETMODULE)
+        except NicosError:
+            raise NicosError(self, 'Could not reset module')
 
     def _load_preset(self, kind, preset=0):
         if hasattr(self._caressObject, 'load_module'):
@@ -166,7 +169,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
                                         kind, params, 0)
             self.log.debug('Preset module: %r %r', result, loaded)
         if result not in [0, CARESS.OK]:
-            raise NicosError(self, 'Could not reset module')
+            raise NicosError(self, 'Could not preset module')
 
     def doReset(self):
         self._reset()
