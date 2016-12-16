@@ -372,7 +372,7 @@ _spinflipper = Column(
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
         ),
         ],
-        setups='spinflipper',
+        setups='spinflip',
     ),
 )
 

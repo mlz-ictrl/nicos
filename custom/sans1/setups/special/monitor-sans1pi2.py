@@ -288,7 +288,7 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
             ),
     ],
-    setups='spinflipper',
+    setups='spinflip',
 )
 
 newports = []
