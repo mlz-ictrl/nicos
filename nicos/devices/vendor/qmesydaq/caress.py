@@ -162,10 +162,10 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             params.append(CORBA.Any(CORBA._tc_long, 2))  # 32 bit int type
             params.append(CORBA.Any(CORBA._tc_long, preset))
             params.append(CORBA.Any(CORBA._tc_long, 0))  # no next module
-            result = self._caress_guard(self._caressObject.load_module_orb,
+            result, loaded = self._caress_guard(self._caressObject.load_module_orb,
                                         kind, params, 0)
-            self.log.debug('Preset module: %r' % (result,))
-        if result[0] not in [0, CARESS.OK]:
+            self.log.debug('Preset module: %r, %r' % (result, loaded))
+        if result not in [0, CARESS.OK]:
             raise NicosError(self, 'Could not reset module')
 
     def doReset(self):
