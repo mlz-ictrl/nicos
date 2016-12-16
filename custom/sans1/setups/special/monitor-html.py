@@ -241,6 +241,17 @@ _sc2 = Column(
     ),
 )
 
+_sc_t = Column(
+    Block('Temperature Sample Changer', [
+         BlockRow(
+            Field(name='Position', dev='sc_t_y'),
+            Field(name='SampleChanger', dev='sc_t'),
+        ),
+        ],
+        setups='sc_t',
+    ),
+)
+
 _ccmsanssc = Column(
     Block('Magnet Sample Changer', [
          BlockRow(
@@ -523,7 +534,7 @@ devices = dict(
                                  Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
-                                     _spinflipper, _ccrs, _cryos, _sc1, _sc2,
+                                     _spinflipper, _ccrs, _cryos, _sc1, _sc2, _sc_t,
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports, _julabo, _tisane_counts, _tisane_fc,
                                      _tisane_fg1, _tisane_fg2),
