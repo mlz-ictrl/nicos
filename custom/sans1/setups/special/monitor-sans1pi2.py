@@ -51,6 +51,7 @@ _sc_t = Block('Temperature Sample Changer', [
 _ccmsanssc = Block('Magnet Sample Changer', [
     BlockRow(Field(name='Position', dev='ccmsanssc_axis'),),
     BlockRow(Field(name='SampleChanger', dev='ccmsanssc_position', format='%i'),),
+    BlockRow(Field(name='Switch', dev='ccmsanssc_switch'),),
     ],
     setups='ccmsanssc',
 )

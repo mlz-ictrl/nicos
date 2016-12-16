@@ -260,6 +260,9 @@ _ccmsanssc = Column(
          BlockRow(
             Field(name='SampleChanger', dev='ccmsanssc_position', format='%i'),
         ),
+         BlockRow(
+            Field(name='Switch', dev='ccmsanssc_switch'),
+        ),
         ],
         setups='ccmsanssc',
     ),

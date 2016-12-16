@@ -8,7 +8,8 @@ tango_base = 'tango://ccmsanssc:10000/box/'
 
 devices = dict(
     ccmsanssc_switch = device('devices.tango.NamedDigitalOutput',
-        lowlevel = True,
+        description = 'position switch for pressure valve',
+        lowlevel = False,
         tangodevice = tango_base + 'phytron/switch',
         mapping = {
             'free': 1,
@@ -37,7 +38,7 @@ devices = dict(
         switch = 'ccmsanssc_switch',
         switchvalues = (2, 1),
         fmtstr = '%.2f',
-        precision = 0.1,
+        precision = 0.2,
         dragerror = 5,
     ),
     ccmsanssc_position = device('devices.generic.MultiSwitcher',
