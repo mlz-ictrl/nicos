@@ -7,6 +7,8 @@ includes = ['aliases', 'system', 'mux', 'monochromator', 'detector',
 
 excludes = ['stressi']
 
+modules = ['commands.standard', 'stressi.commands']
+
 sysconfig = dict(
     datasinks = ['caresssink'],
 )
