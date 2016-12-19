@@ -9,6 +9,8 @@ servername = 'VME'
 
 nameservice = 'stressictrl'
 
+excludes = ['robot']
+
 sysconfig = dict(
     datasinks = ['caresssink'],
 )
