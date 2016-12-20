@@ -23,14 +23,14 @@ for ep in range(1, 19):
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr = '%.1f',
-                                     warnlimits = (25, 60))
+                                     warnlimits = (25, 75))
     devices[epname + '_TB'] = device('devices.epics.EpicsReadable',
                                      description = epname + ' board temperature',
                                      readpv = common.mnames[epname] + ':RsppTemperature',
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr='%.1f',
-                                     warnlimits = (25, 40))
+                                     warnlimits = (25, 45))
     devices[epname + '_HV'] = device('devices.epics.EpicsReadable',
                                      description = epname + ' HV setting',
                                      readpv = common.mnames[epname] + ':HighVoltage_R',
