@@ -43,3 +43,9 @@ devices = dict(
                     loglevel = 'info',
                    ),
 )
+
+# This is required because of the way threading works in pyepics.
+# If omitted, there may be problems accessing PVs from multiple threads.
+startupcode='''
+import nicos.devices.epics
+'''
