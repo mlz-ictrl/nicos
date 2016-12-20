@@ -50,7 +50,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'spodictrl.spodi.frm2',
-    instrument = None,
+    instrument = 'Spodi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email', 'smser'],
@@ -83,7 +83,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
                       description = 'experiment object',
-                      dataroot = 'data',
+                      dataroot = '/data',
                       sendmail = True,
                       serviceexp = 'p0',
                       sample = 'Sample',
@@ -103,7 +103,7 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      path = None,
+                      path = '/data',
                       minfree = 5,
                      ),
 )
