@@ -52,7 +52,7 @@ sysconfig = dict(
     cache = 'spodictrl.spodi.frm2',
     instrument = 'Spodi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'spodisink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -100,6 +100,11 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
+    spodisink = device('spodi.datasinks.CaressHistogram',
+                       description = 'SPODI specific histogram file format',
+                       lowlevel = True,
+                       filenametemplate = ['m1%(pointcounter)08d.dat'],
+                      ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
