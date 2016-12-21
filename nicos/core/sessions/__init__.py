@@ -992,11 +992,8 @@ class Session(object):
         The device must exist in the `configured_devices` dict.
         """
         devclsname, devconfig = self.configured_devices[devname]
-        if 'description' in devconfig:
-            self.log.info('creating device %r (%s)... ',
-                          devname, devconfig['description'])
-        else:
-            self.log.info('creating device %r... ', devname)
+        self.log.debug('importing device class %s for device %r',
+                       devclsname, devname)
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = self._nicos_import(modname, clsname)
@@ -1046,9 +1043,17 @@ class Session(object):
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
+
         devcls, devconfig = self.importDevice(devname, replace_classes)
+        if 'description' in devconfig:
+            self.log.info('creating device %r (%s)... ',
+                          devname, devconfig['description'])
+        else:
+            self.log.info('creating device %r... ', devname)
+
         try:
             dev = devcls(devname, **devconfig)
+            self.log.debug('device %r created... ', devname)
         except Exception:
             if self._failed_devices is not None:
                 self._failed_devices.add(devname)
