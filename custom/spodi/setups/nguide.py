@@ -2,7 +2,7 @@
 
 description = 'Spodi neutron guide'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = []
 

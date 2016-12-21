@@ -2,7 +2,7 @@ description = 'SPODI setup'
 
 group = 'basic'
 
-includes = ['system', 'mux', 'sampletable', 'detector',
+includes = ['system', 'mux', 'sampletable', 'detector', 'nguide',
 #           'slits',
            ]
 
