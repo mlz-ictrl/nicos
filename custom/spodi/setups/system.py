@@ -90,6 +90,11 @@ devices = dict(
                       sample = 'Sample',
                       mailsender = 'spodi@frm2.tum.de',
                       elog = True,
+                      managerights = dict(enableDirMode=0o775,
+                                          enableFileMode=0o644,
+                                          disableDirMode=0o550,
+                                          disableFileMode=0o440,
+                                          owner='spodi', group='spodi'),
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
