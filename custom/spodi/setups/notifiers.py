@@ -10,6 +10,7 @@ devices = dict(
                                 ('anatoliy.senishyn@frm2.tum.de', 'all'),   # gets all messages
                                 ('josef.pfanzelt@frm2.tum.de', 'important')], # gets only important messages
                       subject = 'SPODI',
+                      mailserver ='mailhost.frm2.tum.de',
                       lowlevel = True,
                      ),
 
