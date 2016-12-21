@@ -30,7 +30,7 @@ devices = dict(
                                           owner='jcns', group='panda'),
                       sendmail = True,
                       zipdata = True,
-                      mailserver = 'smtp.frm2.tum.de',
+                      mailserver = 'mailhost.frm2.tum.de',
                       mailsender = 'panda@frm2.tum.de',
                       serviceexp = 'service',
                       ),

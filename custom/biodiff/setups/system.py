@@ -80,7 +80,7 @@ devices = dict(
                                           disableOwner='jcns',
                                           disableGroup='biodiff',
                                          ),
-                      mailserver = 'localhost',
+                      mailserver = 'mailhost.frm2.tum.de',
                       mailsender = 'biodiff@frm2.tum.de',
                       sendmail = True,
                       zipdata = True,

@@ -35,7 +35,7 @@ devices = dict(
                                         owner='nicd', group='puma'),
                     sendmail = True,
                     zipdata = True,
-                    mailserver = 'smtp.frm2.tum.de',
+                    mailserver = 'mailhost.frm2.tum.de',
                     mailsender = 'puma@frm2.tum.de',
                     serviceexp = 'service',
                    ),

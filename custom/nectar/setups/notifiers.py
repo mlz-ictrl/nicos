@@ -10,7 +10,7 @@ devices = dict(
                                 ('thomas.buecherl@tum.de', 'all'),
                                ],
                       subject = '[NECTAR]',
-                      mailserver = 'smtp.frm2.tum.de',
+                      mailserver = 'mailhost.frm2.tum.de',
                       lowlevel = True,
                      ),
 
