@@ -81,9 +81,10 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('frm2.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/data',
+                      propdb = '/spodicontrol/propdb',
                       sendmail = True,
                       serviceexp = 'p0',
                       sample = 'Sample',
