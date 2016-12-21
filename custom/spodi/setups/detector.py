@@ -62,6 +62,7 @@ devices = dict(
                  caresspath = caresspath,
                  toolpath = toolpath,
                  lowlevel = True,
+                 absdev = False,
                 ),
     tim1 = device('devices.vendor.qmesydaq.caress.Timer',
                   description = 'HWB TIM1',
@@ -72,6 +73,7 @@ devices = dict(
                   caresspath = caresspath,
                   toolpath = toolpath,
                   lowlevel = True,
+                  absdev = False,
                  ),
     image = device('devices.vendor.qmesydaq.caress.Image',
                    description = 'Image data device',
@@ -83,6 +85,7 @@ devices = dict(
                    config = 'HISTOGRAM 500 qmesydaq.caress_object histogram 0'
                             ' 80 256',
                    lowlevel = True,
+                   absdev = False,
                   ),
     basedet = device('devices.generic.Detector',
                      description = 'Classical detector with single channels',
