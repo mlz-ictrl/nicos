@@ -30,7 +30,7 @@ from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
     none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
-from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod
+from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqCall
 
 
 class Detector(MeasureSequencer):
@@ -153,11 +153,11 @@ class Detector(MeasureSequencer):
         seq = []
         for step in range(self.resosteps):
             pos = self._startpos - step * self._step_size
-            seq.append(SeqMethod(self._attached_motor, 'maw', pos))
-            seq.append(SeqMethod(self, '_startDet'))
-            seq.append(SeqMethod(self._attached_detector, 'wait'))
-            seq.append(SeqMethod(self, '_read_value'))
-            seq.append(SeqMethod(self, '_incStep'))
+            seq.append(SeqDev(self._attached_motor, pos, stoppable=True))
+            seq.append(SeqCall(self._startDet))
+            seq.append(SeqCall(self._attached_detector.wait))
+            seq.append(SeqCall(self._read_value))
+            seq.append(SeqCall(self._incStep))
         return seq
 
     def doRead(self, maxage=0):
@@ -178,12 +178,14 @@ class Detector(MeasureSequencer):
         return ret
 
     def doReset(self):
+        self._det_run = False
         self._last_live = 0
         self._step = 0
         self._array_data.fill(0)
         self._attached_detector.doReset()
         self._data = [0] * len(self._attached_detector.valueInfo())
-        self._attached_motor.maw(self._startpos)
+        MeasureSequencer.doReset(self)
+        # self._attached_motor.maw(self._startpos)
 
     def doPause(self):
         self._attached_detector.doPause()
