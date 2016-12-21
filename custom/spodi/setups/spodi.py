@@ -2,7 +2,7 @@ description = 'SPODI setup'
 
 group = 'basic'
 
-includes = ['system', 'sampletable', 'detector',
+includes = ['system', 'mux', 'sampletable', 'detector',
 #           'slits',
            ]
 
@@ -19,20 +19,3 @@ includes = ['system', 'sampletable', 'detector',
 # YM=-2043.89 ZM=-6347.84 SLITM_U=0 SLITM_D=0 SLITM_L=0 SLITM_R=0 SLITS_U=0
 # SLITS_D=0 SLITS_L=0 SLITS_R=0 POSH=0 EXT=0 LOAD=0 CHIT=0 TEPOS=0 TEEXT=0
 # TELOAD=0 TOPOS=0 TOMOM=0 SAMS=38573.1 SAMR=0 XS=0 YS=0 ZS=0
-
-nameservice = 'spodictrl'
-
-servername = 'VME'
-
-devices = dict(
-    mux = device('devices.vendor.caress.MUX',
-                 description = 'The famous MUX',
-                 nameserver = '%s' % (nameservice,),
-                 objname = '%s' % (servername),
-                 config = 'MUX3 38 4 ttyS1 1',
-                 lowlevel = True,
-                ),
-)
-
-alias_config = {
-}
