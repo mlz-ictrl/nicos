@@ -4,7 +4,7 @@ group = 'optional'
 
 servername = 'SPODICTRL'
 
-nameservice = 'spodictrl.spodi.frm2'
+nameservice = 'spodisrv.spodi.frm2'
 
 includes = []
 

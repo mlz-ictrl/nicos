@@ -6,7 +6,7 @@ includes = []
 
 servername = 'VMESPODI'
 
-nameservice = 'spodictrl.spodi.frm2'
+nameservice = 'spodisrv.spodi.frm2'
 
 # caress@spodictrl:/opt/caress>./dump_u1 bls
 # BLS: OMGS=(-360,360) TTHS=(-3.1,160)
