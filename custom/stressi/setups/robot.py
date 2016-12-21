@@ -30,6 +30,7 @@ devices = dict(
                     config = 'DUMMYO 114 11 0x00f1c000 1 4096 500 50 2 24 50 '
                              '-1 10 1 5000 1 10 0 0 0',
                     lowlevel = True,
+                    pollinterval = None,
                    ),
     dummyT = device('devices.vendor.caress.Motor',
                     description = 'Feedback device for the robotor',
@@ -42,6 +43,7 @@ devices = dict(
                     config = 'DUMMYT 114 11 0x00f1c000 3 4096 500 5  2 24 50 '
                              '1 10 1 3000 1 30 0 0 0',
                     lowlevel = True,
+                    pollinterval = None,
                    ),
     chir = device('devices.vendor.caress.Motor',
                   description = 'ROBOT CHIS',
