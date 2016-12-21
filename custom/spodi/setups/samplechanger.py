@@ -22,7 +22,7 @@ includes = []
 # TELOAD=0 TOPOS=0 TOMOM=0 SAMS=38573.1 SAMR=0 XS=0 YS=0 ZS=0
 
 devices = dict(
-    sams = device('devices.vendor.caress.Motor',
+    samsm = device('devices.vendor.caress.Motor',
                   description = 'HWB SAMS',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -32,6 +32,7 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'SAMS 114 11 0x00f1e000 4 409 2000 100 2 24 50 '
                            '-1 0 1 4000 1 10 10 0 0',
+                  lowlevel = True,
                  ),
     # Sample changer ***Attention SAMR is also CHIT (Load Frame Chi)***
     samr = device('devices.vendor.caress.Motor',
@@ -44,6 +45,27 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'SAMR 115 11 0x00f1d000 1 644 10000 1000 1 0 50 '
                            '1 0 1 4000 1 10 10 0 0',
+                 ),
+    sams = device('devices.generic.Switcher',
+                  description = 'Sample Changer drum',
+                  moveable = 'samsm',
+                  mapping = {'S1': 0.53,
+                             'S2': 36.28,
+                             'S3': 72.16,
+                             'S4': 108.00,
+                             'S5': 144.10,
+                             'S6': 180.59,
+                             'S7': 266.66,
+                             'S8': 252.41,
+                             'S9': 288.56,
+                             'S10': 324.50,
+                            },
+                  fallback = 0,
+                  fmtstr = '%s',
+                  precision = 0.05,
+                  blockingmove = False,
+                  lowlevel = False,
+                  unit = '',
                  ),
 )
 
