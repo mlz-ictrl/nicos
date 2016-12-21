@@ -87,6 +87,7 @@ devices = dict(
                       sendmail = True,
                       serviceexp = 'p0',
                       sample = 'Sample',
+                      mailsender = 'spodi@frm2.tum.de',
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
