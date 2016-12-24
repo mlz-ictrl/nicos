@@ -25,7 +25,7 @@
 """Utilities for function fitting."""
 
 from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, \
-    pi, sqrt, exp, log, cos, piecewise
+    pi, sqrt, exp, log, cos, piecewise, isinf
 
 try:
     from scipy.optimize.minpack import leastsq
@@ -85,6 +85,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
         return popt, pcov, infodict, errmsg, ier
     else:
         return popt, pcov
+
 
 try:
     from scipy.optimize.minpack import curve_fit
@@ -373,3 +374,15 @@ class TcFit(PredefinedFit):
             ('Tc', res.Tc, res.dTc),
             ('alpha', res.alpha, res.dalpha)
         ]
+
+
+class SigmoidFit(PredefinedFit):
+    """Fit a Sigmoid function."""
+
+    fit_title = 'Sigmoid'
+    fit_params = ['a', 'b', 'x0', 'c']
+
+    def fit_model(self, x, a, b, x0, c):
+        v = a / (1 + exp(-b * (x - x0))) + c
+        v[isinf(v)] = 0.0
+        return v

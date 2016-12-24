@@ -365,6 +365,20 @@
     <string>Fit Cosine function</string>
    </property>
   </action>
+  <action name="actionFitSigmoid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fit &amp;Sigmoid</string>
+   </property>
+   <property name="iconText">
+    <string>Fit Sigmoid</string>
+   </property>
+   <property name="toolTip">
+    <string>Fit Sigmoid function</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

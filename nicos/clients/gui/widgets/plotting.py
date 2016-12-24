@@ -32,7 +32,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 import numpy as np
 
 from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
-    PearsonVIIFit, TcFit, CosineFit, FitError
+    PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
@@ -128,6 +128,19 @@ class GaussFitter(Fitter):
         parstart = [x0, abs(y0-yb), abs(x0-xw), yb]
         totalwidth = abs(x0 - xb)
         f = GaussFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        return f.run_or_raise(*self.data)
+
+
+class SigmoidFitter(Fitter):
+    """."""
+
+    title = 'sigmoid fit'
+    picks = ['Left point', 'Right point']
+
+    def do_fit(self):
+        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+        pastart = [y2 - y1, 1, (x2 - x1) / 2. + x1, y1]
+        f = SigmoidFit(pastart, xmin=x1, xmax=x2)
         return f.run_or_raise(*self.data)
 
 
