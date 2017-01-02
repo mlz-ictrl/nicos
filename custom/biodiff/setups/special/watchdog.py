@@ -20,7 +20,7 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = '(sixfold_value == 0 or nl1_value == 0) '
+    dict(condition = '(sixfold_value == \'closed\' or nl1_value == \'closed\') '
                      'and reactorpower_value > 19',
          message = 'NL1 or sixfold shutter closed',
          type = 'critical',
