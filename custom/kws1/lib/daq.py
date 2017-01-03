@@ -103,7 +103,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self._dev.tofRange = times
 
     def doPrepare(self):
-        self._dev.Clear()
+        self._dev.Prepare()
 
     def doStart(self):
         self.readresult = [0, 0.0]
@@ -232,6 +232,14 @@ class KWSDetector(Detector):
                                          'as attached image')
             self.kwscounting = False
 
+    def _configure(self):
+        for ch in self._channels:
+            if isinstance(ch, FPGAChannelBase):
+                ch.extmode = self.mode == 'realtime_external'
+        # TODO: ensure that total meas. time < 2**31 usec
+        self._img._configure((self.tofchannels, self.tofinterval,
+                              self.tofprogression))
+
     def doWriteMode(self, mode):
         self._img.mode = mode
 
@@ -243,12 +251,7 @@ class KWSDetector(Detector):
         Detector.doSetPreset(self, **preset)
 
     def doPrepare(self):
-        for ch in self._channels:
-            if isinstance(ch, FPGAChannelBase):
-                ch.extmode = self.mode == 'realtime_external'
-        # TODO: ensure that total meas. time < 2**31 usec
-        self._img._configure((self.tofchannels, self.tofinterval,
-                              self.tofprogression))
+        self._configure()
         Detector.doPrepare(self)
 
     def doStart(self):

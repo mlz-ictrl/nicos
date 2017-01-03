@@ -43,7 +43,7 @@ def SetupRealtime(channels, interval, progression, trigger):
     detector.tofinterval = interval
     detector.tofprogression = progression
     # let the detector calculate the preset
-    detector.prepare()
+    detector._configure()
     detector.setPreset(t=0)
     # switch SPS output that triggers signal routing relays (only KWS1)
     if 'det_ext_rt' in session.configured_devices:
