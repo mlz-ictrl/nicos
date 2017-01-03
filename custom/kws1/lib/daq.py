@@ -135,21 +135,16 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     _last = None
 
     def doReadArray(self, quality):
-        shape = self.arraydesc.shape
-        if self.mode == 'standard':
-            array = self._dev.GetBlock([0, shape[0]*shape[1]])
-            arr = np.array(array, np.uint32).reshape(shape)
-        else:
-            array = self._dev.GetBlock([0, shape[0]*shape[1]*shape[2]])
-            arr = np.array(array, np.uint32).reshape((shape[2], shape[0], shape[1]))
-            arr = np.swapaxes(np.swapaxes(arr, 0, 2), 0, 1)
-            arr = arr.reshape(shape)
+        shape = self.arraydesc.shape[::-1]
+        arr = self._dev.GetBlock([0, int(np.product(shape))])
         cur = arr.sum(), self._attached_timer.read(0)[0]
 
+        # for final images, calculate overall rate on detector
         if quality in (FINAL, INTERRUPTED):
             self.readresult = [cur[0], cur[0] / cur[1] if cur[1] else 0]
-            return arr
+            return np.asarray(arr, np.uint32).reshape(shape)
 
+        # for live measurements, calculate live rate on detector
         if cur[1] == 0:
             rate = 0.0
         elif self._last is None or self._last[1] > cur[1]:

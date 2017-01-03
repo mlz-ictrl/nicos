@@ -176,10 +176,15 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             self._writedet_tof(w, image, fp)
 
     def _writedet_standard(self, w, image):
-        w('(* Detector Data (Data_Field = 16384 values = 8 * 2048) *)\n')
+        w('(* Detector Data *)\n')
         w('$\n')
 
-        data = image.ravel()
+        if 128 < image.shape[1] < 256:
+            # fill X axis up to 256
+            n = (256 - image.shape[1]) // 2
+            image = np.pad(image, ((0, 0), (n, n)), mode='constant')
+
+        data = image.T.ravel()
         for (i, val) in enumerate(data):
             w('%8d ' % val)
             if (i + 1) % 8:
@@ -194,7 +199,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         if chop_params[0] != 0:  # no chopper in realtime mode
             w('(* Chopper freq=%f Hz, phase=%f deg *)\n' % tuple(chop_params))
             w('\n')
-        nslots = image.shape[2]
+        nslots = image.shape[0]
         w('(* Detector Time Slices: %d slices, unit=us *)\n' % nslots)
         w(' '.join('%8d' % s for s in detimg.slices))
         w('\n\n')
@@ -202,8 +207,14 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         w('(* Detector Data for %s mode %d timeslots *)\n' %
           (detimg.mode, nslots))
         for i in range(nslots):
+            slot = image[i]
+            if 128 < slot.shape[1] < 256:
+                # fill X axis up to 256
+                n = (256 - slot.shape[1]) // 2
+                slot = np.pad(slot, ((0, 0), (n, n)), mode='constant')
+
             w('(* timeslot %d *)\n' % i)
-            np.savetxt(fp, image[:, :, i], fmt='%8d')
+            np.savetxt(fp, slot.T, fmt='%8d')
             w('\n')
 
 
