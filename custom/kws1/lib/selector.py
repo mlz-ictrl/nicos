@@ -50,8 +50,12 @@ class SelectorLambda(Moveable):
     """
 
     parameters = {
-        'constant': Param('Conversion constant: lam[Ang] = constant/speed[Hz]',
+        'constant': Param('Conversion constant: '
+                          'lam[Ang] = constant/speed[Hz] + offset',
                           mandatory=True, unit='Ang Hz'),
+        'offset':   Param('Conversion offset: '
+                          'lam[Ang] = constant/speed[Hz] + offset',
+                          default=0, unit='Ang'),
     }
 
     attached_devices = {
@@ -61,17 +65,17 @@ class SelectorLambda(Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        spd = self._attached_seldev.read(maxage)
-        return 60 * self.constant / spd if spd else -1
+        speed = self._attached_seldev.read(maxage)
+        return (60 * self.constant / speed) + self.offset if speed else -1
 
     def doIsAllowed(self, value):
         if value == 0:
             return False, 'zero wavelength not allowed'
-        speed = int(round(60 * self.constant / value))
+        speed = int(round(60 * self.constant / (value - self.offset)))
         return self._attached_seldev.isAllowed(speed)
 
     def doStart(self, value):
-        speed = int(round(60 * self.constant / value))
+        speed = int(round(60 * self.constant / (value - self.offset)))
         self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)
 
