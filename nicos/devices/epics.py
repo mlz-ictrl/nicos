@@ -258,6 +258,8 @@ class EpicsMoveable(EpicsDevice, Moveable):
         return self.pv_parameters
 
     def doInit(self, mode):
+        if mode == SIMULATION:
+            return
         intype = FTYPE_TO_VALUETYPE.get(self._pvs['readpv'].ftype, anytype)
         outtype = FTYPE_TO_VALUETYPE.get(self._pvs['writepv'].ftype, anytype)
         if intype != self.valuetype:
