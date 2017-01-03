@@ -3,6 +3,7 @@ Section: misc
 Priority: extra
 Maintainer: Alexander Lenz <alexander.lenz@frm2.tum.de>
 Build-Depends: debhelper (>= 9.0.0),
+ git,
  python (>= 2.7),
  python-setuptools
 Standards-Version: 3.9.3
