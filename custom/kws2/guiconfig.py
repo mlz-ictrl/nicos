@@ -5,7 +5,8 @@ main_window = tabbed(
         vsplit(
             hsplit(
                 vsplit(
-                    panel('cmdbuilder.CommandPanel'),
+                    panel('cmdbuilder.CommandPanel',
+                          modules=['kws1.gui.cmdlets']),
                     panel('status.ScriptStatusPanel'),
                 ),
             ),
@@ -17,7 +18,10 @@ main_window = tabbed(
                     panel('errors.ErrorPanel')),
             ),
         ),
-        ('Experiment Info', panel('expinfo.ExpInfoPanel', dockpos='left')),
+        ('Experiment Info',
+            panel('expinfo.ExpInfoPanel', dockpos='left',
+                  sample_panel='kws1.gui.sampleconf.KWSSamplePanel'),
+        ),
         ('NICOS devices',
             panel('devices.DevicesPanel', icons=True, dockpos='right')),
     )),
@@ -26,23 +30,22 @@ main_window = tabbed(
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
                 tools = [
-                    tool('Scan Generator', 'scan.ScanTool')
+                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
             ]),
         )),
     ('Scan Plotting', panel('scans.ScansPanel')),
     ('Device Plotting', panel('history.HistoryPanel')),
     ('Logbook', panel('elog.ELogPanel')),
-#    ('Live display', panel('live.LiveDataPanel')),
 )
 
 windows = []
 
 tools = [
-    tool('Downtime report', 'downtime.DownTimeTool',
-         receiver='f.carsughi@fz-juelich.de',
-         mailserver='smtp.frm2.tum.de',
-         sender='kws2@frm2.tum.de',
-        ),
+    cmdtool('Detector live view', 'KWSlive'),
+    cmdtool('Server control (Marche)', 'marche-gui'),
+    cmdtool('GE detector status', 'nicos-monitor -S monitor-gedet'),
+    tool('Emergency stop button', 'estop.EmergencyStopTool',
+         runatstartup=False),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
@@ -51,6 +54,9 @@ tools = [
     tool('Neutron calculations', 'website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-    tool('Emergency stop button', 'estop.EmergencyStopTool',
-         runatstartup=False),
+    tool('Downtime report', 'downtime.DownTimeTool',
+         receiver='f.carsughi@fz-juelich.de',
+         mailserver='smtp.frm2.tum.de',
+         sender='kws2@frm2.tum.de',
+        ),
 ]
