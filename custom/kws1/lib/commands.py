@@ -59,8 +59,9 @@ def SetupNormal():
     detector = session.getDevice('det')
     # just set it to standard mode, TOF mode will be set by the chopper preset
     detector.mode = 'standard'
-    rtswitch = session.getDevice('det_ext_rt')
-    rtswitch.move(0)
+    if 'det_ext_rt' in session.configured_devices:
+        rtswitch = session.getDevice('det_ext_rt')
+        rtswitch.move(0)
     session.log.info('Detector presets set to standard or TOF mode.')
 
 
