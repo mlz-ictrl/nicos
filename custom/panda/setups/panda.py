@@ -3,7 +3,7 @@ description = 'PANDA triple-axis setup'
 group = 'basic'
 
 includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual',
-            'alias_sth', 'monofoci', 'reactor', 'sat', 'blenden', 'water']
+            'alias_sth', 'monofoci', 'reactor', 'sat', 'water']
 # monoturm is included by panda_s7
 
 #~ modules = ['commands.tas','panda.commands']

@@ -13,7 +13,7 @@ devices = dict(
                     loglevel = 'info',
                     autosetup = True,
                     alwayspoll = ['water'],
-                    neverpoll = ['blenden'],
-                    blacklist = ['ss1', 'ss2'],
+                    neverpoll = ['blenden_old'],
+                    blacklist = [],
                     ),
 )

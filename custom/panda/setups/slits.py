@@ -1,13 +1,13 @@
-description = 'IPC slit after mono shielding'
-
-includes = ['system']
+description = 'IPC slits after mono shielding'
 
 group = 'optional'
+includes = ['system']
+
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    ss1bus    = device('devices.vendor.ipc.IPCModBusTCP',
-                       host = 'moxa-mono.panda.frm2',
-                       port = 4001,
+    ss1bus    = device('devices.vendor.ipc.IPCModBusTango',
+                       tangodevice = tango_base + 'ss1/bio',
                        lowlevel = True,
                       ),
 
@@ -96,9 +96,8 @@ devices = dict(
                        maxage = 10,
                       ),
 
-    ss2bus    = device('devices.vendor.ipc.IPCModBusTCP',
-                       host = 'moxa-ana.panda.frm2',
-                       port = 4002,
+    ss2bus    = device('devices.vendor.ipc.IPCModBusTango',
+                       tangodevice = tango_base + 'ss2/bio',
                        lowlevel = True,
                       ),
 
