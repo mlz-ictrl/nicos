@@ -1,6 +1,3 @@
-# dont forget to use the following line after the current experiment
-# to send the data to the users
-#~ FinishExperiment('{{email:<EMAIL_ADRESSE_WHERE_THE_DATA_SHOULD_BE_SEND@somewhere>#comma separated string of email-adresses}}')
 #
 # This script is for Proposal {{proposal#proposalnumber}}
 #
@@ -18,10 +15,8 @@ Sample.angles = (90, 90, 90 )
 
 panda.axiscoupling=False
 
-
 Sample.orient1 = (1, 0, 0)
 Sample.orient2 = (0, 1, 0)
-# Sample.psi0 = 0  # psi_0 is calc-meas = soll - ist
 
 panda.scanconstant={{kf:1.57#kf in A-1}}
 panda.scanmode='CKF'
