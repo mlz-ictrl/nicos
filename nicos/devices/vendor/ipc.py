@@ -119,7 +119,7 @@ IPC_MAGIC = {
     143: ['Read stop delay', None, 10],                    #
     144: ['Read clock divider', None, 10],                   ###
     # encoder/potentiometer (abs enc=#, inc enc=##, poti=###)
-    150: ['Read encoder value', None, 8],                  # ## ###
+    150: ['Read encoder value', None, 15],                 # ## ###
     151: ['Read encoder version', None, 10],               # ## ###
     152: ['Read encoder configuration', None, 10],         # ## ###
     153: ['Reset encoder', None, 1],                       # ## ###
