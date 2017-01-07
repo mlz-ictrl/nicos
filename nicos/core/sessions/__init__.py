@@ -621,6 +621,7 @@ class Session(object):
         if autocreate_devices is None:
             autocreate_devices = self.autocreate_devices
         if autocreate_devices:
+            self.log.debug('autocreating devices...')
             for devname, (_, devconfig) in sorted(iteritems(devlist)):
                 if devconfig.get('lowlevel', False):
                     continue
@@ -633,6 +634,7 @@ class Session(object):
                     failed_devs.append(devname)
 
         # validate and try to attach sysconfig devices
+        self.log.debug('creating sysconfig devices...')
         if sysconfig.get('experiment') not in (None, 'Exp'):
             raise ConfigurationError('the experiment device must be named '
                                      '"Exp", please fix your system setup')
@@ -646,6 +648,7 @@ class Session(object):
                         raise
 
         # set aliases according to alias_config
+        self.log.debug('applying alias config...')
         self.applyAliasConfig()
 
         # remove now nonexisting envlist devices
@@ -658,6 +661,7 @@ class Session(object):
             for code in startupcode:
                 if code:
                     try:
+                        self.log.debug('executing startup code: %r', code)
                         # no local_namespace here
                         exec_(code, self.namespace)
                     except Exception:
@@ -682,6 +686,7 @@ class Session(object):
                            list(self.explicit_setups))
             self.elogEvent('setup', list(self.explicit_setups))
 
+        self.log.debug('executing setup callback...')
         self.setupCallback(list(self.loaded_setups),
                            list(self.explicit_setups))
         if setupnames:
@@ -1109,7 +1114,8 @@ class Session(object):
         if self._mode != MASTER:
             return
         parts = key.split('/')
-        self.log.debug('got PNP message: key %s, value %s', key, value)
+        self.log.debug('got PNP message: key %s, value %s, expired=%s',
+                       key, value, expired)
         if key.endswith('/description'):
             self._pnp_cache['descriptions'][parts[1]] = value
             return
