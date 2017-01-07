@@ -54,10 +54,10 @@ class Tube(NicosWidget, QWidget):
     designer_description = 'KWS tube'
 
     def __init__(self, parent, designMode=False):
-        # z, x, y
-        self._curval = [0, 0, 0]
-        self._curstr = ['', '', '']
-        self._curstatus = [OK, OK, OK]
+        # z, x, y, small_x, small_y
+        self._curval = [0, 0, 0, 0, 0]
+        self._curstr = ['', '', '', '', '']
+        self._curstatus = [OK, OK, OK, OK, OK]
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -69,11 +69,15 @@ class Tube(NicosWidget, QWidget):
         'name':      PropDef(str, ''),
         'posscale':  PropDef(float, 20),
         'color':     PropDef('QColor', _grey.color()),
+        'beamstop':  PropDef(bool, False, 'Beamstop instead of detector Y/Z'),
+        'smalldet':  PropDef(float, 0, 'Positioning of small detector, '
+                             'or zero for no small detector'),
     }
 
     def sizeHint(self):
         return QSize(self.props['width'] * self._scale + 10,
                      self.props['height'] * self._scale +
+                     (self.props['smalldet'] and 50 or 0) +
                      (self.props['name'] and self._scale * 2.5 or 0) + 40)
 
     def registerKeys(self):
@@ -113,6 +117,8 @@ class Tube(NicosWidget, QWidget):
             painter.drawText(5, 0, w, fontscale * 2.5,
                              Qt.AlignCenter, self.props['name'])
             yoff = fontscale * 2.5
+        elif self.props['smalldet']:
+            yoff = 50
         else:
             yoff = 0
 
@@ -125,6 +131,16 @@ class Tube(NicosWidget, QWidget):
         painter.drawLine(30, 5 + yoff, w - 25, 5 + yoff)
         painter.drawLine(30, 5 + yoff + h, w - 25, 5 + yoff + h)
         painter.drawEllipse(w - 45, 5 + yoff, 50, h)
+
+        if self.props['smalldet']:
+            sw = 20
+            sx = 30 + self.props['smalldet'] * posscale
+            painter.setPen(self.color)
+            painter.drawRect(sx - sw, 2, 2*sw, yoff + 10)
+            painter.setPen(QColor('black'))
+            painter.drawLine(sx - sw, 5 + yoff, sx - sw, 2)
+            painter.drawLine(sx - sw, 2, sx + sw, 2)
+            painter.drawLine(sx + sw, 2, sx + sw, 5 + yoff)
 
         # draw detector
         pos_val = self._curval[0]
@@ -143,8 +159,8 @@ class Tube(NicosWidget, QWidget):
             painter.setFont(self.valueFont)
             painter.resetTransform()
             # Translate to detector position
-            painter.translate(30 + pos_val * posscale + fontscale / 2.,
-                              15 + yoff + (h - 20) / 2.)
+            xp = 30 + pos_val * posscale
+            painter.translate(xp + fontscale / 2., 15 + yoff + (h - 20) / 2.)
             painter.drawRect(-fontscale / 2., - (h - 20) / 2., fontscale,
                              h - 20)
             painter.resetTransform()
@@ -152,22 +168,49 @@ class Tube(NicosWidget, QWidget):
             if pos_val < 14:
                 xoff = 2 * fontscale
             else:
-                xoff = - 8 * fontscale
+                xoff = - 8.5 * fontscale
             # X translation
-            painter.drawText(30 + pos_val * posscale + xoff,
-                             yoff + 2 * fontscale,
+            painter.drawText(xp + xoff, yoff + 2 * fontscale,
                              7 * fontscale, 2 * fontscale, Qt.AlignRight,
                              x_str)
             # Y translation
-            painter.drawText(30 + pos_val * posscale + xoff,
+            painter.drawText(xp + xoff,
                              yoff + 3.5 * fontscale,
                              7 * fontscale, 2 * fontscale, Qt.AlignRight,
                              y_str)
             # Z position
-            minx = max(0, 30 + pos_val * posscale + 5 - 4 * fontscale)
+            minx = max(0, xp + 5 - 4 * fontscale)
             painter.drawText(minx,
                              h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
                              pos_str)
+
+            # draw beamstop
+            if self.props['beamstop']:
+                painter.setPen(QPen(_blue.color()))
+                painter.drawRect(xp - 8, yoff + 15 + posscale / 350 * (1100 - y_val),
+                                 2, 10)
+
+        # draw small detector
+        if self.props['smalldet'] and self._curval[4] is not None:
+            x_status = self._curstatus[3]
+            x_str = '%4.1f x' % self._curval[3]
+            y_status = self._curstatus[4]
+            y_val = self._curval[4]
+            y_str = '%4.0f y' % y_val
+            stat = max(x_status, y_status)
+
+            painter.setBrush(statusbrush[stat])
+            painter.setPen(QPen(_black.color()))
+            painter.setFont(self.valueFont)
+            sy = 10 + y_val * posscale / 250
+            painter.drawRect(sx - fontscale / 2., sy, fontscale, 30)
+
+            painter.drawText(sx - 10.5 * fontscale, sy,
+                             8 * fontscale, 2 * fontscale, Qt.AlignRight,
+                             x_str)
+            painter.drawText(sx - 10.5 * fontscale, sy + 1.5 * fontscale,
+                             8 * fontscale, 2 * fontscale, Qt.AlignRight,
+                             y_str)
 
 
 collstatusbrush = {
@@ -197,6 +240,7 @@ class Collimation(NicosWidget, QWidget):
         'devices':   PropDef('QStringList', []),
         'height':    PropDef(int, 4),
         'width':     PropDef(int, 10),
+        'polarizer': PropDef(int, 0, 'Position of the polarizer (or zero)'),
     }
 
     def registerKeys(self):
@@ -254,6 +298,11 @@ class Collimation(NicosWidget, QWidget):
             else:
                 ely = 2 + elheight / 4
             painter.drawRect(x + 3, y + ely, elwidth - 8, elheight / 3)
+            if self.props['polarizer'] == 20 - i - 1:
+                painter.setPen(QPen(_white.color()))
+                painter.drawText(x + 3, y + ely - 2, elwidth - 8, elheight / 3,
+                                 Qt.AlignHCenter, 'POL')
+                painter.setPen(QPen(_black.color()))
             painter.drawText(x, 3,
                              elwidth, 2 * fontscale,
                              Qt.AlignRight | Qt.AlignTop,
@@ -280,3 +329,75 @@ class Collimation(NicosWidget, QWidget):
             painter.drawText(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw,
                              Qt.AlignCenter | Qt.AlignHCenter,
                              '%.1f\n%.1f' % (slitw, slith))
+
+
+class Lenses(NicosWidget, QWidget):
+
+    designer_description = 'KWS lenses'
+
+    def __init__(self, parent, designMode=False):
+        # lens_in, lens_out
+        self._curval = [0, 0]
+        self._curstr = ['', '']
+        self._curstatus = [OK, OK]
+
+        QWidget.__init__(self, parent)
+        NicosWidget.__init__(self)
+
+    properties = {
+        'devices':   PropDef('QStringList', []),
+        'height':    PropDef(int, 4),
+        'width':     PropDef(int, 10),
+    }
+
+    def registerKeys(self):
+        for dev in self.props['devices']:
+            self.registerDevice(str(dev))
+
+    def sizeHint(self):
+        return QSize(self._scale * self.props['width'],
+                     self._scale * self.props['height'])
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        try:
+            idx = self.props['devices'].index(dev)
+        except ValueError:
+            return
+        self._curval[idx] = value
+        self._curstr[idx] = unitvalue
+        self.update()
+
+    def on_devStatusChange(self, dev, code, status, expired):
+        try:
+            idx = self.props['devices'].index(dev)
+        except ValueError:
+            return
+        self._curstatus[idx] = code
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        painter.setPen(QPen(_black.color()))
+        painter.setBrush(_grey)
+
+        fontscale = float(self._scale)
+        h = self.props['height'] * fontscale
+        w = self.props['width'] * fontscale
+        painter.drawRect(2, 10, w - 4, h / 2)
+
+        is_in = int(self._curval[0])
+        is_out = int(self._curval[1])
+        lensheight = h / 2 - 25
+        lensw = w / 32
+        for (i, n, x) in [(0, 4, 0), (1, 6, 6), (2, 16, 14)]:
+            if is_in & (1 << i):
+                lensy = 22
+            elif is_out & (1 << i):
+                lensy = h / 2 + 20
+            else:
+                lensy = h / 4 + 22
+            for j in range(n):
+                painter.drawRect((1 + x + j) * lensw, lensy,
+                                 lensw + 1, lensheight)

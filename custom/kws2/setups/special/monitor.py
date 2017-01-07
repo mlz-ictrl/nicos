@@ -35,6 +35,7 @@ _collimation = Block('Collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
                             'aperture_08', 'aperture_04', 'aperture_02'],
+                   polarizer=2,
                    widget='nicos.kws1.monitorwidgets.Collimation',
                    width=70, height=12)),
 ])
@@ -43,7 +44,8 @@ _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17),
              Field(name='GE HV', dev='ep01_HV')),
     BlockRow(
-        Field(devices=['det_z', 'det_x', 'det_y'],
+        Field(devices=['det_z', 'beamstop_x', 'beamstop_y', 'psd_x', 'psd_y'],
+              smalldet=16.0, beamstop=True,
               widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
     ),
 ])
@@ -51,7 +53,10 @@ _detector = Block('Detector', [
 _polarizer = Block('Polarizer/Lenses', [
     BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
              Field(name='Flipper', dev='flipper', istext=True)),
-    BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
+    BlockRow(
+        Field(devices=['lens_in', 'lens_out'],
+              widget='nicos.kws1.monitorwidgets.Lenses', width=30, height=10)
+    ),
 ])
 
 _shutter = Block('Shutter', [
@@ -71,16 +76,6 @@ _sample_withrot = Block('Sample', [
              Field(name='Trans Y', dev='sam_trans_y')),
     BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
 ], setups='sample_rotation')
-
-_hexapod = Block('Hexapod', [
-    BlockRow(Field(name='TX', dev='hexapod_tx'),
-             Field(name='TY', dev='hexapod_ty'),
-             Field(name='TZ', dev='hexapod_tz')),
-    BlockRow(Field(name='RX', dev='hexapod_rx'),
-             Field(name='RY', dev='hexapod_ry'),
-             Field(name='RZ', dev='hexapod_rz')),
-    BlockRow(Field(name='Table', dev='hexapod_dt')),
-], setups='hexapod')
 
 _daq = Block('Data acquisition', [
     BlockRow(Field(name='Timer', dev='timer'),
@@ -136,7 +131,7 @@ devices = dict(
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _polarizer, _daq),
                              Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
+                             Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
                      ],
                     ),
 )

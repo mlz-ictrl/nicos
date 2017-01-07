@@ -49,7 +49,10 @@ _detector = Block('Detector', [
 _polarizer = Block('Polarizer/Lenses', [
     BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
              Field(name='Flipper', dev='flipper', istext=True)),
-    BlockRow(Field(name='Lenses', dev='lenses', istext=True, width=17)),
+    BlockRow(
+        Field(devices=['lens_in', 'lens_out'],
+              widget='nicos.kws1.monitorwidgets.Lenses', width=30, height=10)
+    ),
 ])
 
 _shutter = Block('Shutter', [
