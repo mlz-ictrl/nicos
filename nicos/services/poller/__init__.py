@@ -73,7 +73,7 @@ class Poller(Device):
         # a poller session
         self.log.setLevel(loggers.loglevels[value])
 
-    def _worker_thread(self, devname, dev, queue):
+    def _worker_thread(self, devname, queue):
 
         def reconfigure_dev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value is not None:
@@ -217,6 +217,7 @@ class Poller(Device):
         # end of poll_loop(dev)
 
         errstate = [0, 10]  # number of errors, current wait time
+        dev = None
         registered = False
 
         self.log.info('%-10s: starting main polling loop', devname)
@@ -297,24 +298,16 @@ class Poller(Device):
                 # for some external modules like Epics
                 self.log.debug('importing device class for %s', devname)
                 try:
-                    dev = session.createDevice(devname)
+                    session.importDevice(devname)
                 except Exception:
-                    # creation failed, try at least to import
-                    dev = None
-                    self.log.warning('%-10s: error creating device initially',
-                                     devname, exc=True)
-                    try:
-                        session.importDevice(devname)
-                    except Exception:
-                        self.log.warning('%-10s: error importing device class, '
-                                         'not retrying this device',
-                                         devname, exc=True)
-                        continue
+                    self.log.warning('%-10s: error importing device class, '
+                                     'not retrying this device', devname, exc=True)
+                    continue
                 self.log.debug('starting thread for %s', devname)
                 queue = Queue.Queue()
                 worker = createThread('%s poller' % devname,
                                       self._worker_thread,
-                                      args=(devname, dev, queue))
+                                      args=(devname, queue))
                 worker.queue = queue
                 self._workers.append(worker)
                 # start staggered to not poll all devs at once....
