@@ -649,8 +649,9 @@ class Session(object):
         self.applyAliasConfig()
 
         # remove now nonexisting envlist devices
-        if self.experiment and self.mode == MASTER:
-            self.experiment._scrubDetEnvLists()
+        self.log.debug('scrubbing environment lists...')
+        if self._experiment and self.mode == MASTER:
+            self._experiment._scrubDetEnvLists()
 
         # execute the startup code
         if allow_startupcode:
