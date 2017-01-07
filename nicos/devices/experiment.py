@@ -301,7 +301,7 @@ class Experiment(Device):
 
         # tell elog
         if self.elog:
-            instname = session.instrument and session.instrument.instrument or ''
+            instname = session._instrument and session.instrument.instrument or ''
             session.elogEvent('directory', (newproposalpath, instname,
                                             path.basename(newproposalpath)))
 
@@ -377,7 +377,7 @@ class Experiment(Device):
                                          % (self.propprefix + self.serviceexp,
                                             self.serviceexp))
 
-        instname = session.instrument and session.instrument.instrument or ''
+        instname = session._instrument and session.instrument.instrument or ''
         if self._attached_sample.name != 'Sample':
             raise ConfigurationError(self, 'the sample device must now be '
                                      'named "Sample", please fix your system '
@@ -525,7 +525,7 @@ class Experiment(Device):
         self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
         self.users = kwds.get('user', '')
-        default_local = session.instrument and session.instrument.responsible or ''
+        default_local = session._instrument and session.instrument.responsible or ''
         self.localcontact = kwds.get('localcontact', default_local)
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
@@ -783,7 +783,7 @@ class Experiment(Device):
 
         mailbody, _, _ = expandTemplate(mailbody, stats)
 
-        instname = session.instrument and session.instrument.instrument or '?'
+        instname = session._instrument and session.instrument.instrument or '?'
         topic = 'Your recent experiment %s on %s from %s to %s' % \
                 (proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
@@ -919,7 +919,7 @@ class Experiment(Device):
             'users':        self.users,
             'samplename':   self.sample.samplename,
             'localcontact': self.localcontact,
-            'instrument':   session.instrument.instrument,
+            'instrument':   session._instrument and session.instrument.instrument or '',
         }
         d.update(self.propinfo)
         return d
