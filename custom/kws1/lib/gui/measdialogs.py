@@ -499,6 +499,9 @@ class DevicesWidget(QWidget):
 # because they are already covered by the detector/collimation/... dialog.
 DEV_BLACKLIST = set((
     'ap_sam',
+    'attenuator',
+    'beamstop_x',
+    'beamstop_y',
     'chopper',
     'chopper_params',
     'collimation',
@@ -510,9 +513,13 @@ DEV_BLACKLIST = set((
     'det_z',
     'detector',
     'flipper',
+    'gedet_HV',
+    'gedet_power',
     'lenses',
     'pol_switch',
     'polarizer',
+    'psd_x',
+    'psd_y',
     'sam_rot',
     'sam_trans_x',
     'sam_trans_y',

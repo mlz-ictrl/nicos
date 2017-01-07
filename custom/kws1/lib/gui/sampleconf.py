@@ -193,6 +193,7 @@ class ConfigEditDialog(QDialog):
 
     def on_readDevsBtn_clicked(self):
         dlg = QDialog(self)
+        # XXX: this is KWS1 specific
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_readpos.ui'))
         if not dlg.exec_():
             return
