@@ -940,7 +940,7 @@ class Session(object):
         and again during one setup process.
         """
         if not self._multi_level:
-            self._failed_devices = set()
+            self._failed_devices = {}
             self._success_devices = []
         self._multi_level += 1
 
@@ -1028,8 +1028,7 @@ class Session(object):
         created devices".
         """
         if self._failed_devices and devname in self._failed_devices:
-            raise NicosError('device %r already failed once; '
-                             'not retrying' % devname)
+            raise self._failed_devices[devname]
         if devname not in self.configured_devices:
             found_in = []
             for sname, info in iteritems(self._setup_info):
@@ -1061,10 +1060,10 @@ class Session(object):
 
         try:
             dev = devcls(devname, **devconfig)
-            self.log.debug('device %r created... ', devname)
-        except Exception:
+            self.log.debug('device %r created', devname)
+        except Exception as err:
             if self._failed_devices is not None:
-                self._failed_devices.add(devname)
+                self._failed_devices[devname] = err
             raise
         if self._success_devices is not None:
             self._success_devices.append(devname)
