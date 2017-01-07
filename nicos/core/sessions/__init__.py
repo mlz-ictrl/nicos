@@ -843,13 +843,15 @@ class Session(object):
             self.unloadSetup()
             self.startMultiCreate()
             try:
-                self.loadSetup(setups)
+                try:
+                    self.loadSetup(setups)
+                finally:
+                    self.endMultiCreate()
             except NicosError:
                 self.log.warning('could not load previous setups, falling '
                                  'back to startup setup', exc=1)
+                self.unloadSetup()
                 self.loadSetup(setup)
-            finally:
-                self.endMultiCreate()
 
     def commandHandler(self, command, compiler):
         """This method is called when the user executes a simple command.  It

@@ -320,12 +320,7 @@ class ExecutionController(Controller):
 
     def _setup(self):
         # this code is executed as the first thing when the daemon starts
-        try:
-            session.handleInitialSetup(self.setup, self.simmode)
-        except:  # pylint: disable=W0702
-            session.log.warning('Error loading previous setups, '
-                                'loading startup setup', exc=1)
-            session.handleInitialSetup('startup', self.simmode)
+        session.handleInitialSetup(self.setup, self.simmode)
         # remove this function from the user namespace after completion
         self.namespace.pop('NicosSetup', None)
 

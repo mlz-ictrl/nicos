@@ -200,7 +200,9 @@ def NewSetup(*setupnames):
         finally:
             session.endMultiCreate()
     except Exception:
-        session.log.exception()
+        session.log.warning('could not load new setup, falling back to '
+                            'startup setup', exc=1)
+        session.unloadSetup()
         session.loadSetup('startup')
     if current_mode == MASTER:
         # need to refresh master status
