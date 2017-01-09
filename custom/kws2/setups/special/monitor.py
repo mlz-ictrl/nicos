@@ -67,15 +67,20 @@ _shutter = Block('Shutter', [
 
 _sample = Block('Sample', [
     BlockRow(Field(name='Trans X', dev='sam_trans_x'),
-             Field(name='Trans Y', dev='sam_trans_y')),
-    BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
+             Field(name='Trans Y', dev='sam_trans_y'),
+             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+                   width=10, height=10),
+            ),
 ], setups='not sample_rotation')
 
 _sample_withrot = Block('Sample', [
     BlockRow(Field(name='Rotation', dev='sam_rot'),
+             Field(name='Tilt', dev='sam_tilt'),
              Field(name='Trans X', dev='sam_trans_x'),
-             Field(name='Trans Y', dev='sam_trans_y')),
-    BlockRow(Field(name='Slit', dev='ap_sam', istext=True, width=25)),
+             Field(name='Trans Y', dev='sam_trans_y'),
+             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+                   width=10, height=10),
+            ),
 ], setups='sample_rotation')
 
 _daq = Block('Data acquisition', [

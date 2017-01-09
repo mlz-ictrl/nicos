@@ -328,8 +328,7 @@ class Collimation(NicosWidget, QWidget):
             painter.drawRect(xmiddle - 0.5 * slhw + w, y + 15 + h,
                              slhw - 2 * w, slhw - 2 * h)
             painter.drawText(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw,
-                             Qt.AlignCenter | Qt.AlignHCenter,
-                             '%.1f\n%.1f' % (slitw, slith))
+                             Qt.AlignCenter, '%.1f\n%.1f' % (slitw, slith))
 
 
 class Lenses(NicosWidget, QWidget):
@@ -402,3 +401,92 @@ class Lenses(NicosWidget, QWidget):
             for j in range(n):
                 painter.drawRect((1 + x + j) * lensw, lensy,
                                  lensw + 1, lensheight)
+
+
+class SampleSlit(NicosWidget, QWidget):
+
+    designer_description = 'KWS sample slit'
+
+    def __init__(self, parent, designMode=False):
+        self._curval = [0, 0, 0, 0]
+        self._curstatus = OK
+        self._opmode = 'offcentered'
+
+        QWidget.__init__(self, parent)
+        NicosWidget.__init__(self)
+
+    properties = {
+        'device':    PropDef(str, ''),
+        'maxh':      PropDef(float, 30),
+        'maxw':      PropDef(float, 30),
+        'height':    PropDef(int, 4),
+        'width':     PropDef(int, 10),
+    }
+
+    def registerKeys(self):
+        self.registerDevice(str(self.props['device']))
+        self.registerKey('%s/opmode' % self.props['device'])
+
+    def sizeHint(self):
+        return QSize(self._scale * self.props['width'],
+                     self._scale * self.props['height'])
+
+    def on_keyChange(self, key, value, time, expired):
+        if key.endswith('/opmode'):
+            self._opmode = value
+            return
+        NicosWidget.on_keyChange(self, key, value, time, expired)
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        self._curval = value
+        self.update()
+
+    def on_devStatusChange(self, dev, code, status, expired):
+        self._curstatus = code
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        fontscale = float(self._scale)
+        ww = self.props['width'] * fontscale - 4
+        wh = self.props['height'] * fontscale - 4
+        sx, sy = self.props['maxw'], self.props['maxh']
+
+        if self._opmode == 'offcentered':
+            dx, dy, w, h = self._curval
+            x0, x1, y0, y1 = dx - w/2., dx + w/2., dy - h/2., dy + h/2.
+            l1, l2, l3, l4 = '(%.1f, %.1f)' % (dx, dy), '%.1f x %.1f' % (w, h), '', ''
+        elif self._opmode == 'centered':
+            w, h = self._curval
+            x0, x1, y0, y1 = -w/2., w/2., -h/2., h/2.
+            l1, l2, l3, l4 = '', '%.1f x %.1f' % (w, h), '', ''
+        elif self._opmode.startswith('4blades'):
+            x0, x1, y0, y1 = self._curval
+            l1, l2, l3, l4 = '%.1f' % y1, '%.1f' % y0, '%.1f' % x0, '%.1f' % x1
+            if self._opmode.endswith('opposite'):
+                x0 *= -1
+                y0 *= -1
+
+        x0 = (x0 + sx/2) / sx * ww
+        x1 = (x1 + sx/2) / sx * ww
+        y0 = wh - (y0 + sy/2) / sy * wh
+        y1 = wh - (y1 + sy/2) / sy * wh
+
+        painter.setPen(QPen(_black.color()))
+        painter.setBrush(_white)
+        painter.drawRect(2, 2, ww, wh)
+        painter.setBrush(collstatusbrush[self._curstatus])
+        painter.drawRect(2 + x0, 2 + y1, x1 - x0, y0 - y1)
+
+        smallerfont = QFont(self.valueFont)
+        smallerfont.setPointSizeF(smallerfont.pointSizeF() * 0.8)
+        painter.setFont(smallerfont)
+        painter.drawText(2, 2, ww, wh,
+                         Qt.AlignTop | Qt.AlignHCenter, l1)
+        painter.drawText(2, 2, ww, wh,
+                         Qt.AlignBottom | Qt.AlignHCenter, l2)
+        painter.drawText(2, 2, ww, wh,
+                         Qt.AlignVCenter | Qt.AlignLeft, l3)
+        painter.drawText(2, 2, ww, wh,
+                         Qt.AlignVCenter | Qt.AlignRight, l4)
