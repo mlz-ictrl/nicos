@@ -228,10 +228,10 @@ class Collimation(NicosWidget, QWidget):
     designer_description = 'KWS collimation'
 
     def __init__(self, parent, designMode=False):
-        # coll_in, coll_out, ap_20, ap_14, ap_8, ap_4, ap_2
-        self._curval = [0, 0, (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
-        self._curstr = ['', '', '', '', '', '', '']
-        self._curstatus = [OK, OK, OK, OK, OK, OK, OK]
+        # coll_in, coll_out, ap_20, ap_14, ap_8, ap_4, ap_2, pol_in, pol_out
+        self._curval = [0, 0, (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), 0, 0]
+        self._curstr = ['', '', '', '', '', '', '', '', '']
+        self._curstatus = [OK, OK, OK, OK, OK, OK, OK, OK, OK]
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -240,7 +240,7 @@ class Collimation(NicosWidget, QWidget):
         'devices':   PropDef('QStringList', []),
         'height':    PropDef(int, 4),
         'width':     PropDef(int, 10),
-        'polarizer': PropDef(int, 0, 'Position of the polarizer (or zero)'),
+        'polarizer': PropDef(int, 0, 'Number of bits for the polarizer'),
     }
 
     def registerKeys(self):
@@ -282,8 +282,9 @@ class Collimation(NicosWidget, QWidget):
         elwidth = w / 20.
         elheight = h / 3
 
-        is_in = int(self._curval[0])
-        is_out = int(self._curval[1])
+        pol_bits = self.props['polarizer']
+        is_in = int(self._curval[0] << pol_bits | self._curval[7])
+        is_out = int(self._curval[1] << pol_bits | self._curval[8])
         x = elwidth
         y = 2.5 * fontscale
         for i in range(18):
@@ -298,7 +299,7 @@ class Collimation(NicosWidget, QWidget):
             else:
                 ely = 2 + elheight / 4
             painter.drawRect(x + 3, y + ely, elwidth - 8, elheight / 3)
-            if self.props['polarizer'] == 20 - i - 1:
+            if i >= 18-pol_bits:
                 painter.setPen(QPen(_white.color()))
                 painter.drawText(x + 3, y + ely - 2, elwidth - 8, elheight / 3,
                                  Qt.AlignHCenter, 'POL')

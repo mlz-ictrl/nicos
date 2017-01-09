@@ -50,6 +50,7 @@ devices = dict(
                          input_in = 'coll_in',
                          input_out = 'coll_out',
                          sync_bit = 'coll_sync',
+                         first = 4,
                          fmtstr = '%d',
                          timeout = 150.0,
                         ),

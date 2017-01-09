@@ -34,7 +34,8 @@ _chopper = Block('Chopper', [
 _collimation = Block('Collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
-                            'aperture_08', 'aperture_04', 'aperture_02'],
+                            'aperture_08', 'aperture_04', 'aperture_02',
+                            'pol_in', 'pol_out'],
                    polarizer=2,
                    widget='nicos.kws1.monitorwidgets.Collimation',
                    width=70, height=12)),

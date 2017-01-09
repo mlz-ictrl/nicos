@@ -57,8 +57,6 @@ class CollimationSlit(TwoAxisSlit):
 class CollimationGuides(HasTimeout, HasLimits, Moveable):
     """Controlling the collimation guide elements."""
 
-    valuetype = intrange(2, 20)
-
     attached_devices = {
         'output':    Attach('output setter', Moveable),
         'input_in':  Attach('input for limit switch "in" position', Readable),
@@ -66,26 +64,32 @@ class CollimationGuides(HasTimeout, HasLimits, Moveable):
         'sync_bit':  Attach('sync bit output', Moveable),
     }
 
-    parameter_overrides = {
-        'fmtstr':     Override(default='%d'),
-        'timeout':    Override(default=10),
-        'unit':       Override(mandatory=False, default='m'),
-        'abslimits':  Override(mandatory=False, default=(2, 20)),
+    parameters = {
+        'first':     Param('first element controlled', type=int, default=2),
     }
 
+    parameter_overrides = {
+        'fmtstr':    Override(default='%d'),
+        'timeout':   Override(default=10),
+        'unit':      Override(mandatory=False, default='m'),
+        'abslimits': Override(mandatory=False, default=(2, 20)),
+    }
+
+    def doInit(self, mode):
+        self.valuetype = intrange(self.first, 20)
+
     def doStatus(self, maxage=0):
-        # XXX: overlap with lenses
         is_in = self._attached_input_in.read(maxage)
         is_out = self._attached_input_out.read(maxage)
         # check individual bits
-        for i in range(18):
+        for i in range(20 - self.first):
             mask = 1 << i
             if is_in & mask == is_out & mask:
                 # inconsistent state, check switches
                 if is_in & mask:
                     # both switches on?
                     return status.ERROR, 'both switches on for element ' \
-                        'at %d m' % (i + 2)
+                        'at %d m' % (i + self.first)
                 return status.BUSY, 'elements moving'
         # HasTimeout will check for target reached
         return status.OK, 'idle'
@@ -93,16 +97,16 @@ class CollimationGuides(HasTimeout, HasLimits, Moveable):
     def doRead(self, maxage=0):
         is_in = self._attached_input_in.read(maxage)
         # extract the lowest set bit (element)
-        for i in range(18):
+        for i in range(20 - self.first):
             if is_in & (1 << i):
-                return i + 2
+                return i + self.first
         return 20
 
     def doStart(self, target):
         # there are 18 bits for the collimation elements at 2..19 meters
-        # bit 0 is the element at 2m, bit 17 is at 19m
+        # bit 0 is the element at self.first, last bit is at 19m
         # move in all elements from 19m to target (20m = all open)
-        bits = ((1 << (20 - target)) - 1) << (target - 2)
+        bits = ((1 << (20 - target)) - 1) << (target - self.first)
         self._attached_output.start(bits)
         # without this bit, no outputs will be changed
         self._attached_sync_bit.start(1)
