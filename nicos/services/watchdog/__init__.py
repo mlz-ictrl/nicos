@@ -220,18 +220,28 @@ class Watchdog(BaseCacheClient):
                                'one of %r', entry.condition,
                                ', '.join(map(repr, self._notifiers)))
                 continue
-            self._entries[i] = entry
             # find all cache keys that the condition evaluates, to get a
             # mapping of cache key -> interesting watchlist entries
-            cond_parse = ast.parse(entry.condition)
+            try:
+                cond_parse = ast.parse(entry.condition)
+            except Exception:
+                self.log.error('could not parse condition %r, ignoring',
+                               entry.condition)
+                continue
+            try:
+                precond_parse = ast.parse(entry.precondition)
+            except Exception:
+                self.log.error('could not parse precondition %r, ignoring',
+                               entry.precondition)
+                continue
+            self._entries[i] = entry
             for node in ast.walk(cond_parse):
                 if isinstance(node, ast.Name):
                     key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
                     self._keymap.setdefault(self._prefix + key, set()).add(entry)
                     self._interestingkeys.add(self._prefix + key)
             # same for precondition
-            cond_parse = ast.parse(entry.precondition)
-            for node in ast.walk(cond_parse):
+            for node in ast.walk(precond_parse):
                 if isinstance(node, ast.Name):
                     key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
                     self._prekeymap.setdefault(self._prefix + key, set()).add(entry)
