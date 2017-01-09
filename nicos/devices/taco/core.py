@@ -262,7 +262,7 @@ class TacoDevice(HasCommunication):
 
         try:
             dev = class_(devname)
-            dev.deviceVersion()
+            self._check_server_running(dev)
         except TACOError as err:
             self._raise_taco(err, 'Could not connect to device %r; make sure '
                              'the device server is running' % devname)
@@ -293,6 +293,9 @@ class TacoDevice(HasCommunication):
                                  'reset failed' % devname)
 
         return dev
+
+    def _check_server_running(self, dev):
+        dev.deviceVersion()
 
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
