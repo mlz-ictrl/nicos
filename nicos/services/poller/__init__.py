@@ -227,6 +227,8 @@ class Poller(Device):
                     # global state updates in the session object
                     with self._creation_lock:
                         dev = session.getDevice(devname)
+
+                if not registered:
                     if not isinstance(dev, Readable):
                         self.log.info('%s is not a readable', dev)
                         return
@@ -235,7 +237,6 @@ class Poller(Device):
                                       'not polling', dev)
                         return
 
-                if not registered:
                     self.log.debug('%-10s: registering callbacks', dev)
                     # keep track of some parameters via cache callback
                     # session.cache.addCallback(dev, 'value', reconfigure_dev_value)  # spams events
