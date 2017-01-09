@@ -74,7 +74,8 @@ class CommandLinePanel(Panel):
 
     def completeInput(self, fullstring, lastword):
         try:
-            return self.client.ask('complete', fullstring, lastword)
+            return self.client.ask('complete', fullstring, lastword,
+                                   default=[])
         except Exception:
             return []
 

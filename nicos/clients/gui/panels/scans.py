@@ -484,7 +484,9 @@ class ScansPanel(Panel):
         pathname = self.currentPlot.saveQuietly()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
-        self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
+        if remotefn is not None:
+            self.client.eval('_LogAttach(%r, [%r], [%r])' %
+                             (descr, remotefn, fname))
         os.unlink(pathname)
 
     @qtsig('')

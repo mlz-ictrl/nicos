@@ -118,15 +118,14 @@ class DataHandler(QObject):
         pd.setCancelButton(None)
         pd.show()
         QApplication.processEvents()
-        datasets = self.client.ask('getdataset', '*')
+        datasets = self.client.ask('getdataset', '*', default=[])
         self.bulk_adding = True
-        if datasets:
-            for dataset in datasets:
-                try:
-                    self.on_client_dataset(dataset)
-                except Exception:
-                    from nicos.clients.gui.main import log
-                    log.error('Error adding dataset', exc=1)
+        for dataset in datasets:
+            try:
+                self.on_client_dataset(dataset)
+            except Exception:
+                from nicos.clients.gui.main import log
+                log.error('Error adding dataset', exc=1)
         self.bulk_adding = False
         pd.setValue(1)
         pd.close()

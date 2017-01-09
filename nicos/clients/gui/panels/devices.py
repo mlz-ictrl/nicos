@@ -272,10 +272,13 @@ class DevicesPanel(Panel):
 
     def _read_setup_info(self, setuplists=None):
         if setuplists is None:
-            setuplists = self.client.ask('getstatus')['setups']
+            allstatus = self.client.ask('getstatus')
+            if allstatus is None:
+                return
+            setuplists = allstatus['setups']
         loaded_setups = set(setuplists[0])
         self._dev2setup = {}
-        self._setupinfo = self.client.eval('session.getSetupInfo()', {}) or {}
+        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
         for setupname, info in iteritems(self._setupinfo):
             if info is None:
                 continue

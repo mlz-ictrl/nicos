@@ -62,7 +62,7 @@ class ErrorPanel(Panel):
         setBackgroundColor(self.outView, back)
 
     def on_client_connected(self):
-        messages = self.client.ask('getmessages', '10000') or []
+        messages = self.client.ask('getmessages', '10000', default=[])
         self.outView.clear()
         self.outView.addMessages([msg for msg in messages if msg[2] >= WARNING])
         self.outView.scrollToBottom()

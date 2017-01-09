@@ -126,7 +126,8 @@ class ConsolePanel(Panel):
 
     def completeInput(self, fullstring, lastword):
         try:
-            return self.client.ask('complete', fullstring, lastword)
+            return self.client.ask('complete', fullstring, lastword,
+                                   default=[])
         except Exception:
             return []
 
@@ -139,9 +140,7 @@ class ConsolePanel(Panel):
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
         self.outView.clear()
-        messages = self.client.ask('getmessages', '10000')
-        if not messages:
-            return
+        messages = self.client.ask('getmessages', '10000', default=[])
         total = len(messages) // 2500 + 1
         for _, batch in enumerateWithProgress(chunks(messages, 2500),
                             text='Synchronizing...', parent=self, total=total):

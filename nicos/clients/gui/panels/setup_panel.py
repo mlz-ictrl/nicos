@@ -83,7 +83,7 @@ class ExpPanel(Panel, DlgUtils):
             'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
         self._orig_email = sum(emails, [])
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
-        propinfo = self.client.eval('session.experiment.propinfo')
+        propinfo = self.client.eval('session.experiment.propinfo', {})
         self._orig_datamails = propinfo.get('user_email', '')
         if not isinstance(self._orig_datamails, list):
             self._orig_datamails = self._orig_datamails.splitlines()

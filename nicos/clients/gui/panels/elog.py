@@ -263,7 +263,9 @@ class ELogPanel(Panel, DlgUtils):
         desc = dlg.fileDesc.text()
         filecontent = open(fname, 'rb').read()
         remotefn = self.client.ask('transfer', filecontent)
-        self.client.eval('_LogAttach(%r, [%r], [%r])' % (desc, remotefn, newname))
+        if remotefn is not None:
+            self.client.eval('_LogAttach(%r, [%r], [%r])' %
+                             (desc, remotefn, newname))
         self.timer.start(750)
 
     @qtsig('')

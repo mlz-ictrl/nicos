@@ -121,8 +121,7 @@ class DownTimeTool(QDialog, DlgUtils):
 
     def _getDeviceComponent(self, devname, param, default=''):
         try:
-            val = self.client.eval('session.%s.%s' % (devname, param)) or \
-                    default
+            val = self.client.eval('session.%s.%s' % (devname, param), default)
         except (AttributeError, NameError):
             val = default
         return val

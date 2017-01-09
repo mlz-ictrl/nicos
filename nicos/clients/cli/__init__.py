@@ -282,7 +282,7 @@ class NicosCmdClient(NicosClient):
                 'Connected to %s:%s as %s. '
                 'Replaying output (enter "/log" to see more)...' %
                 (self.host, self.port, self.conndata.user))
-            output = self.ask('getmessages', str(self.tsize[1] - 3))
+            output = self.ask('getmessages', str(self.tsize[1] - 3), default=[])
             for msg in output:
                 self.put_message(msg)
             if not self.tip_shown:
@@ -870,7 +870,7 @@ class NicosCmdClient(NicosClient):
             self.tell('debug', arg)
         elif cmd == 'eval':
             timefmt = colorize('lightgray', strftime('[%H:%M:%S]'))
-            self.put('%s -> %s' % (timefmt, self.eval(arg, stringify=True),))
+            self.put('%s -> %s' % (timefmt, self.eval(arg, None, stringify=True)))
         elif cmd == 'spy':
             if not self.spy_mode:
                 self.put_client('Spy mode on: normal input is evaluated as '
@@ -934,7 +934,7 @@ class NicosCmdClient(NicosClient):
                 # complete code -- ask the server to complete for us
                 try:
                     self.completions = self.ask('complete', text,
-                                                parts[1]) or []
+                                                parts[1], default=[])
                 except Exception:
                     self.completions = []
             else:

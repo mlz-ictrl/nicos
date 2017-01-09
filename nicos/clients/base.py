@@ -369,15 +369,16 @@ class NicosClient(object):
         The arguments are the command and its parameter(s), if necessary.
 
         A *quiet=True* keyword can be given if no error should be generated if
-        the client is not connected.
+        the client is not connected.  When not connected, you can give a
+        *default* keyword to return.
         """
         if not self.socket:
             if not kwds.get('quiet', False):
                 self.signal('error', 'You are not connected to a server.')
-            return
+            return kwds.get('default')
         elif self.viewonly and command in ACTIVE_COMMANDS:
             self.signal('error', 'Your client is set to view-only mode.')
-            return
+            return kwds.get('default')
         try:
             with self.lock:
                 self._write(command, args)
@@ -391,7 +392,8 @@ class NicosClient(object):
                     return self._compat_transform_reply(command, data)
                 return data
         except (Exception, KeyboardInterrupt) as err:
-            return self.handle_error(err)
+            self.handle_error(err)
+            return kwds.get('default')
 
     def run(self, code, filename=None, noqueue=False):
         """Run a piece of code."""
@@ -407,16 +409,17 @@ class NicosClient(object):
         return self.last_reqno
 
     def eval(self, expr, default=Ellipsis, stringify=False):
-        """Evaluate a Python expression in the daemon's namespace and return the
-        result.
+        """Evaluate a Python expression in the daemon's namespace and return
+        the result.
 
         If the *default* is not given, an exception while evaluating is
-        propagated as an error signal to the client.  If it is given, the
+        propagated as an exception to the client.  If it is given, the
         default is returned instead.
 
         If *stringify* is true, the result is returned as a string.
         """
-        result = self.ask('eval', expr, bool(stringify), quiet=True)
+        result = self.ask('eval', expr, bool(stringify), quiet=True,
+                          default=default)
         if isinstance(result, Exception):
             if default is not Ellipsis:
                 return default
@@ -483,7 +486,7 @@ class NicosClient(object):
     def getDeviceParams(self, devname):
         """Return values of all device parameters from cache, as a dictionary."""
         params = {}
-        devkeys = self.ask('getcachekeys', devname.lower() + '/') or []
+        devkeys = self.ask('getcachekeys', devname.lower() + '/', default=[])
         for item in devkeys:
             try:
                 key, value = item
@@ -495,7 +498,7 @@ class NicosClient(object):
 
     def getCacheKey(self, key):
         """Return (key, value) for the given cache key."""
-        keys = self.ask('getcachekeys', key, quiet=True) or []
+        keys = self.ask('getcachekeys', key, quiet=True, default=[])
         for item in keys:
             if item[0] == key:
                 return item

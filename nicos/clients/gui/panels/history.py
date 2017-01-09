@@ -821,7 +821,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             self._refresh_presets()
 
     def gethistory_callback(self, key, fromtime, totime):
-        return self.client.ask('gethistory', key, str(fromtime), str(totime))
+        return self.client.ask('gethistory', key, str(fromtime), str(totime),
+                               default=[])
 
     @qtsig('')
     def on_actionAttachElog_triggered(self):
@@ -837,8 +838,9 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         pathname = self.currentPlot.saveQuietly()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
-        self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                         (descr, remotefn, fname))
+        if remotefn is not None:
+            self.client.eval('_LogAttach(%r, [%r], [%r])' %
+                             (descr, remotefn, fname))
         os.unlink(pathname)
 
     @qtsig('bool')
