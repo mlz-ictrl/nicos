@@ -358,7 +358,7 @@ class CacheServer(Device):
 
     def storeSysInfo(self):
         key, res = getSysInfo('cache')
-        self._attached_db.tell(key, res, currenttime(), None, None)
+        self._attached_db.tell(key, str(res), currenttime(), None, None)
 
     def _bind_to(self, address, proto='tcp'):
         # bind to the address with the given protocol; return socket and address
