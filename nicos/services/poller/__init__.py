@@ -124,7 +124,7 @@ class Poller(Device):
             """
             # get the initial values
             interval = dev.pollinterval
-            maxage = dev.pollinterval - POLL_MIN_VALID_TIME
+            maxage = interval - POLL_MIN_VALID_TIME if interval else dev.maxage
 
             i = 0
             lastpoll = 0  # last timestamp of succesfull poll
@@ -179,7 +179,8 @@ class Poller(Device):
                             continue
                         elif event == 'param':  # update local vars
                             interval = dev.pollinterval
-                            maxage = dev.pollinterval - POLL_MIN_VALID_TIME
+                            maxage = interval - POLL_MIN_VALID_TIME \
+                                if interval else dev.maxage
                             continue
                         elif event == 'quit':  # stop doing anything
                             return
@@ -205,7 +206,7 @@ class Poller(Device):
                     # adjust timing of we are no longer busy
                     if stval is not None and stval[0] != status.BUSY:
                         interval = dev.pollinterval
-                        maxage = dev.pollinterval - POLL_MIN_VALID_TIME
+                        maxage = interval - POLL_MIN_VALID_TIME
                 # keep track of when we last (tried to) poll
                 lastpoll = currenttime()
                 # reset error count and waittime after first successful poll
