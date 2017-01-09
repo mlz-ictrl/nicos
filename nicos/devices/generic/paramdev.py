@@ -57,7 +57,8 @@ class ReadonlyParamDevice(Readable):
 
     def doReadUnit(self):
         devunit = getattr(self._attached_device, 'unit', '')
-        parunit = self._attached_device.parameters[self.parameter].unit or ''
+        parunit = self._attached_device._getParamConfig(
+            self.parameter).unit or ''
         if devunit:
             parunit = parunit.replace('main', devunit)
         return parunit
@@ -70,7 +71,8 @@ class ParamDevice(ReadonlyParamDevice, Moveable):
     """
 
     def doInit(self, mode):
-        self.valuetype = self._attached_device.parameters[self.parameter].type
+        self.valuetype = self._attached_device._getParamConfig(
+            self.parameter).type
 
     def doStart(self, value):
         setattr(self._attached_device, self.parameter, value)

@@ -649,7 +649,7 @@ class Device(object):
 
         If the value can't be coerced, a ConfigurationError is raised.
         """
-        paraminfo = paraminfo or self.parameters[param]
+        paraminfo = paraminfo or self._getParamConfig(param)
         try:
             value = paraminfo.type(value)
         except (ValueError, TypeError) as err:
@@ -702,11 +702,19 @@ class Device(object):
         if self._cache:
             self._cache.put(self, param, value)
 
+    def _getParamConfig(self, param):
+        """Return the entry for the parameter from self.parameters.
+
+        This should be used when alias resolution is desired, since it is
+        overridden for DeviceAliases.
+        """
+        return self.parameters[param]
+
     def formatParam(self, param, value, use_repr=True):
         """Format a parameter value according to its fmtstr."""
         if isinstance(value, list):
             value = tuple(value)
-        fmtstr = self.parameters[param].fmtstr
+        fmtstr = self._getParamConfig(param).fmtstr
         if fmtstr == '%r' and not use_repr:
             fmtstr = '%s'
         if fmtstr == 'main':
@@ -2249,6 +2257,11 @@ class DeviceAlias(Device):
 
     def _setROParam(self, param, value):
         raise NicosError(self, 'please don\'t use _setROParam on a DeviceAlias')
+
+    def _getParamConfig(self, param):
+        if param in self.parameters:
+            return self.parameters[param]
+        return self._obj._getParamConfig(param)
 
     def valueInfo(self):
         # override to replace name of the aliased device with the alias' name

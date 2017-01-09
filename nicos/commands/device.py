@@ -336,10 +336,15 @@ def set(dev, parameter, value):  # pylint: disable=W0622
     >>> phi.speed = 50
     """
     dev = session.getDevice(dev)
+    try:
+        paramconfig = dev._getParamConfig(parameter)
+    except KeyError:
+        dev.log.error('device has no parameter %r', parameter)
+        return
     prevalue = getattr(dev, parameter)
     setattr(dev, parameter, value)
     # if yes, we already got a message
-    if parameter in dev.parameters and not dev.parameters[parameter].chatty:
+    if not paramconfig.chatty:
         dev.log.info('%s set to %r (was %r)',
                      parameter, getattr(dev, parameter), prevalue)
 
