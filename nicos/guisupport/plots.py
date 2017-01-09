@@ -27,6 +27,7 @@ NICOS value plot widget.
 """
 
 import operator
+import functools
 
 from time import time as currenttime, strftime, localtime
 
@@ -228,7 +229,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             time = max(time, currenttime() - 60)
             if index:
                 try:
-                    fvalue = reduce(operator.getitem, index, value)
+                    fvalue = functools.reduce(operator.getitem, index, value)
                     series.add_value(time, fvalue)
                 except Exception:
                     pass

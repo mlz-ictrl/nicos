@@ -25,6 +25,7 @@
 """Instrument monitor that generates an HTML page."""
 
 import operator
+import functools
 
 from cgi import escape
 from time import sleep, time as currenttime
@@ -403,7 +404,8 @@ class Monitor(BaseMonitor):
             if value is not None:
                 if isinstance(field.item, list):
                     try:
-                        fvalue = reduce(operator.getitem, field.item, value)
+                        fvalue = functools.reduce(operator.getitem,
+                                                  field.item, value)
                     except Exception:
                         fvalue = NOT_AVAILABLE
                 elif field.item >= 0:

@@ -28,6 +28,7 @@
 import os
 import sys
 import operator
+import functools
 from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
 
@@ -153,7 +154,7 @@ class View(QObject):
             series = self.series[key, index]
             if index:
                 try:
-                    v = reduce(operator.getitem, index, value)
+                    v = functools.reduce(operator.getitem, index, value)
                     series.add_value(vtime, v)
                 except (TypeError, IndexError):
                     continue

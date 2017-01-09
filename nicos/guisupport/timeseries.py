@@ -28,6 +28,7 @@ NICOS value plot widget.
 """
 
 import operator
+import functools
 from time import time as currenttime
 
 import numpy as np
@@ -151,7 +152,7 @@ class TimeSeries(object):
                 continue
             if valueindex:
                 try:
-                    value = reduce(operator.getitem, valueindex, value)
+                    value = functools.reduce(operator.getitem, valueindex, value)
                 except (TypeError, IndexError):
                     continue
             delta = vtime - ltime

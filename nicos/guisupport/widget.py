@@ -27,6 +27,7 @@ Base class for NICOS UI widgets.
 """
 
 import operator
+import functools
 
 from copy import copy
 
@@ -139,7 +140,8 @@ class NicosListener(object):
         if value is not None:
             if devinfo.valueindex:
                 try:
-                    fvalue = reduce(operator.getitem, devinfo.valueindex, value)
+                    fvalue = functools.reduce(operator.getitem,
+                                              devinfo.valueindex, value)
                 except Exception:
                     fvalue = NOT_AVAILABLE
             else:

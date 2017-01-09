@@ -24,8 +24,6 @@
 
 """TOFTOF detector."""
 
-import operator
-
 from time import time as currenttime
 
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
@@ -193,9 +191,7 @@ class Detector(GenericDetector):
     def duringMeasureHook(self, elapsed):
         ret = GenericDetector.duringMeasureHook(self, elapsed)
         if ret == INTERMEDIATE:
-            rates = self.rates
-            rates = reduce(operator.add, rates)
-            detrate, monrate, detrate_inst, monrate_inst = rates
+            [detrate, monrate], [detrate_inst, monrate_inst] = self.rates
             self.log.info('Monitor: rate: %8.3f counts/s, instantaneous '
                           'rate: %8.3f counts/s', monrate, monrate_inst)
             self.log.info('Signal: rate: %8.3f counts/s, instantaneous '
