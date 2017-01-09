@@ -29,7 +29,10 @@ import time
 from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
+from nicos.devices.tango import PowerSupply
 from nicos.pycompat import iteritems
+
+import PyTango
 
 
 class HVSwitcher(Switcher):
@@ -123,3 +126,20 @@ class MultiHV(BaseSequencer):
 
     def doRead(self, maxage=None):
         return [d.read(0) for d in self._attached_ephvs]
+
+
+class GEPowerSupply(PowerSupply):
+    """Special power supply that will switch on the device if it is OFF.
+
+    This is necessary because when tripped (by sense or by temperature interlock),
+    the Toellner supply outputs are switched off.
+
+    Conversely, when setting voltage to zero, the device is switched OFF.
+    """
+
+    def doStart(self, value):
+        if value != 0 and self._dev.State() == PyTango.DevState.OFF:
+            self._dev.On()
+            PowerSupply.doStart(self, value)
+        elif value == 0:
+            self._dev.Off()

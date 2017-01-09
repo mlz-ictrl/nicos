@@ -24,6 +24,10 @@ devices = dict(
                        fallback = 'inbetween',
                        precision = 5,
                       ),
+    gedet_power = device('devices.generic.ManualSwitch',
+                         description = 'switches the GE detector 54V power supply',
+                         states = ['off', 'on'],
+                        ),
 )
 
 

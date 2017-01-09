@@ -43,7 +43,7 @@ _collimation = Block('Collimation', [
 
 _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17),
-             Field(name='GE HV', dev='ep01_HV')),
+             Field(name='GE HV', dev='gedet_HV', istext=True)),
     BlockRow(
         Field(devices=['det_z', 'beamstop_x', 'beamstop_y', 'psd_x', 'psd_y'],
               smalldet=16.0, beamstop=True,

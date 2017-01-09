@@ -34,6 +34,18 @@ devices = dict(
                        fallback = 'inbetween',
                        precision = 25,
                       ),
+
+    gedet_power = device('devices.generic.MultiSwitcher',
+                         description = 'switches the GE detector 54V power supply',
+                         moveables = ['ps1_V', 'ps2_V'],
+                         mapping = {
+                             'off': [0, 0],
+                             'on': [54, 54],
+                         },
+                         precision = [0.1, 0.1],
+                         warnlimits = ('on', 'on'),  # should always be on
+                         fallback = 'unknown',
+                        ),
 )
 
 
@@ -45,7 +57,8 @@ for (epname, epicsid) in eps:
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr = '%.1f',
-                                     warnlimits = (25, 75))
+                                     warnlimits = (25, 75),
+                                    )
     devices[epname + '_TB'] = device('devices.epics.EpicsReadable',
                                      description = epname + ' board temperature',
                                      readpv = epicsid + ':RsppTemperature',
@@ -53,7 +66,8 @@ for (epname, epicsid) in eps:
                                      unit = 'degC',
                                      pollinterval = 10,
                                      fmtstr='%.1f',
-                                     warnlimits = (25, 45))
+                                     warnlimits = (25, 45),
+                                    )
     devices[epname + '_HV'] = device('devices.epics.EpicsAnalogMoveable',
                                      description = epname + ' HV setting',
                                      readpv = epicsid + ':HighVoltage_R',
@@ -62,19 +76,24 @@ for (epname, epicsid) in eps:
                                      unit = 'V',
                                      pollinterval = 10,
                                      fmtstr = '%.0f',
-                                     warnlimits = (1520, 1540))
+                                     warnlimits = (1520, 1540),
+                                    )
 
 for ti in range(1, 3):
-    devices['ps%d_V' % ti] = device('devices.tango.PowerSupply',
+    devices['ps%d_V' % ti] = device('kws2.gedet.GEPowerSupply',
                                     description = 'detector power supply voltage',
                                     tangodevice = tango_base + 'gesupply/ps%d' % ti,
                                     unit = 'V',
                                     abslimits = (0, 54),
                                     userlimits = (0, 54),
-                                    warnlimits = (53.9, 54.1))
+                                    warnlimits = (53.9, 54.1),
+                                    lowlevel = True,
+                                   )
     devices['ps%d_I' % ti] = device('devices.generic.ReadonlyParamDevice',
                                     description = 'detector power supply current',
                                     device = 'ps%d_V' % ti,
                                     parameter = 'current',
                                     unit = 'A',
-                                    warnlimits = (2.8, 3.2))
+                                    warnlimits = (2.8, 3.2),
+                                    lowlevel = True,
+                                   )

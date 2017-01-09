@@ -301,7 +301,7 @@ class Collimation(NicosWidget, QWidget):
             painter.drawRect(x + 3, y + ely, elwidth - 8, elheight / 3)
             if i >= 18-pol_bits:
                 painter.setPen(QPen(_white.color()))
-                painter.drawText(x + 3, y + ely - 2, elwidth - 8, elheight / 3,
+                painter.drawText(x + 3, y + ely - 2, elwidth - 8, elheight / 3 + 2,
                                  Qt.AlignHCenter, 'POL')
                 painter.setPen(QPen(_black.color()))
             painter.drawText(x, 3,
