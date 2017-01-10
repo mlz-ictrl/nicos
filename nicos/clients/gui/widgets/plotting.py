@@ -415,7 +415,8 @@ class NicosPlot(DlgUtils):
         """Begin a fitting operation with given Fitter subclass and QAction."""
         if fitteraction and not fitteraction.isChecked():
             # "unchecking" the action -> cancel fit
-            self.fitter.cancel()
+            if self.fitter is not None:
+                self.fitter.cancel()
             return
         # other fitter: cancel first
         if self.fitter is not None:
