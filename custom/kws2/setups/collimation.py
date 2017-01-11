@@ -4,6 +4,7 @@ description = "Collimation setup"
 group = "lowlevel"
 display_order = 10
 
+includes = ['vacuumsys']
 excludes = ['virtual_collimation']
 
 presets = configdata('config_collimation.COLLIMATION_PRESETS')

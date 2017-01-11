@@ -76,6 +76,7 @@ for (epname, epicsid) in eps:
                                      unit = 'V',
                                      pollinterval = 10,
                                      fmtstr = '%.0f',
+                                     abslimits = (0, 1600),
                                      warnlimits = (1520, 1540),
                                     )
 

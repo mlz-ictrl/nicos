@@ -4,7 +4,7 @@ description = "Detector setup"
 group = "lowlevel"
 display_order = 20
 
-includes = ['gedet']
+includes = ['gedet', 'vacuumsys']
 excludes = ['virtual_detector']
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
@@ -50,17 +50,17 @@ devices = dict(
                        ),
 
     beamstop_x = device("devices.tango.Motor",
-                        description = "detector translation X",
+                        description = "beamstop translation X",
                         tangodevice = tango_base + "fzjs7/beamstop_x",
                         unit = "mm",
                         precision = 0.01,
                         fmtstr = '%.1f',
                        ),
     beamstop_y = device("devices.tango.Motor",
-                        description = "detector translation Y",
+                        description = "beamstop translation Y",
                         tangodevice = tango_base + "fzjs7/beamstop_y",
                         unit = "mm",
-                        precision = 0.8,
+                        precision = 1.5,
                         fmtstr = '%.1f',
                        ),
     det_z      = device("kws2.detector.DetectorZAxis",
@@ -73,7 +73,7 @@ devices = dict(
                         description = "detector translation Z",
                         tangodevice = tango_base + "fzjs7/detector_z",
                         unit = "m",
-                        precision = 0.001,
+                        precision = 0.002,
                         lowlevel = True
                        ),
     psd_x      = device("kws2.detector.LockedMotor",

@@ -51,7 +51,7 @@ devices = dict(
                        ),
 
     timer      = device('devices.generic.virtual.VirtualTimer',
-                        description = 'timer',
+                        description = 'Measurement timer channel',
                         fmtstr = '%.0f',
                        ),
 
@@ -59,12 +59,14 @@ devices = dict(
                         description = 'Monitor 1 (before selector)',
                         type = 'monitor',
                         fmtstr = '%d',
+                        lowlevel = True,
                        ),
 
     mon2       = device('devices.generic.virtual.VirtualCounter',
                         description = 'Monitor 2 (after selector)',
                         type = 'monitor',
                         fmtstr = '%d',
+                        lowlevel = True,
                        ),
 )
 
