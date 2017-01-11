@@ -7,11 +7,18 @@ includes = []
 nethost = 'spodisrv.spodi.frm2'
 
 devices = dict(
-    e_field = device('devices.taco.AnalogOutput',
-                     description = 'HV',
-                     tacodevice = '//%s/spodi/hcp/hv' % nethost,
-                     abslimits = (0, 10000),
-                    ),
+    E = device('devices.taco.VoltageSupply',
+               description = 'HV',
+               tacodevice = '//%s/spodi/hcp/hv' % nethost,
+               abslimits = (0, 10000),
+               unit = 'V',
+              ),
+    E_c = device('devices.taco.AnalogInput',
+                 description = 'HV current',
+                 tacodevice = '//%s/spodi/hcp/current' % nethost,
+                 unit = 'A',
+                 fmtstr = '%g',
+                ),
 )
 
 alias_config = {
