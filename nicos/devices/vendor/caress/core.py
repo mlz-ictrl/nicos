@@ -122,7 +122,7 @@ class CARESSDevice(HasCommunication):
         'loadblock': Param('Additional init block',
                            type=str, settable=False, default=''),
         'cid': Param('CARESS device ID',
-                     type=int, settable=False, userparam=False),
+                     type=int, settable=False, userparam=False, default=0),
     }
 
     parameter_overrides = {
@@ -204,12 +204,6 @@ class CARESSDevice(HasCommunication):
         if hasattr(self._caressObject, 'init_module_orb'):
             self._caressObject.init_module = self._caressObject.init_module_orb
 
-        _cid = self._getCID(self.config.split(None, 2)[0])
-        if session.sessiontype != POLLER:
-            self._setROParam('cid', _cid)
-            if self._cache:
-                self._cache.invalidate(self, 'cid')
-
     def _normalized_config(self):
         tmp = self.config.split()
         if tmp[2].count(':') and not self.absdev:
@@ -229,7 +223,7 @@ class CARESSDevice(HasCommunication):
                                      'use the "nameserver" parameter or put it'
                                      'into the "config" parameter.')
 
-    def _init(self):
+    def _init(self, cid):
         try:
             if session.sessiontype != POLLER:
                 if hasattr(self._caressObject, 'init_system_orb'):
@@ -246,36 +240,33 @@ class CARESSDevice(HasCommunication):
 
             _config = self._normalized_config()
 
-            res = self._caressObject.init_module(INIT_CONNECT, self.cid,
-                                                 _config)
+            res = self._caressObject.init_module(INIT_CONNECT, cid, _config)
             self.log.debug('INIT_CONNECT: %r', res)
             if res[0] in (0, CARESS.OK):
                 if res[1] == OFF_LINE:
-                    res = self._caressObject.init_module(INIT_REINIT, self.cid,
+                    res = self._caressObject.init_module(INIT_REINIT, cid,
                                                          _config)
             else:
-                res = self._caressObject.init_module(INIT_NORMAL, self.cid,
-                                                     _config)
+                res = self._caressObject.init_module(INIT_NORMAL, cid, _config)
             self.log.debug('Init module (Connect): %r', res)
             if res[0] not in (0, CARESS.OK) or res[1] == OFF_LINE:
                 raise NicosError(self, 'Could not initialize module! (%r) %d' %
                                  ((res,), self._device_kind()))
-            # res = self._caressObject.init_module(INIT_REINIT, self.cid,
-            #                                          _config)
+            # res = self._caressObject.init_module(INIT_REINIT, cid, _config)
             # self.log.debug('Init module (Re-Init): %r', res)
             # if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
             #     self.log.error('Init module (Re-Init): %r (%d, %s)',
-            #                    res, self.cid, self.config)
+            #                    res, cid, self.config)
             if self._device_kind() == CORBA_DEVICE:
                 if self.absdev:
                     res = self._caressObject \
-                        .char_loadblock_module_orb(0, self.cid, 1,
+                        .char_loadblock_module_orb(0, cid, 1,
                                                    len(self.loadblock), 16,
                                                    self.loadblock)
                 else:
                     val = CARESS.Value(ab=self.loadblock)
                     res = self._caressObject \
-                        .loadblock_module(0, self.cid, 1,
+                        .loadblock_module(0, cid, 1,
                                           len(self.loadblock), val)  # 16, val)
             self._initialized = True
             if not self._is_corba_device():
@@ -283,7 +274,7 @@ class CARESSDevice(HasCommunication):
 
         except CORBA.TRANSIENT as err:
             raise CommunicationError(self, 'could not init CARESS module %r '
-                                     '(%d: %s)' % (err, self.cid, self.config))
+                                     '(%d: %s)' % (err, cid, self.config))
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -293,7 +284,12 @@ class CARESSDevice(HasCommunication):
         self._initORB(['-ORBInitRef',
                        'NameService=corbaname::%s' % self._name_server(), ])
         self._initObject()
-        self._init()
+        _cid = self._getCID(self.config.split(None, 2)[0])
+        self._init(_cid)
+        if session.sessiontype != POLLER:
+            self._setROParam('cid', _cid)
+            if self._cache:
+                self._cache.invalidate(self, 'cid')
 
     def doShutdown(self):
         if session.mode == SIMULATION:

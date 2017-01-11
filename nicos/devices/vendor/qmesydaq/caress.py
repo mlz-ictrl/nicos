@@ -43,28 +43,26 @@ from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
 
 class QMesydaqCaressDevice(CARESSDevice):
 
-    def _init(self):
+    def _init(self, cid):
         try:
             if not self._is_corba_device():
                 raise ConfigurationError(self, 'Must be configured as '
                                          '"CORBA_device" (ID=500)')
             _config = ' '.join(self.config.split()[3:])
             self.log.debug('Reduced config: %s', _config)
-            res = self._caressObject.init_module(INIT_NORMAL, self.cid,
-                                                 _config)
+            res = self._caressObject.init_module(INIT_NORMAL, cid, _config)
             self.log.debug('Init module (Connect): %r', res)
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
-                res = self._caressObject.init_module(INIT_REINIT, self.cid,
-                                                     _config)
+                res = self._caressObject.init_module(INIT_REINIT, cid, _config)
                 self.log.debug('Init module (Re-Init): %r', res)
                 if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                     self.log.error('Init module (Re-Init): %r (%d, %s)',
-                                   res, self.cid, _config)
+                                   res, cid, _config)
                     raise NicosError(self, 'Could not initialize module!')
             self._initialized = True
         except CORBA.TRANSIENT as err:
             raise CommunicationError(self, 'could not init CARESS module %r '
-                                     '(%d: %s)' % (err, self.cid, self.config)
+                                     '(%d: %s)' % (err, cid, self.config)
                                      )
 
     def doInit(self, mode):
