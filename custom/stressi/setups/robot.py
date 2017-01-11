@@ -294,3 +294,9 @@ devices = dict(
                 absdev = False,
                ),
 )
+
+# The dummyO and dummyT must be initialized for the CARESS robot service
+startupcode = """
+CreateDevice('dummyO')
+CreateDevice('dummyT')
+"""
