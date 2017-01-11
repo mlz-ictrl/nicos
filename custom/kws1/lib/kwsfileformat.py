@@ -31,17 +31,17 @@ from time import strftime, localtime
 import numpy as np
 
 from nicos import session
-from nicos.core import Override
+from nicos.core import Override, Param
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
 KWSHEADER = """\
-KWS1_MEASUREMENT KFA-IFF spectrum_data file version V-5.00
+%(instr)s_MEASUREMENT KFA-IFF spectrum_data file version V-5.00
 
 %(filename)s
 
-Standard_Sample measurement started by Mr(s). kws1 at %(startdate)s
+Standard_Sample measurement started by Mr(s). %(instr)s at %(startdate)s
 
 (* Statistics *)
 Measurement produced 0 Informations 0 Warnings 0 Errors 0 Fatals
@@ -64,8 +64,8 @@ Coll_Position Wind(1)_Pos Beamwindow_X Beamwindow_Y Polarization Lenses
 Li6 Detector is in normal mode. Angle: 0.00 grd
 Offset Z_Position X_Position Y_Position
    [m]        [m]       [mm]       [mm]
-%(detoffset_m)6s %(det_z)10s %(det_x)10s %(det_y)10s
-%(detoffset_m)6s %(det_z)10s %(det_x)10s %(det_y)10s
+%(detoffset_m)6s %(det_z_entry)10.3f %(det_x_entry)10.1f %(det_y_entry)10.1f
+%(detoffset_m)6s %(det_z_entry)10.3f %(det_x_entry)10.1f %(det_y_entry)10.1f
 
 (* Sample discription *)
 Sample_Nr Sample_Pos Thickness Beamwindow_X Beamwindow_Y Time_Factor
@@ -106,6 +106,12 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
     filetype = 'KWS'
     accept_final_images_only = True
 
+    def getDetectorPos(self):
+        """Return (x, y, z) for detector position."""
+        return (session.getDevice('det_x').read(),
+                session.getDevice('det_y').read(),
+                session.getDevice('det_z').read())
+
     def writeData(self, fp, image):
         _collslit = 'aperture_%02d' % session.getDevice('coll_guides').read()
         _exposuretime = session.getDevice('timer').read(0)[0]
@@ -136,9 +142,12 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             hexapod_0 = '(* Measurement stop state *)'
             hexapod_1 = 'measurement STOPPED by USER command'
 
+        detpos = self.getDetectorPos()
+
         # write header
         data = DeviceValueDict()
         data.update(
+            instr = self.sink.instrname,
             startdate = strftime('%d-%b-%Y %H:%M:%S.00',
                                  localtime(self.dataset.started)),
             counter = self.dataset.counter,
@@ -154,6 +163,9 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             sample_env_3 = sample_env[3],
             hexapod_0 = hexapod_0,
             hexapod_1 = hexapod_1,
+            det_x_entry = detpos[0],
+            det_y_entry = detpos[1],
+            det_z_entry = detpos[2],
         )
         w(KWSHEADER % data)
 
@@ -222,6 +234,11 @@ class KWSFileSink(ImageSink):
     """Saves KWS image and header data into a single file"""
 
     handlerclass = KWSFileSinkHandler
+
+    parameters = {
+        'instrname': Param('Instrument name for data file', type=str,
+                           default='KWS1'),
+    }
 
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,

@@ -11,11 +11,11 @@ sysconfig = dict(
 includes = ['virtual_gedet']
 
 devices = dict(
-    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
+    kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                        ),
 
-    yamlformat = device('kws1.yamlformat.YAMLFileSink',
+    yamlformat = device('kws2.yamlformat.YAMLFileSink',
                         lowlevel = True,
                        ),
 
@@ -27,12 +27,12 @@ devices = dict(
 
     det_img_ge = device('kws1.daq.VirtualKWSImageChannel',
                         description = 'Image for the large KWS detector',
-                        resolution = (144, 256),
+                        sizes = (144, 256),
                        ),
 
     det_img_jum = device('kws1.daq.VirtualKWSImageChannel',
                         description = 'Image for the small KWS detector',
-                        resolution = (256, 256),
+                        sizes = (256, 256),
                        ),
 
     det        = device('kws1.daq.KWSDetector',

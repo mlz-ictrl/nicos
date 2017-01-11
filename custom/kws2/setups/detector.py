@@ -9,7 +9,7 @@ excludes = ['virtual_detector']
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
 offsets = configdata('config_detector.DETECTOR_OFFSETS')
-
+small_pos = configdata('config_detector.SMALL_DET_POSITION')
 
 tango_base = "tango://phys.kws2.frm2:10000/kws2/"
 
@@ -23,7 +23,7 @@ devices = dict(
                         psd_y = 'psd_y',
                         attenuator = 'attenuator',
                         presets = {lam: {p: dict(x=v['x'], y=v['y'],
-                                                 z=v.get('z', 0),
+                                                 z=v.get('z', small_pos),
                                                  attenuator=v.get('attenuator', 'out'),
                                                  small=v.get('det') == 'small')
                                          for (p, v) in settings.items()}

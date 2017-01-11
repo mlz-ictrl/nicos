@@ -67,6 +67,8 @@ DETECTOR_PRESETS = {
     },
 }
 
+SMALL_DET_POSITION = 17.0
+
 # This offset is added to 20m + det_z to get the chopper-detector length
 # for time-of-flight mode calculation.
 #
@@ -74,14 +76,14 @@ DETECTOR_PRESETS = {
 # particularly accurate.
 
 DETECTOR_OFFSETS = {
-    0:    0,     # for small detector
-    1.5:  2.21,
-    2:    2.21,
-    2.1:  2.21,
-    4:    2.218,
-    4.1:  2.218,
-    6:    2.224,
-    8:    2.23,
-    8.1:  2.23,
-    19.9: 2.266,
+    1.5:  0.7,
+    2:    0.7,
+    2.1:  0.7,
+    4:    0.7,
+    4.1:  0.7,
+    6:    0.7,
+    8:    0.7,
+    8.1:  0.7,
+    17.0: 0.7,     # for small detector
+    19.9: 0.7,
 }

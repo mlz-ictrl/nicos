@@ -26,7 +26,7 @@ import numpy as np
 import PyTango
 
 from nicos.core import status, Moveable, Measurable, Value, Param, Attach, \
-    oneof, listof, tupleof, intrange, ConfigurationError, SIMULATION, MASTER
+    oneof, listof, intrange, ConfigurationError, SIMULATION, MASTER
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
@@ -172,14 +172,12 @@ class VirtualKWSImageChannel(VirtualImage):
         'slices':      Param('Calculated TOF slices', userparam=False,
                              unit='us', settable=True, type=listof(int),
                              category='general'),
-        'resolution':  Param('Detector width x height',
-                             type=tupleof(int, int), mandatory=True),
     }
 
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.arraydesc = ArrayDesc('data', self.resolution, np.uint32)
+            self.arraydesc = ArrayDesc('data', self.sizes, np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q = tofsettings
@@ -187,7 +185,7 @@ class VirtualKWSImageChannel(VirtualImage):
             for i in range(channels):
                 times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', self.resolution + (channels,),
+            self.arraydesc = ArrayDesc('data', self.sizes + (channels,),
                                        np.uint32)
 
     def doReadArray(self, quality):

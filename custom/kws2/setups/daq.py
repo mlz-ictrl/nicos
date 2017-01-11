@@ -14,11 +14,11 @@ sysconfig = dict(
 tango_base = "tango://phys.kws2.frm2:10000/kws2/"
 
 devices = dict(
-    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
+    kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                        ),
 
-    yamlformat = device('kws1.yamlformat.YAMLFileSink',
+    yamlformat = device('kws2.yamlformat.YAMLFileSink',
                         lowlevel = True,
                        ),
 

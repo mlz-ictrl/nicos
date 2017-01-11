@@ -38,6 +38,15 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
     max_yaml_width = 10000
     yaml_array_handling = quickyaml.ARRAY_AS_MAP
 
+    def setDetectorPos(self, det):
+        det['z_displacement'] = self._readdev('det_z') * 1000
+        det['x_displacement'] = self._readdev('det_x')
+        det['y_displacement'] = self._readdev('det_y')
+
+    def setDetectorInfo(self, det1):
+        det1['pixel_width'] = 5.3
+        det1['pixel_height'] = 5.3
+
     def _write_instr_data(self, meas, image):
         expdev = session.experiment
 
@@ -100,9 +109,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
         det = setup['detector']
         det['preset'] = self._readdev('detector')
-        det['z_displacement'] = self._readdev('det_z') * 1000
-        det['x_displacement'] = self._readdev('det_x')
-        det['y_displacement'] = self._readdev('det_y')
+        self.setDetectorPos(det)
 
         slit = setup['sample_aperture']
         slit['upper_clearance'] = self._readdev('ap_sam_y1')
@@ -129,8 +136,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             det1['axes'] = self._flowlist(['x', 'y', 'tof'])
         else:
             det1['axes'] = self._flowlist(['x', 'y'])
-        det1['pixel_width'] = 5.3
-        det1['pixel_height'] = 5.3
+        self.setDetectorInfo(det1)
         det1['counts'] = image
         det1['total_counts'] = int(image.sum())
         meas['detectors'] = [det1]

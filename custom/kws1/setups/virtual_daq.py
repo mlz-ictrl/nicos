@@ -17,7 +17,7 @@ devices = dict(
 
     det_img    = device('kws1.daq.VirtualKWSImageChannel',
                         description = 'Image for the large KWS detector',
-                        resolution = (128, 128),
+                        sizes = (128, 128),
                        ),
 
     det_mode   = device('devices.generic.ReadonlyParamDevice',
