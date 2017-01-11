@@ -18,7 +18,7 @@ includes = []
 # EVENT 500 qmesydaq.caress_object event
 
 sysconfig = dict(
-    datasinks = ['histogram', 'listmode'],
+    # datasinks = ['histogram', 'listmode'],
 )
 
 nethost = 'spodisrv.spodi.frm2'
@@ -104,12 +104,12 @@ devices = dict(
                   maxage = 86400,
                   liveinterval = 1,
                  ),
-    histogram = device('frm2.qmesydaqsinks.HistogramSink',
-                       description = 'Histogram data written via QMesyDAQ',
-                       image = 'image',
-                      ),
-    listmode = device('frm2.qmesydaqsinks.ListmodeSink',
-                      description = 'Listmode data written via QMesyDAQ',
-                      image = 'image',
-                     ),
+    # histogram = device('frm2.qmesydaqsinks.HistogramSink',
+    #                    description = 'Histogram data written via QMesyDAQ',
+    #                    image = 'image',
+    #                   ),
+    # listmode = device('frm2.qmesydaqsinks.ListmodeSink',
+    #                   description = 'Listmode data written via QMesyDAQ',
+    #                   image = 'image',
+    #                  ),
 )
