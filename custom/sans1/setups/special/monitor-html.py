@@ -283,6 +283,21 @@ _htf03 = Column(
     ),
 )
 
+_htf03_plot = Column(
+    Block('HTF03 plot', [
+        BlockRow(
+                 Field(plot='30 min htf03', name='30 min', dev='T_htf03', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min htf03', name='Setpoint', dev='T_htf03/setpoint'),
+                 Field(plot='30 min htf03', name='Target', dev='T_htf03/target'),
+                 Field(plot='12 h htf03', name='12 h', dev='T_htf03', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h htf03', name='Setpoint', dev='T_htf03/setpoint'),
+                 Field(plot='12 h htf03', name='Target', dev='T_htf03/target'),
+        ),
+        ],
+        setups='htf03',
+    ),
+)
+
 _htf01 = Column(
     Block('HTF01', [
         BlockRow(
@@ -352,19 +367,26 @@ _ccmsans_temperature = Column(
 _ccmsans_plot = Column(
     Block('SANS-1 5T Magnet plot', [
         BlockRow(
-            Field(widget='nicos.guisupport.plots.TrendPlot',
-                  width=65, height=45, plotwindow=1800,
-                  devices=['B_ccmsans', 'b_ccmsans/target'],
-                  names=['30min', 'Target'],
-                 ),
-            Field(widget='nicos.guisupport.plots.TrendPlot',
-                  width=65, height=45, plotwindow=24*3600,
-                  devices=['B_ccmsans', 'b_ccmsans/target'],
-                  names=['24h', 'Target'],
-                 ),
+                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccmsans', name='Target', dev='b_ccmsans/target'),
+                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmans', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h ccmsans', name='Target', dev='b_ccmsans/target'),
         ),
         ],
         setups='ccmsans',
+    ),
+)
+
+_ccr19_plot = Column(
+    Block('30min T and Ts plot', [
+        BlockRow(
+                 Field(plot='30 min ccr19', name='T', dev='T', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccr19', name='Ts', dev='Ts'),
+                 Field(plot='30 min ccr19', name='Setpoint', dev='T/setpoint'),
+                 Field(plot='30 min ccr19', name='Target', dev='T/target'),
+        ),
+        ],
+        setups='ccr19',
     ),
 )
 
@@ -541,6 +563,7 @@ devices = dict(
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports, _julabo, _tisane_counts, _tisane_fc,
                                      _tisane_fg1, _tisane_fg2),
+                                 Row(_ccmsans_plot, _ccr19_plot, _htf03_plot),
                                  Row(_live),
                                ],
                     ),
