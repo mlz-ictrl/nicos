@@ -254,10 +254,20 @@ class KWSSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionGenerate_triggered(self):
+        def read_trans():
+            x, y = self.client.eval('sam_trans_x.read(), sam_trans_y.read()',
+                                    (None, None))
+            if x is None:
+                QMessageBox.warning(self, 'Error', 'Could not read axes.')
+                return
+            dlg.transBox.setText('%.1f' % x)
+            dlg.heightBox.setText('%.1f' % y)
+
         dlg = QDialog(self)
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_gen.ui'))
         dlg.transBox.setValidator(DoubleValidator(self))
         dlg.heightBox.setValidator(DoubleValidator(self))
+        dlg.readBtn.clicked.connect(read_trans)
         if not dlg.exec_():
             return
         trans = float(dlg.transBox.text())
