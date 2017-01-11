@@ -387,7 +387,7 @@ class NicosClient(object):
                     if not kwds.get('noerror', False):
                         raise ErrorResponse(data)
                     else:
-                        return None
+                        return kwds.get('default')
                 if self.compat_proto:
                     return self._compat_transform_reply(command, data)
                 return data
@@ -414,7 +414,8 @@ class NicosClient(object):
 
         If the *default* is not given, an exception while evaluating is
         propagated as an exception to the client.  If it is given, the
-        default is returned instead.
+        default is returned instead.  The default is also returned when the
+        client is not connected.
 
         If *stringify* is true, the result is returned as a string.
         """
