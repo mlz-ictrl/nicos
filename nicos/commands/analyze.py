@@ -33,7 +33,7 @@ import numpy as np
 from nicos import session
 from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
-from nicos.utils.fitting import Fit, GaussFit, PolyFit
+from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import string_types
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
@@ -43,7 +43,7 @@ from nicos.commands.device import maw
 
 
 __all__ = [
-    'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss',
+    'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss', 'sigmoid',
     'center', 'checkoffset', 'findpeaks',
 ]
 
@@ -253,6 +253,46 @@ def gauss(*columns):
     return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
+
+
+@usercommand
+@helparglist('[[xcol], ]ycol]')
+def sigmoid(*columns):
+    """Fit a Sigmoid through the data of the last scan.
+
+    The return value is a pair of tuples::
+
+        ((a, b, x0, c), (d_a, d_b, d_x0, d_c))
+
+    where the elemets of the second tuple the estimated standard errors of the
+    fit parameters.  The fit parameters are:
+
+    * a - amplitude of the Sigmoid
+    * b - steepness of the curve
+    * x0 - center
+    * c - background
+
+    if the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        cscan(...)
+        values, stderr = sigmoid('h', 'adet')
+    """
+    xs, ys, dys, _, ds = _getData(columns)
+    fit = SigmoidFit()
+    res = fit.run(xs, ys, dys)
+    if res._failed:
+        return None, None
+    session.notifyFitCurve(ds, 'sigmoid', res.curve_x, res.curve_y)
+    descrs = ['amplitude', 'steepness', 'center', 'background']
+    vals = []
+    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
+        vals.append((descr, '%.4f' % par, '%.4f' % err))
+    printTable(('parameter', 'value', 'error'), vals, session.log.info)
+    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+
+sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')
 
 
 @usercommand
