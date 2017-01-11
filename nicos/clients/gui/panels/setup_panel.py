@@ -227,7 +227,7 @@ class ExpPanel(Panel, DlgUtils):
             return
 
         # do some work
-        if prop != self._orig_proposal_info[0]:
+        if prop and prop != self._orig_proposal_info[0]:
             args = {'proposal': prop}
             if local:
                 args['localcontact'] = local
