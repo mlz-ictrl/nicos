@@ -128,7 +128,8 @@ class Detector(MeasureSequencer):
         imgret = self._attached_detector.readArrays(FINAL)[0].astype('<u4',
                                                                      order='F')
         # self.log.info('%r', imgret)
-        self._array_data[self._step::self.resosteps] = imgret
+        if self._mode != SIMULATION:
+            self._array_data[self._step::self.resosteps] = imgret
 
     def _incStep(self):
         # if self._step - 1 < self.resosteps:
