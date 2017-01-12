@@ -6,11 +6,14 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
                       sender = 'treff@frm2.tum.de',
-                      copies = [('andreas.ofner@frm2.tum.de', 'all'),   # gets all messages
-                                ('peter.link@frm2.tum.de', 'important'), # gets only important messages
+                      copies = [('andreas.ofner@frm2.tum.de', 'all'),
+                                ('e.vezhlev@fz-juelich.de', 'all'),
+                                ('peter.link@frm2.tum.de', 'important'),
                                 ('stefan.mattauch@fz-juelich.de', 'important'),
+                                ('c.felder@fz-juelich.de', 'important'),
+                                ('alerts.sw.zea2@fz-juelich.de', 'important'),
                                ],
-                      subject = 'NICOS',
+                      subject = '[NICOS] TREFF',
                       lowlevel = True,
                      ),
 
