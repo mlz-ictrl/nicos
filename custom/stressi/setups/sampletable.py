@@ -6,6 +6,8 @@ servername = 'VME'
 
 nameservice = 'stressictrl'
 
+includes = ['aliases']
+
 # SOF: OMGS=-2048 TTHS=-3319.25 PHIS=-7380.47 CHIS=1114.74 OMGM=0 TTHM=0 TRANSM=0
 # XT=1033.53 YT=10242.9 ZT=1022 XE=0 YE=0 ZE=0 PSZ=0 PSW=0 PSH=0 PST=0 SST=0
 # MOT1=0 M1_CHI=0 M1_FOC=0 M1_TR=0 M2_CHI=0 M2_FOC=0 M2_TR=0 M3_CHI=0 M3_FOC=0
@@ -30,7 +32,7 @@ nameservice = 'stressictrl'
 
 
 devices = dict(
-    tths = device('devices.vendor.caress.Motor',
+    tths_s = device('devices.vendor.caress.Motor',
                   description = 'HWB TTHS',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -40,7 +42,7 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'TTHS 114 11 0x00f1c000 3 4096 500 5 2 24 50 1 10 1 3000 1 30 0 0 0',
                  ),
-    omgs = device('devices.vendor.caress.Motor',
+    omgs_s = device('devices.vendor.caress.Motor',
                   description = 'HWB OMGS',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -51,7 +53,7 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'OMGS 114 11 0x00f1c000 1 4096 2048 200 2 24 50 1 0 1 3000 1 10 0 0  0',
                  ),
-    xt = device('devices.vendor.caress.Motor',
+    xt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB XT',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -63,7 +65,7 @@ devices = dict(
                 config = 'XT 114 11 0x00f1d000 1 8192 10000 1000 2 24 100'
                          ' -1 0 1  5000 1 10 0 0 0'
                ),
-    yt = device('devices.vendor.caress.Motor',
+    yt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB YT',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -75,7 +77,7 @@ devices = dict(
                 config = 'YT 114 11 0x00f1d000 3 819 10000 1000 2 24 100'
                          ' -1 0 1 5000 1 10 0 0 0'
                ),
-    zt = device('devices.vendor.caress.Motor',
+    zt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB ZT',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -88,3 +90,11 @@ devices = dict(
                          ' -1 0 1 5000 1 10 0 0 0'
                ),
 )
+
+alias_config = {
+    'tths':  {'tths_s': 200,},
+    'omgs': {'omgs_s': 200,},
+    'xt': {'xt_s': 200,},
+    'yt': {'yt_s': 200,},
+    'zt': {'zt_s': 200,},
+}
