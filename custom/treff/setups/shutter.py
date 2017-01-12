@@ -1,37 +1,21 @@
-description = 'Shutter control'
+# -*- coding: utf-8 -*-
 
-group = 'lowlevel'
+description = "Shutter setup"
+group = "lowlevel"
 
-sw_class = 'devices.generic.ManualSwitch'
+tango_base = "tango://phys.treff.frm2:10000/treff/"
+
+excludes = ['virtual_shutter']
+
+_MAP_SHUTTER = {
+    "open": 1,
+    "close": 0,
+}
 
 devices = dict(
-    shutter_open_io =  device(sw_class,
-                              description = 'Shutter open IO',
-                              lowlevel = True,
-                              states = (0, 1),
-                             ),
-    shutter_close_io =  device(sw_class,
-                               description = 'Shutter close IO',
-                               lowlevel = True,
-                               states = (0, 1),
-                              ),
-    shutter_open = device('treff.button.Button',
-                          description = 'Shutter open button',
-                          switch = 'shutter_open_io',
-                          lowlevel = True,
-                         ),
-    shutter_close = device('treff.button.Button',
-                          description = 'Shutter close button',
-                          switch = 'shutter_close_io',
-                          lowlevel = True,
-                         ),
-    shutter = device('devices.generic.MultiSwitcher',
-                     description = 'Shutter control device',
-                     moveables = ('shutter_close', 'shutter_open', ),
-                     mapping = {'closed': (1, 0),
-                                'open': (0, 1),
-                               },
-                     fallback = 'unknown',
-                     precision = (0, 0),
-                    ),
+    expshutter = device("jcns.shutter.Shutter",
+                        description = "Experiment shutter",
+                        tangodevice = tango_base + "FZJDP_Digital/ExpShutter",
+                        mapping = _MAP_SHUTTER,
+                       ),
 )
