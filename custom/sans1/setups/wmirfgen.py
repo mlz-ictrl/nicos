@@ -49,4 +49,9 @@ devices = dict(
         description = 'Tango device for the power level',
         tangodevice = tango_base + 'rfgen/power',
     ),
+    amplitude = device('devices.tango.AnalogInput',
+        description = 'Tango device for the amplitude, measured by the lockin',
+        tangodevice = tango_base + 'lockin/amplitude',
+        unit = 'V'
+    ),
 )
