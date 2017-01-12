@@ -101,7 +101,7 @@ class Detector(MeasureSequencer):
         return ret
 
     def doPrepare(self):
-        self._startpos = self._attached_motor.doRead(0) + \
+        self._startpos = self._attached_motor.read() + \
             (self.resosteps - 1) * self._step_size
         self._attached_detector.doPrepare()
 
@@ -120,7 +120,7 @@ class Detector(MeasureSequencer):
         self._attached_detector.doSetPreset(**preset)
 
     def _read_value(self):
-        ret = self._attached_detector.doRead(0)
+        ret = self._attached_detector.read()
         self._data = [sum(x) for x in zip(self._data, ret)]
         # Detector is not busy anymore, but to early to consider it as
         # 'not busy'
@@ -231,7 +231,7 @@ class Detector(MeasureSequencer):
         # the _time_preset value is only value for time counting mode
         mspeed = self.__attached_motor.speed
         steptime = self._range / (mspeed or 1.0) / self._resosteps
-        step = int((self._attached_motor.doRead() - self._startpos) /
+        step = int((self._attached_motor.read() - self._startpos) /
                    self._step_size)
         ret = self._resostep * steptime + \
             (steptime + self._time_preset) * (self._resostep - step) + \
