@@ -41,7 +41,7 @@ devices = dict(
                            description = "14m aperture",
                            horizontal = "aperture_14_x",
                            vertical = "aperture_14_y",
-                           openpos = (49.0, 50.0),
+                           openpos = (50.0, 50.0),
                            fmtstr = '%.1f x %.1f',
                            lowlevel = True,
                           ),

@@ -6,7 +6,7 @@ display_order = 5
 
 devices = dict(
     shutter    = device('devices.generic.ManualSwitch',
-                        description = 'virtual shutter',
+                        description = 'shutter control',
                         states = ['open', 'closed'],
                        ),
     sixfold_shutter = device('devices.generic.ManualSwitch',
