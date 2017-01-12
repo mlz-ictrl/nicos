@@ -41,13 +41,13 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-    T_spinflipper_AG = device('devices.tango.AnalogInput',
-                           description = 'temperature of ag1016',
-                           tangodevice = tango_base + 'amplifier/temp',
-                           fmtstr = '%.3f',
-                           maxage = 120,
-                           pollinterval = 15,
-                          ),
+#    T_spinflipper_AG = device('devices.tango.AnalogInput',
+#                           description = 'temperature of ag1016',
+#                           tangodevice = tango_base + 'amplifier/temp',
+#                           fmtstr = '%.3f',
+#                           maxage = 120,
+#                           pollinterval = 15,
+#                          ),
 
 # HP33220A
     A_spinflipper_hp = device('devices.tango.AnalogOutput',
