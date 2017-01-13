@@ -65,7 +65,7 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         time = strftime('%H:%M:%S')
         header.append('QMesyDAQ CARESS Histogram File  %s  %s' % (date, time))
         header.append('')
-        header.append('Run:\t%d' % self.dataset.number)
+        header.append('Run:\t%d' % self.dataset.counter)
         header.append('Resosteps:\t%d' % _resosteps)
         header.append('2Theta start:\t%.2f' % _start)
         header.append('2Theta range:\t%.2f' % _range)
