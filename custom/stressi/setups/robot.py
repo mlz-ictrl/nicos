@@ -251,6 +251,10 @@ devices = dict(
                     # lowlevel = True,
                    ),
 )
+# TOL TTHR=0.1 OMGR=0.1 CHIR=0.1 PHIR=0.1 XR=0.1 YR=0.1 ZR=0.1
+# BLS XR=-2000,2000 BLS YR=-2000,2000 BLS ZR=-2000,2000
+# SOF TTHR = 0 OMGR = 0 CHIR = 0 PHIR = 0 XR = 0 YR = 0 ZR = 0 ROBSR = 0
+# ROBSL = 0 ROBSJ = 0 ROBT = 0 ROBS = 0
 
 alias_config = {
     'tths': {'tths_r': 200,},
