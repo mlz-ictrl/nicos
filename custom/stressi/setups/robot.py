@@ -85,7 +85,7 @@ devices = dict(
                   config = 'ROBA 500 RoboterA.Caress_Object',
                   coderoffset = 0,
                   nameserver = '%s' % (nameservice,),
-                  abslimits = (-11, 91),
+                  abslimits = (-180, 180),
                   absdev = False,
                  ),
     robb = device('devices.vendor.caress.Motor',
