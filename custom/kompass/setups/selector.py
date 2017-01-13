@@ -1,0 +1,28 @@
+description = 'Selector related devices'
+
+group = 'lowlevel'
+
+nethost = 'kompasshw.kompass.frm2'
+
+devices = dict(
+    nvslift_m = device('devices.taco.Motor',
+                       description = 'Neutron selector lift motor',
+                       tacodevice = '//%s/kompass/lift/motor' % nethost,
+                       abslimits = (0, 406),
+                       unit = 'mm',
+                       lowlevel = True,
+                      ),
+    nvslift = device('devices.generic.Switcher',
+                     description = 'Neutron selector lift',
+                     moveable = 'nvslift_m',
+                     mapping = {'out': 0.,
+                                'in': 406.0
+                               },
+                     fallback = '',
+                     fmtstr = '%s',
+                     precision = 0.05,
+                     blockingmove = False,
+                     lowlevel = False,
+                     unit = '',
+                    ),
+)

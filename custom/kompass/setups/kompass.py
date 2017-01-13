@@ -2,4 +2,4 @@ description = 'Kompass standard instrument'
 
 group = 'basic'
 
-includes = ['mono', 'guidefocus']
+includes = ['mono', 'guidefocus', 'selector']
