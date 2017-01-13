@@ -106,7 +106,7 @@ devices = dict(
     spodisink = device('spodi.datasinks.CaressHistogram',
                        description = 'SPODI specific histogram file format',
                        lowlevel = True,
-                       filenametemplate = ['m1%(pointcounter)08d.dat'],
+                       filenametemplate = ['m1%(pointcounter)08d.ctxt'],
                       ),
 #   hv1   = device('devices.generic.virtual.VirtualMotor',
 #                  description = 'ISEG HV power supply 1',
