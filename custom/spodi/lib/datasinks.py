@@ -29,7 +29,7 @@ from time import strftime, time as currenttime
 from nicos.core import Override
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import to_utf8
+from nicos.pycompat import iteritems, to_utf8
 
 
 class CaressHistogramHandler(SingleFileSinkHandler):
@@ -45,12 +45,21 @@ class CaressHistogramHandler(SingleFileSinkHandler):
 
     def writeData(self, fp, image):
         _metainfo = self.dataset.metainfo
+        bycategory = {}
+        for (dev, key), (v, _, _, cat) in iteritems(_metainfo):
+            if dev in ['adet', 'UBahn', 'Space', 'tths'] and cat == 'general':
+                continue
+            if cat:
+                bycategory.setdefault(cat, []).append((dev, key, v,))
+        _comment = 'monrate = %.1f ' % _metainfo['adet', 'rates'][0][0]
+        for device, _key, value in bycategory['general']:
+            if _key == 'value':
+                _comment += '%s = %s ' % (device, value)
         _resosteps = _metainfo['adet', 'resosteps'][0]
         _range = _metainfo['adet', 'range'][0]
         _stepsize = _range / _resosteps
         _start = _metainfo['adet', '_startpos'][0] - (_resosteps - 1) * \
             _stepsize
-        _comment = ''
         _acqtime = (self.dataset.finished or currenttime()) - \
             self.dataset.started
         _total_counts = image.sum()
