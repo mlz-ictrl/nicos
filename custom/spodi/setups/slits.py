@@ -6,7 +6,7 @@ servername = 'VMESPODI'
 
 nameservice = 'spodisrv.spodi.frm2'
 
-includes = []
+includes = ['mux']
 
 # caress@spodictrl:/opt/caress>./dump_u1 bls
 # BLS: SLITM_U=(-31,85) SLITM_D=(-85,31) SLITM_L=(-15.2,15.2) SLITM_R=(-15.2,15.2)
@@ -16,10 +16,10 @@ includes = []
 
 
 # motor control multiplex HMI ST180
-# name	kind	bus	term	unit#
-# MUX3	38 4 /dev/tts/1 1
-# MUX3	38 4 /t2 1
-# MUX3	38 4 ttyS1 1
+# name kind    bus     term    unit#
+# MUX3 38 4 /dev/tts/1 1
+# MUX3 38 4 /t2 1
+# MUX3 38 4 ttyS1 1
 
 # MUX modules (attention: velo and accel in steps per s, CARESS converts these
 # natural unit into the obscure ST180 unit)
@@ -71,16 +71,28 @@ devices = dict(
 #                    config = 'SLITM_R 39 3 1 4 1000 500 200 5.12 30',
 #                    lowlevel = True,
 #                   ),
+#   slitm = device('stressi.slit.Slit',
+#                  description = 'Monochromator slit 4 blades',
+#                  left = 'slits_l',
+#                  right = 'slits_r',
+#                  bottom = 'slits_d',
+#                  top = 'slits_u',
+#                  opmode = 'centered',
+#                  pollinterval = 60,
+#                  maxage = 90,
+#                 ),
     slits_u = device('devices.vendor.caress.Motor',
                      description = 'HWB SLITS_U',
                      fmtstr = '%.2f',
                      unit = 'mm',
-                     coderoffset = 0,
+                     coderoffset = -0,
                      abslimits = (0, 45),
                      nameserver = '%s' % (nameservice,),
                      objname = '%s' % (servername),
-                     config = 'SLITS_U 39 3 1 5 1000 500 200',
-#                     lowlevel = True,
+                     config = 'SLITS_U 39 3 1 5 1000. 20 80',
+                     lowlevel = True,
+                     pollinterval = 60,
+                     maxage = 90,
                     ),
     slits_d = device('devices.vendor.caress.Motor',
                      description = 'HWB SLITS_D',
@@ -90,8 +102,10 @@ devices = dict(
                      abslimits = (-45, 0),
                      nameserver = '%s' % (nameservice,),
                      objname = '%s' % (servername),
-                     config = 'SLITS_D 39 3 1 6 1000 500 200',
-#                     lowlevel = True,
+                     config = 'SLITS_D 39 3 1 6 1000. 20 80',
+                     lowlevel = True,
+                     pollinterval = 60,
+                     maxage = 90,
                     ),
     slits_l = device('devices.vendor.caress.Motor',
                      description = 'HWB SLITS_L',
@@ -101,8 +115,10 @@ devices = dict(
                      abslimits = (-15, 0),
                      nameserver = '%s' % (nameservice,),
                      objname = '%s' % (servername),
-                     config = 'SLITS_L 39 3 1 7 1000 500 200',
-#                     lowlevel = True,
+                     config = 'SLITS_L 39 3 1 7 1000. 20 80',
+                     lowlevel = True,
+                     pollinterval = 60,
+                     maxage = 90,
                     ),
     slits_r = device('devices.vendor.caress.Motor',
                      description = 'HWB SLITS_R',
@@ -112,10 +128,19 @@ devices = dict(
                      abslimits = (0, 15),
                      nameserver = '%s' % (nameservice,),
                      objname = '%s' % (servername),
-                     config = 'SLITS_R 39 3 1 8 1000 500 200',
-#                     lowlevel = True,
-                   ),
+                     config = 'SLITS_R 39 3 1 8 1000. 20 80',
+                     lowlevel = True,
+                     pollinterval = 60,
+                     maxage = 90,
+                    ),
+    slits = device('stressi.slit.Slit',
+                   description = 'Sample slit 4 blades',
+                   left = 'slits_l',
+                   right = 'slits_r',
+                   bottom = 'slits_d',
+                   top = 'slits_u',
+                   opmode = 'centered',
+                   pollinterval = 60,
+                   maxage = 90,
+                  ),
 )
-
-alias_config = {
-}
