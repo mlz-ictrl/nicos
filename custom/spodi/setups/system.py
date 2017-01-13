@@ -111,7 +111,7 @@ devices = dict(
     spodisink = device('spodi.datasinks.CaressHistogram',
                        description = 'SPODI specific histogram file format',
                        lowlevel = True,
-                       filenametemplate = ['run%(pointcounter)06d.dat'],
+                       filenametemplate = ['run%(pointcounter)06d.ctxt'],
                       ),
 
     Space    = device('devices.generic.FreeSpace',
