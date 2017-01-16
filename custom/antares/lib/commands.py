@@ -29,6 +29,7 @@ from os.path import join
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import scan
+from nicos.commands.device import maw
 from nicos.frm2.commands.imaging import tomo, \
     openbeamimage as _openbeamimage, \
     darkimage as _darkimage
@@ -102,3 +103,5 @@ def nGI_stepping(n_images, p=1, angle=0, *detlist, **preset):
     session.log.info('Starting nGI scan.')
 
     scan('G0tx', 0, stepwidth, n_images, *detlist, **preset)
+    maw('fastshutter', 'closed')
+    session.log.info('fastshutter closed')
