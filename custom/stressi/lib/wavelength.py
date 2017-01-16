@@ -37,7 +37,7 @@ class TransformedMoveable(HasPrecision, TransformMove, Moveable):
 
     valuetype = float
 
-    hardware_access = False
+    hardware_access = True
 
 
 class Wavelength(HasLimits, Moveable):
