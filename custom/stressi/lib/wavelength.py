@@ -101,7 +101,7 @@ class Wavelength(HasLimits, Moveable):
         crystal = self._crystal(0)
         if crystal:
             if 'plane' not in self._params:
-                self._param['plane'] = p = crystal.values()[1]
+                self._params['plane'] = p = crystal.values()[1]
                 if self._mode != SIMULATION:
                     self._cache.put(self, 'plane', p)
 
