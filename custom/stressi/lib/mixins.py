@@ -86,7 +86,9 @@ class TransformRead(DeviceMixinBase):
     }
 
     def doRead(self, maxage):
-        return self._informula.eval(self._attached_dev.read(maxage))
+        raw = self._attached_dev.read(maxage)
+        self.log.debug('Raw value: %r', raw)
+        return self._informula.eval(raw)
 
     def doReadUnit(self):
         return self._attached_dev.unit
