@@ -21,6 +21,8 @@ _selcolumn = Column(
                  Field(name='selector_rpm', dev='selector_rpm'),
                  Field(name='selector_lambda', dev='selector_lambda'),
                  Field(name='selector_ng', dev='selector_ng'),
+                ),
+        BlockRow(
                  Field(name='selector_tilt', dev='selector_tilt'),
                  Field(name='water flow', dev='selector_wflow'),
                  Field(name='rotor temp.', dev='selector_rtemp'),
@@ -154,6 +156,8 @@ _atpolcolumn = Column(
     Block('Attenuator / Polarizer',[
         BlockRow(
                  Field(dev='att', name='att', width=7),
+                 ),
+        BlockRow(
                  Field(dev='ng_pol', name='ng_pol', width=7),
                 ),
         ],
@@ -541,6 +545,25 @@ _live = Column(
     ),
 )
 
+_col_slit = Column(
+    Block('Slit Positions', [
+        BlockRow(
+                 Field(name='Top', dev='slit_top', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Left', dev='slit_left', unit='mm', format='%.2f'),
+                 Field(name='Right', dev='slit_right', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Slit width', dev='slit', unit='mm', format='%.2f'),
+                ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
@@ -557,7 +580,7 @@ devices = dict(
                                  Row(_sans1general, _table2, _table1,
                                      _sans1det),
                                  Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
-                                 Row(_selcolumn, _atpolcolumn, _sanscolumn),
+                                 Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2, _sc_t,
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,

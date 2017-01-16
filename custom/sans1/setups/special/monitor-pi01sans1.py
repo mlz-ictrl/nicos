@@ -239,6 +239,25 @@ _p_filter = Column(
     ),
 )
 
+_col_slit = Column(
+    Block('Slit Positions', [
+        BlockRow(
+                 Field(name='Top', dev='slit_top', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Left', dev='slit_left', unit='mm', format='%.2f'),
+                 Field(name='Right', dev='slit_right', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
+                ),
+        BlockRow(
+                 Field(name='Slit width', dev='slit', unit='mm', format='%.2f'),
+                ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      showwatchdog = False,
@@ -251,7 +270,7 @@ devices = dict(
                      fontsize = 12,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_selcolumn, _tisane, _collimationcolumn, _sampleaperture),
+                                 Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
                                  #Row(_sans1general),
                                  Row(_ubahncolumn, _pressurecolumn, _p_filter),
