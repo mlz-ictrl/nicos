@@ -32,6 +32,7 @@ try:
 except ImportError:
     leastsq = None
 
+from nicos.utils.analyze import estimateFWHM
 from nicos.core import ProgrammingError
 from nicos.pycompat import getargspec
 
@@ -115,6 +116,8 @@ class FitError(Exception):
 
 
 class Fit(object):
+    canguess = False
+
     def __init__(self, title, model, parnames=None, parstart=None,
                  xmin=None, xmax=None):
         self.title = title
@@ -123,14 +126,29 @@ class Fit(object):
         self.parstart = parstart or []
         self.xmin = xmin
         self.xmax = xmax
-        if len(self.parnames) != len(self.parstart):
-            raise ProgrammingError('number of param names (%d) must match '
-                                   'number of starting values (%d)' % (
-                                       len(self.parnames), len(self.parstart)))
+        if ((parstart is None and not self.canguess) or
+            (parstart is not None and
+             len(self.parnames) != len(self.parstart))):
+            raise ProgrammingError(
+                'number of param names (%d) must match '
+                'number of starting values (%d)' %
+                (len(self.parnames), len(self.parstart))
+            )
 
     def par(self, name, start):
         self.parnames.append(name)
         self.parstart.append(start)
+
+    def guesspar(self, x, y):
+        """Guess starting parameters
+
+        This should get implemented in derived classes if possible
+        It gets the x- and y-values data.
+
+        If successful, it returns a list with values suitable as startparams.
+
+        """
+        raise NotImplementedError
 
     def run(self, x, y, dy):
         if leastsq is None:
@@ -154,6 +172,14 @@ class Fit(object):
             return self.result(x, y, dy, None, None,
                                msg='need at least as many valid data points '
                                'as there are parameters')
+
+        if not self.parstart:
+            try:
+                self.parstart = self.guesspar(xn, yn)
+            except Exception as e:
+                return self.result(xn, yn, dyn, None, None,
+                                   msg='while guessing parameters: %s' % e)
+
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
             # pylint: disable=unbalanced-tuple-unpacking
@@ -221,15 +247,22 @@ class PredefinedFit(Fit):
 class LinearFit(PredefinedFit):
     """Fits with a straight line."""
 
+    canguess = True
     fit_title = 'linear fit'
     fit_params = ['m', 't']
+    fit_p_descr = ['slope', 'offset']
 
     def __init__(self, parstart=None, xmin=None, xmax=None, timeseries=False):
         PredefinedFit.__init__(self, parstart, xmin, xmax)
         self._timeseries = timeseries
 
     def fit_model(self, x, m, t):
-        return m*x + t
+        return m * x + t
+
+    def guesspar(self, x, y):
+        m = (y[-1] - y[0]) / (x[-1] - x[0])
+        t = y[0] - m * x[0]
+        return [m, t]
 
     def process_result(self, res):
         x2 = max(res.curve_x)
@@ -280,6 +313,7 @@ class CosineFit(PredefinedFit):
 
     fit_title = 'cosine fit'
     fit_params = ['A', 'f', 'x0', 'B']
+    fit_p_descr = fit_params
 
     def fit_model(self, x, A, f, x0, B):
         return B + A * cos(2 * pi * f * (x - x0))
@@ -299,9 +333,11 @@ class CosineFit(PredefinedFit):
 class PolyFit(PredefinedFit):
     """Fits with a polynomial of given degree."""
 
-    fit_title = 'poly'
+    canguess = True
 
-    def __init__(self, n, parstart=None, xmin=None, xmax=None):
+    def __init__(self, parstart=None, xmin=None, xmax=None, n=None):
+        if n is None:
+            raise ValueError("Polynomial fit requires the order (n) to be given")
         self._n = n
         PredefinedFit.__init__(self, parstart, xmin, xmax)
 
@@ -309,8 +345,24 @@ class PolyFit(PredefinedFit):
     def fit_params(self):
         return ['a%d' % i for i in range(self._n + 1)]
 
-    def fit_model(self, x, *v):
-        return sum(v[i] * x**i for i in range(self._n + 1))
+    @property
+    def fit_p_descr(self):
+        return self.fit_params
+
+    @property
+    def fit_title(self):
+        return "poly(%d)" % self._n
+
+    def fit_model(self, x, *v, **args):
+        if args and not v:
+            for k in self.fit_params:
+                par = args.get(k, None)
+                if par is not None:
+                    v += (par,)
+        return sum(v[i] * x ** i for i in range(self._n + 1))
+
+    def guesspar(self, x, y):
+        return [1] + [0] * self._n
 
 
 FWHM_TO_SIGMA = 2 * sqrt(2 * log(2))
@@ -319,11 +371,18 @@ FWHM_TO_SIGMA = 2 * sqrt(2 * log(2))
 class GaussFit(PredefinedFit):
     """Fits with a Gaussian model."""
 
+    canguess = True
     fit_title = 'gauss'
     fit_params = ['x0', 'A', 'fwhm', 'B']
+    fit_p_descr = ['center', 'amplitude', 'FWHM', 'background']
 
     def fit_model(self, x, x0, A, fwhm, B):
-        return abs(B) + A*exp(-(x - x0)**2 / (2 * (fwhm / FWHM_TO_SIGMA)**2))
+        return abs(B) + A * exp(-(x - x0) ** 2 / (2 * (fwhm / FWHM_TO_SIGMA) ** 2))
+
+    def guesspar(self, x, y):
+        (fwhm, x0, ymax, B) = estimateFWHM(x, y)
+        A = ymax - B
+        return [x0, A, fwhm, B]
 
     def process_result(self, res):
         res.label_x = res.x0 + res.fwhm / 2
@@ -338,21 +397,29 @@ class GaussFit(PredefinedFit):
 
 class PseudoVoigtFit(PredefinedFit):
 
+    canguess = True
     fit_title = 'pseudo-voigt'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'eta']
+    fit_p_descr = fit_params
 
     def fit_model(self, x, B, A, x0, hwhm, eta):
         eta = eta % 1.0
         return abs(B) + A * (
             # Lorentzian
-            eta / (1 + ((x-x0) / hwhm)**2) +
+            eta / (1 + ((x - x0) / hwhm) ** 2) +
             # Gaussian
-            (1 - eta) * exp(-log(2) * ((x-x0) / hwhm)**2))
+            (1 - eta) * exp(-log(2) * ((x - x0) / hwhm) ** 2))
+
+    def guesspar(self, x, y):
+        (fwhm, x0, ymax, B) = estimateFWHM(x, y)
+        A = ymax - B
+        eta = 0.5
+        return [B, A, x0, fwhm, eta]
 
     def process_result(self, res):
         res.label_x = res.x0 + res.hwhm / 2
         res.label_y = res.B + res.A
-        eta = res.eta % 1.0
+        eta = res.eta = res.eta % 1.0
         integr = res.A * res.hwhm * (eta * pi + (1 - eta) * sqrt(pi / log(2)))
         res.label_contents = [
             ('Center', res.x0, res.dx0),
@@ -366,9 +433,10 @@ class PearsonVIIFit(PredefinedFit):
 
     fit_title = 'pearson-vii'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'm']
+    fit_p_descr = fit_params
 
     def fit_model(self, x, B, A, x0, hwhm, m):
-        return abs(B) + A / (1 + (2**(1/m) - 1)*((x-x0) / hwhm)**2) ** m
+        return abs(B) + A / (1 + (2 ** (1 / m) - 1) * ((x - x0) / hwhm) ** 2) ** m
 
     def process_result(self, res):
         res.label_x = res.x0 + res.hwhm / 2
@@ -385,6 +453,7 @@ class TcFit(PredefinedFit):
 
     fit_title = 'Tc fit'
     fit_params = ['B', 'A', 'Tc', 'alpha']
+    fit_p_descr = fit_params
 
     def fit_model(self, T, B, A, Tc, alpha):
         # Model:
@@ -392,7 +461,7 @@ class TcFit(PredefinedFit):
         #   I(T) = B                           for T > Tc
 
         def tc_curve_1(T):
-            return A*(1 - T/Tc)**(alpha % 1.0) + abs(B)
+            return A * (1 - T / Tc) ** (alpha % 1.0) + abs(B)
 
         def tc_curve_2(T):
             return abs(B)

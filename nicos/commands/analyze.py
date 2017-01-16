@@ -180,8 +180,24 @@ def root_mean_square(col=None):
     return sqrt((ys**2).sum() / len(ys))
 
 
-class FitResult(tuple):
+class CommandLineFitResult(tuple):
     __display__ = False
+
+
+def fit(fitclass, *columns, **kwargs):
+    xs, ys, dys, _, ds = _getData(columns)
+    fit = fitclass(**kwargs)
+    res = fit.run(xs, ys, dys)
+    if res._failed:
+        session.log.info('Fit failed.')
+        return CommandLineFitResult((None, None))
+    session.notifyFitCurve(ds, fit.fit_title, res.curve_x, res.curve_y)
+    descrs = fit.fit_p_descr
+    vals = []
+    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
+        vals.append((descr, '%.5g' % par, '+/- %.5g' % err))
+    printTable(('parameter', 'value', 'error'), vals, session.log.info)
+    return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 
 @usercommand
@@ -195,19 +211,7 @@ def poly(n, *columns):
 
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
-    xs, ys, dys, _, ds = _getData(columns)
-    fit = PolyFit(n, [1] * (n+1))
-    res = fit.run(xs, ys, dys)
-    if res._failed:
-        session.log.info('Fit failed.')
-        return FitResult((None, None))
-    session.notifyFitCurve(ds, 'poly(%d)' % n, res.curve_x, res.curve_y)
-    descrs = ['a_%d' % i for i in range(n+1)]
-    vals = []
-    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
-        vals.append((descr, '%.5g' % par, '+/- %.5g' % err))
-    printTable(('parameter', 'value', 'error'), vals, session.log.info)
-    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+    return fit(PolyFit, *columns, n=n)
 
 poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
 
@@ -239,18 +243,7 @@ def gauss(*columns):
             center = values[0]
             # now work with fitted peak center
     """
-    xs, ys, dys, _, ds = _getData(columns)
-    fit = GaussFit([0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0])
-    res = fit.run(xs, ys, dys)
-    if res._failed:
-        return None, None
-    session.notifyFitCurve(ds, 'gauss', res.curve_x, res.curve_y)
-    descrs = ['center', 'amplitude', 'FWHM', 'background']
-    vals = []
-    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
-        vals.append((descr, '%.4f' % par, '%.4f' % err))
-    printTable(('parameter', 'value', 'error'), vals, session.log.info)
-    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+    return fit(GaussFit, *columns)
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 
@@ -290,7 +283,7 @@ def sigmoid(*columns):
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.4f' % par, '%.4f' % err))
     printTable(('parameter', 'value', 'error'), vals, session.log.info)
-    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+    return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')
 

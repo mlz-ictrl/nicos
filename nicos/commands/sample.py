@@ -33,7 +33,7 @@ from numpy import sqrt, pi, sin, arcsin, radians, degrees
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand, helparglist, parallel_safe
-from nicos.commands.analyze import FitResult
+from nicos.commands.analyze import CommandLineFitResult
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import urllib, iteritems
@@ -541,4 +541,4 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
     session.log.info('mth.offset += %.4f', meanmtt0 / 2)
     session.log.info('stt.offset += %.4f', meanstt0)
 
-    return FitResult((meanmtt0, meanstt0))
+    return CommandLineFitResult((meanmtt0, meanstt0))
