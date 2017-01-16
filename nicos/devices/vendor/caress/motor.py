@@ -65,6 +65,7 @@ class Motor(HasOffset, Driveable, AbstractMotor):
         raw = Driveable.doRead(self, maxage)
         if raw is None and session.sessiontype == POLLER:
             return None
+        self.log.debug('Raw  value: %r', raw)
         return raw - (self.coderoffset + self.offset)
 
     def doSetPosition(self, pos):
