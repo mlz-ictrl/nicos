@@ -12,8 +12,8 @@ devices = dict(
     cty = device('devices.tango.Motor',
                  description = 'Flex Achse 1',
                  tangodevice = tango_base + 'fzjs7/Flex_Achse_1',
-                 abslimits = (-0, 450),
-                 userlimits = (-0, 40),
+                 abslimits = (-0, 700),
+                 userlimits = (-0, 400),
                  unit = 'mm',
                 ),
 
