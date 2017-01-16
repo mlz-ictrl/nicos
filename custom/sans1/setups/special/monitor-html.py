@@ -383,6 +383,60 @@ _ccmsans_plot = Column(
     ),
 )
 
+_ccm2a = Column(
+    Block('CCM2a Magnet', [
+        BlockRow(
+             Field(name='Field', dev='B_ccm2a', width=12),
+            ),
+        BlockRow(
+             Field(name='Readback', dev='B_ccm2a_readback', width=12),
+             Field(name='Target', key='b_ccmsans/target', width=12),
+            ),
+        BlockRow(
+             Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
+             Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
+            ),
+        ],
+    setups='ccm2a',
+    ),
+)
+
+_ccm2a_temperature = Column(
+    Block('CCM2a Magnet Temperature', [
+        BlockRow(
+             Field(name='T1', dev='ccm2a_T1', width=12),
+             Field(name='T2', dev='ccm2a_T2', width=12),
+            ),
+        BlockRow(
+             Field(name='TA', dev='ccm2a_TA', width=12),
+             Field(name='TB', dev='ccm2a_TB', width=12),
+            ),
+        ],
+    setups='ccm2a',
+    ),
+)
+
+_ccm2a_plot = Column(
+    Block('CCM2a Magnet plot', [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                width=60, height=15, plotwindow=1800,
+                devices=['B_ccm2a', 'B_ccm2a/target'],
+                names=['30min', 'Target'],
+                legend=True,
+                ),
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                width=60, height=15, plotwindow=12*3600,
+                devices=['B_ccm2a', 'B_ccm2a/target'],
+                names=['12h', 'Target'],
+                legend=True,
+                ),
+        ),
+        ],
+    setups='ccm2a',
+    ),
+)
+
 _ccr19_plot = Column(
     Block('30min T and Ts plot', [
         BlockRow(
@@ -584,11 +638,12 @@ devices = dict(
                                  Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
                                  Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
+                                     _ccm2a, _ccm2a_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2, _sc_t,
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports, _julabo, _tisane_counts, _tisane_fc,
                                      _tisane_fg1, _tisane_fg2),
-                                 Row(_ccmsans_plot, _ccr19_plot, _htf03_plot),
+                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot),
                                  Row(_live),
                                ],
                     ),
