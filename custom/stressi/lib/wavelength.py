@@ -81,9 +81,12 @@ class Wavelength(HasLimits, Moveable):
             }
 
     def _crystal(self, maxage):
-        crystal = self._attached_crystal.read(maxage)
-        if crystal in self._lut:
-            return self._lut[crystal]
+        try:
+            crystal = self._attached_crystal.read(maxage)
+            if crystal in self._lut:
+                return self._lut[crystal]
+        except PositionError:
+            pass
         return None
 
     def _d(self, maxage=0):
