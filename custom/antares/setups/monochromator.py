@@ -34,6 +34,8 @@ devices = dict(
                  abslimits = (12, 66),
                  maxage = 5,
                  pollinterval = 3,
+                 lowlevel = True,
+                 precision = 0.01
                 ),
 
     mr2 = device('devices.taco.Motor',
@@ -44,6 +46,8 @@ devices = dict(
                  abslimits = (12, 66),
                  maxage = 5,
                  pollinterval = 3,
+                 lowlevel = True,
+                 precision = 0.01
                 ),
 
     mtz = device('devices.taco.Motor',
@@ -53,9 +57,10 @@ devices = dict(
                  unit = 'mm',
                  abslimits = (-120, 260),
                  userlimits = (-120, 260),
-                 lowlevel = False,
                  maxage = 5,
                  pollinterval = 3,
+                 lowlevel = True,
+                 precision = 0.01
                 ),
 
 
@@ -65,7 +70,7 @@ devices = dict(
                      unit = '',
                      maxage = 5,
                      pollinterval = 3,
-                     lowlevel = False,
+                     lowlevel = True,
                     ),
 
     mono_inout = device('devices.generic.Switcher',
@@ -77,5 +82,6 @@ devices = dict(
                         maxage = 5,
                         pollinterval = 3,
                         precision = 0,
+                        lowlevel = True,
                        ),
 )
