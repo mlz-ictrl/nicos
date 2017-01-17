@@ -56,4 +56,11 @@ devices = dict(
         top = 'm_top',
         coordinates = 'opposite',
     ),
+    slit3 = device('nicos.devices.generic.Slit',
+        left = 'm_left',
+        right = 'm_right',
+        bottom = 'm_bottom',
+        top = 'm_top',
+        opmode = 'centered',
+    ),
 )

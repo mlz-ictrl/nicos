@@ -28,8 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import Attach, AutoDevice, HasPrecision, InvalidValueError, \
-    Moveable, Override, Param, Value, multiReset, multiStatus, multiWait, \
-    oneof, tupleof
+    Moveable, Override, Param, Value, dictof, multiReset, multiStatus, \
+    multiWait, oneof, tupleof
 from nicos.core.utils import devIter
 from nicos.devices.abstract import CanReference
 
@@ -87,10 +87,20 @@ class Slit(CanReference, Moveable):
         'coordinates': Param('Coordinate convention for left/right and '
                              'top/bottom blades', default='equal',
                              type=oneof('equal', 'opposite')),
+        'fmtstr_map': Param('A dictionary mapping operation modes to format '
+                            'strings (used for internal management).',
+                            type=dictof(str, str), settable=False,
+                            mandatory=False, userparam=False,
+                            default={
+                                '4blades': '%.2f %.2f %.2f %.2f',
+                                '4blades_opposite': '%.2f %.2f %.2f %.2f',
+                                'centered': '%.2f x %.2f',
+                                'offcentered': '(%.2f, %.2f) %.2f x %.2f',
+                            }),
     }
 
     parameter_overrides = {
-        'fmtstr': Override(default='%.2f %.2f %.2f %.2f'),
+        'fmtstr': Override(volatile=True),
         'unit': Override(mandatory=False),
     }
 
@@ -266,13 +276,17 @@ class Slit(CanReference, Moveable):
     def doReadUnit(self):
         return self._attached_left.unit
 
+    def doWriteFmtstr(self, value):
+        # since self.fmtstr_map is a readonly dict a temp. copy is created
+        # to update the dict and then put to cache back
+        tmp = dict(self.fmtstr_map)
+        tmp[self.opmode] = value
+        self._setROParam('fmtstr_map', tmp)
+
+    def doReadFmtstr(self):
+        return self.fmtstr_map[self.opmode]
+
     def doWriteOpmode(self, value):
-        if value in ('4blades', '4blades_opposite'):
-            self.fmtstr = '%.2f %.2f %.2f %.2f'
-        elif value == 'offcentered':
-            self.fmtstr = '(%.2f, %.2f) %.2f x %.2f'
-        else:
-            self.fmtstr = '%.2f x %.2f'
         if self._cache:
             self._cache.invalidate(self, 'value')
 

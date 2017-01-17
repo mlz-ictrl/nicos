@@ -178,3 +178,17 @@ def test_slit_reference(session, log):
     slit = session.getDevice('slit')
     with log.assert_warns('m_left cannot be referenced'):
         slit.reference()
+
+
+def test_slit_fmtstr(session):
+    slit = session.getDevice('slit3')
+    assert slit.opmode == 'centered'
+    assert slit.fmtstr == '%.2f x %.2f'
+
+    # Test the save of the manual changed format
+    slit.fmtstr = '%.3f x %.3f'
+    assert slit.fmtstr == '%.3f x %.3f'
+    slit.opmode = '4blades'
+    assert slit.fmtstr != '%.3f x %.3f'
+    slit.opmode = 'centered'
+    assert slit.fmtstr == '%.3f x %.3f'
