@@ -30,6 +30,13 @@ devices = {
                                    0.029687
                                )
                               ),
+    '%s_sam_trans' % setupname: device('devices.tango.Motor',
+                                       description = 'Sample changer stage',
+                                       tangodevice = tango_base + 'plc/plc_motor',
+                                       fmtstr = '%.1f',
+                                       unit = 'mm',
+                                       precision = 0.1,
+                                      ),
 }
 
 alias_config = {
