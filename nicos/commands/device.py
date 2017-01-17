@@ -363,7 +363,8 @@ def get(dev, parameter):
     >>> get(phi, 'speed')
     >>> print phi.speed
     """
-    value = getattr(session.getDevice(dev), parameter)
+    dev = session.getDevice(dev)
+    value = getattr(dev, parameter)
     dev.log.info('parameter %s is %s', parameter, value)
 
 
