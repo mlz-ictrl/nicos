@@ -25,11 +25,12 @@
 """Motor device via the CARESS device service."""
 
 from nicos import session
-from nicos.core import HasOffset, Override, POLLER, Param
+from nicos.core import Attach, HasOffset, Override, POLLER, Param
 from nicos.core.errors import NicosError
 from nicos.devices.abstract import Motor as AbstractMotor
 from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE
+from nicos.devices.vendor.caress.mux import MUX
 
 EKF_44520_ABS = 114  # EKF 44520 motor control, abs. encoder, VME
 EKF_44520_INCR = 115  # EKF 44520 motor control, incr. encoder, VME
@@ -103,3 +104,12 @@ class Motor(HasOffset, Driveable, AbstractMotor):
                     raise NicosError(self, 'Could not set speed to module!'
                                      '(%r) %d' % ((res,), self._device_kind()))
         self._params['speed'] = speed
+
+
+class MuxMotor(Motor):
+    """CARESS motor using the ST180 multiplexer."""
+
+    attached_devices = {
+        'mux':   Attach('Multiplexer device to access the motor controller',
+                        MUX, optional=True, multiple=False),
+    }
