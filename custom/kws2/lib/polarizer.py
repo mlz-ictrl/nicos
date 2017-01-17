@@ -36,7 +36,7 @@ class Polarizer(HasTimeout, Moveable):
 
     valuetype = oneof(*POL_SETTINGS)
 
-    hardware_access = False
+    hardware_access = True
 
     attached_devices = {
         'output':    Attach('output setter', Moveable),
