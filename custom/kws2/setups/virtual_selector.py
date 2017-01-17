@@ -19,14 +19,8 @@ devices = dict(
                              precision = [10.0],
                             ),
 
-    selector_speed  = device('devices.generic.VirtualMotor',
+    selector_speed  = device('kws1.virtual.Standin',
                              description = 'Selector speed control',
-                             unit = 'rpm',
-                             fmtstr = '%.0f',
-                             warnlimits = (6500, 28200),
-                             abslimits = (6500, 28200),
-                             precision = 10,
-                             speed = 700,
                             ),
 
     selector_lambda = device('kws1.selector.SelectorLambda',

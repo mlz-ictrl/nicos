@@ -32,11 +32,6 @@ devices = dict(
 
 
 for (epname, _) in eps:
-    devices[epname + '_HV'] = device('devices.generic.VirtualMotor',
+    devices[epname + '_HV'] = device('kws1.virtual.Standin',
                                      description = epname + ' HV setting',
-                                     lowlevel = True,
-                                     unit = 'V',
-                                     pollinterval = 10,
-                                     fmtstr = '%.0f',
-                                     abslimits = (0, 1600),
-                                     warnlimits = (1520, 1540))
+                                     lowlevel = True)

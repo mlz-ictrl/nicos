@@ -10,10 +10,9 @@ devices = dict(
                        io = 'lens_io',
                       ),
 
-    lens_io   = device('devices.generic.VirtualMotor',
+    lens_io   = device('kws1.virtual.Standin',
                        description = 'lens I/O device',
                        abslimits = (0, 7),
-                       unit = '',
                        lowlevel = True,
                       ),
 )
