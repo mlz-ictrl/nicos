@@ -2146,7 +2146,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
-    _ownparams = set(['alias', 'name', 'devclass'])
+    _ownparams = set(['alias', 'name', 'devclass', 'lowlevel'])
     _initialized = False
 
     __display__ = True
