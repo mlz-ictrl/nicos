@@ -35,6 +35,8 @@ from nicos.pycompat import listitems
 def SetupRealtime(channels, interval, progression, trigger):
     """Set up measurement for real-time mode."""
     detector = session.getDevice('det')
+    if detector not in session.experiment.detectors:
+        session.experiment.detlist = ['det']
     if trigger == 'external':
         detector.mode = 'realtime_external'
     else:
@@ -57,6 +59,8 @@ def SetupRealtime(channels, interval, progression, trigger):
 def SetupNormal():
     """Set up measurement for normal or TOF mode."""
     detector = session.getDevice('det')
+    if detector not in session.experiment.detectors:
+        session.experiment.detlist = ['det']
     # just set it to standard mode, TOF mode will be set by the chopper preset
     detector.mode = 'standard'
     if 'det_ext_rt' in session.configured_devices:
