@@ -530,7 +530,13 @@ all_categories = []
 
 
 def register(cmdlet):
-    all_cmdlets.append(cmdlet)
+    # allow overriding cmdlets with subclasses
+    for i, old in enumerate(all_cmdlets):
+        if issubclass(cmdlet, old):
+            all_cmdlets[i] = cmdlet
+            break
+    else:
+        all_cmdlets.append(cmdlet)
     if cmdlet.category not in all_categories:
         all_categories.append(cmdlet.category)
 
