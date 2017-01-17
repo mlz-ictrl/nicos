@@ -26,6 +26,7 @@ devices = dict(
                      objname = '%s' % (servername),
                      config = 'CHIS 114 11 0x00f1e000 3 -4095 8000 800 2 24 50 1 '
                            '0 1 5000 1 10 0 0 0',
+                     lowlevel = True,
                     ),
     phis_eh = device('devices.vendor.caress.Motor',
                      description = 'HWB PHIS',
@@ -41,6 +42,7 @@ devices = dict(
                      #          ' 1 5000 1 10 0 0 0',
                      config = 'PHIS 114 11 0x00f1f000 3 2048 2040 204 2 24 50 1 0'
                               ' 1 5000 1 10 0 0 0',
+                     lowlevel = True,
                     ),
 )
 

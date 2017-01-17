@@ -43,6 +43,7 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'TTHS 114 11 0x00f1c000 3 4096 500 5 2 24 50 1 10 1'
                            ' 3000 1 30 0 0 0',
+                  lowlevel = True,
                  ),
     omgs_s = device('devices.vendor.caress.Motor',
                   description = 'HWB OMGS',
@@ -55,6 +56,7 @@ devices = dict(
                   objname = '%s' % (servername),
                   config = 'OMGS 114 11 0x00f1c000 1 4096 2048 200 2 24 50 1 0'
                            ' 1 3000 1 10 0 0 0',
+                  lowlevel = True,
                  ),
     xt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB XT',
@@ -66,7 +68,8 @@ devices = dict(
                 nameserver = '%s' % (nameservice,),
                 objname = '%s' % (servername),
                 config = 'XT 114 11 0x00f1d000 1 8192 10000 1000 2 24 100'
-                         ' -1 0 1  5000 1 10 0 0 0'
+                         ' -1 0 1  5000 1 10 0 0 0',
+                lowlevel = True,
                ),
     yt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB YT',
@@ -78,7 +81,8 @@ devices = dict(
                 nameserver = '%s' % (nameservice,),
                 objname = '%s' % (servername),
                 config = 'YT 114 11 0x00f1d000 3 819 10000 1000 2 24 100'
-                         ' -1 0 1 5000 1 10 0 0 0'
+                         ' -1 0 1 5000 1 10 0 0 0',
+                lowlevel = True,
                ),
     zt_s = device('devices.vendor.caress.Motor',
                 description = 'HWB ZT',
@@ -90,7 +94,8 @@ devices = dict(
                 nameserver = '%s' % (nameservice,),
                 objname = '%s' % (servername),
                 config = 'ZT 114 11 0x00f1e000 1 16384 10000 1000 2 24 100'
-                         ' -1 0 1 5000 1 10 0 0 0'
+                         ' -1 0 1 5000 1 10 0 0 0',
+                lowlevel = True,
                ),
 )
 

@@ -30,6 +30,7 @@ devices = dict(
                     #          '-1 0 1 5000 1 10 0 0 0',
                     config = 'CHIN 115 11 0x00f1e000 3 500 500 50 1 0 0 '
                              '0 0 1 5000 1 10 0 0 0',
+                    lowlevel = True,
                    ),
     phis_n = device('devices.vendor.caress.Motor',
                     description = 'HWB PHIN',
@@ -43,6 +44,7 @@ devices = dict(
                     #          '1 5000 1 10 0 0 0',
                     config = 'PHIN 115 11 0x00f1c000 2 50 200 20 2 24 50 1 0 '
                              '1 5000 1 10 0 0 0',
+                    lowlevel = True,
                    ),
     # phis = device('devices.vendor.caress.Motor',
     #               description = 'HWB PHIS',
