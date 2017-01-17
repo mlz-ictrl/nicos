@@ -35,7 +35,7 @@ import PyTango
 
 from nicos import session
 from nicos.core import Param, Override, status, Readable, Moveable, \
-    HasLimits, Device, tangodev, HasCommunication, oneofdict, \
+    HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
     dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
     HasTimeout, ArrayDesc
@@ -935,3 +935,29 @@ class TOFChannel(ImageChannel):
 
     def doWriteTimeinterval(self, value):
         self._dev.timeInterval = value
+
+
+class OnOffSwitch(PyTangoDevice, Moveable):
+    """The OnOffSwitch is a generic devices that is capable of switching
+    the desired Tango device on or off via the On()/Off commands."""
+
+    valuetype = oneof('on', 'off')
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+    }
+
+    tango_status_mapping = PyTangoDevice.tango_status_mapping.copy()
+    tango_status_mapping[PyTango.DevState.OFF] = status.OK
+    tango_status_mapping[PyTango.DevState.ALARM] = status.OK
+    tango_status_mapping[PyTango.DevState.MOVING] = status.OK
+
+    def doRead(self, maxage=0):
+        if self._dev.State() == PyTango.DevState.OFF:
+            return 'off'
+        return 'on'
+
+    def doStart(self, value):
+        if value == 'on':
+            self._dev.On()
+        else:
+            self._dev.Off()
