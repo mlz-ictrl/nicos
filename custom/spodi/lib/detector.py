@@ -27,7 +27,7 @@
 import numpy as np
 
 from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
-    none_or, oneof, status
+    listof, none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
 from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev
@@ -79,6 +79,10 @@ class Detector(MeasureSequencer):
                               type=none_or(float), unit='s', settable=True,
                               default=0.5,
                               ),
+        'rates': Param('The rates detected by the detector',
+                       settable=False, type=listof(float),
+                       userparam=False, category='status',
+                       ),
     }
 
     parameter_overrides = {
@@ -110,6 +114,7 @@ class Detector(MeasureSequencer):
         self._step = 0
         self._array_data.fill(0)
         self._data = [0] * len(self._attached_detector.valueInfo())
+        self._setROParam('rates', [0., 0., 0.])
         MeasureSequencer.doStart(self)
 
     def doSetPreset(self, **preset):
@@ -176,6 +181,13 @@ class Detector(MeasureSequencer):
                     ret = [self._step + 1] + self._data
         else:
             ret = [self._step] + self._data
+        # ret = [step, meastime, mon1, mon2, counts]
+        meastime = ret[1]
+        if meastime > 0.:
+            mon1rate = ret[2] / meastime
+            mon2rate = ret[3] / meastime
+            ctrrate = ret[4] / meastime
+            self._setROParam('rates', [mon1rate, mon2rate, ctrrate])
         return ret
 
     def doReset(self):
