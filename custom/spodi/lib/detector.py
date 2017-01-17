@@ -30,7 +30,7 @@ from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
     none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
-from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqCall
+from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev
 
 
 class Detector(MeasureSequencer):
@@ -136,7 +136,7 @@ class Detector(MeasureSequencer):
         self._step += 1
 
     def _startDet(self):
-        """ Start the detector and mark it running.
+        """Start the detector and mark it running.
 
         Since the detector is not really in BUSY mode after start, we need an
         additional flag to mark the detector started.
