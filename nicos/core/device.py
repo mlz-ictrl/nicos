@@ -2178,7 +2178,7 @@ class DeviceAlias(Device):
         return '<device %s, alias to %s "%s">' % (self._name, self._obj,
                                                   self.description)
 
-    def doUpdateAlias(self, devname):
+    def doUpdateAlias(self, devname, recursive=False):
         # Important NOTE: this is never called in the poller, since the poller
         # replaces DeviceAliases by a cache reader.  Therefore we get away with
         # calling _setROParam on device creation.
@@ -2201,10 +2201,17 @@ class DeviceAlias(Device):
         except Exception:
             if self._initialized:
                 raise
-            # On initialization, this must not raise an error, otherwise the device
-            # cannot be created at all, and will fail depending devices.  Instead,
-            # select another target if possible.
-            self._recoverMissingDevice(devname)
+            # On initialization, this must not raise an error, otherwise the
+            # device cannot be created at all, and will fail depending devices.
+            # Instead, select another target if possible.
+            if not recursive:
+                self._recoverMissingDevice(devname)
+            else:
+                # If this is a recursive call (another target already failed),
+                # do not try others to avoid infinite looping through the
+                # alias config here.
+                self.log.exception('cannot point to %s' % devname)
+                self.doUpdateAlias('')
 
     def _reinitParams(self):
         if self._mode != MASTER:  # only in the copy that changed the alias
@@ -2250,7 +2257,7 @@ class DeviceAlias(Device):
                 new_target = ''
         # now make the new choice of alias permanent, including in the cache
         # (which we must do with _setROParam since we might not be master yet)
-        self.doUpdateAlias(new_target)
+        self.doUpdateAlias(new_target, recursive=True)
         Device._setROParam(self, 'alias', new_target)
 
     # Device methods that would not be alias-aware
