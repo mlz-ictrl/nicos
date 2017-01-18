@@ -178,7 +178,7 @@ devices = dict(
     # *** Roboter Tool Number ***
     robt = device('devices.vendor.caress.Motor',
                   description = 'Robot T (tool number)',
-                  fmtstr = '%.2f',
+                  fmtstr = '%d',
                   unit = '',
                   config = 'ROBT 500 RoboterToolNumber.Caress_Object',
                   coderoffset = 0,
