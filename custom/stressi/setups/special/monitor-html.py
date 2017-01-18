@@ -119,7 +119,7 @@ devices = dict(
                      padding = 0,
                      prefix = 'nicos/',
                      # padding = 2,
-                     fontsize = 17,
+                     fontsize = 24,
                      layout = [Row(_expcolumn),
                                Row(_sampletable, _measurement, _eulerian)],
                     ),
