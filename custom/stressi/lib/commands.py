@@ -31,13 +31,15 @@ from nicos.commands.basic import sleep
 @usercommand
 @helparglist('')
 def gauge_to_base():
-    dev_pos = [('robt', 13), ('robsr', 50), ('robsl', 40),
+    session.getDevice('phis').speed = 50
+    session.getDevice('xt').speed = 40
+    dev_pos = [('robt', 13),
 
-               ('robz', -400), ('robj3', -1), ('robj1', -1), ('robj2', -2),
+               ('zt', -400), ('robj3', -1), ('robj1', -1), ('robj2', -2),
                ('robj3', -110),
 
-               ('robz', 140), ('roba', -10), ('robb', -2), ('robc', 10),
-               ('roby', 610), ('robx', -515)]
+               ('zt', 140), ('chis', 190), ('robb', -2), ('phis', 10),
+               ('yt', 610), ('xt', -515)]
 
     for dev, pos in dev_pos:
         session.log.info('Move %s to %f', dev, pos)
@@ -48,9 +50,11 @@ def gauge_to_base():
 @usercommand
 @helparglist('toolnumber')
 def base_to_gauge(tool):
+    session.getDevice('phis').speed = 50
+    session.getDevice('xt').speed = 40
     # omgr in robot software offset must be <= -10
-    dev_pos = [('robz', -200), ('robj3', -1), ('robj1', -70), ('robj3', -100),
-               ('robx', 0),
+    dev_pos = [('zt', -200), ('robj3', -1), ('robj1', -70), ('robj3', -100),
+               ('xt', 0),
                ]
     for dev, pos in dev_pos:
         session.log.info('Move %s to %f', dev, pos)
@@ -62,8 +66,13 @@ def base_to_gauge(tool):
     sleep(5)
 
     # move to gauge center
+    dev = 'chis'
+    pos = 180.
+    session.log.info('Move %s to %f', dev, pos)
+    session.getDevice(dev).maw(pos)
+    sleep(5)
     pos = 0
-    for dev in ['roba', 'robb', 'robc', 'robz', 'robx', 'roby']:
+    for dev in ['robb', 'phis', 'zt', 'xt', 'yt']:
         session.log.info('Move %s to %f', dev, pos)
         session.getDevice(dev).maw(pos)
         sleep(5)
