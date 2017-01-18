@@ -300,14 +300,27 @@ stage(name: 'checkout code: ' +GERRIT_PROJECT) {
         stash(name:'source',  includes: '**, .git, .git/**', useDefaultExcludes: false, )
     }
 }
+
 stage (name: 'prepare') {
-build ([job: 'NicosUpdateRedminePre',
-    parameters: [string(name: 'GERRIT_PROJECT', value: GERRIT_PROJECT),
+
+    def params = [string(name: 'GERRIT_PROJECT', value: GERRIT_PROJECT),
                  string(name: 'GERRIT_BRANCH', value: GERRIT_BRANCH),
                  string(name: 'GERRIT_REFSPEC', value: GERRIT_REFSPEC),
-                 string(name: 'GERRIT_EVENT_TYPE', value: GERRIT_EVENT_TYPE)]])
-
+                 string(name: 'GERRIT_EVENT_TYPE', value: GERRIT_EVENT_TYPE),
+                 string(name: 'GERRIT_CHANGE_SUBJECT', value: GERRIT_CHANGE_SUBJECT),
+                 string(name: 'GERRIT_CHANGE_URL', value: GERRIT_CHANGE_URL),
+                 ]
+    if (GERRIT_EVENT == 'ref-updated') { // only set for ref-updated
+        params << string(name: 'GERRIT_REFNAME', value: GERRIT_REFNAME)
+    }
+    if (GERRIT_EVENT != 'ref-updated') { // these are not set for ref-updated
+        params << string(name: 'GERRIT_PATCHSET_NUMBER', value: GERRIT_PATCHSET_NUMBER)
+        params << string(name: 'GERRIT_PATCHSET_REVISION', value: GERRIT_PATCHSET_REVISION)
+    }
+    build ([job: 'NicosUpdateRedminePre',
+        parameters: params])
 }
+
 //
 parallel pylint: {
     stage ( name: 'pylint') {
