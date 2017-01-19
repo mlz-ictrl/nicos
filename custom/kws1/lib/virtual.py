@@ -24,11 +24,11 @@
 
 """Standin motors for virtual instrument setups."""
 
-from nicos.core import Override
+from nicos.core import Override, HasPrecision
 from nicos.devices.generic.manual import ManualMove
 
 
-class Standin(ManualMove):
+class Standin(HasPrecision, ManualMove):
 
     parameter_overrides = {
         'abslimits': Override(mandatory=False),
