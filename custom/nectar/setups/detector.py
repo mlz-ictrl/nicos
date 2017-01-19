@@ -32,7 +32,7 @@ devices = dict(
         shutteropentime = 0.05,
         shutterclosetime = 0.05,
         shuttermode = 'auto',
-        vsspeed = 38.55,
+        vsspeed = 16.0,
         hsspeed = 1,
         pgain = 1,
     ),
