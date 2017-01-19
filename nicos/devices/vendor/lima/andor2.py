@@ -38,11 +38,11 @@ class Andor2LimaCCD(GenericLimaCCD):
     """
 
     HSSPEEDS = [5, 3, 1, 0.05]  # Values from sdk manual
-    VSSPEEDS = [38.55, 76.95]  # Values from sdk manual
+    VSSPEEDS = [16, 38.55, 76.95]  # Values from sdk manual
     PGAINS = [1, 2, 4]  # Values from sdk manual
 
     HSSPEED_RE = re.compile(r'ADC0_(\d+\.\d+|\d+)MHZ')
-    VSSPEED_RE = re.compile(r'(\d+\.\d+)USEC')
+    VSSPEED_RE = re.compile(r'(\d+(?:\.\d+)?)USEC')
     PGAIN_RE = re.compile(r'X(\d)')
 
     parameters = {
@@ -73,7 +73,7 @@ class Andor2LimaCCD(GenericLimaCCD):
         return val
 
     def doWriteVsspeed(self, value):
-        self._hwDev._dev.vs_speed = '%sUSEC' % value
+        self._hwDev._dev.vs_speed = '%gUSEC' % value
 
     def doReadPgain(self):
         val = float(self.PGAIN_RE.match(self._hwDev._dev.p_gain).group(1))
