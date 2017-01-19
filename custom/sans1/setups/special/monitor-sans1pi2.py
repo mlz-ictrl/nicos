@@ -61,18 +61,9 @@ _ccm2a = Block('CCM2a Magnet', [
              Field(name='Field', dev='B_ccm2a', width=12),
             ),
     BlockRow(
-             Field(name='Readback', dev='B_ccm2a_readback', width=12),
              Field(name='Target', key='b_ccmsans/target', width=12),
+             Field(name='Readback', dev='B_ccm2a_readback', width=12),
             ),
-    BlockRow(
-             Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
-             Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
-            ),
-    ],
-    setups='ccm2a',
-)
-
-_ccm2a_temperature = Block('CCM2a Magnet Temperature', [
     BlockRow(
              Field(name='T1', dev='ccm2a_T1', width=12),
              Field(name='T2', dev='ccm2a_T2', width=12),
@@ -88,13 +79,13 @@ _ccm2a_temperature = Block('CCM2a Magnet Temperature', [
 _ccm2a_plot = Block('CCM2a Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=1800,
+              width=40, height=15, plotwindow=1800,
               devices=['B_ccm2a', 'B_ccm2a/target'],
               names=['30min', 'Target'],
               legend=True,
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=12*3600,
+              width=40, height=15, plotwindow=12*3600,
               devices=['B_ccm2a', 'B_ccm2a/target'],
               names=['12h', 'Target'],
               legend=True,
@@ -576,7 +567,7 @@ devices = dict(
                                     Column(_htf01, _htf03, _ccm2a,
                                            _ccmsans, _ccmsans_temperature,
                                            _miramagnet, _amagnet,
-                                           _sans1julabo, _ccm2a_temperature),
+                                           _sans1julabo),
                                     Column(_htf01_plot, _htf03_plot,
                                            _spinflipper, _julabo_plot),
                                     Column(*ccrs) + Column(*cryos) + Column(_birmag),

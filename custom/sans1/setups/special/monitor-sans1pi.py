@@ -225,7 +225,7 @@ _col_slit = Column(
                  Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
                 ),
         BlockRow(
-                 Field(name='Slit width', dev='slit', unit='mm', format='%.2f'),
+                 Field(name='Slit [width, height]', dev='slit', width=12, unit='mm'),
                 ),
         ],
     ),

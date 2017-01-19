@@ -389,12 +389,8 @@ _ccm2a = Column(
              Field(name='Field', dev='B_ccm2a', width=12),
             ),
         BlockRow(
+             Field(name='Target', key='B_ccms2a/target', width=12),
              Field(name='Readback', dev='B_ccm2a_readback', width=12),
-             Field(name='Target', key='b_ccmsans/target', width=12),
-            ),
-        BlockRow(
-             Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
-             Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
             ),
         ],
     setups='ccm2a',
@@ -419,21 +415,13 @@ _ccm2a_temperature = Column(
 _ccm2a_plot = Column(
     Block('CCM2a Magnet plot', [
         BlockRow(
-            Field(widget='nicos.guisupport.plots.TrendPlot',
-                width=60, height=15, plotwindow=1800,
-                devices=['B_ccm2a', 'B_ccm2a/target'],
-                names=['30min', 'Target'],
-                legend=True,
-                ),
-            Field(widget='nicos.guisupport.plots.TrendPlot',
-                width=60, height=15, plotwindow=12*3600,
-                devices=['B_ccm2a', 'B_ccm2a/target'],
-                names=['12h', 'Target'],
-                legend=True,
-                ),
+                 Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccm2a', name='Target', dev='b_ccm2a/target'),
+                 Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h ccm2a', name='Target', dev='b_ccm2a/target'),
         ),
         ],
-    setups='ccm2a',
+        setups='ccm2a',
     ),
 )
 
@@ -614,7 +602,7 @@ _col_slit = Column(
                  Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
                 ),
         BlockRow(
-                 Field(name='Slit width', dev='slit', unit='mm', format='%.2f'),
+                 Field(name='Slit [width, height]', dev='slit', unit='mm', width=12),
                 ),
         ],
     ),
