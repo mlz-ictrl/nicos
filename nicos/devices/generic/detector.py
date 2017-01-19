@@ -29,9 +29,11 @@
 
 import numpy
 
+from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
-    LIVE, INTERMEDIATE, anytype, Moveable
+    LIVE, INTERMEDIATE, anytype, tupleof, Moveable
+from nicos.core.errors import ConfigurationError
 from nicos.core.utils import multiWait
 from nicos.utils import uniq
 
@@ -120,6 +122,48 @@ class ActiveChannel(PassiveChannel):
             if counted > 100 or counted > 0.03 * self.preselection:
                 if 0 <= counted <= self.preselection:
                     return (self.preselection - counted) * elapsed / counted
+
+
+class PostprocessPassiveChannel(PassiveChannel):
+
+    parameters = {
+        'readresult': Param('Storage for scalar results from image '
+                            'filtering, to be returned from doRead()',
+                            type=listof(float), settable=True,
+                            userparam=False),
+    }
+
+    def doRead(self, maxage=0):
+        return self.readresult
+
+    def setReadResult(self, arrays):
+        """This method should set `readresult` for corresponding `arrays`"""
+        raise NotImplementedError('implement setReadResult')
+
+
+class RectROIChannel(PostprocessPassiveChannel):
+
+    parameters = {
+        'roi': Param('Rectangular region of interest (x, y, width, height)',
+                     tupleof(int, int, int, int),
+                     settable=True,
+                    ),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%d'),
+    }
+
+    def setReadResult(self, arrays):
+        if any(self.roi):
+            x, y, w, h = self.roi
+            self.readresult = [arr[y:y+h, x:x+w].sum() for arr in arrays]
+        else:
+            self.readresult = [arr.sum() for arr in arrays]
+
+    def valueInfo(self):
+        return Value(name=self.name, type='counter', fmtstr='%d'),
 
 
 class TimerChannelMixin(DeviceMixinBase):
@@ -249,6 +293,11 @@ class Detector(Measurable):
                                '(empty to disable); [x, y, z] will read out '
                                'after x, then after y, then every z seconds',
                                type=listof(float), unit='s', settable=True),
+        'postprocess':   Param('Post processing list containing tuples of '
+                               '(PostprocessPassiveChannel, ImageChannelMixin, '
+                               '...)',
+                               type=listof(tuple),
+                              ),
     }
 
     parameter_overrides = {
@@ -262,6 +311,28 @@ class Detector(Measurable):
     _last_save = 0
     _last_save_index = 0
     _last_preset = None
+
+    def doInit(self, _mode):
+        self._postprocess = []
+        for tup in self.postprocess:
+            postdev = session.getDevice(tup[0])
+            imgdevs = [session.getDevice(name) for name in tup[1:]]
+            if not isinstance(postdev, PostprocessPassiveChannel):
+                raise ConfigurationError("Device '%s' is not a "
+                                         "PostprocessPassiveChannel" %
+                                         postdev.name)
+            if postdev not in self._channels:
+                raise ConfigurationError("Device '%s' has not been configured "
+                                         "for this detector" % postdev.name)
+            for idev in imgdevs:
+                if not isinstance(idev, ImageChannelMixin):
+                    raise ConfigurationError("Device '%s' is not a "
+                                             "ImageChannelMixin" % idev.name)
+                if idev not in self._attached_images:
+                    raise ConfigurationError("Device '%s' has not been "
+                                             "configured for this detector" %
+                                             idev.name)
+            self._postprocess.append((postdev, imgdevs))
 
     # allow overwriting in derived classes
     def _presetiter(self):
@@ -399,7 +470,12 @@ class Detector(Measurable):
         return ret
 
     def doReadArrays(self, quality):
-        return [img.readArray(quality) for img in self._attached_images]
+        arrays = [img.readArray(quality) for img in self._attached_images]
+        for postdev, imgdevs in self._postprocess:
+            postarrays = [arrays[i] for i in (self._attached_images.index(
+                idev) for idev in imgdevs)]
+            postdev.setReadResult(postarrays)
+        return arrays
 
     def duringMeasureHook(self, elapsed):
         if self.liveinterval is not None:

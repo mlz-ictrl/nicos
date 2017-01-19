@@ -24,96 +24,9 @@
 
 import numpy as np
 
-from nicos import session
 from nicos.core import status, Value, ArrayDesc
-from nicos.core.errors import ConfigurationError
-from nicos.core.params import Param, listof, tupleof, Override
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    Detector
-
-
-class PostprocessPassiveChannel(PassiveChannel):
-
-    parameters = {
-        "readresult": Param("Storage for scalar results from image "
-                            "filtering, to be returned from doRead()",
-                            type=listof(float), settable=True,
-                            userparam=False),
-    }
-
-    def doRead(self, maxage=0):
-        return self.readresult
-
-    def setReadResult(self, arrays):
-        """This method should set `readresult` for corresponding `arrays`"""
-        raise NotImplementedError("implement setReadResult")
-
-
-class RectROIChannel(PostprocessPassiveChannel):
-
-    parameters = {
-        "roi": Param("Rectangular region of interest (x, y, width, height)",
-                     tupleof(int, int, int, int),
-                     settable=True,
-                    ),
-    }
-
-    parameter_overrides = {
-        "unit":   Override(default="cts"),
-        'fmtstr': Override(default="%d"),
-    }
-
-    def setReadResult(self, arrays):
-        if any(self.roi):
-            x, y, w, h = self.roi
-            self.readresult = [arrays[0][y:y+h, x:x+w].sum()]
-        else:
-            self.readresult = [arrays[0].sum()]
-
-    def valueInfo(self):
-        return Value(name=self.name, type="counter", fmtstr="%d"),
-
-
-class MariaDetector(Detector):
-
-    parameters = {
-        "postprocess": Param("Post processing list containing tuples of "
-                             "(PostprocessPassiveChannel, ImageChannelMixin, "
-                             "...)",
-                             listof(tuple),
-                            ),
-    }
-
-    def doInit(self, _mode):
-        self._postprocess = []
-        for tup in self.postprocess:
-            postdev = session.getDevice(tup[0])
-            imgdevs = [session.getDevice(name) for name in tup[1:]]
-            if not isinstance(postdev, PostprocessPassiveChannel):
-                raise ConfigurationError("Device '%s' is not a "
-                                         "PostprocessPassiveChannel" %
-                                         postdev.name)
-            if postdev not in self._channels:
-                raise ConfigurationError("Device '%s' has not been configured "
-                                         "for this detector" % postdev.name)
-            for idev in imgdevs:
-                if not isinstance(idev, ImageChannelMixin):
-                    raise ConfigurationError("Device '%s' is not a "
-                                             "ImageChannelMixin" % idev.name)
-                if idev not in self._attached_images:
-                    raise ConfigurationError("Device '%s' has not been "
-                                             "configured for this detector" %
-                                             idev.name)
-            self._postprocess.append((postdev, imgdevs))
-
-    def doReadArrays(self, quality):
-        arrays = [img.readArray(quality) for img in self._attached_images]
-        for postdev, imgdevs in self._postprocess:
-            postarrays = [arrays[i] for i in (self._attached_images.index(
-                idev) for idev in imgdevs)]
-            postdev.setReadResult(postarrays)
-        return arrays
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 
 class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
