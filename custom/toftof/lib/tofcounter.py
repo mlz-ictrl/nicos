@@ -26,6 +26,8 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
+import TACOStates
+
 try:
     from SIS3400 import (Timer as SIS3400Timer,
                          MonitorCounter,  # pylint: disable=F0401
@@ -35,7 +37,8 @@ except ImportError:
     MonitorCounter = None
     HistogramCounter = None
 
-from nicos.core import ArrayDesc, Override, Param, Value, intrange, status
+from nicos.core import ArrayDesc, Override, Param, Value, SIMULATION, \
+    intrange, status
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.detector import FRMCounterChannel, FRMTimerChannel
@@ -57,6 +60,16 @@ class Monitor(FRMCounterChannel):
                                 type=intrange(1, 1024), settable=True,
                                 ),
     }
+
+    def _fix_state(self, mode):
+        if mode == SIMULATION:
+            return
+        if self._taco_guard(self._dev.deviceState) == TACOStates.DEVICE_OFF:
+            self._taco_guard(self._dev.deviceOn)
+
+    def doPreinit(self, mode):
+        FRMCounterChannel.doPreinit(self, mode)
+        self._fix_state(mode)
 
     def doWriteMonitorchannel(self, chan):
         self._taco_guard(self._dev.setMonitorInput, chan)
@@ -88,6 +101,7 @@ class Monitor(FRMCounterChannel):
 
     def doPrepare(self):
         self.doFinish()
+        self._fix_state(self._mode)
         FRMCounterChannel.doPrepare(self)
 
     def valueInfo(self):
@@ -102,6 +116,16 @@ class Timer(FRMTimerChannel):
     parameter_overrides = {
         'fmtstr': Override(default='%.1f'),
     }
+
+    def _fix_state(self, mode):
+        if mode == SIMULATION:
+            return
+        if self._taco_guard(self._dev.deviceState) == TACOStates.DEVICE_OFF:
+            self._taco_guard(self._dev.deviceOn)
+
+    def doPreinit(self, mode):
+        FRMTimerChannel.doPreinit(self, mode)
+        self._fix_state(mode)
 
     def doReset(self):
         if self._taco_guard(self._dev.deviceStatus) != 'init':
@@ -130,6 +154,7 @@ class Timer(FRMTimerChannel):
 
     def doPrepare(self):
         self.doFinish()
+        self._fix_state(self._mode)
         self.preselection = 0
         FRMTimerChannel.doPrepare(self)
 
@@ -171,10 +196,17 @@ class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
         'fmtstr': Override(default='%d'),
     }
 
+    def _fix_state(self, mode):
+        if mode == SIMULATION:
+            return
+        if self._taco_guard(self._dev.deviceState) == TACOStates.DEVICE_OFF:
+            self._taco_guard(self._dev.deviceOn)
+
     def doPreinit(self, mode):
         TacoDevice.doPreinit(self, mode)
         self.arraydesc = ArrayDesc('data', (self.numinputs, self.timechannels),
                                    np.uint32)
+        self._fix_state(mode)
 
     def valueInfo(self):
         return Value(name='total', type='counter', fmtstr='%d'),
@@ -232,6 +264,7 @@ class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
 
     def doPrepare(self):
         self.doFinish()
+        self._fix_state(self._mode)
         self._taco_guard(self._dev.clear)
 
     def _read_full(self):
