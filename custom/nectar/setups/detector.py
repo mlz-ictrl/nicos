@@ -95,7 +95,7 @@ ccd.rotation = 0
 ccd.shutteropentime = 0.05
 ccd.shutterclosetime = 0.05
 ccd.shuttermode = 'auto'
-ccd.vsspeed = 38.55
+ccd.vsspeed = 16.0
 ccd.hsspeed = 1
 ccd.pgain = 1
 '''
