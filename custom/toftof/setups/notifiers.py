@@ -12,6 +12,7 @@ devices = dict(
                                ],
                       subject = 'TOFTOF',
                       lowlevel = True,
+                      mailserver = 'mailhost.frm2.tum.de',
                      ),
 
     smser    = device('devices.notifiers.SMSer',
