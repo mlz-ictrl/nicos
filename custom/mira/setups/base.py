@@ -2,7 +2,7 @@ description = 'base setup for all instrument configurations'
 group = 'lowlevel'
 
 # CASCADE gasmix setup always included!
-includes = ['system', 'slits', 'nl6', 'reactor', 'gas']
+includes = ['system', 'slits', 'guidehall', 'nl6', 'reactor', 'gas']
 
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
