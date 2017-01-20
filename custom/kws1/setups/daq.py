@@ -36,6 +36,7 @@ devices = dict(
 
     kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
                         lowlevel = True,
+                        transpose = False,
                        ),
 
     yamlformat = device('kws1.yamlformat.YAMLFileSink',

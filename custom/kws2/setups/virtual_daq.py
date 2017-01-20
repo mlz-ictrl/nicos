@@ -13,6 +13,7 @@ includes = ['virtual_gedet']
 devices = dict(
     kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
                         lowlevel = True,
+                        transpose = True,
                        ),
 
     yamlformat = device('kws2.yamlformat.YAMLFileSink',

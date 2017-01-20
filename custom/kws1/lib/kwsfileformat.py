@@ -196,8 +196,9 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             n = (256 - image.shape[1]) // 2
             image = np.pad(image, ((0, 0), (n, n)), mode='constant')
 
-        data = image.T.ravel()
-        for (i, val) in enumerate(data):
+        if self.sink.transpose:
+            image = image.T
+        for (i, val) in enumerate(image.ravel()):
             w('%8d ' % val)
             if (i + 1) % 8:
                 w(' ')
@@ -226,7 +227,9 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
                 slot = np.pad(slot, ((0, 0), (n, n)), mode='constant')
 
             w('(* timeslot %d *)\n' % i)
-            np.savetxt(fp, slot.T, fmt='%8d')
+            if self.sink.transpose:
+                slot = slot.T
+            np.savetxt(fp, slot, fmt='%8d')
             w('\n')
 
 
@@ -238,6 +241,8 @@ class KWSFileSink(ImageSink):
     parameters = {
         'instrname': Param('Instrument name for data file', type=str,
                            default='KWS1'),
+        'transpose': Param('Whether to transpose images', type=bool,
+                           mandatory=True),
     }
 
     parameter_overrides = {

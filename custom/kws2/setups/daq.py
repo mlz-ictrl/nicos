@@ -16,6 +16,7 @@ tango_base = "tango://phys.kws2.frm2:10000/kws2/"
 devices = dict(
     kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
                         lowlevel = True,
+                        transpose = True,
                        ),
 
     yamlformat = device('kws2.yamlformat.YAMLFileSink',
