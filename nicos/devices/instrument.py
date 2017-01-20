@@ -43,7 +43,7 @@ class Instrument(Device):
                           default='Heinz Maier-Leibnitz Zentrum Garching (MLZ)'),
         'instrument': Param('Instrument name', type=str, category='instrument'),
         'doi': Param('Instrument DOI', type=str, category='instrument',
-                     userparam=False),
+                     userparam=True, settable=False),
         'responsible': Param('Instrument responsible name and email',
                              mandatory=True, type=mailaddress,
                              category='instrument'),
