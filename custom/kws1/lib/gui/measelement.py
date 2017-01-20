@@ -37,7 +37,7 @@ from nicos.guisupport.utils import DoubleValidator
 def num_sort(x):
     """A sort key function to sort by a numeric prefix, then lexically."""
     m = re.match(r'[\d.]+', x)
-    return (float(m.group()) if m else 0.0, x)
+    return (float(m.group()), x) if m else (99.0, '')
 
 
 class MeasElement(QObject):
@@ -221,7 +221,7 @@ class Selector(ChoiceElement):
 
 
 class Polarizer(ChoiceElement):
-    VALUES = ['out', 'up', 'down']
+    CACHE_KEY = 'polarizer/values'
     LABEL = 'Polarizer'
 
 
