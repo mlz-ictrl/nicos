@@ -1356,7 +1356,7 @@ class Waitable(Readable):
         return True
 
     def estimateTime(self, elapsed):
-        """Return the estimated time until end of measurement/counting or None.
+        """Return the estimated time until end of movement/measurement or None.
 
         Called by ``count()`` for every detector, and ``wait()``/``multiWait()``
         for moving devices.  The result is shown to the user.  The *elapsed*
@@ -1559,7 +1559,8 @@ class Moveable(Waitable):
         """Calculate the time to move from one position to another.
 
         Return the estimated moving time in seconds.
-        This is a pure calculatory method which may be overwritten in derived classes.
+        This is a pure calculatory method which may be overwritten in derived
+        classes.
 
         This basic implementation estimates the moving time
         by evaluating the `speed` or `ramp` parameters, if they are defined.

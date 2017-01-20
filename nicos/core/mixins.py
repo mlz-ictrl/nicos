@@ -566,6 +566,15 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return True
         return False
 
+    def doTime(self, old, new):
+        if old is None or new is None or old == new:
+            return 0.
+        if 'speed' in self.parameters and self.speed != 0:
+            return abs(new - old) / self.speed + self.window
+        elif 'ramp' in self.parameters and self.ramp != 0:
+            return abs(new - old) / (self.ramp / 60.) + self.window
+        return self.window
+
     def doEstimateTime(self, elapsed):
         if self.status()[0] != status.BUSY:
             return None
@@ -582,7 +591,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
                     break
             return 0.0
         # ramp unfinished, estimate ramp + window
-        return abs(self.read() - self.target) * 60 / self.ramp + self.window
+        return self.doTime(self.read(), self.target)
 
     def _targetReached(self):
         """Do not call `_clearTimeout` as supposed by `HasTimeout` in order
