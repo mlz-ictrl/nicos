@@ -91,12 +91,4 @@ devices = dict(
                   maxage = 86400,
                   liveinterval = 1,
                  ),
-    # histogram = device('frm2.qmesydaqsinks.HistogramSink',
-    #                    description = 'Histogram data written via QMesyDAQ',
-    #                    image = 'image',
-    #                   ),
-    # listmode = device('frm2.qmesydaqsinks.ListmodeSink',
-    #                   description = 'Listmode data written via QMesyDAQ',
-    #                   image = 'image',
-    #                  ),
 )
