@@ -2,7 +2,6 @@ description = 'QMesyDAQ detector devices'
 
 group = 'lowlevel'
 
-servername = 'SPODICTRL'
 nameservice = 'spodisrv.spodi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'

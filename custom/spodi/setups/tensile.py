@@ -2,8 +2,6 @@ description = 'Tensile machine (CORBA) setup'
 
 group = 'optional'
 
-servername = 'SPODICTRL'
-
 nameservice = 'spodisrv.spodi.frm2'
 
 includes = []
