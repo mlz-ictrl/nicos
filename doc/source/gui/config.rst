@@ -53,6 +53,9 @@ The ``tools`` entry specifies a list of tools that can be run from the GUI's
 "Tools" menu.  They should be small, short-lived dialogs that typically do not
 stay open for very long.
 
+The ``options`` entry is a dict for further configuration.
+
+
 Panel combinators
 -----------------
 

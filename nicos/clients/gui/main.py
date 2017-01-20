@@ -751,10 +751,11 @@ def main(argv):
         # backward compatibility
         gui_conf = gui_config(ns['config'][1][0],
                               ns['config'][1][1:],
-                              ns['config'][2], 'NICOS')
+                              ns['config'][2], 'NICOS', {})
     else:
         gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
-                              ns.get('tools', []), ns.get('name', 'NICOS'))
+                              ns.get('tools', []), ns.get('name', 'NICOS'),
+                              ns.get('options', {}))
     if gui_conf.name != 'NICOS':
         SettingGroup.global_group = gui_conf.name
 

@@ -104,11 +104,12 @@ class menu(tuple):
 
 
 class gui_config(object):
-    def __init__(self, main_window, windows, tools, name):
+    def __init__(self, main_window, windows, tools, name, options):
         self.main_window = main_window
         self.windows = windows
         self.tools = tools
         self.name = name
+        self.options = options
 
     def _has_panel(self, config, panel_classes):
         """Return True if the config contains a panel with the given class."""
@@ -148,4 +149,5 @@ def prepareGuiNamespace():
     ns['menu'] = menu
     ns['docked'] = docked
     ns['tabbed'] = tabbed
+    ns['options'] = {}
     return ns
