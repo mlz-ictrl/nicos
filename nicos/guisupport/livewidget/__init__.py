@@ -233,11 +233,15 @@ class LiveWidget(QWidget):
     def _updateZData(self):
         arr = self._array.ravel()
         if self._logscale:
-            arr = numpy.ma.log10(arr).filled(0)
-        amax = arr.max()
-        if amax > 0:
-            arr = 255 * arr / amax
-        self.surf.z = 1000 + arr
+            arr = numpy.ma.log10(arr).filled(-1)
+        # TODO: implement 'sliders' for amin, amax
+        amin, amax = arr.min(), arr.max()
+        if amin != amax:
+            self.surf.z = 1000 + 255 * (arr - amin) / (amax - amin)
+        elif amax > 0:
+            self.surf.z = 1000 + 255 * arr / amax
+        else:
+            self.surf.z = 1000 + arr
 
     def setData(self, array):
         self._array = array
