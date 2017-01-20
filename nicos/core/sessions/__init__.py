@@ -622,9 +622,10 @@ class Session(object):
             autocreate_devices = self.autocreate_devices
         if autocreate_devices:
             self.log.debug('autocreating devices...')
-            for devname in sorted(devlist):
+            for devname, (_, devconfig) in sorted(iteritems(devlist)):
                 try:
-                    self.createDevice(devname, explicit=True)
+                    lowlevel = devconfig.get('lowlevel', False)
+                    self.createDevice(devname, explicit=not lowlevel)
                 except Exception:
                     if raise_failed:
                         raise
