@@ -4,28 +4,28 @@ group = 'lowlevel'
 includes = []
 excludes = ['zeadetector']
 
-nethost = 'heidi22.poli.frm2'
+nethost = 'phys.poli.frm2'
 
 devices = dict(
     timer = device('devices.taco.FRMTimerChannel',
-                   tacodevice = '//%s/heidi2/frmctr/at' % nethost,
+                   tacodevice = '//%s/poli/frmctr/at' % nethost,
                    fmtstr = '%.2f',
                    lowlevel = True,
                   ),
     mon1  = device('devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/heidi2/frmctr/a2' % nethost,
+                   tacodevice = '//%s/poli/frmctr/a2' % nethost,
                    type = 'monitor',
                    fmtstr = '%d',
                    lowlevel = True,
                   ),
     mon2  = device('devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/heidi2/frmctr/a3' % nethost,
+                   tacodevice = '//%s/poli/frmctr/a3' % nethost,
                    type = 'monitor',
                    fmtstr = '%d',
                    lowlevel = True,
                   ),
     ctr1  = device('devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/heidi2/frmctr/a1' % nethost,
+                   tacodevice = '//%s/poli/frmctr/a1' % nethost,
                    type = 'counter',
                    fmtstr = '%d',
                    lowlevel = True,
