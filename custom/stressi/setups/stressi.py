@@ -5,10 +5,6 @@ group = 'basic'
 includes = ['system', 'mux', 'sampletable', 'monochromator', 'detector',
             'primaryslit', 'slits', 'reactor']
 
-servername = 'VME'
-
-nameservice = 'stressictrl.stressi.frm2'
-
 excludes = ['robot']
 
 sysconfig = dict(

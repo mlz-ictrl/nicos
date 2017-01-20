@@ -13,8 +13,6 @@ sysconfig = dict(
     datasinks = ['caresssink'],
 )
 
-servername = 'STRESSICTRL'
-
 nameservice = 'stressictrl.stressi.frm2'
 
 caresspath = '/opt/caress'

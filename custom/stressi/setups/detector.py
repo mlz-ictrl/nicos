@@ -2,7 +2,6 @@ description = 'Detector CARESS HWB Devices'
 
 group = 'lowlevel'
 
-servername = 'STRESSICTRL'
 nameservice = 'stressictrl.stressi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'

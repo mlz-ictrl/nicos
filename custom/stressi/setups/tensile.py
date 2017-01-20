@@ -2,8 +2,6 @@ description = 'Tensile machine'
 
 group = 'optional'
 
-servername = 'STRESSICTRL'
-
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
