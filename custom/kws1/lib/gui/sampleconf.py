@@ -25,6 +25,7 @@
 
 """KWS sample configuration dialog."""
 
+import math
 import time
 
 from PyQt4.QtCore import pyqtSlot
@@ -246,6 +247,9 @@ class KWSSamplePanel(Panel):
         self.dirty = False
         self.filename = None
 
+    def setOptions(self, options):
+        self.holder_info = options.get('holder_info', [])
+
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
         self.fileGroup.setEnabled(False)
@@ -254,45 +258,65 @@ class KWSSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionGenerate_triggered(self):
-        def read_trans():
-            x, y = self.client.eval('sam_trans_x.read(), sam_trans_y.read()',
-                                    (None, None))
-            if x is None:
-                QMessageBox.warning(self, 'Error', 'Could not read axes.')
-                return
-            dlg.transBox.setText('%.1f' % x)
-            dlg.heightBox.setText('%.1f' % y)
+        def read_axes():
+            ax1, ax2 = dlg._info[2], dlg._info[4]
+            for (ax, box) in [(ax1, dlg.ax1Box), (ax2, dlg.ax2Box)]:
+                if not ax:
+                    continue
+                x = self.client.eval('%s.read()' % ax, None)
+                if x is None:
+                    QMessageBox.warning(dlg, 'Error',
+                                        'Could not read %s.' % ax)
+                    return
+                box.setText('%.1f' % x)
+
+        def btn_toggled(checked):
+            if checked:
+                dlg._info = dlg.sender()._info
+                ax1, ax2 = dlg._info[2], dlg._info[4]
+                for ax, lbl, box in [(ax1, dlg.ax1Lbl, dlg.ax1Box),
+                                     (ax2, dlg.ax2Lbl, dlg.ax2Box)]:
+                    if ax:
+                        lbl.setText(ax1)
+                        lbl.show()
+                        box.show()
+                    else:
+                        lbl.hide()
+                        box.hide()
 
         dlg = QDialog(self)
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_gen.ui'))
-        dlg.transBox.setValidator(DoubleValidator(self))
-        dlg.heightBox.setValidator(DoubleValidator(self))
-        dlg.readBtn.clicked.connect(read_trans)
+        dlg.ax1Box.setValidator(DoubleValidator(self))
+        dlg.ax2Box.setValidator(DoubleValidator(self))
+        dlg.readBtn.clicked.connect(read_axes)
+        nrows = int(math.ceil(len(self.holder_info) / 2.0))
+        row, col = 0, 0
+        for name, info in self.holder_info:
+            btn = QRadioButton(name, dlg)
+            btn._info = info
+            btn.toggled.connect(btn_toggled)
+            dlg.optionFrame.layout().addWidget(btn, row, col)
+            if (row, col) == (0, 0):
+                btn.setChecked(True)
+            row += 1
+            if row == nrows:
+                row = 0
+                col += 1
         if not dlg.exec_():
             return
-        trans = float(dlg.transBox.text())
-        height = float(dlg.heightBox.text())
-        holder_info = {
-            # Radio text: [rows, levels, row_step, level_step]
-            'Al 3-level': [9, 3, 27, 75],
-            'Al 3-level (narrow)': [12, 3, 20, 75],
-            'Cu 3-level': [9, 3, 27.125, 113],
-            'Cu 3-level (narrow)': [16, 3, 14.78, 113],
-            'Peltier 6': [6, 1, 36.56, 0],
-            'Peltier 8': [8, 1, 36.56, 0],
-            'Red oven 4': [4, 1, 40, 0],
-        }
-        for ch in dlg.findChildren(QRadioButton):
-            if ch.isChecked():
-                rows, levels, row_step, level_step = holder_info[ch.text()]
-                break
-        else:
-            return
+        rows, levels, ax1, dax1, ax2, dax2 = dlg._info
+        sax1 = float(dlg.ax1Box.text()) if ax1 else 0
+        sax2 = float(dlg.ax2Box.text()) if ax2 else 0
 
         n = 0
         for i in range(levels):
             for j in range(rows):
                 n += 1
+                position = {}
+                if ax1:
+                    position[ax1] = round(sax1 + j * dax1, 1)
+                if ax2:
+                    position[ax2] = round(sax2 + i * dax2, 1)
                 config = dict(
                     name = str(n),
                     comment = '',
@@ -300,10 +324,7 @@ class KWSSamplePanel(Panel):
                     thickness = 1.0,
                     timefactor = 1.0,
                     aperture = (0, 0, 10, 10),
-                    position = {
-                        'sam_trans_x': round(trans + j * row_step, 1),
-                        'sam_trans_y': round(height + i * level_step, 1),
-                    },
+                    position = position,
                 )
                 self.configs.append(config)
         firstitem = None
