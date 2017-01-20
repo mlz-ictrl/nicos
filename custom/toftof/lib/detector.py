@@ -26,6 +26,8 @@
 
 from time import time as currenttime
 
+from nicos import session
+
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
 from nicos.core.constants import INTERMEDIATE
 from nicos.devices.generic.detector import Detector as GenericDetector
@@ -152,6 +154,8 @@ class Detector(GenericDetector):
         self._last_moncounts = 0
         self._starttime = currenttime()
         self._setROParam('rates', [[0., 0.], [0., 0.]])
+
+        session.action('run# %06d' % session.experiment.lastpoint)
 
         GenericDetector.doStart(self)
 
