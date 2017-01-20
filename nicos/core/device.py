@@ -810,7 +810,7 @@ class Device(object):
         for category, name, unit in self._infoparams:
             try:
                 parvalue = self._getFromCache(
-                    name, lambda _maxage: getattr(self, name))
+                    name, lambda _maxage=None: getattr(self, name))
             except Exception as err:
                 self.log.warning('error getting %s parameter', name, exc=err)
                 continue
