@@ -133,12 +133,10 @@ class SampleDialog(DlgUtils, QDialog):
                 newitem = QListWidgetItem(sam['sample'].getValue(),
                                           self.selList)
                 newitem.setData(SAMPLE_NUM, sam['sample'].extra[0])
-                self._selected.add(sam['sample'].extra[0])
 
     def _reinit(self, sampleconfigs):
         self.selList.clear()
         self.allList.clear()
-        self._selected = set()
         self._times = {}
 
         for number, sample in sampleconfigs.items():
@@ -195,21 +193,17 @@ class SampleDialog(DlgUtils, QDialog):
     @pyqtSlot()
     def on_rightBtn_clicked(self):
         for item in self.allList.selectedItems():
-            if item.data(SAMPLE_NUM) not in self._selected:
-                newitem = QListWidgetItem(item.text(), self.selList)
-                newitem.setData(SAMPLE_NUM, item.data(SAMPLE_NUM))
-                self._selected.add(item.data(SAMPLE_NUM))
+            newitem = QListWidgetItem(item.text(), self.selList)
+            newitem.setData(SAMPLE_NUM, item.data(SAMPLE_NUM))
 
     @pyqtSlot()
     def on_leftBtn_clicked(self):
         for item in self.selList.selectedItems():
             self.selList.takeItem(self.selList.row(item))
-            self._selected.remove(item.data(SAMPLE_NUM))
 
     @pyqtSlot()
     def on_clearBtn_clicked(self):
         self.selList.clear()
-        self._selected.clear()
 
     @pyqtSlot()
     def on_upBtn_clicked(self):
