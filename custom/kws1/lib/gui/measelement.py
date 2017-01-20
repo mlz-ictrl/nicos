@@ -221,7 +221,7 @@ class Selector(ChoiceElement):
 
 
 class Polarizer(ChoiceElement):
-    CACHE_KEY = 'polarizer/values'
+    VALUES = ['out', 'up', 'down']
     LABEL = 'Polarizer'
 
 
