@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 servername = 'VME'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
     mux = device('devices.vendor.caress.MUX',

@@ -4,7 +4,7 @@ group = 'optional'
 
 servername = 'STRESSICTRL'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
 

@@ -13,7 +13,7 @@ sysconfig = dict(
 
 servername = 'VME'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
     chis_eh = device('devices.vendor.caress.Motor',

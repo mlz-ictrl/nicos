@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 servername = 'VME'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 includes = ['aliases']
 

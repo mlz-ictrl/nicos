@@ -15,7 +15,7 @@ sysconfig = dict(
 
 servername = 'STRESSICTRL'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'

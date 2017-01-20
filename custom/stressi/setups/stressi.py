@@ -7,7 +7,7 @@ includes = ['system', 'mux', 'sampletable', 'monochromator', 'detector',
 
 servername = 'VME'
 
-nameservice = 'stressictrl'
+nameservice = 'stressictrl.stressi.frm2'
 
 excludes = ['robot']
 
