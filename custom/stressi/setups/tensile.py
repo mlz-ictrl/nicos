@@ -5,7 +5,6 @@ group = 'optional'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-
     teload = device('devices.vendor.caress.Motor',
                     description = 'load value of the tensile machine',
                     nameserver = '%s' % (nameservice,),
