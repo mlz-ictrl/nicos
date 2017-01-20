@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 servername = 'VMESPODI'
 
-nameservice = 'spodisrv'
+nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
      mux = device('devices.vendor.caress.MUX',

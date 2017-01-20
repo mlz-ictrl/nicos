@@ -6,7 +6,7 @@ includes = []
 
 servername = 'VMESPODI'
 
-nameservice = 'spodisrv'
+nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
     zs = device('devices.vendor.caress.Motor',
