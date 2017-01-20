@@ -8,19 +8,6 @@ nameservice = 'spodisrv.spodi.frm2'
 
 includes = ['mux']
 
-# caress@spodictrl:/opt/caress>./dump_u1 bls
-# BLS: SLITM_U=(-31,85) SLITM_D=(-85,31) SLITM_L=(-15.2,15.2) SLITM_R=(-15.2,15.2)
-# SLITS_U=(0,45) SLITS_D=(-45,0) SLITS_L=(-15,0) SLITS_R=(0,15)
-# SOF: SLITM_U=0 SLITM_D=0 SLITM_L=0 SLITM_R=0
-# SLITS_U=0 SLITS_D=0 SLITS_L=0 SLITS_R=0
-
-
-# motor control multiplex HMI ST180
-# name kind    bus     term    unit#
-# MUX3 38 4 /dev/tts/1 1
-# MUX3 38 4 /t2 1
-# MUX3 38 4 ttyS1 1
-
 # MUX modules (attention: velo and accel in steps per s, CARESS converts these
 # natural unit into the obscure ST180 unit)
 # name kind mux lun motor# ratio velo accel e_fac e_lim

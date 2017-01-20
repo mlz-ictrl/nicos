@@ -8,11 +8,6 @@ nameservice = 'spodisrv.spodi.frm2'
 
 includes = []
 
-# caress@spodictrl:/opt/caress>./dump_u1 bls
-# BLS: OMGM=(40,80) CHIM=(-3,3) XM=(-15,15) YM=(-15,15) ZM=(0,220)
-# SOF: OMGM=-792.677 CHIM=2928.3 XM=-5852.43  YM=-2043.89 ZM=-6347.84
-
-
 devices = dict(
 # ;Monochromator
 #   omgm = device('devices.vendor.caress.Motor',

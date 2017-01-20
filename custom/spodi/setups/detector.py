@@ -8,18 +8,6 @@ toolpath = '/opt/caress'
 
 includes = []
 
-# ;server CPU for mesytec psd (currently simulated on work station)
-# SPODICTRL 1000
-#
-# MON1 500 qmesydaq.caress_object monitor1
-# MON2 500 qmesydaq.caress_object monitor2
-# TIM1 500 qmesydaq.caress_object timer	1
-# EVENT 500 qmesydaq.caress_object event
-
-sysconfig = dict(
-    # datasinks = ['histogram', 'listmode'],
-)
-
 nethost = 'spodisrv.spodi.frm2'
 
 devices = dict(

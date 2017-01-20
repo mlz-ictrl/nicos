@@ -8,13 +8,6 @@ servername = 'VMESPODI'
 
 nameservice = 'spodisrv'
 
-# caress@spodictrl:/opt/caress>./dump_u1 bls
-# BLS: OMGS=(-360,360) TTHS=(-3.1,160)
-# XS=(-15,15) YS=(-15,15) ZS=(-20,20)
-# SOF: OMGS=-2735.92 TTHS=-1044.04
-# XS=0 YS=0 ZS=0
-
-
 devices = dict(
     zs = device('devices.vendor.caress.Motor',
                 description = 'HWB ZS',
