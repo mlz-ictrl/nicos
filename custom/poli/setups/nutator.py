@@ -1,6 +1,6 @@
 description = 'POLI nutator'
 
-group = 'optional'
+group = 'lowlevel'
 includes = []
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
@@ -14,7 +14,7 @@ devices = dict(
     mo_nutator1 = device('devices.tango.Motor',
                          lowlevel = True,
                          tangodevice = tango_base + 'nutator1/rotmot',
-                         abslimits = (-360, 360),
+                         abslimits = (-200, 200),
                          unit = 'deg',
                          precision = 0.1,
                         ),
@@ -26,7 +26,7 @@ devices = dict(
     mo_nutator2 = device('devices.tango.Motor',
                          lowlevel = True,
                          tangodevice = tango_base + 'nutator2/rotmot',
-                         abslimits = (-360, 360),
+                         abslimits = (-200, 200),
                          unit = 'deg',
                          precision = 0.1,
                         ),
@@ -35,6 +35,7 @@ devices = dict(
                          motor = 'mo_nutator1',
                          coder = 'co_nutator1',
                          obs = [],
+                         abslimits = (-200, 200),
                          fmtstr = '%.2f',
                          precision = 0.2,
                          dragerror = 45,
@@ -44,6 +45,7 @@ devices = dict(
                          motor = 'mo_nutator2',
                          coder = 'co_nutator2',
                          obs = [],
+                         abslimits = (-200, 200),
                          fmtstr = '%.2f',
                          precision = 0.2,
                          dragerror = 45,
