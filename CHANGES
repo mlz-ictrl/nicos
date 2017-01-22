@@ -1,16 +1,109 @@
 Changelog
 =========
 
-Release [NEXT]
+Release 2.11.0
 --------------
 
-- Added new utility function "waitForState()" which will wait on a device
-  getting into a state passed to the function.
+* GUI
 
-- The "waitForStatus()" utility function has been renamed to
-  "waitForCompletion()" in order to clarify that this function will wait
-  for "doIsCompleted()" returning `True` and to avoid confusion with the
-  new "waitForState()" function.
+  - The history plotter, as well as the expressions for status monitor
+    displays, now understand scale and offset notation like this:
+    "dev/value*100+0.7".
+
+  - The history plotter now understands expressions with multiple sub-
+    indices, like "dev/value[0][1]".
+
+  - The history plotter now remembers previously opened views and offers
+    them for reopening with one click.
+
+  - Scans can now be normalized to the maximum of each curve.
+
+  - Added a sigmoid fitting function.
+
+  - Event masking has been improved in the client protocol, so that live
+    detector data is not sent to clients that haven't opened a panel
+    that displays it.
+
+  - Fit curves produced by script commands like "gauss" or "sigmoid"
+    are now drawn in the scans panel again.
+
+* Commands
+
+  - Added the "sigmoid" command to fit a sigmoid curve from the
+    command line.
+
+  - Added a "live" command that starts counting on the detector in the
+    background for an unspecified amount of time, which is e.g. useful for
+    aligning the instrument or sample.
+
+  - Continuous scans can now be stopped by the regular "stop" command
+    between each virtual point.
+
+  - The "numpy" module is now automatically available in the NICOS
+    namespace.
+
+* Core
+
+  - Added new utility function "waitForState()" which will wait on a device
+    getting into a state passed to the function.
+
+  - The "waitForStatus()" utility function has been renamed to
+    "waitForCompletion()" in order to clarify that this function will wait
+    for "doIsCompleted()" returning `True` and to avoid confusion with the
+    new "waitForState()" function.
+
+  - The code to automatically migrate counter files from the old, pre-2.9
+    data handling was removed.
+
+  - Added devices that represent a ROI on an area detector, which can be
+    configured by the user, return their total count as a data column,
+    and displayed in the GUI.
+
+  - Device parameters are now filled into dataset metainfo from the cache.
+    If there are parameters that must be queried from hardware, they
+    should either be polled (using "_pollParam") regularly, in a
+    "doPoll" method, or specifically before dataset collection, in a
+    "doInfo" method.
+
+  - Lowlevel devices are now always created by the session startup.
+    Previously, a lowlevel device would only be created when required
+    (as attached) by another device.
+
+  - Alias devices can now be non-lowlevel regardless of the lowlevel state
+    of their pointee devices.
+
+  - Parameters can now have their own format string used to format param
+    values in output.
+
+* Services
+
+  - The error notification email now shows only a manageable excerpt of
+    the failed script, with line numbering.
+
+  - The watchdog's precondition handling has been improved.
+
+* Devices
+
+  - The single-crystal diffraction facilities have been significantly
+    improved, and a lifting-counter geometry added.
+
+  - HasWindowTimeout now supports "timeout=None" properly.  It also includes
+    the window in its time estimation for dry run mode.
+
+  - Added a device that acts as an on/off switch for Tango devices.
+
+  - Readback of targets has been added to EPICS moveables.
+
+  - The virtual image source has been made more realistic.
+
+  - The implementation of the CARESS accessing devices (used at STRESS-SPEC,
+    SPODI, and V20 instruments) has been significantly improved.
+
+* Documentation
+
+  - Documentation of GUI widgets has been improved with more pictures, and
+    automatic insertion of widget property docstrings.
+
 
 
 Release 2.10.0
