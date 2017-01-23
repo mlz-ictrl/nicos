@@ -149,55 +149,23 @@ class LiveWidget(QWidget):
         self.setLayout(layout)
 
         self.gr.keepRatio = 0.999
-        self.plot = Plot(self, viewport=(.1, .75, .1, .75))
+        self.plot = Plot(self, viewport=(.1, .95, .1, .95))
         self.axes = Axes(self, viewport=self.plot.viewport)
-        self.plotyint = Plot(self, viewport=(.1, .75, .8, .95))
-        self.axesyint = Axes(self, viewport=self.plotyint.viewport,
-                             drawX=False, drawY=True)
-        self.plotxint = Plot(self, viewport=(.8, .95, .1, .75))
-        self.axesxint = Axes(self, viewport=self.plotxint.viewport,
-                             drawX=True, drawY=False)
-
-        vp = self.axesxint.viewport
-        self._charheight = .024 * (vp[3] - vp[2])
-
-        self.axes.setXtickCallback(self.xtick)
-        self.axesxint.setXtickCallback(self.xtick)
-        self.axesyint.setYtickCallback(self.yinttick)
 
         self.axes.setGrid(True)
         self.plot.addAxes(self.axes)
-        self.plotyint.addAxes(self.axesyint)
-        self.plotxint.addAxes(self.axesxint)
-        self.surf = Cellarray([0], [0], [0],
-                                        option=gr.OPTION_CELL_ARRAY)
-        self.curvey = PlotCurve([0], [0], linecolor=COLOR_BLUE)
-        self.curvex = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.surf = Cellarray([0], [0], [0], option=gr.OPTION_CELL_ARRAY)
 
         self._rois = {}
         self.axes.addCurves(self.surf)
-        self.axesyint.addCurves(self.curvey)
-        self.axesxint.addCurves(self.curvex)
         self.gr.addPlot(self.plot)
-        self.gr.addPlot(self.plotyint)
-        self.gr.addPlot(self.plotxint)
 
-    def xtick(self, x, y, svalue, _value):
-        gr.setcharup(-1., 1.)
-        gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
-        gr.text(x, y, svalue)
-
-    def yinttick(self, x, y, svalue, _value):
-        gr.setcharheight(self._charheight)
-        gr.text(x, y, svalue)
+    def rescale(self):
+        """Implement in derived classes e.g. to rescale different plots in
+        respect to the main/cellarray plot."""
 
     def _rescale(self):
-        """Rescales integral plots in respect to the main/cellarray plot."""
-        xmin, xmax, ymin, ymax = self.axes.getWindow()
-        _, _, y0, y1 = self.axesyint.getWindow()
-        x0, x1, _, _ = self.axesxint.getWindow()
-        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, y1)
-        self.axesxint.setWindow(x0, x1, ymin - .5, ymax - .5)
+        self.rescale()
         self.gr.update()
 
     def zoom(self, master, dpercent, p0):
@@ -256,18 +224,10 @@ class LiveWidget(QWidget):
         self._axesratio = ny / float(nx)
         if (ny, nx) != self._axesrange:
             self.axes.setWindow(0, nx, 0, ny)
-            self.axesyint.setWindow(0, nx, 1, ny)
-            self.axesxint.setWindow(1, nx, 0, ny)
         self._axesrange = (ny, nx)  # rows, cols
         self.surf.x = numpy.linspace(0, nx, nx)
         self.surf.y = numpy.linspace(0, ny, ny)
         self._updateZData()
-        self.curvey.x = numpy.arange(0, nx)
-        self.curvey.y = array.sum(axis=0)
-        self.curvex.y = numpy.arange(0, ny)
-        self.curvex.x = array.sum(axis=1)
-        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
-        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
         self._rescale()
 
     def getColormap(self):
@@ -292,9 +252,6 @@ class LiveWidget(QWidget):
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[1],
                             0, self._axesrange[0])
-        nx, ny = len(self.curvey.x), len(self.curvex.y)
-        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
-        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
         self._rescale()
 
     def printDialog(self):
@@ -302,7 +259,90 @@ class LiveWidget(QWidget):
 
     def logscale(self, on):
         self._logscale = on
-        self.axesxint.setLogX(on)
-        self.axesyint.setLogY(on)
         self._updateZData()
         self.gr.update()
+
+
+class IntegralLiveWidget(LiveWidget):
+
+    def __init__(self, parent):
+        LiveWidget.__init__(self, parent)
+
+        self.plot.viewport = (.1, .75, .1, .75)
+        self.axes.viewport = self.plot.viewport
+        self.plotyint = Plot(self, viewport=(.1, .75, .8, .95))
+        self.axesyint = Axes(self, viewport=self.plotyint.viewport,
+                             drawX=False, drawY=True)
+        self.plotxint = Plot(self, viewport=(.8, .95, .1, .75))
+        self.axesxint = Axes(self, viewport=self.plotxint.viewport,
+                             drawX=True, drawY=False)
+
+        vp = self.axesxint.viewport
+        self._charheight = .024 * (vp[3] - vp[2])
+
+        self.axes.setXtickCallback(self.xtick)
+        self.axesxint.setXtickCallback(self.xtick)
+        self.axesyint.setYtickCallback(self.yinttick)
+
+        self.plotyint.addAxes(self.axesyint)
+        self.plotxint.addAxes(self.axesxint)
+        self.curvey = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.curvex = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+
+        self.axesyint.addCurves(self.curvey)
+        self.axesxint.addCurves(self.curvex)
+        self.gr.addPlot(self.plotyint)
+        self.gr.addPlot(self.plotxint)
+
+    def xtick(self, x, y, svalue, _value):
+        gr.setcharup(-1., 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
+        gr.text(x, y, svalue)
+
+    def yinttick(self, x, y, svalue, _value):
+        gr.setcharheight(self._charheight)
+        gr.text(x, y, svalue)
+
+    def rescale(self):
+        """Rescales integral plots in respect to the main/cellarray plot."""
+        xmin, xmax, ymin, ymax = self.axes.getWindow()
+        _, _, y0, y1 = self.axesyint.getWindow()
+        x0, x1, _, _ = self.axesxint.getWindow()
+        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, y1)
+        self.axesxint.setWindow(x0, x1, ymin - .5, ymax - .5)
+
+    def setData(self, array):
+        _nz, ny, nx = 1, 1, 1
+        n = len(array.shape)
+        if n >= 2:
+            nx = array.shape[n - 1]
+            ny = array.shape[n - 2]
+        if n == 3:
+            # TODO: Add support for three dimensional arrays
+            _nz = array.shape[n - 3]
+        if (ny, nx) != self._axesrange:
+            self.axes.setWindow(0, nx, 0, ny)
+            self.axesyint.setWindow(0, nx, 1, ny)
+            self.axesxint.setWindow(1, nx, 0, ny)
+        self._axesrange = (ny, nx)  # rows, cols
+        self.curvey.x = numpy.arange(0, nx)
+        self.curvey.y = array.sum(axis=0)
+        self.curvex.y = numpy.arange(0, ny)
+        self.curvex.x = array.sum(axis=1)
+        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
+        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
+        LiveWidget.setData(self, array)
+
+    def unzoom(self):
+        nx, ny = len(self.curvey.x), len(self.curvex.y)
+        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
+        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
+        LiveWidget.unzoom(self)
+
+    def printDialog(self):
+        self.gr.printDialog()
+
+    def logscale(self, on):
+        self.axesxint.setLogX(on)
+        self.axesyint.setLogY(on)
+        LiveWidget.logscale(self, on)

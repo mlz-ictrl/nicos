@@ -42,7 +42,7 @@ from qtgr.events.mouse import MouseEvent
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import LiveWidget, DATATYPES, FILETYPES
+from nicos.guisupport.livewidget import IntegralLiveWidget, DATATYPES, FILETYPES
 from nicos.protocols.cache import cache_load
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -74,7 +74,7 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.widget = LiveWidget(self)
+        self.widget = IntegralLiveWidget(self)
 
         self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)
