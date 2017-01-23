@@ -88,8 +88,7 @@ _daq = Block('Data acquisition', [
              Field(name='Total', dev='det_img[0]', format='%d'),
              Field(name='Rate', dev='det_img[1]', format='%.1f')),
     BlockRow(Field(name='Mon1', dev='mon1rate'),
-             Field(name='Mon2', dev='mon2rate'),
-             Field(name='Mon3', dev='mon3rate')),
+             Field(name='Mon2', dev='mon2rate')),
 ])
 
 _peltier = Block('Peltier/Julabo', [
@@ -103,23 +102,33 @@ _peltierplot = Block('', [
              Field(plot='TT', key='T_julabo/setpoint')),
 ], setups='peltier')
 
+_julaboet = Block('Julabo/Eurotherm', [
+    BlockRow('T_julabo', 'T_et')
+], setups='waterjulabo and eurotherm')
+
+_julaboetplot = Block('', [
+    BlockRow(Field(plot='JET', dev='T_et', width=40, height=25, plotwindow=2*3600),
+             Field(plot='JET', dev='T_julabo'),
+             Field(plot='JET', key='T_julabo/setpoint')),
+], setups='waterjulabo and eurotherm')
+
 _julabo = Block('Julabo', [
     BlockRow('T_julabo')
-], setups='waterjulabo and not peltier')
+], setups='waterjulabo and not peltier and not eurotherm')
 
 _julaboplot = Block('', [
     BlockRow(Field(plot='JT', dev='T_julabo', width=40, height=25, plotwindow=2*3600),
              Field(plot='JT', key='T_julabo/setpoint')),
-], setups='waterjulabo and not peltier')
+], setups='waterjulabo and not peltier and not eurotherm')
 
 _et = Block('Eurotherm', [
     BlockRow('T_et')
-], setups='eurotherm')
+], setups='eurotherm and not waterjulabo')
 
 _etplot = Block('', [
     BlockRow(Field(plot='ET', dev='T_et', width=40, height=25, plotwindow=2*3600),
              Field(plot='ET', key='T_et/setpoint')),
-], setups='eurotherm')
+], setups='eurotherm and not waterjulabo')
 
 
 devices = dict(
@@ -135,7 +144,8 @@ devices = dict(
                          Row(Column(_experiment)),
                          Row(Column(_selector, _chopper, _polarizer, _daq),
                              Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
+                             Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot,
+                                    _julaboet, _julaboetplot)),
                      ],
                     ),
 )
