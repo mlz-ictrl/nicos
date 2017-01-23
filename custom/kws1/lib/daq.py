@@ -203,7 +203,7 @@ class KWSDetector(Detector):
 
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
-                             settable=True),
+                             settable=True, volatile=True),
         'tofchannels': Param('Number of TOF channels',
                              type=intrange(1, 1023), settable=True,
                              category='general'),
@@ -235,6 +235,9 @@ class KWSDetector(Detector):
         # TODO: ensure that total meas. time < 2**31 usec
         self._img._configure((self.tofchannels, self.tofinterval,
                               self.tofprogression))
+
+    def doReadMode(self):
+        return self._img.mode
 
     def doWriteMode(self, mode):
         self._img.mode = mode

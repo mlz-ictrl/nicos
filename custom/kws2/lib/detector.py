@@ -29,7 +29,7 @@ from nicos.core import Param, Override, Attach, Moveable, HasLimits, \
     dictof, dictwith, MASTER, SIMULATION, MoveError, ConfigurationError, \
     multiReset, multiStop, status
 from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
-    SeqDev, SeqParam
+    SeqDev
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.tango import Motor as TangoMotor
 from nicos.kws1.detector import oneof_detector, DetectorPosSwitcherMixin
@@ -117,15 +117,20 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                 raise MoveError(self, 'Cannot start device, sequence is still '
                                       'running (at %s)!' % self._seq_status[1])
 
-        seq = []
+        # switch det_img alias synchronously, the chopper sets its mode param!
         det_img_alias = session.getDevice('det_img')
+        if pos[3]:
+            det_img_alias.alias = 'det_img_jum'
+        else:
+            det_img_alias.alias = 'det_img_ge'
+
+        seq = []
         seq.append(SeqDev(self._attached_attenuator, pos[4]))
         if pos[3]:
             seq.append(SeqDev(self._attached_det_z, self.detbackpos,
                               stoppable=True))
             seq.append(SeqDev(self._attached_psd_y, pos[1], stoppable=True))
             seq.append(SeqDev(self._attached_psd_x, pos[0], stoppable=True))
-            seq.append(SeqParam(det_img_alias, 'alias', 'det_img_jum'))
         else:
             seq.append(SeqDev(self._attached_psd_x, 0, stoppable=True))
             seq.append(SeqDev(self._attached_psd_y, self.psdtoppos,
@@ -136,7 +141,6 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
             seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
             # maybe reposition beamstop Y axis to counter jitter?
             # seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
-            seq.append(SeqParam(det_img_alias, 'alias', 'det_img_ge'))
 
         self._startSequence(seq)
 
