@@ -8,7 +8,7 @@ group = 'lowlevel'
 
 devices = dict(
     s7bus = device('panda.panda_s7.S7Bus',
-                   tacodevice = 'panda/dp/5',
+                   tacodevice = '//phys.panda.frm2/panda/dp/5',
                    lowlevel = True,
                   ),
     s7coder = device('panda.panda_s7.S7Coder',

@@ -6,12 +6,13 @@ includes = []
 
 group = 'optional'
 
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
+
 devices = dict(
-    water = device('panda.compbox.WaterControlBox',
+    water = device('devices.tango.NamedDigitalInput',
                    description = 'Water flux readout',
-                   tacodevice = 'panda/modbus/compressor',
+                   tangodevice = tango_base + 'water/flow',
                    fmtstr = '%s',
-                   slave_addr = 1, # WUT
-                   addr_in = 0x1001,
+                   mapping = {'off': 0, 'on': 1},
                   ),
 )

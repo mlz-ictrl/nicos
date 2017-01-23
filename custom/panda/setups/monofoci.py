@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-description = 'Setup of a Monochromator Focuing Box on PANDA'
+description = 'Setup of a Monochromator Focusing Box on PANDA'
 
 group = 'lowlevel'
 
@@ -8,8 +8,8 @@ extended = dict(dynamic_loaded = True)
 
 devices = dict(
     # Nicos based access to phytron in magnet rack
-    focimotorbus = device('panda.mcc2.TacoSerial',
-                          tacodevice='//pandasrv/panda/moxa/port3',        # new value as of 2013-09-30 PC
+    focimotorbus = device('panda.mcc2.TangoSerial',
+                          tangodevice = 'tango://phys.panda.frm2:10000/panda/mcc/focibox',
                           lowlevel = True,
                          ),
     focibox = device('panda.mcc2.MCC2Monoframe',
@@ -20,9 +20,9 @@ devices = dict(
                     ),
 
     mfh = device('devices.generic.DeviceAlias',
-                 alias='',
+                 alias = '',
                 ),
     mfv = device('devices.generic.DeviceAlias',
-                 alias='',
+                 alias = '',
                 ),
 )

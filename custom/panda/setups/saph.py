@@ -2,21 +2,14 @@
 
 description = 'Setup for the Saphire Filter in primary beam'
 
+includes = ['monoturm']
 group = 'optional'
 
 
 devices = dict(
-    bus5c = device('devices.vendor.ipc.IPCModBusTaco',
-                  tacodevice = '//pandasrv/panda/moxa/port5',  #mono rack
-                  bustimeout = 0.1,
-                  loglevel = 'info',
-                  lowlevel = True,
-                 ),
-
-
     saph_mot = device('devices.vendor.ipc.Motor',
                       description = 'Motor to move the saphire filter',
-                      bus = 'bus5c',
+                      bus = 'bus5',
                       #addr = 66, #old rack, old connectors
                       addr = 88,
                       slope = 412.8,
