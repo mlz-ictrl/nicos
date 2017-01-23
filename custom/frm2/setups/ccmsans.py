@@ -1,10 +1,10 @@
-description = 'Sans1 Magnet'
+description = '5T SANS Magnet'
 
 group = 'plugplay'
 
 includes = ['alias_B']
 
-nethost = 'ccmsans.sans1.frm2'
+nethost = 'ccmsans'
 
 devices = dict(
     A_ccmsans_left = device('devices.taco.CurrentSupply',
