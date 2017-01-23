@@ -16,4 +16,6 @@ devices = dict(
                  ),
 )
 
-alias_config = dict(T={'T_et': 100})
+# When used as an additional sensor, the ET controller should not
+# be used as T, but as Ts.  Julabo has 100 for both priorities.
+alias_config = dict(T={'T_et': 90}, Ts={'T_et': 120})
