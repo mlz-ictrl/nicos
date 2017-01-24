@@ -14,7 +14,7 @@ devices = dict(
                     fmtstr = '%.3f',
                     unit = 'deg',
                     coderoffset = 1044.04,
-                    abslimits = (-3.1, 160),
+                    abslimits = (-1.5, 60),
                     nameserver = '%s' % (nameservice,),
                     objname = '%s' % (servername),
                     config = 'TTHS 114 11 0x00f1c000 1 8192 16000 200 2 25 50 1'
@@ -27,6 +27,7 @@ devices = dict(
                   coder = 'tthsm',
                   precision = 0.005,
                   maxtries = 10,
+                  abslimits = (-1.5, 60),
                  ),
     omgsm  = device('devices.vendor.caress.Motor',
                     description = 'HWB OMGS motor',
