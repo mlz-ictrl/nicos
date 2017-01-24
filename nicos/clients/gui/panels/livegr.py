@@ -42,7 +42,8 @@ from qtgr.events.mouse import MouseEvent
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import IntegralLiveWidget, DATATYPES, FILETYPES
+from nicos.guisupport.livewidget import IntegralLiveWidget, DATATYPES, FILETYPES, \
+    LiveWidget
 from nicos.protocols.cache import cache_load
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -66,6 +67,7 @@ class LiveDataPanel(Panel):
         self._runtime = 0
         self._no_direct_display = False
         self._range_active = False
+        self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -108,6 +110,7 @@ class LiveDataPanel(Panel):
 
         self.splitter.restoreState(self.splitterstate)
 
+        self.window().closed.connect(self.on_closed)
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
@@ -154,13 +157,6 @@ class LiveDataPanel(Panel):
         return [menu]
 
     def getToolbars(self):
-        bar = QToolBar('Live data')
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionLogScale)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        bar.addAction(self.actionColormap)
         return [self.toolbar]
 
     def on_mousemove_gr(self, event):
@@ -179,12 +175,52 @@ class LiveDataPanel(Panel):
 
     def on_colormap_triggered(self):
         action = self.actionsColormap.checkedAction()
-        self.widget.setColormap(COLORMAPS[action.text().upper()])
+        for widget in [self.widget] + self._livewidgets.values():
+            widget.setColormap(COLORMAPS[action.text().upper()])
         name = action.text()
         self.actionColormap.setText(name[0] + name[1:].lower())
 
+    def _getLiveWidget(self, roi):
+        return self._livewidgets.get(roi + '/roi', None)
+
+    def showRoiWindow(self, roi):
+        key = roi + '/roi'
+        widget = self._getLiveWidget(roi)
+        region = self.widget._rois[key]
+        if not widget:
+            widget = LiveWidget(None)
+            widget.setWindowTitle(roi)
+            widget.setColormap(self.widget.getColormap())
+            width = max(region.x) - min(region.x)
+            height = max(region.y) - min(region.y)
+            if width > height:
+                dwidth = 500
+                dheight = 500 * height / width
+            else:
+                dheight = 500
+                dwidth = 500 * width / height
+            widget.resize(dwidth, dheight)
+            widget.closed.connect(self.on_roiWindowClosed)
+        widget.setWindowForRoi(region)
+        widget.update()
+        widget.show()
+        widget.activateWindow()
+        self._livewidgets[key] = widget
+
+    def closeRoiWindow(self, roi):
+        widget = self._getLiveWidget(roi)
+        if widget:
+            widget.close()
+
+    def on_closed(self):
+        for w in self._livewidgets.values():
+            w.close()
+
     def _register_rois(self, detectors):
         self.roikeys = []
+        self.menuROI = QMenu(self)
+        self.actionsROI = QActionGroup(self)
+        self.actionsROI.setExclusive(False)
         for detname in detectors:
             self.log.debug('checking rois for detector \'%s\'', detname)
             for roi, _ in self.client.eval(detname + '.postprocess', ''):
@@ -194,10 +230,50 @@ class LiveDataPanel(Panel):
                 value = self.client.eval(key)
                 self.on_roiChange(cachekey, value)
                 self.log.debug('register roi: %s', roi)
+                # create roi menu
+                action = self.menuROI.addAction(roi)
+                action.setCheckable(True)
+                self.actionsROI.addAction(action)
+                action.triggered.connect(self.on_roi_triggered)
+                self.actionROI.setMenu(self.menuROI)
+                if self.actionROI not in self.toolbar.actions():
+                    self.toolbar.addAction(self.actionROI)
+                    self.log.debug('add ROI menu')
+
+    def on_actionROI_triggered(self):
+        w = self.toolbar.widgetForAction(self.actionROI)
+        self.actionROI.menu().popup(w.mapToGlobal(QPoint(0, w.height())))
+
+    def on_roi_triggered(self):
+        action = self.sender()
+        roi = action.text()
+        if action.isChecked():
+            self.showRoiWindow(roi)
+        else:
+            self.closeRoiWindow(roi)
+
+    def on_roiWindowClosed(self):
+        widget = self.sender()
+        if widget:
+            key = None
+            for key, w in self._livewidgets.iteritems():
+                if w == widget:
+                    self.log.debug('delete roi: %s', key)
+                    del self._livewidgets[key]
+                    break
+            if key:
+                roi = key.split('/')[0]
+                for action in self.actionsROI.actions():
+                    if action.text() == roi:
+                        action.setChecked(False)
+                        self.log.debug('uncheck roi: %s', roi)
 
     def on_roiChange(self, key, value):
         self.log.debug('on_roiChange: %s %s', key, (value,))
         self.widget.setROI(key, value)
+        widget = self._livewidgets.get(key, None)
+        if widget:
+            widget.setWindowForRoi(self.widget._rois[key])
 
     def on_cache(self, data):
         _time, key, _op, svalue = data
@@ -244,10 +320,14 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
 
+    def setData(self, array):
+        for widget in [self.widget] + self._livewidgets.values():
+            widget.setData(array)
+
     def setDataFromFile(self, filename, tag):
         if tag in FILETYPES:
             array = FILETYPES[tag].fromfile(filename)
-            self.widget.setData(array)
+            self.setData(array)
         else:
             raise NicosError('Unsupported fileformat \'%s\'' % tag)
 
@@ -269,7 +349,7 @@ class LiveDataPanel(Panel):
                     array = array.reshape((self._nz, self._ny, self._nx))
                 elif self._ny > 1:
                     array = array.reshape((self._ny, self._nx))
-                self.widget.setData(array)
+                self.setData(array)
             elif self._last_fname:
                 # we got no live data, but a filename with the data
                 self.setDataFromFile(self._last_fname, self._last_tag)
@@ -317,4 +397,5 @@ class LiveDataPanel(Panel):
 
     @qtsig('')
     def on_actionLogScale_triggered(self):
-        self.widget.logscale(self.actionLogScale.isChecked())
+        for widget in [self.widget] + self._livewidgets.values():
+            widget.logscale(self.actionLogScale.isChecked())

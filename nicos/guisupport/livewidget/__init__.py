@@ -32,6 +32,7 @@ import numpy
 import numpy.ma
 
 from PyQt4.QtGui import QWidget, QHBoxLayout
+from PyQt4.QtCore import pyqtSignal
 
 import gr
 from gr.pygr.base import GRMeta, GRVisibility
@@ -135,11 +136,14 @@ class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
 
 class LiveWidget(QWidget):
 
+    closed = pyqtSignal()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
         self._array = None
         self._axesrange = (1, 1)  # y, x (rows, cols)
+        self._fixedsize = False
         self._axesratio = 1.0
         self._logscale = False
 
@@ -159,6 +163,10 @@ class LiveWidget(QWidget):
         self._rois = {}
         self.axes.addCurves(self.surf)
         self.gr.addPlot(self.plot)
+
+    def closeEvent(self, event):
+        self.closed.emit()
+        event.accept()
 
     def rescale(self):
         """Implement in derived classes e.g. to rescale different plots in
@@ -211,6 +219,20 @@ class LiveWidget(QWidget):
         else:
             self.surf.z = 1000 + arr
 
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        """Sets the current window for this plot and deactivates rescaling
+        the window in respect to the current size of the corresponding arrays.
+
+        """
+        self.axes.setWindow(xmin, xmax, ymin, ymax)
+        self._fixedsize = True
+        self._axesratio = float(ymax - ymin) / (xmax - xmin)
+        self.gr.keepRatio = False
+        self._rescale()
+
+    def setWindowForRoi(self, roi):
+        self.setWindow(min(roi.x), max(roi.x), min(roi.y), max(roi.y))
+
     def setData(self, array):
         self._array = array
         _nz, ny, nx = 1, 1, 1
@@ -221,9 +243,10 @@ class LiveWidget(QWidget):
         if n == 3:
             # TODO: Add support for three dimensional arrays
             _nz = array.shape[n - 3]
-        self._axesratio = ny / float(nx)
-        if (ny, nx) != self._axesrange:
-            self.axes.setWindow(0, nx, 0, ny)
+        if not self._fixedsize:
+            self._axesratio = ny / float(nx)
+            if (ny, nx) != self._axesrange:
+                self.axes.setWindow(0, nx, 0, ny)
         self._axesrange = (ny, nx)  # rows, cols
         self.surf.x = numpy.linspace(0, nx, nx)
         self.surf.y = numpy.linspace(0, ny, ny)
