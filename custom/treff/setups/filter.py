@@ -1,37 +1,26 @@
 description = 'Be filter control'
 
-group = 'lowlevel'
+group = 'optional'
 
-sw_class = 'devices.generic.ManualSwitch'
+tango_base = 'tango://phys.treff.frm2:10000/treff/'
+
+excludes = ['virtual_filter']
 
 devices = dict(
-    be_filter_in_io =  device(sw_class,
-                              description = 'Be filter in IO',
-                              lowlevel = True,
-                              states = (0, 1),
-                             ),
-    be_filter_out_io =  device(sw_class,
-                               description = 'Be filter out IO',
-                               lowlevel = True,
-                               states = (0, 1),
-                              ),
-    be_filter_in = device('treff.button.Button',
-                          description = 'Be filter in button',
-                          switch = 'be_filter_in_io',
-                          lowlevel = True,
-                         ),
-    be_filter_out = device('treff.button.Button',
-                           description = 'Be filter out button',
-                           switch = 'be_filter_out_io',
-                           lowlevel = True,
-                          ),
-    be_filter = device('devices.generic.MultiSwitcher',
-                       description = 'Shutter control device',
-                       moveables = ('be_filter_out', 'be_filter_in', ),
-                       mapping = {'out': (1, 0),
-                                  'in': (0, 1),
-                                 },
-                       fallback = 'unknown',
-                       precision = (0, 0),
+    be_filter = device('devices.tango.NamedDigitalOutput',
+                       description = 'Beryllium filter',
+                       tangodevice = tango_base + 'FZJDP_Digital/BeFilter',
+                       mapping = {
+                          "in" : 1,
+                          "out": 0,
+                       }
+                      ),
+    be_heater = device('devices.tango.NamedDigitalOutput',
+                       description = 'Beryllium heater',
+                       tangodevice = tango_base + 'FZJDP_Digital/BeHeater',
+                       mapping = {
+                          "off" : 0,
+                          "on"  : 1,
+                       }
                       ),
 )
