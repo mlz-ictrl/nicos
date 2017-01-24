@@ -226,6 +226,11 @@ class Sans1HV(BaseSequencer):
         # signal single retry of the action
         return True
 
+    def _runFailed(self, step, action, exc_info):
+        # signal single retry of the action
+        return 1
+
+
     def doRead(self, maxage=0):
         voltage = self._attached_supply.read(maxage)
         # everything below the last rampstep is no HV yet...
