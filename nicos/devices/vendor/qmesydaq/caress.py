@@ -201,6 +201,11 @@ class Counter(CounterChannelMixin, Channel):
 class Image(QMesydaqCaressDevice, QMesyDAQImage):
     """Channel for CARESS that returns the image, histogram, or spectrogram."""
 
+    parameters = {
+        'transpose': Param('Whether to transpose the image',
+                           type=bool, default=False),
+    }
+
     def doInit(self, mode):
         QMesydaqCaressDevice.doInit(self, mode)
         lconfig = self.config.split()
@@ -288,7 +293,8 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
-            return data.reshape((res[0], res[1]), order='C')
+            return data.reshape((res[0], res[1]), order='C' if not
+                                self.transpose else 'F')
         else:  # 3D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
