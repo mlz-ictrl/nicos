@@ -73,6 +73,7 @@ devices = dict(
                             ' 80 256',
                    lowlevel = True,
                    absdev = False,
+                   transpose = True,
                   ),
     basedet = device('devices.generic.Detector',
                      description = 'Classical detector with single channels',
