@@ -97,6 +97,7 @@ class Detector(GenericDetector):
         GenericDetector.doPreinit(self, mode)
 
     def doInit(self, mode):
+        GenericDetector.doInit(self, mode)
         self._import_detinfo()
 
     def presetInfo(self):

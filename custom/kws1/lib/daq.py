@@ -219,6 +219,7 @@ class KWSDetector(Detector):
     }
 
     def doInit(self, session_mode):
+        Detector.doInit(self, session_mode)
         self._img = self._attached_images[0]
         if session_mode == MASTER:
             if not self._attached_images or \
