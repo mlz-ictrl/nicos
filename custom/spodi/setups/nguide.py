@@ -54,5 +54,6 @@ devices = dict(
                     ),
 )
 
+display_order = 100
 startupcode = '''
 '''

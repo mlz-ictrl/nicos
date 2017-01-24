@@ -128,3 +128,5 @@ devices = dict(
                       minfree = 5,
                      ),
 )
+
+display_order = 70

@@ -55,6 +55,7 @@ devices = dict(
                   unit = '',
                  ),
 )
+display_order = 60
 
 alias_config = {
 }
