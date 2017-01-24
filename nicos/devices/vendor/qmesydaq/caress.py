@@ -82,7 +82,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
 
     parameters = {
         'runnumber': Param('Run number',
-                           type=int, settable=True,
+                           type=int, settable=True, default=0,
                            ),
         'counterfile': Param('File storing the run number',
                              type=str, default='runid.txt',
