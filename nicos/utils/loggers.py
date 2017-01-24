@@ -77,12 +77,12 @@ class NicosLogger(Logger):
         extramsgs = []
         if exc_info:
             if msgs:
-                extramsgs += ['-',]
+                extramsgs += ['-']
             from nicos.core.errors import NicosError
             if issubclass(exc_info[0], NicosError):
-                extramsgs += [exc_info[0].category + ' -', exc_info[1],]
+                extramsgs += [exc_info[0].category + ' -', exc_info[1]]
             else:
-                extramsgs += [exc_info[0].__name__ + ' -', exc_info[1],]
+                extramsgs += [exc_info[0].__name__ + ' -', exc_info[1]]
 
         if not msgs:
             msg = ''
@@ -90,7 +90,7 @@ class NicosLogger(Logger):
         else:
             msg = msgs[0]
             if isinstance(msg, binary_type):
-                msg =from_maybe_utf8(msg)
+                msg = from_maybe_utf8(msg)
             else:
                 msg = text_type(msg)
             args = msgs[1:]
@@ -98,7 +98,7 @@ class NicosLogger(Logger):
             if msg:
                 msg += ' '
             msg += ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
-                                    else text_type(msg) for msg in extramsgs)
+                            else text_type(msg) for msg in extramsgs)
         return msg, args, exc_info
 
     def error(self, *msgs, **kwds):
@@ -125,7 +125,7 @@ class NicosLogger(Logger):
                            0, msg, args, exc_info, '')
 
         try:
-            record.message = (msg % args) if  args else msg
+            record.message = (msg % args) if args else msg
         except (KeyError, TypeError):
             record.message = msg  # we don't do args substitution on demand
         if extra is not None:
