@@ -340,7 +340,8 @@ class SequencerMixin(DeviceMixinBase):
                         action.run()
                     except Exception as e:
                         # if this raises, abort the sequence...
-                        self.log.debug('action.run raised %r', e)
+                        self.log.warning('action %d (%r) failed',
+                                         i + 1, action, exc=1)
                         code = self._runFailed(i, action, sys.exc_info())
                         self.log.debug('_runFailed returned %r', code)
                         if code:
