@@ -56,11 +56,12 @@ main_window = tabbed(
         )),
     ('Scan Plotting', panel('scans.ScansPanel')),
     ('Device Plotting', panel('history.HistoryPanel')),
-    ('Live Display', panel('live.LiveDataPanel')),
     ('Logbook', panel('elog.ELogPanel')),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('livegr.LiveDataPanel')),
+]
 
 tools = [
     cmdtool('Server control (Marche)', 'marche-gui'),
