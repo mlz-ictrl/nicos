@@ -29,6 +29,14 @@ devices = dict(
                           pollinterval = 2,
                           maxage = 5,
                          ),
+    T_range      = device("devices.tango.AnalogOutput",
+                          description = "Heater Range",
+                          tangodevice = tango_ls332 + "/t_range",
+                          fmtstr = "%d",
+                          unit = "",
+                          pollinterval = 2,
+                          maxage = 5,
+                         ),
     compressor   = device("devices.tango.NamedDigitalOutput",
                           description = "Compressor for MARIA Cryo",
                           tangodevice = tango_ls332 + "/compressor",
@@ -40,9 +48,9 @@ devices = dict(
 )
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 100},
-    'Ts': {'T_%s_A' % setupname: 110,
-           'T_%s_B' % setupname: 100,
-           'T_%s' % setupname: 120,
+    "T":  {"T_%s" % setupname: 100},
+    "Ts": {"T_%s_A" % setupname: 110,
+           "T_%s_B" % setupname: 100,
+           "T_%s" % setupname: 120,
           },
 }
