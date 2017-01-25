@@ -6,6 +6,8 @@ includes = ['system']
 
 group = 'lowlevel'
 
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
+
 # BUS 2 (sample table)
 # channel  1     2   3   4   5   6   7   8
 #        sth_st stt sgx sgy stx sty stz ---
@@ -33,15 +35,15 @@ TOTALBITS = lambda x: x & 0x1f
 
 
 devices = dict(
-    bus2 = device('devices.vendor.ipc.IPCModBusTaco',
-                  tacodevice = '//pandasrv/panda/moxa/port2',
+    bus2 = device('devices.vendor.ipc.IPCModBusTango',
+                  tangodevice = tango_base + 'ipc/sample',
                   bustimeout = 0.1,
                   loglevel = 'info',
                   lowlevel = True,
                  ),
 
-    bus4 = device('devices.vendor.ipc.IPCModBusTaco',
-                  tacodevice = '//pandasrv/panda/moxa/port4',
+    bus4 = device('devices.vendor.ipc.IPCModBusTango',
+                  tangodevice = tango_base + 'ipc/spare',
                   bustimeout = 0.1,
                   loglevel = 'info',
                   lowlevel = True,
@@ -139,7 +141,7 @@ devices = dict(
                    #~ current = 2.0,
                      ),
     sgx_enc = device('devices.vendor.ipc.Coder',
-                     bus = 'bus2',
+                     bus = 'bus4',
                      addr = CODER(3), #original tripple card
                      #addr = CODER(8),
                      slope = -2**13 / 1.0,
@@ -179,7 +181,7 @@ devices = dict(
                    #~ current = 2.0,
                      ),
     sgy_enc = device('devices.vendor.ipc.Coder',
-                     bus = 'bus2',
+                     bus = 'bus4',
                      addr = CODER(4),  #original tripple card on bus2
                      #addr = CODER(8),
                      slope = 2**13 / 1.0,

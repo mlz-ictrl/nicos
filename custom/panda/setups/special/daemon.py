@@ -14,6 +14,7 @@ devices = dict(
                                   ('astrid', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
                                   ('alex', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
                                   ('florin', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
+                                  ('aweber', '3219e862ecf3d51fa1895e053d0e96cd', 'admin'),
                                   ('petr', '54709903e06a8be9a62a649cc8ec2f1d', 'admin')],
                        ),
     Daemon = device('services.daemon.NicosDaemon',

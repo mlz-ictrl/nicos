@@ -48,12 +48,12 @@ sample = Block('Sample stage', [
     BlockRow(
         Field(dev='stx', format='%.1f'),
         Field(dev='sty'),
-        Field(dev='stz',format='%.2f'),
+        Field(dev='stz', format='%.2f'),
         Field(dev='sat'),
     ),
     BlockRow(
-        Field(dev='sgx',format='%.2f'),
-        Field(dev='sgy',format='%.2f'),
+        Field(dev='sgx', format='%.2f'),
+        Field(dev='sgy', format='%.2f'),
         Field(dev='sth', name='sth (A3)'),
         Field(dev='stt', name='stt (A4)'),
     ),
@@ -72,16 +72,22 @@ analyzer = Block('Analyzer', [
 
 collimation = Block('Collimation and Lengths', [
     BlockRow(
-        Field(dev='ca1',default='None'),
-        Field(dev='ca2',default='None'),
-        Field(dev='ca3',default='None'),
-        Field(dev='ca4',default='None'),
+        Field(dev='ca1', default='None', width=5),
+        Field(dev='ca2', default='None', width=5),
+        Field(dev='ca3', default='None', width=5),
+        Field(dev='ca4', default='None', width=5),
     ),
     BlockRow(
-        Field(dev='lsm'),
-        Field(dev='lms'),
-        Field(dev='lsa'),
-        Field(dev='lad'),
+        Field(dev='lsm', width=5),
+        Field(dev='lms', width=5),
+        Field(dev='lsa', width=5),
+        Field(dev='lad', width=5),
+    ),
+    BlockRow(
+        Field(dev='ss1', width=25),
+    ),
+    BlockRow(
+        Field(dev='ss2', width=25),
     ),
     ],
 )
@@ -143,7 +149,7 @@ detector_small = Block('Detector', [
 # for setup lakeshore
 lakeshore = Block('LakeShore', [
     BlockRow(
-        Field(dev='t_ls340', name='Regulation'),
+        Field(dev='t_ls340', name='Regul.'),
         Field(dev='t_ls340_a', name='Sensor A'),
         Field(dev='t_ls340_b', name='Sensor B'),
     ),
@@ -182,7 +188,7 @@ for cryo, name in cryodict.items():
             BlockRow(
                 Field(dev='t_%s'   % cryo, name='Regulation', max=38),
                 Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
-                Field(dev='t_%s_b' % cryo, name='Sensor B',max=7),
+                Field(dev='t_%s_b' % cryo, name='Sensor B', max=7),
             ),
             BlockRow(
                 Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
@@ -195,7 +201,7 @@ for cryo, name in cryodict.items():
         )
     )
     cryosupps.append(
-        Block('%s-misc' % cryo.title(),[
+        Block('%s-misc' % cryo.title(), [
             BlockRow(
                 Field(dev='%s_p1' % cryo, name='Pump', width=10),
                 Field(dev='%s_p4' % cryo, name='Cond.', width=10),
@@ -308,8 +314,8 @@ magnet75 = Block('7T Magnet', [
 
 magnet75supp = Block('Magnet', [
     BlockRow(
-        Field(dev='sth_B7T5_Taco_motor',name='motor'),
-        Field(dev='sth_B7T5_Taco_coder',name='coder'),
+        Field(dev='sth_B7T5_Taco_motor', name='motor'),
+        Field(dev='sth_B7T5_Taco_coder', name='coder'),
     ),
     # Maximum temperatures for field operation above 6.6 T (80A) taken from the
     # manual
@@ -333,12 +339,42 @@ magnet75supp = Block('Magnet', [
     setups='magnet75',
 )
 
+# for setup magnet jcns jvm1
+magnet5 = Block('5T Magnet', [
+    BlockRow(
+        Field(dev='I_vm5'),
+        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+    ),
+    ],
+    setups='jvm1',
+)
+
+magnet5supp = Block('Magnet', [
+    BlockRow(
+        Field(dev='T_vm5_sample', name='Ts'),
+        Field(dev='T_vm5_vti', name='T'),
+        Field(key='T_vm5_sample/setpoint', name='Setpoint', min=1, max=200),
+    ),
+    BlockRow(
+        Field(dev='vm5_lhe', name='He level'),
+        Field(dev='T_vm5_magnet', name='T (coils)'),
+        Field(dev='vm5_nv_manual', name='NV'),
+    ),
+    BlockRow(
+        Field(dev='vm5_pvti', name='p:vti'),
+        Field(dev='vm5_psample', name='sample'),
+        Field(dev='vm5_ppump', name='pump'),
+    ),
+    ],
+    setups='jvm1',
+)
+
 vti = Block('VTI', [
 #    BlockRow(
 #        Field(dev='sTs'),
 #        Field(dev='vti'),
-#        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
-#        Field(key='vti/heater',name='Heater (%)'),
+#        Field(key='vti/setpoint', name='Setpoint', min=1, max=200),
+#        Field(key='vti/heater', name='Heater (%)'),
 #    ),
     BlockRow(
         Field(dev='LHe'),
@@ -378,7 +414,7 @@ magnet14t5 = Block('14.5T Magnet', [
 
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
-    BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
+    BlockRow(Field(key='mc/setpoint', name='Setpoint', unit='K')),
     BlockRow(Field(dev='sorb')),
     BlockRow(Field(dev='onekpot')),
     BlockRow(Field(dev='igh_p1')),
@@ -398,9 +434,9 @@ foki = Block('Foki', [
 )
 
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, magnet75, magnet14t5, vti)
+          Column(lakeshore, miramagnet, magnet75, magnet5, magnet14t5, vti)
 
-column3 = Column(magnet75supp, kelvinox, foki) + \
+column3 = Column(magnet75supp, magnet5supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \

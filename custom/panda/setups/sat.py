@@ -2,21 +2,28 @@
 
 description = 'setup for sample attenuator'
 
-includes = []
-
 group = 'optional'
 
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
+
 devices = dict(
+    sat_in  = device('devices.tango.DigitalInput',
+                     tangodevice = tango_base + 'sat/input',
+                     lowlevel = True,
+                    ),
+    sat_out = device('devices.tango.DigitalOutput',
+                     tangodevice = tango_base + 'sat/output',
+                     lowlevel = True,
+                    ),
+
     sat = device('panda.satbox.SatBox',
                  description = 'Sample beam attenuator',
-                 tacodevice = 'panda/modbus/sat',
+                 input = 'sat_in',
+                 output = 'sat_out',
                  unit = 'mm',
                  fmtstr = '%d',
                  blades = [1, 2, 5, 10, 20],
                  #blades = [0, 2, 5, 10, 20], # code for nonworking blade
-                 slave_addr = 1, # WUT
-                 addr_out = 0x1020,
-                 addr_in = 0x1000,
                  readout = 'switches',
                 ),
 )

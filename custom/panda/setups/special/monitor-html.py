@@ -268,6 +268,17 @@ magnet75 = Block('7T Magnet', [
     setups='magnet75',
 )
 
+# for setup magnet jcns jvm1
+magnet5 = Block('5T Magnet', [
+    BlockRow(
+        Field(dev='I_vm5'),
+        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+    ),
+    ],
+    setups='jvm1',
+)
+
+
 magnet75supp = Block('Magnet', [
     BlockRow(
         Field(dev='sth_B7T5_Taco_motor',name='motor'),
@@ -294,6 +305,28 @@ magnet75supp = Block('Magnet', [
     ],
     setups='magnet75',
 )
+
+magnet5supp = Block('Magnet', [
+    BlockRow(
+        Field(dev='T_vm5_sample', name='Ts'),
+        Field(dev='T_vm5_vti', name='T'),
+        Field(key='T_vm5_sample/setpoint',name='Setpoint',min=1,max=200),
+        Field(key='T_vm5_sample/heater',name='Heater (%)'),
+    ),
+    BlockRow(
+        Field(dev='vm5_lhe', name='He level'),
+        Field(dev='T_vm5_magnet', name='T (coils)'),
+        Field(dev='vm5_nv_manual', name='NV'),
+    ),
+    BlockRow(
+        Field(dev='vm5_ppump', name='p(pump)'),
+        Field(dev='vm5_psample', name='p(sample)'),
+        Field(dev='vm5_pvti', name='p(vti)'),
+    ),
+    ],
+    setups='jvm1',
+)
+
 
 vti = Block('VTI', [
 #    BlockRow(
@@ -359,9 +392,9 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet75, magnet14t5, vti)
+          Column(lakeshore, magnet75, magnet5, magnet14t5, vti)
 
-column3 = Column(tas) + Column(magnet75supp, kelvinox, foki) + \
+column3 = Column(tas) + Column(magnet75supp, magnet5supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

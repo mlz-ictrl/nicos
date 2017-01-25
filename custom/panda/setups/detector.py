@@ -4,35 +4,37 @@ description = 'detectors'
 
 group = 'lowlevel'  # is included by panda.py
 
-includes = []
-
 excludes = ['qmesydaq']
 
-modules = []
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    timer    = device('devices.taco.FRMTimerChannel',
-                      tacodevice = 'panda/frmctr/at',
+    timer    = device('devices.tango.TimerChannel',
+                      tangodevice = tango_base + 'frmctr2/timer',
                       lowlevel = True,
                      ),
-    mon1     = device('devices.taco.FRMCounterChannel',
-                      tacodevice = 'panda/frmctr/a1',
+    mon1     = device('devices.tango.CounterChannel',
+                      tangodevice = tango_base + 'frmctr2/mon1',
                       type = 'monitor',
+                      fmtstr = '%d',
                       lowlevel = True,
                      ),
-    mon2     = device('devices.taco.FRMCounterChannel',
-                      tacodevice = 'panda/frmctr/a2',
+    mon2     = device('devices.tango.CounterChannel',
+                      tangodevice = tango_base + 'frmctr2/mon2',
                       type = 'monitor',
+                      fmtstr = '%d',
                       lowlevel = True,
                      ),
-    det1     = device('devices.taco.FRMCounterChannel',
-                      tacodevice = 'panda/frmctr/a3',
+    det1     = device('devices.tango.CounterChannel',
+                      tangodevice = tango_base + 'frmctr2/det1',
                       type = 'counter',
+                      fmtstr = '%d',
                       lowlevel = True,
                      ),
-    det2     = device('devices.taco.FRMCounterChannel',
-                      tacodevice = 'panda/frmctr/a4',
+    det2     = device('devices.tango.CounterChannel',
+                      tangodevice = tango_base + 'frmctr2/det2',
                       type = 'counter',
+                      fmtstr = '%d',
                       lowlevel = True,
                      ),
     det      = device('devices.generic.Detector',

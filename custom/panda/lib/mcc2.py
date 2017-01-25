@@ -25,28 +25,25 @@
 
 """PANDA MCC2 Interface for foci control and support for mono-changer"""
 
-from IO import StringIO
-
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     usermethod, Param, CommunicationError, HardwareError, MoveError, \
     Device, Readable
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.devices.taco import TacoDevice
 from nicos.core import Attach, SIMULATION
 from nicos.pycompat import iteritems
+from nicos.devices.tango import PyTangoDevice
 
 
-class TacoSerial(TacoDevice, Device):
-    taco_class = StringIO
+class TangoSerial(PyTangoDevice, Device):
 
     def communicate(self, what):
-        return self._taco_guard(self._dev.communicate, what)
+        return self._dev.Communicate(what)
 
 
 class MCC2core(Device):
     """Class for comunication with MCC"""
     attached_devices = {
-        'bus': Attach('The Serial connection to the phytron Box', TacoSerial),
+        'bus': Attach('The Serial connection to the phytron Box', TangoSerial),
     }
     parameters = {
         'channel':     Param('Channel of MCC2 to use (X or Y)',
@@ -63,18 +60,12 @@ class MCC2core(Device):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
         self.log.debug('comm: %r', cmd)
-        temp = self._attached_bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
-        if len(temp) >= 2 and temp[0] == '\x02':  # strip beginning STX
-            temp = temp[1:]
-            if temp[-1] == '\x03':  # strip optional ending stx
-                temp = temp[:-1]
-            if temp[0] == '\x06':
-                self.log.debug('  ->: %r', temp)
-                return temp[1:]
-            else:
-                self.log.debug('  ->: None')
-                return None     # no ACK means nothing good!
-        raise CommunicationError(self, 'Response timed out')
+        temp = self._attached_bus.communicate('%X%s' % (self.addr, cmd))
+        if temp[0] == '\x06':
+            self.log.debug('  ->: %r', temp)
+            return temp[1:]
+        self.log.debug('  ->: None')
+        return None     # no ACK means nothing good!
 
     def doInit(self, mode):
         if mode != SIMULATION:

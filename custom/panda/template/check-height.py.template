@@ -1,0 +1,20 @@
+# PANDA sample script for checking height using slit before the sample
+#
+# Usage: you should be standing at Bragg peak
+#
+# Parameters:
+countfor = 1  #how long count 1 point
+
+# Script:
+Remark('check height')
+
+move(ss1, (-20, 20, -20, 20))
+wait(ss1)
+
+scan(ss1.bottom, -20, 3, 10, countfor)
+maw(ss1.bottom, -20)
+
+scan(ss1.top, 20, -3, 10, countfor)
+maw(ss1.top, 20)
+
+

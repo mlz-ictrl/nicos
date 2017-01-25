@@ -30,8 +30,8 @@ P_EVEN = 0
 TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
-    bus1 = device('devices.vendor.ipc.IPCModBusTaco',
-                  tacodevice = '//pandasrv/panda/moxa/port1',
+    bus1 = device('devices.vendor.ipc.IPCModBusTango',
+                  tangodevice = tango_base + 'ipc/ana',
                   bustimeout = 0.1,
                   loglevel = 'info',
                   lowlevel = True,

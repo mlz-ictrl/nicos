@@ -2,6 +2,7 @@
 
 description = 'Setup for the CA1 lift in primary beam and CA2 adjustment motor'
 
+includes = ['monoturm', 'sampletable']
 group = 'optional'
 
 # BUS 5 (monoturm)
@@ -32,24 +33,9 @@ P_EVEN = 0
 TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
-    bus5b = device('devices.vendor.ipc.IPCModBusTaco',
-                   tacodevice = '//pandasrv/panda/moxa/port5',  # mono rack
-                   bustimeout = 0.1,
-                   loglevel = 'info',
-                   lowlevel = True,
-                  ),
-
-    bus4b = device('devices.vendor.ipc.IPCModBusTaco',
-                   tacodevice = '//pandasrv/panda/moxa/port4',  # spare rack
-                   bustimeout = 0.1,
-                   loglevel = 'info',
-                   lowlevel = True,
-                  ),
-
-
     ca1_mot  = device('devices.vendor.ipc.Motor',
                       description = 'Stepper motor to move the collimator lift',
-                      bus = 'bus5b',
+                      bus = 'bus5',
                       addr = 81,
                       slope = 200.0,
                       unit = 'mm',
@@ -74,7 +60,7 @@ devices = dict(
 
     ca2_mot  = device('devices.vendor.ipc.Motor',
                       description = 'Stepper motor to adjust CA2 collimator',
-                      bus = 'bus4b',
+                      bus = 'bus4',
                       addr = MOTOR(8),
                       slope = 164.0,  #0.0061 mm/1.8deg
                       unit = 'mm',

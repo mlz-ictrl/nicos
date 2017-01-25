@@ -1,21 +1,15 @@
 # typical inelastic scan setup
 
 panda.scanmode = 'CKF'
-panda.energytransferunit = 'meV'
-mono.unit = 'A-1'
-ana.unit = 'A-1'
 
-
-
-mps = 3000         #define monitor per second
+mps = 2500         #define monitor per second
 mpm = 60*mps   # monitor per minute - write 5*mpm to measure 5min
 
-switch(sat, 0)  # means NO ATTENUATOR
-###########################################
-#                                         #
-#   your scans from here                  #
-#                                         #
-###########################################
+Remark("Example scripts")   # creates a chapter in logbook
+
+move(sat, 0)  # means NO ATTENUATOR
+
+#   your scans from here :
 
 #   examples
 qcscan((0.5, 0.5,  0, 0), (0.005, 0.005, 0, 0), 5, kf=1.57, mon1=5*mpm)
@@ -39,6 +33,7 @@ cscan( sth, sth.target, 0.2, 12, 1)     # Preset: just a number is ALWAYS time..
 switch(befilter, 'on kf')
 switch(pgfilter, 'unused')
 
+notify("Hi there, your example script is finished! Panda")   #send email to the user
 
 # end of user commands
 

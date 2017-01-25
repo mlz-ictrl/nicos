@@ -4,6 +4,8 @@ description = 'Monoturm, everything inside the Monochromator housing'
 
 group = 'lowlevel'
 
+tango_base = 'tango://phys.panda.frm2:10000/panda/'
+
 # channel 1   2   3   4   5   6   7   8
 #         ca1 mgx mtx mty mth mtt ms1 saph
 #                                    saphire is in saph setup
@@ -28,8 +30,8 @@ TOTALBITS = lambda x: x & 0x1f
 
 
 devices = dict(
-    bus5 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice = '//pandasrv/panda/moxa/port5',
+    bus5 = device('devices.vendor.ipc.IPCModBusTango',
+            tangodevice = tango_base + 'ipc/mono',
             bustimeout = 0.1,
             loglevel = 'info',
             lowlevel = True,

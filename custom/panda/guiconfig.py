@@ -48,9 +48,5 @@ tools = [
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
-    tool('Maintenance commands',
-         'commands.CommandsTool',
-         commands=[
-             ('TACO server control @PANDA21 (beta)', 'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY maint@panda21.panda.frm2 "source /etc/tacoenv.sh && XAUTHORITY=/home/maint/.Xauthority sudo -E /usr/bin/python /opt/tacocp/tacocp.py pandasrv.panda.frm2" && exit'),
-         ]),
+    cmdtool('Marche (Server control)', 'marche-gui'),
 ]
