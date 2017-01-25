@@ -10,6 +10,7 @@ sysconfig = dict(
 )
 
 tango_base = "tango://phys.treff.frm2:10000/treff"
+tango_s7 = tango_base + "/FZJS7"
 
 basename = "%(proposal)s_%(session.experiment.sample.filename)s_"
 scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
@@ -50,6 +51,11 @@ devices = dict(
                            postprocess = [("roi1", "detimg"),
                                          ],
                            liveinterval = 1.,
+                          ),
+    detarm        = device("devices.tango.Motor",
+                           description="Detector arm rotation angle",
+                           tangodevice=tango_s7 + "/detector",
+                           precision=0.01,
                           ),
 )
 
