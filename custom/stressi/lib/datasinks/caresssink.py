@@ -411,9 +411,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def begin(self):
         ds = self.dataset
-        if ds.info.startswith('contscan'):
+        scaninfo = ds.info.split('-')[-1].strip()
+        if scaninfo.startswith('contscan'):
             self._scan_type = 'SGEN2'
-        elif ds.info.startswith('scan'):
+        elif scaninfo.startswith('scan'):
             self._scan_type = 'SGEN1'
         else:
             self._scan_type = 'SGEN1'
