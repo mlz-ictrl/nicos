@@ -48,7 +48,7 @@ from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 from nicos.services.monitor.icon import nicos_icon
-from nicos.guisupport.utils import checkSetupSpec
+from nicos.guisupport.utils import checkSetupSpec, extractKeyAndIndex
 
 
 HEAD = '''\
@@ -132,6 +132,13 @@ class Field(object):
                 desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
         if 'name' not in desc and 'key' in desc:
             desc['name'] = desc['key']
+        # if key contains a list definition extract the items and remove it
+        # from the key
+        if 'key' in desc:
+            _dev, valueindex, _scale, _offset = extractKeyAndIndex(desc['key'])
+            if valueindex:
+                self.item = valueindex
+                desc['key'] = _dev
         self.__dict__.update(desc)
 
     def updateKeymap(self, keymap):
@@ -402,7 +409,7 @@ class Monitor(BaseMonitor):
             # apply item selection
             field.value = value
             if value is not None:
-                if isinstance(field.item, list):
+                if isinstance(field.item, tuple):
                     try:
                         fvalue = functools.reduce(operator.getitem,
                                                   field.item, value)
