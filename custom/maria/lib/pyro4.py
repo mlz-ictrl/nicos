@@ -72,7 +72,6 @@ class DigitalOutput(Pyro4Device, HasTimeout, Moveable):
     bitfield.
     """
 
-    lastStart = None
     valuetype = int
     parameter_overrides = {
         'unit': Override(mandatory=False),
@@ -86,7 +85,6 @@ class DigitalOutput(Pyro4Device, HasTimeout, Moveable):
     def doStart(self, value):
         if self.read(0) != value:
             with globalLock, self._dev:
-                self.lastStart = value
                 self._dev.afp_flip_do()
 
     def doStatus(self, maxage=0):
@@ -111,7 +109,8 @@ class NamedDigitalOutput(DigitalOutput):
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
-        DigitalOutput.doStart(self, value)
+        if DigitalOutput.doRead(self, 0) != value:
+            DigitalOutput.doStart(self, value)
 
     def doRead(self, maxage=0):
         value = DigitalOutput.doRead(self, maxage)
