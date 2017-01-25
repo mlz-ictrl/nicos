@@ -31,7 +31,8 @@ from time import strftime, localtime
 from shutil import copyfile
 from logging import ERROR
 
-from nicos.services.elog.utils import formatMessage, pretty1, pretty2
+from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
+    pretty1, pretty2
 from nicos.services.elog.genplot import plotDataset
 from nicos.pycompat import to_utf8
 
@@ -182,6 +183,19 @@ PROLOG_TOC = b'''\
 '''
 
 
+def create_or_open(filename, prolog=''):
+    if not path.isfile(filename):
+        io.open(filename, 'wb').close()
+    # we have to open in binary mode since we want to seek from the end,
+    # which the text wrapper doesn't support
+    fd = io.open(filename, 'r+b')
+    fd.seek(0, 2)
+    if fd.tell() == 0:
+        fd.write(prolog)
+        fd.flush()
+    return fd
+
+
 class HtmlWriter(object):
     def __init__(self):
         self.fd = None
@@ -200,27 +214,13 @@ class HtmlWriter(object):
             self.fd_toc.close()
         self.toc_level = 0
 
-    def create_or_open(self, filename):
-        if not path.isfile(filename):
-            io.open(filename, 'wb').close()
-        # we have to open in binary mode since we want to seek from the end,
-        # which the text wrapper doesn't support
-        return io.open(filename, 'r+b')
-
     def open(self, directory, instr, proposal):
         self.close()
         io.open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
-        self.fd = self.create_or_open(path.join(directory, 'content.html'))
-        self.fd.seek(0, 2)
-        if self.fd.tell() == 0:
-            self.fd.write(PROLOG)
-            self.fd.flush()
-        self.fd_toc = self.create_or_open(path.join(directory, 'toc.html'))
-        self.fd_toc.seek(0, 2)
-        if self.fd_toc.tell() == 0:
-            self.fd_toc.write(PROLOG + PROLOG_TOC)
-            self.fd_toc.flush()
+        self.fd = create_or_open(path.join(directory, 'content.html'), PROLOG)
+        self.fd_toc = create_or_open(path.join(directory, 'toc.html'),
+                                     PROLOG_TOC)
 
     def emit(self, html, suffix=u''):
         html = to_utf8(html)
@@ -278,6 +278,24 @@ class HtmlWriter(object):
         return 'id%s-%s' % (id(self), self.curid)
 
 
+class TextWriter(object):
+    def __init__(self):
+        self.fd = None
+
+    def close(self):
+        if self.fd:
+            self.fd.close()
+
+    def open(self, directory):
+        self.close()
+        self.fd = create_or_open(path.join(directory, 'nicos_log.txt'))
+
+    def message(self, message):
+        if self.fd:
+            self.fd.write(formatMessagePlain(message))
+            self.fd.flush()
+
+
 class Handler(object):
     def __init__(self, log, plotformat):
         self.log = log
@@ -290,15 +308,18 @@ class Handler(object):
 
         self.dir = self.logdir = None
         self.out = HtmlWriter()
+        self.out_plain = TextWriter()
 
     def close(self):
         self.out.close()
+        self.out_plain.close()
 
     def handle_directory(self, time, data):
         directory, instr, proposal = data
         self.dir = directory
         self.logdir = path.join(directory, 'logbook')
         self.out.open(self.logdir, instr or 'NICOS', proposal)
+        self.out_plain.open(self.logdir)
         self.log.info('Opened new output files in %s', self.logdir)
 
     def handle_newexperiment(self, time, data):
@@ -316,8 +337,8 @@ class Handler(object):
     def handle_setup(self, time, setupnames):
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
-            '<p class="setup">New setup: %s</p>\n' %
-            escape(', '.join(setupnames)))
+                          '<p class="setup">New setup: %s</p>\n' %
+                          escape(', '.join(setupnames)))
 
     def handle_entry(self, time, data):
         self.out.timestamp(time)
@@ -333,24 +354,27 @@ class Handler(object):
         targetid = self.out.new_id()
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
-            '<h3 id="%s" class="remark">%s</h3>\n' % (targetid, escape(remark)))
+                          '<h3 id="%s" class="remark">%s</h3>\n' %
+                          (targetid, escape(remark)))
         self.out.toc_entry(2, escape(remark), targetid)
 
     def handle_scriptbegin(self, time, data):
         self.out.timestamp(time)
         targetid = self.out.new_id()
         text = 'Script started: %s' % escape(data)
-        #self.out.toc_entry(2, text, targetid)
+        # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="scriptbegin">%s</p>\n' % (targetid, text))
+                          '<p id="%s" class="scriptbegin">%s</p>\n' %
+                          (targetid, text))
 
     def handle_scriptend(self, time, data):
         self.out.timestamp(time)
         targetid = self.out.new_id()
         text = 'Script finished: %s' % escape(data)
-        #self.out.toc_entry(2, text, targetid)
+        # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="scriptend">%s</p>\n' % (targetid, text))
+                          '<p id="%s" class="scriptend">%s</p>\n' %
+                          (targetid, text))
 
     def handle_sample(self, time, data):
         self.out.timestamp(time)
@@ -358,7 +382,8 @@ class Handler(object):
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'sample')
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="sample">%s</p>\n' % (targetid, text))
+                          '<p id="%s" class="sample">%s</p>\n' %
+                          (targetid, text))
 
     def handle_detectors(self, time, dlist):
         self.out.timestamp(time)
@@ -366,7 +391,8 @@ class Handler(object):
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'detectors')
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="detectors">%s</p>\n' % (targetid, text))
+                          '<p id="%s" class="detectors">%s</p>\n' %
+                          (targetid, text))
 
     def handle_environment(self, time, dlist):
         self.out.timestamp(time)
@@ -374,15 +400,17 @@ class Handler(object):
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'environment')
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="environment">%s</p>\n' % (targetid, text))
+                          '<p id="%s" class="environment">%s</p>\n' %
+                          (targetid, text))
 
     def handle_offset(self, time, data):
         self.out.timestamp(time)
         dev, old, new = data
         self.out.newstate('plain', '', '',
-            '<p class="offset"><b>Adjustment:</b> ' +
-            escape('Offset of %s changed from %s to %s' % (dev, old, new))
-            + '</p>\n')
+                          '<p class="offset"><b>Adjustment:</b> ' +
+                          escape('Offset of %s changed from %s to %s' %
+                                 (dev, old, new))
+                          + '</p>\n')
 
     def handle_attachment(self, time, data):
         if not self.logdir:
@@ -417,9 +445,11 @@ class Handler(object):
                               '</pre></div>\n', formatted)
         else:
             self.out.newstate('messages',
-                '<div class="msgblock" onclick="hideshow(this)">'
-                '<span class="msglabel">Messages</span>'
-                '<pre class="messages">\n', '</pre></div>\n', formatted)
+                              '<div class="msgblock" onclick="hideshow(this)">'
+                              '<span class="msglabel">Messages</span>'
+                              '<pre class="messages">\n', '</pre></div>\n',
+                              formatted)
+        self.out_plain.message(message)
 
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)

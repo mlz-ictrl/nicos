@@ -35,11 +35,12 @@ levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
 
 
-def format_time(timeval):
+def formatTime(timeval):
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeval))
 
 
 def formatMessage(message):
+    """Format message for display in the HTML logbook."""
     cls = 'out'
     levelno = message[2]
     if levelno == ACTION:
@@ -60,10 +61,20 @@ def formatMessage(message):
         text = levels[levelno] + ': ' + name + message[3]
         cls = 'warn'
     else:
-        text = '%s [%s] %s%s' % (levels[levelno], format_time(message[1]),
+        text = '%s [%s] %s%s' % (levels[levelno], formatTime(message[1]),
                                  name, message[3])
         cls = 'err'
     return '<span class="%s">%s</span>' % (cls, escape(text))
+
+
+def formatMessagePlain(message):
+    """Format message for the plain-text log file."""
+    levelno = message[2]
+    if levelno == ACTION:
+        return ''
+    # note: message will already contain newline at the end
+    return '%s : %-7s : %s: %s' % (formatTime(message[1]),
+                                   levels[levelno], message[0], message[3])
 
 
 def pretty1(fmtstr, value):
