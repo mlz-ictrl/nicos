@@ -407,8 +407,8 @@ class BaseHistoryWindow(object):
         name = info['name']
         if not name:
             name = info['devices']
-            if info['simpleTime']:
-                name += ' (%s)' % info['simpleTimeSpec']
+        if info['simpleTime']:
+            name += ' (%s)' % info['simpleTimeSpec']
         window = None
         if info['simpleTime']:
             try:
