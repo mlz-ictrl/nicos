@@ -149,10 +149,10 @@
     <widget class="TrendPlot" name="trendPlot">
      <property name="devices" stdset="0">
       <stringlist>
-       <string>det.rates[0][0]</string>
        <string>det.rates[0][1]</string>
-       <string>det.rates[1][0]</string>
+       <string>det.rates[0][0]</string>
        <string>det.rates[1][1]</string>
+       <string>det.rates[1][0]</string>
       </stringlist>
      </property>
      <property name="legend" stdset="0">
