@@ -804,7 +804,7 @@ class Device(object):
            sequence of tuples.
         """
         ret = []
-        if hasattr(self, 'doInfo'):
+        if hasattr(self, 'doInfo') and self._mode != SIMULATION:
             ret.extend(self.doInfo())
         selfunit = getattr(self, 'unit', '')
         for category, name, unit in self._infoparams:
