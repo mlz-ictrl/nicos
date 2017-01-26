@@ -403,7 +403,7 @@ class Experiment(Device):
 
     def doUpdateManagerights(self, mrinfo):
         """Check the managerights dict into values used later."""
-        if pwd:
+        if pwd and self._mode != SIMULATION:
             for key, lookup in [('owner', pwd.getpwnam),
                                 ('enableOwner', pwd.getpwnam),
                                 ('disableOwner', pwd.getpwnam),
