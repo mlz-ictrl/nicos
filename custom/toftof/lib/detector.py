@@ -29,7 +29,7 @@ from time import time as currenttime
 from nicos import session
 
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
-from nicos.core.constants import INTERMEDIATE
+from nicos.core.constants import INTERMEDIATE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
 
 from nicos.toftof import calculations as calc
@@ -98,6 +98,8 @@ class Detector(GenericDetector):
 
     def doInit(self, mode):
         GenericDetector.doInit(self, mode)
+        if mode == SIMULATION:
+            return
         self._import_detinfo()
 
     def presetInfo(self):
