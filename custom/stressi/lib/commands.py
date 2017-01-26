@@ -121,3 +121,39 @@ def pole_figure(numrows, speed, timedelta, sampleinfo):
                  '%s_Chis_%s' % (sampleinfo, str(chis.read())))
     maw(phis, 0)
     maw(chis, 180)
+
+
+@usercommand
+def change_sample(samplenr, toolnr=None):
+    """Change the sample with the help of the robot.
+
+    The robot moves the current sample into the sample holder magazine, takes
+    the sample 'samplenr', and move the sample into the measuring position
+    'toolnr'. The 'toolnr' (tool number) specifies the position inside the
+    sample.
+    If the 'toolnr' is not given it will the taken the 'samplenr' as 'toolnr'.
+    If the 'samplenr' is 0 then the current sample will be put into the
+    magazine
+
+    Examples::
+
+        # put the current sample into the sample magazine and take the sample
+        # 3 into measuring position 2
+        >>> change_sample(3, 2)
+
+        # put the current sample into the sample magazine and put the sample 1
+        # into measuring position 1
+        >>> change_sample(1)
+
+        # put the current sample into the sample magazine and move the robot
+        # into measuring position 1 without any sample
+        >>> change_sample(0)
+    """
+    if toolnr is None:
+        toolnr = samplenr if samplenr else 1
+    # From beam center to slot
+    gauge_to_base()
+    # Select sample
+    set_sample(samplenr)
+    # From slot to beam center
+    base_to_gauge(toolnr)
