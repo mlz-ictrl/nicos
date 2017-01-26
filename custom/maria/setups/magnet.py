@@ -10,5 +10,6 @@ devices = dict(
     magnet = device("devices.tango.PowerSupply",
                     description = "Magnet current control",
                     tangodevice = tango_host + "/maria/bruker/magnet",
+                    precision = 0.05,
                    ),
 )
