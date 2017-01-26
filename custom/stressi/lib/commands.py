@@ -23,9 +23,13 @@
 # *****************************************************************************
 """STRESS-SPEC specific commands for the robot to change the sample."""
 
+import numpy
+
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.basic import sleep
+from nicos.commands.device import maw
+from nicos.commands.scan import contscan
 
 
 @usercommand
@@ -82,3 +86,38 @@ def base_to_gauge(tool):
 @helparglist('samplenumber')
 def set_sample(sample):
     session.getDevice('robs').maw(int(sample))
+
+
+@usercommand
+@helparglist('numrows, speed, timedelta, sampleinfo')
+def pole_figure(numrows, speed, timedelta, sampleinfo):
+    """Run a typical pole figure measurement.
+
+    The command runs 'numrows' continuous scans over the 'phis' device, which
+    makes a full turn (360 deg) during the measurement.
+
+    The changed parameter device is 'chis'. It divides the angle of 90 deg into
+    'numrows' steps, starting at the half of the stepsize. A 'numrows' of 6
+    will generate the 'chis' positions of 172.5, 157.5, 142.5, 127.5, 112.5,
+    and 97.5 deg.
+
+    Examples::
+
+        # create a pole figure measurement with 6 steps taking every 10 s a
+        # picture
+        >>> pole_figure(6, 0.25, 10, 'Alpha_Ti')
+
+    """
+    chis = session.getDevice('chis')
+    phis = session.getDevice('phis')
+    dchi = round(90.0 / numrows, 2) / 2.0
+    # creating a list beginnig from 180 + dchi downsteps to 90 + dchi
+    positions = numpy.arange(90 + dchi, 180, 2 * dchi)[::-1]
+    maw(phis, 0)
+    for i, chipos in enumerate(positions):
+        maw(chis, round(chipos, 2))
+        start, end = (360., 0.) if i % 2 else (0., 360.)
+        contscan(phis, start, end, speed, timedelta,
+                 '%s_Chis_%s' % (sampleinfo, str(chis.read())))
+    maw(phis, 0)
+    maw(chis, 180)
