@@ -1319,7 +1319,12 @@ class Session(object):
         # create a thread that that start the simulation and forwards its
         # messages to the client(s)
         from nicos.core.sessions.simulation import SimulationSupervisor
-        supervisor = SimulationSupervisor(self, code, prefix)
+        emitter = getattr(self, 'daemon_device', None)
+        setups = [setup for setup in self.loaded_setups if
+                  setup in self.explicit_setups or
+                  self._setup_info[setup]['extended'].get('dynamic_loaded')]
+        user = self.getExecutingUser()
+        supervisor = SimulationSupervisor(code, prefix, setups, user, emitter)
         supervisor.start()
         if wait:
             supervisor.join()

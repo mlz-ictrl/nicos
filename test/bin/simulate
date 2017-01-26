@@ -5,16 +5,35 @@
 # environment.
 
 import sys
-import signal
-from os import path
 
-# allow importing the "test" package; lib/ is already in PYTHONPATH
-sys.path.insert(0, path.join(path.dirname(__file__), '..', '..', '..'))
+try:
+    import coverage
+except ImportError:
+    pass
+else:
+    # Note: This will only fire up coverage if the COVERAGE_PROCESS_START env
+    # variable is set
+    coverage.process_startup()
 
+from nicos import config
+from nicos.core.sessions.simulation import SimulationSession
 from test.utils import runtime_root, selfDestructAfter
 
+
+class TestSimulationSession(SimulationSession):
+
+    def begin_setup(self):
+        # do not set log handler to ERROR level, but do generate these:
+        from nicos.utils.tacostubs import generate_stubs
+        generate_stubs()
+
+    def simulationSync(self):
+        # no cache available, we have to start with default values
+        pass
+
+
 args = sys.argv[1:]
-if len(args) != 5:
+if len(args) < 5:
     raise SystemExit('Usage: nicos-simulate port prefix setups user code')
 port = int(args[0])
 prefix = args[1]
@@ -22,14 +41,13 @@ setups = args[2].split(',')
 user = args[3]
 code = args[4]
 
-# kill forcibly after 10 seconds
-if hasattr(signal, 'alarm'):
-    signal.alarm(10)
+if len(args) > 5:
+    setup_subdirs = args[5]
+else:
+    setup_subdirs = '../test'
 
-from nicos import config
-from nicos.core.sessions.simulation import SimulationSession
 config.nicos_root = runtime_root
-config.setup_subdirs = '../test'
+config.setup_subdirs = setup_subdirs
 
-selfDestructAfter(120)
-SimulationSession.run(port, prefix, setups, user, code)
+selfDestructAfter(10)
+TestSimulationSession.run(port, prefix, setups, user, code)

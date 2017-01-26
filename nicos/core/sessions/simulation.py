@@ -61,9 +61,6 @@ class SimLogSender(logging.Handler):
         self.devices = []
         self.aliases = []
 
-    def begin_setup(self):
-        self.level = logging.ERROR  # log only errors before code starts
-
     def begin_exec(self):
         from nicos.core import Readable
         from nicos.core.device import DeviceAlias
@@ -117,6 +114,9 @@ class SimulationSession(Session):
     sessiontype = SIMULATION
     has_datamanager = True
 
+    def begin_setup(self):
+        self.log_sender.level = logging.ERROR  # log only errors before code starts
+
     @classmethod
     def run(cls, port, prefix, setups, user, code):
         session.__class__ = cls
@@ -140,7 +140,7 @@ class SimulationSession(Session):
         # Give a sign of life and then tell the log handler to only log
         # errors during setup.
         session.log.info('setting up dry run...')
-        session.log_sender.begin_setup()
+        session.begin_setup()
         # Handle "print" statements in the script.
         sys.stdout = LoggingStdout(sys.stdout)
 
@@ -198,19 +198,16 @@ class SimulationSupervisor(Thread):
     and displaying/sending them to the client.
     """
 
-    def __init__(self, session, code, prefix):
+    def __init__(self, code, prefix, setups, user, emitter, more_args=None):
         scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
-        daemon = getattr(session, 'daemon_device', None)
-        setups = [setup for setup in session.loaded_setups if
-                  setup in session.explicit_setups or
-                  session._setup_info[setup]['extended'].get('dynamic_loaded')]
-        user = session.getExecutingUser()
         Thread.__init__(self, target=self._target,
-                        args=(daemon, scriptname, prefix, setups, code, user),
-                        name='SimulationSupervisor')
+                        name='SimulationSupervisor',
+                        args=(emitter, scriptname, prefix, setups, code, user,
+                              more_args or []))
+        # "daemonize this thread" attribute, not referring to the NICOS daemon.
         self.daemon = True
 
-    def _target(self, daemon, scriptname, prefix, setups, code, user):
+    def _target(self, emitter, scriptname, prefix, setups, code, user, args):
         socket = nicos_zmq_ctx.socket(zmq.PULL)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
@@ -219,7 +216,7 @@ class SimulationSupervisor(Thread):
         # start nicos-simulate process
         proc = subprocess.Popen([sys.executable, scriptname,
                                  str(port), prefix, ','.join(setups),
-                                 userstr, code])
+                                 userstr, code] + args)
         while True:
             res = poller.poll(500)
             if not res:
@@ -230,8 +227,8 @@ class SimulationSupervisor(Thread):
             msg = unserialize(socket.recv())
             if isinstance(msg, list):
                 # it's a message
-                if daemon:
-                    daemon.emit_event('message', msg)
+                if emitter:
+                    emitter.emit_event('message', msg)
                 else:
                     record = logging.LogRecord(msg[0], msg[2], msg[5],
                                                0, msg[3], (), None)
@@ -239,8 +236,8 @@ class SimulationSupervisor(Thread):
                     session.log.handle(record)
             else:
                 # it's the result
-                if daemon:
-                    daemon.emit_event('simresult', msg)
+                if emitter:
+                    emitter.emit_event('simresult', msg)
                 # In the console session, the summary is printed by the
                 # sim() command.
                 socket.close()
