@@ -101,6 +101,8 @@ class NicosTimePlotAxes(NicosPlotAxes):
 
 class NicosPlotCurve(PlotCurve):
 
+    GR_MARKER_SIZE = 1.0
+
     def __init__(self, x, y, errBar1=None, errBar2=None,
                  linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
                  linecolor=None, markercolor=1, legend=None):
@@ -126,6 +128,7 @@ class NicosPlotCurve(PlotCurve):
             dep.visible = flag
 
     def drawGR(self):
+        gr.setmarkersize(self.GR_MARKER_SIZE)
         PlotCurve.drawGR(self)
         for dep in self.dependent:
             if dep.visible:
@@ -134,7 +137,6 @@ class NicosPlotCurve(PlotCurve):
 
 class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
-    GR_MARKER_SIZE = 1.0
     HAS_AUTOSCALE = True
     SAVE_EXT = '.svg'
 
@@ -153,7 +155,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             dictPrintType.pop(prtype)
         self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
                            ";;".join(gr.GRAPHIC_TYPE.values()))
-        gr.setmarkersize(NicosGrPlot.GR_MARKER_SIZE)
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
@@ -271,7 +272,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             for curve in axis.getCurves():
                 curve.markertype = markertype
         self.hasSymbols = on
-        gr.setmarkersize(NicosGrPlot.GR_MARKER_SIZE)
         self.update()
 
     def setLines(self, on):
