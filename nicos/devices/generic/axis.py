@@ -30,6 +30,7 @@ from time import sleep
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
     NicosError, PositionError, MoveError, floatrange, Param, Attach, \
     waitForCompletion
+from nicos.core.constants import SIMULATION
 from nicos.devices.abstract import Axis as AbstractAxis, Motor, Coder, \
     CanReference
 from nicos.utils import createThread
@@ -61,6 +62,8 @@ class Axis(CanReference, AbstractAxis):
                              'when determining current position', type=int,
                              default=100, settable=True),
     }
+
+    hardware_access = False
 
     errorstates = {}
 
@@ -132,6 +135,12 @@ class Axis(CanReference, AbstractAxis):
                            target)
             return
 
+        if self._mode == SIMULATION:
+            self._attached_motor.start(target + self.offset)
+            if self._hascoder:
+                self._attached_coder._sim_setValue(target + self.offset)
+            return
+
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
@@ -150,13 +159,17 @@ class Axis(CanReference, AbstractAxis):
                                            self.__positioningThread)
 
     def _getWaiters(self):
-        # the Axis does its own status control, there is no need to wait for
-        # the motor as well
+        if self._mode == SIMULATION:
+            return [self._attached_motor]
+        # Except for dry runs, the Axis does its own status control, there is
+        # no need to wait for the motor as well.
         return []
 
     def doStatus(self, maxage=0):
         """Return the status of the motor controller."""
-        if self._posthread and self._posthread.isAlive():
+        if self._mode == SIMULATION:
+            return (status.OK, '')
+        elif self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
         elif self._errorstate:
             return (status.ERROR, str(self._errorstate))
