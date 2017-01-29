@@ -99,6 +99,11 @@ class Lifting(PositionBase):
         """
         return self.asC().asN()
 
+    def asL(self):
+        """ Conversion. Part of Position subclass protocol.
+        """
+        return self
+
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.
         """
