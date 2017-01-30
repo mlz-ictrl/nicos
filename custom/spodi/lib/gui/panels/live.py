@@ -1,0 +1,119 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2017 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Jens Krüger <jens.krueger@frm2.tum.de>
+#
+# *****************************************************************************
+"""SPODI live data panel."""
+
+import numpy
+
+from PyQt4.QtCore import Qt, SIGNAL
+from PyQt4.QtGui import QPen, QSizePolicy, QStatusBar
+
+from PyQt4.Qwt5 import QwtPicker, QwtPlot, QwtPlotCurve, QwtPlotPanner, \
+    QwtPlotPicker, QwtPlotZoomer
+
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.plots import ActivePlotPicker
+from nicos.utils import findResource
+
+# the empty string means: no live data is coming, only the filename is important
+DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
+                       'u1', 'i1', 'f8', 'f4', ''))
+
+
+class LiveDataPanel(Panel):
+
+    panelName = 'Live data'
+    bar = None
+    menu = None
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        loadUi(self, 'live.ui', findResource('custom/spodi/lib/gui/panels'))
+
+        self.statusBar = QStatusBar(self, sizeGripEnabled=False)
+        policy = self.statusBar.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        self.statusBar.setSizePolicy(policy)
+        self.statusBar.setSizeGripEnabled(False)
+        self.layout().addWidget(self.statusBar)
+
+        self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
+        self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
+        self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(client, SIGNAL('setup'), self.on_client_connected)
+
+        self.curve = QwtPlotCurve('')
+        self.curve.setPen(QPen(Qt.black, 1))
+        self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        self.curve.attach(self.dataPlot)
+        self.dataPlot.setAxisTitle(QwtPlot.xBottom, 'Channels')
+        self.dataPlot.setAxisTitle(QwtPlot.yLeft, 'Counts')
+
+        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
+                                    self.dataPlot.canvas())
+        self.zoomer.initMousePattern(2)  # don't bind middle button
+        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
+                     self.on_zoomer_zoomed)
+
+        self.panner = QwtPlotPanner(self.dataPlot.canvas())
+        self.panner.setMouseButton(Qt.MidButton)
+
+        self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
+                                       QwtPicker.PointSelection |
+                                       QwtPicker.DragSelection,
+                                       QwtPlotPicker.NoRubberBand,
+                                       QwtPicker.AlwaysOff,
+                                       self.dataPlot.canvas())
+        self.dataPlot.canvas().setMouseTracking(True)
+
+    def on_client_livedata(self, data):
+        if len(data):
+            self.log.debug('%d %d', self._nx, self._ny)
+            d = numpy.frombuffer(data, dtype=self._dtype)
+            self.log.debug('%d', sum(d))
+            if sum(d):
+                d = numpy.reshape(d, (self._nx, self._ny), order='F')
+                self.curve.setData(numpy.arange(self._nx),
+                                   numpy.sum(d, axis=1))
+                self.dataPlot.replot()
+
+    def on_zoomer_zoomed(self, rect):
+        # when zooming completely out, reset to auto scaling
+        if self.zoomer.zoomRectIndex() == 0:
+            self.dataPlot.setAxisAutoScale(QwtPlot.xBottom)
+            self.dataPlot.setAxisAutoScale(QwtPlot.yLeft)
+            self.zoomer.setZoomBase()
+
+    def on_client_connected(self):
+        self.client.tell('eventunmask', ['livedata', 'liveparams'])
+
+    def on_client_liveparams(self, params):
+        _tag, _fname, dtype, nx, ny, _nz, runtime = params
+        self.statusBar.showMessage('Runtime: %.1f s' % runtime)
+        normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
+        if not _fname and normalized_type not in DATATYPES:
+            self.log.warning('Unsupported live data format: %s', params)
+            return
+        self._dtype = normalized_type
+        self._nx, self._ny = nx, ny
