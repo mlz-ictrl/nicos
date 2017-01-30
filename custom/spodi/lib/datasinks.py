@@ -46,7 +46,7 @@ class CaressHistogramHandler(SingleFileSinkHandler):
     def writeData(self, fp, image):
         _metainfo = self.dataset.metainfo
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(_metainfo):
+        for (dev, key), (_, v, _, cat) in iteritems(_metainfo):
             if dev in ['adet', 'UBahn', 'Space', 'tths'] and cat == 'general':
                 continue
             if cat:
