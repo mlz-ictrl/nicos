@@ -29,7 +29,6 @@ import shutil
 import tempfile
 import timeit
 
-from nicos import session
 from nicos.core import UsageError, LimitError
 from nicos.utils import ensureDirectory
 
@@ -54,27 +53,16 @@ from nicos.commands.output import printdebug, printinfo, printwarning, \
     printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
 
-from test.utils import ErrorLogged, raises, cleanLog, checkResponse
-from nose.tools import with_setup
+from test.utils import ErrorLogged, raises
+
+session_setup = 'axis'
 
 
-def setup_module():
-    session.loadSetup('axis')
-    session.setMode(MASTER)
-    cleanLog()
-
-
-def teardown_module():
-    session.unloadSetup()
-    cleanLog()
-
-
-@with_setup(cleanLog, cleanLog)
-def test_output_commands():
+def test_output_commands(session, log):
     printdebug('printdebugtest1', 'printdebugtest2')
-    checkResponse(matches=r'printdebugtest1 printdebugtest2')
+    log.check_response(matches=r'printdebugtest1 printdebugtest2')
     printinfo('printinfo testing...')
-    checkResponse(matches=r'printinfo testing\.\.\.')
+    log.check_response(matches=r'printinfo testing\.\.\.')
     try:
         1 / 0
     except ZeroDivisionError:
@@ -83,31 +71,28 @@ def test_output_commands():
     assert raises(ErrorLogged, printexception, 'exception!')
 
 
-@with_setup(cleanLog, cleanLog)
-def test_basic_commands():
+def test_basic_commands(session, log):
     help(help)
-    checkResponse(matches=r'Usage: help\(\[object\]\)')
-    checkResponse(matches=r'>>> help\(\) {12}# show list of commands')
+    log.check_response(matches=r'Usage: help\(\[object\]\)')
+    log.check_response(matches=r'>>> help\(\) {12}# show list of commands')
     ListCommands()
-    checkResponse(matches=r'name {48}description')
+    log.check_response(matches=r'name {48}description')
     # explicitly no check on help text!
-    checkResponse(matches=r'ClearCache\(dev, \.\.\.\)')
+    log.check_response(matches=r'ClearCache\(dev, \.\.\.\)')
 
 
-@with_setup(cleanLog, cleanLog)
-def test_sleep_command():
+def test_sleep_command(log):
     tosleep = 0.1
     used = timeit.timeit(lambda: sleep(tosleep), number=1)
     assert tosleep < used < 1.3 * tosleep
-    checkResponse(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
+    log.check_response(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
 
 
-@with_setup(cleanLog, cleanLog)
-def test_setup_commands():
+def test_setup_commands(session, log):
     ListSetups()
-    checkResponse(matches=r'axis            yes')  # axis should be loaded
-    checkResponse(matches=r'stdsystem       yes')  # stdsystem  loaded
-    checkResponse(matches=r'cache              ')  # cache not loaded
+    log.check_response(matches=r'axis            yes')  # axis should be loaded
+    log.check_response(matches=r'stdsystem       yes')  # stdsystem  loaded
+    log.check_response(matches=r'cache              ')  # cache not loaded
 
     NewSetup('axis')
     AddSetup()  # should list all setups but not fail
@@ -118,7 +103,7 @@ def test_setup_commands():
     assert session.testhandler.warns(RemoveSetup, 'blah')
 
 
-def test_devicecreation_commands():
+def test_devicecreation_commands(session, log):
     assert 'motor' not in session.devices
     CreateDevice('motor')
     assert 'motor' in session.devices
@@ -133,8 +118,7 @@ def test_devicecreation_commands():
     assert 'coder' not in session.explicit_devices
 
 
-@with_setup(cleanLog, cleanLog)
-def test_experiment_commands():
+def test_experiment_commands(session, log):
     exp = session.getDevice('Exp')
 
     NewExperiment(1234, 'Test experiment', 'L. Contact <l.contact@frm2.tum.de>',
@@ -144,29 +128,31 @@ def test_experiment_commands():
     AddUser('F. X. User', 'user@example.com')
     assert 'F. X. User <user@example.com>' in exp.users
     NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
-    checkResponse(matches=r'Exp       : INFO: experiment directory is now test/root/data')
-    checkResponse(matches=r'Exp       : INFO: User "F. X. User <user@example.com>" added')
+    log.check_response(matches=r'Exp       : INFO: experiment directory is now test/root/data')
+    log.check_response(matches=r'Exp       : INFO: User "F. X. User <user@example.com>" added')
 
     FinishExperiment()
 
     Remark('hi')
     assert exp.remark == 'hi'
 
+
+def test_mode_commands(session):
     SetMode(SLAVE)
     SetMode(MASTER)
     assert raises(UsageError, SetMode, 'blah')
 
 
-def test_clearcache():
+def test_clearcache(session, log):
     motor = session.getDevice('motor')
     ClearCache('motor', motor)
 
     with UserInfo('userinfo'):
         assert session._actionStack[-1] == 'userinfo'
-    checkResponse(matches=r'INFO: cleared cached information for motor')
+    log.check_response(matches=r'INFO: cleared cached information for motor')
 
 
-def test_run_command():
+def test_run_command(session, log):
     # create a test script in the current scriptpath
     ensureDirectory(session.experiment.scriptpath)
     with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
@@ -174,7 +160,7 @@ def test_run_command():
     run('test')
 
 
-def test_sample_commands():
+def test_sample_commands(session, log):
     exp = session.experiment
     NewSample('abc')
     assert exp.sample.samplename == 'abc'
@@ -188,20 +174,20 @@ def test_sample_commands():
     SelectSample('abc')
     assert exp.sample.samplename == 'abc'
 
-    cleanLog()
+    log.clearcapturedmessages()
     ListSamples()
-    checkResponse(matches=r'number  sample name  param')
-    checkResponse(matches=r'0       abc')
-    checkResponse(matches=r'1       def          45')
+    log.check_response(matches=r'number  sample name  param')
+    log.check_response(matches=r'0       abc')
+    log.check_response(matches=r'1       def          45')
 
-    cleanLog()
+    log.clearcapturedmessages()
     ClearSamples()
     assert exp.samples == {}
-    checkResponse(matches=r'0       abc', absent=True)
-    checkResponse(matches=r'1       def          45', absent=True)
+    log.check_response(matches=r'0       abc', absent=True)
+    log.check_response(matches=r'1       def          45', absent=True)
 
 
-def test_device_commands():
+def test_device_commands(session, log):
     motor = session.getDevice('motor')
     coder = session.getDevice('coder')
     alias = session.getDevice('aliasAxis')
@@ -241,7 +227,6 @@ def test_device_commands():
     # check wait()
     move(motor, 10)
     wait(motor, 0.1)
-    wait()
 
     # check read()
     read()
@@ -338,13 +323,13 @@ def test_device_commands():
     finish()
 
     assert raises(ErrorLogged, reference, motor)
-    checkResponse(matches=r'Device status')
-    checkResponse(matches=r'axis       status:   ok: idle')
-    checkResponse(matches=r'INFO: t_mono         status:   ok: theta=idle,'
-                  ' twotheta=idle, focush=fine, focusv=fine')
+    log.check_response(matches=r'Device status')
+    log.check_response(matches=r'axis       status:   ok: idle')
+    log.check_response(matches=r'INFO: t_mono         status:   ok: theta=idle,'
+                       ' twotheta=idle, focush=fine, focusv=fine')
 
 
-def test_command_exceptionhandling():
+def test_command_exceptionhandling(session):
     # basic commands should catch exceptions when wrapped as usercommands
     # (but log an error) depending on setting on the experiment
     wrapped_maw = usercommandWrapper(maw)
@@ -371,7 +356,7 @@ def test_commands_elog():
     _LogAttach('some file description', [tmpname], ['newname.txt'])
 
 
-def test_notifiers():
+def test_notifiers(session):
     notifier = session.getDevice('testnotifier')
     exp = session.getDevice('Exp')
 

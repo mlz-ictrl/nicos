@@ -21,30 +21,3 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
-from __future__ import print_function
-
-import sys
-
-from test.utils import TestSession, cleanup, startCache, startSubprocess, \
-    killSubprocess
-from nicos import session
-
-cache = None
-console = None
-
-
-def setup_package():
-    global cache, console  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up console test, cleaning old test dir...\n')
-    session.__class__ = TestSession
-    session.__init__('testconsole')
-    cleanup()
-    cache = startCache()
-    console = startSubprocess('aio.py', piped=True)
-
-
-def teardown_package():
-    killSubprocess(console)
-    session.shutdown()
-    killSubprocess(cache)

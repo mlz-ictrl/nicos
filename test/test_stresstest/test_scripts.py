@@ -27,22 +27,23 @@ import re
 import logging
 from os import path
 
-from nicos.utils import loggers
+import pytest
+
 from nicos.core.sessions.simple import ScriptSession
+from nicos.utils import loggers
 from nicos.pycompat import exec_
 
 # import all public symbols from nicos.core to get all nicos exceptions
 from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-import
 
 
-from test.utils import raises, assert_raises
+from test.utils import module_root, runtime_root, raises
 
 
 class ScriptSessionTest(ScriptSession):
     def __init__(self, appname, daemonized=False):
         ScriptSession.__init__(self, appname, daemonized)
-        self.setSetupPath(
-            path.normpath(path.join(path.dirname(__file__), '../setups')))
+        self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
@@ -53,7 +54,7 @@ class ScriptSessionTest(ScriptSession):
         handler.setFormatter(
             logging.Formatter('[SCRIPT] %(name)s: %(message)s'))
         self.log.addHandler(handler)
-        log_path = path.join(path.dirname(__file__), '../root', 'log')
+        log_path = path.join(runtime_root, 'log')
         try:
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(
@@ -90,27 +91,19 @@ def test_raise_simple():
     assert raises(Exception, run_script_session, setup, code)
 
 
-def test_scripts():
-    def raises(*args):
-        assert_raises(*args)
-    # test generator executing scripts
-    testscriptspath = path.normpath(
-        path.join(path.dirname(__file__), '..', 'scripts'))
-    allscripts = []
-    matcher = re.compile(r'.*Raises(.*)\..*')
-    for root, _dirs, files in os.walk(testscriptspath):
-        allscripts += [path.join(root, f) for f in files]
-    setup = 'script_tests'
-    for fn in allscripts:
-        with open(fn) as codefile:
-            code = codefile.read()
-        m = matcher.match(fn)
-        if m:
-            etype = eval(m.group(1))
-            raises.description = '%s.test_scripts:%s' % \
-                (test_scripts.__module__, path.basename(fn))
-            yield raises, etype, run_script_session, setup, code
-        else:
-            run_script_session.description = '%s.test_scripts:%s' % \
-                (test_scripts.__module__, path.basename(fn))
-            yield run_script_session, setup, code
+testscriptspath = path.join(module_root, 'test', 'scripts')
+
+
+@pytest.mark.parametrize('script', [f for f in os.listdir(testscriptspath)
+                                    if f.endswith('.nic')])
+def test_one_script(script):
+    script = path.join(testscriptspath, script)
+    with open(script) as codefile:
+        code = codefile.read()
+    m = re.match(r'.*Raises(.*)\..*', script)
+    if m:
+        expected = eval(m.group(1))
+        assert raises(expected, run_script_session, 'script_tests', code)
+    else:
+        # expected success
+        run_script_session('script_tests', code)

@@ -28,12 +28,13 @@ import json
 
 import mock
 
-from nicos import session
 from nicos.core import UsageError
 from nicos.commands.sample import activation, powderfit
 from nicos.pycompat import StringIO
 
-from test.utils import raises, assertAlmostEqual
+from test.utils import raises, approx
+
+session_setup = 'empty'
 
 
 # pylint: disable=C0301
@@ -47,18 +48,17 @@ def mock_open_H2(url):
     return StringIO(json.dumps(H2_RESPONSE))
 
 
-
 def mock_open_Au(url):
     return StringIO(json.dumps(AU_RESPONSE))
 
 
-def test_activation_wronginput():
+def test_activation_wronginput(log):
     with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_H2):
         assert raises(UsageError, activation)  # session has no formula up to now
         assert raises(UsageError, activation, formula='H2O')
         assert raises(UsageError, activation, formula='H2O', flux=1e7)
-        assert session.testhandler.warns(activation, warns_clear=True,
-                                         formula='H2', instrument='IN', mass=1)
+        assert log.warns(activation, warns_clear=True,
+                         formula='H2', instrument='IN', mass=1)
 
 
 def test_activation_function():
@@ -74,5 +74,5 @@ def test_activation_function():
 
 def test_powderfit():
     res = powderfit('YIG', ki=1.32, peaks=[55.22, 64.91, 91.04, 99.58])
-    assertAlmostEqual(res[0], 0.02, 2)
-    assertAlmostEqual(res[1], -1, 2)
+    assert res[0] == approx(0.02, abs=1e-2)
+    assert res[1] == approx(-1, abs=1e-2)

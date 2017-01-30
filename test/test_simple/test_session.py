@@ -24,26 +24,17 @@
 
 """NICOS axis test suite."""
 
-import os.path
+from os import path
 
-from nicos import session
 from nicos.core import ConfigurationError
-from nicos.core.sessions.utils import MASTER
 from nicos.core.sessions.setups import readSetups
 
-from test.utils import raises, rootdir, ErrorLogged
+from test.utils import module_root, raises, ErrorLogged
+
+session_setup = 'empty'
 
 
-def setup_module():
-    session.loadSetup('empty')
-    session.setMode(MASTER)
-
-
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_raisers():
+def test_raisers(session):
     assert raises(ConfigurationError,
                   getattr, session.experiment, 'envlist')
     assert raises(ConfigurationError,
@@ -56,7 +47,7 @@ def test_raisers():
     assert session._instrument is None
 
 
-def test_sysconfig():
+def test_sysconfig(session):
     session.loadSetup('sysconfig1')
     assert session.current_sysconfig['datasinks'] == set(['sink1', 'sink2'])
     assert session.current_sysconfig['notifiers'] == set([])
@@ -69,6 +60,7 @@ def test_sysconfig():
     assert 'datasinks' not in session.current_sysconfig
 
 
-def test_device_names():
+def test_device_names(session):
     assert raises(ErrorLogged, readSetups,
-                  [os.path.join(rootdir, '..', 'faulty_setups'),], session.log)
+                  [path.join(module_root, 'test', 'faulty_setups')],
+                  session.log)

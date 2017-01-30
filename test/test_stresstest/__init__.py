@@ -21,20 +21,3 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
-from __future__ import print_function
-
-import sys
-from test.utils import TestSession, cleanup
-from nicos import session
-
-
-def setupPackage():
-    sys.stderr.write('\nSetting up stresstest, cleaning old test dir...\n')
-    session.__class__ = TestSession
-    session.__init__('test_stresstest')
-    cleanup()
-
-
-def teardown_package():
-    session.shutdown()

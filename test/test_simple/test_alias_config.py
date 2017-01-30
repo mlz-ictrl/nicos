@@ -24,18 +24,11 @@
 
 """Tests for alias_config and alias preferences."""
 
-from nicos import session
+session_setup = 'alias_config1'
+session_load_kw = {'autocreate_devices': True}
 
 
-def setup_module():
-    session.loadSetup('alias_config1', autocreate_devices=True)
-
-
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_alias_priorities():
+def test_alias_priorities(session):
     # normal session, only one choice
     T = session.getDevice('T')
     assert T.alias == 'T_ccr1'

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -23,47 +22,13 @@
 #
 # *****************************************************************************
 
-from __future__ import print_function
+import pytest
 
-import os
-import sys
-import shutil
-from os import path
+from test.utils import startSubprocess, killSubprocess
 
-def cleanup(rootdir):
-    if path.exists(rootdir):
-        print('Cleaning old test output dir...')
-        print('-' * 70)
-        shutil.rmtree(rootdir)
-    os.mkdir(rootdir)
-    os.mkdir(rootdir + '/cache')
-    os.mkdir(rootdir + '/pid')
 
-try:
-    import nose
-except ImportError:
-    print('The "nose" package is required to run this test suite.')
-    sys.exit(1)
-
-rootdir = path.join(os.path.dirname(__file__), 'root')
-cleanup(rootdir)
-
-#print 'Starting test cache server...'
-#
-## start the cache server
-#os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
-#cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
-#
-#print 'Cache PID = %s' % cache.pid
-#print '-' * 70
-print('Running NICOS test suite...')
-print('-' * 70)
-try:
-    nose.main()
-finally:
-    # kill the cache server
-    print('-' * 70)
-#    print 'Killing cache server...'
-#    os.kill(cache.pid, signal.SIGTERM)
-#    os.waitpid(cache.pid, 0)
-#    print '-' * 70
+@pytest.yield_fixture(scope='module')
+def console(session):
+    console = startSubprocess('aio.py', piped=True)
+    yield console
+    killSubprocess(console)

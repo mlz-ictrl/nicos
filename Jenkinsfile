@@ -93,8 +93,6 @@ withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
 #! /bin/bash
 . /home/jenkins/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
 echo $PATH
-export PYVERSION=`python -c "from distutils.sysconfig import get_python_version; print(get_python_version())"`
-export PYTHONPATH=$PWD:${DSHOME:-/opt/taco/lib}/python${PYVERSION}/site-packages:${DSHOME:-/opt/local/lib}/python${PYVERSION}/site-packages
 set +x
 
 # map instrument libs into nicos tree (pylint does not use the nicos path magic :( )
@@ -145,9 +143,6 @@ variable: 'GERRITHTTP')]) {
         sh '''\
 #! /bin/bash
 . /home/jenkins/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
-export PYVERSION=`python -c "from distutils.sysconfig import get_python_version; print(get_python_version())"`
-export PYTHONPATH=$PWD:${DSHOME:-/opt/taco/lib}/python${PYVERSION}/site-packages:${DSHOME:-/opt/local/lib}/python${PYVERSION}/site-packages
-
 
 tools/check_setups -o setupcheck.log -s custom/*/setups || ((res++)) || /bin/true
 
@@ -177,13 +172,9 @@ catch( all) {
 }
 
 def runTests(venv, pyver) {
-    writeFile file: 'setup.cfg', text: '''[nosetests]
-with-xunit=1
-detailed-errors=1
-xunit-testsuite-name=''' + pyver + '''
-xunit-prefix-with-testsuite-name=1
-'''
-
+    writeFile file: 'setup.cfg', text: '''
+[tool:pytest]
+addopts = --junit-xml=pytest.xml --junit-prefix=''' + pyver
 
     def status="OK"
     verifyresult.put(pyver, 0)
@@ -197,8 +188,6 @@ xunit-prefix-with-testsuite-name=1
 echo $VENV
 set +x
 . /home/jenkins/pythonvenvs/$VENV/bin/activate
-export PYVERSION=`python -c "from distutils.sysconfig import get_python_version; print(get_python_version())"`
-export PYTHONPATH=$PWD:${DSHOME:-/opt/taco/lib}/python${PYVERSION}/site-packages:${DSHOME:-/opt/local/lib}/python${PYVERSION}/site-packages
 set -x
 
 make test-coverage'''
@@ -214,12 +203,12 @@ verifyresult.put(pyver, 1)
     gerritverificationpublisher([
         verifyStatusValue: verifyresult[pyver],
         verifyStatusCategory: 'test ',
-        verifyStatusName: 'nosetests-'+pyver,
+        verifyStatusName: 'pytest-'+pyver,
         verifyStatusReporter: 'jenkins',
         verifyStatusRerun: '!recheck'])
 
     step([$class: 'JUnitResultArchiver', allowEmptyResults: true,
-         keepLongStdio: true, testResults: 'nosetests.xml'])
+         keepLongStdio: true, testResults: 'pytest.xml'])
     if (status == 'FAILURE') {
         throw new Exception('Failure in test with ' + pyver)
     }
@@ -235,8 +224,6 @@ def runDocTest() {
 set +x
 . /home/jenkins/pythonvenvs/nicos-w-sys-site-packs/bin/activate
 echo $PATH
-export PYVERSION=`python -c "from distutils.sysconfig import get_python_version; print(get_python_version())"`
-export PYTHONPATH=$PWD:${DSHOME:-/opt/taco/lib}/python${PYVERSION}/site-packages:${DSHOME:-/opt/local/lib}/python${PYVERSION}/site-packages
 
 export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
 if [[ -n "$doc_changed" ]]; then

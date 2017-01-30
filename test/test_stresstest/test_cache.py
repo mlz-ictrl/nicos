@@ -26,26 +26,22 @@
 
 from __future__ import print_function
 
-from nicos import session
 from time import sleep
 
+import pytest
+
 from nicos.devices.cacheclient import CacheError
-from nicos.core.sessions.utils import MASTER
 
-from test.utils import raises, startCache, killSubprocess
+from test.utils import startCache, killSubprocess, getAltCacheAddr, raises
 
+session_setup = 'cachestress'
 
-def setup_module():
-    session.loadSetup('cachetests')
-    session.setMode(MASTER)
+all_setups = ['cache_db', 'cache_mem', 'cache_mem_hist']
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def basicCacheTest(name, setup):
-    cache = startCache(setup)
+@pytest.mark.parametrize('setup', all_setups)
+def test_basic(session, setup):
+    cache = startCache(getAltCacheAddr(), setup)
     try:
         sleep(1)
         cc = session.cache
@@ -65,8 +61,9 @@ def basicCacheTest(name, setup):
         killSubprocess(cache)
 
 
-def restartServerCacheTest(name, setup):
-    # cache = startCache(setup)
+@pytest.mark.parametrize('setup', all_setups)
+def test_restart(session, setup):
+    # cache = startCache(getCacheNameAndAltPort('localhost'), setup)
     cc = session.cache
     testval = 'test2'
     key = 'value'
@@ -75,7 +72,7 @@ def restartServerCacheTest(name, setup):
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
     sleep(1)
-    cache = startCache(setup)
+    cache = startCache(getAltCacheAddr(), setup)
     try:
         sleep(1)
         cc.flush()
@@ -86,11 +83,3 @@ def restartServerCacheTest(name, setup):
         assert cachedval2[2] == testval
     finally:
         killSubprocess(cache)
-
-
-def test_different_dbs():
-    for setup in ['cache', 'cache_mem', 'cache_mem_hist']:
-        for func in [basicCacheTest, restartServerCacheTest]:
-            func.description = '%s.%s:%s' % \
-                (func.__module__, func.__name__, setup)
-            yield func, func.__name__, setup

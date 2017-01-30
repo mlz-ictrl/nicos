@@ -22,94 +22,19 @@
 #
 # *****************************************************************************
 
-from __future__ import print_function
-
-import time
-
-from functools import partial
-from test.utils import getDaemonPort, raises
-from nose.tools import with_setup
+import pytest
 
 from nicos import nicos_version
-from nicos.clients.base import NicosClient, ConnectionData
-from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
-from nicos.core.sessions.utils import MASTER
+from nicos.core import MASTER
+from nicos.protocols.daemon import STATUS_IDLE
+
+from test.utils import raises
 
 
-class TestClient(NicosClient):
-    def __init__(self):
-        self._signals = []
-        self._estatus = STATUS_IDLE
-        self._disconnecting = False
-        NicosClient.__init__(self, print)
-
-    def signal(self, name, data=None, exc=None):  # pylint: disable=W0221
-        if name == 'error':
-            raise AssertionError('client error: %s (%s)' % (data, exc))
-        if name == 'disconnected' and not self._disconnecting:
-            raise AssertionError('client disconnected')
-        if name == 'status':
-            self._estatus = data[0]
-        self._signals.append((name, data, exc))
-
-    def iter_signals(self, startindex, timeout):
-        starttime = time.time()
-        while True:
-            endindex = len(self._signals)
-            for sig in self._signals[startindex:endindex]:
-                yield sig
-            startindex = endindex
-            time.sleep(0.05)
-            if time.time() > starttime + timeout:
-                raise AssertionError('timeout in iter_signals')
-
-    def wait_idle(self):
-        while True:
-            time.sleep(0.05)
-            st = client.ask('getstatus')
-            if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
-                break
-
-    def run_and_wait(self, command, name=None, allow_exc=False):
-        idx = len(self._signals)
-        reqno = self.run(command, name)
-        # wait for idle status
-        processing = False
-        for sig in self.iter_signals(idx, 5.0):
-            if sig[0] == 'processing' and sig[1]['reqno'] == reqno:
-                processing = True
-            if processing and sig[0] == 'status' and \
-               sig[1][0] in (STATUS_IDLE, STATUS_IDLEEXC):
-                if sig[1][0] == STATUS_IDLEEXC and not allow_exc:
-                    raise AssertionError('script failed with exception')
-                break
-
-
-client = None
-
-
-def setup_module():
-    # pylint: disable=global-statement
-    global client
-    client = TestClient()
-    client.connect(ConnectionData('localhost', getDaemonPort(), 'user', 'user'))
-    assert ('connected', None, None) in client._signals
-
-    # wait until initial setup is done
-    client.wait_idle()
-
-
-def teardown_module():
-    if client.connected:
-        client._disconnecting = True
-        client.disconnect()
-
-
-def start_simple_mode():
+@pytest.yield_fixture
+def simple_mode(client):
     client.run_and_wait('SetSimpleMode(True)')
-
-
-def finish_simple_mode():
+    yield
     if client.connected:
         try:
             client.run_and_wait('SetSimpleMode False')
@@ -117,23 +42,22 @@ def finish_simple_mode():
             pass
 
 
-def loading_setup(setup):
+def load_setup(client, setup):
     client.run_and_wait("NewSetup('%s')" % setup)
 
 
-def test_version():
+def test_version(client):
     # getversion
     assert client.ask('getversion') == nicos_version
 
 
-def test_startup_setup():
+def test_startup_setup(client):
     # eval
     setups = client.eval('session.explicit_setups')
     assert setups == ['startup']
 
 
-@with_setup(start_simple_mode, finish_simple_mode)
-def test_simple():
+def test_simple(client, simple_mode):
     client.run_and_wait('NewSetup daemonmain')
 
     # getstatus
@@ -164,8 +88,8 @@ def test_simple():
     client.wait_idle()
 
 
-@with_setup(partial(loading_setup, 'daemonmain'))
-def test_encoding():
+def test_encoding(client):
+    load_setup(client, 'daemonmain')
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
@@ -173,8 +97,8 @@ scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
 ''', 'Meßzeit.py')
 
 
-@with_setup(partial(loading_setup, 'daemonmain'))
-def test_htmlhelp():
+def test_htmlhelp(client):
+    load_setup(client, 'daemonmain')
     # NOTE: everything run with 'queue' will not show up in the coverage
     # report, since the _pyctl trace function replaces the trace function from
     # coverage, so if we want HTML help generation to get into the report we
@@ -196,8 +120,8 @@ def test_htmlhelp():
             break
 
 
-@with_setup(partial(loading_setup, 'daemonmain'))
-def test_simulation():
+def test_simulation(client):
+    load_setup(client, 'daemonmain')
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
     for name, _data, _exc in client.iter_signals(idx, timeout=5.0):

@@ -27,29 +27,20 @@
 import os
 import time
 
-from nicos import session
 from nicos.core import LimitError
 from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqMethod, \
     SeqCall, SeqSleep, SeqNOP
 
 from test.utils import raises
 
+session_setup = 'sequencer'
 methods_called = set()
 
 # due to time.time() and time.sleep() resolution on windows
 DELTA = 0.05 if os.name == 'nt' else 0
 
 
-def setup_module():
-    session.loadSetup('sequencer')
-    methods_called.clear()
-
-
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_lockeddevice():
+def test_lockeddevice(session):
     ld = session.getDevice('ld')
     sm1 = session.getDevice('sm1')
     ld.move(3)
@@ -67,7 +58,7 @@ def test_sequence_items():
     SeqNOP()
 
 
-def test_seqdev():
+def test_seqdev(session):
     # Device move
     sm1 = session.getDevice('sm1')
     sd = SeqDev(sm1, 3)
@@ -83,7 +74,7 @@ def test_seqdev():
     assert sm1.read(0) == 3
 
 
-def test_seqparam():
+def test_seqparam(session):
     # Param setting
     sm2 = session.getDevice('sm2')
     sp = SeqParam(sm2, 'speed', 1)
@@ -99,7 +90,7 @@ def test_seqparam():
     assert sm2.speed == 1
 
 
-def test_seqmethod():
+def test_seqmethod(session):
     # method calling, use fix/relase here
     sm1 = session.getDevice('sm1')
     sm = SeqMethod(sm1, 'fix', 'blubb')
@@ -152,7 +143,7 @@ def test_seqnop():
     sn.retry(5)
 
 
-def test_locked_multiswitcher():
+def test_locked_multiswitcher(session):
     # Guard against regression of #1315
     lms = session.getDevice('ld2')
     assert raises(LimitError, lms.move, 0)

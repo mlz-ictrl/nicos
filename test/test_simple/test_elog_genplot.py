@@ -26,26 +26,19 @@
 
 from os import path
 
-from nicos import session
+import pytest
+
 from nicos.core.data import ScanData
 from nicos.commands.scan import scan
 from nicos.services.elog import genplot
-from nicos.core.sessions.utils import MASTER
 
-from test.utils import rootdir, requires, hasGnuplot
+from test.utils import runtime_root, hasGnuplot
 
-
-def setup_module():
-    session.loadSetup('scanning')
-    session.setMode(MASTER)
+session_setup = 'scanning'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-@requires(hasGnuplot(), 'Skipped due to missing gnuplot')
-def test_scan_gen_elog():
+@pytest.mark.skipif(not hasGnuplot(), reason='Skipped due to missing gnuplot')
+def test_scan_gen_elog(session):
     m = session.getDevice('motor')
     mm = session.getDevice('manual')
     mm.move(0)
@@ -56,6 +49,6 @@ def test_scan_gen_elog():
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = ScanData(session.data._last_scans[-1])
-        genplot.plotDataset(dataset, path.join(rootdir, 'testplt'), 'svg')
+        genplot.plotDataset(dataset, path.join(runtime_root, 'testplt'), 'svg')
     finally:
         session.experiment.detlist = []

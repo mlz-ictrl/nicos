@@ -24,30 +24,8 @@
 
 """NICOS test suite."""
 
-from __future__ import print_function
-
-import os
-import sys
-
-
 from nicos.core.device import Device
-
-from test.utils import cleanup
 
 # make some functional tests using wait loops faster by reducing loop delays
 Device._base_loop_delay = 0.002
 Device._long_loop_delay = 0.02
-
-
-def setup_package():
-    # make the test suite run the same independent of the hostname
-    os.environ['INSTRUMENT'] = 'test'
-    sys.stderr.write('\nSetting up main test package, '
-                     'cleaning old test dir...\n')
-    try:
-        cleanup()
-    except OSError:
-        sys.stderr.write('Failed to clean up old test dir. Check if NICOS '
-                         'processes are still running.')
-        sys.stderr.write('=' * 80)
-        raise

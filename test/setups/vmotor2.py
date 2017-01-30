@@ -24,7 +24,7 @@
 
 name = 'virtual motor setup 2'
 
-includes = []
+includes = ['stdsystem']
 
 devices = dict(
     vmotor = device('nicos.devices.generic.VirtualMotor',

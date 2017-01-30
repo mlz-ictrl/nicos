@@ -24,34 +24,27 @@
 
 """Test the HTML monitor device."""
 
-from nicos import session
 from nicos.services.monitor.html import Monitor
 
-
-def setup_module():
-    session.loadSetup('monitor-html')
+session_setup = 'monitor-html'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-class TestMonitor(Monitor):
+class HtmlTestMonitor(Monitor):
 
     def mainLoop(self):
         self._rendered_content = ''.join(map(str, self._content))
 
 
-class TestOptions(object):
+class MockOptions(object):
     fontsize = 12
     padding = 0
     geometry = 'fullscreen'
     timefontsize = None
 
 
-def test_monitor():
+def test_monitor(session):
     mon = session.getDevice('Monitor')
-    mon.start(TestOptions)
+    mon.start(MockOptions)
 
     assert 'Current status' in mon._rendered_content
     assert '<img src="/some/pic.png"' in mon._rendered_content

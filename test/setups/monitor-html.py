@@ -37,14 +37,14 @@ _column2 = Column(
 )
 
 
-from test.utils import getCacheNameAndPort
+from test.utils import getCacheAddr
 
 devices = dict(
-    Monitor = device('test.test_simple.test_monitor_html.TestMonitor',
+    Monitor = device('test.test_simple.test_monitor_html.HtmlTestMonitor',
                      title = 'Status monitor',
                      filename = 'unused',
                      interval = 10,
-                     cache = getCacheNameAndPort('localhost'),
+                     cache = getCacheAddr(),
                      prefix = 'nicos/',
                      layout = [[_column1, _column2]]),
 )

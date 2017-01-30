@@ -28,21 +28,14 @@ from __future__ import print_function
 
 import mock
 
-from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
     ConfigurationError, InvalidValueError, status
 from test.utils import raises
 
-
-def setup_module():
-    session.loadSetup('generic')
+session_setup = 'generic'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_virtual_motor():
+def test_virtual_motor(session):
     v = session.getDevice('v1')
     v.maw(1)
     assert v.read() == 1
@@ -51,7 +44,7 @@ def test_virtual_motor():
     assert 0 <= v.read() <= 1
 
 
-def test_virtual_switch():
+def test_virtual_switch(session):
     v = session.getDevice('v2')
     v.maw('up')
     assert v.read() == 'up'
@@ -59,7 +52,7 @@ def test_virtual_switch():
     assert v.read() == 'up'
 
 
-def test_manual_switch():
+def test_manual_switch(session):
     m = session.getDevice('m1')
     assert m.read() == 'up'
     m.maw('down')
@@ -69,11 +62,11 @@ def test_manual_switch():
     assert m.status()[0] == status.OK
 
 
-def test_manual_switch_2():
+def test_manual_switch_2(session):
     assert raises(ConfigurationError, session.getDevice, 'm2')
 
 
-def test_manual_switch_illegal_position():
+def test_manual_switch_illegal_position(session):
     m3 = session.getDevice('m3')
     assert raises(InvalidValueError, m3.maw, 'inbetween')
     # Enforce an illegal Position
@@ -81,7 +74,7 @@ def test_manual_switch_illegal_position():
     assert raises(PositionError, m3.read, 0)
 
 
-def test_switcher():
+def test_switcher(session):
     sw = session.getDevice('sw')
     v3 = session.getDevice('v3')
     v3.maw(1)
@@ -125,7 +118,7 @@ def test_switcher():
         assert m.called
 
 
-def test_switcher_fallback():
+def test_switcher_fallback(session):
     swfb = session.getDevice('swfb')
     rswfb = session.getDevice('rswfb')
     v3 = session.getDevice('v3')
@@ -136,7 +129,7 @@ def test_switcher_fallback():
     assert rswfb.status()[0] == status.NOTREACHED
 
 
-def test_switcher_noblockingmove():
+def test_switcher_noblockingmove(session):
     sw2 = session.getDevice('sw2')
     v3 = session.getDevice('v3')
     sw2.maw('left')
@@ -159,7 +152,7 @@ def test_switcher_noblockingmove():
     assert sw2.read(0) == 'right'
 
 
-def test_paramdev():
+def test_paramdev(session):
     v1 = session.getDevice('v1')
     pd = session.getDevice('paramdev')
 
@@ -173,7 +166,7 @@ def test_paramdev():
     assert pd.status()[0] == status.OK
 
 
-def test_freespace():
+def test_freespace(session):
     freespace = session.getDevice('freespace')
     assert freespace._factor == 1024. ** 3
     fs = freespace.read(0)

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-""" Module to test custom specific modules."""
+"""Module to test custom specific modules."""
 
 from nicos.refsans.params import motoraddress
 

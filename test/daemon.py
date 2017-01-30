@@ -41,14 +41,14 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.services.daemon.session import DaemonSession
 
-from test.utils import rootdir, selfDestructAfter
+from test.utils import runtime_root, module_root, selfDestructAfter
 
 
 class TestDaemonSession(DaemonSession):
 
     def __init__(self, appname, daemonized=False):
         DaemonSession.__init__(self, appname, daemonized)
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+        self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
@@ -59,7 +59,7 @@ class TestDaemonSession(DaemonSession):
         handler.setFormatter(
             logging.Formatter('[DAEMON] %(name)s: %(message)s'))
         self.log.addHandler(handler)
-        log_path = path.join(path.dirname(__file__), 'root', 'log')
+        log_path = path.join(runtime_root, 'log')
         try:
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(
@@ -77,7 +77,7 @@ class TestDaemonSession(DaemonSession):
 
 config.user = None
 config.group = None
-config.nicos_root = rootdir
+config.nicos_root = runtime_root
 
 selfDestructAfter(120)
 TestDaemonSession.run('daemon', 'Daemon')

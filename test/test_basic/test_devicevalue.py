@@ -46,6 +46,7 @@ def test_deviceinfo():
     c = DeviceValue(0, str(0), '', 'meta')
     assert int(c) == 0
 
+
 def test_devicevaluedict():
     dvd = DeviceValueDict()
 
@@ -55,7 +56,7 @@ def test_devicevaluedict():
     assert dvd['a.b.c'].raw == val
     assert dvd['a.b.c'].formatted == val
 
-    val2 = DeviceValue(12,'12 cm', 'cm', 'meta')
+    val2 = DeviceValue(12, '12 cm', 'cm', 'meta')
     dvd['x.y'] = val2
 
     assert dvd['x.y'].raw == 12

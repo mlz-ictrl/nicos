@@ -26,14 +26,10 @@
 
 from contextlib import contextmanager
 
-from nicos import session
+session_setup = 'data'
 
 
-def teardown_module():
-    session.data.reset()
-
-
-def test_empty_manager():
+def test_empty_manager(session):
     # check for empty data stack
     assert session.data._stack == []
     assert session.data._current is None
@@ -42,7 +38,7 @@ def test_empty_manager():
     assert session.data._last_scans == []
 
 
-def test_cleanup():
+def test_cleanup(session):
     # check that data manager cleans up unsuitable datasets still open
     session.data.beginPoint()
     session.data.beginPoint()
@@ -51,44 +47,44 @@ def test_cleanup():
 
 
 @contextmanager
-def dataset_scope(settype, **kwds):
+def dataset_scope(session, settype, **kwds):
     getattr(session.data, 'begin' + settype.capitalize())(**kwds)
     yield
     getattr(session.data, 'finish' + settype.capitalize())()
 
 
-def test_dataset_stack():
+def test_dataset_stack(session):
     # create some datasets on the stack, check nesting
-    with dataset_scope('block'):
+    with dataset_scope(session, 'block'):
         assert session.testhandler.warns(session.data.finishScan)
         assert session.testhandler.warns(session.data.finishPoint)
 
-        with dataset_scope('scan'):
+        with dataset_scope(session, 'scan'):
             assert session.testhandler.warns(session.data.finishBlock)
             assert session.data._current.number == 1
 
-            with dataset_scope('point'):
-                with dataset_scope('scan', subscan=True):
-                    with dataset_scope('point'):
+            with dataset_scope(session, 'point'):
+                with dataset_scope(session, 'scan', subscan=True):
+                    with dataset_scope(session, 'point'):
                         assert len(session.data._stack) == 5
                         assert [s.settype for s in session.data._stack] == \
                             ['block', 'scan', 'point', 'subscan', 'point']
 
                         assert session.data._current.number == 1
 
-                    with dataset_scope('point'):
+                    with dataset_scope(session, 'point'):
                         assert session.data._current.number == 2
 
 
-def test_temp_point():
+def test_temp_point(session):
     session.data.beginTemporaryPoint()
     assert session.data._current.handlers == []
     session.data.finishPoint()
 
 
-def test_point_dataset():
+def test_point_dataset(session):
     assert len(session.data._stack) == 0
-    with dataset_scope('point'):
+    with dataset_scope(session, 'point'):
         ds = session.data._current
 
         # only assigned if a parent dataset is open

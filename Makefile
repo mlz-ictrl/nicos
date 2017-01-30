@@ -59,18 +59,17 @@ setupcheck:
 T = test
 
 test:
-	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@NOSE_REDNOSE=1 $(PYTHON) `which nosetests` $(T) -v --with-id -e test_stresstest -d --traverse-namespace $(O)
+	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
+	@$(PYTHON) `which py.test` $(T) --ignore test/test_stresstest $(O)
 
 testall:
-	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@NOSE_REDNOSE=1 $(PYTHON) `which nosetests` $(T) -v --with-id -d --traverse-namespace $(O)
+	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
+	@$(PYTHON) `which py.test` $(T) $(O)
 
 test-coverage:
-	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
-	@COVERAGE_PROCESS_START=.coveragerc NOSE_REDNOSE=1 \
-		$(PYTHON) `which nosetests` $(T) -v --with-id -d --traverse-namespace \
-		--with-coverage --cover-package=nicos --cover-package=custom --cover-html $(O)
+	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
+	@COVERAGE_PROCESS_START=.coveragerc \
+		$(PYTHON) `which py.test` $(T) --cov --cov-report=html --cov-report=term $(O)
 
 lint:
 	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)

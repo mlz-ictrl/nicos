@@ -41,14 +41,14 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.core.sessions.simple import NoninteractiveSession
 
-from test.utils import rootdir, selfDestructAfter
+from test.utils import runtime_root, module_root, selfDestructAfter
 
 
 class TestCacheSession(NoninteractiveSession):
 
     def __init__(self, appname, daemonized=False):
         NoninteractiveSession.__init__(self, appname, daemonized)
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+        self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
@@ -60,8 +60,8 @@ class TestCacheSession(NoninteractiveSession):
             logging.Formatter('[CACHE] %(name)s: %(message)s'))
         self.log.addHandler(handler)
 
-        handler2 = logging.FileHandler(path.join(path.dirname(__file__),
-                                                 'root', 'cacheserver.log'))
+        handler2 = logging.FileHandler(path.join(runtime_root,
+                                                 'cacheserver.log'))
         handler2.setLevel(logging.DEBUG)
         handler2.setFormatter(
             logging.Formatter('[CACHE] %(asctime)s %(name)s: %(message)s'))
@@ -69,7 +69,7 @@ class TestCacheSession(NoninteractiveSession):
 
 config.user = None
 config.group = None
-config.nicos_root = rootdir
+config.nicos_root = runtime_root
 
 try:
     setup = sys.argv[1]

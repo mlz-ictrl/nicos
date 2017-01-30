@@ -22,21 +22,22 @@
 #
 # *****************************************************************************
 
-from nicos import session
+import pytest
+
 from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
     InvalidValueError, ComputationError, NicosError, PositionError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
 from nicos.commands.measure import count
 from nicos.devices.tas import spacegroups
-from nicos.core.sessions.utils import MASTER
 
-from test.utils import raises, assertAlmostEqual, ErrorLogged
+from test.utils import raises, approx, ErrorLogged
+
+session_setup = 'scanning'
 
 
-def setup_module():
-    session.loadSetup('scanning')
-    session.setMode(MASTER)
+@pytest.fixture(scope='module', autouse=True)
+def setup_sample(session):
     sample = session.getDevice('Sample')
     sample.lattice = [2.77, 2.77, 2.77]
     sample.angles = [90, 90, 90]
@@ -44,26 +45,22 @@ def setup_module():
     sample.orient2 = [0, 1, 1]
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
 def assertPos(pos1, pos2):
     for v1, v2 in zip(pos1, pos2):
-        assertAlmostEqual(v1, v2, 3)
+        assert v1 == approx(v2, abs=1e-3)
 
 
-def test_mono_device():
+def test_mono_device(session):
     mono = session.getDevice('t_mono')
     mth = session.getDevice('t_mth')
     # unit switching
     mono.unit = 'A-1'
     mono.maw(1.4)
-    assertAlmostEqual(mono.read(0), 1.4, 3)
-    assertAlmostEqual(mono.target, 1.4, 3)
+    assert mono.read(0) == approx(1.4, abs=1e-3)
+    assert mono.target == 1.4
     mono.unit = 'meV'
-    assertAlmostEqual(mono.read(0), 4.061, 3)
-    assertAlmostEqual(mono.target, 4.061, 3)
+    assert mono.read(0) == approx(4.061, abs=1e-3)
+    assert mono.target == approx(4.061, abs=1e-3)
     assert mono.status()[0] == status.OK
 
     for unit in ['THz', 'A', 'A-1']:
@@ -95,10 +92,10 @@ def test_mono_device():
     mtt.move(mtt.read(0) + 2)
     mono.finish()
 
-    assertAlmostEqual(mono._calcurvature(1., 1., 1), 1.058, 3)
+    assert mono._calcurvature(1., 1., 1) == approx(1.058, abs=1e-3)
 
 
-def test_tas_device():
+def test_tas_device(session):
     tas = session.getDevice('Tas')
     mono = session.getDevice('t_mono')
     ana = session.getDevice('t_ana')
@@ -115,10 +112,10 @@ def test_tas_device():
 
     # test the correct driving of motors
     tas([1, 0, 0, 1])
-    assertAlmostEqual(ana(), 2.662, 3)
-    assertAlmostEqual(mono(), 3.014, 3)
-    assertAlmostEqual(phi(), -46.6, 1)
-    assertAlmostEqual(psi(), 105.1, 1)
+    assert ana() == approx(2.662, abs=1e-3)
+    assert mono() == approx(3.014, abs=1e-3)
+    assert phi() == approx(-46.6, abs=0.1)
+    assert psi() == approx(105.1, abs=0.1)
     assertPos(tas(), [1, 0, 0, 1])
 
     # cannot go to position out of scattering triangle
@@ -134,7 +131,7 @@ def test_tas_device():
     # test scattering sense
     tas.scatteringsense = [-1, 1, -1]
     tas([1, 0, 0, 1])
-    assertAlmostEqual(phi(), 46.6, 1)  # now with "+" sign
+    assert phi() == approx(46.6, abs=0.1)  # now with "+" sign
     assert raises(ConfigurationError, setattr, tas, 'scatteringsense',
                   [2, 0, 2])
 
@@ -142,25 +139,25 @@ def test_tas_device():
     mono(1)
     ana(2)
     tas.energytransferunit = 'meV'
-    assertAlmostEqual(tas()[3], -6.216, 3)
+    assert tas()[3] == approx(-6.216, abs=1e-3)
     tas.energytransferunit = 'THz'
-    assertAlmostEqual(tas()[3], -1.503, 3)
+    assert tas()[3] == approx(-1.503, abs=1e-3)
     assert raises(InvalidValueError, setattr, tas, 'energytransferunit', 'A-1')
 
     # test scanmode
     tas.scanmode = 'CKI'
     tas.scanconstant = 2.662
     tas([1, 0, 0, 1])
-    assertAlmostEqual(mono(), 2.662, 3)
+    assert mono() == approx(2.662, abs=1e-3)
     tas.scanmode = 'CKF'
     tas([1, 0, 0, 1])
-    assertAlmostEqual(ana(), 2.662, 3)
+    assert ana() == approx(2.662, abs=1e-3)
     tas.scanmode = 'DIFF'
     tas.scanconstant = 2.5
     ana(2.5)
     tas([1, 0, 0, 0])
-    assertAlmostEqual(ana(), 2.5, 3)
-    assertAlmostEqual(mono(), 2.5, 3)
+    assert ana() == approx(2.5, abs=1e-3)
+    assert mono() == approx(2.5, abs=1e-3)
     assertPos(tas(), [1, 0, 0, 0])
     # XXX shouldn't this result in an error?
     # assert raises(tas, [1, 0, 0, 1])
@@ -169,17 +166,17 @@ def test_tas_device():
     # test sub-devices and wavevector devices
     kf(2.662)
     tas.maw([1, 0, 0, 1])
-    assertAlmostEqual(ki.read(0), 3.014, 3)
-    assertAlmostEqual(kf.read(0), 2.662, 3)
-    assertAlmostEqual(tas.h(), 1, 3)
-    assertAlmostEqual(tas.k(), 0, 3)
-    assertAlmostEqual(tas.l(), 0, 3)
-    assertAlmostEqual(tas.E(), 1, 3)
+    assert ki.read(0) == approx(3.014, abs=1e-3)
+    assert kf.read(0) == approx(2.662, abs=1e-3)
+    assert tas.h() == approx(1, abs=1e-3)
+    assert tas.k() == approx(0, abs=1e-3)
+    assert tas.l() == approx(0, abs=1e-3)
+    assert tas.E() == approx(1, abs=1e-3)
     tas.h.maw(1.5)
-    assertAlmostEqual(tas.h(), 1.5, 3)
+    assert tas.h() == approx(1.5, abs=1e-3)
 
 
-def test_error_handling():
+def test_error_handling(session):
     # check that if one subdev errors out, we wait for the other subdevs
     tas = session.getDevice('Tas')
     mono = session.getDevice('t_mono')
@@ -203,7 +200,7 @@ def test_error_handling():
         else:
             assert False, 'PositionError not raised'
         # but we still arrived with phi
-        assertAlmostEqual(phi(), 46.6, 1)
+        assert phi() == approx(46.6, abs=0.1)
     finally:
         phi.speed = 0
         mfh._status_exception = None
@@ -227,7 +224,7 @@ def test_Q_object():
     assert repr(Q()) == '[ 0.  0.  0.  0.]'
 
 
-def test_qscan():
+def test_qscan(session):
     mot = session.getDevice('motor2')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, mot, 'scaninfo', t=1)
     qscan((0, 0, 0), (0, 0, 0), 5, 2.5, t_kf=2.662, manual=1,
@@ -241,7 +238,7 @@ def test_qscan():
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
 
 
-def test_tas_commands():
+def test_tas_commands(session):
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57
@@ -281,7 +278,7 @@ def test_tas_commands():
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
 
-def test_setalign():
+def test_setalign(session):
     tas = session.getDevice('Tas')
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))
@@ -296,7 +293,7 @@ def test_helper_commands():
     copper(phi=50)
 
 
-def test_resolution():
+def test_resolution(session):
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 2.662
@@ -338,7 +335,7 @@ def test_canreflect():
     assert spacegroups.can_reflect(sg, 1, 1, 1)
 
 
-def test_virtualdet():
+def test_virtualdet(session):
     tas = session.getDevice('Tas')
     tdet = session.getDevice('vtasdet')
     tas.scanmode = 'CKI'

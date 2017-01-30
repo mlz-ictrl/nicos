@@ -292,10 +292,13 @@ def makeSessionId():
 
 def sessionInfo(sid):
     """Return a string with information gathered from the session id."""
-    pid, rest = sid.split('@')
-    host, timestamp = rest.rsplit('-', 1)
-    return 'PID %s on host %s, started on %s' % (
-        pid, host, time.asctime(time.localtime(int(timestamp))))
+    try:
+        pid, rest = sid.split('@')
+        host, timestamp = rest.rsplit('-', 1)
+        return 'PID %s on host %s, started on %s' % (
+            pid, host, time.asctime(time.localtime(int(timestamp))))
+    except ValueError:  # e.g. during testing
+        return 'session %s' % sid
 
 
 # command guessing

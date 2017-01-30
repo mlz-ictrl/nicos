@@ -28,6 +28,8 @@ import os
 import time
 from os import path
 
+import pytest
+
 try:
     import pyfits
 except ImportError:
@@ -48,23 +50,20 @@ try:
 except ImportError:
     yaml = None
 
-from nicos import session, config
+from nicos import config
 from nicos.pycompat import cPickle as pickle
 from nicos.utils import readFile, updateFileCounter
 from nicos.commands.scan import scan
-from nicos.core.sessions.utils import MASTER
 
-from nose.tools import assert_raises
-
-from test.utils import requires, checkResponse, cleanLog
+from test.utils import raises
 
 year = time.strftime('%Y')
 
+session_setup = 'data'
 
-def setup_module():
-    session.loadSetup('data')
-    session.setMode(MASTER)
 
+@pytest.yield_fixture(scope='module', autouse=True)
+def setup_module(session):
     exp = session.experiment
     exp.finish()
     dataroot = path.join(config.nicos_root, 'testdata')
@@ -85,18 +84,16 @@ def setup_module():
     det = session.getDevice('det')
     tdev = session.getDevice('tdev')
     session.experiment.setEnvironment([])
-    cleanLog()
+    session.testhandler.clearcapturedmessages()
 
     scan(m, 0, 1, 5, det, tdev, t=0.005)
 
+    yield
 
-def teardown_module():
     session.cache.clear(session.experiment)
-    session.unloadSetup()
-    cleanLog()
 
 
-def test_sink_class():
+def test_sink_class(session):
     scansink = session.getDevice('testsink1')
     # this saves the handlers created for the last dataset
     handlers = scansink._handlers
@@ -117,14 +114,15 @@ def test_sink_class():
     assert calls.count('putResults') == 1
 
 
-def test_console_sink():
-    checkResponse(matches='=' * 100)
-    checkResponse(matches=
-                  r'Starting scan:      scan\(motor2'
-                  r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
+def test_console_sink(session):
+    log = session.testhandler
+    log.check_response(matches='=' * 100)
+    log.check_response(matches=
+                       r'Starting scan:      scan\(motor2'
+                       r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
 
 
-def test_filecounters():
+def test_filecounters(session):
     # check contents of counter files
     exp = session.experiment
     for directory, ctrs in zip(
@@ -137,7 +135,7 @@ def test_filecounters():
         assert set(contents) == set(ctrs)
 
 
-def test_scan_sink():
+def test_scan_sink(session):
     # check contents of ASCII scan data file
     scanfile = path.join(session.experiment.datapath, 'p1234_00000043.dat')
     assert path.isfile(scanfile)
@@ -155,7 +153,7 @@ def test_scan_sink():
     assert session.experiment.lastpoint == 172
 
 
-def test_raw_sinks():
+def test_raw_sinks(session):
     # check contents of files written by the raw sink
     rawfile = path.join(session.experiment.datapath, 'p1234_1.raw')
     assert path.isfile(rawfile)
@@ -197,7 +195,7 @@ def test_raw_sinks():
         assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
 
-def test_bersans_sink():
+def test_bersans_sink(session):
     bersansfile = path.join(session.experiment.datapath, 'D0000168.001')
     assert path.isfile(bersansfile)
     contents = readFile(bersansfile)
@@ -207,7 +205,7 @@ def test_bersans_sink():
     assert ('0,' * 127 + '0') in contents  # data
 
 
-def test_serialized_sink():
+def test_serialized_sink(session):
     serial_file = path.join(session.experiment.datapath, '.all_datasets')
     assert path.isfile(serial_file)
     try:
@@ -217,7 +215,7 @@ def test_serialized_sink():
         assert False, 'could not read serialized sink'
     assert len(datasets) == 1
     assert datasets[43]
-    assert_raises(KeyError, lambda: datasets[41])
+    assert raises(KeyError, lambda: datasets[41])
     data = datasets[43]
     assert data.samplecounter == 1
     assert data.counter == 43
@@ -233,14 +231,14 @@ def test_serialized_sink():
     assert len(data.detvaluelists)
 
 
-@requires(PIL, 'PIL library missing')
-def test_tiff_sink():
+@pytest.mark.skipif(not PIL, reason='PIL library missing')
+def test_tiff_sink(session):
     tifffile = path.join(session.experiment.datapath, '00000168.tiff')
     assert path.isfile(tifffile)
 
 
-@requires(pyfits, 'pyfits library missing')
-def test_fits_sink():
+@pytest.mark.skipif(not pyfits, reason='pyfits library missing')
+def test_fits_sink(session):
     fitsfile = path.join(session.experiment.datapath, '00000168.fits')
     assert path.isfile(fitsfile)
     ffile = pyfits.open(fitsfile)
@@ -249,8 +247,8 @@ def test_fits_sink():
     assert hdu.header['Exp/proposal'] == 'p1234'
 
 
-@requires(quickyaml, 'QuickYAML library missing')
-def test_yaml_sink_1():
+@pytest.mark.skipif(not quickyaml, reason='QuickYAML library missing')
+def test_yaml_sink_1(session):
     yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
     assert path.isfile(yamlfile)
     if not yaml:  # only do string level check if the yaml loader is not available
@@ -267,8 +265,9 @@ def test_yaml_sink_1():
             name: mysample''' in data
 
 
-@requires(quickyaml and yaml, 'QuickYAML/PyYAML libraries missing')
-def test_yaml_sink_2():
+@pytest.mark.skipif(not (quickyaml and yaml),
+                    reason='QuickYAML/PyYAML libraries missing')
+def test_yaml_sink_2(session):
     yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
     assert path.isfile(yamlfile)
     contents = yaml.load(open(yamlfile))

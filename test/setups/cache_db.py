@@ -18,28 +18,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-from __future__ import print_function
+name = 'cache setup'
 
-import pytest
+from test.utils import getAltCacheAddr
 
-from nicos.pycompat import cPickle as pickle
-from nicos.resi import residevice
+devices = dict(
+    Server = device('services.cache.server.CacheServer',
+                    server = getAltCacheAddr(),
+                    db = 'DB',
+                    loglevel = 'debug',
+                   ),
 
-
-@pytest.mark.skipif(residevice.position is None,
-                    reason='RESI specific Nonius libs not present')
-def test_pickable():
-    store = {'phi': 3.1415926535897931, 'type': 'e', 'dx': 400, 'chi': 0.0,
-             'theta': -0.17453292519943295, 'omega': 0.0}
-    hw = None
-    pos = residevice.position.PositionFromStorage(hw, store)
-    proxied = residevice.ResiPositionProxy(pos)
-    res = pickle.dumps(proxied, protocol=0)
-    restored = pickle.loads(res)
-    print(store)
-    print(restored.storable())
-    assert restored.storable() == store
+    DB = device('services.cache.server.FlatfileCacheDatabase',
+                storepath = 'altcache',
+                loglevel = 'debug',
+               ),
+)

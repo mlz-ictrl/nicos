@@ -26,22 +26,14 @@
 
 from time import sleep
 
-from nicos import session
 from nicos.core import status, LimitError
-from test.utils import raises, assertAlmostEqual
-from nicos.core.sessions.utils import MASTER
+from test.utils import raises, approx
 
 
-def setup_module():
-    session.loadSetup('axis')
-    session.setMode(MASTER)
+session_setup = 'axis'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_params():
+def test_params(session):
     axis = session.getDevice('axis')
     # min/max parameters got from motor device
     assert axis.abslimits == (-100, +100)
@@ -54,21 +46,21 @@ def test_params():
     assert axis2.abslimits == (-1, +1)
     # offset
     axis.maw(1)
-    assertAlmostEqual(axis.read(), 1)
+    assert axis.read() == approx(1)
     axis.offset = 1
-    assertAlmostEqual(axis.read(), 0)
+    assert axis.read() == approx(0)
     axis.offset = 0
 
 
-def test_movement():
+def test_movement(session):
     axis = session.getDevice('axis')
     # moving once
     axis.maw(1)
-    assertAlmostEqual(axis.read(), 1)
+    assert axis.read() == approx(1)
     assert axis.status()[0] == status.OK
     # moving again
     axis.maw(2)
-    assertAlmostEqual(axis.read(), 2)
+    assert axis.read() == approx(2)
     assert axis.status()[0] == status.OK
     # moving out of limits?
     assert raises(LimitError, axis.move, 150)
@@ -87,7 +79,7 @@ def test_movement():
     try:
         axis.move(0.5)
         axis.wait()
-        assertAlmostEqual(axis.read(), 0.5)
+        assert axis.read() == approx(0.5)
 
         axis.move(0)
         sleep(0.1)
@@ -99,12 +91,12 @@ def test_movement():
         motor.stop()
 
 
-def test_reset():
+def test_reset(session):
     axis = session.getDevice('axis')
     axis.reset()
 
 
-def test_backlash():
+def test_backlash(session):
     axis = session.getDevice('backlash_axis')
     motor = session.getDevice('motor')
     motor.stop()  # if it's still moving from previous test
@@ -119,7 +111,7 @@ def test_backlash():
         motor.speed = 0
 
 
-def test_obs():
+def test_obs(session):
     axis = session.getDevice('obs_axis')
     motor = session.getDevice('motor')
     motor.stop()  # if it's still moving from previous test

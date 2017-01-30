@@ -11,7 +11,7 @@ from os import path
 # allow importing the "test" package; lib/ is already in PYTHONPATH
 sys.path.insert(0, path.join(path.dirname(__file__), '..', '..', '..'))
 
-from test.utils import rootdir, selfDestructAfter
+from test.utils import runtime_root, selfDestructAfter
 
 args = sys.argv[1:]
 if len(args) != 5:
@@ -28,7 +28,7 @@ if hasattr(signal, 'alarm'):
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
-config.nicos_root = rootdir
+config.nicos_root = runtime_root
 config.setup_subdirs = '../test'
 
 selfDestructAfter(120)

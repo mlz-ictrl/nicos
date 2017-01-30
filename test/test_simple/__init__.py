@@ -21,31 +21,3 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
-from __future__ import print_function
-
-import sys
-
-from nicos import session
-
-from test.utils import TestSession, cleanup, startCache, startSubprocess, \
-    killSubprocess
-
-cache = None
-elog = None
-
-
-def setup_package():
-    global cache, elog  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up simple test, cleaning old test dir...\n')
-    session.__class__ = TestSession
-    session.__init__('test_simple')
-    cleanup()
-    cache = startCache()
-    elog = startSubprocess('elog.py')
-
-
-def teardown_package():
-    session.shutdown()
-    killSubprocess(elog)
-    killSubprocess(cache)

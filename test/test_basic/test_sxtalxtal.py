@@ -25,13 +25,10 @@
 from nicos.devices.sxtal.xtal.symmetry import _test as symtest
 from nicos.devices.sxtal.xtal.sxtalcell import _test as sxtaltest
 
-from test.utils import gen_if_verbose
 
-
-@gen_if_verbose
 def test_symmetry():
-    for t in symtest():
-        yield t
+    for test in symtest():
+        test[0](*test[1:])
 
 
 def test_cell():

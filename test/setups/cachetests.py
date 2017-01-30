@@ -24,27 +24,27 @@
 
 name = 'setup for cache tests'
 
-from test.utils import getCacheNameAndPort
+from test.utils import getCacheAddr
 
 sysconfig = dict(
-    cache = getCacheNameAndPort('localhost'),
+    cache = getCacheAddr(),
 )
 
 devices = dict(
     reader1 = device('nicos.devices.generic.cache.CacheReader',
-                      description='Test Reader',
-                      maxage=0.1,
-                      unit='',
-                      loglevel='debug'
+                      description = 'Test Reader',
+                      maxage = 0.1,
+                      unit = '',
+                      loglevel = 'debug'
                      ),
     writer1 = device('nicos.devices.generic.cache.CacheWriter',
-                      description='Test cache writer',
-                      userlimits=(1, 200),
-                      abslimits=(0, 311),
-                      maxage=0.1,
-                      unit='',
-                      loglevel='debug',
-                      loopdelay=0.05,
-                      precision=1,
+                      description = 'Test cache writer',
+                      userlimits = (1, 200),
+                      abslimits = (0, 311),
+                      maxage = 0.1,
+                      unit = '',
+                      loglevel = 'debug',
+                      loopdelay = 0.05,
+                      precision = 1,
                      ),
 )

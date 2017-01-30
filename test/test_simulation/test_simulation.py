@@ -18,28 +18,32 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-from __future__ import print_function
+"""Tests for simulation mode."""
 
-import pytest
+from nicos import session
+from nicos.core import SIMULATION
+from nicos.commands.scan import scan
+from nicos.commands.basic import sleep
 
-from nicos.pycompat import cPickle as pickle
-from nicos.resi import residevice
+session_setup = 'simscan'
+session_mode = SIMULATION
 
 
-@pytest.mark.skipif(residevice.position is None,
-                    reason='RESI specific Nonius libs not present')
-def test_pickable():
-    store = {'phi': 3.1415926535897931, 'type': 'e', 'dx': 400, 'chi': 0.0,
-             'theta': -0.17453292519943295, 'omega': 0.0}
-    hw = None
-    pos = residevice.position.PositionFromStorage(hw, store)
-    proxied = residevice.ResiPositionProxy(pos)
-    res = pickle.dumps(proxied, protocol=0)
-    restored = pickle.loads(res)
-    print(store)
-    print(restored.storable())
-    assert restored.storable() == store
+def test_simmode(session):
+    m = session.getDevice('motor')
+    det = session.getDevice('det')
+    scan(m, 0, 1, 5, 0., det, 'test scan')
+    assert m._sim_min == 0
+    assert m._sim_max == 4
+    assert m._sim_value == 4
+
+
+def test_special_behavior():
+    oldtime = session.clock.time
+    sleep(1000)   # should take no time in simulation mode, but advance clock
+    newtime = session.clock .time
+    assert newtime - oldtime == 1000

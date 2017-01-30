@@ -26,22 +26,15 @@
 
 from time import sleep
 
-from nicos import session
 from nicos.core import UsageError, ConfigurationError, NoDevice
 from nicos.commands.device import read, adjust
 
 from test.utils import raises, ErrorLogged
 
-
-def setup_module():
-    session.loadSetup('alias')
+session_setup = 'alias'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_alias_nodev():
+def test_alias_nodev(session):
     alias = session.getDevice('aliasDev', object)
 
     # first, proxy without target
@@ -56,7 +49,7 @@ def test_alias_nodev():
     assert 'aliasDev' in repr(alias)
 
 
-def test_alias_dev():
+def test_alias_dev(session):
     alias = session.getDevice('aliasDev', object)
     # now set the alias to some object
     v1 = session.getDevice('v1')
@@ -80,7 +73,7 @@ def test_alias_dev():
     assert raises(UsageError, setattr, alias, 'alias', slit)
 
 
-def test_adjust_alias():
+def test_adjust_alias(session):
     alias = session.getDevice('aliasDev3', object)
     # now set the alias to some object
     axis = session.getDevice('axis')
@@ -89,15 +82,12 @@ def test_adjust_alias():
 
     alias.alias = axis
     alias.offset = 0.0
-    # # old behaviour
-    # assert raises(UsageError, adjust, alias, 0)
-    # # after fix of bug#870
     adjust(alias, 1)
     adjust(alias, 0)
     alias.alias = ''
 
 
-def test_alias_valueinfo():
+def test_alias_valueinfo(session):
     # check the value info replacement
     alias = session.getDevice('aliasDev', object)
     v1 = session.getDevice('v1')
@@ -107,7 +97,7 @@ def test_alias_valueinfo():
     assert alias.valueInfo()[0].name == 'aliasDev'
 
 
-def test_alias_valueinfo2():
+def test_alias_valueinfo2(session):
     # check with multiple values, check setting from config
     alias = session.getDevice('aliasDev2', object)
     # check the value info replacement

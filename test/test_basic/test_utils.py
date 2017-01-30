@@ -30,6 +30,8 @@ import sys
 import time
 import socket
 
+import pytest
+
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
@@ -38,7 +40,7 @@ from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
 
-from test.utils import raises, SkipTest
+from test.utils import raises
 
 
 def test_lazy_property():
@@ -192,7 +194,7 @@ def test_tcpsocket():
         serv.bind(('localhost', 65432))
         serv.listen(10)
     except Exception:
-        raise SkipTest
+        pytest.skip('could not bind')
 
     # now connect to it using several ways
     try:

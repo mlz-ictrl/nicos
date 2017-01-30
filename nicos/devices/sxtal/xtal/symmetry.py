@@ -218,8 +218,6 @@ def _testlaue(sym):
         assert np.array_equiv(uniq[sym], res)
 
 
-# Note: no gen_if_verbose decorator here, the
-# reduction is done in test/test_basic/test_symmetry
 def _test():
     from nicos.pycompat import iteritems
     for t, vals in iteritems(valid):

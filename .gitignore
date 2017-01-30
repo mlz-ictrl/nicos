@@ -7,8 +7,6 @@ dist/
 *.log.gz
 *.log.bz2
 *.pid
-pylint_*.txt
-.noseids
 MANIFEST
 /nicos.conf
 nicos/RELEASE-VERSION
@@ -21,11 +19,11 @@ doc/build/
 doc/source/auto
 doc/source/custom/*/setups
 
-.coverage
-.noseids
-cover/
-
+.coverage.*
+.cache/
+htmlcov/
 test/root/
+pylint_*.txt
 
 \#*
 .#*

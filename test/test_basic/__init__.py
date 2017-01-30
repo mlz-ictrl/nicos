@@ -21,16 +21,3 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
-"""NICOS test suite."""
-
-from __future__ import print_function
-
-import sys
-
-from test.utils import cleanup
-
-
-def setup_package():
-    sys.stderr.write('\nSetting up basic test, cleaning old test dir...\n')
-    cleanup()

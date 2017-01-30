@@ -59,7 +59,7 @@ If not mentioned otherwise, Python packages are available from PyPi
 
 * For development (running tests, generating documentation):
 
-  - nose
+  - pytest
   - mock
   - coverage (optional)
   - sphinx (for generating doc)
@@ -115,7 +115,7 @@ xBuntu 12.04
 
 * Development and documentation build:
 
-  apt-get install python-{sip-dev,qt4-dev,nose,mock,coverage,sphinx}
+  apt-get install python-{sip-dev,qt4-dev,pytest,pytest-cov,mock,coverage,sphinx}
 
 * For the livewidget you have to install some development packages:
 

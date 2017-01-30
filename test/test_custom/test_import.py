@@ -27,50 +27,39 @@
 import os
 from os import path
 
+import pytest
+
 from nicos.utils.tacostubs import generate_stubs
 
-from test.utils import rootdir, SkipTest
+from test.utils import module_root
 
-
-def setup_module():
-    generate_stubs()
+generate_stubs()
 
 
 def import_and_check(modname):
     try:
         __import__(modname)
-    except ImportError:
+    except ImportError as e:
         # we lack a precondition module, don't worry about that
-        raise SkipTest
+        pytest.skip('import error for %s: %s' % (modname, e))
     except ValueError as err:
         if 'has already been set to' in str(err):
             # import order error with GUI widget modules
-            raise SkipTest
+            pytest.skip('GUI widget module')
         raise
 
 
-def collect_files(instr, instrlib):
-    some_skipped = False
+custom_dir = path.join(module_root, 'custom')
+all_instrs = sorted(os.listdir(custom_dir))
+
+
+@pytest.mark.parametrize('instr', all_instrs)
+def test_import_all(instr):
+    instrlib = path.join(custom_dir, instr, 'lib')
+    if instr == 'delab':
+        return
+    if not path.isdir(instrlib):
+        return
     for mod in os.listdir(instrlib):
         if mod.endswith('.py'):
-            try:
-                import_and_check('nicos.%s.%s' % (instr, mod[:-3]))
-            except SkipTest:
-                some_skipped = True
-    if some_skipped:
-        raise SkipTest
-
-def test_import_all():
-    custom_dir = path.join(rootdir, '..', '..', 'custom')
-    for instr in sorted(os.listdir(custom_dir)):
-        if instr == 'delab':
-            continue
-        instrlib = path.join(custom_dir, instr, 'lib')
-        if not path.isdir(instrlib):
-            continue
-
-        def tf(*args):
-            collect_files(*args)
-
-        tf.description =  __name__ + '.test_import_all: ' + instr
-        yield tf, instr, instrlib
+            import_and_check('nicos.%s.%s' % (instr, mod[:-3]))

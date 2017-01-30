@@ -29,19 +29,9 @@ from __future__ import print_function
 
 from numpy import array
 
-from nicos import session
-from nicos.core.sessions.utils import MASTER
+from test.utils import approx
 
-from test.utils import assertAlmostEqual
-
-
-def setup_module():
-    session.loadSetup('scanning')
-    session.setMode(MASTER)
-
-
-def teardown_module():
-    session.unloadSetup()
+session_setup = 'scanning'
 
 
 def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):
@@ -60,11 +50,11 @@ def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):
         print(('%7.3f  ' * 14) % (tuple(Qhkl) + (ny,) + tuple(angles) +
                                   tuple(hklr) + (nyr, dval)))
         for i in range(3):
-            assertAlmostEqual(Qhkl[i], hklr[i])
-        assertAlmostEqual(ny, nyr)
+            assert Qhkl[i] == approx(hklr[i])
+        assert ny == approx(nyr)
 
 
-def test_cell():
+def test_cell(session):
     sample = session.getDevice('Sample')
     sample.lattice = [3.8184, 3.8184, 3.8184]
     sample.angles = [90, 90, 90]

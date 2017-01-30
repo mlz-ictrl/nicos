@@ -40,14 +40,14 @@ from nicos import config
 from nicos.utils import loggers
 from nicos.core.sessions.console import ConsoleSession
 
-from test.utils import rootdir, selfDestructAfter
+from test.utils import runtime_root, module_root, selfDestructAfter
 
 
 class TestConsoleSession(ConsoleSession):
 
     def __init__(self, appname, daemonized=False):
         ConsoleSession.__init__(self, appname, daemonized)
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+        self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
@@ -61,7 +61,7 @@ class TestConsoleSession(ConsoleSession):
 
 config.user = None
 config.group = None
-config.nicos_root = rootdir
+config.nicos_root = runtime_root
 
 selfDestructAfter(120)
 TestConsoleSession.run('startup', False)

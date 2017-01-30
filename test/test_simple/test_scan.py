@@ -27,7 +27,6 @@
 
 import warnings
 
-from nicos import session
 from nicos.core import UsageError, PositionError, CommunicationError, \
     NicosError, ModeError
 from nicos.core.scan import ContinuousScan
@@ -43,26 +42,15 @@ from nicos.core.status import BUSY, OK
 from nicos.core.utils import waitForState
 
 from test.utils import raises
-from nose import with_setup
+
+# this can happen during fitting, just don't print it out
+warnings.filterwarnings('ignore', 'Covariance of the parameters could not '
+                        'be estimated')
+
+session_setup = 'scanning'
 
 
-def setup_module():
-    # this can happen during fitting, just don't print it out
-    warnings.filterwarnings('ignore', 'Covariance of the parameters could not '
-                            'be estimated')
-    session.loadSetup('scanning')
-    session.setMode(MASTER)
-
-
-def teardown_module():
-    session.unloadSetup()
-
-
-def clean_testHandler():
-    session.testhandler.clear_warnings()
-
-
-def test_scan():
+def test_scan(session, log):
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
     c = session.getDevice('coder')
@@ -129,7 +117,7 @@ def test_scan():
         session.experiment.detlist = []
 
 
-def test_scan2():
+def test_scan2(session):
     m = session.getDevice('motor')
     det = session.getDevice('det')
     mm = session.getDevice('manual')
@@ -161,8 +149,7 @@ def test_scan2():
         session.experiment.detlist = []
 
 
-@with_setup(clean_testHandler, clean_testHandler)
-def test_scan_usageerrors():
+def test_scan_usageerrors(session):
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
 
@@ -184,8 +171,7 @@ def test_scan_usageerrors():
     assert raises(UsageError, scan, m, 0, 1, 1, {})
 
 
-@with_setup(clean_testHandler, clean_testHandler)
-def test_scan_invalidpreset():
+def test_scan_invalidpreset(session):
     m = session.getDevice('motor')
     # invalid preset
     session.experiment.setDetectors([session.getDevice('det')])
@@ -195,8 +181,7 @@ def test_scan_invalidpreset():
                                      ' not recognized by any of the detectors: .*')
 
 
-@with_setup(clean_testHandler, clean_testHandler)
-def test_scan_errorhandling():
+def test_scan_errorhandling(session):
     t = session.getDevice('tdev')
     m = session.getDevice('motor')
 
@@ -242,14 +227,14 @@ def test_scan_errorhandling():
     assert raises(RuntimeError, scan, t, [0, 1, 2, 3])
 
 
-def test_cscan():
+def test_cscan(session):
     m = session.getDevice('motor')
     cscan(m, 0, 1, 2)
     dataset = session.data._last_scans[-1]
     assert dataset.devvaluelists == [[-2.], [-1.], [0.], [1.], [2.]]
 
 
-def test_sweeps():
+def test_sweeps(session):
     m = session.getDevice('motor')
     m.move(1)
     timescan(5, m)
@@ -263,7 +248,7 @@ def test_sweeps():
     assert dataset.envvaluelists[-1][0] == 5
 
 
-def test_contscan():
+def test_contscan(session):
     m = session.getDevice('motor')
     mm = session.getDevice('manual')
     m.move(0)
@@ -285,7 +270,7 @@ def test_contscan():
     assert raises(UsageError, contscan, m, 0, 2, 2, manual=[0, 1])
 
 
-def test_manualscan():
+def test_manualscan(session):
     mot = session.getDevice('motor')
     c = session.getDevice('coder')
     det = session.getDevice('det')
@@ -311,7 +296,7 @@ def test_manualscan():
                                      [2., 2.], [2., 2.]]
 
 
-def test_specialscans():
+def test_specialscans(session):
     m = session.getDevice('motor')
     det = session.getDevice('det')
 
@@ -334,7 +319,7 @@ def test_specialscans():
     assert dataset.continuation == [uid2, uid]
 
 
-def test_twodscan():
+def test_twodscan(session):
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
     twodscan(m, 0, 1, 2, m2, 0, 1, 2, '2d')
@@ -346,14 +331,14 @@ def test_twodscan():
     assert dataset.subsets[1].envvaluelist == [1.]
 
 
-def test_tomo():
+def test_tomo(session):
     sry = session.getDevice('sry')
     sry.maw(0.0)
     tomo(10)
     assert sry.read() == 360.0
 
 
-def test_live_count():
+def test_live_count(session):
     det = session.getDevice('det')
     m = session.getDevice('motor')
 

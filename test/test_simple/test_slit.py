@@ -25,24 +25,15 @@
 
 from __future__ import print_function
 
-from nicos import session
 from nicos.core import status, LimitError, InvalidValueError
-from nicos.core.sessions.utils import MASTER
 from nicos.devices.generic.slit import Slit
 from test.utils import raises
 
-
-def setup_module():
-    session.loadSetup('slit')
-    session.setMode(MASTER)
-    Slit._delay = 0.01
+session_setup = 'slit'
+Slit._delay = 0.01
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_slit():
+def test_slit(session):
     slit = session.getDevice('slit')
     motor_right = session.getDevice('m_right')
     motor_left = session.getDevice('m_left')
@@ -69,7 +60,7 @@ def test_slit():
     assert slit.doStatus()[0] == status.OK
 
 
-def test_slit_opposite():
+def test_slit_opposite(session):
     s2 = session.getDevice('slit2')
     motor_right = session.getDevice('m_right')
     motor_left = session.getDevice('m_left')
@@ -107,7 +98,7 @@ def test_slit_opposite():
     assert raises(LimitError, s2.start, [1, 2, -1, 0])
 
 
-def test_slit_opmodes():
+def test_slit_opmodes(session):
     slit = session.getDevice('slit')
 
     slit.opmode = '4blades'
@@ -146,7 +137,7 @@ def test_slit_opmodes():
     assert slit.read() == [3, 7, -1, 3]
 
 
-def test_slit_subaxes():
+def test_slit_subaxes(session):
     slit = session.getDevice('slit')
 
     slit.opmode = 'offcentered'
@@ -181,7 +172,7 @@ def test_slit_subaxes():
     assert slit.read(0) == [0, 0, 6, 6]
 
 
-def test_slit_reference():
+def test_slit_reference(session):
     slit = session.getDevice('slit')
 
     slit.reference()

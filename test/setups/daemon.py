@@ -26,7 +26,7 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 import hashlib
-from test.utils import getDaemonPort
+from test.utils import getDaemonAddr
 
 devices = dict(
     Auth   = device('services.daemon.auth.ListAuthenticator',
@@ -35,7 +35,7 @@ devices = dict(
                               ('admin', hashlib.sha1(b'admin').hexdigest(),
                                'admin')]),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost:%d' % getDaemonPort(),
+                    server = getDaemonAddr(),
                     loglevel = 'debug',
                     authenticators = ['Auth']),
 )

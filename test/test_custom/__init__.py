@@ -21,34 +21,3 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
-from __future__ import print_function
-
-import os
-import sys
-from os import path
-
-from nicos import session
-
-from test.utils import TestSession, cleanup, startCache, killSubprocess
-
-cache = None
-
-cuspath = path.join(path.dirname(__file__), '..', '..', 'custom')
-for subdir in os.listdir(cuspath):
-    if path.isdir(path.join(cuspath, subdir, 'test_' + subdir)):
-        __path__.append(path.join(cuspath, subdir))
-
-
-def setup_package():
-    global cache  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up custom test, cleaning old test dir...\n')
-    session.__class__ = TestSession
-    session.__init__('test_custom')
-    cleanup()
-    cache = startCache()
-
-
-def teardown_package():
-    session.shutdown()
-    killSubprocess(cache)

@@ -25,6 +25,7 @@
 """STRESS-SPEC formula calculation tests."""
 
 import math
+
 from nicos.stressi.mixins import Formula
 
 

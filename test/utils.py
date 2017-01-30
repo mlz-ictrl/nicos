@@ -29,6 +29,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import math
 import time
 import shutil
 import signal
@@ -36,121 +37,99 @@ import socket
 import subprocess
 from os import path
 from logging import ERROR, WARNING, DEBUG
-from functools import wraps
 
-from nose.tools import istest, assert_raises  # pylint: disable=W0611
-from nose.plugins.skip import SkipTest
+import pytest
 
 from nicos import config
 from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
     status
 from nicos.core.sessions import Session
-from nicos.core.sessions.utils import MASTER
 from nicos.devices.notifiers import Mailer
+from nicos.devices.cacheclient import CacheClient
 from nicos.utils import tcpSocket
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.pycompat import exec_, reraise
 
-# try to get the nose conf singleton provided by the noseglobalconf plugin
-# if it is not available,  set verbosity to 2.
-try:
-    from noseglobalconf import noseconf
-except ImportError:
-    class DummyConf(object):
-        pass
-    noseconf = DummyConf()
-    noseconf.verbosity = 2
-
-
-rootdir = path.join(os.path.dirname(__file__), 'root')
+# The NICOS checkout directory, where to find modules.
+module_root = path.normpath(path.join(path.dirname(__file__), '..'))
+# The temporary root directory, where to put data/logs/pid files during test.
+runtime_root = os.environ.get('NICOS_TEST_ROOT',
+                              path.join(path.dirname(__file__), 'root'))
 pythonpath = None
 
 
-def gen_if_verbose(func):
-    '''Wrapper to reduce verbosity for test-generator functions
-    '''
-
-    @wraps(func)
-    def new_func():
-        if noseconf.verbosity >= 3:
-            for f_args in func():
-                def run(r_args):
-                    r_args[0](*r_args[1:])
-                run.description = f_args[0].description
-                yield run, f_args
-        else:
-            @istest
-            def collecttests():
-                for f_args in func():
-                    f_args[0](*f_args[1:])
-            yield collecttests
-    return new_func
+config.user = None
+config.group = None
+config.nicos_root = runtime_root
+config.pid_path = path.join(runtime_root, 'pid')
+config.logging_path = path.join(runtime_root, 'log')
 
 
 def raises(exc, *args, **kwds):
-    assert_raises(exc, *args, **kwds)
+    pytest.raises(exc, *args, **kwds)
     return True
 
 
-def requires(condition, message=''):
-    """Decorator to mark test functions as skips depending on a condition."""
-    def deco(func):
-        @wraps(func)
-        def new_func(*args, **kwds):
-            if not condition:
-                raise SkipTest(message or 'skipped due to condition')
-            return func(*args, **kwds)
-        return new_func
-    return deco
-
-
-# from unittest.TestCase
-def assertAlmostEqual(first, second, places=7, msg=None):
-    """Fail if the two objects are unequal as determined by their
-       difference rounded to the given number of decimal places
-       (default 7) and comparing to zero.
-
-       Note that decimal places (from zero) are usually not the same
-       as significant digits (measured from the most signficant digit).
+class approx(object):
     """
-    if round(abs(second - first), places) != 0:
-        assert False, \
-            (msg or '%r != %r within %r places' % (first, second, places))
-
-
-def assertNotAlmostEqual(first, second, places=7, msg=None):
-    """Fail if the two objects are equal as determined by their
-       difference rounded to the given number of decimal places
-       (default 7) and comparing to zero.
-
-       Note that decimal places (from zero) are usually not the same
-       as significant digits (measured from the most signficant digit).
+    Ported from py.test v3.0, can use pytest.approx from then on.
     """
-    if round(abs(second - first), places) == 0:
-        assert False, \
-            (msg or '%r == %r within %r places' % (first, second, places))
 
+    def __init__(self, expected, rel=None, abs=None):  # pylint: disable=redefined-builtin
+        self.expected = expected
+        self.abs = abs
+        self.rel = rel
 
-def checkResponse(contains=None, matches=None, absent=False):
-    '''Check response messages for the presence/absence of string
+    def __repr__(self):
+        if isinstance(self.expected, complex):
+            return str(self.expected)
+        if math.isinf(self.expected):
+            return str(self.expected)
+        try:
+            vetted_tolerance = '{:.1e}'.format(self.tolerance)
+        except ValueError:
+            vetted_tolerance = '???'
+        if sys.version_info[0] == 2:
+            return '{0} +- {1}'.format(self.expected, vetted_tolerance)
+        else:
+            return u'{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
 
-        *contains*  strinf checked for string equality in messages
-        *matches* regex to search in messages
-        *absent* if True,check for absence of string
-    '''
-    from nicos import session
-    if absent:
-        return session.testhandler.assert_notresponse(contains, matches)
-    return session.testhandler.assert_response(contains, matches)
+    def __eq__(self, actual):
+        if actual == self.expected:
+            return True
+        if math.isinf(abs(self.expected)):
+            return False
+        return abs(self.expected - actual) <= self.tolerance
+
+    __hash__ = None
+
+    def __ne__(self, actual):
+        return not (actual == self)
+
+    @property
+    def tolerance(self):
+        def set_default(x, default):
+            return x if x is not None else default
+        absolute_tolerance = set_default(self.abs, 1e-12)
+        if absolute_tolerance < 0:
+            raise ValueError("absolute tolerance can't be negative: {}".
+                             format(absolute_tolerance))
+        if math.isnan(absolute_tolerance):
+            raise ValueError("absolute tolerance can't be NaN.")
+        if self.rel is None:
+            if self.abs is not None:
+                return absolute_tolerance
+        relative_tolerance = set_default(self.rel, 1e-6) * abs(self.expected)
+        if relative_tolerance < 0:
+            raise ValueError("relative tolerance can't be negative: {}".
+                             format(absolute_tolerance))
+        if math.isnan(relative_tolerance):
+            raise ValueError("relative tolerance can't be NaN.")
+        return max(relative_tolerance, absolute_tolerance)
 
 
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
-
-
-def cleanLog():
-    from nicos import session
-    session.testhandler.clearcapturedmessages()
 
 
 class TestLogHandler(ColoredConsoleHandler):
@@ -182,14 +161,15 @@ class TestLogHandler(ColoredConsoleHandler):
         return s
 
     def clearcapturedmessages(self):
+        # XXX: clear warnings too!
         self._capturedmessages = []
 
     def dump_messages(self, where=''):
-        '''Helper to get message content for test preparation'''
-        print ("#" * 10 + ' ' + where + ' ' + '#' * 10, file=sys.stderr)
+        """Helper to get message content for test preparation."""
+        print("#" * 10 + ' ' + where + ' ' + '#' * 10, file=sys.stderr)
         for m in self._capturedmessages:
             print(m, file=sys.stderr)
-        print ("#" * 60, file=sys.stderr)
+        print("#" * 60, file=sys.stderr)
 
     def enable_raising(self, raising):
         self._raising = raising
@@ -234,6 +214,17 @@ class TestLogHandler(ColoredConsoleHandler):
                     assert False, "Response does match %r" % matches
         return True
 
+    def check_response(self, contains=None, matches=None, absent=False):
+        """Check response messages for the presence/absence of string.
+
+        *contains* string checked for string equality in messages
+        *matches* regex to search in messages
+        *absent* if True, check for absence of string
+        """
+        if absent:
+            return self.assert_notresponse(contains, matches)
+        return self.assert_response(contains, matches)
+
     def warns(self, func, *args, **kwds):
         """check if a warning is emitted
 
@@ -254,8 +245,8 @@ class TestLogHandler(ColoredConsoleHandler):
         ret = func(*args, **kwds)
         plen_after = len(self._warnings)
         if plen == plen_after:
-            print (ret)
-            print (self._warnings)
+            print(ret)
+            print(self._warnings)
             return False
         if not _text:
             if plen + 1 == plen_after:
@@ -288,14 +279,26 @@ class TestLogHandler(ColoredConsoleHandler):
         self.clear_messages()
 
 
+class TestCacheClient(CacheClient):
+
+    # Do not try to get/release the master lock in the test session.
+    # We have too many setup changes with/without cache to do that
+    # correctly all the time.
+
+    # Note that CacheClient.lock is still tested in the elog subprocess.
+
+    def lock(self, key, ttl=None, unlock=False, sessionid=None):
+        pass
+
+
 class TestSession(Session):
     autocreate_devices = False
     has_datamanager = True
+    cache_class = TestCacheClient
 
     def __init__(self, appname, daemonized=False):
         Session.__init__(self, appname, daemonized)
-        self._mode = MASTER
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+        self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = NicosLogger('nicos')
@@ -306,19 +309,11 @@ class TestSession(Session):
         self._master_handler = None
 
     def runsource(self, source, filename='<input>', symbol='single'):
-        """Mostly copied from code.InteractiveInterpreter, but added the
-        logging call before runcode().
-        """
         code = self.commandHandler(source,
                                    lambda src: compile(src, filename, symbol))
         if code is None:
             return
         exec_(code, self.namespace)
-
-
-config.user = None
-config.group = None
-config.nicos_root = rootdir
 
 
 class TestDevice(HasLimits, Moveable):
@@ -401,23 +396,22 @@ class TestNotifier(Mailer):
 
 
 def cleanup():
-    if path.exists(rootdir):
-        shutil.rmtree(rootdir)
-    os.mkdir(rootdir)
-    os.mkdir(rootdir + '/cache')
-    os.mkdir(rootdir + '/pid')
-    os.mkdir(rootdir + '/bin')
-    shutil.copy(path.join(rootdir, '..', 'simulate.py'),
-                rootdir + '/bin/nicos-simulate')
+    if path.exists(runtime_root):
+        shutil.rmtree(runtime_root)
+    os.mkdir(runtime_root)
+    os.mkdir(path.join(runtime_root, 'cache'))
+    os.mkdir(path.join(runtime_root, 'pid'))
+    os.mkdir(path.join(runtime_root, 'bin'))
+    shutil.copy(path.join(module_root, 'test', 'simulate.py'),
+                path.join(runtime_root, 'bin', 'nicos-simulate'))
 
 
 def adjustPYTHONPATH():
     # pylint: disable=global-statement
     global pythonpath
     if pythonpath is None:
-        topdir = path.abspath(path.join(rootdir, '..', '..'))
         pythonpath = os.environ.get('PYTHONPATH', '').split(os.pathsep)
-        pythonpath.insert(0, topdir)
+        pythonpath.insert(0, module_root)
         os.environ['PYTHONPATH'] = os.pathsep.join(pythonpath)
 
 
@@ -431,7 +425,8 @@ def startSubprocess(filename, *args, **kwds):
     else:
         popen_kwds = dict()
     proc = subprocess.Popen([sys.executable,
-                             path.join(rootdir, '..', filename)] + list(args),
+                             path.join(module_root, 'test', filename)] +
+                            list(args),
                             **popen_kwds)
     proc.nicos_name = name
     if 'wait_cb' in kwds:
@@ -466,14 +461,14 @@ def killSubprocess(proc):
     sys.stderr.write(' ok]\n')
 
 
-def startCache(setup='cache', wait=10):
+def startCache(hostport, setup='cache', wait=10):
     # start the cache server
     def cache_wait_cb():
         if wait:
             start = time.time()
             while time.time() < start + wait:
                 try:
-                    s = tcpSocket('localhost', getCachePort())
+                    s = tcpSocket(hostport, 0)
                 except socket.error:
                     time.sleep(0.02)
                 except Exception as e:
@@ -504,16 +499,16 @@ def hasGnuplot():
     return True
 
 
-def getCachePort():
-    return int(os.environ.get('NICOS_CACHE_PORT', 14877))
+def getCacheAddr():
+    return 'localhost:%s' % os.environ.get('NICOS_CACHE_PORT', 14877)
 
 
-def getCacheNameAndPort(host):
-    return '%s:%d' % (host, getCachePort())
+def getAltCacheAddr():
+    return 'localhost:%s' % os.environ.get('NICOS_CACHE_ALT_PORT', 14878)
 
 
-def getDaemonPort():
-    return int(os.environ.get('NICOS_DAEMON_PORT', 14874))
+def getDaemonAddr():
+    return 'localhost:%s' % os.environ.get('NICOS_DAEMON_PORT', 14874)
 
 
 def selfDestructAfter(seconds):

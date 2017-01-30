@@ -26,21 +26,14 @@
 
 import mock
 
-from nicos import session
 from nicos.core import LimitError, ConfigurationError, InvalidValueError, \
     PositionError, NicosError, status
 from test.utils import raises
 
-
-def setup_module():
-    session.loadSetup('multiswitch')
+session_setup = 'multiswitch'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_multi_switcher():
+def test_multi_switcher(session):
     sc1 = session.getDevice('sc1')
     x = session.getDevice('x')
     y = session.getDevice('y')
@@ -85,14 +78,14 @@ def test_multi_switcher():
         assert m.call_count == 2  # once for x, once for y
 
 
-def test_multi_switcher_fallback():
+def test_multi_switcher_fallback(session):
     mswfb = session.getDevice('mswfb')
     x = session.getDevice('x')
     x.maw(0)
     assert mswfb.read(0) == 'unknown'
 
 
-def test_multi_switcher_fails():
+def test_multi_switcher_fails(session):
     assert raises(ConfigurationError, session.getDevice, 'msw3')
     assert raises(ConfigurationError, session.getDevice, 'msw4')
 

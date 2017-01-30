@@ -24,25 +24,16 @@
 
 """NICOS device class test suite."""
 
-from nicos import session
 from nicos.core import ADMIN, AccessError, CommunicationError, \
     ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
     LimitError, Moveable, Param, ProgrammingError, UsageError, NicosError, \
     requires, status, usermethod, Attach
 from nicos.core.sessions.utils import MAINTENANCE
+
 from test.utils import raises
 
-
+session_setup = 'device'
 methods_called = set()
-
-
-def setup_module():
-    session.loadSetup('device')
-    methods_called.clear()
-
-
-def teardown_module():
-    session.unloadSetup()
 
 
 class Dev1(Device):
@@ -148,7 +139,7 @@ class Bus(HasCommunication, Device):
         return self._com_retry('', self._llcomm, msg)
 
 
-def test_initialization():
+def test_initialization(session):
     # make sure dev2_1 is created and then try to instantiate another device
     # with this name...
     session.getDevice('dev2_1')
@@ -169,7 +160,7 @@ def test_initialization():
     assert 'dev2_5' not in session.devices
 
 
-def test_special_methods():
+def test_special_methods(session):
     dev = session.getDevice('dev2_1')
     # pickling a device should yield its name as a string
     import pickle
@@ -178,14 +169,14 @@ def test_special_methods():
     assert dev.name in repr(dev)
 
 
-def test_attached_devices_property():
+def test_attached_devices_property(session):
     dev1 = session.getDevice('dev1')
     dev2 = session.getDevice('dev2_1')
     # stupid name: _attached_<name of attachment>
     assert dev2._attached_attached == dev1
 
 
-def test_inline_attached_devices():
+def test_inline_attached_devices(session):
     dev0 = session.getDevice('dev2_0')
     single = session.getDevice('dev2_0_attached')
     assert dev0._attached_attached == single
@@ -194,7 +185,7 @@ def test_inline_attached_devices():
     assert dev0._attached_attlist == [list1, list2]
 
 
-def test_params():
+def test_params(session):
     dev2 = session.getDevice('dev2_1')
     # make sure adev instances are created
     assert isinstance(dev2._attached_attached, Dev1)
@@ -225,7 +216,7 @@ def test_params():
     assert dev2.param1 == 42
 
 
-def test_methods():
+def test_methods(session):
     dev2 = session.getDevice('dev2_3')
     assert 'doInit' in methods_called
     dev2.move(10)
@@ -266,7 +257,7 @@ def test_methods():
     assert raises(AccessError, dev2.calibrate)
 
 
-def test_is_at_target():
+def test_is_at_target(session):
     # check target warning behavior in finish
     dev2 = session.getDevice('dev2_3')
     dev2.start(0)
@@ -276,7 +267,7 @@ def test_is_at_target():
     assert session.testhandler.warns(dev2.finish)
 
 
-def test_fix_and_release():
+def test_fix_and_release(session):
     # fixing and releasing
     dev2 = session.getDevice('t_mtt')
     dev2.curvalue = 7
@@ -303,7 +294,7 @@ def test_fix_and_release():
     assert dev2.status()[0] == status.OK
 
 
-def test_limits():
+def test_limits(session):
     dev2 = session.getDevice('dev2_3')
     # abslimits are (0, 10) as set in configuration
     dev2.userlimits = dev2.abslimits
@@ -331,7 +322,7 @@ def test_limits():
     assert session.testhandler.warns(setattr, dev2, 'userlimits', (0, 4))
 
 
-def test_hascomm():
+def test_hascomm(session):
     bus = session.getDevice('bus')
 
     bus._replyontry = 5

@@ -101,7 +101,7 @@ def test_attach_class():
 
     # check that multiple=2 and multiple=[2] are the same
     assert repr(Attach('devname', MyClass, multiple=2)) == \
-           repr(Attach('devname', MyClass, multiple=[2]))
+        repr(Attach('devname', MyClass, multiple=[2]))
 
     a = Attach('description', MyClass, multiple=[2, 3])
     assert raises(ConfigurationError, a.check, 'devname', 'aname', None)

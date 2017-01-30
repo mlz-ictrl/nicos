@@ -32,7 +32,7 @@ from nicos.core import UsageError
 from nicos.commands.utility import RangeListByStep, RangeListByCount, \
     RangeListLog, floatrange, RangeListGeneral
 
-from test.utils import raises, assertAlmostEqual
+from test.utils import raises, approx
 
 
 def test_rangelistbystep():
@@ -131,14 +131,14 @@ def test_rangelistlog():
 
     l3a = RangeListLog(0.1, 200., 3)
     assert len(l3a) == 3
-    assertAlmostEqual(l3a[0], 0.1, 5)
-    assertAlmostEqual(l3a[-1], 200., 5)
+    assert l3a[0] == approx(0.1, abs=1e-5)
+    assert l3a[-1] == approx(200., abs=1e-5)
     assert numpy.allclose(l3a, [0.10000000000000001, 4.4721359549995787, 200.0])
 
     l3b = RangeListLog(200, 2., 5)
     assert len(l3b) == 5
-    assertAlmostEqual(l3b[0], 200., 5)
-    assertAlmostEqual(l3b[-1], 2., 5)
+    assert l3b[0] == approx(200., abs=1e-5)
+    assert l3b[-1] == approx(2., abs=1e-5)
 
     assert raises(UsageError, RangeListLog, -1, 2, 10)
 

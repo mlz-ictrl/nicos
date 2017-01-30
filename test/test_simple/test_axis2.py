@@ -24,20 +24,12 @@
 
 """NICOS axis test suite."""
 
-from nicos import session
-from nicos.core.sessions.utils import MASTER
 from nicos.commands.basic import NewSetup
 
-
-def setup_module():
-    session.setMode(MASTER)
+session_setup = 'axis'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_params():
+def test_params(session):
     NewSetup('vmotor1')
     motor = session.getDevice('vmotor')
     # min/max parameters got from motor device

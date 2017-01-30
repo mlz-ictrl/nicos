@@ -24,54 +24,51 @@
 
 """NICOS device class test suite."""
 
-import sys
 import os
+import sys
 import time
 from os import path
 
-from nose.tools import assert_equal  # pylint: disable=E0611
+import pytest
 
-from nicos import session
 from nicos.utils import ensureDirectory, enableDirectory, readFileCounter
 from nicos.commands.scan import scan
 from nicos.commands.basic import run
-from nicos.core.sessions.utils import MASTER
 
-from test.utils import rootdir
+from test.utils import runtime_root
 
 year = time.strftime('%Y')
 
-
-def setup_module():
-    session.loadSetup('asciisink')  # we want data files written
-    session.setMode(MASTER)
+session_setup = 'asciisink'
 
 
-def teardown_module():
+# XXX: rewrite this with a proper fixture
+@pytest.yield_fixture(scope='module', autouse=True)
+def cleanup(session):
+    yield
     # clean up "disabled" directory so that the next test run can remove it
     if path.isdir(datapath('p999')):
         enableDirectory(datapath('p999'))
     session.experiment._setROParam('managerights', None)
-    session.unloadSetup()
 
 
 def datapath(*parts, **kwds):
     extra = kwds.get('extra', 'data')
-    return path.join(rootdir, extra, year, *parts)
+    return path.join(runtime_root, extra, year, *parts)
 
 
-def test_experiment():
+def test_experiment(session):
     exp = session.experiment
 
     # setup test scenario
-    exp._setROParam('dataroot', path.join(rootdir, 'data'))
+    exp._setROParam('dataroot', path.join(runtime_root, 'data'))
     exp.proposal = 'service'
     exp._setROParam('proptype', 'service')
     # if there is no exp.new, we need to adjust proposalpath ourselfs!
     exp.proposalpath = exp.proposalpath_of(exp.proposal)
 
     # create the needed script file
-    spath = path.join(rootdir, 'data', year,
+    spath = path.join(runtime_root, 'data', year,
                       'service', 'scripts')
 
     assert exp.scriptpath == spath
@@ -168,20 +165,19 @@ def test_experiment():
     exp.new('service', localcontact=exp.localcontact)
 
 
-def test_expanduser_dataroot():
+def test_expanduser_dataroot(session):
     exp = session.experiment
     dataroot = "~/data"
     exp._setROParam("dataroot", dataroot)
-    assert_equal(exp.dataroot, path.expanduser(dataroot))
-    # assert exp.dataroot == path.expanduser(dataroot)
+    assert exp.dataroot == path.expanduser(dataroot)
 
 
-def test_expandenv_dataroot():
+def test_expandenv_dataroot(session):
     exp = session.experiment
-    os.environ['TESTVAR'] = path.join(rootdir, 'xxx')
+    os.environ['TESTVAR'] = path.join(runtime_root, 'xxx')
     dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
     exp._setROParam('dataroot', dataroot2)
-    assert_equal(exp.dataroot, path.expandvars(dataroot2))
+    assert exp.dataroot == path.expandvars(dataroot2)
     exp.finish()
     exp.new('p888', 'etitle2', 'me2 <m.e2@me.net>', 'you2')
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)

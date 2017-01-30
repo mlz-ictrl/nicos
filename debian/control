@@ -61,7 +61,8 @@ Description: NICOS status monitor(s)
 Package: nicos-dev
 Architecture: all
 Depends: nicos-core,
- python-nose,
+ python-pytest,
+ python-pytest-cov,
  python-mock,
  python-coverage,
  rst2pdf,

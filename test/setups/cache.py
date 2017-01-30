@@ -24,11 +24,11 @@
 
 name = 'cache setup'
 
-from test.utils import getCacheNameAndPort
+from test.utils import getCacheAddr
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = getCacheNameAndPort('localhost'),
+                    server = getCacheAddr(),
                     db = 'DB',
                     loglevel='debug',
                    ),

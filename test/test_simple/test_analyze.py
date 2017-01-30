@@ -29,24 +29,16 @@ try:
 except ImportError:
     leastsq = None
 
-from nicos import session
+import pytest
+
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
     poly, gauss
-from nicos.core import FINAL, MASTER
+from nicos.core import FINAL
 
-from test.utils import requires
-
-
-def setup_module():
-    session.loadSetup('scanning')
-    session.setMode(MASTER)
+session_setup = 'scanning'
 
 
-def teardown_module():
-    session.unloadSetup()
-
-
-def generate_dataset():
+def generate_dataset(session):
     """Generate a dataset as if a scan has been run."""
     import numpy
     data = numpy.array((1, 2, 1, 2, 2, 2, 5, 20, 30, 20, 10, 2, 3, 1, 2, 1, 1, 1))
@@ -63,29 +55,29 @@ def generate_dataset():
     session.data.finishScan()
 
 
-def test_fwhm():
-    generate_dataset()
+def test_fwhm(session):
+    generate_dataset(session)
     result = fwhm(1, 3)
     assert result == (2.75, -1, 30, 1)
 
 
-def test_center_of_mass():
-    generate_dataset()
+def test_center_of_mass(session):
+    generate_dataset(session)
     result1 = center_of_mass()
     assert -0.840 < result1 < -0.839
     result2 = center_of_mass(4)  # center of mass from values*2 should be same
     assert result1 == result2
 
 
-def test_root_mean_square():
-    generate_dataset()
+def test_root_mean_square(session):
+    generate_dataset(session)
     result = root_mean_square()
     assert 10.176 < result < 10.177
 
 
-@requires(leastsq, 'scipy leastsq not available')
-def test_poly():
-    generate_dataset()
+@pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+def test_poly(session):
+    generate_dataset(session)
     result1 = poly(1, 1, 3)
     assert len(result1) == 2 and len(result1[0]) == 2
     assert 1.847 < result1[0][0] < 1.848
@@ -97,9 +89,9 @@ def test_poly():
     assert result4 == result3
 
 
-@requires(leastsq, 'scipy leastsq not available')
-def test_gauss():
-    generate_dataset()
+@pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+def test_gauss(session):
+    generate_dataset(session)
     result = gauss()
     assert len(result) == 2 and len(result[0]) == 4
     assert -0.874 < result[0][0] < -0.873

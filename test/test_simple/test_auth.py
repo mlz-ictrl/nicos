@@ -29,6 +29,8 @@ from nicos.commands.basic import RemoveDevice
 
 from test.utils import raises
 
+session_setup = 'empty'
+
 
 def test_auth_entry():
     assert auth_entry(['user', 'passwd', 'user']) == ('user', 'passwd', USER)
@@ -42,7 +44,7 @@ def test_auth_entry():
     assert raises(ValueError, auth_entry, ['user', ['passwd'], 'user'])
 
 
-def test_passwd_user():
+def test_passwd_user(session):
     Auth = ListAuthenticator('authenicator',
                              passwd = [('guest', '', 'guest'),
                                        ('user', 'user', 'user'),
@@ -55,7 +57,7 @@ def test_passwd_user():
     RemoveDevice(Auth)
 
 
-def test_any_user():
+def test_any_user(session):
     Auth = ListAuthenticator('authenicator',
                              passwd = [('guest', '', 'guest'),
                                        ('', '', 'admin'),
@@ -69,7 +71,7 @@ def test_any_user():
     RemoveDevice(Auth)
 
 
-def test_empty_user():
+def test_empty_user(session):
     Auth = ListAuthenticator('authenicator',
                              passwd = [('admin', 'admin', 'admin'),
                                        ('', 'passwd', 'admin')])

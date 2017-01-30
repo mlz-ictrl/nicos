@@ -24,11 +24,11 @@
 
 name = 'elog setup'
 
-from test.utils import getCacheNameAndPort
+from test.utils import getCacheAddr
 
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = getCacheNameAndPort('localhost'),
+                     cache = getCacheAddr(),
                     ),
 )
