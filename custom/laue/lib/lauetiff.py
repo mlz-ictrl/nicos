@@ -29,12 +29,11 @@ File writer for tiff files compatible with ESMERALDA
 try:
     from PIL import PILLOW_VERSION  # pylint: disable=E0611
     from distutils.version import LooseVersion  # pylint: disable=E0611
-    if LooseVersion(PILLOW_VERSION) < LooseVersion('2.7.0'):
+    if LooseVersion(PILLOW_VERSION) < LooseVersion('3.99.0'):
         raise ImportError
     from PIL import Image
-    from PIL.TiffImagePlugin import ImageFileDirectory, STRIPOFFSETS
-    from nicos.laue.patch_tiff_image_plugin import save
-    ImageFileDirectory.save = save
+    from PIL.TiffImagePlugin import ImageFileDirectory_v2, STRIPOFFSETS
+
 except ImportError:
     Image = None
 
@@ -84,10 +83,9 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         ifile.save(fp, 'TIFF', tiffinfo=self._buildHeader(self.metainfo))
 
     def _buildHeader(self, imageinfo):
-        ifd = ImageFileDirectory()  # pylint: disable=E1120
+        ifd = ImageFileDirectory_v2()  # pylint: disable=E1120
         ifd[TAGMAP['startx'][0]] = 1
         ifd[TAGMAP['starty'][0]] = 1
-        ifd[STRIPOFFSETS] = 8
         for (dev, attr), attrVal in iteritems(imageinfo):
             key = '%s/%s' % (dev, attr)
             if key in TAGMAP:
@@ -98,6 +96,9 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
                     attrVal = float(attrVal[0])
                 ifd[tag] = attrVal
 
+        ifd = dict(ifd)
+        # increase stripoffset, otherwise ESMERALDA can not read meta data
+        ifd[STRIPOFFSETS] = 186
         return ifd
 
 
