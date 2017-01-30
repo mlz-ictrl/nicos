@@ -27,7 +27,7 @@
 from time import strftime, time as currenttime
 
 from nicos.core import Override
-from nicos.core.constants import POINT, SCAN, SUBSCAN
+from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems, to_utf8
 
@@ -125,7 +125,7 @@ class CaressHistogram(ImageSink):
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
                                      default=['run%(pointcounter)07d.ctxt']),
-        'settypes': Override(default=[SCAN, SUBSCAN, POINT]),
+        'settypes': Override(default=[POINT]),
     }
 
     handlerclass = CaressHistogramHandler
