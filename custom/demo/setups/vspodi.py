@@ -9,6 +9,8 @@ sysconfig = dict(
     datasinks = ['spodisink'],
 )
 
+includes = ['source']
+
 devices = dict(
     VSPODI = device('devices.instrument.Instrument',
                     description = 'Virtual SPODI instrument',
