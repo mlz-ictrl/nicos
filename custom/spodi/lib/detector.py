@@ -105,11 +105,11 @@ class Detector(MeasureSequencer):
         return ret
 
     def doPrepare(self):
-        self._startpos = self._attached_motor.read() + \
-            (self.resosteps - 1) * self._step_size
         self._attached_detector.doPrepare()
 
     def doStart(self):
+        self._startpos = self._attached_motor.read() + \
+            (self.resosteps - 1) * self._step_size
         self._last_live = 0
         self._step = 0
         self._array_data.fill(0)
