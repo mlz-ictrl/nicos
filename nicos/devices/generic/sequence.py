@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""Devices performing an unlocking/locking sequence upon moving"""
+"""Devices performing an unlocking/locking sequence upon moving."""
 
 import sys
 import time
@@ -31,13 +31,13 @@ from datetime import timedelta
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Device, DeviceMixinBase, LimitError, Attach, \
+from nicos.core import Attach, Device, DeviceMixinBase, LimitError, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
-    ProgrammingError, SIMULATION, anytype, none_or, status, tupleof, \
-    Readable
-from nicos.utils import createThread
+    ProgrammingError, Readable, SIMULATION, anytype, none_or, status, tupleof
+
 from nicos.core.utils import devIter
 from nicos.pycompat import reraise
+from nicos.utils import createThread
 
 
 class StopSequence(Exception):
@@ -54,6 +54,7 @@ class SequenceItem(object):
     Derived Classes/Items are encouraged to also define a __repr__ returning
     a NICOS-command aquivalent to the action performed.
     """
+
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -65,7 +66,7 @@ class SequenceItem(object):
         """
 
     def run(self):
-        """Initates an action, define in derived classes."""
+        """Initate an action, define in derived classes."""
 
     def retry(self, amount):
         """Retry the start of an already failed action."""
@@ -85,16 +86,17 @@ class SequenceItem(object):
         return True
 
     def stop(self):
-        """Interrupts the action started by run()."""
+        """Interrupt the action started by run()."""
 
 
 class SeqDev(SequenceItem):
-    """Moves the given device to the given target and waits until it is there.
+    """Move the given device to the given target and waits until it is there.
 
     Also works for Measurables/detectors by supporting keyworded arguments.
     If you want to be able to interrupt the movement, set the keyword argument
     ``stoppable=True`` when calling the constructor.
     """
+
     def __init__(self, dev, target, stoppable=False):
         SequenceItem.__init__(self, dev=dev, target=target, stoppable=stoppable)
 
@@ -124,7 +126,8 @@ class SeqDev(SequenceItem):
 
 
 class SeqParam(SequenceItem):
-    """Sets a Parameter of a Device and checks its value once"""
+    """Set a Parameter of a Device and check its value once."""
+
     def __init__(self, dev, paramname, value):
         SequenceItem.__init__(self, dev=dev, paramname=paramname, value=value)
 
@@ -139,10 +142,11 @@ class SeqParam(SequenceItem):
 
 
 class SeqMethod(SequenceItem):
-    """Calls a method of an object with the given arguments.
+    """Call a method of an object with the given arguments.
 
     Useful for e.g. fix/release or other usermethods.
     """
+
     def __init__(self, obj, method, *args, **kwargs):
         SequenceItem.__init__(self, obj=obj, method=method, args=args,
                               kwargs=kwargs)
@@ -164,7 +168,8 @@ class SeqMethod(SequenceItem):
 
 
 class SeqCall(SequenceItem):
-    """Calls a given function with given arguments."""
+    """Call a given function with given arguments."""
+
     def __init__(self, func, *args, **kwargs):
         SequenceItem.__init__(self, func=func, args=args, kwargs=kwargs)
 
@@ -176,7 +181,8 @@ class SeqCall(SequenceItem):
 
 
 class SeqSleep(SequenceItem):
-    """Waits a certain time, given in seconds"""
+    """Wait a certain time, given in seconds."""
+
     def __init__(self, duration, reason=None):
         SequenceItem.__init__(self, duration=duration, reason=reason)
         self.stopflag = False
@@ -185,7 +191,7 @@ class SeqSleep(SequenceItem):
     def run(self):
         if self.duration > 3:
             session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
-                                     timedelta(seconds = self.duration))
+                                     timedelta(seconds=self.duration))
         self.endtime = currenttime() + self.duration
 
     def isCompleted(self):
@@ -210,11 +216,12 @@ class SeqSleep(SequenceItem):
 
 
 class SeqNOP(SequenceItem):
-    """Does nothing.
+    """Do nothing.
 
     May be needed in cases where _<action>Failed Hooks
     decide upon the step number, what to do.
     """
+
     def __init__(self):
         SequenceItem.__init__(self)
 
@@ -237,6 +244,7 @@ class SequencerMixin(DeviceMixinBase):
 
     Usually, it is fine to derive from :class:`BaseSequencer`.
     """
+
     parameters = {
         '_seq_status': Param('Status of the currently executed sequence, '
                              'or (status.OK, idle)', settable=True,
@@ -257,7 +265,7 @@ class SequencerMixin(DeviceMixinBase):
     hardware_access = False
 
     def _set_seq_status(self, newstatus=status.OK, newstatusstring='unknown'):
-        """Set the current sequence status"""
+        """Set the current sequence status."""
         oldstatus = self.status()
         self._seq_status = (newstatus, newstatusstring.strip())
         self.log.debug(self._seq_status[1])
@@ -269,7 +277,7 @@ class SequencerMixin(DeviceMixinBase):
         return self._seq_thread and self._seq_thread.is_alive()
 
     def _startSequence(self, sequence):
-        """Checks and starts the sequence"""
+        """Check and start the sequence."""
         # check sequence
         for i, step in enumerate(sequence):
             if not hasattr(step, '__iter__'):
@@ -302,13 +310,13 @@ class SequencerMixin(DeviceMixinBase):
         self._asyncSequence(sequence)
 
     def _asyncSequence(self, sequence):
-        """Starts a thread to execute the sequence."""
+        """Start a thread to execute the sequence."""
         self._seq_stopflag = False
         self._seq_was_stopped = False
         self._seq_thread = createThread('sequence', self._run, (sequence,))
 
     def _run(self, sequence):
-        """The thread performing the sequence
+        """The thread performing the sequence.
 
         May be overwritten in derived classes needed the status sync between
         poller and daemon but don't want to use the actual sequencing routine.
@@ -422,7 +430,7 @@ class SequencerMixin(DeviceMixinBase):
             raise StopSequence(self, self._seq_status[1])
 
     def doStatus(self, maxage=0):
-        """returns highest statusvalue"""
+        """Return highest statusvalue."""
         stati = [dev.status(maxage)
                  for dev in devIter(self._getWaiters(), Readable)] + \
                 [self._seq_status]
@@ -441,8 +449,8 @@ class SequencerMixin(DeviceMixinBase):
 
     def doReset(self):
         if self._seq_is_running():
-            self.log.error("cannot reset the device because it is busy, "
-                           "please stop it first.")
+            self.log.error('cannot reset the device because it is busy, '
+                           'please stop it first.')
             return
         self._seq_was_stopped = False
         self._set_seq_status(status.OK, 'idle')
@@ -478,7 +486,7 @@ class SequencerMixin(DeviceMixinBase):
         """
 
     def _checkFailed(self, step, action, exc_info):
-        """Called whenever an action check failed
+        """Called whenever an action check failed.
 
         This may raise an Exception to end the sequence or return
         anything to ignore this.
@@ -488,7 +496,7 @@ class SequencerMixin(DeviceMixinBase):
         reraise(*exc_info)
 
     def _runFailed(self, step, action, exc_info):
-        """Called whenever an action run failed
+        """Called whenever an action run failed.
 
         This may raise an Exception to end the sequence or return
         an integer. If that integer is > 0, the actions retry is called.
@@ -498,7 +506,7 @@ class SequencerMixin(DeviceMixinBase):
         reraise(*exc_info)
 
     def _retryFailed(self, step, action, code, exc_info):
-        """Called whenever an actions retry failed
+        """Called whenever an actions retry failed.
 
         This may raise an Exception to end the sequence or return
         anything to ignore this.
@@ -508,7 +516,7 @@ class SequencerMixin(DeviceMixinBase):
         reraise(*exc_info)
 
     def _waitFailed(self, step, action, exc_info):
-        """Called whenever a wait failed
+        """Called whenever a wait failed.
 
         This may raise an Exception to end the sequence or return
         anything to ignore this.
@@ -539,8 +547,9 @@ class BaseSequencer(SequencerMixin, Moveable):
     Also, a `doRead()` method must be implemented.  `doStatus()` may need to be
     overridden in special cases.
     """
+
     def doStart(self, target):
-        """Generates and starts a sequence if non is running.
+        """Generate and start a sequence if non is running.
 
         Just calls ``self._startSequence(self._generateSequence(target))``
         """
@@ -570,7 +579,8 @@ class LockedDevice(BaseSequencer):
     """
 
     attached_devices = {
-        'device': Attach('Moveable device which is protected by the lock', Moveable),
+        'device': Attach('Moveable device which is protected by the lock',
+                         Moveable),
         'lock': Attach('The lock, protecting the device', Moveable),
     }
 
@@ -638,7 +648,7 @@ class MeasureSequencer(SequencerMixin, Measurable):
     """
 
     def doStart(self):
-        """Generates and starts a sequence if non is running.
+        """Generate and start a sequence if non is running.
 
         Just calls ``self._startSequence(self._generateSequence())``
 
@@ -648,5 +658,5 @@ class MeasureSequencer(SequencerMixin, Measurable):
                 self._seq_thread.join()
                 self._seq_thread = None
             else:
-                raise NicosError(self, "Cannot start device, it is still busy")
+                raise NicosError(self, 'Cannot start device, it is still busy')
         self._startSequence(self._generateSequence())
