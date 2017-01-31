@@ -215,15 +215,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
         self.plotcurves = []
         self.addAllCurves()
-        # SECOND AXIS NOT IMPLEMENTED
-#        if self.has_secondary:
-#            self.setAxisTitle(QwtPlot.yRight, y2axistext)
-
-#            scale = self.y2axisScale()
-#            if scale is None:
-#                self.setAxisAutoScale(QwtPlot.yRight)
-#            else:
-#                self.setAxisScale(QwtPlot.yRight, scale[0], scale[1])
         if self.timeaxis:
             self._plot.viewport = (.1, .85, .18, .88)
             self._axes.setXtickCallback(self.xtickCallBack)

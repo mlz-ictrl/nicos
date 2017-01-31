@@ -56,7 +56,6 @@ class DataProxy(object):
 class Curve(object):
     description = ''
     source = ''  # source dataset if curves from different sets are combined
-    yaxis = 1
     yindex = -1
     dyindex = -1
     disabled = False
@@ -214,9 +213,7 @@ class DataHandler(QObject):
             else:
                 curve.description = name
             curve.yindex = i
-            if info.type == 'other':
-                curve.yaxis = 2
-            elif info.type in ('time', 'monitor'):
+            if info.type in ('time', 'monitor'):
                 normindices.append((i, name))
                 curve.disabled = True
             elif info.type == 'calc':

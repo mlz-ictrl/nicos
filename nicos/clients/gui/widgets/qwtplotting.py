@@ -275,16 +275,13 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         self.setFont(font)
         self.titleLabel().setFont(larger)
         self.setAxisFont(QwtPlot.yLeft, font)
-        self.setAxisFont(QwtPlot.yRight, font)
         self.setAxisFont(QwtPlot.xBottom, font)
         self.axisTitle(QwtPlot.xBottom).setFont(bold)
         self.axisTitle(QwtPlot.yLeft).setFont(bold)
-        self.axisTitle(QwtPlot.yRight).setFont(bold)
         self.labelfont = bold
 
     def updateDisplay(self):
         self.clear()
-        self.has_secondary = False
         grid = QwtPlotGrid()
         grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
         grid.enableXMin(True)
@@ -298,21 +295,15 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
             self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
             self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
         yaxisname = self.yaxisName()
-        y2axisname = self.y2axisName()
         if self.normalized:
             yaxistext = QwtText(yaxisname + ' (norm: %s)' % self.normalized)
-            y2axistext = QwtText(y2axisname + ' (norm: %s)' % self.normalized)
         else:
             yaxistext = QwtText(yaxisname)
-            y2axistext = QwtText(y2axisname)
         yaxistext.setFont(self.labelfont)
-        y2axistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.yLeft, yaxistext)
 
         self.plotcurves = []
         self.addAllCurves()
-        if self.has_secondary:
-            self.setAxisTitle(QwtPlot.yRight, y2axistext)
 
         scale = self.xaxisScale()
         if scale is None:
@@ -324,12 +315,6 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
             self.setAxisAutoScale(QwtPlot.yLeft)
         else:
             self.setAxisScale(QwtPlot.yLeft, scale[0], scale[1])
-        if self.has_secondary:
-            scale = self.y2axisScale()
-            if scale is None:
-                self.setAxisAutoScale(QwtPlot.yRight)
-            else:
-                self.setAxisScale(QwtPlot.yRight, scale[0], scale[1])
         self.zoomer.setZoomBase(True)   # does a replot
 
     curvecolor = [Qt.black, Qt.red, Qt.darkGreen, Qt.blue,
@@ -364,9 +349,6 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
 
     def setLogScale(self, on):
         self.setAxisScaleEngine(QwtPlot.yLeft,
-                                on and QwtLog10ScaleEngine()
-                                or QwtLinearScaleEngine())
-        self.setAxisScaleEngine(QwtPlot.yRight,
                                 on and QwtLog10ScaleEngine()
                                 or QwtLinearScaleEngine())
         self.replot()
@@ -622,10 +604,6 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
                                       errorCap=8, errorOnTop=False)
         if not curve.function:
             plotcurve.setSymbol(self.symbol)
-        if curve.yaxis == 2:
-            plotcurve.setYAxis(QwtPlot.yRight)
-            self.has_secondary = True
-            self.enableAxis(QwtPlot.yRight)
         if curve.disabled:
             plotcurve.setVisible(False)
             plotcurve.setItemAttribute(QwtPlotItem.Legend, False)

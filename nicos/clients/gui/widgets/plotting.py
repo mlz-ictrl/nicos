@@ -299,7 +299,6 @@ class NicosPlot(DlgUtils):
         DlgUtils.__init__(self, 'Plot')
         self.window = window
         self.plotcurves = []
-        self.has_secondary = False
         self.show_all = False
         self.timeaxis = timeaxis
         self.hasSymbols = False
@@ -335,16 +334,10 @@ class NicosPlot(DlgUtils):
     def yaxisName(self):
         raise NotImplementedError
 
-    def y2axisName(self):
-        return ''
-
     def xaxisScale(self):
         return None
 
     def yaxisScale(self):
-        return None
-
-    def y2axisScale(self):
         return None
 
     def isLegendEnabled(self):
