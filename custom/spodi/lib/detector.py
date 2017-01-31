@@ -153,6 +153,10 @@ class Detector(MeasureSequencer):
         self.log.debug('doReadArrays: %d/%d: %d, %r',
                        self._step, self.resosteps, self._array_data.sum(),
                        self._array_data.shape)
+        if quality == LIVE:
+            imgret = self._attached_detector.readArrays(FINAL)[0].astype(
+                '<u4', order='F')
+            self._array_data[self._step::self.resosteps] = imgret
         return [self._array_data]
 
     def _generateSequence(self, *args, **kwargs):
