@@ -189,7 +189,7 @@ xunit-prefix-with-testsuite-name=1
     verifyresult.put(pyver, 0)
     try {
         wrap([$class: 'PortAllocator',
-              plainports:['NICOS_DAEMON_PORT', 'NICOS_CACHE_PORT']])  {
+              plainports:['NICOS_DAEMON_PORT', 'NICOS_CACHE_PORT', 'NICOS_CACHE_ALT_PORT']])  {
             timeout(5) {
                withEnv(["VENV=$venv"]) {
                   sh '''\
