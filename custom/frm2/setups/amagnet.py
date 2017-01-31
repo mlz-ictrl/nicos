@@ -4,7 +4,7 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-tango_base = 'tango://%s.antares.frm2:10000/box/' % setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = dict(
     amagnet_onoff = device('devices.tango.NamedDigitalOutput',
@@ -36,25 +36,25 @@ devices = dict(
     amagnet_T1 = device('devices.tango.AnalogInput',
         description = 'Temperature1 of the coils system',
         tangodevice = tango_base + 'plc/_t1',
-        unit = 'K',
+        unit = 'degC',
         warnlimits = (0, 50),
     ),
     amagnet_T2 = device('devices.tango.AnalogInput',
         description = 'Temperature2 of the coils system',
         tangodevice = tango_base + 'plc/_t2',
-        unit = 'K',
+        unit = 'degC',
         warnlimits = (0, 50),
     ),
     amagnet_T3 = device('devices.tango.AnalogInput',
         description = 'Temperature3 of the coils system',
         tangodevice = tango_base + 'plc/_t3',
-        unit = 'K',
+        unit = 'degC',
         warnlimits = (0, 50),
     ),
     amagnet_T4 = device('devices.tango.AnalogInput',
         description = 'Temperature4 of the coils system',
         tangodevice = tango_base + 'plc/_t4',
-        unit = 'K',
+        unit = 'degC',
         warnlimits = (0, 50),
     ),
     amagnet_current = device('devices.tango.PowerSupply',
