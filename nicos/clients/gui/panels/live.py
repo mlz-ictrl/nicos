@@ -172,11 +172,8 @@ class LiveDataPanel(Panel):
             menu = QMenu('&Live data', self)
             menu.addAction(self.actionPrint)
             menu.addSeparator()
-            menu.addAction(self.actionSetAsROI)
             menu.addAction(self.actionUnzoom)
             menu.addAction(self.actionLogScale)
-            menu.addAction(self.actionNormalized)
-            menu.addAction(self.actionLegend)
             self.menu = menu
         return [self.menu]
 
@@ -188,7 +185,6 @@ class LiveDataPanel(Panel):
             bar.addAction(self.actionLogScale)
             bar.addSeparator()
             bar.addAction(self.actionUnzoom)
-            # bar.addAction(self.actionSetAsROI)
             self.bar = bar
         return [self.bar]
 

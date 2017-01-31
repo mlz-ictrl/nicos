@@ -33,6 +33,7 @@ from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
+from nicos.utils import findResource
 
 from nicoslivewidget import LWWidget, LWData
 
@@ -45,7 +46,7 @@ class LiveDataPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'live.ui', 'panels')
+        loadUi(self, findResource('custom/antares/lib/gui/live.ui'))
 
         self._format = None
         self._runtime = 0

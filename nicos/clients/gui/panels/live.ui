@@ -85,18 +85,6 @@
     <string>Ctrl+P</string>
    </property>
   </action>
-  <action name="actionClose">
-   <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
-     <normaloff>:/quit</normaloff>:/quit</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Close window</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
-   </property>
-  </action>
   <action name="actionUnzoom">
    <property name="icon">
     <iconset resource="../../../../resources/nicos-gui.qrc">
@@ -130,83 +118,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
-   </property>
-  </action>
-  <action name="actionNormalized">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Normalized</string>
-   </property>
-   <property name="iconText">
-    <string>Normalized</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
-  <action name="actionLegend">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>L&amp;egend</string>
-   </property>
-  </action>
-  <action name="actionResetPlot">
-   <property name="text">
-    <string>Reset</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
-   </property>
-  </action>
-  <action name="actionWriteXml">
-   <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
-     <normaloff>:/save</normaloff>:/save</iconset>
-   </property>
-   <property name="text">
-    <string>Save as XML...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionSetAsROI">
-   <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
-     <normaloff>:/find</normaloff>:/find</iconset>
-   </property>
-   <property name="text">
-    <string>Set as ROI</string>
-   </property>
-  </action>
-  <action name="actionSelectChannels">
-   <property name="text">
-    <string>Select channels...</string>
-   </property>
-  </action>
-  <action name="actionLoadTOF">
-   <property name="text">
-    <string>Load TOF...</string>
-   </property>
-  </action>
-  <action name="actionLoadPAD">
-   <property name="text">
-    <string>Load PAD...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="actionCustomRange">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Custom range</string>
    </property>
   </action>
  </widget>
