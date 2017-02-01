@@ -3,7 +3,7 @@
 description = "Jumiom detector setup"
 group = "basic"
 
-includes = ["counter"]
+includes = ["counter", "sampletable"]
 
 sysconfig = dict(
     datasinks = ["NPGZFileSink", "YAMLSaver", "LiveViewSink"],
@@ -57,6 +57,13 @@ devices = dict(
                            tangodevice=tango_s7 + "/detector",
                            precision=0.01,
                           ),
+    t2t    = device("maria.motor.MasterSlaveMotor",
+                    description = "2 theta axis moving detarm = 2 * omega",
+                    master = "omega",
+                    slave = "detarm",
+                    scale = 2.,
+                    fmtstr = "%.2f",
+                   ),
 )
 
 startupcode = "SetDetectors(det)"
