@@ -27,7 +27,7 @@
 from nicos.core import MoveError, SIMULATION
 from nicos.devices.generic import Slit as GenericSlit, TwoAxisSlit as \
     GenericTwoAxisSlit
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 
 
 class Slit(SequencerMixin, GenericSlit):

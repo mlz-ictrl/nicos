@@ -31,6 +31,10 @@ from nicos.commands.basic import sleep
 from nicos.commands.device import maw
 from nicos.commands.scan import contscan
 
+__all__ = (
+    'gauge_to_base', 'base_to_gauge', 'set_sample', 'pole_figure',
+    'change_sample'
+)
 
 @usercommand
 @helparglist('')
@@ -54,6 +58,13 @@ def gauge_to_base():
 @usercommand
 @helparglist('toolnumber')
 def base_to_gauge(tool):
+    """Move from the base position to the measurement position 'toolnumber'.
+
+    Examples::
+
+        # Move to measurement position 1
+        >>> base_to_gauge(1)
+    """
     session.getDevice('phis').speed = 50
     session.getDevice('xt').speed = 40
     # omgr in robot software offset must be <= -10

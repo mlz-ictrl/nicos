@@ -23,19 +23,16 @@
 # *****************************************************************************
 """YAML data sink classes for STRESS-SPEC."""
 
-from __future__ import print_function
-
 import re
 import time
 
 from collections import OrderedDict
 
 from nicos import session
-from nicos.core import listof, Param, Override
-from nicos.devices.datasinks.scan import AsciiScanfileSinkHandler, \
-    AsciiScanfileSink, TIMEFMT
-
-from nicos.pycompat import iteritems, TextIOWrapper, to_utf8
+from nicos.core import Override, Param, listof
+from nicos.devices.datasinks.scan import AsciiScanfileSink, \
+    AsciiScanfileSinkHandler, TIMEFMT
+from nicos.pycompat import TextIOWrapper, iteritems, to_utf8
 
 from yaml import add_representer, dump, representer
 
@@ -44,6 +41,7 @@ add_representer(OrderedDict,
 
 
 class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
+    """YAML format datafile writing class."""
 
     _data = OrderedDict()
     _identifier = 'MLZ.StressSpec.2.0 / proposal 0.2'
@@ -320,11 +318,11 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             self._write_general(bycategory['general'])
 
     def putMetainfo(self, metainfo):
-        print('ADD META INFO %r' % metainfo)
+        self.log.info('ADD META INFO %r', metainfo)
         return
 
     def addValues(self, values):
-        print('ADD VALUES %r' % values)
+        self.log.info('ADD VALUES %r', values)
         return
 
     def putResults(self, quality, results):
@@ -362,7 +360,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             elif info.type == 'monitor':
                 scanpoint['monitor'] = self._integer('%d' % val)
             else:
-                print('%s %s' % (info.name, info.type))
+                self.log.info('%s %s', info.name, info.type)
         self._data['measurement']['scan'].append(scanpoint)
 
     def end(self):

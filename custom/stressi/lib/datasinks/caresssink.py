@@ -65,6 +65,7 @@ Timer = namedtuple('Timer', 'value')
 
 
 class CaressScanfileSinkHandler(DataSinkHandler):
+    """CARESS compatible datafile writing class."""
 
     _wrote_header = False
     _scan_file = False
@@ -527,7 +528,8 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         if point.settype != POINT:
             return
 
-        self.log.debug('%r - %r', self.dataset.detvalueinfo, point.detvaluelist)
+        self.log.debug('%r - %r', self.dataset.detvalueinfo,
+                       point.detvaluelist)
 
         # the image data are hopefully always at this place
         try:

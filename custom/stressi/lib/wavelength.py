@@ -24,7 +24,7 @@
 
 """Wave length device for STRESS-SPEC diffractometer."""
 
-from math import pi, sin, asin
+from math import asin, pi, sin
 
 from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
     Param, SIMULATION, multiStop, status
@@ -34,6 +34,7 @@ from nicos.stressi.mixins import TransformMove
 
 
 class TransformedMoveable(HasPrecision, TransformMove, Moveable):
+    """Moveable transforming the data from and to a Moveable."""
 
     valuetype = float
 
@@ -159,8 +160,8 @@ class Wavelength(HasLimits, Moveable):
         crystal = self._crystal(0)
         if crystal:
             if not crystal.get(target, None):
-                raise ValueError('The "%s" plane is not allowed for "%s" crystal'
-                                 % (target, crystal))
+                raise ValueError('The "%s" plane is not allowed for "%s" '
+                                 'crystal' % (target, crystal))
         else:
             raise PositionError('No valid setup of the monochromator')
         return target
