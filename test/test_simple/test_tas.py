@@ -345,7 +345,7 @@ def test_virtualdet(session):
     assert countres[0] == 1.0
     cps = float(countres[2])
     countres2 = count(tdet, 100)
-    assert 80 < countres2[2] / cps < 120
+    assert countres2[2] / cps == approx(100, abs=30)
 
     tas.maw([0.5, 0, 0, 0])
     countres = count(tdet, 1)
