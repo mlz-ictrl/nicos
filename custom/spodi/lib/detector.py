@@ -26,6 +26,7 @@
 
 import numpy as np
 
+from nicos import session
 from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
     listof, none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
@@ -110,11 +111,14 @@ class Detector(MeasureSequencer):
     def doStart(self):
         self._startpos = self._attached_motor.read() + \
             (self.resosteps - 1) * self._step_size
+        self.log.debug('det._startpos: %r', self._startpos)
+        self._setROParam('rates', [0., 0., 0.])
+        session.data.updateMetainfo()
+
         self._last_live = 0
         self._step = 0
         self._array_data.fill(0)
         self._data = [0] * len(self._attached_detector.valueInfo())
-        self._setROParam('rates', [0., 0., 0.])
         MeasureSequencer.doStart(self)
 
     def doSetPreset(self, **preset):
