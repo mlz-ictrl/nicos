@@ -25,4 +25,7 @@ devices = dict(
                         transmission = 'beam_trans',
                         wavelength = 'wavelength',
                        ),
+    timestamp  = device('poli.tsdevice.Timestamp',
+                        description = 'Timestamp generator for scan env',
+                       ),
 )
