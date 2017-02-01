@@ -44,8 +44,8 @@ PROTO_VERSION = 16
 # 12 -> 13: 'authenticate' now returns user info dict
 # 13 -> 14: added 'finish' command
 # 14 -> 15: added 'eventunmask' command
-# 15 -> 16: added 'uid' parameter to 'liveparams' and 'livadata' command
-#           added 'detector' parameter to 'liveparams' command
+# 15 -> 16: added 'uid' and 'detector' parameters to 'liveparams' event
+#           added 'prompt' event
 
 COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14, 15]
 
@@ -210,6 +210,8 @@ DAEMON_EVENTS = {
     'device':      (True, 0x1015),
     # the experiment has changed
     'experiment':  (True, 0x1016),
+    # the user is prompted to continue
+    'prompt':      (True, 0x1017),
 }
 
 event2code, code2event = {}, {}

@@ -127,6 +127,12 @@ class DaemonSession(NoninteractiveSession):
     def breakpoint(self, level):
         exec_(self._bpcode[level])
 
+    def pause(self, prompt):
+        self.log.info('pause from script...')
+        self.daemon_device._controller.set_break(('break', 3, 'pause()'))
+        self.emitfunc('prompt', (prompt,))
+        self.breakpoint(3)
+
     def checkAccess(self, required):
         if 'level' in required:
             script = self.daemon_device.current_script()

@@ -60,7 +60,7 @@ __all__ = [
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'SetDataReceivers', '_trace', 'timer',
-    'LogEntry', '_LogAttach', 'SetErrorAbort',
+    'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause',
 ]
 
 
@@ -912,3 +912,12 @@ def SetErrorAbort(abort):
     command.
     """
     session.experiment.errorbehavior = abort and 'abort' or 'report'
+
+
+@usercommand
+def pause(prompt='Script paused by pause() command.'):
+    """Pause the script until the user confirms continuation.
+
+    The *prompt* text is shown to the user.
+    """
+    session.pause(prompt)

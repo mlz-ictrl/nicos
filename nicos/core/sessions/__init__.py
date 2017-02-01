@@ -1385,6 +1385,9 @@ class Session(object):
         - 5 to indicate a breakpoint for "immediate stop"
         """
 
+    def pause(self, prompt):
+        """Pause the script, prompting the user to continue with a message."""
+
     def delay(self, secs):
         """Sleep for a small time, allow immediate stop before and after."""
         self.breakpoint(5)

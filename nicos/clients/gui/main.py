@@ -62,7 +62,7 @@ from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
-    STATUS_IDLEEXC
+    STATUS_IDLEEXC, BREAK_NOW
 from nicos.pycompat import exec_, iteritems, listvalues, text_type
 
 from nicos.clients.gui.config import tabbed
@@ -90,6 +90,9 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # window for displaying errors
         self.errorWindow = None
+
+        # window for "prompt" event confirmation
+        self.promptWindow = None
 
         # debug console window, if opened
         self.debugConsole = None
@@ -120,6 +123,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
         self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
         self.connect(self.client, SIGNAL('watchdog'), self.on_client_watchdog)
+        self.connect(self.client, SIGNAL('prompt'), self.on_client_prompt)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -404,6 +408,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.trayIcon.setToolTip('%s status: %s' % (self.instrument, status))
         if self.showtrayicon:
             self.trayIcon.show()
+        if self.promptWindow and status != 'paused':
+            self.promptWindow.close()
         # propagate to panels
         for panel in self.panels:
             panel.updateStatus(status, exception)
@@ -515,6 +521,28 @@ class MainWindow(QMainWindow, DlgUtils):
             self.watchdogWindow = WatchdogDialog(self)
         self.watchdogWindow.addEvent(data)
         self.watchdogWindow.show()
+
+    def on_client_prompt(self, data):
+        if self.promptWindow:
+            self.promptWindow.close()
+
+        # show non-modal dialog box that prompts the user to continue or abort
+        prompt_text = data[0]
+        dlg = self.promptWindow = QMessageBox(
+            QMessageBox.Information, 'Confirmation required',
+            prompt_text, QMessageBox.Ok | QMessageBox.Cancel, self)
+        dlg.setWindowModality(Qt.NonModal)
+
+        # give the buttons better descriptions
+        btn = dlg.button(QMessageBox.Cancel)
+        btn.setText('Abort script')
+        btn.clicked.connect(lambda: self.client.tell_action('stop', BREAK_NOW))
+        btn = dlg.button(QMessageBox.Ok)
+        btn.setText('Continue script')
+        btn.clicked.connect(lambda: self.client.tell_action('continue'))
+        btn.setFocus()
+
+        dlg.show()
 
     def on_trayIcon_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:

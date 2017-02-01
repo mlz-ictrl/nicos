@@ -366,3 +366,10 @@ for this event should be serialized.
    The current experiment has been changed.
 
    :arg: The new proposal string.
+
+.. daemonevt:: prompt
+
+   The script has been paused, and the user should be prompted to
+   confirm continuation.
+
+   :arg: The continuation prompt.
