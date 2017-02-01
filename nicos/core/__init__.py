@@ -50,6 +50,3 @@ from nicos.core.scan import Scan
 from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user
-
-# XXX(dataapi): to be removed
-from nicos.core.image import ImageSink
