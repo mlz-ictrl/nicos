@@ -70,6 +70,10 @@ class DataManager(object):
     def reset(self):
         """Cleanup and reset the current datasets."""
         self._clean()
+
+    def reset_all(self):
+        """Cleanup and reset the current datasets as well as stored scans."""
+        self.reset()
         self._last_scans = []
 
     #
