@@ -648,8 +648,14 @@ class ManualScan(Scan):
 
     def __init__(self, firstmoves=None, multistep=None, detlist=None,
                  envlist=None, preset=None, scaninfo=None, subscan=False):
+        # put mentioned envlist devices first in envlist (usually the desired
+        # X axis is among them)
+        envlist = envlist or []
+        envlist.extend(dev for dev in session.experiment.sampleenv
+                       if dev not in envlist)
         Scan.__init__(self, [], Repeater([]), Repeater([]), firstmoves,
                       None, detlist, envlist, preset, scaninfo, subscan)
+        self._envlist = envlist
         self._multistep = multistep
         if multistep:
             for dev, _ in multistep:

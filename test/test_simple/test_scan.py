@@ -31,7 +31,7 @@ from nicos.core import UsageError, PositionError, CommunicationError, \
     NicosError, ModeError
 from nicos.core.scan import ContinuousScan
 
-from nicos.commands.measure import count, live, avg, minmax
+from nicos.commands.measure import count, live, avg, minmax, SetEnvironment
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
@@ -282,16 +282,21 @@ def test_manualscan(session):
             count()
         assert raises(NicosError, manualscan)
 
-    # with multistep;
-    with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.1):
-        for i in range(3):
-            mot.maw(i)
-            count()
+    # with multistep
+    SetEnvironment('slow_motor')
+    try:
+        with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.1):
+            for i in range(3):
+                mot.maw(i)
+                count()
+    finally:
+        SetEnvironment()
     dataset = session.data._last_scans[-1]
     assert dataset.info.startswith('manscan')
-    assert dataset.envvaluelists == [[0., 0.], [0., 0.],
-                                     [1., 1.], [1., 1.],
-                                     [2., 2.], [2., 2.]]
+    # note: here, the env devices given in the command come first
+    assert dataset.envvaluelists == [[0., 0., 0.], [0., 0., 0.],
+                                     [1., 1., 0.], [1., 1., 0.],
+                                     [2., 2., 0.], [2., 2., 0.]]
 
 
 def test_specialscans(session):
