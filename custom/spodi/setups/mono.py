@@ -10,17 +10,17 @@ includes = []
 
 devices = dict(
 # ;Monochromator
-#   omgm = device('devices.vendor.caress.Motor',
-#                 description = 'HWB OMGM',
-#                 fmtstr = '%.2f',
-#                 unit = 'deg',
-#                 coderoffset = -792.677,
-#                 abslimits = (40, 80),
-#                 nameserver = '%s' % (nameservice,),
-#                 objname = '%s' % (servername),
-#                 config = 'OMGM 114 11 0x00f1c000 3 8192 8000 200 2 25 50 '
-#                          '1 0 1 3000 1 10 10 0 1000',
-#                ),
+    omgm = device('devices.vendor.caress.Motor',
+                  description = 'HWB OMGM',
+                  fmtstr = '%.3f',
+                  unit = 'deg',
+                  coderoffset = -48.167,
+                  abslimits = (40, 80),
+                  nameserver = '%s' % (nameservice,),
+                  objname = '%s' % (servername),
+                  config = 'OMGM 115 11 0x00f1c000 3 6400 8000 200 1 0 0 '
+                           '0 0 1 3000 1 10 0 0 0',
+                 ),
 #   chim = device('devices.vendor.caress.Motor',
 #                 description = 'HWB CHIM',
 #                 fmtstr = '%.2f',
