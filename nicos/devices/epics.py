@@ -170,7 +170,7 @@ class EpicsDevice(DeviceMixinBase):
         result = self._pvs[pvparam].get(timeout=self.epicstimeout)
         if result is None:  # timeout
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
-                                     % getattr(self, pvparam))
+                                     % self._get_pv_name(pvparam))
         return result
 
     def _get_pvctrl(self, pvparam, ctrl, default=None):
