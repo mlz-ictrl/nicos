@@ -1,37 +1,74 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2017 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Christian Felder <c.felder@fz-juelich.de>
+#
+# *****************************************************************************
+
 """NICOS GUI default configuration."""
 
-main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
-    ),
-    ('NICOS devices',
-     panel('devices.DevicesPanel', icons=True, dockpos='right',)
-    ),
-    ('Experiment Information and Setup',
-     panel('expinfo.ExpInfoPanel',)
-    ),
+main_window = tabbed(
+    ('Instrument', docked(
+        vsplit(
+            hsplit(
+                vsplit(
+                    panel('cmdbuilder.CommandPanel',
+                          modules=['maria.gui.cmdlets']),
+                    panel('status.ScriptStatusPanel'),
+                ),
+            ),
+            tabbed(
+                ('All output',
+                    panel('console.ConsolePanel',
+                          hasinput=False, hasmenu=False)),
+                ('Errors/Warnings',
+                    panel('errors.ErrorPanel')),
+            ),
+        ),
+        ('Experiment Info', panel('expinfo.ExpInfoPanel', dockpos='left')),
+        ('NICOS devices',
+            panel('devices.DevicesPanel', icons=True, dockpos='right')),
+    )),
+    ('Script Editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+                tools = [
+                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+            ]),
+        )),
+    ('Scan Plotting', panel('scans.ScansPanel')),
+    ('Device Plotting', panel('history.HistoryPanel')),
+    ('Live Display', panel('live.LiveDataPanel')),
+    ('Logbook', panel('elog.ELogPanel')),
 )
 
 windows = [
-    window('Editor', 'editor', panel('editor.EditorPanel')),
-    window('Scans', 'plotter', panel('scans.ScansPanel')),
-    window('History', 'find', panel('history.HistoryPanel')),
-    window('Logbook', 'table', panel('elog.ELogPanel')),
-    window('Log files', 'table', panel('logviewer.LogViewerPanel')),
-    window('Errors', 'errors', panel('errors.ErrorPanel')),
     window('Live data', 'live', panel('livegr.LiveDataPanel')),
 ]
 
 tools = [
     tool('Downtime report', 'downtime.DownTimeTool',
-# If not at the FRM II facility you have to change this reporting address
          receiver='f.carsughi@fz-juelich.de',
-# If you are not at the FRM II facility you have to change your mail server
          mailserver='smtp.frm2.tum.de',
-# Please change the sender address to a valid, instrument specific address
-         sender='demo@frm2.tum.de',
+         sender='treff@frm2.tum.de',
         ),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
@@ -42,5 +79,5 @@ tools = [
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
-         runatstartup=False),
+         runatstartup=True),
 ]
