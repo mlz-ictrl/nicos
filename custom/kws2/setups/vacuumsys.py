@@ -61,6 +61,22 @@ devices = dict(
                            lowlevel = True,
                           ),
 
+    pressure_p13 =  device('devices.tango.Sensor',
+                           description = 'pressure in KWS1 detector tube',
+                           tangodevice = tango_base + 'FZJDP_Analog/pressure_p13',
+                           unit = 'mbar',
+                           fmtstr = '%.1e',
+                           lowlevel = True,
+                          ),
+
+    pressure_p33 =  device('devices.tango.Sensor',
+                           description = 'pressure in SANS1 detector tube',
+                           tangodevice = tango_base + 'FZJDP_Analog/pressure_p33',
+                           unit = 'mbar',
+                           fmtstr = '%.1e',
+                           lowlevel = True,
+                          ),
+
     lenstemp_4   =  device('devices.tango.Sensor',
                            description = 'lens temperature 4',
                            tangodevice = tango_base + 'FZJDP_Analog/lenstemp_4',

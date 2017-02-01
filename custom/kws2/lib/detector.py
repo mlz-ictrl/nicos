@@ -27,11 +27,11 @@
 from nicos import session
 from nicos.core import Param, Override, Attach, Moveable, HasLimits, \
     dictof, dictwith, MASTER, SIMULATION, MoveError, ConfigurationError, \
-    multiReset, multiStop, status
+    multiReset, multiStop, status, HasOffset
 from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
     SeqDev
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.tango import Motor as TangoMotor
+from nicos.devices.tango import Motor as TangoMotor, AnalogInput
 from nicos.kws1.detector import oneof_detector, DetectorPosSwitcherMixin
 from nicos.utils import num_sort
 from nicos.pycompat import iteritems
@@ -246,3 +246,8 @@ class DetectorZAxis(HasLimits, BaseSequencer):
         if abs(self.read(0) - target) <= self.precision:
             return
         BaseSequencer.doStart(self, target)
+
+
+class DetectorBsEncoder(HasOffset, AnalogInput):
+    def doRead(self, maxage=None):
+        return self._dev.value - self.offset

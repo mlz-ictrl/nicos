@@ -21,6 +21,7 @@ devices = dict(
                          description = 'shutter control',
                          output = 'shutter_set',
                          input = 'shutter_in',
+                         timeout = 300,
                         ),
     nl3a_shutter = device('devices.taco.NamedDigitalInput',
                          description = 'NL3a shutter status',
