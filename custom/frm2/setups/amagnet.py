@@ -62,6 +62,7 @@ devices = dict(
         tangodevice = tango_base + 'lambda/curr',
         unit = 'A',
         abslimits = (0, 200),
+        precision = 0.05,
     ),
     # by convention this needs to be B_%(setupname)s
     B_amagnet = device('frm2.amagnet.GarfieldMagnet',
