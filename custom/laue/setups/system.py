@@ -103,4 +103,4 @@ devices = dict(
                      ),
 )
 
-includes = ['notifiers', 'detector','kappa', 'reactor']
+includes = ['notifiers', 'detector','kappa', 'reactor', 'slits']
