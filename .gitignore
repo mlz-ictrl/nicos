@@ -49,3 +49,6 @@ SciTEDirectory.properties
 mprofile_*.dat
 *.prof
 *.lprof
+
+# ignore pushversioninfo setup
+custom/*/setups/special/pushversioninfo.py
