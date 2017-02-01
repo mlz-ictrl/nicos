@@ -278,7 +278,7 @@ class KWSSamplePanel(Panel):
                 for ax, lbl, box in [(ax1, dlg.ax1Lbl, dlg.ax1Box),
                                      (ax2, dlg.ax2Lbl, dlg.ax2Box)]:
                     if ax:
-                        lbl.setText(ax1)
+                        lbl.setText(ax)
                         lbl.show()
                         box.show()
                     else:
