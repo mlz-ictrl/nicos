@@ -3,7 +3,6 @@ description = 'Double Crystal Monochromator'
 group = 'optional'
 
 includes = []
-excludes = ['jcns_mot']
 
 tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
@@ -81,5 +80,19 @@ devices = dict(
         pollinterval = 3,
         precision = 0,
         lowlevel = True,
+    ),
+
+    monoswitch_io = device('devices.tango.DigitalOutput',
+        description = 'Tango device for Monoswitch in/out',
+        tangodevice = tango_base + 'fzjdp_digital/Monochromator',
+        lowlevel = True,
+    ),
+    monoswitch = device('devices.generic.Switcher',
+        description = 'Monochromator switch in/out',
+        moveable = 'monoswitch_io',
+        mapping = {'in': 1,
+                   'out': 2},
+        fallback = '<undefined>',
+        precision = 0,
     ),
 )

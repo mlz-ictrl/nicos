@@ -5,7 +5,6 @@ description = 'ANTARES filter wheel'
 group = 'optional'
 
 includes = []
-excludes = ['jcns_mot']
 
 tango_base = 'tango://slow.antares.frm2:10000/antares/'
 
