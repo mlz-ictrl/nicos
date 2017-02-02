@@ -32,19 +32,20 @@ MLZ TANGO interface for the respective device classes.
 import re
 
 import PyTango
+import numpy
 
 from nicos import session
 from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
-    dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
+    dictof, intrange, nonemptylistof, listof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ArrayDesc
+    HasTimeout, ArrayDesc, Value
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
-    ImageChannelMixin, TimerChannelMixin
+    ImageChannelMixin, TimerChannelMixin, PassiveChannel
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
@@ -935,6 +936,26 @@ class TOFChannel(ImageChannel):
 
     def doWriteTimeinterval(self, value):
         self._dev.timeInterval = value
+
+
+class ReadableChannel(PyTangoDevice, PassiveChannel):
+    """Pseudochannel for a single readable tango device. Usable e.g. to get a
+    readable value into the scan plot."""
+
+    parameters = {
+        'valuenames': Param('Name(s) of provided value(s)',
+                            type=listof(str), settable=True, mandatory=False,
+                            default=[]),
+    }
+
+    def doRead(self, maxage=0):
+        val = self._dev.value
+        return val.tolist() if isinstance(val, numpy.ndarray) else val
+
+    def valueInfo(self):
+        names = self.valuenames if self.valuenames else [self.name]
+        return tuple(Value(entry, unit=self.unit, fmtstr=self.fmtstr)
+                     for entry in names)
 
 
 class OnOffSwitch(PyTangoDevice, Moveable):
