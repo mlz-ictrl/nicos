@@ -24,10 +24,10 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from PyQt4.QtGui import QTabWidget, QMainWindow, QMouseEvent, QPixmap, \
-    QTabBar, QDrag, QApplication, QCursor, QWidget
-from PyQt4.QtCore import Qt, SIGNAL, QPoint, QMimeData, QEvent, pyqtSlot, \
-    QByteArray
+from PyQt4.QtCore import QByteArray, QEvent, QMimeData, QPoint, Qt, SIGNAL, \
+    pyqtSlot
+from PyQt4.QtGui import QApplication, QCursor, QDrag, QMainWindow, \
+    QMouseEvent, QPixmap, QTabBar, QTabWidget, QWidget
 
 # from nicos.clients.gui.panels.base import SetupDepPanelMixin
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow
@@ -360,8 +360,8 @@ class TearOffTabWidget(QTabWidget):
 
                 for toolbar in p.getToolbars():
                     if hasattr(self.menuwindow, 'toolBarWindows'):
-                        self.menuwindow.insertToolBar(self.menuwindow.toolBarWindows,
-                                                      toolbar)
+                        self.menuwindow.insertToolBar(
+                            self.menuwindow.toolBarWindows, toolbar)
                     else:
                         self.menuwindow.addToolBar(toolbar)
                     toolbar.show()
