@@ -17,7 +17,12 @@ properties([
 patchset-created
 ref-updated
 change-merged''',
-        description: '', name: 'GERRIT_EVENT')]),
+        description: '', name: 'GERRIT_EVENT'),
+        choice(choices: '''\
+patchset-created
+ref-updated
+change-merged''',
+        description: '', name: 'GERRIT_EVENT_TYPE')]),
         [$class: 'ScannerJobProperty', doNotScan: false],
         [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false],
         [$class: 'ThrottleJobProperty', categories: [],
