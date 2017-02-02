@@ -24,6 +24,7 @@
 
 """NICOS test suite console."""
 
+import os
 import logging
 from os import path
 
@@ -63,5 +64,6 @@ config.user = None
 config.group = None
 config.nicos_root = runtime_root
 
+os.environ['NICOS_HISTORY_FILE'] = os.devnull
 selfDestructAfter(120)
 TestConsoleSession.run('startup', False)

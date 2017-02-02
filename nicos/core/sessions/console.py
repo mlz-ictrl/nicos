@@ -84,7 +84,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 pass
         readline.set_completer(session.completefn)
         readline.set_history_length(10000)
-        self.histfile = os.path.expanduser('~/.nicoshistory')
+        self.histfile = os.environ.get('NICOS_HISTORY_FILE',
+                                       os.path.expanduser('~/.nicoshistory'))
         # once compiled, the interactive console uses this flag for all
         # subsequent statements it compiles
         self.compile('from __future__ import division')
@@ -95,7 +96,10 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         signal.signal(signal.SIGINT, self.session.signalHandler)
         signal.signal(signal.SIGTERM, self.sigtermHandler)
         code.InteractiveConsole.interact(self, banner)
-        readline.write_history_file(self.histfile)
+        try:
+            readline.write_history_file(self.histfile)
+        except IOError:
+            pass
 
     def sigtermHandler(self, *args):
         raise SystemExit

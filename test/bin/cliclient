@@ -24,6 +24,7 @@
 
 """NICOS test suite text client."""
 
+import os
 import sys
 
 try:
@@ -39,4 +40,5 @@ from nicos.clients.cli import main
 from nicos.utils import nocolor
 
 nocolor()
+os.environ['NICOS_HISTORY_FILE'] = os.devnull
 sys.exit(main(sys.argv))

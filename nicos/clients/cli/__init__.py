@@ -147,7 +147,8 @@ class NicosCmdClient(NicosClient):
             readline.parse_and_bind(line)
         readline.set_completer(self.completer)
         readline.set_history_length(10000)
-        self.histfile = path.expanduser('~/.nicoshistory')
+        self.histfile = os.environ.get('NICOS_HISTORY_FILE',
+                                       path.expanduser('~/.nicoshistory'))
         if path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
         self.completions = []
@@ -981,7 +982,10 @@ class NicosCmdClient(NicosClient):
                 if ret is not None:
                     return ret
         finally:
-            readline.write_history_file(self.histfile)
+            try:
+                readline.write_history_file(self.histfile)
+            except IOError:
+                pass
 
     def main_with_command(self, command):
         self.quiet_connect = True
