@@ -1197,7 +1197,7 @@ class Readable(Device):
         if self._mode == SLAVE:
             raise ModeError('reset not possible in slave mode')
         elif self._sim_active:
-            return
+            return status.OK, ''
         if isinstance(self, HasTimeout):
             self._setROParam('_timesout', None)
             # reset should not trigger timeoutAction()
@@ -1205,7 +1205,8 @@ class Readable(Device):
         if hasattr(self, 'doReset'):
             self.doReset()
         # make sure, status is propagated to the cache after a reset
-        self._cache.invalidate(self, 'status')
+        if self._cache:
+            self._cache.invalidate(self, 'status')
         return self.status(0)
 
     def format(self, value, unit=False):
