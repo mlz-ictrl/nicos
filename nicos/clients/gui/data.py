@@ -208,7 +208,7 @@ class DataHandler(QObject):
             curve.datanorm = dataset.datanorm
             curve.default_xname = name_unit(dataset.xnames[dataset.xindex],
                                             dataset.xunits[dataset.xindex])
-            if info.unit != 'cts':
+            if info.unit not in ('', 'cts'):
                 curve.description = '%s (%s)' % (name, info.unit)
             else:
                 curve.description = name
