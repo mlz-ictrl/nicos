@@ -24,10 +24,10 @@
 
 """Definition of abstract base device classes."""
 
-from nicos.core import status, usermethod, DeviceMixinBase, Readable, \
-    Moveable, HasLimits, HasOffset, HasPrecision, HasMapping, \
-    ConfigurationError, ModeError, ProgrammingError, PositionError, \
-    InvalidValueError, Param, Override, oneof, SLAVE
+from nicos.core import ConfigurationError, DeviceMixinBase, HasLimits, \
+    HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
+    Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
+    SLAVE, oneof, status, usermethod
 from nicos.pycompat import iteritems
 
 
@@ -88,14 +88,14 @@ class Axis(HasOffset, HasPrecision, HasLimits, Moveable):
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, settable=True),
+        'unit': Override(mandatory=False, settable=True),
     }
 
 
 class CanReference(DeviceMixinBase):
-    """
-    Mixin class for axis devices that want to provide a reference drive
-    function (using the `reference` user command).
+    """Mixin class for axis devices to provide a reference drive function.
+
+    This reference drive will be used by the `reference` user command.
 
     .. automethod:: reference
 
@@ -106,6 +106,7 @@ class CanReference(DeviceMixinBase):
        device position to the "reference position".  It can return the new
        current position after referencing, or None.
     """
+
     @usermethod
     def reference(self, *args):
         """Do a reference drive of the axis."""
@@ -127,7 +128,8 @@ class CanReference(DeviceMixinBase):
 # device-specific (raw) values.
 
 class MappedReadable(HasMapping, Readable):
-    """Base class for all read-only value-mapped devices
+    """Base class for all read-only value-mapped devices.
+
     (also called selector or multiplexer/mux).
 
     Subclasses need to define their attached devices and implement a
