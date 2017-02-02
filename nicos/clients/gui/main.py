@@ -726,7 +726,14 @@ def main(argv):
             cdata = ConnectionData(**parsed)
             cdata.viewonly = viewonly
             mainwindow.setConnData(cdata)
-            mainwindow.client.connect(mainwindow.conndata)
+            if cdata.password is not None:
+                # we have a password, connect right away
+                mainwindow.client.connect(mainwindow.conndata)
+            else:
+                # we need to ask for password, override last preset (uses given
+                # connection data) and force showing connect window
+                mainwindow.lastpreset = ''
+                mainwindow.autoconnect = True
     mainwindow.startup()
 
     return app.exec_()
