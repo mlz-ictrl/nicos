@@ -153,27 +153,27 @@ class Poller(Device):
                         # use pass to trigger a poll or continue to just fetch the next event
                         if event == 'adev_busy':  # one of our attached_devices went busy
                             interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2
+                            maxage = interval / 2.
                             # also poll
                         elif event == 'adev_normal':  # one of our attached_devices is no more busy
                             pass  # also poll
                         elif event == 'adev_target':  # one of our attached_devices got new target
                             interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2
+                            maxage = interval / 2.
                             continue
                         elif event == 'adev_value':  # one of our attached_devices changed value
                             interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2
+                            maxage = interval / 2.
                             continue
                         elif event == 'dev_busy':  # our device went busy
                             interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2
+                            maxage = interval / 2.
                             continue
                         elif event == 'dev_normal':  # our device is no more busy
                             continue
                         elif event == 'dev_target':  # our device got new target
                             interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2
+                            maxage = interval / 2.
                             continue
                         elif event == 'dev_value':  # our device changed value
                             continue

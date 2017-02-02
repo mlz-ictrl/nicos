@@ -260,10 +260,10 @@ class MeasTime(MeasElement):
         self._widget.setMinimumWidth(120)
         if self.value is not None:
             if self.value % 3600 == 0:
-                self._widget.number.setValue(self.value / 3600)
+                self._widget.number.setValue(self.value // 3600)
                 self._widget.unit.setCurrentIndex(2)
             elif self.value % 60 == 0:
-                self._widget.number.setValue(self.value / 60)
+                self._widget.number.setValue(self.value // 60)
                 self._widget.unit.setCurrentIndex(1)
             else:
                 self._widget.number.setValue(self.value)
@@ -284,9 +284,9 @@ class MeasTime(MeasElement):
     def getDispValue(self):
         # TODO: better display here
         if self.value % 3600 == 0:
-            return '%d hr' % (self.value / 3600)
+            return '%d hr' % (self.value // 3600)
         elif self.value % 60 == 0:
-            return '%d min' % (self.value / 60)
+            return '%d min' % (self.value // 60)
         else:
             return '%d sec' % self.value
 

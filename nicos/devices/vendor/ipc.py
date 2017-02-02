@@ -166,7 +166,7 @@ def crc_ipc(string):
         crc ^= byte
         for _ in range(8):
             temp = crc % 2
-            crc = int(crc / 2)
+            crc = crc // 2
             if temp != 0:
                 crc ^= 0xA1
     return '%03d' % crc

@@ -239,7 +239,7 @@ class TimeSeries(object):
                 # don't add more points, make existing ones more sparse
                 x[:n/2] = x[1::2]
                 y[:n/2] = y[1::2]
-                n = self.n = self.real_n = n / 2
+                n = self.n = self.real_n = n // 2
             else:
                 del x, y  # remove references
                 self.x.resize((2 * self.x.shape[0],))

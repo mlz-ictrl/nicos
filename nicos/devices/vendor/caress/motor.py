@@ -96,7 +96,7 @@ class Motor(HasOffset, Driveable, AbstractMotor):
                 sp = int(float(tmp[5]) * speed / self.gear)
                 tmp[6] = '%d' % sp
                 # the acceleration value should be roughly 1/10th of the speed
-                tmp[7] = '%d' % (sp / 10)
+                tmp[7] = '%d' % (sp // 10)
                 _config = ' '.join(tmp)
                 res = self._caressObject.init_module(INIT_REINIT, self.cid,
                                                      _config)

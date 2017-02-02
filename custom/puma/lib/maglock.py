@@ -90,8 +90,8 @@ class MagLock(Moveable):
 #            return
         bitmask = self._bitmask(magpos)
         val = list(map(str,
-                       [(self._attached_io_open.read(0) & bitmask) / bitmask,
-                        (self._attached_io_closed.read(0) & bitmask) / bitmask]
+                       [(self._attached_io_open.read(0) & bitmask) // bitmask,
+                        (self._attached_io_closed.read(0) & bitmask) // bitmask]
                        ))
         self.log.debug('Sensing switches are in State %s', val)
         return ''.join(val)

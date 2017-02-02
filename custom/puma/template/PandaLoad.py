@@ -56,7 +56,7 @@ def lm(*args): #joins any number of lists into one
     elif len(args) == 2:
         return args[0] + args[1]
     else:
-        i = int(len(args) / 2)
+        i = len(args) // 2
         return lm(*args[:i]) + lm(*args[i:])
 
 

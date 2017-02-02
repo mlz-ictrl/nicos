@@ -223,9 +223,9 @@ class MiraXmlHandler(SingleFileSinkHandler):
         if self.sink._format is None or self.sink._format[0] != image.shape:
             p = []
             for _x in range(w):
-                for fx in range(1024 / w):
+                for fx in range(1024 // w):
                     for _y in range(h):
-                        for fy in range(1024 / h):
+                        for fy in range(1024 // h):
                             if fx % 4 == 0 and fy % 4 == 0:
                                 p.append('%f ')
                             else:
@@ -233,8 +233,8 @@ class MiraXmlHandler(SingleFileSinkHandler):
                     p.append('\n')
             self.sink._format = (image.shape, ''.join(p))
 
-        filled = np.repeat(np.repeat(image, 256 / w, 0), 256 / h, 1)
-        write(self.sink._format[1] % tuple(filled.ravel() / 4))
+        filled = np.repeat(np.repeat(image, 256 // w, 0), 256 // h, 1)
+        write(self.sink._format[1] % tuple(filled.ravel() / 4.))
 
         write('''\
 </detector_value>

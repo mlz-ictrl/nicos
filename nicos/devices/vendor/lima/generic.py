@@ -337,7 +337,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
         img_data = numpy.frombuffer(img_data_str, dt, offset=64)
         img_data = numpy.reshape(img_data, (self.imageheight, self.imagewidth))
-        img_data = numpy.rot90(img_data, self.rotation / 90)
+        img_data = numpy.rot90(img_data, self.rotation // 90)
         if self.flip[0]:
             img_data = numpy.fliplr(img_data)
         if self.flip[1]:

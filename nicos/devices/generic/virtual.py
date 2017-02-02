@@ -700,8 +700,8 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                 else '15m')
         xl, yl = self.sizes
         # pylint: disable=unbalanced-tuple-unpacking
-        xx, yy = np.meshgrid(np.linspace(-(xl / 2), (xl / 2) - 1, xl),
-                             np.linspace(-(yl / 2), (yl / 2) - 1, yl))
+        xx, yy = np.meshgrid(np.linspace(-(xl // 2), (xl // 2) - 1, xl),
+                             np.linspace(-(yl // 2), (yl // 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
         beam += (t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) +

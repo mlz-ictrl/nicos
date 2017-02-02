@@ -86,7 +86,7 @@ class Stargate(tango.DigitalOutput):
         for curidx in range(len(value)):
             curval = value[curidx]
 
-            byteidx = curidx / 4
+            byteidx = curidx // 4
             bitidx = (curidx % 4) * 2
 
             if curval:
