@@ -349,8 +349,9 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     Examples:
 
     >>> contscan(phi, 0, 10)
-    >>> contscan(phi, 0, 10, speed=1)
-    >>> contscan(phi, 0, 10, timedelta=1)
+    >>> contscan(phi, 0, 10, 1)        # with speed 1
+    >>> contscan(phi, 0, 10, None, 2)  # with default speed and timedelta 2s
+    >>> contscan(phi, 0, 10, 1, 2)     # with speed 1 and timedelta 2s
 
     The phi device will move continuously from 0 to 10, with *speed* (the
     default is 1/5th of the current device speed).  In contrast to a `sweep`,
