@@ -344,6 +344,15 @@ parallel pylint: {
             runTests( 'nicos-w-sys-site-packs2', 'python2')
         }
     }
+}, test_python2centos: {
+    stage(name: 'Python2(centos) tests') {
+        if GERRIT_EVENT_TYPE=='change-merged' {
+            node('CentOS && jenkins && !i386') {
+                prepareNode()
+                runTests('nicos-w-sys-site-packs2', 'python2-centos')
+            }
+        }
+    }
 }, test_python3: {
     stage(name: 'Python3 tests') {
         node('ubuntu14.04') {
