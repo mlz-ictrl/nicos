@@ -161,7 +161,8 @@ class MappedReadable(HasMapping, Readable):
         try:
             r = self.read(maxage)
             if r == self.fallback:
-                return status.NOTREACHED, 'not one of the configured values'
+                return status.NOTREACHED, 'not at configured position: %r, ' \
+                    'used dev at pos: %r' % (r, self._readRaw(maxage))
             return status.OK, 'idle'
         except PositionError as e:
             return status.NOTREACHED, str(e)
