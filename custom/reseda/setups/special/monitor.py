@@ -56,14 +56,14 @@ _tempblock = Block('Temperature', [
              Field(name='Tch', dev='TD', unit='(K)', format="%.2f"),
             ),
     BlockRow(Field(dev='TA', plot='temp', interval=3600, width=55),
-	         Field(dev='TB', plot='temp', interval=3600, width=55),
-            )
+             Field(dev='TB', plot='temp', interval=3600, width=55),
+            ),
     ],
 )
 
 _powersupplyblock = Block('Power supplies', [
     BlockRow(Field(name='b 4', dev='b41_c', unit='(A)', width=10, format="%.2f"),
-	         Field(name='b 5', dev='b51_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 5', dev='b51_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 6', dev='b52_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 7', dev='b53_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 8', dev='b61_c', unit='(A)', width=10, format="%.2f"),
@@ -76,12 +76,12 @@ _powersupplyblock = Block('Power supplies', [
             ),
     BlockRow(Field(name='b 14', dev='b81_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 15', dev='b82_c', unit='(A)', width=10, format="%.2f"),
-	         Field(name='b 16', dev='b91_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 16', dev='b91_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 17', dev='b92_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 18', dev='b101_c', unit='(A)', width=10, format="%.2f"),
             ),
     BlockRow(Field(name='b 19', dev='b102_c', unit='(A)', width=10, format="%.2f"),
-	         Field(name='b 20', dev='b111_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 20', dev='b111_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 21', dev='b112_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 22', dev='b31_c', unit='(A)', width=10, format="%.2f"),
             ),
@@ -125,14 +125,14 @@ _capacitanceblock = Block('Capacitance', [
 )
 
 _leftcolumn = Column(_beamblock,
-		             _motorblock,
-		             _rfflippers,
-		             _sqtblock,
+                     _motorblock,
+                     _rfflippers,
+                     _sqtblock,
                     )
 
 _rightcolumn = Column(_sampletableblock,
                       _tempblock,
-		              _powersupplyblock,
+                      _powersupplyblock,
                      )
 
 

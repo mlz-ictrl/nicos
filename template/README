@@ -2,5 +2,5 @@
 # for certain actions of nicos.
 #
 # contents:
-mailtext.txt	# template used for sending eMails after the experiment
+mailtext.txt  # template used for sending eMails after the experiment
 

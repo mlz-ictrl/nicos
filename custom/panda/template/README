@@ -14,9 +14,9 @@
 #
 # please list all files after the following line with a short description.
 # contents:
-start_{{proposal}}.py.template	# startupfile, put all relevant things here
-{{proposal}}.py.template	# example script for users
-blenden.py			# slitscans, speeds up setup of experiment
-FRMdatdata.m			# Datafile loading routine for matlab
-PandaLoad.py			# Datafile loading routine for python
-mailtext.txt			# mailbody used at panda
+start_{{proposal}}.py.template  # startupfile, put all relevant things here
+{{proposal}}.py.template        # example script for users
+blenden.py                      # slitscans, speeds up setup of experiment
+FRMdatdata.m                    # Datafile loading routine for matlab
+PandaLoad.py                    # Datafile loading routine for python
+mailtext.txt                    # mailbody used at panda

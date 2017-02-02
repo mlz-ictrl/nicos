@@ -1,12 +1,12 @@
 {"styles": [
-			["command", {"parent":"code"}],
-			["describe", {"parent":"code"}],
-			["parameter", {"parent":"code"}],
-			["file", {"parent":"code"}],
-			["samp", {"parent":"code"}],
-			["function", {"parent":"code"}],
-			["daemon", {"parent":"code"}],
-			["daemoncmd", {"parent":"code"}],
-			["daemonevt", {"parent":"code"}],
-			["classmethod", {"parent":"code"}]
-			]}
+  ["command", {"parent":"code"}],
+  ["describe", {"parent":"code"}],
+  ["parameter", {"parent":"code"}],
+  ["file", {"parent":"code"}],
+  ["samp", {"parent":"code"}],
+  ["function", {"parent":"code"}],
+  ["daemon", {"parent":"code"}],
+  ["daemoncmd", {"parent":"code"}],
+  ["daemonevt", {"parent":"code"}],
+  ["classmethod", {"parent":"code"}]
+]}

@@ -201,12 +201,12 @@ _selectorblock = Block('Velocity Selector', [
 
 _temperatureblock = Block('Cryo Temperature', [
     BlockRow(
-	Field(dev='T', name='Sensor A'),
-	Field(dev='T_susi', name='T_susi'),
-	),
+        Field(dev='T', name='Sensor A'),
+        Field(dev='T_susi', name='T_susi'),
+        ),
     BlockRow(
-	Field(plot='Temperature', name='Sensor A', dev='T_cc_A', width=60, height=40, plotwindow=3600),
-	Field(plot='Temperature', name='T_susi', dev='T_susi'),
+        Field(plot='Temperature', name='Sensor A', dev='T_cc_A', width=60, height=40, plotwindow=3600),
+        Field(plot='Temperature', name='T_susi', dev='T_susi'),
         ),
     ],
     setups='cc_puma',
@@ -234,9 +234,9 @@ _lockinblock = Block('Lock-In', [
         Field(dev='sr830[3]', name='phase (deg)', width=12)
         ),
     BlockRow(
-	Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20, plotwindow=1*3600),
-	Field(plot='Lock-In', name='Y', dev='sr830[1]'),
-	),
+        Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20, plotwindow=1*3600),
+        Field(plot='Lock-In', name='Y', dev='sr830[1]'),
+        ),
     ],
     setups='sr830',
 )

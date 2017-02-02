@@ -710,7 +710,7 @@ def PandaLoad(filename):
                     for k, v in mapping.items():
                         if line.startswith(k):
                             line = v + line[len(k):]
-                    if line.startswith('counting for switching devices'):	# polarized measurements!
+                    if line.startswith('counting for switching devices'):  # polarized measurements!
                         self.pol_devices = [d.strip() for d in line.split(']')[0].split('[')[1].split(', ')]
                         self.pol_states = []
                         self.polarized = True
@@ -720,13 +720,13 @@ def PandaLoad(filename):
                             for i in range(len(self.pol_devices)):
                                 ts[self.pol_devices[i]] = s[i]
                             self.pol_states.append(ts)
-                    if line.startswith('scan data:'):	# header finished, now parse data section
+                    if line.startswith('scan data:'):  # header finished, now parse data section
                         self.command = f.readline().strip()
                         self.colnames = []
                         polstate = -1
                         for i in f.readline().strip().split():
-                            #~ if i  != ';': 		# somehow figure out 'x' and 'y' and set the fields....
-                            if self.polarized:	#mangle column names for detx, monx+time
+                            #~ if i  != ';':  # somehow figure out 'x' and 'y' and set the fields....
+                            if self.polarized:  # mangle column names for detx, monx+time
                                 if i.startswith('det') or i.startswith('mon') or i.startswith('time'):
                                     if i.startswith('time'): polstate += 1 # time is always first det column
                                     for d in self.pol_devices:
@@ -757,15 +757,15 @@ def PandaLoad(filename):
                                             self.__dict__[l] = [] # on first line we prepare the element to hold the data
                                         try:
                                             v = line[i]
-                                            v = float(v)	# try to convert to float, ignore failure to do so
+                                            v = float(v)  # try to convert to float, ignore failure to do so
                                         except Exception:
                                             pass
-                                        self.__dict__[l].append(v)	# store data
+                                        self.__dict__[l].append(v)  # store data
                         # here we might want to parse optional data after the data-section
                         # normally there is nothing there and we just ignore all the stuff.
                         while line != '':
                             line = f.readline()
-                        break	# we are done!
+                        break  # we are done!
                     try: # try to parse header lines
                         k, v = self._re_direct.findall(line)[0]
                         if v.strip() == v and len(v.split()) == 1:

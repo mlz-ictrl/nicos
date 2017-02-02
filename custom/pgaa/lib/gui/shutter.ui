@@ -70,8 +70,8 @@
         <property name="ledStatus" stdset="0">
          <bool>false</bool>
         </property>
-	<property name="stateActive" stdset="0">
-	 <string>in</string>
+        <property name="stateActive" stdset="0">
+         <string>in</string>
         </property>
         <property name="stateInactive" stdset="0">
          <string>out</string>
@@ -98,8 +98,8 @@
         <property name="ledStatus" stdset="0">
          <bool>false</bool>
         </property>
-	<property name="stateActive" stdset="0">
-	 <string>in</string>
+        <property name="stateActive" stdset="0">
+         <string>in</string>
         </property>
         <property name="stateInactive" stdset="0">
          <string>out</string>
@@ -126,8 +126,8 @@
         <property name="ledStatus" stdset="0">
          <bool>false</bool>
         </property>
-	<property name="stateActive" stdset="0">
-	 <string>in</string>
+        <property name="stateActive" stdset="0">
+         <string>in</string>
         </property>
         <property name="stateInactive" stdset="0">
          <string>out</string>
@@ -166,8 +166,8 @@
         <property name="ledStatus" stdset="0">
          <bool>false</bool>
         </property>
-	<property name="stateActive" stdset="0">
-	 <string>closed</string>
+        <property name="stateActive" stdset="0">
+         <string>closed</string>
         </property>
         <property name="stateInactive" stdset="0">
          <string>open</string>
@@ -236,8 +236,8 @@
         <property name="ledStatus" stdset="0">
          <bool>false</bool>
         </property>
-	<property name="stateActive" stdset="0">
-	 <string>open</string>
+        <property name="stateActive" stdset="0">
+         <string>open</string>
         </property>
         <property name="stateInactive" stdset="0">
          <string>closed</string>
