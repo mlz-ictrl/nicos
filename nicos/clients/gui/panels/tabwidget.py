@@ -30,7 +30,7 @@ from PyQt4.QtGui import QApplication, QCursor, QDrag, QMainWindow, \
     QMouseEvent, QPixmap, QTabBar, QTabWidget, QWidget
 
 # from nicos.clients.gui.panels.base import SetupDepPanelMixin
-from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow
+from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 
 
@@ -206,11 +206,22 @@ class TearOffTabWidget(QTabWidget):
         self.tabIdx[index] = self.TabWidgetStorage(index, self.widget(index),
                                                    self.tabText(index))
 
+    def _setPanelToolbars(self, panel, visible):
+        for tb in panel.getToolbars():
+            tb.setVisible(visible)
+
+    def _setPanelMenus(self, panel, visible):
+        for m in panel.getMenus():
+            m.menuAction().setVisible(visible)
+
     @pyqtSlot('QWidget', bool, name='setWidgetVisible')
     def setWidgetVisible(self, widget, visible):
         w = self._findFirstWindow(widget)  # get widget which is related to tab
         for i in self.tabIdx.values():     # search for it in the list of tabs
             if i.widget == w:              # found
+                if isinstance(widget, Panel):
+                    self._setPanelToolbars(widget, visible)
+                    self._setPanelMenus(widget, visible)
                 if visible:
                     if not i.visible:
                         newIndex = -1
