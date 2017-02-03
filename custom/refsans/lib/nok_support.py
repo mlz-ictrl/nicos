@@ -29,7 +29,7 @@ import time
 
 
 from nicos.core import status, Readable, Moveable, ConfigurationError, \
-     HasPrecision, MoveError, DeviceMixinBase, status
+     HasPrecision, MoveError, DeviceMixinBase, SIMULATION, status
 from nicos.core.errors import ConfigurationError, HardwareError
 from nicos.core.params import Param, Attach, Override, tupleof, \
      nonemptylistof, floatrange, intrange, limits, none_or
@@ -193,6 +193,26 @@ class NOKMotorIPC(CanReference, IPCMotor):
         'confbyte'  : Override(default=48),
         'divider'   : Override(type=intrange(-1,7)),
     }
+
+    def doInit(self, mode):
+        if mode != SIMULATION:
+            self._attached_bus.ping(self.addr)
+            if self._hwtype == 'single':
+                if self.confbyte != self.doReadConfbyte():
+                    self.doWriteConfbyte(self.confbyte)
+                    self.log.warning('Confbyte mismatch between setup and card,'
+                                     ' overriding card value to 0x%02x',
+                                     self.confbyte)
+            # make sure that the card has the right "last steps"
+            # This should not applied at REFSANS, since it disturbs the running
+            # TACO server settings
+            # if self.steps != self.doReadSteps():
+            #     self.doWriteSteps(self.steps)
+            #     self.log.warning('Resetting stepper position to last known '
+            #                      'good value %d', self.steps)
+            self._type = 'stepper motor, ' + self._hwtype
+        else:
+            self._type = 'simulated stepper'
 
     def doReference(self):
         bus = self._attached_bus
