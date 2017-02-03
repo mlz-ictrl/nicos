@@ -22,15 +22,15 @@
 #
 # *****************************************************************************
 
-name = 'cache setup'
+from test.utils import alt_cache_addr
 
-from test.utils import getAltCacheAddr
+name = 'setup for cache stresstest with memory db'
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = getAltCacheAddr(),
+                    server = alt_cache_addr,
                     db = 'DB2',
-                    loglevel='debug',
+                    loglevel = 'debug',
                    ),
 
     DB2 = device('services.cache.server.MemoryCacheDatabase',

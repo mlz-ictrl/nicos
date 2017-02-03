@@ -22,22 +22,22 @@
 #
 # *****************************************************************************
 
+from test.utils import cache_addr
+
 name = 'setup for cache tests'
 
-from test.utils import getCacheAddr
-
 sysconfig = dict(
-    cache = getCacheAddr(),
+    cache = cache_addr,
 )
 
 devices = dict(
-    reader1 = device('nicos.devices.generic.cache.CacheReader',
+    reader1  = device('nicos.devices.generic.cache.CacheReader',
                       description = 'Test Reader',
                       maxage = 0.1,
                       unit = '',
                       loglevel = 'debug'
                      ),
-    writer1 = device('nicos.devices.generic.cache.CacheWriter',
+    writer1  = device('nicos.devices.generic.cache.CacheWriter',
                       description = 'Test cache writer',
                       userlimits = (1, 200),
                       abslimits = (0, 311),

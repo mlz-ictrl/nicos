@@ -22,13 +22,13 @@
 #
 # *****************************************************************************
 
-name = 'elog setup'
+from test.utils import cache_addr
 
-from test.utils import getCacheAddr
+name = 'elog setup'
 
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = getCacheAddr(),
+                     cache = cache_addr,
                     ),
 )

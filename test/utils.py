@@ -55,6 +55,12 @@ module_root = path.normpath(path.join(path.dirname(__file__), '..'))
 # The temporary root directory, where to put data/logs/pid files during test.
 runtime_root = os.environ.get('NICOS_TEST_ROOT',
                               path.join(path.dirname(__file__), 'root'))
+
+# Addresses for services, ports can be allocated by Jenkins.
+cache_addr = 'localhost:%s' % os.environ.get('NICOS_CACHE_PORT', 14877)
+alt_cache_addr = 'localhost:%s' % os.environ.get('NICOS_CACHE_ALT_PORT', 14878)
+daemon_addr = 'localhost:%s' % os.environ.get('NICOS_DAEMON_PORT', 14874)
+
 pythonpath = None
 
 
@@ -497,18 +503,6 @@ def hasGnuplot():
     except (IOError, ValueError):
         return False
     return True
-
-
-def getCacheAddr():
-    return 'localhost:%s' % os.environ.get('NICOS_CACHE_PORT', 14877)
-
-
-def getAltCacheAddr():
-    return 'localhost:%s' % os.environ.get('NICOS_CACHE_ALT_PORT', 14878)
-
-
-def getDaemonAddr():
-    return 'localhost:%s' % os.environ.get('NICOS_DAEMON_PORT', 14874)
 
 
 def selfDestructAfter(seconds):

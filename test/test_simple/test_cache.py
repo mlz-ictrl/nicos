@@ -34,7 +34,7 @@ from nicos.devices.cacheclient import CacheClient
 from nicos.core.errors import LimitError, CommunicationError
 from nicos.utils import readonlylist, readonlydict
 
-from test.utils import raises, getCacheAddr
+from test.utils import raises, cache_addr
 
 session_setup = 'cachetests'
 
@@ -164,7 +164,7 @@ def test_05cachereadonlyobjects(session):
 
 def test_06cacheReader(session):
     cc = session.cache
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheAddr())
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=cache_addr)
     try:
         testval = 'testr1'
         testval2 = 'testr2'
@@ -192,7 +192,7 @@ def test_06cacheReader(session):
 
 def test_06acacheReader(session):
     cc = session.cache
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheAddr())
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=cache_addr)
     try:
         testval = 'testr3'
         key = 'value'
@@ -216,7 +216,7 @@ def test_07cacheWriter(session):
     cc = session.cache
     cc.loglevel = 'debug'
 
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheAddr())
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=cache_addr)
     try:
         testval = 'testw1'
         testval2 = 'testw2'

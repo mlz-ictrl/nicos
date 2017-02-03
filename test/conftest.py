@@ -34,7 +34,7 @@ from nicos import session as nicos_session
 from nicos.core import MASTER
 
 from test.utils import cleanup, startCache, startSubprocess, killSubprocess, \
-    getCacheAddr, TestSession
+    cache_addr, TestSession
 
 
 # This fixture will run during the entire test suite.  Therefore, the special
@@ -50,7 +50,7 @@ def setup_test_suite():
                          'processes are still running.')
         sys.stderr.write('=' * 80)
         raise
-    cache = startCache(getCacheAddr())
+    cache = startCache(cache_addr)
     elog = startSubprocess('elog.py')
     yield
     killSubprocess(elog)

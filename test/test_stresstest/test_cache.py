@@ -32,7 +32,7 @@ import pytest
 
 from nicos.devices.cacheclient import CacheError
 
-from test.utils import startCache, killSubprocess, getAltCacheAddr, raises
+from test.utils import startCache, killSubprocess, alt_cache_addr, raises
 
 session_setup = 'cachestress'
 
@@ -41,7 +41,7 @@ all_setups = ['cache_db', 'cache_mem', 'cache_mem_hist']
 
 @pytest.mark.parametrize('setup', all_setups)
 def test_basic(session, setup):
-    cache = startCache(getAltCacheAddr(), setup)
+    cache = startCache(alt_cache_addr, setup)
     try:
         sleep(1)
         cc = session.cache
@@ -72,7 +72,7 @@ def test_restart(session, setup):
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
     sleep(1)
-    cache = startCache(getAltCacheAddr(), setup)
+    cache = startCache(alt_cache_addr, setup)
     try:
         sleep(1)
         cc.flush()

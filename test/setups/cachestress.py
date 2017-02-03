@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-name = 'client setup for cache tests'
+from test.utils import alt_cache_addr
 
-from test.utils import getAltCacheAddr
+name = 'client setup for stresstest cache tests'
 
 sysconfig = dict(
-    cache = getAltCacheAddr(),
+    cache = alt_cache_addr,
 )
 
 devices = dict()

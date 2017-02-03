@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# This is copied to test/root/bin/nicos-simulate when the tests run.
+# This is copied to NICOS_TEST_ROOT/bin/nicos-simulate when the tests run.
 # It is adapted from bin/nicos-simulate to run correctly in the test
 # environment.
 

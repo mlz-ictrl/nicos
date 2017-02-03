@@ -22,14 +22,15 @@
 #
 # *****************************************************************************
 
+from os import path
+from test.utils import cache_addr, runtime_root
+
 name = 'nicos setup for the daemon test'
 # This is basically the same as "stdsystem.py" but without a cache configured
 
-from test.utils import getCacheAddr
-
 
 sysconfig = dict(
-    cache = getCacheAddr(),
+    cache = cache_addr,
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = [],
@@ -46,7 +47,7 @@ devices = dict(
     Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'Sample',
                       loglevel = 'info',
-                      dataroot = 'test/root/data',
+                      dataroot = path.join(runtime_root, 'data'),
                       scriptdir = '.',
                       elog = False,
                       lowlevel = False,

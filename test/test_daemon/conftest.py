@@ -35,7 +35,7 @@ from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, ENQ, LENGTH, \
     serialize, command2code
 from nicos.utils import tcpSocket, parseConnectionString
 
-from test.utils import startSubprocess, killSubprocess, getDaemonAddr
+from test.utils import startSubprocess, killSubprocess, daemon_addr
 
 
 def daemon_wait_cb():
@@ -43,7 +43,7 @@ def daemon_wait_cb():
     wait = 5
     while time.time() < start + wait:
         try:
-            s = tcpSocket(getDaemonAddr(), 0)
+            s = tcpSocket(daemon_addr, 0)
         except socket.error:
             time.sleep(0.02)
         else:
@@ -122,7 +122,7 @@ class TestClient(NicosClient):
 @pytest.yield_fixture(scope='module')
 def client(daemon):
     client = TestClient()
-    parsed = parseConnectionString('user:user@' + getDaemonAddr(), 0)
+    parsed = parseConnectionString('user:user@' + daemon_addr, 0)
     client.connect(ConnectionData(**parsed))
     assert ('connected', None, None) in client._signals
 
@@ -144,7 +144,7 @@ def cliclient(daemon):
 
     os.environ['EDITOR'] = 'cat'
     client = startSubprocess('cliclient.py',
-                             'guest:guest@' + getDaemonAddr(),
+                             'guest:guest@' + daemon_addr,
                              piped=True)
     yield client
     killSubprocess(client)

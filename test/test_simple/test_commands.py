@@ -128,7 +128,7 @@ def test_experiment_commands(session, log):
     AddUser('F. X. User', 'user@example.com')
     assert 'F. X. User <user@example.com>' in exp.users
     NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
-    log.check_response(matches=r'Exp       : INFO: experiment directory is now test/root/data')
+    log.check_response(matches=r'Exp       : INFO: experiment directory is now .*')
     log.check_response(matches=r'Exp       : INFO: User "F. X. User <user@example.com>" added')
 
     FinishExperiment()

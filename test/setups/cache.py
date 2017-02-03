@@ -22,13 +22,13 @@
 #
 # *****************************************************************************
 
-name = 'cache setup'
+from test.utils import cache_addr
 
-from test.utils import getCacheAddr
+name = 'cache setup'
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = getCacheAddr(),
+                    server = cache_addr,
                     db = 'DB',
                     loglevel='debug',
                    ),

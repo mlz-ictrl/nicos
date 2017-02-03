@@ -22,13 +22,15 @@
 #
 # *****************************************************************************
 
+from os import path
+from test.utils import cache_addr, runtime_root, module_root
+
 name = 'test system setup'
 # This setup is called "stdsystem" so that it is not loaded automatically
 # on every loadSetup.
-from test.utils import getCacheAddr
 
 sysconfig = dict(
-    cache = getCacheAddr(),
+    cache = cache_addr,
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = [],
@@ -50,9 +52,9 @@ devices = dict(
     Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'Sample',
                       elog = True,
-                      dataroot = 'test/root/data',
+                      dataroot = path.join(runtime_root, 'data'),
                       propprefix = 'p',
-                      templates = '../../script_templates',
+                      templates = path.join(module_root, 'test',  'script_templates'),
                       zipdata = True,
                       serviceexp = 'service',
                       lowlevel = False,

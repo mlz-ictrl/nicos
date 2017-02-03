@@ -26,10 +26,11 @@ name = 'simulation tests setup'
 
 includes = []
 
-from test.utils import getCacheAddr
+from os import path
+from test.utils import cache_addr, runtime_root, module_root
 
 sysconfig = dict(
-    cache = getCacheAddr(),
+    cache = cache_addr,
     experiment = 'Exp',
 )
 
@@ -40,9 +41,9 @@ devices = dict(
     Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'Sample',
                       elog = False,
-                      dataroot = 'test/root/data',
+                      dataroot = path.join(runtime_root, 'data'),
                       propprefix = 'p',
-                      templates = '../../script_templates',
+                      templates = path.join(module_root, 'test', 'script_templates'),
                       zipdata = True,
                       serviceexp = 'service',
                       lowlevel = False,
