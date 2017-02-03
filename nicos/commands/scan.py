@@ -111,6 +111,8 @@ def _handleScanArgs(args, kwargs, scaninfo):
                 multistep.append((session.devices[key], value))
             else:
                 move.append((session.devices[key], value))
+        elif key == 'info' and isinstance(value, string_types):
+            scaninfo = value + ' - ' + scaninfo
         else:
             preset[key] = value
     return preset, scaninfo, detlist, envlist, move, multistep
@@ -296,6 +298,10 @@ ADDSCANHELP1 = """
     An info string describing the scan can be given as a string argument:
 
     >>> scan(dev, ..., 'peak search', ...)
+
+    Alternatively you can use the keyword 'info':
+
+    >>> scan(dev, ..., <more kw args>, info='peak search')
 """
 
 ADDSCANHELP2 = """
