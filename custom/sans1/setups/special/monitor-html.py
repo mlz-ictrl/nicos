@@ -374,9 +374,9 @@ _ccmsans_plot = Column(
     Block('SANS-1 5T Magnet plot', [
         BlockRow(
                  Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min ccmsans', name='Target', dev='b_ccmsans/target'),
-                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmans', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h ccmsans', name='Target', dev='b_ccmsans/target'),
+                 Field(plot='30 min ccmsans', name='Target', key='B_ccmsans/target'),
+                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmsans', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h ccmsans', name='Target', key='B_ccmsans/target'),
         ),
         ],
         setups='ccmsans',
@@ -416,9 +416,9 @@ _ccm2a_plot = Column(
     Block('CCM2a Magnet plot', [
         BlockRow(
                  Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min ccm2a', name='Target', dev='b_ccm2a/target'),
+                 Field(plot='30 min ccm2a', name='Target', key='B_ccm2a/target'),
                  Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h ccm2a', name='Target', dev='b_ccm2a/target'),
+                 Field(plot='12 h ccm2a', name='Target', key='B_ccm2a/target'),
         ),
         ],
         setups='ccm2a',
@@ -430,8 +430,8 @@ _ccr19_plot = Column(
         BlockRow(
                  Field(plot='30 min ccr19', name='T', dev='T', width=60, height=40, plotwindow=1800),
                  Field(plot='30 min ccr19', name='Ts', dev='Ts'),
-                 Field(plot='30 min ccr19', name='Setpoint', dev='T/setpoint'),
-                 Field(plot='30 min ccr19', name='Target', dev='T/target'),
+                 Field(plot='30 min ccr19', name='Setpoint', key='T/setpoint'),
+                 Field(plot='30 min ccr19', name='Target', key='T/target'),
         ),
         ],
         setups='ccr19',
