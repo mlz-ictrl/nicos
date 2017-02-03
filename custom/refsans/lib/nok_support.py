@@ -21,29 +21,26 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # **************************************************************************
-
-"""Support Code for REFSANS's NOK's.
-"""
+"""Support Code for REFSANS's NOK's."""
 
 import time
 
 
-from nicos.core import status, Readable, Moveable, ConfigurationError, \
-     HasPrecision, MoveError, DeviceMixinBase, SIMULATION, status
-from nicos.core.errors import ConfigurationError, HardwareError
-from nicos.core.params import Param, Attach, Override, tupleof, \
-     nonemptylistof, floatrange, intrange, limits, none_or
+from nicos.core import ConfigurationError, DeviceMixinBase, HasPrecision, \
+    MoveError, Moveable, Readable, SIMULATION, status
+from nicos.core.errors import HardwareError
+from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
+    limits, none_or, nonemptylistof, tupleof
 from nicos.core.utils import multiReset
-from nicos.utils import clamp, lazy_property
+
 from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev, \
-     SeqMethod, SequenceItem
-
+from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
+    SequencerMixin
+from nicos.devices.taco import AnalogInput
 from nicos.devices.vendor.ipc import Motor as IPCMotor
 
-from nicos.devices.taco import AnalogInput
-
+from nicos.utils import clamp, lazy_property
 
 #
 #
@@ -51,107 +48,121 @@ from nicos.devices.taco import AnalogInput
 # It is here due to the 'disorganised' structure beeing used so far
 # and because we can't change ALL of it in one go.
 #
-#
+
 
 class PseudoNOK(DeviceMixinBase):
-    """Placeholder device, doing nothing, but storing some locational data"""
+    """Placeholder device, doing nothing, but storing some locational data."""
+
     parameters = {
-        'nok_start'  : Param('Start of the  NOK (ab NLE2b)', type=float, default=0,
-                              settable=False, mandatory=False, unit='mm'),
-        'nok_length' : Param('Length of the NOK', type=float, default=0,
-                              settable=False, mandatory=False, unit='mm'),
-        'nok_end'    : Param('End of the NOK (ab NLE2b)', type=float, default=0,
-                              settable=False, mandatory=False, unit='mm'),
-        'nok_gap'    : Param('Gap after the NOK (ab NLE2b)', type=float, default=0,
-                              settable=False, mandatory=False, unit='mm'),
-        'masks'      : Param('Masks for this NOK', type=dict, settable=False, default={}),
+        'nok_start':  Param('Start of the  NOK (ab NLE2b)',
+                            type=float, settable=False, mandatory=False,
+                            unit='mm', default=0),
+        'nok_length': Param('Length of the NOK',
+                            type=float, default=0, settable=False,
+                            mandatory=False, unit='mm'),
+        'nok_end':    Param('End of the NOK (beginning from NLE2b)',
+                            type=float, default=0, settable=False,
+                            mandatory=False, unit='mm'),
+        'nok_gap':    Param('Gap after the NOK (beginning from NLE2b)',
+                            type=float, default=0, settable=False,
+                            mandatory=False, unit='mm'),
+        'masks':      Param('Masks for this NOK',
+                            type=dict, settable=False, default={}),
     }
 
 
 class NOKMonitoredVoltage(AnalogInput):
-    """returns a scaled and monitored Analog value
+    """Return a scaled and monitored Analogue value.
 
-    Also checks the value to be within certain limits,
-    if not, complain.
+    Also checks the value to be within certain limits, if not, complain.
     """
+
     parameters = {
-        'reflimits'   : Param('None or Limits to check the reference: low, warn, high',
-                              type=none_or(tupleof(float,float,float)), settable=False, default=None),
-        'scale'       : Param('Scaling factor', type=float, settable=False, default=1.),
+        'reflimits': Param('None or Limits to check the reference: low, warn, '
+                           'high',
+                           type=none_or(tupleof(float, float, float)),
+                           settable=False, default=None),
+        'scale':     Param('Scaling factor', type=float, settable=False,
+                           default=1.),
     }
     parameter_overrides = {
-        'unit'  : Override(default = 'V', mandatory=False),
+        'unit': Override(default='V', mandatory=False),
     }
 
     def doInit(self, mode):
         if self.reflimits is not None:
-            if not (0 <= self.reflimits[0] <= self.reflimits[1] <= self.reflimits[2]):
-                raise ConfigurationError(self, 'reflimits must be in ascending order!')
+            if not (0 <= self.reflimits[0] <= self.reflimits[1] <=
+                    self.reflimits[2]):
+                raise ConfigurationError(self, 'reflimits must be in ascending'
+                                         ' order!')
 
     def doRead(self, maxage=0):
         value = self.scale * AnalogInput.doRead(self, maxage)
         if self.reflimits is not None:
             if abs(value) > self.reflimits[2]:
-                raise HardwareError(self, 'Reference voltage (%.2f) above maximum (%.2f)' %
-                                           (value, self.reflimits[2]))
+                raise HardwareError(self, 'Reference voltage (%.2f) above '
+                                    'maximum (%.2f)' % (value,
+                                                        self.reflimits[2]))
             if abs(value) < self.reflimits[0]:
-                raise HardwareError(self, 'Reference voltage (%.2f) below minimum (%.2f)' %
-                                           (value, self.reflimits[0]))
+                raise HardwareError(self, 'Reference voltage (%.2f) below '
+                                    'minimum (%.2f)' % (value,
+                                                        self.reflimits[0]))
             if abs(value) < self.reflimits[1]:
-                self.log.warning('Reference voltage (%.2f) seems rather low, should be '
-                                 'above %.2f', value, self.reflimits[1])
+                self.log.warning('Reference voltage (%.2f) seems rather low, '
+                                 'should be above %.2f', value,
+                                 self.reflimits[1])
         return value
 
     def doStatus(self, maxage=0):
         try:
-            _ = self.doRead(maxage)
+            self.doRead(maxage)
             return AnalogInput.doStatus(self, maxage)
         except HardwareError as err:
             return status.ERROR, repr(err)
 
 
-
 class NOKPosition(Coder):
-    """Device to read the current Position of a NOK
+    """Device to read the current Position of a NOK.
 
-    The Position is determined by a ratiometric measurement between two analog voltages
-    measured with i7000 modules via taco.
+    The Position is determined by a ratiometric measurement between two
+    analogue voltages measured with i7000 modules via taco.
 
-    As safety measure, the reference voltage obtained is checked to be in some configurable limits.
+    As safety measure, the reference voltage obtained is checked to be in some
+    configurable limits.
     """
+
     attached_devices = {
-        'measure'       : Attach('Sensing Device (Poti)', Readable),
-        'reference'     : Attach('Reference Device', Readable),
+        'measure':   Attach('Sensing Device (Poti)', Readable),
+        'reference': Attach('Reference Device', Readable),
     }
     parameters = {
-        'poly'            : Param('Polynomial coefficients in ascending order',
-                                   type=nonemptylistof(float), settable=True,
-                                   mandatory=True, default=0.),
-        'length'          : Param('Length... ????',
-                                   type=float, mandatory=False),
+        'poly':   Param('Polynomial coefficients in ascending order',
+                        type=nonemptylistof(float), settable=True,
+                        mandatory=True, default=0.),
+        'length': Param('Length... ????',
+                        type=float, mandatory=False),
         # fun stuff, not really needed....
-        'serial'          : Param('Serial number',
-                                   type=int, mandatory=False),
+        'serial': Param('Serial number',
+                        type=int, mandatory=False),
     }
 
     parameter_overrides = {
-        'fmtstr' : Override(default = '%.3f'),
-        'unit'   : Override(default = 'mm', mandatory = False),
+        'fmtstr': Override(default='%.3f'),
+        'unit':   Override(default='mm', mandatory=False),
     }
-
 
     def doInit(self, mode):
         if len(self.poly) == 0:
-            raise ConfigurationError(self,
-                            'Need at least one Parmeter for correction polynom!')
+            raise ConfigurationError(self, 'Need at least one Parmeter for '
+                                     'correction polynom!')
 
     def doReset(self):
         multiReset(self._adevs)
 
-
     def doRead(self, maxage=0):
-        """This basically reads two (scaled) voltages:
-         - poti from the poti (times a sign correction for top mounted potis)
+        """Read basically two (scaled) voltages.
+
+         - value from the poti (times a sign correction for top mounted potis)
          - ref from a reference voltage, scaled by 2 (Why???)
 
         Then it calculates the ratio poti / ref.
@@ -178,20 +189,21 @@ class NOKPosition(Coder):
 # heavily based upon old nicm_nok.py, backlash is handled by an axis nowadays
 class NOKMotorIPC(CanReference, IPCMotor):
     """Basically a IPCMotor with referencing."""
+
     parameters = {
-        'refpos' : Param('Reference position in phys. units', unit='main',
-                          type=none_or(float), mandatory=True ),
+        'refpos': Param('Reference position in phys. units',
+                        unit='main', type=none_or(float), mandatory=True),
     }
 
     parameter_overrides = {
-        'zerosteps' : Override(default=500000, mandatory=False),
-        'unit'      : Override(default='mm', mandatory=False),
-        'backlash'  : Override(type=floatrange(0.0,0.0)), # only 0 is allowed!
-        'speed'     : Override(default=10),
-        'accel'     : Override(default=10),
-        'slope'     : Override(default=2000),
-        'confbyte'  : Override(default=48),
-        'divider'   : Override(type=intrange(-1,7)),
+        'zerosteps': Override(default=500000, mandatory=False),
+        'unit':      Override(default='mm', mandatory=False),
+        'backlash':  Override(type=floatrange(0.0, 0.0)),  # only 0 is allowed!
+        'speed':     Override(default=10),
+        'accel':     Override(default=10),
+        'slope':     Override(default=2000),
+        'confbyte':  Override(default=48),
+        'divider':   Override(type=intrange(-1, 7)),
     }
 
     def doInit(self, mode):
@@ -200,8 +212,8 @@ class NOKMotorIPC(CanReference, IPCMotor):
             if self._hwtype == 'single':
                 if self.confbyte != self.doReadConfbyte():
                     self.doWriteConfbyte(self.confbyte)
-                    self.log.warning('Confbyte mismatch between setup and card,'
-                                     ' overriding card value to 0x%02x',
+                    self.log.warning('Confbyte mismatch between setup and card'
+                                     ', overriding card value to 0x%02x',
                                      self.confbyte)
             # make sure that the card has the right "last steps"
             # This should not applied at REFSANS, since it disturbs the running
@@ -216,8 +228,8 @@ class NOKMotorIPC(CanReference, IPCMotor):
 
     def doReference(self):
         bus = self._attached_bus
-        bus.send(self.addr, 34) # always go forward (positive)
-        bus.send(self.addr, 47, self.speed, 3) # reference with normal speed
+        bus.send(self.addr, 34)  # always go forward (positive)
+        bus.send(self.addr, 47, self.speed, 3)  # reference with normal speed
         # may need to sleep a little here....
         time.sleep(0.1)
         self.wait()
@@ -228,24 +240,29 @@ class NOKMotorIPC(CanReference, IPCMotor):
 # support stuff for the NOK
 #
 
-# fancy SequenceItem: if the given device is at a limit switch, move it a little. else do nothing
+# fancy SequenceItem: if the given device is at a limit switch, move it a
+# little. else do nothing
 class SeqMoveOffLimitSwitch(SequenceItem):
     def __init__(self, dev, *args, **kwargs):
         SequenceItem.__init__(self, dev=dev, args=args, kwargs=kwargs)
+
     def check(self):
         pass
+
     def run(self):
         if 'limit switch - active' in self.dev.status(0)[1]:
             # use 0.5 as fallback value
             self.dev.start(self.kwargs.get('backoffby', 0.5))
+
     def isCompleted(self):
         self.dev.wait()
         return True
+
     def __repr__(self):
         return 'MoveAwayFromLimitSwitch'
 
 
-# fance Sequenceitem: same as SeqDev, but do not go below usermin
+# fancy Sequenceitem: same as SeqDev, but do not go below usermin
 class SeqDevMin(SeqDev):
     def __init__(self, dev, target):
         # limit the position to allowed values
@@ -260,13 +277,14 @@ class SeqDevMin(SeqDev):
 
 # below code is based upon old nicm_nok.py
 class SingleMotorNOK(PseudoNOK, Axis):
-    """NOK using a single Axis
+    """NOK using a single axis.
 
     Basically a generic NICOS axis with precision
     """
+
     parameters = {
-        'nok_motor' : Param('Position of the motor for this nok', type=float,
-                            settable=False, unit='mm'),
+        'nok_motor': Param('Position of the motor for this nok', type=float,
+                           settable=False, unit='mm'),
     }
 
     def doStart(self, target):
@@ -277,30 +295,33 @@ class SingleMotorNOK(PseudoNOK, Axis):
         self._attached_nok_motor.doReference()
 
 
-class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Moveable):
-    """NOK using a two Axes
+class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
+                     Moveable):
+    """NOK using two axes.
 
     If backlash is negative, approach form the negative side (default),
     else approach from the positive side.
     If backlash is zero, don't mind and just go to the target.
     """
+
     attached_devices = {
-        'motor_r' : Attach('NOK moving motor, reactor side', Moveable),
-        'motor_s' : Attach('NOK moving motor, sample side', Moveable),
+        'motor_r': Attach('NOK moving motor, reactor side', Moveable),
+        'motor_s': Attach('NOK moving motor, sample side', Moveable),
     }
 
     parameters = {
-        'nok_motor'         : Param('Position of the motor for this NOK',
-                                    type=tupleof(float, float), settable=False,
-                                    unit='mm'),
-        'inclinationlimits' : Param('Allowed range for the positional difference',
-                                    type=limits, mandatory=True),
-        'backlash'          : Param('Backlash correction in phys. units',
-                                    type=float, default=0., unit='main'),
+        'nok_motor':         Param('Position of the motor for this NOK',
+                                   type=tupleof(float, float), settable=False,
+                                   unit='mm'),
+        'inclinationlimits': Param('Allowed range for the positional '
+                                   'difference',
+                                   type=limits, mandatory=True),
+        'backlash':          Param('Backlash correction in phys. units',
+                                   type=float, default=0., unit='main'),
     }
 
     parameter_overrides = {
-        'precision'     : Override(type=floatrange(0, 100))
+        'precision': Override(type=floatrange(0, 100))
     }
 
     valuetype = tupleof(float, float)
@@ -312,15 +333,15 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
     def doPreinit(self, mode):
         incmin, incmax = self.inclinationlimits
         if incmin >= incmax:
-            raise ConfigurationError(self, 'Inclinationlimits must be specified'
-                                            ' as (min, max) tuple with min < max !')
+            raise ConfigurationError(self, 'Inclinationlimits must be '
+                                     'specified as (min, max) tuple with '
+                                     'min < max !')
 
     def doInit(self, mode):
         for dev in self._devices:
             if hasattr(dev, 'backlash') and dev.backlash != 0:
-                raise ConfigurationError(self,
-                                          'Attached Device %s should not have '
-                                          'a non-zero backlash!' % dev)
+                raise ConfigurationError(self, 'Attached Device %s should not '
+                                         'have a non-zero backlash!' % dev)
 
     def doRead(self, maxage=0):
         return [dev.doRead(maxage) for dev in self._devices]
@@ -331,8 +352,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
 
         inclination = target_s - target_r
         if not incmin <= inclination <= incmax:
-            return False, 'Inclination %.2f out of limit (%.2f, %.2f)!' % \
-                           (inclination, incmin, incmax)
+            return False, 'Inclination %.2f out of limit (%.2f, %.2f)!' % (
+                inclination, incmin, incmax)
 
         for dev in self._devices:
             res = dev.isAllowed(target_r)
@@ -343,7 +364,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
         return True, ''
 
     def doStart(self, targets):
-        """Generates and starts a sequence if none is running.
+        """Generate and start a sequence if none is running.
 
         The sequence is optimised for negative backlash.
         It will first move both motors to the lowest value of
@@ -355,14 +376,16 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) for target, dev in zip(targets, self._devices)]
+        traveldists = [target - dev.doRead(0)
+                       for target, dev in zip(targets, self._devices)]
         if max(abs(v) for v in traveldists) <= self.precision:
             return
 
         devices = self._devices
 
         # go below lowest interesting point
-        minpos = min(self.read() + targets + [t + self.backlash for t in targets])
+        minpos = min(self.read() + targets + [t + self.backlash
+                                              for t in targets])
 
         # build a referencing sequence
         sequence = []
@@ -375,29 +398,30 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
 
         self._startSequence(sequence)
 
-
     def doReference(self):
-        """references the NOK in a sophisticated way....
+        """Reference the NOK in a sophisticated way....
 
         First we try to reach the lowest point ever needed for referencing,
         then we reference the lower refpoint first, and the higher later.
         After referencing is done, we go to (0, 0).
         """
-
         if self._seq_is_running():
-            raise MoveError(self, 'Cannot reference device, it is still moving!')
+            raise MoveError(self, 'Cannot reference device, it is still '
+                            'moving!')
 
         devices = self._devices
         refpos = [d.refpos for d in devices]
 
-        # referencing is easier if device[0].refpos is always lower than device[1].refpos
+        # referencing is easier if device[0].refpos is always lower than
+        #  device[1].refpos
         if refpos[1] < refpos[0]:
             # wrong order: flip oder of entries
             devices.reverse()
             refpos.reverse()
 
         # go below lowest interesting point
-        minpos = min(self.read() + refpos + [t + self.backlash for t in refpos])
+        minpos = min(self.read() + refpos + [t + self.backlash
+                                             for t in refpos])
 
         # build a referencing sequence
         sequence = []
@@ -407,7 +431,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
 
         # if one of the motors should have triggered the low-level-switch
         # move them up a little and wait until the movement has finished
-        sequence.append([SeqMoveOffLimitSwitch(d, backoffby=self.backlash/4.) for d in devices])
+        sequence.append([SeqMoveOffLimitSwitch(d, backoffby=self.backlash / 4.)
+                         for d in devices])
 
         # ref lowest position, should finish at refpos[0]
         # The move should be first, as the referencing may block!
