@@ -31,7 +31,7 @@ def test_textclient(cliclient):
     stdout, _ = cliclient.communicate(b'''\
 /log 100
 /help
-NewSetup('daemonmain')
+NewSetup('stdsystem')
 /wait
 /edit test.py
 /sim read()

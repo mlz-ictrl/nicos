@@ -58,15 +58,15 @@ def test_startup_setup(client):
 
 
 def test_simple(client, simple_mode):
-    client.run_and_wait('NewSetup daemonmain')
+    client.run_and_wait('NewSetup stdsystem')
 
     # getstatus
     status = client.ask('getstatus')
     assert status['status'] == (STATUS_IDLE, -1)      # execution status
-    assert status['script'] == 'NewSetup daemonmain'  # current script
+    assert status['script'] == 'NewSetup stdsystem'   # current script
     assert status['mode'] == MASTER                   # current mode
     assert status['watch'] == {}                      # no watch expressions
-    assert status['setups'][1] == ['daemonmain']      # explicit setups
+    assert status['setups'][1] == ['stdsystem']       # explicit setups
     assert status['requests'] == []                   # no requests queued
 
     # queue/unqueue/emergency
@@ -89,7 +89,7 @@ def test_simple(client, simple_mode):
 
 
 def test_encoding(client):
-    load_setup(client, 'daemonmain')
+    load_setup(client, 'stdsystem')
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
@@ -98,7 +98,7 @@ scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
 
 
 def test_htmlhelp(client):
-    load_setup(client, 'daemonmain')
+    load_setup(client, 'stdsystem')
     # NOTE: everything run with 'queue' will not show up in the coverage
     # report, since the _pyctl trace function replaces the trace function from
     # coverage, so if we want HTML help generation to get into the report we
@@ -121,7 +121,7 @@ def test_htmlhelp(client):
 
 
 def test_simulation(client):
-    load_setup(client, 'daemonmain')
+    load_setup(client, 'stdsystem')
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
     for name, _data, _exc in client.iter_signals(idx, timeout=5.0):
