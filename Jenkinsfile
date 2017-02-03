@@ -346,7 +346,7 @@ parallel pylint: {
     }
 }, test_python2centos: {
     stage(name: 'Python2(centos) tests') {
-        if GERRIT_EVENT_TYPE=='change-merged' {
+        if (GERRIT_EVENT_TYPE=='change-merged') {
             node('CentOS && jenkins && !i386') {
                 prepareNode()
                 runTests('nicos-w-sys-site-packs2', 'python2-centos')
