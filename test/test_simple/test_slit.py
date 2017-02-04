@@ -172,8 +172,6 @@ def test_slit_subaxes(session):
     assert slit.read(0) == [0, 0, 6, 6]
 
 
-def test_slit_reference(session):
+def test_slit_reference(session, log):
     slit = session.getDevice('slit')
-
-    slit.reference()
-    assert slit.read(0) == [0, 0, 6, 6]
+    assert log.warns(slit.reference, warns_text='m_left cannot be referenced')
