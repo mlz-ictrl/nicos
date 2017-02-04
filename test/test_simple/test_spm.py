@@ -53,10 +53,11 @@ def test_spm(session):
     assert axis() == 2
 
     # more complicated commands
+    session.createDevice('slow_motor', explicit=True)
     # automatic stringification of some parameters
-    spmexec(session, 'get axis userlimits')
+    spmexec(session, 'get slow_motor userlimits')
     # args in parentheses/brackets are preserved
-    spmexec(session, 'set axis userlimits (0, 2)')
+    spmexec(session, 'set slow_motor userlimits (0, 2)')
 
     # invalid or missing syntax
     assert raises(SPMError, spmexec, session, 'get axis')

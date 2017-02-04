@@ -51,12 +51,6 @@ def test_version(client):
     assert client.ask('getversion') == nicos_version
 
 
-def test_startup_setup(client):
-    # eval
-    setups = client.eval('session.explicit_setups')
-    assert setups == ['startup']
-
-
 def test_simple(client, simple_mode):
     client.run_and_wait('NewSetup stdsystem')
 
@@ -89,7 +83,7 @@ def test_simple(client, simple_mode):
 
 
 def test_encoding(client):
-    load_setup(client, 'axis')
+    load_setup(client, 'scanning')
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")

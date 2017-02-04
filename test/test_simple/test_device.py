@@ -218,6 +218,7 @@ def test_params(session):
 
 def test_methods(session):
     dev2 = session.getDevice('dev2_3')
+    dev2.userlimits = dev2.abslimits
     assert 'doInit' in methods_called
     dev2.move(10)
     dev2.maw(10)

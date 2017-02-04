@@ -35,8 +35,7 @@ session_setup = 'alias'
 
 
 def test_alias_nodev(session):
-    alias = session.getDevice('aliasDev', object)
-
+    alias = session.getDevice('aliasNoDev', object)
     # first, proxy without target
     assert isinstance(alias._obj, NoDevice)
     assert alias.alias == ''
@@ -45,8 +44,8 @@ def test_alias_nodev(session):
     assert raises(ConfigurationError, setattr, alias, 'speed', 0)
     assert raises(ErrorLogged, read, alias)
     # but stringification is still the name of the alias object
-    assert str(alias) == 'aliasDev'
-    assert 'aliasDev' in repr(alias)
+    assert str(alias) == 'aliasNoDev'
+    assert 'aliasNoDev' in repr(alias)
 
 
 def test_alias_dev(session):
@@ -73,6 +72,14 @@ def test_alias_dev(session):
     assert raises(UsageError, setattr, alias, 'alias', slit)
 
 
+def test_alias_valueinfo2(session):
+    # check with multiple values, check setting from config
+    alias = session.getDevice('aliasDev2', object)
+    # check the value info replacement
+    vistr = str(alias.valueInfo())
+    assert 'aliasDev2.' in vistr
+
+
 def test_adjust_alias(session):
     alias = session.getDevice('aliasDev3', object)
     # now set the alias to some object
@@ -89,17 +96,9 @@ def test_adjust_alias(session):
 
 def test_alias_valueinfo(session):
     # check the value info replacement
-    alias = session.getDevice('aliasDev', object)
+    alias = session.getDevice('aliasDev4', object)
     v1 = session.getDevice('v1')
     alias.alias = v1
     vistr = str(alias.valueInfo())
-    assert 'aliasDev' in vistr
-    assert alias.valueInfo()[0].name == 'aliasDev'
-
-
-def test_alias_valueinfo2(session):
-    # check with multiple values, check setting from config
-    alias = session.getDevice('aliasDev2', object)
-    # check the value info replacement
-    vistr = str(alias.valueInfo())
-    assert 'aliasDev2.' in vistr
+    assert 'aliasDev4' in vistr
+    assert alias.valueInfo()[0].name == 'aliasDev4'

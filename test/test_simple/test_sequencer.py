@@ -76,18 +76,18 @@ def test_seqdev(session):
 
 def test_seqparam(session):
     # Param setting
-    sm2 = session.getDevice('sm2')
-    sp = SeqParam(sm2, 'speed', 1)
-    assert 'sm2.speed' in repr(sp)
+    sm3 = session.getDevice('sm3')
+    sp = SeqParam(sm3, 'speed', 1)
+    assert 'sm3.speed' in repr(sp)
     assert repr(sp).endswith('1')
 
-    sm2.speed = 5
-    assert sm2.speed == 5
+    sm3.speed = 5
+    assert sm3.speed == 5
     sp.check()
     sp.run()
     while not sp.isCompleted():
         pass
-    assert sm2.speed == 1
+    assert sm3.speed == 1
 
 
 def test_seqmethod(session):
