@@ -329,8 +329,6 @@ def test_device_commands(session, log):
     assert raises(ErrorLogged, reference, motor)
     log.check_response(matches=r'Device status')
     log.check_response(matches=r'axis +status: +ok: idle')
-    log.check_response(matches=r'INFO: t_mono +status: +ok: theta=idle,'
-                       ' twotheta=idle, focush=fine, focusv=fine')
 
 
 def test_command_exceptionhandling(session):

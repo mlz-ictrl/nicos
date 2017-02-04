@@ -36,7 +36,6 @@ from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.imaging import tomo
-from nicos.commands.tas import checkalign
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import waitForState
@@ -301,11 +300,6 @@ def test_specialscans(session):
     det = session.getDevice('det')
 
     checkoffset(m, 10, 0.05, 3, det, m=10, t=0.)
-
-    tas = session.getDevice('Tas')
-    tas.scanmode = 'CKI'
-    tas.scanconstant = 1.55
-    checkalign((1, 0, 0), 0.05, 2, det, accuracy=0.1)
 
     dataset = session.data._last_scans[-1]
     uid = dataset.uid

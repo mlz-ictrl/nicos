@@ -31,7 +31,7 @@ from numpy import array
 
 from test.utils import approx
 
-session_setup = 'scanning'
+session_setup = 'tas'
 
 
 def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):

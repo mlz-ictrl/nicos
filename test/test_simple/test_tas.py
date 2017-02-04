@@ -27,12 +27,13 @@ import pytest
 from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
     InvalidValueError, ComputationError, PositionError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
-    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
+    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, \
+    setalign, checkalign
 from nicos.commands.measure import count
 
 from test.utils import raises, approx, ErrorLogged
 
-session_setup = 'scanning'
+session_setup = 'tas'
 
 
 @pytest.fixture
@@ -203,7 +204,7 @@ def test_error_handling(session, tas):
 
 
 def test_qscan(session, tas):
-    mot = session.getDevice('motor2')
+    mot = session.getDevice('some_motor')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, mot, 'scaninfo', t=1)
     qscan((0, 0, 0), (0, 0, 0), 5, 2.5, t_kf=2.662, manual=1,
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
@@ -258,6 +259,14 @@ def test_setalign(session, tas):
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))
     assertPos(tas.read(0), [-.5, .5, .5, 0])
+
+
+def test_checkalign(session, tas):
+    tas = session.getDevice('Tas')
+    tdet = session.getDevice('vtasdet')
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 1.57
+    checkalign((1, 0, 0), 0.05, 2, tdet, accuracy=0.1)
 
 
 def test_helper_commands(tas):

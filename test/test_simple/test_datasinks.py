@@ -256,7 +256,7 @@ def test_yaml_sink_1(session):
             data = df.read()
     # note: whitespace is significant in the following lines!
             assert '''instrument:
-    name: Tas''' in data
+    name: INSTR''' in data
             assert '''experiment:
     number: p1234
     proposal: p1234''' in data
@@ -271,7 +271,7 @@ def test_yaml_sink_2(session):
     yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
     assert path.isfile(yamlfile)
     contents = yaml.load(open(yamlfile))
-    assert contents['instrument']['name'] == 'Tas'
+    assert contents['instrument']['name'] == 'INSTR'
     assert contents['experiment']['proposal'] == 'p1234'
     assert contents['measurement']['sample']['description']['name'] == \
         'mysample'

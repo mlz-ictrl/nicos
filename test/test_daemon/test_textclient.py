@@ -31,7 +31,7 @@ def test_textclient(cliclient):
     stdout, _ = cliclient.communicate(b'''\
 /log 100
 /help
-NewSetup('stdsystem')
+NewSetup('axis')
 /wait
 /edit test.py
 /sim read()
@@ -42,11 +42,11 @@ read()
 /wait
 help(read)
 /wait
-set(t_alpha, 'speed', 1)
+set(slow_motor, 'speed', 1)
 /wait
-maw(t_alpha, 100)
+maw(slow_motor, 25)
 /wait 0.1
-maw(t_alpha, 200)
+maw(slow_motor, 50)
 Q
 /wait 0.1
 /pending
@@ -54,7 +54,7 @@ Q
 /cancel *
 /trace
 /spy
-t_alpha()
+slow_motor()
 /spy
 /stop
 S

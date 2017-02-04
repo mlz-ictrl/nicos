@@ -269,7 +269,7 @@ def test_is_at_target(session):
 
 def test_fix_and_release(session):
     # fixing and releasing
-    dev2 = session.getDevice('t_mtt')
+    dev2 = session.getDevice('mot')
     dev2.curvalue = 7
     dev2.curstatus = (status.OK, '')
     dev2.fix('blah')

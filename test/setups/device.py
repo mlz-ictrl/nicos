@@ -71,4 +71,9 @@ devices = dict(
                    comtries = 3,
                    comdelay = 0,
                   ),
+    mot   = device('devices.generic.VirtualMotor',
+                   unit = 'deg',
+                   initval = 0,
+                   abslimits = (0, 10),
+                  ),
 )

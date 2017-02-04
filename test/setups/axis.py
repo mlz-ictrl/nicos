@@ -83,4 +83,10 @@ devices = dict(
                       userlimits = (-50, 50),
                       loopdelay = 0.02,
                      ),
+
+    slow_motor = device('nicos.devices.generic.VirtualMotor',
+                        unit = 'mm',
+                        initval = 0,
+                        abslimits = (-100, 100),
+                       ),
 )
