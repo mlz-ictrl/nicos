@@ -104,7 +104,10 @@ def test_setup_commands(session, log):
 
 
 def test_devicecreation_commands(session, log):
+    if 'motor' in session.devices:
+        RemoveDevice('motor')
     assert 'motor' not in session.devices
+
     CreateDevice('motor')
     assert 'motor' in session.devices
 
@@ -298,6 +301,7 @@ def test_device_commands(session, log):
     limits()
 
     # check resetlimits()
+    CreateDevice('motor')  # needs to be explicit
     motor.userlimits = (1, 1)
     resetlimits(motor, coder)
     assert motor.userlimits == motor.abslimits
@@ -324,8 +328,8 @@ def test_device_commands(session, log):
 
     assert raises(ErrorLogged, reference, motor)
     log.check_response(matches=r'Device status')
-    log.check_response(matches=r'axis       status:   ok: idle')
-    log.check_response(matches=r'INFO: t_mono         status:   ok: theta=idle,'
+    log.check_response(matches=r'axis +status: +ok: idle')
+    log.check_response(matches=r'INFO: t_mono +status: +ok: theta=idle,'
                        ' twotheta=idle, focush=fine, focusv=fine')
 
 
@@ -348,7 +352,7 @@ def test_command_exceptionhandling(session):
     assert raises(LimitError, wrapped_maw, dev, -150)
 
 
-def test_commands_elog():
+def test_commands_elog(session):
     LogEntry('== some subheading\n\nThis is a logbook entry.')
     fd, tmpname = tempfile.mkstemp()
     os.close(fd)

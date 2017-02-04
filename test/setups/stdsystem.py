@@ -170,6 +170,7 @@ devices = dict(
                       alpha = 't_alpha',
                       instrument = 'Tas',
                       countloopdelay = 0.002,
+                      collimation = '20 20 20 60',
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
 

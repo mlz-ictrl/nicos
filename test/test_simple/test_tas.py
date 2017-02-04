@@ -25,24 +25,33 @@
 import pytest
 
 from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
-    InvalidValueError, ComputationError, NicosError, PositionError, status
+    InvalidValueError, ComputationError, PositionError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
 from nicos.commands.measure import count
-from nicos.devices.tas import spacegroups
 
 from test.utils import raises, approx, ErrorLogged
 
 session_setup = 'scanning'
 
 
-@pytest.fixture(scope='module', autouse=True)
-def setup_sample(session):
+@pytest.fixture
+def tas(session):
+    # Create a common set up at the start of the test.
+    tasdev = session.getDevice('Tas')
+    tasdev.scanmode = 'CKF'
+    tasdev.scanconstant = 2.662
+    tasdev.scatteringsense = (1, -1, 1)
+    tasdev.energytransferunit = 'THz'
+    tasdev._attached_mono.unit = 'A-1'
+    tasdev._attached_ana.unit = 'A-1'
     sample = session.getDevice('Sample')
     sample.lattice = [2.77, 2.77, 2.77]
     sample.angles = [90, 90, 90]
     sample.orient1 = [1, 0, 0]
     sample.orient2 = [0, 1, 1]
+    sample.psi0 = 0
+    return tasdev
 
 
 def assertPos(pos1, pos2):
@@ -95,8 +104,7 @@ def test_mono_device(session):
     assert mono._calcurvature(1., 1., 1) == approx(1.058, abs=1e-3)
 
 
-def test_tas_device(session):
-    tas = session.getDevice('Tas')
+def test_tas_device(session, tas):
     mono = session.getDevice('t_mono')
     ana = session.getDevice('t_ana')
     phi = session.getDevice('t_phi')
@@ -104,14 +112,8 @@ def test_tas_device(session):
     ki = session.getDevice('t_ki')
     kf = session.getDevice('t_kf')
 
-    tas.scanmode = 'CKF'
-    tas.scanconstant = 2.662
-    tas.scatteringsense = [1, -1, 1]
-    tas.energytransferunit = 'THz'
-    mono.unit = ana.unit = 'A-1'
-
     # test the correct driving of motors
-    tas([1, 0, 0, 1])
+    tas.maw([1, 0, 0, 1])
     assert ana() == approx(2.662, abs=1e-3)
     assert mono() == approx(3.014, abs=1e-3)
     assert phi() == approx(-46.6, abs=0.1)
@@ -130,7 +132,7 @@ def test_tas_device(session):
 
     # test scattering sense
     tas.scatteringsense = [-1, 1, -1]
-    tas([1, 0, 0, 1])
+    tas.maw([1, 0, 0, 1])
     assert phi() == approx(46.6, abs=0.1)  # now with "+" sign
     assert raises(ConfigurationError, setattr, tas, 'scatteringsense',
                   [2, 0, 2])
@@ -147,15 +149,15 @@ def test_tas_device(session):
     # test scanmode
     tas.scanmode = 'CKI'
     tas.scanconstant = 2.662
-    tas([1, 0, 0, 1])
+    tas.maw([1, 0, 0, 1])
     assert mono() == approx(2.662, abs=1e-3)
     tas.scanmode = 'CKF'
-    tas([1, 0, 0, 1])
+    tas.maw([1, 0, 0, 1])
     assert ana() == approx(2.662, abs=1e-3)
     tas.scanmode = 'DIFF'
     tas.scanconstant = 2.5
     ana(2.5)
-    tas([1, 0, 0, 0])
+    tas.maw([1, 0, 0, 0])
     assert ana() == approx(2.5, abs=1e-3)
     assert mono() == approx(2.5, abs=1e-3)
     assertPos(tas(), [1, 0, 0, 0])
@@ -176,19 +178,12 @@ def test_tas_device(session):
     assert tas.h() == approx(1.5, abs=1e-3)
 
 
-def test_error_handling(session):
+def test_error_handling(session, tas):
     # check that if one subdev errors out, we wait for the other subdevs
-    tas = session.getDevice('Tas')
-    mono = session.getDevice('t_mono')
-    ana = session.getDevice('t_ana')
     mfh = session.getDevice('t_mfh')
     phi = session.getDevice('t_phi')
-    tas.scanmode = 'CKF'
-    tas.scanconstant = 2.662
-    tas.scatteringsense = [-1, 1, -1]
-    tas.energytransferunit = 'THz'
-    mono.unit = ana.unit = 'A-1'
-    tas([1.01, 0, 0, 1])
+
+    tas.maw([1.01, 0, 0, 1])
     phi.speed = 1
     mfh._status_exception = PositionError(mfh, 'wrong position')
     session.testhandler.enable_raising(False)
@@ -200,31 +195,14 @@ def test_error_handling(session):
         else:
             assert False, 'PositionError not raised'
         # but we still arrived with phi
-        assert phi() == approx(46.6, abs=0.1)
+        assert phi() == approx(-46.6, abs=0.1)
     finally:
         phi.speed = 0
         mfh._status_exception = None
         session.testhandler.enable_raising(True)
 
 
-def test_Q_object():
-    assert all(Q() == Q(0, 0, 0, 0))
-    assert all(Q(1) == Q(1, 0, 0, 0))
-    assert all(Q(1, 1) == Q(1, 1, 0, 0))
-    assert all(Q(1, 1, 1) == Q(1, 1, 1, 0))
-    q1 = Q(1, 2, 3, 4)
-    for q2 in [
-        Q(Q(1, 4, 3, 0), k=2, e=4),
-        Q(1, 2, 3, e=4),
-        Q(h=1, k=2, l=3, e=4),
-        Q(H=1, K=2, L=3, E=4)
-    ]:
-        assert all(q2 == q1)
-    assert raises(UsageError, Q, 1, 2, 3, 4, 5)
-    assert repr(Q()) == '[ 0.  0.  0.  0.]'
-
-
-def test_qscan(session):
+def test_qscan(session, tas):
     mot = session.getDevice('motor2')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, mot, 'scaninfo', t=1)
     qscan((0, 0, 0), (0, 0, 0), 5, 2.5, t_kf=2.662, manual=1,
@@ -238,11 +216,9 @@ def test_qscan(session):
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
 
 
-def test_tas_commands(session):
-    tas = session.getDevice('Tas')
+def test_tas_commands(session, tas):
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57
-    tas.energytransferunit = 'THz'
 
     # calpos()/pos()
     for args in [
@@ -254,16 +230,16 @@ def test_tas_commands(session):
         (Q(0.5, 0.5, 0.5, 0), 1.57)
     ]:
         # move tas to known position
-        tas([0.4, 0.4, 0.4, 0.2])
+        tas.maw([0.4, 0.4, 0.4, 0.2])
         calpos(*args)
         pos()
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
         # move tas to known position
-        tas([0.4, 0.4, 0.4, 0.2])
+        tas.maw([0.4, 0.4, 0.4, 0.2])
         pos(*args)
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
 
-    tas([0.4, 0.4, 0.4, 0.2])
+    tas.maw([0.4, 0.4, 0.4, 0.2])
     assert session.testhandler.warns(calpos, 0.7, 0.7, 0.7, 0)
     calpos(0.5, 0.5, 0.5, 0)
     assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
@@ -278,14 +254,13 @@ def test_tas_commands(session):
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
 
-def test_setalign(session):
-    tas = session.getDevice('Tas')
+def test_setalign(session, tas):
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))
     assertPos(tas.read(0), [-.5, .5, .5, 0])
 
 
-def test_helper_commands():
+def test_helper_commands(tas):
     # just check that they are working
     acc_bragg(1, 0, 0, 0)
     ho_spurions()
@@ -293,12 +268,9 @@ def test_helper_commands():
     copper(phi=50)
 
 
-def test_resolution(session):
-    tas = session.getDevice('Tas')
+def test_resolution(session, tas):
     tas.scanmode = 'CKI'
-    tas.scanconstant = 2.662
-    tas([1.01, 0, 0, 1])
-    tas.collimation = '20 30 40 50'
+    tas.maw([1.01, 0, 0, 1])
     cell = tas._attached_cell
     cfg, par = _resmat_args((1, 1, 0, 0), {})
     assert len(cfg) == 30
@@ -306,7 +278,7 @@ def test_resolution(session):
     assert par['en'] == 0
     assert par['as'] == cell.lattice[0]
     assert par['alpha1'] == 20
-    assert par['alpha4'] == 50
+    assert par['alpha4'] == 60
     assert par['beta1'] == 6000
 
     rescal()
@@ -314,29 +286,7 @@ def test_resolution(session):
     rescal(1, 1, 0, 1)
 
 
-def test_getspacegroup():
-    # Good cases
-    assert spacegroups.get_spacegroup(1) == \
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    assert spacegroups.get_spacegroup('Pbca') == \
-        [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-    # Error cases
-    assert raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
-    assert raises(NicosError, spacegroups.get_spacegroup, 300)
-
-
-def test_canreflect():
-    # P1 all reflection types are allowed
-    sg = spacegroups.get_spacegroup('P1')
-    assert spacegroups.can_reflect(sg, 0, 0, 0)
-    assert spacegroups.can_reflect(sg, 1, 0, 0)
-    assert spacegroups.can_reflect(sg, 0, 1, 0)
-    assert spacegroups.can_reflect(sg, 0, 0, 1)
-    assert spacegroups.can_reflect(sg, 1, 1, 1)
-
-
-def test_virtualdet(session):
-    tas = session.getDevice('Tas')
+def test_virtualdet(session, tas):
     tdet = session.getDevice('vtasdet')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57

@@ -39,7 +39,7 @@ from test.utils import raises, cache_addr
 session_setup = 'cachetests'
 
 
-def test_00float_literals(session):
+def test_float_literals(session):
     cc = session.cache
     for fv in [float('+inf'), float('-inf'), float('nan')]:
         cc.put('testcache', 'fval', fv)
@@ -49,7 +49,7 @@ def test_00float_literals(session):
         assert repr(fvc) == repr(fv)
 
 
-def test_01write(session):
+def test_write(session):
     cc = session.cache
     testval = 'test1'
     key = 'value'
@@ -62,7 +62,7 @@ def test_01write(session):
     assert cachedval[2] == testval
 
 
-def test_02setRewrite(session):
+def test_rewrite(session):
     cc = session.cache
     cc.setRewrite('testrewrite', 'testcache')
     testval = 'test2'
@@ -78,9 +78,6 @@ def test_02setRewrite(session):
     assert cachedval1[2] == testval
     assert cachedval2[2] == testval
 
-
-def test_03unsetRewrite(session):
-    cc = session.cache
     cc.unsetRewrite('testrewrite')
     testval = 'test3'
     key = 'value'
@@ -96,7 +93,7 @@ def test_03unsetRewrite(session):
     assert cachedval_rw == 'test2'  # still from test_02setRewrite
 
 
-def test_04writeToRewritten(session):
+def test_write_to_rewritten(session):
     cc = session.cache
     cc.setRewrite('testrewrite2', 'testcache')
     testval1 = 'testwrite1'
@@ -121,7 +118,7 @@ def test_04writeToRewritten(session):
     assert cachedval6[2] == cachedval5[2]
 
 
-def test_05cachereadonlyobjects(session):
+def test_readonly_objects(session):
     cc = session.cache
     testval1 = readonlylist(('A', 'B', 'C'))
     cc.put('testcache', 'rolist', testval1)
@@ -162,7 +159,8 @@ def test_05cachereadonlyobjects(session):
     assert type(rod[2]['B']) == type(testval2)
 
 
-def test_06cacheReader(session):
+def test_cache_reader(session):
+    rd1 = session.getDevice('reader1')
     cc = session.cache
     cc2 = CacheClient(name='cache2', prefix='nicos', cache=cache_addr)
     try:
@@ -170,7 +168,6 @@ def test_06cacheReader(session):
         testval2 = 'testr2'
         key = 'value'
         sleep(0.1)
-        rd1 = session.getDevice('reader1')
         cc.clear('reader1')
         cc.flush()
         assert raises(CommunicationError, rd1.read)
@@ -189,14 +186,10 @@ def test_06cacheReader(session):
     finally:
         cc2.shutdown()
 
-
-def test_06acacheReader(session):
-    cc = session.cache
     cc2 = CacheClient(name='cache2', prefix='nicos', cache=cache_addr)
     try:
         testval = 'testr3'
         key = 'value'
-        rd1 = session.getDevice('reader1')
         cc.clear('reader1')
         cc.flush()
         cc2.put(rd1, key, testval, ttl=0.1)
@@ -212,7 +205,7 @@ def test_06acacheReader(session):
         cc2.shutdown()
 
 
-def test_07cacheWriter(session):
+def test_cache_writer(session):
     cc = session.cache
     cc.loglevel = 'debug'
 
