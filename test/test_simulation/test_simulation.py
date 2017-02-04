@@ -24,7 +24,6 @@
 
 """Tests for simulation mode."""
 
-from nicos import session
 from nicos.core import SIMULATION
 from nicos.commands.scan import scan
 from nicos.commands.basic import sleep
@@ -42,8 +41,8 @@ def test_simmode(session):
     assert m._sim_value == 4
 
 
-def test_special_behavior():
+def test_special_behavior(session):
     oldtime = session.clock.time
     sleep(1000)   # should take no time in simulation mode, but advance clock
-    newtime = session.clock .time
+    newtime = session.clock.time
     assert newtime - oldtime == 1000
