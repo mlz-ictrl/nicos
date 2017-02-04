@@ -32,7 +32,7 @@ from nicos.utils.loggers import INPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
-          ERROR: 'ERROR', FATAL: 'FATAL'}
+          ERROR: 'ERROR', FATAL: 'FATAL', INPUT: 'INPUT'}
 
 
 def formatTime(timeval):
