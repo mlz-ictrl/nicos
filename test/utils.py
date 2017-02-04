@@ -325,6 +325,10 @@ class TestSession(Session):
             return
         exec_(code, self.namespace)
 
+    def delay(self, _secs):
+        # Not necessary for test suite.
+        pass
+
 
 class TestDevice(HasLimits, Moveable):
 
