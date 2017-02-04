@@ -154,7 +154,11 @@ class TestLogHandler(ColoredConsoleHandler):
         else:
             self._messages += 1
             self._capturedmessages.append(self.xformat(record))
-        ColoredConsoleHandler.emit(self, record)
+        try:
+            ColoredConsoleHandler.emit(self, record)
+        except ValueError:
+            # Closed capture device, ignore.
+            pass
 
     def xformat(self, record):
         if record.name == 'nicos':
