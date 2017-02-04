@@ -65,7 +65,7 @@ def daemon_wait_cb():
 
 @pytest.yield_fixture(scope='module')
 def daemon():
-    daemon = startSubprocess('daemon.py', wait_cb=daemon_wait_cb)
+    daemon = startSubprocess('daemon', wait_cb=daemon_wait_cb)
     yield
     killSubprocess(daemon)
 
@@ -143,8 +143,7 @@ def cliclient(daemon):
         pytest.skip('text client not available on this system')
 
     os.environ['EDITOR'] = 'cat'
-    client = startSubprocess('cliclient.py',
-                             'guest:guest@' + daemon_addr,
+    client = startSubprocess('cliclient', 'guest:guest@' + daemon_addr,
                              piped=True)
     yield client
     killSubprocess(client)

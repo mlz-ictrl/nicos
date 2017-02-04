@@ -416,7 +416,7 @@ def cleanup():
     os.mkdir(path.join(runtime_root, 'cache'))
     os.mkdir(path.join(runtime_root, 'pid'))
     os.mkdir(path.join(runtime_root, 'bin'))
-    shutil.copy(path.join(module_root, 'test', 'simulate.py'),
+    shutil.copy(path.join(module_root, 'test', 'bin', 'simulate'),
                 path.join(runtime_root, 'bin', 'nicos-simulate'))
 
 
@@ -438,10 +438,9 @@ def startSubprocess(filename, *args, **kwds):
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
         popen_kwds = dict()
-    proc = subprocess.Popen([sys.executable,
-                             path.join(module_root, 'test', filename)] +
-                            list(args),
-                            **popen_kwds)
+    proc = subprocess.Popen(
+        [sys.executable, path.join(module_root, 'test', 'bin', filename)] +
+        list(args), **popen_kwds)
     proc.nicos_name = name
     if 'wait_cb' in kwds:
         try:
@@ -493,7 +492,7 @@ def startCache(hostport, setup='cache', wait=10):
                     break
             else:
                 raise Exception('cache failed to start within %s sec' % wait)
-    cache = startSubprocess('cache.py', setup, wait_cb=cache_wait_cb)
+    cache = startSubprocess('cache', setup, wait_cb=cache_wait_cb)
     return cache
 
 
