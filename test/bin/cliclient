@@ -36,5 +36,7 @@ else:
     coverage.process_startup()
 
 from nicos.clients.cli import main
+from nicos.utils import nocolor
 
+nocolor()
 sys.exit(main(sys.argv))
