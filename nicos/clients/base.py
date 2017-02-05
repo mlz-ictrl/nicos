@@ -212,11 +212,18 @@ class NicosClient(object):
         while 1:
             try:
                 # receive STX (1 byte) + eventcode (2) + length (4)
-                start = recv(7)
-                if len(start) != 7 or start[0:1] != STX:
-                    if not self.disconnecting:
-                        self.signal('broken', 'Server connection broken.')
-                        self._close()
+                start = b''
+                while len(start) < 7:
+                    data = recv(7 - len(start))
+                    if not data:
+                        if not self.disconnecting:
+                            self.signal('broken', 'Server connection broken.')
+                            self._close()
+                        return
+                    start += data
+                if start[0:1] != STX:
+                    self.signal('broken', 'Wrong event header.')
+                    self._close()
                     return
                 length, = LENGTH.unpack(start[3:])
                 got = 0
@@ -309,11 +316,14 @@ class NicosClient(object):
     def _read(self):
         """Receive a response from the server."""
         # receive first byte + (possibly) length
-        start = self.socket.recv(5)
-        if start == ACK:
-            return start, None
-        if len(start) != 5:
-            raise ProtocolError('connection broken')
+        start = b''
+        while len(start) < 5:
+            data = self.socket.recv(5 - len(start))
+            if not data:
+                raise ProtocolError('connection broken')
+            start += data
+            if start == ACK:
+                return start, None
         if start[0:1] not in (NAK, STX):
             raise ProtocolError('invalid response %r' % start)
         # it has a length...
