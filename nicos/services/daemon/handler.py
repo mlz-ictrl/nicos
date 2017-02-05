@@ -202,10 +202,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """Read a command and arguments from the client."""
         try:
             # receive: ENQ (1 byte) + commandcode (2) + length (4)
-            start = self.sock.recv(7)
-            if len(start) != 7:
-                self.log.error('read: connection broken')
-                raise CloseConnection
+            start = b''
+            while len(start) < 7:
+                data = self.sock.recv(7 - len(start))
+                if not data:
+                    self.log.error('read: connection broken')
+                    raise CloseConnection
+                start += data
             if start[0:1] != ENQ:
                 self.log.error('read: invalid command header')
                 raise CloseConnection
