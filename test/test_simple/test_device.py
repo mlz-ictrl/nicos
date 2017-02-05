@@ -139,7 +139,7 @@ class Bus(HasCommunication, Device):
         return self._com_retry('', self._llcomm, msg)
 
 
-def test_initialization(session):
+def test_initialization(session, log):
     # make sure dev2_1 is created and then try to instantiate another device
     # with this name...
     session.getDevice('dev2_1')
@@ -150,12 +150,9 @@ def test_initialization(session):
     assert raises(ZeroDivisionError, session.getDevice, 'dev2_4')
     # assert correct cleanup
     assert 'dev2_4' not in session.devices
-    before = session.testhandler._messages
 
-    assert raises(ZeroDivisionError, session.getDevice, 'dev2_5')
-    assert session.testhandler._messages > before
-    assert 'could not shutdown after creation failed' \
-        in session.testhandler._warnings[-1].msg
+    with log.assert_warns('could not shutdown after creation failed'):
+        assert raises(ZeroDivisionError, session.getDevice, 'dev2_5')
     # assert device is cleaned up anyway
     assert 'dev2_5' not in session.devices
 
@@ -258,17 +255,19 @@ def test_methods(session):
     assert raises(AccessError, dev2.calibrate)
 
 
-def test_is_at_target(session):
+def test_is_at_target(session, log):
     # check target warning behavior in finish
     dev2 = session.getDevice('dev2_3')
     dev2.start(0)
-    assert not session.testhandler.warns(dev2.finish)
+    with log.assert_warns(count=0):
+        dev2.finish()
     dev2.start(1)
     dev2._val = 0.5
-    assert session.testhandler.warns(dev2.finish)
+    with log.assert_warns('did not reach target', count=1):
+        dev2.finish()
 
 
-def test_fix_and_release(session):
+def test_fix_and_release(session, log):
     # fixing and releasing
     dev2 = session.getDevice('mot')
     dev2.curvalue = 7
@@ -276,7 +275,8 @@ def test_fix_and_release(session):
     dev2.fix('blah')
     try:
         dev2.move(7)  # allowed, since we are at 7 already
-        assert session.testhandler.warns(dev2.move, 9)
+        with log.assert_warns('device fixed, not moving'):
+            dev2.move(9)
     finally:
         dev2.release()
     dev2.move(7)
@@ -284,7 +284,8 @@ def test_fix_and_release(session):
     dev2.curvalue = 9
     dev2.curstatus = (status.BUSY, 'moving')
     # fixing while busy should emit a warning
-    assert session.testhandler.warns(dev2.fix, 'do not stop in fixed mode')
+    with log.assert_warns('device appears to be busy'):
+        dev2.fix()
     assert dev2.status()[0] == status.BUSY
     try:
         dev2.stop()
@@ -295,7 +296,7 @@ def test_fix_and_release(session):
     assert dev2.status()[0] == status.OK
 
 
-def test_limits(session):
+def test_limits(session, log):
     dev2 = session.getDevice('dev2_3')
     # abslimits are (0, 10) as set in configuration
     dev2.userlimits = dev2.abslimits
@@ -320,7 +321,8 @@ def test_limits(session):
     dev2.offset = 0
     # warn when setting limits that don't include current position
     dev2.move(6)
-    assert session.testhandler.warns(setattr, dev2, 'userlimits', (0, 4))
+    with log.assert_warns('current device value .* not within new userlimits'):
+        dev2.userlimits = (0, 4)
 
 
 def test_hascomm(session):

@@ -34,9 +34,10 @@ import time
 import shutil
 import signal
 import socket
+import contextlib
 import subprocess
 from os import path
-from logging import ERROR, WARNING, DEBUG
+from logging import ERROR, WARNING, DEBUG, StreamHandler, Formatter
 
 import pytest
 
@@ -47,7 +48,7 @@ from nicos.core.sessions import Session
 from nicos.devices.notifiers import Mailer
 from nicos.devices.cacheclient import CacheClient
 from nicos.utils import tcpSocket
-from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
+from nicos.utils.loggers import NicosLogger, ACTION
 from nicos.pycompat import exec_, reraise
 
 # The NICOS checkout directory, where to find modules.
@@ -138,155 +139,101 @@ class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 
 
-class TestLogHandler(ColoredConsoleHandler):
+class TestLogHandler(StreamHandler):
     def __init__(self):
-        ColoredConsoleHandler.__init__(self)
-        self._warnings = []
+        StreamHandler.__init__(self, sys.stdout)
+        self.setFormatter(
+            Formatter('%(levelname)-7s : %(name)s : %(message)s\n'))
+        self.clear()
+
+    def clear(self):
         self._raising = True
-        self._messages = 0
-        self._capturedmessages = []
+        self._warnings = []
+        self._messages = []
 
     def emit(self, record):
+        if record.levelno == ACTION:
+            return
+        msg = self.format(record)
         if record.levelno >= ERROR and self._raising:
             raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
-            self._warnings.append(record)
-        else:
-            self._messages += 1
-            self._capturedmessages.append(self.xformat(record))
+            self._warnings.append(msg)
+        self._messages.append(msg)
         try:
-            ColoredConsoleHandler.emit(self, record)
+            self.stream.write(msg)
+        except UnicodeEncodeError:
+            self.stream.write(msg.encode('utf-8'))
         except ValueError:
-            # Closed capture device, ignore.
-            pass
+            # Closed pytest capture stream, ignore.
+            return
+        self.stream.flush()
 
-    def xformat(self, record):
-        if record.name == 'nicos':
-            namefmt = ''
-        else:
-            namefmt = '%(name)-10s: '
-        fmtstr = '%s%%(levelname)s: %%(message)s' % namefmt
-        fmtstr = '%(filename)s' + fmtstr
-        s = fmtstr % record.__dict__
-        return s
-
-    def clearcapturedmessages(self):
-        # XXX: clear warnings too!
-        self._capturedmessages = []
-
-    def dump_messages(self, where=''):
-        """Helper to get message content for test preparation."""
-        print("#" * 10 + ' ' + where + ' ' + '#' * 10, file=sys.stderr)
-        for m in self._capturedmessages:
-            print(m, file=sys.stderr)
-        print("#" * 60, file=sys.stderr)
-
-    def enable_raising(self, raising):
-        self._raising = raising
-
-    def assert_response(self, contains=None, matches=None):
-        """Check for specific strings in a response array.
-
-        resp: iterable object containing reponse strings
-        contains: string to check for presence, does string comparison
-        matches: regexp to search for in response
+    @contextlib.contextmanager
+    def allow_errors(self):
+        """Return a context manager that while active, prevents raising an
+        exception when an error is logged.
         """
-        if contains:
-            assert contains in self._capturedmessages, \
-                "Response does not contain %r" % contains
+        self._raising = False
+        yield
+        self._raising = True
 
-        if matches:
-            reg = re.compile(matches)
-            for sub in self._capturedmessages:
-                found = reg.findall(sub)
-                if len(found):
-                    return True
-            self.dump_messages('')
-            assert False, "Response does not match %r" % matches
-
-    def assert_notresponse(self, contains=None, matches=None):
-        """Check for the absences of specific strings in a response array.
-
-        resp: iterable object containing reponse strings
-        contains: string to check for absence, does string comparison
-        matches: regexp to search for in response
+    @contextlib.contextmanager
+    def assert_msg_matches(self, regexes):
+        """Check that the context code logs a message for each of the given
+        regexes.
         """
-        if contains:
-            assert contains not in self._capturedmessages, \
-                "Response does contain %r" % contains
-
-        if matches:
-            reg = re.compile(matches)
-            for sub in self._capturedmessages:
-                found = reg.findall(sub)
-                if len(found):
-                    self.dump_messages('')
-                    assert False, "Response does match %r" % matches
-        return True
-
-    def check_response(self, contains=None, matches=None, absent=False):
-        """Check response messages for the presence/absence of string.
-
-        *contains* string checked for string equality in messages
-        *matches* regex to search in messages
-        *absent* if True, check for absence of string
-        """
-        if absent:
-            return self.assert_notresponse(contains, matches)
-        return self.assert_response(contains, matches)
-
-    def warns(self, func, *args, **kwds):
-        """check if a warning is emitted
-
-            arguments:
-            ``func``: Function Under Test (FUT)
-            ``warns_clear``:
-                clear warnings before running the FUT
-            ``warns_text``:
-                if present, a regex to test the warning messages for.
-            All other arguments a passed to the FUT
-        """
-
-        if kwds.pop('warns_clear', None):
-            self.clear_warnings()
-        _text = kwds.pop('warns_text', None)
-
-        plen = len(self._warnings)
-        ret = func(*args, **kwds)
-        plen_after = len(self._warnings)
-        if plen == plen_after:
-            print(ret)
-            print(self._warnings)
-            return False
-        if not _text:
-            if plen + 1 == plen_after:
-                return True
+        start = len(self._messages)
+        yield
+        if not isinstance(regexes, list):
+            regexes = [regexes]
+        for regex in regexes:
+            rx = re.compile(regex)
+            for msg in self._messages[start:]:
+                if rx.search(msg):
+                    break
             else:
-                sys.stderr.write('More then one warning added')
-            for msg in self._warnings:
-                sys.stderr.write(msg.getMessage())
-            return False
-        else:
-            for msg in self._warnings:
-                if re.search(_text, msg.getMessage()):
-                    return True
-            sys.stderr.write('Specified text not in any warning:')
-            for msg in self._warnings:
-                sys.stderr.write('MSG: ' + msg.getMessage())
+                assert False, 'No message matching %r' % regex
 
-            return False
+    @contextlib.contextmanager
+    def assert_no_msg_matches(self, regexes):
+        """Check that the context code logs no message that matches the
+        given regexes.
+        """
+        start = len(self._messages)
+        yield
+        if not isinstance(regexes, list):
+            regexes = [regexes]
+        for regex in regexes:
+            rx = re.compile(regex)
+            for msg in self._messages[start:]:
+                if rx.search(msg):
+                    assert False, 'Message %r matches %r' % (msg, regex)
 
-    def emits_message(self, func, *args, **kwds):
-        before = self._messages
-        func(*args, **kwds)
-        return self._messages > before
+    @contextlib.contextmanager
+    def assert_warns(self, regex=None, count=None):
+        """Check that the context code emits a warning.
 
-    def clear_messages(self):
-        self._messages = 0
+        If *count* is given, exactly *count* warnings must be emitted.  If
+        *regex* is given, at least one warning must match the regex.
+        """
+        start = len(self._warnings)
+        yield
+        emitted = len(self._warnings) - start
+        if count is not None and emitted != count:
+            assert False, '%d warnings emitted, %d expected' % (emitted, count)
+        elif count is None and not emitted:
+            assert False, 'No warnings emitted, at least one expected'
+        if regex is not None:
+            rx = re.compile(regex)
+            for msg in self._warnings[start:]:
+                if rx.search(msg):
+                    break
+            else:
+                assert False, 'No warning matches %r' % regex
 
-    def clear_warnings(self):
-        self._warnings = []
-        self.clear_messages()
+    def get_messages(self):
+        return self._messages
 
 
 class TestCacheClient(CacheClient):

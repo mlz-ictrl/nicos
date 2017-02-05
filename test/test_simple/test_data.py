@@ -53,14 +53,17 @@ def dataset_scope(session, settype, **kwds):
     getattr(session.data, 'finish' + settype.capitalize())()
 
 
-def test_dataset_stack(session):
+def test_dataset_stack(session, log):
     # create some datasets on the stack, check nesting
     with dataset_scope(session, 'block'):
-        assert session.testhandler.warns(session.data.finishScan)
-        assert session.testhandler.warns(session.data.finishPoint)
+        with log.assert_warns('no scan to finish'):
+            session.data.finishScan()
+        with log.assert_warns('no data point to finish'):
+            session.data.finishPoint()
 
         with dataset_scope(session, 'scan'):
-            assert session.testhandler.warns(session.data.finishBlock)
+            with log.assert_warns('no block to finish'):
+                session.data.finishBlock()
             assert session.data._current.number == 1
 
             with dataset_scope(session, 'point'):

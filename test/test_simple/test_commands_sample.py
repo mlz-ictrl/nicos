@@ -57,8 +57,8 @@ def test_activation_wronginput(log):
         assert raises(UsageError, activation)  # session has no formula up to now
         assert raises(UsageError, activation, formula='H2O')
         assert raises(UsageError, activation, formula='H2O', flux=1e7)
-        assert log.warns(activation, warns_clear=True,
-                         formula='H2', instrument='IN', mass=1)
+        with log.assert_warns():
+            activation(formula='H2', instrument='IN', mass=1)
 
 
 def test_activation_function():

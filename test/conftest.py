@@ -76,9 +76,8 @@ def session(request):
     nicos_session.shutdown()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def log(session):
     handler = session.testhandler
-    handler.clearcapturedmessages()
-    yield handler
-    handler.clearcapturedmessages()
+    handler.clear()
+    return handler

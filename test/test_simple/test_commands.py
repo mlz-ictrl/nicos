@@ -59,40 +59,37 @@ session_setup = 'axis'
 
 
 def test_output_commands(session, log):
-    printdebug('printdebugtest1', 'printdebugtest2')
-    log.check_response(matches=r'printdebugtest1 printdebugtest2')
-    printinfo('printinfo testing...')
-    log.check_response(matches=r'printinfo testing\.\.\.')
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        assert session.testhandler.warns(printwarning, 'warn!')
+    with log.assert_msg_matches(r'printdebugtest1 printdebugtest2'):
+        printdebug('printdebugtest1', 'printdebugtest2')
+    with log.assert_msg_matches(r'printinfo testing\.\.\.'):
+        printinfo('printinfo testing...')
+    with log.assert_warns():
+        printwarning('warn!')
     assert raises(ErrorLogged, printerror, 'error!')
     assert raises(ErrorLogged, printexception, 'exception!')
 
 
 def test_basic_commands(session, log):
-    help(help)
-    log.check_response(matches=r'Usage: help\(\[object\]\)')
-    log.check_response(matches=r'>>> help\(\) {12}# show list of commands')
-    ListCommands()
-    log.check_response(matches=r'name {48}description')
-    # explicitly no check on help text!
-    log.check_response(matches=r'ClearCache\(dev, \.\.\.\)')
+    with log.assert_msg_matches([r'Usage: help\(\[object\]\)',
+                                 r'>>> help\(\) {12}# show list of commands']):
+        help(help)
+    with log.assert_msg_matches([r'name {48}description',
+                                 # explicitly no check on help text!
+                                 r'ClearCache\(dev, \.\.\.\)']):
+        ListCommands()
 
 
-def test_sleep_command(log):
+def test_sleep_command(session, log):
     tosleep = 0.1
-    used = timeit.timeit(lambda: sleep(tosleep), number=1)
+    with log.assert_msg_matches(r'sleeping for %.1f seconds\.\.\.' % tosleep):
+        used = timeit.timeit(lambda: sleep(tosleep), number=1)
     assert tosleep < used < 1.3 * tosleep
-    log.check_response(matches=r'sleeping for %.1f seconds\.\.\.' % tosleep)
 
 
 def test_setup_commands(session, log):
-    ListSetups()
-    log.check_response(matches=r'axis            yes')  # axis should be loaded
-    log.check_response(matches=r'stdsystem       yes')  # stdsystem  loaded
-    log.check_response(matches=r'cache              ')  # cache not loaded
+    with log.assert_msg_matches([r'axis +yes', r'stdsystem +yes',
+                                 r'cache +(?!yes)']):  # cache not loaded
+        ListSetups()
 
     NewSetup('axis')
     AddSetup()  # should list all setups but not fail
@@ -100,7 +97,8 @@ def test_setup_commands(session, log):
     assert 'slit' in session.configured_devices  # not autocreated
     RemoveSetup('slit')
     assert 'slit' not in session.configured_devices
-    assert session.testhandler.warns(RemoveSetup, 'blah')
+    with log.assert_warns('is not a loaded setup, ignoring'):
+        RemoveSetup('blah')
 
 
 def test_devicecreation_commands(session, log):
@@ -124,15 +122,17 @@ def test_devicecreation_commands(session, log):
 def test_experiment_commands(session, log):
     exp = session.getDevice('Exp')
 
-    NewExperiment(1234, 'Test experiment', 'L. Contact <l.contact@frm2.tum.de>',
-                  '1. User')
-    assert exp.proposal == 'p1234'
-    assert exp.title == 'Test experiment'
-    AddUser('F. X. User', 'user@example.com')
-    assert 'F. X. User <user@example.com>' in exp.users
+    with log.assert_msg_matches([r'Exp : experiment directory is now .*',
+                                 r'Exp : User "F. X. User <user@example.com>" '
+                                 'added']):
+        NewExperiment(1234, 'Test experiment',
+                      'L. Contact <l.contact@frm2.tum.de>', '1. User')
+        assert exp.proposal == 'p1234'
+        assert exp.title == 'Test experiment'
+        AddUser('F. X. User', 'user@example.com')
+        assert 'F. X. User <user@example.com>' in exp.users
+
     NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
-    log.check_response(matches=r'Exp       : INFO: experiment directory is now .*')
-    log.check_response(matches=r'Exp       : INFO: User "F. X. User <user@example.com>" added')
 
     FinishExperiment()
 
@@ -147,12 +147,12 @@ def test_mode_commands(session):
 
 
 def test_clearcache(session, log):
-    motor = session.getDevice('motor')
-    ClearCache('motor', motor)
-
     with UserInfo('userinfo'):
         assert session._actionStack[-1] == 'userinfo'
-    log.check_response(matches=r'INFO: cleared cached information for motor')
+
+    motor = session.getDevice('motor')
+    with log.assert_msg_matches('cleared cached information for motor'):
+        ClearCache('motor', motor)
 
 
 def test_run_command(session, log):
@@ -177,17 +177,15 @@ def test_sample_commands(session, log):
     SelectSample('abc')
     assert exp.sample.samplename == 'abc'
 
-    log.clearcapturedmessages()
-    ListSamples()
-    log.check_response(matches=r'number  sample name  param')
-    log.check_response(matches=r'0       abc')
-    log.check_response(matches=r'1       def          45')
+    with log.assert_msg_matches([r'number  sample name  param',
+                                 r'0 +abc',
+                                 r'1 +def +45']):
+        ListSamples()
 
-    log.clearcapturedmessages()
-    ClearSamples()
+    with log.assert_no_msg_matches([r'0 +abc',
+                                    r'1 +def +45']):
+        ClearSamples()
     assert exp.samples == {}
-    log.check_response(matches=r'0       abc', absent=True)
-    log.check_response(matches=r'1       def          45', absent=True)
 
 
 def test_device_commands(session, log):
@@ -252,7 +250,9 @@ def test_device_commands(session, log):
     get(motor, 'speed')
 
     # check info()
-    info()
+    with log.assert_msg_matches([r'Device status',
+                                 r'axis +status: +ok: idle']):
+        info()
 
     # check getall() and setall()
     getall('speed')
@@ -327,8 +327,6 @@ def test_device_commands(session, log):
     finish()
 
     assert raises(ErrorLogged, reference, motor)
-    log.check_response(matches=r'Device status')
-    log.check_response(matches=r'axis +status: +ok: idle')
 
 
 def test_command_exceptionhandling(session):

@@ -84,7 +84,6 @@ def setup_module(session):
     det = session.getDevice('det')
     tdev = session.getDevice('tdev')
     session.experiment.setEnvironment([])
-    session.testhandler.clearcapturedmessages()
 
     scan(m, 0, 1, 5, det, tdev, t=0.005)
 
@@ -115,11 +114,11 @@ def test_sink_class(session):
 
 
 def test_console_sink(session):
-    log = session.testhandler
-    log.check_response(matches='=' * 100)
-    log.check_response(matches=
-                       r'Starting scan:      scan\(motor2'
-                       r', 0, 1, 5, det, tdev, t=0\.00[45].*\)')
+    msgs = session.testhandler.get_messages()
+    assert ('INFO    : nicos : ' + '=' * 100 + '\n') in msgs
+    assert any(msg.startswith('INFO    : nicos : Starting scan:      '
+                              'scan(motor2, 0, 1, 5, det, tdev, t=0.00')
+               for msg in msgs)
 
 
 def test_filecounters(session):

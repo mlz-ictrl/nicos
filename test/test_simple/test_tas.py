@@ -179,16 +179,16 @@ def test_tas_device(session, tas):
     assert tas.h() == approx(1.5, abs=1e-3)
 
 
-def test_error_handling(session, tas):
+def test_error_handling(session, log, tas, monkeypatch):
     # check that if one subdev errors out, we wait for the other subdevs
     mfh = session.getDevice('t_mfh')
     phi = session.getDevice('t_phi')
 
     tas.maw([1.01, 0, 0, 1])
-    phi.speed = 1
-    mfh._status_exception = PositionError(mfh, 'wrong position')
-    session.testhandler.enable_raising(False)
-    try:
+    monkeypatch.setattr(phi, 'speed', 1)
+    monkeypatch.setattr(mfh, '_status_exception',
+                        PositionError(mfh, 'wrong position'))
+    with log.allow_errors():
         try:
             tas.maw([1, 0, 0, 1])
         except MoveError:
@@ -197,10 +197,6 @@ def test_error_handling(session, tas):
             assert False, 'PositionError not raised'
         # but we still arrived with phi
         assert phi() == approx(-46.6, abs=0.1)
-    finally:
-        phi.speed = 0
-        mfh._status_exception = None
-        session.testhandler.enable_raising(True)
 
 
 def test_qscan(session, tas):
@@ -217,7 +213,7 @@ def test_qscan(session, tas):
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
 
 
-def test_tas_commands(session, tas):
+def test_tas_commands(session, log, tas):
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57
 
@@ -241,7 +237,8 @@ def test_tas_commands(session, tas):
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
 
     tas.maw([0.4, 0.4, 0.4, 0.2])
-    assert session.testhandler.warns(calpos, 0.7, 0.7, 0.7, 0)
+    with log.assert_warns('position not allowed'):
+        calpos(0.7, 0.7, 0.7, 0)
     calpos(0.5, 0.5, 0.5, 0)
     assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
     pos()  # still goes to last successful calpos()

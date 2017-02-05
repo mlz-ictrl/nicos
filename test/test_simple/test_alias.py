@@ -48,12 +48,13 @@ def test_alias_nodev(session):
     assert 'aliasNoDev' in repr(alias)
 
 
-def test_alias_dev(session):
+def test_alias_dev(session, log):
     alias = session.getDevice('aliasDev', object)
     # now set the alias to some object
     v1 = session.getDevice('v1')
     # "alias" is a chatty property, so it should emit something when changed
-    assert session.testhandler.emits_message(setattr, alias, 'alias', v1)
+    with log.assert_msg_matches('alias set to'):
+        alias.alias = v1
     # check delegation of methods etc.
     assert isinstance(alias, type(v1))
     assert type(alias) != type(v1)  # pylint: disable=unidiomatic-typecheck
@@ -80,12 +81,13 @@ def test_alias_valueinfo2(session):
     assert 'aliasDev2.' in vistr
 
 
-def test_adjust_alias(session):
+def test_adjust_alias(session, log):
     alias = session.getDevice('aliasDev3', object)
     # now set the alias to some object
     axis = session.getDevice('axis')
     # "alias" is a chatty property, so it should emit something when changed
-    assert session.testhandler.emits_message(setattr, alias, 'alias', axis)
+    with log.assert_msg_matches('alias set to'):
+        alias.alias = axis
 
     alias.alias = axis
     alias.offset = 0.0

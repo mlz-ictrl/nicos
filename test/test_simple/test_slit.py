@@ -98,7 +98,7 @@ def test_slit_opposite(session):
     assert raises(LimitError, s2.start, [1, 2, -1, 0])
 
 
-def test_slit_opmodes(session):
+def test_slit_opmodes(session, log):
     slit = session.getDevice('slit')
 
     slit.opmode = '4blades'
@@ -114,7 +114,8 @@ def test_slit_opmodes(session):
     assert slit.read() == [8, 10, 4, 7]
 
     slit.opmode = 'centered'
-    assert session.testhandler.warns(slit.read)
+    with log.assert_warns():
+        slit.read()
     slit.maw([0, 0])
     assert raises(InvalidValueError, slit._getPositions, [1, 2, 4])
     assert raises(InvalidValueError, slit.doStart, [800, 0, 0, 0])
@@ -174,4 +175,5 @@ def test_slit_subaxes(session):
 
 def test_slit_reference(session, log):
     slit = session.getDevice('slit')
-    assert log.warns(slit.reference, warns_text='m_left cannot be referenced')
+    with log.assert_warns('m_left cannot be referenced'):
+        slit.reference()
