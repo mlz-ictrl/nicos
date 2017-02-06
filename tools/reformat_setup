@@ -93,8 +93,8 @@ def parseArgv(argv):
 def reformatFile(fn, inplace=False, diff=False):
     logging.debug('Reformatting %s ...' % fn)
 
-    with open(fn, 'r') as f:
-        origin = f.read()
+    with open(fn, 'rb') as f:
+        origin = f.read().decode('utf-8')
 
     result = yapf.yapf_api.FormatCode(origin, style_config=STYLE_CONFIG)[0]
 
@@ -105,8 +105,8 @@ def reformatFile(fn, inplace=False, diff=False):
     result = result.strip() + '\n'
 
     if inplace:
-        with open(fn, 'w') as f:
-            f.write(result)
+        with open(fn, 'wb') as f:
+            f.write(result.encode('utf-8'))
     if diff:
         diff = difflib.unified_diff(origin.splitlines(), result.splitlines())
         # TODO: this diff is not very helpful, another format may be better
