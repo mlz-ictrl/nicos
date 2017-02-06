@@ -103,7 +103,8 @@ class LiveViewSinkHandler(DataSinkHandler):
                     filename = self.dataset.filenames[0]
                 else:
                     filename = self.sink.filenametemplate[0] % self.dataset.counter
-                session.updateLiveData('Live', filename,'<u4', resX, resY, resZ,
+                session.updateLiveData('Live', self.dataset.uid, filename,
+                                       '<u4', resX, resY, resZ,
                                        currenttime() - self.dataset.started,
                                        memory_buffer(data.astype('<u4')))
 

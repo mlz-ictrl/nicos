@@ -36,7 +36,7 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 15
+PROTO_VERSION = 16
 
 # old versions with which the client is still compatible
 # 10 -> 11: added RSA encryption of transmitted password
@@ -44,6 +44,7 @@ PROTO_VERSION = 15
 # 12 -> 13: 'authenticate' now returns user info dict
 # 13 -> 14: added 'finish' command
 # 14 -> 15: added 'eventunmask' command
+# 15 -> 16: added 'uid' parameter to 'liveparams' and 'livadata' command
 
 COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14]
 

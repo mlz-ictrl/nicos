@@ -211,7 +211,7 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
 
     def on_client_liveparams(self, params):
-        tag, fname, dtype, nx, ny, nz, runtime = params
+        tag, _, fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
         if not fname and normalized_type not in DATATYPES:
