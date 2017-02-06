@@ -39,6 +39,7 @@ from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
 
+from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
@@ -51,6 +52,7 @@ COLORMAPS = OrderedDict(GR_COLORMAPS)
 FILENAME = Qt.UserRole
 FILEFORMAT = Qt.UserRole + 1
 FILETAG = Qt.UserRole + 2
+FILECACHED = Qt.UserRole + 3
 
 
 class LiveDataPanel(Panel):
@@ -67,6 +69,8 @@ class LiveDataPanel(Panel):
         self._runtime = 0
         self._no_direct_display = False
         self._range_active = False
+        self._cachesize = 20
+        self._datapathok = False
         self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
@@ -137,6 +141,13 @@ class LiveDataPanel(Panel):
         supported_filetypes = FILETYPES.keys()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
         self._allowed_tags = opt_filetypes & set(supported_filetypes)
+
+        # configure caching
+        self._cachesize = options.get('cachesize', self._cachesize)
+        if self._cachesize < 1:
+            self._cachesize = 1  # always cache the last live image
+        self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
+        # active connection
         if self.client.connected:
             self.on_client_connected()
 
@@ -289,7 +300,7 @@ class LiveDataPanel(Panel):
     def on_client_connected(self):
         self.client.tell('eventunmask', ['livedata', 'liveparams'])
         datapath = self.client.eval('session.experiment.datapath', '')
-        if not path.isdir(datapath):
+        if not datapath or not path.isdir(datapath):
             return
         if self._instrument == 'imaging':
             for fn in sorted(os.listdir(datapath)):
@@ -305,7 +316,7 @@ class LiveDataPanel(Panel):
         tag, fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
         if dtype:
-            self._last_fname = None
+            self._last_fname = fname if fname else None
             normalized_type = numpy.dtype(dtype).str
             if normalized_type not in DATATYPES:
                 self._last_format = None
@@ -320,26 +331,40 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
 
-    def setData(self, array):
+    def setData(self, array, filename=None, cache=True):
+        """Dispatch data array to corresponding live widgets and return
+        ``True`` if the array has been added to the cache otherwise ``False``.
+        On cache updates return ``False`` too. Do not change cache entries if
+        cache is ``False``.
+        """
+        new = False
+        if filename and cache:
+            if filename not in self._datacache:
+                self.log.debug("add to cache: %s", filename)
+                new = True
+            self._datacache[filename] = array
         for widget in [self.widget] + self._livewidgets.values():
             widget.setData(array)
+        return new
 
-    def setDataFromFile(self, filename, tag):
+    def setDataFromFile(self, filename, tag, cache=True):
+        """Load data array from file and dispatch to live widgets using
+        ``setData``. Do not use caching if cache is ``False``.
+        """
         if tag in FILETYPES:
             array = FILETYPES[tag].fromfile(filename)
-            self.setData(array)
+            # filename corresponds to the full qualified path here
+            # use just the basename for caching
+            return self.setData(array, path.basename(filename), cache)
         else:
             raise NicosError('Unsupported fileformat \'%s\'' % tag)
 
     def on_client_livedata(self, data):
-        if self._last_fname and path.isfile(self._last_fname) and \
-                        self._last_tag in self._allowed_tags:
-            # in the case of a filename, we add it to the list
-            self.add_to_flist(self._last_fname, self._last_format,
-                              self._last_tag)
+        addfile = False
         # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
+
         # always allow live data
         if self._last_tag in self._allowed_tags or self._last_tag == 'live':
             if len(data) and self._last_format:
@@ -349,18 +374,71 @@ class LiveDataPanel(Panel):
                     array = array.reshape((self._nz, self._ny, self._nx))
                 elif self._ny > 1:
                     array = array.reshape((self._ny, self._nx))
-                self.setData(array)
+                addfile = self.setData(array, self._last_fname)
             elif self._last_fname:
                 # we got no live data, but a filename with the data
-                self.setDataFromFile(self._last_fname, self._last_tag)
+                # filename corresponds to full qualififed path here
+                try:
+                    addfile = self.setDataFromFile(self._last_fname,
+                                                   self._last_tag)
+                    if not addfile:
+                        self._update_flist_item(self._last_fname,
+                                                self._last_format,
+                                                self._last_tag)
+                except Exception as e:
+                    if path.basename(self._last_fname) in self._datacache:
+                        # image is already cached
+                        # suppress error message for cached image
+                        self.log.debug(e)
+                    else:
+                        # image is not cached and could not be loaded
+                        self.log.exception(e)
 
-    def add_to_flist(self, filename, fformat, ftag, scroll=True):
+        if addfile:
+            self.add_to_flist(self._last_fname, self._last_format,
+                              self._last_tag, True)
+
+    def remove_obsolete_cached_files(self):
+        """Removes outdated cached files from the file list or set cached flag
+        to False if the file is still available on the filesystem.
+        """
+        cached_item_rows = []
+        for row in range(self.fileList.count()):
+            item = self.fileList.item(row)
+            if item.data(FILECACHED):
+                cached_item_rows.append(row)
+        if len(cached_item_rows) > self._cachesize:
+            for row in cached_item_rows[0:-self._cachesize]:
+                item = self.fileList.item(row)
+                if path.isfile(item.data(FILENAME)):
+                    item.setData(FILECACHED, False)
+                else:
+                    self.fileList.takeItem(row)
+
+    def _update_flist_item(self, filename, fformat, ftag):
+        shortname = path.basename(filename)
+        matches = self.fileList.findItems(shortname,
+                                          Qt.MatchExactly)
+        if matches and len(matches) == 1:
+            matches[0].setData(FILENAME, filename)
+            matches[0].setData(FILEFORMAT, fformat)
+            matches[0].setData(FILETAG, ftag)
+            self.log.debug("Update full qualified path for file list entry %s",
+                           shortname)
+        else:
+            self.log.error("Cannot update file list entry because of ambitious "
+                           "filename")
+
+    def add_to_flist(self, filename, fformat, ftag, cached=False, scroll=True):
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(FILENAME, filename)
         item.setData(FILEFORMAT, fformat)
         item.setData(FILETAG, ftag)
+        item.setData(FILECACHED, cached)
         self.fileList.insertItem(self.fileList.count() - 1, item)
+        if cached:
+            self.remove_obsolete_cached_files()
         if scroll:
             self.fileList.scrollToBottom()
 
@@ -373,6 +451,7 @@ class LiveDataPanel(Panel):
 
         fname = item.data(FILENAME)
         ftag = item.data(FILETAG)
+        cached = item.data(FILECACHED)
         if not fname:
             # show always latest live image
             self._no_direct_display = False
@@ -382,7 +461,12 @@ class LiveDataPanel(Panel):
         else:
             # show image from file
             self._no_direct_display = True
-        self.setDataFromFile(fname, ftag)
+        if cached:
+            array = self._datacache.get(fname, None)
+            if array is not None and len(array):
+                self.setData(array)
+                return
+        self.setDataFromFile(fname, ftag, cache=False)
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
