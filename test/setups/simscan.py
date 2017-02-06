@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
+from os import path
+from test.utils import cache_addr, runtime_root, module_root
+
 name = 'simulation tests setup'
 
 includes = []
-
-from os import path
-from test.utils import cache_addr, runtime_root, module_root
 
 sysconfig = dict(
     cache = cache_addr,
@@ -35,43 +35,37 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample   = device('devices.tas.TASSample',
-                     ),
-
-    Exp      = device('nicos.devices.experiment.Experiment',
-                      sample = 'Sample',
-                      elog = False,
-                      dataroot = path.join(runtime_root, 'data'),
-                      propprefix = 'p',
-                      templates = path.join(module_root, 'test', 'script_templates'),
-                      zipdata = True,
-                      serviceexp = 'service',
-                      lowlevel = False,
-                      localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
-                     ),
-
-    motor    = device('nicos.devices.generic.VirtualMotor',
-                      unit = 'deg',
-                      initval = 0,
-                      abslimits = (0, 5),
-                     ),
-
-    timer    = device('devices.generic.VirtualTimer',
-                      lowlevel = True,
-                     ),
-
-    ctr1     = device('devices.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 2000.,
-                      fmtstr = '%d',
-                     ),
-
-    det      = device('devices.generic.Detector',
-                      timers = ['timer'],
-                      monitors = [],
-                      counters = ['ctr1'],
-                      maxage = 3,
-                      pollinterval = 0.5,
-                     ),
+    Sample = device('devices.tas.TASSample'),
+    Exp = device('nicos.devices.experiment.Experiment',
+        sample = 'Sample',
+        elog = False,
+        dataroot = path.join(runtime_root, 'data'),
+        propprefix = 'p',
+        templates = path.join(module_root, 'test', 'script_templates'),
+        zipdata = True,
+        serviceexp = 'service',
+        lowlevel = False,
+        localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
+    ),
+    motor = device('nicos.devices.generic.VirtualMotor',
+        unit = 'deg',
+        initval = 0,
+        abslimits = (0, 5),
+    ),
+    timer = device('devices.generic.VirtualTimer',
+        lowlevel = True,
+    ),
+    ctr1 = device('devices.generic.VirtualCounter',
+        lowlevel = True,
+        type = 'counter',
+        countrate = 2000.,
+        fmtstr = '%d',
+    ),
+    det = device('devices.generic.Detector',
+        timers = ['timer'],
+        monitors = [],
+        counters = ['ctr1'],
+        maxage = 3,
+        pollinterval = 0.5,
+    ),
 )

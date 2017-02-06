@@ -39,30 +39,25 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-
 devices = dict(
-    Sample   = device('devices.sample.Sample',
-                     ),
-
-    testnotifier = device('test.utils.TestNotifier',
-                          sender = 'sender@example.com',
-                         ),
-
+    Sample = device('devices.sample.Sample'),
     # test that both nicos.(...) and (...) work
-    Exp      = device('nicos.devices.experiment.Experiment',
-                      sample = 'Sample',
-                      elog = True,
-                      dataroot = path.join(runtime_root, 'data'),
-                      propprefix = 'p',
-                      templates = path.join(module_root, 'test',  'script_templates'),
-                      zipdata = True,
-                      serviceexp = 'service',
-                      lowlevel = False,
-                      localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
-                     ),
-
-    Instr    = device('nicos.devices.instrument.Instrument',
-                      instrument = 'INSTR',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-                     ),
+    Exp = device('nicos.devices.experiment.Experiment',
+        sample = 'Sample',
+        elog = True,
+        dataroot = path.join(runtime_root, 'data'),
+        propprefix = 'p',
+        templates = path.join(module_root, 'test', 'script_templates'),
+        zipdata = True,
+        serviceexp = 'service',
+        lowlevel = False,
+        localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
+    ),
+    Instr = device('nicos.devices.instrument.Instrument',
+        instrument = 'INSTR',
+        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+    ),
+    testnotifier = device('test.utils.TestNotifier',
+        sender = 'sender@example.com',
+    ),
 )

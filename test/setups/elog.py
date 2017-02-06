@@ -28,7 +28,7 @@ name = 'elog setup'
 
 devices = dict(
     Logbook = device('services.elog.Logbook',
-                     prefix = 'logbook/',
-                     cache = cache_addr,
-                    ),
+        prefix = 'logbook/',
+        cache = cache_addr,
+    ),
 )

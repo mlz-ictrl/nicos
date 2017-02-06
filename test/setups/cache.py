@@ -28,13 +28,12 @@ name = 'cache setup'
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = cache_addr,
-                    db = 'DB',
-                    loglevel='debug',
-                   ),
-
+        server = cache_addr,
+        db = 'DB',
+        loglevel = 'debug',
+    ),
     DB = device('services.cache.server.FlatfileCacheDatabase',
-                storepath = 'cache',
-                loglevel = 'debug',
-               ),
+        storepath = 'cache',
+        loglevel = 'debug',
+    ),
 )

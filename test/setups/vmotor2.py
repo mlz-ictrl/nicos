@@ -28,8 +28,8 @@ includes = ['stdsystem']
 
 devices = dict(
     vmotor = device('nicos.devices.generic.VirtualMotor',
-                    unit = 'mm',
-                    initval = 0,
-                    abslimits = (-100, 80),
-                   ),
+        unit = 'mm',
+        initval = 0,
+        abslimits = (-100, 80),
+    ),
 )

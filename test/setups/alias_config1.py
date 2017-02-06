@@ -28,10 +28,10 @@ includes = ['stdsystem', 'alias_T']
 
 devices = dict(
     T_ccr1 = device('nicos.devices.generic.VirtualMotor',
-                    abslimits = (0, 300),
-                    unit = 'K',
-                    speed = 1.5
-                   ),
+        abslimits = (0, 300),
+        unit = 'K',
+        speed = 1.5,
+    ),
 )
 
 alias_config = {

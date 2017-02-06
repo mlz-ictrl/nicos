@@ -64,10 +64,11 @@ _column2 = Column(
 
 devices = dict(
     Monitor = device('test.test_simple.test_monitor_html.HtmlTestMonitor',
-                     title = 'Status monitor',
-                     filename = 'unused',
-                     interval = 10,
-                     cache = cache_addr,
-                     prefix = 'nicos/',
-                     layout = [[_column1, _column2]]),
+        title = 'Status monitor',
+        filename = 'unused',
+        interval = 10,
+        cache = cache_addr,
+        prefix = 'nicos/',
+        layout = [[_column1, _column2]],
+    ),
 )

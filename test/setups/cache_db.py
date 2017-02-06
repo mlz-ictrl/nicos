@@ -28,13 +28,12 @@ name = 'setup for cache stresstest with file db'
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = alt_cache_addr,
-                    db = 'DB',
-                    loglevel = 'debug',
-                   ),
-
+        server = alt_cache_addr,
+        db = 'DB',
+        loglevel = 'debug',
+    ),
     DB = device('services.cache.server.FlatfileCacheDatabase',
-                storepath = 'altcache',
-                loglevel = 'debug',
-               ),
+        storepath = 'altcache',
+        loglevel = 'debug',
+    ),
 )

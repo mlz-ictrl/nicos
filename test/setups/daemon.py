@@ -29,13 +29,14 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',
-                    passwd = [('guest', '', 'guest'),
-                              ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
-                              ('admin', hashlib.sha1(b'admin').hexdigest(),
-                               'admin')]),
+    Auth = device('services.daemon.auth.ListAuthenticator',
+        passwd = [('guest', '', 'guest'),
+                  ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
+                  ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin')]
+    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = daemon_addr,
-                    loglevel = 'debug',
-                    authenticators = ['Auth']),
+        server = daemon_addr,
+        loglevel = 'debug',
+        authenticators = ['Auth']
+    ),
 )

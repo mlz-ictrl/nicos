@@ -30,6 +30,5 @@ includes = []
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    dev1 = device('test.test_simple.test_device.Dev1',
-                 ),
+    dev1 = device('test.test_simple.test_device.Dev1'),
 )

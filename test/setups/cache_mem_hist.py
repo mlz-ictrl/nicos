@@ -28,13 +28,12 @@ name = 'setup for cache stresstest with memory-history db'
 
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = alt_cache_addr,
-                    db = 'DB3',
-                    loglevel = 'debug',
-                   ),
-
+        server = alt_cache_addr,
+        db = 'DB3',
+        loglevel = 'debug',
+    ),
     DB3 = device('services.cache.server.MemoryCacheDatabaseWithHistory',
-                 maxentries = 50,
-                 loglevel = 'debug',
-                ),
+        maxentries = 50,
+        loglevel = 'debug',
+    ),
 )

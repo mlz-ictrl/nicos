@@ -26,8 +26,18 @@ name = 'test_data setup'
 
 includes = ['stdsystem', 'scanning']
 
-sinklist = ['testsink1', 'testsink2', 'asciisink', 'consolesink', 'daemonsink',
-            'livesink', 'rawsink', 'srawsink', 'bersanssink', 'serialsink',]
+sinklist = [
+    'testsink1',
+    'testsink2',
+    'asciisink',
+    'consolesink',
+    'daemonsink',
+    'livesink',
+    'rawsink',
+    'srawsink',
+    'bersanssink',
+    'serialsink',
+]
 
 # These sinks cannot be created if the modules are not present.
 # Omit them from the datasinks list in that case.
@@ -50,35 +60,41 @@ try:
 except Exception:
     pass
 
-sysconfig = dict(
-    datasinks = sinklist,
-)
+sysconfig = dict(datasinks = sinklist,)
 
 devices = dict(
-    testsink1   = device('test.utils.TestSink',
-                         settypes = ['scan']),
-    testsink2   = device('test.utils.TestSink',
-                         settypes = ['point'],
-                         detectors = ['det']),
-    serialsink  = device('nicos.devices.datasinks.SerializedSink'),
-    asciisink   = device('nicos.devices.datasinks.AsciiScanfileSink'),
+    testsink1 = device('test.utils.TestSink',
+        settypes = ['scan'],
+    ),
+    testsink2 = device('test.utils.TestSink',
+        settypes = ['point'],
+        detectors = ['det'],
+    ),
+    serialsink = device('nicos.devices.datasinks.SerializedSink'),
+    asciisink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     consolesink = device('nicos.devices.datasinks.ConsoleScanSink'),
-    daemonsink  = device('nicos.devices.datasinks.DaemonSink'),
-    livesink    = device('nicos.devices.datasinks.LiveViewSink'),
-    rawsink     = device('nicos.devices.datasinks.RawImageSink',
-                         filenametemplate = ['%(proposal)s_%(pointpropcounter)s.raw',
-                                             '%(pointcounter)08d.raw']),
-    srawsink    = device('nicos.devices.datasinks.SingleRawImageSink',
-                         subdir = 'single',
-                         filenametemplate = ['%(scancounter)s_%(pointcounter)s.raw',
-                                             '/%(pointcounter)08d.raw']),
+    daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
+    rawsink = device('nicos.devices.datasinks.RawImageSink',
+        filenametemplate = [
+            '%(proposal)s_%(pointpropcounter)s.raw', '%(pointcounter)08d.raw'
+        ]
+    ),
+    srawsink = device('nicos.devices.datasinks.SingleRawImageSink',
+        subdir = 'single',
+        filenametemplate = [
+            '%(scancounter)s_%(pointcounter)s.raw', '/%(pointcounter)08d.raw'
+        ]
+    ),
     bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
-                         flipimage = 'none'),
+        flipimage = 'none',
+    ),
     # note: these three will only be created if their prerequisite modules
     # are installed (and they are present in *sinklist*) because device auto
     # creation is off for test sessions
-    fitssink    = device('nicos.devices.datasinks.FITSImageSink'),
-    tiffsink    = device('nicos.devices.datasinks.TIFFImageSink'),
-    yamlsink    = device('nicos.dns.yamlformat.YAMLFileSink',
-                         filenametemplate = ['%(pointcounter)08d.yaml']),
+    fitssink = device('nicos.devices.datasinks.FITSImageSink'),
+    tiffsink = device('nicos.devices.datasinks.TIFFImageSink'),
+    yamlsink = device('nicos.dns.yamlformat.YAMLFileSink',
+        filenametemplate = ['%(pointcounter)08d.yaml'],
+    ),
 )
