@@ -349,6 +349,7 @@ def test_live_count(session):
     _go_live(det)
     det.stop()
     waitForState(det, OK)
+    session._thd_acquire.join()
 
     _go_live(det)
     waitForState(det, BUSY)
