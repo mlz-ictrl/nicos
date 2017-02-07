@@ -21,9 +21,10 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
+"""Base classes for the TOFTOF chopper system."""
 
-from nicos.core import Attach, HasLimits, HasTimeout, Readable, Moveable, \
-    Param, Override, intrange, oneof, status, listof, tupleof
+from nicos.core import Attach, HasLimits, HasTimeout, Moveable, Override, \
+    Param, Readable, intrange, listof, oneof, status, tupleof
 
 from nicos.toftof import calculations as calc
 
@@ -98,6 +99,7 @@ class BaseChopperController(HasTimeout, Readable):
 
 class SpeedReadout(Readable):
     """The current speed readout device of the chopper."""
+
     attached_devices = {
         'chopper': Attach('Chopper controller', BaseChopperController),
     }
@@ -123,6 +125,7 @@ class PropertyChanger(Moveable):
     and can be replace once Controller uses single setters
     (NICOS-style interface).
     """
+
     attached_devices = {
         'chopper': Attach('Chopper controller', BaseChopperController),
         'chdelay': Attach('Setting chopper delay', Moveable),
@@ -152,6 +155,7 @@ class PropertyChanger(Moveable):
 
 class Wavelength(HasLimits, PropertyChanger):
     """The wave length parameter device of the chopper."""
+
     _prop = 'wavelength'
     parameter_overrides = {
         'unit': Override(mandatory=False, default='AA'),
@@ -165,6 +169,7 @@ class Wavelength(HasLimits, PropertyChanger):
 
 class Speed(HasLimits, PropertyChanger):
     """The speed parameter device of the chopper."""
+
     _prop = 'speed'
     parameter_overrides = {
         'unit': Override(mandatory=False, default='rpm'),
@@ -178,6 +183,7 @@ class Speed(HasLimits, PropertyChanger):
 
 class Ratio(PropertyChanger):
     """The ratio parameter device of the chopper."""
+
     _prop = 'ratio'
     parameter_overrides = {
         'unit': Override(mandatory=False, default=''),
@@ -194,6 +200,7 @@ class CRC(PropertyChanger):
     """The crc (rotation direction of disc 5) parameter device of the
     chopper.
     """
+
     _prop = 'crc'
     parameter_overrides = {
         'unit': Override(mandatory=False, default=''),
@@ -208,6 +215,7 @@ class CRC(PropertyChanger):
 
 class SlitType(PropertyChanger):
     """The slit type parameter device of the chopper."""
+
     _prop = 'slittype'
     parameter_overrides = {
         'unit': Override(mandatory=False, default=''),

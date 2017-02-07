@@ -242,7 +242,7 @@ class Controller(TacoDevice, BaseChopperController):
                      1: 'cal',
                      2: 'com',
                      8: 'estop',
-                    }
+        }
         ret = []
         stval = status.OK
         # read status values

@@ -30,9 +30,9 @@ from nicos.core import ADMIN, Attach, NicosError, Override, Param, floatrange,\
     requires, status
 
 from nicos.devices.generic.virtual import VirtualMotor
-from nicos.toftof import calculations as calc
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
+from nicos.toftof import calculations as calc
 from nicos.toftof.chopper.base import BaseChopperController
 
 
@@ -106,7 +106,8 @@ class Controller(BaseChopperController):
 
         # XXX if ratio == 1 then speed = 0 ?
         if self.ratio > 1:
-            self._attached_discs[4].move(-self.speed * (self.ratio - 1) / self.ratio)
+            self._attached_discs[4].move(
+                -self.speed * (self.ratio - 1) / self.ratio)
         else:
             self._attached_discs[4].move(-self.speed)
         self._attached_discs[4].phase = phases[5]
