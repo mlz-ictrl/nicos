@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from nicos.core.params import Value
 from nicos.devices.tango import ImageChannel
 
 
@@ -31,3 +32,6 @@ class JumiomImageChannel(ImageChannel):
         narray = ImageChannel.doReadArray(self, quality)
         self.readresult = [narray.sum()]
         return narray
+
+    def valueInfo(self):
+        return Value(name="total", type="counter", fmtstr="%d"),
