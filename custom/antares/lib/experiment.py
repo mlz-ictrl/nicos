@@ -26,7 +26,7 @@
 
 """NICOS Antares Experiment."""
 
-from os import path
+import os
 
 from nicos.frm2.experiment import ImagingExperiment
 
@@ -38,7 +38,7 @@ class Experiment(ImagingExperiment):
 
     @property
     def samplesymlink(self):
-        return path.join(self.proposalpath, 'current')
+        return os.path.join(self.proposalpath, 'current')
 
     def _fillProposal(self, proposal, kwds):
         kwds = ImagingExperiment._fillProposal(self, proposal, kwds)
@@ -48,3 +48,8 @@ class Experiment(ImagingExperiment):
             kwds['sample'] = ''
 
         return kwds
+
+    def doFinish(self):
+        if self.samplesymlink:
+            self.log.debug('Remove symlink: %s', self.samplesymlink)
+            os.unlink(self.samplesymlink)

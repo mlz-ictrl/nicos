@@ -566,7 +566,17 @@ class Experiment(Device):
     @usermethod
     def finish(self, *args, **kwds):
         """Called by `.FinishExperiment`. Returns the `FinishExperiment`
-        Thread if applicable otherwise `None`."""
+        Thread if applicable otherwise `None`.
+
+        Default implementation is to finish the experiment, which means to save
+        the data, set the access rights, zipping data, sending email to the
+        user, and to call :meth:`doFinish` if present.
+
+        .. method:: doFinish()
+
+           This method is called as part of finish() before the data will be
+           packed and/or send via email.
+        """
         thd = None
 
         # update metadata
@@ -584,6 +594,8 @@ class Experiment(Device):
                                  exc=1)
 
             if self._mode != SIMULATION:
+                if hasattr(self, 'doFinish'):
+                    self.doFinish()
                 pzip = None
                 receivers = None
                 if self.sendmail:
