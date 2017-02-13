@@ -1,8 +1,10 @@
-description = 'setup for the velocity selector'
+#  -*- coding: utf-8 -*-
 
+description = 'setup for the velocity selector'
 group = 'lowlevel'
 
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/selector'
+taco_base = '//resedasrv.reseda.frm2/reseda'
 
 devices = dict(
     selector_speed = device('devices.tango.WindowTimeoutAO',
@@ -65,5 +67,26 @@ devices = dict(
         unit = 'mm/s',
         fmtstr = '%.2f',
         warnlimits = (0, 1),
+    ),
+    selcradle_mot = device('devices.taco.Motor',
+        description = 'Detector rotation (motor)',
+        tacodevice = '%s/husco1/motor8' % taco_base,
+        fmtstr = '%.3f',
+        unit = 'deg',
+        lowlevel = True,
+    ),
+    selcradle_enc = device('devices.tango.Sensor',
+        description = 'Detector rotation (encoder)',
+        tangodevice = '%s/encoder' % tango_base,
+        fmtstr = '%.3f',
+        unit = 'deg',
+        lowlevel = True,
+    ),
+    selcradle = device('devices.generic.Axis',
+        description = 'Detector rotation',
+        motor = 'selcradle_mot',
+        coder = 'selcradle_enc',
+        fmtstr = '%.3f',
+        precision = 0.1,
     ),
 )

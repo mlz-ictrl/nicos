@@ -1,9 +1,10 @@
 description = 'CASCADE detector (Windows server version)'
 group = 'lowlevel'
+includes = ['det_base']
 
-includes = ['detector']
-
-sysconfig = dict(datasinks = ['psd_padformat', 'psd_liveview'],)
+sysconfig = dict(
+    datasinks = ['psd_padformat', 'psd_liveview'],
+)
 
 devices = dict(
     psd_padformat = device('mira.cascade.CascadePadSink',
@@ -20,7 +21,7 @@ devices = dict(
     psd = device('devices.generic.Detector',
         description = 'CASCADE detector',
         timers = ['timer'],
-        monitors = ['mon1', 'mon2'],
+        monitors = ['monitor1', 'monitor2'],
         images = ['psd_channel'],
     ),
 )

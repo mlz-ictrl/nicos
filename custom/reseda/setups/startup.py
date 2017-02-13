@@ -1,7 +1,7 @@
-description = 'NICOS startup setup'
+description = 'minimal NICOS startup setup'
 
 group = 'lowlevel'
 
-includes = []
-
-devices = dict()
+sysconfig = dict(
+    cache = 'resedahw2.reseda.frm2',
+)

@@ -1,8 +1,5 @@
-description = 'Neutron Resonance Spin Echo measurements'
+#  -*- coding: utf-8 -*-
 
+description = 'RESEDA NRSE setup'
 group = 'basic'
-
-includes = [
-    'reseda', 'detector', 'frequencies_nrse', 'guide_fields', 'memograph02',
-    'memograph04'
-]
+includes = ['reseda', 'det_3he', 'nrse_subcoil', 'arm0a', 'arm1']
