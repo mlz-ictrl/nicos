@@ -293,7 +293,11 @@ devices = dict(
                    fmtstr = '%.1f',
                    unit = 'V',
                   ),
- )
+    omgs_osc = device('devices.generic.oscillator.Oscillator',
+                      description = 'Oscillation of OMGS',
+                      moveable = 'omgs',
+                     ),
+)
 
 startupcode = '''
 SetDetectors(adet)

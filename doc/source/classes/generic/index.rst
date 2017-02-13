@@ -26,4 +26,4 @@ setup file.
    alias
    virtual
    magnet
-
+   oscillator
