@@ -616,7 +616,7 @@ class Experiment(Device):
                 # wait up to 5 seconds
                 thd.join(5)
                 if thd.isAlive():
-                    self.log.info("continuing zipping of proposal %s in "
+                    self.log.info("continuing finishing of proposal %s in "
                                   "background", self.proposal)
                 else:
                     thd = None
