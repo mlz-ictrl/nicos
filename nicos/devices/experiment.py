@@ -173,7 +173,7 @@ class Experiment(Device):
         Defaults to ``<dataroot>/<year>/<proposal>``, last component MUST be
         the *proposal*.
         """
-        return path.join(self.dataroot, time.strftime("%Y"), proposal)
+        return path.join(self.dataroot, time.strftime('%Y'), proposal)
 
     @property
     def samplepath(self):
@@ -605,9 +605,9 @@ class Experiment(Device):
                     stats = {}
                 stats.update(propinfo)
                 # start separate thread for zipping and disabling old proposal
-                self.log.debug("Start separate thread for zipping and "
-                               "disabling proposal.")
-                thd = createThread("FinishExperiment",
+                self.log.debug('Start separate thread for zipping and '
+                               'disabling proposal.')
+                thd = createThread('FinishExperiment',
                                    target=self._finish,
                                    args=(pzip, self.proposalpath,
                                          self.proposal, self.proptype, stats,
@@ -616,8 +616,8 @@ class Experiment(Device):
                 # wait up to 5 seconds
                 thd.join(5)
                 if thd.isAlive():
-                    self.log.info("continuing finishing of proposal %s in "
-                                  "background", self.proposal)
+                    self.log.info('continuing finishing of proposal %s in '
+                                  'background', self.proposal)
                 else:
                     thd = None
 
