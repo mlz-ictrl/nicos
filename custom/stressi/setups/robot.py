@@ -2,8 +2,8 @@ description = 'STRESS-SPEC setup with robot'
 
 group = 'basic'
 
-includes = ['aliases', 'system', 'mux', 'monochromator', 'detector',
-            'primaryslit', 'slits', 'reactor']
+includes = ['aliases', 'aliases_chiphi', 'system', 'mux', 'monochromator',
+            'detector', 'primaryslit', 'slits', 'reactor']
 
 excludes = ['stressi']
 

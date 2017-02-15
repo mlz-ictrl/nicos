@@ -2,8 +2,8 @@ description = 'STRESS-SPEC setup with Tensile rigg Eulerian cradle'
 
 group = 'basic'
 
-includes = ['system', 'mux', 'monochromator', 'detector', 'sampletable',
-            'primaryslit', 'slits', 'reactor']
+includes = ['aliases_chiphi', 'system', 'mux', 'monochromator', 'detector',
+            'sampletable', 'primaryslit', 'slits', 'reactor']
 
 excludes = ['eulerian_huber', 'eulerian_newport', 'robot']
 
