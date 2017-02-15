@@ -147,7 +147,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         data = 'BLS'
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        buf = ''
+        buf = b''
         for i in d.values():
             buf += pack('<BBff', FLOATTYPE, 2, float(i[0]), float(i[1]))
         self._file_write(buf)
@@ -534,14 +534,21 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
         # the image data are hopefully always at this place
         try:
-            detvalues = point.results.values()[0][1][0]
-        except Exception:
+            if not self.sink.detectors:
+                det = session.experiment.detectors[0]
+            else:
+                det = session.getDevice(self.sink.detectors[0])
+            detvalues = point.results[det.name][1][0]
+        except IndexError:
+            # There are no (differential) images available in case of contscan
+            img = 'no image device'
             try:
                 # try to read image date ourselves
-                detvalues = session.getDevice('image').readArray(FINAL)
+                img = det._attached_images[0].name
+                detvalues = session.getDevice(img).readArray(FINAL)
             except Exception:
                 # create empty data set
-                self.log.error('Could not get the image data!')
+                self.log.error('Could not get the image data from %s', img)
                 detvalues = np.array([[1, ], ])
                 detvalues.resize((256, 256))
 

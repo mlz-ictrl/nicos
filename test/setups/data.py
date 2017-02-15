@@ -37,6 +37,7 @@ sinklist = [
     'srawsink',
     'bersanssink',
     'serialsink',
+    'cstressisink',
 ]
 
 # These sinks cannot be created if the modules are not present.
@@ -96,5 +97,15 @@ devices = dict(
     tiffsink = device('devices.datasinks.TIFFImageSink'),
     yamlsink = device('nicos.dns.yamlformat.YAMLFileSink',
         filenametemplate = ['%(pointcounter)08d.yaml'],
+    ),
+    cstressisink = device('nicos.stressi.datasinks.CaressScanfileSink',
+                          filenametemplate = ['m2%(scancounter)08d.dat'],
+                          detectors = ['det'],
+    ),
+    # note: this device is needed for the STRESS-SPEC specific data sink
+    # 'cstressisink'!
+    tths = device('devices.generic.VirtualMotor',
+                  abslimits = (-180, 180),
+                  unit = 'deg',
     ),
 )
