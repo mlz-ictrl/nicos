@@ -49,7 +49,7 @@ devices = dict(
                       min = 499800,
                       max = 651200,
                      ),
-    ca1      = device('nicos.devices.generic.Switcher',
+    ca1      = device('devices.generic.Switcher',
                       description = 'Collimator CA1 lift',
                       moveable = 'ca1_mot',
                       mapping = {'none': 0, '20m': 310, '60m': 540, '40m': 755},
