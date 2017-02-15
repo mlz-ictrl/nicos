@@ -113,6 +113,7 @@ devices = dict(
                        description = 'SPODI specific histogram file format',
                        lowlevel = True,
                        filenametemplate = ['m1%(pointcounter)08d.ctxt'],
+                       detectors = ['adet'],
                       ),
 #   hv1   = device('devices.generic.virtual.VirtualMotor',
 #                  description = 'ISEG HV power supply 1',

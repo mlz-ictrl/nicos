@@ -46,27 +46,30 @@ class CaressHistogramHandler(SingleFileSinkHandler):
     def writeData(self, fp, image):
         _metainfo = self.dataset.metainfo
         bycategory = {}
+        detectors = self.sink.detectors
         for (dev, key), (_, v, _, cat) in iteritems(_metainfo):
-            if dev in ['adet', 'UBahn', 'Space', 'tths'] and cat == 'general':
+            if dev in detectors + ['UBahn', 'Space', 'tths'] and \
+               cat == 'general':
                 continue
             if cat:
                 bycategory.setdefault(cat, []).append((dev, key, v,))
-        _comment = 'monrate = %.1f ' % _metainfo['adet', 'rates'][0][0]
+        detector = detectors[0] if detectors else 'adet'
+        _comment = 'monrate = %.1f ' % _metainfo[detector, 'rates'][0][0]
         for device, _key, value in bycategory['general']:
             if _key == 'value':
                 _comment += '%s = %s ' % (device, value)
-        _resosteps = _metainfo['adet', 'resosteps'][0]
-        _range = _metainfo['adet', 'range'][0]
+        _resosteps = _metainfo[detector, 'resosteps'][0]
+        _range = _metainfo[detector, 'range'][0]
         _stepsize = _range / _resosteps
-        _start = _metainfo['adet', '_startpos'][0] - (_resosteps - 1) * \
-            _stepsize
+        _startpos = _metainfo[detector, '_startpos'][0]
+        _start = _startpos - (_resosteps - 1) * _stepsize
         _acqtime = (self.dataset.finished or currenttime()) - \
             self.dataset.started
         _total_counts = image.sum()
 
         # for d, k in _metainfo.keys():
         #     self.log.debug('writeData: %s.%s', d, k)
-        #     if d == 'adet':
+        #     if d == detector:
         #         self.log.info(' %s.%s %r', d, k, _metainfo[d, k])
 
         header = []
@@ -83,12 +86,12 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         header.append('')
         header.append('Acquisition Time\t%d' % _acqtime)
         header.append('Total Counts\t%d' % _total_counts)
-        if _metainfo['adet', 'mode'][0] == 'time':
+        if _metainfo[detector, 'mode'][0] == 'time':
             header.append('Preset timer counts:\t%.0f' %
-                          _metainfo['adet', 'preset'][0])
+                          _metainfo[detector, 'preset'][0])
         else:
             header.append('Preset monitor_1 counts:\t%d' %
-                          _metainfo['adet', 'preset'][0])
+                          _metainfo[detector, 'preset'][0])
         header.append('')
         header.append('CARESS XY data: 1 row title (position numbers), then '
                       '(resosteps x 80) position data in columns')

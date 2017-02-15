@@ -115,6 +115,7 @@ devices = dict(
                        description = 'SPODI specific histogram file format',
                        lowlevel = True,
                        filenametemplate = ['run%(pointcounter)06d.ctxt'],
+                       detectors = ['adet'],
                       ),
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
