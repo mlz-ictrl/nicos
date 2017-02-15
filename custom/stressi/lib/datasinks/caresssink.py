@@ -455,7 +455,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'MOT1', 'TRANS']
             self._write_exptype(exptype)
         self._detvalues = None
-        self._lastdetvalues = np.zeros(256 * 256).reshape((256, 256))
 
     def putMetainfo(self, metainfo):
         self.log.debug('put meta info: %r', metainfo)
@@ -564,29 +563,11 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 det = session.experiment.detectors[0]
             else:
                 det = session.getDevice(self.sink.detectors[0])
-            detvalues = point.results[det.name][1][0]
+            self._detvalues = point.results[det.name][1][0]
         except IndexError:
-            # There are no (differential) images available in case of contscan
-            img = 'no image device'
-            try:
-                # try to read image date ourselves
-                img = det._attached_images[0].name
-                detvalues = session.getDevice(img).readArray(FINAL)
-            except Exception:
-                # create empty data set
-                self.log.error('Could not get the image data from %s', img)
-                detvalues = np.array([[1, ], ])
-                detvalues.resize((256, 256))
-
-        if self._scan_type == 'SGEN2':
-            if detvalues.shape == self._lastdetvalues.shape:
-                self._detvalues = detvalues - self._lastdetvalues
-                self._lastdetvalues = detvalues
-            else:
-                self.log.error('%r %r', detvalues.shape,
-                               self._lastdetvalues.shape)
-        else:
-            self._detvalues = detvalues
+            # create empty data set
+            self.log.error('Could not get the image data from %s', det.name)
+            self._detvalues = np.zeros((256, 256))
 
         self.log.debug('storing results %r', self._detvalues)
 
@@ -666,7 +647,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._wrote_header = False
         self._scan_file = False
         self._detvalues = None
-        self._lastdetvalues = np.zeros(256 * 256)
 
 
 class CaressScanfileSink(FileSink):

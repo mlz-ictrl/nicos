@@ -37,7 +37,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     PositionError, TimeoutError
 from nicos.core.acquire import acquire, read_environment, stop_acquire_thread
-from nicos.core.constants import SLAVE, SIMULATION, FINAL
+from nicos.core.constants import INTERMEDIATE, SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForCompletion, multiWait
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types, reraise
@@ -557,6 +557,18 @@ class ContinuousScan(Scan):
         # guess the number of points
         self._npoints = int(self._distance / self._speed / self._timedelta) + 1
 
+    def _calculate_diff(self, last, current):
+        res = {}
+        for (detname, (vals, images)) in iteritems(current):
+            values = [val - last[detname][0][i]
+                      if isinstance(val, number_types) else val
+                      for i, val in enumerate(vals)]
+            imgs = [image - last[detname][1][i]
+                    if None not in [image, last[detname][1][i]] else None
+                    for i, image in enumerate(images)]
+            res[detname] = (values, imgs)
+        return res
+
     def _inner_run(self):
         try:
             self.prepareScan(self._startpositions[0])
@@ -583,7 +595,8 @@ class ContinuousScan(Scan):
             device.move(self._endpositions[0][0])
             starttime = looptime = currenttime()
 
-            last = {det.name: (det.read(), ()) for det in detlist}
+            last = {det.name: (det.read(), det.readArrays(INTERMEDIATE))
+                    for det in detlist}
 
             while device.status(0)[0] == status.BUSY:
                 session.breakpoint(2)
@@ -593,12 +606,9 @@ class ContinuousScan(Scan):
                     session.delay(sleeptime)
                     looptime = currenttime()
                     new_devpos = device.read(0)
-                    read = {det.name: (det.read(), ()) for det in detlist}
-                    diff = {detname: ([vals[i] - last[detname][0][i]
-                                       if isinstance(vals[i], number_types)
-                                       else vals[i]
-                                       for i in range(len(vals))], ())
-                            for (detname, (vals, _)) in iteritems(read)}
+                    read = {det.name: (det.read(),
+                                       det.readArrays(INTERMEDIATE))
+                            for det in detlist}
                     actualpos = [0.5 * (devpos + new_devpos)]
                     session.data.beginTemporaryPoint()
                     if point == 0:
@@ -607,7 +617,8 @@ class ContinuousScan(Scan):
                     self.readEnvironment()
                     # TODO: if the data sink needs it ?
                     # session.data.updateMetainfo()
-                    session.data.putResults(FINAL, diff)
+                    session.data.putResults(FINAL,
+                                            self._calculate_diff(last, read))
                     session.data.finishPoint()
                     last = read
                     devpos = new_devpos
