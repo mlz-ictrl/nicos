@@ -25,10 +25,10 @@
 
 from __future__ import print_function
 
-import struct
 import time
 
 from collections import OrderedDict, namedtuple
+from struct import pack
 
 from nicos import custom_version, nicos_version, session
 from nicos.core import Override
@@ -70,7 +70,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     _wrote_header = False
     _scan_file = False
     _detvalues = None
-    _buffer = ''
+    _buffer = b''
     _scan_type = 'SGEN1'
 
     def _file_tell(self):
@@ -82,20 +82,20 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _flush(self):
         # self._file.write(self._buffer)
-        self._buffer = ''
+        self._buffer = b''
 
     def _string(self, value):
-        buf = '%c%s%s' % (CHARTYPE, self._len(len(value)),
-                          to_utf8(value.upper()))
+        value = to_utf8(value)
+        buf = pack('B', CHARTYPE) + self._len(len(value)) + value.upper()
         self._file_write(buf)
 
     def _len(self, val):
         if val < 128:
-            return '%c' % val
+            return pack('B', val)
         elif val < 65536:
-            return '%c%s' % (0x80 | INTEGERTYPE, struct.pack('h', val))
+            return pack('<Bh', 0x80 | INTEGERTYPE, val)
         else:
-            return '%c%s' % (0x80 | LONGINTEGER, struct.pack('i', val))
+            return pack('<Bi', 0x80 | LONGINTEGER, val)
 
     def _defcmd(self, cmd):
         buf = 'DEFCMD %s' % cmd
@@ -108,38 +108,40 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def _write_string(self, key, data):
         self._defcmd(key)
         self._string(key)
-        buf = '%c%c%c%s%s' % (0x80, CHARTYPE, 0x81, self._len(len(data)),
-                              to_utf8(data))
+        data = to_utf8(data)
+        buf = pack('BBB', 0x80, CHARTYPE, 0x81) + self._len(len(data)) + data
         self._file_write(buf)
 
     def _write_integer(self, value, key=None):
         if key:
             self._defcmd(key)
             self._string(key)
-        buf = '%c%c%s' % (LONGINTEGER, 1, struct.pack('i', int(value)))
+        buf = pack('<BBi', LONGINTEGER, 1, int(value))
         self._file_write(buf)
 
     def _write_short(self, value):
-        buf = '%c%c%s' % (INTEGERTYPE, 1, struct.pack('h', int(value)))
+        buf = pack('<BBh', INTEGERTYPE, 1, int(value))
         self._file_write(buf)
 
     def _write_float(self, value, key=None):
         if key:
             self._defcmd(key)
             self._string(key)
-        buf = '%c%c%s' % (FLOATTYPE, 1, struct.pack('f', float(value)))
+        buf = pack('<BBf', FLOATTYPE, 1, float(value))
         self._file_write(buf)
 
     def _write_exptype(self, l):
         data = 'EXPTYPE'
         self._defcmd(data)
         self._string(data)
-        buf = '%c' % 0x80
-        for i in l:
-            buf += '%c%c%c%c' % (0x80, CHARTYPE, 0x81, len(i))
-        buf += '%c%c' % (0x81, 1)
-        buf += '%s' % ''.join(l)
-        self._file_write(buf)
+        buf = b'\x80'
+        sbuf = b''
+        for item in l:
+            item = to_utf8(item)
+            buf += pack('BBBB', 0x80, CHARTYPE, 0x81, len(item))
+            sbuf += item
+        buf += b'\x81\x01'
+        self._file_write(buf + sbuf)
 
     def _write_bls(self, d):
         data = 'BLS'
@@ -147,8 +149,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._string(data)
         buf = ''
         for i in d.values():
-            buf += '%c%c%s%s' % (FLOATTYPE, 2, struct.pack('f', float(i[0])),
-                                 struct.pack('f', float(i[1])))
+            buf += pack('<BBff', FLOATTYPE, 2, float(i[0]), float(i[1]))
         self._file_write(buf)
 
     def _write_float_group(self, group, d):
@@ -186,37 +187,37 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         data = 'SL1'
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        buf = '%c' * len(d) % ((0, ) * len(d))
+        buf = b'\x00' * len(d)
         self._file_write(buf)
 
     def _write_rela(self, d):
         data = 'RELA'
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        buf = ''
+        buf = b''
         for i in d.values():
             value = i
             if not isinstance(value, tuple):
                 value = (value, )
-            buf += '%c%c' % (FLOATTYPE, len(value))
+            buf += pack('BB', FLOATTYPE, len(value))
             for j in value:
-                buf += struct.pack('f', float(j))
+                buf += pack('<f', float(j))
         self._file_write(buf)
 
     def _write_winda(self, d):
         data = 'WINDA'
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        buf = ''
+        buf = b''
         for i in d.values():
             value = i
             if not isinstance(value, tuple):
                 value = (value, )
             while len(value) < 4:
                 value += (0, )
-            buf += '%c%c' % (INTEGERTYPE, len(value))
+            buf += pack('BB', INTEGERTYPE, len(value))
             for j in value:
-                buf += struct.pack('h', j)
+                buf += pack('<h', j)
         self._file_write(buf)
 
     def _write_setv(self, d):
@@ -224,7 +225,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         self._write_short(d['STEP'])
-        buf = '%c' % 0  # no value for the scanning value
+        buf = b'\x00'  # no value for the scanning value
         self._file_write(buf)
 
     def _write_sgen(self, d):
@@ -232,18 +233,18 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         self._write_short(d['STEP'])
-        buf = '%c%c' % (FLOATTYPE, 2, )
+        buf = pack('BB', FLOATTYPE, 2)
         for i in d.keys():
             if i != 'STEP':
                 for v in d[i]:
-                    buf += struct.pack('f', float(v))
+                    buf += pack('<f', float(v))
         self._file_write(buf)
 
     def _write_spec(self):
         data = 'SPEC'
         self._defcmd(data + '( %s)' % 'ADET')
         self._string(data)
-        buf = '%c%c' % (0, 0)
+        buf = b'\x00\x00'
         self._file_write(buf)
 
     def _write_setvalue(self, d):
@@ -251,7 +252,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         self._write_short(d['STEP'])
-        # buf = '%c' % 0)
+        # buf = b'\x00'
         # self._file_write(buf)
 
     def _write_user_proposal(self, valuelist=None):
@@ -581,22 +582,22 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self.log.debug('%s: %r', info.type, val)
             if info.type == 'counter':
                 addvalues = (tths, )
-                buf = '%c' % 0x80
+                buf = b'\x80'
                 if len(addvalues) > 0:
-                    buf += '%c%c%c' % (0x80, FLOATTYPE, 0x81)
-                    buf += '%s' % self._len(len(addvalues))
-                buf += '%c%c%c' % (0x80, LONGINTEGER, 0x81)
+                    buf += pack('BBB', 0x80, FLOATTYPE, 0x81)
+                    buf += self._len(len(addvalues))
+                buf += pack('BBB', 0x80, LONGINTEGER, 0x81)
                 if self._detvalues is None:
                     self.log.error('No detector data!')
                 else:
                     self.log.debug('%r', self._detvalues.size)
-                    buf += '%s%c' % (self._len(self._detvalues.size), 0x81)
-                buf += '%s' % self._len(1)
+                    buf += self._len(self._detvalues.size) + b'\x81'
+                buf += self._len(1)
                 for v in addvalues:
-                    buf += '%s' % struct.pack('f', v)
+                    buf += pack('<f', v)
                 if self._detvalues is not None:
                     for i in np.nditer(self._detvalues.T):
-                        buf += '%s' % struct.pack('i', i)
+                        buf += pack('<i', i)
                 self._file_write(buf)
         if self._scan_type == 'SGEN2':
             self._write_float(chis)
@@ -619,10 +620,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._write_string('DATE', time.strftime('%d-%b-%Y'))
         self._write_string('TIME', time.strftime('%H:%M:%S'))
 
-        buf = '%c' % 0xc0
+        buf = b'\xc0'
         t = self._file_tell() + 1
         t = 512 - (t % 512)
-        buf += '%c' * t % ((0, ) * t)
+        buf += b'\x00' * t
         self._file_write(buf)
         self._flush()
         self._file = None
