@@ -27,7 +27,7 @@ name = 'test_alias_config setup'
 includes = ['stdsystem', 'alias_T']
 
 devices = dict(
-    T_ccr1 = device('nicos.devices.generic.VirtualMotor',
+    T_ccr1 = device('devices.generic.VirtualMotor',
         abslimits = (0, 300),
         unit = 'K',
         speed = 1.5,

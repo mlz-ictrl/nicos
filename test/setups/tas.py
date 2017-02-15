@@ -138,7 +138,7 @@ devices = dict(
     vtasdet = device('devices.tas.virtual.VirtualTasDetector',
         tas = 'Tas',
     ),
-    some_motor = device('nicos.devices.generic.VirtualMotor',
+    some_motor = device('devices.generic.VirtualMotor',
         unit = 'deg',
         initval = 0,
         abslimits = (0, 5),

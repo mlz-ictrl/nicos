@@ -70,17 +70,17 @@ devices = dict(
         settypes = ['point'],
         detectors = ['det'],
     ),
-    serialsink = device('nicos.devices.datasinks.SerializedSink'),
-    asciisink = device('nicos.devices.datasinks.AsciiScanfileSink'),
-    consolesink = device('nicos.devices.datasinks.ConsoleScanSink'),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    livesink = device('nicos.devices.datasinks.LiveViewSink'),
-    rawsink = device('nicos.devices.datasinks.RawImageSink',
+    serialsink = device('devices.datasinks.SerializedSink'),
+    asciisink = device('devices.datasinks.AsciiScanfileSink'),
+    consolesink = device('devices.datasinks.ConsoleScanSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
+    livesink = device('devices.datasinks.LiveViewSink'),
+    rawsink = device('devices.datasinks.RawImageSink',
         filenametemplate = [
             '%(proposal)s_%(pointpropcounter)s.raw', '%(pointcounter)08d.raw'
         ]
     ),
-    srawsink = device('nicos.devices.datasinks.SingleRawImageSink',
+    srawsink = device('devices.datasinks.SingleRawImageSink',
         subdir = 'single',
         filenametemplate = [
             '%(scancounter)s_%(pointcounter)s.raw', '/%(pointcounter)08d.raw'
@@ -92,8 +92,8 @@ devices = dict(
     # note: these three will only be created if their prerequisite modules
     # are installed (and they are present in *sinklist*) because device auto
     # creation is off for test sessions
-    fitssink = device('nicos.devices.datasinks.FITSImageSink'),
-    tiffsink = device('nicos.devices.datasinks.TIFFImageSink'),
+    fitssink = device('devices.datasinks.FITSImageSink'),
+    tiffsink = device('devices.datasinks.TIFFImageSink'),
     yamlsink = device('nicos.dns.yamlformat.YAMLFileSink',
         filenametemplate = ['%(pointcounter)08d.yaml'],
     ),

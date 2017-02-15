@@ -36,7 +36,7 @@ sysconfig = dict(
 
 devices = dict(
     Sample = device('devices.tas.TASSample'),
-    Exp = device('nicos.devices.experiment.Experiment',
+    Exp = device('devices.experiment.Experiment',
         sample = 'Sample',
         elog = False,
         dataroot = path.join(runtime_root, 'data'),
@@ -47,7 +47,7 @@ devices = dict(
         lowlevel = False,
         localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
     ),
-    motor = device('nicos.devices.generic.VirtualMotor',
+    motor = device('devices.generic.VirtualMotor',
         unit = 'deg',
         initval = 0,
         abslimits = (0, 5),

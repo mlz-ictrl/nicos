@@ -27,7 +27,7 @@ name = 'virtual motor setup 2'
 includes = ['stdsystem']
 
 devices = dict(
-    vmotor = device('nicos.devices.generic.VirtualMotor',
+    vmotor = device('devices.generic.VirtualMotor',
         unit = 'mm',
         initval = 0,
         abslimits = (-100, 80),
