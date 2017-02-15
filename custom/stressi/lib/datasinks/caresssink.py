@@ -346,7 +346,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 elif device == 'slite':
                     d1['SLITM_E'] = value
                 elif device == 'transm':
-                    d1[device] = session.getDevice('transm'). \
+                    d1[device] = session.getDevice(device). \
                         _attached_moveable.read()
                     self.log.debug('TRANSM value %f', d1[device])
                 elif device == 'wav':
