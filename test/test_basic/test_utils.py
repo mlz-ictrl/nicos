@@ -53,7 +53,7 @@ def test_lazy_property():
             return 'ok'
     p = P()
     assert p.prop == 'ok'
-    assert p.prop == 'ok'   # ask twice!
+    assert p.prop == 'ok'  # ask twice!
     assert len(asked) == 1  # but getter only called once
 
 
@@ -105,7 +105,7 @@ def test_functions():
     assert formatDuration(154, precise=False) == '3 min'
     assert formatDuration(154, precise=True) == '2 min, 34 sec'
     assert formatDuration(3700) == '1 h, 2 min'
-    assert formatDuration(24*3600 + 7240, precise=False) == '1 day, 2 h'
+    assert formatDuration(24 * 3600 + 7240, precise=False) == '1 day, 2 h'
 
     assert bitDescription(0x5,
                           (0, 'a'),
@@ -130,7 +130,7 @@ def test_traceback():
     assert any('a                    = 1' in line for line in fmt)
 
     try:
-        1/0
+        1 / 0
     except ZeroDivisionError:
         ei = sys.exc_info()
         tb = formatExtendedTraceback(*ei)
