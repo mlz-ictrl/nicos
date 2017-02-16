@@ -24,9 +24,9 @@
 
 """TOFTOF chopper calculation tests."""
 
-from nicos.toftof.calculations import phi1, phi, alpha, t1, t2, Eres1,\
-    speedRatio, calculateChopperDelay, calculateCounterDelay,\
-    calculateTimeInterval
+from nicos.toftof.calculations import Eres1, alpha, calculateChopperDelay, \
+    calculateCounterDelay, calculateTimeInterval, phi, phi1, speedRatio, t1, \
+    t2
 
 
 def test_basic_calculations():
@@ -40,17 +40,28 @@ def test_basic_calculations():
     res1 = ['0.00', '12.74', '432.78', '1013.21', '1022.77', '1264.45',
             '1274.00']
     for x in range(1, 8):
-        assert '%.2f' % phi1(x, 14000, ilambda=6) == res1[x - 1]
+        assert '%.2f' % phi1(x, 14000, 6) == res1[x - 1]
 
-    assert '%.2f' % phi1(5, 7000, ilambda=6) == '511.38'
+    assert '%.2f' % phi1(5, 7000, 6) == '511.38'
 
     res2 = ['0.00', '-12.74', '-72.78', '66.79', '-57.23', '176.25', '166.70']
     for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, ilambda=6) == res2[x - 1]
+        assert '%.2f' % phi(x, 14000, 6) == res2[x - 1]
+
+    assert '%.2f' % phi(5, 14000, 6, ch5_90deg_offset=1) == '32.77'
 
     res3 = ['0.00', '-12.74', '-162.78', '-23.21', '32.77', '176.25', '166.70']
     for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, ilambda=6, slittype=1) == res3[x - 1]
+        assert '%.2f' % phi(x, 14000, 6, slittype=1) == res3[x - 1]
+
+    res3_1 = ['0.00', '12.74', '-162.78', '-23.21', '32.77', '176.25',
+              '-165.30']
+    for x in range(1, 8):
+        assert '%.2f' % phi(x, 14000, 6, 0, slittype=1) == res3_1[x - 1]
+
+    res3_2 = ['0.00', '12.74', '-72.78', '66.79', '-57.23', '-93.75', '104.70']
+    for x in range(1, 8):
+        assert '%.2f' % phi(x, 14000, 6, 0, slittype=2) == res3_2[x - 1]
 
     assert '%.2f' % phi(5, 14000, ratio=5, ilambda=6) == '98.22'
     assert '%.2f' % phi(5, 14000, ratio=5, slittype=1, ilambda=6) == '170.22'
@@ -65,8 +76,11 @@ def test_basic_calculations():
     for x in range(2, 8):
         assert '%.6f' % t2(x, ilambda=6) == res5[x - 2]
 
+    assert Eres1(6, 0) == (0, 0)
     assert '%f, %f' % Eres1(6, 14000, crc=0) == '0.000096, 0.000128'
     assert '%f, %f' % Eres1(6, 14000, crc=1) == '0.000048, 0.000064'
+    assert '%f, %f' % Eres1(6, 14000, st=1) == '0.000024, 0.000032'
+    assert '%f, %f' % Eres1(6, 14000, st=2) == '0.000037, 0.000050'
 
 
 def test_delay_calculations():
@@ -74,6 +88,11 @@ def test_delay_calculations():
     assert calculateChopperDelay(6, 14000, 5, 0, False) == 1094
     assert calculateChopperDelay(6, 14000, 5, 1, False) == 22
 
+    assert calculateChopperDelay(6, 14000, 5, 0, True) == 1897
+
     assert calculateCounterDelay(6, 14000, 5, 0, False) == 129070
+    assert calculateCounterDelay(6, 14000, 5, 0, True) == 155856
 
     assert '%.7f' % calculateTimeInterval(14000, 5) == '0.0107143'
+
+    assert calculateTimeInterval(0, 1) == 0.052
