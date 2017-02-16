@@ -386,3 +386,13 @@ class SigmoidFit(PredefinedFit):
         v = a / (1 + exp(-b * (x - x0))) + c
         v[isinf(v)] = 0.0
         return v
+
+    def process_result(self, res):
+        res.label_x = res.x0
+        res.label_y = res.c
+        res.label_contents = [
+            ('a', res.a, res.da),
+            ('b', res.b, res.db),
+            ('x0', res.x0, res.dx0),
+            ('c', res.c, res.dc)
+        ]
