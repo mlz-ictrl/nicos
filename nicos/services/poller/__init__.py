@@ -39,7 +39,7 @@ from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError, DeviceAlias
 from nicos.utils import whyExited, watchFileContent, loggers, createThread
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import listitems, queue as Queue
+from nicos.pycompat import listitems, queue as Queue, itervalues
 
 
 POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
@@ -65,7 +65,7 @@ class Poller(Device):
 
     def doInit(self, mode):
         self._stoprequest = False
-        self._workers = []
+        self._workers = {}
         self._creation_lock = threading.Lock()
 
     def doUpdateLoglevel(self, value):
@@ -184,6 +184,12 @@ class Poller(Device):
                             continue
                         elif event == 'quit':  # stop doing anything
                             return
+                        elif event.startswith('pollparam:'):
+                            try:
+                                dev._pollParam(event[10:])
+                            except Exception:
+                                dev.log.warning('error polling parameter %s',
+                                                 event[10:], exc=True)
 
                     except Queue.Empty:
                         pass  # just poll if timed out
@@ -279,6 +285,14 @@ class Poller(Device):
         # end of while not self._stoprequest
     # end of _worker_thread
 
+    def enqueue_params_poll(self, key, value, time, tell):  # pylint: disable=W0102
+        dev, key = key[len('poller/'):].split('/', 2)
+
+        if dev in self._workers:
+            worker = self._workers[dev]
+            for param in value:
+                worker.queue.put('pollparam:%s' % param)
+
     def start(self, setup=None):
         self._setup = setup
         if setup is None:
@@ -309,10 +323,11 @@ class Poller(Device):
                                       self._worker_thread,
                                       args=(devname, queue))
                 worker.queue = queue
-                self._workers.append(worker)
+                self._workers[devname.lower()] = worker
                 # start staggered to not poll all devs at once....
                 # use just a small delay, exact value does not matter
                 sleep(0.0719)
+            session.cache.addPrefixCallback('poller', self.enqueue_params_poll)
 
         except ConfigurationError as err:
             self.log.warning('Setup %r has failed to load!', setup)
@@ -342,7 +357,7 @@ class Poller(Device):
             return self._wait_master()
         while not self._stoprequest:
             sleep(1)
-        for worker in self._workers:
+        for worker in itervalues(self._workers):
             worker.join()
 
     def quit(self, signum=None):
@@ -352,9 +367,9 @@ class Poller(Device):
             return  # already quitting
         self.log.info('poller quitting on signal %s...', signum)
         self._stoprequest = True
-        for worker in self._workers:
+        for worker in itervalues(self._workers):
             worker.queue.put('quit', False)  # wake up to quit
-        for worker in self._workers:
+        for worker in itervalues(self._workers):
             worker.join()
         self.log.info('poller finished')
 
@@ -373,7 +388,7 @@ class Poller(Device):
         self.log.info('got SIGUSR2')
         if self._setup is not None:
             info = []
-            for worker in self._workers:
+            for worker in itervalues(self._workers):
                 wname = worker.getName()
                 if worker.isAlive():
                     info.append('%s: alive' % wname)

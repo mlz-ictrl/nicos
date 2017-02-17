@@ -48,6 +48,7 @@ from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
 from nicos.utils import loggers, getVersions, parseDateString, deprecated
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
     string_types, integer_types, number_types
+from nicos.protocols.cache import FLAG_NO_STORE
 
 ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
 
@@ -1182,6 +1183,26 @@ class Readable(Device):
                             (self.maxage or 0) * with_ttl)
         else:
             self._cache.put(self, name, value)
+
+    def pollParams(self, volatile_only=True, blocking=False, with_ttl=0,
+                   param_list=None):
+        """Poll all parameters (default: only volatile ones).
+        """
+        if param_list is None:
+            param_list = self.parameters.keys()
+
+        params = []
+        for entry in param_list:
+            if (not volatile_only or self.parameters[entry].volatile)\
+                    and hasattr(self, 'doRead' + entry):
+                params.append(entry)
+
+        if blocking:
+            for entry in params:
+                self._pollParam(entry, with_ttl)
+        else:
+            self._cache.put_raw('poller/%s/pollparams' % self.name, params,
+                                flag=FLAG_NO_STORE)
 
     @usermethod
     def reset(self):

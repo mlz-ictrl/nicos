@@ -670,7 +670,7 @@ class CacheClient(BaseCacheClient):
                 if key == 'value' and session.data:
                     session.data.cacheCallback(rdbkey, value, time)
 
-    def put_raw(self, key, value, time=None, ttl=None):
+    def put_raw(self, key, value, time=None, ttl=None, flag=''):
         """Put a key given by full name.
 
         The instance's key prefix is *not* prepended to the key.  This enables
@@ -684,7 +684,7 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
-        msg = '%r%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
+        msg = '%r%s@%s%s%s%s\n' % (time, ttlstr, key, flag, OP_TELL, value)
         # self.log.debug('putting %s=%s', key, value)
         self._queue.put(msg)
 
