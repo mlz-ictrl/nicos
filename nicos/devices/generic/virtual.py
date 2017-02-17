@@ -68,7 +68,7 @@ class VirtualMotor(HasOffset, Motor):
         # set current value to be at target on init, helps with devices
         # that switch between being virtual and real
         if self.target is not None and mode == MASTER:
-            self.curvalue = self.target
+            self.curvalue = self.target + self.offset
 
     def doStart(self, pos):
         pos = float(pos) + self.offset
