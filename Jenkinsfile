@@ -107,7 +107,13 @@ popd
 set -x
 
 set +e
-make jenkinslint
+PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep '.py$')
+if [[ -n "$PYFILESCHANGED" ]] ; then
+    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc --files-output=y $PYFILESCHANGED
+else
+    echo 'no python files changed'
+fi
+
 res=$?
 set -e
 
@@ -137,7 +143,7 @@ catch( all) {
         verifyStatusRerun: '!recheck'])
 
     if (verifyresult['pylint'] < 0) {
-        throw new Exception('Failure in pylint')
+        error('Failure in pylint')
     }
 
 }
@@ -153,7 +159,7 @@ variable: 'GERRITHTTP')]) {
 . /home/jenkins/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
 
 tools/check_setups -o setupcheck.log -s custom/*/setups || ((res++)) || /bin/true
-
+# */
 # switch to the tools venv for running the setupcheck uploader
 . /home/jenkins/toolsvenv/bin/activate
 ~/tools/sc2gerrit.py
@@ -174,7 +180,7 @@ catch( all) {
         verifyStatusRerun: '!recheck'])
 
     if (verifyresult['sc'] < 0) {
-        throw new Exception('Failure in setupcheck')
+         error('Failure in setupcheck')
     }
 
 }
@@ -217,7 +223,7 @@ verifyresult.put(pyver, 1)
     step([$class: 'JUnitResultArchiver', allowEmptyResults: true,
          keepLongStdio: true, testResults: 'pytest.xml'])
     if (verifyresult[pyver] < 0) {
-        throw new Exception('Failure in test with ' + pyver)
+        error('Failure in test with ' + pyver)
     }
 
 }
@@ -259,7 +265,7 @@ verifyresult.put('doc', 1)
         verifyStatusRerun: '!recheck'])
 
     if (verifyresult['doc'] < 0) {
-        throw new Exception('Failure in doc test')
+        error('Failure in doc test')
     }
 
 }
