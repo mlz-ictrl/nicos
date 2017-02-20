@@ -91,7 +91,6 @@ def parseLogs(parserConfigurations) {
 
 def runPylint() {
     verifyresult.put('pylint',0)
-    def status="OK"
    try {
 withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
     sh'''\
@@ -106,7 +105,10 @@ for d in *;do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d);  done
 popd
 set -x
 
+set +e
 make jenkinslint
+res=$?
+set -e
 
 # switch to the tools venv for running the pylint uploader
 . /home/jenkins/toolsvenv/bin/activate
@@ -118,13 +120,14 @@ pushd custom
 for d in *;do test -d $d && rm -f ../nicos/$d  ;done
 popd
 set -x
+exit $res
 '''
 verifyresult.put('pylint',1)
 }}
 catch( all) {
     verifyresult.put('pylint',-1)
-    status = 'FAILURE'
 }
+    echo "pylint: result="+verifyresult['pylint']
     gerritverificationpublisher([
         verifyStatusValue: verifyresult['pylint'],
         verifyStatusCategory: 'test ',
@@ -132,15 +135,14 @@ catch( all) {
         verifyStatusReporter: 'jenkins',
         verifyStatusRerun: '!recheck'])
 
-    if (status == 'FAILURE') {
+    if (verifyresult['pylint'] < 0) {
         throw new Exception('Failure in pylint')
     }
 
 }
 
 def runSetupcheck() {
-    verifyresult.put('sc',0)
-    def status="OK"
+   verifyresult.put('sc',0)
    try {
 withCredentials([string(credentialsId: 'GERRITHTTP',
 variable: 'GERRITHTTP')]) {
@@ -161,8 +163,8 @@ verifyresult.put('sc',1)
 } }
 catch( all) {
     verifyresult.put('sc',-1)
-    status = 'FAILURE'
 }
+    echo "setupcheck: result="+verifyresult['sc']
     gerritverificationpublisher([
         verifyStatusValue: verifyresult['sc'],
         verifyStatusCategory: 'test ',
@@ -170,7 +172,7 @@ catch( all) {
         verifyStatusReporter: 'jenkins',
         verifyStatusRerun: '!recheck'])
 
-    if (status == 'FAILURE') {
+    if (verifyresult['sc'] < 0) {
         throw new Exception('Failure in setupcheck')
     }
 
@@ -181,7 +183,6 @@ def runTests(venv, pyver) {
 [tool:pytest]
 addopts = --junit-xml=pytest.xml --junit-prefix=''' + pyver
 
-    def status="OK"
     verifyresult.put(pyver, 0)
     try {
         wrap([$class: 'PortAllocator',
@@ -201,10 +202,10 @@ verifyresult.put(pyver, 1)
             } //tiemout
         } // wrap
     } catch(all) {
-        currentBuild.result = 'FAILURE'
-        status = 'FAILURE'
         verifyresult.put(pyver, -1)
     }
+
+    echo "Test $pyver: result="+verifyresult[pyver]
     gerritverificationpublisher([
         verifyStatusValue: verifyresult[pyver],
         verifyStatusCategory: 'test ',
@@ -214,7 +215,7 @@ verifyresult.put(pyver, 1)
 
     step([$class: 'JUnitResultArchiver', allowEmptyResults: true,
          keepLongStdio: true, testResults: 'pytest.xml'])
-    if (status == 'FAILURE') {
+    if (verifyresult[pyver] < 0) {
         throw new Exception('Failure in test with ' + pyver)
     }
 
@@ -222,7 +223,6 @@ verifyresult.put(pyver, 1)
 
 def runDocTest() {
     verifyresult.put('doc',0)
-    def status="OK"
    try {
    sh '''\
 #!/bin/bash
@@ -247,18 +247,18 @@ fi
 verifyresult.put('doc', 1)
 } catch( all) {
     verifyresult.put('doc',-1 )
-    status = 'FAILURE'
-
 }
+    echo "Docs: result="+verifyresult['doc']
+
     gerritverificationpublisher([
         verifyStatusValue: verifyresult['doc'],
         verifyStatusCategory: 'test ',
-        verifyStatusName: 'setupcheck',
+        verifyStatusName: 'doc',
         verifyStatusReporter: 'jenkins',
         verifyStatusRerun: '!recheck'])
 
-    if (status == 'FAILURE') {
-        throw new Exception('Failure in setupcheck')
+    if (verifyresult['doc'] < 0) {
+        throw new Exception('Failure in doc test')
     }
 
 }
