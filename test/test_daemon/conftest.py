@@ -31,11 +31,14 @@ import socket
 import pytest
 
 from nicos.clients.base import NicosClient, ConnectionData
-from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, ENQ, LENGTH, \
-    serialize, command2code
+from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
+from nicos.protocols.daemon.classic import ENQ, LENGTH, ClassicSerializer, \
+    command2code
 from nicos.utils import tcpSocket, parseConnectionString
 
 from test.utils import startSubprocess, killSubprocess, daemon_addr
+
+serializer = ClassicSerializer()
 
 
 def daemon_wait_cb():
@@ -47,13 +50,14 @@ def daemon_wait_cb():
         except socket.error:
             time.sleep(0.02)
         else:
-            auth = serialize(({'login': 'guest', 'passwd': '',
-                               'display': ''},))
+            auth = serializer.serialize_cmd(
+                'authenticate',
+                ({'login': 'guest', 'passwd': '', 'display': ''},))
             s.send((b'\x42' * 16) +  # ident
                    ENQ + command2code['authenticate'] +
                    LENGTH.pack(len(auth)) + auth)
             s.recv(1024)
-            empty = serialize(())
+            empty = serializer.serialize_cmd('quit', ())
             s.send(ENQ + command2code['quit'] +
                    LENGTH.pack(len(empty)) + empty)
             s.recv(1024)

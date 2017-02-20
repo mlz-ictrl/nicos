@@ -24,7 +24,6 @@
 
 """The base class for communication with the NICOS server."""
 
-import os
 import base64
 import socket
 import hashlib
@@ -36,20 +35,15 @@ try:
 except ImportError:
     rsa = None
 
-import numpy as np
-
-from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
-    LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
-    ACTIVE_COMMANDS, command2code, code2event
+from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.pycompat import to_utf8
-from nicos.utils import createThread, tcpSocket
+from nicos.utils import createThread
+
+from nicos.clients.proto.classic import ClientTransport
+from nicos.protocols.daemon.classic import Serializer, \
+    PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS
 
 BUFSIZE = 8192
-TIMEOUT = 30.0
-
-
-class ProtocolError(Exception):
-    pass
 
 
 class ErrorResponse(Exception):
@@ -87,8 +81,6 @@ class NicosClient(object):
         self.compat_proto = 0
 
         self.log_func = log_func
-        self.socket = None
-        self.event_socket = None
         self.lock = threading.Lock()
         self.connected = False
         self.disconnecting = False
@@ -98,9 +90,7 @@ class NicosClient(object):
         self.user_level = None
         self.last_action_at = 0
 
-        unique_id = to_utf8(str(currenttime()) + str(os.getpid()))
-        # spurious warning due to hashlib magic # pylint: disable=E1121
-        self.client_id = hashlib.md5(unique_id).digest()
+        self.transport = ClientTransport(Serializer())
 
     def signal(self, name, *args):
         # must be overwritten
@@ -114,12 +104,12 @@ class NicosClient(object):
         *eventmask* is a tuple of event names that should not be sent to this
         client.
         """
+        self.disconnecting = False
         if self.connected:
             raise RuntimeError('client already connected')
-        self.disconnecting = False
+
         try:
-            self.socket = tcpSocket(conndata.host, conndata.port,
-                                    timeout=TIMEOUT)
+            self.transport.connect(conndata)
         except socket.error as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
@@ -128,13 +118,10 @@ class NicosClient(object):
             self.signal('failed', 'Server connection failed: %s.' % err, err)
             return
 
-        # write client identification: we are a new client
-        self.socket.sendall(self.client_id)
-
         # read banner
         try:
-            ret, banner = self._read()
-            if ret != STX:
+            success, banner = self.transport.recv_reply()
+            if not success:
                 raise ProtocolError('invalid response format')
             if 'daemon_version' not in banner:
                 raise ProtocolError('daemon version missing from response')
@@ -152,6 +139,7 @@ class NicosClient(object):
             return
 
         # log-in sequence
+        self.connected = True
         password = conndata.password
         pw_hashing = banner.get('pw_hashing', 'sha1')
 
@@ -184,21 +172,11 @@ class NicosClient(object):
         if eventmask:
             self.tell('eventmask', eventmask)
 
-        # connect to event port
-        try:
-            self.event_socket = tcpSocket(conndata.host, conndata.port)
-        except socket.error as err:
-            msg = err.args[1]
-            self.signal('failed', 'Event connection failed: %s.' % msg, err)
-            return
-
-        # write client id to ensure we get registered as event connection
-        self.event_socket.sendall(self.client_id)
+        self.transport.connect_events(conndata)
 
         # start event handler
         self.event_thread = createThread('event handler', self.event_handler)
 
-        self.connected = True
         self.host, self.port = conndata.host, conndata.port
         self.login = conndata.user
         self.viewonly = conndata.viewonly
@@ -207,78 +185,29 @@ class NicosClient(object):
         self.signal('connected')
 
     def event_handler(self):
-        recv = self.event_socket.recv
-        recvinto = self.event_socket.recv_into
         while 1:
             try:
-                # receive STX (1 byte) + eventcode (2) + length (4)
-                start = b''
-                while len(start) < 7:
-                    data = recv(7 - len(start))
-                    if not data:
-                        if not self.disconnecting:
-                            self.signal('broken', 'Server connection broken.')
-                            self._close()
-                        return
-                    start += data
-                if start[0:1] != STX:
-                    self.signal('broken', 'Wrong event header.')
-                    self._close()
-                    return
-                length, = LENGTH.unpack(start[3:])
-                got = 0
-                # read into a pre-allocated buffer to avoid copying lots of data
-                # around several times
-                buf = np.zeros(length, 'c')  # replace with bytearray+memoryview
-                                             # on Py3 only.
-                while got < length:
-                    read = recvinto(buf[got:], length - got)
-                    if not read:
-                        if not self.disconnecting:
-                            self.signal('broken', 'Server connection broken.')
-                            self._close()
-                        return
-                    got += read
-                try:
-                    event = code2event[start[1:3]]
-                    # serialized or raw event data?
-                    if DAEMON_EVENTS[event][0]:
-                        data = unserialize(buf.tostring())
-                    else:
-                        data = buffer(buf)
-                except Exception as err:
-                    self.log_func('Garbled event (%s): %r' %
-                                  (err, str(buffer(buf))[:100]))
-                else:
-                    self.signal(event, data)
-            except EnvironmentError as err:
-                if err.errno == socket.EINTR:
-                    continue
-                else:
-                    self.log_func('Error in event handler: %s' % err)
-                    if not self.disconnecting:
-                        self.signal('broken', 'Server connection broken.')
-                        self._close()
-                return
+                event, data = self.transport.recv_event()
             except Exception as err:
-                self.log_func('Error in event handler: %s %s' % (type(err), err))
+                if isinstance(err, IOError) and err.errno == socket.EINTR:
+                    continue
                 if not self.disconnecting:
+                    self.log_func('Error getting event: %s' % err)
                     self.signal('broken', 'Server connection broken.')
                     self._close()
                 return
+            try:
+                self.signal(event, data)
+            except Exception as err:
+                self.log_func('Error in event handler: %s' % err)
 
     def disconnect(self):
         self.disconnecting = True
-        self.tell('quit')
+        self.transport.send_command('quit', ())
         self._close()
 
     def _close(self):
-        try:
-            self.socket._sock.close()
-            self.socket.close()
-        except Exception:
-            pass
-        self.socket = None
+        self.transport.disconnect()
         self.gzip = False
         if self.connected:
             self.connected = False
@@ -305,54 +234,12 @@ class NicosClient(object):
             self.signal('broken', msg, err)
             self._close()
 
-    def _write(self, command, args):
-        """Write a command to the server."""
-        if self.compat_proto:
-            args = self._compat_transform_command(command, args)
-        data = serialize(args)
-        self.socket.sendall(ENQ + command2code[command] +
-                            LENGTH.pack(len(data)) + data)
-
-    def _read(self):
-        """Receive a response from the server."""
-        # receive first byte + (possibly) length
-        start = b''
-        while len(start) < 5:
-            data = self.socket.recv(5 - len(start))
-            if not data:
-                raise ProtocolError('connection broken')
-            start += data
-            if start == ACK:
-                return start, None
-        if start[0:1] not in (NAK, STX):
-            raise ProtocolError('invalid response %r' % start)
-        # it has a length...
-        length, = LENGTH.unpack(start[1:])
-        buf = b''
-        while len(buf) < length:
-            read = self.socket.recv(BUFSIZE)
-            if not read:
-                raise ProtocolError('connection broken')
-            buf += read
-        try:
-            return start[0:1], unserialize(buf)
-        except Exception as err:
-            return start[0:1], self.handle_error(err)
-
-    def _compat_transform_command(self, command, args):
-        """Transform a command for compatibility mode with old daemons."""
-        return args
-
-    def _compat_transform_reply(self, command, reply):
-        """Transform a command reply for compatibility mode with old daemons."""
-        return reply
-
     def tell(self, command, *args):
         """Excecute a command that does not generate a response.
 
         The arguments are the command and its parameter(s), if necessary.
         """
-        if not self.socket:
+        if not self.connected:
             self.signal('error', 'You are not connected to a server.')
             return
         elif self.viewonly and command in ACTIVE_COMMANDS:
@@ -360,9 +247,9 @@ class NicosClient(object):
             return
         try:
             with self.lock:
-                self._write(command, args)
-                ret, data = self._read()
-                if ret == NAK:  # we ignore STX as being OK
+                self.transport.send_command(command, args)
+                success, data = self.transport.recv_reply()
+                if not success:
                     raise ErrorResponse(data)
                 return True
         except (Exception, KeyboardInterrupt) as err:
@@ -382,7 +269,7 @@ class NicosClient(object):
         the client is not connected.  When not connected, you can give a
         *default* keyword to return.
         """
-        if not self.socket:
+        if not self.connected:
             if not kwds.get('quiet', False):
                 self.signal('error', 'You are not connected to a server.')
             return kwds.get('default')
@@ -391,15 +278,13 @@ class NicosClient(object):
             return kwds.get('default')
         try:
             with self.lock:
-                self._write(command, args)
-                ret, data = self._read()
-                if ret == NAK:
+                self.transport.send_command(command, args)
+                success, data = self.transport.recv_reply()
+                if not success:
                     if not kwds.get('noerror', False):
                         raise ErrorResponse(data)
                     else:
                         return kwds.get('default')
-                if self.compat_proto:
-                    return self._compat_transform_reply(command, data)
                 return data
         except (Exception, KeyboardInterrupt) as err:
             self.handle_error(err)
@@ -462,7 +347,7 @@ class NicosClient(object):
         query += ')'
         res = self.eval(query, [])
         if res:
-            return sorted(res, key=str.lower)
+            return sorted(res, key=lambda d: d.lower())
         return []
 
     def getDeviceValue(self, devname):

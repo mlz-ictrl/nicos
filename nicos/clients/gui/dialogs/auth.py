@@ -34,9 +34,9 @@ except ImportError:
     class QPyNullVariant(object):
         pass
 
-from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
 class ConnectionDialog(QDialog):

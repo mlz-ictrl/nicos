@@ -56,7 +56,7 @@ def test_simple(client, simple_mode):
 
     # getstatus
     status = client.ask('getstatus')
-    assert status['status'] == (STATUS_IDLE, -1)      # execution status
+    assert status['status'] == [STATUS_IDLE, -1]      # execution status
     assert status['script'] == 'NewSetup stdsystem'   # current script
     assert status['mode'] == MASTER                   # current mode
     assert status['watch'] == {}                      # no watch expressions

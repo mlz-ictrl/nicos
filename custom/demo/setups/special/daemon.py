@@ -13,8 +13,8 @@ devices = dict(
                             ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin')],
                  ),
     Daemon = device('services.daemon.NicosDaemon',
+                    server = 'localhost',
                     authenticators = ['Auth'],
                     loglevel = 'debug',
-                    server = 'localhost',
                    ),
 )

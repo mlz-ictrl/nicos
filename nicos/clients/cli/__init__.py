@@ -49,8 +49,9 @@ from nicos.clients.cli.txtplot import txtplot
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
     terminalSize, parseConnectionString, createSubprocess
 from nicos.utils.loggers import ACTION, INPUT
-from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
+from nicos.protocols.daemon import STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
 from nicos.pycompat import configparser, iteritems, to_encoding
 

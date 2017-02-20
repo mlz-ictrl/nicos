@@ -41,30 +41,21 @@ import hashlib
 from nicos import session, nicos_version, custom_version, config
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.core.data import ScanData
-from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import ScriptRequest, ScriptError, \
     RequestError
-from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
-    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
-    ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
-    DAEMON_COMMANDS, SIM_STATES, event2code
-from nicos.pycompat import queue, socketserver, string_types
+from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
+    STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, SIM_STATES, \
+    BREAK_NOW, DAEMON_COMMANDS, CloseConnection
+from nicos.pycompat import queue, string_types
 
-
-READ_BUFSIZE = 4096
-
-
-class CloseConnection(Exception):
-    """Raised to unconditionally close the connection."""
 
 command_wrappers = {}
 
 
 def command(needcontrol=False, needscript=None, name=None):
-    """
-    Decorates a nicosd protocol command.  The `needcontrol` and `needscript`
+    """Decorates a protocol command.  The `needcontrol` and `needscript`
     parameters can be set to avoid boilerplate in the handler functions.
     """
     def deco(func):
@@ -73,19 +64,20 @@ def command(needcontrol=False, needscript=None, name=None):
 
         def wrapper(self, args):
             if not nargsmin <= len(args) <= nargsmax:
-                self.write(NAK, 'invalid number of arguments')
+                self.send_error_reply('invalid number of arguments')
                 return
             if needcontrol:
                 if not self.check_control():
-                    self.write(NAK, 'you do not have control of the session')
+                    self.send_error_reply('you do not have control '
+                                          'of the session')
                     return
             if needscript is True:
                 if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
-                    self.write(NAK, 'no script is running')
+                    self.send_error_reply('no script is running')
                     return
             elif needscript is False:
                 if self.controller.status not in (STATUS_IDLE, STATUS_IDLEEXC):
-                    self.write(NAK, 'a script is running')
+                    self.send_error_reply('a script is running')
                     return
             try:
                 return func(self, *args)
@@ -94,12 +86,13 @@ def command(needcontrol=False, needscript=None, name=None):
             except Exception:
                 self.log.exception('exception executing command %s',
                                    name or func.__name__)
-                self.write(NAK, 'exception occurred executing command')
+                self.send_error_reply('exception occurred executing command')
         wrapper.__name__ = func.__name__
         wrapper.orig_function = func
         command_wrappers[name or func.__name__] = wrapper
         return func
     return deco
+
 
 # unique objects
 stop_queue = (object(), '')
@@ -129,16 +122,11 @@ class SizedQueue(queue.Queue):
         return item
 
 
-class ConnectionHandler(socketserver.BaseRequestHandler):
-    """
-    This class is the SocketServer "request handler" implementation for the
-    daemon server.  One instance of this class is created for every control
-    connection (not event connections) from a client.  When the event
-    connection is opened, the `event_sender` method of the existing instance
-    is spawned as a new thread.
+class ConnectionHandler(object):
+    """Protocol-unaware connection handler.
 
-    The `handle` method reads commands from the client, dispatches them to
-    methods of the same name, and writes the responses back.
+    This is used as a mixin base class for ServerTransport subclasses to
+    implement a specific protocol.
 
     Command methods must be decorated with the `@command` decorator; it
     registers the command for dispatching and avoids boilerplate: if the
@@ -146,89 +134,24 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     controlling session.  If the `needscript` argument is True or False, the
     command can only be called if a script is running or not running,
     respectively.
-
-    Note that the SocketServer interface is such that the request handling is
-    done while the constructor runs, i.e. the `__init__` method calls `handle`.
     """
 
-    def __init__(self, request, client_address, client_id, server):
+    def __init__(self, daemon):
+        self.daemon = daemon
+        self.controller = daemon._controller
         # limit memory usage to 100 Megs
         self.event_queue = SizedQueue(100*1024*1024)
         self.event_mask = set()
-        self.event_sock = None  # set later by server
-        # bind often used daemon attributes to self
-        self.daemon = server.daemon
-        self.controller = server.daemon._controller
-        # register self as a new handler
-        server.register_handler(self, client_address[0], client_id)
-        self.sock = request
         self.log = LoggerWrapper(self.daemon.log,
-                                 '[handler #%d] ' % self.ident)
-        # read buffer
-        self._buffer = ''
-        try:
-            # this calls self.handle()
-            socketserver.BaseRequestHandler.__init__(
-                self, request, client_address, server)
-        except CloseConnection:
-            # in case the client hasn't opened the event connection, stop
-            # waiting for it
-            server.pending_clients.pop((client_address[0], client_id), None)
-        except Exception:
-            self.log.exception('unhandled exception')
+                                 '[handler #%s] ' % self.ident)
+
+    def close(self):
         try:
             self.event_queue.put(stop_queue, False)
         except queue.Full:
             # the event queue has already overflown because the event sender
             # was already closed; so we can ignore this
             pass
-        server.unregister_handler(self.ident)
-        self.log.info('handler unregistered')
-
-    def write(self, prefix, msg=no_msg):
-        """Write a message to the client."""
-        try:
-            if msg is no_msg:  # cannot use None, it might be a reply
-                self.sock.sendall(prefix)
-            else:
-                ser_msg = serialize(msg)
-                self.sock.sendall(prefix + LENGTH.pack(len(ser_msg)) + ser_msg)
-        except socket.error as err:
-            self.log.error('write: connection broken (%s)', err)
-            raise CloseConnection
-
-    def read(self):
-        """Read a command and arguments from the client."""
-        try:
-            # receive: ENQ (1 byte) + commandcode (2) + length (4)
-            start = b''
-            while len(start) < 7:
-                data = self.sock.recv(7 - len(start))
-                if not data:
-                    self.log.error('read: connection broken')
-                    raise CloseConnection
-                start += data
-            if start[0:1] != ENQ:
-                self.log.error('read: invalid command header')
-                raise CloseConnection
-            # it has a length...
-            length, = LENGTH.unpack(start[3:])
-            buf = b''
-            while len(buf) < length:
-                read = self.sock.recv(min(READ_BUFSIZE, length-len(buf)))
-                if not read:
-                    self.log.error('read: connection broken')
-                    raise CloseConnection
-                buf += read
-            try:
-                return code2command[start[1:3]], unserialize(buf)
-            except Exception:
-                self.log.error('read: invalid command or garbled data', exc=1)
-                self.write(NAK, 'invalid command or garbled data')
-                raise CloseConnection
-        except socket.error as err:
-            self.log.error('read: connection broken (%s)', err)
-            raise CloseConnection
 
     def check_host(self):
         """Match the connecting host against the daemon's list of
@@ -238,7 +161,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             for possible in self.clientnames:
                 if allowed == possible:
                     return
-        self.write(NAK, 'permission denied')
+        self.send_error_reply('permission denied')
         self.log.error('login attempt from untrusted host: %s',
                        self.clientnames)
         raise CloseConnection
@@ -262,13 +185,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         """Handle a single connection."""
-        ip = self.client_address[0]
-        try:
-            host, aliases, addrlist = socket.gethostbyaddr(ip)
-        except socket.herror:
-            self.clientnames = [ip]
-        else:
-            self.clientnames = [host] + aliases + addrlist
         self.log.info('connection from %s', self.clientnames)
 
         # check trusted hosts list, if nonempty
@@ -285,26 +201,27 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             bannerhashing = hashing
 
         # announce version and authentication modality
-        self.write(STX, dict(
+        self.send_ok_reply(dict(
             daemon_version = nicos_version,
             custom_version = custom_version,
             nicos_root = config.nicos_root,
             custom_path = config.custom_path,
             pw_hashing = bannerhashing,
             rsakey = pubkeyStr,
-            protocol_version = PROTO_VERSION,
+            protocol_version = self.get_version(),
         ))
 
         # read login credentials
-        cmd, (credentials,) = self.read()
-        if cmd != 'authenticate' or not isinstance(credentials, dict) or \
-           not all(v in credentials for v in ('login', 'passwd', 'display')):
+        cmd, credentials = self.recv_command()
+        if cmd != 'authenticate' or len(credentials) != 1 or \
+           not isinstance(credentials[0], dict) or \
+           not all(v in credentials[0] for v in ('login', 'passwd')):
             self.log.error('invalid login: %r, credentials=%r',
                            cmd, credentials)
-            self.write(NAK, 'invalid credentials')
+            self.send_error_reply('invalid credentials')
             raise CloseConnection
 
-        password = credentials['passwd']
+        password = credentials[0]['passwd']
         if password[0:4] == 'RSA:':
             password = password[4:]
             password = rsa.decrypt(base64.decodestring(password.encode()),
@@ -315,9 +232,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 password = hashlib.md5(password).hexdigest()
 
         # check login data according to configured authentication
-        login = credentials['login']
-        self.log.info('auth request: login=%r display=%r', login,
-                      credentials['display'])
+        login = credentials[0]['login']
+        self.log.info('auth request from login %r', login)
         if authenticators:
             auth_err = None
             for auth in authenticators:
@@ -329,37 +245,31 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s', auth_err)
-                self.write(NAK, 'credentials not accepted')
+                self.send_error_reply('credentials not accepted')
                 raise CloseConnection
         else:
             self.user = User(login, ADMIN)
 
-        # of course this only works for the client that logged in last
-        os.environ['DISPLAY'] = credentials['display']
-
         # acknowledge the login
         self.log.info('login succeeded, access level %d', self.user.level)
-        self.write(STX, dict(
+        self.send_ok_reply(dict(
             user_level = self.user.level,
         ))
 
         # start main command loop
         while 1:
-            command, data = self.read()
+            command, data = self.recv_command()
             command_wrappers[command](self, data)
 
     # -- Event thread entry point ---------------------------------------------
 
-    def event_sender(self, sock):
+    def event_sender(self):
         """Take events from the handler instance's event queue and send them
-        to the client using the event connection.
+        to the client.
         """
         self.log.info('event sender started')
         queue_get = self.event_queue.get
         event_mask = self.event_mask
-        # close connection after socket send queue is full for 60 seconds
-        sock.settimeout(60.0)
-        send = sock.sendall
         while 1:
             item = queue_get()
             if item is stop_queue:
@@ -367,13 +277,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             event, data = item
             if event in event_mask:
                 continue
-            evtcode = event2code[event]
             try:
-                # first, send length header and event name
-                send(STX + evtcode + LENGTH.pack(len(data)))
-                # then, send data separately (doesn't create temporary strings)
-                send(data)
+                self.send_event(event, data)
             except socket.timeout:
+                # XXX move socket specific error handling to transport
                 self.log.error('send timeout in event sender')
                 break
             except socket.error as err:
@@ -383,9 +290,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s', event, repr(data)[:1000])
         self.log.info('closing connections from event sender')
-        closeSocket(sock)
-        # also close the main connection if not already done
-        closeSocket(self.sock)
+        self.close()
 
     # -- Script control commands ----------------------------------------------
 
@@ -411,11 +316,11 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             reqid = self.controller.new_request(
                 ScriptRequest(code, name, self.user, handler=self))
         except RequestError as err:
-            self.write(NAK, str(err))
+            self.send_error_reply(str(err))
             return
         # take control of the session
         self.controller.controlling_user = self.user
-        self.write(STX, reqid)
+        self.send_ok_reply(reqid)
 
     @command()
     def unqueue(self, reqid):
@@ -431,9 +336,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             try:
                 self.controller.block_requests([reqid])
             except IndexError:
-                self.write(NAK, 'script already executing')
+                self.send_error_reply('script already executing')
                 return
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command(needcontrol=True, needscript=True)
     def update(self, newcode, reason, reqid=None):
@@ -446,12 +351,12 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         try:
             self.controller.update_script(reqid, newcode, reason, self.user)
         except ScriptError as err:
-            self.write(NAK, str(err))
+            self.send_error_reply(str(err))
             return
         except IndexError:
-            self.write(NAK, 'script doesn\'t exist')
+            self.sed_error_reply('script doesn\'t exist')
             return
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command(needcontrol=True, needscript=True, name='break')
     def break_(self, level):
@@ -467,9 +372,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         level = int(level)
         if self.controller.status == STATUS_STOPPING:
-            self.write(NAK, 'script is already stopping')
+            self.send_error_reply('script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
-            self.write(NAK, 'script is already paused')
+            self.send_error_reply('script is already paused')
         else:
             session.log.info('Pause requested by %s', self.user.name)
             self.controller.set_break(('break', level, self.user.name))
@@ -477,7 +382,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 session.countloop_request = ('pause',
                                              'Paused by %s' % self.user.name)
             self.log.info('script pause request')
-            self.write(ACK)
+            self.send_ok_reply(None)
 
     @command(needcontrol=True, needscript=True, name='continue')
     def continue_(self):
@@ -486,13 +391,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ok or error (e.g. if script is not paused)
         """
         if self.controller.status == STATUS_STOPPING:
-            self.write(NAK, 'could not continue script')
+            self.send_error_reply('could not continue script')
         elif self.controller.status == STATUS_RUNNING:
-            self.write(NAK, 'script is not paused')
+            self.send_error_reply('script is not paused')
         else:
             self.log.info('script continue request')
             self.controller.set_continue(('continue', 0, self.user.name))
-            self.write(ACK)
+            self.send_ok_reply(None)
 
     @command(needcontrol=True, needscript=True)
     def stop(self, level):
@@ -512,7 +417,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         level = int(level)
         self.log.info('script stop request')
         self.controller.script_stop(level, self.user)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     # note: name finish() is already defined by BaseRequestHandler
     @command(name='finish', needcontrol=True, needscript=True)
@@ -525,12 +430,12 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         self.log.info('measurement finish request')
         if self.controller.status == STATUS_STOPPING:
-            self.write(NAK, 'script is stopping')
+            self.send_error_reply('script is stopping')
         else:
             session.log.info('Early finish requested by %s', self.user.name)
             session.countloop_request = \
                 ('finish', 'Finished early by %s' % self.user.name)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def emergency(self):
@@ -548,7 +453,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.log.warning('immediate stop request in %s',
                              self.controller.current_location(True))
         self.controller.script_immediate_stop(self.user)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def rearrange(self, ids):
@@ -562,9 +467,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         try:
             self.controller.rearrange_queue(ids)
         except RequestError as err:
-            self.write(NAK, str(err))
+            self.send_error_reply(str(err))
         else:
-            self.write(ACK)
+            self.send_ok_reply(None)
 
     # -- Asynchronous script interaction --------------------------------------
 
@@ -577,14 +482,14 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
            an exception)
         """
         if self.controller.status == STATUS_STOPPING:
-            self.write(NAK, 'script is stopping')
+            self.send_error_reply('script is stopping')
             return
         self.log.debug('executing command in script context\n%s', cmd)
         try:
             self.controller.exec_script(cmd, self.user, self)
         except Exception:
             session.logUnhandledException(cut_frames=0)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def eval(self, expr, stringify):
@@ -599,9 +504,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             retval = self.controller.eval_expression(expr, self, stringify)
         except Exception as err:
             self.log.exception('exception in eval command')
-            self.write(NAK, 'exception raised while evaluating: %s' % err)
+            self.send_error_reply('exception raised while evaluating: %s' % err)
         else:
-            self.write(STX, retval)
+            self.send_ok_reply(retval)
 
     @command()
     def simulate(self, name, code, uuid=None):
@@ -618,12 +523,12 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.controller.simulate_script(uuid, code,
                                             name or None, self.user)
         except SPMError as err:
-            self.write(NAK, 'syntax error in script: %s' % err)
+            self.send_error_reply('syntax error in script: %s' % err)
         except Exception as err:
             self.log.exception('exception in simulate command')
-            self.write(NAK, 'exception raised running simulation: %s' % err)
+            self.send_error_reply('exception raised running simulation: %s' % err)
         else:
-            self.write(ACK)
+            self.send_ok_reply(None)
 
     @command()
     def complete(self, line, lastword):
@@ -634,7 +539,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of matches
         """
         matches = sorted(set(self.controller.complete_line(line, lastword)))
-        self.write(STX, matches)
+        self.send_ok_reply(matches)
 
     # -- Runtime information commands -----------------------------------------
 
@@ -644,7 +549,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: version string
         """
-        self.write(STX, nicos_version)
+        self.send_ok_reply(nicos_version)
 
     @command()
     def getstatus(self):
@@ -669,16 +574,17 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         current_script = self.controller.current_script
         request_queue = self.controller.get_queue()
-        self.write(STX, dict(
+        eta = (current_script.simstate, current_script.eta) if current_script \
+            else (SIM_STATES['pending'], 0)
+        self.send_ok_reply(dict(
             status   = (self.controller.status, self.controller.lineno),
             script   = current_script and current_script.text or '',
-            eta      = current_script and (current_script.simstate,
-                                           current_script.eta)
-                       or (SIM_STATES['pending'], 0),
+            eta      = eta,
             watch    = self.controller.eval_watch_expressions(),
             requests = request_queue,
             mode     = session.mode,
-            setups   = (session.loaded_setups, session.explicit_setups),
+            setups   = (list(session.loaded_setups),
+                        session.explicit_setups),
             devices  = list(session.devices),
         ))
 
@@ -691,9 +597,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
            fields)
         """
         if n == '*':
-            self.write(STX, self.daemon._messages)
+            self.send_ok_reply(self.daemon._messages)
         else:
-            self.write(STX, self.daemon._messages[-int(n):])
+            self.send_ok_reply(self.daemon._messages[-int(n):])
 
     @command()
     def getscript(self):
@@ -702,7 +608,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: code of the current script
         """
         current_script = self.controller.current_script
-        self.write(STX, current_script and current_script.text or '')
+        self.send_ok_reply(current_script and current_script.text or '')
 
     @command()
     def gethistory(self, key, fromtime, totime):
@@ -714,10 +620,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of (time, value) tuples
         """
         if not session.cache:
-            self.write(STX, [])
+            self.send_ok_reply([])
         history = session.cache.history('', key, float(fromtime),
                                         float(totime))
-        self.write(STX, history)
+        self.send_ok_reply(history)
 
     @command()
     def getcachekeys(self, query):
@@ -729,13 +635,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of (time, value) tuples
         """
         if not session.cache:
-            self.write(STX, [])
+            self.send_ok_reply([])
             return
         if ',' in query:
             result = session.cache.query_db(query.split(','))
         else:
             result = session.cache.query_db(query)
-        self.write(STX, result)
+        self.send_ok_reply(result)
 
     @command()
     def gettrace(self):
@@ -743,7 +649,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: stack trace as a string
         """
-        self.write(STX, self.controller.current_location(True))
+        self.send_ok_reply(self.controller.current_location(True))
 
     # -- Watch expression commands --------------------------------------------
 
@@ -755,18 +661,18 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack or error
         """
         if not isinstance(vallist, list):
-            self.write(NAK, 'wrong argument type for add_values: %s' %
-                       vallist.__class__.__name__)
+            self.send_error_reply('wrong argument type for add_values: %s' %
+                                  vallist.__class__.__name__)
             return
         for val in vallist:
             if not isinstance(val, string_types):
-                self.write(NAK, 'wrong type for add_values item: %s' %
-                           val.__class__.__name__)
+                self.send_error_reply('wrong type for add_values item: %s' %
+                                      val.__class__.__name__)
                 return
             if ':' not in val:
                 val += ':default'
             self.controller.add_watch_expression(val)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command(needcontrol=True)
     def unwatch(self, vallist):
@@ -776,13 +682,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack or error
         """
         if not isinstance(vallist, list):
-            self.write(NAK, 'wrong argument type for del_values: %s' %
-                       vallist.__class__.__name__)
+            self.send_error_reply('wrong argument type for del_values: %s' %
+                                  vallist.__class__.__name__)
             return
         for val in vallist:
             if not isinstance(val, string_types):
-                self.write(NAK, 'wrong type for del_values item: %s' %
-                           val.__class__.__name__)
+                self.send_error_reply('wrong type for del_values item: %s' %
+                                      val.__class__.__name__)
                 return
             if ':' not in val:
                 val += ':default'
@@ -791,7 +697,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 self.controller.remove_all_watch_expressions(group)
             else:
                 self.controller.remove_watch_expression(val)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     # -- Data interface commands ----------------------------------------------
 
@@ -805,18 +711,18 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         if index == '*':
             try:
-                self.write(STX, [ScanData(s)
-                                 for s in session.data._last_scans])
+                self.send_ok_reply([ScanData(s)
+                                    for s in session.data._last_scans])
             # session.experiment may be None or a stub
             except (AttributeError, ConfigurationError):
-                self.write(STX, None)
+                self.send_ok_reply(None)
         else:
             index = int(index)
             try:
                 dataset = ScanData(session.data._last_scans[index])
-                self.write(STX, dataset)
+                self.send_ok_reply(dataset)
             except (IndexError, AttributeError, ConfigurationError):
-                self.write(STX, None)
+                self.send_ok_reply(None)
 
     # -- Miscellaneous commands -----------------------------------------------
 
@@ -833,17 +739,17 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             if not code:
-                self.write(NAK, 'no piece of code to debug given')
+                self.send_error_reply('no piece of code to debug given')
                 return
             req = ScriptRequest(code, '', self.user, handler=self)
             self.controller.debug_start(req)
         else:
             if code:
-                self.write(NAK, 'code to debug given, but a script is '
-                           'already running')
+                self.send_error_reply('code to debug given, but a '
+                                      'script is already running')
                 return
             self.controller.debug_running()
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command(needcontrol=True, needscript=True)
     def debuginput(self, line):
@@ -853,7 +759,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack or error
         """
         self.controller.debug_input(line)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def eventmask(self, events):
@@ -863,7 +769,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack
         """
         self.event_mask.update(events)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def eventunmask(self, events):
@@ -873,7 +779,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack
         """
         self.event_mask.difference_update(events)
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def transfer(self, content):
@@ -887,7 +793,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             os.write(fd, content)
         finally:
             os.close(fd)
-        self.write(STX, filename)
+        self.send_ok_reply(filename)
 
     @command(needcontrol=True)
     def unlock(self):
@@ -896,7 +802,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ack
         """
         self.controller.controlling_user = None
-        self.write(ACK)
+        self.send_ok_reply(None)
 
     @command()
     def quit(self):
@@ -907,7 +813,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if self.controller.controlling_user is self.user:
             self.controller.controlling_user = None
         self.log.info('disconnect')
-        self.write(ACK)
+        self.send_ok_reply(None)
         raise CloseConnection
 
     @command()

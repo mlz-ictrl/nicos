@@ -67,8 +67,9 @@ from nicos.clients.gui.dialogs.help import HelpWindow
 from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
-from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
+from nicos.protocols.daemon import STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC, BREAK_NOW
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.pycompat import exec_, iteritems, listvalues, text_type
 
 from nicos.clients.gui.config import tabbed

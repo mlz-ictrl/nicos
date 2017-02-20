@@ -22,59 +22,7 @@
 #
 # *****************************************************************************
 
-"""NICOS daemon protocol helpers."""
-
-import struct
-
-from nicos.pycompat import cPickle as pickle
-
-
-# default port for the daemon
-
-DEFAULT_PORT = 1301
-
-# protocol version, increment this whenever making changes to command
-# arguments or adding new commands
-
-PROTO_VERSION = 17
-
-# old versions with which the client is still compatible
-# (currently none)
-
-COMPATIBLE_PROTO_VERSIONS = []
-
-# message serialization/deserialization
-
-# to encode payload lengths as network-order 32-bit unsigned int
-LENGTH = struct.Struct('>I')
-
-# command frame (client -> daemon)
-# frame format: ENQ + commandcode (3 bytes) + LENGTH + payload
-ENQ = b'\x05'
-
-# one-byte response without length
-# frame format: ACK
-ACK = b'\x06'   # executed ok, no further information follows
-
-# error response with payload
-# frame format: NAK + LENGTH + payload
-NAK = b'\x15'   # error occurred, message follows
-
-# response with payload
-# frame format: STX + LENGTH + payload
-STX = b'\x03'   # executed ok, reply follows
-
-# also for events
-# frame format: STX + eventcode (3 bytes) + LENGTH + payload
-
-
-# to serialize/unserialize payload data:
-
-def serialize(data):
-    """Serialize an object."""
-    return pickle.dumps(data, 2)
-
-unserialize = pickle.loads   # Unserialize an object.
+"""NICOS daemon protocol parts common to server and client."""
 
 # pyctl status constants
 
@@ -96,6 +44,7 @@ BREAK_IMMEDIATE = 5   # immediate stop
 # tuples of
 # - command name
 # - command code (integer < 65535, will be converted to 2 bytes)
+#   (not used in all protocols)
 
 DAEMON_COMMANDS = {
     # script control commands
@@ -143,14 +92,6 @@ ACTIVE_COMMANDS = set((
     'start', 'queue', 'unqueue', 'rearrange', 'update',
     'break', 'continue', 'stop', 'finish', 'exec',  # 'emergency' is allowed
 ))
-
-_codefmt = struct.Struct('>H')
-
-command2code, code2command = {}, {}
-for _name, _number in DAEMON_COMMANDS.items():
-    _enc = _codefmt.pack(_number)
-    command2code[_name] = _enc
-    code2command[_enc] = _name
 
 # daemon event specification
 
@@ -217,18 +158,108 @@ DAEMON_EVENTS = {
     'simmessage':  (True, 0x101B),
 }
 
-event2code, code2event = {}, {}
-for _name, (_, _number) in DAEMON_EVENTS.items():
-    _enc = _codefmt.pack(_number)
-    event2code[_name] = _enc
-    code2event[_enc] = _name
-
-
 # possible states of ETA simulation
 
 SIM_STATES = {
     'pending': 0x01,
     'running': 0x02,
     'success': 0x03,
-    'failed': 0x04,
+    'failed':  0x04,
 }
+
+
+class ProtocolError(Exception):
+    """Exception to be raised on protocol/serialization errors."""
+
+
+class CloseConnection(Exception):
+    """Exception to be raised to close the connection gracefully."""
+
+
+class Server(object):
+    """Represents a server, should create a transport for each client."""
+
+    def __init__(self, daemon, address, serializer):
+        self.daemon = daemon
+        self.serializer = serializer
+
+    def start(self, interval):
+        raise NotImplementedError
+
+    def stop(self):
+        raise NotImplementedError
+
+    def close(self):
+        raise NotImplementedError
+
+    def emit(self, event, data, handler=None):
+        raise NotImplementedError
+
+
+class ServerTransport(object):
+    """Represents the transport of data, server side."""
+
+    def close(self):
+        raise NotImplementedError
+
+    def get_version(self):
+        raise NotImplementedError
+
+    def recv_command(self):
+        raise NotImplementedError
+
+    def send_ok_reply(self, payload):
+        raise NotImplementedError
+
+    def send_error_reply(self, reason):
+        raise NotImplementedError
+
+    def send_event(self, evtname, payload):
+        raise NotImplementedError
+
+
+class ClientTransport(object):
+    """Represents the transport of data, client side."""
+
+    def connect(self, conndata):
+        raise NotImplementedError
+
+    def connect_events(self, conndata):
+        raise NotImplementedError
+
+    def disconnect(self):
+        raise NotImplementedError
+
+    def send_command(self, cmdname, args):
+        raise NotImplementedError
+
+    def recv_reply(self):
+        raise NotImplementedError
+
+    def recv_event(self):
+        raise NotImplementedError
+
+
+class Serializer(object):
+    """Represents a serialization format for commands and events."""
+
+    def serialize_cmd(self, cmdname, args):
+        raise NotImplementedError
+
+    def serialize_ok_reply(self, payload):
+        raise NotImplementedError
+
+    def serialize_error_reply(self, reason):
+        raise NotImplementedError
+
+    def serialize_event(self, evtname, payload):
+        raise NotImplementedError
+
+    def deserialize_cmd(self, data, cmd=None):
+        raise NotImplementedError
+
+    def deserialize_reply(self, data, success=None):
+        raise NotImplementedError
+
+    def deserialize_event(self, data, evt=None):
+        raise NotImplementedError

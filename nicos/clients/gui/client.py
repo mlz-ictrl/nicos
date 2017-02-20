@@ -45,7 +45,7 @@ class NicosGuiClient(NicosClient, QObject):
         logger.parent = parent_logger
         NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
-        self._event_mask = set(('livedata', 'liveparams'))
+        self._event_mask = ['livedata', 'liveparams']
         QObject.connect(self, SIGNAL('cache'), self.on_cache_event)
         QObject.connect(self, SIGNAL('connected'), self.on_connected_event)
 
