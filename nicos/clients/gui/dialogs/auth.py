@@ -27,9 +27,9 @@
 from nicos.guisupport.qt import QSize, QDialog, QFontMetrics, QIcon, \
     QListWidgetItem, QPalette, QPyNullVariant
 
-from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
 class ConnectionDialog(QDialog):

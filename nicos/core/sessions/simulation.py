@@ -41,7 +41,6 @@ from nicos.core import SIMULATION, NicosError
 from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
-from nicos.protocols.daemon import serialize, unserialize
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
 from nicos.utils.loggers import recordToMessage
@@ -55,6 +54,13 @@ SIM_MESSAGE = 0x01
 SIM_BLOCK_RES = 0x02
 # the duration for the whole code
 SIM_END_RES = 0x03
+
+
+def serialize(data):
+    return pickle.dumps(data, 2)
+
+
+unserialize = pickle.loads
 
 
 class SimLogSender(logging.Handler):

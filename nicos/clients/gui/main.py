@@ -45,7 +45,7 @@ from nicos.clients.gui.mainwindow import MainWindow
 from nicos.clients.gui.utils import DebugHandler
 from nicos.clients.gui.config import processGuiConfig
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
-from nicos.protocols.daemon import DEFAULT_PORT
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
 log = None

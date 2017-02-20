@@ -58,7 +58,7 @@ def test_simple(client, simple_mode):
 
     # getstatus
     status = client.ask('getstatus')
-    assert status['status'] == (STATUS_IDLE, -1)      # execution status
+    assert status['status'] == [STATUS_IDLE, -1]      # execution status
     assert status['script'] == 'NewSetup stdsystem'   # current script
     assert status['mode'] == MASTER                   # current mode
     assert status['watch'] == {}                      # no watch expressions
@@ -129,9 +129,9 @@ def test_dualaccess(client, adminclient):
     load_setup(client, 'daemontest')
     adminclient.run('fix(dm2, "test")', 'adminfix')
     client.wait_idle()
-    assert "fixed by 'admin'" in client.eval('dm2.fixed')
+    assert "fixed by " in client.eval('dm2.fixed')
     client.run('release(dm2)')
-    assert "fixed by 'admin'" in client.eval('dm2.fixed')
+    assert "fixed by " in client.eval('dm2.fixed')
     client.run('count(10)')
     adminclient.tell('exec', 'release(dm2)')
     client.wait_idle()
