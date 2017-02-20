@@ -28,7 +28,7 @@ from logging import WARNING
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
-    QDialog, QMessageBox, QPushButton, QComboBox
+    QDialog, QMessageBox, QPushButton, QComboBox, QCursor
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
     QByteArray
 
@@ -662,6 +662,9 @@ class ControlDialog(QDialog):
         self.buttonBox.clear()
         self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
 
+        # trigger parameter poll
+        self.client.eval('%s.pollParams()' % self.devname, None)
+
         # now get all cache keys pertaining to the device and set the
         # properties we want
         params = self.client.getDeviceParams(self.devname)
@@ -791,6 +794,26 @@ class ControlDialog(QDialog):
                     self.device_panel.exec_command(
                         'move(%s, %s)' % (srepr(self.devname), srepr(target)))
             self.moveBtns.clicked.connect(callback)
+
+    #@qtsig('')
+    def on_paramList_customContextMenuRequested(self, pos):
+        item = self.paramList.itemAt(pos)
+        if not item:
+            return
+
+        menu = QMenu(self)
+        refreshAction = menu.addAction('Refresh')
+        menu.addAction('Refresh all')
+
+        # QCursor.pos is more reliable then the given pos
+        action = menu.exec_(QCursor.pos())
+
+        if action:
+            cmd = '%s.pollParams(volatile_only=False%s)' \
+                  % (self.devname, ', param_list=[%r]' % item.text(0)
+                     if action == refreshAction else '')
+            # poll even non volatile parameter as requested explicitely
+            self.client.eval(cmd, None)
 
     @qtsig('')
     def on_actionSetLimits_triggered(self):
