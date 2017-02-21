@@ -33,7 +33,7 @@ Cache protocol documentation
 * The protocol is line-based.  The basic syntax for a line (requests and
   responses) is ::
 
-    [time1] [+|-] [time2] [@] key op [value] newline
+    [time1] [+|-] [time2] [@] key [flags] op [value] newline
 
   The ``op`` is one character and decides the basic meaning of the request or
   response.  Symbolic constants for the ``op`` are defined in the module
