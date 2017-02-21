@@ -202,9 +202,11 @@ class MemoryCacheDatabase(CacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
+        always_send_update = False
         # remove no-store flag
         if key.endswith(FLAG_NO_STORE):
             key = key[:-len(FLAG_NO_STORE)]
+            always_send_update = True
         try:
             category, subkey = key.rsplit('/', 1)
         except ValueError:
@@ -224,7 +226,7 @@ class MemoryCacheDatabase(CacheDatabase):
                         send_update = False
                 # never cache more than a single entry, memory fills up too fast
                 entries[:] = [Entry(time, ttl, value)]
-            if send_update:
+            if send_update or always_send_update:
                 for client in self._server._connected.values():
                     if client is not from_client and client.is_active():
                         client.update(key, OP_TELL, value or '', time, ttl)
@@ -267,9 +269,11 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
+        always_send_update = False
         # remove no-store flag
         if key.endswith(FLAG_NO_STORE):
             key = key[:-len(FLAG_NO_STORE)]
+            always_send_update = True
         try:
             category, subkey = key.rsplit('/', 1)
         except ValueError:
@@ -288,7 +292,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
                     # not a real update
                     send_update = False
                 entries.append(Entry(time, ttl, value))
-            if send_update:
+            if send_update or always_send_update:
                 for client in self._server._connected.values():
                     if client is not from_client and client.is_active():
                         client.update(key, OP_TELL, value or '', time, ttl)
@@ -697,10 +701,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                         # but don't write an update to the history file
                         entry.time = time
                         entry.ttl = ttl
-                        update = False
+                        update = not store_on_disk
                     elif value is None and entry.expired:
                         # do not delete old value, it is already expired
-                        update = False
+                        update = not store_on_disk
                 if update:
                     db[subkey] = Entry(time, ttl, value)
                     if store_on_disk:
