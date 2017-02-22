@@ -41,6 +41,9 @@ If not mentioned otherwise, Python packages are available from PyPi
   - rsa (for encrypted daemon authentication)
   - ldap3 (for ldap authentication)
   - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)
+  - keyring,  keyrings.alt, PyCrypto for encrypted password storage (note: using
+    the keystore commandline programm may require additional system dependent
+    dependecies)
 
 * For the GUI and status monitor (Due to limitations in the used graphics
   libraries, only Python2 (>=2.7.4) is supported):
@@ -82,24 +85,16 @@ Development and documentation build dependencies can be installed with::
 
 pip can be obtained from https://pip.pypa.io/en/stable/
 
-For xBuntu 12.04:
-
-Install pip::
+For Ubuntu::
 
   sudo apt-get install python-pip
-
-Pip on xBuntu 12.04 is an outdated version, we need at least pip 1.4. To update
-pip use the following lines::
-
-  sudo pip install --upgrade pip
-  hash -r
 
 
 Packages to install for common distributions
 --------------------------------------------
 
-xBuntu 12.04
-^^^^^^^^^^^^
+Ubuntu
+^^^^^^
 
 * Basic system:
 
@@ -107,7 +102,7 @@ xBuntu 12.04
 
 * Optional components:
 
-  apt-get install python-{mysqldb,docutils,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector}
+  apt-get install python-{mysqldb,docutils,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector,crypto}
 
 * GUI and status monitor:
 

@@ -55,6 +55,7 @@ class config(object):
     simple_mode = False
     sandbox_simulation = False
     services = 'cache,poller'
+    keystorepaths = ['/etc/nicos/keystore', '~/.config/nicos/keystore']
 
 
 # read nicos.conf files
