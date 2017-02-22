@@ -32,11 +32,13 @@ except ImportError:
     # fallback
     import json
 
+
 from nicos import nicos_version, custom_version, config
 from nicos.core import Param, Override, none_or
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
 from nicos.utils import getfqdn
+from nicos.utils.credentials.keystore import nicoskeystore
 from nicos.pycompat import urllib
 
 TIME_FMT = '%Y-%m-%d %H:%M:%S'
@@ -56,13 +58,27 @@ class PushVersionInfo(BaseCacheClient):
       service [opt.]
       base_version  \  these two are only posted
       base_host     /  from this service
+
+    Setting of the token can be done:
+        a) with the nicos-keystore tool:
+
+          `nicos-keystore add <tokenid>`
+
+        b) with the keyring tool from th keyring package (this may require
+           additional dependencies to be installed):
+
+           `keyring -b keyrings.alt.file.EncryptedKeyring set nicos <tokenid>`
+
     """
 
     parameters = {
         'update_uri': Param('URI to send version information to, or None to '
-                            'disable. Version info is directly appended to '
-                            'the URI, encoded as a query parameter',
-                            type=none_or(str), mandatory=True),
+                            'disable. The access token and Version info is '
+                            'directly appended to the URI, encoded as a '
+                            'query parameter.',
+                            type=none_or(str), mandatory=True, userparam=False),
+        'tokenid': Param('Id used in the keystore for the update token',
+                         type=str, default='frm2jenkins'),
         'infokey':    Param('URI parameter key for the info dict', type=str,
                             mandatory=True),
     }
@@ -70,6 +86,14 @@ class PushVersionInfo(BaseCacheClient):
     parameter_overrides = {
         'prefix':     Override(mandatory=False, default='sysinfo/'),
     }
+
+    def doInit(self, mode):
+        if self.update_uri is None:
+            self.log.warn('No update URI configured, updates will not be sent')
+        if  not nicoskeystore.getCredential(self.tokenid):
+            self.log.warn('No token %s found in keystore, updates will not be '
+                          'sent' % self.tokenid)
+        BaseCacheClient.doInit(self, mode)
 
     def _connect_action(self):
         BaseCacheClient._connect_action(self)
@@ -109,12 +133,23 @@ class PushVersionInfo(BaseCacheClient):
         # make json
         if not self.update_uri:
             return
+
+        token = nicoskeystore.getCredential(self.tokenid)
+        if not token:
+            return
         if infodict is None:
             infodict = self.getDaemonInfo()
 
-        paramdict = {self.infokey: json.dumps(infodict)}
-        update_string = self.update_uri + urllib.parse.urlencode(paramdict)
+        paramdict = {self.infokey: json.dumps(infodict),
+                     'token': token}
+        append = ''
+        if '?' not in self.update_uri:
+            append = '?'
+        elif not self.update_uri[-1] == '&':
+            append = '&'
 
+        update_string = self.update_uri + append
+        update_string += urllib.parse.urlencode(paramdict)
         try:
             urllib.request.urlopen(update_string)
             self.log.debug('update sent successfully for %s',
