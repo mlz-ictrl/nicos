@@ -42,10 +42,13 @@ try:
     import io
 except ImportError:
     quickyaml = None
-    from yaml import add_representer, dump, representer
+    try:
+        from yaml import add_representer, dump, representer
 
-    add_representer(AutoDefaultODict,
-                    representer.SafeRepresenter.represent_dict)
+        add_representer(AutoDefaultODict,
+                        representer.SafeRepresenter.represent_dict)
+    except ImportError:
+        yaml = None
 
 
 class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
@@ -464,7 +467,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             quickyaml.Dumper(width=self.max_yaml_width,
                              array_handling=quickyaml.ARRAY_AS_SEQ).dump(
                                  self._data, self._file)
-        else:
+        elif yaml:
             dump(self._data, self._file, allow_unicode=True, canonical=False,
                  default_flow_style=False, indent=4)
         self._file.flush()
