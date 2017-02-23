@@ -29,7 +29,6 @@ from __future__ import print_function
 import sys
 import time
 import logging
-import subprocess
 from os import path
 from threading import Thread
 
@@ -41,6 +40,7 @@ from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.protocols.daemon import serialize, unserialize
+from nicos.utils import createSubprocess
 from nicos.utils.loggers import TRANSMIT_ENTRIES
 from nicos.utils.messaging import nicos_zmq_ctx
 from nicos.pycompat import iteritems, exec_
@@ -214,7 +214,7 @@ class SimulationSupervisor(Thread):
         port = socket.bind_to_random_port('tcp://127.0.0.1')
         userstr = '%s,%d' % (user.name, user.level)
         # start nicos-simulate process
-        proc = subprocess.Popen([sys.executable, scriptname,
+        proc = createSubprocess([sys.executable, scriptname,
                                  str(port), prefix, ','.join(setups),
                                  userstr, code] + args)
         while True:

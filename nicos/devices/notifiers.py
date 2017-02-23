@@ -30,7 +30,7 @@ from time import time as currenttime
 from nicos.core import Device, Param, listof, mailaddress, oneof, tupleof, \
     usermethod, floatrange
 from nicos.pycompat import text_type
-from nicos.utils import createThread
+from nicos.utils import createThread, createSubprocess
 from nicos.utils.emails import sendMail
 
 
@@ -185,7 +185,7 @@ class SMSer(Notifier):
         self.log.debug('sending SMS to %s', ', '.join(receivers))
         try:
             for receiver in receivers:
-                proc = subprocess.Popen(['sendsms', '-Q', '-d', receiver,
+                proc = createSubprocess(['sendsms', '-Q', '-d', receiver,
                                          '-m', body, self.server],
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT)

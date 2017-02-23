@@ -48,7 +48,7 @@ from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
 from nicos.devices.notifiers import Mailer
 from nicos.devices.cacheclient import CacheClient
-from nicos.utils import tcpSocket
+from nicos.utils import tcpSocket, createSubprocess
 from nicos.utils.loggers import NicosLogger, ACTION
 from nicos.pycompat import exec_, reraise
 
@@ -419,7 +419,7 @@ def startSubprocess(filename, *args, **kwds):
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
         popen_kwds = dict()
-    proc = subprocess.Popen(
+    proc = createSubprocess(
         [sys.executable, path.join(module_root, 'test', 'bin', filename)] +
         list(args), **popen_kwds)
     proc.nicos_name = name
@@ -483,7 +483,7 @@ def hasGnuplot():
     To be used with the `requires` decorator.
     """
     try:
-        gpProcess = subprocess.Popen(b'gnuplot', shell=True,
+        gpProcess = createSubprocess(b'gnuplot', shell=True,
                                      stdin=subprocess.PIPE, stdout=None)
         gpProcess.communicate(b'exit')
         if gpProcess.returncode:

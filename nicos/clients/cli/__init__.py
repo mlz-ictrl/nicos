@@ -36,7 +36,6 @@ import getpass
 import readline
 import tempfile
 import threading
-import subprocess
 import ctypes
 import ctypes.util
 from os import path
@@ -46,7 +45,7 @@ from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from nicos.clients.base import NicosClient, ConnectionData
 from nicos.clients.cli.txtplot import txtplot
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
-    terminalSize, parseConnectionString
+    terminalSize, parseConnectionString, createSubprocess
 from nicos.utils.loggers import ACTION, INPUT
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
@@ -358,9 +357,9 @@ class NicosCmdClient(NicosClient):
         width = str(self.tsize[0])
         self.out.write('\r\x1b[K\n')
         if self.browser == 'links':
-            subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
+            createSubprocess(['links', '-dump', '-width', width, fn]).wait()
         else:
-            subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
+            createSubprocess(['w3m', '-dump', '-cols', width, fn]).wait()
         # remove tempfile
         try:
             os.unlink(fn)

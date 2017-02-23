@@ -24,12 +24,10 @@
 
 """NICOS GUI tools."""
 
-import subprocess
-
 from PyQt4.QtCore import Qt, QTimer
 from PyQt4.QtGui import QAction
 
-from nicos.utils import importString
+from nicos.utils import importString, createSubprocess
 from nicos.clients.gui.config import tool, cmdtool, menu
 
 
@@ -51,7 +49,7 @@ def runTool(window, tconfig):
             dialog.show()
     elif isinstance(tconfig, cmdtool):
         try:
-            subprocess.Popen(tconfig.cmdline)
+            createSubprocess(tconfig.cmdline)
         except Exception as err:
             window.showError('Could not execute command: %s' % err)
 

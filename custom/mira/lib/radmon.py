@@ -25,6 +25,7 @@
 import subprocess
 
 from nicos.core import Readable, NicosError, status
+from nicos.utils import createSubprocess
 from nicos.pycompat import urllib
 
 
@@ -40,12 +41,12 @@ class RadMon(Readable):
     def doRead(self, maxage=0):
         img = self._op.open('http://miracam.mira.frm2/IMAGE.JPG').read()
         open('/tmp/radmon.jpg', 'wb').write(img)
-        p1 = subprocess.Popen('/usr/local/bin/ssocr -d 3 -i 1 -t 50 -l maximum '
+        p1 = createSubprocess('/usr/local/bin/ssocr -d 3 -i 1 -t 50 -l maximum '
                               'rotate 1 crop 300 157 57 30 '
                               'make_mono invert keep_pixels_filter 5 '
                               '/tmp/radmon.jpg'.split(),
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p2 = subprocess.Popen('/usr/local/bin/ssocr -d 1 -i 1 -t 50 -l maximum '
+        p2 = createSubprocess('/usr/local/bin/ssocr -d 1 -i 1 -t 50 -l maximum '
                               'rotate 1 crop 391 125 20 30 '
                               'make_mono invert keep_pixels_filter 5 '
                               '/tmp/radmon.jpg'.split(),

@@ -30,14 +30,14 @@ import errno
 import signal
 import traceback
 import threading
-import subprocess
 from os import path
 from time import time as currenttime, sleep
 
 from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError, DeviceAlias
-from nicos.utils import whyExited, watchFileContent, loggers, createThread
+from nicos.utils import whyExited, watchFileContent, loggers, createThread, \
+    createSubprocess
 from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue, itervalues
 
@@ -477,7 +477,7 @@ class Poller(Device):
 
     def _start_child(self, setup):
         poller_script = path.join(config.nicos_root, 'bin', 'nicos-poller')
-        process = subprocess.Popen([sys.executable, poller_script, setup])
+        process = createSubprocess([sys.executable, poller_script, setup])
         # we need to keep a reference to the Popen object, since it calls
         # os.wait() itself in __del__
         self._children[setup] = process

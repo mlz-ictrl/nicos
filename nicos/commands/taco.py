@@ -29,7 +29,7 @@ import subprocess
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.utils import printTable
+from nicos.utils import printTable, createSubprocess
 from nicos.pycompat import string_types
 
 from nicos.devices.taco.core import TacoDevice
@@ -64,7 +64,7 @@ def TacoRes(dev):
 
 
 def _list_devices(server):
-    subp = subprocess.Popen('/opt/taco/bin/db_devicelist -n %s' % server,
+    subp = createSubprocess('/opt/taco/bin/db_devicelist -n %s' % server,
                             shell=True, stdout=subprocess.PIPE)
     out = subp.communicate()[0]
     for line in out.splitlines():

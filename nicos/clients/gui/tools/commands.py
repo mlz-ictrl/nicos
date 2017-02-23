@@ -31,6 +31,7 @@ from PyQt4.QtGui import QDialog, QPushButton
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
+from nicos.utils import createSubprocess
 
 
 class CommandsTool(QDialog):
@@ -64,7 +65,7 @@ class CommandsTool(QDialog):
     def execute(self, cmd):
         self.outputBox.setPlainText('[%s] Executing %s...\n' %
                                     (time.strftime('%H:%M:%S'), cmd))
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+        proc = createSubprocess(cmd, shell=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
         out = proc.communicate()[0].decode()
         self.outputBox.appendPlainText(out)

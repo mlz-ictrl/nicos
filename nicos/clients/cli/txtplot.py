@@ -24,6 +24,8 @@
 
 import subprocess
 
+from nicos.utils import createSubprocess
+
 
 def txtplot(x, y, xlab, ylab, xterm_mode=False):
     """Plot data with gnuplot's dumb ASCII terminal."""
@@ -33,7 +35,7 @@ def txtplot(x, y, xlab, ylab, xterm_mode=False):
         raise ValueError('Unequal lengths of X and Y values')
 
     try:
-        gnuplot = subprocess.Popen(['gnuplot', '--persist'], shell=False,
+        gnuplot = createSubprocess(['gnuplot', '--persist'], shell=False,
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)

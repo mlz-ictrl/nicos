@@ -24,17 +24,20 @@
 
 """Generate quick overview plots of scans, using Gnuplot."""
 
-from nicos.pycompat import to_utf8
-
 import subprocess
+
+from nicos.utils import createSubprocess
+from nicos.pycompat import to_utf8
 
 
 def plotDataset(dataset, fn, fmt):
     if not dataset.xresults:
         raise ValueError('no points in dataset')
 
-    gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    gpProcess = createSubprocess('gnuplot', shell=True,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
 
     def write(s):
         gpProcess.stdin.write(to_utf8(s))

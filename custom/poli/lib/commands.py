@@ -41,7 +41,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.spm import spmsyntax, Bare
 from nicos.core.scan import Scan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.pycompat import number_types, iteritems, string_types
-from nicos.utils import printTable
+from nicos.utils import printTable, createSubprocess
 
 __all__ = [
     'lubricate_liftingctr',
@@ -746,7 +746,7 @@ n                                ! extended output
                 R2D(pos.gamma), R2D(pos.omega), R2D(pos.nu), intensity, sigma))
 
     session.log.info('Running Indexus...')
-    proc = subprocess.Popen(['indexus'], cwd=root, stdout=subprocess.PIPE,
+    proc = createSubprocess(['indexus'], cwd=root, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
     output = proc.communicate()[0]
     if 'unable to find solution' in output:

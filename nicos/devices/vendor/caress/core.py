@@ -47,6 +47,7 @@ from nicos.core import HasCommunication, Override, POLLER, Param, SIMULATION, \
     absolute_path, none_or, status
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     InvalidValueError, NicosError, ProgrammingError
+from nicos.utils import createSubprocess
 
 
 CORBA_DEVICE = 500
@@ -140,7 +141,7 @@ class CARESSDevice(HasCommunication):
                 session.delay(0.5)
             return self.cid
         self.log.debug('Get CARESS device ID: %r', device)
-        answer = subprocess.Popen('cd %s && %s/dump_u1 -n %s' %
+        answer = createSubprocess('cd %s && %s/dump_u1 -n %s' %
                                   (self.caresspath, self.toolpath, device, ),
                                   shell=True,
                                   stdout=subprocess.PIPE).stdout.read()

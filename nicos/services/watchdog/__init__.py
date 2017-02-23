@@ -25,7 +25,6 @@
 """The NICOS watchdog daemon."""
 
 import ast
-import subprocess
 import sys
 
 from collections import OrderedDict
@@ -38,7 +37,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.pycompat import iteritems, listitems
-from nicos.utils import lc_dict
+from nicos.utils import lc_dict, createSubprocess
 
 
 class Entry(object):
@@ -457,7 +456,7 @@ class Watchdog(BaseCacheClient):
     def _spawn_action(self, action):
         self.log.warning('will execute action %r', action)
         script = path.join(config.nicos_root, 'bin', 'nicos-script')
-        subprocess.Popen([sys.executable,
+        createSubprocess([sys.executable,
                           script,
                           '-M',                     # start in maintenance mode
                           '-S', '60',               # abort after 60 seconds

@@ -35,6 +35,7 @@ import socket
 import linecache
 import threading
 import traceback
+import subprocess
 import unicodedata
 from os import path
 from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
@@ -417,6 +418,17 @@ def runAsync(func):
     def inner(*args, **kwargs):
         createThread('runAsync %s' % func, func, args=args)
     return inner
+
+
+def createSubprocess(cmdline, **kwds):
+    """Create a subprocess.Popen with the proper setting of close_fds."""
+    if 'close_fds' not in kwds:
+        # only supported on Posix and (Windows if not redirected)
+        if os.name == 'posix' or not (kwds.get('stdin') or
+                                      kwds.get('stdout') or
+                                      kwds.get('stderr')):
+            kwds['close_fds'] = True
+    return subprocess.Popen(cmdline, **kwds)
 
 
 def parseDateString(s, enddate=False):
