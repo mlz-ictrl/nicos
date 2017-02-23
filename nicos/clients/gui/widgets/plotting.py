@@ -619,4 +619,5 @@ class ViewPlotMixin(object):
 try:
     from nicos.clients.gui.widgets.grplotting import DataSetPlot, ViewPlot
 except ImportError:
-    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot, ViewPlot
+    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot, ViewPlot, \
+        NicosQwtPlot

@@ -26,19 +26,41 @@
 import numpy
 
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QPen, QSizePolicy, QStatusBar
+from PyQt4.QtGui import QFont, QGridLayout, QPen, QSizePolicy
 
-from PyQt4.Qwt5 import QwtPicker, QwtPlot, QwtPlotCurve, QwtPlotPanner, \
-    QwtPlotPicker, QwtPlotZoomer
+from PyQt4.Qwt5 import QwtPlotCurve
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.plots import ActivePlotPicker
-from nicos.utils import findResource
+from nicos.clients.gui.widgets.plotting import NicosQwtPlot
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
+
+
+class LiveDataPlot(NicosQwtPlot):
+
+    def __init__(self, parent, window):
+        NicosQwtPlot.__init__(self, parent, window)
+
+    def titleString(self):
+        return 'Live data'
+
+    def xaxisName(self):
+        return 'tths (deg)'
+
+    def yaxisName(self):
+        return 'Counts'
+
+    def addAllCurves(self):
+        self.curve = QwtPlotCurve('Live spectrum')
+        self.curve.setPen(QPen(Qt.black, 1))
+        self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        self.curve.attach(self)
+
+    def setCurveData(self, data):
+        self.curve.setData(data[0], data[1])
+        self.replot()
 
 
 class LiveDataPanel(Panel):
@@ -49,49 +71,31 @@ class LiveDataPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'live.ui', findResource('custom/spodi/lib/gui/panels'))
+        self.gridLayout = QGridLayout(self)
 
-        self.statusBar = QStatusBar(self, sizeGripEnabled=False)
+        self.user_color = Qt.white
+        self.user_font = QFont('monospace')
+
+        # parent should be a QMainWindow, which has it's own status bar
+        self.statusBar = parent.statusBar()
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
-        self.layout().addWidget(self.statusBar)
+
+        self.dataPlot = LiveDataPlot(self, self)
+        self.gridLayout.addWidget(self.dataPlot, 0, 0, 1, 1)
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('setup'), self.on_client_connected)
-
-        self.curve = QwtPlotCurve('')
-        self.curve.setPen(QPen(Qt.black, 1))
-        self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-        self.curve.attach(self.dataPlot)
-        self.dataPlot.setAxisTitle(QwtPlot.xBottom, 'tths (deg)')
-        self.dataPlot.setAxisTitle(QwtPlot.yLeft, 'Counts')
-
-        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
-                                    self.dataPlot.canvas())
-        self.zoomer.initMousePattern(2)  # don't bind middle button
-        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
-                     self.on_zoomer_zoomed)
-
-        self.panner = QwtPlotPanner(self.dataPlot.canvas())
-        self.panner.setMouseButton(Qt.MidButton)
-
-        self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
-                                       QwtPicker.PointSelection |
-                                       QwtPicker.DragSelection,
-                                       QwtPlotPicker.NoRubberBand,
-                                       QwtPicker.AlwaysOff,
-                                       self.dataPlot.canvas())
-        self.dataPlot.canvas().setMouseTracking(True)
+        if client.connected:
+            self.on_client_connected()
 
     def on_client_livedata(self, data):
         if len(data):
-            self.log.debug('%d %d', self._nx, self._ny)
             d = numpy.frombuffer(data, dtype=self._dtype)
-            self.log.debug('%d', sum(d))
             if sum(d):
                 d = numpy.reshape(d, (self._nx, self._ny), order='F')
                 det = self.client.eval('adet._startpos, adet.resosteps, '
@@ -99,16 +103,8 @@ class LiveDataPanel(Panel):
                 step = det[2] / det[1]
                 start = det[0] - (det[2] - step)
                 end = start + self._nx * step
-                self.curve.setData(numpy.arange(start, end, step),
-                                   numpy.sum(d, axis=1))
-                self.dataPlot.replot()
-
-    def on_zoomer_zoomed(self, rect):
-        # when zooming completely out, reset to auto scaling
-        if self.zoomer.zoomRectIndex() == 0:
-            self.dataPlot.setAxisAutoScale(QwtPlot.xBottom)
-            self.dataPlot.setAxisAutoScale(QwtPlot.yLeft)
-            self.zoomer.setZoomBase()
+                self.dataPlot.setCurveData((numpy.arange(start, end, step),
+                                            numpy.sum(d, axis=1)))
 
     def on_client_connected(self):
         self.client.tell('eventunmask', ['livedata', 'liveparams'])
