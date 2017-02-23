@@ -48,25 +48,18 @@ class AuthenticationError(Exception):
     pass
 
 
-class Authenticator(Device):
+def UserPassLevelAuthEntry(val=None):
+    """Provide a 3-tuple of user, level and password
 
-    def authenticate(self, username, password):
-        """Authenticate a user with given username and password hash.
-
-        On success, must return a User object.  On failure, must raise
-        `AuthenticationError`.
-
-        The default implementation accepts any user and password and grants
-        ADMIN user level.
-        """
-        return User(username, ADMIN)
-
-
-def auth_entry(val=None):
+        * user: string
+        * level: oneof(ACCESS_LEVELS)
+           currently: GUEST, USER, ADMIN
+        * password: string
+    """
     val = list(val)
     if len(val) != 3:
-        raise ValueError('auth entry needs to be a 3-tuple '
-                         '(name, password, accesslevel)')
+        raise ValueError('UserPassLevelAuthEntry entry needs to be '
+                         'a 3-tuple (name, password, accesslevel)')
     if not isinstance(val[0], string_types):
         raise ValueError('user name must be a string')
     val[0] = val[0].strip()
@@ -90,6 +83,36 @@ def auth_entry(val=None):
             raise ValueError('access level must be one of %s' %
                              ', '.join(map(repr, ACCESS_LEVELS.values())))
     return tuple(val)
+
+
+def UserLevelAuthEntry(val=None):
+    """Provide a 2-tuple of user and level
+
+        * user: string
+        * level: oneof(ACCESS_LEVELS)
+           currently: GUEST, USER, ADMIN
+    """
+    if len(val) != 2:
+        raise ValueError('UserLevelAuthEntry entry needs to be a 2-tuple '
+                         '(name, accesslevel)')
+    user, _p, level = UserPassLevelAuthEntry((val[0], '', val[1]))
+    return tuple((user, level))
+
+
+class Authenticator(Device):
+
+    def authenticate(self, username, password):
+        """Authenticate a user with given username and password hash.
+
+        On success, must return a User object.  On failure, must raise
+        `AuthenticationError`.
+
+        The default implementation accepts any user and password and grants
+        ADMIN user level.
+        """
+        return User(username, ADMIN)
+
+
 
 
 class LDAPAuthenticator(Authenticator):
@@ -221,7 +244,7 @@ class ListAuthenticator(Authenticator):
         'hashing': Param('Type of hash used for the password (sha1 or md5)',
                          type=oneof('sha1', 'md5')),
         'passwd':  Param('List of (username, password_hash, userlevel) tuples',
-                         type=listof(auth_entry)),
+                         type=listof(UserPassLevelAuthEntry)),
     }
 
     def _hash(self, password):
@@ -290,33 +313,6 @@ class PamAuthenticator(Authenticator):
                                       % err)
 
 
-def auth_entry2(val=None):
-    val = list(val)
-    if len(val) != 2:
-        raise ValueError('auth entry needs to be a 2-tuple '
-                         '(name, accesslevel)')
-    if not isinstance(val[0], string_types):
-        raise ValueError('user name must be a string')
-    val[0] = val[0].strip()
-    if isinstance(val[1], string_types):
-        for i, name in ACCESS_LEVELS.items():
-            if name == val[1].strip():
-                val[1] = i
-                break
-        else:
-            raise ValueError('access level must be one of %s' %
-                             ', '.join(map(repr, ACCESS_LEVELS.values())))
-    elif not isinstance(val[1], int):
-        # for backwards compatibility: allow integer values as well
-        raise ValueError('access level must be one of %s' %
-                         ', '.join(map(repr, ACCESS_LEVELS.values())))
-    else:
-        if val[1] not in ACCESS_LEVELS:
-            raise ValueError('access level must be one of %s' %
-                             ', '.join(map(repr, ACCESS_LEVELS.values())))
-    return tuple(val)
-
-
 class KeystoreAuthenticator(Authenticator):
     """Authenticates against the fixed list of usernames, and
     user levels given in the "access" parameter (in order).
@@ -338,7 +334,7 @@ class KeystoreAuthenticator(Authenticator):
 
     parameters = {
         'access': Param('List of (username, userlevel) tuples',
-                        type=listof(auth_entry2)),
+                        type=listof(UserLevelAuthEntry)),
         'userdomain': Param('Keystore domain for user/pw authentication',
                             type=str, mandatory=False, settable=False,
                             default='nicos_user'),

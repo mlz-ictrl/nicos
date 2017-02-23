@@ -28,8 +28,9 @@ import tempfile
 import shutil
 from os import path
 
-from nicos.services.daemon.auth import auth_entry, auth_entry2, \
-    ListAuthenticator, KeystoreAuthenticator, AuthenticationError
+from nicos.services.daemon.auth import UserLevelAuthEntry, \
+    UserPassLevelAuthEntry, ListAuthenticator, KeystoreAuthenticator, \
+    AuthenticationError
 from nicos.core import GUEST, USER, ADMIN, User, NicosError
 from nicos.utils.credentials.keystore import nicoskeystore
 
@@ -39,25 +40,51 @@ from nicos.pycompat import to_utf8
 session_setup = 'empty'
 
 
-def test_auth_entry():
-    assert auth_entry(['user', 'passwd', 'user']) == ('user', 'passwd', USER)
-    assert auth_entry(['user', 'passwd', USER]) == ('user', 'passwd', USER)
-    assert auth_entry([' user ', 'passwd', USER]) == ('user', 'passwd', USER)
-    assert auth_entry(['user', ' passwd ', USER]) == ('user', 'passwd', USER)
-    assert raises(ValueError, auth_entry, ['user', 'passwd', 'xxx'])
-    assert raises(ValueError, auth_entry, ['user', 'passwd', -1])
-    assert raises(ValueError, auth_entry, ['user', 'passwd', ()])
-    assert raises(ValueError, auth_entry, [['user'], 'passwd', 'user'])
-    assert raises(ValueError, auth_entry, ['user', ['passwd'], 'user'])
+class TestUserPassLevelAuthEntry(object):
 
-def test_auth_entry2():
-    assert auth_entry2(['user', 'user']) == ('user', USER)
-    assert auth_entry2(['user', USER]) == ('user', USER)
-    assert auth_entry2([' user ', USER]) == ('user', USER)
-    assert raises(ValueError, auth_entry2, ['user', 'xxx'])
-    assert raises(ValueError, auth_entry2, ['user', -1])
-    assert raises(ValueError, auth_entry2, ['user', ()])
-    assert raises(ValueError, auth_entry2, [['user'], 'user'])
+    @pytest.mark.parametrize("inp, outp", [
+        [['user', 'passwd', 'user'], ('user', 'passwd', USER)],
+        [['user', 'passwd', USER], ('user', 'passwd', USER)],
+        [[' user ', 'passwd', USER], ('user', 'passwd', USER)],
+        [['user', ' passwd ', USER], ('user', 'passwd', USER)],
+    ], ids=str)
+    def test_auth_entry(self, inp, outp):
+        assert UserPassLevelAuthEntry(inp) == outp
+
+    @pytest.mark.parametrize("inp", [
+        (['user', 'passwd', 'xxx']),
+        (['user', 'passwd', -1]),
+        (['user', 'passwd', ()]),
+        ([['user'], 'passwd', 'user']),
+        (['user', ['passwd'], 'user']),
+        (['user']),
+        (['user', 'passwd']),
+        (['user', 'passwd', USER, 'garbage']),
+    ], ids=str)
+    def test_wrong_auth_entry(self, inp):
+        assert raises(ValueError, UserPassLevelAuthEntry, inp)
+
+
+class TestUserLevelAuthEntry(object):
+
+    @pytest.mark.parametrize("inp, outp", [
+        [['user', 'user'], ('user', USER)],
+        [['user', USER], ('user', USER)],
+        [[' user ', USER], ('user', USER)],
+    ], ids=str)
+    def test_auth_entry(self, inp, outp):
+        assert UserLevelAuthEntry(inp) == outp
+
+    @pytest.mark.parametrize("inp", [
+        (['user', 'xxx']),
+        (['user', -1]),
+        (['user', ()]),
+        ([['user'], 'user']),
+        (['user', 'passwd', USER]),
+        (['user'])
+    ], ids=str)
+    def test_wrong_auth_entry(self, inp):
+        assert raises(ValueError, UserLevelAuthEntry, inp)
 
 
 @pytest.fixture(scope='function')
