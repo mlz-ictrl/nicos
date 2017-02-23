@@ -1186,22 +1186,18 @@ class Readable(Device):
 
     def pollParams(self, volatile_only=True, blocking=False, with_ttl=0,
                    param_list=None):
-        """Poll all parameters (default: only volatile ones).
-        """
+        """Poll all parameters (normally only volatile ones)."""
         if param_list is None:
-            param_list = self.parameters.keys()
-
-        params = []
-        for entry in param_list:
-            if (not volatile_only or self.parameters[entry].volatile)\
-                    and hasattr(self, 'doRead' + entry):
-                params.append(entry)
-
+            param_list = list(self.parameters)
+        param_list = [param for param in param_list if
+                      self.parameters[param].volatile or
+                      (not volatile_only and
+                       hasattr(self, 'doRead' + param.title()))]
         if blocking:
-            for entry in params:
-                self._pollParam(entry, with_ttl)
+            for param in param_list:
+                self._pollParam(param, with_ttl)
         else:
-            self._cache.put_raw('poller/%s/pollparams' % self.name, params,
+            self._cache.put_raw('poller/%s/pollparams' % self.name, param_list,
                                 flag=FLAG_NO_STORE)
 
     @usermethod

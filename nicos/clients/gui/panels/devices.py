@@ -795,7 +795,6 @@ class ControlDialog(QDialog):
                         'move(%s, %s)' % (srepr(self.devname), srepr(target)))
             self.moveBtns.clicked.connect(callback)
 
-    #@qtsig('')
     def on_paramList_customContextMenuRequested(self, pos):
         item = self.paramList.itemAt(pos)
         if not item:

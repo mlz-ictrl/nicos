@@ -189,7 +189,7 @@ class Poller(Device):
                                 dev._pollParam(event[10:])
                             except Exception:
                                 dev.log.warning('error polling parameter %s',
-                                                 event[10:], exc=True)
+                                                event[10:], exc=True)
 
                     except Queue.Empty:
                         pass  # just poll if timed out
@@ -285,9 +285,8 @@ class Poller(Device):
         # end of while not self._stoprequest
     # end of _worker_thread
 
-    def enqueue_params_poll(self, key, value, time, tell):  # pylint: disable=W0102
+    def enqueue_params_poll(self, key, value, time, tell):
         dev, key = key[len('poller/'):].split('/', 2)
-
         if dev in self._workers:
             worker = self._workers[dev]
             for param in value:
