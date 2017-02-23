@@ -110,7 +110,7 @@ except the **description** entry:
 
    Example::
 
-      modules = ['commands.standard', 'commands.taco']
+      modules = ['commands.standard', 'commands.utility']
 
 ``display_order``
    An integer (range 0-100) that determines how the list of loaded setups is
