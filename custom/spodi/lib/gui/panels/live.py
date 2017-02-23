@@ -67,7 +67,7 @@ class LiveDataPanel(Panel):
         self.curve.setPen(QPen(Qt.black, 1))
         self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.curve.attach(self.dataPlot)
-        self.dataPlot.setAxisTitle(QwtPlot.xBottom, 'Channels')
+        self.dataPlot.setAxisTitle(QwtPlot.xBottom, 'tths (deg)')
         self.dataPlot.setAxisTitle(QwtPlot.yLeft, 'Counts')
 
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
@@ -94,7 +94,12 @@ class LiveDataPanel(Panel):
             self.log.debug('%d', sum(d))
             if sum(d):
                 d = numpy.reshape(d, (self._nx, self._ny), order='F')
-                self.curve.setData(numpy.arange(self._nx),
+                det = self.client.eval('adet._startpos, adet.resosteps, '
+                                       'adet.range', None)
+                step = det[2] / det[1]
+                start = det[0] - (det[2] - step)
+                end = start + self._nx * step
+                self.curve.setData(numpy.arange(start, end, step),
                                    numpy.sum(d, axis=1))
                 self.dataPlot.replot()
 
