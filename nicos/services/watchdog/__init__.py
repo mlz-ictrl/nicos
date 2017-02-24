@@ -52,6 +52,8 @@ class Entry(object):
     type = 'default'
     precondition = ''
     precondtime = 5
+    okmessage = ''
+    okaction = ''
 
     def __init__(self, values):
         self.__dict__.update(values)
@@ -384,6 +386,17 @@ class Watchdog(BaseCacheClient):
                                   ', '.join(self._pausecount.values()),
                                   timestamp=False)
             self.log.info('condition %r normal again', entry.condition)
+
+            if entry.okmessage and entry.type:
+                msg = strftime('%Y-%m-%d %H:%M -- ')
+                msg += '%s\n\nWarning was: %s' % (entry.okmessage,
+                                                  entry.message)
+                for notifier in self._notifiers[entry.type]:
+                    notifier.send('NICOS warning resolved', msg)
+            if entry.okaction:
+                self._put_message('action', entry.okaction)
+                self._spawn_action(entry.okaction)
+
             self._conditions.discard(eid)
         else:
             if eid in self._watch_grace:
