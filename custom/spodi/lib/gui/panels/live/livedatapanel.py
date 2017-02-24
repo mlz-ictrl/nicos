@@ -26,41 +26,15 @@
 import numpy
 
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QFont, QGridLayout, QPen, QSizePolicy
-
-from PyQt4.Qwt5 import QwtPlotCurve
+from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.widgets.plotting import NicosQwtPlot
+
+from nicos.spodi.gui.panels.live.liveqwtplot import LiveDataPlot
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
-
-
-class LiveDataPlot(NicosQwtPlot):
-
-    def __init__(self, parent, window):
-        NicosQwtPlot.__init__(self, parent, window)
-
-    def titleString(self):
-        return 'Live data'
-
-    def xaxisName(self):
-        return 'tths (deg)'
-
-    def yaxisName(self):
-        return 'Counts'
-
-    def addAllCurves(self):
-        self.curve = QwtPlotCurve('Live spectrum')
-        self.curve.setPen(QPen(Qt.black, 1))
-        self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-        self.curve.attach(self)
-
-    def setCurveData(self, data):
-        self.curve.setData(data[0], data[1])
-        self.replot()
 
 
 class LiveDataPanel(Panel):
