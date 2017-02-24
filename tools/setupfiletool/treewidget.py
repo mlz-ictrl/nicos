@@ -235,14 +235,14 @@ class TreeWidget(TreeWidgetContextMenu):
         return None
 
     def addSetup(self):
-        instrument = self.getCurrentInstrument().text(0)
+        instrument = self.getCurrentInstrument()
 
         dlg = NewSetupDialog()
         dlg.comboBoxInstrument.addItems([
             item.text(0) for item in self.topLevelItems
             if item.type() == ItemTypes.Directory])
         dlg.comboBoxInstrument.setCurrentIndex(
-            dlg.comboBoxInstrument.findText(instrument))
+            dlg.comboBoxInstrument.findText(instrument.text(0)))
         if dlg.exec_():
             fileName = dlg.lineEditFileName.text()
             if not fileName:
