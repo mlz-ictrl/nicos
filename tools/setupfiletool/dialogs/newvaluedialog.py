@@ -22,4 +22,19 @@
 #
 # *****************************************************************************
 
-from setupfiletool.dialogs.newvaluedialog import NewValueDialog
+from os import path
+
+from PyQt4 import uic
+from PyQt4.QtGui import QDialog
+
+
+class NewValueDialog(QDialog):
+    def __init__(self, parent=None):
+        super(NewValueDialog, self).__init__(parent)
+        uic.loadUi(path.abspath(path.join(path.dirname(__file__),
+                                          '..',
+                                          'ui',
+                                          'dialogs',
+                                          'newvaluedialog.ui')), self)
+    def getValue(self):
+        return self.lineEditNewValue.text()

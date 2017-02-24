@@ -22,12 +22,16 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtGui import QMenu, QTreeWidgetItem
+from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QMenu, QMessageBox, QTreeWidgetItem
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
+from setupfiletool.dialogs import NewValueDialog
 
 
 class SysconfigWidget(TreeWidgetContextMenu):
+    editedSetup = pyqtSignal()
+
     def __init__(self, parent=None):
         TreeWidgetContextMenu.__init__(self, parent)
         # a list of items of a sysconfig that allow only one value.
@@ -55,7 +59,14 @@ class SysconfigWidget(TreeWidgetContextMenu):
             menu.popup(pos)
 
     def addValue(self):
-        self.currentItem().addChild(QTreeWidgetItem(['<New value>']))
+        dlg = NewValueDialog()
+        if dlg.exec_():
+            value = dlg.getValue()
+            if not value:
+                QMessageBox.warning(self, 'Error', 'No value entered.')
+                return
+            self.currentItem().addChild(QTreeWidgetItem([value]))
+            self.editedSetup.emit()
 
     def getData(self):
         # returns the sysconfig as a dict. the items on self.nonListItems

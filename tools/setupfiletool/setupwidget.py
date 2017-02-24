@@ -51,6 +51,7 @@ class SetupWidget(QWidget):
                               'notifiers']
 
         self.lineEditDescription.textEdited.connect(self.editedSetup.emit)
+        self.treeWidgetSysconfig.editedSetup.connect(self.editedSetup.emit)
         self.comboBoxGroup.activated.connect(self.editedSetup.emit)
 
         self.lineEditDescription.setText(setup.description)
