@@ -46,7 +46,12 @@ class Kappa(PositionBase):
     phi_clockwise = 1
     omega_clockwise = 1
 
-    def __init__(self, p=None, theta=None, omega=None, kappa=None, phi=None, _rad=False):
+    def __init__(self, p=None,
+                 theta=None, ttheta=None,
+                 omega=None,
+                 kappa=None,
+                 phi=None,
+                 _rad=False):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
@@ -57,6 +62,9 @@ class Kappa(PositionBase):
             self.kappa = p.kappa
             self.phi = normalangle(p.phi)
         else:
+            if ttheta is not None:
+                theta = ttheta / 2.
+
             self.theta = self._r2d(theta, _rad)
             self.omega = self._r2d(omega, _rad)
             self.kappa = self._r2d(kappa, _rad)

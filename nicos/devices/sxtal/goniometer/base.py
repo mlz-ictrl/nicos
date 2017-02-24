@@ -58,7 +58,7 @@ def PositionFactory(ptype, **kwds):
             if ptype='l': gamma, omega, nu, signtheta
 
 
-        matrix= 3x3-matrix, c= 3-vector, dx in mm, angles in radians.
+        matrix= 3x3-matrix, c= 3-vector, angles in radians.
 
         Alternatively, a position object 'p' can be passed, and a copy
         will be returned.
