@@ -26,15 +26,15 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QListWidgetItem, QMessageBox, QSpacerItem, QWidget
+from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QMessageBox, QSpacerItem, QWidget
 
 from nicos.guisupport.typedvalue import create
 from nicos.pycompat import string_types
 
 from setupfiletool import classparser
 from setupfiletool.deviceparam import DeviceParam
-from setupfiletool.dialogs.addparameterdialog import AddParameterDialog
+from setupfiletool.dialogs import AddParameterDialog
 
 
 class DeviceWidget(QWidget):
@@ -48,34 +48,15 @@ class DeviceWidget(QWidget):
         self.pushButtonAdd.clicked.connect(self.addParameter)
 
     def addParameter(self):
-        addParameterDialog = AddParameterDialog()
-        missingParameters = [key for key in self.myClass.parameters.keys()
-                             if key not in self.parameters.keys() and
-                             not key.startswith('_')]
-        if missingParameters:
-            for key in sorted(missingParameters):
-                listWidgetItem = QListWidgetItem(
-                    key, addParameterDialog.listWidgetSelectParameter)
-                listWidgetItem.setToolTip(
-                    self.myClass.parameters[key].description)
-                addParameterDialog.listWidgetSelectParameter.addItem(
-                    listWidgetItem)
-        else:
-            addParameterDialog.checkBoxCustomParameter.setChecked(True)
-            addParameterDialog.checkBoxCustomParameter.setEnabled(False)
-            addParameterDialog.lineEditCustomParameter.setEnabled(True)
+        dlg = AddParameterDialog(self.myClass.parameters, self.parameters)
 
-        if addParameterDialog.exec_():
-            if addParameterDialog.checkBoxCustomParameter.checkState()\
-                    == Qt.Checked:
-                param = addParameterDialog.lineEditCustomParameter.text()
-            else:
-                param = addParameterDialog.listWidgetSelectParameter.\
-                    currentItem().text()
+        if dlg.exec_():
+            param = dlg.getValue()
+            if not param:
+                QMessageBox.warning(self, 'Error',
+                                    'No name parameter name entered.')
             if param in self.parameters.keys():
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'Parameter already exists.')
+                QMessageBox.warning(self, 'Error', 'Parameter already exists.')
                 return
             self.parametersLayout.takeAt(self.parametersLayout.count() - 1)
             newParam = self.createParameterWidget(param, '')

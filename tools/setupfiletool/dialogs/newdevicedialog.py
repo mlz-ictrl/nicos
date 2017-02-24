@@ -33,7 +33,7 @@ from setupfiletool import classparser
 
 class NewDeviceDialog(QDialog):
     def __init__(self, classesList, parent=None):
-        super(NewDeviceDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',

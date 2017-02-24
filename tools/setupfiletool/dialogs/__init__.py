@@ -22,4 +22,11 @@
 #
 # *****************************************************************************
 
+from setupfiletool.dialogs.addexcludedialog import AddExcludeDialog
+from setupfiletool.dialogs.addincludedialog import AddIncludeDialog
+from setupfiletool.dialogs.addmoduledialog import AddModuleDialog
+from setupfiletool.dialogs.addparameterdialog import AddParameterDialog
+from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
+from setupfiletool.dialogs.newdevicedialog import NewDeviceDialog
+from setupfiletool.dialogs.newsetupdialog import NewSetupDialog
 from setupfiletool.dialogs.newvaluedialog import NewValueDialog

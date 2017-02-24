@@ -30,7 +30,7 @@ from PyQt4.QtGui import QDialog
 
 class AddSysconfigDialog(QDialog):
     def __init__(self, parent=None):
-        super(AddSysconfigDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',

@@ -30,9 +30,12 @@ from PyQt4.QtGui import QDialog
 
 class AddExcludeDialog(QDialog):
     def __init__(self, parent=None):
-        super(AddExcludeDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
                                           'addexcludedialog.ui')), self)
+
+    def getValue(self):
+        return self.lineEditNewExclude.text()

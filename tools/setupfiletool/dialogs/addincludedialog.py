@@ -30,9 +30,12 @@ from PyQt4.QtGui import QDialog
 
 class AddIncludeDialog(QDialog):
     def __init__(self, parent=None):
-        super(AddIncludeDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
                                           'addincludedialog.ui')), self)
+
+    def getValue(self):
+        return self.lineEditNewInclude.text()

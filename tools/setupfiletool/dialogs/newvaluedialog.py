@@ -30,7 +30,7 @@ from PyQt4.QtGui import QDialog
 
 class NewValueDialog(QDialog):
     def __init__(self, parent=None):
-        super(NewValueDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',

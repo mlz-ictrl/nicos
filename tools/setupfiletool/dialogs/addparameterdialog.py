@@ -21,31 +21,39 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Classes to adding parameters."""
 
 from os import path
 
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
 
 class AddParameterDialog(QDialog):
-    def __init__(self, parent=None):
-        super(AddParameterDialog, self).__init__(parent)
+    def __init__(self, parameters, existingParameters, parent=None):
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
                                           'addparameterdialog.ui')), self)
-        self.checkBoxCustomParameter.stateChanged.connect(
-            self.stateChangedHandler)
-
-    def stateChangedHandler(self, state):
-        if state == Qt.Checked:
-            self.labelHeader.setEnabled(False)
-            self.listWidgetSelectParameter.setEnabled(False)
-            self.lineEditCustomParameter.setEnabled(True)
+        self.lineEditCustomParameter.setHidden(True)
+        missingParameters = [key for key in parameters.keys()
+                             if key not in existingParameters.keys() and
+                             not key.startswith('_')]
+        if missingParameters:
+            for key in sorted(missingParameters):
+                listItem = QListWidgetItem(key, self.listWidgetSelectParameter)
+                listItem.setToolTip(parameters[key].description)
+                self.listWidgetSelectParameter.addItem(listItem)
         else:
-            self.labelHeader.setEnabled(True)
-            self.listWidgetSelectParameter.setEnabled(True)
-            self.lineEditCustomParameter.setEnabled(False)
+            self.checkBoxCustomParameter.setChecked(True)
+            self.checkBoxCustomParameter.setEnabled(False)
+            self.lineEditCustomParameter.setEnabled(True)
+
+    def getValue(self):
+        if self.checkBoxCustomParameter.checkState() == Qt.Checked:
+            return self.lineEditCustomParameter.text()
+        else:
+            return self.listWidgetSelectParameter.currentItem().text()

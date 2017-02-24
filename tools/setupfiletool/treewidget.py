@@ -30,8 +30,7 @@ from PyQt4.QtCore import Qt, pyqtSignal
 from PyQt4.QtGui import QIcon, QMenu, QMessageBox, QTreeWidgetItem
 
 from setupfiletool import classparser, setupcontroller
-from setupfiletool.dialogs.newdevicedialog import NewDeviceDialog
-from setupfiletool.dialogs.newsetupdialog import NewSetupDialog
+from setupfiletool.dialogs import NewDeviceDialog, NewSetupDialog
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 
@@ -240,13 +239,11 @@ class TreeWidget(TreeWidgetContextMenu):
         instrument = self.getCurrentInstrument()
 
         dlg = NewSetupDialog()
-        dlg.comboBoxInstrument.addItems([
-            item.text(0) for item in self.topLevelItems
-            if item.type() == ItemTypes.Directory])
-        dlg.comboBoxInstrument.setCurrentIndex(
-            dlg.comboBoxInstrument.findText(instrument.text(0)))
+        dlg.setInstruments([item.text(0) for item in self.topLevelItems
+                            if item.type() == ItemTypes.Directory])
+        dlg.setCurrentInstrument(instrument.text(0))
         if dlg.exec_():
-            fileName = dlg.lineEditFileName.text()
+            fileName = dlg.getValue()
             if not fileName:
                 QMessageBox.warning(self,
                                     'Error',
@@ -255,17 +252,17 @@ class TreeWidget(TreeWidgetContextMenu):
 
             if not fileName.endswith('.py'):
                 fileName += '.py'
-            if dlg.checkBoxSpecial.isChecked():
+            if dlg.isSpecialSetup():
                 abspath = path.join(getNicosDir(),
                                     'custom',
-                                    dlg.comboBoxInstrument.currentText(),
+                                    dlg.currentInstrument(),
                                     'setups',
                                     'special',
                                     fileName)
             else:
                 abspath = path.join(getNicosDir(),
                                     'custom',
-                                    dlg.comboBoxInstrument.currentText(),
+                                    dlg.currentInstrument(),
                                     'setups',
                                     fileName)
             try:
@@ -276,11 +273,10 @@ class TreeWidget(TreeWidgetContextMenu):
                                     'Could not create new setup!')
                 return
 
-            setupcontroller.addSetup(dlg.comboBoxInstrument.currentText(),
-                                     abspath)
+            setupcontroller.addSetup(dlg.currentInstrument(), abspath)
             newSetup = None
             for setup in setupcontroller.setup_directories[
-                    dlg.comboBoxInstrument.currentText()]:
+                dlg.currentInstrument()]:
                 if setup.abspath == abspath:
                     newSetup = setup
             treeWidgetItem = QTreeWidgetItem(['*' + newSetup.name],

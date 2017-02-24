@@ -84,5 +84,53 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxCustomParameter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEditCustomParameter</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCustomParameter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelHeader</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCustomParameter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>listWidgetSelectParameter</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

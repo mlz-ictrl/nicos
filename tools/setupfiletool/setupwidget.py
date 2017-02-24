@@ -29,10 +29,8 @@ from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QTreeWidgetItem, QWidget
 
-from setupfiletool.dialogs.addexcludedialog import AddExcludeDialog
-from setupfiletool.dialogs.addincludedialog import AddIncludeDialog
-from setupfiletool.dialogs.addmoduledialog import AddModuleDialog
-from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
+from setupfiletool.dialogs import AddExcludeDialog, AddIncludeDialog, \
+    AddModuleDialog, AddSysconfigDialog
 
 
 class SetupWidget(QWidget):
@@ -88,28 +86,20 @@ class SetupWidget(QWidget):
         self.textEditStartupCode.blockSignals(False)
 
     def on_listWidgetIncludes_itemSelectionChanged(self):
-        if self.listWidgetIncludes.currentRow() > -1:
-            self.pushButtonRemoveInclude.setEnabled(True)
-        else:
-            self.pushButtonRemoveInclude.setEnabled(False)
+        self.pushButtonRemoveInclude.setEnabled(
+            self.listWidgetIncludes.currentRow() > -1)
 
     def on_listWidgetExcludes_itemSelectionChanged(self):
-        if self.listWidgetExcludes.currentRow() > -1:
-            self.pushButtonRemoveExclude.setEnabled(True)
-        else:
-            self.pushButtonRemoveExclude.setEnabled(False)
+        self.pushButtonRemoveExclude.setEnabled(
+            self.listWidgetExcludes.currentRow() > -1)
 
     def on_listWidgetModules_itemSelectionChanged(self):
-        if self.listWidgetModules.currentRow() > -1:
-            self.pushButtonRemoveModule.setEnabled(True)
-        else:
-            self.pushButtonRemoveModule.setEnabled(False)
+        self.pushButtonRemoveModule.setEnabled(
+            self.listWidgetModules.currentRow() > -1)
 
     def on_treeWidgetSysconfig_itemSelectionChanged(self):
-        if len(self.treeWidgetSysconfig.selectedItems()) == 0:
-            self.pushButtonRemoveSysconfig.setEnabled(False)
-        else:
-            self.pushButtonRemoveSysconfig.setEnabled(True)
+        self.pushButtonRemoveSysconfig.setEnabled(
+            len(self.treeWidgetSysconfig.selectedItems()) > 0)
 
     @pyqtSlot()
     def on_pushButtonRemoveInclude_clicked(self):
@@ -143,7 +133,7 @@ class SetupWidget(QWidget):
     def on_pushButtonAddInclude_clicked(self):
         dlg = AddIncludeDialog()
         if dlg.exec_():
-            newInclude = dlg.lineEditNewInclude.text()
+            newInclude = dlg.getValue()
             if newInclude:
                 self.listWidgetIncludes.addItem(newInclude)
                 self.editedSetup.emit()
@@ -152,7 +142,7 @@ class SetupWidget(QWidget):
     def on_pushButtonAddExclude_clicked(self):
         dlg = AddExcludeDialog()
         if dlg.exec_():
-            newExclude = dlg.lineEditNewExclude.text()
+            newExclude = dlg.getValue()
             if newExclude:
                 self.listWidgetExcludes.addItem(newExclude)
                 self.editedSetup.emit()
@@ -161,7 +151,7 @@ class SetupWidget(QWidget):
     def on_pushButtonAddModule_clicked(self):
         dlg = AddModuleDialog()
         if dlg.exec_():
-            newModule = dlg.lineEditNewModule.text()
+            newModule = dlg.getValue()
             if newModule:
                 self.listWidgetModules.addItem(newModule)
                 self.editedSetup.emit()
@@ -173,8 +163,8 @@ class SetupWidget(QWidget):
         topLevelItems = []
         while i < self.treeWidgetSysconfig.topLevelItemCount():
             # apparently, text() returns a unicode string..? Therefore str()
-            topLevelItems.append(str(self.treeWidgetSysconfig.topLevelItem(
-                i).text(0)))
+            topLevelItems.append(
+                str(self.treeWidgetSysconfig.topLevelItem(i).text(0)))
             i += 1
 
         for key in self.sysconfigKeys:

@@ -30,9 +30,25 @@ from PyQt4.QtGui import QDialog
 
 class NewSetupDialog(QDialog):
     def __init__(self, parent=None):
-        super(NewSetupDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
                                           'newsetupdialog.ui')), self)
+
+    def setInstruments(self, instruments):
+        self.comboBoxInstrument.addItems(instruments)
+
+    def setCurrentInstrument(self, instrument):
+        self.comboBoxInstrument.setCurrentIndex(
+            self.comboBoxInstrument.findText(instrument))
+
+    def currentInstrument(self):
+        return self.comboBoxInstrument.currentText()
+
+    def isSpecialSetup(self):
+        return self.checkBoxSpecial.isChecked()
+
+    def getValue(self):
+        return self.lineEditFileName.text()
