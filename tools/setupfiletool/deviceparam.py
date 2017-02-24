@@ -21,12 +21,13 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Classes to handle the device parameters."""
 
 from os import path
 
 from PyQt4 import uic
+from PyQt4.QtCore import SIGNAL, pyqtSignal
 from PyQt4.QtGui import QWidget
-from PyQt4.QtCore import pyqtSignal, SIGNAL
 
 
 class DeviceParam(QWidget):

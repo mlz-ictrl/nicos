@@ -21,15 +21,16 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Dialog for the setup file without the devices."""
 
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QTreeWidgetItem
 from PyQt4.QtCore import pyqtSignal, pyqtSlot
+from PyQt4.QtGui import QTreeWidgetItem, QWidget
 
-from setupfiletool.dialogs.addincludedialog import AddIncludeDialog
 from setupfiletool.dialogs.addexcludedialog import AddExcludeDialog
+from setupfiletool.dialogs.addincludedialog import AddIncludeDialog
 from setupfiletool.dialogs.addmoduledialog import AddModuleDialog
 from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
 

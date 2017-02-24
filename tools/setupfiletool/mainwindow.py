@@ -21,26 +21,27 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Application main window."""
 
 # icons: https://launchpad.net/elementaryicons
 
-from os import path
-import logging
 import inspect
+import logging
+
+from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox, \
-    QApplication, QTreeWidgetItem, QIcon
 from PyQt4.QtCore import Qt
-
-from setupfiletool.setupwidget import SetupWidget
-from setupfiletool.devicewidget import DeviceWidget
-from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
-from setupfiletool import setupcontroller
-from setupfiletool import classparser
+from PyQt4.QtGui import QApplication, QFileDialog, QIcon, QLabel, QMainWindow,\
+    QMessageBox, QTreeWidgetItem
 
 from nicos.configmod import config
 from nicos.pycompat import string_types
+
+from setupfiletool import classparser, setupcontroller
+from setupfiletool.devicewidget import DeviceWidget
+from setupfiletool.setupwidget import SetupWidget
+from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 
 
 class MainWindow(QMainWindow):
@@ -286,9 +287,9 @@ class MainWindow(QMainWindow):
             return
         filepath = QFileDialog.getSaveFileName(
             self,
-            "Save as...",
+            'Save as...',
             getNicosDir(),
-            "Python script (*.py)")
+            'Python script (*.py)')
 
         if filepath:
             if not str(filepath).endswith('.py'):
@@ -333,7 +334,7 @@ class MainWindow(QMainWindow):
         output = []
         descriptionString = repr(str(setupData.lineEditDescription.text()))
         if not descriptionString:
-            return ""
+            return ''
         output.append('description = ')
         output.append(descriptionString + '\n\n')
         return ''.join(output)
@@ -342,7 +343,7 @@ class MainWindow(QMainWindow):
         output = []
         groupString = repr(str(setupData.comboBoxGroup.currentText()))
         if not groupString:
-            return ""
+            return ''
         output.append('group = ')
         output.append(groupString + '\n\n')
         return ''.join(output)
@@ -356,7 +357,7 @@ class MainWindow(QMainWindow):
                 includeIndex).text()))
             includeIndex += 1
         if not includes:
-            return ""
+            return ''
         output.append('includes = ')
         output.append(repr(includes) + '\n\n')
         return ''.join(output)
@@ -370,7 +371,7 @@ class MainWindow(QMainWindow):
                 excludeIndex).text()))
             excludeIndex += 1
         if not excludes:
-            return ""
+            return ''
         output.append('excludes = ')
         output.append(repr(excludes) + '\n\n')
         return ''.join(output)
@@ -384,7 +385,7 @@ class MainWindow(QMainWindow):
                 moduleIndex).text()))
             moduleIndex += 1
         if not modules:
-            return ""
+            return ''
         output.append('modules = ')
         output.append(repr(modules) + '\n\n')
         return ''.join(output)
@@ -397,7 +398,7 @@ class MainWindow(QMainWindow):
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
             return ''.join(output)
-        return ""
+        return ''
 
     def saveDevices(self, setupItem):
         output = []
@@ -408,7 +409,7 @@ class MainWindow(QMainWindow):
             childIndex += 1
 
         if not deviceItems:
-            return ""
+            return ''
 
         output.append('devices = dict(\n')
         for name, info in self.deviceWidgets[setupItem.setup.abspath].items():
@@ -441,4 +442,4 @@ class MainWindow(QMainWindow):
             output.append(startupcode + '\n')
             output.append("'''\n")
             return ''.join(output)
-        return ""
+        return ''

@@ -21,15 +21,18 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
-#
-# 'Singleton' module for managing setups
-# a Setup object represents a setup file.
-# setups are distinguishable by their absolute path.
+
+"""'Singleton' module for managing setups.
+
+A Setup object represents a setup file.
+Setups are distinguishable by their absolute path.
+"""
 
 import os
 from copy import copy
-from setupfiletool.utilities.utilities import getNicosDir
+
 from nicos.core.sessions.setups import readSetup
+from setupfiletool.utilities.utilities import getNicosDir
 
 # root directory containing all the setups or subdirs with setups.
 setup_root = os.path.join(getNicosDir(), 'custom')
@@ -104,8 +107,9 @@ class Setup(object):
         devs = info[self.name]['devices']
         for deviceName in devs:
             self.devices[deviceName] = (Device(deviceName,
-                                        devs[deviceName][0],
-                                        copy(devs[deviceName][1])))
+                                               devs[deviceName][0],
+                                               copy(devs[deviceName][1]))
+                                        )
 
 
 class Device(object):

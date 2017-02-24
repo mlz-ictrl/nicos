@@ -21,18 +21,19 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Widget to display the setups and devices in the tree."""
 
-from os import path
 from copy import deepcopy
+from os import path
 
-from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon, QMessageBox
-from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtCore import Qt, pyqtSignal
+from PyQt4.QtGui import QIcon, QMenu, QMessageBox, QTreeWidgetItem
 
+from setupfiletool import classparser, setupcontroller
+from setupfiletool.dialogs.newdevicedialog import NewDeviceDialog
+from setupfiletool.dialogs.newsetupdialog import NewSetupDialog
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
-from setupfiletool.dialogs.newsetupdialog import NewSetupDialog
-from setupfiletool.dialogs.newdevicedialog import NewDeviceDialog
-from setupfiletool import setupcontroller, classparser
 
 
 class TreeWidget(TreeWidgetContextMenu):
@@ -122,8 +123,9 @@ class TreeWidget(TreeWidgetContextMenu):
         super(TreeWidget, self).dragMoveEvent(event)
 
     def dropEvent(self, event):
-        '''
+        """
         To satisfy Qt, a call to super().dropEvent is neccessary.
+
         Else, the animation would look really gross and suggest the object
         might actually not have been copied.
         But after the call, the newly appended child item seems to be
@@ -132,7 +134,7 @@ class TreeWidget(TreeWidgetContextMenu):
         This may be a bug or my inability to find what's wrong.
         Because of that, I need to construct my own item, find the old one
         and replace it with my new one.
-        '''
+        """
         target = self.getSetupOfDropPos(event.pos())
         if self.dragItem.device.name in target.setup.devices.keys():
             QMessageBox.warning(self,

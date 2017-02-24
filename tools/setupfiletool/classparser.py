@@ -21,15 +21,17 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Methods to parse setup files."""
 
-import os
 import glob
 import inspect
+import os
 
-from setupfiletool.utilities.utilities import getNicosDir
-from setupfiletool.utilities.excluded_devices import excluded_device_classes
 from nicos.core.device import Device as _Class_device
 from nicos.core.sessions import Session
+
+from setupfiletool.utilities.excluded_devices import excluded_device_classes
+from setupfiletool.utilities.utilities import getNicosDir
 
 modules = {}
 session = Session('SetupFileTool')

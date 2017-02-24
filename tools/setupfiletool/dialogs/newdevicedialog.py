@@ -25,8 +25,8 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QDialog, QMenu
 from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QDialog, QMenu
 
 from setupfiletool import classparser
 

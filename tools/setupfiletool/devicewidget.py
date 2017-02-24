@@ -21,18 +21,20 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Classes to handle the devices."""
 
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QSpacerItem, QMessageBox, QListWidgetItem
-from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtCore import Qt, pyqtSignal
+from PyQt4.QtGui import QListWidgetItem, QMessageBox, QSpacerItem, QWidget
 
-from setupfiletool.deviceparam import DeviceParam
-from setupfiletool import classparser
-from setupfiletool.dialogs.addparameterdialog import AddParameterDialog
 from nicos.guisupport.typedvalue import create
 from nicos.pycompat import string_types
+
+from setupfiletool import classparser
+from setupfiletool.deviceparam import DeviceParam
+from setupfiletool.dialogs.addparameterdialog import AddParameterDialog
 
 
 class DeviceWidget(QWidget):
