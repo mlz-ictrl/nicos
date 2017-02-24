@@ -39,7 +39,7 @@ from nicos.core import status, listof, Device, Readable, Param, \
 from nicos.utils import whyExited, watchFileContent, loggers, createThread, \
     createSubprocess
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import listitems, queue as Queue, itervalues
+from nicos.pycompat import listitems, queue as Queue, itervalues, iteritems
 
 
 POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
@@ -234,6 +234,10 @@ class Poller(Device):
                     # global state updates in the session object
                     with self._creation_lock:
                         dev = session.getDevice(devname)
+
+                    for name, info in iteritems(dev.parameters):
+                        if info.volatile:
+                            queue.put('pollparam:%s' % name)
 
                 if not registered:
                     if not isinstance(dev, Readable):
