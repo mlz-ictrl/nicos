@@ -28,6 +28,7 @@ from nicos.core import ConfigurationError, DeviceMixinBase, HasLimits, \
     HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
     Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
     SLAVE, oneof, status, usermethod
+from nicos.utils import num_sort
 from nicos.pycompat import iteritems
 
 
@@ -210,7 +211,7 @@ class MappedMoveable(MappedReadable, Moveable):
     def doInit(self, mode):
         # be restrictive?
         if not self.relax_mapping:
-            self.valuetype = oneof(*self.mapping)
+            self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
         MappedReadable.doInit(self, mode)
 
     def doStart(self, target):

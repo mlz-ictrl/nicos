@@ -24,20 +24,13 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-import re
-
 from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit, QWidget, QSpinBox, \
     QHBoxLayout
 from PyQt4.QtCore import QObject, pyqtSignal, SIGNAL
 
+from nicos.utils import num_sort
 from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
-
-
-def num_sort(x):
-    """A sort key function to sort by a numeric prefix, then lexically."""
-    m = re.match(r'[\d.]+', x)
-    return (float(m.group()), x) if m else (99.0, '')
 
 
 class MeasElement(QObject):
@@ -91,12 +84,13 @@ class ChoiceElement(MeasElement):
     """Base for elements that allow an arbitrary choice."""
 
     CACHE_KEY = ''
+    SORT_KEY = lambda x: x
     VALUES = []
 
     def createWidget(self, parent, client):
         if self.CACHE_KEY:
             values = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-            values = sorted(values or [], key=num_sort)
+            values = sorted(values or [], key=self.SORT_KEY)
         else:
             values = self.VALUES
         self._values = values
@@ -154,6 +148,7 @@ class Detector(MeasElement):
     """Element for selecting detector distance, depending on selector."""
 
     CACHE_KEY = 'detector/presets'
+    SORT_KEY = num_sort
     LABEL = 'Detector'
 
     _allvalues = None
@@ -177,7 +172,7 @@ class Detector(MeasElement):
 
     def otherChanged(self, eltype, value):
         if eltype == 'selector' and self._allvalues is not None:
-            self._values = sorted(self._allvalues[value], key=num_sort)
+            self._values = sorted(self._allvalues[value], key=self.SORT_KEY)
             if self.value not in self._values:
                 if self._values:
                     self.value = self._values[0]
@@ -195,6 +190,7 @@ class Chopper(MeasElement):
     """Element for selecting chopper TOF resolution."""
 
     CACHE_KEY = 'chopper/resolutions'
+    SORT_KEY = num_sort
     LABEL = u'TOF dλ/λ'
 
     def createWidget(self, parent, client):
@@ -217,6 +213,7 @@ class Chopper(MeasElement):
 
 class Selector(ChoiceElement):
     CACHE_KEY = 'selector/mapping'
+    SORT_KEY = num_sort
     LABEL = 'Selector'
 
 
@@ -232,6 +229,7 @@ class Lenses(ChoiceElement):
 
 class Collimation(ChoiceElement):
     CACHE_KEY = 'collimation/mapping'
+    SORT_KEY = num_sort
     LABEL = 'Collimation'
 
 

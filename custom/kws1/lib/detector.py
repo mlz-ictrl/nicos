@@ -27,6 +27,7 @@
 from nicos.core import Param, Override, oneof, dictof, dictwith, MASTER, \
     ConfigurationError, DeviceMixinBase
 from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.utils import num_sort
 from nicos.pycompat import iteritems
 
 
@@ -91,7 +92,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
                                for (k, v) in pos.items())
             self.mapping = new_mapping
             self.mapkey = selpos
-            self.valuetype = oneof_detector(*new_mapping)
+            self.valuetype = oneof_detector(*sorted(new_mapping, key=num_sort))
             if self._cache:
                 self._cache.invalidate(self, 'value')
                 self._cache.invalidate(self, 'status')

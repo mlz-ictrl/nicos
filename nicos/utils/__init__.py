@@ -1260,3 +1260,12 @@ def tabulated(widths, iterable, maxwidth=20):
         else:
             result.append(' ')
     return ''.join(result).rstrip()
+
+
+def num_sort(x, inf=float('inf')):
+    """A sort key function to sort by a numeric prefix, then lexically."""
+    m = re.match(r'[\d.-]+', x)
+    try:
+        return (float(m.group()), x) if m else (inf, x)
+    except ValueError:
+        return (inf, x)

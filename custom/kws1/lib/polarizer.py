@@ -28,6 +28,7 @@ from nicos.core import Moveable, Param, Override, Attach, SIMULATION, \
     oneof, tupleof, listof, MoveError, ConfigurationError
 from nicos.devices.generic import MultiSwitcher
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+from nicos.utils import num_sort
 
 POL_SETTINGS = ['out', 'up', 'down']
 
@@ -56,7 +57,7 @@ class PolSwitcher(SequencerMixin, MultiSwitcher):
             raise ConfigurationError(self, 'must have exactly 5 moveables')
         self._mot_rot, self._mot_xv, self._mot_yv, self._mot_xh, \
             self._mot_yh = self._attached_moveables
-        self.valuetype = oneof(*self.mapping)
+        self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
 
     def _generateSequence(self, target):  # pylint: disable=arguments-differ
         seq = []

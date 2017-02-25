@@ -29,6 +29,7 @@ from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
     ConfigurationError
 from nicos.devices.generic.slit import TwoAxisSlit
 from nicos.devices.tango import Motor as TangoMotor
+from nicos.utils import num_sort
 
 
 class SlitMotor(TangoMotor):
@@ -136,7 +137,7 @@ class Collimation(Moveable):
     }
 
     def doInit(self, mode):
-        self.valuetype = oneof(*self.mapping)
+        self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
         if len(self._attached_slits) != len(self.slitpos):
             raise ConfigurationError(self, 'number of elements in slitpos '
                                      'parameter must match number of attached '

@@ -35,7 +35,7 @@ import pytest
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket
+    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort
 from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
@@ -250,3 +250,14 @@ def test_timer():
     tmr.stop()
     tmr.restart()
     tmr.wait(interval=0.1)
+
+
+def test_num_sort():
+    # purely alpha keys
+    assert sorted(['a', 'c', 'b'], key=num_sort) == ['a', 'b', 'c']
+    # mixed with floats
+    assert sorted(['X', '12A', '2.4B'], key=num_sort) == ['2.4B', '12A', 'X']
+    # also negative ones
+    assert sorted(['X', '-1', '2'], key=num_sort) == ['-1', '2', 'X']
+    # handle invalid floats
+    assert sorted(['X', '1A', '2.4.5A'], key=num_sort) == ['1A', '2.4.5A', 'X']

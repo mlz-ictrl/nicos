@@ -33,6 +33,7 @@ from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.tango import Motor as TangoMotor
 from nicos.kws1.detector import oneof_detector, DetectorPosSwitcherMixin
+from nicos.utils import num_sort
 from nicos.pycompat import iteritems
 
 
@@ -101,7 +102,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                            for (k, v) in pos.items()}
             self.mapping = new_mapping
             self.mapkey = selpos
-            self.valuetype = oneof_detector(*new_mapping)
+            self.valuetype = oneof_detector(*sorted(new_mapping, key=num_sort))
             if self._cache:
                 self._cache.invalidate(self, 'value')
                 self._cache.invalidate(self, 'status')
