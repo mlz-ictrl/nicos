@@ -45,7 +45,7 @@ main_window = tabbed(
         )),
     ('Scan Plotting', panel('scans.ScansPanel')),
     ('Device Plotting', panel('history.HistoryPanel')),
-    ('Logbook', panel('elog.ELogPanel')),
+    ('Protocol', panel('nicos.kws1.gui.protocol.ProtocolPanel')),
 )
 
 windows = []
