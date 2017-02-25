@@ -128,18 +128,16 @@ class TreeWidget(TreeWidgetContextMenu):
         Else, the animation would look really gross and suggest the object
         might actually not have been copied.
         But after the call, the newly appended child item seems to be
-        completely useless: It carries neither data nor does it emit
-        the treeWidget's itemActivated signal.
+        completely useless: It carries neither data nor does it emit the
+        treeWidget's itemActivated signal.
         This may be a bug or my inability to find what's wrong.
-        Because of that, I need to construct my own item, find the old one
-        and replace it with my new one.
+        Because of that, I need to construct my own item, find the old one and
+        replace it with my new one.
         """
         target = self.getSetupOfDropPos(event.pos())
         if self.dragItem.device.name in target.setup.devices.keys():
-            QMessageBox.warning(self,
-                                'Error',
-                                'The target setup already contains'
-                                ' a device with that name!')
+            QMessageBox.warning(self, 'Error', 'The target setup already '
+                                'contains a device with that name!')
             self.dragItem = None
             event.ignore()
             return
@@ -245,9 +243,7 @@ class TreeWidget(TreeWidgetContextMenu):
         if dlg.exec_():
             fileName = dlg.getValue()
             if not fileName:
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'No name for file entered.')
+                QMessageBox.warning(self, 'Error', 'No name for file entered.')
                 return
 
             if not fileName.endswith('.py'):
@@ -268,9 +264,8 @@ class TreeWidget(TreeWidgetContextMenu):
             try:
                 open(abspath, 'w').close()
             except IOError:
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'Could not create new setup!')
+                QMessageBox.warning(self, 'Error', 'Could not create new '
+                                    'setup!')
                 return
 
             setupcontroller.addSetup(dlg.currentInstrument(), abspath)
@@ -295,21 +290,15 @@ class TreeWidget(TreeWidgetContextMenu):
                               (self.getCurrentInstrument().text(0)), self)
         if dlg.exec_():
             if not dlg.labelSelectedClass.text():
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'No class selected.')
+                QMessageBox.warning(self, 'Error', 'No class selected.')
                 return
             if not dlg.lineEditDeviceName.text():
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'No name entered.')
+                QMessageBox.warning(self, 'Error', 'No name entered.')
                 return
             if dlg.lineEditDeviceName.text() in\
                     self.currentItem().setup.devices.keys():
-                QMessageBox.warning(self,
-                                    'Error',
-                                    'Setup already contains'
-                                    ' a device with that name!')
+                QMessageBox.warning(self, 'Error', 'Setup already contains a '
+                                    'device with that name!')
                 return
             self.newDeviceAdded.emit(dlg.lineEditDeviceName.text(),
                                      dlg.labelSelectedClass.text())

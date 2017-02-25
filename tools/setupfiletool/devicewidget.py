@@ -90,9 +90,7 @@ class DeviceWidget(QWidget):
         except KeyError as e:
             errors.append('Failed to load class ' + str(e))
         if errors:
-            QMessageBox.warning(self,
-                                'Errors',
-                                '\n'.join(errors))
+            QMessageBox.warning(self, 'Errors', '\n'.join(errors))
             self.pushButtonAdd.setEnabled(False)
             return
 
@@ -146,14 +144,11 @@ class DeviceWidget(QWidget):
             myUnit = self.myClass.parameters[param].unit
         except (AttributeError, KeyError):
             myUnit = ''
-        newParam = DeviceParam(param, create(self,
-                                             typ,
-                                             value,
-                                             unit=myUnit))
+        newParam = DeviceParam(param, create(self, typ, value, unit=myUnit))
         newParam.isUnknownValue = isUnkownValue
         try:
-            newParam.labelParam.setToolTip(self.myClass.parameters[
-                param].description)
+            newParam.labelParam.setToolTip(
+                self.myClass.parameters[param].description)
         except:  # pylint: disable=bare-except
             newParam.labelParam.setToolTip('No info found.')
         try:
