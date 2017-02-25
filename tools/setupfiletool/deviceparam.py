@@ -35,7 +35,7 @@ class DeviceParam(QWidget):
     clickedRemoveButton = pyqtSignal(str)
 
     def __init__(self, param, valueWidget, isUnknownValue=False, parent=None):
-        super(DeviceParam, self).__init__(parent)
+        QWidget.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           'ui',
                                           'deviceparam.ui')), self)

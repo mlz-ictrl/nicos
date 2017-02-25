@@ -41,7 +41,7 @@ class DeviceWidget(QWidget):
     editedDevice = pyqtSignal()
 
     def __init__(self, parent=None):
-        super(DeviceWidget, self).__init__(parent)
+        QWidget.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'devicewidget.ui'), self)
         self.parameters = {}

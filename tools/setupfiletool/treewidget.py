@@ -45,7 +45,7 @@ class TreeWidget(TreeWidgetContextMenu):
     newDeviceAdded = pyqtSignal(str, str)
 
     def __init__(self, parent=None):
-        super(TreeWidget, self).__init__(parent)
+        TreeWidgetContextMenu.__init__(self, parent)
         self.dragItem = None
 
         # don't allow dropping items in root

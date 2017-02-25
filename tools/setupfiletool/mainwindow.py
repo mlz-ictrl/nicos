@@ -46,7 +46,7 @@ from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+        QMainWindow.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
