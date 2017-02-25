@@ -235,3 +235,43 @@ class CommandLineEdit(HistoryLineEdit):
                     # else just queue it
                     action = 'execute'
         self.execRequested.emit(script, action)
+
+
+class ShadowTextLineEdit(QLineEdit):
+
+    def __init__(self, *args):
+        QLineEdit.__init__(self, *args)
+        self._textcolor = self.palette().color(QPalette.Text)
+        self._shadowcolor = self.palette().color(QPalette.Dark)
+        self._shadowed = True
+        self.setShadowText('')
+
+    def setShadowText(self, text):
+        self.shadowText = text
+        if self._shadowed:
+            self._setShadow()
+
+    def focusInEvent(self, event):
+        if self._shadowed:
+            self.setText('')
+        return QLineEdit.focusInEvent(self, event)
+
+    def focusOutEvent(self, event):
+        if not self.text():
+            self._setShadow()
+        return QLineEdit.focusOutEvent(self, event)
+
+    def setText(self, text):
+        self._shadowed = False
+        QLineEdit.setText(self, text)
+        setForegroundColor(self, self._textcolor)
+
+    def _setShadow(self):
+        self._shadowed = True
+        QLineEdit.setText(self, self.shadowText)
+        setForegroundColor(self, self._shadowcolor)
+
+    def text(self):
+        if self._shadowed:
+            return ''
+        return QLineEdit.text(self)
