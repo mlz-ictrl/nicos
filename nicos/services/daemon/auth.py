@@ -192,7 +192,7 @@ class LDAPAuthenticator(Authenticator):
             return None
         try:
             return conn.response[0]['attributes']['cn'][0]
-        except StandardError:
+        except Exception:
             return None
 
     def _getUserGroups(self, conn, username):
@@ -204,7 +204,7 @@ class LDAPAuthenticator(Authenticator):
         try:
             gidnumbers = [int(num) for num in
                           conn.response[0]['attributes']['gidNumber']]
-        except StandardError:
+        except Exception:
             return []
 
         return [self._getGroupnameForGidnumber(conn, entry)
