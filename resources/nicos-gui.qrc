@@ -58,6 +58,8 @@
     <file alias="close">icons/emblem-unreadable.png</file>
     <file alias="mail">icons/internet-mail.png</file>
     <file alias="inspector">icons/inspector-hat.png</file>
+    <file alias="splitterh">splitterh.png</file>
+    <file alias="splitterv">splitterv.png</file>
   </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>
