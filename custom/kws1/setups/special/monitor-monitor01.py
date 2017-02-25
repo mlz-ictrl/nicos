@@ -14,7 +14,18 @@ _experiment = Block('Experiment', [
              Field(name='Last file', key='exp/lastpoint')),
 ])
 
-_selector = Block('Selector', [
+def make_blocks(name, setup, rows, setups=None):
+    import copy
+    if setups:
+        postfix = ' and (' + setups + ')'
+    else:
+        postfix = ''
+    return [
+        Block(name, rows, setups=setup + postfix),
+        Block('VIRTUAL ' + name, copy.deepcopy(rows), setups='virtual_' + setup + postfix),
+    ]
+
+_selector = make_blocks('Selector', 'selector', [
     BlockRow(Field(name='Preset', dev='selector', istext=True, width=10)),
     BlockRow(Field(name='Lambda', dev='selector_lambda'),
              Field(name='Speed', dev='selector_speed')),
@@ -24,13 +35,13 @@ _selector = Block('Selector', [
              Field(name='Vibr', dev='selector_vibrt')),
 ])
 
-_chopper = Block('Chopper', [
+_chopper = make_blocks('Chopper', 'chopper', [
     BlockRow(Field(name='Preset', dev='chopper', istext=True, width=17)),
     BlockRow(Field(name='Frequency', dev='chopper_params[0]', unit='Hz'),
              Field(name='Opening', dev='chopper_params[1]', unit='deg')),
 ])
 
-_collimation = Block('Collimation', [
+_collimation = make_blocks('Collimation', 'collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
                             'aperture_08', 'aperture_04', 'aperture_02'],
@@ -38,7 +49,7 @@ _collimation = Block('Collimation', [
                    width=70, height=13)),
 ])
 
-_detector = Block('Detector', [
+_detector = make_blocks('Detector', 'detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
@@ -46,29 +57,32 @@ _detector = Block('Detector', [
     ),
 ])
 
-_polarizer = Block('Polarizer/Lenses', [
+_polarizer = make_blocks('Polarizer', 'polarizer', [
     BlockRow(Field(name='Pol. setting', dev='polarizer', istext=True),
              Field(name='Flipper', dev='flipper', istext=True)),
+])
+
+_lenses = make_blocks('Lenses', 'lenses', [
     BlockRow(
         Field(devices=['lens_in', 'lens_out'],
               widget='nicos.kws1.monitorwidgets.Lenses', width=30, height=10)
     ),
 ])
 
-_shutter = Block('Shutter', [
+_shutter = make_blocks('Shutter', 'shutter', [
     BlockRow(Field(name='Shutter', dev='shutter', istext=True, width=9),
              Field(name='NL-3b', dev='nl3b_shutter', istext=True, width=9),
              Field(name='Sixfold', dev='sixfold_shutter', istext=True, width=9)),
 ])
 
-_sample = Block('Sample', [
+_sample = make_blocks('Sample', 'sample', [
     BlockRow(Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
              Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
                    width=10, height=10)),
 ], setups='not sample_rotation')
 
-_sample_withrot = Block('Sample', [
+_sample_withrot = make_blocks('Sample', 'sample', [
     BlockRow(Field(name='Rotation', dev='sam_rot'),
              Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
@@ -86,7 +100,7 @@ _hexapod = Block('Hexapod', [
     BlockRow(Field(name='Table', dev='hexapod_dt')),
 ], setups='hexapod')
 
-_daq = Block('Data acquisition', [
+_daq = make_blocks('Data acquisition', 'daq', [
     BlockRow(Field(name='Timer', dev='timer'),
              Field(name='Total', dev='det_img[0]', format='%d'),
              Field(name='Rate', dev='det_img[1]', format='%.1f')),
@@ -143,6 +157,14 @@ _magnet = Block('Electromagnet', [
     BlockRow(Field(name='Current', dev='I_jem1')),
 ], setups='jem1')
 
+_layout = [
+    Row(Column(_experiment)),
+    Row(Column(*(_selector + _chopper + _polarizer + _lenses + _daq)),
+        Column(*(_shutter + _collimation + _detector + _sample + _sample_withrot)),
+        Column(_hexapod, _peltier, _peltierplot, _et, _etplot,
+               _julabo, _julaboplot, _ccr, _ccrplot, _magnet)),
+]
+
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
@@ -153,12 +175,6 @@ devices = dict(
                      valuefont = 'Droid Sans Mono',
                      fontsize = 14,
                      padding = 3,
-                     layout = [
-                         Row(Column(_experiment)),
-                         Row(Column(_selector, _chopper, _polarizer, _daq),
-                             Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_hexapod, _peltier, _peltierplot, _et, _etplot,
-                                    _julabo, _julaboplot, _ccr, _ccrplot, _magnet)),
-                     ],
+                     layout = _layout,
                     ),
 )
