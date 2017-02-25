@@ -48,6 +48,7 @@ class ErrorPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         loadUi(self, 'errpanel.ui', 'panels')
+        self.outView.setFullTimestamps(True)
 
         self.buttonBox.addButton('Clear', QDialogButtonBox.ResetRole)
 

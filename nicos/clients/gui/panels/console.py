@@ -52,6 +52,9 @@ class ConsolePanel(Panel):
     * ``hasmenu`` (default True) -- if set to False, the console does not
       provide its menu (containing actions for the output view such as Save
       or Print).
+    * ``fulltime`` (default False) -- if set to True, the console shows the
+      full (date + time) timestamp for every line, instead of only for errors
+      and warnings.
     """
     panelName = 'Console'
 
@@ -91,6 +94,8 @@ class ConsolePanel(Panel):
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
         self.hasmenu = bool(options.get('hasmenu', True))
+        if options.get('fulltime', False):
+            self.outView.setFullTimestamps(True)
 
     def setExpertMode(self, expert):
         if not self.hasinput:

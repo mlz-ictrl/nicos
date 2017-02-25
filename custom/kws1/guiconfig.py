@@ -13,7 +13,7 @@ main_window = tabbed(
             tabbed(
                 ('All output',
                     panel('console.ConsolePanel',
-                          hasinput=False, hasmenu=False)),
+                          hasinput=False, hasmenu=False, fulltime=True)),
                 ('Errors/Warnings',
                     panel('errors.ErrorPanel')),
             ),

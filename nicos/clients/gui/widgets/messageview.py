@@ -65,10 +65,12 @@ command_re = re.compile(r'>>> \[([^ ]+) .*?\]  (.*?)\n')
 script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} ?(.*?)\n')
 update_re = re.compile(r'UPDATE (?:\(.*?\) )?\[([^ ]+) .*?\] -{20} ?(.*?)\n')
 
+
 # time formatter
 
 def format_time_full(timeval):
-    return strftime(' [%Y-%m-%d %H:%M:%S] ', localtime(timeval))
+    return strftime('[%Y-%m-%d %H:%M:%S] ', localtime(timeval))
+
 
 def format_time(timeval):
     return strftime('[%H:%M:%S] ', localtime(timeval))
@@ -81,6 +83,16 @@ class MessageView(QTextBrowser):
         self._messages = []
         self._actionlabel = None
         self._currentuser = None
+        self.setFullTimestamps(False)
+
+    def setFullTimestamps(self, on):
+        if on:
+            self.formatTime = format_time_full
+            self.formatImportantTime = lambda timeval: ': '
+        else:
+            self.formatTime = format_time
+            self.formatImportantTime = \
+                lambda timeval: ' ' + format_time_full(timeval)
 
     def setActionLabel(self, label):
         self._actionlabel = label
@@ -182,7 +194,7 @@ class MessageView(QTextBrowser):
             text = levels[levelno] + ': ' + name + message[3]
             fmt = magenta
         else:
-            text = levels[levelno] + format_time_full(message[1]) + \
+            text = levels[levelno] + self.formatImportantTime(message[1]) + \
                 name + message[3]
             fmt = redbold
         if message[4] and fmt:
@@ -206,7 +218,7 @@ class MessageView(QTextBrowser):
 
         text, fmt = self.formatMessage(message)
         if text:  # not for ACTIONs
-            self.addText(format_time(message[1]), grey)
+            self.addText(self.formatTime(message[1]), grey)
             self.addText(text, fmt)
             self._messages.append(message)
 
@@ -222,7 +234,7 @@ class MessageView(QTextBrowser):
             text, fmt = formatter(message, actions=False)
             if text:
                 textcursor.setCharFormat(grey)
-                textcursor.insertText(format_time(message[1]))
+                textcursor.insertText(self.formatTime(message[1]))
                 textcursor.setCharFormat(fmt or std)
                 textcursor.insertText(text)
                 self._messages.append(message)
