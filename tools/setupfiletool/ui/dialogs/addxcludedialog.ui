@@ -6,38 +6,35 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>194</width>
-    <height>150</height>
+    <width>283</width>
+    <height>356</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>New exclude...</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="labelHeader">
      <property name="text">
       <string>Add new exclude:</string>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QLineEdit" name="lineEditNewExclude"/>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="1" column="0" colspan="3">
+    <widget class="QListWidget" name="listWidgetSetups">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+     <property name="resizeMode">
+      <enum>QListView::Fixed</enum>
      </property>
-    </spacer>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

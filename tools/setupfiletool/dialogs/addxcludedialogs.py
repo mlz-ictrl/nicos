@@ -21,21 +21,36 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+"""Excludes and includes widgets."""
 
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
 
-class AddExcludeDialog(QDialog):
-    def __init__(self, parent=None):
+class AddXcludeDialog(QDialog):
+    def __init__(self, setups, typ, parent=None):
         QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
-                                          'addexcludedialog.ui')), self)
+                                          'addxcludedialog.ui')), self)
+        self.setWindowTitle('New %s ... ' % typ)
+        self.labelHeader.setText('Add new %s:' % typ)
+        for setup in setups:
+            QListWidgetItem(setup, self.listWidgetSetups)
 
     def getValue(self):
-        return self.lineEditNewExclude.text()
+        return [i.text() for i in self.listWidgetSetups.selectedItems()]
+
+
+class AddIncludeDialog(AddXcludeDialog):
+    def __init__(self, setups, parent=None):
+        AddXcludeDialog.__init__(self, setups, 'include', parent)
+
+
+class AddExcludeDialog(AddXcludeDialog):
+    def __init__(self, setups, parent=None):
+        AddXcludeDialog.__init__(self, setups, 'exclude', parent)

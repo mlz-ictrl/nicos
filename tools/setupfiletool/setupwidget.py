@@ -26,7 +26,7 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import pyqtSignal, pyqtSlot
+from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QTreeWidgetItem, QWidget
 
 from setupfiletool.dialogs import AddExcludeDialog, AddIncludeDialog, \
@@ -36,8 +36,8 @@ from setupfiletool.dialogs import AddExcludeDialog, AddIncludeDialog, \
 class SetupWidget(QWidget):
     editedSetup = pyqtSignal()
 
-    def __init__(self, setup, parent=None):
-        super(SetupWidget, self).__init__(parent)
+    def __init__(self, setup, availablesetups, parent=None):
+        QWidget.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'setupwidget.ui'), self)
 
@@ -84,6 +84,7 @@ class SetupWidget(QWidget):
         self.textEditStartupCode.blockSignals(True)
         self.textEditStartupCode.setPlainText(setup.startupcode[1:-1])
         self.textEditStartupCode.blockSignals(False)
+        self.availablesetups = availablesetups
 
     def on_listWidgetIncludes_itemSelectionChanged(self):
         self.pushButtonRemoveInclude.setEnabled(
@@ -129,23 +130,32 @@ class SetupWidget(QWidget):
             self.pushButtonAddSysconfig.setEnabled(True)
         self.editedSetup.emit()
 
+    def _get_unused_setups(self):
+        _in = [i.text() for i in self.listWidgetIncludes.findItems(
+               '', Qt.MatchContains)]
+        _ex = [i.text() for i in self.listWidgetExcludes.findItems(
+               '', Qt.MatchContains)]
+        return list(set(self.availablesetups) - set(_in + _ex))
+
     @pyqtSlot()
     def on_pushButtonAddInclude_clicked(self):
-        dlg = AddIncludeDialog()
+        dlg = AddIncludeDialog(self._get_unused_setups())
         if dlg.exec_():
-            newInclude = dlg.getValue()
-            if newInclude:
-                self.listWidgetIncludes.addItem(newInclude)
-                self.editedSetup.emit()
+            newIncludes = dlg.getValue()
+            if newIncludes:
+                for include in newIncludes:
+                    self.listWidgetIncludes.addItem(include)
+                    self.editedSetup.emit()
 
     @pyqtSlot()
     def on_pushButtonAddExclude_clicked(self):
-        dlg = AddExcludeDialog()
+        dlg = AddExcludeDialog(self._get_unused_setups())
         if dlg.exec_():
-            newExclude = dlg.getValue()
-            if newExclude:
-                self.listWidgetExcludes.addItem(newExclude)
-                self.editedSetup.emit()
+            newExcludes = dlg.getValue()
+            if newExcludes:
+                for exclude in newExcludes:
+                    self.listWidgetExcludes.addItem(exclude)
+                    self.editedSetup.emit()
 
     @pyqtSlot()
     def on_pushButtonAddModule_clicked(self):

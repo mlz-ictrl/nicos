@@ -97,11 +97,13 @@ class MainWindow(QMainWindow):
         if config.instrument and config.instrument not in ('jcns', 'demo'):
             self.treeWidget.setSingleInstrument(config.instrument)
 
-    def loadSetup(self, setup):
+    def loadSetup(self, setup, instrument):
         # load a previously not loaded setup's data and initialize their
         # dict in self.setupWidgets.
         # returns index of the setup's widget in self.workarea.
-        setupWidget = SetupWidget(setup)
+        setups = [i.name for i in
+                  setupcontroller.setup_directories[instrument]]
+        setupWidget = SetupWidget(setup, setups)
         setupWidget.editedSetup.connect(self.editedSetupSlot)
         self.workarea.addWidget(setupWidget)
         self.setupWidgets[setup.abspath] = setupWidget
@@ -129,14 +131,14 @@ class MainWindow(QMainWindow):
                         self.setupWidgets[curItem.setup.abspath]))
             else:
                 # if setup hasn't been loaded before:
-                i = self.loadSetup(curItem.setup)
+                i = self.loadSetup(curItem.setup, curItem.parent().text(0))
                 self.workarea.setCurrentIndex(i)
 
         elif curItem.type() == ItemTypes.Device:
             setup = curItem.parent().setup
             if setup.abspath not in self.setupWidgets:
                 # if the setup, this device belongs to, hasn't been loaded yet:
-                self.loadSetup(setup)
+                self.loadSetup(setup, curItem.parent().parent().text(0))
 
             self.workarea.setCurrentIndex(
                 self.workarea.indexOf(self.deviceWidgets[setup.abspath]
@@ -153,7 +155,7 @@ class MainWindow(QMainWindow):
     def newDeviceAddedSlot(self, deviceName, _classString):
         setupItem = self.getCurrentSetupItem()
         if setupItem.setup.abspath not in self.setupWidgets.keys():
-            self.loadSetup(setupItem.setup)
+            self.loadSetup(setupItem.setup, setupItem.parent().text(0))
 
         uncombinedModule = _classString.split('.')
         classname = uncombinedModule.pop()
@@ -186,7 +188,7 @@ class MainWindow(QMainWindow):
 
     def deviceRemovedSlot(self, setupItem, deviceName):
         if setupItem.setup.abspath not in self.setupWidgets.keys():
-            self.loadSetup(setupItem.setup)
+            self.loadSetup(setupItem.setup, setupItem.parent().text(0))
 
         try:
             deviceWidget = self.deviceWidgets[setupItem.setup.abspath][
@@ -208,7 +210,7 @@ class MainWindow(QMainWindow):
 
     def deviceAddedSlot(self, setupItem, newDeviceName):
         if setupItem.setup.abspath not in self.setupWidgets.keys():
-            self.loadSetup(setupItem.setup)
+            self.loadSetup(setupItem.setup, setupItem.parent().text(0))
         else:
             for deviceName, device in setupItem.setup.devices.iteritems():
                 if deviceName == newDeviceName:
