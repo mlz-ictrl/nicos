@@ -43,6 +43,8 @@ from setupfiletool.devicewidget import DeviceWidget
 from setupfiletool.setupwidget import SetupWidget
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 
+from utils import format_setup_text
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -319,12 +321,9 @@ class MainWindow(QMainWindow):
             outputStringWithNewlines = ''.join(output)
             outputStringListWithNewLines = \
                 outputStringWithNewlines.splitlines()
-            while True:
-                try:
-                    outputStringListWithNewLines.remove('')
-                except:  # pylint: disable=bare-except
-                    break
             output = '\n'.join(outputStringListWithNewLines) + '\n'
+            output = format_setup_text(output)
+
             outputFile.write(output)
 
         if setupItem.setup.abspath == setupPath:
