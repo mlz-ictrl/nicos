@@ -183,7 +183,9 @@ class TreeWidget(TreeWidgetContextMenu):
 
     def setSingleInstrument(self, instrument):
         for directory in self.topLevelItems:
-            directory.setHidden(not directory.text(0) == instrument)
+            found = directory.text(0) == instrument
+            directory.setHidden(not found)
+            directory.setExpanded(found)
 
     def setAllInstrumentsVisible(self):
         for directory in self.topLevelItems:
