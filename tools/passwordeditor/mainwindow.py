@@ -22,18 +22,19 @@
 #
 # *****************************************************************************
 
-import logging
 import hashlib
-from os import path
+import logging
+
 from collections import OrderedDict
+from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QMessageBox
+from PyQt4.QtGui import QFileDialog, QMainWindow, QMessageBox
 
 from nicos.core.sessions.setups import readSetup
 
-from passwordeditor.userdialog import UserDialog
 from passwordeditor.user import User
+from passwordeditor.userdialog import UserDialog
 
 
 class MainWindow(QMainWindow):
@@ -48,7 +49,7 @@ class MainWindow(QMainWindow):
         self.description = ''   # name of the description in the setup file
         self.authDict = {}      # dictionary containing info in auth tuple
         self.users = {}         # dict to store users while working
-        self.loadedScript = ''  # path to the currently loaded file without *.py
+        self.loadedScript = ''  # path to the currently loaded file without .py
 
         self.actionNew.triggered.connect(self.newFile)
         self.actionLoad.triggered.connect(self.loadFile)
@@ -198,9 +199,9 @@ class MainWindow(QMainWindow):
 
     def hashingMsgbox(self):
         msgBox = QMessageBox()
-        msgBox.setText('Changing the hashing requires you to enter all' +
+        msgBox.setText('Changing the hashing requires you to enter all'
                        'passwords again.')
-        msgBox.setInformativeText('Do you still want to change the hashing?\n' +
+        msgBox.setInformativeText('Do you still want to change the hashing?\n'
                                   'WARNING: THIS WILL CLEAR ALL PASSWORDS.')
         msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msgBox.setDefaultButton(QMessageBox.Cancel)
@@ -260,7 +261,8 @@ class MainWindow(QMainWindow):
             self.pushButtonSaveConfig.setEnabled(True)
 
     def changedUser(self):
-        # called when lineEditUserName, lineEditPassword, comoBoxUserLevel change
+        # called when lineEditUserName, lineEditPassword, comoBoxUserLevel
+        # change
         if not self.pushButtonSaveUser.isEnabled():
             self.pushButtonSaveUser.setEnabled(True)
 
@@ -314,9 +316,9 @@ class MainWindow(QMainWindow):
     def newFile(self):
         filepath = QFileDialog.getSaveFileName(
             self,
-            "New setup...",
+            'New setup...',
             path.expanduser('~'),
-            "Python script (*.py)")
+            'Python script (*.py)')
 
         if filepath:
             if not str(filepath).endswith('.py'):
@@ -326,7 +328,8 @@ class MainWindow(QMainWindow):
 
     def save(self):
         # put information in self.users, e.g. the User() classes, into tuples
-        # and put them back into self.info['file']['devices']['Auth'][1][passwd]
+        # and put them back into
+        # self.info['file']['devices']['Auth'][1][passwd]
         del self.authDict['passwd'][:]
         for _, value in self.users.items():
             self.authDict['passwd'].append((value.userName,
@@ -336,9 +339,9 @@ class MainWindow(QMainWindow):
         # open a file to save into, create empty output string
         filepath = QFileDialog.getSaveFileName(
             self,
-            "Save as...",
+            'Save as...',
             path.expanduser('~'),
-            "Python script (*.py)")
+            'Python script (*.py)')
 
         if not str(filepath):
             return

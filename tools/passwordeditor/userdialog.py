@@ -29,7 +29,7 @@ from PyQt4.QtGui import QDialog
 
 
 class UserDialog(QDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'userdialog.ui'), self)
