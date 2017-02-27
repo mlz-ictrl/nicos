@@ -90,8 +90,6 @@ class LiveDataPanel(Panel):
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('setup'), self.on_client_connected)
-        if client.connected:
-            self.on_client_connected()
 
     def on_client_livedata(self, data):
         if len(data):
@@ -118,3 +116,8 @@ class LiveDataPanel(Panel):
             return
         self._dtype = normalized_type
         self._nx, self._ny = nx, ny
+
+    def setOptions(self, options):
+        Panel.setOptions(self, options)
+        if self.client.connected:
+            self.on_client_connected()
