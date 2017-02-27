@@ -1,7 +1,5 @@
 - Command line: Specify instrument via argument, else go with all instruments.
 
-- Prevent users from entering non ascii characters as device names.
-
 - When switching the instrument from one to another, ask whether to save the
   edited setups.
 

@@ -25,8 +25,8 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog, QMenu
+from PyQt4.QtCore import QRegExp, Qt
+from PyQt4.QtGui import QDialog, QMenu, QRegExpValidator
 
 from setupfiletool import classparser
 
@@ -51,6 +51,9 @@ class NewDeviceDialog(QDialog):
 
         self.checkBoxCustomClasses.stateChanged.connect(
             self.stateChangedHandler)
+
+        self.lineEditDeviceName.setValidator(QRegExpValidator(
+            QRegExp('[A-Za-z0-9_]*')))
 
     def stateChangedHandler(self, state):
         if state == Qt.Checked:
