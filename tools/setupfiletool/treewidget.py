@@ -280,6 +280,11 @@ class TreeWidget(TreeWidgetContextMenu):
                                     dlg.currentInstrument(),
                                     'setups',
                                     fileName)
+            if abspath in [i.abspath for i in
+                           setupcontroller.setup_directories[
+                               dlg.currentInstrument()]]:
+                QMessageBox.warning(self, 'Error', 'Setup already exists!')
+                return None, None
             try:
                 open(abspath, 'w').close()
             except IOError:
