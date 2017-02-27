@@ -48,7 +48,7 @@
        <item>
         <widget class="QLabel" name="labelFileName">
          <property name="text">
-          <string>Enter file name:</string>
+          <string>Enter setup name:</string>
          </property>
         </widget>
        </item>

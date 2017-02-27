@@ -243,7 +243,7 @@ class TreeWidget(TreeWidgetContextMenu):
         if dlg.exec_():
             fileName = dlg.getValue()
             if not fileName:
-                QMessageBox.warning(self, 'Error', 'No name for file entered.')
+                QMessageBox.warning(self, 'Error', 'No setup name entered.')
                 return
 
             if not fileName.endswith('.py'):
