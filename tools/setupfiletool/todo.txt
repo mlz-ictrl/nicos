@@ -1,8 +1,21 @@
 - Command line: Specify instrument via argument, else go with all instruments.
+
 - Prevent users from entering non ascii characters as device names.
-- When switching the instrument from one to another, ask whether to save the edited setups.
-- When launching the NewSetupDialog by right clicking on an instrument and clicking "Add setup...", disable the selection of an other instrument. However, still allow this when launching the dialog via "File" -> "New".
-- Filter parameters in AddParameterDialog: Do not show "classes", "name". Need to work out which ones not to show.
-- When adding a custom parameter, allow selection of the type (e.g. display some common used python classes msuch as str, int, float or list).
-- Make sysconfig widget more user friendly. E.g. allow editing of existing values, allow replacing already entered values, etc.
+
+- When switching the instrument from one to another, ask whether to save the
+  edited setups.
+
+- When launching the NewSetupDialog by right clicking on an instrument and
+  clicking "Add setup...", disable the selection of an other instrument.
+  However, still allow this when launching the dialog via "File" -> "New".
+
+- Filter parameters in AddParameterDialog: Do not show "classes", "name".
+  Need to work out which ones not to show.
+
+- When adding a custom parameter, allow selection of the type (e.g. display
+  some common used python classes msuch as str, int, float or list).
+
+- Make sysconfig widget more user friendly. E.g. allow editing of existing
+  values, allow replacing already entered values, etc.
+
 - Handle special cases (attached devices).
