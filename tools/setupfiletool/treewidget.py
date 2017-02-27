@@ -27,7 +27,8 @@ from copy import deepcopy
 from os import path
 
 from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QIcon, QMenu, QMessageBox, QTreeWidgetItem
+from PyQt4.QtGui import QApplication, QIcon, QMenu, QMessageBox, \
+    QTreeWidgetItem
 
 from setupfiletool import classparser, setupcontroller
 from setupfiletool.dialogs import NewDeviceDialog, NewSetupDialog
@@ -289,8 +290,11 @@ class TreeWidget(TreeWidgetContextMenu):
             self.itemActivated.emit(treeWidgetItem, 0)
 
     def addDevice(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         dlg = NewDeviceDialog(classparser.getDeviceClasses
                               (self.getCurrentInstrument().text(0)), self)
+        QApplication.restoreOverrideCursor()
+
         if dlg.exec_():
             if not dlg.labelSelectedClass.text():
                 QMessageBox.warning(self, 'Error', 'No class selected.')
