@@ -116,15 +116,15 @@ class TreeWidget(TreeWidgetContextMenu):
         self.sortByColumn(0, Qt.AscendingOrder)
 
     def dragEnterEvent(self, event):
-        super(TreeWidget, self).dragEnterEvent(event)
+        TreeWidgetContextMenu.dragEnterEvent(self, event)
         self.dragItem = self.currentItem()
 
     def dragMoveEvent(self, event):
-        super(TreeWidget, self).dragMoveEvent(event)
+        TreeWidgetContextMenu.dragMoveEvent(self, event)
 
     def dropEvent(self, event):
         """
-        To satisfy Qt, a call to super().dropEvent is neccessary.
+        To satisfy Qt, a call to TreeWidgetContextMenu.dropEvent is neccessary.
 
         Else, the animation would look really gross and suggest the object
         might actually not have been copied.
@@ -147,7 +147,7 @@ class TreeWidget(TreeWidgetContextMenu):
         while count < target.childCount():
             previousItems.append(target.child(count))
             count += 1
-        super(TreeWidget, self).dropEvent(event)
+        TreeWidgetContextMenu.dropEvent(self, event)
         count = 0
         afterDropItems = []
         while count < target.childCount():
