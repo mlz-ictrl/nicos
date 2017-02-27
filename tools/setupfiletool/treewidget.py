@@ -190,6 +190,7 @@ class TreeWidget(TreeWidgetContextMenu):
     def setAllInstrumentsVisible(self):
         for directory in self.topLevelItems:
             directory.setHidden(False)
+            directory.setExpanded(False)
 
     def contextMenuOnItem(self, item, pos):
         if item is None:
