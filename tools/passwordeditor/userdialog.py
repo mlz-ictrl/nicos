@@ -30,6 +30,6 @@ from PyQt4.QtGui import QDialog
 
 class UserDialog(QDialog):
     def __init__(self, parent = None):
-        super(UserDialog, self).__init__(parent)
+        QDialog.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'userdialog.ui'), self)
