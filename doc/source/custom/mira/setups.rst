@@ -19,11 +19,3 @@ Service setups
     :glob:
 
     setups/special/*
-
-MIRA specific commands
-======================
-
-.. toctree::
-    :maxdepth: 1
-
-    commands
