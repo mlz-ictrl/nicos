@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.treeWidget.newDeviceAdded.connect(self.newDeviceAddedSlot)
 
         # setup the menu bar
-        self.actionNewFile.triggered.connect(self.treeWidget.addSetup)
+        self.actionNewFile.triggered.connect(self.treeWidget.newSetup)
         self.actionSave.triggered.connect(self.actionSaveSlot)
         self.actionSaveAs.triggered.connect(self.actionSaveAsSlot)
         self.actionExit.triggered.connect(self.close)

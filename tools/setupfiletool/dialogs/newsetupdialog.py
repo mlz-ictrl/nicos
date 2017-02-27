@@ -29,13 +29,17 @@ from PyQt4.QtGui import QDialog
 
 
 class NewSetupDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, instruments, instrument=None, parent=None):
         QDialog.__init__(self, parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           '..',
                                           'ui',
                                           'dialogs',
                                           'newsetupdialog.ui')), self)
+        self.setInstruments(instruments)
+        if instrument:
+            self.setCurrentInstrument(instrument)
+            self.comboBoxInstrument.setDisabled(True)
 
     def setInstruments(self, instruments):
         self.comboBoxInstrument.addItems(instruments)

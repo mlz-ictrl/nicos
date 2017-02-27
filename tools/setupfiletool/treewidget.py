@@ -237,18 +237,32 @@ class TreeWidget(TreeWidgetContextMenu):
             return self.currentItem().parent().parent()
         return None
 
+    def newSetup(self):
+        treeWidgetItem, instrument = self._newSetup(None)
+        if not treeWidgetItem:
+            return
+        for item in self.topLevelItems:
+            if item.text(0) == instrument:
+                item.addChild(treeWidgetItem)
+                self.itemActivated.emit(treeWidgetItem, 0)
+
     def addSetup(self):
         instrument = self.getCurrentInstrument()
+        treeWidgetItem, _ = self._newSetup(instrument.text(0))
+        if not treeWidgetItem:
+            return
+        instrument.addChild(treeWidgetItem)
+        self.itemActivated.emit(treeWidgetItem, 0)
 
-        dlg = NewSetupDialog()
-        dlg.setInstruments([item.text(0) for item in self.topLevelItems
-                            if item.type() == ItemTypes.Directory])
-        dlg.setCurrentInstrument(instrument.text(0))
+    def _newSetup(self, instrument=None):
+        dlg = NewSetupDialog([item.text(0) for item in self.topLevelItems
+                              if item.type() == ItemTypes.Directory],
+                             instrument)
         if dlg.exec_():
             fileName = dlg.getValue()
             if not fileName:
                 QMessageBox.warning(self, 'Error', 'No setup name entered.')
-                return
+                return None, None
 
             if not fileName.endswith('.py'):
                 fileName += '.py'
@@ -270,7 +284,7 @@ class TreeWidget(TreeWidgetContextMenu):
             except IOError:
                 QMessageBox.warning(self, 'Error', 'Could not create new '
                                     'setup!')
-                return
+                return None, None
 
             setupcontroller.addSetup(dlg.currentInstrument(), abspath)
             newSetup = None
@@ -286,8 +300,8 @@ class TreeWidget(TreeWidgetContextMenu):
                 path.join(getResDir(), 'setup.png')))
             treeWidgetItem.setup = newSetup
             treeWidgetItem.setup.edited = True
-            instrument.addChild(treeWidgetItem)
-            self.itemActivated.emit(treeWidgetItem, 0)
+            return treeWidgetItem, dlg.currentInstrument()
+        return None, None
 
     def addDevice(self):
         QApplication.setOverrideCursor(Qt.WaitCursor)

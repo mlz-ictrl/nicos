@@ -3,10 +3,6 @@
 - When switching the instrument from one to another, ask whether to save the
   edited setups.
 
-- When launching the NewSetupDialog by right clicking on an instrument and
-  clicking "Add setup...", disable the selection of an other instrument.
-  However, still allow this when launching the dialog via "File" -> "New".
-
 - Filter parameters in AddParameterDialog: Do not show "classes", "name".
   Need to work out which ones not to show.
 
