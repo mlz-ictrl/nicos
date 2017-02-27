@@ -617,7 +617,8 @@ class ViewPlotMixin(object):
 
 # pylint: disable=W0611
 try:
-    from nicos.clients.gui.widgets.grplotting import DataSetPlot, ViewPlot
+    from nicos.clients.gui.widgets.grplotting import DataSetPlot, ViewPlot, \
+        NicosGrPlot, NicosPlotCurve
 except ImportError:
     from nicos.clients.gui.widgets.qwtplotting import DataSetPlot, ViewPlot, \
         NicosQwtPlot

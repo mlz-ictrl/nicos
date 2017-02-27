@@ -30,7 +30,10 @@ from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy
 
 from nicos.clients.gui.panels import Panel
 
-from nicos.spodi.gui.panels.live.liveqwtplot import LiveDataPlot
+try:
+    from nicos.spodi.gui.panels.live.livegrplot import LiveDataPlot
+except ImportError:
+    from nicos.spodi.gui.panels.live.liveqwtplot import LiveDataPlot
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
