@@ -24,8 +24,9 @@
 
 """Commandlets for KWS(-1)."""
 
-from PyQt4.QtCore import pyqtSlot, SIGNAL
-from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox
+from PyQt4.QtCore import pyqtSlot, SIGNAL, QSize
+from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox, QToolButton, \
+    QIcon
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.utils import findResource, formatDuration
@@ -50,6 +51,15 @@ class MeasureTable(Cmdlet):
             self.outerLoop.addItem(loop)
         self.outerLoop.setCurrentIndex(0)
         self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
+        self.expandBtn = QToolButton()
+        self.expandBtn.setIcon(QIcon(':/down'))
+        self.expandBtn.setAutoRaise(True)
+        self.expandBtn.clicked.connect(self.on_expandBtn_clicked)
+        self.table.setCornerWidget(self.expandBtn)
+
+    @pyqtSlot()
+    def on_expandBtn_clicked(self):
+        self.table.setMinimumSize(QSize(0, self.table.height() + 100))
 
     @pyqtSlot()
     def on_selSamples_clicked(self):
