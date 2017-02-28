@@ -31,34 +31,11 @@ Utility script for reformatting NICOS setup files via yapf
 from __future__ import print_function
 
 import sys
-import yapf
-import re
 import argparse
 import logging
 import difflib
 
-# Style specification for yapf
-STYLE_CONFIG = '''{
-ALIGN_CLOSING_BRACKET_WITH_VISUAL_INDENT : True,
-ALLOW_MULTILINE_LAMBDAS : True,
-BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF : False,
-COALESCE_BRACKETS : True,
-COLUMN_LIMIT : 80,
-CONTINUATION_INDENT_WIDTH : 4,
-DEDENT_CLOSING_BRACKETS : True,
-INDENT_DICTIONARY_VALUE : True,
-JOIN_MULTIPLE_LINES : False,
-SPACES_AROUND_POWER_OPERATOR = True,
-SPACES_AROUND_DEFAULT_OR_NAMED_ASSIGN = True,
-SPACES_BEFORE_COMMENT : 2,
-SPACE_BETWEEN_ENDING_COMMA_AND_CLOSING_BRACKET : False;
-SPLIT_ARGUMENTS_WHEN_COMMA_TERMINATED : True,
-SPLIT_BEFORE_BITWISE_OPERATOR : True,
-SPLIT_BEFORE_FIRST_ARGUMENT : False,
-SPLIT_BEFORE_LOGICAL_OPERATOR : True,
-SPLIT_BEFORE_NAMED_ASSIGNS : True,
-USE_TABS : False,
-}'''
+from utils import format_setup_text
 
 
 def parseArgv(argv):
@@ -96,13 +73,7 @@ def reformatFile(fn, inplace=False, diff=False):
     with open(fn, 'rb') as f:
         origin = f.read().decode('utf-8')
 
-    result = yapf.yapf_api.FormatCode(origin, style_config=STYLE_CONFIG)[0]
-
-    # custom replacement for device class on device line
-    result = re.sub('(device\()\n\s*', '\\1', result)
-
-    # strip the result (in case of unnecessary newlines at the end)
-    result = result.strip() + '\n'
+    result = format_setup_text(origin)
 
     if inplace:
         with open(fn, 'wb') as f:
