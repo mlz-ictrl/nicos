@@ -113,6 +113,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._file_write(buf)
 
     def _write_integer(self, value, key=None):
+        if value is None:
+            self.log.error("write_integer: Found 'None' value for %s",
+                           key if key else '')
+            return
         if key:
             self._defcmd(key)
             self._string(key)
@@ -124,6 +128,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._file_write(buf)
 
     def _write_float(self, value, key=None):
+        if value is None:
+            self.log.error("write_float: Found 'None' value for %s",
+                           key if key else '')
+            return
         if key:
             self._defcmd(key)
             self._string(key)
@@ -152,12 +160,23 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             buf += pack('<BBff', FLOATTYPE, 2, float(i[0]), float(i[1]))
         self._file_write(buf)
 
+    def _remove_none_values(self, d):
+        nonelist = []
+        for k, v in iteritems(d):
+            if v is None:
+                self.log.warning('Found %r value for %r', v, k)
+                nonelist += [k]
+        for i in nonelist:
+            d.pop(i)
+        return d
+
     def _write_float_group(self, group, d):
         data = group
+        d = self._remove_none_values(d)
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        for i in d.values():
-            self._write_float(i)
+        for v in d.values():
+            self._write_float(v)
 
     def _write_sof(self, d):
         self._write_float_group('SOF', d)
@@ -170,11 +189,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _write_read(self, d):
         data = 'READ'
+        d = self._remove_none_values(d)
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        for i in d.values():
-            if not isinstance(i, string_types):
-                self._write_float(i)
+        for v in d.values():
+            if not isinstance(v, string_types):
+                self._write_float(v)
 
     def _write_mm1(self, d):
         data = 'MM1'
