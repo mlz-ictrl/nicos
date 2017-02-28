@@ -50,15 +50,13 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
         self._setROParam('_started', False)
         is_readable = True
         if hasattr(self._caressObject, 'is_readable_module'):
-            is_readable = \
-                self._caress_guard(self._caressObject.is_readable_module,
-                                   self.cid)
+            is_readable = self._caress_guard(
+                self._caressObject.is_readable_module, self.cid)
         self.log.debug('Readable module: %r', is_readable)
 
         if hasattr(self._caressObject, 'is_drivable_module'):
-            is_drivable = \
-                self._caress_guard(self._caressObject.is_drivable_module,
-                                   self.cid)
+            is_drivable = self._caress_guard(
+                self._caressObject.is_drivable_module, self.cid)
         else:
             is_drivable = self._device_kind() in [3, 7, 13, 14, 15, 23, 24, 25,
                                                   28, 29, 30, 31, 32, 33, 37,
