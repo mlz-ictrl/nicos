@@ -41,7 +41,7 @@ from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
     QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
     QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
     QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
-    QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, pyqtSlot
+    QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, QWidget, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.utils import formatDuration, formatEndtime
 
@@ -81,6 +81,74 @@ if has_scintilla:
             self.SendScintilla(self.SCI_DOCUMENTEND)
 
 
+class SimResultFrame(QWidget):
+    """Shows the results of a simulation/dry run."""
+
+    def __init__(self, parent, panel, client):
+        QWidget.__init__(self, parent)
+        loadUi(self, 'panels/simresult.ui')
+        self.simOutStack.setCurrentIndex(0)
+        hdr = self.simRanges.header()
+        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.panel = panel
+        self.simuuid = None
+        client.simmessage.connect(self.on_client_simmessage)
+        client.simresult.connect(self.on_client_simresult)
+
+    def clear(self):
+        self.simOutView.clear()
+        self.simOutViewErrors.clear()
+        self.simRanges.clear()
+        self.simTotalTime.setText('')
+        self.simFinished.setText('')
+
+    def closeEvent(self, event):
+        self.panel.simWindows.remove(self)
+        return QWidget.closeEvent(self, event)
+
+    def on_client_simmessage(self, simmessage):
+        if simmessage[5] != self.simuuid:
+            return
+        self.simOutView.addMessage(simmessage)
+        if simmessage[2] >= WARNING:
+            self.simOutViewErrors.addMessage(simmessage)
+
+    def on_client_simresult(self, data):
+        timing, devinfo, uuid = data
+        if uuid != self.simuuid:
+            return
+        self.simuuid = None
+
+        # show timing
+        if timing < 0:
+            self.simTotalTime.setText('Error occurred')
+            self.simFinished.setText('See messages')
+        else:
+            self.simTotalTime.setText(formatDuration(timing, precise=False))
+            self.simFinished.setText(formatEndtime(timing))
+
+        # device ranges
+        for devname, (_dval, dmin, dmax, aliases) in devinfo.items():
+            if dmin is not None:
+                aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
+                item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
+                self.simRanges.addTopLevelItem(item)
+
+        self.simRanges.sortByColumn(0, Qt.AscendingOrder)
+
+    def on_simErrorsOnly_toggled(self, on):
+        self.simOutStack.setCurrentIndex(on)
+
+    def on_simOutView_anchorClicked(self, url):
+        url = url.toString()
+        if url.startswith('trace:'):
+            TracebackDialog(self, self.simOutView, url[6:]).show()
+
+    def on_simOutViewErrors_anchorClicked(self, url):
+        self.on_simOutView_anchorClicked(url)
+
+
 class EditorPanel(Panel):
     """Provides a text editor specialized for entering scripts.
 
@@ -97,6 +165,10 @@ class EditorPanel(Panel):
       special menu ``Editor tools``.
     * ``show_browser`` (default True) -- Toggle the default visibility of
       the Script Browser widget.
+    * ``sim_window`` -- how to display dry run results: either ``"inline"``
+      (in a dock widget in the panel, the default), ``"single"`` (in an
+      external window, the same for each run), or ``"multi"`` (each run opens
+      a new window).
     """
 
     panelName = 'User editor'
@@ -117,7 +189,6 @@ class EditorPanel(Panel):
         self.menus = None
         self.bar = None
         self.current_status = None
-        self.simuuid = ''
         self.recentf_actions = []
         self.searchdlg = None
         self.menuRecent = QMenu('Recent files')
@@ -136,6 +207,11 @@ class EditorPanel(Panel):
         self.tabber.tabCloseRequested.connect(self.on_tabber_tabCloseRequested)
 
         self.toolconfig = options.get('tools')
+        self.sim_window = options.get('sim_window', 'inline')
+        if self.sim_window not in ('single', 'multi', 'inline'):
+            self.log.warning('invalid sim_window option %r, using inline',
+                             self.sim_window)
+            self.sim_window = 'inline'
 
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
@@ -150,10 +226,10 @@ class EditorPanel(Panel):
         self.saving = False  # True while saving
         self.warnWidget.hide()
 
-        self.simOutStack.setCurrentIndex(0)
-        hdr = self.simRanges.header()
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.simFrame = SimResultFrame(self, None, self.client)
+        self.simPaneFrame.layout().addWidget(self.simFrame)
         self.simPane.hide()
+        self.simWindows = []
 
         self.splitter.restoreState(self.splitterstate)
         self.treeModel = QFileSystemModel()
@@ -176,9 +252,8 @@ class EditorPanel(Panel):
         self.activeGroup.addAction(self.actionSimulate)
         self.activeGroup.addAction(self.actionUpdate)
 
-        client.simmessage.connect(self.on_client_simmessage)
         client.simresult.connect(self.on_client_simresult)
-        if client.isconnected:
+        if self.client.connected:
             self.on_client_connected()
         else:
             self.on_client_disconnected()
@@ -280,8 +355,8 @@ class EditorPanel(Panel):
     def setCustomStyle(self, font, back):
         self.custom_font = font
         self.custom_back = back
-        self.simOutView.setFont(font)
-        self.simOutViewErrors.setFont(font)
+        self.simFrame.simOutView.setFont(font)
+        self.simFrame.simOutViewErrors.setFont(font)
         for editor in self.editors:
             self._updateStyle(editor)
 
@@ -446,36 +521,9 @@ class EditorPanel(Panel):
         if key.endswith('/scriptpath'):
             self.on_client_connected()
 
-    def on_client_simmessage(self, simmessage):
-        if simmessage[5] != self.simuuid:
-            return
-        self.simOutView.addMessage(simmessage)
-        if simmessage[2] >= WARNING:
-            self.simOutViewErrors.addMessage(simmessage)
-
     def on_client_simresult(self, data):
-        self.actionSimulate.setEnabled(True)
-        (timing, devinfo, uuid) = data
-        if uuid != self.simuuid:
-            return
-
-        # show timing
-        if timing < 0:
-            self.simTotalTime.setText('Error occurred')
-            self.simFinished.setText('See messages')
-        else:
-            self.simTotalTime.setText(formatDuration(timing, precise=False))
-            self.simFinished.setText(formatEndtime(timing))
-
-        # device ranges
-        for devname, (_dval, dmin, dmax, aliases) in devinfo.items():
-            if dmin is not None:
-                aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
-                item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
-                self.simRanges.addTopLevelItem(item)
-
-        self.simRanges.sortByColumn(0, Qt.AscendingOrder)
-        self.simPane.show()
+        if self.sim_window == 'inline':
+            self.actionSimulate.setEnabled(True)
 
     def on_client_experiment(self, data):
         (_, proptype) = data
@@ -548,12 +596,30 @@ class EditorPanel(Panel):
             return
         if not self.checkDirty(self.currentEditor, askonly=True):
             return
-        self.actionSimulate.setEnabled(False)
-        self.simuuid = str(uuid1())
-        self.client.tell('simulate', self.filenames[self.currentEditor], script,
-                         self.simuuid)
-        self.clearSimPane()
-        self.simPane.show()
+        simuuid = str(uuid1())
+        filename = self.filenames[self.currentEditor]
+        if self.sim_window == 'inline':
+            self.actionSimulate.setEnabled(False)
+            self.simFrame.simuuid = simuuid
+            self.simFrame.clear()
+            self.simPane.setWindowTitle('Dry run results - %s' % filename)
+            self.simPane.show()
+        else:
+            if self.sim_window == 'multi' or not self.simWindows:
+                window = SimResultFrame(None, self, self.client)
+                window.setWindowTitle('Dry run results - %s' % filename)
+                window.layout().setContentsMargins(6, 6, 6, 6)
+                window.simOutView.setFont(self.simFrame.simOutView.font())
+                window.simOutViewErrors.setFont(self.simFrame.simOutView.font())
+                window.show()
+                self.simWindows.append(window)
+            else:
+                window = self.simWindows[0]
+                window.clear()
+                window.setWindowTitle('Dry run results - %s' % filename)
+                window.activateWindow()
+            window.simuuid = simuuid
+        self.client.tell('simulate', filename, script, simuuid)
 
     @pyqtSlot()
     def on_actionUpdate_triggered(self):
@@ -575,16 +641,6 @@ class EditorPanel(Panel):
         if script is not None:
             editor = self.newFile()
             editor.setText(script)
-
-    def clearSimPane(self):
-        self.simOutView.clear()
-        self.simOutViewErrors.clear()
-        self.simRanges.clear()
-        self.simTotalTime.setText('')
-        self.simFinished.setText('')
-
-    def on_simErrorsOnly_toggled(self, on):
-        self.simOutStack.setCurrentIndex(on)
 
     def checkDirty(self, editor, askonly=False):
         if not editor.isModified():
@@ -649,7 +705,7 @@ class EditorPanel(Panel):
             self.on_fileSystemWatcher_fileChanged)
         self.tabber.addTab(editor, '(New script)')
         self.tabber.setCurrentWidget(editor)
-        self.clearSimPane()
+        self.simFrame.clear()
         editor.setFocus()
         return editor
 
@@ -679,7 +735,7 @@ class EditorPanel(Panel):
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
         self.currentEditor.setText(text)
-        self.clearSimPane()
+        self.simFrame.clear()
 
     def openRecentFile(self):
         self.openFile(self.sender().data())
@@ -710,7 +766,7 @@ class EditorPanel(Panel):
         self.watchers[editor].addPath(fn)
         self.tabber.addTab(editor, path.basename(fn))
         self.tabber.setCurrentWidget(editor)
-        self.clearSimPane()
+        self.simFrame.clear()
         editor.setFocus()
 
     def addToRecentf(self, fn):
@@ -859,10 +915,3 @@ class EditorPanel(Panel):
             else:
                 self.currentEditor.insertAt(COMMENT_STR, line, 0)
             self.currentEditor.endUndoAction()
-
-    def on_simOutView_anchorClicked(self, url):
-        if url.scheme() == 'trace':
-            TracebackDialog(self, self.simOutView, url.path()).show()
-
-    def on_simOutViewErrors_anchorClicked(self, url):
-        self.on_simOutView_anchorClicked(url)
