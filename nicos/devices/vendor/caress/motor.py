@@ -110,6 +110,6 @@ class MuxMotor(Motor):
     """CARESS motor using the ST180 multiplexer."""
 
     attached_devices = {
-        'mux':   Attach('Multiplexer device to access the motor controller',
-                        MUX, optional=True, multiple=False),
+        'mux': Attach('Multiplexer device to access the motor controller',
+                      MUX, optional=True, multiple=False),
     }
