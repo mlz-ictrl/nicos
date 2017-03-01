@@ -150,7 +150,7 @@ class Axis(CanReference, AbstractAxis):
         return []
 
     def doStatus(self, maxage=0):
-        """Returns the status of the motor controller."""
+        """Return the status of the motor controller."""
         if self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
         elif self._errorstate:
@@ -159,7 +159,7 @@ class Axis(CanReference, AbstractAxis):
             return self._attached_motor.status(maxage)
 
     def doRead(self, maxage=0):
-        """Returns the current position from coder controller."""
+        """Return the current position from coder controller."""
         return self._attached_coder.read(maxage) - self.offset
 
     def doPoll(self, i, maxage):
@@ -172,9 +172,10 @@ class Axis(CanReference, AbstractAxis):
             dev.poll(i, maxage)
 
     def _getReading(self):
-        """Find a good value from the observers, taking into account that they
-        usually have lower resolution, so we have to average of a few readings
-        to get a (more) precise value.
+        """Find a good value from the observers.
+
+        Taking into account that they usually have lower resolution, so we
+        have to average of a few readings to get a (more) precise value.
         """
         # if coder != motor -> use coder (its more precise!)
         # if no observers, rely on coder (even if its == motor)
@@ -187,7 +188,7 @@ class Axis(CanReference, AbstractAxis):
         return pos / float(rounds * len(obs))
 
     def doReset(self):
-        """Resets the motor/coder controller."""
+        """Reset the motor/coder controller."""
         self._attached_motor.reset()
         if self._hascoder:
             self._attached_coder.reset()
@@ -271,8 +272,10 @@ class Axis(CanReference, AbstractAxis):
         """
 
     def _checkDragerror(self):
-        """Check if a "drag error" occurred, i.e. the values of motor and
-        coder deviate too much.  This indicates that the movement is blocked.
+        """Check if a "drag error" occurred.
+
+        The values of motor and coder deviate too much.  This indicates that
+        the movement is blocked.
 
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.

@@ -36,7 +36,7 @@ class Coder(HasPrecision, Readable):
 
     @usermethod
     def setPosition(self, pos):
-        """Sets the current position of the controller to the target.
+        """Set the current position of the controller to the target.
 
         This operation is forbidden in slave mode, and does the right thing
         virtually in simulation mode.
@@ -186,7 +186,7 @@ class MappedReadable(HasMapping, Readable):
             raise PositionError(self, 'unknown unmapped position %r' % value)
 
     def _readRaw(self, maxage=0):
-        """Reads the unmapped/raw value from the device.
+        """Read the unmapped/raw value from the device.
 
         Must be implemented in derived classes!
         """
