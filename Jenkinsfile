@@ -273,7 +273,7 @@ verifyresult.put('doc', 1)
 // *************End Function defs ***/
 
 // ************* Start main script ***/
-
+timestamps {
 stage(name: 'checkout code: ' +GERRIT_PROJECT) {
     node('master') {
         echo(GERRIT_PROJECT)
@@ -379,3 +379,4 @@ failFast: false
 
 /*** set final vote **/
 setGerritReview()
+}
