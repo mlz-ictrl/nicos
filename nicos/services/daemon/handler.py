@@ -28,7 +28,6 @@ commands.
 """
 
 import os
-import errno
 import base64
 import socket
 import tempfile
@@ -358,6 +357,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         self.log.info('event sender started')
         queue_get = self.event_queue.get
         event_mask = self.event_mask
+        # close connection after socket send queue is full for 60 seconds
+        sock.settimeout(60.0)
         send = sock.sendall
         while 1:
             item = queue_get()
@@ -372,15 +373,16 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 send(STX + evtcode + LENGTH.pack(len(data)))
                 # then, send data separately (doesn't create temporary strings)
                 send(data)
+            except socket.timeout:
+                self.log.error('send timeout in event sender')
+                break
+            except socket.error as err:
+                self.log.warning('connection broken in event sender: %s', err)
+                break
             except Exception as err:
-                if isinstance(err, socket.error) and \
-                   err.args[0] in (errno.EPIPE, errno.EBADF):
-                    # close sender on broken pipe
-                    self.log.warning('broken pipe/bad socket in event sender')
-                    break
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s', event, repr(data)[:1000])
-        self.log.info('closing event connection')
+        self.log.info('closing connections from event sender')
         closeSocket(sock)
         # also close the main connection if not already done
         closeSocket(self.sock)
