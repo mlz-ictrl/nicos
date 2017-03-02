@@ -396,7 +396,13 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             devname = dev.name.upper()
         self._defdata('SETVALUES(%s)' % ' '.join(['STEP', devname]))
         if self._scan_type == 'SGEN2':
-            mastervalues = 'SL1(TTHS ADET CHIS %s TIM1 MON)' % devname
+            mastervalues = 'SL1(TTHS ADET '
+            if ('chis', 'value') in self.dataset.metainfo:
+                self.log.debug('%r', self.dataset.metainfo[('chis', 'value')])
+                v, _, _, _ = self.dataset.metainfo[('chis', 'value')]
+                if v is not None:
+                    mastervalues += 'CHIS '
+            mastervalues += '%s TIM1 MON)' % devname
         else:
             mastervalues = 'MM1(%s)SL1(TTHS ADET MON)' % master
         self._defdata('MASTER1VALUES(%s)' % mastervalues)
@@ -627,7 +633,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                         buf += pack('<i', i)
                 self._file_write(buf)
         if self._scan_type == 'SGEN2':
-            self._write_float(chis)
+            if chis is None:
+                self.log.debug('CHIS value is None, ignore it')
+            else:
+                self._write_float(chis)
             if point.devvaluelist:
                 self._write_float(point.devvaluelist[0])
             else:
