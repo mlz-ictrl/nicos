@@ -24,8 +24,10 @@ devices = dict(
                     abslimits = (85, 185),
                     nameserver = '%s' % (nameservice,),
                     objname = '%s' % (servername),
-                    config = 'CHIS 115 11 0x00f1e000 3 350 500 50 1 0 0 0 0 1 '
-                             '5000 1 10 0 0 0',
+                    # config = 'CHIS 115 11 0x00f1e000 3 350 500 50 1 0 0 0 0 '
+                    #          '1 5000 1 10 0 0 0',
+                    config = 'CHIS 114 11 0x00f1e000 3 143 500 50 2 24 50 -1 0'
+                             ' 1 5000 1 10 0 0 0',
                     lowlevel = True,
                    ),
     phis_t = device('devices.vendor.caress.Motor',
