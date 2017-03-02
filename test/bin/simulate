@@ -17,6 +17,7 @@ else:
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
+from nicos.utils import which
 from test.utils import runtime_root, selfDestructAfter
 
 
@@ -35,7 +36,7 @@ class TestSimulationSession(SimulationSession):
 args = sys.argv[1:]
 if len(args) < 5:
     raise SystemExit('Usage: nicos-simulate port prefix setups user code')
-port = int(args[0])
+sock = args[0]
 prefix = args[1]
 setups = args[2].split(',')
 user = args[3]
@@ -49,5 +50,8 @@ else:
 config.nicos_root = runtime_root
 config.setup_subdirs = setup_subdirs
 
+# enable this if the helper is installed
+config.sandbox_simulation = bool(which('nicos-sandbox-helper'))
+
 selfDestructAfter(10)
-TestSimulationSession.run(port, prefix, setups, user, code)
+TestSimulationSession.run(sock, prefix, setups, user, code)

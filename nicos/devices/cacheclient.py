@@ -617,6 +617,9 @@ class CacheClient(BaseCacheClient):
                 return default
         return value
 
+    def get_values(self):
+        return {key: value for (key, (value, _)) in iteritems(self._db)}
+
     def get_explicit(self, dev, key, default=None):
         """Get a value from the cache server, bypassing the local cache.  This
         is needed if the current update time and ttl is required.

@@ -32,6 +32,7 @@ Only for internal usage by functions and methods.
 
 import os
 import sys
+import stat
 import inspect
 import logging
 from os import path
@@ -48,7 +49,7 @@ from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.core.utils import system_user
 from nicos.devices.notifiers import Notifier
-from nicos.utils import formatDocstring, formatScriptError
+from nicos.utils import formatDocstring, formatScriptError, which
 from nicos.utils.loggers import initLoggers, NicosLogger, \
     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
@@ -146,6 +147,8 @@ class Session(object):
         self._script_start = None
         self._script_name = ''
         self._script_text = ''
+        # will be filled with the path to the sandbox helper if necessary
+        self._sandbox_helper = None
 
         # cache connection
         self.cache = None
@@ -268,20 +271,21 @@ class Session(object):
     def spMode(self):
         return self._spmode
 
-    def simulationSync(self):
+    def simulationSync(self, db=None):
         """Synchronize device values and parameters from current cached values.
         """
         if self._mode != SIMULATION:
             raise NicosError('must be in simulation mode')
         if not self.current_sysconfig.get('cache'):
             raise NicosError('no cache is configured')
-        client = SyncCacheClient('Syncer',
-                                 cache=self.current_sysconfig['cache'],
-                                 prefix='nicos/', lowlevel=True)
-        try:
-            db = client.get_values()
-        finally:
-            client.doShutdown()
+        if db is None:
+            client = SyncCacheClient('Syncer',
+                                     cache=self.current_sysconfig['cache'],
+                                     prefix='nicos/', lowlevel=True)
+            try:
+                db = client.get_values()
+            finally:
+                client.doShutdown()
         setups = db.get('session/mastersetupexplicit')
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
@@ -1318,6 +1322,23 @@ class Session(object):
             except Exception:
                 pass
 
+        # check sandboxing prerequisites
+        if config.sandbox_simulation and not self._sandbox_helper:
+            if not sys.platform.startswith('linux'):
+                raise NicosError('Dry run is configured to run sandboxed, but '
+                                 'this only works on Linux')
+            helperpath = which('nicos-sandbox-helper')
+            if not helperpath:
+                raise NicosError('Dry run is configured to run sandboxed, but '
+                                 'the nicos-sandbox-helper binary was not '
+                                 'found')
+            st = os.stat(helperpath)
+            if st.st_uid != 0 or not st.st_mode & stat.S_ISUID:
+                raise NicosError('Dry run is configured to run sandboxed, but '
+                                 'the nicos-sandbox-helper binary is not '
+                                 'set-uid root')
+            self._sandbox_helper = helperpath
+
         # create a thread that that start the simulation and forwards its
         # messages to the client(s)
         from nicos.core.sessions.simulation import SimulationSupervisor
@@ -1326,7 +1347,8 @@ class Session(object):
                   setup in self.explicit_setups or
                   self._setup_info[setup]['extended'].get('dynamic_loaded')]
         user = self.getExecutingUser()
-        supervisor = SimulationSupervisor(code, prefix, setups, user, emitter)
+        supervisor = SimulationSupervisor(self._sandbox_helper,
+                                          code, prefix, setups, user, emitter)
         supervisor.start()
         if wait:
             supervisor.join()

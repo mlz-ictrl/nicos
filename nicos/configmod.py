@@ -53,6 +53,7 @@ class config(object):
     logging_path = 'log'
 
     simple_mode = False
+    sandbox_simulation = False
     services = 'cache,poller'
 
 
@@ -61,6 +62,7 @@ class config(object):
 class NicosConfigParser(configparser.SafeConfigParser):
     def optionxform(self, key):
         return key
+
 
 def findValidCustomPath(nicos_root, global_cfg):
     """Get the custom dir path of the NICOS install.
@@ -96,6 +98,7 @@ def findValidCustomPath(nicos_root, global_cfg):
         custom_path = path.abspath(path.join(nicos_root, 'custom'))
 
     return custom_path
+
 
 def readConfig():
     """Read the basic NICOS configuration.  This is a multi-step process:
@@ -166,6 +169,15 @@ def applyConfig():
     # Apply session configuration values.
     for key, value in values.items():
         setattr(config, key, value)
+
+    def to_bool(val):
+        if not isinstance(val, bool):
+            return val.lower() in ('yes', 'true', 'on')
+        return val
+
+    # Type-coerce booleans.
+    config.simple_mode = to_bool(config.simple_mode)
+    config.sandbox_simulation = to_bool(config.sandbox_simulation)
 
     # Apply environment variables.
     for key, value in environment.items():

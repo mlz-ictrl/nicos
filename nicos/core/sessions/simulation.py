@@ -26,16 +26,18 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import time
 import logging
+import tempfile
 from os import path
 from threading import Thread
 
 import zmq
 
 from nicos import session, config
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, NicosError
 from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
@@ -43,7 +45,7 @@ from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils import createSubprocess
 from nicos.utils.loggers import TRANSMIT_ENTRIES
 from nicos.utils.messaging import nicos_zmq_ctx
-from nicos.pycompat import iteritems, exec_
+from nicos.pycompat import iteritems, exec_, cPickle as pickle
 
 
 class SimLogSender(logging.Handler):
@@ -51,10 +53,9 @@ class SimLogSender(logging.Handler):
     Log handler sending messages to the original daemon via a pipe.
     """
 
-    def __init__(self, port, session, finish_only=False):
+    def __init__(self, socket, session, finish_only=False):
         logging.Handler.__init__(self)
-        self.socket = nicos_zmq_ctx.socket(zmq.PUSH)
-        self.socket.connect('tcp://127.0.0.1:%d' % port)
+        self.socket = socket
         self.session = session
         self.finish_only = finish_only
         self.starttime = None
@@ -118,12 +119,20 @@ class SimulationSession(Session):
         self.log_sender.level = logging.ERROR  # log only errors before code starts
 
     @classmethod
-    def run(cls, port, prefix, setups, user, code):
+    def run(cls, sock, prefix, setups, user, code):
         session.__class__ = cls
+
+        socket = nicos_zmq_ctx.socket(zmq.DEALER)
+        socket.connect(sock)
+
+        # we either get an empty message (retrieve cache data ourselves)
+        # or a pickled key-value database
+        data = socket.recv()
+        db = pickle.loads(data) if data else None
 
         session.globalprefix = prefix
         # send log messages back to daemon if requested
-        session.log_sender = SimLogSender(port, session)
+        session.log_sender = SimLogSender(socket, session)
 
         username, level = user.rsplit(',', 1)
         session._user = User(username, int(level))
@@ -156,7 +165,7 @@ class SimulationSession(Session):
 
             # Synchronize setups and cache values.
             session.log.info('synchronizing to master session')
-            session.simulationSync()
+            session.simulationSync(db)
 
             # Set session to always abort on errors.
             session.experiment.errorbehavior = 'abort'
@@ -193,30 +202,50 @@ class SimulationSession(Session):
 
 
 class SimulationSupervisor(Thread):
-    """
-    Thread for starting a simulation process, receiving messages from a pipe
-    and displaying/sending them to the client.
+    """Thread for starting a simulation process, receiving messages from a zmq
+    socket and displaying/sending them to the client.
     """
 
-    def __init__(self, code, prefix, setups, user, emitter, more_args=None):
-        scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
+    def __init__(self, sandbox, code, prefix, setups, user, emitter,
+                 more_args=None):
         Thread.__init__(self, target=self._target,
                         name='SimulationSupervisor',
-                        args=(emitter, scriptname, prefix, setups, code, user,
+                        args=(sandbox, emitter, prefix, setups, code, user,
                               more_args or []))
         # "daemonize this thread" attribute, not referring to the NICOS daemon.
         self.daemon = True
 
-    def _target(self, emitter, scriptname, prefix, setups, code, user, args):
-        socket = nicos_zmq_ctx.socket(zmq.PULL)
+    def _target(self, sandbox, emitter, prefix, setups, code, user, args):
+        socket = nicos_zmq_ctx.socket(zmq.DEALER)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
-        port = socket.bind_to_random_port('tcp://127.0.0.1')
+        if sandbox:
+            # create a new temporary directory for the sandbox helper to
+            # mount the filesystem
+            tempdir = tempfile.mkdtemp()
+            rootdir = path.join(tempdir, 'root')
+            os.mkdir(rootdir)
+            # since the sandbox does not have TCP connection, use a Unix socket
+            sockname = 'ipc://' + path.join(tempdir, 'sock')
+            socket.bind(sockname)
+            prefixargs = [sandbox, rootdir, str(os.getuid()), str(os.getgid())]
+        else:
+            port = socket.bind_to_random_port('tcp://127.0.0.1')
+            sockname = 'tcp://127.0.0.1:%s' % port
+            prefixargs = []
+        scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         userstr = '%s,%d' % (user.name, user.level)
-        # start nicos-simulate process
-        proc = createSubprocess([sys.executable, scriptname,
-                                 str(port), prefix, ','.join(setups),
+        proc = createSubprocess(prefixargs +
+                                [sys.executable, scriptname,
+                                 sockname, prefix, ','.join(setups),
                                  userstr, code] + args)
+        if sandbox:
+            if not session.current_sysconfig.get('cache'):
+                raise NicosError('no cache is configured')
+            socket.send(pickle.dumps(session.cache.get_values()))
+        else:
+            # let the subprocess connect to the cache
+            socket.send(b'')
         while True:
             res = poller.poll(500)
             if not res:
@@ -249,7 +278,14 @@ class SimulationSupervisor(Thread):
             # Python 3.x has a timeout argument for poll()...
             while time.time() < wait_start + 5:
                 if proc.poll() is not None:
-                    return
-            raise Exception('did not terminate within 5 seconds')
+                    break
+            else:
+                raise Exception('did not terminate within 5 seconds')
         except Exception:
             session.log.exception('Error waiting for dry run process')
+        if sandbox:
+            try:
+                os.rmdir(rootdir)
+                os.rmdir(tempdir)
+            except Exception:
+                pass
