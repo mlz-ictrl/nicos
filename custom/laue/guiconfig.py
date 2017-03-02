@@ -48,7 +48,7 @@ tools = [
          url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
-    tool('Esmeralda', 'commands.AsyncCommandsTool',
+    tool('Esmeralda', 'nicos.clients.gui.tools.commands.AsyncCommandsTool',
           commands=[('Run Esmeralda', '/home/laue/pedersen/esmeralda715/Esmeralda')]
         ),
 ]
