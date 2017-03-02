@@ -367,11 +367,16 @@ class HasTimeout(DeviceMixinBase):
 
     @property
     def _startTime(self):
-        return self._timesout[0][1] if self._timesout else None
+        # only read the parameter once from the cache db to avoid race
+        # condition between the checks below
+        timesout = self._timesout
+        return timesout[0][1] if timesout else None
 
     @property
     def _timeoutTime(self):
-        return self._timesout[-1][1] if self._timesout else None
+        # see above
+        timesout = self._timesout
+        return timesout[-1][1] if timesout else None
 
     def _getTimeoutTimes(self, current_pos, target_pos, current_time):
         """Calculates timestamps for timeouts
