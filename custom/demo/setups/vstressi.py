@@ -30,6 +30,7 @@ devices = dict(
                    fmtstr = '%.2f',
                    unit = 'deg',
                    abslimits = (-180, 180),
+                   lowlevel = True,
                   ),
     chis = device('devices.generic.axis.Axis',
                   description = 'Simulated HWB CHIS axis',
