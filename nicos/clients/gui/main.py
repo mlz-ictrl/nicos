@@ -103,6 +103,9 @@ class MainWindow(QMainWindow, DlgUtils):
         # are we in expert mode?  (always false on startup)
         self.expertmode = False
 
+        # no wrapping at startup
+        self.allowoutputlinewrap = False
+
         # set-up the initial connection data
         self.conndata = ConnectionData(host='localhost', port=1301,
                                        user='guest', password=None)
@@ -302,6 +305,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.showtrayicon = settings.value('showtrayicon', True, bool)
         self.autoreconnect = settings.value('autoreconnect', True, bool)
         self.autosavelayout = settings.value('autosavelayout', True, bool)
+        self.allowoutputlinewrap = settings.value('allowoutputlinewrap', False, bool)
 
         self.update()
 

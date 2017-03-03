@@ -52,6 +52,7 @@ class SettingsDialog(QDialog, DlgUtils):
         self.autoReconnect.setChecked(main.autoreconnect)
         self.autoSaveLayout.setChecked(main.autosavelayout)
         self.manualSaveLayout.setChecked(not main.autosavelayout)
+        self.allowOutputLineWrap.setChecked(main.allowoutputlinewrap)
 
         # connection data page
         self.connpresets = main.connpresets
@@ -66,6 +67,7 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.showtrayicon = self.showTrayIcon.isChecked()
         self.main.autoreconnect = self.autoReconnect.isChecked()
         self.main.autosavelayout = self.autoSaveLayout.isChecked()
+        self.main.allowoutputlinewrap = self.allowOutputLineWrap.isChecked()
         with self.sgroup as settings:
             settings.setValue(
                 'connpresets_new', dict((k, v.serialize()) for (k, v)
@@ -76,6 +78,7 @@ class SettingsDialog(QDialog, DlgUtils):
             settings.setValue('showtrayicon', self.main.showtrayicon)
             settings.setValue('autoreconnect', self.main.autoreconnect)
             settings.setValue('autosavelayout', self.main.autosavelayout)
+            settings.setValue('allowoutputlinewrap', self.main.allowoutputlinewrap)
         if self.main.showtrayicon:
             self.main.trayIcon.show()
         else:

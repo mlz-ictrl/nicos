@@ -29,7 +29,7 @@ import sys
 from os import path
 
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QPrinter, \
-    QPrintDialog, QAbstractPrintDialog
+    QPrintDialog, QAbstractPrintDialog, QTextEdit
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
@@ -73,6 +73,7 @@ class ConsolePanel(Panel):
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
         self.grepNoMatch.setVisible(False)
+        self.actionAllowLineWrap.setChecked(self.mainwindow.allowoutputlinewrap)
 
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
@@ -88,6 +89,9 @@ class ConsolePanel(Panel):
         self.menu.addSeparator()
         self.menu.addAction(self.actionSave)
         self.menu.addAction(self.actionPrint)
+        self.menu.addSeparator()
+        self.menu.addAction(self.actionAllowLineWrap)
+        self.on_actionAllowLineWrap_triggered(self.mainwindow.allowoutputlinewrap)
 
     def on_outView_customContextMenuRequested(self, point):
         self.menu.popup(self.outView.mapToGlobal(point))
@@ -247,6 +251,14 @@ class ConsolePanel(Panel):
         if not st:
             return
         self.outView.occur(st, self.grepRegex.isChecked())
+
+    @qtsig('bool')
+    def on_actionAllowLineWrap_triggered(self, checked):
+        self.mainwindow.allowoutputlinewrap = checked
+        if self.mainwindow.allowoutputlinewrap:
+            self.outView.setLineWrapMode(QTextEdit.WidgetWidth)
+        else:
+            self.outView.setLineWrapMode(QTextEdit.NoWrap)
 
     def on_commandInput_execRequested(self, script, action):
         if action == 'queue':

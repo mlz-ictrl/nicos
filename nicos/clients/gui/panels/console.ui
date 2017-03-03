@@ -680,6 +680,17 @@
     <string>Ctrl+C</string>
    </property>
   </action>
+  <action name="actionAllowLineWrap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Allow line wrap</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+ALT+W</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
