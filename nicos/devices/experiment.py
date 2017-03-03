@@ -137,6 +137,9 @@ class Experiment(Device):
                                 default='service'),
         'servicescript':  Param('Script to run for service time', type=str,
                                 default='', settable=True),
+        'strictservice':  Param('Only the configured service exp. is considered "service"',
+                                type=bool,
+                                default=False, settable=False),
         'pausecount':     Param('Reason for pausing the count loop', type=str,
                                 settable=True, userparam=False,
                                 no_sim_restore=True),
@@ -263,7 +266,7 @@ class Experiment(Device):
         if self.propprefix:
             if proposal.startswith(self.propprefix):
                 return 'user'
-            return 'service'
+            return 'other' if self.strictservice else 'service'
         # if we have no prefix, all number-like proposals >0 are usertype,
         # else service
         try:
@@ -271,7 +274,7 @@ class Experiment(Device):
                 return 'service'
             return 'user'
         except ValueError:
-            return 'service'
+            return 'other' if self.strictservice else 'service'
 
     def _newPropertiesHook(self, proposal, kwds):
         """Hook for querying a database for proposal related stuff

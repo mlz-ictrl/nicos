@@ -84,6 +84,7 @@ devices = dict(
         sendmail = False,
         zipdata = False,
         serviceexp = 'service',
+        strictservice = True,
         # We do not have a dedicated responsible
         sample = 'Sample',
     ),
