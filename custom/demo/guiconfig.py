@@ -6,7 +6,8 @@ main_window = docked(
          vsplit(
             panel('status.ScriptStatusPanel'),
             # panel('watch.WatchPanel'),
-            panel('console.ConsolePanel'),
+            panel('console.ConsolePanel',
+                  watermark='resources/nicos-watermark.png'),
          ),
         ),
         ('PGAA',

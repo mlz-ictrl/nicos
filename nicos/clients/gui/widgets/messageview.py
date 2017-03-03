@@ -29,8 +29,8 @@ from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
-    QTextCursor, QMainWindow, QTextEdit
-from PyQt4.QtCore import Qt, QRegExp
+    QTextCursor, QMainWindow, QTextEdit, QPixmap, QPainter
+from PyQt4.QtCore import Qt, QRegExp, QRect, QSize
 
 from nicos.utils.loggers import INPUT, ACTION
 from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
@@ -84,6 +84,8 @@ class MessageView(QTextBrowser):
         self._actionlabel = None
         self._currentuser = None
         self.setFullTimestamps(False)
+        self._background_image = None
+        self._background_image_area = None
 
     def setFullTimestamps(self, on):
         if on:
@@ -269,3 +271,40 @@ class MessageView(QTextBrowser):
         window.setCentralWidget(widget)
         widget.setText(content)
         window.show()
+
+    def setBackgroundImage(self, filepath):
+        self._background_image = QPixmap(filepath)
+        self.recalculateBackgroundArea()
+
+    def recalculateBackgroundArea(self):
+        # recalculate the rect to draw the background image into
+        size = self._background_image.size()
+
+        # scale to viewport size and add some margin
+        size.scale(self.viewport().size() - QSize(30, 30), Qt.KeepAspectRatio)
+
+        # center background image
+        p = (self.viewport().size() - size) / 2
+
+        self._background_image_area = QRect(p.width(), p.height(),
+                                            size.width(), size.height())
+
+    def scrollContentsBy(self, x, y):
+        QTextBrowser.scrollContentsBy(self, x, y)
+        if self._background_image:
+            # repaint viewport on scoll to preserve the background image.
+            # Using 'update' to let qt optimize the process (speed/flickering)
+            self.viewport().update()
+
+    def resizeEvent(self, ev):
+        # recalculate the background area only if necessary
+        self.recalculateBackgroundArea()
+        QTextBrowser.resizeEvent(self, ev)
+
+    def paintEvent(self, ev):
+        if self._background_image:
+            # draw background image if any (should be mostly transparent!)
+            painter = QPainter(self.viewport())
+            painter.drawPixmap(self._background_image_area,
+                               self._background_image)
+        QTextBrowser.paintEvent(self, ev)

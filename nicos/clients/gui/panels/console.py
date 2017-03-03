@@ -26,13 +26,14 @@
 
 import io
 import sys
+from os import path
 
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QPrinter, \
     QPrintDialog, QAbstractPrintDialog
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
-from nicos.utils import chunks
+from nicos.utils import chunks, findResource
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, enumerateWithProgress, modePrompt
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
@@ -55,6 +56,8 @@ class ConsolePanel(Panel):
     * ``fulltime`` (default False) -- if set to True, the console shows the
       full (date + time) timestamp for every line, instead of only for errors
       and warnings.
+    * ``watermark`` (default empty) -- the path to an image file that should
+      be used as a watermark in the console window.
     """
     panelName = 'Console'
 
@@ -96,6 +99,11 @@ class ConsolePanel(Panel):
         self.hasmenu = bool(options.get('hasmenu', True))
         if options.get('fulltime', False):
             self.outView.setFullTimestamps(True)
+        watermark = options.get('watermark', '')
+        if watermark:
+            watermark = findResource(watermark)
+            if path.isfile(watermark):
+                self.outView.setBackgroundImage(watermark)
 
     def setExpertMode(self, expert):
         if not self.hasinput:
