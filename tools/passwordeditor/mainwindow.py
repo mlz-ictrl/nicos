@@ -25,13 +25,14 @@
 import hashlib
 import logging
 
-from collections import OrderedDict
 from os import path
 
 from PyQt4 import uic
 from PyQt4.QtGui import QFileDialog, QMainWindow, QMessageBox
 
-from nicos.core.sessions.setups import readSetup
+from nicos.configmod import config
+
+from passwordeditor.daemonsetup import DaemonSetup
 
 from passwordeditor.user import User
 from passwordeditor.userdialog import UserDialog
@@ -43,22 +44,15 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
-        self.info = {}          # dictionary read from script
         self.className = ''     # name of the devices class in auth tuple
         self.group = ''         # name of the group defined in the setup file
         self.description = ''   # name of the description in the setup file
         self.authDict = {}      # dictionary containing info in auth tuple
         self.users = {}         # dict to store users while working
-        self.loadedScript = ''  # path to the currently loaded file without .py
 
-        self.actionNew.triggered.connect(self.newFile)
         self.actionLoad.triggered.connect(self.loadFile)
         self.actionSave.triggered.connect(self.save)
-        self.actionPrintInfo.triggered.connect(self.debugInfo)
-        self.actionPrintClassname.triggered.connect(self.debugClassname)
-        self.actionPrintAuthDict.triggered.connect(self.debugAuthDict)
         self.actionPrintUsers.triggered.connect(self.debugUsers)
-        self.actionEditable.triggered.connect(self.toggleEditable)
         self.actionShowDebug.triggered.connect(self.toggleDebug)
 
         self.menuBar.clear()
@@ -71,9 +65,6 @@ class MainWindow(QMainWindow):
         self.pushButtonSaveConfig.clicked.connect(self.setConfig)
         self.pushButtonSaveUser.clicked.connect(self.setUserData)
 
-        self.lineEditClassName.textEdited.connect(self.changedConfig)
-        self.lineEditGroup.textEdited.connect(self.changedConfig)
-        self.lineEditDescription.textEdited.connect(self.changedConfig)
         self.comboBoxHashing.activated.connect(self.changedConfig)
         self.lineEditUserName.textEdited.connect(self.changedUser)
         self.lineEditPassword.textEdited.connect(self.changedUser)
@@ -81,13 +72,18 @@ class MainWindow(QMainWindow):
 
         # Initialize a logger required by setups.readSetup()
         self.log = logging.getLogger()
+        self.setuppath = path.join(path.expanduser('.'), 'custom',
+                                   config.instrument, 'setups', 'special',
+                                   'daemon.py')
+        self.setup = None
+        self.readSetupFile(self.setuppath)
 
     def loadFile(self):
         # allows a user to specify the setup file to be parsed
         setupFile = QFileDialog.getOpenFileName(
             self,
             'Open Python script',
-            path.expanduser('~'),
+            path.expanduser('.'),
             'Python Files (*.py)')
 
         if setupFile:
@@ -96,36 +92,19 @@ class MainWindow(QMainWindow):
     def readSetupFile(self, pathToFile):
         # uses nicos.core.sessions.setups.readSetup() to read a setup file and
         # put the information in the self.info dictionary.
-        self.info.clear()
-        self.users.clear()
         while self.userList.count() > 1:
             self.userList.takeItem(1)
 
-        readSetup(self.info, str(pathToFile), self.log)
-        self.loadedScript = str(pathToFile[:-3])
+        self.setup = DaemonSetup(str(pathToFile))
 
-        # if device Auth doesnt exist, create it
-        if 'Auth' not in self.info[str(pathToFile[:-3])]['devices']:
-            self.info[str(pathToFile[:-3])]['devices']['Auth'] = (
-                'services.daemon.auth.ListAuthenticator',
-                {'passwd': [], 'hashing': 'sha1'})
-
-        self.className = self.info[str(pathToFile[:-3])]['devices']['Auth'][0]
-        self.group = self.info[str(pathToFile[:-3])]['group']
-        self.description = self.info[str(pathToFile[:-3])]['description']
-        self.authDict = self.info[str(pathToFile[:-3])]['devices']['Auth'][1]
-
-        for userTuple in self.authDict['passwd']:  # passwd = list of users
-            newUser = User(userTuple[0], userTuple[1], userTuple[2])
-            self.users[userTuple[0]] = newUser  # convert to editable users
+        for userTuple in self.setup.getPasswordEntries():
+            self.users[userTuple[0]] = User(userTuple[0], userTuple[1],
+                                            userTuple[2])
 
         for key in self.users:
             self.userList.addItem(key)  # put users in gui (list widget)
 
         self.userList.setEnabled(True)
-        self.lineEditClassName.setEnabled(True)
-        self.lineEditGroup.setEnabled(True)
-        self.lineEditDescription.setEnabled(True)
         self.comboBoxHashing.setEnabled(True)
         self.lineEditUserName.setEnabled(True)
         self.lineEditPassword.setEnabled(True)
@@ -135,6 +114,7 @@ class MainWindow(QMainWindow):
 
         self.userList.setCurrentRow(0)
         self.reloadConfig()
+        self.setWindowTitle(pathToFile)
 
     def changeUser(self, user, previuousUser):
         # signal provides last item and current item
@@ -145,11 +125,8 @@ class MainWindow(QMainWindow):
             self.userWidget.setVisible(False)
             self.infoWidget.setVisible(True)
             self.pushButtonDeleteUser.setEnabled(False)
-            self.lineEditClassName.setText(self.className)
-            self.lineEditGroup.setText(self.group)
-            self.lineEditDescription.setText(self.description)
             self.comboBoxHashing.setCurrentIndex(self.comboBoxHashing.findText(
-                self.authDict['hashing']))
+                self.setup.getHashing()))
             return
 
         if not self.userWidget.isVisible():  # if previous selection was no user
@@ -169,11 +146,8 @@ class MainWindow(QMainWindow):
 
     def reloadConfig(self):
         self.pushButtonDeleteUser.setEnabled(False)
-        self.lineEditClassName.setText(self.className)
-        self.lineEditGroup.setText(self.group)
-        self.lineEditDescription.setText(self.description)
         self.comboBoxHashing.setCurrentIndex(self.comboBoxHashing.findText(
-            self.authDict['hashing']))
+            self.setup.getHashing()))
 
     def deleteUser(self):
         user = str(self.userList.currentItem().text())
@@ -188,10 +162,14 @@ class MainWindow(QMainWindow):
                 password = ''
             else:
                 noHashPassword = str(dlg.lineEditPassword.text())
-                if self.authDict['hashing'] == 'sha1':
-                    password = str(hashlib.sha1(noHashPassword).hexdigest())
-                else:  # elif self.authDict['hashing'] == 'md5':
-                    password = str(hashlib.md5(noHashPassword).hexdigest())
+                if config.instrument != 'demo':
+                    if self.setup.getHashing() == 'sha1':
+                        password = str(hashlib.sha1(noHashPassword).hexdigest())
+                    else:  # elif self.getHashing() == 'md5':
+                        password = str(hashlib.md5(noHashPassword).hexdigest())
+                else:
+                    password = 'hashlib.%s(b%r).hexdigest()' % (
+                        self.setup.getHashing(), str(noHashPassword))
             userlevel = str(dlg.comboBoxUserLevel.currentText())
             newUser = User(username, password, userlevel)
             self.users[username] = newUser
@@ -211,18 +189,14 @@ class MainWindow(QMainWindow):
         # method called when clicking save button in config widget.
         self.pushButtonSaveConfig.setEnabled(False)
 
-        self.className = str(self.lineEditClassName.text())
-        self.group = str(self.lineEditGroup.text())
-        self.description = str(self.lineEditDescription.text())
-
         newHashing = str(self.comboBoxHashing.currentText())
-        if newHashing != self.authDict['hashing']:
+        if newHashing != self.setup.getHashing():
             if self.hashingMsgbox():
-                self.authDict['hashing'] = newHashing
+                self.setup.setHashing(newHashing)
                 self.removeAllPasswords()
             else:
                 self.comboBoxHashing.setCurrentIndex(
-                    self.comboBoxHashing.findText(self.authDict['hashing']))
+                    self.comboBoxHashing.findText(self.setup.getHashing()))
 
     def setUserData(self):
         # method called when clicking save button in user widget.
@@ -243,9 +217,9 @@ class MainWindow(QMainWindow):
             password = ''
         else:
             noHashPassword = str(self.lineEditPassword.text())
-            if self.authDict['hashing'] == 'sha1':
+            if self.setup.getHashing() == 'sha1':
                 password = str(hashlib.sha1(noHashPassword).hexdigest())
-            else:  # elif self.authDict['hashing'] == 'md5':
+            else:  # elif self.setup.getHashing() == 'md5':
                 password = str(hashlib.md5(noHashPassword).hexdigest())
         self.users[newUserName].password = password
         self.users[newUserName].userLevel = str(self.comboBoxUserLevel.
@@ -272,16 +246,6 @@ class MainWindow(QMainWindow):
         for _, value in self.users.items():
             value.password = ''
 
-    def toggleEditable(self):
-        if self.actionEditable.isChecked():
-            self.lineEditClassName.setReadOnly(False)
-            self.lineEditGroup.setReadOnly(False)
-            self.lineEditDescription.setReadOnly(False)
-        else:
-            self.lineEditClassName.setReadOnly(True)
-            self.lineEditGroup.setReadOnly(True)
-            self.lineEditDescription.setReadOnly(True)
-
     def toggleDebug(self):
         if self.actionShowDebug.isChecked():
             self.menuBar.clear()
@@ -293,114 +257,23 @@ class MainWindow(QMainWindow):
             self.menuBar.addMenu(self.menuFile)
             self.menuBar.addMenu(self.menuEdit)
 
-    def debugInfo(self):
-        print(self.info)
-        print('')
-
-    def debugClassname(self):
-        print(self.className)
-        print('')
-
-    def debugAuthDict(self):
-        print(self.authDict)
-        print('')
-
     def debugUsers(self):
         for _, value in self.users.items():
-            print(value.userName)
-            print(value.password)
-            print(value.userLevel)
-            print('')
-        print('')
+            print(value.userName, value.password, value.userLevel)
 
-    def newFile(self):
-        filepath = QFileDialog.getSaveFileName(
-            self,
-            'New setup...',
-            path.expanduser('~'),
-            'Python script (*.py)')
-
-        if filepath:
-            if not str(filepath).endswith('.py'):
-                filepath += '.py'
-            open(filepath, 'w').close()
-            self.readSetupFile(filepath)
-
-    def save(self):
-        # put information in self.users, e.g. the User() classes, into tuples
-        # and put them back into
-        # self.info['file']['devices']['Auth'][1][passwd]
-        del self.authDict['passwd'][:]
-        for _, value in self.users.items():
-            self.authDict['passwd'].append((value.userName,
-                                            value.password,
-                                            value.userLevel))
-
+    def saveAs(self):
         # open a file to save into, create empty output string
         filepath = QFileDialog.getSaveFileName(
             self,
             'Save as...',
-            path.expanduser('~'),
+            path.expanduser('.'),
             'Python script (*.py)')
+        if str(filepath):
+            self._save(filepath)
 
-        if not str(filepath):
-            return
-        if not str(filepath).endswith('.py'):
-            filepath += '.py'
-
-        output = []
-        add = output.append
-
-        add('description = ')
-        add(repr(self.description) + '\n\n')
-
-        add('group = ')
-        add(repr(self.group) + '\n\n')
-
-        add('includes = ')
-        add(repr(self.info[self.loadedScript]['includes']) + '\n\n')
-
-        add('excludes = ')
-        add(repr(self.info[self.loadedScript]['excludes']) + '\n\n')
-
-        add('modules = ')
-        add(repr(self.info[self.loadedScript]['modules']) + '\n\n')
-
-        add('sysconfig = dict(\n')
-        for key, value in self.info[self.loadedScript]['sysconfig'].items():
-            add('    ' + str(key) + ' = ' + repr(value) + ',\n')
-        add(')\n\n')
-
-        add('devices = dict(\n')
-
-        # sort the devices by their name
-        self.info[self.loadedScript]['devices'] = OrderedDict(
-            sorted(self.info[self.loadedScript]['devices'].items()))
-        for deviceName, deviceInfo in self.info[
-                self.loadedScript]['devices'].items():
-            add('    ' + str(deviceName) + ' = device(')
-            indent = '              ' + (' ' * len(deviceName))  # fancy indent
-
-            if str(deviceName) == 'Auth':
-                add(repr(self.className) + ',\n')
-
-            else:
-                add(repr(deviceInfo[0]) + ',\n')
-
-            for deviceParam, paramValue in deviceInfo[1].items():
-                add(indent + str(deviceParam) + ' = ')
-                if deviceParam == 'passwd':
-                    add('[\n')
-                    for userTuple in paramValue:
-                        add(indent + '          ' + repr(userTuple) + ',\n')
-                    add(indent + '         ],\n')
-                else:
-                    add(repr(paramValue) + ',\n')
-            add((' ' * (len(indent) - 1)) + '),\n')
-        add(')\n\n')
-
-        add("startupcode = '''")
-        add(self.info[self.loadedScript]['startupcode'] + "'''\n\n")
-
-        with open(str(filepath), 'w') as outputFile:
-            outputFile.write(''.join(output))
+    def save(self):
+        pw = []
+        for _, value in self.users.items():
+            pw.append((value.userName, value.password, value.userLevel))
+            self.setup.updatePasswordEntries(pw)
+        self.setup.save()

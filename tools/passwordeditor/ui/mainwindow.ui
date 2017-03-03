@@ -24,7 +24,7 @@
         </property>
         <item>
          <property name="text">
-          <string>Device Configuration...</string>
+          <string>Password setting ...</string>
          </property>
         </item>
        </widget>
@@ -60,50 +60,7 @@
       <item>
        <widget class="QWidget" name="infoWidget" native="true">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QLabel" name="labelClassName">
-           <property name="text">
-            <string>Class name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEditClassName">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Normal</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
-          <spacer name="horizontalSpacerMiddle">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="labelHashing">
-           <property name="text">
-            <string>Hashing:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
           <spacer name="horizontalSpacerMiddle_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -119,7 +76,14 @@
            </property>
           </spacer>
          </item>
-         <item row="3" column="2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelHashing">
+           <property name="text">
+            <string>Hashing:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
           <widget class="QComboBox" name="comboBoxHashing">
            <property name="enabled">
             <bool>false</bool>
@@ -136,7 +100,7 @@
            </item>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="1" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <spacer name="horizontalSpacer_2">
@@ -162,72 +126,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="labelGroup">
-           <property name="text">
-            <string>Group:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="labelDescription">
-           <property name="text">
-            <string>Description:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <spacer name="horizontalSpacerMiddle_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="1">
-          <spacer name="horizontalSpacerMiddle_7">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEditGroup">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="lineEditDescription">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>
@@ -399,31 +297,28 @@
      <x>0</x>
      <y>0</y>
      <width>559</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNew"/>
     <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
      <string>Debug</string>
     </property>
-    <addaction name="actionPrintInfo"/>
-    <addaction name="actionPrintClassname"/>
-    <addaction name="actionPrintAuthDict"/>
     <addaction name="actionPrintUsers"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionEditable"/>
     <addaction name="actionShowDebug"/>
    </widget>
    <addaction name="menuFile"/>
@@ -435,37 +330,9 @@
     <string>Load...</string>
    </property>
   </action>
-  <action name="actionSave">
-   <property name="text">
-    <string>Save as...</string>
-   </property>
-  </action>
-  <action name="actionPrintInfo">
-   <property name="text">
-    <string>Print self.info</string>
-   </property>
-  </action>
-  <action name="actionPrintClassname">
-   <property name="text">
-    <string>print classname</string>
-   </property>
-  </action>
-  <action name="actionPrintAuthDict">
-   <property name="text">
-    <string>print authdict</string>
-   </property>
-  </action>
   <action name="actionPrintUsers">
    <property name="text">
     <string>print users</string>
-   </property>
-  </action>
-  <action name="actionEditable">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Editable class/group</string>
    </property>
   </action>
   <action name="actionShowDebug">
@@ -476,9 +343,36 @@
     <string>Show debug menu</string>
    </property>
   </action>
-  <action name="actionNew">
+  <action name="actionSave">
    <property name="text">
-    <string>New setup...</string>
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>
@@ -486,9 +380,6 @@
   <tabstop>userList</tabstop>
   <tabstop>pushButtonAddUser</tabstop>
   <tabstop>pushButtonDeleteUser</tabstop>
-  <tabstop>lineEditClassName</tabstop>
-  <tabstop>lineEditGroup</tabstop>
-  <tabstop>lineEditDescription</tabstop>
   <tabstop>comboBoxHashing</tabstop>
   <tabstop>pushButtonSaveConfig</tabstop>
   <tabstop>lineEditUserName</tabstop>
@@ -497,5 +388,22 @@
   <tabstop>pushButtonSaveUser</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>activated()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>279</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
