@@ -96,7 +96,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_user(self, user, name, roles):
         _user = re.split(r'(<)?(\w+(?:[\.-]\w+)+@\w+(?:\.\w+)+)(?(1)>)',
-                         to_utf8(name))
+                         to_utf8(name).decode())
         user['name'] = _user[0].strip()
         user['email'] = _user[2] if len(_user) > 2 else ''
         user['roles'] = roles
@@ -352,24 +352,25 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_header(self):
         bycategory = {}
-        for (_dev, _key), (_v, _, _, cat) in iteritems(self.dataset.metainfo):
+        for (dev, key), (v, _, _, cat) in iteritems(self.dataset.metainfo):
             if cat:
-                if 'experiment' in bycategory:
-                    self._write_experiment(bycategory['experiment'])
-                if 'sample' in bycategory:
-                    self._write_sample(bycategory['sample'])
-                if 'instrument' in bycategory:
-                    self._write_instrument(bycategory['instrument'])
-                if 'offsets' in bycategory:
-                    self._write_offsets(bycategory['offsets'])
-                if 'limits' in bycategory:
-                    self._write_limits(bycategory['limits'])
-                if 'precisions' in bycategory:
-                    self._write_tolerances(bycategory['precisions'])
-                if 'status' in bycategory:
-                    self._write_status(bycategory['status'])
-                if 'general' in bycategory:
-                    self._write_general(bycategory['general'])
+                bycategory.setdefault(cat, []).append((dev, key, v,))
+        if 'experiment' in bycategory:
+            self._write_experiment(bycategory['experiment'])
+        if 'sample' in bycategory:
+            self._write_sample(bycategory['sample'])
+        if 'instrument' in bycategory:
+            self._write_instrument(bycategory['instrument'])
+        if 'offsets' in bycategory:
+            self._write_offsets(bycategory['offsets'])
+        if 'limits' in bycategory:
+            self._write_limits(bycategory['limits'])
+        if 'precisions' in bycategory:
+            self._write_tolerances(bycategory['precisions'])
+        if 'status' in bycategory:
+            self._write_status(bycategory['status'])
+        if 'general' in bycategory:
+            self._write_general(bycategory['general'])
 
     def putMetainfo(self, metainfo):
         self.log.debug('ADD META INFO %r', metainfo)
