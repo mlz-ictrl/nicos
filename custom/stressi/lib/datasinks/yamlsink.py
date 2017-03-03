@@ -108,7 +108,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             if device in ['xt', 'yt', 'zt']:
                 p = sample['position'][device]
                 p['precision'] = value
-            elif device == 'tths':
+            elif device in ['tths', 'omgs', 'chis', 'phis']:
                 p = sample['orientation'][device]
                 p['precision'] = value
             elif device == 'slitm':
@@ -124,9 +124,11 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             elif device == 'slite':
                 p = setup['slit_e']['clearance']
                 p['precision'] = value
+            elif device in ['omgm', 'tthm']:
+                p = setup['monochromator'][device]
+                p['precision'] = value
             else:
-                # self.log.info('%s.%s: %s', device, _key, value)
-                pass
+                self.log.debug('tolerance: %s.%s: %s', device, _key, value)
 
     def _write_offsets(self, valuelist):
         sample = self._data['measurement']['sample']
@@ -135,7 +137,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             if device in ['xt', 'yt', 'zt']:
                 p = sample['position'][device]
                 p['offset_coder'] = value
-            elif device == 'tths':
+            elif device in ['tths', 'omgs', 'chis', 'phis']:
                 p = sample['orientation'][device]
                 p['offset_coder'] = value
             elif device == 'slitm':
@@ -151,9 +153,11 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             elif device == 'slite':
                 p = setup['slit_e']['clearance']
                 p['offset_coder'] = value
+            elif device in ['omgm', 'tthm']:
+                p = setup['monochromator'][device]
+                p['offset_coder'] = value
             else:
-                # self.log.info('%s.%s: %s', device, _key, value)
-                pass
+                self.log.debug('offset: %s.%s: %s', device, _key, value)
 
     def _write_sample(self, valuelist):
         # self.log.info('Sample:')
@@ -219,7 +223,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             if device in ['xt', 'yt', 'zt']:
                 p = sample['position'][device]
                 p['value'] = value
-            elif device == 'tths':
+            elif device in ['tths', 'omgs', 'chis', 'phis']:
                 p = sample['orientation'][device]
                 p['value'] = value
             elif device == 'slitm':
@@ -235,9 +239,15 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             elif device == 'slite':
                 p = setup['slit_e']['clearance']
                 p['value'] = value
+            elif device == 'transm':
+                setup['monochromator']['crystal'] = value
+            elif device == 'wav':
+                setup['monochromator']['incident_wavelength'] = value
+            elif device in ['omgm', 'tthm']:
+                p = setup['monochromator'][device]
+                p['value'] = value
             else:
-                # self.log.info('%s.%s: %s', device, _key, value)
-                pass
+                self.log.debug('general: %s.%s: %s', device, _key, value)
 
     def __init__(self, sink, dataset, detector):
         AsciiScanfileSinkHandler.__init__(self, sink, dataset, detector)
@@ -307,15 +317,13 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         sample['description']['name'] = ''
         sample['temperature'] = AutoDefaultODict()
         sample['orientation'] = AutoDefaultODict()
-        tths = sample['orientation']['tths'] = AutoDefaultODict()
-        self._fill_position(tths, 0, 0, 0)
+        for dev in ['tths', 'omgs', 'chis', 'phis']:
+            sample['orientation'][dev] = AutoDefaultODict()
+            self._fill_position(sample['orientation'][dev], 0, 0, 0)
         sample['position'] = AutoDefaultODict()
-        xt = sample['position']['xt'] = AutoDefaultODict()
-        self._fill_position(xt, 0, 0, 0)
-        yt = sample['position']['yt'] = AutoDefaultODict()
-        self._fill_position(yt, 0, 0, 0)
-        zt = sample['position']['zt'] = AutoDefaultODict()
-        self._fill_position(zt, 0, 0, 0)
+        for dev in ['xt', 'yt', 'zt']:
+            sample['position']['xt'] = AutoDefaultODict()
+            self._fill_position(sample['position']['xt'], 0, 0, 0)
 
         setup = measurement['setup'] = AutoDefaultODict()
         setup['collimator_1'] = "15'"
@@ -325,7 +333,13 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             p = setup['slit_m'][x] = AutoDefaultODict()
             self._fill_position(p, 0, 0, 0)
 
-        setup['monochromator'] = AutoDefaultODict()
+        p = setup['monochromator'] = AutoDefaultODict()
+        p['crystal'] = 'Si'
+        for dev in ['omgm', 'tthm']:
+            p[dev] = AutoDefaultODict()
+            self._fill_position(p[dev], 0, 0, 0)
+        p['angle'] = 0
+        p['incident_wavelength'] = 0
 
         setup['slit_e'] = AutoDefaultODict()
         p = setup['slit_e']['clearance'] = AutoDefaultODict()
@@ -338,6 +352,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             self._fill_position(p, 0, 0, 0)
 
         setup['collimator_2'] = AutoDefaultODict()
+        p = setup['collimator_2']['fhwm'] = 5
 
         measurement['scan'] = []
         self._wrote_headers = False
@@ -352,9 +367,12 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_header(self):
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(self.dataset.metainfo):
+        for (dev, key), (_v, v, _, cat) in iteritems(self.dataset.metainfo):
             if cat:
-                bycategory.setdefault(cat, []).append((dev, key, v,))
+                if key == 'operators':  # don't use the formatted list
+                    bycategory.setdefault(cat, []).append((dev, key, _v))
+                else:
+                    bycategory.setdefault(cat, []).append((dev, key, v,))
         if 'experiment' in bycategory:
             self._write_experiment(bycategory['experiment'])
         if 'sample' in bycategory:
