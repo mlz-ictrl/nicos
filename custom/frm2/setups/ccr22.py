@@ -10,7 +10,7 @@ nethost = setupname
 
 devices = {
     'T_%s' % setupname : device('frm2.ccr.CCRControl',
-                                description = 'The main temperature control ' \
+                                description = 'The main temperature control '
                                               'device of the CCR',
                                 stick = 'T_%s_stick' % setupname,
                                 tube = 'T_%s_tube' % setupname,
@@ -21,7 +21,7 @@ devices = {
                                ),
 
     'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
-                                      description = 'The control device of ' \
+                                      description = 'The control device of '
                                                     'the sample (stick)',
                                       tacodevice = '//%s/ccr/stick/control2' % nethost,
                                       abslimits = (0, 600),
@@ -53,7 +53,7 @@ devices = {
                                  ),
 
     'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = '(regulation) Temperature at '\
+                                  description = '(regulation) Temperature at '
                                                 'the stick',
                                   tacodevice = '//%s/ccr/stick/sensorb' % nethost,
                                   unit = 'K',
@@ -73,7 +73,7 @@ devices = {
                                  ),
 
     'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = '(regulation) Temperature at ' \
+                                  description = '(regulation) Temperature at '
                                                 'thermal coupling to the tube',
                                   tacodevice = '//%s/ccr/tube/sensord' % nethost,
                                   warnlimits = (0, 300),
@@ -111,14 +111,14 @@ devices = {
                                         ),
 
     '%s_vacuum_set' % setupname : device('devices.taco.DigitalOutput',
-                                         description = 'Switch for the vacuum' \
+                                         description = 'Switch for the vacuum'
                                                        'valve',
                                          lowlevel = True,
                                          tacodevice = '//%s/ccr/plc/vacuum' % nethost,
                                         ),
 
     '%s_vacuum_read' % setupname : device('devices.taco.DigitalInput',
-                                          description = 'Read back of the ' \
+                                          description = 'Read back of the '
                                                         'vacuum valve state',
                                           lowlevel = True,
                                           tacodevice = '//%s/ccr/plc/fbvacuum' % nethost,

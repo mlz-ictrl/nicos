@@ -13,7 +13,7 @@ plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
 # This box is equipped with the pressure regulation!
 devices = {
     'T_%s' % setupname : device('frm2.ccr.CCRControl',
-                                description = 'The main temperature control ' \
+                                description = 'The main temperature control '
                                               'device of the CCR',
                                 stick = 'T_%s_stick' % setupname,
                                 tube = 'T_%s_tube' % setupname,
@@ -22,7 +22,7 @@ devices = {
                                ),
 
     'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
-                                      description = 'The control device of ' \
+                                      description = 'The control device of '
                                                     'the sample (stick)',
                                       tacodevice = '//%s/box/stick/control2' % nethost,
                                       abslimits = (0, 600),
@@ -48,7 +48,7 @@ devices = {
                                  ),
 
     'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = '(regulation) Temperature at '\
+                                  description = '(regulation) Temperature at '
                                                 'the stick',
                                   tacodevice = '//%s/box/stick/sensorb' % nethost,
                                   unit = 'K',
@@ -64,7 +64,7 @@ devices = {
                                  ),
 
     'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = '(regulation) Temperature at ' \
+                                  description = '(regulation) Temperature at '
                                                 'thermal coupling to the tube',
                                   tacodevice = '//%s/box/tube/sensord' % nethost,
                                   warnlimits = (0, 300),
