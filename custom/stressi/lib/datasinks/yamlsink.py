@@ -160,16 +160,14 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 self.log.debug('offset: %s.%s: %s', device, _key, value)
 
     def _write_sample(self, valuelist):
-        # self.log.info('Sample:')
-        # self.log.info(valuelist)
+        # self.log.info('Sample: %r', valuelist)
         sample = self._data['measurement']['sample']
         for _device, key, value in valuelist:
             if key == 'samplename':
                 sample['description']['name'] = value
 
     def _write_experiment(self, valuelist):
-        # self.log.info('Experiment:')
-        # self.log.info(valuelist)
+        # self.log.info('Experiment: %r', valuelist)
         experiment = self._data['experiment']
         for _device, key, value in valuelist:
             if key in ['proposal', 'title', 'remark']:
@@ -186,15 +184,13 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 authors.append(author)
 
     def _write_status(self, valuelist):
-        # self.log.info('Status:')
-        # self.log.info(valuelist)
+        # self.log.info('Status: %r', valuelist)
         # for device, _key, value in valuelist:
         #     self.log.info('%s.%s: %s', device, _key, value)
         pass
 
     def _write_instrument(self, valuelist):
-        # self.log.info('Instrument:')
-        # self.log.info(valuelist)
+        # self.log.info('Instrument: %r', valuelist)
         instrument = self._data['instrument']
         for device, key, value in valuelist:
             if device not in ['demo', 'DEMO']:
@@ -211,7 +207,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                     instrument['references'].append(to_utf8(value))
 
     def _write_limits(self, valuelist):
-        # self.log.info('Limits:')
+        # self.log.info('Limits: %r', valuelist)
         # for device, _key, value in valuelist:
         #     self.log.info('%s.%s: %s', device, _key, value)
         pass
