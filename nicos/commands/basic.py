@@ -147,6 +147,8 @@ def sleep(secs):
     >>> sleep(10)     # sleep for 10 seconds
     >>> sleep(0.5)    # sleep for half a second
     """
+    session.log.info('sleeping for %.1f seconds...', secs)
+
     if session.mode == SIMULATION:
         session.clock.tick(secs)
         return
@@ -155,7 +157,6 @@ def sleep(secs):
         session.breakpoint(2)  # allow break and continue here
         session.action('%s left' % formatDuration(tmr.remaining_time()))
 
-    session.log.info('sleeping for %.1f seconds...', secs)
     session.beginActionScope('Sleeping')
     session.action('%s left' % formatDuration(secs))
     try:
