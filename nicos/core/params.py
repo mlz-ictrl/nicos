@@ -98,6 +98,9 @@ class Param(object):
     - *chatty*: wether changes of the parameter should produce a message
       (default is False).
 
+    - *no_sim_restore*: whether the parameter should not be restored to its
+      current value in a simulation copy (default is False).
+
     - *ext_desc*: extended description for the generated documentation
       (default is '').
 
@@ -116,11 +119,12 @@ class Param(object):
 
     _notset = object()
 
-    # pylint: disable=W0622
+    # pylint: disable=redefined-builtin,too-many-arguments
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, fmtstr='%r', category=None, preinit=False,
-                 prefercache=None, userparam=True, chatty=False, ext_desc=''):
+                 prefercache=None, userparam=True, chatty=False,
+                 no_sim_restore=False, ext_desc=''):
         self.type = fixup_conv(type)
         if default is self._notset:
             default = type()
@@ -136,6 +140,7 @@ class Param(object):
         self.prefercache = prefercache
         self.userparam = userparam
         self.chatty = chatty
+        self.no_sim_restore = no_sim_restore
         self.ext_desc = ext_desc
         self.classname = None  # filled by DeviceMeta
 
@@ -177,6 +182,8 @@ class Param(object):
             txt += '\n    * Not shown to user'
         if self.chatty:
             txt += '\n    * Will print a message when changed'
+        if self.no_sim_restore:
+            txt += '\n    * Will not be restored in simulation copy'
         return txt
 
 

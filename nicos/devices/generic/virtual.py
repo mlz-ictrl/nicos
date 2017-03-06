@@ -57,7 +57,8 @@ class VirtualMotor(HasOffset, Motor):
         'jitter':    Param('Jitter of the read value', default=0, unit='main'),
         'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
-                           settable=True, default=(status.OK, 'idle')),
+                           settable=True, default=(status.OK, 'idle'),
+                           no_sim_restore=True),
         'ramp':      Param('Virtual speed of the device', settable=True,
                            type=floatrange(0, 1e6), unit='main/min'),
     }
@@ -161,7 +162,8 @@ class VirtualChannel(ActiveChannel):
     parameters = {
         'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
-                           settable=True, default=(status.OK, 'idle')),
+                           settable=True, default=(status.OK, 'idle'),
+                           no_sim_restore=True),
     }
 
     _delay = 0.1
@@ -338,7 +340,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         'sample':    Param('Current temperature (sample)', settable=False,
                            unit='main', default=2.),
         'curstatus': Param('Current status', type=tupleof(int, str),
-                           settable=True, default=(status.OK, 'idle')),
+                           settable=True, default=(status.OK, 'idle'),
+                           no_sim_restore=True),
         'ramp':      Param('Ramping speed of the setpoint', settable=True,
                            type=none_or(floatrange(0, 1000)), unit='main/min'),
         'loopdelay': Param('Cycle time for internal thread', default=1,

@@ -312,6 +312,8 @@ class Session(object):
                 # "name" is not necessary and leads to mixups with aliases
                 continue
             elif param in dev.parameters:
+                if dev.parameters[param].no_sim_restore:
+                    continue
                 dev._params[param] = value
                 umethod = getattr(dev, 'doUpdate' + param.title(), None)
                 if umethod:
