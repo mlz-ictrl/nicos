@@ -157,6 +157,10 @@ class MainWindow(QMainWindow, DlgUtils):
         with self.sgroup as settings:
             loadUserStyle(self, settings)
 
+        # load saved settings and stored layout for panel config
+        with self.sgroup as settings:
+            self.loadSettings(settings)
+
         # create panels in the main window
         widget = createWindowItem(self.gui_conf.main_window, self, self, self,
                                   self.log)
@@ -167,9 +171,9 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             panel.postInit()
 
-        # load saved settings and stored layout for panel config
+        # load auxillary windows state
         with self.sgroup as settings:
-            self.loadSettings(settings)
+            self.loadAuxWindows(settings)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
@@ -309,6 +313,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         self.update()
 
+    def loadAuxWindows(self, settings):
         open_wintypes = settings.value('auxwindows') or []
         if isinstance(open_wintypes, text_type):
             open_wintypes = [int(w) for w in open_wintypes.split(',')]
