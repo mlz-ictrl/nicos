@@ -2,7 +2,7 @@ LAUE
 ====
 
 .. automodule:: nicos.laue.lauetiff
-.. autoclass:: TIFFLaueFileFormat()
+.. autoclass:: TIFFLaueSink()
 
 .. automodule:: nicos.laue.psldetector
 .. autoclass:: PSLDetector()
