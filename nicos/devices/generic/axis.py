@@ -68,7 +68,6 @@ class Axis(CanReference, AbstractAxis):
         if self._attached_coder is None:
             self.log.debug('Using the motor as coder too as no coder was '
                            'specified in the setup file.')
-            self._attached_coder = self._attached_motor
         # Check that motor and coder have the same unit
         elif self._attached_coder.unit != self._attached_motor.unit:
             raise ConfigurationError(self, 'different units for motor and '
@@ -82,7 +81,8 @@ class Axis(CanReference, AbstractAxis):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
-        self._hascoder = (self._attached_motor != self._attached_coder)
+        self._hascoder = self._attached_coder is not None and \
+            self._attached_motor != self._attached_coder
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
@@ -165,7 +165,8 @@ class Axis(CanReference, AbstractAxis):
 
     def doRead(self, maxage=0):
         """Return the current position from coder controller."""
-        return self._attached_coder.read(maxage) - self.offset
+        return (self._attached_coder if self._hascoder else
+                self._attached_motor).read(maxage) - self.offset
 
     def doPoll(self, i, maxage):
         if self._hascoder:
