@@ -63,6 +63,7 @@ class Axis(CanReference, AbstractAxis):
     }
 
     errorstates = {}
+    _maxdiff = 0
 
     def doInit(self, mode):
         if self._attached_coder is None:
@@ -86,6 +87,7 @@ class Axis(CanReference, AbstractAxis):
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
+        self._maxdiff = self.dragerror if self._hascoder else 0.0
 
     # legacy properties for users, DO NOT USE lazy_property here!
 
@@ -236,6 +238,20 @@ class Axis(CanReference, AbstractAxis):
             return self._attached_motor.doTime(start, end)
         return abs(end - start) / self.speed if self.speed != 0 else 0.
 
+    def doReadDragerror(self):
+        # dragerror may be different from initial value of _maxdiff
+        return self._maxdiff
+
+    def doWriteDragerror(self, value):
+        if not self._hascoder:
+            if value != 0:
+                self.log.warning('Setting a nonzero value for dragerror only '
+                                 'works if a coder was specified in the setup, '
+                                 'which is different from the motor.')
+            return 0.0
+        else:
+            self._maxdiff = value
+
     def doWriteSpeed(self, value):
         self._attached_motor.speed = value
 
@@ -284,22 +300,21 @@ class Axis(CanReference, AbstractAxis):
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.
         """
+        if self._maxdiff <= 0:
+            return True
         diff = abs(self._attached_motor.read() - self._attached_coder.read())
         self.log.debug('motor/coder diff: %s', diff)
-        maxdiff = self.dragerror
-        if maxdiff <= 0:
-            return True
-        if diff > maxdiff:
+        if diff > self._maxdiff:
             self._errorstate = MoveError(self, 'drag error (primary coder): '
                                          'difference %.4g, maximum %.4g' %
-                                         (diff, maxdiff))
+                                         (diff, self._maxdiff))
             return False
         for obs in self._attached_obs:
             diff = abs(self._attached_motor.read() - obs.read())
-            if diff > maxdiff:
+            if diff > self._maxdiff:
                 self._errorstate = PositionError(
                     self, 'drag error (%s): difference %.4g, maximum %.4g' %
-                    (obs.name, diff, maxdiff))
+                    (obs.name, diff, self._maxdiff))
                 return False
         return True
 
