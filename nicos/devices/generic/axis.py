@@ -40,7 +40,7 @@ class Axis(CanReference, AbstractAxis):
 
     attached_devices = {
         'motor': Attach('Axis motor device', Motor),
-        'coder': Attach('Main axis encoder device', Coder),
+        'coder': Attach('Main axis encoder device', Coder, optional=True),
         'obs':   Attach('Auxiliary encoders used to verify position', Coder,
                         optional=True, multiple=True),
     }
@@ -65,8 +65,12 @@ class Axis(CanReference, AbstractAxis):
     errorstates = {}
 
     def doInit(self, mode):
+        if self._attached_coder is None:
+            self.log.debug('Using the motor as coder too as no coder was '
+                           'specified in the setup file.')
+            self._attached_coder = self._attached_motor
         # Check that motor and coder have the same unit
-        if self._attached_coder.unit != self._attached_motor.unit:
+        elif self._attached_coder.unit != self._attached_motor.unit:
             raise ConfigurationError(self, 'different units for motor and '
                                      'coder (%s vs %s)' %
                                      (self._attached_motor.unit,

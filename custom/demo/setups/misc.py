@@ -46,6 +46,16 @@ devices = dict(
                       abslimits = (0, 100),
                      ),
 
+    a3       = device('devices.generic.Axis',
+                      description = 'demo axis #3',
+                      motor = device('devices.generic.VirtualMotor',
+                          abslimits = (-100, 100),
+                          speed = 1,
+                          unit = 'deg',
+                         ),
+                      precision = 0,
+                     ),
+
     sw       = device('devices.generic.Switcher',
                       description = 'demo switcher',
                       moveable = 'a2',
