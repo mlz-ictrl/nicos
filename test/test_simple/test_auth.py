@@ -24,10 +24,14 @@
 
 import pytest
 import hashlib
+import tempfile
+import shutil
+from os import path
 
-from nicos.services.daemon.auth import auth_entry, ListAuthenticator, \
-    AuthenticationError
-from nicos.core import GUEST, USER, User
+from nicos.services.daemon.auth import auth_entry, auth_entry2, \
+    ListAuthenticator, KeystoreAuthenticator, AuthenticationError
+from nicos.core import GUEST, USER, ADMIN, User, NicosError
+from nicos.utils.credentials.keystore import nicoskeystore
 
 from test.utils import raises
 from nicos.pycompat import to_utf8
@@ -46,13 +50,23 @@ def test_auth_entry():
     assert raises(ValueError, auth_entry, [['user'], 'passwd', 'user'])
     assert raises(ValueError, auth_entry, ['user', ['passwd'], 'user'])
 
+def test_auth_entry2():
+    assert auth_entry2(['user', 'user']) == ('user', USER)
+    assert auth_entry2(['user', USER]) == ('user', USER)
+    assert auth_entry2([' user ', USER]) == ('user', USER)
+    assert raises(ValueError, auth_entry2, ['user', 'xxx'])
+    assert raises(ValueError, auth_entry2, ['user', -1])
+    assert raises(ValueError, auth_entry2, ['user', ()])
+    assert raises(ValueError, auth_entry2, [['user'], 'user'])
+
 
 @pytest.fixture(scope='function')
 def ListAuth(request):
     passwds = []
     for (user, pw, level) in request.function.passwd:
         # note: we currently allow empty password to match any password!
-        hashed = hashlib.sha1(to_utf8(pw)).hexdigest() if pw else pw
+        # pylint: disable=compare-to-empty-string
+        hashed = hashlib.sha1(to_utf8(pw)).hexdigest() if pw != '' else pw
         passwds.append((user, hashed, level))
 
     Auth = ListAuthenticator('authenicator',
@@ -91,3 +105,43 @@ def test_empty_user(session, ListAuth):
 
 test_empty_user.passwd = [('admin', 'admin', 'admin'),
                           ('', 'passwd', 'admin')]
+
+
+@pytest.fixture
+def KeystoreAuth(request):
+    nicoskeystore.storepathes[-1] = tempfile.mktemp(prefix='nicoskeystore')
+    nicoskeystore.keyrings[-1].storepath = nicoskeystore.storepathes[-1]
+    for user, cred in request.function.creds:
+        nicoskeystore.setCredential(user, cred, domain='test_nicos_user')
+    try:
+        auth = KeystoreAuthenticator('authenticator',
+                                     access=[('admin', 'admin'),
+                                             ('joedoe', 'user')],
+                                     userdomain='test_nicos_user',
+                                     )
+    except NicosError:
+        pytest.skip('Keystore is not available')
+    yield auth
+    for user, _cred in request.function.creds:
+        nicoskeystore.delCredential(user, domain='test_nicos_user')
+    if path.isdir(nicoskeystore.keyrings[-1].storepath):
+        shutil.rmtree(nicoskeystore.keyrings[-1].storepath)
+
+
+def test_keystore_auth(session, KeystoreAuth):
+    assert KeystoreAuth.userdomain == 'test_nicos_user'
+
+    assert KeystoreAuth.authenticate('admin', 'admin') == User('admin', ADMIN)
+    assert KeystoreAuth.authenticate('joedoe', 'userpass') == User('joedoe', USER)
+    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
+    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'admin', 'user_')
+
+test_keystore_auth.creds = [('admin', 'admin'),
+                            ('joedoe', 'userpass')
+                           ]
+
+def test_keystore_auth_nokeys(session, KeystoreAuth):
+    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
+    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', '')
+
+test_keystore_auth_nokeys.creds = []

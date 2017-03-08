@@ -22,7 +22,6 @@
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
-
 """NICOS daemon authentication and user abstraction."""
 
 from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, \
@@ -30,6 +29,11 @@ from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, \
 import hashlib
 
 from nicos.pycompat import string_types, to_utf8, from_maybe_utf8
+
+try:
+    from nicos.utils.credentials.keystore import nicoskeystore
+except ImportError:
+    nicoskeystore = None
 
 try:
     import ldap3  # pylint: disable=F0401
@@ -284,3 +288,85 @@ class PamAuthenticator(Authenticator):
         except Exception as err:
             raise AuthenticationError('exception during PAM authentication: %s'
                                       % err)
+
+
+def auth_entry2(val=None):
+    val = list(val)
+    if len(val) != 2:
+        raise ValueError('auth entry needs to be a 2-tuple '
+                         '(name, accesslevel)')
+    if not isinstance(val[0], string_types):
+        raise ValueError('user name must be a string')
+    val[0] = val[0].strip()
+    if isinstance(val[1], string_types):
+        for i, name in ACCESS_LEVELS.items():
+            if name == val[1].strip():
+                val[1] = i
+                break
+        else:
+            raise ValueError('access level must be one of %s' %
+                             ', '.join(map(repr, ACCESS_LEVELS.values())))
+    elif not isinstance(val[1], int):
+        # for backwards compatibility: allow integer values as well
+        raise ValueError('access level must be one of %s' %
+                         ', '.join(map(repr, ACCESS_LEVELS.values())))
+    else:
+        if val[1] not in ACCESS_LEVELS:
+            raise ValueError('access level must be one of %s' %
+                             ', '.join(map(repr, ACCESS_LEVELS.values())))
+    return tuple(val)
+
+
+class KeystoreAuthenticator(Authenticator):
+    """Authenticates against the fixed list of usernames, and
+    user levels given in the "access" parameter (in order).
+    Passwords are stored in an external keystore
+
+    An empty password means that any password is accepted.
+    Password less entriesare restricted to 'at most' USER level.
+
+    You can set passwords via:
+    a) the nicos-keyring tool:
+
+        `nicos-keyring add nicos_user <username>`
+    b) the keyring tool (this may required addtional dependencies to be
+     installed):
+    `keyring -b keyrings.alt.file.EncryptedKeyring set nicos_user <username>`
+
+    Empty passwords are accepted.
+    """
+
+    parameters = {
+        'access': Param('List of (username, userlevel) tuples',
+                        type=listof(auth_entry2)),
+        'userdomain': Param('Keystore domain for user/pw authentication',
+                            type=str, mandatory=False, settable=False,
+                            default='nicos_user'),
+    }
+
+    def doInit(self, mode):
+        # refuse the usage of the keystore authenticator if the nicoskeystore
+        # is missing
+        if not nicoskeystore:
+            raise NicosError('Keystore authentication not supported (required '
+                             'packages missing)')
+
+    def authenticate(self, username, password):
+        username = username.strip()
+        if not username:
+            raise AuthenticationError('No username, please identify yourself!')
+        # check for exact match (also matches empty password if username
+        # matches)
+        pw = nicoskeystore.getCredential(username, domain=self.userdomain)
+        if pw is None:
+            raise AuthenticationError('Invalid username or password!')
+        for (user, level) in self.access:
+            if user == username:
+                if pw == password:
+                    if password == '' and level > USER:  # pylint: disable=compare-to-empty-string
+                        level = USER  # limit passwordless entries to USER
+                    return User(username, level)
+                else:
+                    raise AuthenticationError('Invalid username or password!')
+        # do not give a hint whether username or password is wrong...
+        raise AuthenticationError('Invalid username or password!')
