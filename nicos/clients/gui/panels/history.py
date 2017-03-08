@@ -378,8 +378,8 @@ class BaseHistoryWindow(object):
         if info is not None:
             row = self.viewList.row(item)
             if self.askQuestion('Restore this view from last time?'):
-                self.viewList.takeItem(row)
                 self._createViewFromDialog(info, row)
+            self.viewList.takeItem(row)
 
     def on_logYinDomain(self, flag):
         if not flag:
