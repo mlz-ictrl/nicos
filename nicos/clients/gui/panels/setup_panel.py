@@ -515,7 +515,7 @@ class SetupsPanel(Panel, DlgUtils):
                 self.showError('Could not load setups, a script is running.')
                 return
         for name, wid in self._aliasWidgets.items():
-            self.client.run('%s.alias = %s' % (name, wid.getSelection()))
+            self.client.run('%s.alias = %r' % (name, wid.getSelection()))
         if setups or self._aliasWidgets:
             self.showInfo('New setups loaded.')
 
