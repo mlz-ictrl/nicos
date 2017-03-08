@@ -377,9 +377,11 @@ class BaseHistoryWindow(object):
         info = item.data(Qt.UserRole)
         if info is not None:
             row = self.viewList.row(item)
-            if self.askQuestion('Restore this view from last time?'):
-                self._createViewFromDialog(info, row)
+
+            do_restore = self.askQuestion('Restore this view from last time?')
             self.viewList.takeItem(row)
+            if do_restore:
+                self._createViewFromDialog(info, row)
 
     def on_logYinDomain(self, flag):
         if not flag:
