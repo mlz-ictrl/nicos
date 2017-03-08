@@ -28,13 +28,21 @@ from time import sleep
 
 from nicos.core import status, LimitError
 from test.utils import raises, approx
+from nicos.commands.basic import ClearCache
 
 
 session_setup = 'axis'
 
 
 def test_params(session):
+    # since the axis device was used before the device should be destroyed
+    # and recreated to check the initialisation of the parameters
+    session.destroyDevice('axis')
+    ClearCache('axis')
     axis = session.getDevice('axis')
+    # drag error should be the default: 1
+    assert axis.dragerror == 1
+
     # min/max parameters got from motor device
     assert axis.abslimits == (-100, +100)
     # usermin/usermax parameters in the config
