@@ -63,7 +63,6 @@ class Axis(CanReference, AbstractAxis):
     }
 
     errorstates = {}
-    _maxdiff = 0
 
     def doInit(self, mode):
         if self._attached_coder is None:
@@ -237,10 +236,6 @@ class Axis(CanReference, AbstractAxis):
         if hasattr(self._attached_motor, 'doTime'):
             return self._attached_motor.doTime(start, end)
         return abs(end - start) / self.speed if self.speed != 0 else 0.
-
-    def doReadDragerror(self):
-        # dragerror may be different from initial value of _maxdiff
-        return self._maxdiff
 
     def doWriteDragerror(self, value):
         if not self._hascoder:
