@@ -35,7 +35,7 @@ class HePolarizer(NamedDigitalOutput):
     """
     parameters = {
         'flippings': Param('Number of Flippings since powerup', volatile=True,
-                           unit='', type=int),
+                           unit='flips', type=int, category='general'),
     }
     parameter_overrides = {
         'mapping': Override(mandatory=False, default=dict(up=1,down=-1)),
@@ -48,7 +48,13 @@ class HePolarizer(NamedDigitalOutput):
             raise UsageError(self, "value must be 'up' or 'down'")
         if self.read(0) != value:
             self._dev.Reverse()
+            # also re-read our current value
             self.poll()
+
+    def doStart(self, target):
+        NamedDigitalOutput.doStart(self, target)
+        # Also re-read flippings' value
+        self._pollParam('flippings')
 
     def doReadFlippings(self):
         return self._dev.flippings
