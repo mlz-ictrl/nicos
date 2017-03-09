@@ -355,7 +355,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             color = self._color.getNextColorIndex()
             plotcurve.linecolor = color
             plotcurve.markercolor = color
-            plotcurve.markertype = gr.MARKERTYPE_OMARK
+            plotcurve.markertype = gr.MARKERTYPE_OMARK if self.hasSymbols \
+                else gr.MARKERTYPE_DOT
             if plotcurve.errorBar1:
                 plotcurve.errorBar1.markercolor = color
             if plotcurve.errorBar2:
