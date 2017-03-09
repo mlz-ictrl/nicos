@@ -277,6 +277,8 @@ class MessageView(QTextBrowser):
         self.recalculateBackgroundArea()
 
     def recalculateBackgroundArea(self):
+        if self._background_image is None:
+            return
         # recalculate the rect to draw the background image into
         size = self._background_image.size()
 
