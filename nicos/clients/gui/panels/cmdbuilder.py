@@ -61,7 +61,6 @@ class CommandPanel(Panel):
         # so that the common fields carry over to the next cmdlet
         self.value_collection = {}
 
-        self.current_status = None
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
         self.console = None
@@ -102,7 +101,6 @@ class CommandPanel(Panel):
         settings.setValue('cmdhistory', cmdhistory)
 
     def updateStatus(self, status, exception=False):
-        self.current_status = status
         self.commandInput.setStatus(status)
 
     def setCustomStyle(self, font, back):

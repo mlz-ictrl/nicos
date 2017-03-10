@@ -40,7 +40,6 @@ class CommandLinePanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'commandline.ui', 'panels')
 
-        self.current_status = None
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
 
@@ -69,7 +68,6 @@ class CommandLinePanel(Panel):
         setBackgroundColor(self.commandInput, back)
 
     def updateStatus(self, status, exception=False):
-        self.current_status = status
         self.commandInput.setStatus(status)
 
     def completeInput(self, fullstring, lastword):

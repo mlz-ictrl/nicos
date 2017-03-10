@@ -65,7 +65,6 @@ class ConsolePanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'console.ui', 'panels')
 
-        self.current_status = None
         self.commandInput.scrollWidget = self.outView
         self.grepPanel.hide()
         self.grepText.scrollWidget = self.outView
@@ -134,7 +133,6 @@ class ConsolePanel(Panel):
         self.promptLabel.setFont(font)
 
     def updateStatus(self, status, exception=False):
-        self.current_status = status
         self.commandInput.setStatus(status)
 
     def completeInput(self, fullstring, lastword):
