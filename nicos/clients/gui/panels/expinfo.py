@@ -25,7 +25,7 @@
 """NICOS GUI panel with most important experiment info."""
 
 from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, QTimer
 
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
@@ -55,6 +55,10 @@ class ExpInfoPanel(Panel):
       - ``nicos.clients.gui.panels.setup_panel.TasSamplePanel`` -- a panel that
         also shows input boxes for triple-axis sample properties (such as
         lattice constants).
+
+    * ``popup_proposal_after`` -- if given, the proposal dialog will be opened
+      when the daemon has been idle for more than the specified time interval
+      (in hours).
     """
 
     panelName = 'Experiment Info'
@@ -75,6 +79,13 @@ class ExpInfoPanel(Panel):
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
+        timeout = options.get('popup_proposal_after', 0)
+        if timeout:
+            self._proposal_popup_timer = QTimer(interval=timeout * 3600000)
+            self._proposal_popup_timer.timeout.connect(
+                self.on_proposal_popup_timer_timeout)
+        else:
+            self._proposal_popup_timer = None
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
@@ -84,6 +95,16 @@ class ExpInfoPanel(Panel):
 
     def on_client_setup(self, data):
         self.setupLabel.setText(', '.join(data[1]))
+
+    def updateStatus(self, status, exception=False):
+        if self._proposal_popup_timer:
+            if status == 'idle':
+                self._proposal_popup_timer.start()
+            else:
+                self._proposal_popup_timer.stop()
+
+    def on_proposal_popup_timer_timeout(self):
+        self.on_proposalBtn_clicked()
 
     @qtsig('')
     def on_proposalBtn_clicked(self):
