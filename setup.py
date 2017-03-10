@@ -60,6 +60,7 @@ class nicosinstall(stinstall):
         self.install_custom = path.join(self.install_base, 'custom')
         self.install_etc = path.join(self.install_base, 'etc')
         self.install_conf = path.join(self.install_base, 'nicos.conf')
+        self.install_icons = path.join(self.install_base, 'icons')
         self.true_custom = self.install_custom
         self.true_etc = self.install_etc
         self.true_pid = self.install_pid
@@ -67,12 +68,18 @@ class nicosinstall(stinstall):
 
         self.dump_dirs('post-finalize-custom')
         if self.root is not None:
-            self.change_roots('custom', 'etc', 'pid', 'log', 'conf')
+            self.change_roots('custom', 'etc', 'pid', 'log', 'conf', 'icons')
         self.dump_dirs('post-finalize-custom_root')
 
     def run(self):
         stinstall.run(self)
+        self.run_install_icons()
         self.run_install_custom()
+
+    def run_install_icons(self):
+        for res in ['16x16', '32x32', '48x48']:
+            self.copy_tree(path.join('resources', 'icons', res),
+                           path.join(self.install_icons, res))
 
     def run_install_custom(self):
         self.copy_tree('custom', self.install_custom)
