@@ -9,6 +9,7 @@ present a standard interface to NICOS described :ref:`here <taco>`.
 .. toctree::
    :maxdepth: 1
 
+   caress
    ipc
    toni
    iseg
