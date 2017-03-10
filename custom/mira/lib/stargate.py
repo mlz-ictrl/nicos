@@ -138,12 +138,22 @@ class ATT(HoveringAxis):
         'stargate': Attach('stargate switch device', Stargate),
     }
 
+    parameters = {
+        'movestargate': Param('Whether to move the stargate with the axis',
+                              type=bool, settable=True, default=True),
+    }
+
     def _preMoveAction(self):
-        self._attached_stargate.start(
-            self._attached_stargate.get_chevrons_for_att(self.target))
+        if self.movestargate:
+            self._attached_stargate.start(
+                self._attached_stargate.get_chevrons_for_att(self.target))
+        else:
+            self.log.warning('moving stargate blocks is disabled')
         HoveringAxis._preMoveAction(self)
 
     def doStatus(self, maxage=0):
+        if not self.movestargate:
+            return HoveringAxis.doStatus(self, maxage)
         sgstat = self._attached_stargate.status(maxage)
         if sgstat[0] == status.BUSY:
             return status.BUSY, 'stargate moving'
