@@ -10,6 +10,8 @@ Instrument setups
     :glob:
 
     setups/*
+    setups/mieze/*
+    setups/nrse/*
 
 Service setups
 ==============
