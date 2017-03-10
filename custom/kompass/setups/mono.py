@@ -114,7 +114,7 @@ devices = dict(
                    fmtstr = '%.2f',
                    lowlevel = True,
                   ),
-    mfc = device('devices.generic.Axis',
+    mfh = device('devices.generic.Axis',
                  description = 'Monochromator horizontally focussing axis',
                  motor = 'mfh_m',
                  coder = 'mfh_c',
