@@ -1,5 +1,5 @@
-DeviceAlias class
-=================
+Alias class
+===========
 
 This class is re-exported in :mod:`nicos.devices.generic` from
 :mod:`nicos.core.device`. In setup-files, you should use

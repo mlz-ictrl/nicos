@@ -1,5 +1,5 @@
-Devices communicating via cache
-===============================
+Cache reading and writing devices
+=================================
 
 .. module:: nicos.devices.generic.cache
 

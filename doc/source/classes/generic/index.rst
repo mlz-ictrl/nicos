@@ -14,16 +14,16 @@ setup file.
 .. toctree::
    :maxdepth: 1
 
+   alias
    axis
+   cache
+   detector
+   magnet
+   manual
+   oscillator
+   paramdev
+   sequencer
    slit
    switcher
-   sequencer
-   manual
-   detector
-   cache
    system
-   paramdev
-   alias
    virtual
-   magnet
-   oscillator

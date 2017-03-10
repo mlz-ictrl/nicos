@@ -1,5 +1,5 @@
-Virtual devices for testing
-===========================
+Virtual (or simulation) devices for testing
+===========================================
 
 These devices do not do hardware access, they simulate real devices mostly for
 testing purposes.
