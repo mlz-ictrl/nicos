@@ -22,3 +22,7 @@ are valid entries for the class name in a setup file.
 .. module:: nicos.devices.tas.ecradle
 
 .. autoclass:: EulerianCradle()
+
+.. module:: nicos.devices.tas.vgonio
+
+.. autoclass:: VirtualGonio()

@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from numpy import sqrt, dot, pi, allclose
 import pytest
 
 from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
@@ -30,6 +31,7 @@ from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, \
     setalign, checkalign
 from nicos.commands.measure import count
+from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
 from test.utils import raises, approx, ErrorLogged
 
@@ -200,8 +202,8 @@ def test_error_handling(session, log, tas, monkeypatch):
 
 
 def test_qscan(session, tas):
-    mot = session.getDevice('some_motor')
-    qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, mot, 'scaninfo', t=1)
+    sgx = session.getDevice('sgx')
+    qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, sgx, 'scaninfo', t=1)
     qscan((0, 0, 0), (0, 0, 0), 5, 2.5, t_kf=2.662, manual=1,
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
     qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 3, manual=[1, 2])
@@ -309,3 +311,58 @@ def test_virtualdet(session, tas):
 
     countres = count(tdet, mon=10000)
     assert countres[1] == 10000
+
+
+def test_virtualgonios(session, tas):
+    gx, gy = session.getDevice('sgx'), session.getDevice('sgy')
+    v1, v2 = session.getDevice('vg1'), session.getDevice('vg2')
+
+    # when psi0 = 0, gx == v1 and gy == v2
+    tas._attached_cell.psi0 = 0
+    gx.maw(0)
+    gy.maw(0)
+    assert v1.read(0) == 0
+    assert v2.read(0) == 0
+    gx.maw(2)
+    assert v1.read(0) == approx(2)
+    assert v2.read(0) == approx(0)
+    gy.maw(1)
+    assert v1.read(0) == approx(2)
+    assert v2.read(0) == approx(1)
+
+    v1.maw(0)
+    v2.maw(1.3)
+    assert gx.read(0) == approx(0)
+    assert gy.read(0) == approx(1.3)
+
+    # psi0 = 45deg
+    tas._attached_cell.psi0 = 45
+    gx.maw(0)
+    gy.maw(0)
+    assert v1.read(0) == 0
+    assert v2.read(0) == 0
+    v1.maw(4)
+    assert gx.read(0) == approx(2 * sqrt(2), abs=5e-2)
+    assert gy.read(0) == approx(2 * sqrt(2), abs=5e-2)
+
+    # limits of sgx, sgy are +/- 5 deg
+    v1.maw(7)
+    assert raises(LimitError, v2.maw, 3)
+
+    # make sure the calculations match intent
+    D2R = pi / 180
+    tas._attached_cell.psi0 = 64
+    v1.maw(1.5)
+    v2.maw(-2)
+
+    # extract angles in radians
+    psi = 64 * D2R
+    x1 = 1.5 * D2R
+    y1 = -2 * D2R
+    x2 = gx.read(0) * D2R
+    y2 = gy.read(0) * D2R
+
+    # these two matrices should deliver the same rotation
+    m1 = dot(Xrot(x1), Yrot(y1))
+    m2 = dot(dot(Zrot(psi), Xrot(x2)), dot(Yrot(y2), Zrot(-psi)))
+    assert allclose(m1, m2, atol=1e-3)

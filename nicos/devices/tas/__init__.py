@@ -29,3 +29,4 @@ from nicos.devices.tas.mono import Monochromator
 from nicos.devices.tas.spectro import TAS, TASIndex, Wavevector, Energy, \
      Wavelength
 from nicos.devices.tas.ecradle import EulerianCradle
+from nicos.devices.tas.vgonio import VirtualGonio
