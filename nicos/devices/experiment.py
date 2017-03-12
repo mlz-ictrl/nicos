@@ -525,7 +525,10 @@ class Experiment(Device):
         self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
         self.users = kwds.get('user', '')
-        default_local = session._instrument and session.instrument.responsible or ''
+        if proptype != 'service' and session._instrument:
+            default_local = session.instrument.responsible
+        else:
+            default_local = ''
         self.localcontact = kwds.get('localcontact', default_local)
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
@@ -634,7 +637,7 @@ class Experiment(Device):
                     thd = None
 
         # switch to service experiment (will hide old data if configured)
-        self.new(self.serviceexp, localcontact=self.localcontact)
+        self.new(self.serviceexp)
         return thd
 
     #
