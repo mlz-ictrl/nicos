@@ -24,7 +24,7 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QMessageBox, QPushButton
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, QTimer
 
 from nicos.clients.gui.panels import Panel, PanelDialog
@@ -79,9 +79,10 @@ class ExpInfoPanel(Panel):
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
-        timeout = options.get('popup_proposal_after', 0)
-        if timeout:
-            self._proposal_popup_timer = QTimer(interval=timeout * 3600000)
+        self._timeout = options.get('popup_proposal_after', 0)
+        if self._timeout:
+            self._proposal_popup_timer = QTimer(interval=self._timeout * 3600000)
+            self._proposal_popup_timer.setSingleShot(True)
             self._proposal_popup_timer.timeout.connect(
                 self.on_proposal_popup_timer_timeout)
         else:
@@ -104,7 +105,18 @@ class ExpInfoPanel(Panel):
                 self._proposal_popup_timer.stop()
 
     def on_proposal_popup_timer_timeout(self):
-        self.on_proposalBtn_clicked()
+        dlg = QMessageBox(self)
+        dlg.setText('The experiment has been idle for more than %.1f hours.' %
+                    self._timeout)
+        contButton = QPushButton('Continue current experiment')
+        finishAndNewButton = QPushButton('Finish and start new experiment')
+        dlg.addButton(contButton, QMessageBox.RejectRole)
+        dlg.addButton(finishAndNewButton, QMessageBox.ActionRole)
+        dlg.exec_()
+        if dlg.clickedButton() == finishAndNewButton:
+            self.on_proposalBtn_clicked()
+        elif dlg.clickedButton() == contButton:
+            self._proposal_popup_timer.start()
 
     @qtsig('')
     def on_proposalBtn_clicked(self):
