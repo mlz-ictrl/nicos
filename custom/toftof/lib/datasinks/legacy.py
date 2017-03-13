@@ -30,7 +30,7 @@ from time import asctime, localtime, strftime, time as currenttime
 
 from nicos import session
 from nicos.core.constants import LIVE
-from nicos.pycompat import from_maybe_utf8
+from nicos.pycompat import from_maybe_utf8, to_utf8
 
 from nicos.toftof import calculations as calc
 from nicos.toftof.datasinks.base import TofSink, TofSinkHandler
@@ -57,101 +57,109 @@ class TofImageSinkHandler(TofSinkHandler):
         self._local_starttime = localtime(self._starttime)
 
     def _writeHeader(self, fp, header):
-        fp.seek(0)
-        fp.write('File_Creation_Time: %s\n' % asctime())
-        fp.write('Title: %s\n' %
-                 from_maybe_utf8(header['det', 'usercomment'][1]))
-        fp.write('ExperimentTitle: %s\n' %
-                 from_maybe_utf8(header['Sample', 'samplename'][1]))
-        fp.write('ProposalTitle: %s\n' %
-                 from_maybe_utf8(header['Exp', 'title'][1]))
-        fp.write('ProposalNr: %s\n' % header['Exp', 'proposal'][1])
+        headlines = []
+        headlines.append('File_Creation_Time: %s' % asctime())
+        headlines.append('Title: %s' %
+                         from_maybe_utf8(header['det', 'usercomment'][1]))
+        headlines.append('ExperimentTitle: %s' %
+                         from_maybe_utf8(header['Sample', 'samplename'][1]))
+        headlines.append('ProposalTitle: %s' %
+                         from_maybe_utf8(header['Exp', 'title'][1]))
+        headlines.append('ProposalNr: %s' % header['Exp', 'proposal'][1])
 
-        fp.write('ExperimentTeam: %s\n' %
-                 from_maybe_utf8(header['Exp', 'users'][1]))
-        fp.write('LocalContact: %s\n' %
-                 from_maybe_utf8(header['Exp', 'localcontact'][1]))
-        fp.write('StartDate: %s\n' % strftime('%d.%m.%Y',
-                                              self._local_starttime))
-        fp.write('StartTime: %s\n' % strftime('%H:%M:%S',
-                                              self._local_starttime))
+        headlines.append('ExperimentTeam: %s' %
+                         from_maybe_utf8(header['Exp', 'users'][1]))
+        headlines.append('LocalContact: %s' %
+                         from_maybe_utf8(header['Exp', 'localcontact'][1]))
+        headlines.append('StartDate: %s' % strftime('%d.%m.%Y',
+                                                    self._local_starttime))
+        headlines.append('StartTime: %s' % strftime('%H:%M:%S',
+                                                    self._local_starttime))
         if header['det', 'mode'][1] == 'time':
-            fp.write('TOF_MMode: Total_Time\n')
-            fp.write('TOF_TimePreselection: %d\n' %
-                     header['det', 'preset'][0])
+            headlines.append('TOF_MMode: Total_Time')
+            headlines.append('TOF_TimePreselection: %d' %
+                             header['det', 'preset'][0])
         else:
-            fp.write('TOF_MMode: Monitor_Counts\n')
-            fp.write('TOF_CountPreselection: %d\n' %
-                     header['det', 'preset'][0])
+            headlines.append('TOF_MMode: Monitor_Counts')
+            headlines.append('TOF_CountPreselection: %d' %
+                             header['det', 'preset'][0])
 
-        fp.write('TOF_TimeInterval: %f\n' %
-                 header['det', 'timeinterval'][0])
-        fp.write('TOF_ChannelWidth: %s\n' % header['det', 'channelwidth'][1])
-        fp.write('TOF_TimeChannels: %s\n' % header['det', 'timechannels'][1])
-        fp.write('TOF_NumInputs: %s\n' % header['det', 'numinputs'][1])
-        fp.write('TOF_Delay: %s\n' % header['det', 'delay'][1])
-        fp.write('TOF_MonitorInput: %s\n' %
-                 header['det', 'monitorchannel'][1])
+        headlines.append('TOF_TimeInterval: %f' %
+                         header['det', 'timeinterval'][0])
+        headlines.append('TOF_ChannelWidth: %s' %
+                         header['det', 'channelwidth'][1])
+        headlines.append('TOF_TimeChannels: %s' %
+                         header['det', 'timechannels'][1])
+        headlines.append('TOF_NumInputs: %s' % header['det', 'numinputs'][1])
+        headlines.append('TOF_Delay: %s' % header['det', 'delay'][1])
+        headlines.append('TOF_MonitorInput: %s' %
+                         header['det', 'monitorchannel'][1])
 
-        fp.write('TOF_Ch5_90deg_Offset: %s\n' %
-                 header['ch', 'ch5_90deg_offset'][1])
+        headlines.append('TOF_Ch5_90deg_Offset: %s' %
+                         header['ch', 'ch5_90deg_offset'][1])
         chwl = header['chWL', 'value'][0]
         guess = round(4.0 * chwl * 1e-6 * calc.alpha /
                       (calc.ttr * header['det', 'channelwidth'][0]))
-        fp.write('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
+        headlines.append('TOF_ChannelOfElasticLine_Guess: %d' % guess)
 
-        fp.write('HV_PowerSupplies: hv0-2: %s V, %s V, %s V\n' %
-                 tuple([header.get(('hv%d' % i, 'value'), (0, 'unknown'))[1]
-                        for i in range(3)]))
-        fp.write('LV_PowerSupplies: lv0-7: %s\n' %
-                 ', '.join(
-                     [header.get(('lv%d' % i, 'value'), (0, 'unknown'))[1]
-                      for i in range(8)]))
+        headlines.append('HV_PowerSupplies: hv0-2: %s V, %s V, %s V' % tuple(
+            [header.get(('hv%d' % i, 'value'), (0, 'unknown'))[1]
+             for i in range(3)]))
+        headlines.append('LV_PowerSupplies: lv0-7: %s' % ', '.join(
+            [header.get(('lv%d' % i, 'value'), (0, 'unknown'))[1]
+             for i in range(8)]))
 
         slit_pos = header['slit', 'value'][1].split()
-        fp.write('SampleSlit_ho: %s\n' % slit_pos[0])
-        fp.write('SampleSlit_hg: %s\n' % slit_pos[2])
-        fp.write('SampleSlit_vo: %s\n' % slit_pos[1])
-        fp.write('SampleSlit_vg: %s\n' % slit_pos[3])
+        headlines.append('SampleSlit_ho: %s' % slit_pos[0])
+        headlines.append('SampleSlit_hg: %s' % slit_pos[2])
+        headlines.append('SampleSlit_vo: %s' % slit_pos[1])
+        headlines.append('SampleSlit_vg: %s' % slit_pos[3])
 
-        fp.write('Guide_config: %s\n' % header['ngc', 'value'][1])
+        headlines.append('Guide_config: %s' % header['ngc', 'value'][1])
         if header['ngc', 'value'][1] == 'focus':
-            fp.write('ng_focus: %d %d %d %d\n' %
-                     tuple(header.get(('ng_focus', 'value'),
-                                      ([0, 0, 0, 0], '0 0 0 0'))[0]))
-        fp.write('Chopper_Speed: %s %s\n' % header['ch', 'value'][1:3])
-        fp.write('Chopper_Wavelength: %s %s\n' %
-                 header['chWL', 'value'][1:3])
-        fp.write('Chopper_Ratio: %s\n' % header['chRatio', 'value'][1])
-        fp.write('Chopper_CRC: %s\n' % header['chCRC', 'value'][1])
-        fp.write('Chopper_SlitType: %s\n' % header['chST', 'value'][1])
-        fp.write('Chopper_Delay: %s\n' % header['chdelay', 'value'][1])
+            headlines.append('ng_focus: %d %d %d %d' % tuple(
+                header.get(('ng_focus', 'value'),
+                           ([0, 0, 0, 0], '0 0 0 0'))[0]))
+        headlines.append('Chopper_Speed: %s %s' % header['ch', 'value'][1:3])
+        headlines.append('Chopper_Wavelength: %s %s' %
+                         header['chWL', 'value'][1:3])
+        headlines.append('Chopper_Ratio: %s' % header['chRatio', 'value'][1])
+        headlines.append('Chopper_CRC: %s' % header['chCRC', 'value'][1])
+        headlines.append('Chopper_SlitType: %s' % header['chST', 'value'][1])
+        headlines.append('Chopper_Delay: %s' % header['chdelay', 'value'][1])
 
         for i in range(4):
-            fp.write('Chopper_Vac%d: %s\n' %
-                     (i, header['vac%d' % i, 'value'][1]))
+            headlines.append('Chopper_Vac%d: %s' %
+                             (i, header['vac%d' % i, 'value'][1]))
 
-        fp.write('Goniometer_XYZ: %s %s %s %s %s %s\n' % (
+        headlines.append('Goniometer_XYZ: %s %s %s %s %s %s' % (
             header['gx', 'value'][1:3] + header['gy', 'value'][1:3] +
             header['gz', 'value'][1:3]))
-        fp.write('Goniometer_PhiCxCy: %s %s %s %s %s %s\n' % (
+        headlines.append('Goniometer_PhiCxCy: %s %s %s %s %s %s' % (
             header['gphi', 'value'][1:3] + header['gcx', 'value'][1:3] +
             header['gcy', 'value'][1:3]))
-        fp.write('FileName: %s\n' % self._datafile.filepath)
-        fp.write('SavingDate: %s\n' % strftime('%d.%m.%Y'))
-        fp.write('SavingTime: %s\n' % strftime('%H:%M:%S'))
+        headlines.append('FileName: %s' % self._datafile.filepath)
+        headlines.append('SavingDate: %s' % strftime('%d.%m.%Y'))
+        headlines.append('SavingTime: %s' % strftime('%H:%M:%S'))
 
+        fp.seek(0)
+        for line in headlines:
+            fp.write(to_utf8('%s\n' % line))
         fp.flush()
 
     def _writeLogs(self, fp, stats):
-        fp.seek(0)
-        fp.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
+        loglines = []
+        loglines.append('%-15s\tmean\tstdev\tmin\tmax' % '# dev')
         for dev in self.dataset.valuestats:
-            fp.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
-                     ((dev,) + self.dataset.valuestats[dev]))
+            loglines.append('%-15s\t%.3f\t%.3f\t%.3f\t%.3f' %
+                            ((dev,) + self.dataset.valuestats[dev]))
+        fp.seek(0)
+        for line in loglines:
+            fp.write(to_utf8('%s\n' % line))
         fp.flush()
 
     def writeData(self, fp, info, data):
+        lines = []
         f = session.data.createDataFile(self.dataset,
                                         [self._template[0] + '.new', ],
                                         self._subdir, nomeasdata=True)
@@ -159,9 +167,10 @@ class TofImageSinkHandler(TofSinkHandler):
         preset = float(self.dataset.metainfo['det', 'preset'][1])
         if self.dataset.metainfo['det', 'mode'][1] != 'time':
             if int(info[1]) < preset:
-                f.write('ToGo: %d counts\n' % (int(preset) - int(info[1])))
-            f.write('Status: %5.1f %% completed\n' %
-                    (100. * int(info[1]) / preset))
+                lines.append('ToGo: %d counts' %
+                             (int(preset) - int(info[1])))
+            lines.append('Status: %5.1f %% completed' %
+                         (100. * int(info[1]) / preset))
         else:
             # This code looks a little bit strange, but this is due to the
             # problem of the buggy TACO timer device which sets the time to
@@ -172,8 +181,9 @@ class TofImageSinkHandler(TofSinkHandler):
             if time > preset:
                 time = preset
             if time < preset:
-                f.write('ToGo: %.0f s\n' % (preset - time))
-            f.write('Status: %5.1f %% completed\n' % (100. * time / preset))
+                lines.append('ToGo: %.0f s' % (preset - time))
+            lines.append('Status: %5.1f %% completed' %
+                         (100. * time / preset))
 
         tempfound = False
         for dev in session.experiment.sampleenv:
@@ -188,40 +198,44 @@ class TofImageSinkHandler(TofSinkHandler):
                     _mean += 273.15
                     _min += 273.15
                     _max += 273.15
-                f.write('AverageSampleTemperature: %10.4f K\n' % _mean)
-                f.write('StandardDeviationOfSampleTemperature: %10.4f K\n' %
-                        _std)
-                f.write('MinimumSampleTemperature: %10.4f K\n' % _min)
-                f.write('MaximumSampleTemperature: %10.4f K\n' % _max)
+                lines.append('AverageSampleTemperature: %10.4f K' % _mean)
+                lines.append('StandardDeviationOfSampleTemperature: %10.4f K' %
+                             _std)
+                lines.append('MinimumSampleTemperature: %10.4f K' % _min)
+                lines.append('MaximumSampleTemperature: %10.4f K' % _max)
                 self.log.info('Sample: current: %.4f K, average: %.4f K, '
                               'stddev: %.4f K, min: %.4f K, max: %.4f K',
                               _ct, _mean, _std, _min, _max)
             elif dev.name == 'B':
                 _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
-                f.write('AverageMagneticfield: %.4f %s\n' % (_mean, dev.unit))
-                f.write('StandardDeviationOfMagneticfield: %.4f %s\n' %
-                        (_std, dev.unit))
+                lines.append('AverageMagneticfield: %.4f %s' %
+                             (_mean, dev.unit))
+                lines.append('StandardDeviationOfMagneticfield: %.4f %s' %
+                             (_std, dev.unit))
             elif dev.name == 'P':
                 _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
-                f.write('AveragePressure: %.4f %s\n' % (_mean, dev.unit))
-                f.write('StandardDeviationOfPressure: %.4f %s\n' %
-                        (_std, dev.unit))
+                lines.append('AveragePressure: %.4f %s' % (_mean, dev.unit))
+                lines.append('StandardDeviationOfPressure: %.4f %s' %
+                             (_std, dev.unit))
 
-        f.write('MonitorCounts: %d\n' % int(info[1]))
-        f.write('TotalCounts: %d\n' % int(info[2]))
-        f.write('MonitorCountRate: %.3f\n' % (info[1] / info[0]))
-        f.write('TotalCountRate: %.3f\n' % (info[2] / info[0]))
-        f.write('NumOfChannels: %s\n' %
-                self.dataset.metainfo['det', 'timechannels'][1])
-        f.write('NumOfDetectors: %s\n' %
-                self.dataset.metainfo['det', 'numinputs'][1])
+        lines.append('MonitorCounts: %d' % int(info[1]))
+        lines.append('TotalCounts: %d' % int(info[2]))
+        lines.append('MonitorCountRate: %.3f' % (info[1] / info[0]))
+        lines.append('TotalCountRate: %.3f' % (info[2] / info[0]))
+        lines.append('NumOfChannels: %s' %
+                     self.dataset.metainfo['det', 'timechannels'][1])
+        lines.append('NumOfDetectors: %s' %
+                     self.dataset.metainfo['det', 'numinputs'][1])
         # to ease interpreting the data...
-        f.write('Plattform: %s\n' % os.uname()[0])
+        lines.append('Plattform: %s' % os.uname()[0])
         # The detector information length is not correct it has 1 line more
         # than the number of the detectors
-        f.write('aDetInfo(%u,%u): \n' % (14, self.detector._detinfolength))
-        f.write('%s' % ''.join(self.detector._detinfo))
-        f.write('aData(%u,%u): \n' % (data.shape[0], data.shape[1]))
+        lines.append('aDetInfo(%u,%u): ' %
+                     (14, self.detector._detinfolength))
+        lines.append('%s' % ''.join(self.detector._detinfo))
+        lines.append('aData(%u,%u): ' % (data.shape[0], data.shape[1]))
+        for line in lines:
+            f.write(to_utf8('%s\n' % line))
         np.savetxt(f, data, '%d')
         syncFile(f)
         self.log.debug('Rename from %s to %s', f.filepath, fp.filepath)
