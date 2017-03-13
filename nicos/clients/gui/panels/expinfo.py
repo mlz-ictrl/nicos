@@ -32,6 +32,7 @@ from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
     DetEnvPanel, GenericSamplePanel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
+from nicos.core.utils import ADMIN
 
 
 class ExpInfoPanel(Panel):
@@ -62,6 +63,7 @@ class ExpInfoPanel(Panel):
     """
 
     panelName = 'Experiment Info'
+    _viewonly = False
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -91,6 +93,9 @@ class ExpInfoPanel(Panel):
     def hideTitle(self):
         self.titleLbl.setVisible(False)
 
+    def setViewOnly(self, viewonly):
+        self._viewonly = viewonly
+
     def on_client_initstatus(self, initstatus):
         self.setupLabel.setText(', '.join(initstatus['setups'][1]))
 
@@ -100,11 +105,16 @@ class ExpInfoPanel(Panel):
     def updateStatus(self, status, exception=False):
         if self._proposal_popup_timer:
             if status == 'idle':
-                self._proposal_popup_timer.start()
+                if not self._viewonly or \
+                    (self.client.user_level is not None and
+                     self.client.user_level < ADMIN):
+                    self._proposal_popup_timer.start()
             else:
                 self._proposal_popup_timer.stop()
 
     def on_proposal_popup_timer_timeout(self):
+        if self._viewonly:
+            return
         dlg = QMessageBox(self)
         dlg.setText('The experiment has been idle for more than %.1f hours.' %
                     self._timeout)
