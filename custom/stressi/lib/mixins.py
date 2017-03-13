@@ -26,7 +26,7 @@
 
 import math
 
-from nicos.core import Attach, Moveable, Override, Param
+from nicos.core import Attach, Moveable, Override, Param, Readable
 from nicos.core.mixins import DeviceMixinBase
 
 
@@ -82,7 +82,7 @@ class TransformRead(DeviceMixinBase):
     }
 
     attached_devices = {
-        'dev': Attach('Base device', Moveable),
+        'dev': Attach('Base device', Readable),
     }
 
     def doRead(self, maxage):
@@ -109,6 +109,10 @@ class TransformMove(TransformRead):
     """
 
     _outformula = None
+
+    attached_devices = {
+        'dev': Attach('Base device', Moveable),
+    }
 
     parameters = {
         'outformula': Param('Output conversion formula',
