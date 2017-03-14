@@ -24,9 +24,30 @@
 """SPODI live data plot widget (GR version)."""
 
 from nicos.clients.gui.widgets.plotting import NicosGrPlot, NicosPlotCurve
+from nicos.clients.gui.widgets.grplotting import NicosPlotAxes
+
+
+class LivePlotAxes(NicosPlotAxes):
+
+    def doAutoScale(self, curvechanged=None):
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            vc = self.getVisibleCurves() or self.getCurves()
+            c = vc[0]
+            xmin, xmax, ymin, ymax = original_win
+            cxmin, cxmax, cymin, cymax = min(c.x), max(c.x), min(c.y), max(c.y)
+            if cxmax > xmax:
+                return original_win
+            elif cxmin < xmin:
+                return original_win
+            self.setWindow(min(cxmin, xmin), max(cxmax, xmax),
+                           min(cymin, ymin), max(cymax, ymax))
+        return NicosPlotAxes.doAutoScale(self, curvechanged)
 
 
 class LiveDataPlot(NicosGrPlot):
+
+    axescls = LivePlotAxes
 
     def __init__(self, parent, window):
         NicosGrPlot.__init__(self, parent, window)
