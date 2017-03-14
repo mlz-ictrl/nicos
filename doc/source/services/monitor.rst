@@ -1,3 +1,4 @@
+.. index:: !monitor, !nicos-monitor
 .. _monitor:
 
 The NICOS status monitor

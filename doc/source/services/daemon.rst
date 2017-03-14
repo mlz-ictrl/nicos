@@ -1,3 +1,4 @@
+.. index:: !daemon, !nicos-daemon
 .. _daemon:
 
 The NICOS execution daemon

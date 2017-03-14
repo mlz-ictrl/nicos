@@ -1,3 +1,4 @@
+.. index:: !cache, !nicos-cache
 .. _cache:
 
 The Cache daemon

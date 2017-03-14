@@ -1,3 +1,4 @@
+.. index:: !history, !history-plotter, !nicos-history
 .. _history:
 
 The NICOS history plotter

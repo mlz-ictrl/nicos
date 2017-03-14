@@ -1,3 +1,4 @@
+.. index:: !watchdog, !nicos-watchdog
 .. _watchdog:
 
 The Watchdog daemon

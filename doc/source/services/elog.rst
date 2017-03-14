@@ -1,3 +1,4 @@
+.. index:: !elog, !nicos-elog
 .. _elog:
 
 The Electronic Logbook daemon

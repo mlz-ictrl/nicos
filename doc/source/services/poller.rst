@@ -1,3 +1,4 @@
+.. index:: !poller, !nicos-poller
 .. _poller:
 
 The Poller daemon
