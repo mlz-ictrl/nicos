@@ -23,14 +23,17 @@
 # *****************************************************************************
 
 import numpy
+from gzip import GzipFile as StdGzipFile
 
 from nicos.core.data.sink import GzipFile
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
+from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink, \
+    ImageFileReader
 
 
 class NPGZImageSinkHandler(SingleFileSinkHandler):
     """Numpy text format filesaver using `numpy.savetxt`"""
 
+    filetype = "NPGZ"
     fileclass = GzipFile
 
     def writeData(self, fp, image):
@@ -38,5 +41,12 @@ class NPGZImageSinkHandler(SingleFileSinkHandler):
 
 
 class NPGZFileSink(ImageSink):
-    fileFormat = "NPGZ"
     handlerclass = NPGZImageSinkHandler
+
+
+class NPGZImageFileReader(ImageFileReader):
+
+    @classmethod
+    def fromfile(cls, filename):
+        """Reads numpy array from .gz file."""
+        return numpy.loadtxt(StdGzipFile(filename, 'r'))
