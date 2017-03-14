@@ -137,6 +137,7 @@ class NicosPlotCurve(PlotCurve):
 
 class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
+    axescls = NicosPlotAxes
     HAS_AUTOSCALE = True
     SAVE_EXT = '.svg'
 
@@ -144,6 +145,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         InteractiveGRWidget.__init__(self, parent)
         NicosPlot.__init__(self, window, timeaxis=timeaxis)
 
+        self.timeaxis = timeaxis or (self.axescls == NicosTimePlotAxes)
         self.leftTurnedLegend = True
         self.statusMessage = None
         self.mouselocation = None
@@ -159,10 +161,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._plot.setLegendWidth(0.05)
-        if timeaxis:
-            self._axes = NicosTimePlotAxes(viewport=self._plot.viewport)
-        else:
-            self._axes = NicosPlotAxes(viewport=self._plot.viewport)
+        self._axes = self.axescls(viewport=self._plot.viewport)
         self._axes.backgroundColor = 0
         self._plot.addAxes(self._axes)
         self._plot.title = self.titleString()
@@ -486,6 +485,9 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
 
 class ViewPlot(ViewPlotMixin, NicosGrPlot):
+
+    axescls = NicosTimePlotAxes
+
     def __init__(self, parent, window, view):
         ViewPlotMixin.__init__(self, view)
         NicosGrPlot.__init__(self, parent, window, timeaxis=True)
@@ -531,6 +533,8 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
 
 
 class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
+
+    axescls = NicosPlotAxes
 
     def __init__(self, parent, window, dataset):
         DataSetPlotMixin.__init__(self, dataset)
