@@ -95,6 +95,9 @@ class ExpInfoPanel(Panel):
 
     def setViewOnly(self, viewonly):
         self._viewonly = viewonly
+        if not self._viewonly and self._timeout:
+            # ask explicitly for status to restart timer if necessary
+            self.client.ask('getstatus')
 
     def on_client_initstatus(self, initstatus):
         self.setupLabel.setText(', '.join(initstatus['setups'][1]))
