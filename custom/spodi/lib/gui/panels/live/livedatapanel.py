@@ -26,7 +26,7 @@
 import numpy
 
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy
+from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy, QStatusBar
 
 from nicos.clients.gui.panels import Panel
 
@@ -49,19 +49,20 @@ class LiveDataPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         self.gridLayout = QGridLayout(self)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
 
         self.user_color = Qt.white
         self.user_font = QFont('monospace')
 
-        # parent should be a QMainWindow, which has it's own status bar
-        self.statusBar = parent.statusBar()
+        self.dataPlot = LiveDataPlot(self, self)
+        self.gridLayout.addWidget(self.dataPlot, 0, 0, 1, 1)
+
+        self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
-
-        self.dataPlot = LiveDataPlot(self, self)
-        self.gridLayout.addWidget(self.dataPlot, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.statusBar, 1, 0, 1, 1)
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
