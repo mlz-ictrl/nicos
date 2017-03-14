@@ -55,7 +55,10 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard', 'nicos.commands.utility', 'nicos.laue.lauecommands']
+modules = [
+    'nicos.commands.standard', 'nicos.commands.utility',
+    'nicos.laue.lauecommands'
+]
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
@@ -63,44 +66,39 @@ modules = ['nicos.commands.standard', 'nicos.commands.utility', 'nicos.laue.laue
 # The parameters are given as keyword arguments.
 devices = dict(
     Laue = device('devices.instrument.Instrument',
-                  description = 'Laue camera',
-                  instrument = 'Laue',
-                  responsible = 'Dr. B. Pedersen <bjoern.pedersen@frm2.tum.de>',
-                  #  we do not have a dedicated responsible
-                 ),
-
-    Sample   = device('devices.sample.Sample',
-                      description = 'The current used sample',
-                     ),
+        description = 'Laue camera',
+        instrument = 'Laue',
+        responsible = 'Dr. B. Pedersen <bjoern.pedersen@frm2.tum.de>',
+        #  we do not have a dedicated responsible
+    ),
+    Sample = device('devices.sample.Sample',
+        description = 'The current used sample',
+    ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
-                      description = 'experiment object',
-                      dataroot = '/data',
-                      sendmail = False,
-                      zipdata = False,
-                      serviceexp = 'service',
-                      # We do not have a dedicated responsible
-                      sample = 'Sample',
-                     ),
-
+    Exp = device('devices.experiment.Experiment',
+        description = 'experiment object',
+        dataroot = '/data',
+        sendmail = False,
+        zipdata = False,
+        serviceexp = 'service',
+        # We do not have a dedicated responsible
+        sample = 'Sample',
+    ),
     filesink = device('devices.datasinks.AsciiScanfileSink',
-                      lowlevel = True,
-                     ),
-
+        lowlevel = True,
+    ),
     conssink = device('devices.datasinks.ConsoleScanSink',
-                      lowlevel = True,
-                     ),
-
-    dmnsink  = device('devices.datasinks.DaemonSink',
-                      lowlevel = True,
-                     ),
-
-    Space    = device('devices.generic.FreeSpace',
-                      description = 'The amount of free space for storing data',
-                      path = None,
-                      minfree = 5,
-                     ),
+        lowlevel = True,
+    ),
+    dmnsink = device('devices.datasinks.DaemonSink',
+        lowlevel = True,
+    ),
+    Space = device('devices.generic.FreeSpace',
+        description = 'The amount of free space for storing data',
+        path = None,
+        minfree = 5,
+    ),
 )
 
-includes = ['notifiers', 'detector','kappa', 'reactor', 'slits']
+includes = ['notifiers', 'detector', 'kappa', 'reactor', 'slits']
