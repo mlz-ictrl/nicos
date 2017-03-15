@@ -379,7 +379,7 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
     valuetype = float
     parameter_overrides = {
-        'abslimits': Override(mandatory=False),
+        'abslimits': Override(mandatory=False, volatile=True),
         'unit':      Override(mandatory=False),
     }
 
