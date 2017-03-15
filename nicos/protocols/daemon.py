@@ -46,7 +46,7 @@ PROTO_VERSION = 16
 # 14 -> 15: added 'eventunmask' command
 # 15 -> 16: added 'uid' parameter to 'liveparams' and 'livadata' command
 
-COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14]
+COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14, 15]
 
 # message serialization/deserialization
 
