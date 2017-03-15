@@ -8,7 +8,7 @@ devices = dict(
     nvslift_m = device('devices.taco.Motor',
                        description = 'Neutron selector lift motor',
                        tacodevice = '//%s/kompass/lift/motor' % nethost,
-                       abslimits = (0, 406),
+                       abslimits = (0, 406.5),
                        unit = 'mm',
                        lowlevel = True,
                       ),
@@ -16,11 +16,11 @@ devices = dict(
                      description = 'Neutron selector lift',
                      moveable = 'nvslift_m',
                      mapping = {'out': 0.,
-                                'in': 406.0
+                                'in': 406.01
                                },
                      fallback = '',
                      fmtstr = '%s',
-                     precision = 0.05,
+                     precision = 0.1,
                      blockingmove = False,
                      lowlevel = False,
                      unit = '',
