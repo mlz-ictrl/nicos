@@ -1,2 +1,5 @@
 opt/nicos/bin/nicos-gui
 opt/nicos/bin/nicos-history
+opt/nicos/icons/16x16/nicos.png /usr/share/icons/hicolor/16x16/apps
+opt/nicos/icons/32x32/nicos.png /usr/share/icons/hicolor/32x32/apps
+opt/nicos/icons/48x48/nicos.png /usr/share/icons/hicolor/48x48/apps
