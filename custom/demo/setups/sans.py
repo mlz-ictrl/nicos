@@ -81,6 +81,7 @@ devices = dict(
     guide     = device('devices.generic.MultiSwitcher',
                        description = 'neutron guide switcher for collimation',
                        moveables = ['guide1', 'guide2', 'guide3', 'guide4'],
+                       fallback = 'unknown',
                        mapping = {'off': ['off', 'off', 'off', 'off'],
                                   '1m':  ['off', 'off', 'off', 'ng' ],
                                   '2m':  ['off', 'off', 'ng',  'ng' ],
