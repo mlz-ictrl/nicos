@@ -88,7 +88,7 @@ class LiveDataPanel(Panel):
         self.client.tell('eventunmask', ['livedata', 'liveparams'])
 
     def on_client_liveparams(self, params):
-        _uid, _tag, _fname, dtype, nx, ny, _nz, runtime = params
+        _tag, _uid, _fname, dtype, nx, ny, _nz, runtime = params
         self.statusBar.showMessage('Runtime: %.1f s' % runtime)
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
         if not _fname and normalized_type not in DATATYPES:
