@@ -23,7 +23,7 @@ devices = dict(
                  description = 'mth (alias A1)',
                  motor = 'mth_m',
                  coder = 'mth_m',  # 'mth_c',
-                 fmtstr = '%.4f',
+                 fmtstr = '%.2f',
                  precision = 0.001,
                 ),
     mx_m = device('devices.taco.Motor',
