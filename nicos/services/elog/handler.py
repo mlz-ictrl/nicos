@@ -183,7 +183,7 @@ PROLOG_TOC = b'''\
 '''
 
 
-def create_or_open(filename, prolog=''):
+def create_or_open(filename, prolog=b''):
     if not path.isfile(filename):
         io.open(filename, 'wb').close()
     # we have to open in binary mode since we want to seek from the end,
