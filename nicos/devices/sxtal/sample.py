@@ -88,7 +88,8 @@ class SXTalSample(Sample):
                                  '[alpha, beta, gamma]')
         a = parameters.pop('a', None)
         if a is None:
-            self.log.warning('using dummy lattice constant of 5 A')
+            if 'cell' not in parameters:
+                self.log.warning('using dummy lattice constant of 5 A')
             a = 5.0
         b = parameters.pop('b', a)
         c = parameters.pop('c', a)

@@ -28,14 +28,16 @@ from PyQt4.QtGui import QDialog, QDialogButtonBox, QListWidgetItem, \
     QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
-from nicos.utils import decodeAny
+from nicos.core import ConfigurationError
+from nicos.core.params import mailaddress, vec3
+from nicos.guisupport import typedvalue
 from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.clients.gui.panels import Panel, AuxiliaryWindow, PanelDialog
 from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
+from nicos.utils import decodeAny
 from nicos.pycompat import iteritems, listitems
-from nicos.core.params import mailaddress
-from nicos.core import ConfigurationError
 
 
 def iterChecked(listwidget):
@@ -662,6 +664,80 @@ class TasSamplePanel(GenericSamplePanel):
     uiName = 'setup_tassample.ui'
 
     def getEditBoxes(self):
-        return [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
+        return [self.samplenameEdit, self.laueEdit, self.anglesEdit,
                 self.orient1Edit, self.orient2Edit, self.psi0Edit,
                 self.spacegroupEdit, self.mosaicEdit]
+
+
+class SXTalSamplePanel(GenericSamplePanel):
+    panelName = 'Single-crystal sample setup'
+    uiName = 'setup_sxtalsample.ui'
+
+    def __init__(self, parent, client):
+        GenericSamplePanel.__init__(self, parent, client)
+        params = client.eval('Sample.cell.cellparams()', None)
+        if params:
+            lattice = params[:3]
+            angles = params[3:6]
+        else:
+            lattice = [5] * 3
+            angles = [90] * 3
+        self.latticeEdit = typedvalue.create(self, vec3, lattice)
+        self.angleEdit = typedvalue.create(self, vec3, angles)
+        self.gridLayout.addWidget(self.latticeEdit, 2, 1)
+        self.gridLayout.addWidget(self.angleEdit, 3, 1)
+
+    def applyChanges(self):
+        code = 'NewSample(%r, ' % self.samplenameEdit.getValue()
+        code += 'cell=%r, ' % self.cellEdit.getValue().tolist()
+        code += 'bravais=%r, ' % self.bravaisEdit.getValue()
+        code += 'laue=%r)' % self.laueEdit.getValue()
+
+        self.client.run(code.rstrip())
+        self.showInfo('Sample parameters changed.')
+
+    @qtsig('')
+    def on_setLattice_clicked(self):
+        lattice = self.latticeEdit.getValue()
+        angles = self.angleEdit.getValue()
+        newcell = SXTalCell.fromabc(*(lattice + angles))
+        self.cellEdit._reinit(newcell)
+
+    @qtsig('')
+    def on_swapHK_clicked(self):
+        self._swap(0, 1)
+
+    @qtsig('')
+    def on_swapHL_clicked(self):
+        self._swap(0, 2)
+
+    @qtsig('')
+    def on_swapKL_clicked(self):
+        self._swap(1, 2)
+
+    @qtsig('')
+    def on_invertH_clicked(self):
+        self._invert(0)
+
+    @qtsig('')
+    def on_invertK_clicked(self):
+        self._invert(1)
+
+    @qtsig('')
+    def on_invertL_clicked(self):
+        self._invert(2)
+
+    def _swap(self, j1, j2):
+        tbl = self.cellEdit._inner
+        for i in range(tbl.rowCount()):
+            item1 = tbl.item(i, j1)
+            item2 = tbl.item(i, j2)
+            tmp = item1.text()
+            item1.setText(item2.text())
+            item2.setText(tmp)
+
+    def _invert(self, j):
+        tbl = self.cellEdit._inner
+        for i in range(tbl.rowCount()):
+            item = tbl.item(i, j)
+            item.setText('%.4g' % -float(item.text()))

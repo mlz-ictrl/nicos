@@ -27,12 +27,15 @@
 The supported types are defined in `nicos.core.params`.
 """
 
+import numpy as np
+
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QLineEdit, QIntValidator, \
+from PyQt4.QtGui import QLineEdit, QIntValidator, QIcon, QTableWidget, \
     QCheckBox, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, \
-    QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, QIcon
+    QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, QTableWidgetItem
 
 from nicos.core import params, anytype
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCellType
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.guisupport.utils import DoubleValidator
@@ -257,6 +260,9 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif isinstance(typ, params.dictof):
         return DictOfWidget(parent, typ.keyconv, typ.valconv, curvalue,
                             client, allow_enter=allow_enter)
+    elif typ == SXTalCellType:
+        return TableWidget(parent, float, curvalue.rmat.T.round(10), '%.4g',
+                           client, allow_enter=allow_enter)
     return MissingWidget(parent, curvalue)
 
 
@@ -661,3 +667,23 @@ class DictOfWidget(ItemsWidget):
     def getValue(self):
         return dict((w._widgets[0].getValue(),
                      w._widgets[2].getValue()) for w in self.items)
+
+
+class TableWidget(QTableWidget):
+
+    def __init__(self, parent, validator, curvalue, fmtstr, client,
+                 allow_enter=False):
+        self._rows, self._cols = curvalue.shape
+        self.validator = validator
+        QTableWidget.__init__(self, self._rows, self._cols, parent)
+        for i in range(self._rows):
+            for j in range(self._cols):
+                self.setItem(i, j, QTableWidgetItem(fmtstr % curvalue[i, j]))
+        self.cellChanged.connect(lambda i, j: self.emit(SIGNAL('dataChanged')))
+
+    def getValue(self):
+        value = np.zeros((self._rows, self._cols))
+        for i in range(self._rows):
+            for j in range(self._cols):
+                value[i, j] = self.validator(self.item(i, j).text())
+        return value
