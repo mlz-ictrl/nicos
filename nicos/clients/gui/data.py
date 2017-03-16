@@ -163,9 +163,10 @@ class DataHandler(QObject):
             (uid, xvalues, yvalues) = data
         else:
             uid, (xvalues, yvalues) = self.currentset.uid, data
-        currentset = self.uid2set[uid]
+        currentset = self.uid2set.get(uid)
         if not currentset:
-            raise DataError('No current set, trying to add a point')
+            # happens when we didn't catch the beginning of the dataset
+            return
         currentset.xresults.append(xvalues)
         currentset.yresults.append(yvalues)
         self._update_curves(currentset, xvalues, yvalues)
