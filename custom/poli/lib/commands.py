@@ -977,7 +977,8 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
                 continue
             except CONTINUE_EXCEPTIONS:
                 session.log.warning('Positioning problem, continuing', exc=1)
-            contscan(instr._attached_omega, om1, om2, speed, timedelta)
+            contscan(instr._attached_omega, om1, om2, speed, timedelta,
+                     '(%4.4g %4.4g %4.4g)' % info[2:])
         finally:
             session.endActionScope()
 
