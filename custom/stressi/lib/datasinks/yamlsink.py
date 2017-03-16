@@ -85,7 +85,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_format(self, formats):
         formats['identifier'] = self.filetype
-        _units = formats['units'] = AutoDefaultODict()
+        _units = formats['units'] = self._dict()
         for obj, unit in zip(self.objects, self.units):
             _units[obj] = unit
 
@@ -174,12 +174,12 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 experiment[key] = value
             elif key == 'users':
                 authors = experiment['authors']
-                author = AutoDefaultODict()
+                author = self._dict()
                 self._fill_user(author, value, ['principal_investigator', ])
                 authors.append(author)
             elif key == 'localcontact':
                 authors = experiment['authors']
-                author = AutoDefaultODict()
+                author = self._dict()
                 self._fill_user(author, value, ['local_contact', ])
                 authors.append(author)
 
@@ -259,7 +259,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         if self.dataset.settype == POINT:
             return
         if self._data is None:
-            self._data = AutoDefaultODict()
+            self._data = self._dict()
             self._scan_type = 'SGEN1'
         self._number = session.data.assignCounter(self.dataset)
         fp = session.data.createDataFile(self.dataset, self._template[0])
@@ -270,10 +270,10 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         else:
             self._file = io.FileIO(self._filepath, 'w')
 
-        self._data['instrument'] = AutoDefaultODict()
-        self._data['format'] = AutoDefaultODict()
-        self._data['experiment'] = AutoDefaultODict()
-        self._data['measurement'] = AutoDefaultODict()
+        self._data['instrument'] = self._dict()
+        self._data['format'] = self._dict()
+        self._data['experiment'] = self._dict()
+        self._data['measurement'] = self._dict()
         self._fill_format(self._data['format'])
 
     def begin(self):
@@ -304,51 +304,51 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         experiment['title'] = ''
         experiment['authors'] = []
 
-        history = measurement['history'] = AutoDefaultODict()
+        history = measurement['history'] = self._dict()
         history['started'] = time.strftime(TIMEFMT)
         history['stopped'] = time.strftime(TIMEFMT)
         history['scan'] = self.dataset.info
 
-        sample = measurement['sample'] = AutoDefaultODict()
-        sample['description'] = AutoDefaultODict()
+        sample = measurement['sample'] = self._dict()
+        sample['description'] = self._dict()
         sample['description']['name'] = ''
-        sample['temperature'] = AutoDefaultODict()
-        sample['orientation'] = AutoDefaultODict()
+        sample['temperature'] = self._dict()
+        sample['orientation'] = self._dict()
         for dev in ['tths', 'omgs', 'chis', 'phis']:
-            sample['orientation'][dev] = AutoDefaultODict()
+            sample['orientation'][dev] = self._dict()
             self._fill_position(sample['orientation'][dev], 0, 0, 0)
-        sample['position'] = AutoDefaultODict()
+        sample['position'] = self._dict()
         for dev in ['xt', 'yt', 'zt']:
-            sample['position']['xt'] = AutoDefaultODict()
+            sample['position']['xt'] = self._dict()
             self._fill_position(sample['position']['xt'], 0, 0, 0)
 
-        setup = measurement['setup'] = AutoDefaultODict()
+        setup = measurement['setup'] = self._dict()
         setup['collimator_1'] = "15'"
 
-        setup['slit_m'] = AutoDefaultODict()
+        setup['slit_m'] = self._dict()
         for x in ['horizontal_clearance', 'vertical_clearance']:
-            p = setup['slit_m'][x] = AutoDefaultODict()
+            p = setup['slit_m'][x] = self._dict()
             self._fill_position(p, 0, 0, 0)
 
-        p = setup['monochromator'] = AutoDefaultODict()
+        p = setup['monochromator'] = self._dict()
         p['crystal'] = 'Si'
         for dev in ['omgm', 'tthm']:
-            p[dev] = AutoDefaultODict()
+            p[dev] = self._dict()
             self._fill_position(p[dev], 0, 0, 0)
         p['angle'] = 0
         p['incident_wavelength'] = 0
 
-        setup['slit_e'] = AutoDefaultODict()
-        p = setup['slit_e']['clearance'] = AutoDefaultODict()
+        setup['slit_e'] = self._dict()
+        p = setup['slit_e']['clearance'] = self._dict()
         self._fill_position(p, 0, 0, 0)
 
-        setup['slit_p'] = AutoDefaultODict()
+        setup['slit_p'] = self._dict()
         for x in ['horizontal_clearance', 'horizontal_translation',
                   'vertical_clearance', 'vertical_translation']:
-            p = setup['slit_p'][x] = AutoDefaultODict()
+            p = setup['slit_p'][x] = self._dict()
             self._fill_position(p, 0, 0, 0)
 
-        setup['collimator_2'] = AutoDefaultODict()
+        setup['collimator_2'] = self._dict()
         p = setup['collimator_2']['fhwm'] = 5
 
         measurement['scan'] = []
@@ -435,8 +435,8 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             self.log.error('Could not get the image data from %s', det.name)
             self._detvalues = np.zeros((256, 256))
 
-        scanpoint = AutoDefaultODict()
-        scanparams = AutoDefaultODict()
+        scanpoint = self._dict()
+        scanparams = self._dict()
         if point.devvaluelist:
             scanparams[point.devvalueinfo[0].name] = self._float(
                 '%.2f' % point.devvaluelist[0])
