@@ -28,7 +28,7 @@ from math import asin, pi, sin
 
 from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
     Param, SIMULATION, multiStop, status
-from nicos.core.errors import ConfigurationError, PositionError
+from nicos.core.errors import PositionError
 from nicos.devices.generic import Switcher
 
 from nicos.stressi.mixins import TransformMove
@@ -47,7 +47,7 @@ class Wavelength(HasLimits, Moveable):
 
     parameters = {
         'crystal': Param('Used crystal',
-                         type=str, unit='', settable=False, volatile=True,
+                         type=str, unit='', settable=True, volatile=True,
                          category='instrument'),
         'plane': Param('Used scattering plane of the crystal', type=str,
                        unit='', mandatory=True, settable=True,
@@ -69,18 +69,16 @@ class Wavelength(HasLimits, Moveable):
     hardware_access = False
 
     _lut = {
-            'Ge': {'311': [1.7058, 9.45, 0.65],
-                   '511': [1.08879, 0.0, 0.65],
-                   '711': [0.79221, -4.37, 0.65]},
-            # 511, 400, 311
-            'Si': {'511': [1.0452, 15.79, 0.45],
-                   '400': [1.35773, 0.0, 0.45],
-                   '311': [1.6376, 25.24, 0.45]},
-            # 400, 200, 600
-            'PG': {'400': [1.6771, 0.0, 0.0],
-                   '200': [3.3542, 0.0, 0.0],
-                   '600': [1.11807, 0.0, 0.0]},
-            }
+        'Ge': {'311': [1.7058, 9.45, 0.65],
+               '511': [1.08879, 0.0, 0.65],
+               '711': [0.79221, -4.37, 0.65]},
+        'Si': {'511': [1.0452, 15.79, 0.45],
+               '400': [1.35773, 0.0, 0.45],
+               '311': [1.6376, 25.24, 0.45]},
+        'PG': {'400': [1.6771, 0.0, 0.0],
+               '200': [3.3542, 0.0, 0.0],
+               '600': [1.11807, 0.0, 0.0]},
+    }
 
     def _crystal(self, maxage):
         try:
@@ -103,12 +101,16 @@ class Wavelength(HasLimits, Moveable):
         return self._adevs
 
     def doInit(self, mode):
-        crystal = self._crystal(0)
-        if crystal:
-            if 'plane' not in self._params:
-                self._params['plane'] = p = crystal.values()[1]
-                if self._mode != SIMULATION:
-                    self._cache.put(self, 'plane', p)
+        if not self._params['plane']:
+            try:
+                crystal = self._attached_crystal.read(0)
+                if crystal in self._lut:
+                    p = sorted(self._lut[crystal].keys())[0]
+                    self._params['plane'] = p
+                    if self._mode != SIMULATION:
+                        self._cache.put(self, 'plane', p)
+            except PositionError:
+                pass
 
     def doStatus(self, maxage=0):
         for dev in (self._attached_base, self._attached_omgm,
@@ -135,8 +137,6 @@ class Wavelength(HasLimits, Moveable):
             raise PositionError(self, 'Not valid setup')
         tthm = asin(target / (2 * self._d(0))) / pi * 360.
         plane = crystal.get(self.plane, None)
-        if not plane:
-            raise ConfigurationError(self, 'No valid mono configuration')
         omgm = tthm / 2.0 + plane[1] + plane[2]
         self.log.debug(self._attached_base, 'will be moved to %.3f' % tthm)
         self.log.debug(self._attached_omgm, 'will be moved to %.3f' % omgm)
@@ -152,10 +152,17 @@ class Wavelength(HasLimits, Moveable):
         return 'AA'
 
     def doReadCrystal(self):
-        crystal = self._attached_crystal.read(0)
-        if crystal in self._lut:
-            return crystal
+        try:
+            crystal = self._attached_crystal.read(0)
+            if crystal in self._lut:
+                return crystal
+        except PositionError:
+            pass
         return None
+
+    def doWriteCrystal(self, value):
+        self._attached_crystal.move(value)
+        return value
 
     def doWritePlane(self, target):
         crystal = self._crystal(0)
