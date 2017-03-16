@@ -106,8 +106,12 @@ class Controller(BaseChopperController):
 
         # XXX if ratio == 1 then speed = 0 ?
         if self.ratio > 1:
-            self._attached_discs[4].move(
-                -self.speed * (self.ratio - 1) / self.ratio)
+            if self.ratio < 9:
+                self._attached_discs[4].move(
+                    -self.speed * (self.ratio - 1) / self.ratio)
+            else:
+                self._attached_discs[4].move(
+                    -self.speed * 7. / self.ratio)
         else:
             self._attached_discs[4].move(-self.speed)
         self._attached_discs[4].phase = phases[5]
