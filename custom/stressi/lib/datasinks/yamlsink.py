@@ -27,7 +27,7 @@ import re
 import time
 
 from nicos import session
-from nicos.core import NicosError, Override, Param, listof
+from nicos.core import Override, Param, listof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import AsciiScanfileSink, \
     AsciiScanfileSinkHandler, TIMEFMT
@@ -58,24 +58,24 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
     accept_file_images_only = False
     max_yaml_width = 120
 
-    def _readdev(self, devname, mapper=lambda x: x):
-        try:
-            return mapper(session.getDevice(devname).read())
-        except NicosError:
-            return None
+    # def _readdev(self, devname, mapper=lambda x: x):
+    #     try:
+    #         return mapper(session.getDevice(devname).read())
+    #     except NicosError:
+    #         return None
 
-    def _devpar(self, devname, parname, mapper=lambda x: x):
-        try:
-            return mapper(getattr(session.getDevice(devname), parname))
-        except NicosError:
-            return None
+    # def _devpar(self, devname, parname, mapper=lambda x: x):
+    #     try:
+    #         return mapper(getattr(session.getDevice(devname), parname))
+    #     except NicosError:
+    #         return None
 
     def _dict(self):
         return AutoDefaultODict()
 
-    def _flowlist(self, *args):
-        return None
-        # return quickyaml.flowlist(*args)
+    # def _flowlist(self, *args):
+    #     return None
+    #     # return quickyaml.flowlist(*args)
 
     objects = ['time', 'angle', 'clearance', 'collimator_fhwm', 'position',
                'wavelength']
