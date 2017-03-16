@@ -1,9 +1,10 @@
-group = 'optional'
 description = 'virtual temperature device'
 
+group = 'optional'
+
+includes = ['alias_T']
+
 devices = dict(
-    T = device('nicos.devices.generic.DeviceAlias'),
-    Ts = device('nicos.devices.generic.DeviceAlias'),
     T_demo = device('nicos.devices.generic.VirtualRealTemperature',
         description = 'A virtual (but realistic) temperature controller',
         abslimits = (2, 1000),
@@ -21,6 +22,11 @@ devices = dict(
         description = 'Temperature of virtual sample',
         visibility = (),
     ),
+    T_setpoint = device('nicos.devices.generic.ParamDevice',
+        description = 'Current temperature setpoint',
+        device = 'T_demo',
+        parameter = 'setpoint',
+    )
 )
 
 alias_config = {
