@@ -10,7 +10,7 @@ main_window = docked(
      panel('devices.DevicesPanel', icons=True, dockpos='right', )
     ),
     ('Experiment Information and Setup',
-     panel('expinfo.ExpInfoPanel', )
+     panel('expinfo.ExpInfoPanel', popup_proposal_after=1. )
     ),
 )
 
