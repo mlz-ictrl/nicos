@@ -364,6 +364,11 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                     d1['SLITM_D'] = -value[0] / 2.
                     d1['SLITM_R'] = value[1] / 2.
                     d1['SLITM_L'] = -value[1] / 2.
+                elif device == 'slitp':
+                    d1['SLITP_U'] = value[0] / 2.
+                    d1['SLITP_D'] = -value[0] / 2.
+                    d1['SLITP_R'] = value[1] / 2.
+                    d1['SLITP_L'] = -value[1] / 2.
                 elif device == 'slite':
                     d1['SLITM_E'] = value
                 elif device == 'transm':
