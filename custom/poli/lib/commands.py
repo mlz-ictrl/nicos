@@ -31,6 +31,7 @@ from os import path
 
 from nicos import session
 from nicos.commands import usercommand, helparglist, parallel_safe
+from nicos.commands.basic import Remark
 from nicos.commands.device import maw, move, read
 from nicos.commands.scan import cscan, contscan, _infostr
 from nicos.commands.analyze import center_of_mass, gauss
@@ -947,6 +948,8 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
         else:
             session.log.info('Starting at reflection number %d.', start)
             all_pos = all_pos[start - 1:]
+
+    Remark('Scan dataset %s (%d reflections)' % (name, len(all_pos)))
 
     for i, (hkl, width) in enumerate(all_pos, start=start):
         session.log.info('')
