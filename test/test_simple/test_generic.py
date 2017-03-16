@@ -52,6 +52,14 @@ def test_virtual_switch(session):
     assert v.read() == 'up'
 
 
+def test_manual_move(session):
+    m4 = session.getDevice('m4')
+    m4.move(10)
+    assert m4.read() == 10
+    assert m4.target == 10
+    assert m4.status()[0] == status.OK
+
+
 def test_manual_switch(session):
     m = session.getDevice('m1')
     assert m.read() == 'up'
