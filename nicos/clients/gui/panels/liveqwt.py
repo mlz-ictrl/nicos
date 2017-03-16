@@ -211,7 +211,12 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
 
     def on_client_liveparams(self, params):
-        tag, _, fname, dtype, nx, ny, nz, runtime = params
+        # TODO: remove compatibility code
+        if len(params) == 7:  # Protocol version < 16
+            tag, fname, dtype, nx, ny, nz, runtime = params
+        elif len(params) == 9:  # Protocol version >= 16
+            tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
+
         self._runtime = runtime
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
         if not fname and normalized_type not in DATATYPES:

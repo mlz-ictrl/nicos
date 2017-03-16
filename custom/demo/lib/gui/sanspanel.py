@@ -194,7 +194,12 @@ class SANSPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), '', False)
 
     def on_client_liveparams(self, params):
-        _tag, fname, dtype, nx, ny, nz, runtime = params
+        # TODO: remove compatibility code
+        if len(params) == 7:  # Protocol version < 16
+            _tag, fname, dtype, nx, ny, nz, runtime = params
+        elif len(params) == 9:  # Protocol version >= 16
+            _tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
+
         self._runtime = runtime
         self._filename = fname
         if dtype not in DATATYPES:

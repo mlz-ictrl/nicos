@@ -149,6 +149,7 @@ class RawImageSinkHandler(DataSinkHandler):
             if data is not None:
                 self._writeData(self._datafile, data)
                 session.notifyDataFile('raw', self.dataset.uid,
+                                       self.detector.name,
                                        self._datafile.filepath)
 
     def putMetainfo(self, metainfo):

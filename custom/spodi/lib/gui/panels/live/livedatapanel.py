@@ -88,7 +88,12 @@ class LiveDataPanel(Panel):
         self.client.tell('eventunmask', ['livedata', 'liveparams'])
 
     def on_client_liveparams(self, params):
-        _tag, _uid, _fname, dtype, nx, ny, _nz, runtime = params
+        # TODO: remove compatibility code
+        if len(params) == 7:  # Protocol version < 16
+            _tag, _fname, dtype, nx, ny, _nz, runtime = params
+        elif len(params) == 9:  # Protocol version >= 16
+            _tag, _uid, _det, _fname, dtype, nx, ny, _nz, runtime = params
+
         self.statusBar.showMessage('Runtime: %.1f s' % runtime)
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
         if not _fname and normalized_type not in DATATYPES:

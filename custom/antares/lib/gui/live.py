@@ -146,7 +146,12 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
-        _tag, dtype, nx, ny, nz, runtime = params
+        # TODO: remove compatibility code
+        if len(params) == 7:  # Protocol version < 16
+            _tag, _fname, dtype, nx, ny, nz, runtime = params
+        elif len(params) == 9:  # Protocol version >= 16
+            _tag, _uid, _det, _fname, dtype, nx, ny, nz, runtime = params
+
         self._runtime = runtime
         if dtype not in DATATYPES:
             self._format = None

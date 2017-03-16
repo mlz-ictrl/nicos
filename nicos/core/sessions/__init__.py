@@ -1331,7 +1331,8 @@ class Session(object):
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, uid, filename, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, uid, detector, filename, dtype, nx, ny, nt,
+                       time, data):
         """Send new live data to clients.
 
         The parameters are:
@@ -1339,6 +1340,7 @@ class Session(object):
         * tag - a string describing the type of data that is sent.  It is used
           by clients to determine if they can display this data.
         * uid - a unique id for the corresponding data point.
+        * detector - name of the detector device.
         * filename - the filename displayed for cached data.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
@@ -1348,7 +1350,7 @@ class Session(object):
         * data - the actual data as a byte string.
         """
 
-    def notifyDataFile(self, tag, uid, filename):
+    def notifyDataFile(self, tag, uid, detector, filename):
         """Notify clients that a new data file has been written, which might
         be viewed by live-data views.
 
@@ -1357,6 +1359,7 @@ class Session(object):
         * tag - a string describing the type of data saved.  It is used
           by clients to determine if they can open/display this data.
         * uid - a unique id for the corresponding data point.
+        * detector - name of the detector device.
         * filename - a string giving the filename of the data.
         """
 

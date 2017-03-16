@@ -45,6 +45,7 @@ PROTO_VERSION = 16
 # 13 -> 14: added 'finish' command
 # 14 -> 15: added 'eventunmask' command
 # 15 -> 16: added 'uid' parameter to 'liveparams' and 'livadata' command
+#           added 'detector' parameter to 'liveparams' command
 
 COMPATIBLE_PROTO_VERSIONS = [10, 11, 12, 13, 14, 15]
 

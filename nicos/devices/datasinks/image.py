@@ -127,7 +127,7 @@ class SingleFileSinkHandler(DataSinkHandler):
             self.writeData(self._file, image)
             syncFile(self._file)
             session.notifyDataFile(self.filetype, self.dataset.uid,
-                                   self._file.filepath)
+                                   self.detector.name, self._file.filepath)
 
     def putMetainfo(self, metainfo):
         if not self.defer_file_creation:

@@ -110,13 +110,15 @@ class DaemonSession(NoninteractiveSession):
         NoninteractiveSession.setMode(self, mode)
         self.emitfunc('mode', mode)
 
-    def updateLiveData(self, tag, uid, filename, dtype, nx, ny, nt, time, data):
-        self.emitfunc('liveparams', (tag, uid, filename, dtype, nx, ny, nt,
-                                     time))
+    def updateLiveData(self, tag, uid, detector, filename, dtype, nx, ny, nt,
+                       time, data):
+        self.emitfunc('liveparams', (tag, uid, detector, filename, dtype,
+                                     nx, ny, nt, time))
         self.emitfunc('livedata', data)
 
-    def notifyDataFile(self, tag, uid, filename):
-        self.emitfunc('liveparams', (tag, uid, filename, '', 0, 0, 0, 0))
+    def notifyDataFile(self, tag, uid, detector, filename):
+        self.emitfunc('liveparams', (tag, uid, detector, filename,
+                                     '', 0, 0, 0, 0))
         self.emitfunc('livedata', '')
 
     def notifyFitCurve(self, dataset, title, xvalues, yvalues):

@@ -63,6 +63,8 @@ class LiveDataPanel(Panel):
         loadUi(self, 'live.ui', 'panels')
 
         self._allowed_tags = set()
+        self._allowed_detectors = set()
+        self._ignore_livedata = False  # ignore livedata, e.g. wrong detector
         self._last_tag = None
         self._last_fname = None
         self._last_format = None
@@ -141,6 +143,11 @@ class LiveDataPanel(Panel):
         supported_filetypes = FILETYPES.keys()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
         self._allowed_tags = opt_filetypes & set(supported_filetypes)
+
+        # configure allowed detector device names
+        detectors = options.get('detectors')
+        if detectors:
+            self._allowed_detectors = set(detectors)
 
         # configure caching
         self._cachesize = options.get('cachesize', self._cachesize)
@@ -313,7 +320,17 @@ class LiveDataPanel(Panel):
         self._register_rois(detectors)
 
     def on_client_liveparams(self, params):
-        tag, uid, fname, dtype, nx, ny, nz, runtime = params
+        # TODO: remove compatibility code
+        if len(params) == 7:  # Protocol version < 16
+            tag, fname, dtype, nx, ny, nz, runtime = params
+            uid, det = None, None
+        elif len(params) == 9:  # Protocol version >= 16
+            tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
+
+        if self._allowed_detectors and det not in self._allowed_detectors:
+            self._ignore_livedata = True
+            return
+        self._ignore_livedata = False
         self._runtime = runtime
         self._last_uid = uid
         if dtype:
@@ -356,8 +373,8 @@ class LiveDataPanel(Panel):
             raise NicosError('Unsupported fileformat \'%s\'' % tag)
 
     def on_client_livedata(self, data):
-        # but display it right now only if on <Live> setting
-        if self._no_direct_display:
+        # but display it right now only if on <Live> setting and no ignore
+        if self._no_direct_display or self._ignore_livedata:
             return
 
         # always allow live data
