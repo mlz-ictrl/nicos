@@ -455,11 +455,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         scanpoint['image'] = [] if self._detvalues is None else self._detvalues
         self._data['measurement']['scan'].append(scanpoint)
 
-    def end(self):
-        if self.dataset.settype == POINT:
-            return
-        history = self._data['measurement']['history']
-        history['stopped'] = time.strftime(TIMEFMT)
+    def _dump(self):
         if quickyaml:
             quickyaml.Dumper(width=self.max_yaml_width,
                              array_handling=quickyaml.ARRAY_AS_SEQ).dump(
@@ -467,6 +463,13 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         elif yaml:
             dump(self._data, self._file, allow_unicode=True, canonical=False,
                  default_flow_style=False, indent=4)
+
+    def end(self):
+        if self.dataset.settype == POINT:
+            return
+        history = self._data['measurement']['history']
+        history['stopped'] = time.strftime(TIMEFMT)
+        self._dump()
         self._file.flush()
         self._file.close()
         self._file = None
