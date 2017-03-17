@@ -214,6 +214,12 @@ class Watchdog(BaseCacheClient):
                 self.log.warning('detected "pausecount" key in entry, use '
                                  '"scriptaction = \'pausecount\'" instead')
                 entryd['scriptaction'] = 'pausecount'
+            if entryd.get('scriptaction') not in (None, 'pausecount', 'stop',
+                                                  'immediatestop'):
+                self.log.warning('entry %s scriptaction is invalid, needs '
+                                 "to be one of 'pausecount', 'stop' or "
+                                 "'immediatestop'", entryd)
+                entryd.pop('scriptaction')
             entry = Entry(entryd)
             entry.id = i
             if entry.type and entry.type not in self._notifiers:
