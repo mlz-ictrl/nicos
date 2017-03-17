@@ -229,7 +229,7 @@ class Detector(MeasureSequencer):
 
     def _set_resosteps(self, value):
         shape = (value * self.numinputs, 256)
-        self._step_size = self.range / value if value > 1 else 0
+        self._step_size = self.range / value
         if not self._arraydesc:
             self._arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
             self._array_data = np.zeros(shape, dtype='<u4', order='F')
