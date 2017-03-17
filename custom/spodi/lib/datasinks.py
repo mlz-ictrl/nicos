@@ -104,13 +104,14 @@ class CaressHistogramHandler(SingleFileSinkHandler):
 
         for i, v in enumerate(image):
             _pos = _start + i * _stepsize
-            fp.write('%.2f\t%s\n' % (_pos, '\t'.join(['%d' % x for x in v])))
-        fp.write('\n')
+            fp.write(to_utf8('%.2f\t%s\n' %
+                             (_pos, '\t'.join(['%d' % x for x in v]))))
+        fp.write(b'\n')
 
-        fp.write('total sum\n')
+        fp.write(b'total sum\n')
         for i, v in enumerate(image):
             _pos = _start + i * _stepsize
-            fp.write('%.2f\t%d\n' % (_pos, v.sum()))
+            fp.write(to_utf8('%.2f\t%d\n' % (_pos, v.sum())))
 
         fp.flush()
 
