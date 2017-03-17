@@ -4,11 +4,8 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-# setupname is set by nicos before loading this file
-# setupname = filename - '.py' extension
-nethost = setupname
-
 plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
 # This box is equipped with the pressure regulation!
 devices = {
@@ -21,52 +18,78 @@ devices = {
                                 fmtstr = '%.3f',
                                ),
 
-    'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
+    'T_%s_stick' % setupname : device('devices.tango.TemperatureController',
                                       description = 'The control device of '
                                                     'the sample (stick)',
-                                      tacodevice = '//%s/box/stick/control2' % nethost,
+                                      tangodevice = tango_base + 'stick/control2',
                                       abslimits = (0, 600),
                                       unit = 'K',
                                       fmtstr = '%.3f',
                                      ),
 
-    'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
+    'T_%s_tube' % setupname : device('devices.tango.TemperatureController',
                                      description = 'The control device of the '
                                                    'tube',
-                                     tacodevice = '//%s/box/tube/control1' % nethost,
+                                     tangodevice = tango_base + 'tube/control1',
                                      abslimits = (0, 300),
                                      warnlimits = (0, 300),
                                      unit = 'K',
                                      fmtstr = '%.3f',
                                     ),
 
-    'T_%s_A' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_stick_range' % setupname : device('devices.tango.NamedDigitalOutput',
+                                     description = 'Heater range',
+                                     tangodevice = tango_base + 'stick/range2',
+                                     warnlimits = ('high', 'medium'),
+                                     mapping = {'off': 0, 'low': 1, 'medium': 2, 'high': 3},
+                                     unit = '',
+                                    ),
+
+    'T_%s_tube_range' % setupname : device('devices.tango.NamedDigitalOutput',
+                                     description = 'Heater range',
+                                     tangodevice = tango_base + 'tube/range1',
+                                     warnlimits = ('high', 'medium'),
+                                     mapping = {'off': 0, 'low': 1, 'medium': 2, 'high': 3},
+                                     unit = '',
+                                    ),
+
+    'T_%s_tube' % setupname : device('devices.tango.TemperatureController',
+                                     description = 'The control device of the '
+                                                   'tube',
+                                     tangodevice = tango_base + 'tube/control1',
+                                     abslimits = (0, 300),
+                                     warnlimits = (0, 300),
+                                     unit = 'K',
+                                     fmtstr = '%.3f',
+                                    ),
+
+    'T_%s_A' % setupname : device('devices.tango.Sensor',
                                   description = '(optional) Sample temperature',
-                                  tacodevice = '//%s/box/sample/sensora' % nethost,
+                                  tangodevice = tango_base + 'sample/sensora',
                                   unit = 'K',
                                   fmtstr = '%.3f',
                                  ),
 
-    'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_B' % setupname : device('devices.tango.Sensor',
                                   description = '(regulation) Temperature at '
                                                 'the stick',
-                                  tacodevice = '//%s/box/stick/sensorb' % nethost,
+                                  tangodevice = tango_base + 'stick/sensorb',
                                   unit = 'K',
                                   fmtstr = '%.3f',
                                  ),
 
-    'T_%s_C' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_C' % setupname : device('devices.tango.Sensor',
                                   description = 'Temperature of the coldhead',
-                                  tacodevice = '//%s/box/coldhead/sensorc' % nethost,
+                                  tangodevice = tango_base + 'coldhead/sensorc',
                                   warnlimits = (0, 300),
                                   unit = 'K',
                                   fmtstr = '%.3f',
                                  ),
 
-    'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_D' % setupname : device('devices.tango.Sensor',
                                   description = '(regulation) Temperature at '
                                                 'thermal coupling to the tube',
-                                  tacodevice = '//%s/box/tube/sensord' % nethost,
+                                  tangodevice = tango_base + 'tube/sensord',
                                   warnlimits = (0, 300),
                                   unit = 'K',
                                   fmtstr = '%.3f',
