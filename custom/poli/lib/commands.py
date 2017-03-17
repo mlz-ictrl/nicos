@@ -607,17 +607,26 @@ def PosListShow(listname='default'):
                items, session.log.info)
 
 
-def _add_to_pos_list(listname, pos, intensity, sigma, hkl=None):
+def _add_to_pos_list(pos, intensity, args):
+    listname = 'default'
+    sigma = hkl = None
+    for arg in args:
+        if isinstance(arg, string_types):
+            listname = arg
+        elif isinstance(arg, number_types):
+            sigma = arg
+        else:
+            hkl = arg
     if sigma is None:
         sigma = math.sqrt(intensity)
-    sample = session.experiment.sample
-    lists = dict(sample.poslists)
     if not isinstance(intensity, (int, float)):
         raise UsageError('Intensity must be a number')
     if hkl is not None:
         hkl = list(hkl)
         if len(hkl) != 3:
             raise UsageError('HKL must be a list of 3 indices')
+    sample = session.experiment.sample
+    lists = dict(sample.poslists)
     if listname not in lists:
         session.log.info('Created new position list %r', listname)
         lists[listname] = []
@@ -628,9 +637,12 @@ def _add_to_pos_list(listname, pos, intensity, sigma, hkl=None):
 
 
 @usercommand
-@helparglist('gamma, omega, nu, intensity, [sigma], [listname]')
-def PosListDefine(gamma, omega, nu, intensity, sigma=None, listname='default'):
+@helparglist('gamma, omega, nu, intensity, [hkl], [sigma], [listname]')
+def PosListDefine(gamma, omega, nu, intensity, *args):
     """Add current position to the position list with given intensity.
+
+    With an argument like ``(h, k, l)``, the peak will be identified with the
+    given indices.
 
     The *sigma* parameter can also be given as the intensity error.
 
@@ -639,18 +651,19 @@ def PosListDefine(gamma, omega, nu, intensity, sigma=None, listname='default'):
     >>> PosListDefine(28.14, 56.7, -4.3, 1000)
     >>> PosListDefine(28.14, 56.7, -4.3, 1000, 100)  # with sigma intensity
     >>> PosListDefine(28.14, 56.7, -4.3, 1000, 'list')  # with peak list
+    >>> PosListDefine(28.14, 56.7, -4.3, 1000, (1, 0, 0))  # with HKL
     """
-    if isinstance(sigma, string_types):
-        listname = sigma
-        sigma = None
     pos = session.instrument._createPos(gamma=gamma, omega=omega, nu=nu)
-    _add_to_pos_list(listname, pos, intensity, sigma)
+    _add_to_pos_list(pos, intensity, args)
 
 
 @usercommand
-@helparglist('intensity, [sigma], [listname]')
-def PosListAdd(intensity, sigma=None, listname='default'):
+@helparglist('intensity, [hkl], [sigma], [listname]')
+def PosListAdd(intensity, *args):
     """Add current position to the position list with given intensity.
+
+    With an argument like ``(h, k, l)``, the peak will be identified with the
+    given indices.
 
     The *sigma* parameter can also be given as the intensity error.
 
@@ -659,12 +672,10 @@ def PosListAdd(intensity, sigma=None, listname='default'):
     >>> PosListAdd(1000)           # add current instrument position
     >>> PosListAdd(1000, 10)       # same, with I = 1000 and sigmaI = 10
     >>> PosListAdd(1000, 'other')  # add to named (non default) position list
+    >>> PosListAdd(1000, 'other', (1, 0, 0))  # with given HKL and list name
     """
-    if isinstance(sigma, string_types):
-        listname = sigma
-        sigma = None
     pos = session.instrument._readPos()
-    _add_to_pos_list(listname, pos, intensity, sigma)
+    _add_to_pos_list(pos, intensity, args)
 
 
 @usercommand
