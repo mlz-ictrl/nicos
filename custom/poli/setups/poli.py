@@ -2,7 +2,7 @@ description = 'POLI standard setup'
 
 group = 'basic'
 
-includes = ['mono', 'slits', 'detector', 'table_tg']
+includes = ['reactor', 'mono', 'slits', 'detector', 'table_tg']
 
 devices = dict(
     POLI     = device('devices.sxtal.instrument.LiftingSXTal',
