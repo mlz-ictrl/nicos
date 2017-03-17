@@ -3,7 +3,7 @@ description = 'Neutron source'
 group = 'lowlevel'
 
 devices = dict(
-    ReactorPower = device('devices.generic.virtual.VirtualMotor',
+    ReactorPower = device('devices.generic.VirtualMotor',
                           description = 'Reactor power',
                           abslimits = (0, 20),
                           pollinterval = 10,

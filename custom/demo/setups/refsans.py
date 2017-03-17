@@ -255,10 +255,10 @@ devices = dict(
                      motor_s = 'nok9_s',
                     ),
 
-    det_time = device('devices.generic.virtual.VirtualTimer',
+    det_time = device('devices.generic.VirtualTimer',
                       description = 'demo timer',
                      ),
-    det_img  = device('devices.generic.virtual.VirtualImage',
+    det_img  = device('devices.generic.VirtualImage',
                       description = 'demo 2D detector',
                       distance = None,
                       collimation = None,
