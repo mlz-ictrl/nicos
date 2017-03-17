@@ -195,13 +195,11 @@ class Detector(MeasureSequencer):
         # ret = [step, meastime, mon1, mon2, counts]
         meastime = ret[1]
         if meastime > 0.:
+            ctrrate = ret[-1] / meastime
             mon1rate = ret[2] / meastime
+            mon2rate = 0
             if len(self._attached_detector._attached_monitors) > 1:
-                mon2rate = ret[3] / meastime
-                ctrrate = ret[4] / meastime
-            else:
-                mon2rate = 0
-                ctrrate = ret[3] / meastime
+                mon2rate = ret[-2] / meastime
             self._setROParam('rates', [mon1rate, mon2rate, ctrrate])
         return ret
 
