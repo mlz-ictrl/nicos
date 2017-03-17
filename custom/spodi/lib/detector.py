@@ -254,13 +254,16 @@ class Detector(MeasureSequencer):
     def doEstimateTime(self, elapsed):
         # TODO calculate the estimated time better in case of monitor counting
         # the _time_preset value is only value for time counting mode
-        mspeed = self.__attached_motor.speed
-        steptime = self._range / (mspeed or 1.0) / self._resosteps
-        step = int((self._attached_motor.read() - self._startpos) /
-                   self._step_size)
-        ret = self._resostep * steptime + \
-            (steptime + self._time_preset) * (self._resostep - step) + \
-            self._attached_detector.doEstimateTime(elapsed)
+        mspeed = self._attached_motor.speed or 1.0
+        steptime = (self.range / mspeed) / self.resosteps
+        if MeasureSequencer.status(self, 0)[0] == status.BUSY:
+            step = int(abs(self._attached_motor.read() - self._startpos) /
+                       self._step_size)
+            ret = (steptime + self._time_preset) * (self.resosteps - step)
+        else:
+            ret = (steptime + self._time_preset) * self.resosteps
+        detTime = self._attached_detector.doEstimateTime(elapsed)
+        ret += detTime if detTime is not None else 0.
         return ret
 
     def valueInfo(self):
