@@ -93,6 +93,7 @@ class ConsolePanel(Panel):
         self.menu.popup(self.outView.mapToGlobal(point))
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
         self.hasmenu = bool(options.get('hasmenu', True))

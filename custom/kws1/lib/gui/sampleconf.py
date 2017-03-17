@@ -248,6 +248,7 @@ class KWSSamplePanel(Panel):
         self.filename = None
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         self.holder_info = options.get('holder_info', [])
 
     @pyqtSlot()

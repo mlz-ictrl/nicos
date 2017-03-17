@@ -364,6 +364,7 @@ class EditorPanel(Panel):
         self.watchers.clear()
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         self.toolconfig = options.get('tools', '')
 
     def setViewOnly(self, viewonly):

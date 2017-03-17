@@ -126,6 +126,7 @@ class LiveDataPanel(Panel):
         self.detectorskey = None
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
         # self.widget.setInstrumentOption(self._instrument)
