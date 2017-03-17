@@ -53,6 +53,7 @@ class Disc(VirtualMotor):
         'abslimits': Override(default=(-27000, 27000), mandatory=False),
         'unit': Override(default='rpm', mandatory=False,),
         'jitter': Override(default=2),
+        'curvalue': Override(default=6000),
     }
 
 
