@@ -306,7 +306,9 @@ class MessageView(QTextBrowser):
     def paintEvent(self, ev):
         if self._background_image:
             # draw background image if any (should be mostly transparent!)
-            painter = QPainter(self.viewport())
+            painter = QPainter()
+            painter.begin(self.viewport())
             painter.drawPixmap(self._background_image_area,
                                self._background_image)
+            painter.end()
         QTextBrowser.paintEvent(self, ev)
