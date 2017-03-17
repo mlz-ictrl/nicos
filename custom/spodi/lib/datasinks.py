@@ -55,9 +55,10 @@ class CaressHistogramHandler(SingleFileSinkHandler):
                 bycategory.setdefault(cat, []).append((dev, key, v,))
         detector = detectors[0] if detectors else 'adet'
         _comment = 'monrate = %.1f ' % _metainfo[detector, 'rates'][0][0]
-        for device, _key, value in bycategory['general']:
-            if _key == 'value':
-                _comment += '%s = %s ' % (device, value)
+        if 'general' in bycategory:
+            for device, _key, value in bycategory['general']:
+                if _key == 'value':
+                    _comment += '%s = %s ' % (device, value)
         _resosteps = _metainfo[detector, 'resosteps'][0]
         _range = _metainfo[detector, 'range'][0]
         _stepsize = _range / _resosteps
