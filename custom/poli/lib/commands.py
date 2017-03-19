@@ -969,11 +969,17 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
 
     Remark('Scan dataset %s (%d reflections)' % (name, len(all_pos)))
 
+    skipped = 0
     for i, (hkl, width) in enumerate(all_pos, start=start):
         session.log.info('')
         info = (i, len(all_pos) + start - 1, hkl[0], hkl[1], hkl[2])
-        session.log.info('*** Scanning %d/%d: (%4.4g %4.4g %4.4g)', *info)
-        session.beginActionScope('HKL %d/%d: (%4.4g %4.4g %4.4g)' % info)
+        text = '*** Scanning %d/%d: (%4.4g %4.4g %4.4g)' % info
+        scope = 'HKL %d/%d: (%4.4g %4.4g %4.4g)' % info
+        if skipped:
+            text += ' [%d skipped]' % skipped
+            scope += ' [%d skipped]' % skipped
+        session.log.info(text)
+        session.beginActionScope(scope)
         try:
             calc = dict(instr._extractPos(instr._calcPos(hkl)))
             om1 = calc['omega'] - width / 2.
@@ -992,6 +998,7 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
                     instr._attached_omega, om1)
             except SKIP_EXCEPTIONS:
                 session.log.warning('Skipping scan', exc=1)
+                skipped += 1
                 continue
             except CONTINUE_EXCEPTIONS:
                 session.log.warning('Positioning problem, continuing', exc=1)
