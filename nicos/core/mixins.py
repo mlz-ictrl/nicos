@@ -256,6 +256,10 @@ class HasOffset(DeviceMixinBase):
         diff = value - old_offset
         if isinstance(self, HasLimits):
             self._adjustLimitsToOffset(value, diff)
+        # For moveables, also adjust target to avoid getting value and
+        # target out of sync
+        if 'target' in self.parameters:
+            self._setROParam('target', self.target - diff)
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:

@@ -269,13 +269,15 @@ def test_device_commands(session, log):
     assert raises(UsageError, unfix, ())
 
     # check adjust()
-    move(motor, 1)
+    maw(motor, 1)
     adjust(motor, 0)
     assert motor() == 0
     assert motor.offset == 1
+    assert motor.target == 0
     adjust(motor, 0, 1)
     assert motor() == 1
     assert motor.offset == 0
+    assert motor.target == 1
 
     # check version()
     version(motor)
