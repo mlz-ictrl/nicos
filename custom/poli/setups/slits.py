@@ -13,7 +13,7 @@ devices = dict(
                  description = 'Monochromator vertical opening slit',
                  tangodevice = tango_base + 'fzjs7/bmv',
                  fmtstr = '%.2f',
-                 abslimits = (114, 190),
+                 abslimits = (114.5, 188),
                  precision = 0.2,
                  lowlevel = False,
                 ),
