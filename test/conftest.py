@@ -73,6 +73,8 @@ def session(request):
     yield nicos_session
     nicos_session.setSPMode(False)
     nicos_session.data.reset()
+    if nicos_session.cache:
+        nicos_session.cache.clear_all()
     nicos_session.shutdown()
 
 
