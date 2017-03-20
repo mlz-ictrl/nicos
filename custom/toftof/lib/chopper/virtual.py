@@ -26,8 +26,9 @@
 
 from time import time as currenttime
 
-from nicos.core import ADMIN, Attach, NicosError, Override, Param, floatrange,\
-    requires, status
+from nicos import session
+from nicos.core import ADMIN, Attach, NicosError, Override, Param, POLLER, \
+    SIMULATION, floatrange, requires, status
 
 from nicos.devices.generic.virtual import VirtualMotor
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
@@ -61,6 +62,11 @@ class Controller(BaseChopperController):
     attached_devices = {
         'discs': Attach('Chopper discs', Disc, multiple=7),
     }
+
+    def doInit(self, mode):
+        if mode == SIMULATION or session.sessiontype == POLLER:
+            return
+        self._change('speed', self.speed)
 
     def _change(self, name, value):
         """Internal interface to change a chopper value."""
@@ -139,7 +145,7 @@ class Controller(BaseChopperController):
         return [abs(dev.read()) for dev in self._attached_discs]
 
     def _readspeeds_actual(self):
-        return [v * 279.618375
+        return [abs(v) * 279.618375
                 for v in self._readspeeds()]
 
     def _readphase(self, ch):
