@@ -395,12 +395,18 @@ class NicosPlot(DlgUtils):
         """Return a list of tuples (index, description) of visible curves."""
         raise NotImplementedError
 
+    def visibleDataCurves(self):
+        """Return a list of tuples (index, description) of visible curves
+        that are not fits.
+        """
+        raise NotImplementedError
+
     def selectCurve(self):
         """Let the user select a visible plot curve.
 
         If there is only one curve, return it directly.
         """
-        visible_curves = self.visibleCurves()
+        visible_curves = self.visibleDataCurves()
         if not visible_curves:
             return
         if len(visible_curves) > 1:
@@ -519,6 +525,10 @@ class DataSetPlotMixin(object):
                 for (i, curve) in enumerate(self.dataset.curves)
                 if self._isCurveVisible(self.plotcurves[i])]
 
+    def visibleDataCurves(self):
+        # visibleCurves only includes data curves anyway
+        return self.visibleCurves()
+
     def enableCurvesFrom(self, otherplot):
         visible = {}
         for curve in otherplot.plotcurves:
@@ -567,6 +577,12 @@ class ViewPlotMixin(object):
         return [(i, self._getCurveLegend(plotcurve))
                 for (i, plotcurve) in enumerate(self.plotcurves)
                 if self._isCurveVisible(plotcurve)]
+
+    def visibleDataCurves(self):
+        return [(i, self._getCurveLegend(plotcurve))
+                for (i, plotcurve) in enumerate(self.plotcurves)
+                if self._isCurveVisible(plotcurve)
+                and 'fit' not in self._getCurveLegend(plotcurve)]
 
     def saveData(self):
         curvenames = [self._getCurveLegend(plotcurve)
