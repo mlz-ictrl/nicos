@@ -119,11 +119,12 @@ class SetupChecker(object):
                 if isinstance(key, ast.BinOp):
                     try:
                         code = compile(ast.fix_missing_locations(
-                                        ast.Expression(key)),'<string>', 'eval')
+                            ast.Expression(key)),'<string>', 'eval')
                         val = eval(code, self.ns)
                     except Exception:
                         self.log.error('%s: Error evaluating definition',
-                                        ast.dump(key), extra={'line':key.lineno})
+                                       ast.dump(key),
+                                       extra={'line': key.lineno})
                         continue
                     if val == devname:
                         dev_call = dev_val.values[i]
