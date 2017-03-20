@@ -99,12 +99,13 @@ class SetupChecker(object):
         assign = self._find_binding(binding)
         if assign:
             return {'line': assign.lineno}
+        return {'line': 0}
 
     def find_deventry(self, devname, parname=None):
         # find a binding for 'devices'
         assign = self._find_binding('devices')
         if not assign:
-            return
+            return {'line': 0}
         dev_val = assign.value
         # now we look for the device() call that belongs to the given devname
         #
@@ -115,9 +116,21 @@ class SetupChecker(object):
                 if isinstance(key, ast.Str) and key.s == devname:
                     dev_call = dev_val.values[i]
                     break
+                if isinstance(key, ast.BinOp):
+                    try:
+                        code = compile(ast.fix_missing_locations(
+                                        ast.Expression(key)),'<string>', 'eval')
+                        val = eval(code, self.ns)
+                    except Exception:
+                        self.log.error('%s: Error evaluating definition',
+                                        ast.dump(key), extra={'line':key.lineno})
+                        continue
+                    if val == devname:
+                        dev_call = dev_val.values[i]
+                        break
             else:
                 # device not found
-                return
+                return {'line': 0}
         # or a dict() call
         elif isinstance(dev_val, ast.Call) and dev_val.func.id == 'dict':
             # look for our device name in the kwargs
@@ -127,10 +140,10 @@ class SetupChecker(object):
                     break
             else:
                 # device not found
-                return
+                return {'line': 0}
         # else it's something strange
         else:
-            return
+            return {'line': 0}
         # we have our Call node in dev_call
         # do we need to look for param?
         if parname and isinstance(dev_call, ast.Call):
