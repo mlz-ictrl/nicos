@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import HasOffset, Param
+from nicos.core import HasOffset, Param, Value
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Override
 from nicos.devices.tango import Motor as TangoMotor
@@ -80,13 +80,15 @@ class MasterSlaveMotor(Moveable):
 
     parameter_overrides = {
         "unit": Override(mandatory=False),
+        "fmtstr": Override(default="%.3f %.3f"),
     }
 
     def _slavePos(self, pos):
         return self.scale * pos
 
     def doRead(self, maxage=0):
-        return self._attached_master.read(maxage)
+        return [self._attached_master.read(maxage),
+                self._attached_slave.read(maxage)]
 
     def doStart(self, pos):
         self._attached_master.move(pos)
@@ -98,3 +100,9 @@ class MasterSlaveMotor(Moveable):
 
     def doReadUnit(self):
         return self._attached_master.unit
+
+    def valueInfo(self):
+        return Value(self._attached_master.name, unit=self.unit,
+                     fmtstr=self._attached_master.fmtstr), \
+               Value(self._attached_slave.name, unit=self.unit,
+                     fmtstr=self._attached_slave.fmtstr)
