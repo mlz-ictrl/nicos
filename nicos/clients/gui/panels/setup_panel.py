@@ -132,6 +132,8 @@ class ExpPanel(Panel, DlgUtils):
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().encode('utf-8').strip()
         emails = emails.split(b'\n') if emails else []
+        if local:
+            emails.append(local)
         dataEmails = self.dataEmails.toPlainText().encode('utf-8').strip()
         dataEmails = dataEmails.split(b'\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
