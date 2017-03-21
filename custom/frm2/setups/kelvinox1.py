@@ -27,7 +27,7 @@ devices = {
                                     description = 'Mix chamber temperature',
                                     tangodevice = tango_base + 'igh/mix',
                                     unit = 'K',
-                                    fmtstr = '%.3f',
+                                    fmtstr = '%.4f',
                                     pollinterval = 1,
                                     maxage = 2,
                                    ),
