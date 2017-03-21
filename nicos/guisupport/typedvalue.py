@@ -104,7 +104,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
             fmtstr = self._client.getDeviceParam(devname, 'fmtstr')
             valuetype = self._client.getDeviceValuetype(devname)
             if curvalue is None:
-                curvalue = self._client.getDeviceValue(devname)
+                curvalue = self._client.getDeviceParam(devname, 'target')
             if curvalue is None and valuetype is not None:
                 curvalue = valuetype()
         else:
