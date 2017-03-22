@@ -489,7 +489,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.write(NAK, 'script is not paused')
         else:
             self.log.info('script continue request')
-            self.controller.set_continue(None)
+            self.controller.set_continue(('continue', 0, self.user.name))
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True)

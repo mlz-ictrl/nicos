@@ -348,10 +348,10 @@ class ExecutionController(Controller):
         new_flag = self.wait_for_continue()
         # new_flag is either a flag coming from Handler.stop(), from
         # Handler.continue() or the old one from above
-        if not new_flag:
-            # new_flag == None means continue
+        if new_flag[0] == 'continue':
+            # level is ignored here
             self.log.info('paused script continued')
-            session.log.info('Script continued by %s', flag[2])
+            session.log.info('Script continued by %s', new_flag[2])
         elif new_flag[1] < bplevel:
             # didn't pause/stop here, try again on next breakpoint
             self.set_break(new_flag)
