@@ -389,3 +389,21 @@ class IntegralLiveWidget(LiveWidget):
         self.axesxint.setLogX(on)
         self.axesyint.setLogY(on)
         LiveWidget.logscale(self, on)
+
+
+class LiveWidget1D(LiveWidgetBase):
+
+    def __init__(self, parent):
+        LiveWidgetBase.__init__(self, parent)
+
+        self.curve = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.axes.setGrid(True)
+        self.axes.addCurves(self.curve)
+
+    def logscale(self, on):
+        self.axes.setLogY(on)
+        self.gr.update()
+
+    def _setData(self, array, nx, ny, nz, newrange):
+        self.curve.x = numpy.arange(0, nx)
+        self.curve.y = self._array.ravel()
