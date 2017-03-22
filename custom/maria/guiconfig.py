@@ -81,3 +81,7 @@ tools = [
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=True),
 ]
+
+options = {
+    'reader_classes': ['nicos.maria.npsaver',],
+}
