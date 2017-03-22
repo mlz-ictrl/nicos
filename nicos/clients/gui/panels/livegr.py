@@ -44,8 +44,9 @@ from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import IntegralLiveWidget, DATATYPES, FILETYPES, \
-    LiveWidget
+    LiveWidget, LiveWidget1D
 from nicos.protocols.cache import cache_load
+from nicos.pycompat import iteritems
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
@@ -73,6 +74,7 @@ class LiveDataPanel(Panel):
         self._range_active = False
         self._cachesize = 20
         self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
+        self.widget = None
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -80,22 +82,6 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
-
-        self.widget = IntegralLiveWidget(self)
-
-        self.menuColormap = QMenu(self)
-        self.actionsColormap = QActionGroup(self)
-        activeMap = self.widget.getColormap()
-        for name, value in COLORMAPS.iteritems():
-            caption = name[0] + name[1:].lower()
-            action = self.menuColormap.addAction(caption)
-            action.setCheckable(True)
-            if activeMap == value:
-                action.setChecked(True)
-                self.actionColormap.setText(caption)
-            self.actionsColormap.addAction(action)
-            action.triggered.connect(self.on_colormap_triggered)
-        self.actionColormap.setMenu(self.menuColormap)
 
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionPrint)
@@ -121,11 +107,33 @@ class LiveDataPanel(Panel):
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('cache'), self.on_cache)
 
+        self.roikeys = []
+        self.detectorskey = None
+
+    def initLiveWidget(self, widgetcls):
+        if isinstance(self.widget, widgetcls):
+            return
+
+        if self.widget:
+            self.widgetLayout.removeWidget(self.widget)
+        self.widget = widgetcls(self)
         guiConn = GUIConnector(self.widget.gr)
         guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mousemove_gr)
 
-        self.roikeys = []
-        self.detectorskey = None
+        self.menuColormap = QMenu(self)
+        self.actionsColormap = QActionGroup(self)
+        activeMap = self.widget.getColormap()
+        for name, value in iteritems(COLORMAPS):
+            caption = name.title()
+            action = self.menuColormap.addAction(caption)
+            action.setCheckable(True)
+            if activeMap == value:
+                action.setChecked(True)
+                self.actionColormap.setText(caption)
+            self.actionsColormap.addAction(action)
+            action.triggered.connect(self.on_colormap_triggered)
+        self.actionColormap.setMenu(self.menuColormap)
+        self.widgetLayout.addWidget(self.widget)
 
     def setOptions(self, options):
         Panel.setOptions(self, options)
@@ -189,7 +197,9 @@ class LiveDataPanel(Panel):
 
     def on_actionColormap_triggered(self):
         w = self.toolbar.widgetForAction(self.actionColormap)
-        self.actionColormap.menu().popup(w.mapToGlobal(QPoint(0, w.height())))
+        m = self.actionColormap.menu()
+        if m:
+            m.popup(w.mapToGlobal(QPoint(0, w.height())))
 
     def on_colormap_triggered(self):
         action = self.actionsColormap.checkedAction()
@@ -274,7 +284,7 @@ class LiveDataPanel(Panel):
         widget = self.sender()
         if widget:
             key = None
-            for key, w in self._livewidgets.iteritems():
+            for key, w in iteritems(self._livewidgets):
                 if w == widget:
                     self.log.debug('delete roi: %s', key)
                     del self._livewidgets[key]
@@ -348,6 +358,11 @@ class LiveDataPanel(Panel):
         self._nx = nx
         self._ny = ny
         self._nz = nz
+
+        if ny == 1:
+            self.initLiveWidget(LiveWidget1D)
+        else:
+            self.initLiveWidget(IntegralLiveWidget)
 
     def setData(self, array, uid=None):
         """Dispatch data array to corresponding live widgets.
