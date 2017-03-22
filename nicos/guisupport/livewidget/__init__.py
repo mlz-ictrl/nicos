@@ -134,7 +134,7 @@ class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
             gr.setlinecolorind(color)
 
 
-class LiveWidget(QWidget):
+class LiveWidgetBase(QWidget):
 
     closed = pyqtSignal()
 
@@ -146,6 +146,7 @@ class LiveWidget(QWidget):
         self._fixedsize = False
         self._axesratio = 1.0
         self._logscale = False
+        self._rois = {}
 
         layout = QHBoxLayout()
         self.gr = GRWidget(self)
@@ -155,43 +156,37 @@ class LiveWidget(QWidget):
         self.gr.keepRatio = 0.999
         self.plot = Plot(self, viewport=(.1, .95, .1, .95))
         self.axes = Axes(self, viewport=self.plot.viewport)
-
-        self.axes.setGrid(True)
         self.plot.addAxes(self.axes)
-        self.surf = Cellarray([0], [0], [0], option=gr.OPTION_CELL_ARRAY)
-
-        self._rois = {}
-        self.axes.addCurves(self.surf)
         self.gr.addPlot(self.plot)
 
     def closeEvent(self, event):
         self.closed.emit()
         event.accept()
 
-    def rescale(self):
+    def _rescale(self):
         """Implement in derived classes e.g. to rescale different plots in
         respect to the main/cellarray plot."""
 
-    def _rescale(self):
-        self.rescale()
+    def rescale(self):
+        self._rescale()
         self.gr.update()
 
     def zoom(self, master, dpercent, p0):
         if self.plot == master:
             w, h = self.width(), self.height()
             self.plot.zoom(dpercent, p0, w, h)
-            self._rescale()
+            self.rescale()
 
     def select(self, master, p0, p1):
         if self.plot == master:
             w, h = self.width(), self.height()
             self.plot.select(p0, p1, w, h)
-            self._rescale()
+            self.rescale()
 
     def pan(self, p0, dp):
         w, h = self.width(), self.height()
         self.plot.pan(dp, w, h)
-        self._rescale()
+        self.rescale()
 
     def getZValue(self, event):
         plots = self.gr._getPlotsForPoint(event.getNDC())
@@ -199,25 +194,12 @@ class LiveWidget(QWidget):
             plot = plots[0]
             pWC = event.getWC(plot.viewport)
             if (self._array is not None and plot == self.plot and
-                        self._array.shape >= 2):
+                len(self._array.shape) >= 2):
                 ny, nx = self._array.shape[:2]
                 x, y = int(pWC.x), int(pWC.y)
                 if 0 <= x < nx and 0 <= y < ny:
                     return x, y, self._array[y, x]
             return pWC.x, pWC.y
-
-    def _updateZData(self):
-        arr = self._array.ravel()
-        if self._logscale:
-            arr = numpy.ma.log10(arr).filled(-1)
-        # TODO: implement 'sliders' for amin, amax
-        amin, amax = arr.min(), arr.max()
-        if amin != amax:
-            self.surf.z = 1000 + 255 * (arr - amin) / (amax - amin)
-        elif amax > 0:
-            self.surf.z = 1000 + 255 * arr / amax
-        else:
-            self.surf.z = 1000 + arr
 
     def setWindow(self, xmin, xmax, ymin, ymax):
         """Sets the current window for this plot and deactivates rescaling
@@ -228,37 +210,51 @@ class LiveWidget(QWidget):
         self._fixedsize = True
         self._axesratio = float(ymax - ymin) / (xmax - xmin)
         self.gr.keepRatio = False
-        self._rescale()
+        self.rescale()
 
     def setWindowForRoi(self, roi):
         self.setWindow(min(roi.x), max(roi.x), min(roi.y), max(roi.y))
 
+    def updateZData(self):
+        """This method will be called whenever the data or the scale has been
+        changed. Overwrite this method e.g. to mask values before applying
+        logscale."""
+
     def setData(self, array):
         self._array = array
-        _nz, ny, nx = 1, 1, 1
+        nz, ny, nx = 1, 1, 1
+        newrange = False
         n = len(array.shape)
-        if n >= 2:
+        if n == 1:
+            nx = array.shape[0]
+        elif n >= 2:
             nx = array.shape[n - 1]
             ny = array.shape[n - 2]
         if n == 3:
-            # TODO: Add support for three dimensional arrays
-            _nz = array.shape[n - 3]
+            nz = array.shape[n - 3]
         if not self._fixedsize:
             self._axesratio = ny / float(nx)
             if (ny, nx) != self._axesrange:
                 self.axes.setWindow(0, nx, 0, ny)
+                newrange = True
         self._axesrange = (ny, nx)  # rows, cols
-        self.surf.x = numpy.linspace(0, nx, nx)
-        self.surf.y = numpy.linspace(0, ny, ny)
-        self._updateZData()
-        self._rescale()
+
+        self._setData(array, nx, ny, nz, newrange)
+
+        self.updateZData()
+        self.rescale()
+        return nz, ny, nx
+
+    def _setData(self, array, nx, ny, nz, newrange):
+        """This method will be called whenever the data has been changed.
+        If *newrange* is `True` the axesrange (nx, ny) has been changed.
+        """
 
     def getColormap(self):
-        return self.surf.colormap
+        return []
 
     def setColormap(self, colormap):
-        self.surf.colormap = colormap
-        self.gr.update()
+        pass
 
     def setROI(self, key, roi):
         x, y, width, height = roi
@@ -275,14 +271,48 @@ class LiveWidget(QWidget):
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[1],
                             0, self._axesrange[0])
-        self._rescale()
+        self.rescale()
 
     def printDialog(self):
         self.gr.printDialog()
 
     def logscale(self, on):
         self._logscale = on
-        self._updateZData()
+        self.updateZData()
+        self.gr.update()
+
+
+class LiveWidget(LiveWidgetBase):
+
+    def __init__(self, parent):
+        LiveWidgetBase.__init__(self, parent)
+
+        self.axes.setGrid(True)
+        self.surf = Cellarray([0], [0], [0], option=gr.OPTION_CELL_ARRAY)
+        self.axes.addCurves(self.surf)
+
+    def updateZData(self):
+        arr = self._array.ravel()
+        if self._logscale:
+            arr = numpy.ma.log10(arr).filled(-1)
+        # TODO: implement 'sliders' for amin, amax
+        amin, amax = arr.min(), arr.max()
+        if amin != amax:
+            self.surf.z = 1000 + 255 * (arr - amin) / (amax - amin)
+        elif amax > 0:
+            self.surf.z = 1000 + 255 * arr / amax
+        else:
+            self.surf.z = 1000 + arr
+
+    def _setData(self, array, nx, ny, nz, newrange):
+        self.surf.x = numpy.linspace(0, nx, nx)
+        self.surf.y = numpy.linspace(0, ny, ny)
+
+    def getColormap(self):
+        return self.surf.colormap
+
+    def setColormap(self, colormap):
+        self.surf.colormap = colormap
         self.gr.update()
 
 
@@ -326,7 +356,7 @@ class IntegralLiveWidget(LiveWidget):
         gr.setcharheight(self._charheight)
         gr.text(x, y, svalue)
 
-    def rescale(self):
+    def _rescale(self):
         """Rescales integral plots in respect to the main/cellarray plot."""
         xmin, xmax, ymin, ymax = self.axes.getWindow()
         _, _, y0, y1 = self.axesyint.getWindow()
@@ -334,27 +364,17 @@ class IntegralLiveWidget(LiveWidget):
         self.axesyint.setWindow(xmin - .5, xmax - .5, y0, y1)
         self.axesxint.setWindow(x0, x1, ymin - .5, ymax - .5)
 
-    def setData(self, array):
-        _nz, ny, nx = 1, 1, 1
-        n = len(array.shape)
-        if n >= 2:
-            nx = array.shape[n - 1]
-            ny = array.shape[n - 2]
-        if n == 3:
-            # TODO: Add support for three dimensional arrays
-            _nz = array.shape[n - 3]
-        if (ny, nx) != self._axesrange:
-            self.axes.setWindow(0, nx, 0, ny)
+    def _setData(self, array, nx, ny, nz, newrange):
+        LiveWidget._setData(self, array, nx, ny, nz, newrange)
+        if newrange:
             self.axesyint.setWindow(0, nx, 1, ny)
             self.axesxint.setWindow(1, nx, 0, ny)
-        self._axesrange = (ny, nx)  # rows, cols
         self.curvey.x = numpy.arange(0, nx)
         self.curvey.y = array.sum(axis=0)
         self.curvex.y = numpy.arange(0, ny)
         self.curvex.x = array.sum(axis=1)
         self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
         self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
-        LiveWidget.setData(self, array)
 
     def unzoom(self):
         nx, ny = len(self.curvey.x), len(self.curvex.y)
