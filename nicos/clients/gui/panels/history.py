@@ -225,7 +225,7 @@ class NewViewDialog(QDialog, DlgUtils):
             self.customYTo.setText(info['customYTo'])
 
     blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes', 'value'}
-    
+
     def on_devicesAllBox_toggled(self, on):
         self.deviceTree.only_explicit = not on
         self.deviceTree._reinit()
