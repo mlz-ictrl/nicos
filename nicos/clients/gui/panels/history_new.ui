@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>563</width>
-    <height>304</height>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,6 +66,13 @@
         <property name="margin">
          <number>0</number>
         </property>
+        <item>
+         <widget class="QCheckBox" name="devicesAllBox">
+          <property name="text">
+           <string>Show all devices</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>

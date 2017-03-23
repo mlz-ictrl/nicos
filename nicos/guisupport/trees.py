@@ -42,9 +42,11 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
     def __init__(self, parent, designMode=False, **kwds):
         QTreeWidget.__init__(self, parent, **kwds)
         NicosWidget.__init__(self)
+        self.only_explicit = True
         self.device_clause = None
         self.param_predicate = lambda name, value, info: True
         self.item_callback = lambda item, parent=None: True
+        self.itemExpanded.connect(self.on_itemExpanded)
 
     def setClient(self, client):
         NicosWidget.setClient(self, client)
@@ -60,21 +62,31 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
     def registerKeys(self):
         pass
 
+    def on_itemExpanded(self, item):
+        if item.childCount():
+            return
+        devname = item.text(0)
+        if self.props['showparams']:
+            paraminfo = self.client.getDeviceParamInfo(devname)
+            for param, value in sorted(iteritems(
+                    self.client.getDeviceParams(devname))):
+                if not self.param_predicate(param, value,
+                                            paraminfo.get(param)):
+                    continue
+                subitem = QTreeWidgetItem([param])
+                if not self.item_callback(subitem, item):
+                    continue
+                item.addChild(subitem)
+
     def _reinit(self):
+        self.clear()
         for devname in self.client.getDeviceList(
-                only_explicit=False, special_clause=self.device_clause):
+                only_explicit=self.only_explicit,
+                special_clause=self.device_clause):
             item = QTreeWidgetItem([devname])
+            # allow expanding interactively, even if we haven't populated
+            # the parameter children yet
+            item.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
             if not self.item_callback(item):
                 continue
-            if self.props['showparams']:
-                paraminfo = self.client.getDeviceParamInfo(devname)
-                for param, value in sorted(iteritems(
-                        self.client.getDeviceParams(devname))):
-                    if not self.param_predicate(param, value,
-                                                paraminfo.get(param)):
-                        continue
-                    subitem = QTreeWidgetItem([param])
-                    if not self.item_callback(subitem, item):
-                        continue
-                    item.addChild(subitem)
             self.addTopLevelItem(item)

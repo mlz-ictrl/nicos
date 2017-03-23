@@ -224,25 +224,24 @@ class NewViewDialog(QDialog, DlgUtils):
             self.customYFrom.setText(info['customYFrom'])
             self.customYTo.setText(info['customYTo'])
 
-    blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes'}
+    blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes', 'value'}
+    
+    def on_devicesAllBox_toggled(self, on):
+        self.deviceTree.only_explicit = not on
+        self.deviceTree._reinit()
+        self._syncDeviceTree()
 
     def _createDeviceTree(self):
         def param_predicate(name, value, info):
             return name not in self.blacklist and \
                 (not info or info.get('userparam', True)) and \
-                (name == 'value' or
-                 isinstance(value, (number_types, list, tuple)))
+                isinstance(value, (number_types, list, tuple))
 
         def item_callback(item, parent=None):
             item.setFlags(item.flags() | Qt.ItemIsEditable)
             if parent and item.text(0) == 'status':
                 item.setText(1, '0')
-            if parent and item.text(0) == 'value':
-                # skip child, but make parent selectable
-                parent.setCheckState(0, Qt.Unchecked)
-                return False
-            elif parent:
-                item.setCheckState(0, Qt.Unchecked)
+            item.setCheckState(0, Qt.Unchecked)
             return True
 
         self.deviceTree = tree = DeviceParamTree(self)
@@ -260,44 +259,53 @@ class NewViewDialog(QDialog, DlgUtils):
         tree.setColumnWidth(0, tree.columnWidth(0) * 1.5)
         # disallow editing for name column
         tree.setItemDelegateForColumn(0, NoEditDelegate())
-
-        # restore selection from entries in textbox
-        if self.devices.text():
-            keys_indices = [extractKeyAndIndex(d.strip())
-                            for d in self.devices.text().split(',')]
-            for key, indices, scale, offset in keys_indices:
-                dev, _, param = key.partition('/')
-                for i in range(tree.topLevelItemCount()):
-                    if tree.topLevelItem(i).text(0) == dev:
-                        devitem = tree.topLevelItem(i)
-                        break
-                else:
-                    continue
-                if param == 'value':
-                    item = devitem
-                else:
-                    for i in range(devitem.childCount()):
-                        if devitem.child(i).text(0) == param:
-                            item = devitem.child(i)
-                            item.parent().setExpanded(True)
-                            break
-                    else:
-                        continue
-                suffix = ''.join('[%s]' % i for i in indices)
-                if scale != 1:
-                    suffix += '*%.4g' % scale
-                if offset != 0:
-                    suffix += '%+.4g' % offset
-                item.setCheckState(0, Qt.Checked)
-                item.setText(1, ','.join(map(str, indices)))
-                item.setText(2, '%.4g' % scale)
-                item.setText(3, '%.4g' % offset)
-                self.deviceTreeSel[key] = suffix
-
         tree.itemChanged.connect(self.on_deviceTree_itemChanged)
+        self._syncDeviceTree()
+
         self.devicesFrame.layout().addWidget(tree)
         self.devicesFrame.show()
         self.resize(self.sizeHint())
+
+    def _syncDeviceTree(self):
+        # restore selection from entries in textbox
+        if not self.devices.text():
+            return
+
+        tree = self.deviceTree
+        tree.itemChanged.disconnect(self.on_deviceTree_itemChanged)
+        keys_indices = [extractKeyAndIndex(d.strip())
+                        for d in self.devices.text().split(',')]
+        for key, indices, scale, offset in keys_indices:
+            dev, _, param = key.partition('/')
+            for i in range(tree.topLevelItemCount()):
+                if tree.topLevelItem(i).text(0) == dev:
+                    devitem = tree.topLevelItem(i)
+                    break
+            else:
+                continue
+            if param == 'value':
+                item = devitem
+            else:
+                if not devitem.childCount():
+                    tree.on_itemExpanded(devitem)
+                for i in range(devitem.childCount()):
+                    if devitem.child(i).text(0) == param:
+                        item = devitem.child(i)
+                        item.parent().setExpanded(True)
+                        break
+                else:
+                    continue
+            suffix = ''.join('[%s]' % i for i in indices)
+            if scale != 1:
+                suffix += '*%.4g' % scale
+            if offset != 0:
+                suffix += '%+.4g' % offset
+            item.setCheckState(0, Qt.Checked)
+            item.setText(1, ','.join(map(str, indices)))
+            item.setText(2, '%.4g' % scale)
+            item.setText(3, '%.4g' % offset)
+            self.deviceTreeSel[key] = suffix
+        tree.itemChanged.connect(self.on_deviceTree_itemChanged)
 
     def on_deviceTree_itemChanged(self, item, col):
         key = item.text(0)
