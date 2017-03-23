@@ -189,7 +189,9 @@ def NewSetup(*setupnames):
     """
     current_mode = session.mode
     # reload current setups if none given
+    update_aliases = True
     if not setupnames:
+        update_aliases = False
         setupnames = session.explicit_setups
     # refresh setup files first
     session.readSetups()
@@ -197,7 +199,7 @@ def NewSetup(*setupnames):
     try:
         session.startMultiCreate()
         try:
-            session.loadSetup(setupnames)
+            session.loadSetup(setupnames, update_aliases=update_aliases)
         finally:
             session.endMultiCreate()
     except Exception:

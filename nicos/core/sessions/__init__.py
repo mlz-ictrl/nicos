@@ -32,6 +32,7 @@ Only for internal usage by functions and methods.
 
 import os
 import sys
+import copy
 import stat
 import inspect
 import logging
@@ -468,7 +469,7 @@ class Session(object):
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False,
                   autocreate_devices=None, autoload_system=True,
-                  allow_startupcode=True):
+                  allow_startupcode=True, update_aliases=True):
         """Load one or more setup modules given in *setupnames* and set up
         devices accordingly.
 
@@ -504,6 +505,7 @@ class Session(object):
 
         from nicos.commands import usercommandWrapper
         failed_devs = []
+        prev_alias_config = copy.deepcopy(self.alias_config)
 
         def load_module(modname):
             if modname in self.user_modules:
@@ -653,8 +655,9 @@ class Session(object):
                         raise
 
         # set aliases according to alias_config
-        self.log.debug('applying alias config...')
-        self.applyAliasConfig()
+        if update_aliases:
+            self.log.debug('applying alias config...')
+            self.applyAliasConfig(self.alias_config, prev_alias_config)
 
         # remove now nonexisting envlist devices
         self.log.debug('scrubbing environment lists...')
@@ -795,17 +798,21 @@ class Session(object):
             if name in self.namespace:
                 yield name, self.namespace[name]
 
-    def applyAliasConfig(self):
+    def applyAliasConfig(self, new_config, prev_config):
         """Apply the desired aliases from self.alias_config."""
-        for aliasname in self.alias_config:
+        for aliasname, targets in iteritems(new_config):
             if aliasname not in self.devices:
                 # complain about this; setups should make sure that the device
                 # exists when configuring it
                 self.log.warning('alias device %s does not exist, cannot set '
                                  'its target', aliasname)
                 continue
+            if targets == prev_config.get(aliasname):
+                self.log.debug('not changing alias for %s, selections have '
+                               'not changed', aliasname)
+                continue
             aliasdev = self.getDevice(aliasname)
-            for target, _ in self.alias_config[aliasname]:
+            for target, _ in targets:
                 if target in self.devices:
                     if aliasdev.alias != target:
                         try:
