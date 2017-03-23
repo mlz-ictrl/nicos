@@ -4,4 +4,6 @@ group = 'lowlevel'
 
 includes = []
 
-devices = dict()
+sysconfig = dict(
+    cache = 'pumahw',
+)

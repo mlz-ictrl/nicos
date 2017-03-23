@@ -72,9 +72,9 @@ devices = dict(
                         twotheta = 'mtt',
                         reltheta = True,
                         focush = 'mfhpg',
-#                       focush = None,
+#                        focush = None,
                         focusv = 'mfvpg',
-#                       focusv = None,
+#                        focusv = None,
                         # focus value should equal mth (for arcane reasons...)
                         hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                         vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
@@ -114,8 +114,8 @@ devices = dict(
                         reltheta = True,
                         focush = 'mfhcu',
                         focusv = 'mfvcu',
-#                       focush = None,
-#                       focusv = None,
+#                        focush = None,
+#                        focusv = None,
                         # focus value should equal mth (for arcane reasons...)
                         hfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
                         vfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
@@ -125,40 +125,44 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-#    mono_cu111 = device('devices.tas.Monochromator',
-#                        description = 'Cu-111 monochromator',
-#                        order = 1,
-#                        unit = 'A-1',
-#                        theta = 'mth',
-#                        twotheta = 'mtt',
-#                        reltheta = True,
-#                        focush = 'mfhcu1',    # :FIXTHIS:
-#                        focusv = 'mfvcu1',    # :FIXTHIS:
-#                        # focus value should equal mth (for arcane reasons...)
-#                        hfocuspars = [0.24397,12.95642,0.88495,-0.31958,0.09283], # :FIXTHIS:
-#                        vfocuspars = [0.24397,12.95642,0.88495,-0.31958,0.09283], # :FIXTHIS:
-#                        abslimits = (1, 18),       # :FIXTHIS:
-#                        dvalue = 2.08717,           # :FIXTHIS:
-#                        scatteringsense = -1,
-#                        crystalside = -1,
-#                       ),
+    mono_cu111 = device('devices.tas.Monochromator',
+                        description = 'Cu-111 monochromator',
+                        order = 1,
+                        unit = 'A-1',
+                        theta = 'mth',
+                        twotheta = 'mtt',
+                        reltheta = True,
+#                        focush = None,
+#                        focusv = None,
+                        focush = 'mfhcu1',
+                        focusv = 'mfvcu1',
+                        # focus value should equal mth (for arcane reasons...)
+                        hfocuspars = [0.24397,12.95642,0.88495,-0.31958,0.09283], # :FIXTHIS:
+                        vfocuspars = [0.24397,12.95642,0.88495,-0.31958,0.09283], # :FIXTHIS:
+                        abslimits = (1, 18),       # :FIXTHIS:
+                        dvalue = 2.08717,           # :FIXTHIS:
+                        scatteringsense = -1,
+                        crystalside = -1,
+                       ),
 
-#    mono_ge311 = device('devices.tas.Monochromator',
-#                        description = 'Germanium monochromator',
-#                        order = 1,
-#                        unit = 'A-1',
-#                        theta = 'mth',
-#                        twotheta = 'mtt',
-#                        reltheta = True,
+    mono_ge311 = device('devices.tas.Monochromator',
+                        description = 'Germanium monochromator',
+                        order = 1,
+                        unit = 'A-1',
+                        theta = 'mth',
+                        twotheta = 'mtt',
+                        reltheta = True,
 #                        focush = 'mfhge',
 #                        focusv = 'mfvge',
-#                       focush = None,
-#                       focusv = None,
-#                        hfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
-#                        vfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
-#                        abslimits = (1, 60),
-#                        dvalue = 1.706,
-#                       ),
+                        focush = None,
+                        focusv = None,
+                        hfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
+                        vfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
+                        abslimits = (1, 60),
+                        dvalue = 1.706,
+                        scatteringsense = -1,
+                        crystalside = -1,
+                       ),
 
     ana        = device('devices.generic.DeviceAlias',
                         description  = 'analyser alias device',

@@ -4,7 +4,7 @@ description = 'Sample Slits'
 
 group = 'optional'
 
-includes = ['system', 'motorbus6', 'motorbus8']
+includes = ['system', 'motorbus6']
 
 
 
