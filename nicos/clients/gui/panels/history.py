@@ -43,7 +43,8 @@ from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
     enumerateWithProgress, CompatSettings
-from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter
+from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter, \
+    ExponentialFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import DeviceParamTree
@@ -491,7 +492,7 @@ class BaseHistoryWindow(object):
             self.actionScaleY, self.actionEditView, self.actionCloseView,
             self.actionDeleteView, self.actionResetView, self.actionUnzoom,
             self.actionLogScale, self.actionLegend, self.actionSymbols,
-            self.actionLines, self.actionLinearFit,
+            self.actionLines, self.actionLinearFit, self.actionExpFit,
         ]:
             action.setEnabled(on)
 
@@ -782,6 +783,10 @@ class BaseHistoryWindow(object):
         self.currentPlot.beginFit(LinearFitter, self.actionLinearFit)
 
     @qtsig('')
+    def on_actionExpFit_triggered(self):
+        self.currentPlot.beginFit(ExponentialFitter, self.actionExpFit)
+
+    @qtsig('')
     def on_actionSaveData_triggered(self):
         self.currentPlot.saveData()
 
@@ -839,6 +844,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionSymbols)
         menu.addAction(self.actionLines)
         menu.addAction(self.actionLinearFit)
+        menu.addAction(self.actionExpFit)
         menu.addSeparator()
         self._refresh_presets()
         return [menu, self.presetmenu]
@@ -1039,6 +1045,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
             menu.addAction(self.actionSymbols)
             menu.addAction(self.actionLines)
             menu.addAction(self.actionLinearFit)
+            menu.addAction(self.actionExpFit)
             menu.addSeparator()
             menu.addAction(self.actionClose)
             self.menus = menu

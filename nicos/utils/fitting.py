@@ -243,6 +243,38 @@ class LinearFit(PredefinedFit):
             res.label_contents = [('Slope', '%.3f' % res.m, '')]
 
 
+class ExponentialFit(PredefinedFit):
+    """Fits with a simple exponential."""
+
+    fit_title = 'exp. fit'
+    fit_params = ['b', 'x0']
+
+    def __init__(self, parstart=None, xmin=None, xmax=None, timeseries=False):
+        PredefinedFit.__init__(self, parstart, xmin, xmax)
+        self._timeseries = timeseries
+
+    def fit_model(self, x, b, x0):
+        return exp(b*(x - x0))
+
+    def process_result(self, res):
+        x2 = max(res.curve_x)
+        res.label_x = x2
+        res.label_y = exp(res.b*(x2 - res.x0))
+        if self._timeseries:
+            if res.b < 0:
+                tc = -log(2) / res.b
+                label = 'Half life'
+            else:
+                tc = log(2) / res.b
+                label = 'Doubling time'
+            res.label_contents = [(label, '%.3f s' % tc, ''),
+                                  ('', '%.3f min' % (tc / 60), ''),
+                                  ('', '%.3f h' % (tc / 3600), '')]
+        else:
+            res.label_contents = [('b', '%.3g' % res.b, ''),
+                                  ('x0', '%.3g' % res.x0, '')]
+
+
 class CosineFit(PredefinedFit):
     """Fits with a cosine including offset."""
 

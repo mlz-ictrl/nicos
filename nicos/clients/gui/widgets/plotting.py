@@ -32,7 +32,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 import numpy as np
 
 from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
-    PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError
+    PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, ExponentialFit
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
@@ -96,6 +96,18 @@ class LinearFitter(Fitter):
         (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         m0 = (y2-y1) / (x2-x1)
         f = LinearFit([m0, y1 - m0*x1], xmin=x1, xmax=x2, timeseries=True)
+        return f.run_or_raise(*self.data)
+
+
+class ExponentialFitter(Fitter):
+    title = 'exp. fit'
+    picks = ['First point', 'Second point']
+
+    def do_fit(self):
+        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+        b0 = np.log(y1 / y2) / (x1 - x2)
+        x0 = x1 - np.log(y1) / b0
+        f = ExponentialFit([b0, x0], xmin=x1, xmax=x2, timeseries=True)
         return f.run_or_raise(*self.data)
 
 

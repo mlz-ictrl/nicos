@@ -230,6 +230,9 @@
    <property name="text">
     <string>Linear fit</string>
    </property>
+   <property name="toolTip">
+    <string>Linear fit: y = m*x + t</string>
+   </property>
   </action>
   <action name="actionSaveData">
    <property name="icon">
@@ -274,6 +277,17 @@
    </property>
    <property name="toolTip">
     <string>Automatic scaling in y direction</string>
+   </property>
+  </action>
+  <action name="actionExpFit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Exponential fit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exponential fit: y = exp(b(x-x0))</string>
    </property>
   </action>
  </widget>
