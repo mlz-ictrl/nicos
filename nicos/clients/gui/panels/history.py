@@ -34,7 +34,7 @@ from collections import OrderedDict
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, QMessageBox, \
-    QBrush, QColor, QStyledItemDelegate
+    QBrush, QColor, QCompleter, QStyledItemDelegate
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
     pyqtSignature as qtsig
 
@@ -201,12 +201,16 @@ class NewViewDialog(QDialog, DlgUtils):
         self.helpButton.clicked.connect(self.showDeviceHelp)
         self.simpleHelpButton.clicked.connect(self.showSimpleHelp)
 
+        self.devicesFrame.hide()
         self.deviceTree = None
         self.deviceTreeSel = OrderedDict()
         if not client:
-            self.devicesFrame.hide()
+            self.devicesExpandBtn.hide()
         else:
-            self._createDeviceTree()
+            devices = client.getDeviceList()
+            devcompleter = QCompleter(devices, self)
+            devcompleter.setCompletionMode(QCompleter.InlineCompletion)
+            self.devices.setCompleter(devcompleter)
 
         if info is not None:
             self.devices.setText(info['devices'])
@@ -224,12 +228,17 @@ class NewViewDialog(QDialog, DlgUtils):
             self.customYFrom.setText(info['customYFrom'])
             self.customYTo.setText(info['customYTo'])
 
-    blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes', 'value'}
-
     def on_devicesAllBox_toggled(self, on):
         self.deviceTree.only_explicit = not on
         self.deviceTree._reinit()
         self._syncDeviceTree()
+
+    @qtsig('')
+    def on_devicesExpandBtn_clicked(self):
+        self.devicesExpandBtn.hide()
+        self._createDeviceTree()
+
+    blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes', 'value'}
 
     def _createDeviceTree(self):
         def param_predicate(name, value, info):

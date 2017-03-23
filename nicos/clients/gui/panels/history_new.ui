@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>563</width>
-    <height>322</height>
+    <height>323</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,23 +19,10 @@
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Device(s) or key(s):</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="devices"/>
      </item>
-     <item row="0" column="2">
+     <item row="0" column="3">
       <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -48,7 +35,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="2">
+     <item row="1" column="1" colspan="3">
       <widget class="QFrame" name="devicesFrame">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -69,11 +56,37 @@
         <item>
          <widget class="QCheckBox" name="devicesAllBox">
           <property name="text">
-           <string>Show all devices</string>
+           <string>Show all (lowlevel) devices</string>
           </property>
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Device(s) or key(s):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="devicesExpandBtn">
+       <property name="toolTip">
+        <string>Show a list of all devices to select values</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::DownArrow</enum>
+       </property>
       </widget>
      </item>
     </layout>
@@ -307,7 +320,31 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <tabstops>
+  <tabstop>devices</tabstop>
+  <tabstop>devicesExpandBtn</tabstop>
+  <tabstop>helpButton</tabstop>
+  <tabstop>devicesAllBox</tabstop>
+  <tabstop>namebox</tabstop>
+  <tabstop>savePreset</tabstop>
+  <tabstop>simpleTime</tabstop>
+  <tabstop>simpleTimeSpec</tabstop>
+  <tabstop>simpleHelpButton</tabstop>
+  <tabstop>slidingWindow</tabstop>
+  <tabstop>extTime</tabstop>
+  <tabstop>frombox</tabstop>
+  <tabstop>fromdate</tabstop>
+  <tabstop>tobox</tabstop>
+  <tabstop>todate</tabstop>
+  <tabstop>interval</tabstop>
+  <tabstop>customY</tabstop>
+  <tabstop>customYFrom</tabstop>
+  <tabstop>customYTo</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../../resources/nicos-gui.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
