@@ -35,4 +35,3 @@ SetEnvironment(puma, T, Ts ) # clear the environment
 # additional devices may be added via AddEnvironment()
 
 #SetDetectors( det ) # puma default detector
-
