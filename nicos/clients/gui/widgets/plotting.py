@@ -92,9 +92,6 @@ class LinearFitter(Fitter):
     title = 'linear fit'
     picks = ['First point', 'Second point']
 
-    def model(self, x, a, b):
-        return a*x + b
-
     def do_fit(self):
         (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         m0 = (y2-y1) / (x2-x1)
@@ -105,9 +102,6 @@ class LinearFitter(Fitter):
 class CosineFitter(Fitter):
     title = 'cosine fit'
     picks = ['Maximum', 'Next minimum']
-
-    def model(self, x, A, f, x0, B):
-        return B + A * np.cos(2 * np.pi * f * (x - x0))
 
     def do_fit(self):
         (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
