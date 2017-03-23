@@ -147,18 +147,18 @@ class Mchanger(Moveable):
 #           dev.power = 'off'
 
     def _focusOut(self):
-        self.log.info('Move focusing to the flat position')
+        self.log.info('Focusing to the flat position is temporaly desaibled')
         aliasdevice = self._attached_monochromator
         foch = session.getDevice(aliasdevice.alias)._attached_focush
         focv = session.getDevice(aliasdevice.alias)._attached_focusv
-        if foch is not None:
-            foch.start(0)
-        if focv is not None:
-            focv.start(0)
-        if foch is not None:
-            foch.wait()
-        if focv is not None:
-            focv.wait()
+#        if foch is not None:
+#            foch.start(0)
+#        if focv is not None:
+#            focv.start(0)
+#        if foch is not None:
+#            foch.wait()
+#        if focv is not None:
+#            focv.wait()
         self.log.info('Switch off the foch and focv motors')
         if focv is not None:
             focv.motor.power = 'off'
