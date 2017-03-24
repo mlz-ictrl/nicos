@@ -27,6 +27,7 @@
 
 import re
 from os import path
+import math
 
 import numpy
 import numpy.ma
@@ -114,9 +115,33 @@ class Plot(OrigPlot):
 
 
 class Axes(PlotAxes):
-    def __init__(self, widget, **kwds):
+    def __init__(self, widget, xdual=False, ydual=False, **kwds):
         PlotAxes.__init__(self, **kwds)
         self.widget = widget
+        self.xdual, self.ydual = xdual, ydual
+
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
+        # use 2 ** n for tickmarks
+        def tick(amin, amax):
+            if amin > amax:
+                amax, amin = amin, amax
+            # calculate next (lower) power of two (2**n) for the
+            # full range [amax - amin] and divide this:
+            #
+            #           ld(amax - amin)  :  number of powers of two => exponent
+            #       int(        "      ) :  integral part
+            #                               (cut off fractions => floor)
+            # 2 ** (  "         "       ):  next lower power of two (2**n)
+            # 2 ** (   int( ... ) - 4)  ):  - 4 => divided by 2 ** 4
+            return 2 ** (int(math.log(amax - amin, 2)) - 4)
+        if self.xdual:
+            self.xtick = tick(xmin, xmax)
+            self.majorx = 4
+        if self.ydual:
+            self.ytick = tick(ymin, ymax)
+            self.majory = 4
+        return res
 
 
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
@@ -155,7 +180,8 @@ class LiveWidgetBase(QWidget):
 
         self.gr.keepRatio = 0.999
         self.plot = Plot(self, viewport=(.1, .95, .1, .95))
-        self.axes = Axes(self, viewport=self.plot.viewport)
+        self.axes = Axes(self, viewport=self.plot.viewport, xdual=True,
+                         ydual=True)
         self.plot.addAxes(self.axes)
         self.gr.addPlot(self.plot)
 
@@ -325,10 +351,10 @@ class IntegralLiveWidget(LiveWidget):
         self.axes.viewport = self.plot.viewport
         self.plotyint = Plot(self, viewport=(.1, .75, .8, .95))
         self.axesyint = Axes(self, viewport=self.plotyint.viewport,
-                             drawX=False, drawY=True)
+                             drawX=False, drawY=True, xdual=True)
         self.plotxint = Plot(self, viewport=(.8, .95, .1, .75))
         self.axesxint = Axes(self, viewport=self.plotxint.viewport,
-                             drawX=True, drawY=False)
+                             drawX=True, drawY=False, ydual=True)
 
         vp = self.axesxint.viewport
         self._charheight = .024 * (vp[3] - vp[2])
