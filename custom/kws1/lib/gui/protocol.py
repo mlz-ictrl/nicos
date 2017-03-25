@@ -102,7 +102,7 @@ class ProtocolPanel(Panel, DlgUtils):
         data.sort(key=lambda x: x['#'])
 
         headers = ['Run', 'Sel', 'Coll', 'Det', 'Sample',
-                   'TOF', 'Pol', 'Lens', 'Time', 'Rate']
+                   'TOF', 'Pol', 'Lens', 'Time', 'Cts', 'Rate']
         if with_ts:
             headers.insert(1, 'Started')
         for sename in sorted(senv):
@@ -125,7 +125,7 @@ class ProtocolPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_saveBtn_clicked(self):
-        initialdir = self.client.eval('session.experiment.scriptpath', '')
+        initialdir = self.client.eval('session.experiment.proposalpath', '')
         fn = QFileDialog.getSaveFileName(self, 'Save protocol', initialdir,
                                          'Text files (*.txt)')
         if not fn:
@@ -190,7 +190,9 @@ class ProtocolPanel(Panel, DlgUtils):
                 data['t'] = int(data['Time'][:-1])
             elif line.startswith('(* Detector Data Sum'):
                 next(it)
-                data['Rate'] = '%.1f' % (float(next(it).split()[0]) / data['t'])
+                total = float(next(it).split()[0])
+                data['Cts'] = '%.2g' % total
+                data['Rate'] = '%.0f' % (total / data['t'])
             elif line.startswith('(* Chopper'):
                 data['TOF'] = 'TOF'
             elif line.startswith('(* Detector Time Slices'):
