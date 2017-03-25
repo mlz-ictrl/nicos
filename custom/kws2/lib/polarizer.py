@@ -74,6 +74,8 @@ class Polarizer(HasTimeout, Moveable):
         is_in = self._attached_input_in.read(maxage)
         if is_in == 3:
             return self._attached_flipper.read()
+        elif is_in > 0:
+            return 'inconsistent'
         return 'out'
 
     def doStart(self, target):
