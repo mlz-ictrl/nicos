@@ -68,8 +68,8 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doInit(self, mode):
         self.arraydesc = ArrayDesc('data',
-                                   (self.detshape.get('t', 1),
-                                    self.detshape.get('x', 1)),
+                                   (self.detshape.get('x', 1),
+                                    self.detshape.get('t', 1)),
                                    numpy.uint32)
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)

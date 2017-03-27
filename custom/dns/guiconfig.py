@@ -53,4 +53,5 @@ tools = [
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=True),
+    cmdtool('Server control (Marche)', 'marche-gui'),
 ]

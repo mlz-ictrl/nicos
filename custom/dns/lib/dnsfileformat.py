@@ -148,9 +148,9 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         tofchan = session.getDevice('dettof')
         w("# TOF parameters\n")
         w("#  TOF channels                %4d\n" % tofchan.timechannels)
-        tdiv = 0.05 * (tofchan.divisor + 1)
+        tdiv = tofchan.divisor
         w("#  Time per channel            %6.1f microsecs\n" % tdiv)
-        tdel = 0.05 * tofchan.delay
+        tdel = tofchan.delay
         w("#  Delay time                  %6.1f microsecs\n" % tdel)
 
         w("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO

@@ -21,8 +21,8 @@ devices = {
 
     'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
                                       description = 'The control device of the sample(stick)',
-                                      tacodevice = '//%s/ccr/stick/control2' % nethost,
-                                      abslimits = (0, 600),
+                                      tacodevice = '//%s/ccr/stick/control1' % nethost,
+                                      abslimits = (0, 700),
                                       unit = 'K',
                                       fmtstr = '%.3f',
                                       pollinterval = 5,
@@ -31,9 +31,9 @@ devices = {
 
     'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
                                      description = 'The control device of the tube',
-                                     tacodevice = '//%s/ccr/tube/control1' % nethost,
-                                     abslimits = (0, 300),
-                                     warnlimits = (0, 300),
+                                     tacodevice = '//%s/ccr/tube/control2' % nethost,
+                                     abslimits = (0, 350),
+                                     warnlimits = (0, 320),
                                      unit = 'K',
                                      fmtstr = '%.3f',
                                      pollinterval = 5,
@@ -50,7 +50,7 @@ devices = {
                                  ),
 
     'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = '(regulation) Temperature at the stick',
+                                  description = '(regulation) Secondary Sample Temperature',
                                   tacodevice = '//%s/ccr/stick/sensorb' % nethost,
                                   unit = 'K',
                                   fmtstr = '%.3f',
@@ -58,11 +58,10 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    'T_%s_C' % setupname : device('devices.taco.TemperatureSensor',
-                                  description = 'Temperature of the coldhead',
+    'p_%s' % setupname : device('devices.taco.TemperatureSensor',
+                                  description = 'Pressure in sample tube',
                                   tacodevice = '//%s/ccr/coldhead/sensorc' % nethost,
-                                  warnlimits = (0, 300),
-                                  unit = 'K',
+                                  unit = 'mbar',
                                   fmtstr = '%.3f',
                                   pollinterval = 5,
                                   maxage = 6,
@@ -89,31 +88,9 @@ devices = {
                                             lowlevel = False,
                                             tacodevice = '//%s/ccr/plc/vacuum' % nethost,
                                            ),
-
-#    '%s_p1' % setupname : device('devices.taco.AnalogInput',
-#                                 description = 'Pressure in sample space',
-#                                 tacodevice = '//%s/ccr/plc/p1' % nethost,
-#                                 fmtstr = '%.4g',
-#                                 pollinterval = 15,
-#                                 maxage = 20,
-#                                 unit = 'mbar',
-#                                ),
-
-#    '%s_p2' % setupname : device('devices.taco.AnalogInput',
-#                                 description = 'Pressure in the vacuum chamber',
-#                                 tacodevice = '//%s/ccr/plc/p2' % nethost,
-#                                 fmtstr = '%.4g',
-#                                 pollinterval = 15,
-#                                 maxage = 20,
-#                                 unit = 'mbar',
-#                                ),
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 200, 'T_%s_stick' % setupname: 150, 'T_%s_tube' % setupname: 100},
-    'Ts': {'T_%s_B' % setupname: 100, 'T_%s_A' % setupname: 90, 'T_%s_D' % setupname: 20, 'T_%s_C' % setupname: 10},
+    'T':  {'T_%s_tube' % setupname: 200, 'T_%s_stick' % setupname: 150},
+    'Ts': {'T_%s_A' % setupname: 100, 'T_%s_B' % setupname: 90, 'T_%s_D' % setupname: 20},
 }
-
-startupcode = '''
-printinfo("Please set T_%s.regulationmode to either 'stick' or 'tube' according to your needs.")
-''' % setupname

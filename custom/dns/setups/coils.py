@@ -23,6 +23,7 @@ z7_sf   = (0, .15, -.50, 0.0, 0.0, (-0.9,-0.5), "on")
 # z7_old: (0.94,0.35)
 mz7_sf  = (0, .15, -.50, -4.3, -4.3, (-0.9,-0.5), "on")
 z7_high_sf   = (0, .15, -.50, 5.0, 5.0, (-0.9,-0.5), "on")
+z7_bicu_sf   = (0, .15, -.50, 5.0, 5.0, (-0.92,-0.36), "on")
 #old ZB=ZT=4A
 # fields without spin flipper
 x7_nsf  = x7_sf[:6] + ("off", )
@@ -32,7 +33,7 @@ my7_nsf = my7_sf[:6] + ("off", )
 z7_nsf  = z7_sf[:6] + ("off", )
 mz7_nsf = mz7_sf[:6] + ("off", )
 z7_high_nsf = z7_high_sf[:6] + ('off',)
-
+z7_bicu_nsf = z7_bicu_sf[:6] + ('off',)
 polchange_mapping = {"+": 0, "-": 1}
 
 
@@ -157,6 +158,9 @@ devices = dict(
                           "-z7_nsf": mz7_nsf,
                           "z7_high_sf": z7_high_sf,
                           "z7_high_nsf": z7_high_nsf,
+                          "z7_bicu_sf": z7_bicu_sf,
+                          "z7_bicu_nsf": z7_bicu_nsf,
+
                       },
                       precision = [.1, .1, .1, .1, .1, 0, 0],
                      ),
