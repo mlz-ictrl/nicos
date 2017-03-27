@@ -4,14 +4,14 @@ Remark('SLITS adjustment')
 #
 countfor = 1      #how long count one point
 
-lr_limit = 10     #from which value to scan left and right slit
-tb_limit = 20     #same for top and bottom
+lr_limit = 15     #from which value to scan left and right slit
+tb_limit = 25     #same for top and bottom
 
 lr_step = 2       #what is stepsize for left and right
 tb_step = lr_step #same for top and bottom
 
 do_lr = True      #whether to scan left and right
-do_tb = False     #whether to scan top and bottom
+do_tb = True      #whether to scan top and bottom
 #
 # END OF SETTING
 #

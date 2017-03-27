@@ -1,20 +1,21 @@
-description = 'setup for the HTML status monitor'
+description = 'setup for the status monitor in Astrids office'
+
 group = 'special'
 
-_expcolumn = Column(
+expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=15,
-                       istext=True, maxlen=15),
-                 Field(name='Sample',   key='sample/samplename', width=15,
-                       istext=True, maxlen=15),
-                 Field(name='Remark',   key='exp/remark',   width=30,
-                       istext=True, maxlen=30),
-                 Field(name='Current status', key='exp/action', width=30,
-                       istext=True),
-                 Field(name='Last file', key='exp/lastscan')),
+        BlockRow(
+            Field(key='exp/proposal', name='Proposal'),
+            Field(key='exp/title', name='Title', istext=True, width=70),
+            Field(key='sample/samplename', name='Sample', istext=True, width=30),
+        ),
+        BlockRow(
+            Field(key='exp/action', name='Current status', width=100,
+                  istext=True, default='Idle' ),
+            Field(key='exp/lastscan', name='Last file'),
+        ),
         ],
-    ),
+    )
 )
 
 filters = Block('Primary Beam/Filters', [
@@ -99,6 +100,33 @@ detector = Block('Detector', [
         Field(dev='det2', format='%d'),
     ),
     ],
+    setups='panda',
+)
+
+bambus = Block('Detector', [
+    BlockRow(
+        Field(name='events', key='det/value[0]', format='%d'),
+        Field(name='time', key='det/value[1]', format='%4g'),
+        Field(name='mon1', key='det/value[2]', format='%d'),
+        Field(name='mon2', key='det/value[3]', format='%d'),
+        Field(name='ch_sum', key='det/value[4]', format='%d'),
+    ),
+    BlockRow(
+        Field(name='2.5 A1', key='det/value[5]', format='%d'),
+        Field(name='3.0 A3', key='det/value[7]', format='%d'),
+        Field(name='3.5 A5', key='det/value[9]', format='%d'),
+        Field(name='4.0 A7', key='det/value[11]', format='%d'),
+        Field(name='4.5 A9', key='det/value[13]', format='%d'),
+    ),
+    BlockRow(
+        Field(name='2.5 B2', key='det/value[6]', format='%d'),
+        Field(name='3.0 B4', key='det/value[8]', format='%d'),
+        Field(name='3.5 B6', key='det/value[10]', format='%d'),
+        Field(name='4.0 B8', key='det/value[12]', format='%d'),
+        Field(name='4.5 B10', key='det/value[14]', format='%d'),
+    ),
+    ],
+    setups='bambus',
 )
 
 detector_small = Block('Detector', [
@@ -131,11 +159,12 @@ lakeshore = Block('LakeShore', [
 
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
-        Field(dev='T', plot='T',
-            plotwindow=12*3600, width=100, height=40),
-        Field(dev='Ts', plot='T',
-            plotwindow=12*3600, width=100, height=40),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=25, height=25, plotwindow=300,
+              devices=['t_ls340/setpoint', 't_ls340_a', 't_ls340_b'],
+              names=['Setpoint', 'A', 'B'],
         ),
+    ),
     ],
     setups='lakeshore',
 )
@@ -146,7 +175,7 @@ cryos = []
 cryosupps = []
 cryoplots = []
 cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
-                ccidu1='Dilution-insert', ccidu2='Dilution-insert')
+                cci3he4he1='Dilution-insert', cci3he4he2='Dilution-insert')
 for cryo, name in cryodict.items():
     cryos.append(
         Block('%s %s' % (name, cryo.title()), [
@@ -258,6 +287,15 @@ for i in range(10, 22 + 1):
         )
     )
 
+miramagnet = Block('MIRA Magnet', [
+    BlockRow(
+        Field(dev='I'),
+        Field(dev='B'),
+    ),
+    ],
+    setups='miramagnet',
+)
+
 # for setup magnet frm2-setup
 magnet75 = Block('7T Magnet', [
     BlockRow(
@@ -267,17 +305,6 @@ magnet75 = Block('7T Magnet', [
     ],
     setups='magnet75',
 )
-
-# for setup magnet jcns jvm1
-magnet5 = Block('5T Magnet', [
-    BlockRow(
-        Field(dev='I_vm5'),
-        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
-    ),
-    ],
-    setups='jvm1',
-)
-
 
 magnet75supp = Block('Magnet', [
     BlockRow(
@@ -306,28 +333,6 @@ magnet75supp = Block('Magnet', [
     setups='magnet75',
 )
 
-magnet5supp = Block('Magnet', [
-    BlockRow(
-        Field(dev='T_vm5_sample', name='Ts'),
-        Field(dev='T_vm5_vti', name='T'),
-        Field(key='T_vm5_sample/setpoint',name='Setpoint',min=1,max=200),
-        Field(key='T_vm5_sample/heater',name='Heater (%)'),
-    ),
-    BlockRow(
-        Field(dev='vm5_lhe', name='He level'),
-        Field(dev='T_vm5_magnet', name='T (coils)'),
-        Field(dev='vm5_nv_manual', name='NV'),
-    ),
-    BlockRow(
-        Field(dev='vm5_ppump', name='p(pump)'),
-        Field(dev='vm5_psample', name='p(sample)'),
-        Field(dev='vm5_pvti', name='p(vti)'),
-    ),
-    ],
-    setups='jvm1',
-)
-
-
 vti = Block('VTI', [
 #    BlockRow(
 #        Field(dev='sTs'),
@@ -344,6 +349,18 @@ vti = Block('VTI', [
         Field(dev='vti_pressure', name='p(UP)'),
         Field(dev='pressure_ls', name='p(DOWN)'),
         Field(key='vti_pressure/setpoint', name='setpoint'),
+    ),
+    ],
+    setups='variox',
+)
+
+vtiplot = Block('Needle Valve', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=25, height=25, plotwindow=300,
+              devices=['NV/setpoint', 'NV'],
+              names=['Setpoint', 'Value'],
+        ),
     ),
     ],
     setups='variox',
@@ -380,35 +397,22 @@ foki = Block('Foki', [
     ],
 )
 
-tas = Block('TAS', [
-        BlockRow(Field(name='H', dev='panda[0]', format='%.3f', unit=''),
-                 Field(name='K', dev='panda[1]', format='%.3f', unit=''),
-                 Field(name='L', dev='panda[2]', format='%.3f', unit=''),
-                 Field(name='E', dev='panda[3]', format='%.3f', unit='')),
-        BlockRow(Field(name='Mode', key='panda/scanmode'),
-                 Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
-                 Field(name='Unit', key='panda/energytransferunit')),
-        ],
-)
+column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
+          Column(lakeshore, miramagnet, magnet75, magnet14t5, vti)
 
-column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet75, magnet5, magnet14t5, vti)
-
-column3 = Column(tas) + Column(magnet75supp, magnet5supp, kelvinox, foki) + \
+column3 = Column(magnet75supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
-column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
-                     title = 'PANDA Status monitor',
-                     filename = '/pandacontrol/webroot/index.html',
-                     interval = 10,
+    Monitor = device('services.monitor.qt.Monitor',
+                     title = 'PANDA office status monitor',
                      loglevel = 'info',
                      cache = 'phys.panda.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 17,
-                     layout = [[_expcolumn], [column1, column2, column3], [column4]]),
+                     fontsize = 15,
+                     valuefont = 'Luxi Sans',
+                     layout = [Row(expcolumn), Row(column1, column2, column3)],
+                     )
 )

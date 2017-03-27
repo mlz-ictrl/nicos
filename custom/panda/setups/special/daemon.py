@@ -13,7 +13,7 @@ devices = dict(
                                   ('admin', '51b8e46e7a54e8033f0d7a3393305cdb', 'admin'),
                                   ('astrid', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
                                   ('alex', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
-                                  ('florin', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
+                                  ('andy', '54709903e06a8be9a62a649cc8ec2f1d', 'admin'),
                                   ('aweber', '3219e862ecf3d51fa1895e053d0e96cd', 'admin'),
                                   ('petr', '54709903e06a8be9a62a649cc8ec2f1d', 'admin')],
                        ),

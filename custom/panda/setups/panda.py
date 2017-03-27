@@ -102,7 +102,7 @@ devices = dict(
                       crystalside = -1,
                      ),
     sth  = device('devices.generic.DeviceAlias',
-                  alias = 'sth_virtual_dummy',
+#                  alias = 'sth_virtual_dummy',
                  ),
     sth_virtual_dummy = device('devices.generic.VirtualMotor',
                                unit = 'deg',

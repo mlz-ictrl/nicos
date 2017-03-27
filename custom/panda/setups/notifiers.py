@@ -14,7 +14,7 @@ devices = dict(
     email1   = device('devices.notifiers.Mailer',
                       mailserver = 'mailhost.frm2.tum.de',
                       sender = 'panda@frm2.tum.de',
-                      receivers = ['pcermak@frm2.tum.de', 'fstoica@frm2.tum.de', 'astrid.schneidewind@frm2.tum.de'],
+                      receivers = ['pcermak@frm2.tum.de', 'andreas.frick@frm2.tum.de', 'astrid.schneidewind@frm2.tum.de'],
                       subject = '[PANDA warning]',
                       loglevel='debug',
                       lowlevel = True,
@@ -40,7 +40,7 @@ devices = dict(
 
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
-                      receivers = ['017697526049', '015252646651'],
+                      receivers = ['017697526049', '015788490767'],
                       loglevel='debug',
                       lowlevel = True,
                      ),

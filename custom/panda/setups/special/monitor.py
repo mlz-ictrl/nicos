@@ -146,6 +146,18 @@ detector_small = Block('Detector', [
     ],
 )
 
+cam = Block('Camera', [
+    BlockRow(
+        Field(dev='camtimer'),
+        Field(dev='cam_temp'),
+    ),
+    BlockRow(
+        Field(key='exp/lastpoint', name='Last pict'),
+    ),
+    ],
+    setups='camera',
+)
+
 # for setup lakeshore
 lakeshore = Block('LakeShore', [
     BlockRow(
@@ -436,7 +448,7 @@ foki = Block('Foki', [
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, miramagnet, magnet75, magnet5, magnet14t5, vti)
 
-column3 = Column(magnet75supp, magnet5supp, kelvinox, foki) + \
+column3 = Column(magnet75supp, magnet5supp, kelvinox, foki, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
