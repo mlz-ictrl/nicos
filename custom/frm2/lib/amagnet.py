@@ -60,6 +60,9 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         'calibration': Override(volatile=True, settable=False, mandatory=False),
     }
 
+    def _getWaiters(self):
+        return []
+
     def doWriteUserlimits(self, limits):
         abslimits = self.abslimits
         # include 0 in limits
