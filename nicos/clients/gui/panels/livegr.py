@@ -101,7 +101,8 @@ class LiveDataPanel(Panel):
 
         self.splitter.restoreState(self.splitterstate)
 
-        self.window().closed.connect(self.on_closed)
+        if hasattr(self.window(), 'closed'):
+            self.window().closed.connect(self.on_closed)
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
