@@ -29,7 +29,7 @@ from time import sleep
 import numpy as np
 
 from nicos.core import Param, Override, Value, Attach, ArrayDesc, Readable, \
-    SIMULATION, tupleof, oneof
+    tupleof, oneof
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
@@ -82,8 +82,8 @@ class CascadeDetector(ImageChannel):
 
     def doPreinit(self, mode):
         ImageChannel.doPreinit(self, mode)
-        if mode != SIMULATION:
-            self.doReset()
+        #if mode != SIMULATION:
+        #    self.doReset()
 
     def doInit(self, mode):
         # self._tres is set by doUpdateMode
@@ -234,7 +234,8 @@ class MiraXmlHandler(SingleFileSinkHandler):
             self.sink._format = (image.shape, ''.join(p))
 
         filled = np.repeat(np.repeat(image, 256 // w, 0), 256 // h, 1)
-        write(self.sink._format[1] % tuple(filled.ravel() / 4.))
+        if filled.shape == (256, 256):
+            write(self.sink._format[1] % tuple(filled.ravel() / 4.))
 
         write('''\
 </detector_value>

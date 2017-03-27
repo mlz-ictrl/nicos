@@ -23,6 +23,8 @@ windows = [
                  ])),
     window('Live data', 'live',
            panel('mira.gui.live.LiveDataPanel')),
+    window('Camera', 'live',
+           panel('live.LiveDataPanel', instrument='poli')),
     window('Scans', 'plotter',
            panel('scans.ScansPanel')),
     window('History', 'find',

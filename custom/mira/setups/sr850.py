@@ -1,7 +1,7 @@
 description = 'Stanford SR-850 lock-in amplifier, for susceptibility measurements'
 group = 'optional'
 
-includes = ['base', 'ccr5']
+includes = ['base']
 
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 

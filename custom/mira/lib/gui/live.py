@@ -163,7 +163,7 @@ class LiveDataPanel(Panel):
             self._runtime = runtime
             self._filename = filename
         else:
-            if filename:
+            if filename and tag != 'MiraXML':
                 self._filename = filename
                 self._format = filename[-3:]
             else:
@@ -189,7 +189,8 @@ class LiveDataPanel(Panel):
             self.updateRange()
         if self._filename and not self._filename.startswith('live@'):
             # and path.isfile(self._filename):
-            self.add_to_flist(self._filename, self._format)
+            if 'mira_cas' not in self._filename:
+                self.add_to_flist(self._filename, self._format)
 
     def on_fileList_itemClicked(self, item):
         if item is None:

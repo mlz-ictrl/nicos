@@ -29,6 +29,6 @@ devices = dict(
     tifformat = device("devices.datasinks.TIFFImageSink",
                        description = "Saves image data in TIFF format",
                        filenametemplate = ["%(proposal)s_%(pointcounter)08d.tiff"],
-                       mode = "I;16",
+                       mode = "I",
                       ),
 )

@@ -240,6 +240,12 @@ _column2 = Column(
         ],
         setups='cci3he3',
     ),
+    Block('Humidity Julabo', [
+        BlockRow(Field(name='Setpoint', key='t_julabo/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T_julabo')),
+        ],
+        setups='julabo',
+    ),
 )
 
 _column3 = Column(
