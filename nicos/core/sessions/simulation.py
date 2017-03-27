@@ -102,10 +102,6 @@ class SimLogSender(logging.Handler):
                     devinfo[devname][3].append(adev.name)
         self.socket.send(serialize((stoptime, devinfo)))
 
-    def delay(self, _secs):
-        # Not necessary for dry run.
-        pass
-
 
 class SimulationSession(Session):
     """
@@ -199,6 +195,10 @@ class SimulationSession(Session):
 
     def getExecutingUser(self):
         return self._user
+
+    def delay(self, _secs):
+        # Not necessary for dry run.
+        pass
 
 
 class SimulationSupervisor(Thread):
