@@ -3,7 +3,7 @@ description = 'PANDA bambus with neutron camera TEST'
 group = 'basic'
 
 includes = ['system', 'sampletable', 'panda_s7', 'manual', 'alias_sth',
-            'monofoci', 'camera','sat', 'reactor', 'water']
+            'monofoci', 'camera', 'reactor', 'water']
 # monoturm is included by panda_s7
 
 modules = ['nicos.commands.tas']
