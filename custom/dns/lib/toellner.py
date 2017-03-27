@@ -30,7 +30,7 @@ from nicos.devices.tango import PowerSupply
 class Toellner(PowerSupply):
 
     attached_devices = {
-        'polchange': Attach('TANGO digital input device ', Moveable),
+        'polchange': Attach('Polarity switcher', Moveable),
     }
 
     parameter_overrides = {
@@ -44,6 +44,10 @@ class Toellner(PowerSupply):
     def _set_field_polarity(self, value):
         polval = self._attached_polchange.read()
         return (value < 0 and polval == '+') or (value >= 0 and polval == '-')
+
+    def doReadAbslimits(self):
+        minmax = PowerSupply.doReadAbslimits(self)
+        return -minmax[1], minmax[1]
 
     def doStart(self, value):
         polval = self._attached_polchange.read()
