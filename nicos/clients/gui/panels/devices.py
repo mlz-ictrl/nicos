@@ -693,6 +693,11 @@ class ControlDialog(QDialog):
         else:
             self.description.setVisible(False)
 
+        # check how to refer to the device in commands: if it is lowlevel,
+        # we need to use quotes
+        self.devrepr = srepr(self.devname) if params.get('lowlevel', True) \
+            else self.devname
+
         # show "Set alias" group box if it is an alias device
         if 'alias' in params:
             if params['alias']:
@@ -745,8 +750,8 @@ class ControlDialog(QDialog):
             self.target.setClient(self.client)
 
             def btn_callback(target):
-                self.device_panel.exec_command(
-                    'move(%s, %s)' % (srepr(self.devname), srepr(target)))
+                self.device_panel.exec_command('move(%s, %s)' %
+                                               (self.devrepr, srepr(target)))
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
             self.targetLayout.takeAt(1).widget().deleteLater()
             self.targetLayout.insertWidget(1, self.target)
@@ -780,11 +785,9 @@ class ControlDialog(QDialog):
 
             def callback(button):
                 if button.text() == 'Reset':
-                    self.device_panel.exec_command('reset(%s)' %
-                                                   srepr(self.devname))
+                    self.device_panel.exec_command('reset(%s)' % self.devrepr)
                 elif button.text() == 'Stop':
-                    self.device_panel.exec_command('stop(%s)' %
-                                                   srepr(self.devname),
+                    self.device_panel.exec_command('stop(%s)' % self.devrepr,
                                                    immediate=True)
                 elif button.text() == 'Move':
                     try:
@@ -792,7 +795,7 @@ class ControlDialog(QDialog):
                     except ValueError:
                         return
                     self.device_panel.exec_command(
-                        'move(%s, %s)' % (srepr(self.devname), srepr(target)))
+                        'move(%s, %s)' % (self.devrepr, srepr(target)))
             self.moveBtns.clicked.connect(callback)
 
     def on_paramList_customContextMenuRequested(self, pos):
@@ -808,7 +811,7 @@ class ControlDialog(QDialog):
         action = menu.exec_(QCursor.pos())
 
         if action:
-            cmd = '%s.pollParams(volatile_only=False%s)' \
+            cmd = 'session.getDevice(%r).pollParams(volatile_only=False%s)' \
                   % (self.devname, ', param_list=[%r]' % item.text(0)
                      if action == refreshAction else '')
             # poll even non volatile parameter as requested explicitely
@@ -833,8 +836,7 @@ class ControlDialog(QDialog):
                                       QDialogButtonBox.ResetRole)
 
         def callback():
-            self.device_panel.exec_command('resetlimits(%s)' %
-                                           srepr(self.devname))
+            self.device_panel.exec_command('resetlimits(%s)' % self.devrepr)
             dlg.reject()
         btn.clicked.connect(callback)
         dlg.targetLayout.addWidget(target)
@@ -849,7 +851,7 @@ class ControlDialog(QDialog):
             self.on_actionSetLimits_triggered()
             return
         self.device_panel.exec_command('set(%s, "userlimits", %s)' %
-                                       (srepr(self.devname), newlimits))
+                                       (self.devrepr, newlimits))
 
     @qtsig('')
     def on_actionAdjustOffset_triggered(self):
@@ -864,11 +866,11 @@ class ControlDialog(QDialog):
         if res != QDialog.Accepted:
             return
         self.device_panel.exec_command(
-            'adjust(%s, %r)' % (srepr(self.devname), target.getValue()))
+            'adjust(%s, %r)' % (self.devrepr, target.getValue()))
 
     @qtsig('')
     def on_actionReference_triggered(self):
-        self.device_panel.exec_command('reference(%s)' % srepr(self.devname))
+        self.device_panel.exec_command('reference(%s)' % self.devrepr)
 
     @qtsig('')
     def on_actionFix_triggered(self):
@@ -876,18 +878,17 @@ class ControlDialog(QDialog):
             'Please enter the reason for fixing %s:' % self.devname)
         if not ok:
             return
-        self.device_panel.exec_command('fix(%s, %r)' % (srepr(self.devname),
-                                                        reason))
+        self.device_panel.exec_command('fix(%s, %r)' % (self.devrepr, reason))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
-        self.device_panel.exec_command('release(%s)' % srepr(self.devname))
+        self.device_panel.exec_command('release(%s)' % self.devrepr)
 
     @qtsig('')
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
             'set(%s, "alias", %s)' %
-            (srepr(self.devname), srepr(self.aliasTarget.currentText())))
+            (self.devrepr, srepr(self.aliasTarget.currentText())))
 
     def closeEvent(self, event):
         event.accept()
@@ -929,8 +930,12 @@ class ControlDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'The entered value is invalid '
                                 'for this parameter.')
             return
-        self.device_panel.exec_command(
-            'set(%s, %s, %r)' % (srepr(self.devname), srepr(pname), new_value))
+        if self.devrepr == self.devname:
+            self.device_panel.exec_command(
+                '%s.%s = %r' % (self.devname, pname, new_value))
+        else:
+            self.device_panel.exec_command(
+                'set(%s, %s, %r)' % (self.devrepr, srepr(pname), new_value))
 
     def on_historyBtn_clicked(self):
         self.device_panel.plot_history(self.devname)
