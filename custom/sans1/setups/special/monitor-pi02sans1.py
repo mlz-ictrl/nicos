@@ -94,6 +94,25 @@ _htf03 = Block('HTF03', [
     setups='htf03',
 )
 
+_irf01 = Block('IRF01', [
+    BlockRow(
+             Field(name='Temperature', dev='T_irf01', format='%.2f', unit='C', width=12),
+             Field(name='Target', key='t_irf01/target', format='%.2f', unit='C', width=12),
+             ),
+    BlockRow(
+             Field(name='Setpoint', key='t_irf01/setpoint', format='%.1f', unit='C', width=12),
+             Field(name='Heater Power', key='t_irf01/heaterpower', format='%.1f', unit='%', width=12),
+             #Field(name='Vacuum', key='htf03_p'),
+            ),
+    BlockRow(
+             Field(name='P', key='t_irf01/p', format='%i'),
+             Field(name='I', key='t_irf01/i', format='%i'),
+             Field(name='D', key='t_irf01/d', format='%i'),
+            ),
+    ],
+    setups='irf01',
+)
+
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
@@ -113,6 +132,27 @@ _htf03_plot = Block('HTF03 plot', [
     ),
     ],
     setups='htf03',
+)
+
+_irf01_plot = Block('IRF01 plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_irf01', 't_irf01/setpoint', 't_irf01/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_irf01', 't_irf01/setpoint', 't_irf01/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    ],
+    setups='irf01',
 )
 
 _htf01 = Block('HTF01', [
@@ -211,11 +251,11 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
 )
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
-    BlockRow(Field(name='Field', dev='b_mira', width=12),
-             Field(name='Target', key='b_mira/target', width=12),
+    BlockRow(Field(name='Field', dev='B_miramagnet', width=12),
+             Field(name='Target', key='B_miramagnet/target', width=12),
              ),
     BlockRow(
-             Field(name='Current', dev='i', width=12),
+             Field(name='Current', dev='I_miramagnet', width=12),
             ),
     ],
     setups='miramagnet',
@@ -225,13 +265,13 @@ _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=65, height=20, plotwindow=1800,
-              devices=['B_mira', 'b_mira/target'],
+              devices=['B_miramagnet', 'B_miramagnet/target'],
               names=['30min', 'Target'],
               legend=True,
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=65, height=20, plotwindow=24*3600,
-              devices=['B_mira', 'b_mira/target'],
+              devices=['B_miramagnet', 'B_miramagnet/target'],
               names=['24h', 'Target'],
               legend=True,
               ),
@@ -504,33 +544,33 @@ _julabo_plot = Block('Julabo plot', [
 
 _fg1 = Block('FG 1 - Sample', [
     BlockRow(
-             Field(name='On/Off', dev='tisane_fg1', width=12),
-             Field(name='Frequency', key='tisane_fg1/frequency', format='%.3f', unit='Hz', width=12),
+             Field(name='On/Off', dev='tisane_fg1_sample', width=12),
+             Field(name='Frequency', key='tisane_fg1_sample/frequency', format='%.4f', unit='Hz', width=12),
              ),
     BlockRow(
-             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
-             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+             Field(name='Amplitude', key='tisane_fg1_sample/amplitude', format='%.2f', unit='V', width=12),
+             Field(name='Offset', key='tisane_fg1_sample/offset', format='%.2f', unit='V', width=12),
              ),
     BlockRow(
-             Field(name='Shape', key='tisane_fg1/shape', width=12),
-             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+             Field(name='Shape', key='tisane_fg1_sample/shape', width=12),
+             Field(name='Dutycycle', key='tisane_fg1_sample/duty', format='%i', unit='%', width=12),
              ),
     ],
-    setups='frequency',
+    setups= ('frequency', 'tisane_multifg'),
 )
 
 _fg2 = Block('FG 2 - Detector', [
     BlockRow(
-             Field(name='On/Off', dev='tisane_fg2', width=12),
-             Field(name='Frequency', key='tisane_fg2/frequency', format='%.3f', unit='Hz', width=12),
+             Field(name='On/Off', dev='tisane_fg2_det', width=12),
+             Field(name='Frequency', key='tisane_fg2_det/frequency', format='%.4f', unit='Hz', width=12),
              ),
     BlockRow(
-             Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
-             Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V', width=12),
+             Field(name='Amplitude', key='tisane_fg2_det/amplitude', format='%.2f', unit='V', width=12),
+             Field(name='Offset', key='tisane_fg2_det/offset', format='%.2f', unit='V', width=12),
              ),
     BlockRow(
-             Field(name='Shape', key='tisane_fg2/shape', width=12),
-             Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
+             Field(name='Shape', key='tisane_fg2_det/shape', width=12),
+             Field(name='Dutycycle', key='tisane_fg2_det/duty', format='%i', unit='%', width=12),
              ),
     ],
     setups='frequency',
@@ -552,6 +592,14 @@ _tisane_counts = Block('TISANE Counts', [
     setups='tisane',
 )
 
+_helios01 = Block('Helios', [
+    BlockRow(
+             Field(name='spin', dev='flipper_helios01', width=12),
+             ),
+    ],
+    setups='helios01',
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      showwatchdog = False,
@@ -568,13 +616,13 @@ devices = dict(
                                 Row(
                                     Column(_ccmsanssc),
                                     Column(_sc1, _sc2, _sc_t, _st2, _st1),
-                                    Column(_tisane_counts, _fg1),
+                                    Column(_tisane_counts, _fg1, _helios01),
                                     Column(_fc, _fg2),
-                                    Column(_htf01, _htf03, _ccm2a,
+                                    Column(_htf01, _htf03, _irf01, _ccm2a,
                                            _ccmsans, _miramagnet, _amagnet,
                                            _sans1julabo, *newports),
                                     Column(_ccmsans_temperature),
-                                    Column(_htf01_plot, _htf03_plot,
+                                    Column(_htf01_plot, _htf03_plot, _irf01_plot,
                                            _spinflipper, _julabo_plot),
                                     Column(*ccrs) + Column(_birmag),
                                     Column(*cryos),

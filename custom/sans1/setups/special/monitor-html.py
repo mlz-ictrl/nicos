@@ -203,12 +203,25 @@ _sanscolumn = Column(
 _miramagnet = Column(
     Block('MIRA Magnet', [
         BlockRow(
-                 Field(name='Field', dev='b_mira'),
-                 Field(name='Target', key='b_mira/target', width=12),
+                 Field(name='Field', dev='B_miramagnet'),
+                 Field(name='Target', key='B_miramagnet/target', width=12),
                 ),
         BlockRow(
-                 Field(name='Current', dev='i', width=12),
+                 Field(name='Current', dev='I_miramagnet', width=12),
                 ),
+        ],
+        setups='miramagnet',
+    ),
+)
+
+_miramagnet_plot = Column(
+    Block('Miramagnet plot', [
+        BlockRow(
+                 Field(plot='30 min miramagnet', name='30 min', dev='B_miramagnet', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min miramagnet', name='Target', key='B_miramagnet/target'),
+                 Field(plot='12 h miramagnet', name='12 h', dev='B_miramagnet', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h miramagnet', name='Target', key='B_miramagnet/target'),
+        ),
         ],
         setups='miramagnet',
     ),
@@ -301,6 +314,36 @@ _htf03_plot = Column(
         ),
         ],
         setups='htf03',
+    ),
+)
+
+_irf01 = Column(
+    Block('IRF01', [
+        BlockRow(
+            Field(name='Temperature', dev='T_irf01', format = '%.2f'),
+            Field(name='Target', key='t_irf01/target', format = '%.2f'),
+        ),
+        BlockRow(
+            Field(name='Setpoint', key='t_irf01/setpoint', format = '%.1f'),
+            Field(name='Heater Power', key='t_irf01/heaterpower', format = '%.1f'),
+        ),
+        ],
+        setups='irf01',
+    ),
+)
+
+_irf01_plot = Column(
+    Block('IRF01 plot', [
+        BlockRow(
+                 Field(plot='30 min irf01', name='30 min', dev='T_irf01', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min irf01', name='Setpoint', dev='T_irf01/setpoint'),
+                 Field(plot='30 min irf01', name='Target', dev='T_irf01/target'),
+                 Field(plot='12 h irf01', name='12 h', dev='T_irf01', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h irf01', name='Setpoint', dev='T_irf01/setpoint'),
+                 Field(plot='12 h irf01', name='Target', dev='T_irf01/target'),
+        ),
+        ],
+        setups='irf01',
     ),
 )
 
@@ -608,6 +651,16 @@ _col_slit = Column(
     ),
 )
 
+_helios01 = Column(
+    Block('Helios', [
+        BlockRow(
+                Field(name='spin', dev='flipper_helios01', width=12),
+                ),
+        ],
+        setups='helios01',
+    ),
+)
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
@@ -628,10 +681,10 @@ devices = dict(
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _ccm2a, _ccm2a_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2, _sc_t,
-                                     _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01,
+                                     _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01, _irf01,
                                      _newports, _julabo, _tisane_counts, _tisane_fc,
-                                     _tisane_fg1, _tisane_fg2),
-                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot),
+                                     _tisane_fg1, _tisane_fg2, _helios01),
+                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot, _irf01_plot),
                                  Row(_live),
                                ],
                     ),

@@ -41,7 +41,7 @@ class Burst(NamedDigitalOutput):
                            type=floatrange(-10, 10), settable=True,
                            category='experiment'),
         'shape':     Param('Shape of the signal.', settable=True,
-                           type=oneof('sine', 'square', 'ramp'),
+                           type=oneof('sin', 'square', 'ramp'),
                            category='experiment'),
         'duty':      Param('Dutycycle for square, assymetry for ramp.',
                            type=intrange(0, 100), unit='%', settable=True,

@@ -250,11 +250,11 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
 )
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
-    BlockRow(Field(name='Field', dev='b_mira', width=12),
-             Field(name='Target', key='b_mira/target', width=12),
+    BlockRow(Field(name='Field', dev='B_miramagnet', width=12),
+             Field(name='Target', key='B_miramagnet/target', width=12),
              ),
     BlockRow(
-             Field(name='Current', dev='i', width=12),
+             Field(name='Current', dev='I_miramagnet', width=12),
             ),
     ],
     setups='miramagnet',
@@ -545,6 +545,14 @@ _tisane_counts = Block('TISANE Counts', [
     setups='tisane',
 )
 
+_helios01 = Block('Helios', [
+    BlockRow(
+             Field(name='spin', dev='flipper_helios01', width=12),
+             ),
+    ],
+    setups='helios01',
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      description='Status monitor',
@@ -562,7 +570,7 @@ devices = dict(
                                     Column(_ccmsanssc),
                                     Column(_sc1, _sc2, _sc_t, _st2, _st1,
                                            *newports),
-                                    Column(_tisane_counts, _fg1),
+                                    Column(_tisane_counts, _fg1, _helios01),
                                     Column(_fc, _fg2),
                                     Column(_htf01, _htf03, _ccm2a,
                                            _ccmsans, _ccmsans_temperature,

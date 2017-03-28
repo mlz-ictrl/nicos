@@ -46,11 +46,13 @@ class CopySinkHandler(DataSinkHandler):
         self._datafile.close()
 
     def end(self):
-        shutil.copy(path.join(self.sink.path, self._read_source()),
+        image = self.detector._attached_images[0]
+        if not hasattr(image, '_taco_guard'):
+            return
+        shutil.copy(path.join(self.sink.path, self._read_source(image)),
                     self._target)
 
-    def _read_source(self):
-        image = self.detector._attached_images[0]
+    def _read_source(self, image):
         return image._taco_guard(image._dev.deviceQueryResource,
                                  self.sink.source)
 

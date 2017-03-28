@@ -49,7 +49,7 @@ config = ('Default', [
             vsplit(
                 panel('status.ScriptStatusPanel'),
 #               panel('watch.WatchPanel'),
-                panel('console.ConsolePanel'),
+                panel('console.ConsolePanel', watermark='/sans1control/custom/sans1/watermark.png'),
             ),
             # ('Watch Expressions',panel('watch.WatchPanel')),
             ('NICOS devices',
@@ -97,6 +97,8 @@ config = ('Default', [
             panel('logviewer.LogViewerPanel')),
         window('Errors', 'errors',
             panel('errors.ErrorPanel')),
+        window('Camera', 'live',
+            panel('live.LiveDataPanel', instrument='poli')),
     ], [
         tool('Downtime report', 'downtime.DownTimeTool',
              receiver='f.carsughi@fz-juelich.de',

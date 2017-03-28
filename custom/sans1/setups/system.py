@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email',],
 )
 
-modules = ['commands.standard']
+modules = ['commands.standard', 'sans1.commands']
 
 includes = ['notifiers', ]
 
