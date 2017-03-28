@@ -96,6 +96,7 @@ _selectorblock = Block('Velocity Selector', [
 )
 
 _temperatureblock = Block('Cryo Temperature', [
+    BlockRow(Field(dev='T')),
     BlockRow(Field(plot='Temperature', name='T', dev='T', width=40, height=20, plotwindow=3600),
         ),
     ],

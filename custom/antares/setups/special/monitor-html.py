@@ -212,6 +212,25 @@ _temperatureblock = Block('Cryo Temperature', [
     setups='cc_puma',
 )
 
+_tensileblock = Block('Tensile Rig', [
+    BlockRow(
+	Field(dev='teext', name='Extension'),
+	Field(dev='tepos', name='Position'),
+	Field(dev='teload', name='load'),
+	),
+    BlockRow(
+	Field(plot='Extension', dev='teext', width=60, height=40, plotwindow=3600),
+        ),
+    BlockRow(
+	Field(plot='Position', dev='tepos', width=60, height=40, plotwindow=3600),
+        ),
+    BlockRow(
+	Field(plot='Load', dev='teload', width=60, height=40, plotwindow=3600),
+        ),
+    ],
+    setups='tensile',
+)
+
 _garfieldblock = Block('Garfield Magnet', [
         BlockRow(Field(dev='B_amagnet', name='B'), Field(dev='amagnet_connection', name='Mode') ),
     ],
@@ -309,6 +328,7 @@ _rightcolumn = Column(
     _sockets7block,
     _ngiblock,
     _ngi_jcnsblock,
+    _tensileblock
 )
 
 
