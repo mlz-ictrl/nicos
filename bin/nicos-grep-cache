@@ -27,11 +27,11 @@
 Small utility to grep within cache files.
 """
 
-import argparse
 import os
 import re
 import sys
 import time
+import argparse
 
 
 def printline(fn, line, opts):
@@ -42,13 +42,13 @@ def printline(fn, line, opts):
     ts = float(ts)
     val = val.strip()
     if opts.table:
-        print '%s\t%s' % (ts, val)
+        print('%s\t%s' % (ts, val))
     elif opts.timestamp:
-        print '%s: %.3f %s %s' % (fn, ts, key, val)
+        print('%s: %.3f %s %s' % (fn, ts, key, val))
     else:
         fmtts = time.strftime('%Y-%m-%d %H:%M:%S.%%03d',
                               time.localtime(ts)) % ((ts % 1) * 1000)
-        print '%-30s %-25s %-15s %s' % (fn, fmtts, key, val)
+        print('%-30s %-25s %-15s %s' % (fn, fmtts, key, val))
 
 
 def grep(fn, rex, opts):
