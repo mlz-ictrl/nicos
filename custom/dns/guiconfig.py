@@ -32,7 +32,7 @@ main_window = tabbed(
     ('Scan Plotting', panel('scans.ScansPanel')),
     ('Device Plotting', panel('history.HistoryPanel')),
     ('Logbook', panel('elog.ELogPanel')),
-    ('Live display', panel('live.LiveDataPanel', instrument='dns')),
+    ('Live display', panel('liveqwt.LiveDataPanel', instrument='dns')),
 )
 
 windows = []

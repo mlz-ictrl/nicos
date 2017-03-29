@@ -33,7 +33,7 @@ windows = [
         window('Errors', 'errors',
             panel('errors.ErrorPanel')),
         window('Live data', 'live',
-            panel('live.LiveDataPanel',
+            panel('liveqwt.LiveDataPanel',
                   instrument = 'imaging')),
 ]
 

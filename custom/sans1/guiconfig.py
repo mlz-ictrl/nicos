@@ -98,7 +98,7 @@ config = ('Default', [
         window('Errors', 'errors',
             panel('errors.ErrorPanel')),
         window('Camera', 'live',
-            panel('live.LiveDataPanel', instrument='poli')),
+            panel('liveqwt.LiveDataPanel', instrument='poli')),
     ], [
         tool('Downtime report', 'downtime.DownTimeTool',
              receiver='f.carsughi@fz-juelich.de',

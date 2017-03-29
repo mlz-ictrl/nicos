@@ -36,7 +36,7 @@ main_window = tabbed(
 )
 
 windows = [
-    window('Live data', 'live', panel('live.LiveDataPanel', instrument='poli')),
+    window('Camera', 'live', panel('liveqwt.LiveDataPanel', instrument='poli')),
 ]
 
 tools = [
