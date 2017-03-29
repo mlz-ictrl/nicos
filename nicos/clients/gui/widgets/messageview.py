@@ -25,15 +25,15 @@
 """A text control to display logging messages of the daemon."""
 
 import re
-from time import strftime, localtime
-from logging import DEBUG, INFO, WARNING, ERROR, FATAL
+from logging import DEBUG, ERROR, FATAL, INFO, WARNING
+from time import localtime, strftime
 
-from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
-    QTextCursor, QMainWindow, QTextEdit, QPixmap, QPainter
-from PyQt4.QtCore import Qt, QRegExp, QRect, QSize
+from PyQt4.QtCore import QRect, QRegExp, QSize, Qt
+from PyQt4.QtGui import QBrush, QColor, QFont, QMainWindow, QPainter, \
+    QPixmap, QTextBrowser, QTextCharFormat, QTextCursor, QTextEdit
 
-from nicos.utils.loggers import INPUT, ACTION
 from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
+from nicos.utils.loggers import ACTION, INPUT
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -110,7 +110,7 @@ class MessageView(QTextBrowser):
         msgs = self._messages[:]
         self.clear()
         i = 0
-        for i in range(len(msgs)-1, -1, -1):
+        for i in range(len(msgs) - 1, -1, -1):
             if msgs[i][2] == INPUT:
                 break
         self.addMessages(msgs[i:])
@@ -123,7 +123,7 @@ class MessageView(QTextBrowser):
         # Return latest n commands together with warning/error output.
         inputcount = 0
         retmsgs = []
-        for i in range(len(self._messages)-1, -1, -1):
+        for i in range(len(self._messages) - 1, -1, -1):
             if self._messages[i][2] == INPUT:
                 retmsgs.append(self._messages[i])
                 inputcount += 1

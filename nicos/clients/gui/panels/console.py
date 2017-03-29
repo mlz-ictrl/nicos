@@ -28,16 +28,15 @@ import io
 import sys
 from os import path
 
-from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QPrinter, \
-    QPrintDialog, QAbstractPrintDialog, QTextEdit
-from PyQt4.QtCore import SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtGui import QAbstractPrintDialog, QDialog, QFileDialog, QMenu, \
+    QMessageBox, QPrintDialog, QPrinter, QTextEdit
 
-from nicos.utils import chunks, findResource
-from nicos.clients.gui.panels import Panel, showPanel
-from nicos.clients.gui.utils import loadUi, enumerateWithProgress, modePrompt
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.clients.gui.panels import Panel, showPanel
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, modePrompt
 from nicos.guisupport.utils import setBackgroundColor
+from nicos.utils import chunks, findResource
 
 
 class ConsolePanel(Panel):
@@ -59,6 +58,7 @@ class ConsolePanel(Panel):
     * ``watermark`` (default empty) -- the path to an image file that should
       be used as a watermark in the console window.
     """
+
     panelName = 'Console'
 
     def __init__(self, parent, client):
@@ -91,7 +91,8 @@ class ConsolePanel(Panel):
         self.menu.addAction(self.actionPrint)
         self.menu.addSeparator()
         self.menu.addAction(self.actionAllowLineWrap)
-        self.on_actionAllowLineWrap_triggered(self.mainwindow.allowoutputlinewrap)
+        self.on_actionAllowLineWrap_triggered(
+            self.mainwindow.allowoutputlinewrap)
 
     def on_outView_customContextMenuRequested(self, point):
         self.menu.popup(self.outView.mapToGlobal(point))
@@ -159,7 +160,8 @@ class ConsolePanel(Panel):
         messages = self.client.ask('getmessages', '10000', default=[])
         total = len(messages) // 2500 + 1
         for _, batch in enumerateWithProgress(chunks(messages, 2500),
-                            text='Synchronizing...', parent=self, total=total):
+                                              text='Synchronizing...',
+                                              parent=self, total=total):
             self.outView.addMessages(batch)
         self.outView.scrollToBottom()
 
