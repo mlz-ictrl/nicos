@@ -3,32 +3,32 @@
 description = '3He detector'
 group = 'lowlevel'
 
-taco_base = '//resedasrv/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    timer = device('devices.taco.FRMTimerChannel',
+    timer = device('devices.tango.TimerChannel',
         description = 'Timer channel 2',
-        tacodevice = '%s/frmctr/dev0' % taco_base,
+        tangodevice = '%s/frmctr/timer' % tango_base,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
-    monitor1 = device('devices.taco.FRMCounterChannel',
+    monitor1 = device('devices.tango.CounterChannel',
         description = 'Monitor channel 1',
-        tacodevice = '%s/frmctr/dev1' % taco_base,
+        tangodevice = '%s/frmctr/counter0' % tango_base,
         type = 'monitor',
         fmtstr = '%d',
         lowlevel = True,
     ),
-    monitor2 = device('devices.taco.FRMCounterChannel',
+    monitor2 = device('devices.tango.CounterChannel',
         description = 'Monitor channel 2',
-        tacodevice = '%s/frmctr/dev2' % taco_base,
+        tangodevice = '%s/frmctr/counter1' % tango_base,
         type = 'monitor',
         fmtstr = '%d',
         lowlevel = True,
     ),
-    counter = device('devices.taco.FRMCounterChannel',
+    counter = device('devices.tango.CounterChannel',
         description = 'Counter channel 1',
-        tacodevice = '%s/frmctr/dev3' % taco_base,
+        tangodevice = '%s/frmctr/counter2' % tango_base,
         type = 'counter',
         fmtstr = '%d',
         lowlevel = True,
