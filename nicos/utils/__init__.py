@@ -1279,3 +1279,20 @@ def num_sort(x, inf=float('inf')):
         return (float(m.group()), x) if m else (inf, x)
     except ValueError:
         return (inf, x)
+
+
+class ReaderRegistry(object):
+    readers = dict()
+
+    @classmethod
+    def registerReader(cls, rdcls):
+        for key in rdcls.filetypes:
+            cls.readers[key] = rdcls
+
+    @classmethod
+    def getReaderCls(cls, key):
+        return cls.readers[key]
+
+    @classmethod
+    def filetypes(cls):
+        return list(cls.readers)

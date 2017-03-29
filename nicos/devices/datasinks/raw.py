@@ -189,6 +189,7 @@ class RawImageSink(ImageSink):
 
 
 class RawImageFileReader(ImageFileReader):
+    filetypes = ['raw']
 
     @classmethod
     def fromfile(cls, filename):

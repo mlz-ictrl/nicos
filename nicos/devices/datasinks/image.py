@@ -30,7 +30,7 @@ from nicos.core.constants import POINT
 from nicos.core.data import DataSink, DataSinkHandler
 from nicos.core.data.manager import DataFile
 from nicos.devices.datasinks import FileSink
-from nicos.utils import syncFile
+from nicos.utils import syncFile, ReaderRegistry
 
 
 class ImageSink(FileSink):
@@ -139,7 +139,23 @@ class SingleFileSinkHandler(DataSinkHandler):
             self._file.close()
 
 
+class ReaderMeta(type):
+    """Reader metaclass.
+
+    Metaclass that adds all `Reader` classes to the Reader registry.
+    """
+
+    def __new__(mcs, clsname, bases, attrs):
+        new_class = type.__new__(mcs, clsname, bases, attrs)
+        # Add the notification class to the registry.
+        ReaderRegistry.registerReader(new_class)
+
+        return new_class
+
+
 class ImageFileReader(object):
+    __metaclass__ = ReaderMeta
+    filetypes = []
 
     @classmethod
     def fromfile(cls, filename):

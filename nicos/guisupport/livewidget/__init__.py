@@ -41,16 +41,9 @@ from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
     Coords2D, PlotCurve
 
-from nicos.devices.datasinks.raw import RawImageFileReader
-
-
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
-
-FILETYPES = {
-    'raw': RawImageFileReader
-}
 
 COLOR_WHITE = 91
 COLOR_BLUE = 4

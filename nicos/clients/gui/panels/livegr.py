@@ -43,9 +43,10 @@ from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import IntegralLiveWidget, DATATYPES, FILETYPES, \
-    LiveWidget, LiveWidget1D
+from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget, \
+    LiveWidget1D, DATATYPES
 from nicos.protocols.cache import cache_load
+from nicos.utils import ReaderRegistry
 from nicos.pycompat import iteritems
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -151,7 +152,7 @@ class LiveDataPanel(Panel):
         #                             CreateProfile | Histogram | MinimumMaximum)
         #     self.widget.setStandardColorMap(True, False)
         # configure allowed file types
-        supported_filetypes = FILETYPES.keys()
+        supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
         self._allowed_tags = opt_filetypes & set(supported_filetypes)
 
@@ -380,13 +381,14 @@ class LiveDataPanel(Panel):
         """Load data array from file and dispatch to live widgets using
         ``setData``. Do not use caching if uid is ``None``.
         """
-        if tag in FILETYPES:
-            array = FILETYPES[tag].fromfile(filename)
-            if array is None:
-                raise NicosError('Cannot read file \'%s\'.' % filename)
-            return self.setData(array, uid)
+        try:
+            array = ReaderRegistry.getReaderCls(tag).fromfile(filename)
+        except KeyError:
+            raise NicosError('Unsupported fileformat %r' % tag)
+        if array is not None:
+            self.setData(array, uid)
         else:
-            raise NicosError('Unsupported fileformat \'%s\'' % tag)
+            raise NicosError('Cannot read file %r' % filename)
 
     def on_client_livedata(self, data):
         # but display it right now only if on <Live> setting and no ignore

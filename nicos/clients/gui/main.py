@@ -47,7 +47,7 @@ except ImportError:
     qwebkit_available = False
 
 from nicos import nicos_version, config
-from nicos.utils import parseConnectionString
+from nicos.utils import parseConnectionString, importString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 from nicos.core.utils import ADMIN
@@ -139,6 +139,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # panel configuration
         self.gui_conf = gui_conf
+        self.initDataReaders()
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
@@ -271,6 +272,20 @@ class MainWindow(QMainWindow, DlgUtils):
         for panelobj in self.panels:
             if panelobj.panelName == panelName:
                 return panelobj
+
+    def initDataReaders(self):
+        try:
+            # just import to register all default readers
+            # pylint: disable=unused-variable
+            import nicos.devices.datasinks
+        except ImportError:
+            pass
+        classes = self.gui_conf.options.get('reader_classes', [])
+        for clsname in classes:
+            try:
+                importString(clsname, ['', 'nicos.'])
+            except ImportError:
+                pass
 
     def on_auxWindow_closed(self, window):
         del self.windows[window.type]

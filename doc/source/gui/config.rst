@@ -40,6 +40,7 @@ A small example configuration file looks like this:
        tool('Report NICOS bug', 'website.WebsiteTool',
             url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
+   options = {'reader_classes': ['nicos.demo.demo_file.DemoReader']}
 
 There must be three top-level values called ``main_window``, ``windows`` and
 ``tools``.
@@ -54,6 +55,7 @@ The ``tools`` entry specifies a list of tools that can be run from the GUI's
 stay open for very long.
 
 The ``options`` entry is a dict for further configuration.
+Currently ``reader_classes`` is supported for loading custom image readers.
 
 
 Panel combinators
