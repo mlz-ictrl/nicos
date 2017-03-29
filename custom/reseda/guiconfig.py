@@ -4,7 +4,7 @@ main_window = docked(
     vsplit(
         panel('status.ScriptStatusPanel'),
         # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
+        panel('console.ConsolePanel', watermark='/resedacontrol/custom/reseda/watermark.png'),
     ),
     ('NICOS devices',
      panel('devices.DevicesPanel', icons=True, dockpos='right',)
