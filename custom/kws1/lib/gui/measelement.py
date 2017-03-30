@@ -84,7 +84,7 @@ class ChoiceElement(MeasElement):
     """Base for elements that allow an arbitrary choice."""
 
     CACHE_KEY = ''
-    SORT_KEY = lambda x: x
+    SORT_KEY = lambda self, x: x
     VALUES = []
 
     def createWidget(self, parent, client):
@@ -148,7 +148,7 @@ class Detector(MeasElement):
     """Element for selecting detector distance, depending on selector."""
 
     CACHE_KEY = 'detector/presets'
-    SORT_KEY = num_sort
+    SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Detector'
 
     _allvalues = None
@@ -190,7 +190,7 @@ class Chopper(MeasElement):
     """Element for selecting chopper TOF resolution."""
 
     CACHE_KEY = 'chopper/resolutions'
-    SORT_KEY = num_sort
+    SORT_KEY = lambda self, x: num_sort(x)
     LABEL = u'TOF dλ/λ'
 
     def createWidget(self, parent, client):
@@ -213,7 +213,7 @@ class Chopper(MeasElement):
 
 class Selector(ChoiceElement):
     CACHE_KEY = 'selector/mapping'
-    SORT_KEY = num_sort
+    SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Selector'
 
 
@@ -229,7 +229,7 @@ class Lenses(ChoiceElement):
 
 class Collimation(ChoiceElement):
     CACHE_KEY = 'collimation/mapping'
-    SORT_KEY = num_sort
+    SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Collimation'
 
 
