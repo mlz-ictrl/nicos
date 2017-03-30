@@ -38,10 +38,10 @@ except ImportError:
 from nicos.clients.gui.utils import loadUi, CompatSettings, DlgUtils
 
 
-TRACKER_URL = 'http://forge.frm2.tum.de/redmine'
-TICKET_URL = 'http://forge.frm2.tum.de/redmine/issues/%d'
+TRACKER_URL = 'https://forge.frm2.tum.de/redmine'
+TICKET_URL = 'https://forge.frm2.tum.de/redmine/issues/%d'
 PROJECT_ID = 'NICOS'
-CREATE_TICKET_URL = 'http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'
+CREATE_TICKET_URL = 'https://forge.frm2.tum.de/redmine/projects/nicos/issues/new'
 
 
 class BugreportTool(QDialog, DlgUtils):
