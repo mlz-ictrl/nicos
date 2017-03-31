@@ -39,7 +39,7 @@ devices = dict(
                     requires =  {'level': 'admin',},
                    ),
 #   tthm = device('devices.vendor.caress.Motor',
-    tthm = device('devices.generic.manual.ManualMove',
+    tthm = device('devices.generic.ManualMove',
                   description = 'Take off angle',
                   default = 84.0,
 #                 nameserver = '%s' % (nameservice,),

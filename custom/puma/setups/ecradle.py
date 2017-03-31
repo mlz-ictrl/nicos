@@ -29,7 +29,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    echi   = device('devices.generic.axis.Axis',
+    echi   = device('devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_echi',
                     coder = 'co_echi',
@@ -52,7 +52,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    echi1  = device('devices.generic.axis.Axis',
+    echi1  = device('devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_echi1',
                     coder = 'st_echi1',
@@ -87,7 +87,7 @@ devices = dict(
                         confbyte = 148,
                        ),
 
-    ephi   = device('devices.generic.axis.Axis',
+    ephi   = device('devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_ephi',
                     coder = 'co_ephi',
@@ -108,7 +108,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    ephi1  = device('devices.generic.axis.Axis',
+    ephi1  = device('devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_ephi1',
                     coder = 'st_ephi1',

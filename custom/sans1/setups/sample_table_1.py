@@ -5,7 +5,7 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    #~ st1_omg    = device('devices.taco.axis.Axis',
+    #~ st1_omg    = device('devices.taco.Axis',
                         #~ description = 'table 1 omega axis',
                         #~ tacodevice = '//%s/sans1/table/omega-2b' % (nethost, ),
                         #~ pollinterval = 15,
@@ -38,7 +38,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    #~ st1_chi    = device('devices.taco.axis.Axis',
+    #~ st1_chi    = device('devices.taco.Axis',
                         #~ description = 'table 1 chi axis',
                         #~ tacodevice = '//%s/sans1/table/chi-2b' % (nethost, ),
                         #~ pollinterval = 15,
@@ -71,7 +71,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    #~ st1_phi    = device('devices.taco.axis.Axis',
+    #~ st1_phi    = device('devices.taco.Axis',
                         #~ description = 'table 1 phi axis',
                         #~ tacodevice = '//%s/sans1/table/phi-2b' % (nethost, ),
                         #~ pollinterval = 15,
@@ -104,7 +104,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    #~ st1_y    = device('devices.taco.axis.Axis',
+    #~ st1_y    = device('devices.taco.Axis',
                       #~ description = 'table 1 y axis',
                       #~ tacodevice = '//%s/sans1/table/y-2b' % (nethost, ),
                       #~ pollinterval = 15,
@@ -137,7 +137,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    #~ st1_z    = device('devices.taco.axis.Axis',
+    #~ st1_z    = device('devices.taco.Axis',
                       #~ description = 'table 1 z axis',
                       #~ tacodevice = '//%s/sans1/table/z-2b' % (nethost, ),
                       #~ pollinterval = 15,
@@ -170,7 +170,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    #~ st1_x    = device('devices.taco.axis.Axis',
+    #~ st1_x    = device('devices.taco.Axis',
                       #~ description = 'table 1 x axis',
                       #~ tacodevice = '//%s/sans1/table/x-2b' % (nethost, ),
                       #~ pollinterval = 15,

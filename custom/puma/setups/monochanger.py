@@ -36,7 +36,7 @@ devices = dict(
                      readings = 50,
                     ),
 
-    mli    = device('devices.generic.axis.Axis',
+    mli    = device('devices.generic.Axis',
                     description = 'Axis for the monochromater changer lift',
                     motor = 'st_lift',
                     coder = 'co_lift',
@@ -226,7 +226,7 @@ devices = dict(
                          lowlevel = True,
                         ),
 
-    holdstat = device('devices.generic.switcher.ReadonlySwitcher',
+    holdstat = device('devices.generic.ReadonlySwitcher',
                       description = 'What is in the holder position',
                       # monostates has five elements ! (last one is for 'none')
                       mapping = dict(zip(monostates, [14, 13, 11, 7, 15])),
@@ -242,7 +242,7 @@ devices = dict(
                          lowlevel = True,
                         ),
 
-    mono_stat = device('devices.generic.switcher.ReadonlySwitcher',
+    mono_stat = device('devices.generic.ReadonlySwitcher',
                        description = 'What is at the monotable',
                        # monostates has five elements ! (last one is for 'none'). Unfortunately, Dummy (like 'none') returns 0
                        mapping = dict(zip(monostates, [4, 1, 2, 3, 0])),

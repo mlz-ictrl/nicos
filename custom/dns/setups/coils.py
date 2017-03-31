@@ -165,12 +165,12 @@ devices = dict(
                       precision = [.1, .1, .1, .1, .1, 0, 0],
                      ),
 
-    flipper_inbeam = device('devices.generic.manual.ManualSwitch',
+    flipper_inbeam = device('devices.generic.ManualSwitch',
                             description = 'Is the flipper in the beam?',
                             states = ['in', 'out'],
                            ),
 
-    xyzcoil_inbeam = device('devices.generic.manual.ManualSwitch',
+    xyzcoil_inbeam = device('devices.generic.ManualSwitch',
                             description = 'Is the xyz-coil in the beam?',
                             states = ['in', 'out'],
                            ),

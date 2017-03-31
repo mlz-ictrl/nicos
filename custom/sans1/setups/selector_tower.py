@@ -5,7 +5,7 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-#    selector_speed    = device('devices.taco.axis.Axis',
+#    selector_speed    = device('devices.taco.Axis',
 #                               tacodevice = '//%s/sans1/table/z-2a' % (nethost, ),
 #                               fmtstr = '%.2f',
 #                               abslimits = (-10, 10),

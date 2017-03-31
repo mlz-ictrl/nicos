@@ -5,7 +5,7 @@ devices = dict(
     T        = device('devices.generic.DeviceAlias'),
     Ts       = device('devices.generic.DeviceAlias'),
 
-    T_demo   = device('devices.generic.virtual.VirtualRealTemperature',
+    T_demo   = device('devices.generic.VirtualRealTemperature',
                       description = 'A virtual (but realistic) temperature controller',
                       abslimits = (2, 1000),
                       warnlimits = (0, 325),

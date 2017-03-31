@@ -13,7 +13,7 @@ POLARIZER_POSITIONS = {
 }
 
 devices = dict(
-    # pol_inbeam   = device('devices.generic.switcher.MultiSwitcher',
+    # pol_inbeam   = device('devices.generic.MultiSwitcher',
     #                       description = 'Automatic in/out switch for the polarizer',
     #                       mapping = POLARIZER_POSITIONS,
     #                       fallback = 'unknown',

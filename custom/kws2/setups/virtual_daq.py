@@ -51,19 +51,19 @@ devices = dict(
                         devclass = 'kws1.daq.VirtualKWSImageChannel',
                        ),
 
-    timer      = device('devices.generic.virtual.VirtualTimer',
+    timer      = device('devices.generic.VirtualTimer',
                         description = 'Measurement timer channel',
                         fmtstr = '%.0f',
                        ),
 
-    mon1       = device('devices.generic.virtual.VirtualCounter',
+    mon1       = device('devices.generic.VirtualCounter',
                         description = 'Monitor 1 (before selector)',
                         type = 'monitor',
                         fmtstr = '%d',
                         lowlevel = True,
                        ),
 
-    mon2       = device('devices.generic.virtual.VirtualCounter',
+    mon2       = device('devices.generic.VirtualCounter',
                         description = 'Monitor 2 (after selector)',
                         type = 'monitor',
                         fmtstr = '%d',

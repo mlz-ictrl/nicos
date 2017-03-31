@@ -194,7 +194,7 @@ devices = dict(
                        collimation = 'guide',
                        sizes = (128, 128),
                       ),
-    det      = device('devices.generic.detector.GatedDetector',
+    det      = device('devices.generic.GatedDetector',
                       description = 'demo 2D detector',
                       timers = ['det1_timer'],
                       monitors = ['det1_mon1', 'det1_mon2'],
@@ -211,7 +211,7 @@ devices = dict(
                       speed = 10,
                      ),
 
-    scandet = device('devices.generic.virtual.VirtualScanningDetector',
+    scandet = device('devices.generic.VirtualScanningDetector',
                      description = 'Virtual SANS detector (HV depending moves)',
                      scandev = 'det_HV',
                      positions = [100, 200, 300],

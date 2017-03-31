@@ -34,7 +34,7 @@ devices = dict(
                            description = "NDP detector image",
                            tangodevice = tango_base + "/fastcomtec/detector",
                           ),
-    ndpdet        = device("devices.generic.detector.Detector",
+    ndpdet        = device("devices.generic.Detector",
                            description = "NDP detector",
                            timers = ["timer"],
                            monitors = ["mon0", "mon1"],

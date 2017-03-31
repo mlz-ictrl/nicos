@@ -20,7 +20,7 @@ includes = ['system', 'mux', 'sampletable', 'detector', 'nguide', 'slits',
 # TELOAD=0 TOPOS=0 TOMOM=0 SAMS=38573.1 SAMR=0 XS=0 YS=0 ZS=0
 
 devices = dict(
-    wav = device('devices.generic.manual.ManualMove',
+    wav = device('devices.generic.ManualMove',
                  description = 'Monochromator wavelength',
                  unit = 'AA',
                  abslimits = (1, 2.6),

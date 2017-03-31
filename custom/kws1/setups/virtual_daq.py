@@ -9,7 +9,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det_ext_rt = device('devices.generic.manual.ManualSwitch',
+    det_ext_rt = device('devices.generic.ManualSwitch',
                         description = 'Switch for external-start realtime mode',
                         lowlevel = True,
                         states = ['on', 'off', 1, 0],
@@ -26,24 +26,24 @@ devices = dict(
                         parameter = 'mode',
                        ),
 
-    timer      = device('devices.generic.virtual.VirtualTimer',
+    timer      = device('devices.generic.VirtualTimer',
                         description = 'timer',
                         fmtstr = '%.0f',
                        ),
 
-    mon1       = device('devices.generic.virtual.VirtualCounter',
+    mon1       = device('devices.generic.VirtualCounter',
                         description = 'Monitor 1 (before selector)',
                         type = 'monitor',
                         fmtstr = '%d',
                        ),
 
-    mon2       = device('devices.generic.virtual.VirtualCounter',
+    mon2       = device('devices.generic.VirtualCounter',
                         description = 'Monitor 2 (after selector)',
                         type = 'monitor',
                         fmtstr = '%d',
                        ),
 
-    mon3       = device('devices.generic.virtual.VirtualCounter',
+    mon3       = device('devices.generic.VirtualCounter',
                         description = 'Monitor 3 (in detector beamstop)',
                         type = 'monitor',
                         fmtstr = '%d',

@@ -263,7 +263,7 @@ devices = dict(
                       distance = None,
                       collimation = None,
                      ),
-    det      = device('devices.generic.detector.Detector',
+    det      = device('devices.generic.Detector',
                       description = 'demo 2D detector',
                       timers = ['det_timer'],
                       images = ['det_img'],

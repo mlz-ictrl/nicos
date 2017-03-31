@@ -9,7 +9,7 @@ group = 'lowlevel'
 includes = ['alias_T']
 
 devices = dict(
-    T_manual = device('devices.generic.manual.ManualMove',
+    T_manual = device('devices.generic.ManualMove',
                       description = 'sample temperature (no cryo)',
                       default = 297.0,
                       abslimits = (0, 5000),

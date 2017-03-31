@@ -93,7 +93,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    #~ det1_x = device('devices.taco.axis.Axis',
+    #~ det1_x = device('devices.taco.Axis',
                     #~ description = 'detector 1 x axis',
                     #~ tacodevice = '//%s/sans1/detector1/x' % (nethost, ),
                     #~ fmtstr = '%.1f',
@@ -129,7 +129,7 @@ devices = dict(
                        lowlevel = True,
                       ),
 
-    det1_z = device('devices.generic.sequence.LockedDevice',
+    det1_z = device('devices.generic.LockedDevice',
                     description = 'detector 1 z position interlocked with high voltage supply',
                     device = 'det1_z_ax',
                     lock = 'det1_hv',
@@ -141,7 +141,7 @@ devices = dict(
                     pollinterval = 15,
                    ),
 
-    #~ det1_z_ax = device('devices.taco.axis.Axis',
+    #~ det1_z_ax = device('devices.taco.Axis',
                        #~ description = 'detector 1 z axis',
                        #~ tacodevice = '//%s/sans1/detector1/z' % (nethost, ),
                        #~ fmtstr = '%.1f',
@@ -181,7 +181,7 @@ devices = dict(
                        lowlevel = True,
                       ),
 
-    #~ det1_omg = device('devices.taco.axis.Axis',
+    #~ det1_omg = device('devices.taco.Axis',
                       #~ description = 'detector 1 omega axis',
                       #~ tacodevice = '//%s/sans1/detector1/omega' % (nethost, ),
                       #~ fmtstr = '%.1f',

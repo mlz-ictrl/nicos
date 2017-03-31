@@ -13,7 +13,7 @@ SELECTOR_POSITIONS = {
 
 
 devices = dict(
-    # selector_inbeam = device('devices.generic.switcher.Switcher',
+    # selector_inbeam = device('devices.generic.Switcher',
     #                          description = 'Automatic in/out switch for the selector',
     #                          mapping = SELECTOR_POSITIONS,
     #                          fallback = 'unknown',
