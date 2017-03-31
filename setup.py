@@ -77,7 +77,7 @@ class nicosinstall(stinstall):
         self.run_install_custom()
 
     def run_install_icons(self):
-        for res in ['16x16', '32x32', '48x48']:
+        for res in ['16x16', '32x32', '48x48', 'scalable']:
             self.copy_tree(path.join('resources', 'icons', res),
                            path.join(self.install_icons, res))
 
