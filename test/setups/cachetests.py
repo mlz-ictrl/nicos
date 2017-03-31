@@ -31,13 +31,13 @@ sysconfig = dict(
 )
 
 devices = dict(
-    reader1 = device('devices.generic.cache.CacheReader',
+    reader1 = device('devices.generic.CacheReader',
         description = 'Test Reader',
         maxage = 0.1,
         unit = '',
         loglevel = 'debug'
     ),
-    writer1 = device('devices.generic.cache.CacheWriter',
+    writer1 = device('devices.generic.CacheWriter',
         description = 'Test cache writer',
         userlimits = (1, 200),
         abslimits = (0, 311),

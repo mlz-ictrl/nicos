@@ -161,7 +161,7 @@ devices = dict(
             abslimits = (-200, 27.5),
             unit = 'mm',
         ),
-        right = device('devices.generic.virtual.VirtualMotor',
+        right = device('devices.generic.VirtualMotor',
             abslimits = (-200, 27.5),
             unit = 'mm',
         ),
