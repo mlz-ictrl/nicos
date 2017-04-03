@@ -24,6 +24,7 @@ devices = dict(
     smccorvus_b2mr = device('devices.taco.Motor',
                             description = 'Device test/smccorvus/b2mr of Server smccorvusserver b2',
                             tacodevice = '//%s/test/smccorvus/b2mr' % nethost,
+                            abslimits = (-294, 222),
                            ),
 
     smccorvus_b2es = device('devices.taco.Coder',
@@ -34,6 +35,7 @@ devices = dict(
     smccorvus_b2ms = device('devices.taco.Motor',
                             description = 'Device test/smccorvus/b2ms of Server smccorvusserver b2',
                             tacodevice = '//%s/test/smccorvus/b2ms' % nethost,
+                            abslimits = (-296, 213),
                            ),
 
 )
