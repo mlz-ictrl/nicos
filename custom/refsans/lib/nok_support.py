@@ -25,7 +25,6 @@
 
 import time
 
-
 from nicos.core import ConfigurationError, DeviceMixinBase, HasPrecision, \
     MoveError, Moveable, Readable, SIMULATION, status
 from nicos.core.errors import HardwareError
@@ -135,6 +134,7 @@ class NOKPosition(Coder):
         'measure':   Attach('Sensing Device (Poti)', Readable),
         'reference': Attach('Reference Device', Readable),
     }
+
     parameters = {
         'poly':   Param('Polynomial coefficients in ascending order',
                         type=nonemptylistof(float), settable=True,
@@ -150,11 +150,6 @@ class NOKPosition(Coder):
         'fmtstr': Override(default='%.3f'),
         'unit':   Override(default='mm', mandatory=False),
     }
-
-    def doInit(self, mode):
-        if len(self.poly) == 0:
-            raise ConfigurationError(self, 'Need at least one Parmeter for '
-                                     'correction polynom!')
 
     def doReset(self):
         multiReset(self._adevs)
@@ -287,13 +282,6 @@ class SingleMotorNOK(PseudoNOK, Axis):
                            settable=False, unit='mm'),
     }
 
-    def doStart(self, target):
-        if abs(self.doRead(0) - target) > self.precision:
-            Axis.doStart(self, target)
-
-    def doReference(self):
-        self._attached_nok_motor.doReference()
-
 
 class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                      Moveable):
@@ -363,6 +351,12 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         # no problems detected, so it should be safe to go there....
         return True, ''
 
+    def doIsAtTarget(self, targets):
+        # check precision, only move if needed!
+        traveldists = [target - dev.doRead(0)
+                       for target, dev in zip(targets, self._devices)]
+        return max(abs(v) for v in traveldists) <= self.precision
+
     def doStart(self, targets):
         """Generate and start a sequence if none is running.
 
@@ -384,18 +378,19 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         devices = self._devices
 
         # go below lowest interesting point
-        minpos = min(self.read() + targets + [t + self.backlash
-                                              for t in targets])
+        minpos = min(self.read() + list(targets) +
+                     [t + self.backlash for t in targets])
 
-        # build a referencing sequence
+        # build a moving sequence
         sequence = []
 
         # first both go to the lowest point, then to the target
-        sequence.append((SeqDev(d, minpos) for d in devices))
+        sequence.append([SeqDev(d, minpos) for d in devices])
 
         # now go to target
-        sequence.append((SeqDev(d, t) for d, t in zip(devices, targets)))
+        sequence.append([SeqDev(d, t) for d, t in zip(devices, targets)])
 
+        self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
 
     def doReference(self):
