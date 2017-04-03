@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'refsans10.refsans.frm2',
+    cache = 'refsansctrl01.refsans.frm2',
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],

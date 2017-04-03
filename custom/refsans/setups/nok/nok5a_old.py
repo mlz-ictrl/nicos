@@ -4,6 +4,8 @@ group = 'optional'
 
 includes = ['nok_ref', 'nokbus2']
 
+excludes = ['beckhoff']
+
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(

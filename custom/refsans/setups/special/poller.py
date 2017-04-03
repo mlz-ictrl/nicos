@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'refsans10.refsans.frm2'
+    cache = 'refsansctrl01.refsans.frm2'
 )
 
 devices = dict(

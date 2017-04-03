@@ -8,6 +8,6 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'refsans10.refsans.frm2',
+                    server = 'refsansctrl01.refsans.frm2',
                     loglevel = 'info'),
 )

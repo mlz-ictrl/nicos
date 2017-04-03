@@ -4,5 +4,5 @@ group = 'special'
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'refsans10.refsans.frm2'),
+                     cache = 'refsansctrl01.refsans.frm2'),
 )

@@ -3,7 +3,7 @@ description = 'Refsans_flipper special HW'
 # not included by others
 group = 'optional'
 
-uribase = 'tango://refsans10.refsans.frm2:10000/refsans/flipper/'
+uribase = 'tango://refsansctrl01.refsans.frm2:10000/refsans/flipper/'
 
 devices = dict(
     guide = device('devices.tango.AnalogInput',

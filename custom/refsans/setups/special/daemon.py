@@ -12,7 +12,7 @@ devices = dict(
                              ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'refsans10.refsans.frm2',
+                    server = 'refsansctrl01.refsans.frm2',
                     authenticators = ['UserDB', 'Auth']
                    ),
 
