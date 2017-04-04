@@ -62,7 +62,7 @@ devices = dict(
                     master = "omega",
                     slave = "detarm",
                     scale = 2.,
-                    fmtstr = "%.2f",
+                    fmtstr = "%.2f %.2f",
                    ),
 )
 
