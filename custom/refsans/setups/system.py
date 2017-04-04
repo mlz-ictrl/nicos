@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'refsansctrl01.refsans.frm2',
     instrument = 'REFSANS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
     notifiers = ['email', 'smser', ],
 )
 
@@ -47,6 +47,10 @@ devices = dict(
 
     daemonsink = device('devices.datasinks.DaemonSink',
                         description = 'The daemon Device, coordinating all the heavy lifting',
+                       ),
+
+    configsink = device('refsans.datasinks.ConfigObjDatafileSink',
+                        lowlevel = True,
                        ),
 
     Space    = device('devices.generic.FreeSpace',
