@@ -16,7 +16,7 @@ devices = dict(
     # lt. docu bs0_r
     b1_rm   = device('refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
                      description = 'CAB1 controlled Blendenschild (M01), reactorside',
-                     tacodevice='//%s/test/modbus/optic'% (nethost,),
+                     tacodevice = '//%s/test/modbus/optic'% (nethost,),
                      address = 0x3020+0*10, # word adress
                      slope = 10000,
                      unit = 'mm',
@@ -38,7 +38,7 @@ devices = dict(
     # lt. docu bs0_s
     b1_sm    = device('refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
                       description = 'CAB1 controlled Blendenschild (M02), sample side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+1*10, # word adress
                       slope = 10000,
                       unit = 'mm',
@@ -59,7 +59,7 @@ devices = dict(
     # NOK5a
     nok5a_r  = device('refsans.beckhoff.nok.BeckhoffMotorCab1M11',
                       description = 'nok5a motor (M11), reactor side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+2*10, # word adresses
                       slope = 10000, # FULL steps per turn * turns per mm
                       unit = 'mm',
@@ -70,7 +70,7 @@ devices = dict(
                      ),
     nok5a_s  = device('refsans.beckhoff.nok.BeckhoffMotorCab1M12',
                       description = 'nok5a motor (M12), sample side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+3*10, # word adresses
                       slope = 10000, # FULL steps per turn * turns per mm
                       unit = 'mm',
@@ -118,7 +118,7 @@ devices = dict(
     # zb0 is at exit of NOK5a (so on its sample side)
     zb0_m    = device('refsans.beckhoff.nok.BeckhoffMotorCab1M13',
                       description = 'CAB1 controlled zb0 (M13), sample side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+4*10, # word adress
                       slope = 10000,
                       unit = 'mm',
@@ -139,7 +139,7 @@ devices = dict(
     # NOK5b
     nok5b_r  = device('refsans.beckhoff.nok.BeckhoffMotorCab1M11',
                       description = 'nok5b motor (M21), reactor side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+5*10, # word adresses
                       slope = 10000, # FULL steps per turn * turns per mm
                       unit = 'mm',
@@ -150,7 +150,7 @@ devices = dict(
                      ),
     nok5b_s  = device('refsans.beckhoff.nok.BeckhoffMotorCab1M12',
                       description = 'nok5b motor (M22), sample side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+6*10, # word adresses
                       slope = 10000, # FULL steps per turn * turns per mm
                       unit = 'mm',
@@ -197,7 +197,7 @@ devices = dict(
     # zb1 is at exit of NOK5b (so on its sample side)
     zb1_m    = device('refsans.beckhoff.nok.BeckhoffMotorCab1M13',
                       description = 'CAB1 controlled zb1 (M23), sample side',
-                      tacodevice='//%s/test/modbus/optic'% (nethost,),
+                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+7*10, # word adress
                       slope = 10000,
                       unit = 'mm',
@@ -220,7 +220,7 @@ devices = dict(
     # beckhoff is at 'detektorantrieb.refsans.frm2' / 172.25.18.108
     table_z_motor = device('refsans.beckhoff.nok.BeckhoffMotorDetector',
                            description = 'table inside tube',
-                           tacodevice='//%s/test/modbus/tablee'% (nethost,),
+                           tacodevice = '//%s/test/modbus/tablee'% (nethost,),
                            address = 0x3020+0*10, # word adress
                            slope = 100,
                            unit = 'mm',
@@ -230,7 +230,7 @@ devices = dict(
                           ),
     table_z_obs = device('refsans.beckhoff.nok.BeckhoffCoderDetector',
                          description = 'Coder of detektorantrieb inside tube',
-                         tacodevice='//%s/test/modbus/tablee'% (nethost,),
+                         tacodevice = '//%s/test/modbus/tablee'% (nethost,),
                          address = 0x3020+1*10, # word adress
                          slope = 100,
                          unit = 'mm',
@@ -250,7 +250,7 @@ devices = dict(
     # hs_width is the opening of the slit
     h2_width = device('refsans.beckhoff.nok.BeckhoffMotorHSlit',
                       description = 'Horizontal slit system: offset of the slit-center to the beam',
-                      tacodevice='//%s/test/modbus/h2'% (nethost,),
+                      tacodevice = '//%s/test/modbus/h2'% (nethost,),
                       address = 0x3020+0*10, # word adress
                       slope = 1000,
                       unit = 'mm',
@@ -259,7 +259,7 @@ devices = dict(
                      ),
     h2_center  = device('refsans.beckhoff.nok.BeckhoffMotorHSlit',
                         description = 'Horizontal slit system: opening of the slit',
-                        tacodevice='//%s/test/modbus/h2'% (nethost,),
+                        tacodevice = '//%s/test/modbus/h2'% (nethost,),
                         address = 0x3020+1*10, # word adress
                         slope = 1000,
                         unit = 'mm',
@@ -269,7 +269,7 @@ devices = dict(
     # according to '_Anhang_A_REFSANS_Pumpstand.pdf'
     pumpstand    = device('refsans.beckhoff.pumpstation.PumpstandIO',
                           description = 'io device for pumpstand',
-                          tacodevice='//%s/test/modbus/pumpenstand'% (nethost,),
+                          tacodevice = '//%s/test/modbus/pumpenstand'% (nethost,),
                           address = 0x4026, # 16422
                           parallel_pumping = 10, # below 10mbar, parallel pumping is allowed
                          ),
