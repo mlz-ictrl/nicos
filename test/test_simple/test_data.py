@@ -29,15 +29,6 @@ from contextlib import contextmanager
 session_setup = 'data'
 
 
-def test_empty_manager(session):
-    # check for empty data stack
-    assert session.data._stack == []
-    assert session.data._current is None
-    # check for empty scan cache
-    session.data.reset()
-    assert session.data._last_scans == []
-
-
 def test_cleanup(session):
     # check that data manager cleans up unsuitable datasets still open
     session.data.beginPoint()
@@ -77,6 +68,15 @@ def test_dataset_stack(session, log):
 
                     with dataset_scope(session, 'point'):
                         assert session.data._current.number == 2
+
+
+def test_empty_manager(session):
+    # check for empty data stack
+    assert session.data._stack == []
+    assert session.data._current is None
+    # check for empty scan cache
+    session.data.reset_all()
+    assert session.data._last_scans == []
 
 
 def test_temp_point(session):
