@@ -390,10 +390,6 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         self.log.debug('ADD META INFO %r', metainfo)
         return
 
-    def addValues(self, values):
-        self.log.info('ADD VALUES %r', values)
-        return
-
     def putResults(self, quality, results):
         """Called when the point dataset main results are updated.
 
