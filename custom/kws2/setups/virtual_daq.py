@@ -14,10 +14,12 @@ devices = dict(
     kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                         transpose = True,
+                        detectors = ['det'],
                        ),
 
     yamlformat = device('kws2.yamlformat.YAMLFileSink',
                         lowlevel = True,
+                        detectors = ['det'],
                        ),
 
     det_mode   = device('devices.generic.ReadonlyParamDevice',
