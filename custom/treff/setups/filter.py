@@ -39,4 +39,16 @@ devices = dict(
                          pollinterval = 5,
                          maxage = 6,
                         ),
+    wavelength  = device('devices.generic.ReadonlySwitcher',
+                         description = 'wavelength',
+                         readable = 'be_filter',
+                         mapping = {
+                             4.74: 'in',
+                             (4.74, 2.37): 'out',
+                         },
+                         fmtstr = '%.2f %.2f',
+                         unit = 'A',
+                         pollinterval = 5,
+                         maxage = 6,
+                        ),
 )
