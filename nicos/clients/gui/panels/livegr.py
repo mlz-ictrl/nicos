@@ -135,6 +135,8 @@ class LiveDataPanel(Panel):
             action.triggered.connect(self.on_colormap_triggered)
         self.actionColormap.setMenu(self.menuColormap)
         self.widgetLayout.addWidget(self.widget)
+        detectors = self.client.eval('session.experiment.detectors', [])
+        self._register_rois(detectors)
 
     def setOptions(self, options):
         Panel.setOptions(self, options)
@@ -312,7 +314,7 @@ class LiveDataPanel(Panel):
             value = None
         if key in self.roikeys:
             self.on_roiChange(key, value)
-        elif key == self.detectorskey:
+        elif key == self.detectorskey and self.widget:
             self._register_rois(value)
 
     def on_client_connected(self):
@@ -327,8 +329,6 @@ class LiveDataPanel(Panel):
                                       False)
         self.detectorskey = (self.client.eval('session.experiment.name')
                              + '/detlist').lower()
-        detectors = self.client.eval('session.experiment.detectors', [])
-        self._register_rois(detectors)
 
     def on_client_liveparams(self, params):
         # TODO: remove compatibility code
