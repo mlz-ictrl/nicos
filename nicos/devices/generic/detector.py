@@ -32,10 +32,12 @@ import numpy
 from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
-    LIVE, INTERMEDIATE, anytype, tupleof, Moveable
+    LIVE, INTERMEDIATE, anytype, tupleof, Moveable, SubscanMeasurable, anytype
 from nicos.core.errors import ConfigurationError
 from nicos.core.utils import multiWait
 from nicos.utils import uniq
+
+from nicos.core.scan import Scan
 
 
 class PassiveChannel(Measurable):
@@ -660,3 +662,48 @@ class GatedDetector(Detector):
     def doFinish(self):
         Detector.doFinish(self)
         self._disable_gates()
+
+
+class ScanningDetector(SubscanMeasurable):
+    """Generic "super" detector that scans over a configured device and counts
+    with a given detector."""
+
+    attached_devices = {
+        'scandev':  Attach('Current device to scan', Moveable),
+        'detector': Attach('Detector to scan', Measurable),
+    }
+
+    parameters = {
+        'positions': Param('Positions to scan over', type=listof(anytype)),
+        'readresult': Param('Storage for processed results from detector, to'
+                            'be returned from doRead()', type=listof(anytype),
+                            settable=True, userparam=False),
+    }
+
+    def doInit(self, mode):
+        self._preset = None
+
+    def doSetPreset(self, **preset):
+        self._preset = preset
+
+    def doStart(self):
+        positions = [[p] for p in self.positions]
+        self.readresult = self._processDataset(Scan([self._attached_scandev],
+            positions, None, detlist=[self._attached_detector],
+            preset=self._preset, subscan=True).run())
+
+    def valueInfo(self):
+        if self.readresult:
+            raise NotImplementedError('Result processing implemented, but '
+                                      'valueInfo missing')
+        else:
+            return ()
+
+    def doRead(self, maxage=0):
+        return self.readresult
+
+    def doFinish(self):
+        pass
+
+    def _processDataset(self, dataset):
+        return []  # implement in subclass if necessary

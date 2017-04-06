@@ -24,7 +24,7 @@
 
 name = 'test_generic setup'
 
-includes = ['stdsystem']
+includes = ['stdsystem', 'detector']
 
 devices = dict(
     v1 = device('devices.generic.VirtualMotor',
@@ -108,5 +108,11 @@ devices = dict(
     ),
     freespace2 = device('devices.generic.FreeSpace',
         path = '/verystrangepath',
+    ),
+    scandet = device('devices.generic.ScanningDetector',
+        description = 'Generic scanning detector',
+        scandev = 'v1',
+        positions = [1.0, 2.0, 3.0],
+        detector = 'det'
     ),
 )

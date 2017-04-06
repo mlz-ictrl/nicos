@@ -31,7 +31,7 @@ from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin,\
     Detector, DetectorForecast, GatedDetector, ImageChannelMixin, \
-    PassiveChannel, RectROIChannel, TimerChannelMixin
+    PassiveChannel, RectROIChannel, TimerChannelMixin, ScanningDetector
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet, \
     CalibratedMagnet
 from nicos.devices.generic.manual import ManualMove, ManualSwitch

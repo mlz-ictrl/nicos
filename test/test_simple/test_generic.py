@@ -31,6 +31,7 @@ import mock
 from nicos.core import PositionError, NicosError, LimitError, \
     ConfigurationError, InvalidValueError, status
 from test.utils import raises
+from nicos.commands.measure import count
 
 session_setup = 'generic'
 
@@ -190,3 +191,17 @@ def test_freespace(session):
     fs2 = freespace.read(0)
     assert fs != fs2
     assert raises(ConfigurationError, freespace.doUpdateUnit, 'GB')
+
+
+def test_scanning_detector(session):
+    scandet = session.getDevice('scandet')
+
+    count(scandet, t=0)
+    dataset = session.data._last_scans[-1]
+
+    # check correct length of executed scan
+    assert len(scandet.positions) == dataset.npoints
+    assert len(scandet.positions) == len(dataset.subsets)
+
+    # check scandev positions for scan points
+    assert scandet.positions == [entry[0] for entry in dataset.devvaluelists]
