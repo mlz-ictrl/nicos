@@ -295,7 +295,7 @@ def test_setof():
 def test_oneofdict():
     assert oneofdict({'A': 1, 'B': 2})('A') == 1
     assert oneofdict({'A': 1, 'B': 2})(1) == 1
-    assert raises(ValueError, oneofdict({}))
+    assert oneofdict({})() is None
     assert raises(ValueError, oneofdict({'A': 1}), 2)
 
     assert none_or(int)(None) is None

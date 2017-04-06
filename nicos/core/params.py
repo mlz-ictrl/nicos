@@ -705,6 +705,8 @@ class oneofdict(object):
         self.vals = vals
 
     def __call__(self, val=None):
+        if val is None:
+            return None
         if val in self.vals:
             val = self.vals[val]
         elif val not in self.vals.values():
