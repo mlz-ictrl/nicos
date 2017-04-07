@@ -33,7 +33,7 @@ from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
 from nicos.core.params import nicosdev_re
 from nicos.utils import importString
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
-from nicos.utils.tacostubs import generate_stubs
+from nicos.utils.stubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
 from nicos.pycompat import string_types, integer_types, exec_
 

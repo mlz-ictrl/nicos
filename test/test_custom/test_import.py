@@ -29,7 +29,7 @@ from os import path
 
 import pytest
 
-from nicos.utils.tacostubs import generate_stubs
+from nicos.utils.stubs import generate_stubs
 
 from test.utils import module_root
 

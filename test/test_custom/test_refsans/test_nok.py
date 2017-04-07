@@ -26,7 +26,7 @@
 
 from test.utils import raises
 from nicos.core.errors import LimitError
-from nicos.utils.tacostubs import generate_stubs
+from nicos.utils.stubs import generate_stubs
 
 session_setup = 'refsans'
 

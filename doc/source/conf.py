@@ -43,7 +43,7 @@ extensions = [
     'sphinx.ext.todo',
     'ext.setupdoc',
     'ext.daemondoc',
-    'ext.tacostubs',
+    'ext.stubs',
     'ext.nicosclassdoc',
     #'alabaster',
 ]

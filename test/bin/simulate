@@ -25,7 +25,7 @@ class TestSimulationSession(SimulationSession):
 
     def begin_setup(self):
         # do not set log handler to ERROR level, but do generate these:
-        from nicos.utils.tacostubs import generate_stubs
+        from nicos.utils.stubs import generate_stubs
         generate_stubs()
 
     def simulationSync(self):

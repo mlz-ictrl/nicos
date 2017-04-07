@@ -24,8 +24,11 @@
 
 """MARIA specific 2 theta unit tests."""
 
+from nicos.utils.stubs import generate_stubs
+
 session_setup = "maria"
 
+generate_stubs()
 
 def test_maria_t2t(session):
     omega = session.getDevice("omega")

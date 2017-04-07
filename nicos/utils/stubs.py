@@ -70,6 +70,29 @@ STUBS = dict(
     ProfibusDP = ['class IO'],
     Detector = ['class Detector'],
     SIS3400 = ['class Timer', 'class MonitorCounter', 'class HistogramCounter'],
+    PyTango = ['class DeviceProxy', 'class DevState', 'class DevVoid',
+               'class DeviceAttribute', 'class DeviceState',
+               'member DevState.ON=0',
+               'member DevState.OFF=1',
+               'member DevState.CLOSE=2',
+               'member DevState.OPEN=3',
+               'member DevState.INSERT=4',
+               'member DevState.EXTRACT=5',
+               'member DevState.MOVING=6',
+               'member DevState.STANDBY=7',
+               'member DevState.FAULT=8',
+               'member DevState.INIT=9',
+               'member DevState.RUNNING=10',
+               'member DevState.ALARM=11',
+               'member DevState.DISABLE=12',
+               'member DevState.UNKNOWN=13',
+               'exception ConnectionFailed', 'exception CommunicationFailed',
+               'exception WrongNameSyntax', 'exception DevFailed',
+               'exception NonDbDevice', 'exception WrongData',
+               'exception NonSupportedFeature', 'exception AsynCall',
+               'exception AsynReplyNotArrived', 'exception EventSystemFailed',
+               'exception DeviceUnlocked', 'exception NotAllowed',
+               ],
 )
 
 
@@ -89,6 +112,10 @@ def generate_stubs():
                 setattr(mod, obj[6:], type(obj[6:], (NICOSTACOStub,), {}))
             elif obj.startswith('exception '):
                 setattr(mod, obj[10:], type(obj[10:], (Exception,), {}))
+            elif obj.startswith('member '):
+                name, member = obj[7:].split('.')
+                member, value = member.split('=')
+                setattr(getattr(mod, name), member, value)
             else:
                 name, value = obj.split('=')
                 setattr(mod, name, eval(value))

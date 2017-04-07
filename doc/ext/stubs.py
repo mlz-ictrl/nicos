@@ -26,7 +26,7 @@
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and document them
 
-from nicos.utils.tacostubs import generate_stubs
+from nicos.utils.stubs import generate_stubs
 
 
 def setup(app):
