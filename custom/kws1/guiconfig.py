@@ -29,6 +29,8 @@ main_window = tabbed(
             ('Peltier 6',           (6,  1, 'sam_trans_x', 36.56,  'sam_trans_y', 0)),
             ('Peltier 8',           (8,  1, 'sam_trans_x', 36.56,  'sam_trans_y', 0)),
             ('Red oven 4',          (4,  1, 'sam_trans_x', 40,     'sam_trans_y', 0)),
+            ('Al 2-level (wide)',   (9,  2, 'sam_trans_x', 26.6,   'sam_trans_y', 105.05)),
+            ('Al 2-level (narrow)', (16, 2, 'sam_trans_x', 15.0,   'sam_trans_y', 105.05)),
             ('Magnet',              (5,  1, 'jem1_sam_trans', 23,  None, 0)),
                                      ]))),
         ('NICOS devices',

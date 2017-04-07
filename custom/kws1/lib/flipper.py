@@ -76,7 +76,7 @@ class Flipper(HasTimeout, Moveable):
 
     def doStart(self, target):
         if target == 'on':
-            self._attached_supply.start(11.0)
+            self._attached_supply.start(10.0)
             self._attached_output.start(1)
         else:
             self._attached_output.start(0)

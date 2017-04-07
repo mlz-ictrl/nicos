@@ -126,6 +126,12 @@ devices = dict(
                            lowlevel = True,
                           ),
 
+    ap_14_x_readout = device("devices.tango.AnalogInput",
+                           tangodevice = tango_base + "fzjdp_analog/ap_14_readout",
+                           unit = "steps",
+                           lowlevel = True,
+                          ),
+
     aperture_08_x = device("kws1.collimation.SlitMotor",
                            description = "8m aperture horizontal opening",
                            tangodevice = tango_base + "fzjs7/aperture_8_x",
