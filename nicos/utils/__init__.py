@@ -786,15 +786,21 @@ def setuser(recover=True):
         raise RuntimeError('please provide valid entries for user and '
                            'group in nicos.conf if running as root')
     # switch user
-    user, group = config.user, config.group
-    if group and grp is not None:
+    group = config.group
+    userentry = None
+    if config.user and pwd is not None:
+        userentry = pwd.getpwnam(config.user)
+    if group and grp is not None and userentry:
         gid = grp.getgrnam(group).gr_gid
         if recover:
             os.setegid(gid)
         else:
             os.setgid(gid)
-    if config.user and pwd is not None:
-        uid = pwd.getpwnam(user).pw_uid
+        # initialize the group access list with all of the groups the
+        # configured user is a member plus gid
+        os.initgroups(userentry.pw_name, gid)
+    if userentry and pwd is not None:
+        uid = userentry.pw_uid
         if recover:
             os.seteuid(uid)
         else:
