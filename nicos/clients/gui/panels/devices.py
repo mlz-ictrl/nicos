@@ -173,6 +173,8 @@ class DevicesPanel(Panel):
         self._exec_reqid = None
         self._error_window = None
 
+        self._create_icons()
+
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
@@ -182,7 +184,6 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('setup'), self.on_client_setup)
         self.connect(client, SIGNAL('message'), self.on_client_message)
 
-        self._create_icons()
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
