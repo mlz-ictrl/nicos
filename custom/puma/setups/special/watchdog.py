@@ -13,16 +13,11 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = 'fpg2_value == "out"',
-         message = 'test warning / just a test / everything is fine',
-	 gracetime = 0,
+    dict(condition = 'mono_status[0] == 220',
+         message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',
+         gracetime = 600,
          type = 'critical',
 	 ),
-#    dict(condition = 'T_value > 299',
-#         message = 'temperature cooling?',
-#         type = 'critical',
-#	 setup = 'lakeshore'
-#	 ),
 ]
 
 includes = ['notifiers', ]

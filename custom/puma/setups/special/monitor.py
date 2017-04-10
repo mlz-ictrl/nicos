@@ -4,10 +4,12 @@ group = 'special'
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=40,
-                       istext=True, maxlen=40),
+                 Field(name='Title',    key='exp/title',    width=60,
+                       istext=True, maxlen=60),
+		 Field(name='Sample', key='sample/samplename', width=20),
+                 ),
+        BlockRow(Field(name='Current status', key='exp/action', width=60,
+                       istext=True, maxlen=60),
                  Field(name='Last file', key='exp/lastscan'),
                 ),
         ],
@@ -15,12 +17,12 @@ _expcolumn = Column(
 )
 
 _axisblock = Block('Axes angles', [
-    BlockRow(Field(name='Monochromator'),'mono_stat'),
+    BlockRow(Field(name='Monochromator', key='mono/alias'),'mono_stat'),
     BlockRow('mth', 'mtt'),
-    BlockRow(Field(name='Focus mono', key='mono/focmode'),'mfhpg'),
+    BlockRow(Field(name='Focus mono', key='mono/focmode'),'mfhcu','mfvcu'),
     BlockRow('psi', 'phi'),
     BlockRow('ath', 'att'),
-    BlockRow(Field(name='Focus ana', key='ana/focmode'),'afpg'),
+    BlockRow(Field(name='Analyzer', key='ana/alias'), Field(name='Focus ana', key='ana/focmode'),'afpg'),
     ],
     setups='puma',  # this is the name of a setup that must be loaded in the
                     # NICOS master instance for this block to be displayed
@@ -29,36 +31,31 @@ _axisblock = Block('Axes angles', [
 _sampletable = Block('Sampletable', [
     BlockRow('sgx','sgy'),
     BlockRow('stx','sty','stz'),
-    BlockRow('atn','fpg1','fpg2'),
     ],
 )
 
 _slits = Block('Slits', [
-#   BlockRow('slit1.left','slit1.right','slit1.bottom','slit1.top'),
-#   BlockRow('slit2.left','slit2.right','slit2.bottom','slit2.top')
-    BlockRow(Field(name='left',dev='ss1_l'),
-              Field(name='right',dev='ss1_r'),
-              Field(name='bottom',dev='ss1_b'),
-              Field(name='top',dev='ss1_t'),
-             ),
-    BlockRow(Field(name='left',dev='ss2_l'),
-              Field(name='right',dev='ss2_r'),
-              Field(name='bottom',dev='ss2_b'),
-              Field(name='top',dev='ss2_t'),
-             ),
+    BlockRow(Field(name='left', dev='ss1_l'),
+             Field(name='right', dev='ss1_r'),
+             Field(name='bottom', dev='ss1_b'),
+             Field(name='top', dev='ss1_t'),
+            ),
+    BlockRow(Field(name='left', dev='ss2_l'),
+             Field(name='right', dev='ss2_r'),
+             Field(name='bottom', dev='ss2_b'),
+             Field(name='top', dev='ss2_t'),
+            ),
     ],
 )
 
 _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
              Field(name='mon1',  dev='mon1'),
-             Field(name='mon2',  dev='mon2'),
+	     Field(name='Preset',  key='mon1/preselection'), #'mon1/value'/'mon1/preselection'*'det2/value'
             ),
     BlockRow(Field(name='det1',  dev='det1'),
              Field(name='det2',  dev='det2'),
-             Field(name='det3',  dev='det3'),
-             Field(name='det4',  dev='det4'),
-             Field(name='det5',  dev='det5'),
+	     Field(name='det3',  dev='det3'),
             ),
     ],
 )
@@ -72,9 +69,9 @@ _tasblock = Block('Triple-axis', [
              Field(dev='mono', name='ki'),
              Field(dev='ana', name='kf'),
              Field(key='puma/energytransferunit', name='Unit')),
-   BlockRow(Field(widget='nicos.guisupport.tas.TasWidget',
-                  width=40, height=30, mthdev='mth', mttdev='mtt',
-                  sthdev='psi', sttdev='phi', athdev='ath', attdev='att',
+    BlockRow(Field(widget='nicos.guisupport.tas.TasWidget',
+                   width=40, height=30, mthdev='mth', mttdev='mtt',
+                   sthdev='psi', sttdev='phi', athdev='ath', attdev='att',
                   )
             ),
     ],
@@ -82,19 +79,40 @@ _tasblock = Block('Triple-axis', [
 )
 
 _tempblock = Block('Temperature', [
-    BlockRow(Field(name='Control',dev='t_ls340'), Field(key='t_ls340/setpoint', name='Setpoint')),
-    BlockRow(Field(name='ChannelA',dev='t_ls340_a'),
-              Field(name='ChannelB',dev='t_ls340_b')),
-#   BlockRow(Field(dev='T', plot='T', plotwindow=300, width=50),
-#            Field(key='t/setpoint', name='SetP', plot='T', plotwindow=300))
-    ],
-    setups='lakeshore',
+   BlockRow(Field(name='Control',dev='t_ls340'),
+            Field(key='t_ls340/setpoint', name='Setpoint')),
+   BlockRow(Field(name='Ts',dev='t_ls340_b'),
+            Field(name='Heater power', key='t_ls340/heaterpower')),
+   BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
+            Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
+	    Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
+   ],
+   setups='lakeshore',
 )
 
-_shutterblock = Block('Shutter', [
+#_tempblock = Block('Temperature', [
+#   BlockRow(Field(name='Control',dev='t_ccr16_tube'),
+#            Field(key='t_ccr16_tube/setpoint', name='Setpoint'),
+#            Field(key='t_ccr16_tube/heaterpower',name='heaterpower'),
+#            Field(name='compressor',dev='ccr16_compressor')),
+#    BlockRow(Field(name='Pressure',dev='ccr16_p1'),
+#                Field(name='Cold head',dev='T_ccr16_C'),
+#                Field(name='Chamber',dev='T_ccr16_D'),
+#                Field(name='vacuum',dev='ccr16_vacuum_switch')),
+#    BlockRow(Field(dev='T', plot='T', plotwindow=3600, width=40),
+#             Field(dev='T_ccr16_C', plot='T', plotwindow=3600, width=40),
+#            Field(key='t_ccr16_tube/setpoint', name='SetP', plot='T', plotwindow=3600, width=40))
+#    ],
+#    setups='ccr16',
+#)
+
+_shutterblock = Block('Shutter / Filters', [
     BlockRow(Field(name='alpha1', dev='alpha1'),
              Field(name='sapphire filter',  dev='sapphire'),
-             Field(name='erbium filter',  dev='erbium'),
+             Field(name='erbium filter',  dev='erbium'),),
+    BlockRow(Field(name='attenuator', dev='atn'),
+             Field(name='PG filter 1',  dev='fpg1'),
+             Field(name='PG filter 2',  dev='fpg2'),
             ),
     ],
 )
@@ -104,9 +122,9 @@ _reactor = Block('Reactor power', [
     ],
 )
 
-_leftcolumn = Column(_axisblock, _sampletable)
-_middlecolumn = Column(_shutterblock,_detectorblock, _tempblock)
-_rightcolumn = Column(_tasblock, _slits,_reactor)
+_leftcolumn = Column(_tasblock, _detectorblock, _reactor)
+_middlecolumn = Column(_axisblock, _sampletable, _slits)
+_rightcolumn = Column(_shutterblock, _tempblock)
 
 
 devices = dict(
