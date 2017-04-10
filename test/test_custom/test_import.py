@@ -29,11 +29,7 @@ from os import path
 
 import pytest
 
-from nicos.utils.stubs import generate_stubs
-
 from test.utils import module_root
-
-generate_stubs()
 
 
 def import_and_check(modname):

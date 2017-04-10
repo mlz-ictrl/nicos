@@ -26,11 +26,8 @@
 
 from test.utils import raises
 from nicos.core.errors import LimitError
-from nicos.utils.stubs import generate_stubs
 
 session_setup = 'refsans'
-
-generate_stubs()
 
 
 def test_nok(session):

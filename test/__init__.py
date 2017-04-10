@@ -26,6 +26,12 @@
 
 from nicos.core.device import Device
 
+from nicos.utils.stubs import generate_stubs
+
+# generate stubs for TACO/Tango modules to be able to import anything needed
+# in the custom tests
+generate_stubs()
+
 # make some functional tests using wait loops faster by reducing loop delays
 Device._base_loop_delay = 0.002
 Device._long_loop_delay = 0.02
