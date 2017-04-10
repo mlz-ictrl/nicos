@@ -9,7 +9,6 @@ devices = dict(
     T_ht_stick    = device('devices.tango.TemperatureController',
                       description = 'temperature regulation',
                       tangodevice = tango_base + 'ht_stick/ctrl',
-                      abslimits = (0, 1000),
                       unit = 'K',
                      ),
     T_ht_stick_A  = device('devices.tango.Sensor',

@@ -15,7 +15,6 @@ devices = dict(
     sentronicplus = device('devices.tango.Actuator',
                            tangodevice = tango_base + 'alfonsomodule/sentronic',
                            description = 'Sentronic PLUS digital proportioning valve',
-                           abslimits = (0, 25.0),
                            warnlimits = (0, 10.0),
                            pollinterval = 0.7,
                            maxage = 2,

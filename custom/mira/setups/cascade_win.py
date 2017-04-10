@@ -62,7 +62,6 @@ devices = dict(
     mo_dtx   = device('devices.tango.Motor',
                       lowlevel = True,
                       tangodevice = tango_base + 'detector/dtx_mot',
-                      abslimits = (0, 1490),
                       unit = 'mm',
                       precision = 0.1,
                      ),

@@ -14,7 +14,6 @@ devices = dict(
     mo_stt   = device('devices.tango.Motor',
                       lowlevel = True,
                       tangodevice = tango_base + 'sample/phi_ext_mot',
-                      abslimits = (-120, 120),
                       unit = 'deg',
                       precision = 0.002,
                      ),

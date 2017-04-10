@@ -11,7 +11,6 @@ devices = dict(
                       tangodevice = tango_base + 'humidity/tempctrl',
                       pollinterval = 0.7,
                       maxage = 2,
-                      abslimits = (0, 100),
                       unit = 'degC',
                      ),
 )

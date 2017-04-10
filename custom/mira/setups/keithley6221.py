@@ -7,13 +7,11 @@ devices = dict(
     keithley_ampl = device('devices.tango.AnalogOutput',
                            description = 'Keithley amplitude',
                            tangodevice = tango_base + 'keithley/ampl',
-                           abslimits = (0, 0.01),
                            unit = 'A',
                           ),
     keithley_freq = device('devices.tango.AnalogOutput',
                            description = 'Keithley frequency',
                            tangodevice = tango_base + 'keithley/freq',
-                           abslimits = (1e-3, 1e5),
                            unit = 'Hz',
                           ),
 )

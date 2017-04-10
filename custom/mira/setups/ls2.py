@@ -11,7 +11,6 @@ devices = dict(
                       tangodevice = tango_base + 'ls2/ls_control1',
                       pollinterval = 0.7,
                       maxage = 2,
-                      abslimits = (0, 350),
                      ),
     T_ls2_A  = device('devices.tango.Sensor',
                       description = 'sensor A',
