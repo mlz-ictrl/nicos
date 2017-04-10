@@ -1,6 +1,6 @@
 countfor=1
 
-np = int((40 - int(slit.top())) / 2)
+np = int((40 - int(slit1.top())) / 2)
 for i in range(np):
     maw(slit1.top, slit1.top() + 2)
     print i
@@ -11,7 +11,7 @@ wait(slit1, slit2)
 
 #before sample
 scan(slit1.top, 40, -2, 25, countfor)
-np = int((40 - int(slit.top())) / 2)
+np = int((40 - int(slit1.top())) / 2)
 for i in range(np):
     maw(slit1.top, slit1.top() + 2)
     print i
@@ -37,4 +37,7 @@ scan(slit2.left, -20, 2, 15, countfor)
 maw(slit2.left, -20)
 
 scan(slit2.right, 20, -2, 15, countfor)
-maw(slit2.right, 20)
+np = int((20 - int(slit2.right())) / 2)
+for i in range(np):
+    maw(slit2.right, slit2.right() + 2)
+    print i
