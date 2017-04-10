@@ -73,6 +73,11 @@ class ConnectionData(object):
 
 
 class NicosClient(object):
+    RECONNECT_TRIES = 25
+    RECONNECT_TRIES_LONG = 5
+    RECONNECT_INTERVAL_SHORT = 500  # in ms
+    RECONNECT_INTERVAL_LONG = 2000
+
     def __init__(self, log_func):
         self.host = ''
         self.port = 0

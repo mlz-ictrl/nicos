@@ -199,7 +199,8 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
-        self._reconnecting = False
+        self._reconnect_count = 0
+        self._reconnect_time = 0
 
         # setup tray icon
         self.trayIcon = QSystemTrayIcon(self)
@@ -272,7 +273,10 @@ class MainWindow(QMainWindow, DlgUtils):
         self.conndata = data
 
     def _reconnect(self):
-        if self.conndata.password is not None:
+        if self._reconnect_count and self.conndata.password is not None:
+            self._reconnect_count -= 1
+            if self._reconnect_count <= self.client.RECONNECT_TRIES_LONG:
+                self._reconnect_time = self.client.RECONNECT_INTERVAL_LONG
             self.client.connect(self.conndata)
 
     def show(self):
@@ -443,18 +447,19 @@ class MainWindow(QMainWindow, DlgUtils):
     def on_client_broken(self, problem):
         self.on_client_error(problem)
         if self.autoreconnect:
-            self._reconnecting = True
-            self.reconnectTimer.start(500)  # half a second
+            self._reconnect_count = self.client.RECONNECT_TRIES
+            self._reconnect_time = self.client.RECONNECT_INTERVAL_SHORT
+            self.reconnectTimer.start(self._reconnect_time)
 
     def on_client_failed(self, problem):
-        if not self._reconnecting:
+        if self._reconnect_count:
+            self.reconnectTimer.start(self._reconnect_time)
+        else:
             self.on_client_error(problem)
-        elif self.autoreconnect:
-            self.reconnectTimer.start(500)
 
     def on_client_connected(self):
         self.setStatus('idle')
-        self._reconnecting = False
+        self._reconnect_count = 0
 
         self.setTitlebar(True)
         # get all server status info

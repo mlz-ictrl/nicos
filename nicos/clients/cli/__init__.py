@@ -110,7 +110,9 @@ class NicosCmdClient(NicosClient):
         self.in_question = False
         self.in_editing = False
         self.tip_shown = False
-        self.reconnecting = False
+        # number of automatic reconnect tries before giving up
+        self.reconnect_count = 0
+        self.reconnect_time = 0
         # current script, line within it and filename of script
         self.current_script = ['']
         self.current_line = -1
@@ -461,7 +463,7 @@ class NicosCmdClient(NicosClient):
                 for reqid in data:
                     self.pending_requests[reqid] = old_reqs[reqid]
             elif name == 'connected':
-                self.reconnecting = False
+                self.reconnect_count = 0
                 self.initial_update()
             elif name == 'disconnected':
                 self.put_client('Disconnected from server, use /reconnect to '
@@ -511,9 +513,11 @@ class NicosCmdClient(NicosClient):
                                     'setup %r to clear devices' % data[1])
             elif name == 'broken':
                 self.put_error(data)
+                self.reconnect_count = self.RECONNECT_TRIES
+                self.reconnect_time = self.RECONNECT_INTERVAL_SHORT
                 self.schedule_reconnect()
             elif name == 'failed':
-                if self.reconnecting:
+                if self.reconnect_count:
                     self.schedule_reconnect()
                 else:
                     self.put_error(data)
@@ -527,10 +531,12 @@ class NicosCmdClient(NicosClient):
 
     def schedule_reconnect(self):
         def reconnect():
-            if self.reconnecting:
+            if self.reconnect_count:
                 self.connect(self.conndata, eventmask=EVENTMASK)
-        self.reconnecting = True
-        threading.Timer(0.5, reconnect).start()
+        self.reconnect_count -= 1
+        if self.reconnect_count <= self.RECONNECT_TRIES_LONG:
+            self.reconnect_time = self.RECONNECT_INTERVAL_LONG
+        threading.Timer(self.reconnect_time / 1000., reconnect).start()
 
     # -- command handlers
 
@@ -840,13 +846,13 @@ class NicosCmdClient(NicosClient):
             if self.connected:
                 self.disconnect()
         elif cmd == 'connect':
-            self.reconnecting = False
+            self.reconnect_count = 0
             if self.connected:
                 self.put_error('Already connected. Use /disconnect first.')
             else:
                 self.ask_connect()
         elif cmd in ('re', 'reconnect'):
-            self.reconnecting = False   # not automatically, at least
+            self.reconnect_count = 0   # no automatic reconnect
             if self.connected:
                 self.disconnect()
             self.ask_connect(ask_all=False)
