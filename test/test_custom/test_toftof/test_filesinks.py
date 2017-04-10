@@ -25,7 +25,6 @@
 """TOFTOF specific data sink tests."""
 
 import os
-import shutil
 import time
 
 from os import path
@@ -41,15 +40,13 @@ session_setup = 'toftof'
 year = time.strftime('%Y')
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
     exp = session.experiment
     exp.finish()
     exp.setDetectors([])
     assert exp.detlist == []
     dataroot = path.join(config.nicos_root, 'toftofdata')
-    if path.exists(dataroot):
-        shutil.rmtree(dataroot)
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
@@ -75,12 +72,12 @@ def cleanup(session):
     exp.setEnvironment([B, P, T])
 
     assert path.abspath(exp.datapath) == path.abspath(
-        path.join(config.nicos_root, 'toftofdata', year, 'p1234', 'data'))
+        path.join(dataroot, year, 'p1234', 'data'))
 
     # Create devices needed in data sinks
     for dev in ['slit', 'vac0', 'vac1', 'vac2', 'vac3', 'gx', 'gy', 'gz',
-               'gphi', 'gcx', 'gcy']:
-        _ = session.getDevice(dev)
+                'gphi', 'gcx', 'gcy']:
+        session.getDevice(dev)
 
     rc = session.getDevice('rc')
     rc.maw('on')
@@ -105,11 +102,11 @@ def cleanup(session):
     ngc.maw('focus')
     assert ngc.read(0) == 'focus'
 
-    count(t=2)
+    count(t=0.01)
     # Generates an error during writing data file: KeyError in line 78
     # count(mon=100)
+
     yield
-    exp.finish()
 
 
 def test_toftof_sink(session):

@@ -22,17 +22,11 @@
 #
 # *****************************************************************************
 
-"""SPODI specific data sink tests."""
+"""SPODI specific detector tests."""
 
-import os
-import shutil
 import time
 
-from os import path
-
-from nicos import config
 from nicos.commands.measure import count
-from nicos.utils import updateFileCounter
 
 import pytest
 
@@ -41,26 +35,8 @@ session_setup = 'spodi'
 year = time.strftime('%Y')
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
-    exp = session.experiment
-    exp.finish()
-    exp.setDetectors([])
-    assert exp.detlist == []
-    dataroot = path.join(config.nicos_root, 'spodidata')
-    if path.exists(dataroot):
-        shutil.rmtree(dataroot)
-    os.makedirs(dataroot)
-
-    counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
-    updateFileCounter(counter, 'point', 42)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    exp.setEnvironment([])
-
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
     assert len(basedet._attached_timers) == 1
@@ -68,11 +44,8 @@ def cleanup(session):
     assert len(basedet._attached_monitors) == 1
     assert len(basedet._attached_images) == 1
     adet = session.getDevice('adet')
-    exp.setDetectors([adet])
-    assert exp.detlist == ['adet']
-
-    assert path.abspath(exp.datapath) == path.abspath(
-        path.join(config.nicos_root, 'spodidata', year, 'p1234', 'data'))
+    session.experiment.setDetectors([adet])
+    assert session.experiment.detlist == ['adet']
 
     # Move the detector to a distinct position and check it
     tths = session.getDevice('tths')
@@ -80,7 +53,6 @@ def cleanup(session):
     assert tths.read() == 0
 
     yield
-    exp.finish()
 
 
 def test_detector(session):
@@ -99,7 +71,7 @@ def test_detector(session):
     adet.resosteps = 2
     assert adet.resosteps == 2
 
-    count(t=1)
+    count(t=0.01)
 
     assert adet.range == 2
     assert adet._step_size == 1
@@ -115,7 +87,7 @@ def test_detector(session):
     # adet.pause()
     # adet.resume()
 
-    count(resosteps=1, t=0.1)
+    count(resosteps=1, t=0.01)
     # Result should contain 4 elements
     assert len(adet.read()) == 4
     # Detector should be on the first reso step

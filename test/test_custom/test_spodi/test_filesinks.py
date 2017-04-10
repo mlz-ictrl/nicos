@@ -25,7 +25,6 @@
 """SPODI specific data sink tests."""
 
 import os
-import shutil
 import time
 
 from os import path
@@ -41,15 +40,13 @@ session_setup = 'spodi'
 year = time.strftime('%Y')
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
     exp = session.experiment
     exp.finish()
     exp.setDetectors([])
     assert exp.detlist == []
     dataroot = path.join(config.nicos_root, 'spodidata')
-    if path.exists(dataroot):
-        shutil.rmtree(dataroot)
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
@@ -73,21 +70,21 @@ def cleanup(session):
     assert exp.detlist == ['adet']
 
     assert path.abspath(exp.datapath) == path.abspath(
-        path.join(config.nicos_root, 'spodidata', year, 'p1234', 'data'))
+        path.join(dataroot, year, 'p1234', 'data'))
 
     # Create devices needed in data sinks
     for dev in ['omgs']:
-        _ = session.getDevice(dev)
+        session.getDevice(dev)
 
     # Move the detector to distinct position and check it
     tths = session.getDevice('tths')
     tths.maw(0)
     assert tths.read() == 0
 
-    count(resosteps=1, t=0.1)
+    count(resosteps=1, t=0.01)
     count(resosteps=1, mon1=100)
+
     yield
-    exp.finish()
 
 
 def test_caress_sink(session):

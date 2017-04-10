@@ -32,7 +32,7 @@ from test.utils import approx
 session_setup = 'toftof'
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
     chRatio = session.getDevice('chRatio')
     chCRC = session.getDevice('chCRC')

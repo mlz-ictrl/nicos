@@ -25,7 +25,6 @@
 """STRESS-SPEC specific data sink tests."""
 
 import os
-import shutil
 import time
 
 from os import path
@@ -51,15 +50,13 @@ session_setup = 'stressi'
 year = time.strftime('%Y')
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
     exp = session.experiment
     exp.finish()
     exp.setDetectors([])
     assert exp.detlist == []
     dataroot = path.join(config.nicos_root, 'stressidata')
-    if path.exists(dataroot):
-        shutil.rmtree(dataroot)
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
@@ -81,11 +78,11 @@ def cleanup(session):
     assert exp.detlist == ['adet']
 
     assert path.abspath(exp.datapath) == path.abspath(
-        path.join(config.nicos_root, 'stressidata', year, 'p1234', 'data'))
+        path.join(dataroot, year, 'p1234', 'data'))
 
     # Create devices needed in data sinks
     for dev in ['xt', 'yt', 'zt', 'slits', 'slitm', 'slite', 'slitp', 'omgm']:
-        _ = session.getDevice(dev)
+        session.getDevice(dev)
 
     # Adjust the monochromator to reasonable position and check it
     tthm = session.getDevice('tthm')
@@ -105,10 +102,9 @@ def cleanup(session):
     timescan(1, t=0.1)
     scan(phis, 0, 0.1, 1, t=0.1, info='phi scan on time')
     scan(phis, 0, 0.1, 1, mon1=100, info='phi scan on monitor')
-    contscan(phis, 0, 1, 1, 1)
+    contscan(phis, 0, 1, 1000, 0.001)
 
     yield
-    exp.finish()
 
 
 def test_caress_sink(session):
