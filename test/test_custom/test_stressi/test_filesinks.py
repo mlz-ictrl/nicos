@@ -55,6 +55,7 @@ year = time.strftime('%Y')
 def cleanup(session):
     exp = session.experiment
     exp.finish()
+    exp.setDetectors([])
     assert exp.detlist == []
     dataroot = path.join(config.nicos_root, 'stressidata')
     if path.exists(dataroot):
