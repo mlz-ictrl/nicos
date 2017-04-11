@@ -32,7 +32,11 @@ try:
     import quickyaml  # pylint: disable=unused-import
     stressi_sinklist.append('ysink')
 except Exception:
-    pass
+    try:
+        import yaml  # pylint: disable=unused-import
+        stressi_sinklist.append('ysink')
+    except Exception:
+        pass
 
 sysconfig = dict(
     datasinks = stressi_sinklist,

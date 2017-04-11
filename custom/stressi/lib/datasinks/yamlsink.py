@@ -43,10 +43,9 @@ try:
 except ImportError:
     quickyaml = None
     try:
-        from yaml import add_representer, dump, representer
-
-        add_representer(AutoDefaultODict,
-                        representer.SafeRepresenter.represent_dict)
+        import yaml
+        yaml.add_representer(AutoDefaultODict,
+                             yaml.representer.SafeRepresenter.represent_dict)
     except ImportError:
         yaml = None
 
@@ -457,8 +456,8 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                              array_handling=quickyaml.ARRAY_AS_SEQ).dump(
                                  self._data, self._file)
         elif yaml:
-            dump(self._data, self._file, allow_unicode=True, canonical=False,
-                 default_flow_style=False, indent=4)
+            yaml.dump(self._data, self._file, allow_unicode=True, canonical=False,
+                      default_flow_style=False, indent=4)
 
     def end(self):
         if self.dataset.settype == POINT:

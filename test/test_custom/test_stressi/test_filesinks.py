@@ -116,10 +116,15 @@ def test_caress_sink(session):
     assert path.isfile(caressfile)
 
 
-@pytest.mark.skipif(not (quickyaml and yaml),
+@pytest.mark.skipif(not (quickyaml or yaml),
                     reason='QuickYAML/PyYAML libraries missing')
-def test_yaml_sink_3(session):
+def test_yaml_file_exist(session):
     yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
     assert path.isfile(yamlfile)
+
+
+@pytest.mark.skipif(not yaml, reason='PyYAML library missing')
+def test_yaml_file_content(session):
+    yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
     contents = yaml.load(open(yamlfile))
-    assert contents['measurement']
+    assert contents['experiment']
