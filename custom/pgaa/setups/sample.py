@@ -5,6 +5,22 @@ includes = []
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
+    ell = device('devices.taco.io.DigitalOutput',
+                 description = '',
+                 tacodevice = '//pgaasrv/pgaa/sample/elcol_press1',
+                 lowlevel = True
+                 ),
+    col = device('devices.taco.io.DigitalOutput',
+                 description = '',
+                 tacodevice = '//pgaasrv/pgaa/sample/elcol_press2',
+                 lowlevel = True
+                 ),
+    ellcol = device('pgaa.ellcol.EllCol',
+                    description = 'Switches between focused and collimated Beam',
+                    ellipse = 'ell',
+                    collimator = 'col',
+                    unit = ''
+                   ),
     sensort = device('devices.taco.io.DigitalInput',
                      description =  ' sensor on top of tube',
                      tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_top',
