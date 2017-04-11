@@ -40,6 +40,12 @@ from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
 from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
+try:
+    import PyQt4.QtWebKit  # pylint: disable=unused-import
+    qwebkit_available = True
+except ImportError:
+    qwebkit_available = False
+
 from nicos import nicos_version, config
 from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -186,6 +192,7 @@ class MainWindow(QMainWindow, DlgUtils):
             action = QAction(QIcon(':/' + wconfig.icon), wconfig.name, self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
+
             def window_callback(on, i=i):
                 self.createWindow(i)
             self.connect(action, SIGNAL('triggered(bool)'), window_callback)
@@ -581,10 +588,18 @@ class MainWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionNicosHelp_triggered(self):
+        if not qwebkit_available:
+            self.showError('Cannot open help window: QWebKit is not '
+                           'available on your system.')
+            return
         self.client.eval('session.showHelp("index")')
 
     @qtsig('')
     def on_actionNicosDocu_triggered(self):
+        if not qwebkit_available:
+            self.showError('Cannot open documentation window: QWebKit is not '
+                           'available on your system.')
+            return
         from nicos.clients.gui.tools.website import WebsiteTool
         # XXX: change URL to current release version
         dlg = WebsiteTool(

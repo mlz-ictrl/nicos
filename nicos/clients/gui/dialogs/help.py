@@ -26,7 +26,11 @@
 
 from PyQt4.QtGui import QMainWindow
 from PyQt4.QtCore import QUrl, pyqtSignature as qtsig
-from PyQt4.QtWebKit import QWebPage
+
+try:
+    from PyQt4.QtWebKit import QWebPage
+except ImportError:
+    QWebPage = None
 
 from nicos.clients.gui.utils import loadUi
 
