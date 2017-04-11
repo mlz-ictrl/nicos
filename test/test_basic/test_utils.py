@@ -261,3 +261,5 @@ def test_num_sort():
     assert sorted(['X', '-1', '2'], key=num_sort) == ['-1', '2', 'X']
     # handle invalid floats
     assert sorted(['X', '1A', '2.4.5A'], key=num_sort) == ['1A', '2.4.5A', 'X']
+    # handle non-strings too
+    assert sorted([0.4, '1A'], key=num_sort) == [0.4, '1A']

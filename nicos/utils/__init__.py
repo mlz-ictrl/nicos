@@ -1269,7 +1269,11 @@ def tabulated(widths, iterable, maxwidth=20):
 
 
 def num_sort(x, inf=float('inf')):
-    """A sort key function to sort by a numeric prefix, then lexically."""
+    """A sort key function to sort strings by a numeric prefix, then
+    lexically.
+    """
+    if not isinstance(x, string_types):
+        return (0, x)
     m = re.match(r'[\d.-]+', x)
     try:
         return (float(m.group()), x) if m else (inf, x)
