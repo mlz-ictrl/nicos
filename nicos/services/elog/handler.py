@@ -292,7 +292,7 @@ class TextWriter(object):
 
     def message(self, message):
         if self.fd:
-            self.fd.write(formatMessagePlain(message))
+            self.fd.write(to_utf8(formatMessagePlain(message)))
             self.fd.flush()
 
 
