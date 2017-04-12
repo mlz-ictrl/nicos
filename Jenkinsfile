@@ -196,8 +196,9 @@ addopts = --junit-xml=pytest.xml
 
     verifyresult.put(pyver, 0)
     try {
-        wrap([$class: 'PortAllocator',
-              plainports:['NICOS_DAEMON_PORT', 'NICOS_CACHE_PORT', 'NICOS_CACHE_ALT_PORT']])  {
+        portallocator([plainports:['NICOS_DAEMON_PORT',
+                                   'NICOS_CACHE_PORT',
+                                   'NICOS_CACHE_ALT_PORT']]) {
             timeout(5) {
                withEnv(["VENV=$venv"]) {
                   sh '''\
@@ -224,8 +225,9 @@ verifyresult.put(pyver, 1)
         verifyStatusReporter: 'jenkins',
         verifyStatusRerun: '!recheck'])
 
-    step([$class: 'JUnitResultArchiver', allowEmptyResults: true,
-         keepLongStdio: true, testResults: 'pytest.xml'])
+    junit([allowEmptyResults: true,
+           keepLongStdio: true,
+           testResults: 'pytest.xml'])
     archiveArtifacts([allowEmptyArchive: true,
                       artifacts: "cov-$pyver/*"])
     publishHTML([allowMissing: true,
@@ -261,8 +263,14 @@ else
 fi
 '''
 
-    publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'doc/build/html', reportFiles: 'index.html', reportName: 'Nicos Doc (test build)'])
-    archiveArtifacts allowEmptyArchive: true, artifacts: 'doc/build/latex/NICOS.*'
+    archiveArtifacts([allowEmptyArchive: true,
+                      artifacts: 'doc/build/latex/NICOS.*'])
+    publishHTML([allowMissing: true,
+                 alwaysLinkToLastBuild: true,
+                 keepAll: true,
+                 reportDir: 'doc/build/html',
+                 reportFiles: 'index.html',
+                 reportName: 'Nicos Doc (test build)'])
 
 verifyresult.put('doc', 1)
 } catch( all) {
