@@ -22,22 +22,24 @@
 #
 # *****************************************************************************
 
-"""Focus class for PUMA. """
+"""Focus class for PUMA."""
 
 from nicos.core import Param
 from nicos.devices.generic.axis import Axis
 
 
 class FocusAxis(Axis):
-    """Special Axis for the monochromator and analyser focus, with NICOS
-    devices for motor and coders.
-    """
+    """Special Axis for the monochromator and analyser focus."""
 
     parameters = {
-        'uplimit': Param('The upper limit', unit='deg'),
-        'lowlimit': Param('The lower limit', unit='deg'),
-        'startpos': Param('The backlash position', unit='deg'),
-        'flatpos': Param('The flat position', unit='deg'),
+        'uplimit': Param('The upper limit',
+                         type=float, unit='deg', settable=False),
+        'lowlimit': Param('The upper limit',
+                          type=float, unit='deg', settable=False),
+        'startpos': Param('The backlash position',
+                          type=float, unit='deg', settable=False),
+        'flatpos': Param('The flat position',
+                         type=float, unit='deg', settable=False),
     }
 
     def doStart(self, target):

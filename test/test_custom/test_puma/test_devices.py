@@ -54,3 +54,23 @@ def test_comb_axis(session):
     assert phi._attached_fix_ax.read(0) == -10
 
     assert raises(LimitError, phi.move, 20)
+
+
+def test_focus_axis(session):
+    ax = session.getDevice('afpg')
+
+    assert ax.read(0) == 0
+
+    for t in [1, -1]:
+        ax.maw(t)
+        assert ax.read(0) == t
+
+    # Check for the flat position target move
+    ax.maw(0)
+    assert ax.read(0) == ax.flatpos
+
+    # Check the target changing if target outside [lowlimit, uplimit]
+    ax.maw(ax.abslimits[0])
+    assert ax.read(0) == ax.lowlimit
+    ax.maw(ax.abslimits[1])
+    assert ax.read(0) == ax.uplimit
