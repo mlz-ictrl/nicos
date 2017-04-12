@@ -234,7 +234,7 @@ def test_cscan(session):
 
 def test_sweeps(session):
     m = session.getDevice('motor')
-    m.move(1)
+    m.maw(1)
     timescan(5, m)
     dataset = session.data._last_scans[-1]
     assert len(dataset.devvaluelists) == 5
@@ -249,7 +249,6 @@ def test_sweeps(session):
 def test_contscan(session):
     m = session.getDevice('motor')
     mm = session.getDevice('manual')
-    m.move(0)
     ContinuousScan.DELTA = 0.1
     session.experiment.detlist = [session.getDevice('det')]
     try:
@@ -273,7 +272,9 @@ def test_manualscan(session):
     c = session.getDevice('coder')
     det = session.getDevice('det')
     mm = session.getDevice('manual')
-    mm.move(0)
+    mm.maw(0)
+    slow_motor = session.getDevice('slow_motor')
+    slow_motor.maw(0)
 
     # normal
     with manualscan(mot):
