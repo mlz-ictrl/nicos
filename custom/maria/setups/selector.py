@@ -15,7 +15,7 @@ devices = dict(
                              timeout = 300,
                             ),
 
-    selector_lambda = device('devices.vendor.astrium.SelectorLambda',
+    selector_lambda = device('maria.selector.SelectorLambda',
                              description = 'Selector wavelength control',
                              seldev = 'selector_speed',
                              unit = 'A',
