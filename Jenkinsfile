@@ -186,9 +186,13 @@ catch( all) {
 }
 
 def runTests(venv, pyver) {
-    writeFile file: 'setup.cfg', text: '''
+    writeFile file: 'setup.cfg', text: """
 [tool:pytest]
-addopts = --junit-xml=pytest.xml --junit-prefix=''' + pyver
+addopts = --junit-xml=pytest.xml
+  --junit-prefix=$pyver
+  --cov --cov-config=.coveragerc
+  --cov-report=html:cov-$pyver
+  --cov-report=term """
 
     verifyresult.put(pyver, 0)
     try {
@@ -203,7 +207,7 @@ set +x
 . /home/jenkins/pythonvenvs/$VENV/bin/activate
 set -x
 
-make test-coverage'''
+pytest -v test'''
 verifyresult.put(pyver, 1)
                 } //withEnv
             } //tiemout
@@ -222,6 +226,15 @@ verifyresult.put(pyver, 1)
 
     step([$class: 'JUnitResultArchiver', allowEmptyResults: true,
          keepLongStdio: true, testResults: 'pytest.xml'])
+    archiveArtifacts([allowEmptyArchive: true,
+                      artifacts: "cov-$pyver/*"])
+    publishHTML([allowMissing: true,
+                 alwaysLinkToLastBuild: false,
+                 keepAll: true,
+                 reportDir: "cov-$pyver/",
+                 reportFiles: 'index.html',
+                 reportName: "Coverage ($pyver)"])
+
     if (verifyresult[pyver] < 0) {
         error('Failure in test with ' + pyver)
     }
