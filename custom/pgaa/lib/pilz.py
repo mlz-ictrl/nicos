@@ -22,32 +22,34 @@
 #
 # *****************************************************************************
 
-""" Classes to access to the switches via the Pilz Box """
+"""Classes to access to the switches via the Pilz Box."""
 
 import IO
 
 from nicos import session
-from nicos.core import tacodev, Param, status
-from nicos.devices.taco.io import NamedDigitalOutput
+from nicos.core import Param, SIMULATION, status, tacodev
 from nicos.core.mixins import HasTimeout
-from nicos.core import SIMULATION
+
+from nicos.devices.taco.io import NamedDigitalOutput
 
 
 class Switch(HasTimeout, NamedDigitalOutput):
-    """The Pilz box is connected via the Modbus TCP protocol with the rest of
-    the world. Unfortunately the bit for controlling the attenuators and
+    """The Pilz box is connected via the Modbus TCP protocol.
+
+    Unfortunately the bit for controlling the attenuators and
     shutter are distributed in a wide range over the input and output region
     of the Modbus interface. The Beckhoff TACO server deals with the bits
     and so we have some different devices.
     """
+
     parameters = {
-        'remote':   Param('Device to enable the remote control',
-                          type=tacodev, mandatory=True, preinit=True),
+        'remote': Param('Device to enable the remote control',
+                        type=tacodev, mandatory=True, preinit=True),
         'readback': Param('Device to read back the reached value',
                           type=tacodev, mandatory=True, preinit=True),
-        'error':    Param('Device to indicate an error during the move of the '
-                          'switch',
-                          type=tacodev, mandatory=True, preinit=True),
+        'error': Param('Device to indicate an error during the move of the '
+                       'switch',
+                       type=tacodev, mandatory=True, preinit=True),
     }
 
     def doInit(self, mode):
@@ -77,7 +79,9 @@ class Switch(HasTimeout, NamedDigitalOutput):
         session.delay(self._sleeptime)
 
     def doStart(self, target):
-        """ At first we have to enable the remote control and after writing
+        """Writing sequence to reach target.
+
+        At first we have to enable the remote control and after writing
         the value we take the remote control enable bit
         The switch is configured to write a bit, hold it some time and reset it
         """
@@ -102,7 +106,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
 
 
 class Attenuator(Switch):
-    """ The attentuator switch must write always a '1' to change the value."""
+    """The attentuator switch must write always a '1' to change the value."""
 
     def _writeValue(self, value):
         self._taco_guard(self._dev.write, 1)

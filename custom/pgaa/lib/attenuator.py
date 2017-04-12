@@ -22,12 +22,11 @@
 #
 # *****************************************************************************
 
-"""The PGAA attentuator"""
+"""The PGAA attentuator."""
 
 from nicos.core import Override, multiWait
-from nicos.devices.generic.switcher import MultiSwitcher
-
 from nicos.core.errors import ConfigurationError, InvalidValueError
+from nicos.devices.generic.switcher import MultiSwitcher
 
 
 class Attenuator(MultiSwitcher):
@@ -45,7 +44,7 @@ class Attenuator(MultiSwitcher):
         MultiSwitcher.doInit(self, mode)
 
     def _startRaw(self, target):
-        """target is the raw value, i.e. a list of positions"""
+        """Target is the raw value, i.e. a list of positions."""
         moveables = self._attached_moveables
         if not isinstance(target, (tuple, list)) or \
                 len(target) < len(moveables):
