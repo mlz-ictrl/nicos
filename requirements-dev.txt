@@ -10,3 +10,4 @@ line_profiler
 --extra-index-url https://forge.frm2.tum.de/simple
 sphinx_rtd_theme
 yapf>=0.12.0
+pytest-randomly>=1.1
