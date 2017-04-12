@@ -95,3 +95,8 @@ class ManualSwitch(Moveable):
 
     def doStatus(self, maxage=0):
         return status.OK, ''
+
+    def doIsAllowed(self, target):
+        if target in self.states:
+            return True, ''
+        return False, '%r is not in %r' % (target, self.states)

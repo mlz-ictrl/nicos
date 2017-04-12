@@ -46,10 +46,14 @@ def test_virtual_motor(session):
 
 def test_virtual_switch(session):
     v = session.getDevice('v2')
-    v.maw('up')
-    assert v.read() == 'up'
+    # default is first entry in states list
+    assert v.read(0) == 'up'
+    v.maw('down')
+    assert v.read() == 'down'
     assert raises(NicosError, v.move, 'sideways')
-    assert v.read() == 'up'
+    assert v.read() == 'down'
+    assert v.isAllowed('sideways')[0] is False
+    assert v.isAllowed('up')[0] is True
 
 
 def test_manual_move(session):
