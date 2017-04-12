@@ -2,6 +2,10 @@ description = 'PGAA setup'
 
 group = 'basic'
 
+sysconfig = dict(
+    datasinks = ['sink']
+)
+
 includes = ['system',
             'reactor',
             'nl4b',
@@ -10,3 +14,13 @@ includes = ['system',
             'pilz',
             'detector',
            ]
+
+devices = dict(
+    sink = device('pgaa.PGAASink.PGAASink',
+                  settypes = set(['scan']),
+                  det1 = 'det',
+                  det2 = 'detLEGe',
+                  vac = 'chamber_pressure',
+                  lowlevel = True,
+                 ),
+)
