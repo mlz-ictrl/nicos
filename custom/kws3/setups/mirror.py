@@ -2,6 +2,7 @@
 
 description = "Mirror area setup"
 group = "lowlevel"
+display_order = 30
 
 excludes = ['virtual_mirror']
 
