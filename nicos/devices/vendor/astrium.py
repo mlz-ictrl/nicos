@@ -69,7 +69,10 @@ class SelectorLambda(Moveable):
         if value == 0:
             return False, 'zero wavelength not allowed'
         speed = int(self._constant() / value)
-        return self._attached_seldev.isAllowed(speed)
+        allowed, why = self._attached_seldev.isAllowed(speed)
+        if not allowed:
+            why = 'requested %d rpm, %s' % (speed, why)
+        return allowed, why
 
     def doStart(self, value):
         speed = int(self._constant() / value)
