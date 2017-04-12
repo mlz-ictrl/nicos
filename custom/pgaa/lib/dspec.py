@@ -21,59 +21,244 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+"""Classes to access to the DSpec detector."""
 
-""" Classes to access to the DSpec detector """
+import time
 
-from nicos import session
-from nicos.core import Measurable, Moveable, Readable, Attach, Param, status
-# from nicos.devices.taco.io import DigitalOutput, DigitalInput
-# from nicos.core.mixins import HasTimeout
+from nicos.core import Measurable, Param, Value, status, usermethod
+from nicos.core.errors import NicosError
+from nicos.devices.tango import PyTangoDevice
 
 
-class DSPec(Measurable):
-    """The DSpec detector will be started and stopped via a digital output"""
-
-    _lastpreset = {}
+class DSPec(PyTangoDevice, Measurable):
 
     parameters = {
-        'startsleeptime': Param('Time to sleep after start command send',
-                                type=float, default=2, settable=False),
+        'prefix': Param('prefix for filesaving',
+                        type=str, settable=False, mandatory=True),
     }
 
-    attached_devices = {
-        'set_ready': Attach('Device to enable the remote control',
-                            Moveable),  # DigitalOutput),
-        'get_ready': Attach('Device to read back the reached value',
-                            Readable),  # DigitalInput),
-    }
+    # XXX: issues with ortec API -> workarounds and only truetime and livetime
+    # working.
 
-    def doStart(self):
-        if self.doStatus()[0] == status.BUSY:
-            self.doStop()
-            self.doWait()
-        self._attached_set_ready.move(0)
-        session.delay(self.startsleeptime)
-        self._attached_set_ready.move(1)
+    @usermethod
+    def getvals(self):
+        spectrum = None
+        try:
+            spectrum = [int(i) for i in self._dev.Value.tolist()]
+        except NicosError:
+            # self._comment += 'CACHED'
+            if self._read_cache is not None:
+                self.log.warning('using cached spectrum')
+                spectrum = [int(i) for i in self._read_cache.tolist()]
+            else:
+                self.log.warning('no spectrum cached')
+        return spectrum
 
-    def doFinish(self):
-        self._attached_set_ready.move(1)
+    @usermethod
+    def getEcal(self):
+        return str(self._dev.EnergyCalibration)
 
-    def doStop(self):
+    @usermethod
+    def getlive(self):
+        return self._dev.LiveTime[0]
+
+    @usermethod
+    def getpoll(self):
+        return self._dev.PollTime[0]
+
+    @usermethod
+    def gettrue(self):
+        return self._dev.TrueTime[0]
+
+    @usermethod
+    def initdev(self):
+        self._dev.Init()
+
+    @usermethod
+    def getstate(self):
+        return self._dev.Status()
+
+    @usermethod
+    def savefile(self):
         self.doFinish()
 
-    def doPreset(self, **preset):
+    @usermethod
+    def resetvals(self):
+        self._started = None
+        self._lastread = 0
+        self._comment = ''
+        self._name = ''
+        self._stop = None
+        self._preset = {}
+        self._dont_stop_flag = False
+        self._read_cache = None
+
+    def doInit(self, mode):
+        self._started = None
+        self._lastread = 0
+        self._comment = ''
+        self._name = ''
+        self._stop = None
+        self._preset = {}
+        self._dont_stop_flag = False
+        self._read_cache = None
+
+    def doReadIsmaster(self):
         pass
 
     def doRead(self, maxage=0):
-        return [self._lastpreset.get('t', 0)]
+        return self._dev.Value.tolist()
 
-    def doStatus(self, maxage=0):
-        if self._attached_get_ready.read(maxage) == 0:
-            return status.BUSY, 'counting'
-        else:
-            return status.OK, 'stopped'
+    # def doSetPreset(self, **preset):
+    #     if not preset:
+    #         return  # keep previous settings
+    #     self._lastpreset = preset
 
     def doSetPreset(self, **preset):
-        if not preset:
-            return  # keep previous settings
-        self._lastpreset = preset
+        self._started = None
+        self._lastread = None
+        self._read_cache = None
+        self._dont_stop_flag = False
+        self._comment = ''
+        self._name = ''
+        self._stop = None
+        self._preset = preset
+
+        if preset['cond'] == 'TrueTime':
+            try:
+                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncValue = preset['value'] * 1000
+            except NicosError:
+                try:
+                    self.doStop()
+                    self._dev.Init()
+                except NicosError:
+                    return
+                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncValue = preset['value'] * 1000
+        elif preset['cond'] == 'LiveTime':
+            try:
+                self._dev.SyncMode = 'LiveTime'
+                self._dev.SyncValue = preset['value'] * 1000
+            except NicosError:
+                try:
+                    self.doStop()
+                    self._dev.Init()
+                except NicosError:
+                    return
+                self._dev.SyncMode = 'LiveTime'
+                self._dev.SyncValue = preset['value'] * 1000
+
+        elif preset['cond'] == 'ClockTime':
+            self._stop = preset['value']
+
+        self._name = preset['Name']
+        self._comment = preset['Comment']
+
+    def doStart(self):
+        try:
+            self._dev.Stop()
+            self._dev.Clear()
+            self._dev.Start()
+        except NicosError:
+            try:
+                self._dev.stop()
+                self._dev.Init()
+                self._dev.Clear()
+                self._dev.Start()
+            except NicosError:
+                pass
+
+        self._started = time.time()
+        self._lastread = time.time()
+
+    def doPause(self):
+        self._dev.Stop()
+        return True
+
+    def doResume(self):
+        try:
+            self._dev.Start()
+        except NicosError:
+            self._dev.Init()
+            self._dev.Stop()
+            self._dev.Start()
+        return True
+
+    def doPoll(self, maxage=0):
+        return ((status.OK, ''), [0 for _i in range(16384)])
+
+    def doStop(self):
+        if self._dont_stop_flag:
+            self._dont_stop_flag = False
+            return
+        try:
+            self._dev.Stop()
+        except NicosError:
+            self._dev.Init()
+            self._dev.Stop()
+
+    def doIsCompleted(self):
+
+        if self._started is None:
+            return True
+
+        if self._dont_stop_flag is True:
+            return (time.time() - self._started) >= self._preset['value']
+
+        if (time.time() - self._lastread) > (60 * 30):
+            try:
+                self._read_cache = self.doRead()
+                self.log.warning('spectrum cached')
+            except NicosError:
+                self.log.warning('try to cache spectrum failed')
+            finally:
+                self._lastread = time.time()
+
+        if self._stop is not None:
+            if time.time() >= self._stop:
+                return True
+
+        if self._preset['cond'] in ['LiveTime', 'TrueTime']:
+            if ((time.time() - self._started) + 20) < self._preset['value']:
+                # self.log.warning('poll every 0.2 secs')
+                return False
+            elif ((time.time() - self._started) < self._preset['value']) or \
+                 ((time.time() - self._started) > self._preset['value']):
+                self.log.warning('poll every 1 secs')
+                time.sleep(1)
+            try:
+                # self.log.warning('poll')
+                stop = self._dev.PollTime[0]
+            except NicosError:
+                self._dont_stop_flag = True
+                # self.log.warning('read poll time failed, waiting for other '
+                #                  'detector(s)...')
+                return False
+            return stop < 0
+
+        return False
+
+    def valueInfo(self):
+        return (Value('DSpecspectrum', type='counter'),)
+
+    def doFinish(self):
+        self.doStop()
+
+        # reset preset values
+        self._name = ''
+        self._comment = ''
+
+        self._started = None
+        self._stop = None
+
+        self._preset = {}
+
+        self._read_cache = None
+        self._lastread = None
+        self._dont_stop_flag = False
+
+    def presetInfo(self):
+        return ('cond', 'value', 'Name', 'Name', 'Comment', 'Pos', 'Beam',
+                'Attenuator', 'ElCol', 'started', 'Subfolder', 'Detectors',
+                'Filename')

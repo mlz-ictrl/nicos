@@ -2,7 +2,7 @@ description = 'virtual PGAA devices'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['filesink'],
+    datasinks = ['sink']
 )
 
 devices = dict(
@@ -73,15 +73,25 @@ devices = dict(
                             1.6: ('in', 'in', 'in'),
                            },
                 ),
-    det = device('pgaa.dspec.DSPec',
-                 description = 'DSpec detector device',
-                 set_ready = 'set_ready',
-                 get_ready = 'get_ready',
+    det = device('pgaa.dspecdemo.DSPec',
+                 description = 'DSpec Tango Device',
+                 prefix = 'P'
                 ),
+    detLEGe = device('pgaa.dspecdemo.DSPec',
+                     description = 'DSpec Tango Device',
+                     prefix = 'L'
+                    ),
+    sink = device('pgaa.PGAASink.PGAASink',
+                  lowlevel = True,
+                  settypes = set(['scan']),
+                  det1 = 'det',
+                  det2 = 'detLEGe',
+                  vac = 'att1',
+                 ),
 )
 
 startupcode = '''
-SetDetectors(det)
+# SetDetectors(det)
 SetEnvironment()
 printinfo("============================================================")
 printinfo("Welcome to the NICOS PGAA demo setup.")

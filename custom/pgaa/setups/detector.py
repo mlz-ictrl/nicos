@@ -7,19 +7,18 @@ includes = []
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
-    get_ready = device('devices.taco.io.DigitalInput',
-                       description = '',
-                       tacodevice = '//%s/pgaa/pgaa/get_ready' % (nethost,),
-                       lowlevel = True,
-                      ),
-    set_ready = device('devices.taco.io.DigitalOutput',
-                       description = '',
-                       tacodevice = '//%s/pgaa/pgaa/sample_ready' % (nethost,),
-                       lowlevel = True,
-                      ),
     det = device('pgaa.dspec.DSPec',
-                 description = 'DSpec detector device',
-                 set_ready = 'set_ready',
-                 get_ready = 'get_ready',
-                ),
+                 description = '60%',
+                 tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/60',
+                 prefix = 'P',
+                 # pollintervall = 0.1,
+                 maxage = None
+               ),
+    detLEGe = device('pgaa.dspec.DSPec',
+                     description = 'low energy germanium detector',
+                     tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/LEGe',
+                     prefix = 'L',
+                     # pollintervall = 0.1,
+                     maxage = None
+                    ),
 )
