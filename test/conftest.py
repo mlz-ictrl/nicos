@@ -65,6 +65,7 @@ def session(request):
     nicos_session.sessionid = '%s-%s' % (request.module.__name__, time.time())
     nicos_session.setMode(getattr(request.module, 'session_mode', MASTER))
     if request.module.session_setup:
+        nicos_session.unloadSetup()
         nicos_session.loadSetup(request.module.session_setup,
                                 **getattr(request.module,
                                           'session_load_kw', {}))
