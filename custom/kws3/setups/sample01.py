@@ -4,21 +4,23 @@ description = "Sample Area 1m setup"
 group = "lowlevel"
 display_order = 45
 
+includes = ['sample']
 excludes = ['virtual_sample']
 
 tango_base = "tango://phys.kws3.frm2:10000/kws3/"
 
 devices = dict(
-
     sam01_x          = device("devices.tango.Motor",
                               description = "sample 2nd x-table in vacuum chamber",
                               tangodevice = tango_base + "fzjs7/sam01_x",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
     sam01_y          = device("devices.tango.Motor",
                               description = "sample 2nd y-table in vacuum chamber",
                               tangodevice = tango_base + "fzjs7/sam01_y",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
@@ -53,6 +55,7 @@ devices = dict(
     sam01_ap         = device("devices.generic.Slit",
                               description = "sample 2nd aperture jj-xray",
                               coordinates = "opposite",
+                              lowlevel = True,
                               opmode = "offcentered",
                               left = "sam01_ap_x_left",
                               right = "sam01_ap_x_right",
@@ -60,3 +63,9 @@ devices = dict(
                               top = "sam01_ap_y_upper",
                              ),
 )
+
+alias_config = {
+    'sam_ap': {'sam01_ap': 90},
+    'sam_x':  {'sam01_x': 90},
+    'sam_y':  {'sam01_y': 90},
+}

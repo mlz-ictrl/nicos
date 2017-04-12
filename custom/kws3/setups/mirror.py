@@ -4,6 +4,7 @@ description = "Mirror area setup"
 group = "lowlevel"
 display_order = 30
 
+includes = ['sample']
 excludes = ['virtual_mirror']
 
 tango_base = "tango://phys.kws3.frm2:10000/kws3/"
@@ -105,3 +106,7 @@ devices = dict(
                              lowlevel = True,
                             ),
 )
+
+alias_config = {
+    'sam_ap': {'mir_ap2': 80},
+}

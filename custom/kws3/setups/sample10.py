@@ -4,33 +4,37 @@ description = "Sample Area 10m setup"
 group = "lowlevel"
 display_order = 35
 
+includes = ['sample']
 excludes = ['virtual_sample']
 
 tango_base = "tango://phys.kws3.frm2:10000/kws3/"
 
 devices = dict(
-
     sam_hub_x        = device("devices.tango.Motor",
                               description = "sample 1st x-table",
                               tangodevice = tango_base + "fzjs7/sam_hub_x",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
     sam_hub_y        = device("devices.tango.Motor",
                               description = "sample 1st y-table",
                               tangodevice = tango_base + "fzjs7/sam_hub_y",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
     sam10_x          = device("devices.tango.Motor",
                               description = "sample 1st x-table in vacuum chamber",
                               tangodevice = tango_base + "fzjs7/sam10_x",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
     sam10_y          = device("devices.tango.Motor",
                               description = "sample 1st y-table in vacuum chamber",
                               tangodevice = tango_base + "fzjs7/sam10_y",
+                              lowlevel = True,
                               unit = "mm",
                               precision = 0.01,
                              ),
@@ -65,6 +69,7 @@ devices = dict(
     sam10_ap         = device("devices.generic.Slit",
                               description = "aperture inside 1st sample chamber",
                               coordinates = "opposite",
+                              lowlevel = True,
                               opmode = "offcentered",
                               left = "sam10_ap_x_left",
                               right = "sam10_ap_x_right",
@@ -72,3 +77,9 @@ devices = dict(
                               top = "sam10_ap_y_upper",
                              ),
 )
+
+alias_config = {
+    'sam_ap': {'sam10_ap': 100},
+    'sam_x':  {'sam10_x': 100},
+    'sam_y':  {'sam10_y': 100},
+}

@@ -4,6 +4,7 @@ description = 'Selector area setup'
 group = 'lowlevel'
 display_order = 20
 
+includes = ['sample']
 excludes = ['virtual_selector']
 
 sel_presets = configdata('config_selector.SELECTOR_PRESETS')
@@ -138,3 +139,7 @@ devices = dict(
 extended = dict(
     poller_cache_reader = ['det_x', 'det_y', 'det_z'],
 )
+
+alias_config = {
+    'sam_ap': {'sel_ap2': 80},
+}
