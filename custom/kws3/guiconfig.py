@@ -6,7 +6,7 @@ main_window = tabbed(
             hsplit(
                 vsplit(
                     panel('cmdbuilder.CommandPanel',
-                          modules=['kws1.gui.cmdlets']),
+                          modules=['kws3.gui.cmdlets']),
                     panel('status.ScriptStatusPanel'),
                 ),
             ),

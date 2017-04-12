@@ -40,10 +40,12 @@ class MeasureTable(Cmdlet):
     name = 'Measurement'
     category = 'Measure'
 
+    meas_def_class = MeasDef
+
     def __init__(self, parent, client):
         uipath = findResource('custom/kws1/lib/gui/table.ui')
         Cmdlet.__init__(self, parent, client, uipath)
-        self.measdef = MeasDef(rtmode=False)
+        self.measdef = self.meas_def_class(rtmode=False)
         self.rt_settings = RtConfigDialog.DEFAULT_SETTINGS.copy()
         self.rtConfBtn.setEnabled(False)
         self.updateTable()
@@ -126,7 +128,7 @@ class MeasureTable(Cmdlet):
     def on_rtBox_toggled(self, state):
         self.rtConfBtn.setEnabled(state)
         # clears current table!
-        self.measdef = MeasDef(state, self.measdef.loops)
+        self.measdef = self.meas_def_class(state, self.measdef.loops)
         self.updateTable()
 
     @pyqtSlot()
