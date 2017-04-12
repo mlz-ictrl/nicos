@@ -322,9 +322,17 @@ class Scan(object):
     def readEnvironment(self):
         read_environment(self._envlist)
 
+    def acquireCompleted(self):
+        """Stops the internal acquire loop when returning `True`. Overwrite
+        this method e.g. to finish acquisition when the scanned axis has
+        finished movement although the preset has not yet been fulfilled.
+
+        """
+        return False
+
     def acquire(self, point, preset):
         preset.pop("live", None)
-        acquire(point, preset)
+        acquire(point, preset, iscompletefunc=self.acquireCompleted)
 
     def _inner_run(self):
         # move all devices to starting position before starting scan
