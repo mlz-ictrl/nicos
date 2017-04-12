@@ -381,7 +381,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
         a = 12.377932
         spacegroup = 230
         session.log.info('YIG: using cubic lattice constant of %.6f A', a)
-        session.log.info()
+        session.log.info('')
     else:
         if not isinstance(powder, float):
             raise UsageError('first argument must be either "YIG" or a '
