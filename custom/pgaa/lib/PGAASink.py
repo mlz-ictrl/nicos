@@ -73,13 +73,19 @@ class PGAASinkHandler(DataSinkHandler):
             chnfilename = filename + '.chn'
 
             # path = os.path.join(dir_, filename)
-            with open(mcafilename, 'wb') as f:
-                for data in mcafiledata:
-                    data.tofile(f)
+            try:
+                with open(mcafilename, 'wb') as f:
+                    for data in mcafiledata:
+                        data.tofile(f)
+            except IOError:
+                pass
 
-            with open(chnfilename, 'wb') as f:
-                for data in chnfiledata:
-                    data.tofile(f)
+            try:
+                with open(chnfilename, 'wb') as f:
+                    for data in chnfiledata:
+                        data.tofile(f)
+            except IOError:
+                pass
 
         self.dataset.info = self.dataset.preset
 
@@ -160,10 +166,11 @@ class PGAASinkHandler(DataSinkHandler):
         mcahead.extend(elap)
         mcahead.extend(xcal)
         mcahead.extend([filler, nchans])
-        spectrum = array('i', spectrum_)
 
         filedata.extend(mcahead)
-        filedata.append(spectrum)
+        if spectrum_:
+            spectrum = array('i', spectrum_)
+            filedata.append(spectrum)
         return filedata
 
     def CHNFile(self, livetime, truetime, spectrum_, prefix, ecalslope_,
@@ -194,8 +201,9 @@ class PGAASinkHandler(DataSinkHandler):
                      numchannels]
         filedata.extend(chnheader)
 
-        spectrum = array('i', spectrum_)
-        filedata.append(spectrum)
+        if spectrum_:
+            spectrum = array('i', spectrum_)
+            filedata.append(spectrum)
 
         # suffix
         mustbes = array('h', [-102])
