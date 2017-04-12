@@ -216,7 +216,11 @@ class KWSDetector(Detector):
         'kwscounting': Param('True when taking data with kwscount()',
                              type=bool, default=False, settable=True,
                              userparam=False),
+        'openshutter': Param('True to open/close shutter while counting',
+                             type=bool, default=True, settable=True),
     }
+
+    _img = None
 
     def doInit(self, session_mode):
         Detector.doInit(self, session_mode)
@@ -238,6 +242,8 @@ class KWSDetector(Detector):
                               self.tofprogression))
 
     def doReadMode(self):
+        if self._img is None:
+            return 'standard'  # bootstrap
         return self._img.mode
 
     def doWriteMode(self, mode):
@@ -255,16 +261,19 @@ class KWSDetector(Detector):
         Detector.doPrepare(self)
 
     def doStart(self):
-        self._attached_shutter.maw('open')
+        if self.openshutter:
+            self._attached_shutter.maw('open')
         self.kwscounting = True
         Detector.doStart(self)
 
     def doFinish(self):
         Detector.doFinish(self)
         self.kwscounting = False
-        self._attached_shutter.maw('closed')
+        if self.openshutter:
+            self._attached_shutter.maw('closed')
 
     def doStop(self):
         Detector.doStop(self)
         self.kwscounting = False
-        self._attached_shutter.maw('closed')
+        if self.openshutter:
+            self._attached_shutter.maw('closed')
