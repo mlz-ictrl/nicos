@@ -51,6 +51,11 @@ class DSPec(Measurable):
     # }
 
     @usermethod
+    def getvals(self):
+        spectrum = [1] * 16384
+        return spectrum
+
+    @usermethod
     def getEcal(self):
         return '0 0 0'
 
