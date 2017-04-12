@@ -652,6 +652,7 @@ class ControlDialog(QDialog):
         self.devinfo = devinfo
         self.devitem = devitem
         self.paramItems = {}
+        self.moveBtn = None
 
         self._reinit()
 
