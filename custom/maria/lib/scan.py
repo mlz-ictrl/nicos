@@ -27,18 +27,30 @@ from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
-from nicos.commands.scan import _handleScanArgs, _infostr, \
+from nicos.commands.scan import _handleScanArgs, _infostr, ADDSCANHELP2,\
     _fixType as _fixTypeNPoints
 
 
 class KScan(Scan):
 
-    def __init__(self, devices, startpositions, endpositions=None,
+    def __init__(self, devices, startpositions, endpositions, speed=None,
                  firstmoves=None, multistep=None, detlist=None, envlist=None,
                  scaninfo=None, subscan=False):
+        self._speed = speed if speed is not None else devices[0].speed
         preset = {'live': True}
         Scan.__init__(self, devices, startpositions, endpositions, firstmoves,
                       multistep, detlist, envlist, preset, scaninfo, subscan)
+
+    def beginScan(self):
+        device = self._devices[0]
+        self._original_speed = device.speed
+        device.speed = self._speed
+        Scan.beginScan(self)
+
+    def endScan(self):
+        device = self._devices[0]
+        device.speed = self._original_speed
+        Scan.endScan(self)
 
     def acquireCompleted(self):
         return all(d.isCompleted() for d in self._devices)
@@ -142,13 +154,14 @@ def sscan(dev, *args, **kwargs):
 @usercommand
 @helparglist('dev, start, step, numpoints, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare)
-def kscan(dev, *args, **kwargs):
+def kscan(dev, start, step, numpoints, speed=None, *args, **kwargs):
     """Kinematic scan over device(s).
 
     The syntax is to give start, step and number of points:
 
-    >>> kscan(dev, 3, 2, 4)  # kinematic scan starting at 3 oscillate by 2
-                             # 4 times
+    >>> kscan(dev, 3, 2, 4)     # kinematic scan starting at 3 oscillate by 2
+                                # 4 times with default speed
+    >>> kscan(dev, 3, 2, 4, 1)  # same scan as above with speed 1.
 
     oscillates between 3 and 5 during exposure for each interval of (3, 5)
     respectively (5, 3).
@@ -162,9 +175,14 @@ def kscan(dev, *args, **kwargs):
                 startpositions.append([start + (i % 2) * step])
                 endpositions.append([start + ((i+1) % 2) * step])
         return startpositions, endpositions
-    scanstr = _infostr('scan', (dev,) + args, kwargs)
-    devs, values, restargs = _fixTypeNPoints(dev, args, mkpos)
+    scanargs = (start, step, numpoints) + args
+    scanstr = _infostr('kscan', (dev,) + scanargs, kwargs)
+    devs, values, restargs = _fixTypeNPoints(dev, scanargs, mkpos)
     _preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    KScan(devs, values[0], values[1], move, multistep, detlist, envlist,
+    KScan(devs, values[0], values[1], speed, move, multistep, detlist, envlist,
           scaninfo).run()
+
+
+sscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'sscan(dev, ')
+kscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'kscan(dev, ')
