@@ -16,7 +16,7 @@ includes = ['system',
            ]
 
 devices = dict(
-    sink = device('pgaa.PGAASink.PGAASink',
+    sink = device('pgaa.datasinks.PGAASink',
                   settypes = set(['scan']),
                   det1 = 'det',
                   det2 = 'detLEGe',

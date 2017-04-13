@@ -4,6 +4,10 @@ group = 'lowlevel'
 
 includes = []
 
+sysconfig = dict(
+    datasinks = ['sink']
+)
+
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
