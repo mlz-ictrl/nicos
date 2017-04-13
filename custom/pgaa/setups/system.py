@@ -10,6 +10,8 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
+group = 'lowlevel'
+
 includes = ['notifiers', ]
 
 devices = dict(
@@ -40,10 +42,8 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
-
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      minfree = 0.5,
-                      path = None,
+                      minfree = 5,
                      ),
 )

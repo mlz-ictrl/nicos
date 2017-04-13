@@ -1,13 +1,12 @@
 description = 'Shutter and attenuators via Pilz box'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = []
 
 nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
-
     shutter = device('pgaa.pilz.Switch',
                      description = 'secondary experiment shutter',
                      tacodevice = '//%s/pgaa/pilz/shutter' % (nethost,),
@@ -19,7 +18,6 @@ devices = dict(
                      pollinterval = 2,
                      timeout = 3,
                     ),
-
     att1 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 1',
                   tacodevice = '//%s/pgaa/pilz/satt1' % (nethost,),
@@ -31,7 +29,6 @@ devices = dict(
                   pollinterval = 2,
                   timeout = 3,
                  ),
-
     att2 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 2',
                   tacodevice = '//%s/pgaa/pilz/satt2' % (nethost,),
@@ -43,7 +40,6 @@ devices = dict(
                   pollinterval = 2,
                   timeout = 3,
                  ),
-
     att3 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 3',
                   tacodevice = '//%s/pgaa/pilz/satt3' % (nethost,),
