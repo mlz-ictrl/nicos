@@ -34,13 +34,15 @@ from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 
 
+customgui = path.join("custom", "maria", "lib", "gui")
+
+
 class SScan(Cmdlet):
 
     name = "Step Scan (start, step, end)"
     category = "Scan"
 
     def __init__(self, parent, client):
-        customgui = path.join("custom","maria", "lib", "gui")
         Cmdlet.__init__(self, parent, client,
                         findResource(path.join(customgui, "sscan.ui")))
         self.device.addItems(
@@ -119,4 +121,86 @@ class SScan(Cmdlet):
                "%(counttime)s)" % self.getValues()
 
 
+class KScan(Cmdlet):
+
+    name = 'Kinematic Scan'
+    category = 'Scan'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client,
+                        findResource(path.join(customgui, "kscan.ui")))
+        self.device.addItems(
+            self.client.getDeviceList('nicos.core.device.Moveable',
+                                      special_clause='hasattr(d, "speed")'))
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+        self.start.setValidator(DoubleValidator(self))
+        self.step.setValidator(DoubleValidator(self))
+        self.speed.setValidator(DoubleValidator(self))
+        self.start.textChanged.connect(self.on_range_change)
+        self.step.textChanged.connect(self.on_range_change)
+        self.speed.textChanged.connect(self.on_range_change)
+        self.numpoints.valueChanged.connect(self.on_range_change)
+
+    def on_range_change(self):
+        try:
+            pnts = self.numpoints.value()
+            rng = abs(float(self.step.text()))
+            secs = pnts * rng / float(self.speed.text())
+            self.totalLabel.setText('Total: %d points, %s' %
+                                    (pnts, formatDuration(secs)))
+        except (ValueError, ArithmeticError):
+            self.totalLabel.setText('Total:')
+        self.changed()
+
+    def on_device_change(self, text):
+        unit = self.client.getDeviceParam(text, 'unit')
+        value = self.client.getDeviceParam(text, 'value')
+        fmtstr = self.client.getDeviceParam(text, 'fmtstr')
+        try:
+            self.start.setText(fmtstr % value)
+        except Exception:
+            pass
+        self.unit1.setText(unit or '')
+        self.unit2.setText(unit or '')
+        self.unit3.setText((unit or '') + '/second')
+        self.changed()
+
+    def getValues(self):
+        return {'dev': self.device.currentText(),
+                'scanstart': self.start.text(),
+                'scanstep': self.step.text(),
+                'scanpoints': self.numpoints.value(),
+                'devspeed': self.speed.text()}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        if 'scanstart' in values:
+            self.start.setText(values['scanstart'])
+        if 'scanstep' in values:
+            self.step.setText(values['scanstep'])
+        if 'scanpoints' in values:
+            self.numpoints.setValue(values['scanpoints'])
+        if 'devspeed' in values:
+            self.speed.setText(values['devspeed'])
+
+    def isValid(self):
+        valid = [
+            self.markValid(self.start, isFloat(self.start)),
+            self.markValid(self.step, isFloat(self.step)),
+            self.markValid(self.speed, isFloat(self.speed, 0.00001)),
+            self.markValid(self.numpoints, self.numpoints.value() >= 2),
+        ]
+        return all(valid)
+
+    def generate(self, mode):
+        if mode == 'simple':
+            return 'kscan %(dev)s %(scanstart)s %(scanstep)s %(scanpoints)s ' \
+                   '%(devspeed)s' % self.getValues()
+        return 'kscan(%(dev)s, %(scanstart)s, %(scanstep)s, %(scanpoints)s, ' \
+               '%(devspeed)s)' % self.getValues()
+
+
+register(KScan)
 register(SScan)
