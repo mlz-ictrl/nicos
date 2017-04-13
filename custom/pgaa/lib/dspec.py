@@ -148,7 +148,6 @@ class DSPec(PyTangoDevice, Measurable):
                     return
                 self._dev.SyncMode = 'LiveTime'
                 self._dev.SyncValue = preset['value'] * 1000
-
         elif preset['cond'] == 'ClockTime':
             self._stop = preset['value']
 
@@ -199,10 +198,8 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Stop()
 
     def doIsCompleted(self):
-
         if self._started is None:
             return True
-
         if self._dont_stop_flag is True:
             return (time.time() - self._started) >= self._preset['value']
 

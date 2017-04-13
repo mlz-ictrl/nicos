@@ -111,8 +111,8 @@ class DSPec(Measurable):
             return 0
 
     def doStatus(self, maxage=0):
-        self.log.warning('status %s', self.state)
-        return (self.state, 'TESTING' if self.state == status.OK else 'MOVING')
+        self.log.debug('status %s', self.state)
+        return self.state, 'TESTING' if self.state == status.OK else 'MOVING'
 
     def doPoll(self, n, maxage=0):
         return ((status.OK, ''), [0 for _i in range(16384)])
@@ -134,7 +134,7 @@ class DSPec(Measurable):
     def doStart(self):
         self.state = status.BUSY
         self._started = time.time()
-        self.log.warning('started')
+        self.log.debug('started')
         return
         # try:
         #     self._dev.Stop()
