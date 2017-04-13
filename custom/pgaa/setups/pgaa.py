@@ -1,4 +1,4 @@
-description = 'PGAA setup'
+description = 'PGAA setup with sample changer'
 
 group = 'basic'
 
@@ -13,6 +13,7 @@ includes = ['system',
             'sample',
             'pilz',
             'detector',
+            'collimation',
            ]
 
 devices = dict(
