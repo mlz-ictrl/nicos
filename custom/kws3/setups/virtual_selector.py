@@ -1,47 +1,36 @@
 # -*- coding: utf-8 -*-
 
-description = "Virtual selector area setup"
-group = "lowlevel"
+description = 'Virtual selector area setup'
+group = 'lowlevel'
+display_order = 20
+
+sel_presets = configdata('config_selector.SELECTOR_PRESETS')
 
 devices = dict(
-    sel_rot         = device("kws1.virtual.Standin",
-                             description = "selector rotation table",
+    selector        = device('devices.generic.MultiSwitcher',
+                             description = 'select selector presets',
+                             blockingmove = False,
+                             moveables = ['sel_lambda'],
+                             mapping = {k: [v['lam']]
+                                        for (k, v) in sel_presets.items()},
+                             fallback = 'unknown',
+                             precision = [0.05],
                             ),
-    sel_ap1         = device("devices.generic.TwoAxisSlit",
-                             description = "aperture before selector",
-                             fmtstr = '%.3f %.3f',
-                             horizontal = "sel_ap1_width",
-                             vertical = "sel_ap1_height",
+
+    sel_speed       = device('kws1.virtual.Standin',
+                             description = 'selector speed',
                             ),
-    sel_ap1_width   = device("kws1.virtual.Standin",
-                             description = 'aperture before selector horizontal opening',
-                             lowlevel = True,
+
+    sel_lambda      = device('kws1.selector.SelectorLambda',
+                             description = 'Selector wavelength control',
+                             seldev = 'sel_speed',
+                             unit = 'A',
+                             fmtstr = '%.2f',
+                             constant = 3133.4 / 60,  # SelectorLambda uses RPM
+                             offset = -0.00195,
                             ),
-    sel_ap1_height  = device("kws1.virtual.Standin",
-                             description = "aperture before selector vertical opening",
-                             lowlevel = True,
-                            ),
-    sel_ap2         = device("devices.generic.Slit",
-                             description = "selector jj-xray aperture",
-                             left = "sel_ap2_x_left",
-                             right = "sel_ap2_x_right",
-                             bottom = "sel_ap2_y_lower",
-                             top = "sel_ap2_y_upper",
-                            ),
-    sel_ap2_x_left  = device("kws1.virtual.Standin",
-                             description = "selector jj-xray aperture left",
-                             lowlevel = True,
-                            ),
-    sel_ap2_x_right = device("kws1.virtual.Standin",
-                             description = "selector jj-xray aperture right",
-                             lowlevel = True,
-                            ),
-    sel_ap2_y_upper = device("kws1.virtual.Standin",
-                             description = "selector jj-xray aperture upper",
-                             lowlevel = True,
-                            ),
-    sel_ap2_y_lower = device("kws1.virtual.Standin",
-                             description = "selector jj-xray aperture lower",
-                             lowlevel = True,
+
+    sel_rot         = device('kws1.virtual.Standin',
+                             description = 'selector rotation table',
                             ),
 )

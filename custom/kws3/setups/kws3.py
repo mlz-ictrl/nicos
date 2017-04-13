@@ -6,10 +6,7 @@ group = 'basic'
 modules = ['kws1.commands']
 
 includes = [
-    'sample01',
-    'sample10',
-    'mobile',
-    'mirror',
+    'sample',
     'selector',
     'detector',
     'shutter',

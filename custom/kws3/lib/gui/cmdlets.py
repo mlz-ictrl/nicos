@@ -44,7 +44,7 @@ class Resolution(ChoiceElement):
 
 
 class SamplePos(ChoiceElement):
-    CACHE_KEY = 'sample_pos/mapping'
+    CACHE_KEY = 'sample_pos/presets'
     SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Sample position'
 
