@@ -104,7 +104,7 @@ devices = dict(
                      description = 'DSpec Tango Device',
                      prefix = 'L'
                     ),
-    sink = device('pgaa.PGAASink.PGAASink',
+    sink = device('pgaa.datasinks.PGAASink',
                   lowlevel = True,
                   settypes = set(['scan']),
                   det1 = 'det',
