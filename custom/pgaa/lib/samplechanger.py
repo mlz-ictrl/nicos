@@ -41,8 +41,8 @@ class SamplePusher(NamedDigitalOutput):
 
     attached_devices = {
         'sensort': Attach('Sensor on top of the tube.', Readable),
-        'sensorl': Attach('sensor on the downside', Readable),
-        'motor': Attach('dont allow movement if motor is moving', Moveable),
+        'sensorl': Attach('Sensor on the downside', Readable),
+        'motor': Attach('Stage rotation', Moveable),
     }
 
     def doInit(self, mode):
@@ -51,12 +51,10 @@ class SamplePusher(NamedDigitalOutput):
 
     def doIsAllowed(self, pos):
         if self._attached_motor.status(0)[0] == status.BUSY:
-            return (False, 'motor moving')
-        if not (self._attached_motor.read(0) in (1.000, 2.000, 3.000, 4.000,
-                                                 5.000, 6.000, 7.000, 8.000,
-                                                 9.000, 10.000, 11.000, 12.000,
-                                                 13.000, 14.000, 15.000,
-                                                 16.000)):
+            return False, 'motor moving'
+        if self._attached_motor.read(0) not in (1., 2., 3., 4., 5., 6., 7., 8.,
+                                                9., 10., 11., 12., 13., 14.,
+                                                15., 16.):
             return False, 'invalid motor position'
         return True, 'ok'
 
@@ -85,6 +83,7 @@ class SamplePusher(NamedDigitalOutput):
 
 
 class SampleMotor(MCC2Motor):
+
     attached_devices = {
         'sensor': Attach('Active sensor locks the motor', Readable)
     }
