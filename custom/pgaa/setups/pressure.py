@@ -1,9 +1,7 @@
 description = 'Vacuum sensors of sample chamber'
 
-# group = 'vacuum'
-group = 'basic'
+group = 'lowlevel'
 
-# includes = ['system']
 includes = []
 
 nethost = 'pgaasrv.pgaa.frm2'
