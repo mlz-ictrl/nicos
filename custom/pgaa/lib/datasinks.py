@@ -24,9 +24,8 @@
 
 """PGAA specific data sink(s)."""
 
-import time
-
 import csv
+import time
 
 from array import array
 from datetime import datetime
@@ -113,9 +112,9 @@ class PGAASinkHandler(DataSinkHandler):
                                     extrasaction='ignore')
             row = self.dataset.info.copy()
             row['started'] = datetime.fromtimestamp(
-                self.dataset.started).strftime("%Y-%m-%d %H:%M:%S")
+                self.dataset.started).strftime('%Y-%m-%d %H:%M:%S')
             row['stopped'] = datetime.fromtimestamp(
-                row['stopped']).strftime("%Y-%m-%d %H:%M:%S")
+                row['stopped']).strftime('%Y-%m-%d %H:%M:%S')
             row.update({'Pressure': vacval})
             writer.writerow(row)
 
