@@ -90,7 +90,7 @@ devices = dict(
                   detector = 'basedet',
                   pollinterval = None,
                   maxage = 86400,
-                  liveinterval = 1,
+                  liveinterval = 5,
                  ),
     histogram = device('frm2.qmesydaqsinks.HistogramSink',
                        description = 'Histogram data written via QMesyDAQ',
