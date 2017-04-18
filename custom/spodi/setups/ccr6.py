@@ -6,22 +6,22 @@ includes = ['alias_T']
 nethost = 'spodisrv'
 domain = 'spodi'
 
-devices = dict(
-    T_ccr6 = device('devices.taco.TemperatureController',
-        description = 'CCR6 temperature regulation',
+devices = {
+    'T_%s_340' % setupname: device('devices.taco.TemperatureController',
+        description = 'CCR6 temperature regulation (LS-340)',
         tacodevice = '//%s/%s/ls340/control' % (nethost, domain),
         pollinterval = 1,
         maxage = 6,
-        abslimits = (0, 300),
+        abslimits = (0, 600),
     ),
-    T_ccr6_A = device('devices.taco.TemperatureSensor',
-        description = 'CCR6 sensor A',
+    'T_%s_A_340' % setupname: device('devices.taco.TemperatureSensor',
+        description = 'CCR6 sensor A (LS-340)',
         tacodevice = '//%s/%s/ls340/sensora' % (nethost, domain),
         pollinterval = 1,
         maxage = 6,
     ),
-    T_ccr6_B = device('devices.taco.TemperatureSensor',
-        description = 'CCR6 sensor B',
+    'T_%s_B_340' % setupname: device('devices.taco.TemperatureSensor',
+        description = 'CCR6 sensor B (LS-340)',
         tacodevice = '//%s/%s/ls340/sensorb' % (nethost, domain),
         pollinterval = 1,
         maxage = 6,
@@ -66,16 +66,79 @@ devices = dict(
     #                'on': 1},
     #     tacodevice = '//%s/%s/ccr/vacuum' % (nethost, domain),
     # ),
-)
+
+    'T_%s' % setupname : device('frm2.ccr.CCRControl',
+                                description = 'The main temperature control '
+                                              'device of the CCR (LS-336)',
+                                stick = 'T_%s_stick' % setupname,
+                                tube = 'T_%s_tube' % setupname,
+                                unit = 'K',
+                                fmtstr = '%.3f',
+                               ),
+
+    'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
+                                      description = 'The control device of '
+                                                    'the sample (stick) (LS-336)',
+                                      tacodevice = '//%s/spodi/stick/control2' % nethost,
+                                      abslimits = (0, 600),
+                                      unit = 'K',
+                                      fmtstr = '%.3f',
+                                     ),
+
+    'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
+                                     description = 'The control device of the '
+                                                   'tube (LS-336)',
+                                     tacodevice = '//%s/spodi/tube/control1' % nethost,
+                                     abslimits = (0, 600),
+                                     warnlimits = (0, 600),
+                                     unit = 'K',
+                                     fmtstr = '%.3f',
+                                    ),
+
+    'T_%s_A' % setupname : device('devices.taco.TemperatureSensor',
+                                  description = '(optional) Sample temperature (LS-336)',
+                                  tacodevice = '//%s/spodi/sample/sensora' % nethost,
+                                  unit = 'K',
+                                  fmtstr = '%.3f',
+                                 ),
+
+    'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
+                                  description = '(regulation) Temperature at '
+                                                'the stick (LS-336)',
+                                  tacodevice = '//%s/spodi/stick/sensorb' % nethost,
+                                  unit = 'K',
+                                  fmtstr = '%.3f',
+                                 ),
+
+    'T_%s_C' % setupname : device('devices.taco.TemperatureSensor',
+                                  description = 'Temperature of the coldhead (LS-336)',
+                                  tacodevice = '//%s/spodi/coldhead/sensorc' % nethost,
+                                  warnlimits = (0, 300),
+                                  unit = 'K',
+                                  fmtstr = '%.3f',
+                                 ),
+
+    'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
+                                  description = '(regulation) Temperature at '
+                                                'thermal coupling to the tube (LS-336)',
+                                  tacodevice = '//%s/spodi/tube/sensord' % nethost,
+                                  warnlimits = (0, 600),
+                                  unit = 'K',
+                                  fmtstr = '%.3f',
+                                 ),
+}
 
 alias_config = {
-    'T': {
-        'T_ccr6': 100
-    },
-    'Ts': {
-        'T_ccr6_A': 100,
-        'T_ccr6_B': 90,
-        # 'T_ccr6_C': 80,
-        # 'T_ccr6_D': 70
-    },
+    'T':  {'T_%s' % setupname: 200,
+           'T_%s_stick' % setupname: 150,
+           'T_%s_tube' % setupname: 100,
+           'T_%s_340' % setupname: 80
+          },
+    'Ts': {'T_%s_B' % setupname: 100,
+           'T_%s_A' % setupname: 90,
+           'T_%s_D' % setupname: 20,
+           'T_%s_C' % setupname: 10,
+           'T_%s_A_340' % setupname: 8,
+           'T_%s_B_340' % setupname: 5,
+          },
 }
