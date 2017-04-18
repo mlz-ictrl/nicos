@@ -264,12 +264,6 @@ class PGAASink(DataSink):
         'filecount': Param('filecount',
                            type=int, mandatory=False, settable=True,
                            prefercache=True, default=1),
-        'ecalslope': Param('Energy Calibration Slope',
-                           type=int, mandatory=False, settable=True,
-                           prefercache=True, default=1),
-        'ecalintercept': Param('Energy Calibration Slope',
-                               type=int, mandatory=False, settable=True,
-                               prefercache=True, default=1),
     }
 
     handlerclass = PGAASinkHandler
