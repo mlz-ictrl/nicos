@@ -36,11 +36,14 @@ from nicos.core.data.dataset import ScanData
 from nicos.core.data.sink import DataSink, DataSinkHandler
 from nicos.core.errors import NicosError
 
+from nicos.utils import ensureDirectory
+
 
 class PGAASinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
-        super(PGAASinkHandler, self).__init__(sink, dataset, detector)
+        DataSinkHandler.__init__(self, sink, dataset, detector)
+        ensureDirectory('logfiles')
 
     def end(self):
         # self.log.warning('dataset inc %s%s', self, self.detector)
