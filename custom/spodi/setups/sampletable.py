@@ -19,7 +19,7 @@ devices = dict(
                                  nameserver = '%s' % (nameservice,),
                                  objname = '%s' % (servername),
                                  config = 'TTHS 114 11 0x00f1c000 1 8192 16000'
-                                          '200 2 25 50 1 1 1 3000 1 10 10 0 '
+                                          ' 200 2 25 50 1 1 1 3000 1 10 10 0 '
                                           '1000',
                                 ),
                   precision = 0.005,
