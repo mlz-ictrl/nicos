@@ -1,4 +1,4 @@
-description = "neutronguid"
+description = "neutronguide"
 
 group = 'optional'
 

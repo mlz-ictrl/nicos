@@ -1,4 +1,4 @@
-description = "neutronguid sideMirror noMirror"
+description = "neutronguide sideMirror noMirror"
 
 group = 'optional'
 
