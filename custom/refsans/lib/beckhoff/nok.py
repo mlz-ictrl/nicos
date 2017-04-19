@@ -491,12 +491,13 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
         # now just go where commanded....
         self._HW_start(self._phys2steps(target))
         session.delay(0.1)
-        if self._HW_readStatusWord() & (1<<10):
-            raise MoveError('Limit switch hit by HW')
-        if self._HW_readStatusWord() & (1<<11):
-            raise MoveError('stop issued')
-        if self._HW_readStatusWord() & (1<<12):
-            raise MoveError('Target ignored by HW')
+        if hasattr(self, '_HW_readStatusWord'):
+            if self._HW_readStatusWord() & (1 << 10):
+                raise MoveError('Limit switch hit by HW')
+            if self._HW_readStatusWord() & (1 << 11):
+                raise MoveError('stop issued')
+            if self._HW_readStatusWord() & (1 << 12):
+                raise MoveError('Target ignored by HW')
 
     @requires(level='admin')
     def doReference(self):
