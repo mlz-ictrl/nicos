@@ -1,17 +1,15 @@
 """NICOS GUI configuration for ANTARES."""
 
 main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-#       panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
-    ),
-    ('Experiment Info',
-        panel('expinfo.ExpInfoPanel'),
-    ),
-    ('Devices',
-        panel('devices.DevicesPanel'),
-    ),
+            vsplit(
+                panel('status.ScriptStatusPanel'),
+#               panel('watch.WatchPanel'),
+                panel('console.ConsolePanel' ),
+            ),
+            ('Experiment info', panel('expinfo.ExpInfoPanel')),
+            ('NICOS devices',
+             panel('devices.DevicesPanel', icons=True, dockpos='right',)
+            ),
 )
 
 windows = [
@@ -51,8 +49,4 @@ tools = [
         tool('Neutron calculations', 'website.WebsiteTool',
              url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
         tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-        tool('Maintenance commands', 'commands.CommandsTool',
-             commands=[
-                 ('TACO server control panel (beta)', 'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY maint@antareshw.antares.frm2 "source /etc/tacoenv.sh && sudo /usr/bin/python /opt/tacocp/tacocp.py antaressrv.antares.frm2" && exit'),
-             ]),
 ]

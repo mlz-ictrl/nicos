@@ -41,7 +41,7 @@ devices = dict(
     ),
     socket_neo = device('devices.tango.NamedDigitalOutput',
         description = 'Powersocket 01 (Neo Camera attached)',
-        tangodevice = 'tango://slow.antares.frm2:10000/antares/'
+        tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
         'fzjdp_digital/Socket01',
         mapping = dict(
             on = 1, off = 0

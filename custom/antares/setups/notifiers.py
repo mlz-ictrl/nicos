@@ -8,7 +8,8 @@ devices = dict(
         sender = 'antares@frm2.tum.de',
         copies = [
             ('michael.schulz@frm2.tum.de', 'important'),
-            ('alerts.sw.zea2@fz-juelich.de', 'important'),
+            ('burkhard.schillinger@frm2.tum.de', 'important'),
+            ('dominik.bausenwein@frm2.tum.de', 'important'),
         ],
         subject = 'ANTARES',
         lowlevel = True,
@@ -16,7 +17,11 @@ devices = dict(
     warning = device('devices.notifiers.Mailer',
         description = 'Watchdog email notifier',
         sender = 'antares@frm2.tum.de',
-        copies = [('michael.schulz@frm2.tum.de', 'all')],
+        copies = [
+			('michael.schulz@frm2.tum.de', 'all'),
+			('burkhard.schillinger@frm2.tum.de', 'all'),
+			('dominik.bausenwein@frm2.tum.de', 'all'),
+		],
         subject = 'ANTARES',
         lowlevel = True,
     ),

@@ -2,7 +2,7 @@ description = 'Large Beam Limiter in Experimental Chamber 2'
 
 group = 'optional'
 
-tango_base = 'tango://slow.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     lbl_l = device('devices.tango.Motor',

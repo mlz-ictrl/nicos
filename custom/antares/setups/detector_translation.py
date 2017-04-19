@@ -2,7 +2,7 @@ description = 'Detector Table Experimental Chamber 1'
 
 group = 'optional'
 
-tango_base = 'tango://slow.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     dtx = device('devices.tango.Motor',
