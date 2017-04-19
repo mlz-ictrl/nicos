@@ -154,7 +154,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         (11, 'Target not reached: stop'),
         (12, 'Target ignored'),
         (13, 'Encoder NOT referenced'),
-        (14, 'parameter acces denied'),
+        (14, 'parameter access denied'),
         (15, 'parameter access granted'),
     )
     HW_Status_Inv = 0
