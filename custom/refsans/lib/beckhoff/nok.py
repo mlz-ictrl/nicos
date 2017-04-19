@@ -333,11 +333,28 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     #
     # Hardware abstraction: which actions do we want to do...
     #
+
     def _HW_start(self, target):
-        """initiate movement"""
-        self._writeDestination(target)
-        # docu: bit2 = go to absolute position, autoresets
-        self._writeControlBit(2, 1)
+        """Initiate movement."""
+        # Write destination and start in one cycle
+        # doc: bit2 = go to absolute position, autoresets
+        # self._writeControlBit(2, 1)
+        bit, value, numbits = 2, 1, 1
+        self.log.debug('_writeControlBit %r, %r', bit, value)
+        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
+                                  (0, self.address, 1))[0]
+        mask = (1 << numbits) - 1
+        tmpval &= ~(mask << int(bit))
+        tmpval |= ((mask & int(value)) << int(bit))
+        self.log.debug('write control bit: %x', tmpval)
+
+        # self._writeDestination(target):
+        self.log.debug('_writeDestination %r', target)
+        value = struct.unpack('<2H', struct.pack('=i', target))
+        data = (0, self.address, tmpval, 0) + value
+        self.log.debug('send: %r' % (data, ))
+        self._taco_guard(self._dev.writeMultipleRegisters, data)
+        session.delay(0.1)  # work around race conditions....
 
     def _HW_reference(self):
         """Do the referencing and update position to refpos"""
