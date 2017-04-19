@@ -1,17 +1,19 @@
-description = 'FRM II 7.5 T superconducting magnet'
+description = 'FRM II 5.5 T superconducting magnet'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_B', 'alias_sth']
 
-# Important: nethost != setupname
-nethost = 'magnet'
+# setupname is set by nicos before loading this file
+# setupname = filename - '.py' extension
+nethost = setupname
+
 
 devices = {
     'B_%s' % setupname: device('devices.taco.CurrentSupply',
                                description = 'The magnetic field',
                                tacodevice = '//%s/magnet/smc120/t' % nethost,
-                               abslimits = (-7.5, 7.5),
+                               abslimits = (-5.555, 5.555),
                               ),
 
     'sth_%s' % setupname: device('devices.taco.Axis',
@@ -26,7 +28,7 @@ maxtemps = [None, 4.3, 4.3, 5.1, 4.7, None, None, None, 4.3]
 
 for i in range(1, 9):
     dev = device('devices.taco.TemperatureSensor',
-                 description = '7.5T magnet temperature sensor %d' % i,
+                 description = '5.5T magnet temperature sensor %d' % i,
                  tacodevice = '//%s/magnet/ls218/sens%d' % (nethost, i),
                  warnlimits = (0, maxtemps[i]),
                  pollinterval = 30,
