@@ -31,6 +31,7 @@ from threading import RLock
 
 from IO import StringIO
 from RS485Client import RS485Client  # pylint: disable=F0401
+from TACOClient import TACOError
 
 from nicos import session
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
@@ -192,6 +193,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
     taco_class = RS485Client
     taco_errorcodes = {
+        4019: InvalidCommandError,
         537133063: InvalidCommandError,
     }
 
@@ -216,7 +218,10 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
     def doUpdateBustimeout(self, value):
         if self._dev:
-            self._taco_update_resource('timeout', str(value))
+            try:
+                self._taco_update_resource('timeout', str(value))
+            except (TACOError, Exception) as e:
+                self.log.warning('ignoring %r', e)
 
 
 class IPCModBusRS232(HasCommunication, IPCModBus):
