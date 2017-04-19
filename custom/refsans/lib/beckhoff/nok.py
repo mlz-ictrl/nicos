@@ -301,6 +301,9 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         else:
             return self._HW_status()
 
+    def doSetPosition(self, target):
+        pass
+
 
 class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     """
