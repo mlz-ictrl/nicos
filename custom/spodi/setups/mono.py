@@ -21,6 +21,12 @@ devices = dict(
                   config = 'OMGM 115 11 0x00f1c000 3 6400 8000 200 1 0 0 '
                            '0 0 1 3000 1 10 0 0 0',
                  ),
+    tthm = device('devices.generic.ManualSwitch',
+                  description = 'HWB TTHM',
+                  fmtstr = '%.3f',
+                  unit = 'deg',
+                  states = (155.,),
+                 ),
 #   chim = device('devices.vendor.caress.Motor',
 #                 description = 'HWB CHIM',
 #                 fmtstr = '%.2f',
