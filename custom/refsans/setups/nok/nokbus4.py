@@ -8,7 +8,7 @@ includes = []
 
 devices = dict(
     nokbus4 = device('devices.vendor.ipc.IPCModBusTaco',
-                      tacodevice = '//%s/test/ipcsms/4' % (nethost,),
+                      tacodevice = '//%s/test/network/ipcsms_4' % (nethost,),
                       loglevel = 'info',
                       lowlevel = True,
                       bustimeout = 0.5,
