@@ -180,6 +180,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         mask = (1 << numbits) - 1
         tmpval &= ~(mask << int(bit))
         tmpval |= ((mask & int(value)) << int(bit))
+        self.log.debug('write control bit: %x', tmpval)
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
         session.delay(0.1) # work around race conditions....
