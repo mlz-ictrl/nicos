@@ -123,7 +123,7 @@ _shuttercolumn = Column(
 _tubecolumn = Column(
     Block('detector', [
       BlockRow(Field(dev='table', name='table'),),
-      BlockRow(Field(dev='tube_m', name='tube'),),
+      BlockRow(Field(dev='tube', name='tube'),),
       ])
 )
 

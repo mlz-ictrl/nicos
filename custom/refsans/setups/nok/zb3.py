@@ -16,7 +16,7 @@ devices = dict(
                         nok_length = 13.0,
                         nok_end = 8850.5,
                         nok_gap = 1.0,
-                        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+                        inclinationlimits = (-1000, 1000),   # invented values, PLEASE CHECK!
                         masks = dict(
                                      k1   = [-110.0, 0.0, -2.64, 0.0],
                                      slit = [0.0, 0.0, -2.63, -0.57],
@@ -61,31 +61,37 @@ devices = dict(
     zb3_ssshl = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/ssshl of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/ssshl' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_sssll = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/sssll of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/sssll' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_ssrel = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/ssrel of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/ssrel' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_ssref = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/ssref of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/ssref' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_sshl = device('devices.taco.DigitalInput',
                       description = 'Device test/zb3/sshl of Server ipcsmsserver zb3',
                       tacodevice = '//%s/test/zb3/sshl' % nethost,
+                      lowlevel = True,
                      ),
 
     zb3_ssll = device('devices.taco.DigitalInput',
                       description = 'Device test/zb3/ssll of Server ipcsmsserver zb3',
                       tacodevice = '//%s/test/zb3/ssll' % nethost,
+                      lowlevel = True,
                      ),
 
 # generated from global/inf/poti_tracing.inf
@@ -122,31 +128,37 @@ devices = dict(
     zb3_srshl = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/srshl of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/srshl' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_srsll = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/srsll of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/srsll' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_srrel = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/srrel of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/srrel' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_srref = device('devices.taco.DigitalInput',
                        description = 'Device test/zb3/srref of Server ipcsmsserver zb3',
                        tacodevice = '//%s/test/zb3/srref' % nethost,
+                       lowlevel = True,
                       ),
 
     zb3_srhl = device('devices.taco.DigitalInput',
                       description = 'Device test/zb3/srhl of Server ipcsmsserver zb3',
                       tacodevice = '//%s/test/zb3/srhl' % nethost,
+                      lowlevel = True,
                      ),
 
     zb3_srll = device('devices.taco.DigitalInput',
                       description = 'Device test/zb3/srll of Server ipcsmsserver zb3',
                       tacodevice = '//%s/test/zb3/srll' % nethost,
+                      lowlevel = True,
                      ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
@@ -172,9 +184,9 @@ devices = dict(
                         description = 'Position sensing for ZB3, sample side',
                         reference = 'nok_refc1',
                         measure = 'zb3s_poti',
-                        poly = [-0.565827, 1000.571 / 3.842],    # off, mul * 1000 / sensitivity, higher orders...
-                        serial = 7547,
-                        length = 250.0,
+                        poly = [118.68, 1000. / 1.921],    # off, mul * 1000 / sensitivity, higher orders...
+                        serial = 7781,
+                        length = 500.0,
                         lowlevel = True,
                        ),
 

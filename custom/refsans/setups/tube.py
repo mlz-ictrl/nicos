@@ -10,5 +10,13 @@ devices = dict(
                     description = 'tube Motor',
                     tacodevice = '%s/servostar/tube0' % tacodev,
                     abslimits = (-120, 1000),
+                    lowlevel = True,
                    ),
+    tube = device('devices.generic.Axis',
+                   description = 'tube height',
+                   motor = 'tube_m',
+                   obs = [],
+                   precision = 0.05,
+                   dragerror = 10.,
+                  ),
 )

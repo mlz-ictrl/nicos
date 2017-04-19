@@ -65,8 +65,7 @@ devices = dict(
                       unit = 'mm',
                       # acording to docu:
                       abslimits = (0.1, 130),
-                      userlimits = (10, 68), # XX: check values!
-                      #lowlevel = True,
+                      lowlevel = True,
                      ),
     nok5a_s  = device('refsans.beckhoff.nok.BeckhoffMotorCab1M12',
                       description = 'nok5a motor (M12), sample side',
@@ -76,8 +75,7 @@ devices = dict(
                       unit = 'mm',
                       # acording to docu:
                       abslimits = (0.1, 130),
-                      userlimits = (10, 68), # XX: check values!
-                      #lowlevel = True,
+                      lowlevel = True,
                      ),
     nok5ar_axis     = device('devices.generic.Axis',
                              description = 'Axis of NOK5a, reactor side',
@@ -124,8 +122,8 @@ devices = dict(
                       unit = 'mm',
                       # acording to docu:
                       abslimits = (-184, -0.1),
-                      userlimits = (-70, -68), # XX: check values!
-                      #lowlevel = True,
+                      userlimits = (-155.7889, -0.1),
+                      lowlevel = True,
                      ),
     zb0     = device('devices.generic.Axis',
                      description = 'zb0, singleslit',
@@ -203,8 +201,8 @@ devices = dict(
                       unit = 'mm',
                       # acording to docu:
                       abslimits = (-184, -0.1),
-                      userlimits = (-70, -68), # XX: check values!
-                      #lowlevel = True,
+                      userlimits = (-146.0656, -0.1),
+                      lowlevel = True,
                      ),
     zb1     = device('devices.generic.Axis',
                      description = 'zb1, singleslit',
@@ -229,7 +227,7 @@ devices = dict(
                            lowlevel = True,
                           ),
     table_z_obs = device('refsans.beckhoff.nok.BeckhoffCoderDetector',
-                         description = 'Coder of detektorantrieb inside tube',
+                         description = 'Coder of detector table inside tube',
                          tacodevice = '//%s/test/modbus/tablee'% (nethost,),
                          address = 0x3020+1*10, # word adress
                          slope = 100,
@@ -237,35 +235,35 @@ devices = dict(
                          lowlevel = True,
                         ),
     table = device('devices.generic.Axis',
-                   description = 'table',
+                   description = 'detector table inside tube',
                    motor = 'table_z_motor',
-                   coder = 'table_z_motor',
                    obs = ['table_z_obs'],
                    precision = 0.05,
+                   dragerror = 10.,
                   ),
 
     # according to '_2013-04-05 Anhang A V0.6.pdf'
     # beckhoff is at 'horizontalblende.refsans.frm2' / 172.25.18.109
     # hs_center is the offset of the slit-center to the beam
     # hs_width is the opening of the slit
+    h2_center = device('refsans.beckhoff.nok.BeckhoffMotorHSlit',
+                       description = 'Horizontal slit system: offset of the slit-center to the beam',
+                       tacodevice = '//%s/test/modbus/h2'% (nethost,),
+                       address = 0x3020+0*10, # word adress
+                       slope = 1000,
+                       unit = 'mm',
+                       # acording to docu:
+                       abslimits = (-69.5, 69.5),
+                      ),
     h2_width = device('refsans.beckhoff.nok.BeckhoffMotorHSlit',
-                      description = 'Horizontal slit system: offset of the slit-center to the beam',
+                      description = 'Horizontal slit system: opening of the slit',
                       tacodevice = '//%s/test/modbus/h2'% (nethost,),
-                      address = 0x3020+0*10, # word adress
+                      address = 0x3020+1*10, # word adress
                       slope = 1000,
                       unit = 'mm',
                       # acording to docu:
-                      abslimits = (-69.5, 69.5),
+                      abslimits = (0.05, 69.5),
                      ),
-    h2_center  = device('refsans.beckhoff.nok.BeckhoffMotorHSlit',
-                        description = 'Horizontal slit system: opening of the slit',
-                        tacodevice = '//%s/test/modbus/h2'% (nethost,),
-                        address = 0x3020+1*10, # word adress
-                        slope = 1000,
-                        unit = 'mm',
-                        # acording to docu:
-                        abslimits = (0.05, 69.5),
-                       ),
     # according to '_Anhang_A_REFSANS_Pumpstand.pdf'
     pumpstand    = device('refsans.beckhoff.pumpstation.PumpstandIO',
                           description = 'io device for pumpstand',
