@@ -121,6 +121,11 @@ devices = {
                                         tangodevice = plc_tango_base + 'p2',
                                         unit = 'mbar',
                                        ),
+    '%s_1K_heatswitch' % setupname : device('devices.tango.NamedDigitalOutput',
+                                            description = 'Heat switch to connect the 1K stage',
+                                            tangodevice = plc_tango_base + 'heatswitch_onoff',
+                                            mapping = {'on': 1, 'off': 0},
+                                           ),
 }
 
 alias_config = {
