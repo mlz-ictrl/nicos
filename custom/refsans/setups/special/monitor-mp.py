@@ -129,8 +129,8 @@ _tubecolumn = Column(
 
 _h2column =  Column(
     Block('h2', [
-      BlockRow(Field(dev='h2_center', name='open'),),
-      BlockRow(Field(dev='h2_width', name='lateral'),),
+      BlockRow(Field(dev='h2_width', name='open'),),
+      BlockRow(Field(dev='h2_center', name='lateral'),),
       ])
 )
 
