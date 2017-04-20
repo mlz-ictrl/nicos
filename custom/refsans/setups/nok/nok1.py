@@ -1,6 +1,6 @@
 description = "neutronguide, leadblock"
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1']
 

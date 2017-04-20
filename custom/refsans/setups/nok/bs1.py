@@ -1,6 +1,6 @@
 description = "DoubleSlit [slit k1] between nok8 and nok9"
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus4']
 

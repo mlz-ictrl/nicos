@@ -1,6 +1,6 @@
 description = 'NOK Devices for REFSANS, main file including all'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok1', 'nok2', 'nok3', 'nok4',
             'b1',

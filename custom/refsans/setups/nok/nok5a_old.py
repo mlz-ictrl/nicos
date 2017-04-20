@@ -1,6 +1,6 @@
-description = "old"
+description = "NOK 5a devices using IPC hardware"
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus2']
 

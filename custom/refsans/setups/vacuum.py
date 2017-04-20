@@ -1,6 +1,5 @@
 description = 'Vacuum readout devices using Leybold Center 3'
 
-# not included by others
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'

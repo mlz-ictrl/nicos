@@ -1,6 +1,6 @@
 description = "neutronguide sideMirror noMirror"
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus2', 'nokbus3']
 

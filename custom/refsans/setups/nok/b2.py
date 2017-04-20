@@ -1,6 +1,6 @@
 description = 'at samplecamper [slit k1]'
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 

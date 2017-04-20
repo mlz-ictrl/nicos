@@ -1,6 +1,6 @@
 description = "neutronguide, radialcollimator"
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1', 'nokbus2']
 

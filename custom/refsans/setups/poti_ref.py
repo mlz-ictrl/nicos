@@ -1,6 +1,5 @@
 description = 'reference values for the encoder potiometers'
 
-# not included by others
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'

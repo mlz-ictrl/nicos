@@ -1,6 +1,6 @@
 description = "raise of detector"
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost
