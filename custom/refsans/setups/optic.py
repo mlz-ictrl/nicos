@@ -13,4 +13,5 @@ includes = ['nok1', 'nok2', 'nok3', 'nok4',
             'nok9',
             'sc2',
             'b2',
+            'h2',
             ]

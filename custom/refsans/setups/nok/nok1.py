@@ -22,13 +22,13 @@ devices = dict(
     nok1_srrel = device('devices.taco.DigitalInput',
                         description = 'Device test/nok1/srrel of Server ipcsmsserver nok1',
                         tacodevice = '//%s/test/nok1/srrel' % nethost,
-                        #lowlevel = True,
+                        lowlevel = True,
                        ),
 
     nok1_srll = device('devices.taco.DigitalInput',
                        description = 'Device test/nok1/srll of Server ipcsmsserver nok1',
                        tacodevice = '//%s/test/nok1/srll' % nethost,
-                       #lowlevel = True,
+                       lowlevel = True,
                       ),
 
     nok1_srhl = device('devices.taco.DigitalInput',
@@ -40,19 +40,19 @@ devices = dict(
     nok1_srref = device('devices.taco.DigitalInput',
                         description = 'Device test/nok1/srref of Server ipcsmsserver nok1',
                         tacodevice = '//%s/test/nok1/srref' % nethost,
-                        #lowlevel = True,
+                        lowlevel = True,
                        ),
 
     nok1_srsll = device('devices.taco.DigitalInput',
                         description = 'Device test/nok1/srsll of Server ipcsmsserver nok1',
                         tacodevice = '//%s/test/nok1/srsll' % nethost,
-                        #lowlevel = True,
+                        lowlevel = True,
                        ),
 
     nok1_srshl = device('devices.taco.DigitalInput',
                         description = 'Device test/nok1/srshl of Server ipcsmsserver nok1',
                         tacodevice = '//%s/test/nok1/srshl' % nethost,
-                        #lowlevel = True,
+                        lowlevel = True,
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files

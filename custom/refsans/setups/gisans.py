@@ -2,7 +2,11 @@ description = 'GISANS setup'
 
 group = 'basic'
 
-includes = ['vacuum', 'shutter', 'optic']
+includes = ['vacuum', 'shutter', 'tube', 'guidehall', 'reactor', 'fak40',
+            'optic', 'poti_ref', 'nl2b',
+            'pumpstand',
+            'table',
+            ]
 
 
 startupcode = """

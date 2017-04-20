@@ -11,7 +11,7 @@ devices = dict(
 # 2010-06-15 10:42:09 (slit)
 # 12.01.2010 10:35:26 (k1)
     bs1        = device('refsans.nok_support.DoubleMotorNOK',
-                        description = 'BS1',
+                        description = 'BS1 double between nok8 and nok9',
                         nok_start = 9764.5,
                         nok_length = 6.0,
                         nok_end = 9770.5,
@@ -43,31 +43,37 @@ devices = dict(
     bs1_srll = device('devices.taco.DigitalInput',
                       description = 'Device test/bs1/srll of Server ipcsmsserver bs1',
                       tacodevice = '//%s/test/bs1/srll' % nethost,
+                      lowlevel = True,
                      ),
 
     bs1_srhl = device('devices.taco.DigitalInput',
                       description = 'Device test/bs1/srhl of Server ipcsmsserver bs1',
                       tacodevice = '//%s/test/bs1/srhl' % nethost,
+                      lowlevel = True,
                      ),
 
     bs1_srref = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/srref of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/srref' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_srrel = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/srrel of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/srrel' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_srsll = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/srsll of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/srsll' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_srshl = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/srshl of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/srshl' % nethost,
+                       lowlevel = True,
                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
@@ -122,31 +128,37 @@ devices = dict(
     bs1_ssll = device('devices.taco.DigitalInput',
                       description = 'Device test/bs1/ssll of Server ipcsmsserver bs1',
                       tacodevice = '//%s/test/bs1/ssll' % nethost,
+                      lowlevel = True,
                      ),
 
     bs1_sshl = device('devices.taco.DigitalInput',
                       description = 'Device test/bs1/sshl of Server ipcsmsserver bs1',
                       tacodevice = '//%s/test/bs1/sshl' % nethost,
+                      lowlevel = True,
                      ),
 
     bs1_ssref = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/ssref of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/ssref' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_ssrel = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/ssrel of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/ssrel' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_sssll = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/sssll of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/sssll' % nethost,
+                       lowlevel = True,
                       ),
 
     bs1_ssshl = device('devices.taco.DigitalInput',
                        description = 'Device test/bs1/ssshl of Server ipcsmsserver bs1',
                        tacodevice = '//%s/test/bs1/ssshl' % nethost,
+                       lowlevel = True,
                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
