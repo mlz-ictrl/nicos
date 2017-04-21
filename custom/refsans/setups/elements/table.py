@@ -37,4 +37,4 @@ devices = dict(
                    precision = 0.05,
                    dragerror = 10.,
                   ),
-              )
+)
