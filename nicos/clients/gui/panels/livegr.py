@@ -190,7 +190,9 @@ class LiveDataPanel(Panel):
         return [self.toolbar]
 
     def on_mousemove_gr(self, event):
-        xyz = self.widget.getZValue(event)
+        xyz = None
+        if event.getWindow():  # inside plot
+            xyz = self.widget.getZValue(event)
         if xyz:
             fmt = '(%g, %g)'  # x, y data 1D integral plots
             if len(xyz) == 3:

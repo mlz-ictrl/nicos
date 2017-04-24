@@ -313,13 +313,16 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
                     QApplication.clipboard().setText(text)
 
     def on_mouseMove(self, event):
-        self.mouselocation = event
-        wc = event.getWC(self._plot.viewport)
-        if self.statusMessage:
-            msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
+        if event.getWindow():  # inside plot
+            self.mouselocation = event
+            wc = event.getWC(self._plot.viewport)
+            if self.statusMessage:
+                msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
+            else:
+                msg = "X = %g, Y = %g" % (wc.x, wc.y)
+            self.window.statusBar.showMessage(msg)
         else:
-            msg = "X = %g, Y = %g" % (wc.x, wc.y)
-        self.window.statusBar.showMessage(msg)
+            self.window.statusBar.clearMessage()
 
     def addPlotCurve(self, plotcurve, replot=False):
         curve = next((c for c in self._axes.getCurves()
@@ -461,7 +464,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.update()
 
     def on_fitPicker_selected(self, point):
-        if self.fitter and point.getButtons() & MouseEvent.LEFT_BUTTON:
+        if self.fitter and point.getButtons() & MouseEvent.LEFT_BUTTON and \
+                point.getWindow():
             p = point.getWC(self._plot.viewport)
             self.fitter.addPick((p.x, p.y))
 
