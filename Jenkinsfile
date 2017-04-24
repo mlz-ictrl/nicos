@@ -109,7 +109,7 @@ set -x
 set +e
 PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/R[0-9]*\t[^\t]*\\(.*\\)/R\\1/' | sed -e 's/.\t//' |grep '.py$')
 if [[ -n "$PYFILESCHANGED" ]] ; then
-    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc --files-output=y $PYFILESCHANGED
+    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
 else
     echo 'no python files changed'
 fi
