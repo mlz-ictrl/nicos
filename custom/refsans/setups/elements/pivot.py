@@ -7,7 +7,7 @@ devices = dict(
                    description = 'Pivot point at floor of samplechamber',
                    # description = 'Distance between sample position and pivot '
                    #               'point of the detector tube',
-                   states = range(1, 14),
+                   states = list(range(1, 14)),
                    fmtstr = 'Point %d',
                    unit = '',
                   ),

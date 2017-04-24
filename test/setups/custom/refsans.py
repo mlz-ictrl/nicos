@@ -144,6 +144,6 @@ devices = dict(
                      unit = 'deg',
                     ),
     pivot = device('devices.generic.ManualSwitch',
-                   states = range(1, 14),
+                   states = list(range(1, 14)),
                   ),
 )
