@@ -25,7 +25,7 @@
 """Module to test custom specific modules."""
 
 from test.utils import raises
-from nicos.core.errors import LimitError
+from nicos.core.errors import ConfigurationError, LimitError
 
 session_setup = 'refsans'
 
@@ -55,3 +55,7 @@ def test_nok_pos(session):
     obs = session.getDevice('obs')
     assert obs.read(0) == 459.
     obs.reset()
+
+
+def test_nok_inclination_failed(session):
+    assert raises(ConfigurationError, session.getDevice, 'nok_inc_failed')

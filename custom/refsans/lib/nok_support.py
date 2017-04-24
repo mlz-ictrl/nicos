@@ -318,13 +318,6 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def _devices(self):
         return self._attached_motor_r, self._attached_motor_s
 
-    def doPreinit(self, mode):
-        incmin, incmax = self.inclinationlimits
-        if incmin >= incmax:
-            raise ConfigurationError(self, 'Inclinationlimits must be '
-                                     'specified as (min, max) tuple with '
-                                     'min < max !')
-
     def doInit(self, mode):
         for dev in self._devices:
             if hasattr(dev, 'backlash') and dev.backlash != 0:
