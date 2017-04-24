@@ -103,8 +103,7 @@ def cleanup(session):
     assert ngc.read(0) == 'focus'
 
     count(t=0.01)
-    # Generates an error during writing data file: KeyError in line 78
-    # count(mon=100)
+    count(mon1=1)
 
     yield
 
