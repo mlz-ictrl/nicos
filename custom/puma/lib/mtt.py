@@ -26,8 +26,9 @@
 
 from time import sleep
 
-from nicos.core import Attach, MoveError, Moveable, Param, Readable, status, \
-    waitForCompletion, SIMULATION
+from nicos import session
+from nicos.core import Attach, MoveError, Moveable, Param, \
+    Readable, SIMULATION, status, waitForCompletion
 from nicos.devices.generic.axis import Axis
 from nicos.utils import createThread
 
@@ -278,16 +279,14 @@ class MttAxis(Axis):
         temp = self.read(0)
         if abs(temp - self.polypos) <= 0.1:
             self.log.debug('Switch poly')
-            if self._poly < 0 and self._attached_polyswitch.read() != 1:
-                self._attached_polyswitch.move(1)
-                sleep(self.polysleep)
-                if self._attached_polyswitch.read() != 1:
+            if self._poly < 0 and self._attached_polyswitch.read(0) != 1:
+                self._attached_polyswitch.maw(1)
+                if self._attached_polyswitch.read(0) != 1:
                     self._setErrorState(MoveError, 'shielding block in way, '
                                         'cannot move 2Theta monochromator')
             elif self._poly > 0 and self._attached_polyswitch.read() != 0:
-                self._attached_polyswitch.move(0)
-                sleep(self.polysleep)
-                if self._attached_polyswitch.read() != 0:
+                self._attached_polyswitch.maw(0)
+                if self._attached_polyswitch.read(0) != 0:
                     self._setErrorState(MoveError, 'shielding block not on '
                                         'position, measurement without'
                                         'shielding yields to enlarged '
@@ -298,10 +297,10 @@ class MttAxis(Axis):
         inh = self._attached_io_flag.read(0)
         if inh == 1:
             self._attached_motor.stop()
-            t = 20
+            t = self.polysleep
             self.log.debug('Waiting for MB. mtt = %s', self.read(0))
             while self._attached_io_flag.read(0) == 1:
-                sleep(1)
+                session.delay(1)
                 t -= 1
                 self.log.debug('Waiting for MB')
                 if t < 0:

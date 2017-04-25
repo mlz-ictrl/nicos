@@ -25,7 +25,7 @@
 """Module to test custom specific modules."""
 
 from test.utils import raises
-from nicos.core.errors import LimitError
+from nicos.core.errors import LimitError, MoveError
 
 session_setup = 'puma'
 
@@ -74,3 +74,21 @@ def test_focus_axis(session):
     assert ax.read(0) == ax.lowlimit
     ax.maw(ax.abslimits[1])
     assert ax.read(0) == ax.uplimit
+
+def test_mtt_axis(session):
+    ax = session.getDevice('mtt')
+
+    assert ax.read(0) == 0
+
+    ax.maw(0)
+    assert ax.read(0) == 0
+    for t in [-10, 0, ax.polypos + 1]:
+        ax.maw(t)
+        assert ax.read(0) == t
+
+    # The sequence [ax.polypos - 1, ax.polypos + 1] could only be tested if
+    # a simulation of a switch depending on a position of an other device is
+    # available
+    #
+    # This test will check the fail due to this missing device
+    assert raises(MoveError, ax.maw, (ax.polypos - 1))
