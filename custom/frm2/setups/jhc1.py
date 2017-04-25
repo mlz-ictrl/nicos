@@ -34,7 +34,7 @@ devices = {
                                fmtstr = '%.1f',
                                unit = '%',
                                timeout = 600.0,
-                               precision = 0.2,
+                               precision = 1,
                               ),
     'T_%s_cell' % setupname: device('devices.tango.Sensor',
                                description = 'Temperature in humidity cell',
