@@ -84,7 +84,7 @@ class ChoiceElement(MeasElement):
     """Base for elements that allow an arbitrary choice."""
 
     CACHE_KEY = ''
-    SORT_KEY = lambda self, x: x
+    SORT_KEY = lambda self, x: None  # keep previous ordering
     VALUES = []
 
     def createWidget(self, parent, client):
