@@ -176,15 +176,10 @@ class NicosClient(object):
             'display': '',
         }
 
-        if 10 <= self.compat_proto <= 12:
-            if not self.tell('authenticate', credentials):
-                return
-            self.user_level = None
-        else:
-            response = self.ask('authenticate', credentials)
-            if not response:
-                return
-            self.user_level = response['user_level']
+        response = self.ask('authenticate', credentials)
+        if not response:
+            return
+        self.user_level = response['user_level']
 
         if eventmask:
             self.tell('eventmask', eventmask)
