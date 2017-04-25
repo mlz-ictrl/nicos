@@ -52,6 +52,7 @@ generate_stubs()
 def cleanup(session):
     exp = session.experiment
     exp.finish()
+    exp.setDetectors([])
     assert exp.detlist == []
     dataroot = path.join(config.nicos_root, 'refsansdata')
     if path.exists(dataroot):
@@ -77,16 +78,16 @@ def cleanup(session):
     assert exp.detlist == ['det']
 
     assert path.abspath(exp.datapath) == path.abspath(
-        path.join(config.nicos_root, 'refsansdata', year, 'p1234', 'data'))
+        path.join(dataroot, year, 'p1234', 'data'))
 
     for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table',
-              'tube', 'h2_center', 'h2_width', 'pivot', 'top_phi',]:
-        _ = session.getDevice(d)
+              'tube', 'h2_center', 'h2_width', 'pivot', 'top_phi']:
+        session.getDevice(d)
+
     # Perform different scans
-    count(t=1)
+    count(t=0.01)
 
     yield
-    exp.finish()
 
 
 @pytest.mark.skipif(not configobj,
