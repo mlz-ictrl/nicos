@@ -22,20 +22,22 @@
 #
 # *****************************************************************************
 
-"""MTT class for PUMA.
-
-Takes into account the mobilblock and the additional shielding block change."""
+"""MTT class for PUMA."""
 
 from time import sleep
 
-from nicos.core import status, MoveError, waitForCompletion, Param, Readable, \
-    Moveable, Attach
-from nicos.utils import createThread
+from nicos.core import Attach, MoveError, Moveable, Param, Readable, status, \
+    waitForCompletion
 from nicos.devices.generic.axis import Axis
+from nicos.utils import createThread
 
 
 class MTT_Axis(Axis):
-    """Axis implemented in Python, with NICOS devices for motor and coders."""
+    """PUMA MTT axis.
+
+    Takes into account the mobilblock and the additional shielding block
+    change.
+    """
 
     attached_devices = {
         'io_flag': Attach('Mobilblock signal', Readable),
@@ -54,7 +56,7 @@ class MTT_Axis(Axis):
         self._poly = 0
 
     def doStart(self, target):
-        """Starts the movement of the axis to target."""
+        """Start movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
             self.log.debug('not moving, already at %.4f within precision',
                            target)
@@ -79,25 +81,25 @@ class MTT_Axis(Axis):
                                            self._positioningThread)
 
     def _preMoveAction(self):
-        """This method will be called before the motor will be moved.
-        It should be overwritten in derived classes for special actions.
+        """Called before the motor will be moved.
 
+        It should be overwritten in derived classes for special actions.
         To abort the move, raise an exception from this method.
         """
         self._poly = self._checkpoly()
-#        print 'self._poly =', self._poly
+        self.log.debug('self._poly = %s', self._poly)
 
     def _postMoveAction(self):
-        """This method will be called after the axis reached the position or
-        will be stopped.
-        It should be overwritten in derived classes for special actions.
+        """Called after the axis reached the position or will be stopped.
 
+        It should be overwritten in derived classes for special actions.
         To signal an error, raise an exception from this method.
         """
-#        self._switchpoly()
+        # self._switchpoly()
 
     def _duringMoveAction(self, position):
-        """This method will be called during every cycle in positioning thread.
+        """Called during every cycle in positioning thread.
+
         It should be used to do some special actions like changing shielding
         blocks, checking for air pressure etc.  It should be overwritten in
         derived classes.
@@ -109,7 +111,8 @@ class MTT_Axis(Axis):
         try:
             self._preMoveAction()
         except Exception as err:
-            self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
+            self._setErrorState(MoveError,
+                                'error in pre-move action: %s' % err)
             return
         target = self._target
         self._errorstate = None
@@ -137,9 +140,9 @@ class MTT_Axis(Axis):
                         self.log.debug('cannot move to backlash position')
         # Shielding block position
         if abs(self._poly) == 1:
-            # print 'positions = ', positions
+            self.log.debug('positions = %s', positions)
             positions.insert(0, (self.polypos, True))
-            # print 'positions = ', positions
+            self.log.debug('positions = %s', positions)
 
         for (pos, precise) in positions:
             try:
@@ -183,7 +186,7 @@ class MTT_Axis(Axis):
             _, pos = self.poll()
             mstatus, mstatusinfo = self._attached_motor.status()
             if mstatus != status.BUSY:
-                # print 'mstatus =', mstatus
+                self.log.debug('mstatus = %s', mstatus)
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
@@ -192,9 +195,9 @@ class MTT_Axis(Axis):
                 elif seen_inhibit == 1:
                     # motor stopped because of the MB change
                     tries += 1
-#                    print 'reset inhibit'
+                    self.log.debug('reset inhibit')
                     seen_inhibit = 0
-#                    print 'moving ', moving, self._stoprequest
+                    self.log.debug('moving %s %s', moving, self._stoprequest)
                 elif not precise and not self._errorstate:
                     self.log.debug('motor stopped and precise positioning '
                                    'not requested')
@@ -264,13 +267,11 @@ class MTT_Axis(Axis):
         return 0
 
     def _switchpoly(self):
-        """
-        function to start air pressure cylinder for additional shielding block
-        """
-#       print 'Switch poly0, mtt = ', self.read(0)
+        """Start air pressure cylinder for additional shielding block."""
+        self.log.debug('Switch poly0, mtt = %s', self.read(0))
         temp = self.read(0)
         if abs(temp - self.polypos) <= 0.1:
-            # print 'Switch poly'
+            self.log.debug('Switch poly')
             if self._poly < 0 and self._attached_polyswitch.read() != 1:
                 self._attached_polyswitch.move(1)
                 sleep(self.polysleep)
@@ -287,11 +288,7 @@ class MTT_Axis(Axis):
                                         'background')
 
     def _checkinhibit(self):
-
-        """
-        function to check if a mobil block change arised
-        """
-
+        """Check if a mobil block change arised."""
         inh = self._attached_io_flag.read(0)
         if inh == 1:
             self._attached_motor.stop()
@@ -299,8 +296,8 @@ class MTT_Axis(Axis):
             self.log.debug('Waiting for MB. mtt = %s', self.read(0))
             while self._attached_io_flag.read(0) == 1:
                 sleep(1)
-#                print 'Waiting for MB'
                 t -= 1
+                self.log.debug('Waiting for MB')
                 if t < 0:
                     self._setErrorState(MoveError, 'timeout occured during '
                                         'wait for mobile block change')
