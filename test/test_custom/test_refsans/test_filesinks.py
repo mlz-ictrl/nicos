@@ -48,7 +48,7 @@ year = time.strftime('%Y')
 generate_stubs()
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='module', autouse=True)
 def cleanup(session):
     exp = session.experiment
     exp.finish()
