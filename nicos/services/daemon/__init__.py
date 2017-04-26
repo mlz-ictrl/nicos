@@ -31,7 +31,7 @@ import weakref
 import traceback
 import threading
 
-from nicos import nicos_version
+from nicos import nicos_version, config
 from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
 from nicos.utils import closeSocket, createThread
 from nicos.pycompat import get_thread_id, queue, socketserver, listitems
@@ -169,6 +169,10 @@ class NicosDaemon(Device):
     def doInit(self, mode):
         self._stoprequest = False
         # the controller represents the internal script execution machinery
+        if self.autosimulate and not config.sandbox_simulation:
+            raise ConfigurationError('autosimulation configured but sandbox'
+                                     ' deactivated')
+
         self._controller = ExecutionController(self.log, self.emit_event,
                                                'startup', self.simmode,
                                                self.autosimulate)
