@@ -11,6 +11,7 @@ Instrument setups
 
     setups/*
     setups/nok/*
+    setups/elements/*
 
 Service setups
 ==============
