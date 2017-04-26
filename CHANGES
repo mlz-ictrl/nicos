@@ -1,6 +1,77 @@
 Changelog
 =========
 
+Release 2.12.0
+--------------
+
+* Core
+
+  - Change in daemon protocol: Requests now use an id to allow for reordering
+    the requests.
+
+  - New sandboxing mode for simulation mode. This uses an external binary (needs
+    to be setuid root) that will call the unshare() system call, which gives the
+    process to create a new mount and network namespace.  That allows remounting
+    the filesystem read-only in a chroot, and complete isolation of any network
+    ports that might be used.
+
+  - Alias config handling is now more useful: when loading setups that do not
+    have new selections for existing alias devices, the alias assignments are
+    not changed.
+
+  - A new command "pause()" is available to ask for user confirmation via GUI
+    before continuing with the script.
+
+  - The watchdog can now emit a message and/or execute an action when a
+    warning condition has gone back to normal.
+
+  - The electronic logbook now also saves a plain-text version of the console
+    output, which is very similar to the "nicos-*.log" files, but saved in
+    the user's proposal directory.
+
+  - Added "virtual" goniometers for TAS mode that tilt the sample along the
+    sample's orientation reflections, regardless of the physical offset.
+
+* GUI
+
+  - A new livewidget for 2D-images based on gr is available.
+
+  - Allow switchable wrapping in console output.
+
+  - Added "ETA" (estimated finishing time) display to script status panel, which
+    uses the simulation mode to get an estimate and update it when individual
+    commands are finished.  Care should be taken to only enable this if
+    sandboxing is available as well.
+
+  - Device parameters can now be refreshed from hardware on demand (right click
+    into the parameter list in a device control dialog).
+
+  - Selection of devices/parameters for the history plot can now optionally be
+    made through a tree widget.
+
+  - Value selections for switcher devices are now sorted by default.
+
+  - Reconnection after lost connection is now less aggressive, to avoid a
+    situation with infinite reconnect attempts stalling the daemon.
+
+  - Added an exponential fitting function for history plots.
+
+  - Alias selections in the setup dialog are not touched unless new selections
+    for the aliases are enabled by user choice.
+
+  - Added an optional dialog that pops up after a period of inactivity (to
+    remind users of changing the experiment if necessary).
+
+  - A watermark image can be displayed in the background of the console panel.
+
+* Tests
+
+  - Tests now use py.test, which has better fixture and reporting support.
+
+Besides these major changes, this release contains a lot of bugfixes and
+instrument related changes.
+
+
 Release 2.11.0
 --------------
 
