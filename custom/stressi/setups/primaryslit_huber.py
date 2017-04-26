@@ -13,24 +13,24 @@ devices = dict(
                  description = 'HWB PSW',
                  fmtstr = '%.2f',
                  unit = 'mm',
-                 coderoffset = -2049.02,
+                 coderoffset = -245.12,
                  abslimits = (0, 7),
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
-                 config = 'PSW 114 11 0x00f1c000 4 4096 1000 100 2 24 50 0 0 1'
-                          ' 3000 1 10 0 0 0',
-                 ),
+                 config = 'PSW 114 11 0x00f1c000 4 4096 1000 100 2 24 50 -1 0 '
+                          '1 3000 1 10 0 0 0',
+                ),
     psh = device('devices.vendor.caress.Motor',
                  description = 'HWB PSH',
                  fmtstr = '%.2f',
                  unit = 'mm',
-                 coderoffset = 0,
+                 coderoffset = -232.31,
                  abslimits = (0, 17),
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),
-                 config = 'PSH 115 11 0x00f1d000 2 100 100 10 1 0 0 0 0 1 '
-                          '3000 1 10 0 0 0',
-                 ),
+                 config = 'PSH 114 11 0x00f1d000 2 4096 1000 100 2 24 50 -1 0 '
+                          '1 3000 1 10 0 0 0',
+                ),
 )
 
 startupcode = '''

@@ -20,16 +20,14 @@ devices = dict(
                     description = 'HWB CHIN',
                     fmtstr = '%.2f',
                     unit = 'deg',
-                    # coderoffset = 3319.25,
-                    coderoffset = 0,
-                    abslimits = (-5, 90),
+                    coderoffset = -808.11,
+                    abslimits = (-1, 91),
                     nameserver = '%s' % (nameservice,),
                     objname = '%s' % (servername),
-                    # TODO Check the right settings
-                    # config = 'CHIN 114 11 0x00f1e000 3 20480 8000 800 2 24 50 '
-                    #          '-1 0 1 5000 1 10 0 0 0',
-                    config = 'CHIN 115 11 0x00f1e000 3 500 500 50 1 0 0 '
-                             '0 0 1 5000 1 10 0 0 0',
+                    config = 'CHIN 114 11 0x00f1e000 3 20480 8000 800 2 24 50 '
+                              '-1 0 1 5000 1 10 0 0 0',
+                    # config = 'CHIN 115 11 0x00f1e000 3 500 500 50 1 0 0 '
+                    #          '0 0 1 5000 1 10 0 0 0',
                     lowlevel = True,
                    ),
     phis_n = device('devices.vendor.caress.Motor',
