@@ -531,13 +531,13 @@ class DevicesPanel(Panel):
         while it.value():
             it.value().setHidden(rx.indexIn(it.value().text(0)) == -1)
             it += 1
-        it = QTreeWidgetItemIterator(self.tree,
+        it2 = QTreeWidgetItemIterator(self.tree,
                                      QTreeWidgetItemIterator.HasChildren)
-        while it.value():
-            item = it.value()
+        while it2.value():
+            item = it2.value()
             item.setHidden(not any(not item.child(i).isHidden()
                                    for i in range(item.childCount())))
-            it += 1
+            it2 += 1
 
     @qtsig('')
     def on_actionShutDown_triggered(self):
