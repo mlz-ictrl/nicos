@@ -306,7 +306,7 @@ class LiveWidget(LiveWidgetBase):
     def __init__(self, parent):
         LiveWidgetBase.__init__(self, parent)
 
-        self.axes.setGrid(True)
+        self.axes.setGrid(False)
         self.surf = Cellarray([0], [0], [0], option=gr.OPTION_CELL_ARRAY)
         self.axes.addCurves(self.surf)
 
