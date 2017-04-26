@@ -87,13 +87,13 @@ def cleanup(session):
     # Adjust the monochromator to reasonable position and check it
     tthm = session.getDevice('tthm')
     tthm.maw(69)
+    assert tthm.read(0) == 69.0
     transm = session.getDevice('transm')
-    transm.maw('Ge')
     wav = session.getDevice('wav')
     assert wav.plane == ''
+    transm.maw('Ge')
     wav.plane = '311'
     assert wav.plane == '311'
-    assert tthm.read(0) == 69.0
     wav.maw(1.7)
     assert wav.read(0) == 1.7
 
