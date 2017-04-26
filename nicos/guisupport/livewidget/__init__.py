@@ -271,11 +271,14 @@ class LiveWidgetBase(QWidget):
             nz = array.shape[n - 3]
         if not self._fixedsize:
             self._axesratio = ny / float(nx)
-            if (ny, nx) != self._axesrange:
+
+        if (ny, nx) != self._axesrange:
+            if not self._fixedsize:
                 self.axes.setWindow(0, nx, 0, ny)
-                self.axes.xlines = [nx / 2]
-                self.axes.ylines = [ny / 2]
                 newrange = True
+            self.axes.xlines = [nx / 2]
+            self.axes.ylines = [ny / 2]
+
         self._axesrange = (ny, nx)  # rows, cols
 
         self._setData(array, nx, ny, nz, newrange)
