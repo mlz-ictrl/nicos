@@ -25,15 +25,15 @@ group = 'special'
 #     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-#    dict(condition = 't_value > 100',
-#         message = 'Temperature too high',
-#         type = 'critical',
-#         action = 'maw(T, 0)',
-#        ),
-#    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-#         message = 'phi angle too high for current mono setting',
-#         gracetime = 5,
-#        ),
+    dict(condition='(sixfold_value == \'closed\' or nl5_value == \'closed\') '
+                   'and reactorpower_value > 19',
+         message='NL5 or sixfold shutter closed',
+         type='critical',
+         ),
+    dict(condition='selector_speed_status[0] == ERROR',
+         message='Selector in error status. Please check selector2.maria.frm2.',
+         type='critical',
+         ),
 ]
 
 includes = ['notifiers', ]

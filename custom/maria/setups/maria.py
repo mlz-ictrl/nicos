@@ -6,6 +6,8 @@ group = "basic"
 modules = ["maria.scan"]
 
 includes = [
+    "guidehall",
+    "nl5",
     "beamstops",
     "chopper",
     "collimation",
@@ -17,4 +19,5 @@ includes = [
     "polarizer",
     "shutter",
     "slits",
+    "selector",
 ]
