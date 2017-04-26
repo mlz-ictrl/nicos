@@ -128,4 +128,8 @@ devices = dict(
                         lowlevel = True,
                         filenametemplate = ['m2%(scancounter)08d.dat', ],
                        ),
+    yamlsink = device('stressi.datasinks.YamlDatafileSink',
+                      lowlevel = True,
+                      filenametemplate = ['m2%(scancounter)08d.yaml'],
+                     ),
 )
