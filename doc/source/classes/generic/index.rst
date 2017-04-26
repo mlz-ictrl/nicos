@@ -22,6 +22,7 @@ setup file.
    manual
    oscillator
    paramdev
+   pulse
    sequencer
    slit
    switcher

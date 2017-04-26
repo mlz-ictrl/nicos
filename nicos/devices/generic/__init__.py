@@ -37,6 +37,7 @@ from nicos.devices.generic.magnet import BipolarSwitchingMagnet, \
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
 from nicos.devices.generic.oscillator import Oscillator
 from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
+from nicos.devices.generic.pulse import Pulse
 from nicos.devices.generic.sequence import BaseSequencer, LockedDevice
 from nicos.devices.generic.slit import Slit, TwoAxisSlit
 from nicos.devices.generic.switcher import MultiSwitcher, ReadonlySwitcher, \
