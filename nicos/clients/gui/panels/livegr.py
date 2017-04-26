@@ -91,6 +91,7 @@ class LiveDataPanel(Panel):
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionUnzoom)
         self.toolbar.addAction(self.actionColormap)
+        self.toolbar.addAction(self.actionMarkCenter)
 
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
         #                         Integrate | Histogram)
@@ -184,6 +185,7 @@ class LiveDataPanel(Panel):
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionColormap)
+        menu.addAction(self.actionMarkCenter)
         return [menu]
 
     def getToolbars(self):
@@ -498,3 +500,9 @@ class LiveDataPanel(Panel):
     def on_actionLogScale_triggered(self):
         for widget in [self.widget] + self._livewidgets.values():
             widget.logscale(self.actionLogScale.isChecked())
+
+    @qtsig('')
+    def on_actionMarkCenter_triggered(self):
+        flag = self.actionMarkCenter.isChecked()
+        for widget in [self.widget] + self._livewidgets.values():
+            widget.setCenterMark(flag)

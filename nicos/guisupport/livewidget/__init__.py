@@ -47,6 +47,8 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
 
 COLOR_WHITE = 91
 COLOR_BLUE = 4
+COLOR_MANGENTA = 7
+COLOR_MAXINTENSITY = 1255
 
 
 def sgn(x):
@@ -113,6 +115,11 @@ class Axes(PlotAxes):
         self.widget = widget
         self.xdual, self.ydual = xdual, ydual
 
+        self.drawxylines = False
+        self.xlines = []  # draw vertical lines at x-coordinates
+        self.ylines = []  # draw horizontal lines at y-coordinates
+        self.xylinecolor = COLOR_MANGENTA
+
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
         # use 2 ** n for tickmarks
@@ -136,6 +143,17 @@ class Axes(PlotAxes):
             self.majory = 4
         return res
 
+    def drawGR(self):
+        PlotAxes.drawGR(self)
+        if self.drawxylines:
+            xmin, xmax, ymin, ymax = self.getWindow()
+            linecolor = gr.inqlinecolorind()
+            gr.setlinecolorind(self.xylinecolor)
+            for xpos in self.xlines:
+                gr.polyline([xpos, xpos], [ymin, ymax])
+            for ypos in self.ylines:
+                gr.polyline([xmin, xmax], [ypos, ypos])
+            gr.setlinecolorind(linecolor)
 
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
 
@@ -255,6 +273,8 @@ class LiveWidgetBase(QWidget):
             self._axesratio = ny / float(nx)
             if (ny, nx) != self._axesrange:
                 self.axes.setWindow(0, nx, 0, ny)
+                self.axes.xlines = [nx / 2]
+                self.axes.ylines = [ny / 2]
                 newrange = True
         self._axesrange = (ny, nx)  # rows, cols
 
@@ -300,6 +320,10 @@ class LiveWidgetBase(QWidget):
         self.updateZData()
         self.gr.update()
 
+    def setCenterMark(self, flag):
+        self.axes.drawxylines = flag
+        self.gr.update()
+
 
 class LiveWidget(LiveWidgetBase):
 
@@ -307,6 +331,7 @@ class LiveWidget(LiveWidgetBase):
         LiveWidgetBase.__init__(self, parent)
 
         self.axes.setGrid(False)
+        self.axes.xylinecolor = COLOR_MAXINTENSITY
         self.surf = Cellarray([0], [0], [0], option=gr.OPTION_CELL_ARRAY)
         self.axes.addCurves(self.surf)
 
@@ -388,6 +413,8 @@ class IntegralLiveWidget(LiveWidget):
         if newrange:
             self.axesyint.setWindow(0, nx, 1, ny)
             self.axesxint.setWindow(1, nx, 0, ny)
+            self.axesxint.ylines = self.axes.ylines
+            self.axesyint.xlines = self.axes.xlines
         self.curvey.x = numpy.arange(0, nx)
         self.curvey.y = array.sum(axis=0)
         self.curvex.y = numpy.arange(0, ny)
@@ -408,6 +435,11 @@ class IntegralLiveWidget(LiveWidget):
         self.axesxint.setLogX(on)
         self.axesyint.setLogY(on)
         LiveWidget.logscale(self, on)
+
+    def setCenterMark(self, flag):
+        self.axesxint.drawxylines = flag
+        self.axesyint.drawxylines = flag
+        LiveWidget.setCenterMark(self, flag)
 
 
 class LiveWidget1D(LiveWidgetBase):

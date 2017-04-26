@@ -136,6 +136,17 @@
     <string>Open region of interest in seperate window</string>
    </property>
   </action>
+  <action name="actionMarkCenter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Center Mark</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark center of detector image</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
