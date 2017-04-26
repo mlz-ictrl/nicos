@@ -178,8 +178,11 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             panel.postInit()
 
-        # load auxillary windows state
         with self.sgroup as settings:
+            # geometry and window appearance
+            loadBasicWindowSettings(self, settings)
+            self.update()
+            # load auxiliary windows state
             self.loadAuxWindows(settings)
 
         if len(self.splitstate) == len(self.splitters):
@@ -311,9 +314,6 @@ class MainWindow(QMainWindow, DlgUtils):
         startStartupTools(self, self.gui_conf.tools)
 
     def loadSettings(self, settings):
-        # geometry and window appearance
-        loadBasicWindowSettings(self, settings)
-
         self.autoconnect = settings.value('autoconnect', True, bool)
 
         self.connpresets = {}
