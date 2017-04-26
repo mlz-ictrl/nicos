@@ -282,7 +282,7 @@ class HelpGenerator(object):
             return self.gen_funchelp(obj)
         elif target.startswith('dev:'):
             devname = target[4:]
-            obj = session.namespace[devname]
+            obj = session.devices[devname]
             return self.gen_devhelp(obj)
         else:
             raise ValueError
