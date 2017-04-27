@@ -45,6 +45,8 @@ class MTT_Axis(Axis):
     parameters = {
         'polypos': Param('Shielding block change position', default=-89.8,
                          unit='deg'),
+        'polysleep': Param('Sleep time to change the shielding block',
+                           default=10, unit='s', settable=False),
     }
 
     def doInit(self, mode):
@@ -271,13 +273,13 @@ class MTT_Axis(Axis):
             # print 'Switch poly'
             if self._poly < 0 and self._attached_polyswitch.read() != 1:
                 self._attached_polyswitch.move(1)
-                sleep(10)
+                sleep(self.polysleep)
                 if self._attached_polyswitch.read() != 1:
                     self._setErrorState(MoveError, 'shielding block in way, '
                                         'cannot move 2Theta monochromator')
             elif self._poly > 0 and self._attached_polyswitch.read() != 0:
                 self._attached_polyswitch.move(0)
-                sleep(10)
+                sleep(self.polysleep)
                 if self._attached_polyswitch.read() != 0:
                     self._setErrorState(MoveError, 'shielding block not on '
                                         'position, measurement without'
