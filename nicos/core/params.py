@@ -277,7 +277,7 @@ class Attach(object):
 
         # allowed non-list values are converted to a list above already...
         if isinstance(multiple, list):
-            if len(multiple) == 0:
+            if not multiple:
                 complain(multiple, 'list should be non-empty')
             for item in multiple:
                 try:

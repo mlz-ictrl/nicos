@@ -322,9 +322,9 @@ class SXTalCell(object):
                 condition = np.logical_and(condition, np.less(invd, invdmax))
                 condition = np.logical_and(condition, np.greater(invd, invdmin))
                 zone = np.compress(condition, zone, axis=0)
-                if result is not None and len(zone):
+                if result is not None and len(zone):  # pylint: disable=len-as-condition
                     result = np.concatenate((result, zone))
-                elif len(zone):
+                elif len(zone):  # pylint: disable=len-as-condition
                     result = zone
         return result
 

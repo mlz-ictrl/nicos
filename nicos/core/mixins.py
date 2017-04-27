@@ -569,7 +569,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         hist_in_window = [v for (t, v) in hist if t >= window_start]
         stable = all(abs(v - self.target) <= self.precision
                      for v in hist_in_window)
-        if 0 < len(hist_in_window) < len(hist) and stable:
+        if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
             if hasattr(self, 'doIsAtTarget'):
                 return self.doIsAtTarget(val)
             return True

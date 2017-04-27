@@ -231,6 +231,7 @@ class LiveDataPanel(Panel):
         self._nz = nz
 
     def on_client_livedata(self, data):
+        # pylint: disable=len-as-condition
         d = None
         if self._last_fname:
             if path.isfile(self._last_fname) and self._last_tag in self._allowed_tags:
@@ -251,6 +252,7 @@ class LiveDataPanel(Panel):
         if self._no_direct_display or not d:
             return
         self.widget.setData(d)
+        # pylint: enable=len-as-condition
 
     def add_to_flist(self, filename, fformat, ftag, cached=False, scroll=True):
         shortname = path.basename(filename)
@@ -290,7 +292,7 @@ class LiveDataPanel(Panel):
                 if self._last_fname and path.isfile(self._last_fname) and \
                    self._last_tag in self._allowed_tags:
                     d = LWData(self._last_fname)
-                elif len(self._datacache):
+                elif self._datacache:
                     val = self._datacache.getlast()
                     d = LWData(*val)
                 if d:

@@ -97,7 +97,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
         QwtPlotCurve.setData(self, self._x, self._y)
 
     def boundingRect(self):
-        if len(self._x) == 0 or len(self._y) == 0:
+        if len(self._x) == 0 or len(self._y) == 0:  # pylint: disable=len-as-condition
             return QRectF()
 
         logplot = isinstance(self.plot().axisScaleEngine(self.yAxis()),

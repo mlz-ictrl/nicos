@@ -286,7 +286,7 @@ def prepareData(x, y, dy, norm):
     indices = np.isfinite(y)
     x = x[indices]
     y = y[indices]
-    if len(dy):
+    if len(dy):  # pylint: disable=len-as-condition
         dy = dy[indices]
         # remove error bars that aren't finite
         dy[~np.isfinite(dy)] = 0
