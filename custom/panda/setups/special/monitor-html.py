@@ -259,13 +259,13 @@ for i in range(10, 22 + 1):
     )
 
 # for setup magnet frm2-setup
-magnet75 = Block('7T Magnet', [
+magnet55 = Block('5.5T Magnet', [
     BlockRow(
-        Field(dev='B_m7T5'),
-        Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='B_ccm55v'),
+        Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
 # for setup magnet jcns jvm1
@@ -279,31 +279,30 @@ magnet5 = Block('5T Magnet', [
 )
 
 
-magnet75supp = Block('Magnet', [
+magnet55supp = Block('Magnet', [
     BlockRow(
-        Field(dev='sth_B7T5_Taco_motor',name='motor'),
-        Field(dev='sth_B7T5_Taco_coder',name='coder'),
+        Field(dev='sth_ccm55v',name='sth'),
     ),
     # Maximum temperatures for field operation above 6.6 T (80A) taken from the
     # manual
     BlockRow(
-        Field(dev='m7T5_T1', max=4.3),
-        Field(dev='m7T5_T2', max=4.3),
+        Field(dev='ccm55v_T1', max=4.3),
+        Field(dev='ccm55v_T2', max=4.3),
     ),
     BlockRow(
-        Field(dev='m7T5_T3', max=5.1),
-        Field(dev='m7T5_T4', max=4.7),
+        Field(dev='ccm55v_T3', max=5.1),
+        Field(dev='ccm55v_T4', max=4.7),
     ),
     BlockRow(
-        Field(dev='m7T5_T5'),
-        Field(dev='m7T5_T6'),
+        Field(dev='ccm55v_T5'),
+        Field(dev='ccm55v_T6'),
     ),
     BlockRow(
-        Field(dev='m7T5_T7'),
-        Field(dev='m7T5_T8', max=4.3),
+        Field(dev='ccm55v_T7'),
+        Field(dev='ccm55v_T8', max=4.3),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
 magnet5supp = Block('Magnet', [
@@ -381,10 +380,10 @@ foki = Block('Foki', [
 )
 
 tas = Block('TAS', [
-        BlockRow(Field(name='H', dev='panda[0]', format='%.3f', unit=''),
-                 Field(name='K', dev='panda[1]', format='%.3f', unit=''),
-                 Field(name='L', dev='panda[2]', format='%.3f', unit=''),
-                 Field(name='E', dev='panda[3]', format='%.3f', unit='')),
+        BlockRow(Field(name='H', key='panda/value[0]', format='%.3f', unit=''),
+                 Field(name='K', key='panda/value[1]', format='%.3f', unit=''),
+                 Field(name='L', key='panda/value[2]', format='%.3f', unit=''),
+                 Field(name='E', key='panda/value[3]', format='%.3f', unit='')),
         BlockRow(Field(name='Mode', key='panda/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='panda/energytransferunit')),
@@ -392,9 +391,9 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet75, magnet5, magnet14t5, vti)
+          Column(lakeshore, magnet55, magnet5, magnet14t5, vti)
 
-column3 = Column(tas) + Column(magnet75supp, magnet5supp, kelvinox, foki) + \
+column3 = Column(tas) + Column(magnet55supp, magnet5supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

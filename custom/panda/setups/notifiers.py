@@ -16,7 +16,6 @@ devices = dict(
                       sender = 'panda@frm2.tum.de',
                       receivers = ['pcermak@frm2.tum.de', 'andreas.frick@frm2.tum.de', 'astrid.schneidewind@frm2.tum.de'],
                       subject = '[PANDA warning]',
-                      loglevel='debug',
                       lowlevel = True,
                      ),
 
@@ -25,7 +24,6 @@ devices = dict(
                       sender = 'panda@frm2.tum.de',
                       receivers = ['pcermak@frm2.tum.de'],
                       subject = '[PANDA]',
-                      loglevel='debug',
                       lowlevel = True,
                      ),
 
@@ -34,21 +32,18 @@ devices = dict(
                       sender = 'panda@frm2.tum.de',
                       receivers = ['astrid.schneidewind@frm2.tum.de'],
                       subject = '[PANDA]',
-                      loglevel='debug',
                       lowlevel = True,
                      ),
 
     smser    = device('nicos.devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = ['017697526049', '015788490767'],
-                      loglevel='debug',
                       lowlevel = True,
                      ),
 
     smspetr    = device('nicos.devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = ['017697526049'],
-                      loglevel='debug',
                       lowlevel = True,
                      ),
 )

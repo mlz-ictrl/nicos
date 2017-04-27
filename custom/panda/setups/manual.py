@@ -84,4 +84,8 @@ devices = dict(
                       description = 'PG filter 6cm 3.5deg mosaic',
                       states = ['unused', 'on ki', 'on kf'],
                      ),
+    detector = device('devices.generic.ManualSwitch',
+                      description = 'Detector used for measurement',
+                      states = ['none', 'det1', 'det2'],
+                     ),
 )

@@ -90,7 +90,7 @@ devices = dict(
                               scatteringsense = -1,
                               crystalside = -1,
                              ),
-    afh_heusler_step = device('nicos_mlz.panda.devices.ipc.Motor',
+    afh_heusler_step = device('devices.vendor.ipc.Motor',
                               description = 'stepper for horizontal focus of heusler ana',
                               bus = 'bus1',
                               addr = MOTOR(8),

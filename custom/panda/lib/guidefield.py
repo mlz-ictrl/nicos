@@ -57,12 +57,11 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Param, Override, LimitError, multiWait, Attach
+from nicos.core import Param, Override, LimitError, Attach
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
-# from nicos.devices.taco import CurrentSupply
-from nicos.devices.taco.io import AnalogOutput
+from nicos.devices.tango import PowerSupply
 
 
 ###############################################################################
@@ -76,33 +75,30 @@ from nicos.devices.taco.io import AnalogOutput
 # - Y is chosen to have right-handed system....
 ###############################################################################
 
-# class VectorCoil(CurrentSupply):
-class VectorCoil(AnalogOutput):
-    """ Vectorcoil is a device to control a coil which creates a field a the
+class VectorCoil(PowerSupply):
+    """VectorCoil is a device to control a coil which creates a field at the
     sample position.
 
     Basically it is a powersupply device, working in Amps and having two
-    additional parameters for calibration the vectorfield, for which these coil
-    devices are used.
+    additional parameters for calibration the vectorfield, for which these
+    coil devices are used.
     """
+
     parameters = {
         'orientation': Param('Field vector which is created by this coil in '
                              'mT (measured value!)',
                              settable=True, default=(1., 1., 1.),
                              type=tupleof(float, float, float), unit='mT',
-                             category='general',
-                             ),
+                             category='general'),
         'calibrationcurrent': Param('Current in A which created the field '
                                     'given as Parameter orientation',
                                     settable=True, default=1., type=float,
-                                    unit='A',
-                                    category='general',
-                                    ),
+                                    unit='A', category='general'),
     }
 
 
 class AlphaStorage(VirtualMotor):
-    """ Storage for the spectrometers \\alpha value """
+    r"""Storage for the spectrometer's \\alpha value."""
     parameter_overrides = {
         'speed': Override(default=0.),
     }
@@ -119,10 +115,13 @@ class AlphaStorage(VirtualMotor):
 
 
 class GuideField(MappedMoveable):
-    """ Guidefield object.
-    needs to be switched to (re-)calculated the required currents for the coils
-    calibration is done with a matrix giving the field components created with
-    a given current needs the alpha-virtualmotor for calculations
+    """Guidefield object.
+
+    Needs to be switched to (re-)calculate the required currents for the coils.
+    Calibration is done with a matrix giving the field components created with
+    a given current.
+
+    Needs the alpha virtual motor for calculations.
     """
     attached_devices = {
         'alpha': Attach('Device which provides the current \\alpha',
@@ -143,7 +142,6 @@ class GuideField(MappedMoveable):
                                           'down':  (0., 0., -1.),
                                           '0':     (0., 0., 0.),
                                           }),
-        'blockingmove': Override(default=False),
         'precision':    Override(mandatory=False),
     }
     parameters = {
@@ -151,14 +149,12 @@ class GuideField(MappedMoveable):
                             ' should be corrected',
                             type=tupleof(float, float, float), unit='mT',
                             settable='True', default=(0., 0., 0.),
-                            category='general',
-                            ),
+                            category='general'),
         'field':      Param('Absolute value of the desired field at the '
                             'sample position',
                             type=floatrange(0.1, 100), unit='mT',
                             settable='True', default=25.,
-                            category='general',
-                            ),
+                            category='general'),
     }
 
     _currentmatrix = None
@@ -205,9 +201,10 @@ class GuideField(MappedMoveable):
         return self.target
 
     def _B2I(self, B=np.array([0.0, 0.0, 0.0])):
-        """rotate the requested field around z-axis by beta first we get alpha
-        from the spectrometer alpha is the angle between X-axis and \\vec{Q}
-        and is in degrees
+        r"""Rotate the requested field around z-axis by beta.
+
+        First we get alpha from the spectrometer: alpha is the angle between
+        X-axis and \\vec{Q} and is in degrees.
         """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
@@ -220,7 +217,8 @@ class GuideField(MappedMoveable):
         return temp
 
     def _I2B(self, I=np.array([0.0, 0.0, 0.0])):
-        """calculate field from currents and rotate field around z-axis by -beta
+        """Calculate field from currents and rotate field around z-axis by
+        -beta.
         """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
@@ -232,14 +230,16 @@ class GuideField(MappedMoveable):
         return np.dot(RR, np.dot(self._currentmatrix, I))
 
     def _setfield(self, B=np.array([0, 0, 0])):
-        r"""set the given field and returns the actual field (computed from the
-        actual currents)
-        field components are:
+        r"""Set the given field.
+
+        Field components are:
+
         * Bqperp: component perpendicular to q, but within the scattering plane
         * Bqpar:  component parallel to q (within scattering plane)
         * Bz:     component perpendicular to the scattering plane
-        (if TwoTheta==0 & \\hbar\\omega=0 then this coordinate-system is the
-        same as the XYZ of the coils)
+
+        (If TwoTheta==0 & \\hbar\\omega=0 then this coordinate-system is the
+        same as the XYZ of the coils.)
         """
         # subtract offset (The field, which is already there, doesn't need to
         # be generated....)
@@ -261,17 +261,3 @@ class GuideField(MappedMoveable):
         # go there
         for i, d in enumerate(self.coils):
             d.start(F[i])
-
-        if not self.blockingmove:
-            return
-
-        # wait to get there
-        multiWait(self.coils)
-
-        # read back value
-        for i, d in enumerate(self.coils):
-            F[i] = d.read()
-
-        # now revers the process, calculate the field from the currents and
-        # return it
-        return self._I2B(F) + np.array(self.background)

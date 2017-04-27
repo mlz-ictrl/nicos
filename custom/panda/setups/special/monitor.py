@@ -92,7 +92,6 @@ collimation = Block('Collimation and Lengths', [
     ],
 )
 
-column1 = Column(filters, primary, sample, analyzer)
 
 
 detector = Block('Detector', [
@@ -315,40 +314,39 @@ miramagnet = Block('MIRA Magnet', [
 )
 
 # for setup magnet frm2-setup
-magnet75 = Block('7T Magnet', [
+magnet55 = Block('5T Magnet', [
     BlockRow(
-        Field(dev='B_m7T5'),
-        Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='B_ccm55v'),
+        Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
-magnet75supp = Block('Magnet', [
+magnet55supp = Block('Magnet', [
     BlockRow(
-        Field(dev='sth_B7T5_Taco_motor', name='motor'),
-        Field(dev='sth_B7T5_Taco_coder', name='coder'),
+        Field(dev='sth_ccm55v', name='sth'),
     ),
     # Maximum temperatures for field operation above 6.6 T (80A) taken from the
     # manual
     BlockRow(
-        Field(dev='m7T5_T1', max=4.3),
-        Field(dev='m7T5_T2', max=4.3),
+        Field(dev='ccm55v_T1', max=4.3),
+        Field(dev='ccm55v_T2', max=4.3),
     ),
     BlockRow(
-        Field(dev='m7T5_T3', max=5.1),
-        Field(dev='m7T5_T4', max=4.7),
+        Field(dev='ccm55v_T3', max=5.1),
+        Field(dev='ccm55v_T4', max=4.7),
     ),
     BlockRow(
-        Field(dev='m7T5_T5'),
-        Field(dev='m7T5_T6'),
+        Field(dev='ccm55v_T5'),
+        Field(dev='ccm55v_T6'),
     ),
     BlockRow(
-        Field(dev='m7T5_T7'),
-        Field(dev='m7T5_T8', max=4.3),
+        Field(dev='ccm55v_T7'),
+        Field(dev='ccm55v_T8', max=4.3),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
 # for setup magnet jcns jvm1
@@ -445,10 +443,11 @@ foki = Block('Foki', [
     ],
 )
 
+column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, magnet75, magnet5, magnet14t5, vti)
+          Column(lakeshore, miramagnet, magnet5, magnet14t5, vti)
 
-column3 = Column(magnet75supp, magnet5supp, kelvinox, foki, cam) + \
+column3 = Column(magnet55supp, magnet5supp, kelvinox, foki, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
