@@ -396,7 +396,7 @@ class Experiment(Device):
             # only enable in master mode, see below
             self._eloghandler.disabled = session.mode != MASTER
             session.addLogHandler(self._eloghandler)
-        if self.templates == '':
+        if not self.templates:
             self._setROParam('templates',
                              path.abspath(path.join(config.nicos_root,
                                                     'template')))

@@ -402,7 +402,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
     def savePlot(self):
         filename = QFileDialog.getSaveFileName(
             self, 'Select file name', '', 'PDF files (*.pdf)')
-        if filename == '':
+        if not filename:
             return None
         if '.' not in filename:
             filename += '.pdf'

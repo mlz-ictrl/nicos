@@ -530,7 +530,7 @@ class nonemptylistof(object):
 
 def nonemptystring(s):
     """a non-empty string"""
-    if not isinstance(s, string_types) or s == '':
+    if not (s and isinstance(s, string_types) ):
         raise ValueError('must be a non-empty string!')
     return s
 
