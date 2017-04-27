@@ -45,7 +45,7 @@ class TracebackDialog(QDialog):
         # split into frames and message
         frames = []
         message = ''
-        curframe = None
+        curframe = []
         for line in tb.splitlines():
             if line.startswith('        '):
                 try:
@@ -53,9 +53,11 @@ class TracebackDialog(QDialog):
                 except ValueError:
                     pass  # most probably the "^" line of a SyntaxError
                 else:
-                    curframe[2][name.strip()] = v.strip()
+                    if curframe:
+                        curframe[2][name.strip()] = v.strip()
             elif line.startswith('    '):
-                curframe[1] = line.strip()
+                if curframe:
+                    curframe[1] = line.strip()
             elif line.startswith('  '):
                 curframe = [line.strip(), '', {}]
                 frames.append(curframe)
