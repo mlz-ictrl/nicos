@@ -159,7 +159,7 @@ class BoundedOrderedDict(OrderedDict):
         OrderedDict.__init__(self, *args, **kwds)
         self._checklen()
 
-    def __setitem__(self, key, value):  # pylint: disable=arguments-differ
+    def __setitem__(self, key, value):  # pylint: disable=signature-differs
         OrderedDict.__setitem__(self, key, value)
         self._checklen()
 
