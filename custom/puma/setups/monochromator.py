@@ -73,7 +73,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    mtt    = device('puma.mtt.MTT_Axis',
+    mtt    = device('puma.mtt.MttAxis',
                     description  = 'Monochromator Two Theta',
                     motor = 'st_mtt',
                     coder = 'co_mtt',
