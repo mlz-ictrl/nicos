@@ -41,11 +41,17 @@ MIEZE_settings = [
 ]
 
 tools = [
-    tool('Downtime report', 'downtime.DownTimeTool',
-         receiver='f.carsughi@fz-juelich.de', mailserver='smtp.frm2.tum.de',
-         sender='mira@frm2.tum.de'),
-    cmdtool('Server control panel',
-            ['marche-gui', '-B', 'mira1', 'miracascade', 'mira2']),
+    tool(
+        'Downtime report',
+        'downtime.DownTimeTool',
+        receiver = 'f.carsughi@fz-juelich.de',
+        mailserver = 'smtp.frm2.tum.de',
+        sender = 'mira@frm2.tum.de',
+    ),
+    cmdtool(
+        'Server control panel',
+        ['marche-gui', '-B', 'mira1', 'miracascade', 'mira2', 'cascade02']
+    ),
     tool('Calculator', 'calculator.CalculatorTool', mieze = MIEZE_settings),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),

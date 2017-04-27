@@ -34,7 +34,7 @@ devices = dict(
 
     psd_channel   = device('mira.cascade.CascadeDetector',
                            description = 'CASCADE detector channel',
-                           tangodevice = tango_base + 'cascade/det',
+                           tangodevice = 'tango://cascade02.mira.frm2:10000/box/cascade/tofchannel',
                           ),
 
     psd           = device('devices.generic.Detector',

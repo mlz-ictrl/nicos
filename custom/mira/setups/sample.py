@@ -19,7 +19,7 @@ devices = dict(
                      ),
     stt      = device('mira.axis.HoveringAxis',
                       description = 'sample two-theta angle',
-                      abslimits = (-120, 120),
+                      abslimits = (-5, 120),
                       motor = 'mo_stt',
                       coder = 'co_stt',
                       obs = [],
