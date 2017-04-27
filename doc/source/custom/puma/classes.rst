@@ -34,7 +34,7 @@
 
 .. automodule:: nicos.puma.mtt
 
-.. autoclass:: MTT_Axis()
+.. autoclass:: MttAxis()
 
 .. automodule:: nicos.puma.pgfilter
 

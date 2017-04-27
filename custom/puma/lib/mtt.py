@@ -32,7 +32,7 @@ from nicos.devices.generic.axis import Axis
 from nicos.utils import createThread
 
 
-class MTT_Axis(Axis):
+class MttAxis(Axis):
     """PUMA MTT axis.
 
     Takes into account the mobilblock and the additional shielding block
