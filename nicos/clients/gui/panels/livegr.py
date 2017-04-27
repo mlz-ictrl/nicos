@@ -227,13 +227,13 @@ class LiveDataPanel(Panel):
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
 
-    def showRoiWindow(self, roi):
-        key = roi + '/roi'
-        widget = self._getLiveWidget(roi)
+    def showRoiWindow(self, roikey):
+        key = roikey + '/roi'
+        widget = self._getLiveWidget(roikey)
         region = self.widget._rois[key]
         if not widget:
             widget = LiveWidget(None)
-            widget.setWindowTitle(roi)
+            widget.setWindowTitle(roikey)
             widget.setColormap(self.widget.getColormap())
             widget.setCenterMark(self.actionMarkCenter.isChecked())
             widget.logscale(self.actionLogScale.isChecked())

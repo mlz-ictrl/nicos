@@ -269,12 +269,12 @@ class DeviceMeta(DeviceMixinMeta):
                                        (name, pname))
 
         # check names of methods to comply with coding style
-        for name in attrs:
-            if name.startswith(('_', 'do')):
+        for aname in attrs:
+            if aname.startswith(('_', 'do')):
                 continue
-            value = getattr(newtype, name)
+            value = getattr(newtype, aname)
             if not isinstance(value, types.MethodType):
-                newtype.class_attributes[name] = value
+                newtype.class_attributes[aname] = value
                 continue
             argspec = inspect.getargspec(value)
             if argspec[0] and argspec[0][0] == 'self':
@@ -284,7 +284,7 @@ class DeviceMeta(DeviceMixinMeta):
                 docline = value.__doc__.strip().splitlines()[0]
             else:
                 docline = ''
-            newtype.methods[name] = (args, docline, newtype,
+            newtype.methods[aname] = (args, docline, newtype,
                                      hasattr(value, 'is_usermethod'))
 
         return newtype
