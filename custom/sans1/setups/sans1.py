@@ -3,9 +3,9 @@ description = 'basic sans1 setup'
 group = 'basic'
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
-            'pressure', 'selector_tower', 'astrium', 'memograph',
+            'pressure', 'astrium', 'memograph',
             'manual', 'guidehall', 'outerworld', 'pressure_filter',
-            'slit']
+            'slit']#, 'selector_tower']
 
 excludes = ['tisane']
 

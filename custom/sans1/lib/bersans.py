@@ -110,10 +110,10 @@ IEEE9=%(ieee_9)s
 IEEE10=%(ieee_10)s
 
 %%Setup
-SelSelection=%(selector_ng)s
+SelSelection=SEL1
 Lambda=%(selector_lambda)s
 LambdaC=%(selector_rpm)s
-Tilting=%(selector_tilt)s
+Tilting=0.00
 Attenuator=%(att)s
 Polarization=%(ng_pol)s
 Polarization_m=%(ng_pol_m)s
