@@ -53,6 +53,8 @@ class KWSSample(Sample):
                             category='sample'),
         'comment':    Param('Sample comment',
                             type=str, settable=True, category='sample'),
+        'apname':     Param('Name of sample aperture', type=str,
+                            mandatory=False, default='ap_sam'),
     }
 
     def _applyKwsParams(self, parameters):
@@ -77,7 +79,7 @@ class KWSSample(Sample):
                       number, parameters['name'] or 'unnamed')
         waitdevs = []
         if self.aperture != (0, 0, 0, 0):
-            ap = session.getDevice('ap_sam')
+            ap = session.getDevice(self.apname)
             ap.opmode = 'offcentered'  # to be sure
             ap.move(self.aperture)
             waitdevs.append(ap)

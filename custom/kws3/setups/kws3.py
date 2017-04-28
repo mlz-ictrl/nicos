@@ -3,7 +3,7 @@
 description = 'KWS-3 setup'
 group = 'basic'
 
-modules = ['kws1.commands']
+modules = ['kws3.commands']
 
 includes = [
     'sample',

@@ -3,6 +3,9 @@ group = 'configdata'
 
 RESOLUTION_PRESETS = {
     # TODO: add proper presets
-    'p1':   dict(ap=(0, 0, 2, 2), det_x=-35, det_y=0, det_z=26),
-    'p2':   dict(ap=(0, 0, 5, 5), det_x=-35, det_y=0, det_z=26),
+    # NOTE: "ap" setting is (x_left, x_right, y_lower, y_upper)
+    # TODO: instead of real motors of slit to use virtual ...
+    'p1mm':   dict(ap=(0.5, 0.5, 0.5, 0.5), det_x=0, det_y=2, det_z=450),
+    'p2mm':   dict(ap=(1.0, 1.0, 1.0, 1.0), det_x=0, det_y=2, det_z=450),
+    'p5mm':   dict(ap=(2.5, 2.5, 2.5, 2.5), det_x=0, det_y=2, det_z=450),
 }

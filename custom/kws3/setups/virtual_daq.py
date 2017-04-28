@@ -28,8 +28,8 @@ devices = dict(
                          ),
 
     det_img      = device('devices.generic.DeviceAlias',
+                          alias = 'det_img_ge',
                           devclass = 'kws1.daq.VirtualKWSImageChannel',
-                          lowlevel = True,
                          ),
 
     detector     = device('kws3.daq.DetSwitcher',

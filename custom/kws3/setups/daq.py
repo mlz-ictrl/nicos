@@ -31,8 +31,8 @@ devices = dict(
                          ),
 
     det_img      = device('devices.generic.DeviceAlias',
+                          alias = 'det_img_ge',
                           devclass = 'nicos.kws1.daq.KWSImageChannel',
-                          lowlevel = True,
                          ),
 
     detector     = device('kws3.daq.DetSwitcher',

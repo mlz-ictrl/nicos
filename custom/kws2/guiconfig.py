@@ -21,6 +21,7 @@ main_window = tabbed(
         ('Experiment Info',
             panel('expinfo.ExpInfoPanel', dockpos='left',
                   sample_panel=panel('kws1.gui.sampleconf.KWSSamplePanel',
+                                     instrument = 'kws1',
                                      holder_info = [
             ('Al 3-level',          (9,  3, 'sam_trans_x', 27,    'sam_trans_y', 75)),
             ('Al 3-level Narrow',   (12, 3, 'sam_trans_x', 20,    'sam_trans_y', 75)),

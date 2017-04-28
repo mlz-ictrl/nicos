@@ -11,14 +11,16 @@ res_presets = configdata('config_resolution.RESOLUTION_PRESETS')
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    resolution      = device('devices.generic.MultiSwitcher',
+    resolution      = device('kws3.resolution.Resolution',
                              description = 'select resolution presets',
                              blockingmove = False,
-                             moveables = ['sel_ap2', 'det_x', 'det_y', 'det_z'],
-                             mapping = {k: [v['ap'], v['det_x'], v['det_y'], v['det_z']]
+                             moveables = ['sel_ap2_x_left', 'sel_ap2_x_right',
+                                          'sel_ap2_y_lower', 'sel_ap2_y_upper',
+                                          'det_x', 'det_y', 'det_z'],
+                             mapping = {k: list(v['ap']) +  [v['det_x'], v['det_y'], v['det_z']]
                                         for (k, v) in res_presets.items()},
                              fallback = 'unknown',
-                             precision = [None, 0.01, 0.01, 0.01],
+                             precision = [0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01],
                             ),
 
     sel_ap1         = device('devices.generic.TwoAxisSlit',

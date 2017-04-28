@@ -29,7 +29,7 @@ from nicos.clients.gui.cmdlets import register
 from nicos.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 from nicos.kws1.gui.measdialogs import MeasDef as KWS1MeasDef
 from nicos.kws1.gui.measelement import ChoiceElement, Selector, Chopper, \
-    Polarizer, MeasTime
+    MeasTime
 
 
 class Detector(ChoiceElement):
@@ -50,8 +50,14 @@ class SamplePos(ChoiceElement):
 
 
 class Beamstop(ChoiceElement):
-    CACHE_KEY = 'beamstop/mapping'
     LABEL = 'Beamstop'
+    VALUES = ['out', 'in']
+
+
+class Polarizer(ChoiceElement):
+    CACHE_KEY = 'polarizer/mapping'
+    SORT_KEY = lambda self, x: num_sort(x)
+    LABEL = 'Polarizer'
 
 
 class MeasDef(KWS1MeasDef):

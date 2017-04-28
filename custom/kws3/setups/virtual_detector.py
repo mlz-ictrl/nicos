@@ -5,15 +5,11 @@ group = 'lowlevel'
 display_order = 65
 
 devices = dict(
-    beamstop       = device('devices.generic.MultiSwitcher',
+    beamstop       = device('kws3.resolution.Beamstop',
                             description = 'select beamstop presets',
-                            blockingmove = False,
-                            moveables = ['det_beamstop_x'],
-                            # TODO: add proper presets
-                            mapping = {'out': [112],
-                                       'in': [0]},
-                            fallback = 'unknown',
-                            precision = [0.01],
+                            moveable = 'det_beamstop_x',
+                            resolution = 'resolution',
+                            outpos = 100,
                            ),
 
     det_x          = device('kws1.virtual.Standin',
@@ -28,4 +24,8 @@ devices = dict(
     det_beamstop_x = device('kws1.virtual.Standin',
                             description = 'detector beamstop_x',
                            ),
+)
+
+extended = dict(
+    poller_cache_reader = ['resolution']
 )

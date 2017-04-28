@@ -194,8 +194,17 @@ class ConfigEditDialog(QDialog):
 
     def on_readDevsBtn_clicked(self):
         dlg = QDialog(self)
-        # XXX: this is KWS1 specific
         loadUi(dlg, findResource('custom/kws1/lib/gui/sampleconf_readpos.ui'))
+        if self.instrument == 'kws1':
+            dlg.kws3Box.hide()
+        elif self.instrument == 'kws2':
+            dlg.kws3Box.hide()
+            dlg.hexaBox.hide()
+        elif self.instrument == 'kws3':
+            dlg.rotBox.hide()
+            dlg.transBox.hide()
+            dlg.hexaBox.hide()
+            dlg.kws3Box.setChecked(True)
         if not dlg.exec_():
             return
         if dlg.rotBox.isChecked():
@@ -207,9 +216,15 @@ class ConfigEditDialog(QDialog):
             for axis in ('dt', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz'):
                 self._addRow('hexapod_' + axis,
                              self._readDev('hexapod_' + axis))
+        if dlg.kws3Box.isChecked():
+            self._addRow('sam_x', self._readDev('sam_x'))
+            self._addRow('sam_y', self._readDev('sam_y'))
 
     def on_readApBtn_clicked(self):
-        rv = self.client.eval('ap_sam.read()', None)
+        if self.instrument != 'kws3':
+            rv = self.client.eval('ap_sam.read()', None)
+        else:
+            rv = self.client.eval('sam_ap.read()', None)
         if rv is None:
             QMessageBox.warning(self, 'Error', 'Could not read aperture!')
             return
@@ -250,6 +265,7 @@ class KWSSamplePanel(Panel):
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self.holder_info = options.get('holder_info', [])
+        self.instrument = options.get('instrument', 'kws1')
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
@@ -452,6 +468,7 @@ class KWSSamplePanel(Panel):
     @pyqtSlot()
     def on_newBtn_clicked(self):
         dlg = ConfigEditDialog(self, self.client, self.configs)
+        dlg.instrument = self.instrument
         if not dlg.exec_():
             return
         self.dirty = True
