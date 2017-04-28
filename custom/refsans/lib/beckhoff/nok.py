@@ -96,6 +96,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         1  : 'Antrieb nicht bereit',
         3  : 'Auftrag abgebrochen (Safety key?)',
         90 : 'Achse nicht aktivierbar',
+        91 : 'geht nicht weil wegen',
         99 : 'NC-Error',
         100: 'Motorfehler',
         101: 'Motorfehler',
@@ -148,7 +149,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         (5, 'moving positive'),
         (6, 'target reached'),
         (7, 'moving negative'),
-        (8, 'NOT Ready'),
+        (8, 'Ready'),
         (9, 'Overtemperature'),
         (10, 'Target not reached: limit switch'),
         (11, 'Target not reached: stop'),
@@ -157,6 +158,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         (14, 'parameter access denied'),
         (15, 'parameter access granted'),
     )
+    HW_Status_Ign = 0
     HW_Status_Inv = 0
     HW_Status_map = tuple()
 
@@ -176,14 +178,16 @@ class BeckhoffCoderBase(TacoDevice, Coder):
 
     def _writeControlBit(self, bit, value, numbits=1):
         self.log.debug('_writeControlBit %r, %r', bit, value)
-        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
-                                  (0, self.address, 1))[0]
-        mask = (1 << numbits) - 1
-        tmpval &= ~(mask << int(bit))
-        tmpval |= ((mask & int(value)) << int(bit))
-        self.log.debug('write control bit: %x', tmpval)
+#        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
+#                                  (0, self.address, 1))[0]
+#        mask = (1 << numbits) - 1
+#        tmpval &= ~(mask << int(bit))
+#        tmpval |= ((mask & int(value)) << int(bit))
+#        self.log.debug('write control bit: 0x%x', tmpval)
+#        self._taco_guard(self._dev.writeSingleRegister,
+#                         (0, self.address, tmpval))
         self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address, tmpval))
+                         (0, self.address, (value & ((1 << int(numbits))-1)) << int(bit)))
         session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
@@ -195,13 +199,13 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     def _readStatusWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                 (0, self.address + 4, 1))[0]
-        self.log.debug('_readStatusWord %04x', value)
+        self.log.debug('_readStatusWord 0x%04x', value)
         return value
 
     def _readErrorWord(self):
         value = self._taco_guard(self._dev.readHoldingRegisters,
                                 (0, self.address + 5, 1))[0]
-        self.log.debug('_readErrorWord %04x', value)
+        self.log.debug('_readErrorWord 0x%04x', value)
         return value
 
     def _readPosition(self):
@@ -270,7 +274,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         """Used status bits."""
         # read HW values
         errval = self._readErrorWord()
-        statval = self._readStatusWord() ^ self.HW_Status_Inv
+        statval = (self._readStatusWord() ^ self.HW_Status_Inv)& ~self.HW_Status_Ign
 
         msg = bitDescription(statval, *self.HW_Statusbits)
         # check for errors first, then warnings, busy and Ok
@@ -318,14 +322,15 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     }
 
     # invert bit 13 (referenced) to NOT REFERENCED
-    # invert bit 8 (ready) to NOT READY
+    ### invert bit 8 (ready) to NOT READY
     # invert bit 0 (enabled) to NOT ENABLED
-    HW_Status_Inv = (1 << 13) | (1 << 8) | (1 << 0)
+    HW_Status_Inv = (1 << 13) | (1 << 0)
+    HW_Status_Ign = (1 << 6)
     # map mask of bits to status to return if any bits within mask is set
     HW_Status_map = (
         #  FEDCBA9876543210
         (0b0000000010100000, status.BUSY),
-        (0b0011111100011011, status.WARN),
+        (0b0011111000011011, status.WARN),
     )
     HW_readable_Params = dict(firmwareVersion=253)
     HW_writeable_Params = dict()
@@ -334,45 +339,36 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     # Hardware abstraction: which actions do we want to do...
     #
 
-    def _HW_start(self, target):
-        """Initiate movement."""
-        # Write destination and start in one cycle
-        # doc: bit2 = go to absolute position, autoresets
-        # self._writeControlBit(2, 1)
-        bit, value, numbits = 2, 1, 1
-        self.log.debug('_writeControlBit %r, %r', bit, value)
-        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
-                                  (0, self.address, 1))[0]
-        mask = (1 << numbits) - 1
-        tmpval &= ~(mask << int(bit))
-        tmpval |= ((mask & int(value)) << int(bit))
-        self.log.debug('write control bit: %x', tmpval)
+    def _HW_writeDestinationandStart(self, target):
+        """Write Target value and Initiate movement in one go."""
+        self.log.debug('_writeDestination %r and start', target)
+        # first word is control word, set start bit (bit2)
+        words = struct.unpack('<4H', struct.pack('=HHi', 4, 0, target))
+        self.log.debug('words: %r' % (words, ))
 
-        # self._writeDestination(target):
-        self.log.debug('_writeDestination %r', target)
-        value = struct.unpack('<2H', struct.pack('=i', target))
-        data = (0, self.address, tmpval, 0) + value
-        self.log.debug('send: %r' % (data, ))
+        data = (0, self.address) + words
         self._taco_guard(self._dev.writeMultipleRegisters, data)
         session.delay(0.1)  # work around race conditions....
 
+    def _HW_start(self):
+        """Initiate movement."""
+        self._writeControlBit(2, 1)    # docu: bit2 = start, autoresets
+        session.delay(0.1)             # work around race conditions....
+
     def _HW_reference(self):
         """Do the referencing and update position to refpos"""
-        self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets???
-        session.delay(0.5)
-        self._writeControlBit(4, 0)
+        self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets
+        session.delay(0.1)             # work around race conditions....
 
     def _HW_stop(self):
         """stop any actions"""
-        self._writeControlBit(6, 1)     # docu: bit6 = stop, autoresets ???
-        session.delay(0.1)
-        self._writeControlBit(6, 0)
+        self._writeControlBit(6, 1)     # docu: bit6 = stop, autoresets
+        session.delay(0.1)             # work around race conditions....
 
     def _HW_ACK_Error(self):
         """acknowledge any error"""
-        self._writeControlBit(7, 1)     # docu: bit7 = stop, autoresets ???
-        session.delay(0.1)
-        self._writeControlBit(7, 0)
+        self._writeControlBit(7, 1)     # docu: bit7 = stop, autoresets
+        session.delay(0.1)             # work around race conditions....
 
     # more advanced stuff: setting/getting parameters
     # only to be used manually at the moment
@@ -489,7 +485,8 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     def doStart(self, target):
         self._HW_wait_while_BUSY()
         # now just go where commanded....
-        self._HW_start(self._phys2steps(target))
+        self._writeDestination(self._phys2steps(target))
+        self._HW_start()
         session.delay(0.1)
         if hasattr(self, '_HW_readStatusWord'):
             if self._HW_readStatusWord() & (1 << 10):
@@ -545,6 +542,10 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
     def HW_readMinValue(self):
         return self._steps2phys(self._HW_readParameter('minValue'))
 
+    @usermethod
+    def HW_readFirmware(self):
+        return self._steps2phys(self._HW_readParameter('firmwareVersion'))
+
 
 # Motor M01 (0x3020) & M02 (0x302a)
 # Blendenschild (reactorside, 0x3020) + (sample side, 0x302a)
@@ -573,39 +574,18 @@ class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
 # NOK5b: Motor M11 (reactorside, 0x3052) & M12 (sample side, 0x305c),
 # should be moved together!
 class BeckhoffMotorCab1M1x(SingleMotorOfADoubleMotorNOK, BeckhoffMotorCab1M13):
-    def _HW_setSync(self, syncvalue):
+    def _HW_start(self):
         # from docu:
         # if ONLY M11 should move, its syncbits should be set to 01
         # if ONLY M12 should move, its syncbits should be set to 10
         # if both should move, BOTH control blocks should set syncbits to 11
-        # syncbits should be set last!
-        if not 0 <= syncvalue <= 3:
-            raise ValueError('SyncValue must be 0, 1, 2 or 3!')
-        # make sure to clear before setting
-        self._writeControlBit(8, 0, numbits=2)
-        # set both bits in one go
-        self._writeControlBit(8, syncvalue, numbits=2)
 
-    # There must be a device combining both motors to a 2-tuple valued device.
-    # this super-device can trigger referencing or moves (it needs to call
-    # _HW_setSync(3) last)
+        # set both bits in one go + the startbit
+        self._writeControlBit(0, 0x304, numbits=10)
+
     def doReference(self):
         raise UsageError('This device can not be referenced like this! '
                          'see docu!, try referencing one of %s' % self._sdevs)
-
-
-class BeckhoffMotorCab1M11(BeckhoffMotorCab1M1x):
-    @requires(level='admin')
-    def doStart(self, target):
-        BeckhoffMotorCab1M1x.doStart(self, target)
-        self._HW_setSync(1)
-
-
-class BeckhoffMotorCab1M12(BeckhoffMotorCab1M1x):
-    @requires(level='admin')
-    def doStart(self, target):
-        BeckhoffMotorCab1M1x.doStart(self, target)
-        self._HW_setSync(2)
 
 
 # Box detectorantrieb: det_z: Achse 0x3020, Coder_readout 0x302a

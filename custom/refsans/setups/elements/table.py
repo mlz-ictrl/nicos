@@ -20,6 +20,7 @@ devices = dict(
                            unit = 'mm',
                            # acording to docu:
                            abslimits = (620, 11025),
+                           precision = 1,
                            lowlevel = True,
                           ),
     table_z_obs = device('refsans.beckhoff.nok.BeckhoffCoderDetector',
@@ -34,7 +35,7 @@ devices = dict(
                    description = 'detector table inside tube',
                    motor = 'table_z_motor',
                    obs = ['table_z_obs'],
-                   precision = 0.05,
+                   precision = 1,
                    dragerror = 10.,
                   ),
 )

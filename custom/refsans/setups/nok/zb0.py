@@ -16,6 +16,7 @@ devices = dict(
                       address = 0x3020+4*10, # word adress
                       slope = 10000,
                       unit = 'mm',
+                      precision = 0.1,  # precision for a single move
                       # acording to docu:
                       abslimits = (-184, -0.1),
                       userlimits = (-155.7889, -0.1),
@@ -27,6 +28,6 @@ devices = dict(
                      coder = 'zb0_m',
                      obs = [],
                      offset = -28.2111,
-                     precision = 0.002,
+                     precision = 0.002,  # precision after repositionings
                     ),
               )

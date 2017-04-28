@@ -55,6 +55,7 @@ devices = dict(
                              description = 'Copies image data and saves header',
                              lowlevel = True,
                              detector = 'comtec_timer',
+                             fast_basepath = '/home/',
                             ),
     comtec_timer    = device('refsans.detector.ComtecTimer',
                              description = 'Comtec P7888 Fast System: Timer channel',

@@ -306,6 +306,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                    type=limits, mandatory=True),
         'backlash':          Param('Backlash correction in phys. units',
                                    type=float, default=0., unit='main'),
+        'offsets':          Param('Offsets of NOK-Motors (reactor side, sample side)',
+                                   type=tupleof(float,float), default=(0.,0.),
+                                   settable=False, unit='main'),
     }
 
     parameter_overrides = {
@@ -313,6 +316,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     }
 
     valuetype = tupleof(float, float)
+    _honor_stop = True
 
     @lazy_property
     def _devices(self):
@@ -325,10 +329,13 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                          'have a non-zero backlash!' % dev)
 
     def doRead(self, maxage=0):
-        return [dev.doRead(maxage) for dev in self._devices]
+        return [dev.doRead(maxage) - ofs for dev,ofs in zip(self._devices, self.offsets)]
 
     def doIsAllowed(self, targets):
         target_r, target_s = targets
+        target_r += self.offsets[0]
+        target_s += self.offsets[1]
+
         incmin, incmax = self.inclinationlimits
 
         inclination = target_s - target_r
@@ -346,9 +353,18 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     def doIsAtTarget(self, targets):
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0)
-                       for target, dev in zip(targets, self._devices)]
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices, self.offsets)]
         return max(abs(v) for v in traveldists) <= self.precision
+
+    def doStop(self):
+        SequencerMixin.doStop(self)
+        for dev in self._devices:
+            dev.stop()
+        try:
+            self.wait()
+        finally:
+            self.reset()
 
     def doStart(self, targets):
         """Generate and start a sequence if none is running.
@@ -363,29 +379,29 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0)
-                       for target, dev in zip(targets, self._devices)]
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices, self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
             return
 
         devices = self._devices
 
-        # go below lowest interesting point
-        minpos = min(self.read() + list(targets) +
-                     [t + self.backlash for t in targets])
+        # XXX: backlash correction and repositioning later
 
         # build a moving sequence
         sequence = []
 
-        # first both go to the lowest point, then to the target
-        sequence.append([SeqDev(d, minpos) for d in devices])
-
         # now go to target
-        sequence.append([SeqDev(d, t) for d, t in zip(devices, targets)])
+        sequence.append([SeqDev(d, t + ofs, stoppable=True) for d, t, ofs in zip(devices, targets, self.offsets)])
+
+        # now go to target again
+        sequence.append([SeqDev(d, t + ofs, stoppable=True) for d, t, ofs in zip(devices, targets, self.offsets)])
 
         self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
 
+
+class DoubleMotorNOKIPC(DoubleMotorNOK):
     def doReference(self):
         """Reference the NOK in a sophisticated way....
 
@@ -393,6 +409,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         then we reference the lower refpoint first, and the higher later.
         After referencing is done, we go to (0, 0).
         """
+        # XXX: EXTRA BIG TODO !!!
         if self._seq_is_running():
             raise MoveError(self, 'Cannot reference device, it is still '
                             'moving!')
@@ -436,3 +453,21 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
         # GO
         self._startSequence(sequence)
+
+
+class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
+    def doReference(self):
+        """Reference the NOK
+
+        Just set the do_reference bit and wait for completion
+        """
+        if self._seq_is_running():
+            raise MoveError(self, 'Cannot reference device, it is still '
+                            'moving!')
+
+        # according to docu it is sufficient to set the ref bit of one of the couled motors
+        for dev in self._devices:
+            dev._HW_reference()
+
+        for dev in self._devices:
+            dev.wait()

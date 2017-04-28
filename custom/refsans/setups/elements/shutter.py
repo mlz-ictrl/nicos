@@ -18,5 +18,6 @@ devices = dict(
                      moveable = 'shutter_m',
                      precision = 0.5,
                      mapping = {'close': 0, 'open': 55},
+                     fallback = 'offline',
                     ),
 )
