@@ -87,7 +87,6 @@ devices = dict(
                      images = ['image'],
                      maxage = 86400,
                      pollinterval = None,
-#                    fileformats = ['listmode', 'histogram',],
                      lowlevel = True,
                     ),
     adet = device('spodi.detector.Detector',
