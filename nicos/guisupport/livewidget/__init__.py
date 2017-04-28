@@ -320,8 +320,9 @@ class LiveWidgetBase(QWidget):
 
     def logscale(self, on):
         self._logscale = on
-        self.updateZData()
-        self.gr.update()
+        if self._array is not None:
+            self.updateZData()
+            self.gr.update()
 
     def setCenterMark(self, flag):
         self.axes.drawxylines = flag
