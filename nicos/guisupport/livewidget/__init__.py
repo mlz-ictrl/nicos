@@ -155,6 +155,38 @@ class Axes(PlotAxes):
                 gr.polyline([xmin, xmax], [ypos, ypos])
             gr.setlinecolorind(linecolor)
 
+
+class Curve(PlotCurve):
+
+    def __init__(self, *args, **kwargs):
+        # fill values for masked x, y
+        self.fillx = kwargs.pop("fillx", 0)
+        self.filly = kwargs.pop("filly", 0)
+        PlotCurve.__init__(self, *args, **kwargs)
+
+    @property
+    def x(self):
+        x = PlotCurve.x.__get__(self)
+        if numpy.ma.is_masked(x):
+            return x.filled(self.fillx)
+        return x
+
+    @x.setter
+    def x(self, x):
+        PlotCurve.x.__set__(self, x)
+
+    @property
+    def y(self):
+        y = PlotCurve.y.__get__(self)
+        if numpy.ma.is_masked(y):
+            return y.filled(self.filly)
+        return y
+
+    @y.setter
+    def y(self, y):
+        PlotCurve.y.__set__(self, y)
+
+
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
 
     def __init__(self, *args, **kwargs):
@@ -387,8 +419,8 @@ class IntegralLiveWidget(LiveWidget):
 
         self.plotyint.addAxes(self.axesyint)
         self.plotxint.addAxes(self.axesxint)
-        self.curvey = PlotCurve([0], [0], linecolor=COLOR_BLUE)
-        self.curvex = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.curvey = Curve([0], [0], filly=.1, linecolor=COLOR_BLUE)
+        self.curvex = Curve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
 
         self.axesyint.addCurves(self.curvey)
         self.axesxint.addCurves(self.curvex)
@@ -415,16 +447,34 @@ class IntegralLiveWidget(LiveWidget):
     def _setData(self, array, nx, ny, nz, newrange):
         LiveWidget._setData(self, array, nx, ny, nz, newrange)
         if newrange:
-            self.axesyint.setWindow(0, nx, 1, ny)
-            self.axesxint.setWindow(1, nx, 0, ny)
+            self.axesyint.setWindow(0, nx, 0, ny)
+            self.axesxint.setWindow(0, nx, 0, ny)
             self.axesxint.ylines = self.axes.ylines
             self.axesyint.xlines = self.axes.xlines
         self.curvey.x = numpy.arange(0, nx)
-        self.curvey.y = array.sum(axis=0)
         self.curvex.y = numpy.arange(0, ny)
-        self.curvex.x = array.sum(axis=1)
-        self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
-        self.axesxint.setWindow(1, self.curvex.x.max(), 0, ny)
+        # use float type in order to mask zeros with 0.1 for logscale
+        self.curvex.x = array.sum(axis=1, dtype=numpy.float)
+        self.curvey.y = array.sum(axis=0, dtype=numpy.float)
+        self.axesyint.setWindow(0, nx, 0, self.curvey.y.max())
+        self.axesxint.setWindow(0, self.curvex.x.max(), 0, ny)
+
+    def updateZData(self):
+        LiveWidget.updateZData(self)
+        if self._logscale:
+            x0, y0 = .1, .1
+            self.curvex.x = numpy.ma.masked_equal(self.curvex.x, 0)
+            self.curvey.y = numpy.ma.masked_equal(self.curvey.y, 0)
+        else:  # unmask if masked if not logscale
+            x0, y0 = 0, 0
+            if numpy.ma.is_masked(self.curvex._x):
+                self.curvex.x = self.curvex._x.filled(0)
+            if numpy.ma.is_masked(self.curvey._y):
+                self.curvey.y = self.curvey._y.filled(0)
+        xmin, xmax, _ymin, ymax = self.axesyint.getWindow()
+        self.axesyint.setWindow(xmin, xmax, y0, ymax)
+        _xmin, xmax, ymin, ymax = self.axesxint.getWindow()
+        self.axesxint.setWindow(x0, xmax, ymin, ymax)
 
     def unzoom(self):
         nx, ny = len(self.curvey.x), len(self.curvex.y)
