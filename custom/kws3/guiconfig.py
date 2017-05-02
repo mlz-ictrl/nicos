@@ -6,7 +6,7 @@ main_window = tabbed(
             hsplit(
                 vsplit(
                     panel('cmdbuilder.CommandPanel',
-                          modules=['kws1.gui.cmdlets']),
+                          modules=['kws3.gui.cmdlets']),
                     panel('status.ScriptStatusPanel'),
                 ),
             ),
@@ -21,7 +21,13 @@ main_window = tabbed(
         ('Experiment Info',
             panel('expinfo.ExpInfoPanel', dockpos='left',
                   sample_panel=panel('kws1.gui.sampleconf.KWSSamplePanel',
+                                     instrument = 'kws3',
                                      holder_info = [
+            ('Al 3-level',          (9,  3, 'sam_x', 27,    'sam_y', 75)),
+            ('Al 3-level Narrow',   (12, 3, 'sam_x', 20,    'sam_y', 75)),
+            ('Al Wide (T-contr.)',  (9,  2, 'sam_x', 26.6,  'sam_y', 105)),
+            ('Al Narrow (T-contr.)',(16, 2, 'sam_x', 15,    'sam_y', 105)),
+            ('Al Round (T-contr.)', (10, 2, 'sam_x', 24,    'sam_y', 105)),
                                      ]))),
         ('NICOS devices',
             panel('devices.DevicesPanel', icons=True, dockpos='right')),
@@ -41,7 +47,7 @@ windows = []
 tools = [
     cmdtool('Detector live view', 'KWSlive'),
     cmdtool('Server control (Marche)', 'marche-gui'),
-    cmdtool('NICOS status', 'nicos-monitor'),
+#    cmdtool('NICOS status', 'nicos-monitor'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
     tool('Calculator', 'calculator.CalculatorTool'),

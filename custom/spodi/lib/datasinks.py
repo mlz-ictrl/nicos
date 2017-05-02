@@ -88,7 +88,7 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         header.append('Acquisition Time\t%d' % _acqtime)
         header.append('Total Counts\t%d' % _total_counts)
         if _metainfo[detector, 'mode'][0] == 'time':
-            header.append('Preset timer counts:\t%.0f' %
+            header.append('Preset timer seconds:\t%.0f' %
                           _metainfo[detector, 'preset'][0])
         else:
             header.append('Preset monitor_1 counts:\t%d' %

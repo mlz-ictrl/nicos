@@ -3,13 +3,10 @@
 description = 'KWS-3 setup'
 group = 'basic'
 
-modules = ['kws1.commands']
+modules = ['kws3.commands']
 
 includes = [
-    'sample01',
-    'sample10',
-    'mobile',
-    'mirror',
+    'sample',
     'selector',
     'detector',
     'shutter',

@@ -1,13 +1,26 @@
 # -*- coding: utf-8 -*-
 
-description = "Virtual polarizer motor setup"
-group = "lowlevel"
+description = 'Virtual polarizer motor setup'
+group = 'lowlevel'
+display_order = 25
+
+pol_presets = configdata('config_polarizer.POLARIZER_PRESETS')
 
 devices = dict(
-    pol_y    = device("kws1.virtual.Standin",
-                      description = "polarizer y-table",
+    polarizer = device('devices.generic.MultiSwitcher',
+                       description = 'select polarizer presets',
+                       blockingmove = False,
+                       moveables = ['pol_y', 'pol_tilt'],
+                       mapping = {k: [v['y'], v['tilt']]
+                                  for (k, v) in pol_presets.items()},
+                       fallback = 'unknown',
+                       precision = [0.01, 0.01],
+                      ),
+
+    pol_y    = device('kws1.virtual.Standin',
+                      description = 'polarizer y-table',
                      ),
-    pol_tilt = device("kws1.virtual.Standin",
-                      description = "polarizer tilt",
+    pol_tilt = device('kws1.virtual.Standin',
+                      description = 'polarizer tilt',
                      ),
 )

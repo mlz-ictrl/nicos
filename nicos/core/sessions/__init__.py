@@ -308,6 +308,10 @@ class Session(object):
                 continue
             dev = lowerdevs[dev]
             if param == 'value':
+                # getting/setting attributes on dangling aliases raises,
+                # so don't try it
+                if isinstance(dev, DeviceAlias) and not dev.alias:
+                    continue
                 dev._sim_value = value
                 dev._sim_min = dev._sim_max = dev._sim_old_value = None
                 if hasattr(dev, 'doUpdateValue'):
@@ -320,6 +324,8 @@ class Session(object):
                 if dev.parameters[param].no_sim_restore:
                     continue
                 dev._params[param] = value
+                if isinstance(dev, DeviceAlias) and not dev.alias:
+                    continue
                 umethod = getattr(dev, 'doUpdate' + param.title(), None)
                 if umethod:
                     umethods_to_call.append((umethod, value))

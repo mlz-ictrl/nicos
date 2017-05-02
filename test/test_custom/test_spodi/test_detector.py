@@ -24,15 +24,11 @@
 
 """SPODI specific detector tests."""
 
-import time
-
 from nicos.commands.measure import count
 
 import pytest
 
 session_setup = 'spodi'
-
-year = time.strftime('%Y')
 
 
 @pytest.yield_fixture(scope='module', autouse=True)

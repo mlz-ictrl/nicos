@@ -37,7 +37,7 @@ class NPGZImageSinkHandler(SingleFileSinkHandler):
     fileclass = GzipFile
 
     def writeData(self, fp, image):
-        numpy.savetxt(fp, numpy.asarray(image))
+        numpy.savetxt(fp, numpy.asarray(image), fmt="%u")
 
 
 class NPGZFileSink(ImageSink):

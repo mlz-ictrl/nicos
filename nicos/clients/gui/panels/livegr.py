@@ -110,7 +110,7 @@ class LiveDataPanel(Panel):
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('cache'), self.on_cache)
 
-        self.roikeys = []
+        self.rois = {}
         self.detectorskey = None
 
     def initLiveWidget(self, widgetcls):
@@ -227,6 +227,10 @@ class LiveDataPanel(Panel):
             widget = LiveWidget(None)
             widget.setWindowTitle(roi)
             widget.setColormap(self.widget.getColormap())
+            widget.setCenterMark(self.actionMarkCenter.isChecked())
+            widget.logscale(self.actionLogScale.isChecked())
+            for name, roi in iteritems(self.rois):
+                widget.setROI(name, roi)
             width = max(region.x) - min(region.x)
             height = max(region.y) - min(region.y)
             if width > height:
@@ -253,7 +257,7 @@ class LiveDataPanel(Panel):
             w.close()
 
     def _register_rois(self, detectors):
-        self.roikeys = []
+        self.rois.clear()
         self.menuROI = QMenu(self)
         self.actionsROI = QActionGroup(self)
         self.actionsROI.setExclusive(False)
@@ -261,7 +265,6 @@ class LiveDataPanel(Panel):
             self.log.debug('checking rois for detector \'%s\'', detname)
             for roi, _ in self.client.eval(detname + '.postprocess', ''):
                 cachekey = roi + '/roi'
-                self.roikeys.append(cachekey)
                 key = cachekey.replace('/', '.')
                 value = self.client.eval(key)
                 self.on_roiChange(cachekey, value)
@@ -306,7 +309,9 @@ class LiveDataPanel(Panel):
 
     def on_roiChange(self, key, value):
         self.log.debug('on_roiChange: %s %s', key, (value,))
-        self.widget.setROI(key, value)
+        self.rois[key] = value
+        for widget in [self.widget] + self._livewidgets.values():
+            widget.setROI(key, value)
         widget = self._livewidgets.get(key, None)
         if widget:
             widget.setWindowForRoi(self.widget._rois[key])
@@ -317,7 +322,7 @@ class LiveDataPanel(Panel):
             value = cache_load(svalue)
         except ValueError:
             value = None
-        if key in self.roikeys:
+        if key in self.rois:
             self.on_roiChange(key, value)
         elif key == self.detectorskey and self.widget:
             self._register_rois(value)

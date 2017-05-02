@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>135</height>
+    <height>176</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,6 +53,26 @@
       <string>Hexapod (hexapod_*)</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kws3Box">
+     <property name="text">
+      <string>Sample translation (sam_x, sam_y)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

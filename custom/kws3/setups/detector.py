@@ -9,15 +9,11 @@ excludes = ['virtual_detector']
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    beamstop       = device('devices.generic.MultiSwitcher',
+    beamstop       = device('kws3.resolution.Beamstop',
                             description = 'select beamstop presets',
-                            blockingmove = False,
-                            moveables = ['det_beamstop_x'],
-                            # TODO: add proper presets
-                            mapping = {'out': [112],
-                                       'in': [0]},
-                            fallback = 'unknown',
-                            precision = [0.01],
+                            moveable = 'det_beamstop_x',
+                            resolution = 'resolution',
+                            outpos = 100,
                            ),
 
     det_x          = device('devices.tango.Motor',
@@ -29,7 +25,7 @@ devices = dict(
     det_y          = device('devices.tango.Motor',
                             description = 'detector translation Y',
                             tangodevice = tango_base + 'fzjs7/det_y',
-                            unit = 'mm',
+                            unit = 'cm',
                             precision = 0.01,
                            ),
     det_z          = device('devices.tango.Motor',
@@ -42,6 +38,10 @@ devices = dict(
                             description = 'beamstop x',
                             tangodevice = tango_base + 'fzjs7/beamstop_x',
                             unit = 'mm',
-                            precision = 0.01,
+                            precision = 0.1,
                            ),
+)
+
+extended = dict(
+    poller_cache_reader = ['resolution']
 )

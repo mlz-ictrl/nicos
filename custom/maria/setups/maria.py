@@ -20,4 +20,5 @@ includes = [
     "shutter",
     "slits",
     "selector",
+    "arbox",
 ]

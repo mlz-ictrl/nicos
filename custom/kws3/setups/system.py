@@ -26,6 +26,7 @@ devices = dict(
 
     Sample   = device('kws1.sample.KWSSample',
                       description = 'Sample object',
+                      apname = 'sam_ap',
                      ),
 
     Exp      = device('frm2.experiment.Experiment',

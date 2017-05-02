@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-description = 'Detector data acquisition setup'
+description = 'Virtual detector data acquisition setup'
 group = 'lowlevel'
 display_order = 10
-
-includes = ['counter']
-excludes = ['virtual_daq']
 
 sysconfig = dict(
     datasinks = ['npgz_sink', 'yaml_sink'],
@@ -14,7 +11,7 @@ sysconfig = dict(
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 basename = (
-    '%(pointcounter)08d_%(pointnumber)04d_'
+    'V_%(pointcounter)08d_%(pointnumber)04d_'
     '%(proposal)s_%(session.experiment.sample.filename)s_'
     '%(detector)s_%(det.mode)s'
 )
@@ -32,7 +29,7 @@ devices = dict(
 
     det_img      = device('devices.generic.DeviceAlias',
                           alias = 'det_img_hrd',
-                          devclass = 'nicos.kws1.daq.KWSImageChannel',
+                          devclass = 'kws1.daq.VirtualKWSImageChannel',
                          ),
 
     detector     = device('kws3.daq.DetSwitcher',
@@ -42,18 +39,14 @@ devices = dict(
                           vhrd = 'det_img_vhrd',
                          ),
 
-    det_img_hrd  = device('kws1.daq.KWSImageChannel',
-                          description = 'Image for the high-resolution detector',
-                          tangodevice = tango_base + 'jumiom/hr_det',
-                          timer = 'timer',
-                          fmtstr = '%d (%.1f cps)',
+    det_img_hrd  = device('kws1.daq.VirtualKWSImageChannel',
+                          description = 'Image for the small KWS detector',
+                          sizes = (256, 256),
                          ),
 
-    det_img_vhrd = device('kws1.daq.KWSImageChannel',
-                          description = 'Image for the very high-resolution detector',
-                          tangodevice = tango_base + 'jumiom/vhr_det',
-                          timer = 'timer',
-                          fmtstr = '%d (%.1f cps)',
+    det_img_vhrd = device('kws1.daq.VirtualKWSImageChannel',
+                          description = 'Image for the small KWS detector',
+                          sizes = (256, 256),
                          ),
 
     det          = device('kws1.daq.KWSDetector',
@@ -65,6 +58,25 @@ devices = dict(
                           shutter = 'shutter',
                           liveinterval = 2.0,
                          ),
+
+    timer      = device('devices.generic.VirtualTimer',
+                        description = 'Measurement timer channel',
+                        fmtstr = '%.0f',
+                       ),
+
+    mon1       = device('devices.generic.VirtualCounter',
+                        description = 'Monitor 1 (before selector)',
+                        type = 'monitor',
+                        fmtstr = '%d',
+                        lowlevel = True,
+                       ),
+
+    mon2       = device('devices.generic.VirtualCounter',
+                        description = 'Monitor 2 (after selector)',
+                        type = 'monitor',
+                        fmtstr = '%d',
+                        lowlevel = True,
+                       ),
 )
 
 extended = dict(
