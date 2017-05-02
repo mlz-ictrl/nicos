@@ -23,6 +23,7 @@ devices = dict(
         flip = (False, True),
         rotation = 90,
         openfastshutter = False,
+        readoutrate = 280,
     ),
     temp_neo = device('nicos.devices.vendor.lima.Andor3TemperatureController',
         description = 'The CMOS chip temperature',

@@ -96,11 +96,11 @@ _selectorblock = Block('Velocity Selector', [
 )
 
 _temperatureblock = Block('Cryo Temperature', [
-    BlockRow(Field(dev='T')),
+    BlockRow(Field(dev='T'), Field(dev='Ts')),
     BlockRow(Field(plot='Temperature', name='T', dev='T', width=40, height=20, plotwindow=3600),
         ),
     ],
-    setups='cc_puma',
+    setups=['ccr7'],
 )
 
 _garfieldblock = Block('Garfield Magnet', [
@@ -165,14 +165,71 @@ _cryomanipulatorblock = Block('Cryostat Manipulator', [
     setups='cryomanipulator',
 )
 
+# generic Cryo-stuff
+cryos = []
+cryosupps = []
+cryoplots = []
+cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
+                cci3he4he1='Dilution-insert', cci3he4he2='Dilution-insert')
+for cryo, name in cryodict.items():
+    cryos.append(
+        Block('%s %s' % (name, cryo.title()), [
+            BlockRow(
+                Field(dev='t_%s'   % cryo, name='Regulation', max=38),
+                Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
+                Field(dev='t_%s_b' % cryo, name='Sensor B',max=7),
+            ),
+            BlockRow(
+                Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
+                Field(key='t_%s/p' % cryo, name='P', width=7),
+                Field(key='t_%s/i' % cryo, name='I', width=7),
+                Field(key='t_%s/d' % cryo, name='D', width=7),
+            ),
+            ],
+            setups=cryo,
+        )
+    )
+    cryosupps.append(
+        Block('%s-misc' % cryo.title(),[
+            BlockRow(
+                Field(dev='%s_p1' % cryo, name='Pump', width=10),
+                Field(dev='%s_p4' % cryo, name='Cond.', width=10),
+            ),
+            BlockRow(
+                Field(dev='%s_p5' % cryo, name='Dump', width=10),
+                Field(dev='%s_p6' % cryo, name='IVC', width=10),
+            ),
+            BlockRow(
+                Field(key='%s_flow' % cryo, name='Flow', width=10),
+            ),
+            ],
+            setups=cryo,
+        )
+    )
+    cryoplots.append(
+        Block(cryo.title(), [
+            BlockRow(
+                Field(widget='nicos.guisupport.plots.TrendPlot',
+                      plotwindow=3600, width=25, height=25,
+                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
+                      names=['Setpoint', 'Regulation'],
+                ),
+            ),
+            ],
+            setups=cryo,
+        )
+    )
+
 _leftcolumn = Column(
     _selectorblock,
-    _temperatureblock,
+#    _temperatureblock,
     _filterwheelblock,
     _sockets1block,
     _sockets2block,
     _sockets3block,
 )
+
+_leftcolumn += Column(*cryos) + Column(*cryosupps)
 
 _rightcolumn = Column(
     _cryomanipulatorblock,
@@ -185,6 +242,8 @@ _rightcolumn = Column(
     _ngiblock,
     _ngi_jcnsblock,
 )
+
+_rightcolumn += Column(*cryoplots)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
