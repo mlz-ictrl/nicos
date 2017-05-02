@@ -32,7 +32,7 @@ devices = dict(
         shuttermode = 'auto',
         vsspeed = 38.55,
         hsspeed = 1,
-        pgain = 1,
+        pgain = 4,
     ),
     temp_ikonl = device('nicos.devices.vendor.lima.Andor2TemperatureController',
         description = 'The CCD chip temperature',

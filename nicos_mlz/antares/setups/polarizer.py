@@ -5,14 +5,16 @@ group = 'optional'
 includes = []
 
 devices = dict(
-    sry_polarizer = device('nicos.devices.taco.Motor',
+    pry = device('nicos.devices.taco.Motor',
         description = 'Polarizer Rotation around Y',
         tacodevice = 'antares/copley/m14',
-        abslimits = (-999999, 999999),
+        abslimits = (-400, 400),
+        precision = 0.01,
     ),
-    stx_polarizer = device('nicos.devices.taco.Motor',
+    ptx = device('nicos.devices.taco.Motor',
         description = 'Polarizer Translation X',
         tacodevice = 'antares/copley/m15',
-        abslimits = (-99999, 99999),
+        abslimits = (-20, 20),
+        precision = 0.01,
     ),
 )
