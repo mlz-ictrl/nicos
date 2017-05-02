@@ -24,17 +24,25 @@
 
 """NICOS oscillation device test suite."""
 
-from nicos.core import ConfigurationError, UsageError, status
+import pytest
+
+from nicos.core import ConfigurationError, status
 
 from test.utils import raises
 
 session_setup = 'oscillator'
 
 
-def test_params(session):
+@pytest.fixture(scope='function', autouse=True)
+def osci(session):
+    osci = session.getDevice('osci')
+    yield osci
+    session.destroyDevice(osci)
+
+
+def test_params(session, osci):
     axis = session.getDevice('axis')
     limits = axis.userlimits
-    osci = session.getDevice('osci')
     # min/max parameters got from moveable device
     assert osci.range == limits
     # stoppable paramter check
@@ -62,29 +70,39 @@ def test_params(session):
     assert raises(ConfigurationError, osci4.doReadRange)
 
 
-def test_movement(session):
-    osci = session.getDevice('osci')
+def test_movement(session, osci, log):
     osci.maw('on')
     assert osci.read() == 'on'
-    assert osci.status()[0] == status.OK
+    assert osci.status(0)[0] == status.OK
 
-    assert raises(UsageError, osci.stop)
+    with log.assert_errors(r"^ERROR   : \w+ : Please use: 'move\(\w+,"):
+        osci.stop()
 
     osci.maw('off')
     assert osci.read() == 'off'
-    assert osci.status()[0] == status.OK
+    assert osci.status(0)[0] == status.OK
     assert osci.stop() is None
 
     osci2 = session.getDevice('osci2')
     osci2.maw('on')
     assert osci2.read() == 'on'
-    assert osci2.status()[0] == status.OK
+    assert osci2.status(0)[0] == status.OK
 
     osci2.stop()
     assert osci2.read() == 'off'
-    assert osci2.status()[0] == status.OK
+    assert osci2.status(0)[0] == status.OK
 
 
-def test_reset(session):
-    osci = session.getDevice('osci')
+def test_reset(osci):
     osci.reset()
+
+
+def test_range_setting(osci):
+
+    # set range to (0, 0) and moving is not allowed
+    osci.range = (0, 0)
+    assert raises(ConfigurationError, osci.start, 'on')
+
+    # empty range is not allowed
+    osci.range = (1, 1)
+    assert raises(ConfigurationError, osci.start, 'on')
