@@ -91,7 +91,7 @@ IPC_MAGIC = {
     # ... with given speed and switch back
     47:  ['Find reference switch', (3, 0, 255), 1],        #
     48:  ['Check motor connection', None, 1],              #
-    49:  ['Save config byte to EEPROM', (3, 0, 63), 1],    #
+    49:  ['Save config byte to EEPROM', (3, 0, 255), 1],   #
     50:  ['Select ramp shape', (3, 1, 4), 1],              #
     51:  ['Save user value to EEPROM', (6, 0, 999999), 1], # ### ######
     52:  ['Stop motor using ramp', None, 1],               #

@@ -33,7 +33,7 @@ from nicos.devices.vendor.ipc import Motor as _Motor
 class Motor(_Motor):
     def doReset(self):
         if self._hwtype == 'single':
-            _Motor.reset(self)
+            _Motor.doReset(self)
         else:
             self.log.warning('Resetting triple cards disabled. If you REALLY '
                              'want to reset, use %s.reallyReset() method',
