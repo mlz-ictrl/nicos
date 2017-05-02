@@ -65,7 +65,7 @@ class Beamstop(Moveable):
             return 'out'
         respos = self._attached_resolution.read(maxage)
         if respos != 'unknown':
-            inpos = self._attached_resolution.presets[respos]['beamstop_x']
+            inpos = self._attached_resolution.presets[respos]['beamstop_x_in']
             if abs(movpos - inpos) <= self._attached_moveable.precision:
                 return 'in'
         return 'unknown'
@@ -84,7 +84,7 @@ class Beamstop(Moveable):
             return
         respos = self._attached_resolution.target
         if respos != 'unknown':
-            inpos = self._attached_resolution.presets[respos]['beamstop_x']
+            inpos = self._attached_resolution.presets[respos]['beamstop_x_in']
             self._attached_moveable.start(inpos)
         else:
             raise MoveError('no position for beamstop, resolution is unknown')

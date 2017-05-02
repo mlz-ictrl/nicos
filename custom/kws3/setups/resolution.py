@@ -21,6 +21,7 @@ devices = dict(
                                         for (k, v) in res_presets.items()},
                              fallback = 'unknown',
                              precision = [0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01],
+                             presets = res_presets, 
                             ),
 
     sel_ap1         = device('devices.generic.TwoAxisSlit',
@@ -46,6 +47,8 @@ devices = dict(
     sel_ap2         = device('devices.generic.Slit',
                              description = 'selector jj-xray aperture',
                              coordinates = 'opposite',
+                             opmode = 'offcentered',
+                             fmtstr = '%.2f %.2f %.2f %.2f',
                              left = 'sel_ap2_x_left',
                              right = 'sel_ap2_x_right',
                              bottom = 'sel_ap2_y_lower',

@@ -17,6 +17,7 @@ devices = dict(
                                         for (k, v) in res_presets.items()},
                              fallback = 'unknown',
                              precision = [0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01],
+                             presets = res_presets,
                             ),
 
     sel_ap1         = device('devices.generic.TwoAxisSlit',

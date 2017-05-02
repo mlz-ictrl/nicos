@@ -1,9 +1,9 @@
 description = 'preset values for the sample position'
 group = 'configdata'
 
-open_pos_mir_ap2  = (50, 50)
-open_pos_sam10_ap = (0, 0, 50, 50)
-open_pos_sam01_ap = (0, 0, 30, 30)
+open_pos_mir_ap2  = (0, 0, 100, 40)
+open_pos_sam10_ap = (0, 0, 80,  20)
+open_pos_sam01_ap = (0, 0, 25,  25)
 
 dock_pos_sam10_x = 0
 dock_pos_sam10_y = 0

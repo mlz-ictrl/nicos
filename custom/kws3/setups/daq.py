@@ -31,7 +31,7 @@ devices = dict(
                          ),
 
     det_img      = device('devices.generic.DeviceAlias',
-                          alias = 'det_img_ge',
+                          alias = 'det_img_hrd',
                           devclass = 'nicos.kws1.daq.KWSImageChannel',
                          ),
 

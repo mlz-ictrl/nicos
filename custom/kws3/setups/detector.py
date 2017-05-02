@@ -25,7 +25,7 @@ devices = dict(
     det_y          = device('devices.tango.Motor',
                             description = 'detector translation Y',
                             tangodevice = tango_base + 'fzjs7/det_y',
-                            unit = 'mm',
+                            unit = 'cm',
                             precision = 0.01,
                            ),
     det_z          = device('devices.tango.Motor',
