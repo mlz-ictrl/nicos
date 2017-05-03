@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import Attach, MoveError, Moveable, Param, Readable, status, \
-    waitForCompletion
+    waitForCompletion, SIMULATION
 from nicos.devices.generic.axis import Axis
 from nicos.utils import createThread
 
@@ -60,6 +60,12 @@ class MttAxis(Axis):
         if self._checkTargetPosition(self.read(0), target, error=False):
             self.log.debug('not moving, already at %.4f within precision',
                            target)
+            return
+
+        if self._mode == SIMULATION:
+            self._attached_motor.start(target + self.offset)
+            if self._hascoder:
+                self._attached_coder._sim_setValue(target + self.offset)
             return
 
         if self.status(0)[0] == status.BUSY:
