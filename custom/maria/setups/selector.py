@@ -68,4 +68,7 @@ devices = dict(
                              fmtstr = '%.2f',
                              warnlimits = (0, 1),
                             ),
+    wavelength      = device('devices.generic.DeviceAlias',
+                             alias = 'selector_lambda',
+                            ),
 )
