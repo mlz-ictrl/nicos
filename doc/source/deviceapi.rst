@@ -388,6 +388,8 @@ possible with the device:
 
    .. automethod:: release
 
+   .. automethod:: doTime
+
    .. rubric:: Parameters
 
    .. parameter:: target : any, read-only
