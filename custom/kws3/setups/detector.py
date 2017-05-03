@@ -38,7 +38,7 @@ devices = dict(
                             description = 'beamstop x',
                             tangodevice = tango_base + 'fzjs7/beamstop_x',
                             unit = 'mm',
-                            precision = 0.1,
+                            precision = 0.5,
                            ),
 )
 

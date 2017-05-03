@@ -71,9 +71,10 @@ class Beamstop(Moveable):
         return 'unknown'
 
     def doStatus(self, maxage=0):
-        if self.read(maxage) == 'unknown':
+        code, text = Moveable.doStatus(self, maxage)
+        if code == status.OK and self.read(maxage) == 'unknown':
             return status.NOTREACHED, 'unknown position'
-        return Moveable.doStatus(self, maxage)
+        return code, text
 
     def _getWaiters(self):
         return [self._attached_moveable]

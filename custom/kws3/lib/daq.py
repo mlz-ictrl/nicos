@@ -22,8 +22,12 @@
 #
 # *****************************************************************************
 
+import numpy
+from scipy.signal import convolve2d
+
 from nicos.core import DeviceAlias, Attach, Param, Override, Moveable, \
-    Measurable, status, oneof, listof
+    Value, Measurable, status, oneof, listof
+from nicos.devices.generic.detector import PostprocessPassiveChannel
 
 
 class DetSwitcher(Moveable):
@@ -65,3 +69,25 @@ class DetSwitcher(Moveable):
             self._attached_alias.alias = self._attached_hrd
         else:
             self._attached_alias.alias = self._attached_vhrd
+
+
+class ConvolutionMax(PostprocessPassiveChannel):
+    """Convolves the detector image with NxN ones and returns the maximum."""
+
+    parameters = {
+        'npixels': Param('Size of kernel', type=int, default=5, settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%d'),
+    }
+
+    def setReadResult(self, arrays):
+        kern = numpy.ones((self.npixels, self.npixels))
+        self.readresult = [convolve2d(a, kern, mode='valid').max()
+                           if a is not None else 0
+                           for a in arrays]
+
+    def valueInfo(self):
+        return Value(name=self.name, type='counter', fmtstr='%d'),

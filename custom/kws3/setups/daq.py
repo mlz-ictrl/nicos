@@ -8,7 +8,7 @@ includes = ['counter']
 excludes = ['virtual_daq']
 
 sysconfig = dict(
-    datasinks = ['npgz_sink', 'yaml_sink'],
+    datasinks = ['np_sink', 'yaml_sink'],
 )
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
@@ -20,12 +20,12 @@ basename = (
 )
 
 devices = dict(
-    npgz_sink    = device('maria.npsaver.NPGZFileSink',
+    np_sink      = device('kws3.npsaver.NPFileSink',
                           description = 'Saves image data in text format',
-                          filenametemplate = [basename + '.gz'],
+                          filenametemplate = [basename + '.det'],
                           lowlevel = True,
                          ),
-    yaml_sink    = device('maria.yamlformat.YAMLFileSink',
+    yaml_sink    = device('kws3.yamlformat.YAMLFileSink',
                           filenametemplate = [basename + '.yaml'],
                           lowlevel = True,
                          ),
@@ -56,12 +56,18 @@ devices = dict(
                           fmtstr = '%d (%.1f cps)',
                          ),
 
+    det_5x5max   = device('kws3.daq.ConvolutionMax',
+                          lowlevel = True,
+                         ),
+
     det          = device('kws1.daq.KWSDetector',
                           description = 'KWS detector',
                           timers = ['timer'],
                           monitors = ['mon1', 'mon2'],
                           images = ['det_img'],
+                          counters = ['det_5x5max'],
                           others = [],
+                          postprocess = [('det_5x5max', 'det_img')],
                           shutter = 'shutter',
                           liveinterval = 2.0,
                          ),
