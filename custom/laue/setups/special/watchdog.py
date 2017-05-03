@@ -21,7 +21,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
      dict(condition = 'reactorpower_value < 10',
-          precondition = 'reactorpower_value >19',
+          precondition = 'reactorpower_value > 19.1',
           precondtime = 600,
           message = 'Reactor power too low',
           type = 'critical',

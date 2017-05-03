@@ -21,7 +21,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
     dict(condition = 'nlashutter_value == "close" '
-                     'and reactorpower_value > 19',
+                     'and reactorpower_value > 19.1',
          message = 'NL6 or sixfold shutter closed',
          type = 'critical',
         ),

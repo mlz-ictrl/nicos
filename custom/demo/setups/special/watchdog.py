@@ -55,7 +55,7 @@ watchlist = [
          type = 'critical',
         ),
     dict(condition = 'reactorpower_value < 10',
-         precondition = 'reactorpower_value > 19',
+         precondition = 'reactorpower_value > 19.1',
          precondtime = 60,
          setup = 'source',
          message = 'Reactor power too low',

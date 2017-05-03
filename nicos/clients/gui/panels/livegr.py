@@ -84,11 +84,14 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
+        self.actionKeepRatio.setChecked(True)
+
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionPrint)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actionKeepRatio)
         self.toolbar.addAction(self.actionUnzoom)
         self.toolbar.addAction(self.actionColormap)
         self.toolbar.addAction(self.actionMarkCenter)
@@ -120,6 +123,10 @@ class LiveDataPanel(Panel):
         if self.widget:
             self.widgetLayout.removeWidget(self.widget)
         self.widget = widgetcls(self)
+        self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
+        self.widget.setColormap(self.widget.getColormap())
+        self.widget.setCenterMark(self.actionMarkCenter.isChecked())
+        self.widget.logscale(self.actionLogScale.isChecked())
         guiConn = GUIConnector(self.widget.gr)
         guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mousemove_gr)
 
@@ -182,6 +189,7 @@ class LiveDataPanel(Panel):
         self.menu = menu = QMenu('&Live data', self)
         menu.addAction(self.actionPrint)
         menu.addSeparator()
+        menu.addAction(self.actionKeepRatio)
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionColormap)
@@ -229,6 +237,7 @@ class LiveDataPanel(Panel):
             widget.setColormap(self.widget.getColormap())
             widget.setCenterMark(self.actionMarkCenter.isChecked())
             widget.logscale(self.actionLogScale.isChecked())
+            widget.gr.setAdjustSelection(False)  # don't use adjust on ROIs
             for name, roi in iteritems(self.rois):
                 widget.setROI(name, roi)
             width = max(region.x) - min(region.x)
@@ -511,3 +520,7 @@ class LiveDataPanel(Panel):
         flag = self.actionMarkCenter.isChecked()
         for widget in [self.widget] + self._livewidgets.values():
             widget.setCenterMark(flag)
+
+    @qtsig('')
+    def on_actionKeepRatio_triggered(self):
+        self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())

@@ -147,6 +147,17 @@
     <string>Mark center of detector image</string>
    </property>
   </action>
+  <action name="actionKeepRatio">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Keep ratio</string>
+   </property>
+   <property name="toolTip">
+    <string>&amp;Keep aspect ratio of selection rectangle</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

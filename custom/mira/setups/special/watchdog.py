@@ -14,7 +14,7 @@ group = 'special'
 
 watchlist = [
     dict(condition = '(sixfold_value == "closed" or nl6_value == "closed") '
-                     'and reactorpower_value > 19',
+                     'and reactorpower_value > 19.1',
          message = 'NL6 or sixfold shutter closed',
          type = 'critical',
         ),

@@ -20,7 +20,7 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 'reactorpower_value < 19',
+    dict(condition = 'reactorpower_value < 19.1',
          message = 'Possible Reactor Shutdown! Reactor power < 19MW',
          type = 'critical',
          setup = 'reactor',

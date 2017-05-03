@@ -73,8 +73,18 @@ class GRWidget(InteractiveGRWidget):
     def __init__(self, widget, **kwds):
         InteractiveGRWidget.__init__(self, widget, **kwds)
         self.widget = widget
+        self.adjustSelectRect = self._adjustSelectRect
 
-    def adjustSelectRect(self, p0, p1):
+    def setAdjustSelection(self, flag):
+        if flag:
+            self.adjustSelectRect = self._adjustSelectRect
+        else:
+            self.adjustSelectRect = self._noadjustSelectRect
+
+    def _noadjustSelectRect(self, p0, p1):
+        return p0, p1
+
+    def _adjustSelectRect(self, p0, p1):
         # adjust selection so that zoom always keeps the aspect
         img_ratio = self.widget._axesratio
         delta_x, delta_y = p1.x - p0.x, p1.y - p0.y
