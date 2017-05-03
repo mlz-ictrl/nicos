@@ -71,7 +71,7 @@ A simple setup file for the watchdog could look like this::
            message = 'Instrument shutter is closed',
            gracetime = 0),
       dict(condition = 'reactorpower_value < 15',
-           precondtion = 'reactorpower_value > 19',
+           precondtion = 'reactorpower_value > 19.1',
            precondtime = 600,
            gracetime = 120,
            setup = 'reactor',
