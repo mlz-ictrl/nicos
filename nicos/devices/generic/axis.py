@@ -198,13 +198,15 @@ class Axis(CanReference, AbstractAxis):
         """
         # if coder != motor -> use coder (its more precise!)
         # if no observers, rely on coder (even if its == motor)
-        if self._hascoder or not self._attached_obs:
+        if self._hascoder:
             # read the coder
             return self._attached_coder.read(0)
-        obs = self._attached_obs
-        rounds = self.obsreadings
-        pos = sum(o.doRead() for _ in range(rounds) for o in obs)
-        return pos / float(rounds * len(obs))
+        if self._attached_obs:
+            obs = self._attached_obs
+            rounds = self.obsreadings
+            pos = sum(o.doRead() for _ in range(rounds) for o in obs)
+            return pos / float(rounds * len(obs))
+        return self._attached_motor.read(0)
 
     def doReset(self):
         """Reset the motor/coder controller."""
