@@ -132,7 +132,7 @@ class ExpPanel(Panel, DlgUtils):
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().encode('utf-8').strip()
         emails = emails.split(b'\n') if emails else []
-        if local:
+        if local and local not in emails:
             emails.append(local)
         dataEmails = self.dataEmails.toPlainText().encode('utf-8').strip()
         dataEmails = dataEmails.split(b'\n') if dataEmails else []
