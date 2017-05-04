@@ -232,7 +232,9 @@ class TofImageSinkHandler(TofSinkHandler):
         # than the number of the detectors
         lines.append('aDetInfo(%u,%u): ' %
                      (14, self.detector._detinfolength))
-        lines.append('%s' % ''.join(self.detector._detinfo))
+        # Remove the last '\n' which will be added again by writing header to
+        # the file
+        lines.append('%s' % ''.join(self.detector._detinfo).strip())
         lines.append('aData(%u,%u): ' % (data.shape[0], data.shape[1]))
         for line in lines:
             f.write(to_utf8('%s\n' % line))

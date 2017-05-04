@@ -180,7 +180,7 @@ class CommandPanel(Panel):
         if not script:
             return
         self.simBtn.setEnabled(False)
-        self.client.tell('simulate', '', script, 'sim')
+        self.client.tell('simulate', '', script, '0')
 
     def on_client_simresult(self, data):
         self.simBtn.setEnabled(True)
