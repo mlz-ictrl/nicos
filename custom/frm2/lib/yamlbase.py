@@ -86,7 +86,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         objects = ['angle', 'clearance', 'current', 'displacement', 'duration',
                    'energy', 'frequency', 'temperature', 'wavelength',
                    'offset', 'width', 'height', 'length']
-        units = ['deg', 'mm', 'A', 'mm', 's', 'eV', 'hertz', 'K', 'A',
+        units = ['deg', 'mm', 'A', 'mm', 's', 'meV', 'hertz', 'K', 'A',
                  'mm', 'mm', 'mm', 'mm']
 
         o['format']['identifier'] = self.__class__.filetype
