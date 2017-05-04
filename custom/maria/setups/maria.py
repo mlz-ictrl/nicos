@@ -8,6 +8,7 @@ modules = ["maria.scan"]
 includes = [
     "guidehall",
     "nl5",
+    "reactor",
     "beamstops",
     "chopper",
     "collimation",
