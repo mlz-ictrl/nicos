@@ -57,7 +57,7 @@ class NicosNamespace(dict):
 
     def __init__(self):
         dict.__init__(self)
-        self.__forbidden = set()
+        self.__forbidden = set(builtins.__dict__)
 
     def addForbidden(self, name):
         self.__forbidden.add(name)
@@ -70,14 +70,14 @@ class NicosNamespace(dict):
 
     def __setitem__(self, name, value):
         if name in self.__forbidden:
-            raise UsageError('%s cannot be assigned; it is either a command '
-                             'or a device' % name)
+            raise UsageError('%s cannot be assigned; it is a builtin, '
+                             'a command or a device' % name)
         dict.__setitem__(self, name, value)
 
     def __delitem__(self, name):
         if name in self.__forbidden:
-            raise UsageError('%s cannot be deleted; it is either a command '
-                             'or a device' % name)
+            raise UsageError('%s cannot be deleted; it is a builtin, '
+                             'a command or a device' % name)
         dict.__delitem__(self, name)
 
 
