@@ -331,9 +331,6 @@ class Detector(Measurable):
                 raise ConfigurationError("Device '%s' has not been configured "
                                          "for this detector" % postdev.name)
             for idev in imgdevs:
-                if not isinstance(idev, ImageChannelMixin):
-                    raise ConfigurationError("Device '%s' is not a "
-                                             "ImageChannelMixin" % idev.name)
                 if idev not in self._attached_images:
                     raise ConfigurationError("Device '%s' has not been "
                                              "configured for this detector" %

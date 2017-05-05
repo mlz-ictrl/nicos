@@ -40,6 +40,7 @@ from nicos.pycompat import urllib, iteritems
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.utils.fitting import Fit, GaussFit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
+from nicos.core.data.dataset import ScanData
 
 __all__ = [
     'NewSample', 'SetSample', 'SelectSample', 'ClearSamples', 'ListSamples',
@@ -274,6 +275,7 @@ def activation(formula=None, instrument=None,
 
 
 def _extract_powder_data(num, dataset):
+    dataset = ScanData(dataset)
     values = dict(('%s_%s' % dev_key, val)
                   for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo))
     if 'ki_value' not in values:
@@ -283,7 +285,6 @@ def _extract_powder_data(num, dataset):
         ki = values['mono_value']
     else:
         ki = values['ki_value']
-    ki = float(ki.split()[0])
 
     # x column
     for sttname in ['stt', 'phi']:

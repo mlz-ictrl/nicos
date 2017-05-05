@@ -150,6 +150,7 @@ class ConsolePanel(Panel):
             return []
 
     def on_client_connected(self):
+        self.actionLabel.hide()
         self.outView._currentuser = self.client.login
 
     def on_client_mode(self, mode):
