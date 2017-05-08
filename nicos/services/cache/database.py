@@ -111,27 +111,27 @@ class CacheDatabase(Device):
                     # the current client_id though)
                     self.log.debug('lock request %s=%s, but still locked by %s',
                                    key, client_id, entry.value)
-                    return key + OP_LOCK + entry.value + '\n'
+                    return [key + OP_LOCK + entry.value + '\n']
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 600  # set a maximum time to live
                     self.log.debug('lock request %s=%s ttl %s, accepted',
                                    key, client_id, ttl)
                     self._locks[key] = Entry(time, ttl, client_id)
-                    return key + OP_LOCK + '\n'
+                    return [key + OP_LOCK + '\n']
             # want to unlock?
             elif req == OP_LOCK_UNLOCK:
                 if entry and entry.value != client_id:
                     # locked by different client, deny
                     self.log.debug('unlock request %s=%s, but locked by %s',
                                    key, client_id, entry.value)
-                    return key + OP_LOCK + entry.value + '\n'
+                    return [key + OP_LOCK + entry.value + '\n']
                 else:
                     # unlocked or locked by same client, allow
                     self.log.debug('unlock request %s=%s, accepted',
                                    key, client_id)
                     self._locks.pop(key, None)
-                    return key + OP_LOCK + '\n'
+                    return [key + OP_LOCK + '\n']
 
 
 class MemoryCacheDatabase(CacheDatabase):
@@ -663,7 +663,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             sleep(self._long_loop_delay)
             cleanonce()
 
-    def tell(self, key, value, time, ttl, from_client, fdupdate=True):
+    def tell(self, key, value, time, ttl, from_client):
         # self.log.debug('updating %s %s', key, value)
         if value is None:
             # deletes cannot have a TTL

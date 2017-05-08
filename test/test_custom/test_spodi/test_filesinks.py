@@ -24,69 +24,29 @@
 
 """SPODI specific data sink tests."""
 
-import os
-import time
-
 from os import path
 
-from nicos import config
 from nicos.commands.measure import count
-from nicos.utils import updateFileCounter
 
 import pytest
 
 session_setup = 'spodi'
+exp_dataroot = 'spodidata'
 
-year = time.strftime('%Y')
 
-
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
-    exp = session.experiment
-    exp.finish()
-    exp.setDetectors([])
-    assert exp.detlist == []
-    dataroot = path.join(config.nicos_root, 'spodidata')
-    os.makedirs(dataroot)
-
-    counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
-    updateFileCounter(counter, 'scan', 42)
-    updateFileCounter(counter, 'point', 42)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    exp.setEnvironment([])
-
-    # Check for the correct detector setup
-    basedet = session.getDevice('basedet')
-    assert len(basedet._attached_timers) == 1
-    assert len(basedet._attached_counters) == 0
-    assert len(basedet._attached_monitors) == 1
-    assert len(basedet._attached_images) == 1
-    adet = session.getDevice('adet')
-    exp.setDetectors([adet])
-    assert exp.detlist == ['adet']
-
-    assert path.abspath(exp.datapath) == path.abspath(
-        path.join(dataroot, year, 'p1234', 'data'))
-
+@pytest.yield_fixture(scope='class', autouse=True)
+def prepare(session, dataroot):
+    session.experiment.setDetectors(['adet'])
     # Create devices needed in data sinks
-    for dev in ['omgs']:
+    for dev in ['omgs', 'tths']:
         session.getDevice(dev)
-
-    # Move the detector to distinct position and check it
-    tths = session.getDevice('tths')
-    tths.maw(0)
-    assert tths.read() == 0
-
     count(resosteps=1, t=0.01)
     count(resosteps=1, mon1=100)
-
     yield
 
 
-def test_caress_sink(session):
-    caressfile = path.join(session.experiment.datapath, 'm100000043.ctxt')
-    assert path.isfile(caressfile)
+class TestSinks(object):
+
+    def test_caress_sink(self, session):
+        caressfile = path.join(session.experiment.datapath, 'm100000043.ctxt')
+        assert path.isfile(caressfile)

@@ -58,69 +58,105 @@ from test.utils import ErrorLogged, raises
 session_setup = 'axis'
 
 
-def test_output_commands(session, log):
-    with log.assert_msg_matches(r'printdebugtest1 printdebugtest2'):
-        printdebug('printdebugtest1', 'printdebugtest2')
-    with log.assert_msg_matches(r'printinfo testing\.\.\.'):
-        printinfo('printinfo testing...')
-    with log.assert_warns():
-        printwarning('warn!')
-    assert raises(ErrorLogged, printerror, 'error!')
-    assert raises(ErrorLogged, printexception, 'exception!')
+class TestBasic(object):
 
+    def test_output_commands(self, session, log):
+        with log.assert_msg_matches(r'printdebugtest1 printdebugtest2'):
+            printdebug('printdebugtest1', 'printdebugtest2')
+        with log.assert_msg_matches(r'printinfo testing\.\.\.'):
+            printinfo('printinfo testing...')
+        with log.assert_warns():
+            printwarning('warn!')
+        assert raises(ErrorLogged, printerror, 'error!')
+        assert raises(ErrorLogged, printexception, 'exception!')
 
-def test_basic_commands(session, log):
-    with log.assert_msg_matches([r'Usage: help\(\[object\]\)',
-                                 r'>>> help\(\) {12}# show list of commands']):
-        help(help)
-    with log.assert_msg_matches([r'name {48}description',
-                                 # explicitly no check on help text!
-                                 r'ClearCache\(dev, \.\.\.\)']):
-        ListCommands()
+    def test_basic_commands(self, session, log):
+        with log.assert_msg_matches([r'Usage: help\(\[object\]\)',
+                                     r'>>> help\(\) {12}# show list of commands']):
+            help(help)
+        with log.assert_msg_matches([r'name {48}description',
+                                     # explicitly no check on help text!
+                                     r'ClearCache\(dev, \.\.\.\)']):
+            ListCommands()
 
+    def test_sleep_command(self, session, log):
+        tosleep = 0.1
+        with log.assert_msg_matches(r'sleeping for %.1f seconds\.\.\.' % tosleep):
+            used = timeit.timeit(lambda: sleep(tosleep), number=1)
+        assert tosleep < used < 1.3 * tosleep
 
-def test_sleep_command(session, log):
-    tosleep = 0.1
-    with log.assert_msg_matches(r'sleeping for %.1f seconds\.\.\.' % tosleep):
-        used = timeit.timeit(lambda: sleep(tosleep), number=1)
-    assert tosleep < used < 1.3 * tosleep
+    def test_setup_commands(self, session, log):
+        with log.assert_msg_matches([r'axis +yes', r'stdsystem +yes',
+                                     r'cache +(?!yes)']):  # cache not loaded
+            ListSetups()
 
+        NewSetup('axis')
+        AddSetup()  # should list all setups but not fail
+        AddSetup('slit')
+        assert 'slit' in session.configured_devices  # not autocreated
+        RemoveSetup('slit')
+        assert 'slit' not in session.configured_devices
+        with log.assert_warns('is not a loaded setup, ignoring'):
+            RemoveSetup('blah')
 
-def test_setup_commands(session, log):
-    with log.assert_msg_matches([r'axis +yes', r'stdsystem +yes',
-                                 r'cache +(?!yes)']):  # cache not loaded
-        ListSetups()
+    def test_devicecreation_commands(self, session, log):
+        if 'motor' in session.devices:
+            RemoveDevice('motor')
+        assert 'motor' not in session.devices
 
-    NewSetup('axis')
-    AddSetup()  # should list all setups but not fail
-    AddSetup('slit')
-    assert 'slit' in session.configured_devices  # not autocreated
-    RemoveSetup('slit')
-    assert 'slit' not in session.configured_devices
-    with log.assert_warns('is not a loaded setup, ignoring'):
-        RemoveSetup('blah')
+        CreateDevice('motor')
+        assert 'motor' in session.devices
 
-
-def test_devicecreation_commands(session, log):
-    if 'motor' in session.devices:
         RemoveDevice('motor')
-    assert 'motor' not in session.devices
+        assert raises(UsageError, RemoveDevice)
+        assert 'motor' not in session.devices
+        CreateAllDevices()
+        assert 'motor' in session.devices
+        assert 'motor' in session.explicit_devices
+        assert 'coder' in session.devices
+        assert 'coder' not in session.explicit_devices
 
-    CreateDevice('motor')
-    assert 'motor' in session.devices
+    def test_mode_commands(self, session):
+        SetMode(SLAVE)
+        SetMode(MASTER)
+        assert raises(UsageError, SetMode, 'blah')
 
-    RemoveDevice('motor')
-    assert raises(UsageError, RemoveDevice)
-    assert 'motor' not in session.devices
-    CreateAllDevices()
-    assert 'motor' in session.devices
-    assert 'motor' in session.explicit_devices
-    assert 'coder' in session.devices
-    assert 'coder' not in session.explicit_devices
+    def test_clearcache(self, session, log):
+        with UserInfo('userinfo'):
+            assert session._actionStack[-1] == 'userinfo'
+
+        motor = session.getDevice('motor')
+        with log.assert_msg_matches('cleared cached information for motor'):
+            ClearCache('motor', motor)
+
+    def test_command_exceptionhandling(self, session):
+        # basic commands should catch exceptions when wrapped as usercommands
+        # (but log an error) depending on setting on the experiment
+        wrapped_maw = usercommandWrapper(maw)
+        dev = session.getDevice('motor')
+        assert dev.usermin == -100
+
+        SetErrorAbort(False)
+        try:
+            wrapped_maw(dev, -150)
+        except ErrorLogged:
+            pass
+        else:
+            assert False, 'no error raised and no error logged'
+
+        SetErrorAbort(True)
+        assert raises(LimitError, wrapped_maw, dev, -150)
+
+    def test_commands_elog(self, session):
+        LogEntry('== some subheading\n\nThis is a logbook entry.')
+        fd, tmpname = tempfile.mkstemp()
+        os.close(fd)
+        shutil.copyfile(__file__, tmpname)
+        _LogAttach('some file description', [tmpname], ['newname.txt'])
 
 
 def test_experiment_commands(session, log):
-    exp = session.getDevice('Exp')
+    exp = session.experiment
 
     with log.assert_msg_matches([r'Exp : experiment directory is now .*',
                                  r'Exp : User "F. X. User <user@example.com>" '
@@ -140,22 +176,9 @@ def test_experiment_commands(session, log):
     assert exp.remark == 'hi'
 
 
-def test_mode_commands(session):
-    SetMode(SLAVE)
-    SetMode(MASTER)
-    assert raises(UsageError, SetMode, 'blah')
-
-
-def test_clearcache(session, log):
-    with UserInfo('userinfo'):
-        assert session._actionStack[-1] == 'userinfo'
-
-    motor = session.getDevice('motor')
-    with log.assert_msg_matches('cleared cached information for motor'):
-        ClearCache('motor', motor)
-
-
 def test_run_command(session, log):
+    exp = session.experiment
+    exp.new(0, user='user')
     # create a test script in the current scriptpath
     ensureDirectory(session.experiment.scriptpath)
     with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
@@ -165,6 +188,7 @@ def test_run_command(session, log):
 
 def test_sample_commands(session, log):
     exp = session.experiment
+    exp.new(0, user='user')
     NewSample('abc')
     assert exp.sample.samplename == 'abc'
     assert exp.samples == {0: {'name': 'abc'}}
@@ -329,33 +353,6 @@ def test_device_commands(session, log):
     finish()
 
     assert raises(ErrorLogged, reference, motor)
-
-
-def test_command_exceptionhandling(session):
-    # basic commands should catch exceptions when wrapped as usercommands
-    # (but log an error) depending on setting on the experiment
-    wrapped_maw = usercommandWrapper(maw)
-    dev = session.getDevice('motor')
-    assert dev.usermin == -100
-
-    SetErrorAbort(False)
-    try:
-        wrapped_maw(dev, -150)
-    except ErrorLogged:
-        pass
-    else:
-        assert False, 'no error raised and no error logged'
-
-    SetErrorAbort(True)
-    assert raises(LimitError, wrapped_maw, dev, -150)
-
-
-def test_commands_elog(session):
-    LogEntry('== some subheading\n\nThis is a logbook entry.')
-    fd, tmpname = tempfile.mkstemp()
-    os.close(fd)
-    shutil.copyfile(__file__, tmpname)
-    _LogAttach('some file description', [tmpname], ['newname.txt'])
 
 
 def test_notifiers(session):

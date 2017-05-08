@@ -31,8 +31,10 @@ import pytest
 session_setup = 'spodi'
 
 
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
+@pytest.yield_fixture(scope='class', autouse=True)
+def prepare(session):
+    session.experiment.new(0, user='user')
+
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
     assert len(basedet._attached_timers) == 1

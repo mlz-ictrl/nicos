@@ -24,25 +24,11 @@
 
 """SPODI specific chopper tests."""
 
-import pytest
-
 from nicos.core import status
+
 from test.utils import approx
 
 session_setup = 'toftof'
-
-
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
-    chRatio = session.getDevice('chRatio')
-    chCRC = session.getDevice('chCRC')
-    chWL = session.getDevice('chWL')
-    chST = session.getDevice('chST')
-    yield
-    chCRC.maw(1)
-    chRatio.maw(1)
-    chWL.maw(4.5)
-    chST.maw(1)
 
 
 def test_toftof_chopper(session):

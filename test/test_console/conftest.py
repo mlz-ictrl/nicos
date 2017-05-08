@@ -28,7 +28,7 @@ from test.utils import startSubprocess, killSubprocess
 
 
 @pytest.yield_fixture(scope='module')
-def console(session):
+def console():
     console = startSubprocess('aio', piped=True)
     yield console
     killSubprocess(console)

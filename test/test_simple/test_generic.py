@@ -35,133 +35,130 @@ from test.utils import raises
 session_setup = 'generic'
 
 
-def test_virtual_motor(session):
-    v = session.getDevice('v1')
-    v.maw(1)
-    assert v.read() == 1
-    v.move(0)
-    v.stop()
-    assert 0 <= v.read() <= 1
+class TestManualVirtual(object):
+
+    def test_virtual_motor(self, session):
+        v = session.getDevice('v1')
+        v.maw(1)
+        assert v.read() == 1
+        v.move(0)
+        v.stop()
+        assert 0 <= v.read() <= 1
+
+    def test_virtual_switch(self, session):
+        v = session.getDevice('v2')
+        # default is first entry in states list
+        assert v.read(0) == 'up'
+        v.maw('down')
+        assert v.read() == 'down'
+        assert raises(NicosError, v.move, 'sideways')
+        assert v.read() == 'down'
+        assert v.isAllowed('sideways')[0] is False
+        assert v.isAllowed('up')[0] is True
+
+    def test_manual_move(self, session):
+        m4 = session.getDevice('m4')
+        m4.move(10)
+        assert m4.read() == 10
+        assert m4.target == 10
+        assert m4.status()[0] == status.OK
+
+    def test_manual_switch(self, session):
+        m = session.getDevice('m1')
+        assert m.read() == 'up'
+        m.maw('down')
+        assert m.read() == 'down'
+        assert raises(NicosError, m.move, 'sideways')
+        assert m.read() == 'down'
+        assert m.status()[0] == status.OK
+
+    def test_manual_switch_2(self, session):
+        assert raises(ConfigurationError, session.getDevice, 'm2')
+
+    def test_manual_switch_illegal_position(self, session):
+        m3 = session.getDevice('m3')
+        assert raises(InvalidValueError, m3.maw, 'inbetween')
+        # Enforce an illegal Position
+        m3._setROParam('target', 'inbetween')
+        assert raises(PositionError, m3.read, 0)
 
 
-def test_virtual_switch(session):
-    v = session.getDevice('v2')
-    # default is first entry in states list
-    assert v.read(0) == 'up'
-    v.maw('down')
-    assert v.read() == 'down'
-    assert raises(NicosError, v.move, 'sideways')
-    assert v.read() == 'down'
-    assert v.isAllowed('sideways')[0] is False
-    assert v.isAllowed('up')[0] is True
+class TestSwitcher(object):
 
+    def test_switcher(self, session):
+        sw = session.getDevice('sw')
+        v3 = session.getDevice('v3')
+        v3.maw(1)
+        assert sw.read(0) == 'left'
+        v3.maw(3)
+        assert sw.read(0) == 'right'
+        sw.maw('left')
+        assert v3.read() == 1
+        sw.maw('right')
+        assert v3.read() == 3
 
-def test_manual_move(session):
-    m4 = session.getDevice('m4')
-    m4.move(10)
-    assert m4.read() == 10
-    assert m4.target == 10
-    assert m4.status()[0] == status.OK
+        assert sw.status()[0] == v3.status()[0]
 
+        assert raises(NicosError, sw.start, '#####')
+        assert raises(LimitError, sw.start, 'outside')
+        assert raises(NicosError, sw.doStart, '#####')
+        sw.stop()
 
-def test_manual_switch(session):
-    m = session.getDevice('m1')
-    assert m.read() == 'up'
-    m.maw('down')
-    assert m.read() == 'down'
-    assert raises(NicosError, m.move, 'sideways')
-    assert m.read() == 'down'
-    assert m.status()[0] == status.OK
+        v3.maw(1.01)
+        assert sw.read(0) == 'left'
+        v3.maw(1.2)
+        assert raises(PositionError, sw.read, 0)
+        assert sw.status(0)[0] == status.NOTREACHED
 
+        rsw = session.getDevice('rsw')
+        rsw2 = session.getDevice('rsw2')
+        assert raises(PositionError, rsw.read, 0)
 
-def test_manual_switch_2(session):
-    assert raises(ConfigurationError, session.getDevice, 'm2')
+        v3.maw(1)
+        assert rsw.read(0) == 'left'
+        assert rsw2.read(0) == 'left'
+        v3.maw(3)
+        assert rsw.read(0) == 'right'
+        assert rsw2.read(0) == 'right'
 
+        assert rsw.status()[0] == v3.status()[0]
 
-def test_manual_switch_illegal_position(session):
-    m3 = session.getDevice('m3')
-    assert raises(InvalidValueError, m3.maw, 'inbetween')
-    # Enforce an illegal Position
-    m3._setROParam('target', 'inbetween')
-    assert raises(PositionError, m3.read, 0)
+        with mock.patch('nicos.devices.generic.virtual.VirtualMotor.doReset',
+                        create=True) as m:
+            sw.reset()
+            assert m.called
 
+    def test_switcher_fallback(self, session):
+        swfb = session.getDevice('swfb')
+        rswfb = session.getDevice('rswfb')
+        v3 = session.getDevice('v3')
+        v3.maw(2)
+        assert swfb.read(0) == 'unknown'
+        assert swfb.status()[0] == status.UNKNOWN
+        assert rswfb.read(0) == 'unknown'
+        assert rswfb.status()[0] == status.NOTREACHED
 
-def test_switcher(session):
-    sw = session.getDevice('sw')
-    v3 = session.getDevice('v3')
-    v3.maw(1)
-    assert sw.read(0) == 'left'
-    v3.maw(3)
-    assert sw.read(0) == 'right'
-    sw.maw('left')
-    assert v3.read() == 1
-    sw.maw('right')
-    assert v3.read() == 3
+    def test_switcher_noblockingmove(self, session):
+        sw2 = session.getDevice('sw2')
+        v3 = session.getDevice('v3')
+        sw2.maw('left')
+        assert sw2.read(0) == 'left'
+        sw2.move('right')
+        assert v3.read(0) == 3.0
 
-    assert sw.status()[0] == v3.status()[0]
+        # case 1: motor in position, but still busy
+        v3.curstatus = (status.BUSY, 'busy')
+        assert sw2.status(0)[0] != status.OK
 
-    assert raises(NicosError, sw.start, '#####')
-    assert raises(LimitError, sw.start, 'outside')
-    assert raises(NicosError, sw.doStart, '#####')
-    sw.stop()
+        # case 2: motor idle, but wrong position
+        v3.curstatus = (status.OK, 'on target')
+        v3.curvalue = 2.0
+        assert sw2.status(0)[0] != status.OK
 
-    v3.maw(1.01)
-    assert sw.read(0) == 'left'
-    v3.maw(1.2)
-    assert raises(PositionError, sw.read, 0)
-    assert sw.status(0)[0] == status.NOTREACHED
-
-    rsw = session.getDevice('rsw')
-    rsw2 = session.getDevice('rsw2')
-    assert raises(PositionError, rsw.read, 0)
-
-    v3.maw(1)
-    assert rsw.read(0) == 'left'
-    assert rsw2.read(0) == 'left'
-    v3.maw(3)
-    assert rsw.read(0) == 'right'
-    assert rsw2.read(0) == 'right'
-
-    assert rsw.status()[0] == v3.status()[0]
-
-    with mock.patch('nicos.devices.generic.virtual.VirtualMotor.doReset',
-                    create=True) as m:
-        sw.reset()
-        assert m.called
-
-
-def test_switcher_fallback(session):
-    swfb = session.getDevice('swfb')
-    rswfb = session.getDevice('rswfb')
-    v3 = session.getDevice('v3')
-    v3.maw(2)
-    assert swfb.read(0) == 'unknown'
-    assert swfb.status()[0] == status.UNKNOWN
-    assert rswfb.read(0) == 'unknown'
-    assert rswfb.status()[0] == status.NOTREACHED
-
-
-def test_switcher_noblockingmove(session):
-    sw2 = session.getDevice('sw2')
-    v3 = session.getDevice('v3')
-    sw2.maw('left')
-    assert sw2.read(0) == 'left'
-    sw2.move('right')
-    assert v3.read(0) == 3.0
-
-    # case 1: motor in position, but still busy
-    v3.curstatus = (status.BUSY, 'busy')
-    assert sw2.status(0)[0] != status.OK
-
-    # case 2: motor idle, but wrong position
-    v3.curstatus = (status.OK, 'on target')
-    v3.curvalue = 2.0
-    assert sw2.status(0)[0] != status.OK
-
-    # position and status ok
-    v3.curvalue = 3.0
-    assert sw2.status(0)[0] == status.OK
-    assert sw2.read(0) == 'right'
+        # position and status ok
+        v3.curvalue = 3.0
+        assert sw2.status(0)[0] == status.OK
+        assert sw2.read(0) == 'right'
 
 
 def test_paramdev(session):

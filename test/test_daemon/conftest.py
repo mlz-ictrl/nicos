@@ -40,7 +40,7 @@ from test.utils import startSubprocess, killSubprocess, daemon_addr
 
 def daemon_wait_cb():
     start = time.time()
-    wait = 5
+    wait = 10
     while time.time() < start + wait:
         try:
             s = tcpSocket(daemon_addr, 0)

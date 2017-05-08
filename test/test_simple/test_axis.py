@@ -52,7 +52,6 @@ def test_params(session):
     assert axis.read() == approx(1)
     axis.offset = 1
     assert axis.read() == approx(0)
-    axis.offset = 0
 
 
 def test_movement(session):
@@ -90,7 +89,6 @@ def test_movement(session):
         axis.wait()
         assert 0 <= axis.read() <= 1
     finally:
-        motor.speed = 0
         motor.stop()
 
 
@@ -102,22 +100,16 @@ def test_reset(session):
 def test_backlash(session):
     axis = session.getDevice('backlash_axis')
     motor = session.getDevice('motor')
-    motor.stop()  # if it's still moving from previous test
     axis.maw(0)
     motor.speed = 0.5
-    try:
-        axis.move(1)
-        sleep(0.1)
-        axis.stop()
-        assert 0 <= axis.read() <= 1
-    finally:
-        motor.speed = 0
+    axis.move(1)
+    sleep(0.1)
+    axis.stop()
+    assert 0 <= axis.read() <= 1
 
 
 def test_obs(session):
     axis = session.getDevice('obs_axis')
-    motor = session.getDevice('motor')
-    motor.stop()  # if it's still moving from previous test
     obs = session.getDevice('coder2')
     obs.offset = 0.1
     axis.maw(0)

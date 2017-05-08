@@ -25,7 +25,6 @@
 from nicos.services.daemon.auth import auth_entry, ListAuthenticator, \
     AuthenticationError
 from nicos.core import GUEST, USER, User
-from nicos.commands.basic import RemoveDevice
 
 from test.utils import raises
 
@@ -54,7 +53,6 @@ def test_passwd_user(session):
     assert Auth.authenticate('guest', 'somepw') == User('guest', GUEST)
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'nouser')
     assert raises(AuthenticationError, Auth.authenticate, 'joedoe', '')
-    RemoveDevice(Auth)
 
 
 def test_any_user(session):
@@ -68,7 +66,6 @@ def test_any_user(session):
     assert Auth.authenticate('joedoe', '') == User('joedoe', GUEST)
     assert Auth.authenticate('joedoe', '') != User('joedoe', USER)
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'user_')
-    RemoveDevice(Auth)
 
 
 def test_empty_user(session):
@@ -76,4 +73,3 @@ def test_empty_user(session):
                              passwd = [('admin', 'admin', 'admin'),
                                        ('', 'passwd', 'admin')])
     assert Auth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
-    RemoveDevice(Auth)

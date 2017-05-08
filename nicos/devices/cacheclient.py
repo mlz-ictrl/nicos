@@ -93,7 +93,7 @@ class BaseCacheClient(Device):
         self._stoprequest = True
         self._worker.join()
 
-    def _connect(self, socket=socket):
+    def _connect(self):
         self._do_callbacks = False
         self._startup_done.clear()
         self.log.debug('connecting to %s', self.cache)

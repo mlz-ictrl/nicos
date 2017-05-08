@@ -24,55 +24,20 @@
 
 """TOFTOF specific data sink tests."""
 
-import os
-import time
-
 from os import path
 
-from nicos import config
 from nicos.commands.measure import count
-from nicos.utils import updateFileCounter
 
 import pytest
 
 session_setup = 'toftof'
+exp_dataroot = 'toftofdata'
 
-year = time.strftime('%Y')
 
-
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
-    exp = session.experiment
-    exp.finish()
-    exp.setDetectors([])
-    assert exp.detlist == []
-    dataroot = path.join(config.nicos_root, 'toftofdata')
-    os.makedirs(dataroot)
-
-    counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
-    updateFileCounter(counter, 'point', 42)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    exp.setEnvironment([])
-
-    det = session.getDevice('det')
-    assert len(det._attached_timers) == 1
-    assert len(det._attached_counters) == 0
-    assert len(det._attached_monitors) == 1
-    assert len(det._attached_images) == 1
-    exp.setDetectors([det])
-    assert exp.detlist == ['det']
-
-    B = session.getDevice('B')
-    P = session.getDevice('P')
-    T = session.getDevice('T')
-    exp.setEnvironment([B, P, T])
-
-    assert path.abspath(exp.datapath) == path.abspath(
-        path.join(dataroot, year, 'p1234', 'data'))
+@pytest.yield_fixture(scope='class', autouse=True)
+def prepare(session, dataroot):
+    session.experiment.setDetectors(['det'])
+    session.experiment.setEnvironment(['B', 'P', 'T'])
 
     # Create devices needed in data sinks
     for dev in ['slit', 'vac0', 'vac1', 'vac2', 'vac3', 'gx', 'gy', 'gz',
@@ -93,14 +58,12 @@ def cleanup(session):
 
     chSpeed = session.getDevice('chSpeed')
     chSpeed.maw(6000)
-    assert chSpeed.read(0) == 6000
 
     chWL = session.getDevice('chWL')
     assert chWL.read(0) == 4.5
 
     ngc = session.getDevice('ngc')
     ngc.maw('focus')
-    assert ngc.read(0) == 'focus'
 
     count(t=0.01)
     count(mon1=1)
@@ -108,9 +71,11 @@ def cleanup(session):
     yield
 
 
-def test_toftof_sink(session):
-    toftoffile = path.join(session.experiment.datapath, '00000043_0000.raw')
-    assert path.isfile(toftoffile)
+class TestSinks(object):
 
-    logfile = path.join(session.experiment.datapath, '00000043_0000.log')
-    assert path.isfile(logfile)
+    def test_toftof_sink(self, session):
+        toftoffile = path.join(session.experiment.datapath, '00000043_0000.raw')
+        assert path.isfile(toftoffile)
+
+        logfile = path.join(session.experiment.datapath, '00000043_0000.log')
+        assert path.isfile(logfile)

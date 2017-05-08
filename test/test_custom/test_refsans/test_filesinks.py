@@ -24,15 +24,9 @@
 
 """STRESS-SPEC specific data sink tests."""
 
-import os
-import shutil
-import time
-
 from os import path
 
-from nicos import config
 from nicos.commands.measure import count
-from nicos.utils import updateFileCounter
 from nicos.utils.stubs import generate_stubs
 
 import pytest
@@ -42,44 +36,15 @@ try:
 except ImportError:
     configobj = None
 
-session_setup = 'refsans'
-
-year = time.strftime('%Y')
 generate_stubs()
 
+session_setup = 'refsans'
+exp_dataroot = 'refsansdata'
 
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
-    exp = session.experiment
-    exp.finish()
-    exp.setDetectors([])
-    assert exp.detlist == []
-    dataroot = path.join(config.nicos_root, 'refsansdata')
-    if path.exists(dataroot):
-        shutil.rmtree(dataroot)
-    os.makedirs(dataroot)
 
-    counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
-    updateFileCounter(counter, 'point', 42)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    exp.setEnvironment([])
-
-    # Check the correct detector setup
-    det = session.getDevice('det')
-    assert len(det._attached_timers) == 1
-    assert len(det._attached_counters) == 2
-    assert len(det._attached_monitors) == 1
-    assert len(det._attached_images) == 1
-    exp.setDetectors([det])
-    assert exp.detlist == ['det']
-
-    assert path.abspath(exp.datapath) == path.abspath(
-        path.join(dataroot, year, 'p1234', 'data'))
-
+@pytest.yield_fixture(scope='class', autouse=True)
+def prepare(session, dataroot):
+    session.experiment.setDetectors(['det'])
     for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table',
               'tube', 'h2_center', 'h2_width', 'pivot', 'top_phi']:
         session.getDevice(d)
@@ -90,10 +55,12 @@ def cleanup(session):
     yield
 
 
-@pytest.mark.skipif(not configobj,
-                    reason='configobj libraries missing')
-def test_config_sink(session):
-    cfgfile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
-    assert path.isfile(cfgfile)
-    contents = configobj.ConfigObj(cfgfile)
-    assert len(contents['NOKs']) == 2
+class TestSinks(object):
+
+    @pytest.mark.skipif(not configobj,
+                        reason='configobj libraries missing')
+    def test_config_sink(self, session):
+        cfgfile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
+        assert path.isfile(cfgfile)
+        contents = configobj.ConfigObj(cfgfile)
+        assert len(contents['NOKs']) == 2

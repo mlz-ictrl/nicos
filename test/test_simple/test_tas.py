@@ -38,7 +38,7 @@ from test.utils import raises, approx, ErrorLogged
 session_setup = 'tas'
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def tas(session):
     # Create a common set up at the start of the test.
     tasdev = session.getDevice('Tas')
@@ -181,15 +181,14 @@ def test_tas_device(session, tas):
     assert tas.h() == approx(1.5, abs=1e-3)
 
 
-def test_error_handling(session, log, tas, monkeypatch):
+def test_error_handling(session, log, tas):
     # check that if one subdev errors out, we wait for the other subdevs
     mfh = session.getDevice('t_mfh')
     phi = session.getDevice('t_phi')
 
     tas.maw([1.01, 0, 0, 1])
-    monkeypatch.setattr(phi, 'speed', 1)
-    monkeypatch.setattr(mfh, '_status_exception',
-                        PositionError(mfh, 'wrong position'))
+    phi.speed = 1
+    mfh._status_exception = PositionError(mfh, 'wrong position')
     with log.allow_errors():
         try:
             tas.maw([1, 0, 0, 1])

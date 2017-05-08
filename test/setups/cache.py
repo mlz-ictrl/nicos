@@ -32,7 +32,7 @@ devices = dict(
         db = 'DB',
         loglevel = 'debug',
     ),
-    DB = device('services.cache.server.FlatfileCacheDatabase',
+    DB = device('test.utils.TestCacheDatabase',
         storepath = 'cache',
         loglevel = 'debug',
     ),
