@@ -379,6 +379,14 @@
     <string>Fit Sigmoid function</string>
    </property>
   </action>
+  <action name="actionAutoDisplay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto display new</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

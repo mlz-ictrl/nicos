@@ -103,6 +103,8 @@ class ScansPanel(Panel):
         self.x_menu.aboutToShow.connect(self.on_x_menu_aboutToShow)
         self.actionXAxis.setMenu(self.x_menu)
 
+        self.actionAutoDisplay.setChecked(True)
+
         self.norm_menu = QMenu(self)
         self.norm_menu.aboutToShow.connect(self.on_norm_menu_aboutToShow)
         self.actionNormalized.setMenu(self.norm_menu)
@@ -219,6 +221,7 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionAttachElog)
             menu1.addSeparator()
             menu1.addAction(self.actionResetPlot)
+            menu1.addAction(self.actionAutoDisplay)
             menu1.addAction(self.actionCombine)
             menu1.addAction(self.actionClosePlot)
             menu1.addAction(self.actionDeletePlot)
@@ -267,6 +270,7 @@ class ScansPanel(Panel):
             bar.addAction(self.actionResetPlot)
             bar.addAction(self.actionDeletePlot)
             bar.addSeparator()
+            bar.addAction(self.actionAutoDisplay)
             bar.addAction(self.actionCombine)
             bar.addAction(self.actionFitPeak)
             bar.addAction(self.actionFitArby)
@@ -392,7 +396,7 @@ class ScansPanel(Panel):
             item = QListWidgetItem(shortname, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
-            if not self.data.bulk_adding:
+            if self.actionAutoDisplay.isChecked() and not self.data.bulk_adding:
                 self.openDataset(dataset.uid)
             self.no_openset = False
         # If the dataset is a continuation of another dataset, automatically
