@@ -38,6 +38,7 @@ from nicos.core import FINAL
 session_setup = 'scanning'
 
 
+@pytest.yield_fixture(scope='class', autouse=True)
 def generate_dataset(session):
     """Generate a dataset as if a scan has been run."""
     import numpy
@@ -55,43 +56,36 @@ def generate_dataset(session):
     session.data.finishScan()
 
 
-def test_fwhm(session):
-    generate_dataset(session)
-    result = fwhm(1, 3)
-    assert result == (2.75, -1, 30, 1)
+class TestAnalyzers(object):
 
+    def test_fwhm(self, session):
+        result = fwhm(1, 3)
+        assert result == (2.75, -1, 30, 1)
 
-def test_center_of_mass(session):
-    generate_dataset(session)
-    result1 = center_of_mass()
-    assert -0.840 < result1 < -0.839
-    result2 = center_of_mass(4)  # center of mass from values*2 should be same
-    assert result1 == result2
+    def test_center_of_mass(self, session):
+        result1 = center_of_mass()
+        assert -0.840 < result1 < -0.839
+        result2 = center_of_mass(4)  # center of mass from values*2 should be same
+        assert result1 == result2
 
+    def test_root_mean_square(self, session):
+        result = root_mean_square()
+        assert 10.176 < result < 10.177
 
-def test_root_mean_square(session):
-    generate_dataset(session)
-    result = root_mean_square()
-    assert 10.176 < result < 10.177
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_poly(self, session):
+        result1 = poly(1, 1, 3)
+        assert len(result1) == 2 and len(result1[0]) == 2
+        assert 1.847 < result1[0][0] < 1.848
+        result2 = poly(2)
+        assert -0.047 < result2[0][2] < -0.046
+        result3 = poly(2, 4)
+        assert -0.094 < result3[0][2] < -0.093
+        result4 = poly(2, 1, 4)
+        assert result4 == result3
 
-
-@pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-def test_poly(session):
-    generate_dataset(session)
-    result1 = poly(1, 1, 3)
-    assert len(result1) == 2 and len(result1[0]) == 2
-    assert 1.847 < result1[0][0] < 1.848
-    result2 = poly(2)
-    assert -0.047 < result2[0][2] < -0.046
-    result3 = poly(2, 4)
-    assert -0.094 < result3[0][2] < -0.093
-    result4 = poly(2, 1, 4)
-    assert result4 == result3
-
-
-@pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-def test_gauss(session):
-    generate_dataset(session)
-    result = gauss()
-    assert len(result) == 2 and len(result[0]) == 4
-    assert -0.874 < result[0][0] < -0.873
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_gauss(self, session):
+        result = gauss()
+        assert len(result) == 2 and len(result[0]) == 4
+        assert -0.874 < result[0][0] < -0.873

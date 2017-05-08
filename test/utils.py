@@ -39,6 +39,7 @@ import subprocess
 from os import path
 from logging import ERROR, WARNING, DEBUG, StreamHandler, Formatter
 
+import mock
 import pytest
 
 from nicos import config
@@ -48,7 +49,8 @@ from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
 from nicos.devices.notifiers import Mailer
 from nicos.devices.cacheclient import CacheClient
-from nicos.utils import tcpSocket, createSubprocess
+from nicos.services.cache.database import FlatfileCacheDatabase
+from nicos.utils import tcpSocket, closeSocket, createSubprocess
 from nicos.utils.loggers import NicosLogger, ACTION
 from nicos.pycompat import exec_, reraise
 
@@ -239,14 +241,56 @@ class TestLogHandler(StreamHandler):
 
 class TestCacheClient(CacheClient):
 
-    # Do not try to get/release the master lock in the test session.
-    # We have too many setup changes with/without cache to do that
-    # correctly all the time.
+    _use_cache = True
+    _cached_socket = None
 
-    # Note that CacheClient.lock is still tested in the elog subprocess.
+    def _connect(self):
+        # Keep the main cache connection open throughout the test suite run.
+        # This will stop different cache connections overlapping with the
+        # cache clear we need between test functions.
+        with mock.patch('nicos.devices.cacheclient.tcpSocket',
+                        self._open_cached_socket):
+            return CacheClient._connect(self)
+
+    def _disconnect(self, why=''):
+        with mock.patch('nicos.devices.cacheclient.closeSocket',
+                        self._close_cached_socket):
+            CacheClient._disconnect(self, why)
+
+    def _open_cached_socket(self, *args, **kwds):
+        if not TestCacheClient._use_cache:
+            return tcpSocket(*args, **kwds)
+        if TestCacheClient._cached_socket is None:
+            TestCacheClient._cached_socket = tcpSocket(*args, **kwds)
+        return TestCacheClient._cached_socket
+
+    def _close_cached_socket(self, sock):
+        if sock is not TestCacheClient._cached_socket:
+            closeSocket(sock)
+
+    def _connect_action(self):
+        # On connect, clear cached entries before querying values and updates
+        self._socket.sendall(b'__clear__=1\n')
+        CacheClient._connect_action(self)
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
+        # Do not try to get/release the master lock in the test session.
+        # We have too many setup changes with/without cache to do that
+        # correctly all the time.
+        #
+        # Note that CacheClient.lock is still tested in the elog subprocess.
         pass
+
+
+class TestCacheDatabase(FlatfileCacheDatabase):
+
+    def tell(self, key, value, time, ttl, from_client):
+        # Special feature for the test suite to clear all keys quickly.
+        if key == '__clear__':
+            with self._cat_lock:
+                self._cat.clear()
+            return
+        FlatfileCacheDatabase.tell(self, key, value, time, ttl, from_client)
 
 
 class TestSession(Session):
@@ -255,8 +299,16 @@ class TestSession(Session):
     cache_class = TestCacheClient
 
     def __init__(self, appname, daemonized=False):
+        old_setup_info = getattr(self, '_setup_info', {})
         Session.__init__(self, appname, daemonized)
-        self.setSetupPath(path.join(module_root, 'test', 'setups'))
+        self._setup_info = old_setup_info
+        self._setup_paths = (path.join(module_root, 'test', 'setups'),)
+
+    def readSetupInfo(self):
+        # since we know the setups don't change, only read them once
+        if not self._setup_info:
+            return Session.readSetupInfo(self)
+        return self._setup_info
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = NicosLogger('nicos')
@@ -301,6 +353,7 @@ class TestDevice(HasLimits, Moveable):
             raise self._status_exception  # pylint: disable=E0702
         return status.OK, 'fine'
 
+
 class TestController(IsController, Moveable):
 
     attached_devices = {
@@ -334,6 +387,7 @@ class TestController(IsController, Moveable):
         self._value = target
         self._attached_dev1.start(target[0])
         self._attached_dev2.start(target[1])
+
 
 class TestSinkHandler(DataSinkHandler):
 

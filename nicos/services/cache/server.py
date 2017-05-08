@@ -413,12 +413,11 @@ class CacheServer(Device):
             # loop through connections, first to remove dead ones,
             # secondly to try to reconnect
             for addr, client in listitems(self._connected):
-                if client:
-                    if not client.is_active():  # dead or stopped
-                        self.log.info('client connection %s closed', addr)
-                        client.closedown()
-                        client.join()  # wait for threads to end
-                        del self._connected[addr]
+                if not client.is_active():  # dead or stopped
+                    self.log.info('client connection %s closed', addr)
+                    client.closedown()
+                    client.join()  # wait for threads to end
+                    del self._connected[addr]
 
             # now check for additional incoming connections
             # build list of things to check

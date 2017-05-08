@@ -99,7 +99,7 @@ def test_htmlhelp(client):
     # use 'exec'
     client._signals = []
     client.tell('exec', 'help()')
-    for name, data, _exc in client.iter_signals(0, timeout=5.0):
+    for name, data, _exc in client.iter_signals(0, timeout=10.0):
         if name == 'showhelp':
             # default help page is the index page
             assert data[0] == 'index'
@@ -107,7 +107,7 @@ def test_htmlhelp(client):
             break
     client._signals = []
     client.tell('exec', 'help(axis)')
-    for name, data, _exc in client.iter_signals(0, timeout=5.0):
+    for name, data, _exc in client.iter_signals(0, timeout=10.0):
         if name == 'showhelp' and data[0] == 'dev:axis':
             # default help page is the index page
             assert data[1].startswith('<html>')
@@ -118,6 +118,6 @@ def test_simulation(client):
     load_setup(client, 'axis')
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
-    for name, _data, _exc in client.iter_signals(idx, timeout=5.0):
+    for name, _data, _exc in client.iter_signals(idx, timeout=10.0):
         if name == 'simresult':
             return

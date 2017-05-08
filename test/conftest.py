@@ -27,11 +27,13 @@
 import os
 import sys
 import time
+from os import path
 
 import pytest
 
-from nicos import session as nicos_session
+from nicos import config, session as nicos_session
 from nicos.core import MASTER
+from nicos.utils import updateFileCounter
 
 from test.utils import cleanup, startCache, startSubprocess, killSubprocess, \
     cache_addr, TestSession
@@ -57,7 +59,7 @@ def setup_test_suite():
     killSubprocess(cache)
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='class')
 def session(request):
     nicos_session.__class__ = TestSession
     nicos_session.__init__(request.module.__name__)
@@ -74,9 +76,25 @@ def session(request):
     yield nicos_session
     nicos_session.setSPMode(False)
     nicos_session.data.reset()
-    if nicos_session.cache:
-        nicos_session.cache.clear_all()
     nicos_session.shutdown()
+
+
+@pytest.fixture(scope='class')
+def dataroot(request, session):
+    exp = session.experiment
+    dataroot = path.join(config.nicos_root, request.module.exp_dataroot)
+    os.makedirs(dataroot)
+
+    counter = path.join(dataroot, exp.counterfile)
+    open(counter, 'w').close()
+    updateFileCounter(counter, 'scan', 42)
+    updateFileCounter(counter, 'point', 42)
+
+    exp._setROParam('dataroot', dataroot)
+    exp.new(1234, user='testuser')
+    exp.sample.new({'name': 'mysample'})
+
+    return dataroot
 
 
 @pytest.fixture

@@ -62,10 +62,9 @@ year = time.strftime('%Y')
 session_setup = 'data'
 
 
-@pytest.yield_fixture(scope='module', autouse=True)
+@pytest.yield_fixture(scope='class', autouse=True)
 def setup_module(session):
     exp = session.experiment
-    exp.finish()
     dataroot = path.join(config.nicos_root, 'testdata')
     os.makedirs(dataroot)
 
@@ -89,188 +88,178 @@ def setup_module(session):
 
     yield
 
-    session.cache.clear(session.experiment)
 
+class TestSinks(object):
 
-def test_sink_class(session):
-    scansink = session.getDevice('testsink1')
-    # this saves the handlers created for the last dataset
-    handlers = scansink._handlers
-    assert len(handlers) == 1
-    calls = handlers[0]._calls
-    # this was called for a scan
-    assert calls == ['prepare', 'begin'] + ['addSubset'] * 5 + ['end']
+    def test_sink_class(self, session):
+        scansink = session.getDevice('testsink1')
+        # this saves the handlers created for the last dataset
+        handlers = scansink._handlers
+        assert len(handlers) == 1
+        calls = handlers[0]._calls
+        # this was called for a scan
+        assert calls == ['prepare', 'begin'] + ['addSubset'] * 5 + ['end']
 
-    pointsink = session.getDevice('testsink2')
-    handlers = pointsink._handlers
-    assert len(handlers) == 1
-    calls = handlers[0]._calls
-    # this was called for a point
-    # first putValues: devices, second putValues: environment
-    assert calls[:3] == ['prepare', 'begin', 'putValues']
-    assert calls[-1] == 'end'
-    assert calls.count('putMetainfo') == 1
-    assert calls.count('putResults') == 1
+        pointsink = session.getDevice('testsink2')
+        handlers = pointsink._handlers
+        assert len(handlers) == 1
+        calls = handlers[0]._calls
+        # this was called for a point
+        # first putValues: devices, second putValues: environment
+        assert calls[:3] == ['prepare', 'begin', 'putValues']
+        assert calls[-1] == 'end'
+        assert calls.count('putMetainfo') == 1
+        assert calls.count('putResults') == 1
 
+    def test_console_sink(self, session):
+        msgs = session.testhandler.get_messages()
+        assert ('INFO    : nicos : ' + '=' * 100 + '\n') in msgs
+        assert any(msg.startswith('INFO    : nicos : Starting scan:      '
+                                  'scan(motor2, 0, 1, 5, det, tdev, t=0.00')
+                   for msg in msgs)
 
-def test_console_sink(session):
-    msgs = session.testhandler.get_messages()
-    assert ('INFO    : nicos : ' + '=' * 100 + '\n') in msgs
-    assert any(msg.startswith('INFO    : nicos : Starting scan:      '
-                              'scan(motor2, 0, 1, 5, det, tdev, t=0.00')
-               for msg in msgs)
+    def test_filecounters(self, session):
+        # check contents of counter files
+        exp = session.experiment
+        for directory, ctrs in zip(
+                [exp.dataroot, exp.proposalpath, exp.samplepath],
+                [('scan 43', 'point 172'), ('scan 1', 'point 5'),
+                 ('scan 1', 'point 5')]):
+            counterfile = path.join(directory, exp.counterfile)
+            assert path.isfile(counterfile)
+            contents = readFile(counterfile)
+            assert set(contents) == set(ctrs)
 
+    def test_scan_sink(self, session):
+        # check contents of ASCII scan data file
+        scanfile = path.join(session.experiment.datapath, 'p1234_00000043.dat')
+        assert path.isfile(scanfile)
+        contents = readFile(scanfile)
+        assert contents[0].startswith('### NICOS data file')
+        assert '### Scan data' in contents
+        assert contents[-1].startswith('### End of NICOS data file')
 
-def test_filecounters(session):
-    # check contents of counter files
-    exp = session.experiment
-    for directory, ctrs in zip(
-            [exp.dataroot, exp.proposalpath, exp.samplepath],
-            [('scan 43', 'point 172'), ('scan 1', 'point 5'),
-             ('scan 1', 'point 5')]):
-        counterfile = path.join(directory, exp.counterfile)
-        assert path.isfile(counterfile)
-        contents = readFile(counterfile)
-        assert set(contents) == set(ctrs)
+        # check counter attributes
+        scan = session.data._last_scans[-1]
+        assert scan.counter == 43
+        assert scan.propcounter == 1
+        assert scan.samplecounter == 1
+        assert session.experiment.lastscan == 43
+        assert session.experiment.lastpoint == 172
 
+    def test_raw_sinks(self, session):
+        # check contents of files written by the raw sink
+        rawfile = path.join(session.experiment.datapath, 'p1234_1.raw')
+        assert path.isfile(rawfile)
+        assert path.getsize(rawfile) == 128 * 128 * 4  # 128x128 px, 32bit ints
 
-def test_scan_sink(session):
-    # check contents of ASCII scan data file
-    scanfile = path.join(session.experiment.datapath, 'p1234_00000043.dat')
-    assert path.isfile(scanfile)
-    contents = readFile(scanfile)
-    assert contents[0].startswith('### NICOS data file')
-    assert '### Scan data' in contents
-    assert contents[-1].startswith('### End of NICOS data file')
+        headerfile = path.join(session.experiment.datapath, 'p1234_1.header')
+        assert path.isfile(headerfile)
+        contents = readFile(headerfile)
+        assert contents[0] == '### NICOS Raw File Header V2.0'
+        assert '### Sample and alignment' in contents
+        assert any(line.strip() == 'Exp_proposal : p1234' for line in contents)
 
-    # check counter attributes
-    scan = session.data._last_scans[-1]
-    assert scan.counter == 43
-    assert scan.propcounter == 1
-    assert scan.samplecounter == 1
-    assert session.experiment.lastscan == 43
-    assert session.experiment.lastpoint == 172
+        logfile = path.join(session.experiment.datapath, 'p1234_1.log')
+        assert path.isfile(logfile)
+        contents = readFile(logfile)
+        assert contents[0].startswith('# dev')
+        assert len(contents) >= 3  # at least: header, motor2, tdev
+        for line in contents[1:]:
+            name, mean, stdev, minv, maxv = line.split()
+            if name == 'motor2':
+                assert mean == minv == maxv == '0.000'
+                assert stdev == 'inf'
 
+        if hasattr(os, 'link'):
+            linkfile = path.join(session.experiment.datapath, '00000168.raw')
+            assert path.isfile(linkfile)  # hardlink
+            assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
-def test_raw_sinks(session):
-    # check contents of files written by the raw sink
-    rawfile = path.join(session.experiment.datapath, 'p1234_1.raw')
-    assert path.isfile(rawfile)
-    assert path.getsize(rawfile) == 128 * 128 * 4  # 128x128 px, 32bit ints
+        # check files written by the single-raw sink
+        rawfile = path.join(session.experiment.datapath, 'single', '43_172.raw')
+        assert path.isfile(rawfile)
+        assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
 
-    headerfile = path.join(session.experiment.datapath, 'p1234_1.header')
-    assert path.isfile(headerfile)
-    contents = readFile(headerfile)
-    assert contents[0] == '### NICOS Raw File Header V2.0'
-    assert '### Sample and alignment' in contents
-    assert any(line.strip() == 'Exp_proposal : p1234' for line in contents)
+        if hasattr(os, 'link'):
+            # this entry in filenametemplate is absolute, which means relative to
+            # the dataroot, not the current experiment's datapath
+            linkfile = path.join(session.experiment.dataroot, '00000172.raw')
+            assert path.isfile(linkfile)  # hardlink
+            assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
-    logfile = path.join(session.experiment.datapath, 'p1234_1.log')
-    assert path.isfile(logfile)
-    contents = readFile(logfile)
-    assert contents[0].startswith('# dev')
-    assert len(contents) >= 3  # at least: header, motor2, tdev
-    for line in contents[1:]:
-        name, mean, stdev, minv, maxv = line.split()
-        if name == 'motor2':
-            assert mean == minv == maxv == '0.000'
-            assert stdev == 'inf'
+    def test_bersans_sink(self, session):
+        bersansfile = path.join(session.experiment.datapath, 'D0000168.001')
+        assert path.isfile(bersansfile)
+        contents = readFile(bersansfile)
+        assert '%File' in contents
+        assert 'User=testuser' in contents  # BerSANS headers
+        assert 'Exp_proposal=p1234' in contents  # NICOS headers
+        assert ('0,' * 127 + '0') in contents  # data
 
-    if hasattr(os, 'link'):
-        linkfile = path.join(session.experiment.datapath, '00000168.raw')
-        assert path.isfile(linkfile)  # hardlink
-        assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
+    def test_serialized_sink(self, session):
+        serial_file = path.join(session.experiment.datapath, '.all_datasets')
+        assert path.isfile(serial_file)
+        try:
+            with open(serial_file, 'rb') as fp:
+                datasets = pickle.load(fp)
+        except Exception:
+            assert False, 'could not read serialized sink'
+        assert len(datasets) == 1
+        assert datasets[43]
+        assert raises(KeyError, lambda: datasets[41])
+        data = datasets[43]
+        assert data.samplecounter == 1
+        assert data.counter == 43
+        assert data.propcounter == 1
+        assert data.samplecounter == 1
+        assert data.number == 0
+        assert data.started
+        assert data.finished
+        assert data.info == 'scan(motor2, 0, 1, 5, det, tdev, t=0.005)'
+        assert len(data.metainfo)
+        assert len(data.envvaluelists)
+        assert len(data.devvaluelists)
+        assert len(data.detvaluelists)
 
-    # check files written by the single-raw sink
-    rawfile = path.join(session.experiment.datapath, 'single', '43_172.raw')
-    assert path.isfile(rawfile)
-    assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
+    @pytest.mark.skipif(not PIL, reason='PIL library missing')
+    def test_tiff_sink(self, session):
+        tifffile = path.join(session.experiment.datapath, '00000168.tiff')
+        assert path.isfile(tifffile)
 
-    if hasattr(os, 'link'):
-        # this entry in filenametemplate is absolute, which means relative to
-        # the dataroot, not the current experiment's datapath
-        linkfile = path.join(session.experiment.dataroot, '00000172.raw')
-        assert path.isfile(linkfile)  # hardlink
-        assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
+    @pytest.mark.skipif(not pyfits, reason='pyfits library missing')
+    def test_fits_sink(self, session):
+        fitsfile = path.join(session.experiment.datapath, '00000168.fits')
+        assert path.isfile(fitsfile)
+        ffile = pyfits.open(fitsfile)
+        hdu = ffile[0]
+        assert hdu.data.shape == (128, 128)
+        assert hdu.header['Exp/proposal'] == 'p1234'
 
+    @pytest.mark.skipif(not quickyaml, reason='QuickYAML library missing')
+    def test_yaml_sink_1(self, session):
+        yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
+        assert path.isfile(yamlfile)
+        if not yaml:  # only do string level check if the yaml loader is not available
+            with open(yamlfile) as df:
+                data = df.read()
+        # note: whitespace is significant in the following lines!
+                assert '''instrument:
+        name: INSTR''' in data
+                assert '''experiment:
+        number: p1234
+        proposal: p1234''' in data
+                assert '''    sample:
+            description:
+                name: mysample''' in data
 
-def test_bersans_sink(session):
-    bersansfile = path.join(session.experiment.datapath, 'D0000168.001')
-    assert path.isfile(bersansfile)
-    contents = readFile(bersansfile)
-    assert '%File' in contents
-    assert 'User=testuser' in contents  # BerSANS headers
-    assert 'Exp_proposal=p1234' in contents  # NICOS headers
-    assert ('0,' * 127 + '0') in contents  # data
-
-
-def test_serialized_sink(session):
-    serial_file = path.join(session.experiment.datapath, '.all_datasets')
-    assert path.isfile(serial_file)
-    try:
-        with open(serial_file, 'rb') as fp:
-            datasets = pickle.load(fp)
-    except Exception:
-        assert False, 'could not read serialized sink'
-    assert len(datasets) == 1
-    assert datasets[43]
-    assert raises(KeyError, lambda: datasets[41])
-    data = datasets[43]
-    assert data.samplecounter == 1
-    assert data.counter == 43
-    assert data.propcounter == 1
-    assert data.samplecounter == 1
-    assert data.number == 0
-    assert data.started
-    assert data.finished
-    assert data.info == 'scan(motor2, 0, 1, 5, det, tdev, t=0.005)'
-    assert len(data.metainfo)
-    assert len(data.envvaluelists)
-    assert len(data.devvaluelists)
-    assert len(data.detvaluelists)
-
-
-@pytest.mark.skipif(not PIL, reason='PIL library missing')
-def test_tiff_sink(session):
-    tifffile = path.join(session.experiment.datapath, '00000168.tiff')
-    assert path.isfile(tifffile)
-
-
-@pytest.mark.skipif(not pyfits, reason='pyfits library missing')
-def test_fits_sink(session):
-    fitsfile = path.join(session.experiment.datapath, '00000168.fits')
-    assert path.isfile(fitsfile)
-    ffile = pyfits.open(fitsfile)
-    hdu = ffile[0]
-    assert hdu.data.shape == (128, 128)
-    assert hdu.header['Exp/proposal'] == 'p1234'
-
-
-@pytest.mark.skipif(not quickyaml, reason='QuickYAML library missing')
-def test_yaml_sink_1(session):
-    yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
-    assert path.isfile(yamlfile)
-    if not yaml:  # only do string level check if the yaml loader is not available
-        with open(yamlfile) as df:
-            data = df.read()
-    # note: whitespace is significant in the following lines!
-            assert '''instrument:
-    name: INSTR''' in data
-            assert '''experiment:
-    number: p1234
-    proposal: p1234''' in data
-            assert '''    sample:
-        description:
-            name: mysample''' in data
-
-
-@pytest.mark.skipif(not (quickyaml and yaml),
-                    reason='QuickYAML/PyYAML libraries missing')
-def test_yaml_sink_2(session):
-    yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
-    assert path.isfile(yamlfile)
-    contents = yaml.load(open(yamlfile))
-    assert contents['instrument']['name'] == 'INSTR'
-    assert contents['experiment']['proposal'] == 'p1234'
-    assert contents['measurement']['sample']['description']['name'] == \
-        'mysample'
+    @pytest.mark.skipif(not (quickyaml and yaml),
+                        reason='QuickYAML/PyYAML libraries missing')
+    def test_yaml_sink_2(self, session):
+        yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
+        assert path.isfile(yamlfile)
+        contents = yaml.load(open(yamlfile))
+        assert contents['instrument']['name'] == 'INSTR'
+        assert contents['experiment']['proposal'] == 'p1234'
+        assert contents['measurement']['sample']['description']['name'] == \
+            'mysample'

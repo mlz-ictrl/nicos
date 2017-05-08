@@ -53,5 +53,5 @@ config.setup_subdirs = setup_subdirs
 # enable this if the helper is installed
 config.sandbox_simulation = bool(which('nicos-sandbox-helper'))
 
-selfDestructAfter(10)
+selfDestructAfter(30)
 TestSimulationSession.run(sock, uuid, setups, user, code)

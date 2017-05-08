@@ -97,7 +97,6 @@ def test_adjust_alias(session, log):
     adjust(alias, 0)
     assert alias.offset == 0.0
     assert axis.offset == 0.0
-    alias.alias = ''
 
 
 def test_alias_valueinfo(session):

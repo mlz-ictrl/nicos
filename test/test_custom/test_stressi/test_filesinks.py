@@ -24,14 +24,9 @@
 
 """STRESS-SPEC specific data sink tests."""
 
-import os
-import time
-
 from os import path
 
-from nicos import config
 from nicos.commands.scan import contscan, scan, timescan
-from nicos.utils import updateFileCounter
 
 import pytest
 
@@ -46,39 +41,12 @@ except ImportError:
     yaml = None
 
 session_setup = 'stressi'
+exp_dataroot = 'stressidata'
 
-year = time.strftime('%Y')
 
-
-@pytest.yield_fixture(scope='module', autouse=True)
-def cleanup(session):
-    exp = session.experiment
-    exp.finish()
-    exp.setDetectors([])
-    assert exp.detlist == []
-    dataroot = path.join(config.nicos_root, 'stressidata')
-    os.makedirs(dataroot)
-
-    counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
-    updateFileCounter(counter, 'scan', 42)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    exp.setEnvironment([])
-
-    # Check the correct detector setup
-    adet = session.getDevice('adet')
-    assert len(adet._attached_timers) == 1
-    assert len(adet._attached_counters) == 0
-    assert len(adet._attached_monitors) == 1
-    assert len(adet._attached_images) == 1
-    exp.setDetectors([adet])
-    assert exp.detlist == ['adet']
-
-    assert path.abspath(exp.datapath) == path.abspath(
-        path.join(dataroot, year, 'p1234', 'data'))
+@pytest.yield_fixture(scope='class', autouse=True)
+def prepare(session, dataroot):
+    session.experiment.setDetectors(['adet'])
 
     # Create devices needed in data sinks
     for dev in ['xt', 'yt', 'zt', 'slits', 'slitm', 'slite', 'slitp', 'omgm']:
@@ -87,15 +55,12 @@ def cleanup(session):
     # Adjust the monochromator to reasonable position and check it
     tthm = session.getDevice('tthm')
     tthm.maw(69)
-    assert tthm.read(0) == 69.0
     transm = session.getDevice('transm')
     wav = session.getDevice('wav')
     assert wav.plane == ''
     transm.maw('Ge')
     wav.plane = '311'
-    assert wav.plane == '311'
     wav.maw(1.7)
-    assert wav.read(0) == 1.7
 
     # Perform different scans
     phis = session.getDevice('phis')
@@ -107,20 +72,20 @@ def cleanup(session):
     yield
 
 
-def test_caress_sink(session):
-    caressfile = path.join(session.experiment.datapath, 'm200000043.dat')
-    assert path.isfile(caressfile)
+class TestSinks(object):
 
+    def test_caress_sink(self, session):
+        caressfile = path.join(session.experiment.datapath, 'm200000043.dat')
+        assert path.isfile(caressfile)
 
-@pytest.mark.skipif(not (quickyaml or yaml),
-                    reason='QuickYAML/PyYAML libraries missing')
-def test_yaml_file_exist(session):
-    yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
-    assert path.isfile(yamlfile)
+    @pytest.mark.skipif(not (quickyaml or yaml),
+                        reason='QuickYAML/PyYAML libraries missing')
+    def test_yaml_file_exist(self, session):
+        yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
+        assert path.isfile(yamlfile)
 
-
-@pytest.mark.skipif(not yaml, reason='PyYAML library missing')
-def test_yaml_file_content(session):
-    yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
-    contents = yaml.load(open(yamlfile))
-    assert contents['experiment']
+    @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
+    def test_yaml_file_content(self, session):
+        yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
+        contents = yaml.load(open(yamlfile))
+        assert contents['experiment']

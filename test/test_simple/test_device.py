@@ -29,6 +29,7 @@ from nicos.core import ADMIN, AccessError, CommunicationError, \
     LimitError, Moveable, Param, ProgrammingError, UsageError, NicosError, \
     requires, status, usermethod, Attach
 from nicos.core.sessions.utils import MAINTENANCE
+from nicos.commands.basic import NewSetup
 
 from test.utils import raises
 
@@ -211,6 +212,22 @@ def test_params(session):
     session.createDevice('dev2_1', recreate=True)
     # restored the default value from the code?
     assert dev2.param1 == 42
+
+
+def test_params_fromconfig(session):
+    NewSetup('vmotor1')
+    motor = session.getDevice('vmotor')
+    # min/max parameters got from motor device
+    assert motor.abslimits == (-100, +100)
+    # usermin/usermax parameters in the config
+    assert motor.userlimits == (-100, +100)
+
+    NewSetup('vmotor2')
+    motor = session.getDevice('vmotor')
+    # min/max parameters got from motor device
+    assert motor.abslimits == (-100, +80)
+    # usermin/usermax parameters in the config
+    assert motor.userlimits == (-100, +80)
 
 
 def test_methods(session):

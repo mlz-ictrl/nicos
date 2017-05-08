@@ -65,5 +65,5 @@ config.group = None
 config.nicos_root = runtime_root
 
 os.environ['NICOS_HISTORY_FILE'] = os.devnull
-selfDestructAfter(120)
+selfDestructAfter(300)
 TestConsoleSession.run('startup', False)

@@ -42,8 +42,7 @@ year = time.strftime('%Y')
 session_setup = 'asciisink'
 
 
-# XXX: rewrite this with a proper fixture
-@pytest.yield_fixture(scope='module', autouse=True)
+@pytest.yield_fixture()
 def cleanup(session):
     yield
     # clean up "disabled" directory so that the next test run can remove it
@@ -57,7 +56,7 @@ def datapath(*parts, **kwds):
     return path.join(runtime_root, extra, year, *parts)
 
 
-def test_experiment(session):
+def test_experiment(session, cleanup):
     exp = session.experiment
 
     # setup test scenario

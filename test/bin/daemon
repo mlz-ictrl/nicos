@@ -79,5 +79,5 @@ config.user = None
 config.group = None
 config.nicos_root = runtime_root
 
-selfDestructAfter(120)
+selfDestructAfter(300)
 TestDaemonSession.run('daemon', 'Daemon')

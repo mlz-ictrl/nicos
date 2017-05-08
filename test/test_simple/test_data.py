@@ -45,6 +45,7 @@ def dataset_scope(session, settype, **kwds):
 
 
 def test_dataset_stack(session, log):
+    session.experiment.new(0, user='user')
     # create some datasets on the stack, check nesting
     with dataset_scope(session, 'block'):
         with log.assert_warns('no scan to finish'):

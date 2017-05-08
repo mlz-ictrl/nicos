@@ -32,11 +32,19 @@ import pytest
 
 from nicos.devices.cacheclient import CacheError
 
-from test.utils import startCache, killSubprocess, alt_cache_addr, raises
+from test.utils import startCache, killSubprocess, alt_cache_addr, raises, \
+    TestCacheClient as CacheClient
 
 session_setup = 'cachestress'
 
 all_setups = ['cache_db', 'cache_mem', 'cache_mem_hist']
+
+
+@pytest.yield_fixture(scope='module', autouse=True)
+def guard_cached_connection():
+    CacheClient._use_cache = False
+    yield
+    CacheClient._use_cache = True
 
 
 @pytest.mark.parametrize('setup', all_setups)
@@ -63,11 +71,10 @@ def test_basic(session, setup):
 
 @pytest.mark.parametrize('setup', all_setups)
 def test_restart(session, setup):
-    # cache = startCache(getCacheNameAndAltPort('localhost'), setup)
     cc = session.cache
     testval = 'test2'
     key = 'value'
-    # killSubprocess(cache)
+
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
