@@ -687,7 +687,7 @@ class TasSamplePanel(GenericSamplePanel):
     uiName = 'setup_tassample.ui'
 
     def getEditBoxes(self):
-        return [self.samplenameEdit, self.laueEdit, self.anglesEdit,
+        return [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
                 self.orient1Edit, self.orient2Edit, self.psi0Edit,
                 self.spacegroupEdit, self.mosaicEdit]
 
