@@ -200,7 +200,7 @@ addopts = --junit-xml=pytest.xml
         portallocator([plainports:['NICOS_DAEMON_PORT',
                                    'NICOS_CACHE_PORT',
                                    'NICOS_CACHE_ALT_PORT']]) {
-            timeout(5) {
+            timeout(10) {
                withEnv(["VENV=$venv"]) {
                   sh '''\
 #! /bin/bash
