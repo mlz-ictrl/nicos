@@ -691,23 +691,29 @@ class CacheClient(BaseCacheClient):
         # self.log.debug('putting %s=%s', key, value)
         self._queue.put(msg)
 
-    def setRewrite(self, newprefix, oldprefix):
-        oldprefix = oldprefix.lower()
-        newprefix = newprefix.lower()
-        self._queue.put(self._prefix + newprefix + OP_REWRITE +
-                        self._prefix + oldprefix + '\n')
-        self._inv_rewrites[newprefix] = oldprefix
-        self._rewrites.setdefault(oldprefix, set()).add(newprefix)
+    def _clearRewrite(self, to_prefix):
+        # remove old entry, if it exists
+        if to_prefix in self._inv_rewrites:
+            old_from_prefix = self._inv_rewrites[to_prefix]
+            self._rewrites[old_from_prefix].discard(to_prefix)
+            if not self._rewrites[old_from_prefix]:
+                del self._rewrites[old_from_prefix]
+            del self._inv_rewrites[to_prefix]
+            return True
 
-    def unsetRewrite(self, newprefix):
-        newprefix = newprefix.lower()
-        if newprefix in self._inv_rewrites:
-            old = self._inv_rewrites[newprefix]
-            self._rewrites[old].discard(newprefix)
-            if not self._rewrites[old]:
-                del self._rewrites[old]
-            del self._inv_rewrites[newprefix]
-            self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')
+    def setRewrite(self, to_prefix, from_prefix):
+        from_prefix = from_prefix.lower()
+        to_prefix = to_prefix.lower()
+        self._queue.put(self._prefix + to_prefix + OP_REWRITE +
+                        self._prefix + from_prefix + '\n')
+        self._clearRewrite(to_prefix)
+        self._inv_rewrites[to_prefix] = from_prefix
+        self._rewrites.setdefault(from_prefix, set()).add(to_prefix)
+
+    def unsetRewrite(self, to_prefix):
+        to_prefix = to_prefix.lower()
+        if self._clearRewrite(to_prefix):
+            self._queue.put(self._prefix + to_prefix + OP_REWRITE + '\n')
 
     def clear(self, dev, exclude=()):
         """Clear all cache subkeys belonging to the given device."""

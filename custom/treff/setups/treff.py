@@ -4,5 +4,5 @@ group = 'basic'
 
 includes = ['analyzer', 'beamstop', 'det', 'filter', 'mc2',
             'polarizer', 'sampletable', 'shutter', 'slits',
-            'guidehall', 'nl5',
+            'guidehall', 'nl5', 'reactor',
            ]

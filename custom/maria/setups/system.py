@@ -81,6 +81,8 @@ devices = dict(
                                           disableOwner='jcns',
                                           disableGroup='maria',
                                          ),
+                      mailserver = 'mailhost.frm2.tum.de',
+                      mailsender = 'maria@frm2.tum.de',
                       sendmail = True,
                       zipdata = True,
                       serviceexp = 'service',

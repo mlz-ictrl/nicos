@@ -82,7 +82,7 @@ class RefAxis(Axis):
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
-                self.log.info('would reference')
+                self.log.debug('would reference')
             else:
                 self.log.error('Can\'t reference if not in master or '
                                'maintenance mode!')
@@ -252,7 +252,7 @@ class RotAxis(RefAxis):
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
-                self.log.info('would reference')
+                self.log.debug('would reference')
             else:
                 self.log.error('Can\'t reference if not in master or '
                                'maintenance mode!')
