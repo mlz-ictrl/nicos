@@ -572,7 +572,8 @@ class ContinuousScan(Scan):
                       if isinstance(val, number_types) else val
                       for i, val in enumerate(vals)]
             imgs = [image - last[detname][1][i]
-                    if None not in [image, last[detname][1][i]] else None
+                    if (image is not None and last[detname][1][i] is not None)
+                    else None
                     for i, image in enumerate(images)]
             res[detname] = (values, imgs)
         return res
