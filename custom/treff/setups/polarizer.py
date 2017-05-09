@@ -13,8 +13,8 @@ devices = dict(
                             description = "Flipper",
                             tangodevice = tango_base + 'FZJDP_Digital/pflipper',
                             mapping = {
-                                      'up': 0,
-                                      'down': 1,
+                                      'up': 1,
+                                      'down': 0,
                                       }
                            ),
     polbus1        = device('treff.ipc.IPCModBusTacoJPB',
