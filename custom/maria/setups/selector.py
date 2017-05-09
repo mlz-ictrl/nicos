@@ -13,6 +13,7 @@ devices = dict(
                              warnlimits = (3100, 28300),
                              precision = 10,
                              timeout = 300,
+                             window = 10,
                             ),
 
     selector_lambda = device('maria.selector.SelectorLambda',
