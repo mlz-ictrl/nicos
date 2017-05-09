@@ -149,7 +149,7 @@ devices = dict(
     ),
     image = device('devices.generic.VirtualImage',
         fmtstr = '%d',
-        sizes = (256, 256),
+        sizes = (64, 64),
     ),
     adet = device('devices.generic.Detector',
         timers = ['tim1'],
