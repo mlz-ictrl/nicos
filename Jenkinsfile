@@ -51,7 +51,7 @@ change-merged''',
                                                         excludeNoCodeChange: false,
                                                         excludeTrivialRebase: false),
                                         changeMerged(),
-                                        commentAddedContains('^!recheck')
+                                        commentAddedContains('@recheck')
                                         ]
                                     )])
     ])
