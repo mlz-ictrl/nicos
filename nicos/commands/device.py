@@ -24,13 +24,14 @@
 
 """Module for simple device-related user commands."""
 
+import ast
 import time
 
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
-from nicos.core import Device, Moveable, Waitable, Measurable, Readable, \
-    HasOffset, HasLimits, UsageError, AccessError, formatStatus, \
-    INFO_CATEGORIES, multiWait
+from nicos.core import SIMULATION, Device, Moveable, Waitable, Measurable, \
+    Readable, HasOffset, HasLimits, TimeoutError, UsageError, AccessError, \
+    formatStatus, INFO_CATEGORIES, multiWait
 from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, \
     Multi
@@ -40,13 +41,14 @@ from nicos.commands import usercommand, hiddenusercommand, helparglist, \
 from nicos.commands.basic import sleep
 from nicos.pycompat import builtins, itervalues, iteritems, number_types, \
     string_types
+from nicos.utils.timer import Timer
 
 
 __all__ = [
     'move', 'drive', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
     'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
     'unfix', 'adjust', 'version', 'history', 'limits', 'resetlimits',
-    'reference', 'ListParams', 'ListMethods', 'ListDevices',
+    'reference', 'ListParams', 'ListMethods', 'ListDevices', 'waitfor',
 ]
 
 
@@ -217,6 +219,81 @@ def wait(*devlist):
             continue
         if value is not None:
             dev.log.info('at %20s %s', dev.format(value), dev.unit)
+
+
+@usercommand
+@helparglist('dev, condition, [timeout]')
+@spmsyntax(Dev(Readable), Bare, Bare, Bare)
+def waitfor(dev, condition, timeout=86400):
+    """Wait for a device until a condition is fulfilled.
+
+    Convenience function to avoid writing code like this:
+
+    >>> while not motor.read() < 10:
+    ...     sleep(0.3)
+
+    which now can be written as:
+
+    >>> waitfor(motor, '< 10')
+
+    The supported conditions are [#]_:
+
+    - '<', '<=', '==', '!=', '>=', '>' with a value
+    - 'is False', 'is True', 'is None'
+    - 'in list', where list could be a Python list or tuple
+
+    An optional timeout value can be added, which denominates the maximum time
+    the command will wait (in seconds).  If the timeout value is reached, an
+    error will be raised.  The default timeout value is 86400 seconds (1 day).
+    Example:
+
+    >>> waitfor(T, '< 10', timeout=3600)
+
+    Will wait a maximum of 1 hour for T to get below 10.
+
+    .. note::
+
+       In contrast to the `wait()` command this command will not only wait
+       until the target is reached.  You may define also conditions which
+       represent intermediate states of a movement or you may wait on
+       external trigger signals and so on.
+
+    .. [#] The device value, determined by ``dev.read()``, will be added in
+       front of the condition, so the resulting conditions is:
+
+        >>> dev.read() < 10
+
+       The condition parameter will be given as a simple comparision to
+       the value of the device.
+    """
+    if session.mode == SIMULATION:
+        return
+
+    dev = session.getDevice(dev, Readable)
+    full_condition = '_v %s' % condition
+
+    try:
+        ast.parse(full_condition)
+    except Exception:
+        raise UsageError('Could not parse condition %r' % condition)
+
+    def check(tmr):
+        session.breakpoint(2)  # allow break and continue here
+        waitfor.cond_fulfilled = eval(full_condition, {}, {'_v': dev.read(0)})
+        if waitfor.cond_fulfilled:
+            session.log.info('Waiting for \'%s %s\' finished.', dev, condition)
+            tmr.stop()
+
+    waitfor.cond_fulfilled = False
+    try:
+        session.beginActionScope('Waiting until %s %s' % (dev, condition))
+        tmr = Timer(timeout if timeout else 86400)  # max wait time 1 day
+        tmr.wait(dev._base_loop_delay * 3, check)
+    finally:
+        if not waitfor.cond_fulfilled:
+            raise TimeoutError(dev, 'Waiting for \'%s %s\' timed out.' % (dev,
+                               condition))
+        session.endActionScope()
 
 
 @usercommand

@@ -29,8 +29,8 @@ import shutil
 import tempfile
 import timeit
 
-from nicos.core import GUEST, UsageError, LimitError, NicosError, status as \
-    devstatus
+from nicos.core import GUEST, UsageError, LimitError, NicosError, \
+    TimeoutError, status as devstatus
 from nicos.utils import ensureDirectory
 
 from nicos.commands import usercommandWrapper
@@ -38,7 +38,7 @@ from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
     status, stop, reset, get, getall, setall, fix, release, adjust, \
     version, history, info, limits, resetlimits, ListParams, ListMethods, \
-    ListDevices, unfix, reference, finish
+    ListDevices, unfix, reference, finish, waitfor
 from nicos.commands.device import set  # pylint: disable=W0622
 from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
@@ -504,6 +504,20 @@ class TestDevice(object):
         axis.maw(1)
         reference(axis)
         assert axis.read(0) == 0.0
+
+    def test_waitfor(self, session, log):
+        """Check waitfor() command."""
+        motor = session.getDevice('motor')
+        assert motor.read() == 0.
+        waitfor(motor, '== 0')
+        motor.speed = 1
+        move(motor, 2)
+        waitfor(motor, '> 1.2')
+        assert raises(TimeoutError, waitfor, motor, '< 1', 0.1)
+        waitfor(motor, '> 1', 0.1)
+
+        # check waitfor wrong condition syntax
+        assert raises(UsageError, waitfor, motor, '>')
 
 
 def test_notifiers(session):
