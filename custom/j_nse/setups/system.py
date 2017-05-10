@@ -15,6 +15,7 @@ modules = ['commands.standard']
 
 includes = [
     'notifiers',
+    'coiltemp',
 ]
 
 devices = dict(
