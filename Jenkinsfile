@@ -189,14 +189,17 @@ exit $((res))
     }
 }
 
-def runTests(venv, pyver) {
+def runTests(venv, pyver, withcov) {
+
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
 addopts = --junit-xml=pytest.xml
-  --junit-prefix=$pyver
-  --cov --cov-config=.coveragerc
+  --junit-prefix=$pyver""" + (withcov ? """
+  --cov
+  --cov-config=.coveragerc
   --cov-report=html:cov-$pyver
-  --cov-report=term """
+  --cov-report=term
+""" : "")
 
     verifyresult.put(pyver, 0)
     try {
@@ -214,8 +217,8 @@ set -x
 
 pytest -v test'''
 verifyresult.put(pyver, 1)
-                } //withEnv
-            } //tiemout
+                } // withEnv
+            } // timeout
         } // wrap
     } catch(all) {
         verifyresult.put(pyver, -1)
@@ -233,14 +236,16 @@ verifyresult.put(pyver, 1)
     junit([allowEmptyResults: true,
            keepLongStdio: true,
            testResults: 'pytest.xml'])
-    archiveArtifacts([allowEmptyArchive: true,
-                      artifacts: "cov-$pyver/*"])
-    publishHTML([allowMissing: true,
-                 alwaysLinkToLastBuild: false,
-                 keepAll: true,
-                 reportDir: "cov-$pyver/",
-                 reportFiles: 'index.html',
-                 reportName: "Coverage ($pyver)"])
+    if (withcov) {
+        archiveArtifacts([allowEmptyArchive: true,
+                          artifacts: "cov-$pyver/*"])
+        publishHTML([allowMissing: true,
+                     alwaysLinkToLastBuild: false,
+                     keepAll: true,
+                     reportDir: "cov-$pyver/",
+                     reportFiles: 'index.html',
+                     reportName: "Coverage ($pyver)"])
+    }
 
     if (verifyresult[pyver] < 0) {
         error('Failure in test with ' + pyver)
@@ -376,7 +381,7 @@ parallel pylint: {
     stage(name: 'Python2 tests')  {
         node('ubuntu12.04') {
             prepareNode()
-            runTests( 'nicos-w-sys-site-packs2', 'python2')
+            runTests( 'nicos-w-sys-site-packs2', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
         }
     }
 }, test_python2centos: {
@@ -384,7 +389,7 @@ parallel pylint: {
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             node('CentOS && jenkins && !i386') {
                 prepareNode()
-                runTests('nicos-w-sys-site-packs2', 'python2-centos')
+                runTests('nicos-w-sys-site-packs2', 'python2-centos', false)
             }
         }
     }
@@ -392,7 +397,7 @@ parallel pylint: {
     stage(name: 'Python3 tests') {
         node('ubuntu14.04') {
             prepareNode()
-            runTests('nicos-py3-new', 'python3')
+            runTests('nicos-py3-new', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
         }
     }
 }, test_docs: {
