@@ -99,9 +99,9 @@ def cleanup(session):
 
     # Perform different scans
     phis = session.getDevice('phis')
-    timescan(1, t=0.1)
-    scan(phis, 0, 0.1, 1, t=0.1, info='phi scan on time')
-    scan(phis, 0, 0.1, 1, mon1=100, info='phi scan on monitor')
+    timescan(1, t=0.05)
+    scan(phis, 0, 0.1, 1, t=0.05, info='phi scan on time')
+    scan(phis, 0, 0.1, 1, mon1=50, info='phi scan on monitor')
     contscan(phis, 0, 1, 1000, 0.001)
 
     yield
