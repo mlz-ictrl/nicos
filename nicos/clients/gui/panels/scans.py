@@ -74,12 +74,13 @@ def itemuid(item):
     return str(item.data(32))
 
 arby_functions = {
+    'Straight line': ('m*x + t', 'm t'),
+    'Parabola': ('a*x**2 + b*x + c', 'a b c'),
     'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
                     'a b c x1 x2 s1 s2'),
     'Gaussian x3 symm.':
         ('a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
          'c*exp(-(x-x0)**2/s0**2)', 'a b c x0 x1 s0 s1'),
-    'Parabola': ('a*x**2 + b*x + c', 'a b c'),
 }
 
 

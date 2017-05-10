@@ -127,7 +127,7 @@ def readConfig():
     else:
         try:
             # Take the middle part of the domain name (machine.instrument.frm2)
-            domain = socket.getfqdn().split('.')[1]
+            domain = socket.getfqdn().split('.')[1].replace('-', '_')
         except (ValueError, IndexError, socket.error):
             pass
         else:
