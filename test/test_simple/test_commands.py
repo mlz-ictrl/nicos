@@ -393,7 +393,12 @@ def test_device_commands(session, log):
     finish(det)
 
 
-    assert raises(ErrorLogged, reference, motor)
+    with log.assert_errors('has no reference function'):
+        reference(motor)
+    axis = session.getDevice('nocoder_axis')
+    axis.maw(1)
+    reference(axis)
+    assert axis.read() == 0.0
 
 
 def test_notifiers(session):

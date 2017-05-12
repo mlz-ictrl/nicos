@@ -83,4 +83,12 @@ devices = dict(
         curvalue = 0,
         abslimits = (-100, 100),
     ),
+    nocoder_axis = device('devices.generic.Axis',
+        motor = device('test.utils.TestReferenceMotor',
+            unit = 'mm',
+            curvalue = 1,
+            abslimits = (-100, 100),
+        ),
+        precision = 0,
+    ),
 )

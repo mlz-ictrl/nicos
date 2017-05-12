@@ -47,6 +47,8 @@ from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
     status, Attach
 from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
+from nicos.devices.abstract import CanReference
+from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
 from nicos.devices.cacheclient import CacheClient
 from nicos.services.cache.database import FlatfileCacheDatabase
@@ -472,6 +474,13 @@ class TestNotifier(Mailer):
 
     def send(self, subject, body, what=None, short=None, important=True):
         self._messages.append((subject, body, what, short, important))
+
+
+class TestReferenceMotor(CanReference, VirtualMotor):
+
+    def doReference(self):
+        # Enforce a change in current position
+        self.curvalue = 0
 
 
 def cleanup():
