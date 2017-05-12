@@ -29,7 +29,7 @@ includes = ['stdsystem']
 devices = dict(
     motor = device('devices.generic.VirtualMotor',
         unit = 'mm',
-        initval = 0,
+        curvalue = 0,
         abslimits = (-100, 100),
     ),
     coder = device('devices.generic.VirtualCoder',
@@ -80,7 +80,7 @@ devices = dict(
     ),
     slow_motor = device('devices.generic.VirtualMotor',
         unit = 'mm',
-        initval = 0,
+        curvalue = 0,
         abslimits = (-100, 100),
     ),
 )
