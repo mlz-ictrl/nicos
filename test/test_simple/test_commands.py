@@ -29,7 +29,7 @@ import shutil
 import tempfile
 import timeit
 
-from nicos.core import UsageError, LimitError
+from nicos.core import UsageError, LimitError, NicosError
 from nicos.utils import ensureDirectory
 
 from nicos.commands import usercommandWrapper
@@ -213,6 +213,12 @@ def test_sample_commands(session, log):
 
 
 def test_device_commands(session, log):
+    AddSetup('scanning')  # for a TestDevice
+    tdev = session.getDevice('tdev')
+    tdev._status_exception = NicosError('expected failed status')
+    tdev._read_exception = NicosError('expected failed read')
+    tdev._stop_exception = NicosError('expected failed stop')
+
     motor = session.getDevice('motor')
     coder = session.getDevice('coder')
     alias = session.getDevice('aliasAxis')
@@ -252,15 +258,24 @@ def test_device_commands(session, log):
     # check wait()
     move(motor, 10)
     wait(motor, 0.1)
+    wait()
+    with log.assert_errors(r'expected failed status'):
+        wait(tdev)
 
     # check read()
     read()
+    read(motor, coder)
+    with log.assert_errors(r'expected failed read'):
+        read(tdev)
+    assert raises(UsageError, read, exp)
 
     # check status()
     status()
+    status(motor, coder, tdev)
+
     # check stop()
     stop()
-    stop(motor)
+    stop(motor, tdev)
     # check stop moving motor
     move(motor, 10)
     stop(motor)
@@ -272,6 +287,8 @@ def test_device_commands(session, log):
     set(motor, 'speed', 10)
     assert motor.speed == 10
     get(motor, 'speed')
+    with log.assert_errors('device has no parameter'):
+        set(motor, 'noparam', '')
 
     # check info()
     with log.assert_msg_matches([r'Device status',
@@ -287,8 +304,10 @@ def test_device_commands(session, log):
     move(motor, 0)
     fix(motor)
     move(motor, 10)
+    stop(motor)
     release(motor)
     assert motor.curvalue == 0
+    assert raises(UsageError, release)
     assert raises(UsageError, release, ())
     assert raises(UsageError, unfix, ())
 
@@ -322,14 +341,17 @@ def test_device_commands(session, log):
                      '2012-01-01 14:00', '14:00']:
         history(motor, 'value', timespec)
 
+    AddSetup('generic')
+    m4 = session.getDevice('m4')
+
     # check limits()
-    limits(motor, coder)
+    limits(motor, coder, m4)
     limits()
 
     # check resetlimits()
     CreateDevice('motor')  # needs to be explicit
     motor.userlimits = (1, 1)
-    resetlimits(motor, coder)
+    resetlimits(motor, coder, m4)
     assert motor.userlimits == motor.abslimits
     # check resetting of all devices having limits
     motor.userlimits = (-0.5, 0.5)
@@ -351,6 +373,10 @@ def test_device_commands(session, log):
 
     # check finish
     finish()
+    AddSetup('detector')
+    det = session.getDevice('det')
+    finish(det)
+
 
     assert raises(ErrorLogged, reference, motor)
 

@@ -362,6 +362,7 @@ class TestDevice(HasLimits, Moveable):
         self._start_exception = None
         self._read_exception = None
         self._status_exception = None
+        self._stop_exception = None
 
     def doRead(self, maxage=0):
         if self._read_exception is not None:
@@ -377,6 +378,10 @@ class TestDevice(HasLimits, Moveable):
         if self._status_exception is not None:
             raise self._status_exception  # pylint: disable=E0702
         return status.OK, 'fine'
+
+    def doStop(self):
+        if self._stop_exception is not None:
+            raise self._stop_exception  # pylint: disable=E0702
 
 
 class TestController(IsController, Moveable):
