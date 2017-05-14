@@ -87,12 +87,12 @@ def test_encoding(client):
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
-scan(axis, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
+scan(dax, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
 ''', 'Meßzeit.py')
 
 
 def test_htmlhelp(client):
-    load_setup(client, 'axis')
+    load_setup(client, 'daemontest')
     # NOTE: everything run with 'queue' will not show up in the coverage
     # report, since the _pyctl trace function replaces the trace function from
     # coverage, so if we want HTML help generation to get into the report we
@@ -106,16 +106,16 @@ def test_htmlhelp(client):
             assert data[1].startswith('<html>')
             break
     client._signals = []
-    client.tell('exec', 'help(axis)')
+    client.tell('exec', 'help(dax)')
     for name, data, _exc in client.iter_signals(0, timeout=10.0):
-        if name == 'showhelp' and data[0] == 'dev:axis':
+        if name == 'showhelp' and data[0] == 'dev:dax':
             # default help page is the index page
             assert data[1].startswith('<html>')
             break
 
 
 def test_simulation(client):
-    load_setup(client, 'axis')
+    load_setup(client, 'daemontest')
     idx = len(client._signals)
     client.tell('simulate', '', 'read()', 'sim')
     for name, _data, _exc in client.iter_signals(idx, timeout=10.0):
