@@ -449,10 +449,26 @@ class IntegralLiveWidget(LiveWidget):
     def _rescale(self):
         """Rescales integral plots in respect to the main/cellarray plot."""
         xmin, xmax, ymin, ymax = self.axes.getWindow()
-        _, _, y0, y1 = self.axesyint.getWindow()
-        x0, x1, _, _ = self.axesxint.getWindow()
-        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, y1)
-        self.axesxint.setWindow(x0, x1, ymin - .5, ymax - .5)
+        ny, nx = self._array.shape
+        # calculate x, y range clamped to detector image size
+        x0 = min(max(0, xmin), xmax)  # 0 <= x0 <= xmax
+        x1 = max(0, min(nx, xmax))    # 0 <= x1 <= xmax
+        y0 = min(max(0, ymin), ymax)  # 0 <= y0 <= ymax
+        y1 = max(0, min(ny, ymax))    # 0 <= y1 <= ymax
+        if x0 >= x1 or y0 >= y1:
+            return
+
+        # use float type in order to mask zeros with 0.1 for logscale
+        self.curvex.x = self._array[:, int(x0):int(x1)].sum(axis=1,
+                                                            dtype=numpy.float)
+        self.curvey.y = self._array[int(y0):int(y1), :].sum(axis=0,
+                                                            dtype=numpy.float)
+        # restore min for sum axis in respect to logscale
+        # @see updateZData method sets the minimum accordingly
+        x0 = self.axesxint.getWindow()[0]  # xmin sum along x
+        y0 = self.axesyint.getWindow()[2]  # ymin sum along y
+        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, self.curvey.y.max())
+        self.axesxint.setWindow(x0, self.curvex.x.max(), ymin - .5, ymax - .5)
 
     def _setData(self, array, nx, ny, nz, newrange):
         LiveWidget._setData(self, array, nx, ny, nz, newrange)
@@ -463,11 +479,6 @@ class IntegralLiveWidget(LiveWidget):
             self.axesyint.xlines = self.axes.xlines
         self.curvey.x = numpy.arange(0, nx)
         self.curvex.y = numpy.arange(0, ny)
-        # use float type in order to mask zeros with 0.1 for logscale
-        self.curvex.x = array.sum(axis=1, dtype=numpy.float)
-        self.curvey.y = array.sum(axis=0, dtype=numpy.float)
-        self.axesyint.setWindow(0, nx, 0, self.curvey.y.max())
-        self.axesxint.setWindow(0, self.curvex.x.max(), 0, ny)
 
     def updateZData(self):
         LiveWidget.updateZData(self)
