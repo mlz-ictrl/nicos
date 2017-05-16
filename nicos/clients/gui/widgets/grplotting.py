@@ -258,9 +258,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.update()
 
     def setSymbols(self, on):
-        markertype = gr.MARKERTYPE_DOT
-        if on:
-            markertype = gr.MARKERTYPE_OMARK
+        markertype = gr.MARKERTYPE_OMARK if on else gr.MARKERTYPE_DOT
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
@@ -537,6 +535,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
     def __init__(self, parent, window, dataset):
         DataSetPlotMixin.__init__(self, dataset)
         NicosGrPlot.__init__(self, parent, window)
+        self.setSymbols(True)
 
     def titleString(self):
         return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
