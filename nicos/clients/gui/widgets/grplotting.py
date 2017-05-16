@@ -578,6 +578,11 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         curve = None
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
+        if self.plotcurves and len(self.plotcurves[0].x) == 2:
+            # When there is only one point, GR autoselects a range related to
+            # the magnitude of the point. Now that we have two points, we can
+            # scale to actual X interval of the scan.
+            self._axes.reset()
         self.updateDisplay()
 
     def fitQuick(self):
