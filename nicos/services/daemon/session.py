@@ -192,8 +192,9 @@ class DaemonSession(NoninteractiveSession):
             del self.daemon_device._messages[:]
         self.emitfunc('experiment', (proposal, proptype))
 
-    def pnpEvent(self, event, *data):
-        self.emitfunc('plugplay', (event,) + data)
+    def pnpEvent(self, event, setupname, description):
+        # not calling parent function as we do not want logging
+        self.emitfunc('plugplay', (event, setupname, description))
 
     def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
