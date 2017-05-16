@@ -1,5 +1,5 @@
 description = 'Helios 3He analyzer system'
-group = 'optional'
+group = 'plugplay'
 
 devices = {
     'flipper_%s' % setupname : device('frm2.helios.HePolarizer',

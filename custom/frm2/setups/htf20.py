@@ -51,3 +51,9 @@ alias_config = {
     'T':  {'T_%s' % setupname: 100},
     'Ts': {'T_%s' % setupname: 100},
 }
+
+startupcode = '''
+if T_%s.ramp == 0:
+    printwarning('!!! The ramp rate of temperature controller is 0 !!!')
+    printwarning('Please check the ramp rate of the temperature controller')
+''' % (setupname,)

@@ -120,10 +120,13 @@ class NicosPlotCurve(PlotCurve):
     def dependent(self, value):
         self._dependent = value
 
-    # pylint: disable=W0221
-    @PlotCurve.visible.setter
+    @property
+    def visible(self):
+        return PlotCurve.visible.__get__(self)
+
+    @visible.setter
     def visible(self, flag):
-        self._visible = flag
+        PlotCurve.visible.__set__(self, flag)
         for dep in self.dependent:
             dep.visible = flag
 
@@ -255,9 +258,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.update()
 
     def setSymbols(self, on):
-        markertype = gr.MARKERTYPE_DOT
-        if on:
-            markertype = gr.MARKERTYPE_OMARK
+        markertype = gr.MARKERTYPE_OMARK if on else gr.MARKERTYPE_DOT
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
@@ -534,6 +535,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
     def __init__(self, parent, window, dataset):
         DataSetPlotMixin.__init__(self, dataset)
         NicosGrPlot.__init__(self, parent, window)
+        self.setSymbols(True)
 
     def titleString(self):
         return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
@@ -576,6 +578,11 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         curve = None
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
+        if self.plotcurves and len(self.plotcurves[0].x) == 2:
+            # When there is only one point, GR autoselects a range related to
+            # the magnitude of the point. Now that we have two points, we can
+            # scale to actual X interval of the scan.
+            self._axes.reset()
         self.updateDisplay()
 
     def fitQuick(self):

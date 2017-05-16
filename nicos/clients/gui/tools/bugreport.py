@@ -31,9 +31,12 @@ from PyQt4.QtGui import QDesktopServices, QDialog, QDialogButtonBox, \
     QGridLayout, QLabel, QLineEdit, QCheckBox
 
 try:
-    import redmine  # pylint: disable=F0401
+    import redminelib  # pylint: disable=F0401
 except ImportError:
-    redmine = None
+    try:
+        import redmine as redminelib
+    except ImportError:
+        redminelib = None
 
 from nicos.clients.gui.utils import loadUi, CompatSettings, DlgUtils
 
@@ -73,7 +76,7 @@ class BugreportTool(QDialog, DlgUtils):
         btn = self.buttonBox.addButton('Login details', QDialogButtonBox.ResetRole)
         btn.clicked.connect(self._queryDetails)
 
-        if not redmine:
+        if not redminelib:
             self.showError('Reporting is not possible since the python-redmine '
                            'module is not installed.')
             return  # don't add Submit button
@@ -117,8 +120,8 @@ class BugreportTool(QDialog, DlgUtils):
         layout.addWidget(buttonbox)
         dlg.setLayout(layout)
         if dlg.exec_() == QDialog.Accepted:
-            rm = redmine.Redmine(TRACKER_URL, username=userBox.text(),
-                                 password=passwdBox.text())
+            rm = redminelib.Redmine(TRACKER_URL, username=userBox.text(),
+                                    password=passwdBox.text())
             try:
                 apikey = rm.auth().api_key
             except Exception as err:
@@ -193,7 +196,7 @@ class BugreportTool(QDialog, DlgUtils):
             full_desc += '\n\n<p><b>Log excerpt:</b></p>\n' + \
                          '<pre>' + self.log_excerpt + '</pre>'
 
-        rm = redmine.Redmine(TRACKER_URL, key=self.apikey)
+        rm = redminelib.Redmine(TRACKER_URL, key=self.apikey)
         issue = rm.issue.new()
         issue.project_id = PROJECT_ID
         issue.subject = subject

@@ -118,6 +118,9 @@ def test_functions():
         {'user': 'user', 'password': '', 'host': 'host', 'port': 1301}
     assert parseConnectionString('user@host:1301', 1302) == \
         {'user': 'user', 'password': None, 'host': 'host', 'port': 1301}
+    assert parseConnectionString('user@ho-st:1301', 1302) == \
+        {'user': 'user', 'password': None, 'host': 'ho-st', 'port': 1301}
+    assert parseConnectionString('', 1302) is None
 
     assert list(map(tuple, chunks(range(10), 3))) == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]

@@ -63,7 +63,9 @@ a = Analysis([binscript],
                  (path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
              hiddenimports=
                  find_modules('nicos', 'clients', 'gui') +
-                 find_modules('nicos', 'guisupport'),
+                 find_modules('nicos', 'guisupport') +
+                 find_modules('nicos', 'core') +
+                 find_modules('nicos', 'devices'),
              hookspath=[],
              runtime_hooks=['rthook_pyqt4.py'],
              excludes=['Tkinter', 'matplotlib', 'PyQt5', 'gtk', 'IPython',

@@ -49,14 +49,11 @@ class DaemonSinkHandler(DataSinkHandler):
         if not self._dataset_emitted:
             self._emitDataset()
             self._dataset_emitted = True
-        xvalues = point.devvaluelist + point.envvaluelist
-        yvalues = point.detvaluelist
-        session.emitfunc('datapoint',
-                         (str(self.dataset.uid), xvalues, yvalues))
-
-    # XXX(dataapi): replace this
-    # def addFitCurve(self, dataset, result):
-    #     session.emitfunc('datacurve', (result,))
+        else:
+            xvalues = point.devvaluelist + point.envvaluelist
+            yvalues = point.detvaluelist
+            session.emitfunc('datapoint',
+                             (str(self.dataset.uid), xvalues, yvalues))
 
 
 class DaemonSink(DataSink):

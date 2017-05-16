@@ -22,53 +22,28 @@
 #
 # *****************************************************************************
 
-"""Test the text client."""
+name = 'test_axis setup'
 
-from nicos.pycompat import from_utf8
+includes = ['stdsystem']
 
-
-def test_textclient(cliclient):
-    stdout, _ = cliclient.communicate(b'''\
-/log 100
-/help
-NewSetup('daemontest')
-/wait
-/edit test.py
-/sim read()
-/wait
-NewSetup()
-/wait
-read()
-/wait
-help(read)
-/wait
-set(dm2, 'speed', 1)
-/wait
-maw(dm2, 25)
-/wait 0.1
-maw(dm2, 50)
-Q
-/wait 0.1
-/pending
-/where
-/cancel *
-/trace
-/spy
-slow_motor()
-/spy
-/stop
-S
-/wait
-/disconnect
-/quit
-''')
-    res = from_utf8(stdout)
-    assert 'Current stacktrace' in res
-    assert 'Showing pending scripts' in res
-    assert 'Printing current script' in res
-    assert 'Spy mode on' in res
-    assert 'Spy mode off' in res
-    assert 'Your choice?' in res
-    assert 'Disconnected from server' in res
-
-    print(res)
+devices = dict(
+    dm1 = device('devices.generic.VirtualMotor',
+        unit = 'mm',
+        curvalue = 0,
+        abslimits = (-100, 100),
+    ),
+    dax = device('devices.generic.Axis',
+        motor = 'dm1',
+        coder = None,
+        obs = [],
+        precision = 0,
+        userlimits = (-50, 50),
+        loopdelay = 0.02,
+        loglevel = 'debug',
+    ),
+    dm2 = device('devices.generic.VirtualMotor',
+        unit = 'mm',
+        curvalue = 0,
+        abslimits = (-100, 100),
+    ),
+)
