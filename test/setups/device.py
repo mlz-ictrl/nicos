@@ -77,4 +77,10 @@ devices = dict(
         curvalue = 0,
         abslimits = (0, 10),
     ),
+    privdev = device('devices.generic.VirtualMotor',
+        requires = {'level': 'admin'},
+        unit = 'mm',
+        abslimits = (-50, 50),
+        maxage = 0.0,  # no caching!
+    ),
 )
