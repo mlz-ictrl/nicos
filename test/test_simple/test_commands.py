@@ -296,6 +296,7 @@ def test_device_commands(session, log):
 
     # check reset()
     reset(motor)
+    reset()
 
     # check set() and get()
     set(motor, 'speed', 10)
