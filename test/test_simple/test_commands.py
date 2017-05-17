@@ -268,6 +268,15 @@ def test_device_commands(session, log):
     with log.assert_errors(r'expected failed read'):
         read(tdev)
     assert raises(UsageError, read, exp)
+    # ensure that target != position to generate a read message containing a
+    # 'target' entry
+    s = motor.speed
+    motor.speed = 0.1
+    move(motor, 1)
+    stop(motor)
+    with log.assert_msg_matches(r'target'):
+        read(motor)
+    motor.speed = s
 
     # check status()
     status()
