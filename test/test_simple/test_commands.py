@@ -281,6 +281,11 @@ def test_device_commands(session, log):
     # check status()
     status()
     status(motor, coder, tdev)
+    with log.assert_errors('expected failed read'):
+        tdev._status_exception = None
+        tdev.warnlimits = [-4.99, 4.99]
+        status(tdev)
+        tdev._status_exception = NicosError('expected failed status')
 
     # check stop()
     stop()
