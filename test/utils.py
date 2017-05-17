@@ -151,6 +151,7 @@ class TestLogHandler(StreamHandler):
 
     def clear(self):
         self._raising = True
+        self._errors = []
         self._warnings = []
         self._messages = []
 
@@ -158,8 +159,14 @@ class TestLogHandler(StreamHandler):
         if record.levelno == ACTION:
             return
         msg = self.format(record)
-        if record.levelno >= ERROR and self._raising:
-            raise ErrorLogged(record.message)
+        if record.levelno >= ERROR:
+            # On error messages, we normally raise an exception so that any
+            # errors logged during the test suite do not pass silently.  This
+            # can be temporarily changed using the allow_errors() and
+            # expect_errors() context managers.
+            if self._raising:
+                raise ErrorLogged(record.message)
+            self._errors.append(msg)
         elif record.levelno >= WARNING:
             self._warnings.append(msg)
         self._messages.append(msg)
@@ -213,27 +220,45 @@ class TestLogHandler(StreamHandler):
                 if rx.search(msg):
                     assert False, 'Message %r matches %r' % (msg, regex)
 
+    def _assert_msglist_contains(self, what, msglist, regex, count):
+        emitted = len(msglist)
+        if count is not None and emitted != count:
+            assert False, '%d %s emitted, %d expected' % (emitted, what, count)
+        elif count is None and not emitted:
+            assert False, 'No %s emitted, at least one expected' % what
+        if regex is not None:
+            rx = re.compile(regex)
+            for msg in msglist:
+                if rx.search(msg):
+                    break
+            else:
+                assert False, 'No %s match %r' % (what, regex)
+
     @contextlib.contextmanager
     def assert_warns(self, regex=None, count=None):
-        """Check that the context code emits a warning.
+        """Check the warnings that the context code emits.
 
         If *count* is given, exactly *count* warnings must be emitted.  If
         *regex* is given, at least one warning must match the regex.
         """
         start = len(self._warnings)
         yield
-        emitted = len(self._warnings) - start
-        if count is not None and emitted != count:
-            assert False, '%d warnings emitted, %d expected' % (emitted, count)
-        elif count is None and not emitted:
-            assert False, 'No warnings emitted, at least one expected'
-        if regex is not None:
-            rx = re.compile(regex)
-            for msg in self._warnings[start:]:
-                if rx.search(msg):
-                    break
-            else:
-                assert False, 'No warning matches %r' % regex
+        self._assert_msglist_contains('warnings', self._warnings[start:],
+                                      regex, count)
+
+    @contextlib.contextmanager
+    def assert_errors(self, regex=None, count=None):
+        """Check the errors that the context code emits.
+
+        If *count* is given, exactly *count* errors must be emitted.  If
+        *regex* is given, at least one error must match the regex.
+        """
+        start = len(self._errors)
+        self._raising = False
+        yield
+        self._raising = True
+        self._assert_msglist_contains('errors', self._errors[start:],
+                                      regex, count)
 
     def get_messages(self):
         return self._messages
