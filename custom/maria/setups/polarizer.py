@@ -6,6 +6,7 @@ group = "optional"
 tango_base = "tango://phys.maria.frm2:10000/maria"
 tango_s7 = tango_base + "/FZJS7"
 tango_dio = tango_base + "/FZJDP_Digital"
+tango_ps = tango_base + "/toellner"
 
 devices = dict(
     pol = device("devices.tango.Motor",
@@ -39,4 +40,15 @@ devices = dict(
                           "up": 1,
                       }
                      ),
+    pow4curr1 = device("devices.tango.PowerSupply",
+                       description = "Power supply 4 current control ch 1",
+                       tangodevice = tango_ps + "/pow4curr1",
+                       unit = 'A',
+                      ),
+
+    pow4curr2 = device("devices.tango.PowerSupply",
+                       description = "Power supply 4 current control ch 2",
+                       tangodevice = tango_ps + "/pow4curr2",
+                       unit = 'A',
+                      ),
 )
