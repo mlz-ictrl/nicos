@@ -31,7 +31,7 @@ from collections import OrderedDict, namedtuple
 from struct import pack
 
 from nicos import custom_version, nicos_version, session
-from nicos.core import Override
+from nicos.core import Override, Param, dictof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
@@ -192,9 +192,15 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d = self._remove_none_values(d)
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
-        for v in d.values():
+        for k, v in d.items():
             if not isinstance(v, string_types):
                 self._write_float(v)
+            elif v in self.sink.mapping:
+                self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
+                self._write_float(self.sink.mapping[v])
+            else:
+                self.log.warning('%s = %r', k, v)
+                self._write_float(0)
 
     def _write_mm1(self, d):
         data = 'MM1'
@@ -658,6 +664,18 @@ class CaressScanfileSink(FileSink):
     """A data sink that writes the CARESS file format."""
 
     handlerclass = CaressScanfileSinkHandler
+
+    parameters = {
+        # Since some devices gives strings back as read values, but the CARESS
+        # format does not accept strings they must be mapped to numbers
+        'mapping': Param('Mapping of (string) device values to float values',
+                         unit='', settable=False,
+                         type=dictof(str, float),
+                         default={'on': 1,
+                                  'off': 0,
+                                  'open': 1,
+                                  'closed': 0}),
+    }
 
     parameter_overrides = {
         'settypes': Override(default=[SCAN, SUBSCAN]),
