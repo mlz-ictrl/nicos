@@ -52,7 +52,7 @@ devices = dict(
     ),
     axis_motor = device('devices.generic.VirtualMotor',
         unit = 'mm',
-        initval = 0,
+        curvalue = 0,
         abslimits = (-100, 100),
     ),
     axis = device('devices.generic.Axis',

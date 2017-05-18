@@ -29,7 +29,7 @@ includes = ['axis', 'detector']
 devices = dict(
     motor2 = device('devices.generic.VirtualMotor',
                     unit = 'deg',
-                    initval = 0,
+                    curvalue = 0,
                     abslimits = (0, 5),
                    ),
 
@@ -46,7 +46,7 @@ devices = dict(
 
     sry    = device('devices.generic.VirtualMotor',
                     unit = 'deg',
-                    initval = 0,
+                    curvalue = 0,
                     abslimits = (-360, 360),
                    ),
 

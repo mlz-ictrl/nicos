@@ -29,7 +29,7 @@ includes = ['stdsystem']
 devices = dict(
     vmotor = device('devices.generic.VirtualMotor',
         unit = 'mm',
-        initval = 0,
+        curvalue = 0,
         abslimits = (-100, 100),
     ),
 )
