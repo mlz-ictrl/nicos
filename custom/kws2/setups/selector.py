@@ -30,7 +30,7 @@ devices = dict(
                              fmtstr = '%.0f',
                              warnlimits = (6500, 28200),
                              abslimits = (6500, 28200),
-                             precision = 10,
+                             precision = 50,
                              window = 30,
                              timeout = 300.0,
                             ),

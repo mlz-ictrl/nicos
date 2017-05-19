@@ -54,7 +54,7 @@ watchlist = [
     dict(condition = 'det_kwscounting and (chopper1_freq_status[0] == WARN or '
                      'chopper2_freq_status[0] == WARN)',
          message = 'Chopper off, but not in parking position',
-         gracetime = 1,
+         gracetime = 10,
          type = 'default',
     ),
 ]

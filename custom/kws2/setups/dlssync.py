@@ -10,3 +10,7 @@ devices = dict(
                  tangodevice = tango_base + 'dlssync/io',
                 ),
 )
+
+startupcode = '''
+AddDetector(DLS)
+'''
