@@ -944,7 +944,7 @@ class EditorPanel(Panel):
         fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
         if fn == '':
             return False
-        if '.' not in fn:
+        if not fn.endswith(('.py', '.txt')):
             fn += defaultext
         fn = fn.encode(sys.getfilesystemencoding())
         self.addToRecentf(fn)
