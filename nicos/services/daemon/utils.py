@@ -64,7 +64,7 @@ def formatScript(script, prompt='>>>'):
         else:
             start = prompt + '-'*20 + ' ' + script.name
         end = '-' * (16 + len(prompt)) + (' <<<' if prompt == '>>>' else '----')
-        text = _excessive_ws_re.sub('\n', script.text)
+        text = _excessive_ws_re.sub('\n', script.text + '\n')
         return '%s\n%s%s' % (start, text, end)
 
 

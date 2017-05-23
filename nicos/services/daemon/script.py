@@ -215,6 +215,7 @@ class ScriptRequest(Request):
                                       'part of the code')
             # everything is ok, replace the script and the remaining blocks
             self.text = text
+            session.scriptEvent('update', (self.name, self.text))
             # also set the updating user as the new user of the script
             # (but the old userlevel remains)
             self.user = user.name

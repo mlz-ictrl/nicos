@@ -1269,6 +1269,8 @@ class Session(object):
             self._script_start = currenttime()
             self._script_name = data[0]
             self._script_text = data[1]
+        elif eventtype == 'update':
+            self._script_text = data[1]
         elif eventtype == 'exception':
             self.logUnhandledException(data)
             # don't raise exceptions on exceptions
