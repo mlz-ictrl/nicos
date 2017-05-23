@@ -392,7 +392,6 @@ def test_device_commands(session, log):
     det = session.getDevice('det')
     finish(det)
 
-
     with log.assert_errors('has no reference function'):
         reference(motor)
     axis = session.getDevice('nocoder_axis')
