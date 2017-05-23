@@ -26,6 +26,7 @@
     <file alias="refresh">icons/view-refresh.png</file>
     <file alias="previous">icons/go-previous.png</file>
     <file alias="currentline">icons/go-next.png</file>
+    <file alias="errorline">icons/go-next-red.png</file>
     <file alias="sunny">icons/weather-clear.png</file>
     <file alias="next">icons/go-next1.png</file>
     <file alias="paused">icons/hop.png</file>

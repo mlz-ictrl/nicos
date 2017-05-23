@@ -36,7 +36,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
-    BREAK_AFTER_LINE, SIM_STATES
+    BREAK_AFTER_LINE, SIM_STATES, STATUS_IDLEEXC
 
 
 class ScriptQueue(object):
@@ -132,6 +132,7 @@ class ScriptStatusPanel(Panel):
         self.current_line = -1
         self.current_request = {}
         self.curlineicon = QIcon(':/currentline')
+        self.errlineicon = QIcon(':/errorline')
         empty = QPixmap(16, 16)
         empty.fill(Qt.transparent)
         self.otherlineicon = QIcon(empty)
@@ -252,11 +253,16 @@ class ScriptStatusPanel(Panel):
             self.traceView.addItem(item)
         self.current_line = -1
 
-    def setCurrentLine(self, line):
+    def setCurrentLine(self, line, error_exit=False):
         if self.current_line != -1:
             item = self.traceView.item(self.current_line - 1)
             if item:
-                item.setIcon(self.otherlineicon)
+                # when a script has exited with an error, keep indicating the
+                # current line, with a red arrow
+                if error_exit and line == -1:
+                    item.setIcon(self.errlineicon)
+                else:
+                    item.setIcon(self.otherlineicon)
             self.current_line = -1
         if 0 < line <= self.traceView.count():
             item = self.traceView.item(line - 1)
@@ -316,9 +322,9 @@ class ScriptStatusPanel(Panel):
             self.on_client_eta(state['eta'])
 
     def on_client_status(self, data):
-        _status, line = data
+        status, line = data
         if line != self.current_line:
-            self.setCurrentLine(line)
+            self.setCurrentLine(line, status == STATUS_IDLEEXC)
 
     def on_client_disconnected(self):
         self.script_queue.clear()
