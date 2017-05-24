@@ -364,10 +364,14 @@ def tcpSocket(host, defaultport, timeout=None):
 
     # open socket and set options
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if timeout:
-        s.settimeout(timeout)
+    try:
+        if timeout:
+            s.settimeout(timeout)
     # connect
-    s.connect((host, int(port)))
+        s.connect((host, int(port)))
+    except socket.error:
+        closeSocket(s)
+        raise
     return s
 
 
