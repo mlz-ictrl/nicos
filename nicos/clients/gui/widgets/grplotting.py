@@ -326,25 +326,25 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             self.window.statusBar.clearMessage()
 
     def addPlotCurve(self, plotcurve, replot=False):
-        curve = next((c for c in self._axes.getCurves()
-                      if c.legend == plotcurve.legend), None)
-        if curve and not replot:
+        existing_curve = next((c for c in self._axes.getCurves()
+                               if c.legend == plotcurve.legend), None)
+        if existing_curve and not replot:
             # update curve
-            curve.x, curve.y = plotcurve.x, plotcurve.y
-            if plotcurve.errorBar1 and curve.errorBar1:
-                mcolor = curve.errorBar1.markercolor
-                curve.errorBar1 = plotcurve.errorBar1
-                curve.errorBar1.markercolor = mcolor
+            existing_curve.x, existing_curve.y = plotcurve.x, plotcurve.y
+            if plotcurve.errorBar1 and existing_curve.errorBar1:
+                mcolor = existing_curve.errorBar1.markercolor
+                existing_curve.errorBar1 = plotcurve.errorBar1
+                existing_curve.errorBar1.markercolor = mcolor
             else:
-                curve.errorBar1 = plotcurve.errorBar1
-            if plotcurve.errorBar2 and curve.errorBar2:
-                mcolor = curve.errorBar2.markercolor
-                curve.errorBar2 = plotcurve.errorBar2
-                curve.errorBar2.markercolor = mcolor
+                existing_curve.errorBar1 = plotcurve.errorBar1
+            if plotcurve.errorBar2 and existing_curve.errorBar2:
+                mcolor = existing_curve.errorBar2.markercolor
+                existing_curve.errorBar2 = plotcurve.errorBar2
+                existing_curve.errorBar2.markercolor = mcolor
             else:
-                curve.errorBar2 = plotcurve.errorBar2
-            if plotcurve not in self.plotcurves:
-                self.plotcurves.append(plotcurve)
+                existing_curve.errorBar2 = plotcurve.errorBar2
+            if existing_curve not in self.plotcurves:
+                self.plotcurves.append(existing_curve)
         else:
             color = self._color.getNextColorIndex()
             plotcurve.linecolor = color
