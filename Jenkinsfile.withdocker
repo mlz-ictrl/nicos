@@ -326,14 +326,12 @@ fi
 // ************* Start main script ***/
 timestamps {
 
-stage(name: 'checkout code: ' + GERRIT_PROJECT) {
-    node('master') {
+node('master') {
+    stage(name: 'checkout code: ' + GERRIT_PROJECT) {
         checkoutSource()
     }
-}
 
-stage(name: 'prepare') {
-    node('master') {
+    stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'), string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
             docker.image('localhost:5000/nicos-jenkins:xenial').inside(){
                 sh  '''\
@@ -345,10 +343,7 @@ export PYTHONIOENCODING=utf-8
             }
         }
     }
-}
 
-//
-node('master') {
 u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
 u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
 
@@ -409,7 +404,8 @@ parallel pylint: {
     }
 },
 failFast: false
-}
+
 /*** set final vote **/
 setGerritReview()
+}
 }
