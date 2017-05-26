@@ -57,7 +57,7 @@ def prepare(session, dataroot):
     tthm.maw(69)
     transm = session.getDevice('transm')
     wav = session.getDevice('wav')
-    assert wav.plane == ''
+    assert wav.plane == ''  # pylint: disable=compare-to-empty-string
     transm.maw('Ge')
     wav.plane = '311'
     wav.maw(1.7)
