@@ -217,6 +217,7 @@ class TestSinks(object):
         assert data.started
         assert data.finished
         assert data.info == 'scan(motor2, 0, 1, 5, det, tdev, t=0.005)'
+        # pylint: disable=len-as-condition
         assert len(data.metainfo)
         assert len(data.envvaluelists)
         assert len(data.devvaluelists)
@@ -231,10 +232,10 @@ class TestSinks(object):
     def test_fits_sink(self, session):
         fitsfile = path.join(session.experiment.datapath, '00000168.fits')
         assert path.isfile(fitsfile)
-        ffile = pyfits.open(fitsfile)
-        hdu = ffile[0]
-        assert hdu.data.shape == (128, 128)
-        assert hdu.header['Exp/proposal'] == 'p1234'
+        with pyfits.open(fitsfile) as ffile:
+            hdu = ffile[0]
+            assert hdu.data.shape == (128, 128)
+            assert hdu.header['Exp/proposal'] == 'p1234'
 
     @pytest.mark.skipif(not quickyaml, reason='QuickYAML library missing')
     def test_yaml_sink_1(self, session):
@@ -258,7 +259,8 @@ class TestSinks(object):
     def test_yaml_sink_2(self, session):
         yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
         assert path.isfile(yamlfile)
-        contents = yaml.load(open(yamlfile))
+        with open(yamlfile) as df:
+            contents = yaml.load(df)
         assert contents['instrument']['name'] == 'INSTR'
         assert contents['experiment']['proposal'] == 'p1234'
         assert contents['measurement']['sample']['description']['name'] == \
