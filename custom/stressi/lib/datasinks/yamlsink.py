@@ -267,6 +267,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         if not quickyaml:
             self._file = TextIOWrapper(fp)
         else:
+            fp.close()
             self._file = io.FileIO(self._filepath, 'w')
 
         self._data['instrument'] = self._dict()

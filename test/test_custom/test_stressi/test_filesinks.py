@@ -87,5 +87,7 @@ class TestSinks(object):
     @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
     def test_yaml_file_content(self, session):
         yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
-        contents = yaml.load(open(yamlfile))
+
+        with open(yamlfile) as df:
+            contents = yaml.load(df)
         assert contents['experiment']
