@@ -41,6 +41,7 @@ change-merged''',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
                                       branches: [[compareType: 'PLAIN', pattern: 'master'],
+                                                 [compareType: 'PLAIN', pattern: 'pylint17'],
                                                  ],
                                       topics: [[compareType: 'PLAIN', pattern: 'pylint17']]
                                  ]],
