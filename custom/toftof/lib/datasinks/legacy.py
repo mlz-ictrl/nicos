@@ -34,7 +34,6 @@ from nicos.pycompat import from_maybe_utf8, to_utf8
 
 from nicos.toftof import calculations as calc
 from nicos.toftof.datasinks.base import TofSink, TofSinkHandler
-from nicos.utils import syncFile
 
 import numpy as np
 
@@ -239,7 +238,7 @@ class TofImageSinkHandler(TofSinkHandler):
         for line in lines:
             f.write(to_utf8('%s\n' % line))
         np.savetxt(f, data, '%d')
-        syncFile(f)
+        f.close()
         self.log.debug('Rename from %s to %s', f.filepath, fp.filepath)
         os.rename(f.filepath, fp.filepath)
 
@@ -259,6 +258,8 @@ class TofImageSinkHandler(TofSinkHandler):
         self._writeLogs(self._logfile, self.dataset.valuestats)
         if self._datafile:
             self._datafile.close()
+        if self._logfile:
+            self._logfile.close()
 
 
 class TofImageSink(TofSink):
