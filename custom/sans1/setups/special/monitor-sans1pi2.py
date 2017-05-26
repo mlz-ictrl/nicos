@@ -116,12 +116,16 @@ _st1 = Block('Sample Table 1', [
 
 _htf03 = Block('HTF03', [
     BlockRow(
-             Field(name='Temperature', dev='T_htf03', format='%.2f', unit='C', width=12),
-             Field(name='Target', key='t_htf03/target', format='%.2f', unit='C', width=12),
+             Field(name='Temperature', dev='T_htf03', format='%.2f', unit='C',
+                   width=12),
+             Field(name='Target', key='t_htf03/target', format='%.2f', unit='C',
+                   width=12),
              ),
     BlockRow(
-             Field(name='Setpoint', key='t_htf03/setpoint', format='%.1f', unit='C', width=12),
-             Field(name='Heater Power', key='t_htf03/heaterpower', format='%.1f', unit='%', width=12),
+             Field(name='Setpoint', key='t_htf03/setpoint', format='%.1f',
+                   unit='C', width=12),
+             Field(name='Heater Power', key='t_htf03/heaterpower',
+                   format='%.1f', unit='%', width=12),
              #Field(name='Vacuum', key='htf03_p'),
             ),
     BlockRow(
@@ -156,12 +160,16 @@ _htf03_plot = Block('HTF03 plot', [
 
 _htf01 = Block('HTF01', [
     BlockRow(
-             Field(name='Temperature', dev='T_htf01', format='%.2f', unit='C', width=12),
-             Field(name='Target', key='t_htf01/target', format='%.2f', unit='C', width=12),
+             Field(name='Temperature', dev='T_htf01', format='%.2f', unit='C',
+                   width=12),
+             Field(name='Target', key='t_htf01/target', format='%.2f',
+                   unit='C', width=12),
              ),
     BlockRow(
-             Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f', unit='C', width=12),
-             Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f', unit='%', width=12),
+             Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f',
+                   unit='C', width=12),
+             Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f',
+                   unit='%', width=12),
              #Field(name='Vacuum', key='htf01_p'),
             ),
     BlockRow(
@@ -463,13 +471,39 @@ _sans1crane = Column(
 
 _sans1julabo = Block('Julabo', [
     BlockRow(
-             Field(name='Target', key='T_julabo/target'),
-             Field(name='Setpoint', key='T_julabo/setpoint'),
+             Field(name='Temperature Intern', dev='T_julabo_intern', format='%.2f',
+                   unit='C', width=16),
+             Field(name='Target Intern', key='T_julabo_intern/target', format='%.2f',
+                   unit='C', width=16),
              ),
     BlockRow(
-             Field(name='Intern', dev='T_intern'),
-             Field(name='Extern', dev='T_julabo'),
+             Field(name='Setpoint Intern', key='T_julabo_intern/setpoint', format='%.1f',
+                   unit='C', width=16),
+             Field(name='Heater Power Intern', key='T_julabo_intern/heateroutput',
+                   format='%.1f', unit='%', width=16),
+            ),
+    BlockRow(
+             Field(name='P Intern', key='T_julabo_intern/p', format='%.2f'),
+             Field(name='I Intern', key='T_julabo_intern/i', format='%i'),
+             Field(name='D Intern', key='T_julabo_intern/d', format='%i'),
+            ),
+    BlockRow(
+             Field(name='Temperature Extern', dev='T_julabo_extern', format='%.2f',
+                   unit='C', width=16),
+             Field(name='Target Extern', key='T_julabo_extern/target', format='%.2f',
+                   unit='C', width=16),
              ),
+    BlockRow(
+             Field(name='Setpoint Extern', key='T_julabo_extern/setpoint', format='%.1f',
+                   unit='C', width=16),
+             Field(name='Heater Power Extern', key='T_julabo_extern/heateroutput',
+                   format='%.1f', unit='%', width=16),
+            ),
+    BlockRow(
+             Field(name='P Extern', key='T_julabo_extern/p', format='%.2f'),
+             Field(name='I Extern', key='T_julabo_extern/i', format='%i'),
+             Field(name='D Extern', key='T_julabo_extern/d', format='%i'),
+            ),
     ],
     setups='julabo',
 )
@@ -477,17 +511,17 @@ _sans1julabo = Block('Julabo', [
 _julabo_plot = Block('Julabo plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotwindow=1800,
-              devices=['T_julabo', 'T_julabo/setpoint'],
-              names=['T 30min', 'Setpoint'],
+              width=60, height=30, plotwindow=1800,
+              devices=['T_julabo_intern', 'T_julabo_extern'],
+              names=['T intern 30min','T extern 30min'],
               legend=True,
               ),
     ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotwindow=12*3600,
-              devices=['T_julabo', 'T_julabo/setpoint'],
-              names=['T 12h', 'Setpoint'],
+              width=60, height=30, plotwindow=12*3600,
+              devices=['T_julabo_intern', 'T_julabo_extern'],
+              names=['T intern 12h','T extern 12h'],
               legend=True,
               ),
     ),
@@ -498,15 +532,19 @@ _julabo_plot = Block('Julabo plot', [
 _fg1 = Block('FG 1 - Sample', [
     BlockRow(
              Field(name='On/Off', dev='tisane_fg1', width=12),
-             Field(name='Frequency', key='tisane_fg1/frequency', format='%.3f', unit='Hz', width=12),
+             Field(name='Frequency', key='tisane_fg1/frequency', format='%.3f',
+                   unit='Hz', width=12),
              ),
     BlockRow(
-             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
-             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+             Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f',
+                   unit='V', width=12),
+             Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V',
+                   width=12),
              ),
     BlockRow(
              Field(name='Shape', key='tisane_fg1/shape', width=12),
-             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+             Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%',
+                   width=12),
              ),
     ],
     setups='frequency',
@@ -515,15 +553,19 @@ _fg1 = Block('FG 1 - Sample', [
 _fg2 = Block('FG 2 - Detector', [
     BlockRow(
              Field(name='On/Off', dev='tisane_fg2', width=12),
-             Field(name='Frequency', key='tisane_fg2/frequency', format='%.3f', unit='Hz', width=12),
+             Field(name='Frequency', key='tisane_fg2/frequency', format='%.3f',
+                   unit='Hz', width=12),
              ),
     BlockRow(
-             Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
-             Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V', width=12),
+             Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f',
+                   unit='V', width=12),
+             Field(name='Offset', key='tisane_fg2/offset', format='%.2f',
+                   unit='V', width=12),
              ),
     BlockRow(
              Field(name='Shape', key='tisane_fg2/shape', width=12),
-             Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
+             Field(name='Dutycycle', key='tisane_fg2/duty', format='%i',
+                   unit='%', width=12),
              ),
     ],
     setups='frequency',
