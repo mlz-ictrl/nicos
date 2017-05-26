@@ -42,7 +42,7 @@ from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
     LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
     ACTIVE_COMMANDS, command2code, code2event
 from nicos.pycompat import to_utf8
-from nicos.utils import createThread, tcpSocket
+from nicos.utils import createThread, tcpSocket, closeSocket
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -274,8 +274,7 @@ class NicosClient(object):
 
     def _close(self):
         try:
-            self.socket._sock.close()
-            self.socket.close()
+            closeSocket(self.socket)
         except Exception:
             pass
         self.socket = None
