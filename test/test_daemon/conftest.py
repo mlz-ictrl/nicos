@@ -41,7 +41,9 @@ from test.utils import startSubprocess, killSubprocess, daemon_addr
 def daemon_wait_cb():
     start = time.time()
     wait = 10
+    s = None
     while time.time() < start + wait:
+
         try:
             s = tcpSocket(daemon_addr, 0)
         except socket.error:
@@ -57,8 +59,10 @@ def daemon_wait_cb():
             s.send(ENQ + command2code['quit'] +
                    LENGTH.pack(len(empty)) + empty)
             s.recv(1024)
-            s.close()
             break
+        finally:
+            if s:
+                s.close()
     else:
         raise Exception('daemon failed to start within %s sec' % wait)
 
