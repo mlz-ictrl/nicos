@@ -515,7 +515,10 @@ def chunks(iterable, size):
     sourceiter = iter(iterable)
     while True:
         chunkiter = islice(sourceiter, size)
-        yield chain([next(chunkiter)], chunkiter)
+        nextchunk = next(chunkiter, Ellipsis)
+        if nextchunk is Ellipsis:
+            return
+        yield chain([nextchunk], chunkiter)
 
 
 def importString(import_name, prefixes=()):
