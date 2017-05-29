@@ -11,7 +11,7 @@ properties([
                description: '', name: 'GERRIT_PROJECT'),
         string(defaultValue: 'refs/heads/master',
                description: '', name: 'GERRIT_BRANCH'),
-        string(defaultValue: 'refs/heads/master',
+        string(defaultValue: 'refs/heads/release-2.13',
                description: '', name: 'GERRIT_REFSPEC'),
         choice(choices: '''\
 patchset-created
@@ -39,7 +39,7 @@ change-merged''',
                                      [pattern: 'frm2/nicos/nicos-core',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
-                                      branches: [[compareType: 'PLAIN', pattern: 'master'],
+                                      branches: [[compareType: 'PLAIN', pattern: 'release-2.13']
                                                  [compareType: 'PLAIN', pattern: 'newprotocol'],
                                                  [compareType: 'PLAIN', pattern: 'release-2.12'],
                                                  [compareType: 'PLAIN', pattern: 'release-2.11']],
