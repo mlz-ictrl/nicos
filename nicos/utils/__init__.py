@@ -74,7 +74,7 @@ def deprecated(since=nicos_version, comment=''):
         @wraps(f)
         def new_func(*args, **options):
             for l in [msg, comment]:
-                session.log.warn(l)
+                session.log.warning(l)
             return f(*args, **options)
         new_func.__doc__ += ' %s %s' % (msg, comment)
         return new_func
