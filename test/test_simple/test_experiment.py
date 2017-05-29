@@ -42,7 +42,7 @@ year = time.strftime('%Y')
 session_setup = 'asciisink'
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def cleanup(session):
     """Ensure to make all data pathes writable again"""
 

@@ -41,7 +41,7 @@ from test.utils import cleanup, startCache, startSubprocess, killSubprocess, \
 
 # This fixture will run during the entire test suite.  Therefore, the special
 # cache stresstests must use a different port.
-@pytest.yield_fixture(scope='session', autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def setup_test_suite():
     """General test suite setup (handles cacheserver and elog server)"""
     # make the test suite run the same independent of the hostname
@@ -60,7 +60,7 @@ def setup_test_suite():
     killSubprocess(cache)
 
 
-@pytest.yield_fixture(scope='class')
+@pytest.fixture(scope='class')
 def session(request):
     """Test session fixture"""
 

@@ -62,7 +62,7 @@ year = time.strftime('%Y')
 session_setup = 'data'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def setup_module(session):
     """Setup dataroot and generate a dataset by scanning"""
     exp = session.experiment

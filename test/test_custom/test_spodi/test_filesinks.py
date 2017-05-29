@@ -34,7 +34,7 @@ session_setup = 'spodi'
 exp_dataroot = 'spodidata'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
     """Prepare SPODI dataset"""
 

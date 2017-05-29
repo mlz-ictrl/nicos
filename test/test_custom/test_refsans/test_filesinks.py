@@ -42,7 +42,7 @@ session_setup = 'refsans'
 exp_dataroot = 'refsansdata'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
     """Prepare a dataset for refsans"""
 

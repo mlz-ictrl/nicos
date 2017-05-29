@@ -31,7 +31,7 @@ import pytest
 session_setup = 'spodi'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def prepare(session):
     """Prepare for SPODI tests"""
 

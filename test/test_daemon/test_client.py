@@ -31,7 +31,7 @@ from nicos.protocols.daemon import STATUS_IDLE
 from test.utils import raises
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def simple_mode(client):
     """Run nicos session in SimpleMode"""
 

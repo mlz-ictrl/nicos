@@ -40,7 +40,7 @@ session_setup = 'cachestress'
 all_setups = ['cache_db', 'cache_mem', 'cache_mem_hist']
 
 
-@pytest.yield_fixture(scope='module', autouse=True)
+@pytest.fixture(scope='module', autouse=True)
 def guard_cached_connection():
     """Use CacheClient without local caching"""
 

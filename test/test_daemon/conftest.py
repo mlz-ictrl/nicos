@@ -63,7 +63,7 @@ def daemon_wait_cb():
         raise Exception('daemon failed to start within %s sec' % wait)
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def daemon():
     """Start a nicos daemon"""
 
@@ -121,7 +121,7 @@ class TestClient(NicosClient):
                 break
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def client(daemon):
     """Create a nicos client session and log in"""
     client = TestClient()
@@ -139,7 +139,7 @@ def client(daemon):
         client.disconnect()
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def cliclient(daemon):
     """Create a TextClient session with a cliclient subprocess"""
 
