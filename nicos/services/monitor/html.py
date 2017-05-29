@@ -27,7 +27,6 @@
 import operator
 import functools
 
-from cgi import escape
 from time import sleep, time as currenttime
 from binascii import b2a_base64
 from datetime import datetime
@@ -46,7 +45,8 @@ from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
+from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types, \
+    escape_html
 from nicos.services.monitor.icon import nicos_icon
 from nicos.guisupport.utils import checkSetupSpec, extractKeyAndIndex
 
@@ -312,7 +312,7 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
-            title = escape(self.title),
+            title = escape_html(self.title),
             icon = nicos_icon,
         )
         add(HEAD % headprops)
@@ -344,14 +344,14 @@ class Monitor(BaseMonitor):
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
                 pic = Picture(field.picture, field.width, field.height,
-                              escape(field.name))
+                              escape_html(field.name))
                 blk.add(pic)
             else:
                 # deactivate plots
                 field.plot = None
                 # create name label
                 flabel = field._namelabel = Label('name', field.width,
-                                                  escape(field.name))
+                                                  escape_html(field.name))
                 blk.add(flabel)
                 blk.add('</td></tr><tr><td>')
                 # create value label
@@ -370,7 +370,8 @@ class Monitor(BaseMonitor):
                     block = block[0]
                     blk = Block(blockconfig)
                     blk.add('<div class="block">')
-                    blk.add('<div class="blockhead">%s</div>' % escape(block[0]))
+                    blk.add('<div class="blockhead">%s</div>' %
+                            escape_html(block[0]))
                     blk.add('\n    <table class="blocktable">')
                     for row in block[1]:
                         if row is None:
@@ -473,12 +474,12 @@ class Monitor(BaseMonitor):
                 self.signal(field, 'keyChange', field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
-        return escape(text) + ' <span class="unit">%s</span><span ' \
-            'class="fixed">%s</span> ' % (escape(unit), fixed)
+        return escape_html(text) + ' <span class="unit">%s</span><span ' \
+            'class="fixed">%s</span> ' % (escape_html(unit), fixed)
 
     def switchWarnPanel(self, on):
         if on:
-            self._warnlabel.text = escape(self._currwarnings)
+            self._warnlabel.text = escape_html(self._currwarnings)
         else:
             self._warnlabel.text = ''
 
