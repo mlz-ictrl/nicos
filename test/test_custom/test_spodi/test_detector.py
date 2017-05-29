@@ -33,6 +33,8 @@ session_setup = 'spodi'
 
 @pytest.yield_fixture(scope='class', autouse=True)
 def prepare(session):
+    """Prepare for SPODI tests"""
+
     session.experiment.new(0, user='user')
 
     # Check correct detector configuration

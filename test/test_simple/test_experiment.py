@@ -44,6 +44,8 @@ session_setup = 'asciisink'
 
 @pytest.yield_fixture()
 def cleanup(session):
+    """Ensure to make all data pathes writable again"""
+
     yield
     # clean up "disabled" directory so that the next test run can remove it
     if path.isdir(datapath('p999')):

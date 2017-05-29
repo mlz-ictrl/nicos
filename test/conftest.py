@@ -43,6 +43,7 @@ from test.utils import cleanup, startCache, startSubprocess, killSubprocess, \
 # cache stresstests must use a different port.
 @pytest.yield_fixture(scope='session', autouse=True)
 def setup_test_suite():
+    """General test suite setup (handles cacheserver and elog server)"""
     # make the test suite run the same independent of the hostname
     os.environ['INSTRUMENT'] = 'test'
     try:
@@ -61,6 +62,8 @@ def setup_test_suite():
 
 @pytest.yield_fixture(scope='class')
 def session(request):
+    """Test session fixture"""
+
     nicos_session.__class__ = TestSession
     nicos_session.__init__(request.module.__name__)
     # override the sessionid: test module, and a finer resolved timestamp
@@ -81,6 +84,8 @@ def session(request):
 
 @pytest.fixture(scope='class')
 def dataroot(request, session):
+    """Dataroot handling fixture"""
+
     exp = session.experiment
     dataroot = path.join(config.nicos_root, request.module.exp_dataroot)
     os.makedirs(dataroot)
@@ -99,6 +104,7 @@ def dataroot(request, session):
 
 @pytest.fixture
 def log(session):
+    """Clear nicos log handler content"""
     handler = session.testhandler
     handler.clear()
     return handler

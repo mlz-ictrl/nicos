@@ -29,6 +29,8 @@ from test.utils import startSubprocess, killSubprocess
 
 @pytest.yield_fixture(scope='module')
 def console():
+    """Run a nicos console (aka AIO)"""
+
     console = startSubprocess('aio', piped=True)
     yield console
     killSubprocess(console)

@@ -64,6 +64,7 @@ session_setup = 'data'
 
 @pytest.yield_fixture(scope='class', autouse=True)
 def setup_module(session):
+    """Setup dataroot and generate a dataset by scanning"""
     exp = session.experiment
     dataroot = path.join(config.nicos_root, 'testdata')
     os.makedirs(dataroot)

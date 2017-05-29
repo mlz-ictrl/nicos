@@ -65,6 +65,8 @@ def daemon_wait_cb():
 
 @pytest.yield_fixture(scope='module')
 def daemon():
+    """Start a nicos daemon"""
+
     daemon = startSubprocess('daemon', wait_cb=daemon_wait_cb)
     yield
     killSubprocess(daemon)
@@ -121,6 +123,7 @@ class TestClient(NicosClient):
 
 @pytest.yield_fixture(scope='module')
 def client(daemon):
+    """Create a nicos client session and log in"""
     client = TestClient()
     parsed = parseConnectionString('user:user@' + daemon_addr, 0)
     client.connect(ConnectionData(**parsed))
@@ -138,6 +141,8 @@ def client(daemon):
 
 @pytest.yield_fixture(scope='module')
 def cliclient(daemon):
+    """Create a TextClient session with a cliclient subprocess"""
+
     if os.name != 'posix':
         # text client needs the readline C library
         pytest.skip('text client not available on this system')

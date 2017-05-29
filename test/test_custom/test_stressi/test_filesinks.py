@@ -46,6 +46,8 @@ exp_dataroot = 'stressidata'
 
 @pytest.yield_fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
+    """Prepare a dataset for StressSpec"""
+
     session.experiment.setDetectors(['adet'])
 
     # Create devices needed in data sinks

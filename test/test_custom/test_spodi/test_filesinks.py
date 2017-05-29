@@ -36,6 +36,8 @@ exp_dataroot = 'spodidata'
 
 @pytest.yield_fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
+    """Prepare SPODI dataset"""
+
     session.experiment.setDetectors(['adet'])
     # Create devices needed in data sinks
     for dev in ['omgs', 'tths']:

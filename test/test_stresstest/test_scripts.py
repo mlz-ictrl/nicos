@@ -86,11 +86,14 @@ class ScriptSessionTest(ScriptSession):
 
 @pytest.fixture()
 def session(request):
+    """Script test session fixture"""
+
     from nicos import session
     session.__class__ = ScriptSessionTest
     session.__init__('TestScriptSession')
     yield session
     session.shutdown()
+
 
 def run_script_session(session, setup, code):
     session.handleInitialSetup(setup)
