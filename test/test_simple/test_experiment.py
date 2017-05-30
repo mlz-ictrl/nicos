@@ -105,7 +105,7 @@ def test_experiment(session, cleanup):
     assert exp.title == 'etitle'
     assert exp.localcontact == 'me <m.e@me.net>'
     assert exp.users == 'you'
-    assert exp.remark == ''
+    assert exp.remark == ''  #pylint: disable=compare-to-empty-string
 
     # check that directories have been created
     assert path.isdir(datapath('p999'))
@@ -140,7 +140,7 @@ def test_experiment(session, cleanup):
     # switch back to proposal (should re-enable directory)
     exp.new('p999', localcontact=exp.localcontact)
     assert os.access(datapath('p999'), os.X_OK)
-    assert exp.users == ''
+    assert exp.users == ''  #pylint: disable=compare-to-empty-string
     # has the zip file been created?
     assert path.isfile(datapath('p999', 'p999.zip'))
 
