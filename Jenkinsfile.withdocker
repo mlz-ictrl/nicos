@@ -380,7 +380,7 @@ parallel pylint: {
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             ws {
                 checkoutSource()
-                docker.image('localhost:5000/nicos-jenkins:latest') {
+                docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
                     runTests('$NICOSVENV', 'python2-centos', false)
                 }
             }
