@@ -29,6 +29,6 @@ alias_config = {
     'Ts': {'T_sample': 100},
 }
 
-startup_code = """
+startupcode = """
 AddEnvironment(T, Ts)
 """
