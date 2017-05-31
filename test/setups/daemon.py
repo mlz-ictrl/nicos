@@ -37,6 +37,7 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
         server = daemon_addr,
         loglevel = 'debug',
-        authenticators = ['Auth']
+        authenticators = ['Auth'],
+        serializercls = 'nicos.protocols.daemon.classic.JsonSerializer',
     ),
 )

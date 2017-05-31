@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -40,7 +41,7 @@ from nicos.pycompat import to_utf8
 from nicos.utils import createThread
 
 from nicos.clients.proto.classic import ClientTransport
-from nicos.protocols.daemon.classic import Serializer, \
+from nicos.protocols.daemon.classic import \
     PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS
 
 BUFSIZE = 8192
@@ -90,7 +91,7 @@ class NicosClient(object):
         self.user_level = None
         self.last_action_at = 0
 
-        self.transport = ClientTransport(Serializer())
+        self.transport = ClientTransport()
 
     def signal(self, name, *args):
         # must be overwritten

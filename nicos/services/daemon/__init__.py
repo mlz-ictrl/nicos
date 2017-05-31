@@ -31,13 +31,12 @@ import threading
 
 from nicos import nicos_version, config
 from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
-from nicos.utils import createThread
+from nicos.utils import createThread, importString
 from nicos.pycompat import listitems
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
 
-from nicos.protocols.daemon.classic import DEFAULT_PORT, Serializer
-from nicos.services.daemon.proto.classic import Server
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
 class NicosDaemon(Device):
@@ -55,6 +54,16 @@ class NicosDaemon(Device):
         'server':         Param('Address to bind to (host or host[:port])',
                                 type=host, mandatory=True,
                                 ext_desc='The default port is ``1301``.'),
+        'servercls':      Param('Server class used for creating transports '
+                                'to each client',
+                                type=str, mandatory=False,
+                                default='nicos.services.daemon.proto.classic.'
+                                'Server'),
+        'serializercls':  Param('Serializer class used for serializing '
+                                'messages transported from/to the server',
+                                type=str, mandatory=False,
+                                default='nicos.protocols.daemon.classic.'
+                                'ClassicSerializer'),
         'maxlogins':      Param('Maximum number of simultaneous clients '
                                 'served', type=int,
                                 default=10),
@@ -74,6 +83,10 @@ class NicosDaemon(Device):
     }
 
     def doInit(self, mode):
+        # import server and serializer class
+        servercls = importString(self.servercls)
+        serialcls = importString(self.serializercls)
+
         self._stoprequest = False
         # the controller represents the internal script execution machinery
         if self.autosimulate and not config.sandbox_simulation:
@@ -107,7 +120,8 @@ class NicosDaemon(Device):
             host, port = address.split(':')
             port = int(port)
 
-        self._server = Server(self, (host, port), Serializer())
+        # create server (transport + serializer)
+        self._server = servercls(self, (host, port), serialcls())
 
         self._watch_worker = createThread('daemon watch monitor', self._watch_entry)
 

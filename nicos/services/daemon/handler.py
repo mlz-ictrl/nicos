@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -31,6 +32,7 @@ import os
 import base64
 import socket
 import tempfile
+
 try:
     import rsa  # pylint: disable=F0401
 except ImportError:
@@ -200,7 +202,7 @@ class ConnectionHandler(object):
             pubkeyStr = ''
             bannerhashing = hashing
 
-        # announce version and authentication modality
+        # announce version, authentication modality and serializer
         self.send_ok_reply(dict(
             daemon_version = nicos_version,
             custom_version = custom_version,
@@ -209,6 +211,7 @@ class ConnectionHandler(object):
             pw_hashing = bannerhashing,
             rsakey = pubkeyStr,
             protocol_version = self.get_version(),
+            serializer = self.serializer.name,
         ))
 
         # read login credentials
