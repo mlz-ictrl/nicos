@@ -1,0 +1,18 @@
+###### GISANS #######
+
+maw(shutter,'close')
+NewSample("GISANS_resonator_microem_0p28")
+
+maw(s1_left, 1, s1_right, 1, s1_top, 8, s1_bottom, 8)
+maw(s2_left, 1, s2_right, 1, s2_top, 8, s2_bottom, 8)
+#
+maw(wavelength, 10)
+maw(giref, 13000)
+maw(detarm, 5)
+maw(bsd, 20)
+maw(omega, 0.28)
+maw(ds_left,45.5)
+
+maw(shutter,'open')
+timescan(1,7200)
+maw(shutter,'close')

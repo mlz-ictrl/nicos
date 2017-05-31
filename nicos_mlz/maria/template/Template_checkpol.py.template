@@ -1,0 +1,16 @@
+maw(shutter,'close')
+maw(pol, 474000)
+maw(t2t,0)
+maw(analyzer_shift,'in')
+maw(bsd, 15)
+
+NewSample('Checkpol')
+
+maw(shutter,'open')
+sscan(wavelength, 5, 1, 12, 300,  pflipper=['up', 'down'])
+
+
+
+maw(shutter,'close')
+maw(analyzer_shift,'out')
+maw(bsd, 11.25)

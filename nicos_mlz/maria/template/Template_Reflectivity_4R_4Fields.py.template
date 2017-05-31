@@ -1,0 +1,123 @@
+############################
+###### Reflektometrie polarized ######
+############################
+#move(shutter,'close')
+maw(bsd,9.5)
+
+#move(polarizer, 474000)
+
+#move(analyzer_shift,'in')
+maw(analyzer_shift,'out')
+maw (magnet, -33)
+
+NewSample("S-593_2R-RT-Sat")
+
+#!!!!!!
+move(tx, -0.97)
+#!!!!!!
+
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+#move(aflipper,'up')
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,30,pflipper=['up','down'])
+#move(aflipper,'down')
+#sscan(t2t,0.3,0.03,1.3,50,pflipper=['up','down'])
+#move(shutter,'close')
+
+maw(wavelength,6)
+maw(s1_left ,1.2 ,s1_right, 1.2)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(bsd,9)
+#move(aflipper,'up')
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.0, 80,pflipper=['up','down'])
+#move(aflipper,'down')
+#sscan(t2t,1.2, 0.05, 4.8, 120,pflipper=['up','down'])
+maw(shutter,'close')
+
+#move(analyzer_shift,'out')
+#move(shutter,'close')
+
+#move(compressor,'off')
+#move(compressor,'on')
+#configure temperature range 3: call christian 10773
+#move temperature 290
+#move(s1_left,1,s1_right,1,s2_left,.2,s2_right,.2)
+#move(bsd,9.5)
+############PNR at lower filed############
+
+maw (magnet, -33)
+maw (magnet, -15)
+maw (magnet, 0)
+maw (magnet, 15)
+maw (magnet, 33)
+maw (magnet, 15)
+maw (magnet, 0)
+maw (magnet, -0.1)
+maw (magnet, -0.2)
+maw (magnet, -0.4)
+
+NewSample("S-593_4R-RT-p3Amp")
+
+maw(bsd,9.5)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(analyzer_shift,'in')
+maw(aflipper,'up')
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,60,pflipper=['up','down'])
+maw(aflipper,'down')
+sscan(t2t,0.25,0.03,1.3,60,pflipper=['up','down'])
+#maw(shutter,'close')
+
+maw(wavelength,6)
+maw(s1_left ,1.2 ,s1_right, 1.2)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(bsd,9)
+maw(aflipper,'down')
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.0, 140,pflipper=['up','down'])
+maw(aflipper,'up')
+sscan(t2t,1.2, 0.04, 3.0, 140,pflipper=['up','down'])
+#######################################
+
+maw (magnet, -0.8)
+
+maw(bsd,9.5)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(analyzer_shift,'in')
+maw(aflipper,'up')
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,60,pflipper=['up','down'])
+maw(aflipper,'down')
+sscan(t2t,0.25,0.03,1.3,60,pflipper=['up','down'])
+#maw(shutter,'close')
+
+maw(wavelength,6)
+maw(s1_left ,1.2 ,s1_right, 1.2)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(bsd,9)
+maw(aflipper,'down')
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.0, 140,pflipper=['up','down'])
+maw(aflipper,'up')
+sscan(t2t,1.2, 0.04, 3.0, 140,pflipper=['up','down'])
+####################################3
+
+maw(shutter,'close')
+maw(analyzer_shift,'out')
+maw(s1_left,1,s1_right,1,s2_left,.2,s2_right,.2)
+maw(bsd,9.5)
+
+#move(compressor,'off')
+#move(compressor,'on')
+#configure temperature range 3: call christian 10773
+#move temperature 290
