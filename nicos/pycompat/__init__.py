@@ -34,6 +34,7 @@ __all__ = [
     'get_thread_id', 'escape_html', 'b64encode', 'b64decode'
 ]
 
+import inspect
 import threading
 
 from nicos._vendor import six
@@ -65,13 +66,16 @@ except ImportError:
 # base64 encode/decode
 try:
     from base64 import encodebytes as b64encode  # pylint: disable=F0401
+    from base64 import decodebytes as b64decode  # pylint: disable=F0401
 except ImportError:
     from base64 import encodestring as b64encode
-
-try:
-    from base64 import decodebytes as b64decode  # pylint: disable
-except ImportError:
     from base64 import decodestring as b64decode
+
+if six.PY2:
+    getargspec = inspect.getargspec
+else:
+    def getargspec(func):
+        return inspect.getfullargspec(func)[:4]
 
 # missing dict helpers to get a list of items/values
 
