@@ -494,7 +494,7 @@ class LiveDataPanel(Panel):
             self._no_direct_display = True
         if uid:
             array = self._datacache.get(uid, None)
-            if array is not None and len(array):  # pylint: disable=len-as-condition
+            if array is not None and array.size:
                 self.setData(array)
                 return
         self.setDataFromFile(fname, ftag)

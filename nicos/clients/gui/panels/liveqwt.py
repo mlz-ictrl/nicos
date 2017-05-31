@@ -252,7 +252,6 @@ class LiveDataPanel(Panel):
         if self._no_direct_display or not d:
             return
         self.widget.setData(d)
-        # pylint: enable=len-as-condition
 
     def add_to_flist(self, filename, fformat, ftag, cached=False, scroll=True):
         shortname = path.basename(filename)
