@@ -30,9 +30,15 @@ from nicos.utils import safeName
 
 class Experiment(_Experiment):
     """MARIA specific experiment class which creates a subdirectory for each
-    sample."""
+    sample and copies all template files to the corresponding scripts
+    directory."""
 
     def newSample(self, parameters):
         self.sampledir = safeName(parameters["name"])
         _Experiment.newSample(self, parameters)
         self.log.debug("changed samplepath to: %s" % self.samplepath)
+        # expand/copy templates
+        if self.getProposalType(self.proposal) != 'service' and self.templates:
+            params = dict(parameters) if parameters else dict()
+            params.update(self.propinfo)
+            self.handleTemplates(self.proposal, params)
