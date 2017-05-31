@@ -311,6 +311,8 @@ class ClientTransport(object):
 class Serializer(object):
     """Represents a serialization format for commands and events."""
 
+    name = 'undefined'
+
     def serialize_cmd(self, cmdname, args):
         """Serialize arguments payload for the given command.
 

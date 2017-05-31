@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -28,7 +29,7 @@ import socket
 import numpy as np
 
 from nicos.protocols.daemon.classic import ENQ, ACK, NAK, STX, LENGTH, \
-    READ_BUFSIZE, command2code, code2event
+    READ_BUFSIZE, command2code, code2event, SERIALIZERS
 from nicos.protocols.daemon import DAEMON_EVENTS, ProtocolError, \
     ClientTransport as BaseClientTransport
 from nicos.utils import closeSocket, tcpSocket
@@ -36,7 +37,7 @@ from nicos.utils import closeSocket, tcpSocket
 
 class ClientTransport(BaseClientTransport):
 
-    def __init__(self, serializer):
+    def __init__(self, serializer=None):
         self.serializer = serializer
 
         self.sock = None
@@ -92,6 +93,18 @@ class ClientTransport(BaseClientTransport):
             if not read:
                 raise ProtocolError('connection broken')
             buf += read
+
+        if not self.serializer:  # determine serializer class automatically
+            for serializercls in SERIALIZERS.values():
+                try:
+                    candidate = serializercls()
+                    candidate.deserialize_reply(buf, start[0:1] == STX)
+                except Exception:
+                    continue
+                self.serializer = candidate
+                break
+            else:  # no serializer found
+                raise ProtocolError('no serializer found for this connection')
         # XXX: handle errors
         return self.serializer.deserialize_reply(buf, start[0:1] == STX)
 

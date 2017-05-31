@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -88,6 +89,8 @@ for _name, (_, _number) in DAEMON_EVENTS.items():
 
 class ClassicSerializer(BaseSerializer):
 
+    name = 'classic'
+
     # serializing
 
     def serialize_cmd(self, cmdname, args):
@@ -117,6 +120,8 @@ class ClassicSerializer(BaseSerializer):
 
 
 class JsonSerializer(BaseSerializer):
+
+    name = 'json'
 
     def __init__(self):
         self.encoder = json.JSONEncoder(default=self._serialize_default)
@@ -158,4 +163,7 @@ class JsonSerializer(BaseSerializer):
         return evtname, self.decoder.decode(data.decode())
 
 
-Serializer = JsonSerializer
+SERIALIZERS = {
+    ClassicSerializer.name: ClassicSerializer,
+    JsonSerializer.name: JsonSerializer,
+}

@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 """
@@ -30,6 +31,7 @@ import os
 import base64
 import socket
 import tempfile
+
 import rsa
 
 
@@ -169,7 +171,7 @@ class ConnectionHandler(object):
         pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
         bannerhashing = 'rsa,plain'
 
-        # announce version and authentication modality
+        # announce version, authentication modality and serializer
         self.send_ok_reply(dict(
             daemon_version = nicos_version,
             custom_version = get_custom_version(),
@@ -178,6 +180,7 @@ class ConnectionHandler(object):
             pw_hashing = bannerhashing,
             rsakey = pubkeyStr,
             protocol_version = self.get_version(),
+            serializer = self.serializer.name,
         ))
 
         # read login credentials
