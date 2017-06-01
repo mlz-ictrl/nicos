@@ -39,7 +39,9 @@ import gr
 from gr.pygr.base import GRMeta, GRVisibility
 from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
-    Coords2D, PlotCurve
+    Coords2D
+
+from nicos.guisupport.grplotting import MaskedPlotCurve
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
@@ -164,37 +166,6 @@ class Axes(PlotAxes):
             for ypos in self.ylines:
                 gr.polyline([xmin, xmax], [ypos, ypos])
             gr.setlinecolorind(linecolor)
-
-
-class Curve(PlotCurve):
-
-    def __init__(self, *args, **kwargs):
-        # fill values for masked x, y
-        self.fillx = kwargs.pop("fillx", 0)
-        self.filly = kwargs.pop("filly", 0)
-        PlotCurve.__init__(self, *args, **kwargs)
-
-    @property
-    def x(self):
-        x = PlotCurve.x.__get__(self)
-        if numpy.ma.is_masked(x):
-            return x.filled(self.fillx)
-        return x
-
-    @x.setter
-    def x(self, x):
-        PlotCurve.x.__set__(self, x)
-
-    @property
-    def y(self):
-        y = PlotCurve.y.__get__(self)
-        if numpy.ma.is_masked(y):
-            return y.filled(self.filly)
-        return y
-
-    @y.setter
-    def y(self, y):
-        PlotCurve.y.__set__(self, y)
 
 
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
@@ -429,8 +400,8 @@ class IntegralLiveWidget(LiveWidget):
 
         self.plotyint.addAxes(self.axesyint)
         self.plotxint.addAxes(self.axesxint)
-        self.curvey = Curve([0], [0], filly=.1, linecolor=COLOR_BLUE)
-        self.curvex = Curve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
+        self.curvey = MaskedPlotCurve([0], [0], filly=.1, linecolor=COLOR_BLUE)
+        self.curvex = MaskedPlotCurve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
 
         self.axesyint.addCurves(self.curvey)
         self.axesxint.addCurves(self.curvex)
@@ -526,14 +497,22 @@ class LiveWidget1D(LiveWidgetBase):
     def __init__(self, parent):
         LiveWidgetBase.__init__(self, parent)
 
-        self.curve = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.curve = MaskedPlotCurve([0], [0], linecolor=COLOR_BLUE)
         self.axes.setGrid(True)
         self.axes.addCurves(self.curve)
 
     def logscale(self, on):
+        LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
+        self.curve.filly = .1 if self._logscale else 0
+        win = self.axes.getWindow()
+        if win:
+            win[2] = max(.1, win[2])
+            self.axes.setWindow(*win)
         self.gr.update()
 
     def _setData(self, array, nx, ny, nz, newrange):
         self.curve.x = numpy.arange(0, nx)
-        self.curve.y = self._array.ravel()
+        self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
+            numpy.float)
+        self.curve.filly = .1 if self._logscale else 0
