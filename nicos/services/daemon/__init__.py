@@ -233,6 +233,8 @@ class NicosDaemon(Device):
             except queue.Full:
                 # close event socket to let the connection get
                 # closed by the handler
+                self.log.warning('handler %s: queue full, closing socket',
+                                 handler.ident)
                 closeSocket(handler.event_sock)
 
     def emit_event_private(self, event, data):
@@ -246,6 +248,8 @@ class NicosDaemon(Device):
             except queue.Full:
                 # close event socket to let the connection get
                 # closed by the handler
+                self.log.warning('handler %s: queue full, closing socket',
+                                 handler.ident)
                 closeSocket(handler.event_sock)
 
     def clear_handlers(self):
