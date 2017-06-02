@@ -457,16 +457,31 @@ class TestDevice(object):
 
     def test_lists(self, session, log):
         """Check ListParams(), ListMethods(), ListDevices() commands."""
-        motor = session.getDevice('motor')
+        motor = session.createDevice('motor', explicit=True)
         alias = session.getDevice('aliasAxis')
         exp = session.getDevice('Exp')
-        ListParams(motor)
+
+        # create a description with more than 40 chars
+        motor.description = 'Blaahh ' * 10
+        with log.assert_msg_matches([r'\.{3}']):
+            ListParams(motor)
+        motor.description = ''
         # ListParams of the 'aliased' device
-        ListParams(alias)
-        ListMethods(motor)
+        with log.assert_msg_matches(r'\.alias\s*->'):
+            ListParams(alias)
+        with log.assert_msg_matches([r'\.setPosition\(.* Coder',
+                                     r'\.read\(.* Readable',
+                                     r'\.version\(.* Device',
+                                     r'\.fix\(.* Moveable',
+                                     r'\.wait\(.* Waitable']):
+            ListMethods(motor)
         # exp contains 'usermethods' which should be listed too
-        ListMethods(exp)
-        ListDevices()
+        with log.assert_msg_matches([r'\.addUser\(.* Experiment',
+                                     r'\.version\(.* Device']):
+            ListMethods(exp)
+        with log.assert_msg_matches([r'All created devices',
+                                     r'motor\s*VirtualMotor']):
+            ListDevices()
 
     def test_count(self, session, log):
         """Check count() command."""
