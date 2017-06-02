@@ -558,8 +558,23 @@ _cryos = Column(*tuple(cryos))
 _julabo = Column(
     Block('Julabo', [
         BlockRow(
-            Field(name='Intern', dev='T_intern'),
-            Field(name='Extern', dev='T_extern'),
+            Field(name='Intern', dev='T_julabo_intern'),
+            Field(name='Extern', dev='T_julabo_extern'),
+        ),
+        ],
+        setups='julabo',
+    ),
+)
+
+_julabo_plot = Column(
+    Block('Julabo plot', [
+        BlockRow(
+                 Field(plot='julabo 30min', name='T intern 30min', dev='T_julabo_intern',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='julabo 30min', name='T extern 30min', dev='T_julabo_extern'),
+                 Field(plot='julabo 12h', name='T intern 12h', dev='T_julabo_intern',
+                       width=60, height=40, plotwindow=12*3600),
+                 Field(plot='julabo 12h', name='T extern 12h', dev='T_julabo_extern'),
         ),
         ],
         setups='julabo',
@@ -569,15 +584,19 @@ _julabo = Column(
 _tisane_fg1 = Column(
     Block('TISANE Frequency Generator 1 - Sample', [
         BlockRow(
-                Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e', unit='Hz', width=12),
+                Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e',
+                      unit='Hz', width=12),
                 ),
         BlockRow(
-                Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f', unit='V', width=12),
-                Field(name='Offset', key='tisane_fg1/offset', format='%.2f', unit='V', width=12),
+                Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f',
+                      unit='V', width=12),
+                Field(name='Offset', key='tisane_fg1/offset', format='%.2f',
+                      unit='V', width=12),
                 ),
         BlockRow(
                 Field(name='Shape', key='tisane_fg1/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%', width=12),
+                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%',
+                      width=12),
                 ),
         ],
         setups='tisane',
@@ -587,15 +606,19 @@ _tisane_fg1 = Column(
 _tisane_fg2 = Column(
     Block('TISANE Frequency Generator 2 - Detector', [
         BlockRow(
-                Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e', unit='Hz', width=12),
+                Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e',
+                      unit='Hz', width=12),
                 ),
         BlockRow(
-                Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f', unit='V', width=12),
-                Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V', width=12),
+                Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f',
+                      unit='V', width=12),
+                Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V',
+                      width=12),
                 ),
         BlockRow(
                 Field(name='Shape', key='tisane_fg2/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%', width=12),
+                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%',
+                      width=12),
                 ),
         ],
         setups='tisane',
@@ -625,8 +648,10 @@ _tisane_counts = Column(
 _live = Column(
     Block('Live image of Detector', [
         BlockRow(
-            Field(name='Data (lin)', picture='sans1-online/live_lin.png', width=64, height=64),
-            Field(name='Data (log)', picture='sans1-online/live_log.png', width=64, height=64),
+            Field(name='Data (lin)', picture='sans1-online/live_lin.png',
+                  width=64, height=64),
+            Field(name='Data (log)', picture='sans1-online/live_log.png',
+                  width=64, height=64),
         ),
         ],
     ),
@@ -684,7 +709,8 @@ devices = dict(
                                      _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01, _irf01,
                                      _newports, _julabo, _tisane_counts, _tisane_fc,
                                      _tisane_fg1, _tisane_fg2, _helios01),
-                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot, _irf01_plot),
+                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot,
+                                     _irf01_plot, _julabo_plot),
                                  Row(_live),
                                ],
                     ),
