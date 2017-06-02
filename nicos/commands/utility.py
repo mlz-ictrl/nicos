@@ -44,13 +44,13 @@ __all__ = ['floatrange', 'RangeListLog', 'RangeListGeneral']
 def RangeListByStep(start, end=None, inc=None):
     """Generate a list of points within [from;to]
 
-     A range function, that does accept float increments...
+    A range function, that does accept float increments...
 
-     usage example:
-     l1 = RangeList(1,2,0.5)
+    usage example:
+    l1 = RangeList(1,2,0.5)
 
-     l1 will be:  [1., 1.5, 2.]
-     """
+    l1 will be:  [1., 1.5, 2.]
+    """
 
     if end is None:
         end = start + 0.0
@@ -71,23 +71,23 @@ def RangeListByStep(start, end=None, inc=None):
         res[-1] = end
     elif inc < 0 and end - res[-1] > (0.001 * inc):
         res[-1] = end
-    return res
+    return res.tolist()
 
 
 def RangeListByCount(start, end=None, num=2):
     """Generate a list of points within [from;to] with num points.
 
-     A range function, that gives evenly spaced points.
-     Uses simply the numpy.linspace function.
+    A range function, that gives evenly spaced points.
+    Uses simply the numpy.linspace function.
 
-     usage example:
-     l1 = RangeList(1,2,3)
+    usage example:
+    l1 = RangeList(1,2,3)
 
-     l1 will be:  [1., 1.5, 2.]
-     """
+    l1 will be:  [1., 1.5, 2.]
+    """
     if end is None:
         end, start = start, 0.0
-    return numpy.linspace(start, end, num)
+    return numpy.linspace(start, end, num).tolist()
 
 
 @usercommand
@@ -146,7 +146,7 @@ def RangeListLog(start, end, num=10):
     if start <= 0 or end <= 0:
         raise UsageError('Log spacing is only defined for positive values')
 
-    return numpy.logspace(math.log10(start), math.log10(end), num)
+    return numpy.logspace(math.log10(start), math.log10(end), num).tolist()
 
 
 def identity(x):
@@ -185,6 +185,6 @@ def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
         if funcinv is None:
             funcinv = func
         ufuncinv = numpy.frompyfunc(funcinv, 1, 1)
-        return ufuncinv(res).astype(numpy.float64)
+        return ufuncinv(res).astype(numpy.float64).tolist()
     except Exception as e:
         raise RuntimeError(str(e))

@@ -41,20 +41,20 @@ def test_rangelistbystep():
     assert len(l1) == 3
     assert l1[0] == 1.
     assert l1[-1] == 2.
-    assert (l1 == [1., 1.5, 2.]).all()
+    assert l1 == [1., 1.5, 2.]
 
     l1 = RangeListByStep(1, 2, 0.7)
     assert len(l1) == 3
     assert l1[0] == 1.
     assert l1[-1] == 2.
-    assert (l1 == [1., 1.7, 2.]).all()
+    assert l1 == [1., 1.7, 2.]
 
     # start/stop/step
     l1 = RangeListByStep(-1, -2, -0.5)
     assert len(l1) == 3
     assert l1[0] == -1.
     assert l1[-1] == -2.
-    assert (l1 == [-1., -1.5, -2.]).all()
+    assert l1 == [-1., -1.5, -2.]
 
     # start/stop
     l2 = RangeListByStep(1, 3)
@@ -105,15 +105,15 @@ def test_floatrange():
     assert len(l4) == 3
     assert l4[0] == 1.
     assert l4[-1] == 2.
-    assert type(l4[0]) == numpy.float64
-    assert type(l4[-1]) == numpy.float64
+    assert type(l4[0]) == float
+    assert type(l4[-1]) == float
 
     l4 = floatrange(1, 2, num=5)
     assert len(l4) == 5
     assert l4[0] == 1.
     assert l4[-1] == 2.
-    assert type(l4[0]) == numpy.float64
-    assert type(l4[-1]) == numpy.float64
+    assert type(l4[0]) == float
+    assert type(l4[-1]) == float
 
     assert raises(UsageError, floatrange, 1, 2, step=-0.5)
     assert raises(UsageError, floatrange, 1, 2, step=0.5, num=2)

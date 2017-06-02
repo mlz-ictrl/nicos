@@ -62,7 +62,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
 
     session.log.info('Performing 360 deg scan.')
 
-    angles = [180.0] + floatrange(0.0, 360.0, num=nangles).tolist()
+    angles = [180.0] + floatrange(0.0, 360.0, num=nangles)
     with manualscan(*moveables):
         for angle in angles:
             # Move the given movable to the target angle
