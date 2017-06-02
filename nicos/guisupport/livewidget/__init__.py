@@ -168,6 +168,32 @@ class Axes(PlotAxes):
             gr.setlinecolorind(linecolor)
 
 
+class AutoScaleAxes(Axes):
+
+    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
+        dx, dy = 0, 0
+        if self.autoscale & Axes.SCALE_X:
+            dx = xtick
+        if self.autoscale & Axes.SCALE_Y:
+            dy = ytick
+        return xmin - dx, xmax + dx, ymin, ymax + dy
+
+    def doAutoScale(self, curvechanged=None):
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            vc = self.getVisibleCurves() or self.getCurves()
+            c = vc[0]
+            xmin, xmax, ymin, ymax = original_win
+            cxmin, cxmax, cymin, cymax = min(c.x), max(c.x), min(c.y), max(c.y)
+            if cxmax > xmax:
+                return original_win
+            elif cxmin < xmin:
+                return original_win
+            self.setWindow(min(cxmin, xmin), max(cxmax, xmax),
+                           min(cymin, ymin), max(cymax, ymax))
+        return Axes.doAutoScale(self, curvechanged)
+
+
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
 
     def __init__(self, *args, **kwargs):
@@ -497,9 +523,15 @@ class LiveWidget1D(LiveWidgetBase):
     def __init__(self, parent):
         LiveWidgetBase.__init__(self, parent)
 
+        self.plot._lstAxes = []
+        self.plot._countAxes = 0
         self.curve = MaskedPlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.axes = AutoScaleAxes(self, viewport=self.plot.viewport,
+                                  xdual=True)
         self.axes.setGrid(True)
         self.axes.addCurves(self.curve)
+        self.axes.autoscale = PlotAxes.SCALE_Y
+        self.plot.addAxes(self.axes)
 
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
@@ -509,6 +541,12 @@ class LiveWidget1D(LiveWidgetBase):
         if win:
             win[2] = max(.1, win[2])
             self.axes.setWindow(*win)
+        self.gr.update()
+
+    def unzoom(self):
+        self.axes.setWindow(-self.axes.xtick,
+                            self._axesrange[1] + self.axes.xtick,
+                            0, max(1, self.curve.y.max()) + self.axes.ytick)
         self.gr.update()
 
     def _setData(self, array, nx, ny, nz, newrange):

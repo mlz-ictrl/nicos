@@ -84,8 +84,6 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.actionKeepRatio.setChecked(True)
-
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionPrint)
         self.toolbar.addSeparator()
@@ -123,8 +121,13 @@ class LiveDataPanel(Panel):
         if self.widget:
             self.widgetLayout.removeWidget(self.widget)
         self.widget = widgetcls(self)
-        self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
-        self.widget.setColormap(self.widget.getColormap())
+        # set keep ratio defaults for new livewidget instances
+        if isinstance(self.widget, LiveWidget1D):
+            if self.actionKeepRatio.isChecked():
+                self.actionKeepRatio.trigger()
+        elif not self.actionKeepRatio.isChecked():
+            self.actionKeepRatio.trigger()
+        # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
         guiConn = GUIConnector(self.widget.gr)
