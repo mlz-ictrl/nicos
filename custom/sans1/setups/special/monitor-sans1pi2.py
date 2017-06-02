@@ -353,13 +353,13 @@ ccrs = []
 for i in range(10, 22 + 1):
     ccrs.append(Block('CCR%d' % i, [
         BlockRow(
-            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
+            Field(name='Setpoint', key='t_ccr%d/setpoint' % i,
                    unitkey='t/unit'),
-            Field(name='Target', key='t_ccr%d_tube/target' % i,
+            Field(name='Target', key='t_ccr%d/target' % i,
                    unitkey='t/unit'),
         ),
         BlockRow(
-            Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
+            Field(name='Manual Heater Power', key='t_ccr%d/heaterpower' % i,
                    format='%.3f', unitkey='t/unit'),
         ),
         BlockRow(

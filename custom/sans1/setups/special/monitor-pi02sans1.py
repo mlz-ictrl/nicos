@@ -393,13 +393,13 @@ ccrs = []
 for i in range(10, 22 + 1):
     ccrs.append(Block('CCR%d' % i, [
         BlockRow(
-            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
+            Field(name='Setpoint', key='t_ccr%d/setpoint' % i,
                    unitkey='t/unit'),
-            Field(name='Target', key='t_ccr%d_tube/target' % i,
+            Field(name='Target', key='t_ccr%d/target' % i,
                    unitkey='t/unit'),
         ),
         BlockRow(
-            Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
+            Field(name='Manual Heater Power', key='t_ccr%d/heaterpower' % i,
                    format='%.3f', unitkey='t/unit'),
         ),
         BlockRow(
@@ -422,7 +422,7 @@ for k in range(10, 22 + 1):
     T_Ts_plot.append(Block('30min T and Ts plot', [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
-                  width=50, height=15, plotwindow=30*60,
+                  width=50, height=35, plotwindow=30*60,
                   devices=['T', 'Ts', 'T/setpoint', 'T/target'],
                   names=['T', 'Ts', 'Setpoint', 'Target'],
                   legend=True,
