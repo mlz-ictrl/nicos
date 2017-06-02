@@ -149,7 +149,7 @@ def RangeListLog(start, end, num=10):
     >>> RangeListLog(1., 2., 3)
     [1.0, 1.4142135623730949, 2.0]
     """
-    if start < 0 or end < 0:
+    if start <= 0 or end <= 0:
         raise UsageError('Log spacing is only defined for positive values')
 
     return numpy.logspace(math.log10(start), math.log10(end), num)
