@@ -43,8 +43,8 @@ import mock
 import pytest
 
 from nicos import config
-from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
-    status, Attach
+from nicos.core import ACCESS_LEVELS, AccessError, Moveable, HasLimits, \
+    DataSink, DataSinkHandler, Attach, status, system_user
 from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
 from nicos.devices.abstract import CanReference
@@ -54,7 +54,7 @@ from nicos.devices.cacheclient import CacheClient
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import tcpSocket, closeSocket, createSubprocess
 from nicos.utils.loggers import NicosLogger, ACTION
-from nicos.pycompat import exec_, reraise
+from nicos.pycompat import exec_, reraise, string_types
 
 # The NICOS checkout directory, where to find modules.
 module_root = path.normpath(path.join(path.dirname(__file__), '..'))
@@ -330,6 +330,7 @@ class TestSession(Session):
         Session.__init__(self, appname, daemonized)
         self._setup_info = old_setup_info
         self._setup_paths = (path.join(module_root, 'test', 'setups'),)
+        self._user_level = system_user.level
 
     def readSetupInfo(self):
         # since we know the setups don't change, only read them once
@@ -355,6 +356,28 @@ class TestSession(Session):
     def delay(self, _secs):
         # Not necessary for test suite.
         pass
+
+    def _string_to_level(self, level):
+        if isinstance(level, string_types):
+            for k, v in ACCESS_LEVELS.items():
+                if v == level:
+                    return k
+            raise ValueError('invalid access level name: %r' % level)
+        return level
+
+    def setUserLevel(self, level):
+        self._user_level = self._string_to_level(level)
+
+    def checkAccess(self, required):
+        if 'level' in required:
+            rlevel = self._string_to_level(required['level'])
+            if rlevel > self._user_level:
+                raise AccessError('%s access is not sufficient, %s access '
+                                  'is required' % (
+                                      ACCESS_LEVELS.get(self._user_level,
+                                                        str(self._user_level)),
+                                      ACCESS_LEVELS.get(rlevel, str(rlevel))))
+        return Session.checkAccess(self, required)
 
 
 class TestDevice(HasLimits, Moveable):

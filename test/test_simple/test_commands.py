@@ -29,7 +29,8 @@ import shutil
 import tempfile
 import timeit
 
-from nicos.core import UsageError, LimitError, NicosError
+from nicos.core import GUEST, UsageError, LimitError, NicosError, status as \
+    devstatus
 from nicos.utils import ensureDirectory
 
 from nicos.commands import usercommandWrapper
@@ -293,6 +294,24 @@ def test_device_commands(session, log):
     # check stop moving motor
     move(motor, 10)
     stop(motor)
+
+    # Change the user level to lower access rights to check that the stop on
+    # higher level requesting devices will be ignored
+    AddSetup('device')
+    pdev = session.getDevice('privdev')
+    speed = pdev.speed
+    pdev.speed = 0.1
+    move(pdev, 10)
+    level = session.getExecutingUser().level
+    session.setUserLevel(GUEST)
+    assert pdev.status(0)[0] == devstatus.BUSY
+    stop(pdev)
+    assert pdev.status(0)[0] == devstatus.BUSY
+    session.setUserLevel(level)
+    stop(pdev)
+    wait(pdev)
+    assert pdev.status(0)[0] == devstatus.OK
+    pdev.speed = speed
 
     # check reset()
     reset(motor)
