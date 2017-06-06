@@ -117,7 +117,7 @@ devices = dict(
     #                          unit = "deg",
     #                          precision = 0.01,
     #                         ),
-    rot_scintillatorhead = device("devices.tango.Motor",
+    rot_scintillatorhead = device("biodiff.motor.S7InterlockMotor",
                                   description = "Scintillator head rotation",
                                   tangodevice = tango_base +
                                                 "fzjs7/rot_scintillatorhead",

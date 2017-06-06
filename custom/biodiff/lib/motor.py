@@ -27,9 +27,10 @@ import time
 
 from nicos.devices.abstract import Motor as NicosMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
+from nicos.devices.tango import Motor as TangoMotor
 from nicos.core.device import Moveable
 from nicos.core.params import Param, Override
-from nicos.core import Attach
+from nicos.core import Attach, status
 from nicos.core.errors import LimitError
 
 
@@ -156,3 +157,15 @@ maxspeed: %.4f
 
     def _stopAction(self, _nr):
         self._attached_motor.stop()
+
+
+class S7InterlockMotor(TangoMotor):
+
+    def doStatus(self, maxage=None):
+        code, msg = TangoMotor.doStatus(self, maxage)
+        if code == status.ERROR:
+            statebits = self._dev.StateBits
+            if statebits & (0x4 | 0x8):  # both limit switch bits set
+                code = status.OK
+                msg = "Interlocked, " + msg
+        return code, msg
