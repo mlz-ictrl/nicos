@@ -379,15 +379,19 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
 
-        if ny == 1:
-            self.initLiveWidget(LiveWidget1D)
+    def _initLiveWidget(self, array):
+        """Initialize livewidget based on array's shape"""
+        if len(array.shape) == 1:
+            widgetcls = LiveWidget1D
         else:
-            self.initLiveWidget(IntegralLiveWidget)
+            widgetcls = IntegralLiveWidget
+        self.initLiveWidget(widgetcls)
 
     def setData(self, array, uid=None):
         """Dispatch data array to corresponding live widgets.
         Cache array based on uid parameter. No caching if uid is ``None``.
         """
+        self._initLiveWidget(array)
         if uid:
             if uid not in self._datacache:
                 self.log.debug('add to cache: %s', uid)
