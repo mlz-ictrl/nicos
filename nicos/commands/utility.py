@@ -55,28 +55,22 @@ def RangeListByStep(start, end=None, inc=None):
     if end is None:
         end = start + 0.0
         start = 0.0
+    delta = end - start
 
     if inc is None:
-        inc = math.copysign(1., end - start)
+        inc = math.copysign(1., delta)
 
     if inc == 0.0:
         raise UsageError('Increment needs to differ from zero')
 
-    if math.copysign(1.0, inc) != math.copysign(1.0, (end - start)):
+    if math.copysign(1.0, inc) != math.copysign(1.0, delta):
         raise UsageError('Start/end points and increment are inconsistent')
 
-    res = []
-    while 1:
-        nextval = start + len(res) * inc
-        # break, if less then 0.5 full steps remain to the endpoint
-        if inc > 0 and nextval > end - (0.001 * inc):
-            res.append(end)
-            break
-        elif inc < 0 and nextval < end - (0.001 * inc):
-            res.append(end)
-            break
-        res.append(nextval)
-
+    res = numpy.arange(start, end + inc, inc)
+    if inc > 0 and end - res[-1] < (0.001 * inc):
+        res[-1] = end
+    elif inc < 0 and end - res[-1] > (0.001 * inc):
+        res[-1] = end
     return res
 
 
