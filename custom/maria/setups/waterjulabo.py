@@ -14,7 +14,7 @@ devices = dict(
                        unit = "degC",
                        fmtstr = "%.2f",
                        precision = 0.1,
-                       timeout = 45*60.,
+                       timeout = 70*60.,
                       ),
 )
 
