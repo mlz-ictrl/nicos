@@ -119,6 +119,7 @@ def runPylint() {
             sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 echo $PATH
 set +x
 
@@ -181,6 +182,7 @@ def runSetupcheck() {
                 sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 
 tools/check_setups -o setupcheck.log -s custom/*/setups || ((res++)) || /bin/true
 # */
@@ -224,6 +226,7 @@ echo $venv
 set +x
 . $venv/bin/activate
 set -x
+pip install -r requirements.txt
 echo <<EOF > setup.cfg
 [tool:pytest]
 addopts = --junit-xml=pytest-${pyver}.xml
@@ -279,6 +282,7 @@ def runDocTest() {
 #!/bin/bash
 set +x
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 echo $PATH
 set -x
 export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
