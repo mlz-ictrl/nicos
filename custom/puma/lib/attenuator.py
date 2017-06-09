@@ -129,6 +129,5 @@ class Attenuator(HasLimits, Moveable):
         for i in range(5):
             stat2 += (((stat1 >> (2 * i + 1)) & 1) << i)
             stat3 += (((stat1 >> (2 * i)) & 1) << i)
-#            if self.debug == 1:
-#                print "%d,  %d,     %d" %(stat1, stat2, stat3)
+            self.log.debug('%d,  %d,     %d', stat1, stat2, stat3)
         return (stat2, stat3)
