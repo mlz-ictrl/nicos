@@ -25,8 +25,8 @@
 """Attenuator class for PUMA."""
 
 from nicos import session
-from nicos.core import Moveable, Readable, status, NicosError, HasLimits
-from nicos.core import Attach, SIMULATION
+from nicos.core import Attach, HasLimits, Moveable, NicosError, Readable, \
+    SIMULATION, status
 
 
 class Attenuator(HasLimits, Moveable):
@@ -35,8 +35,8 @@ class Attenuator(HasLimits, Moveable):
 
     attached_devices = {
         'io_status': Attach('readout for the status', Readable),
-        'io_set':    Attach('output to set', Moveable),
-        'io_press':  Attach('...', Readable),
+        'io_set': Attach('output to set', Moveable),
+        'io_press': Attach('...', Readable),
     }
 
     def doInit(self, mode):
@@ -48,10 +48,10 @@ class Attenuator(HasLimits, Moveable):
         stat1 = self._attached_io_status.doRead()
         stat2 = 0
         for i in range(0, 5):
-            stat2 += (((stat1 >> (2*i+1)) & 1) << i)
+            stat2 += (((stat1 >> (2 * i + 1)) & 1) << i)
         self._attached_io_set.move(stat2)
-        self.log.debug("device status read from hardware: %s", stat1)
-        self.log.debug("device status sent to hardware: %s", stat2)
+        self.log.debug('device status read from hardware: %s', stat1)
+        self.log.debug('device status sent to hardware: %s', stat2)
 
     def doStart(self, position):
         try:
@@ -79,8 +79,8 @@ class Attenuator(HasLimits, Moveable):
                     result += 2**i
                     position -= self._filterlist[i]
 
-                self.log.debug("position: %d, temp: %d result: %d, "
-                               "filterlist[i]: %d",
+                self.log.debug('position: %d, temp: %d result: %d, '
+                               'filterlist[i]: %d',
                                position, temp, result, self._filterlist[i])
             self._attached_io_set.move(result)
             session.delay(3)
@@ -101,8 +101,8 @@ class Attenuator(HasLimits, Moveable):
             fil = 0
             readvalue = self._attached_io_status.doRead()
             for i in range(0, 5):
-                fil = (readvalue >> (i*2+1)) & 1
-                self.log.debug("filterstatus of %d: %d", i, fil)
+                fil = (readvalue >> (i * 2 + 1)) & 1
+                self.log.debug('filterstatus of %d: %d', i, fil)
                 if fil == 1:
                     result += self._filterlist[i]
             return result
@@ -127,8 +127,8 @@ class Attenuator(HasLimits, Moveable):
         stat2 = 0
         stat3 = 0
         for i in range(5):
-            stat2 += (((stat1 >> (2*i+1)) & 1) << i)
-            stat3 += (((stat1 >> (2*i)) & 1) << i)
+            stat2 += (((stat1 >> (2 * i + 1)) & 1) << i)
+            stat3 += (((stat1 >> (2 * i)) & 1) << i)
 #            if self.debug == 1:
 #                print "%d,  %d,     %d" %(stat1, stat2, stat3)
         return (stat2, stat3)
