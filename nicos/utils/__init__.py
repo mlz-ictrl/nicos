@@ -631,19 +631,23 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
 
     # to enable, we have to handle 'our' directory first
     if enable:
-        failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
+        failflag |= enableDisableFileItem(startdir, dirMode, owner, group,
+                                          logger)
 
     for root, dirs, files in os.walk(startdir, topdown=enable):
         for d in dirs:
             full = path.join(root, d)
-            failflag |= enableDisableFileItem(full, dirMode, owner, group)
+            failflag |= enableDisableFileItem(full, dirMode, owner, group,
+                                              logger)
         for f in files:
             full = path.join(root, f)
-            failflag |= enableDisableFileItem(full, fileMode, owner, group)
+            failflag |= enableDisableFileItem(full, fileMode, owner, group,
+                                              logger)
 
     # for disable, we have to close 'our' directory last
     if not enable:
-        failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
+        failflag |= enableDisableFileItem(startdir, dirMode, owner, group,
+                                          logger)
 
     return failflag
 
