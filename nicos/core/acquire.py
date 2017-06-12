@@ -189,9 +189,8 @@ def read_environment(envlist):
             continue
         try:
             val = dev.read(0)
-        except Exception:
-            # XXX warn?
-            # self.handleError('read', err)
+        except Exception as err:
+            dev.log.warning('error reading for scan data', exc=err)
             val = [None] * len(dev.valueInfo())
         values[dev.name] = (currenttime(), val)
     session.data.putValues(values)
