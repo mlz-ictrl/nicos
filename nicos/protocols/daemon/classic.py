@@ -104,16 +104,16 @@ class ClassicSerializer(BaseSerializer):
 
     # deserializing
 
-    def deserialize_cmd(self, data, cmd=None):
-        return cmd, pickle.loads(data)
+    def deserialize_cmd(self, data, cmdname=None):
+        return cmdname, pickle.loads(data)
 
     def deserialize_reply(self, data, success=None):
         assert success is not None
         data = pickle.loads(data) if data else None
         return success, data
 
-    def deserialize_event(self, data, evt=None):
-        return evt, pickle.loads(data)
+    def deserialize_event(self, data, evtname=None):
+        return evtname, pickle.loads(data)
 
 
 class JsonSerializer(BaseSerializer):
@@ -146,16 +146,16 @@ class JsonSerializer(BaseSerializer):
 
     # deserializing
 
-    def deserialize_cmd(self, data, cmd=None):
-        return cmd, self.decoder.decode(data.decode())
+    def deserialize_cmd(self, data, cmdname=None):
+        return cmdname, self.decoder.decode(data.decode())
 
     def deserialize_reply(self, data, success=None):
         assert success is not None
         data = self.decoder.decode(data.decode()) if data else None
         return success, data
 
-    def deserialize_event(self, data, evt=None):
-        return evt, self.decoder.decode(data.decode())
+    def deserialize_event(self, data, evtname=None):
+        return evtname, self.decoder.decode(data.decode())
 
 
 Serializer = JsonSerializer

@@ -184,37 +184,75 @@ class Server(object):
         self.serializer = serializer
 
     def start(self, interval):
+        """Start the server.
+
+        This method should block (it is run in a thread) until the server is
+        stopped by the main thread calling `stop()`.
+        """
         raise NotImplementedError
 
     def stop(self):
+        """Stop the server.
+
+        This is called from the main thread upon receipt of a stop signal.
+        """
         raise NotImplementedError
 
     def close(self):
+        """Close the server.
+
+        This is called from the main thread after the server thread is done.
+        """
         raise NotImplementedError
 
     def emit(self, event, data, handler=None):
+        """Emit an event.  If *handler* is given, only to this client.
+        """
         raise NotImplementedError
 
 
 class ServerTransport(object):
-    """Represents the transport of data, server side."""
+    """Represents the transport of data to one client, server side."""
 
     def close(self):
+        """Close this client connection and clean up any resources."""
         raise NotImplementedError
 
     def get_version(self):
+        """Return the server's protocol version as an integer.
+
+        XXX: decide about versioning scheme (global/transport specific)
+        """
         raise NotImplementedError
 
     def recv_command(self):
+        """Blockingly wait for a new command from the client.
+
+        Returns the deserialized command name and data as a tuple.
+        """
         raise NotImplementedError
 
     def send_ok_reply(self, payload):
+        """Send a "ok" type reply back to the client.
+
+        *payload* is a piece of data to be serialized and sent along.
+        """
         raise NotImplementedError
 
     def send_error_reply(self, reason):
+        """Send an "error" type reply back to the client.
+
+        *reason* is a string with an error description.
+        """
         raise NotImplementedError
 
     def send_event(self, evtname, payload):
+        """Send an event to the client.
+
+        *evtname* is the event name, as defined in nicos.protocols.daemon.
+        *payload* is the event data.  It is transport specific whether this
+        data is already serialized.
+        """
         raise NotImplementedError
 
 
@@ -222,21 +260,51 @@ class ClientTransport(object):
     """Represents the transport of data, client side."""
 
     def connect(self, conndata):
+        """Establish the request-reply connection to the server.
+
+        *conndata* is a ConnectionData object with connection information.
+
+        XXX: change conndata to be less raw-socket specific.
+        """
         raise NotImplementedError
 
     def connect_events(self, conndata):
+        """Establish the event connection.
+
+        This is a separate step because if authentication fails, the event
+        connection is never opened.
+
+        *conndata* is the ConnectionData object as for `connect()`.
+        """
         raise NotImplementedError
 
     def disconnect(self):
+        """Disconnect any established connections, including for events."""
         raise NotImplementedError
 
     def send_command(self, cmdname, args):
+        """Send a command to the server.
+
+        *cmdname* is the event name, as defined in nicos.protocols.daemon.
+        *args* is a data object, in the format expected for this command,
+        to be serialized.
+        """
         raise NotImplementedError
 
     def recv_reply(self):
+        """Blockingly receive a reply from the server.
+
+        Returns a tuple of the success (ok/error) as a bool, and the extended
+        data, if present, else None.
+        """
         raise NotImplementedError
 
     def recv_event(self):
+        """Blockingly receive an event from the server.
+
+        Returns a tuple of the event name and the (deserialized if necessary)
+        event data.
+        """
         raise NotImplementedError
 
 
@@ -244,22 +312,58 @@ class Serializer(object):
     """Represents a serialization format for commands and events."""
 
     def serialize_cmd(self, cmdname, args):
+        """Serialize arguments payload for the given command.
+
+        The *cmdname* does not have to be used if command names are not part of
+        the serialized data for this protocol.
+        """
         raise NotImplementedError
 
     def serialize_ok_reply(self, payload):
+        """Serialize payload for an "ok" type reply."""
         raise NotImplementedError
 
     def serialize_error_reply(self, reason):
+        """Serialize payload for an "error" type reply.
+
+        *reason* is always a string.
+        """
         raise NotImplementedError
 
     def serialize_event(self, evtname, payload):
+        """Serialize payload for the given event.
+
+        The *evtname* does not have to be used if event names are not part of
+        the serialized data for this protocol.
+        """
         raise NotImplementedError
 
-    def deserialize_cmd(self, data, cmd=None):
+    def deserialize_cmd(self, data, cmdname=None):
+        """Deserialize arguments payload for the command.
+
+        If the command name is not part of the serialized data for this
+        protocol, it must be provided in the *cmdname* argument.
+
+        Returns a tuple of command name and deserialized arguments.
+        """
         raise NotImplementedError
 
     def deserialize_reply(self, data, success=None):
+        """Deserialize payload of a reply from the server.
+
+        If the success (ok/error) state is not part of the serialized data for
+        this protocol, it must be provided in the *success* argument.
+
+        Returns a tuple of the success status (as a bool) and the payload.
+        """
         raise NotImplementedError
 
-    def deserialize_event(self, data, evt=None):
+    def deserialize_event(self, data, evtname=None):
+        """Deserialize payload of an event from the server.
+
+        If the event name is not part of the serialized data for this protocol,
+        it must be provided in the *evtname* argument.
+
+        Returns a tuple of the event name and deserialized payload.
+        """
         raise NotImplementedError
