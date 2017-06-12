@@ -52,7 +52,8 @@ sysconfig = dict(
     cache = 'stressictrl.stressi.frm2',
     instrument = 'Stressi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'daemonsink', 'livesink'],
+    datasinks = ['conssink', 'daemonsink', 'livesink', 'LiveImgSink',
+                 'LiveImgSinkLog'],
     notifiers = ['email', 'smser'],
 )
 
@@ -132,4 +133,17 @@ devices = dict(
                       lowlevel = True,
                       filenametemplate = ['m2%(scancounter)08d.yaml'],
                      ),
+    LiveImgSinkLog = device('devices.datasinks.PNGLiveFileSink',
+                            description = 'Saves live image as .png every now and then',
+                            filename = '/stressicontrol/webroot/live_log.png',
+                            log10 = True,
+                            interval = 1,
+                            lowlevel = True,
+                           ),
+    LiveImgSink = device('devices.datasinks.PNGLiveFileSink',
+                         description = 'Saves live image as .png every now and then',
+                         filename = '/stressicontrol/webroot/live_lin.png',
+                         interval = 1,
+                         lowlevel = True,
+                        ),
 )

@@ -104,6 +104,18 @@ _eulerian = Column(
     ),
 )
 
+_image = Column(
+    Block('', [
+        BlockRow(
+            Field(name='Data (linear)', picture='stressi-online/live_lin.png',
+                  refresh=1, width=24, height=24),
+            Field(name='Data (log)', picture='stressi-online/live_log.png',
+                  refresh=1, width=24, height=24),
+        ),
+    ]
+    )
+)
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'STRESS-SPEC status monitor',
@@ -121,6 +133,7 @@ devices = dict(
                      # padding = 2,
                      fontsize = 24,
                      layout = [Row(_expcolumn),
-                               Row(_sampletable, _measurement, _eulerian)],
+                               Row(_sampletable, _measurement, _eulerian),
+                               Row(_image)],
                     ),
 )
