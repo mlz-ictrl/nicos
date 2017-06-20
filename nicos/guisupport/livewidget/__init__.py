@@ -39,7 +39,9 @@ import gr
 from gr.pygr.base import GRMeta, GRVisibility
 from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
-    Coords2D, PlotCurve
+    Coords2D
+
+from nicos.guisupport.grplotting import MaskedPlotCurve
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
@@ -166,35 +168,30 @@ class Axes(PlotAxes):
             gr.setlinecolorind(linecolor)
 
 
-class Curve(PlotCurve):
+class AutoScaleAxes(Axes):
 
-    def __init__(self, *args, **kwargs):
-        # fill values for masked x, y
-        self.fillx = kwargs.pop("fillx", 0)
-        self.filly = kwargs.pop("filly", 0)
-        PlotCurve.__init__(self, *args, **kwargs)
+    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
+        dx, dy = 0, 0
+        if self.autoscale & Axes.SCALE_X:
+            dx = xtick
+        if self.autoscale & Axes.SCALE_Y:
+            dy = ytick
+        return xmin - dx, xmax + dx, ymin, ymax + dy
 
-    @property
-    def x(self):
-        x = PlotCurve.x.__get__(self)
-        if numpy.ma.is_masked(x):
-            return x.filled(self.fillx)
-        return x
-
-    @x.setter
-    def x(self, x):
-        PlotCurve.x.__set__(self, x)
-
-    @property
-    def y(self):
-        y = PlotCurve.y.__get__(self)
-        if numpy.ma.is_masked(y):
-            return y.filled(self.filly)
-        return y
-
-    @y.setter
-    def y(self, y):
-        PlotCurve.y.__set__(self, y)
+    def doAutoScale(self, curvechanged=None):
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            vc = self.getVisibleCurves() or self.getCurves()
+            c = vc[0]
+            xmin, xmax, ymin, ymax = original_win
+            cxmin, cxmax, cymin, cymax = min(c.x), max(c.x), min(c.y), max(c.y)
+            if cxmax > xmax:
+                return original_win
+            elif cxmin < xmin:
+                return original_win
+            self.setWindow(min(cxmin, xmin), max(cxmax, xmax),
+                           min(cymin, ymin), max(cymax, ymax))
+        return Axes.doAutoScale(self, curvechanged)
 
 
 class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
@@ -429,8 +426,8 @@ class IntegralLiveWidget(LiveWidget):
 
         self.plotyint.addAxes(self.axesyint)
         self.plotxint.addAxes(self.axesxint)
-        self.curvey = Curve([0], [0], filly=.1, linecolor=COLOR_BLUE)
-        self.curvex = Curve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
+        self.curvey = MaskedPlotCurve([0], [0], filly=.1, linecolor=COLOR_BLUE)
+        self.curvex = MaskedPlotCurve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
 
         self.axesyint.addCurves(self.curvey)
         self.axesxint.addCurves(self.curvex)
@@ -445,6 +442,29 @@ class IntegralLiveWidget(LiveWidget):
     def yinttick(self, x, y, svalue, _value):
         gr.setcharheight(self._charheight)
         gr.text(x, y, svalue)
+
+    def _applymask(self):
+        """Mask or unmask values in plotcurves if necessary and rescale
+        plotaxes in respect to logscale."""
+        win = self.axes.getWindow()
+        if not win:
+            return
+        xmin, xmax, ymin, ymax = win
+        # set minimum for sum axis in respect to logscale
+        # and un-/mask values if necessary
+        if self._logscale:
+            x0, y0 = .1, .1
+            self.curvex.x = numpy.ma.masked_equal(self.curvex.x, 0)
+            self.curvey.y = numpy.ma.masked_equal(self.curvey.y, 0)
+        else:  # unmask if masked if not logscale
+            x0, y0 = 0, 0
+            if numpy.ma.is_masked(self.curvex._x):
+                self.curvex.x = self.curvex._x.filled(0)
+            if numpy.ma.is_masked(self.curvey._y):
+                self.curvey.y = self.curvey._y.filled(0)
+        # rescale axes
+        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, self.curvey.y.max())
+        self.axesxint.setWindow(x0, self.curvex.x.max(), ymin - .5, ymax - .5)
 
     def _rescale(self):
         """Rescales integral plots in respect to the main/cellarray plot."""
@@ -463,12 +483,8 @@ class IntegralLiveWidget(LiveWidget):
                                                             dtype=numpy.float)
         self.curvey.y = self._array[int(y0):int(y1), :].sum(axis=0,
                                                             dtype=numpy.float)
-        # restore min for sum axis in respect to logscale
-        # @see updateZData method sets the minimum accordingly
-        x0 = self.axesxint.getWindow()[0]  # xmin sum along x
-        y0 = self.axesyint.getWindow()[2]  # ymin sum along y
-        self.axesyint.setWindow(xmin - .5, xmax - .5, y0, self.curvey.y.max())
-        self.axesxint.setWindow(x0, self.curvex.x.max(), ymin - .5, ymax - .5)
+        self._applymask()
+
 
     def _setData(self, array, nx, ny, nz, newrange):
         LiveWidget._setData(self, array, nx, ny, nz, newrange)
@@ -480,23 +496,6 @@ class IntegralLiveWidget(LiveWidget):
         self.curvey.x = numpy.arange(0, nx)
         self.curvex.y = numpy.arange(0, ny)
 
-    def updateZData(self):
-        LiveWidget.updateZData(self)
-        if self._logscale:
-            x0, y0 = .1, .1
-            self.curvex.x = numpy.ma.masked_equal(self.curvex.x, 0)
-            self.curvey.y = numpy.ma.masked_equal(self.curvey.y, 0)
-        else:  # unmask if masked if not logscale
-            x0, y0 = 0, 0
-            if numpy.ma.is_masked(self.curvex._x):
-                self.curvex.x = self.curvex._x.filled(0)
-            if numpy.ma.is_masked(self.curvey._y):
-                self.curvey.y = self.curvey._y.filled(0)
-        xmin, xmax, _ymin, ymax = self.axesyint.getWindow()
-        self.axesyint.setWindow(xmin, xmax, y0, ymax)
-        _xmin, xmax, ymin, ymax = self.axesxint.getWindow()
-        self.axesxint.setWindow(x0, xmax, ymin, ymax)
-
     def unzoom(self):
         nx, ny = len(self.curvey.x), len(self.curvex.y)
         self.axesyint.setWindow(0, nx, 1, self.curvey.y.max())
@@ -507,9 +506,11 @@ class IntegralLiveWidget(LiveWidget):
         self.gr.printDialog()
 
     def logscale(self, on):
+        LiveWidget.logscale(self, on)
         self.axesxint.setLogX(on)
         self.axesyint.setLogY(on)
-        LiveWidget.logscale(self, on)
+        self._applymask()
+        self.gr.update()
 
     def setCenterMark(self, flag):
         self.axesxint.drawxylines = flag
@@ -522,14 +523,34 @@ class LiveWidget1D(LiveWidgetBase):
     def __init__(self, parent):
         LiveWidgetBase.__init__(self, parent)
 
-        self.curve = PlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.plot._lstAxes = []
+        self.plot._countAxes = 0
+        self.curve = MaskedPlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.axes = AutoScaleAxes(self, viewport=self.plot.viewport,
+                                  xdual=True)
         self.axes.setGrid(True)
         self.axes.addCurves(self.curve)
+        self.axes.autoscale = PlotAxes.SCALE_Y
+        self.plot.addAxes(self.axes)
 
     def logscale(self, on):
+        LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
+        self.curve.filly = .1 if self._logscale else 0
+        win = self.axes.getWindow()
+        if win:
+            win[2] = max(.1, win[2])
+            self.axes.setWindow(*win)
+        self.gr.update()
+
+    def unzoom(self):
+        self.axes.setWindow(-self.axes.xtick,
+                            self._axesrange[1] + self.axes.xtick,
+                            0, max(1, self.curve.y.max()) + self.axes.ytick)
         self.gr.update()
 
     def _setData(self, array, nx, ny, nz, newrange):
         self.curve.x = numpy.arange(0, nx)
-        self.curve.y = self._array.ravel()
+        self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
+            numpy.float)
+        self.curve.filly = .1 if self._logscale else 0

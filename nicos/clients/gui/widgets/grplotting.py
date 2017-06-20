@@ -29,19 +29,21 @@ import os
 import time
 import tempfile
 
+import numpy.ma
 import gr
 from PyQt4 import QtGui
 from PyQt4.QtGui import QApplication, QMenu, QAction
 from PyQt4.QtCore import Qt, QPoint
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
-from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text, \
+from gr.pygr import Plot, PlotAxes, ErrorBar, Text, \
     RegionOfInterest, CoordConverter
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
     DataSetPlotMixin, GaussFitter, prepareData
 from nicos.guisupport.timeseries import buildTickDistAndSubTicks
+from nicos.guisupport.grplotting import MaskedPlotCurve
 from nicos.utils.fitting import FitResult
 from nicos.pycompat import string_types
 
@@ -99,16 +101,16 @@ class NicosTimePlotAxes(NicosPlotAxes):
         return self.getWindow()
 
 
-class NicosPlotCurve(PlotCurve):
+class NicosPlotCurve(MaskedPlotCurve):
 
     GR_MARKER_SIZE = 1.0
 
     def __init__(self, x, y, errBar1=None, errBar2=None,
                  linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
-                 linecolor=None, markercolor=1, legend=None):
-        PlotCurve.__init__(self, x, y, errBar1, errBar2,
-                           linetype, markertype, linecolor, markercolor,
-                           legend)
+                 linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
+        MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
+                                 linetype, markertype, linecolor, markercolor,
+                                 legend, fillx=fillx, filly=filly)
         self._dependent = []
 
     @property
@@ -122,17 +124,17 @@ class NicosPlotCurve(PlotCurve):
 
     @property
     def visible(self):
-        return PlotCurve.visible.__get__(self)
+        return MaskedPlotCurve.visible.__get__(self)
 
     @visible.setter
     def visible(self, flag):
-        PlotCurve.visible.__set__(self, flag)
+        MaskedPlotCurve.visible.__set__(self, flag)
         for dep in self.dependent:
             dep.visible = flag
 
     def drawGR(self):
         gr.setmarkersize(self.GR_MARKER_SIZE)
-        PlotCurve.drawGR(self)
+        MaskedPlotCurve.drawGR(self)
         for dep in self.dependent:
             if dep.visible:
                 dep.drawGR()
@@ -550,7 +552,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             return
         if len(curve.datay) == 0:
             return
-        plotcurve = NicosPlotCurve([], [])
+        plotcurve = NicosPlotCurve([], [], filly=0.1)
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
@@ -565,6 +567,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             norm = curve.datanorm[self.normalized] if self.normalized else None
         x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
                                norm)
+        y = numpy.ma.masked_equal(y, 0)
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
@@ -572,7 +575,16 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             plotcurve.visible = False
         plotcurve.x = x
         plotcurve.y = y
+        plotcurve.filly = 0.1 if self.isLogScaling() else 0
         plotcurve.legend = curve.full_description
+
+    def setLogScale(self, on):
+        NicosGrPlot.setLogScale(self, on)
+        filly = .1 if self.isLogScaling() else 0
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.filly = filly
+        self.update()
 
     def pointsAdded(self):
         curve = None

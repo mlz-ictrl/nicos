@@ -100,7 +100,8 @@ class Experiment(Device):
         'elog':           Param('True if the electronic logbook should be '
                                 'enabled', type=bool, default=True),
         'scripts':        Param('Currently executed scripts', type=listof(str),
-                                settable=True, userparam=False),
+                                settable=True, userparam=False,
+                                no_sim_restore=True),
         'templates':      Param('Name of the directory with script templates '
                                 '(relative to dataroot)', type=str),
         'managerights':   Param('A dict of en/disableDir/FileMode to manage '
@@ -137,7 +138,8 @@ class Experiment(Device):
         'servicescript':  Param('Script to run for service time', type=str,
                                 default='', settable=True),
         'pausecount':     Param('Reason for pausing the count loop', type=str,
-                                settable=True, userparam=False),
+                                settable=True, userparam=False,
+                                no_sim_restore=True),
         'propinfo':       Param('Dict of info for the current proposal',
                                 type=dict, default={}, userparam=False),
         'proposalpath':   Param('Proposal prefix upon creation of experiment',

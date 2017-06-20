@@ -25,6 +25,7 @@
 
 from __future__ import print_function
 
+import numbers
 import time
 
 from collections import OrderedDict, namedtuple
@@ -193,12 +194,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         for k, v in d.items():
-            if not isinstance(v, string_types):
+            if isinstance(v, numbers.Number):
                 self._write_float(v)
-            elif v in self.sink.mapping:
+            elif isinstance(v, string_types) and (v in self.sink.mapping):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
                 self._write_float(self.sink.mapping[v])
-            else:
+            else:  # some values are not convertable into a number: lists, ...
                 self.log.warning('%s = %r', k, v)
                 self._write_float(0)
 

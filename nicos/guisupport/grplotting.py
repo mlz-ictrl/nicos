@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS, the Networked Instrument Control System of the MLZ
+# NICOS, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2017 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -22,23 +22,36 @@
 #
 # *****************************************************************************
 
-"""NICOS MARIA Experiment."""
-
-from nicos.frm2.experiment import Experiment as _Experiment
-from nicos.utils import safeName
+import numpy.ma
+from gr.pygr import PlotCurve
 
 
-class Experiment(_Experiment):
-    """MARIA specific experiment class which creates a subdirectory for each
-    sample and copies all template files to the corresponding scripts
-    directory."""
+class MaskedPlotCurve(PlotCurve):
 
-    def newSample(self, parameters):
-        self.sampledir = safeName(parameters["name"])
-        _Experiment.newSample(self, parameters)
-        self.log.debug("changed samplepath to: %s" % self.samplepath)
-        # expand/copy templates
-        if self.getProposalType(self.proposal) != 'service' and self.templates:
-            params = dict(parameters) if parameters else dict()
-            params.update(self.propinfo)
-            self.handleTemplates(self.proposal, params)
+    def __init__(self, *args, **kwargs):
+        # fill values for masked x, y
+        self.fillx = kwargs.pop("fillx", 0)
+        self.filly = kwargs.pop("filly", 0)
+        PlotCurve.__init__(self, *args, **kwargs)
+
+    @property
+    def x(self):
+        x = PlotCurve.x.__get__(self)
+        if numpy.ma.is_masked(x):
+            return x.filled(self.fillx)
+        return x
+
+    @x.setter
+    def x(self, x):
+        PlotCurve.x.__set__(self, x)
+
+    @property
+    def y(self):
+        y = PlotCurve.y.__get__(self)
+        if numpy.ma.is_masked(y):
+            return y.filled(self.filly)
+        return y
+
+    @y.setter
+    def y(self, y):
+        PlotCurve.y.__set__(self, y)

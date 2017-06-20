@@ -84,8 +84,6 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.actionKeepRatio.setChecked(True)
-
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionPrint)
         self.toolbar.addSeparator()
@@ -123,8 +121,13 @@ class LiveDataPanel(Panel):
         if self.widget:
             self.widgetLayout.removeWidget(self.widget)
         self.widget = widgetcls(self)
-        self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
-        self.widget.setColormap(self.widget.getColormap())
+        # set keep ratio defaults for new livewidget instances
+        if isinstance(self.widget, LiveWidget1D):
+            if self.actionKeepRatio.isChecked():
+                self.actionKeepRatio.trigger()
+        elif not self.actionKeepRatio.isChecked():
+            self.actionKeepRatio.trigger()
+        # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
         guiConn = GUIConnector(self.widget.gr)
@@ -379,15 +382,19 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
 
-        if ny == 1:
-            self.initLiveWidget(LiveWidget1D)
+    def _initLiveWidget(self, array):
+        """Initialize livewidget based on array's shape"""
+        if len(array.shape) == 1:
+            widgetcls = LiveWidget1D
         else:
-            self.initLiveWidget(IntegralLiveWidget)
+            widgetcls = IntegralLiveWidget
+        self.initLiveWidget(widgetcls)
 
     def setData(self, array, uid=None):
         """Dispatch data array to corresponding live widgets.
         Cache array based on uid parameter. No caching if uid is ``None``.
         """
+        self._initLiveWidget(array)
         if uid:
             if uid not in self._datacache:
                 self.log.debug('add to cache: %s', uid)
