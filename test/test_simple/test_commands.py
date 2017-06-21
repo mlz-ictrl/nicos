@@ -416,7 +416,7 @@ def test_device_commands(session, log):
     axis = session.getDevice('nocoder_axis')
     axis.maw(1)
     reference(axis)
-    assert axis.read() == 0.0
+    assert axis.read(0) == 0.0
 
 
 def test_notifiers(session):

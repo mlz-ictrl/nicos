@@ -230,7 +230,7 @@ class Axis(CanReference, AbstractAxis):
             return
         motor = self._attached_motor
         if isinstance(motor, CanReference):
-            motor.reference()
+            return motor.reference()
         else:
             self.log.error('motor %s does not have a reference routine',
                            motor)
