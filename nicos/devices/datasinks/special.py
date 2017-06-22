@@ -92,7 +92,9 @@ class LiveViewSinkHandler(DataSinkHandler):
                 return
             data = result[1][0]
             if data is not None:
-                if len(data.shape) == 2:
+                if len(data.shape) == 1:
+                    resX, resY, resZ = data.shape, 1, 1
+                elif len(data.shape) == 2:
                     (resX, resY), resZ = data.shape, 1
                 else:
                     resX, resY, resZ = data.shape
