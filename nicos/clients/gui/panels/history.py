@@ -539,7 +539,7 @@ class BaseHistoryWindow(object):
             return
         keys_indices = [extractKeyAndIndex(d.strip())
                         for d in info['devices'].split(',')]
-        if hasattr(self, 'client'):
+        if self.client is not None:
             meta = self._getMetainfo(keys_indices)
         else:
             meta = ({}, {})
