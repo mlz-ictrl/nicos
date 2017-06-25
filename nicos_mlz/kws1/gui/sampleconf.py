@@ -358,7 +358,7 @@ class KWSSamplePanel(Panel):
 
     @pyqtSlot()
     def on_retrieveBtn_clicked(self):
-        sampleconf = self.client.eval('session.experiment.samples', [])
+        sampleconf = self.client.eval('Exp.sample.samples', [])
         sampleconf = sorted(sampleconf.items())
         self.configs = [dict(c[1]) for c in sampleconf if 'thickness' in c[1]]
         # convert readonlydict to normal dict

@@ -109,7 +109,6 @@ def ClearSamples():
     >>> ClearSamples()
     """
     session.experiment.sample.clear()
-    session.experiment.samples = {}
 
 
 @usercommand
@@ -123,12 +122,12 @@ def ListSamples():
     rows = []
     all_cols = set()
     index = {}
-    for info in session.experiment.samples.values():
+    for info in session.experiment.sample.samples.values():
         all_cols.update(info)
     all_cols.discard('name')
     index = dict((key, i) for (i, key) in enumerate(sorted(all_cols), start=2))
     index['name'] = 1
-    for number, info in iteritems(session.experiment.samples):
+    for number, info in iteritems(session.experiment.sample.samples):
         rows.append([str(number), info['name']] + [''] * len(all_cols))
         for key in info:
             rows[-1][index[key]] = str(info[key])

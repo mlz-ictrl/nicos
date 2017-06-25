@@ -156,9 +156,6 @@ class Experiment(Device):
                                 'ONLY for display purposes', type=int),
         'lastpoint':      Param('Last used value of the point counter - '
                                 'ONLY for display purposes', type=int),
-        'samples':        Param('Information about all defined samples',
-                                type=dictof(int, dictof(str, anytype)),
-                                settable=True, userparam=False),
     }
 
     attached_devices = {
@@ -509,7 +506,6 @@ class Experiment(Device):
             self.sample.clear()
         except Exception:
             self.sample.log.warning('could not clear sample info', exc=1)
-        self.samples = {}
         self.envlist = []
         for notifier in session.notifiers:
             try:

@@ -194,10 +194,10 @@ def test_sample_commands(session, log):
     exp.new(0, user='user')
     NewSample('abc')
     assert exp.sample.samplename == 'abc'
-    assert exp.samples == {0: {'name': 'abc'}}
+    assert exp.sample.samples == {0: {'name': 'abc'}}
 
     SetSample(1, 'def', param=45)
-    assert exp.samples[1] == {'name': 'def', 'param': 45}
+    assert exp.sample.samples[1] == {'name': 'def', 'param': 45}
 
     SelectSample(1)
     assert exp.sample.samplename == 'def'
@@ -212,7 +212,7 @@ def test_sample_commands(session, log):
     with log.assert_no_msg_matches([r'0 +abc',
                                     r'1 +def +45']):
         ClearSamples()
-    assert exp.samples == {}
+    assert exp.sample.samples == {}
 
 
 class TestDevice(object):

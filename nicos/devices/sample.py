@@ -27,11 +27,12 @@
 """NICOS Sample device."""
 
 from nicos import session
-from nicos.core import Device, Param, none_or, InvalidValueError
+from nicos.core import Moveable, Param, Override, status, oneof, none_or, \
+    dictof, anytype, InvalidValueError
 from nicos.utils import safeName
 
 
-class Sample(Device):
+class Sample(Moveable):
     """A special device to represent a sample.
 
     An instance of this class is used as the *sample* attached device of the
@@ -39,9 +40,9 @@ class Sample(Device):
     properties, such as lattice and orientation calculations, or more
     parameters describing the sample.
 
-    The experiment stores the collection of all currently defined samples in
+    The device stores the collection of all currently defined samples in
     its `samples` parameter.  When changing samples, it will overwrite the
-    sample device's parameters with these values.
+    device's other parameters with these values.
     """
 
     parameters = {
@@ -51,7 +52,25 @@ class Sample(Device):
                               'a sample changer or the index of the sample '
                               'among all defined samples', type=none_or(int),
                               settable=True),
+        'samples':      Param('Information about all defined samples',
+                              type=dictof(int, dictof(str, anytype)),
+                              settable=True, userparam=False, preinit=True),
     }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default=''),
+    }
+
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        return self.samplename
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
+
+    def doStart(self, target):
+        self.select(target)
 
     @property
     def filename(self):
@@ -65,45 +84,47 @@ class Sample(Device):
         """Clear experiment-specific information."""
         self.samplename = ''
         self.samplenumber = None
+        self.samples = {}
 
     def new(self, parameters):
         """Create and select a new sample."""
         # In this simple base class, we expect the user to use only NewSample,
         # so we remove stored sample information every time to avoid a buildup
         # of unused sample information.
-        session.experiment.samples = {0: parameters}
+        self.samples = {0: parameters}
         self.select(0)
 
     def set(self, number, parameters):
         """Set sample information for sample no. *number*."""
         if number is None:
             raise InvalidValueError(self, 'cannot use None as sample number')
-        info = session.experiment.samples.copy()
+        info = self.samples.copy()
         if number in info:
             self.log.warning('overwriting parameters for sample %s (%s)',
                              number, info[number]['name'])
         info[number] = parameters
-        session.experiment.samples = info
+        self.samples = info
 
     def select(self, number_or_name):
         """Select sample with given number or name."""
         number = self._findIdent(number_or_name)
         try:
-            parameters = session.experiment.samples[number]
+            parameters = self.samples[number]
         except KeyError:
             raise InvalidValueError(self, 'cannot find sample with number '
                                     'or name %r' % number_or_name)
         self._applyParams(number, parameters)
         session.experiment.newSample(parameters)
+        self.poll()
 
     def _findIdent(self, number_or_name):
         """Find sample number.  Can be overridden in subclasses."""
         # look by number
-        if number_or_name in session.experiment.samples:
+        if number_or_name in self.samples:
             return number_or_name
         # look by name
         found = None
-        for (number, parameters) in session.experiment.samples.items():
+        for (number, parameters) in self.samples.items():
             if parameters['name'] == number_or_name:
                 if found is not None:
                     # two samples with same name found...
@@ -123,3 +144,6 @@ class Sample(Device):
         """
         self.samplenumber = number
         self.samplename = parameters['name']
+
+    def doUpdateSamples(self, info):
+        self.valuetype = oneof(*(info[n]['name'] for n in sorted(info)))

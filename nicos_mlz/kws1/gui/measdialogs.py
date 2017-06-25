@@ -188,7 +188,7 @@ class SampleDialog(DlgUtils, QDialog):
         if not on:
             return
         self.samplefile = None
-        self._reinit(self.client.eval('Exp.samples', None) or {})
+        self._reinit(self.client.eval('Exp.sample.samples', None) or {})
 
     @pyqtSlot()
     def on_rightBtn_clicked(self):

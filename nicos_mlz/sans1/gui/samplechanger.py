@@ -205,7 +205,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._update_sample_info()
 
     def _update_sample_info(self):
-        names = self.client.eval('session.experiment.samples', None)
+        names = self.client.eval('Exp.sample.samples', None)
         if names is None:
             return
         for i in range(self._numSamples):
