@@ -161,7 +161,7 @@ class TofImageSinkHandler(TofSinkHandler):
     def writeData(self, fp, info, data):
         lines = []
         f = session.data.createDataFile(self.dataset,
-                                        [self._template[0] + '.new', ],
+                                        [self._template[0] + '.new'],
                                         self._subdir, nomeasdata=True)
         self._writeHeader(f, self.dataset.metainfo)
         preset = float(self.dataset.metainfo['det', 'preset'][1])

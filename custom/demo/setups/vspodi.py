@@ -17,7 +17,7 @@ devices = dict(
                     responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                     instrument = 'V-SPODI',
                     website = 'http://www.nicos-controls.org',
-                    operators = ['NICOS developer team', ],
+                    operators = ['NICOS developer team'],
                     facility = 'NICOS demo instruments',
                     doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
                    ),

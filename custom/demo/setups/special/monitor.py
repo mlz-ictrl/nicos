@@ -167,6 +167,6 @@ devices = dict(
                      colors = 'light',
                      layout = [Row(_expcolumn),
                                Row(_leftcolumn, _rightcolumn, ),
-                               Row(_pgaacolumn), ],
+                               Row(_pgaacolumn)],
                     ),
 )

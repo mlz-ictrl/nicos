@@ -185,7 +185,7 @@ class CARESSDevice(HasCommunication):
                     tmp.append('caress_object')
                 self.log.debug('%r', tmp)
                 obj = _root_context.resolve([CosNaming.NameComponent(tmp[0],
-                                                                     tmp[1]), ])
+                                                                     tmp[1])])
             except CosNaming.NamingContext.NotFound as ex:
                 raise ConfigurationError(self, 'Name not found: %s' % (ex,))
             self._caressObject = obj._narrow(CARESS.CORBADevice)
@@ -283,7 +283,7 @@ class CARESSDevice(HasCommunication):
         if not omniORB:
             raise ConfigurationError(self, 'There is no CORBA module found')
         self._initORB(['-ORBInitRef',
-                       'NameService=corbaname::%s' % self._name_server(), ])
+                       'NameService=corbaname::%s' % self._name_server()])
         self._initObject()
         _cid = self._getCID(self.config.split(None, 2)[0])
         self._init(_cid)

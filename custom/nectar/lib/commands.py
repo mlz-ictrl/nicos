@@ -33,7 +33,7 @@ from nicos.commands.scan import manualscan
 from nicos.antares.commands import openbeamimage, darkimage
 
 
-__all__ = ['grtomo', 'alignsample', ]
+__all__ = ['grtomo', 'alignsample']
 
 
 @usercommand

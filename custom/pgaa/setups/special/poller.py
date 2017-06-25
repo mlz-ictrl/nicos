@@ -7,7 +7,7 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    alwayspoll = ['pressure', 'pilz',],
+                    alwayspoll = ['pressure', 'pilz'],
                     neverpoll = ['detector'],
                     blacklist = []),
 )

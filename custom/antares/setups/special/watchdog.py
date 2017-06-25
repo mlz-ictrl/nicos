@@ -34,7 +34,7 @@ watchlist = [
         ),
 ]
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 notifiers = {
     'default':  ['warning', 'smser'],

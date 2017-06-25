@@ -5,14 +5,14 @@ sysconfig = dict(
     instrument = 'PGAA',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['email', 'smser', ],
+    notifiers = ['email', 'smser'],
 )
 
 modules = ['commands.standard']
 
 group = 'lowlevel'
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Sample   = device('devices.sample.Sample',

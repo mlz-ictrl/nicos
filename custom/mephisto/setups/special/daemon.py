@@ -13,7 +13,7 @@ devices = dict(
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'mephisto17.office.frm2',
-                    authenticators = ['Auth',], # and/or 'UserDB'
+                    authenticators = ['Auth'], # and/or 'UserDB'
                     loglevel = 'debug',
                    ),
 )

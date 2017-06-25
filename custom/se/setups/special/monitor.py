@@ -31,6 +31,6 @@ devices = dict(
                      font = 'Ubuntu',
                      valuefont = 'DejaVu Sans Mono',
                      padding = 5,
-                     layout = [[_expcolumn], [_col1, ]],
+                     layout = [[_expcolumn], [_col1]],
                     ),
 )

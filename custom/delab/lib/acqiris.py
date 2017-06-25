@@ -103,7 +103,7 @@ class Channel(ActiveChannel):
                                      ' context')
         try:
             obj = rootContext.resolve([CosNaming.NameComponent(
-                self.objname, 'caress_object'), ])
+                self.objname, 'caress_object')])
         except CosNaming.NamingContext.NotFound as ex:
             raise ConfigurationError(self, 'Name not found: %s' % (ex,))
 
@@ -162,7 +162,7 @@ class Channel(ActiveChannel):
         if not omniORB:
             raise ConfigurationError(self, 'There is no CORBA module found')
         self._initORB(['-ORBInitRef', 'NameService=corbaname::%s' %
-                       (self.nameserver, ), ])
+                       (self.nameserver, )])
 
     def doShutdown(self):
         if self._caressObject:

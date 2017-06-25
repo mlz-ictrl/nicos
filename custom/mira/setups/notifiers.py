@@ -6,7 +6,7 @@ devices = dict(
     email    = device('devices.notifiers.Mailer',
                       description = 'Reports via email',
                       sender = 'mira@frm2.tum.de',
-                      copies = [('rgeorgii@frm2.tum.de', 'all'),],
+                      copies = [('rgeorgii@frm2.tum.de', 'all')],
                       subject = 'MIRA',
                       lowlevel = True,
                      ),

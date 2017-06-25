@@ -13,6 +13,6 @@ if 'pgaa' in loaded_setups:
     maw(shutter, 'open')
     read(shutter)
     shutter.read(0)
-    scan(sample_motor, [4, 74, 144, 214, 284, 354, ])
-    scan(sample_pos, [0, 1, 2, 3, 4, 5, ])
+    scan(sample_motor, [4, 74, 144, 214, 284, 354])
+    scan(sample_pos, [0, 1, 2, 3, 4, 5])
     maw(shutter, 'closed')

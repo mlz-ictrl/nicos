@@ -27,6 +27,6 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn),],
+                     layout = [Row(_expcolumn)],
                     ),
 )

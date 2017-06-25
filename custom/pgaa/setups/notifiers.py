@@ -8,7 +8,7 @@ devices = dict(
                       sender = 'pgaa@frm2.tum.de',
                       copies = [('zsolt.revay@frm2.tum.de', 'all'),
                                 ('revayzs@gmail.com', 'all'),
-                                ('christian.stieghorst@frm2.tum.de', 'all'),],
+                                ('christian.stieghorst@frm2.tum.de', 'all')],
                       subject = 'NICOS',
                       lowlevel = True,
                      ),

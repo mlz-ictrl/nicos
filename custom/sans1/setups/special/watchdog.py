@@ -81,7 +81,7 @@ watchlist = [
 # The Watchdog device has two lists of notifiers, one for priority 1 and
 # one for priority 2.
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('services.watchdog.Watchdog',

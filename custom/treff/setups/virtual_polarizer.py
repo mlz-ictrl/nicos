@@ -74,7 +74,7 @@ devices = dict(
                     ),
     polarizer = device('devices.generic.MultiSwitcher',
                        description = 'Polarizer device',
-                       moveables = ['fl2comp', 'fl2flip', 'fl1rf', 'fl1grad', ],
+                       moveables = ['fl2comp', 'fl2flip', 'fl1rf', 'fl1grad'],
                        mapping = {'off': [0, 0, 0.016, 0.35],
                                   'on': [0, 0, 1.2, 0.35],
                                  },

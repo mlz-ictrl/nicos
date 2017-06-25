@@ -8,13 +8,13 @@ sysconfig = dict(
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink', 'serialsink', 'livesink',
-                 'tofsink', ],
+                 'tofsink'],
     notifiers = ['emailer', 'smser'],
 )
 
 modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     TOFTOF = device('devices.instrument.Instrument',
@@ -23,7 +23,7 @@ devices = dict(
                     instrument = 'TOFTOF',
                     doi = 'http://dx.doi.org/10.17815/jlsrf-1-40',
                     website = 'http://www.mlz-garching.de/toftof',
-                    operators = [u'Technische Universität München (TUM)', ],
+                    operators = [u'Technische Universität München (TUM)'],
                    ),
 
     Sample = device('devices.sample.Sample',

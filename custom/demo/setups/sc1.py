@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = []
 
-excludes = ['sc2', ]
+excludes = ['sc2']
 
 devices = dict(
     SampleChanger = device('devices.generic.ManualSwitch',

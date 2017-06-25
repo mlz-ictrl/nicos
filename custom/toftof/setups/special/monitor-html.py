@@ -212,6 +212,6 @@ devices = dict(
                      valuefont = 'Consolas',
                      # padding = 2,
                      fontsize = 17,
-                     layout = [[_expcolumn], [_col1, _col2,]],
+                     layout = [[_expcolumn], [_col1, _col2]],
                     ),
 )

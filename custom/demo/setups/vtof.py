@@ -44,7 +44,7 @@ devices = dict(
                  maxage = 3,
                  pollinterval = 0.5,
                  liveinterval = 10.0,
-                 saveintervals = [30., ],
+                 saveintervals = [30.],
                  detinfofile = 'custom/toftof/detinfo.dat',
                  # fileformats = ['tofdatasaver'],
                  # subdir = 'toftof',
@@ -269,56 +269,56 @@ devices = dict(
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv1   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 2',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv2   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 3',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv3   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 4',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv4   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 5',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv5   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 6',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv6   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 7',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
     lv7   = device('devices.generic.ManualSwitch',
                    description = 'LV power supply 8',
                    requires = {'level': 'admin'},
                    pollinterval = 10,
                    maxage = 12,
-                   states = ['off', 'on',]
+                   states = ['off', 'on']
                   ),
 
     vac0   = device('devices.generic.ManualMove',
@@ -370,7 +370,7 @@ devices = dict(
                 ),
     rc = device('devices.generic.ManualSwitch',
                 description = 'Radial collimator',
-                states = ['off', 'on',],
+                states = ['off', 'on'],
                 requires = {'level': 'admin'},
                 pollinterval = 10,
                 maxage = 12,

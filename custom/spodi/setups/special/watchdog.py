@@ -26,7 +26,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = []
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 notifiers = {
     'default':  ['email'],

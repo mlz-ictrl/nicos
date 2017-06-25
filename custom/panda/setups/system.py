@@ -14,7 +14,7 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Exp      = device('panda.experiment.PandaExperiment',

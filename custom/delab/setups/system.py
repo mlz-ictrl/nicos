@@ -5,13 +5,13 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'DEL',
     experiment = 'Exp',
-    notifiers = ['email', ],
+    notifiers = ['email'],
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
 modules = ['commands.standard', 'commands.taco']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Exp      = device('devices.experiment.Experiment',

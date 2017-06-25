@@ -44,7 +44,7 @@ opts = parser.parse_args()
 
 if opts.setup:
     appname = 'poller-' + opts.setup
-    args = [opts.setup, ]
+    args = [opts.setup]
 else:
     appname = 'poller'
     args = []

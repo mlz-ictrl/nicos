@@ -12,7 +12,7 @@ sysconfig = dict(
 
 modules = ['commands.basic', 'commands.standard', 'antares.commands']
 
-includes = ['notifiers',]
+includes = ['notifiers']
 
 devices = dict(
     Sample = device('devices.experiment.Sample',

@@ -65,7 +65,7 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
                                                   68, 70, 71, 72, 73, 76, 100,
                                                   103, 105, 106, 107, 108, 110,
                                                   111, 112, 114, 115, 123, 124,
-                                                  125, 126, ]
+                                                  125, 126]
         self.log.debug('Driveable module: %r', is_drivable)
         if not (is_drivable or is_readable):
             raise ConfigurationError(self, 'Object is not a moveable module')

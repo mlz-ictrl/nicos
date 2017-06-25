@@ -48,8 +48,8 @@ devices = dict(
                     # address the daemon service will be bound the the
                     # corresponding network interface.
                     server = '0.0.0.0',
-                    #authenticators = ['AuthLDAP',], # and/or 'UserDB'
-                    authenticators = ['Auth',], # and/or 'UserDB'
+                    #authenticators = ['AuthLDAP'], # and/or 'UserDB'
+                    authenticators = ['Auth'], # and/or 'UserDB'
                     loglevel = 'info',
                    ),
 )

@@ -2,7 +2,7 @@ description = 'acqiris detector'
 
 group = 'optional'
 
-excludes = ['qmesydaq', ]
+excludes = ['qmesydaq']
 
 includes = []
 

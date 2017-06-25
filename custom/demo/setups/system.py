@@ -18,7 +18,7 @@ devices = dict(
                         instrument = 'DEMO',
                         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                         website = 'http://www.nicos-controls.org',
-                        operators = ['NICOS developer team', ],
+                        operators = ['NICOS developer team'],
                         facility = 'NICOS demo instruments',
                        ),
 

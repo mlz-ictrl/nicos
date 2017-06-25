@@ -174,12 +174,12 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             elif key == 'users':
                 authors = experiment['authors']
                 author = self._dict()
-                self._fill_user(author, value, ['principal_investigator', ])
+                self._fill_user(author, value, ['principal_investigator'])
                 authors.append(author)
             elif key == 'localcontact':
                 authors = experiment['authors']
                 author = self._dict()
-                self._fill_user(author, value, ['local_contact', ])
+                self._fill_user(author, value, ['local_contact'])
                 authors.append(author)
 
     def _write_status(self, valuelist):
@@ -193,7 +193,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         instrument = self._data['instrument']
         for device, key, value in valuelist:
             if device not in ['demo', 'DEMO']:
-                if key in ['facility', 'website', ]:
+                if key in ['facility', 'website']:
                     instrument[key] = to_utf8(value)
                 elif key == 'instrument':
                     instrument['name'] = value

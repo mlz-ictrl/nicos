@@ -10,7 +10,7 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     SE       = device('devices.instrument.Instrument',

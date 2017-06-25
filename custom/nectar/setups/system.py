@@ -11,9 +11,9 @@ sysconfig = dict(
 )
 
 modules = ['commands.basic', 'commands.standard',
-           'antares.commands', 'nectar.commands', ]
+           'antares.commands', 'nectar.commands']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Sample   = device('devices.sample.Sample',

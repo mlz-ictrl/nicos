@@ -43,7 +43,7 @@ class PGAAPanel(Panel):
 
     panelName = 'PGAA'
 
-    positions = [4, 74, 144, 214, 284, 354, ]
+    positions = [4, 74, 144, 214, 284, 354]
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)

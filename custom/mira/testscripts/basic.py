@@ -11,7 +11,7 @@ basic_devices = [atten1, atten2, lamfilter, flip2, ms2pos, Shutter, PSDGas,
                  ss1, ss2, ms2,
                  m2th, m2tt, m2tx, m2ty, m2gx,
                  phi, om, stx, sty, stz, sgx, sgy,
-                 NL6, ReactorPower,]
+                 NL6, ReactorPower]
 
 for dev in basic_devices:
     dev.status(0)
@@ -20,7 +20,7 @@ for dev in basic_devices:
     read(dev)
 
 if 'cascade' in loaded_setups:
-    for dev in [psd, PSDHV, ]:
+    for dev in [psd, PSDHV]:
         dev.status(0)
     read(PSDHV)
     SetDetectors(psd)
@@ -28,16 +28,16 @@ if 'cascade' in loaded_setups:
 
 if 'diff' in loaded_setups:
     print(Sample.samplename)
-    for dev in [mira, vana, vath, vatt, ki, Ei, lam, ]:
+    for dev in [mira, vana, vath, vatt, ki, Ei, lam]:
         dev.status(0)
-    for dev in [mira, vana, vath, vatt, ki, Ei, lam, ]:
+    for dev in [mira, vana, vath, vatt, ki, Ei, lam]:
         read(dev)
 
 if 'tas' in loaded_setups:
     print(Sample.samplename)
-    for dev in [mira, ki, kf, Ei, Ef, ]:
+    for dev in [mira, ki, kf, Ei, Ef]:
         dev.status(0)
-    for dev in [mira, ki, kf, Ei, Ef, ]:
+    for dev in [mira, ki, kf, Ei, Ef]:
         read(dev)
 
 # basic operations

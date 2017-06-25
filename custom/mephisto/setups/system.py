@@ -5,12 +5,12 @@ sysconfig = dict(
     instrument = 'MEPHISTO',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['email', ],
+    notifiers = ['email'],
 )
 
 modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Sample   = device('devices.sample.Sample',

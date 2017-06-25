@@ -7,11 +7,11 @@ sysconfig = dict(
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
-    notifiers = ['email', 'smser', ],
+    notifiers = ['email', 'smser'],
 )
 
 modules = ['commands.standard', 'refsans.commands']
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 

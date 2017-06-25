@@ -69,7 +69,7 @@ devices = dict(
                      padding = 5,
                      layout = [
 #                                 [_expcolumn],
-                                  [_leftcolumn, _rightcolumn, ]
+                                  [_leftcolumn, _rightcolumn]
                               ],
                     ),
 )

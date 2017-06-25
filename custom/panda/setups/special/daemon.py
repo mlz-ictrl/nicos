@@ -20,7 +20,7 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
                     description = 'Daemon, executing commands and scripts',
                     server = '',
-                    authenticators = ['Auth','UserDBAuth',],
+                    authenticators = ['Auth', 'UserDBAuth'],
                     loglevel = 'debug',
                    ),
 )

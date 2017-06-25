@@ -7,6 +7,6 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    alwayspoll = ['tube_environ', 'pressure',],
+                    alwayspoll = ['tube_environ', 'pressure'],
                     blacklist = ['tas']),
 )

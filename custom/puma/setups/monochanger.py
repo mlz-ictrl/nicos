@@ -8,7 +8,7 @@ includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7', 'monochromator', 'p
 
 monostates  = ['GE311',      'PG002',      'CU220',      'CU111',      'None']
 monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111', 'mono_dummy']
-magazinpos  = [(315.4, 8),   (45.46, 1),  (135.4, 2),   (225.4, 4),]
+magazinpos  = [(315.4, 8),   (45.46, 1),  (135.4, 2),   (225.4, 4)]
 
 
 devices = dict(
@@ -40,7 +40,7 @@ devices = dict(
                     description = 'Axis for the monochromater changer lift',
                     motor = 'st_lift',
                     coder = 'co_lift',
-                    obs = ['co_lift',],
+                    obs = ['co_lift'],
                     dragerror = 20,
                     obsreadings = 100,
                     precision = 0.15,

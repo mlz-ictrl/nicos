@@ -58,7 +58,7 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
@@ -126,7 +126,7 @@ devices = dict(
                        ),
     caresssink = device('stressi.datasinks.CaressScanfileSink',
                         lowlevel = True,
-                        filenametemplate = ['m2%(scancounter)08d.dat', ],
+                        filenametemplate = ['m2%(scancounter)08d.dat'],
                        ),
     yamlsink = device('stressi.datasinks.YamlDatafileSink',
                       lowlevel = True,

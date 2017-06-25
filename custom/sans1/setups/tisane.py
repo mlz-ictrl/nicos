@@ -2,7 +2,7 @@ description = 'tisane setup for SANS1'
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'astrium', 'memograph',
-            'manual', 'guidehall', 'outerworld', 'pressure_filter',]
+            'manual', 'guidehall', 'outerworld', 'pressure_filter']
 #            'frequency']
 
 excludes = ['sans1']
@@ -12,7 +12,7 @@ group = 'basic'
 nethost = 'sans1srv.sans1.frm2'
 
 sysconfig = dict(
-    datasinks = ['Histogram', 'Listmode',]
+    datasinks = ['Histogram', 'Listmode']
 )
 
 devices = dict(

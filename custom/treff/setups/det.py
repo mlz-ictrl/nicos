@@ -47,7 +47,7 @@ devices = dict(
                            timers = ["timer"],
                            monitors = ["mon0", "mon1"],
                            images = ["detimg"],
-                           counters = ["roi1",],
+                           counters = ["roi1"],
                            postprocess = [("roi1", "detimg"),
                                          ],
                            liveinterval = 1.,

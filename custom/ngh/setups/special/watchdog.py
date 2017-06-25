@@ -26,7 +26,7 @@ watchlist = [
          gracetime = 5),
 ]
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('services.watchdog.Watchdog',

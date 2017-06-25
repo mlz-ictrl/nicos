@@ -83,5 +83,5 @@ tools = [
 ]
 
 options = {
-    'reader_classes': ['nicos.maria.npsaver',],
+    'reader_classes': ['nicos.maria.npsaver'],
 }

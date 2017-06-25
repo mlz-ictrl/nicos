@@ -37,7 +37,7 @@ notifiers = {
     'critical': ['email'],
 }
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('services.watchdog.Watchdog',

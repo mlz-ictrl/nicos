@@ -35,7 +35,7 @@ devices = dict(
                     # address the daemon service will be bound the the
                     # corresponding network interface.
                     server = 'localhost',
-                    authenticators = ['Auth',], # and/or 'UserDB'
+                    authenticators = ['Auth'], # and/or 'UserDB'
                     loglevel = 'debug',
                    ),
 )

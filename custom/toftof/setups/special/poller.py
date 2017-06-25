@@ -10,7 +10,7 @@ devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = True,
                     poll = [],
-                    neverpoll = ['detector', 'measurement', 'notifiers',],
-                    alwayspoll = ['reactor',],
+                    neverpoll = ['detector', 'measurement', 'notifiers'],
+                    alwayspoll = ['reactor'],
                     blacklist = []),
 )

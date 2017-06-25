@@ -56,7 +56,7 @@ devices = dict(
     Instr = device('devices.instrument.Instrument',
         instrument = 'INSTR',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-        operators = ['NICOS developer team', ],
+        operators = ['NICOS developer team'],
     ),
     testnotifier = device('test.utils.TestNotifier',
         sender = 'sender@example.com',

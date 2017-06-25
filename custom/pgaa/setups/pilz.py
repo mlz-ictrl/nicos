@@ -53,7 +53,7 @@ devices = dict(
                  ),
     att = device('pgaa.attenuator.Attenuator',
                  description = 'Attenuator device',
-                 moveables = ['att1', 'att2', 'att3', ],
+                 moveables = ['att1', 'att2', 'att3'],
                  readables = None,
                  precision = None,
                  unit = '%',

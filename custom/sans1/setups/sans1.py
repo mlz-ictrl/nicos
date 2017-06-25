@@ -10,7 +10,7 @@ includes = ['collimation', 'detector', 'sample_table_1', 'det1',
 excludes = ['tisane']
 
 sysconfig = dict(
-    datasinks = ['Histogram',]
+    datasinks = ['Histogram']
 )
 
 devices = dict(

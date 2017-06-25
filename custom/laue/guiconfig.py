@@ -25,7 +25,7 @@ windows = [
                                      cachesize = 40,
                                      showcached = True,
                                      instrument = 'laue',
-                                     filetypes=['tif',])),
+                                     filetypes=['tif'])),
 ]
 
 tools = [

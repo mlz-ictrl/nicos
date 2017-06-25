@@ -13,6 +13,6 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
                     server = '0.0.0.0',
                     loglevel = 'info',
-                    authenticators = ['Auth',],
+                    authenticators = ['Auth'],
                    ),
 )

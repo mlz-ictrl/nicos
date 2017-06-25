@@ -7,12 +7,12 @@ sysconfig = dict(
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['email',],
+    notifiers = ['email'],
 )
 
 modules = ['commands.standard', 'sans1.commands']
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 devices = dict(
     Sample   = device('sans1.sans1_sample.Sans1Sample',

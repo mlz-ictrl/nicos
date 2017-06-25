@@ -2,7 +2,7 @@ description = 'POLI silicon monochromator'
 
 group = 'lowlevel'
 
-includes = ['mono', ]
+includes = ['mono']
 
 excludes = []
 

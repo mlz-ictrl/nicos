@@ -36,7 +36,7 @@ watchlist = [
         ),
 ]
 
-includes = ['notifiers', ]
+includes = ['notifiers']
 
 notifiers = {
     'default':  ['email'],
