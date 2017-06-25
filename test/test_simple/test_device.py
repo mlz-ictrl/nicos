@@ -31,6 +31,8 @@ from nicos.core import ADMIN, AccessError, CommunicationError, \
 from nicos.core.sessions.utils import MAINTENANCE
 from nicos.commands.basic import NewSetup
 
+import pytest
+
 from test.utils import raises
 
 session_setup = 'device'
@@ -340,6 +342,27 @@ def test_limits(session, log):
     dev2.move(6)
     with log.assert_warns('current device value .* not within new userlimits'):
         dev2.userlimits = (0, 4)
+
+
+@pytest.mark.parametrize('new_abslimits,new_userlimits',
+                         [((-20, -10), (-20, -10)),  # completely outside
+                          ((-5, 5), (0, 5)),         # half inside
+                          ((-2, 12), (0, 10)),       # completely inside
+                          ((5, 15), (5, 10)),        # other half inside
+                          ((20, 30), (20, 30))])     # completely outside
+def test_reset_limits(session, log, new_abslimits, new_userlimits):
+    # check proper resetting of userlimits after abslimits change
+    dev2 = session.createDevice('dev2_3')
+    assert dev2.abslimits == (0, 10)  # from setup file
+    dev2.userlimits = (0, 10)
+    session.destroyDevice('dev2_3')
+    session.configured_devices['dev2_3'][1]['abslimits'] = new_abslimits
+    try:
+        dev2 = session.createDevice('dev2_3')
+        assert dev2.abslimits == new_abslimits
+        assert dev2.userlimits == new_userlimits
+    finally:
+        session.configured_devices['dev2_3'][1]['abslimits'] = (0, 10)
 
 
 def test_hascomm(session):
