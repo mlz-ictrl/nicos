@@ -73,6 +73,7 @@ def combineattr(it, attr, sep=' | '):
 def itemuid(item):
     return str(item.data(32))
 
+
 arby_functions = {
     'Straight line': ('m*x + t', 'm t'),
     'Parabola': ('a*x**2 + b*x + c', 'a b c'),

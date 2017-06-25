@@ -226,8 +226,8 @@ class ScriptExecQuestion(QMessageBox):
 
     def __init__(self):
         QMessageBox.__init__(self, QMessageBox.Information, 'Error',
-                    'A script is currently running.  What do you want to do?',
-                    QMessageBox.NoButton)
+                             'A script is currently running.  What do you want to do?',
+                             QMessageBox.NoButton)
         self.b0 = self.addButton('Cancel', QMessageBox.RejectRole)
         self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
         self.b1 = self.addButton('Queue script', QMessageBox.YesRole)
@@ -281,49 +281,67 @@ class DlgPresets(object):
 
     def set_QLineEdit(self, ctl, val):
         ctl.setText(val)
+
     def set_QListBox(self, ctl, val):
         ctl.setSelected(ctl.findItem(val), 1)
+
     def set_QListWidget(self, ctl, val):
         ctl.setCurrentItem(ctl.findItems(val, Qt.MatchExactly)[0])
+
     def set_QComboBox(self, ctl, val):
         if ctl.isEditable():
             ctl.setEditText(val)
         else:
             ctl.setCurrentIndex(val)
+
     def set_QTextEdit(self, ctl, val):
         ctl.setText(val)
+
     def set_QTabWidget(self, ctl, val):
         ctl.setCurrentIndex(val)
+
     def set_QSpinBox(self, ctl, val):
         ctl.setValue(val)
+
     def set_QRadioButton(self, ctl, val):
         ctl.setChecked(bool(val))
+
     def set_QCheckBox(self, ctl, val):
         ctl.setChecked(bool(val))
+
     def set_QDateTimeEdit(self, ctl, val):
         ctl.setDateTime(QDateTime.fromString(val))
 
     def get_QLineEdit(self, ctl):
         return ctl.text()
+
     def get_QListBox(self, ctl):
         return ctl.selectedItem().text()
+
     def get_QListWidget(self, ctl):
         return ctl.currentItem().text()
+
     def get_QComboBox(self, ctl):
         if ctl.isEditable():
             return ctl.currentText()
         else:
             return ctl.currentIndex()
+
     def get_QTextEdit(self, ctl):
         return ctl.toPlainText()
+
     def get_QTabWidget(self, ctl):
         return ctl.currentIndex()
+
     def get_QSpinBox(self, ctl):
         return ctl.value()
+
     def get_QRadioButton(self, ctl):
         return int(ctl.isChecked())
+
     def get_QCheckBox(self, ctl):
         return int(ctl.isChecked())
+
     def get_QDateTimeEdit(self, ctl):
         return ctl.dateTime().toString()
 

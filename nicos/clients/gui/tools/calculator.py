@@ -42,11 +42,13 @@ K_B = 1.3806488e-23
 PI  = 3.1415926
 MEV = 1.6021766e-22
 
+
 def tofloat(ctl):
     try:
         return float(ctl.text())
     except ValueError:
         return 0.0
+
 
 prefactor = M_N**2 / (PI * H**2)
 
@@ -86,8 +88,8 @@ class CalculatorTool(QDialog):
             self.connect(self.mzdistanceInput,
                          SIGNAL('textChanged(const QString &)'), self.mzcalc)
             self.mzformulaLabel.setPixmap(QPixmap(
-                    path.join(path.dirname(__file__), 'calculator_images',
-                              'miezefml.png')))
+                path.join(path.dirname(__file__), 'calculator_images',
+                          'miezefml.png')))
 
             self.mztimeTable.setHeaderLabels(['Setting', u'MIEZE time τ'])
             for setting in self._miezesettings:
@@ -108,7 +110,7 @@ class CalculatorTool(QDialog):
             (self.propL, '1.8'), (self.propK, '3.4907'),
             (self.propE, '25.2482'), (self.propNy, '6.1050'),
             (self.propT, '292.9934'), (self.propV, '2197.80'),
-            ])
+        ])
         self.presets.load()
         self.braggcalc()
         self.n_calc('')
@@ -138,7 +140,8 @@ class CalculatorTool(QDialog):
         given = {}
         needed = {}
         for fld, conv in zip(bragg_fields, bragg_convs):
-            if fld == 'SampleDet': continue
+            if fld == 'SampleDet':
+                continue
             if getattr(self, 'chk'+fld).isChecked():
                 given[fld] = tofloat(getattr(self, 'input'+fld)) * conv
             else:
@@ -207,7 +210,7 @@ class CalculatorTool(QDialog):
             elif self.sender() is self.propT:
                 lam = H/math.sqrt(2*M_N*K_B*float(text)) * 1e10
             elif self.sender() is self.propV:
-                lam = H/M_N/float(text)* 1e10
+                lam = H/M_N/float(text) * 1e10
             else:
                 lam = float(self.propL.text())
             if self.sender() is not self.propL:
@@ -236,6 +239,7 @@ class CalculatorTool(QDialog):
             f1 = float(f1.replace('p', '.')) * 1000  # in kHz
             f2 = float(f2.replace('p', '.')) * 1000  # in kHz
             dOmega = (f2 - f1) * 2 * PI
-            if bs: dOmega *= 2
+            if bs:
+                dOmega *= 2
             tau = (prefactor * lam**3 * dOmega * L_s) * 1e12  # in ps
             self.mztimeTable.topLevelItem(i).setText(1, '%.1f ps' % tau)

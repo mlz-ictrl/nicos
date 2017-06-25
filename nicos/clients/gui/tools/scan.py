@@ -249,7 +249,7 @@ class ScanTool(QDialog):
     def calc_qscan(self):
         numstep = toint(self.stepsInput.text())
         if self.qscanCentered.isChecked() or self.qscanLong.isChecked() or \
-               self.qscanTrans.isChecked():
+           self.qscanTrans.isChecked():
             numstep = 2 * numstep + 1
         if self.presetTime.isChecked():
             preset = tofloat(self.timeInput.text())

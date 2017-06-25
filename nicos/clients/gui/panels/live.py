@@ -21,6 +21,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+
 """Mapping for the live data panels."""
 
 try:
@@ -28,4 +29,4 @@ try:
 except ImportError:
     from nicos.clients.gui.panels.liveqwt import LiveDataPanel
 
-__all__ = ['LiveDataPanel',]
+__all__ = ['LiveDataPanel']

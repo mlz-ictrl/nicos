@@ -170,7 +170,7 @@ class TearOffTabWidget(QTabWidget):
                            'padding:0;border:none}')
         self.setDocumentMode(True)
         for entry in item:
-            _ = AuxiliarySubWindow(entry, window, menuwindow, self)
+            AuxiliarySubWindow(entry, window, menuwindow, self)
 
     def moveTab(self, fromInd, toInd):
         w = self.widget(fromInd)
@@ -219,7 +219,7 @@ class TearOffTabWidget(QTabWidget):
             if i.widget == w:              # found
                 if isinstance(widget, Panel):
                     if not visible or (visible and self.currentWidget() ==
-                        widget):
+                                       widget):
                         self._setPanelToolbars(widget, visible)
                         self._setPanelMenus(widget, visible)
                 if visible:

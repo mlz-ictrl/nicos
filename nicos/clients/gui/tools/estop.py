@@ -24,12 +24,11 @@
 
 """Always-on-top emergency stop button."""
 
-from PyQt4.QtGui import QMainWindow, QWidget, QAbstractButton, QHBoxLayout, QIcon, \
-    QPainter
+from PyQt4.QtGui import QMainWindow, QWidget, QAbstractButton, QHBoxLayout, \
+    QIcon, QPainter
 from PyQt4.QtCore import SIGNAL, Qt, QByteArray, QSize, QPoint
 
 from nicos.clients.gui.utils import SettingGroup
-from nicos.guisupport import gui_rc  # pylint: disable=W0611
 
 
 class PicButton(QAbstractButton):
@@ -42,7 +41,7 @@ class PicButton(QAbstractButton):
         painter = QPainter(self)
         mode = QIcon.Active if self.isDown() else QIcon.Normal
         pixmap = self.icon.pixmap(self._size, mode)
-        painter.drawPixmap(QPoint(0, 0), \
+        painter.drawPixmap(QPoint(0, 0),
                            pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
 
     def sizeHint(self):

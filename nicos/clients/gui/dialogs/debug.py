@@ -27,15 +27,15 @@
 import sys
 import codeop
 
-# prevent importing the traceback.py from this package
-traceback = __import__('traceback')
-
 from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
     QTextCursor, QSplitter
 from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
+
+# prevent importing the traceback.py from this package
+traceback = __import__('traceback')
 
 
 class StdoutProxy(object):

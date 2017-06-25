@@ -120,7 +120,6 @@ class DevicesPanel(Panel):
 
     panelName = 'Devices'
 
-
     def _create_icons(self):
         self.statusIcon = {}
         self.statusIcon[OK] = QIcon(':/leds/status_green')
@@ -183,7 +182,6 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('device'), self.on_client_device)
         self.connect(client, SIGNAL('setup'), self.on_client_setup)
         self.connect(client, SIGNAL('message'), self.on_client_message)
-
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
@@ -555,7 +553,8 @@ class DevicesPanel(Panel):
     @qtsig('')
     def on_actionFix_triggered(self):
         if self._menu_dev:
-            reason, ok = QInputDialog.getText(self, 'Fix',
+            reason, ok = QInputDialog.getText(
+                self, 'Fix',
                 'Please enter the reason for fixing %s:' % self._menu_dev)
             if not ok:
                 return
@@ -875,7 +874,8 @@ class ControlDialog(QDialog):
 
     @qtsig('')
     def on_actionFix_triggered(self):
-        reason, ok = QInputDialog.getText(self, 'Fix',
+        reason, ok = QInputDialog.getText(
+            self, 'Fix',
             'Please enter the reason for fixing %s:' % self.devname)
         if not ok:
             return

@@ -63,7 +63,6 @@ class CommandsPanel(Panel):
             importString(module, ('nicos.',))  # should register cmdlets
 
         for cmdlet in all_cmdlets:
-            action = QAction(cmdlet.name, self)
             def callback(on, cmdlet=cmdlet):
                 inst = cmdlet(self.frame, self.client)
                 inst.cmdletUp.connect(self.on_cmdletUp)
@@ -72,6 +71,7 @@ class CommandsPanel(Panel):
                 self.runBtn.setVisible(True)
                 self.frame.layout().insertWidget(
                     self.frame.layout().count() - 2, inst)
+            action = QAction(cmdlet.name, self)
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
 
