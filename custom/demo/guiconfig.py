@@ -36,21 +36,13 @@ main_window = docked(
                # TODO path change
                uifile='custom/demo/lib/gui/piface.ui', setups='pibox01',)
         ),
-#       ('Setup',
-#        tabbed(
-#           ('Experiment',
-#            panel('nicos.clients.gui.panels.setup_panel.ExpPanel')),
-#           ('Setups',
-#            panel('nicos.clients.gui.panels.setup_panel.SetupsPanel')),
-#           ('Detectors/Environment',
-#            panel('nicos.clients.gui.panels.setup_panel.DetEnvPanel')),
-#        ),
-#        'sans',
-#       ),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-           dockpos='right',)
+     panel('nicos.clients.gui.panels.devices.DevicesPanel',
+           dockpos='right',
+           param_display={'tas': 'scanmode',
+                          'Exp': ['lastpoint', 'lastscan']},
+          )
     ),
     ('Experiment Information and Setup',
      panel('expinfo.ExpInfoPanel',

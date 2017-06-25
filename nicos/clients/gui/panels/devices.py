@@ -38,7 +38,7 @@ from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, ScriptExecQuestion
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
-from nicos.pycompat import iteritems, srepr
+from nicos.pycompat import iteritems, itervalues, srepr, string_types
 
 
 foregroundBrush = {
@@ -80,6 +80,7 @@ lowlevelFont = {
 # QTreeWidgetItem types
 SETUP_TYPE = QTreeWidgetItem.UserType
 DEVICE_TYPE = SETUP_TYPE + 1
+PARAM_TYPE = SETUP_TYPE + 2
 
 
 def setBackgroundBrush(widget, color):
@@ -189,6 +190,11 @@ class DevicesPanel(Panel):
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self.useicons = bool(options.get('icons', True))
+        self.param_display = {}
+        param_display = options.get('param_display', {})
+        for (key, value) in param_display.items():
+            value = [value] if isinstance(value, string_types) else list(value)
+            self.param_display[key.lower()] = value
 
     def saveSettings(self, settings):
         settings.setValue('headers', self.tree.header().saveState())
@@ -224,6 +230,7 @@ class DevicesPanel(Panel):
         self._catitems = {}
         # map lowercased devname -> tree widget item
         self._devitems = {}
+        self._devparamitems = {}
         # map lowercased devname ->
         # [value, status, fmtstr, unit, expired, fixed, classes,
         #  valuetimestamp, statustimestamp]
@@ -246,6 +253,8 @@ class DevicesPanel(Panel):
         for cat in self._catitems:
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
+        for devitem in itervalues(self._devitems):
+            devitem.setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
         self._update_view()
 
@@ -363,11 +372,13 @@ class DevicesPanel(Panel):
         elif action == 'destroy':
             self._store_view()
             for devname in devlist:
-                if devname.lower() in self._devitems:
+                ldevname = devname.lower()
+                if ldevname in self._devitems:
                     # remove device item...
-                    item = self._devitems[devname.lower()]
-                    del self._devitems[devname.lower()]
-                    del self._devinfo[devname.lower()]
+                    item = self._devitems[ldevname]
+                    del self._devitems[ldevname]
+                    del self._devinfo[ldevname]
+                    self._devparamitems.pop(ldevname, None)
                     try:
                         catitem = item.parent()
                     except RuntimeError:
@@ -486,12 +497,21 @@ class DevicesPanel(Panel):
             if not value:
                 value = "[]"
             devinfo[6] = set(cache_load(value))
-        elif subkey == 'alias':
+        if subkey == 'alias':
             if not value:
                 return
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg._reinit()
+        if subkey in self.param_display.get(ldevname, ()):
+            value = str(cache_load(value))
+            if subkey not in self._devparamitems.setdefault(ldevname, {}):
+                devitem = self._devitems[ldevname]
+                self._devparamitems[ldevname][subkey] = \
+                    QTreeWidgetItem(devitem, [subkey, value, ''], PARAM_TYPE)
+                devitem.setExpanded(True)
+            else:
+                self._devparamitems[ldevname][subkey].setText(1, value)
 
     def on_tree_itemExpanded(self, item):
         item.setBackground(0, backgroundBrush[OK])
@@ -505,7 +525,8 @@ class DevicesPanel(Panel):
         return retval
 
     def on_tree_itemCollapsed(self, item):
-        item.setBackground(0, backgroundBrush[self._getHighestStatus(item)])
+        if item.type() == SETUP_TYPE:
+            item.setBackground(0, backgroundBrush[self._getHighestStatus(item)])
 
     def on_tree_customContextMenuRequested(self, point):
         item = self.tree.itemAt(point)
@@ -588,17 +609,21 @@ class DevicesPanel(Panel):
             self.plot_history(self._menu_dev)
 
     def on_tree_itemActivated(self, item, column):
-        if item.type() != DEVICE_TYPE:
-            return
-        devname = item.text(0)
-        self._open_control_dialog(devname)
+        if item.type() == DEVICE_TYPE:
+            devname = item.text(0)
+            self._open_control_dialog(devname)
+        elif item.type() == PARAM_TYPE:
+            devname = item.parent().text(0)
+            dlg = self._open_control_dialog(devname)
+            dlg.editParam(item.text(0))
 
     def _open_control_dialog(self, devname):
         ldevname = devname.lower()
         if ldevname in self._control_dialogs:
-            if self._control_dialogs[ldevname].isVisible():
-                self._control_dialogs[ldevname].activateWindow()
-                return
+            dlg = self._control_dialogs[ldevname]
+            if dlg.isVisible():
+                dlg.activateWindow()
+                return dlg
         devinfo = self._devinfo[ldevname]
         item = self._devitems[ldevname]
         dlg = ControlDialog(self, devname, devinfo, item, self.log)
@@ -606,6 +631,7 @@ class DevicesPanel(Panel):
         self.connect(dlg, SIGNAL('rejected()'), dlg.close)
         self._control_dialogs[ldevname] = dlg
         dlg.show()
+        return dlg
 
     def _control_dialog_closed(self, ldevname):
         dlg = self._control_dialogs.pop(ldevname)
@@ -906,6 +932,9 @@ class ControlDialog(QDialog):
 
     def on_paramList_itemClicked(self, item):
         pname = item.text(0)
+        self.editParam(pname)
+
+    def editParam(self, pname):
         if not self.paraminfo[pname]['settable'] or self.client.viewonly:
             return
         mainunit = self.paramvalues.get('unit', 'main')
