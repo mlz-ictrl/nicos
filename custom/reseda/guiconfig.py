@@ -1,17 +1,21 @@
 """NICOS GUI default configuration."""
 
-main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel', watermark='/resedacontrol/custom/reseda/watermark.png'),
-    ),
-    ('NICOS devices',
-     panel('devices.DevicesPanel', icons=True, dockpos='right',)
-    ),
-    ('Experiment Information and Setup',
-     panel('expinfo.ExpInfoPanel',)
-    ),
+main_window = tabbed(
+    ('Instrument', docked(
+        vsplit(
+            panel('status.ScriptStatusPanel'),
+            # panel('watch.WatchPanel'),
+            panel('console.ConsolePanel', watermark='/resedacontrol/custom/reseda/watermark.png'),
+        ),
+        ('NICOS devices',
+         panel('devices.DevicesPanel', icons=True, dockpos='right',)
+        ),
+        ('Experiment Information and Setup',
+         panel('expinfo.ExpInfoPanel',)
+        ),
+        )
+     ),
+    ('Tunewave table', panel('reseda.gui.tunewavetable.TunewaveTablePanel', tabledev='echotime'))
 )
 
 windows = [
