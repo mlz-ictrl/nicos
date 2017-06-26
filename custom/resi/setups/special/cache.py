@@ -11,7 +11,7 @@ devices = dict(
                     loglevel = 'info'),
 
     Server = device('services.cache.server.CacheServer',
-                    db = 'DBmem',
+                    db = 'DBfile',
                     server = 'resictrl.resi.frm2',
                     loglevel = 'info'),
 )
