@@ -29,20 +29,24 @@
 * automatically document attached devices
 * automatically document all the parameters of a class and refer to the ones
   inherited by base classes
+* build an index of all devices
 """
 
 from __future__ import absolute_import, division, print_function
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 from sphinx import addnodes
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
 from sphinx.util import logging
+from sphinx.util.docstrings import prepare_docstring
 
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import formatArgs
 
 logger = logging.getLogger(__name__)
@@ -187,6 +191,7 @@ class NicosClassDocumenter(ClassDocumenter):
 
         if issubclass(self.object, NicosWidget):
             self._format_properties(self.object, orig_indent)
+            return
 
         if hasattr(self.object, 'methods'):
             self._format_methods(self.object.methods.items(), orig_indent)
@@ -196,6 +201,17 @@ class NicosClassDocumenter(ClassDocumenter):
 
         if not hasattr(self.object, 'parameters'):
             return
+
+        if not hasattr(self.env, 'nicos_all_devices'):
+            self.env.nicos_all_devices = {}
+        docstr = '\n'.join(prepare_docstring(self.object.__doc__ or ''))
+        self.env.nicos_all_devices[self.object.__name__,
+                                   self.object.__module__] = {
+            'docname': self.env.docname,
+            'name': self.object.__name__,
+            'module': self.env.ref_context['py:module'],
+            'blurb': docstr.split('\n\n')[0],
+        }
 
         mandatoryparaminfo = []
         optionalparaminfo = []
@@ -318,11 +334,91 @@ def process_signature(app, objtype, fullname, obj, options, args, retann):
             return formatArgs(obj), retann
 
 
+class device_index(nodes.General, nodes.Element):
+    pass
+
+
+class DeviceIndex(Directive):
+    def run(self):
+        # simply insert a placeholder
+        return [device_index('')]
+
+
+def resolve_devindex(app, doctree, fromdocname):
+    env = app.builder.env
+
+    for indexnode in doctree.traverse(device_index):
+        table = nodes.table('')
+        group = nodes.tgroup(
+            '',
+            nodes.colspec('', colwidth=30),
+            nodes.colspec('', colwidth=30),
+            nodes.colspec('', colwidth=30),
+            cols=3
+        )
+        table.append(group)
+
+        group.append(nodes.thead(
+            '', nodes.row(
+                '',
+                nodes.entry('', nodes.paragraph('', 'Class')),
+                nodes.entry('', nodes.paragraph('', 'Module')),
+                nodes.entry('', nodes.paragraph('', 'Description')),
+            )
+        ))
+
+        body = nodes.tbody('')
+        group.append(body)
+
+        for entry in sorted(itervalues(env.nicos_all_devices),
+                            key=lambda v: v['name']):
+            if not entry['module'].startswith('nicos.devices.'):
+                continue
+            row = nodes.row('')
+
+            reftgt = '%s.%s' % (entry['module'], entry['name'])
+            node = nodes.paragraph('', '', addnodes.pending_xref(
+                '', nodes.Text(entry['name']),
+                refdomain='py', reftype='class', reftarget=reftgt))
+            env.resolve_references(node, fromdocname, app.builder)
+            row.append(nodes.entry('', node))
+
+            row.append(nodes.entry('', nodes.paragraph(
+                '', '', nodes.literal('', entry['module'][6:]))))
+
+            row.append(nodes.entry('', nodes.paragraph(
+                '', entry['blurb'])))
+
+            body.append(row)
+        indexnode.replace_self([table])
+
+
+def purge_devindex(app, env, docname):
+    if not hasattr(env, 'nicos_all_devices'):
+        return
+    env.nicos_all_devices = dict(
+        (k, e) for (k, e) in iteritems(env.nicos_all_devices)
+        if e['docname'] != docname)
+
+
+def merge_devindex(app, env, docnames, other):
+    if not hasattr(other, 'nicos_all_devices'):
+        return
+    if not hasattr(env, 'nicos_all_devices'):
+        env.nicos_all_devices = {}
+    env.nicos_all_devices.update(other.nicos_all_devices)
+
+
 def setup(app):
+    app.add_directive('deviceindex', DeviceIndex)
     app.add_directive_to_domain('py', 'parameter', PyParameter)
     app.add_directive_to_domain('py', 'derivedparameter', PyDerivedParameter)
     app.add_autodocumenter(NicosClassDocumenter)
+    app.add_node(device_index)
     app.connect('autodoc-process-signature', process_signature)
+    app.connect('doctree-resolved', resolve_devindex)
+    app.connect('env-purge-doc', purge_devindex)
+    app.connect('env-merge-info', merge_devindex)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
     return {'parallel_read_safe': True,
             'version': '0.1.0', }

@@ -23,3 +23,4 @@ distribution.
    nicos_sinq
    nicos_batan
    nicos_demo
+   devindex
