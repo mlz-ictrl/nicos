@@ -16,6 +16,12 @@ _shutterBlock = Block('Shutter', [
              )
     ],
 )
+_hoverBlock = Block('Hover feet', [
+    BlockRow(Field(name='Gonio/opt.Bench', dev='hover_mono'),
+             Field(name='Detector', dev='hover_theta'),
+             )
+    ],
+)
 _counterBlock = Block('Counter', [
     BlockRow(Field(name='Counter', dev='det1'),
              Field(name='Monitor', dev='mon1'),
@@ -56,6 +62,7 @@ _thirdRow = Row(
     )
 _forthRow = Row(
     Column(_outsideWorldBlock),
+    Column(_hoverBlock),
     )
 
 
