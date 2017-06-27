@@ -411,8 +411,14 @@ for i in range(10, 22 + 1):
                    unitkey='t/unit'),
         ),
         BlockRow(
-            Field(name='Manual Heater Power', key='t_ccr%d/heaterpower' % i,
-                   format='%.3f', unitkey='t/unit'),
+            Field(name='Manual Heater Power Stick',
+                  key='t_ccr%d_stick/heaterpower' % i, format='%.3f',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power Tube',
+                  key='t_ccr%d_tube/heaterpower' % i, format='%.3f',
+                  unitkey='t/unit'),
         ),
         BlockRow(
             Field(name='P1 ', dev='ccr%d_p1' % i, format='%.3f'),
@@ -550,8 +556,9 @@ _sans1julabo = Block('Julabo', [
     BlockRow(
              Field(name='Setpoint Extern', key='T_julabo_extern/setpoint',
                    format='%.1f', unit='C', width=16),
-             Field(name='Heater Power Extern', key='T_julabo_extern/heateroutput',
-                   format='%.1f', unit='%', width=16),
+             Field(name='Heater Power Extern',
+                   key='T_julabo_extern/heateroutput', format='%.1f', unit='%',
+                   width=16),
             ),
     BlockRow(
              Field(name='P Extern', key='T_julabo_extern/p', format='%.2f'),

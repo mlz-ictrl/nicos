@@ -18,16 +18,16 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='selector_rpm', dev='selector_rpm'),
-                 Field(name='selector_lambda', dev='selector_lambda'),
+                 Field(name='selector_rpm', dev='selector_rpm', width=16),
+                 Field(name='selector_lambda', dev='selector_lambda', width=16),
                  ),
         BlockRow(
-                 Field(name='selector_ng', dev='selector_ng'),
-                 Field(name='selector_tilt', dev='selector_tilt'),
+                 Field(name='selector_ng', dev='selector_ng', width=16),
+                 Field(name='selector_tilt', dev='selector_tilt', width=16),
                 ),
         BlockRow(
-                 Field(name='water flow', dev='selector_wflow'),
-                 Field(name='rotor temp.', dev='selector_rtemp'),
+                 Field(name='water flow', dev='selector_wflow', width=16),
+                 Field(name='rotor temp.', dev='selector_rtemp', width=16),
                 ),
         ],
     ),
@@ -45,7 +45,7 @@ _ubahncolumn = Column(
 _meteocolumn = Column(
     Block('Outside Temp', [
         BlockRow(
-                 Field(name='Temp', dev='meteo'),
+                 Field(name='Temp', dev='meteo', width=12),
                 ),
         ],
     ),
@@ -67,13 +67,13 @@ _pressurecolumn = Column(
 _table2 = Column(
     Block('Sample Table 2', [
         BlockRow(
-                 Field(name='st2_z', dev='st2_z', width=11),
+                 Field(name='st2_z', dev='st2_z', width=13),
                  ),
         BlockRow(
-                 Field(name='st2_y', dev='st2_y', width=11),
+                 Field(name='st2_y', dev='st2_y', width=13),
                  ),
         BlockRow(
-                 Field(name='st2_x', dev='st2_x', width=11),
+                 Field(name='st2_x', dev='st2_x', width=13),
                  ),
         ],
         setups='sample_table_2',
@@ -83,16 +83,16 @@ _table2 = Column(
 _table1 = Column(
     Block('Sample Table 1', [
         BlockRow(
-                 Field(name='st1_phi', dev='st1_phi', width=11),
-                 Field(name='st1_y', dev='st1_y', width=11),
+                 Field(name='st1_phi', dev='st1_phi', width=13),
+                 Field(name='st1_y', dev='st1_y', width=13),
                  ),
         BlockRow(
-                 Field(name='st1_chi', dev='st1_chi', width=11),
-                  Field(name='st1_z', dev='st1_z', width=11),
+                 Field(name='st1_chi', dev='st1_chi', width=13),
+                  Field(name='st1_z', dev='st1_z', width=13),
                 ),
         BlockRow(
-                 Field(name='st1_omg', dev='st1_omg', width=11),
-                 Field(name='st1_x', dev='st1_x', width=11),
+                 Field(name='st1_omg', dev='st1_omg', width=13),
+                 Field(name='st1_x', dev='st1_x', width=13),
                 ),
         ],
         setups='sample_table_1',
@@ -109,16 +109,21 @@ _sans1general = Column(
         BlockRow(
                  Field(name='T in', dev='t_in_memograph', width=12, unit='C'),
                  Field(name='T out', dev='t_out_memograph', width=12, unit='C'),
-                 Field(name='Cooling', dev='cooling_memograph', width=12, unit='kW'),
+                 Field(name='Cooling', dev='cooling_memograph', width=12,
+                       unit='kW'),
                 ),
         BlockRow(
-                 Field(name='Flow in', dev='flow_in_memograph', width=12, unit='l/min'),
-                 Field(name='Flow out', dev='flow_out_memograph', width=12, unit='l/min'),
-                 Field(name='Leakage', dev='leak_memograph', width=12, unit='l/min'),
+                 Field(name='Flow in', dev='flow_in_memograph', width=12,
+                       unit='l/min'),
+                 Field(name='Flow out', dev='flow_out_memograph', width=12,
+                       unit='l/min'),
+                 Field(name='Leakage', dev='leak_memograph', width=12,
+                       unit='l/min'),
                 ),
         BlockRow(
                  Field(name='P in', dev='p_in_memograph', width=12, unit='bar'),
-                 Field(name='P out', dev='p_out_memograph', width=12, unit='bar'),
+                 Field(name='P out', dev='p_out_memograph', width=12,
+                       unit='bar'),
                  Field(name='Crane Pos', dev='Crane', width=12),
                 ),
         ],
@@ -157,10 +162,10 @@ _sans1det = Column(
 _atpolcolumn = Column(
     Block('Attenuator / Polarizer',[
         BlockRow(
-                 Field(dev='att', name='att', width=7),
+                 Field(dev='att', name='att', width=12),
                  ),
         BlockRow(
-                 Field(dev='ng_pol', name='ng_pol', width=7),
+                 Field(dev='ng_pol', name='ng_pol', width=12),
                 ),
         ],
     ),
@@ -169,13 +174,14 @@ _atpolcolumn = Column(
 _sanscolumn = Column(
     Block('Collimation',[
         BlockRow(
-                 Field(dev='bg1', name='bg1', width=5),
-                 Field(dev='bg2', name='bg2', width=5),
-                 Field(dev='sa1', name='sa1', width=5),
-                 Field(dev='sa2', name='sa2', width=5),
+                 Field(dev='bg1', name='bg1', width=12),
+                 Field(dev='bg2', name='bg2', width=12),
+                 Field(dev='sa1', name='sa1', width=12),
+                 Field(dev='sa2', name='sa2', width=12),
                 ),
         BlockRow(
-                 Field(dev='col', name='col', unit='m'),
+                 Field(dev='col', name='col', unit='m', format = '%.1f',
+                       width=12),
                 ),
         ],
     ),
@@ -217,10 +223,14 @@ _miramagnet = Column(
 _miramagnet_plot = Column(
     Block('Miramagnet plot', [
         BlockRow(
-                 Field(plot='30 min miramagnet', name='30 min', dev='B_miramagnet', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min miramagnet', name='Target', key='B_miramagnet/target'),
-                 Field(plot='12 h miramagnet', name='12 h', dev='B_miramagnet', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h miramagnet', name='Target', key='B_miramagnet/target'),
+                 Field(plot='30 min miramagnet', name='30 min',
+                       dev='B_miramagnet', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min miramagnet', name='Target',
+                       key='B_miramagnet/target'),
+                 Field(plot='12 h miramagnet', name='12 h', dev='B_miramagnet',
+                       width=60,height=40, plotwindow=12*3600),
+                 Field(plot='12 h miramagnet', name='Target',
+                       key='B_miramagnet/target'),
         ),
         ],
         setups='miramagnet',
@@ -290,12 +300,12 @@ _ccmsanssc = Column(
 _htf03 = Column(
     Block('HTF03', [
         BlockRow(
-            Field(name='Temperature', dev='T_htf03', format = '%.2f'),
-            Field(name='Target', key='t_htf03/target', format = '%.2f'),
+            Field(name='Temperature', dev='T_htf03', format='%.2f'),
+            Field(name='Target', key='t_htf03/target', format='%.2f'),
         ),
         BlockRow(
-            Field(name='Setpoint', key='t_htf03/setpoint', format = '%.1f'),
-            Field(name='Heater Power', key='t_htf03/heaterpower', format = '%.1f'),
+            Field(name='Setpoint', key='t_htf03/setpoint', format='%.1f'),
+            Field(name='Heater Power', key='t_htf03/heaterpower', format='%.1f'),
         ),
         ],
         setups='htf03',
@@ -305,11 +315,15 @@ _htf03 = Column(
 _htf03_plot = Column(
     Block('HTF03 plot', [
         BlockRow(
-                 Field(plot='30 min htf03', name='30 min', dev='T_htf03', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min htf03', name='Setpoint', dev='T_htf03/setpoint'),
+                 Field(plot='30 min htf03', name='30 min', dev='T_htf03',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min htf03', name='Setpoint',
+                       dev='T_htf03/setpoint'),
                  Field(plot='30 min htf03', name='Target', dev='T_htf03/target'),
-                 Field(plot='12 h htf03', name='12 h', dev='T_htf03', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h htf03', name='Setpoint', dev='T_htf03/setpoint'),
+                 Field(plot='12 h htf03', name='12 h', dev='T_htf03', width=60,
+                       height=40, plotwindow=12*3600),
+                 Field(plot='12 h htf03', name='Setpoint',
+                       dev='T_htf03/setpoint'),
                  Field(plot='12 h htf03', name='Target', dev='T_htf03/target'),
         ),
         ],
@@ -320,12 +334,12 @@ _htf03_plot = Column(
 _irf01 = Column(
     Block('IRF01', [
         BlockRow(
-            Field(name='Temperature', dev='T_irf01', format = '%.2f'),
-            Field(name='Target', key='t_irf01/target', format = '%.2f'),
+            Field(name='Temperature', dev='T_irf01', format='%.2f'),
+            Field(name='Target', key='t_irf01/target', format='%.2f'),
         ),
         BlockRow(
-            Field(name='Setpoint', key='t_irf01/setpoint', format = '%.1f'),
-            Field(name='Heater Power', key='t_irf01/heaterpower', format = '%.1f'),
+            Field(name='Setpoint', key='t_irf01/setpoint', format='%.1f'),
+            Field(name='Heater Power', key='t_irf01/heaterpower', format='%.1f'),
         ),
         ],
         setups='irf01',
@@ -335,11 +349,15 @@ _irf01 = Column(
 _irf01_plot = Column(
     Block('IRF01 plot', [
         BlockRow(
-                 Field(plot='30 min irf01', name='30 min', dev='T_irf01', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min irf01', name='Setpoint', dev='T_irf01/setpoint'),
+                 Field(plot='30 min irf01', name='30 min', dev='T_irf01',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min irf01', name='Setpoint',
+                       dev='T_irf01/setpoint'),
                  Field(plot='30 min irf01', name='Target', dev='T_irf01/target'),
-                 Field(plot='12 h irf01', name='12 h', dev='T_irf01', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h irf01', name='Setpoint', dev='T_irf01/setpoint'),
+                 Field(plot='12 h irf01', name='12 h', dev='T_irf01', width=60,
+                       height=40, plotwindow=12*3600),
+                 Field(plot='12 h irf01', name='Setpoint',
+                       dev='T_irf01/setpoint'),
                  Field(plot='12 h irf01', name='Target', dev='T_irf01/target'),
         ),
         ],
@@ -350,12 +368,12 @@ _irf01_plot = Column(
 _htf01 = Column(
     Block('HTF01', [
         BlockRow(
-            Field(name='Temperature', dev='T_htf01', format = '%.2f'),
-            Field(name='Target', key='t_htf01/target', format = '%.2f'),
+            Field(name='Temperature', dev='T_htf01', format='%.2f'),
+            Field(name='Target', key='t_htf01/target', format='%.2f'),
         ),
         BlockRow(
-            Field(name='Setpoint', key='t_htf01/setpoint', format = '%.1f'),
-            Field(name='Heater Power', key='t_htf01/heaterpower', format = '%.1f'),
+            Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f'),
+            Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f'),
         ),
         ],
         setups='htf01',
@@ -365,9 +383,9 @@ _htf01 = Column(
 _p_filter = Column(
     Block('Pressure Water Filter FAK40', [
         BlockRow(
-                 Field(name='P in', dev='p_in_filter', width=9.5, unit='bar'),
-                 Field(name='P out', dev='p_out_filter', width=9.5, unit='bar'),
-                 Field(name='P diff', dev='p_diff_filter', width=9.5, unit='bar'),
+                 Field(name='P in', dev='p_in_filter', width=12, unit='bar'),
+                 Field(name='P out', dev='p_out_filter', width=12, unit='bar'),
+                 Field(name='P diff', dev='p_diff_filter', width=12, unit='bar'),
                 ),
         ],
     ),
@@ -375,15 +393,15 @@ _p_filter = Column(
 
 _ccmsans = Column(
     Block('SANS-1 5T Magnet', [
-        BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
+        BlockRow(Field(name='Field', dev='b_ccmsans', width=14),
                 ),
         BlockRow(
-                 Field(name='Target', key='b_ccmsans/target', width=12),
-                 Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
+                 Field(name='Target', key='b_ccmsans/target', width=14),
+                 Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=14),
                 ),
         BlockRow(
-                 Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
-                 Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
+                 Field(name='Power Supply 1', dev='a_ccmsans_left', width=14),
+                 Field(name='Power Supply 2', dev='a_ccmsans_right', width=14),
                 ),
         ],
         setups='ccmsans',
@@ -393,20 +411,20 @@ _ccmsans = Column(
 _ccmsans_temperature = Column(
     Block('SANS-1 5T Magnet Temperatures', [
         BlockRow(
-                 Field(name='CH Stage 1', dev='ccmsans_T1', width=12),
-                 Field(name='CH Stage 2', dev='ccmsans_T2', width=12),
+                 Field(name='CH Stage 1', dev='ccmsans_T1', width=14),
+                 Field(name='CH Stage 2', dev='ccmsans_T2', width=14),
                 ),
         BlockRow(
-                 Field(name='Shield Top', dev='ccmsans_T3', width=12),
-                 Field(name='Shield Bottom', dev='ccmsans_T4', width=12),
+                 Field(name='Shield Top', dev='ccmsans_T3', width=14),
+                 Field(name='Shield Bottom', dev='ccmsans_T4', width=14),
                 ),
         BlockRow(
-                 Field(name='Magnet TL', dev='ccmsans_T5', width=12),
-                 Field(name='Magnet TR', dev='ccmsans_T6', width=12),
+                 Field(name='Magnet TL', dev='ccmsans_T5', width=14),
+                 Field(name='Magnet TR', dev='ccmsans_T6', width=14),
                 ),
         BlockRow(
-                 Field(name='Magnet BL', dev='ccmsans_T8', width=12),
-                 Field(name='Magnet BR', dev='ccmsans_T7', width=12),
+                 Field(name='Magnet BL', dev='ccmsans_T8', width=14),
+                 Field(name='Magnet BR', dev='ccmsans_T7', width=14),
                 ),
         ],
         setups='ccmsans',
@@ -416,10 +434,14 @@ _ccmsans_temperature = Column(
 _ccmsans_plot = Column(
     Block('SANS-1 5T Magnet plot', [
         BlockRow(
-                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans', width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min ccmsans', name='Target', key='B_ccmsans/target'),
-                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmsans', width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h ccmsans', name='Target', key='B_ccmsans/target'),
+                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccmsans', name='Target',
+                       key='B_ccmsans/target'),
+                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmsans',
+                       width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h ccmsans', name='Target',
+                       key='B_ccmsans/target'),
         ),
         ],
         setups='ccmsans',
@@ -458,9 +480,11 @@ _ccm2a_temperature = Column(
 _ccm2a_plot = Column(
     Block('CCM2a Magnet plot', [
         BlockRow(
-                 Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a',
+                       width=60, height=40, plotwindow=1800),
                  Field(plot='30 min ccm2a', name='Target', key='B_ccm2a/target'),
-                 Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60,
+                       height=40, plotwindow=12*3600),
                  Field(plot='12 h ccm2a', name='Target', key='B_ccm2a/target'),
         ),
         ],
@@ -471,7 +495,8 @@ _ccm2a_plot = Column(
 _ccr19_plot = Column(
     Block('30min T and Ts plot', [
         BlockRow(
-                 Field(plot='30 min ccr19', name='T', dev='T', width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min ccr19', name='T', dev='T', width=60,
+                       height=40, plotwindow=1800),
                  Field(plot='30 min ccr19', name='Ts', dev='Ts'),
                  Field(plot='30 min ccr19', name='Setpoint', key='T/setpoint'),
                  Field(plot='30 min ccr19', name='Target', key='T/target'),
@@ -508,7 +533,7 @@ for k in [1,2,3,4,5,10,11,12]:
     newports.append(Block('NewPort%02d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport%02d' % k,
-                   unitkey='t/unit'),
+                   unitkey='t/unit', width=12),
         ),
         ],
         setups='newport%02d' % k,
@@ -520,17 +545,25 @@ for i in range(10, 22 + 1):
     ccrs.append(Block('CCR%d' % i, [
         BlockRow(
                  Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
-                       unitkey='t/unit'),
-                 Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
-                       unitkey=''),
+                       unitkey='t/unit', width=12),
+                 Field(name='Target', key='t_ccr%d/target' % i,
+                   unitkey='t/unit', width=12),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power Stick',
+                  key='t_ccr%d_stick/heaterpower' % i, format='%.3f'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power Tube',
+                  key='t_ccr%d_tube/heaterpower' % i, format='%.3f'),
+        ),
+        BlockRow(
+                 Field(name='A', dev='T_ccr%d_A' % i, width=12),
+                 Field(name='B', dev='T_ccr%d_B' % i, width=12),
                 ),
         BlockRow(
-                 Field(name='A', dev='T_ccr%d_A' % i),
-                 Field(name='B', dev='T_ccr%d_B' % i),
-                ),
-        BlockRow(
-             Field(name='C', dev='T_ccr%d_C' % i),
-             Field(name='D', dev='T_ccr%d_D' % i),
+             Field(name='C', dev='T_ccr%d_C' % i, width=12),
+             Field(name='D', dev='T_ccr%d_D' % i, width=12),
         ),
         ],
         setups='ccr%d' % i,
@@ -569,12 +602,16 @@ _julabo = Column(
 _julabo_plot = Column(
     Block('Julabo plot', [
         BlockRow(
-                 Field(plot='julabo 30min', name='T intern 30min', dev='T_julabo_intern',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='julabo 30min', name='T extern 30min', dev='T_julabo_extern'),
-                 Field(plot='julabo 12h', name='T intern 12h', dev='T_julabo_intern',
-                       width=60, height=40, plotwindow=12*3600),
-                 Field(plot='julabo 12h', name='T extern 12h', dev='T_julabo_extern'),
+                 Field(plot='julabo 30min', name='T intern 30min',
+                       dev='T_julabo_intern', width=60, height=40,
+                       plotwindow=1800),
+                 Field(plot='julabo 30min', name='T extern 30min',
+                       dev='T_julabo_extern'),
+                 Field(plot='julabo 12h', name='T intern 12h',
+                       dev='T_julabo_intern', width=60, height=40,
+                       plotwindow=12*3600),
+                 Field(plot='julabo 12h', name='T extern 12h',
+                       dev='T_julabo_extern'),
         ),
         ],
         setups='julabo',
@@ -584,19 +621,19 @@ _julabo_plot = Column(
 _tisane_fg1 = Column(
     Block('TISANE Frequency Generator 1 - Sample', [
         BlockRow(
-                Field(name='Frequency', key='tisane_fg1/frequency', format='%.2e',
-                      unit='Hz', width=12),
+                Field(name='Frequency', key='tisane_fg1/frequency',
+                      format='%.2e', unit='Hz', width=12),
                 ),
         BlockRow(
-                Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f',
-                      unit='V', width=12),
+                Field(name='Amplitude', key='tisane_fg1/amplitude',
+                      format='%.2f', unit='V', width=12),
                 Field(name='Offset', key='tisane_fg1/offset', format='%.2f',
                       unit='V', width=12),
                 ),
         BlockRow(
                 Field(name='Shape', key='tisane_fg1/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i', unit='%',
-                      width=12),
+                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i',
+                      unit='%', width=12),
                 ),
         ],
         setups='tisane',
@@ -606,19 +643,19 @@ _tisane_fg1 = Column(
 _tisane_fg2 = Column(
     Block('TISANE Frequency Generator 2 - Detector', [
         BlockRow(
-                Field(name='Frequency', key='tisane_fg2/frequency', format='%.2e',
-                      unit='Hz', width=12),
+                Field(name='Frequency', key='tisane_fg2/frequency',
+                      format='%.2e', unit='Hz', width=12),
                 ),
         BlockRow(
-                Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f',
+                Field(name='Amplitude', key='tisane_fg2/amplitude',
+                      format='%.2f', unit='V', width=12),
+                Field(name='Offset', key='tisane_fg2/offset', format='%.2f',
                       unit='V', width=12),
-                Field(name='Offset', key='tisane_fg2/offset', format='%.2f', unit='V',
-                      width=12),
                 ),
         BlockRow(
                 Field(name='Shape', key='tisane_fg2/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i', unit='%',
-                      width=12),
+                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i',
+                      unit='%', width=12),
                 ),
         ],
         setups='tisane',
@@ -660,17 +697,21 @@ _live = Column(
 _col_slit = Column(
     Block('Slit Positions', [
         BlockRow(
-                 Field(name='Top', dev='slit_top', unit='mm', format='%.2f'),
+                 Field(name='Top', dev='slit_top', unit='mm', format='%.2f',
+                       width=12),
                 ),
         BlockRow(
-                 Field(name='Left', dev='slit_left', unit='mm', format='%.2f'),
-                 Field(name='Right', dev='slit_right', unit='mm', format='%.2f'),
+                 Field(name='Left', dev='slit_left', unit='mm', format='%.2f',
+                       width=12),
+                 Field(name='Right', dev='slit_right', unit='mm', format='%.2f',
+                       width=12),
                 ),
         BlockRow(
-                 Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
+                 Field(name='Bottom', dev='slit_bottom', unit='mm',
+                       format='%.2f', width=12),
                 ),
         BlockRow(
-                 Field(name='Slit [width, height]', dev='slit', unit='mm', width=12),
+                 Field(name='Slit [width, height]', dev='slit', unit='mm'),
                 ),
         ],
     ),
@@ -701,16 +742,19 @@ devices = dict(
                                  Row(_expcolumn),
                                  Row(_sans1general, _table2, _table1,
                                      _sans1det),
-                                 Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
-                                 Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
+                                 Row(_ubahncolumn, _meteocolumn,
+                                     _pressurecolumn, _p_filter),
+                                 Row(_selcolumn, _col_slit, _atpolcolumn,
+                                     _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _ccm2a, _ccm2a_temperature,
-                                     _spinflipper, _ccrs, _cryos, _sc1, _sc2, _sc_t,
-                                     _ccmsanssc, _miramagnet, _amagnet, _htf03, _htf01, _irf01,
-                                     _newports, _julabo, _tisane_counts, _tisane_fc,
-                                     _tisane_fg1, _tisane_fg2, _helios01),
-                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot, _htf03_plot,
-                                     _irf01_plot, _julabo_plot),
+                                     _spinflipper, _ccrs, _cryos, _sc1, _sc2,
+                                     _sc_t, _ccmsanssc, _miramagnet, _amagnet,
+                                     _htf03, _htf01, _irf01, _newports, _julabo,
+                                     _tisane_counts, _tisane_fc, _tisane_fg1,
+                                     _tisane_fg2, _helios01),
+                                 Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
+                                     _htf03_plot, _irf01_plot, _julabo_plot),
                                  Row(_live),
                                ],
                     ),
