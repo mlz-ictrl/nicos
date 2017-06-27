@@ -273,7 +273,7 @@ class DeviceMeta(DeviceMixinMeta):
             if name.startswith(('_', 'do')):
                 continue
             value = getattr(newtype, name)
-            if not isinstance(value, types.MethodType):
+            if not isinstance(value, (types.FunctionType, types.MethodType)):
                 newtype.class_attributes[name] = value
                 continue
             argspec = inspect.getargspec(value)
