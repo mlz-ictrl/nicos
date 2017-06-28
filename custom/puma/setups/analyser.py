@@ -96,7 +96,7 @@ devices = dict(
                     maxtries = 8,
                    ),
 
-# Focusing
+# Focusing horizontal for PG analyzer
 
    st_afpg = device('puma.ipc_puma.Motor1',
                     bus = 'motorbus6',
@@ -129,6 +129,45 @@ devices = dict(
                    precision = 0.25,
                    maxtries = 15,
                   ),
+
+# Focusing horizontal for Ge311 Analysator
+# st_slope = -372.9
+# st_zerosteps = 508372.6
+# co_slope = -81.13
+# co_zerosteps = 6262.19
+
+   st_afge = device('puma.ipc_puma.Motor1',
+                    bus = 'motorbus6',
+                    addr = 68,
+                    slope = -372.9,
+                    unit = 'deg',
+                    abslimits = (-55, 55),
+                    zerosteps = 508372.6,
+                    lowlevel = True,
+                   ),
+
+   co_afge = device('puma.ipc_puma.Coder',
+                    bus = 'motorbus6',
+                    addr = 94,
+                    slope = -81.13,
+                    zerosteps = 6262.19,
+                    unit = 'deg',
+                    lowlevel = True,
+                   ),
+   afge   = device('puma.focus.FocusAxis',
+                   description = 'Horizontal focus of Ge-analyser',
+                   motor = 'st_afge',
+                   coder = 'co_afge',
+                   obs = [],
+                   uplimit = 55,
+                   lowlimit = -55,
+                   abslimits = (-55, 55),
+                   flatpos = 4.92,
+                   startpos = 4,
+                   precision = 0.25,
+                   maxtries = 15,
+                  ),
+
 
 # Tilt and Translation
 
