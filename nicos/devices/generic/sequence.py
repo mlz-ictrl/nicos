@@ -350,6 +350,7 @@ class SequencerMixin(DeviceMixinBase):
             self._sequence(sequence)
         finally:
             self._seq_stopflag = False
+            self._cleanUp()
 
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
@@ -559,6 +560,14 @@ class SequencerMixin(DeviceMixinBase):
         Default is to re-raise the exception.
         """
         reraise(*exc_info)
+
+    def _cleanUp(self):
+        """Called at the end of the sequence thread.
+
+        It could perform a clean up on derived devices to bring it back into
+        a 'normal' state.
+        """
+        pass
 
 
 class BaseSequencer(SequencerMixin, Moveable):
