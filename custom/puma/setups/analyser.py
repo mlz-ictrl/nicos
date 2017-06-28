@@ -49,52 +49,57 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-#    ath_st = device('devices.generic.VirtualMotor',
-#                    unit = 'deg',
-#                    speed = 1,
-#                    abslimits = (-180, 180),
-##                   precision = 0.05,
-#                    curvalue = 35,
-#                   ),
+    # ath_stv = device('devices.generic.virtual.VirtualMotor',
+    #                  unit = 'deg',
+    #                  speed = 1,
+    #                  abslimits = (-180, 180),
+    #                  curvalue = 35,
+    #                 ),
 
-#    att_st = device('devices.generic.VirtualMotor',
-#                    unit = 'deg',
-#                    speed = 1,
-#                    abslimits = (-180, 180),
-##                   precision = 0.05,
-#                    curvalue = 70,
-#                   ),
+    # att_stv = device('devices.generic.virtual.VirtualMotor',
+    #                  unit = 'deg',
+    #                  speed = 1,
+    #                  abslimits = (-180, 180),
+    #                  curvalue = 70,
+    #                 ),
 
+    # att = device('devices.generic.Axis',
+    #              description = 'Virtual scattering angle two-theta of analyser',
+    #              motor = 'att_stv',
+    #              obs = [],
+    #              precision = 0.01,
+    #              maxtries = 30,
+    #             ),
 
-    att    = device('devices.generic.Axis',
-                    description = 'Scattering angle two-theta of analyser',
-                    motor = 'st_att',
-                    coder = 'co_att',
-                    obs = [],
-                    precision = 0.01,
-                    offset = -0.369, # offset = 0.379, focused before magnet used 16.09.2014
-#                   offset = 0.307, # with collimator
-                    maxtries = 30,
-                   ),
+    # ath = device('devices.generic.Axis',
+    #              description = 'Virtual Rocking angle theta of analyser',
+    #              motor = 'ath_stv',
+    #              obs = [],
+    #              precision = 0.01,
+    #              maxtries = 8,
+    #             ),
 
-#    att    = device('devices.generic.VirtualMotor',
-#                    description = 'Scattering angle two-theta of analyser',
-#                   ),
-#
-#    ath    = device('devices.generic.VirtualMotor',
-#                    description = 'Scattering angle two-theta of analyser',
-#                   ),
+    att = device('devices.generic.Axis',
+                 description = 'Scattering angle two-theta of analyser',
+                 motor = 'st_att',
+                 coder = 'co_att',
+                 obs = [],
+                 precision = 0.01,
+                 offset = -0.037, # offset = 0.379, focused before magnet used 16.09.2014
+                 # offset = 0.307, # with collimator
+                 maxtries = 30,
+                ),
 
-    ath    = device('devices.generic.Axis',
-                    description = 'Rocking angle theta of analyser',
-                    motor = 'st_ath',
-                    coder = 'co_ath',
-                    obs = [],
-                    precision = 0.01,
-##                   offset = -0.678, #with collimator
-                    offset = -0.470, # offset = -0.719, focussed before magnet used 16.09.2014
-                    maxtries = 8,
-                   ),
+    ath = device('devices.generic.Axis',
+                 description = 'Rocking angle theta of analyser',
+                 motor = 'st_ath',
+                 coder = 'co_ath',
+                 obs = [],
+                 precision = 0.01,
+                 # offset = -0.678, #with collimator
+                 offset = -0.44176, # offset = -0.719, focussed before magnet used 16.09.2014
+                 maxtries = 8,
+                ),
 
 # Focusing horizontal for PG analyzer
 

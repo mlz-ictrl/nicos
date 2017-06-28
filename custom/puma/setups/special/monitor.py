@@ -6,7 +6,7 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=60,
                        istext=True, maxlen=60),
-		 Field(name='Sample', key='sample/samplename', width=20),
+                 Field(name='Sample', key='sample/samplename', width=20),
                  ),
         BlockRow(Field(name='Current status', key='exp/action', width=60,
                        istext=True, maxlen=60),
@@ -22,7 +22,9 @@ _axisblock = Block('Axes angles', [
     BlockRow(Field(name='Focus mono', key='mono/focmode'),'mfhcu','mfvcu'),
     BlockRow('psi', 'phi'),
     BlockRow('ath', 'att'),
-    BlockRow(Field(name='Analyzer', key='ana/alias'), Field(name='Focus ana', key='ana/focmode'),'afpg'),
+    BlockRow(Field(name='Analyzer', key='ana/alias'),
+             Field(name='Focus ana', key='ana/focmode'),
+             'afpg'),
     ],
     setups='puma',  # this is the name of a setup that must be loaded in the
                     # NICOS master instance for this block to be displayed
@@ -50,12 +52,12 @@ _slits = Block('Slits', [
 
 _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
-             Field(name='mon1',  dev='mon1'),
-	     Field(name='Preset',  key='mon1/preselection'), #'mon1/value'/'mon1/preselection'*'det2/value'
+             Field(name='mon1', dev='mon1'),
+             Field(name='Preset', key='mon1/preselection'), #'mon1/value'/'mon1/preselection'*'det2/value' 'mon1/preselection'
             ),
-    BlockRow(Field(name='det1',  dev='det1'),
-             Field(name='det2',  dev='det2'),
-	     Field(name='det3',  dev='det3'),
+    BlockRow(Field(name='det1', dev='det1'),
+             Field(name='det2', dev='det2'),
+             Field(name='det3', dev='det3'),
             ),
     ],
 )
@@ -85,26 +87,31 @@ _tempblock = Block('Temperature', [
             Field(name='Heater power', key='t_ls340/heaterpower')),
    BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
             Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
-	    Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
+             Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
    ],
    setups='lakeshore',
 )
 
-#_tempblock = Block('Temperature', [
-#   BlockRow(Field(name='Control',dev='t_ccr16_tube'),
-#            Field(key='t_ccr16_tube/setpoint', name='Setpoint'),
-#            Field(key='t_ccr16_tube/heaterpower',name='heaterpower'),
-#            Field(name='compressor',dev='ccr16_compressor')),
+# _tempblock = Block('Temperature', [
+#    BlockRow(Field(name='T_stick',dev='t_ccr16_stick'),
+#             Field(key='t_ccr16_stick/setpoint', name='Setpoint_stick'),
+#             Field(key='t_ccr16_stick/heaterpower',name='heaterpower_stick')),
+#    BlockRow(Field(name='T_tube',dev='t_ccr16_tube'),
+#             Field(key='t_ccr16_tube/setpoint', name='Setpoint_tube'),
+#             Field(key='t_ccr16_tube/heaterpower',name='heaterpower_tube')),
 #    BlockRow(Field(name='Pressure',dev='ccr16_p1'),
-#                Field(name='Cold head',dev='T_ccr16_C'),
-#                Field(name='Chamber',dev='T_ccr16_D'),
-#                Field(name='vacuum',dev='ccr16_vacuum_switch')),
-#    BlockRow(Field(dev='T', plot='T', plotwindow=3600, width=40),
-#             Field(dev='T_ccr16_C', plot='T', plotwindow=3600, width=40),
-#            Field(key='t_ccr16_tube/setpoint', name='SetP', plot='T', plotwindow=3600, width=40))
+#             Field(name='Coldhead',dev='T_ccr16_C'),
+#             Field(name='compressor',dev='ccr16_compressor'),
+#             Field(name='vacuum',dev='ccr16_vacuum_switch')),
+#    BlockRow(Field(name='T_stick',dev='T_ccr16_stick', plot='T',
+#                   plotwindow=3600, width=40),
+#             Field(name='T_tube',dev='T_ccr16_tube', plot='T',
+#                   plotwindow=3600, width=40),
+#             Field(key='t_ccr16_tube/setpoint', name='SetP', plot='T',
+#                   plotwindow=3600, width=40))
 #    ],
 #    setups='ccr16',
-#)
+# )
 
 _shutterblock = Block('Shutter / Filters', [
     BlockRow(Field(name='alpha1', dev='alpha1'),
@@ -135,6 +142,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn), Row(_leftcolumn, _middlecolumn, _rightcolumn)],
+                     layout = [Row(_expcolumn), Row(_leftcolumn, _middlecolumn,
+                               _rightcolumn)],
                     ),
 )

@@ -46,19 +46,19 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-##Magnet phi
-#   phi    = device('puma.comb_ax.CombAxis',
-#                   description = 'Sample scattering angle Two Theta',
-#                   motor = 'st_phi',
-#                   coder = 'co_phi',
-#                   obs = [],
-#                   precision = 0.005,
-#                   offset = 0.21,
-#                   maxtries = 5,
-#                   loopdelay = 1,
-#                   fix_ax = 'psi_puma',
-#                   iscomb = False,
-#                  ),
+# Magnet phi
+    # phi = device('puma.comb_ax.CombAxis',
+    #              description = 'Sample scattering angle Two Theta',
+    #              motor = 'st_phi',
+    #              coder = 'co_phi',
+    #              obs = [],
+    #              precision = 0.005,
+    #              offset = 0.21,
+    #              maxtries = 5,
+    #              loopdelay = 1,
+    #              fix_ax = 'psi_puma',
+    #              iscomb = False,
+    #             ),
 
     st_psi  = device('devices.vendor.ipc.Motor',
                      bus = 'motorbus2',
@@ -104,14 +104,14 @@ devices = dict(
      psi    = device('devices.generic.DeviceAlias',
                      description  = 'Sample rocking angle Theta',
                      alias = 'psi_puma',
-#when magnet is on :
-#                    alias = 'sth_m7T5_ccr',
+# when magnet is on :
+                     # alias = 'sth_m7T5_ccr',
                      devclass = 'devices.generic.Axis',
-#when magnet is on :
-#                    devclass = 'devices.taco.Axis',
+# when magnet is on :
+                     # devclass = 'devices.taco.Axis',
                     ),
 
-#Magnet on 22.04.2015
+# Magnet on 22.04.2015
 # Tilting
 
     st_sgx = device('devices.vendor.ipc.Motor',
