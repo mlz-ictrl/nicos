@@ -148,7 +148,7 @@ class RectROIChannel(PostprocessPassiveChannel):
     parameters = {
         'roi': Param('Rectangular region of interest (x, y, width, height)',
                      tupleof(int, int, int, int),
-                     settable=True,
+                     settable=True, category='general',
                     ),
     }
 
