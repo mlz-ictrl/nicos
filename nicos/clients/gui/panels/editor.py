@@ -206,7 +206,8 @@ class QScintillaCompatible(QPlainTextEdit):
         cursor.move(QTextCursor.Right, QTextCursor.MoveAnchor, column)
         self.setTextCursor(cursor)
 
-    def findFirst(self, text, regexp, case, wholeword, wrap, forward=True):
+    def findFirst(self, text, regexp, case, wholeword, wrap, forward=True,
+                  line=None, column=None):
         flags = QTextDocument.FindFlag()
         if not forward:
             flags |= QTextDocument.FindBackward
@@ -216,6 +217,11 @@ class QScintillaCompatible(QPlainTextEdit):
             flags |= QTextDocument.FindCaseSensitively
         self.findtext = text
         self.findflags = flags
+        if line is not None:
+            if column is not None:
+                self.setCursorPosition(line, column)
+            else:
+                self.setCursorPosition(line, 0)
         return self.find(text, flags)
 
     def findNext(self):
@@ -1105,11 +1111,19 @@ class SearchDialog(QDialog):
 
     @qtsig('')
     def on_replaceAllButton_clicked(self):
-        if not self.found:
-            if not self.on_findNextButton_clicked():
-                return
+        found = self.editor.findFirst(
+                self.findText.currentText(),
+                self.regexpCheckBox.isChecked(),
+                self.caseCheckBox.isChecked(),
+                self.wordCheckBox.isChecked(),
+                False,
+                forward=True,
+                line=0,
+                index=0,
+                show=False)
+        if not found:
+            return
         rtext = self.replaceText.currentText()
         self.editor.replace(rtext)
-        while self.on_findNextButton_clicked():
+        while self.editor.findNext():
             self.editor.replace(rtext)
-        self.reset_found()
