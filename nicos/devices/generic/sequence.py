@@ -215,6 +215,31 @@ class SeqSleep(SequenceItem):
             return '%g s' % self.duration
 
 
+class SeqWait(SequenceItem):
+    """Wait for the given device."""
+
+    def __init__(self, dev):
+        SequenceItem.__init__(self, dev=dev)
+
+    def run(self):
+        pass
+
+    def isCompleted(self):
+        # dont wait on fixed devices
+        if hasattr(self.dev, 'fixed') and self.dev.fixed:
+            return True
+        done = self.dev.isCompleted()
+        if done:
+            self.dev.finish()
+        return done
+
+    def __repr__(self):
+        return 'wait %s' % self.dev.name
+
+    def stop(self):
+        self.dev.stop()
+
+
 class SeqNOP(SequenceItem):
     """Do nothing.
 
