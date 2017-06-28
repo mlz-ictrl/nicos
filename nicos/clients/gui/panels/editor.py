@@ -1112,3 +1112,4 @@ class SearchDialog(QDialog):
         self.editor.replace(rtext)
         while self.on_findNextButton_clicked():
             self.editor.replace(rtext)
+        self.reset_found()
