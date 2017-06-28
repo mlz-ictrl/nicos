@@ -31,7 +31,8 @@ from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
     listof, none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
-from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev
+from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev, \
+    SeqWait
 
 
 class Detector(MeasureSequencer):
@@ -172,7 +173,7 @@ class Detector(MeasureSequencer):
             pos = self._startpos - step * self._step_size
             seq.append(SeqDev(self._attached_motor, pos, stoppable=True))
             seq.append(SeqCall(self._startDet))
-            seq.append(SeqCall(self._attached_detector.wait))
+            seq.append(SeqWait(self._attached_detector))
             seq.append(SeqCall(self._read_value))
             seq.append(SeqCall(self._incStep))
         return seq
@@ -283,3 +284,12 @@ class Detector(MeasureSequencer):
                 self._last_live = elapsed
                 return LIVE
         return None
+
+    def _stopAction(self, nr):
+        self.log.debug('_stopAction at step: %d', nr)
+        self._attached_detector.stop()
+
+    def _cleanUp(self):
+        if self._seq_was_stopped:
+            self._seq_was_stopped = False
+            self._set_seq_status(status.OK, 'idle')
