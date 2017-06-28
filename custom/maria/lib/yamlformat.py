@@ -27,7 +27,7 @@
 """MARIA file format saver for the new YAML based format."""
 
 from nicos import session
-from nicos.core import Override
+from nicos.core import Override, NicosError
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
@@ -56,7 +56,12 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         for (info, val) in zip(self.dataset.devvalueinfo,
                                self.dataset.devvaluelist):
             dev = session.getDevice(info.name)
-            state, status = dev.status()
+            try:
+                state, status = dev.status()
+            except NicosError:
+                dev.warning('could not get status for data file')
+                devices.pop(info.name, None)
+                continue
             entry = self._dict()
             entry["name"] = info.name
             entry["unit"] = info.unit
@@ -71,7 +76,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         for name, dev in devices.iteritems():
             if isinstance(dev, Readable):
                 entry = self._dict()
-                state, status = dev.status()
+                try:
+                    state, status = dev.status()
+                except NicosError:
+                    dev.warning('could not get status for data file')
+                    continue
                 entry["name"] = name
                 entry["unit"] = self._devpar(name, "unit")
                 entry["value"] = self._readdev(name)
