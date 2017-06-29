@@ -143,7 +143,6 @@ class EditorPanel(Panel):
         self.mainFrame.setLayout(hlayout)
 
         self.editors = []    # tab index -> editor
-        self.lexers = {}     # editor -> lexer
         self.filenames = {}  # editor -> filename
         self.watchers = {}   # editor -> QFileSystemWatcher
         self.currentEditor = None
@@ -281,14 +280,15 @@ class EditorPanel(Panel):
         self.simOutView.setFont(font)
         self.simOutViewErrors.setFont(font)
         for editor in self.editors:
-            self._updateStyle(editor, self.lexers[editor])
+            self._updateStyle(editor)
 
-    def _updateStyle(self, editor, lexer):
+    def _updateStyle(self, editor):
         if self.custom_font is None:
             return
         bold = QFont(self.custom_font)
         bold.setBold(True)
         if has_scintilla:
+            lexer = editor.lexer()
             lexer.setDefaultFont(self.custom_font)
             for i in range(16):
                 lexer.setFont(self.custom_font, i)
@@ -359,7 +359,6 @@ class EditorPanel(Panel):
             return
         index = self.editors.index(editor)
         del self.editors[index]
-        del self.lexers[editor]
         del self.filenames[editor]
         del self.watchers[editor]
         self.tabber.removeTab(index)
@@ -413,11 +412,10 @@ class EditorPanel(Panel):
                 1, 5 + 4 * QFontMetrics(editor.font()).averageCharWidth())
         else:
             editor = QScintillaCompatible(self)
-            lexer = None
         # editor.setFrameStyle(0)
         self.connect(editor, SIGNAL('modificationChanged(bool)'), self.setDirty)
-        self._updateStyle(editor, lexer)
-        return editor, lexer
+        self._updateStyle(editor)
+        return editor
 
     def on_client_connected(self):
         self._set_scriptdir()
@@ -500,7 +498,7 @@ class EditorPanel(Panel):
             printer.setDocName(self.filenames[self.currentEditor])
             # printer.setFullPage(True)
             if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-                lexer = self.lexers[self.currentEditor]
+                lexer = self.currentEditor.lexer()
                 bgcolor = lexer.paper(0)
                 # printer prints background color too, so set it to white
                 lexer.setPaper(Qt.white)
@@ -635,10 +633,9 @@ class EditorPanel(Panel):
         self.newFile()
 
     def newFile(self):
-        editor, lexer = self.createEditor()
+        editor = self.createEditor()
         editor.setModified(False)
         self.editors.append(editor)
-        self.lexers[editor] = lexer
         self.filenames[editor] = ''
         self.watchers[editor] = QFileSystemWatcher(self)
         self.connect(self.watchers[editor],
@@ -691,7 +688,7 @@ class EditorPanel(Panel):
                 return
             return self.showError('Opening file failed: %s' % err)
 
-        editor, lexer = self.createEditor()
+        editor = self.createEditor()
         editor.setText(text)
         editor.setModified(False)
 
@@ -701,7 +698,6 @@ class EditorPanel(Panel):
             self._close(self.editors[0])
 
         self.editors.append(editor)
-        self.lexers[editor] = lexer
         self.filenames[editor] = fn
         self.watchers[editor] = QFileSystemWatcher(self)
         self.connect(self.watchers[editor],
