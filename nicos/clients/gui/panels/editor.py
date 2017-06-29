@@ -524,6 +524,8 @@ class EditorPanel(Panel):
         self.actionSave.setEnabled(editor.isModified())
         self.actionUndo.setEnabled(editor.isModified())
         self.currentEditor = editor
+        if self.searchdlg:
+            self.searchdlg.setEditor(editor)
 
     def on_tabber_tabCloseRequested(self, index):
         editor = self.editors[index]
@@ -963,7 +965,7 @@ class EditorPanel(Panel):
     def on_actionFind_triggered(self):
         if not self.searchdlg:
             self.searchdlg = SearchDialog(self, self.currentEditor)
-        self.searchdlg.found = False
+        self.searchdlg.setEditor(self.currentEditor)
         self.searchdlg.show()
 
     @qtsig('')
@@ -1128,3 +1130,7 @@ class SearchDialog(QDialog):
             self.editor.replace(rtext)
             while self.editor.findNext():
                 self.editor.replace(rtext)
+
+    def setEditor(self, editor):
+        self.editor = editor
+        self.reset_found()
