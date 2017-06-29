@@ -26,8 +26,10 @@
 
 import re
 import fnmatch
+from contextlib import contextmanager
 
-from PyQt4.QtGui import QPalette, QValidator, QDoubleValidator
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication, QPalette, QValidator, QDoubleValidator
 
 
 def setBackgroundColor(widget, color):
@@ -140,3 +142,23 @@ def checkSetupSpec(setupspec, setups, compat='or', log=None):
         if log:
             log.warning('invalid setup spec: %r', setupspec)
         return True
+
+
+@contextmanager
+def waitCursor():
+    """Context manager creating an hour glass style cursor.
+
+    The application is for tasks inside the GUI code running lengthly.  It
+    indicates the user to wait a little bit, the process is taking some time.
+
+    Application:
+
+        with waitCursor():
+            # process takes some time
+            pass
+    """
+    try:
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        yield
+    finally:
+        QApplication.restoreOverrideCursor()
