@@ -45,7 +45,7 @@ class NewSetupDialog(QDialog):
             QRegExp('[A-Za-z_]{1}[A-Za-z0-9_]*')))
 
     def setInstruments(self, instruments):
-        self.comboBoxInstrument.addItems(instruments)
+        self.comboBoxInstrument.addItems(sorted(instruments))
 
     def setCurrentInstrument(self, instrument):
         self.comboBoxInstrument.setCurrentIndex(
