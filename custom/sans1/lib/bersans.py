@@ -28,7 +28,7 @@ import os
 from time import strftime, localtime, time as currenttime
 
 from nicos import session
-from nicos.core import Override
+from nicos.core import Readable, Override, Param, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
@@ -381,3 +381,30 @@ class BerSANSImageSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class IEEEDevice(Readable):
+    """Special device to put arbitrary device values/parameters into the
+    BerSANS "IEEE" header fields (to be able to use them during analysis).
+    """
+
+    parameters = {
+        'valuename': Param('Device ("dev") or parameter ("dev.param") '
+                           'to return on read', type=str, settable=True,
+                           unit=''),
+    }
+    parameter_overrides = {
+        'unit':      Override(mandatory=False, default=''),
+    }
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
+
+    def doRead(self, maxage=0):
+        if not self.valuename:
+            return ''
+
+        if '.' in self.valuename:
+            devname, parname = self.valuename.split('.')
+            return getattr(session.getDevice(devname), parname)
+        return session.getDevice(self.valuename).read(maxage)
