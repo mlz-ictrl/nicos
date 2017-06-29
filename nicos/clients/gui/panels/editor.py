@@ -31,13 +31,13 @@ from os import path
 from uuid import uuid1
 from logging import WARNING
 
-from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
-    QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, \
+from PyQt4.QtGui import QDialog, QHeaderView, QHBoxLayout, \
+    QTreeWidgetItem, QMessageBox, \
     QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, \
-    QToolBar, QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
-    QTextFormat, QWidget, QPainter, QFontMetrics, QActionGroup
+    QToolBar, QFileSystemModel, QTabWidget, QInputDialog, \
+    QFontMetrics, QActionGroup
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
-    QFileSystemWatcher, QSize, QRect
+    QFileSystemWatcher
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -48,193 +48,16 @@ else:
 
 from nicos.utils import formatDuration, formatEndtime
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
+from nicos.clients.gui.dialogs.editordialogs import SearchDialog, OverwriteQuestion
 from nicos.clients.gui.utils import showToolText, loadUi
 from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.guisupport.utils import setBackgroundColor, waitCursor
+from nicos.guisupport.utils import setBackgroundColor
 from nicos.pycompat import iteritems
 
+
 COMMENT_STR = '## '
-
-
-class OverwriteQuestion(QMessageBox):
-    """Special QMessageBox for asking what to do when a script is running."""
-
-    def __init__(self):
-        QMessageBox.__init__(self, QMessageBox.Question, 'Code generation',
-                             'Do you want to append to or overwrite the '
-                             'current code?',
-                             QMessageBox.NoButton)
-        self.b0 = self.addButton('Append', QMessageBox.YesRole)
-        self.b1 = self.addButton('Overwrite', QMessageBox.ApplyRole)
-        self.b2 = self.addButton('Cancel', QMessageBox.RejectRole)
-        self.b2.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-
-    def exec_(self):
-        QMessageBox.exec_(self)
-        btn = self.clickedButton()
-        if btn == self.b0:
-            return QMessageBox.Yes    # Append
-        elif btn == self.b1:
-            return QMessageBox.Apply  # Overwrite
-        return QMessageBox.Cancel     # Cancel
-
-
-class LineNumberArea(QWidget):
-
-    codeEditor = None
-
-    def __init__(self, editor):
-        QWidget.__init__(self, editor)
-        self.codeEditor = editor
-
-    def sizeHint(self):
-        return QSize(self.codeEditor.lineNumberAreaWidth(), 0)
-
-    def paintEvent(self, event):
-        self.codeEditor.lineNumberAreaPaintEvent(event)
-
-
-class QScintillaCompatible(QPlainTextEdit):
-    """
-    Wrapper that lets us use the same methods on the editor as for the
-    QScintilla control.
-    """
-    lineNumberArea = None
-
-    def __init__(self, parent):
-        QPlainTextEdit.__init__(self, parent)
-        self.findtext = ''
-        self.findflags = 0
-        self.lineNumberArea = LineNumberArea(self)
-
-        self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
-        self.updateRequest.connect(self.updateLineNumberArea)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
-
-        self.updateLineNumberAreaWidth(0)
-        self.highlightCurrentLine()
-
-    def lineNumberAreaPaintEvent(self, event):
-        painter = QPainter(self.lineNumberArea)
-        painter.fillRect(event.rect(), Qt.lightGray)
-
-        block = self.firstVisibleBlock()
-        blockNumber = block.blockNumber()
-        top = int(self.blockBoundingGeometry(block).
-                  translated(self.contentOffset()).top())
-        bottom = top + int(self.blockBoundingRect(block).height())
-
-        while block.isValid() and top <= event.rect().bottom():
-            if block.isVisible() and bottom >= event.rect().top():
-                number = str(blockNumber + 1)
-                painter.setPen(Qt.black)
-                painter.drawText(0, top, self.lineNumberArea.width(),
-                                 self.fontMetrics().height(), Qt.AlignRight,
-                                 number)
-
-            block = block.next()
-            top = bottom
-            bottom = top + int(self.blockBoundingRect(block).height())
-            blockNumber += 1
-
-    def updateLineNumberAreaWidth(self, newBlockCount):
-        self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
-
-    def resizeEvent(self, event):
-        QPlainTextEdit.resizeEvent(self, event)
-
-        cr = self.contentsRect()
-        self.lineNumberArea.setGeometry(QRect(cr.left(), cr.top(),
-                                              self.lineNumberAreaWidth(),
-                                              cr.height()))
-
-    def lineNumberAreaWidth(self):
-        return 3 + self.fontMetrics().width(str(max(1, self.blockCount())))
-
-    def highlightCurrentLine(self):
-        extraSelections = []
-
-        if not self.isReadOnly():
-            selection = QTextEdit.ExtraSelection()
-            lineColor = QColor(Qt.yellow).lighter(160)
-
-            selection.format.setBackground(lineColor)
-            selection.format.setProperty(QTextFormat.FullWidthSelection, True)
-            selection.cursor = self.textCursor()
-            selection.cursor.clearSelection()
-            extraSelections.append(selection)
-
-        self.setExtraSelections(extraSelections)
-
-    def updateLineNumberArea(self, rect, dy):
-        if dy:
-            self.lineNumberArea.scroll(0, dy)
-        else:
-            self.lineNumberArea.update(0, rect.y(),
-                                       self.lineNumberArea.width(),
-                                       rect.height())
-
-        if rect.contains(self.viewport().rect()):
-            self.updateLineNumberAreaWidth(0)
-
-    def text(self):
-        return self.toPlainText()
-
-    def setText(self, text):
-        self.setPlainText(text)
-
-    def append(self, text):
-        self.appendPlainText(text)
-
-    def insert(self, text):
-        self.insertPlainText(text)
-
-    def moveToEnd(self):
-        self.moveCursor(QTextCursor.End)
-
-    def beginUndoAction(self):
-        pass
-
-    def endUndoAction(self):
-        pass
-
-    def setCursorPosition(self, line, column):
-        cursor = self.textCursor()
-        cursor.move(QTextCursor.Start)
-        cursor.move(QTextCursor.Down, QTextCursor.MoveAnchor, line)
-        cursor.move(QTextCursor.Right, QTextCursor.MoveAnchor, column)
-        self.setTextCursor(cursor)
-
-    def findFirst(self, text, regexp, case, wholeword, wrap, forward=True,
-                  line=None, column=None):
-        flags = QTextDocument.FindFlag()
-        if not forward:
-            flags |= QTextDocument.FindBackward
-        if wholeword:
-            flags |= QTextDocument.FindWholeWords
-        if case:
-            flags |= QTextDocument.FindCaseSensitively
-        self.findtext = text
-        self.findflags = flags
-        if line is not None:
-            if column is not None:
-                self.setCursorPosition(line, column)
-            else:
-                self.setCursorPosition(line, 0)
-        return self.find(text, flags)
-
-    def findNext(self):
-        return self.find(self.findtext, self.findflags)
-
-    def replace(self, text):
-        self.insertPlainText(text)
-
-    def setModified(self, modified):
-        self.document().setModified(modified)
-
-    def isModified(self):
-        return self.document().isModified()
 
 
 if has_scintilla:
@@ -646,7 +469,7 @@ class EditorPanel(Panel):
         self._set_scriptdir()
         if proptype == 'user':
             # close existing tabs when switching TO a user experiment
-            for index in range(len(self.editors)-1, -1, -1):
+            for index in range(len(self.editors) - 1, -1, -1):
                 self.on_tabber_tabCloseRequested(index)
             # if all tabs have been closed, open a new file
             if not self.tabber.count():
@@ -772,10 +595,9 @@ class EditorPanel(Panel):
         rc = QMessageBox.question(self, 'User Editor', message, buttons)
         if rc in (QMessageBox.Save, QMessageBox.Yes):
             return self.saveFile(editor)
-        elif rc in (QMessageBox.Discard, QMessageBox.No):
+        if rc in (QMessageBox.Discard, QMessageBox.No):
             return True
-        else:
-            return False
+        return False
 
     def on_fileSystemWatcher_fileChanged(self, filename):
         if self.saving:
@@ -964,7 +786,8 @@ class EditorPanel(Panel):
     @qtsig('')
     def on_actionFind_triggered(self):
         if not self.searchdlg:
-            self.searchdlg = SearchDialog(self, self.currentEditor)
+            self.searchdlg = SearchDialog(self, self.currentEditor,
+                                          has_scintilla)
         self.searchdlg.setEditor(self.currentEditor)
         self.searchdlg.show()
 
@@ -1004,7 +827,7 @@ class EditorPanel(Panel):
             self.currentEditor.beginUndoAction()
             # iterate over the lines
             action = []
-            for line in range(line1, endLine+1):
+            for line in range(line1, endLine + 1):
                 if self.currentEditor.text(line).startswith(COMMENT_STR):
                     self.currentEditor.setSelection(line, 0, line, clen)
                     self.currentEditor.removeSelectedText()
@@ -1044,93 +867,3 @@ class EditorPanel(Panel):
 
     def on_simOutViewErrors_anchorClicked(self, url):
         self.on_simOutView_anchorClicked(url)
-
-
-class SearchDialog(QDialog):
-    def __init__(self, parent, editor):
-        QDialog.__init__(self, parent)
-        loadUi(self, 'search.ui', 'panels')
-
-        self.editor  = editor
-        self.found   = False
-        self.forward = True
-
-        if not has_scintilla:
-            # QPlainTextEdit doesn't support some find flags
-            self.regexpCheckBox.setEnabled(False)
-            self.wrapCheckBox.setEnabled(False)
-            self.wrapCheckBox.setChecked(False)
-
-        for box in [self.regexpCheckBox, self.caseCheckBox, self.wordCheckBox,
-                    self.wrapCheckBox]:
-            self.connect(box, SIGNAL('toggled(bool)'), self.reset_found)
-
-    @qtsig('')
-    def on_findNextButton_clicked(self):
-        self.findPrevButton.setDefault(False)
-        self.findNextButton.setDefault(True)
-        if self.found and self.forward:
-            return self.editor.findNext()
-        else:
-            ret = self.editor.findFirst(
-                self.findText.currentText(),
-                self.regexpCheckBox.isChecked(),
-                self.caseCheckBox.isChecked(),
-                self.wordCheckBox.isChecked(),
-                self.wrapCheckBox.isChecked())
-            self.found = ret
-            self.forward = True
-            return ret
-
-    @qtsig('')
-    def on_findPrevButton_clicked(self):
-        self.findNextButton.setDefault(False)
-        self.findPrevButton.setDefault(True)
-        if self.found and not self.forward:
-            return self.editor.findNext()
-        else:
-            ret = self.editor.findFirst(
-                self.findText.currentText(),
-                self.regexpCheckBox.isChecked(),
-                self.caseCheckBox.isChecked(),
-                self.wordCheckBox.isChecked(),
-                self.wrapCheckBox.isChecked(),
-                False)
-            self.found = ret
-            self.forward = False
-            return ret
-
-    def reset_found(self, *args):
-        self.found = False
-
-    @qtsig('')
-    def on_replaceButton_clicked(self):
-        if not self.found:
-            if not self.on_findNextButton_clicked():
-                return
-        self.editor.replace(self.replaceText.currentText())
-        self.on_findNextButton_clicked()
-
-    @qtsig('')
-    def on_replaceAllButton_clicked(self):
-        found = self.editor.findFirst(
-                self.findText.currentText(),
-                self.regexpCheckBox.isChecked(),
-                self.caseCheckBox.isChecked(),
-                self.wordCheckBox.isChecked(),
-                False,
-                forward=True,
-                line=0,
-                index=0,
-                show=False)
-        if not found:
-            return
-        with waitCursor():
-            rtext = self.replaceText.currentText()
-            self.editor.replace(rtext)
-            while self.editor.findNext():
-                self.editor.replace(rtext)
-
-    def setEditor(self, editor):
-        self.editor = editor
-        self.reset_found()
