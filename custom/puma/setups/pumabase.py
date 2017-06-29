@@ -1,7 +1,8 @@
 description = 'basic PUMA triple-axis setup'
 
 
-includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor']
+includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor',
+            'shutter']
 
 modules = ['commands.tas']
 
@@ -85,27 +86,6 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-#    mono_pg004 = device('devices.tas.Monochromator',
-#                        description = 'PG-002 used as 004 monochromator',
-#                        order = 2,
-#                        unit = 'A-1',
-#                        theta = 'mth',
-#                        twotheta = 'mtt',
-#                        reltheta = True,
-#                        focush = 'mfhpg',
-#                        focusv = 'mfvpg',
-##                       focush = 'mfhcu',#
-##                       focusv = 'mfvcu',
-#                        hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
-#                        vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
-##                       hfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
-##                       vfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
-##                       abslimits = (1, 6),
-#                        abslimits = (1, 10),
-#                        dvalue = 3.355,
-##                       dvalue = 1.278,
-#                       ),
-
     mono_cu220 = device('devices.tas.Monochromator',
                         description = 'Cu-220 monochromator',
                         order = 1,
@@ -172,7 +152,7 @@ devices = dict(
                        ),
 
     ana_pg002  = device('devices.tas.Monochromator',
-                        description = 'analyser device',
+                        description = 'PG analyzer',
                         unit = 'A-1',
                         theta = 'ath',
                         twotheta = 'att',
@@ -187,13 +167,13 @@ devices = dict(
                        ),
 
     ana_ge311  = device('devices.tas.Monochromator',
-                        description = 'Germanium monochromator',
+                        description = 'Germanium analyzer',
                         order = 1,
                         unit = 'A-1',
                         theta = 'ath',
                         twotheta = 'att',
                         reltheta = True,
-                        focush = None, # focush = 'afge',
+                        focush = 'afge',
                         focusv = None,
                         hfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
                         abslimits = (1, 60),

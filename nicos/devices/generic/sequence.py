@@ -215,6 +215,31 @@ class SeqSleep(SequenceItem):
             return '%g s' % self.duration
 
 
+class SeqWait(SequenceItem):
+    """Wait for the given device."""
+
+    def __init__(self, dev):
+        SequenceItem.__init__(self, dev=dev)
+
+    def run(self):
+        pass
+
+    def isCompleted(self):
+        # dont wait on fixed devices
+        if hasattr(self.dev, 'fixed') and self.dev.fixed:
+            return True
+        done = self.dev.isCompleted()
+        if done:
+            self.dev.finish()
+        return done
+
+    def __repr__(self):
+        return 'wait %s' % self.dev.name
+
+    def stop(self):
+        self.dev.stop()
+
+
 class SeqNOP(SequenceItem):
     """Do nothing.
 
@@ -325,6 +350,7 @@ class SequencerMixin(DeviceMixinBase):
             self._sequence(sequence)
         finally:
             self._seq_stopflag = False
+            self._cleanUp()
 
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
@@ -534,6 +560,14 @@ class SequencerMixin(DeviceMixinBase):
         Default is to re-raise the exception.
         """
         reraise(*exc_info)
+
+    def _cleanUp(self):
+        """Called at the end of the sequence thread.
+
+        It could perform a clean up on derived devices to bring it back into
+        a 'normal' state.
+        """
+        pass
 
 
 class BaseSequencer(SequencerMixin, Moveable):
