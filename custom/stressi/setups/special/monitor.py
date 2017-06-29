@@ -98,10 +98,22 @@ _eulerian = Column(
     ]
     ),
     Block('Sample Temperature', [
-         BlockRow(Field(dev='T')),
+          BlockRow(Field(dev='T')),
     ],
     setups = 'stressihtf or htf* or ccr*',
     ),
+)
+
+_image = Column(
+    Block('', [
+        BlockRow(
+            Field(name='Data (linear)', picture='/stressicontrol/webroot/live_lin.png',
+                  refresh=1, width=24, height=24),
+            Field(name='Data (log)', picture='/stressicontrol/webroot/live_log.png',
+                  refresh=1, width=24, height=24),
+        ),
+    ],
+    )
 )
 
 devices = dict(
@@ -116,6 +128,7 @@ devices = dict(
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn),
-                               Row(_sampletable, _measurement, _eulerian)],
+                               Row(_sampletable, _measurement, _eulerian),
+                               Row(_image)],
                     ),
 )

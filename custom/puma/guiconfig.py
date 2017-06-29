@@ -2,11 +2,11 @@
 
 main_window = docked (
         vsplit(
+                panel('console.ConsolePanel'),
+        ),
+        ('Script',
                 panel('status.ScriptStatusPanel'),
 #               panel('watch.WatchPanel'),
-        ),
-        ('Console',
-                panel('console.ConsolePanel'),
         ),
         ('NICOS Devices',
                 panel('devices.DevicesPanel'),
