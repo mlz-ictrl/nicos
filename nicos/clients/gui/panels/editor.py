@@ -32,9 +32,9 @@ from uuid import uuid1
 from logging import WARNING
 
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
-    QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
-    QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-    QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
+    QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, \
+    QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, \
+    QToolBar, QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
     QTextFormat, QWidget, QPainter, QFontMetrics, QActionGroup
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
     QFileSystemWatcher, QSize, QRect
@@ -51,7 +51,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi
 from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.guisupport.utils import setBackgroundColor
+from nicos.guisupport.utils import setBackgroundColor, waitCursor
 from nicos.pycompat import iteritems
 
 COMMENT_STR = '## '
@@ -1123,7 +1123,8 @@ class SearchDialog(QDialog):
                 show=False)
         if not found:
             return
-        rtext = self.replaceText.currentText()
-        self.editor.replace(rtext)
-        while self.editor.findNext():
+        with waitCursor():
+            rtext = self.replaceText.currentText()
             self.editor.replace(rtext)
+            while self.editor.findNext():
+                self.editor.replace(rtext)
