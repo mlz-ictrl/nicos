@@ -65,8 +65,8 @@ def prepare(session, dataroot):
     ngc = session.getDevice('ngc')
     ngc.maw('focus')
 
-    count(t=0.01)
-    count(mon1=1)
+    count(t=0.15)  # test to write the intermediate: file t > det.saveinterval
+    count(mon1=150)
 
     yield
 
