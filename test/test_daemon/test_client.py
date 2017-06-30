@@ -83,7 +83,7 @@ def test_simple(client, simple_mode):
 
 
 def test_encoding(client):
-    load_setup(client, 'scanning')
+    load_setup(client, 'daemontest')
     client.run_and_wait('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
