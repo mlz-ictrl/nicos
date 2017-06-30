@@ -146,12 +146,8 @@ def checkSetupSpec(setupspec, setups, compat='or', log=None):
 
 @contextmanager
 def waitCursor():
-    """Context manager creating an hour glass style cursor.
-
-    The application is for tasks inside the GUI code running lengthly.  It
-    indicates the user to wait a little bit, the process is taking some time.
-
-    Application:
+    """Context manager creating an hour glass style cursor for longer-running
+    blocking tasks inside GUI code.  Example::
 
         with waitCursor():
             # process takes some time
