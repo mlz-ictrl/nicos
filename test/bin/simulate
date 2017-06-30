@@ -28,7 +28,7 @@ class TestSimulationSession(SimulationSession):
         from nicos.utils.stubs import generate_stubs
         generate_stubs()
 
-    def simulationSync(self):
+    def simulationSync(self, db=None):
         # no cache available, we have to start with default values
         pass
 
