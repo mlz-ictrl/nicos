@@ -71,6 +71,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
                                'Emit valueChosen signal on pressing Enter?'),
         'updateValue': PropDef(bool, False,
                                'Update the editor when the device value changes?'),
+        'showUnit': PropDef(bool, True, 'Show the unit next to the input'),
     }
 
     def propertyUpdated(self, pname, value):
@@ -100,7 +101,8 @@ class DeviceValueEdit(NicosWidget, QWidget):
             return
         devname = str(self.props['dev'])
         if devname:
-            unit = self._client.getDeviceParam(devname, 'unit')
+            unit = self._client.getDeviceParam(devname, 'unit') \
+                if self.props['showUnit'] else ''
             fmtstr = self._client.getDeviceParam(devname, 'fmtstr')
             valuetype = self._client.getDeviceValuetype(devname)
             if curvalue is None:
