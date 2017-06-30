@@ -22,16 +22,17 @@
 #
 # *****************************************************************************
 
-"""STRESS-SPEC specific slits tests."""
+"""STRESS-SPEC specific monochromator tests."""
 
 import time
 
-import pytest
+from test.utils import raises
 
 from nicos.core import status
-from nicos.core.errors import InvalidValueError, PositionError
+from nicos.core.errors import ConfigurationError, InvalidValueError, \
+    PositionError
 
-from test.utils import raises
+import pytest
 
 session_setup = 'stressi'
 
@@ -70,15 +71,15 @@ def test_wavelength(session):
     assert wav.crystal is None
 
     # raises due to not defined crystal
-    assert raises(PositionError, wav.start, 1.7)
-    assert raises(PositionError, setattr, wav, 'plane', '100')
+    assert raises(ConfigurationError, wav.start, 1.7)
+    assert raises(ConfigurationError, setattr, wav, 'plane', '100')
     transm.maw('Ge')
 
     assert wav.crystal == 'Ge'
-    assert wav.plane == ''
+    assert wav.plane == ''  # pylint: disable=compare-to-empty-string
     assert wav.status(0)[0] == status.ERROR
     # raises due to not defined plane
-    assert raises(PositionError, wav.start, 1.7)
+    assert raises(ConfigurationError, wav.start, 1.7)
 
     # Simulate the following state:
     # crystal changing device is properly initialised and has valid 'crystal'
@@ -92,7 +93,7 @@ def test_wavelength(session):
     session.cache.clear('wav')
     wav = session.getDevice('wav')
     assert wav.crystal == 'Ge'
-    assert wav.plane == ''
+    assert wav.plane == ''  # pylint: disable=compare-to-empty-string
 
     wav.plane = '311'
     assert wav.plane == '311'
