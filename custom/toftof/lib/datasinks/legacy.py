@@ -187,25 +187,24 @@ class TofImageSinkHandler(TofSinkHandler):
 
         tempfound = False
         for dev in session.experiment.sampleenv:
-            if dev.name.startswith('T') or dev.name == 'bio':
-                if tempfound:
-                    continue
-                tempfound = True
-                _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
-                _ct = dev.read()
-                if dev.unit == 'degC':
-                    _ct += 273.15
-                    _mean += 273.15
-                    _min += 273.15
-                    _max += 273.15
-                lines.append('AverageSampleTemperature: %10.4f K' % _mean)
-                lines.append('StandardDeviationOfSampleTemperature: %10.4f K' %
-                             _std)
-                lines.append('MinimumSampleTemperature: %10.4f K' % _min)
-                lines.append('MaximumSampleTemperature: %10.4f K' % _max)
-                self.log.info('Sample: current: %.4f K, average: %.4f K, '
-                              'stddev: %.4f K, min: %.4f K, max: %.4f K',
-                              _ct, _mean, _std, _min, _max)
+            if dev.name.startswith('T'):
+                if not tempfound:
+                    tempfound = True
+                    _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
+                    _ct = dev.read()
+                    if dev.unit == 'degC':
+                        _ct += 273.15
+                        _mean += 273.15
+                        _min += 273.15
+                        _max += 273.15
+                    lines.append('AverageSampleTemperature: %10.4f K' % _mean)
+                    lines.append('StandardDeviationOfSampleTemperature: %10.4f'
+                                 'K' % _std)
+                    lines.append('MinimumSampleTemperature: %10.4f K' % _min)
+                    lines.append('MaximumSampleTemperature: %10.4f K' % _max)
+                    self.log.info('Sample: current: %.4f K, average: %.4f K, '
+                                  'stddev: %.4f K, min: %.4f K, max: %.4f K',
+                                  _ct, _mean, _std, _min, _max)
             elif dev.name == 'B':
                 _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                 lines.append('AverageMagneticfield: %.4f %s' %
@@ -244,16 +243,13 @@ class TofImageSinkHandler(TofSinkHandler):
         os.rename(f.filepath, fp.filepath)
 
     def putResults(self, quality, results):
-        if quality == LIVE:
-            return
-        if self.detector.name in results:
+        if quality != LIVE and self.detector.name in results:
             result = results[self.detector.name]
-            if result is None:
-                return
-            info = result[0]
-            data = result[1][0]
-            if data is not None:
-                self.writeData(self._datafile, info, data)
+            if result:
+                info = result[0]
+                data = result[1][0]
+                if data is not None:
+                    self.writeData(self._datafile, info, data)
 
     def end(self):
         self._writeLogs(self._logfile, self.dataset.valuestats)
