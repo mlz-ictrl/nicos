@@ -149,9 +149,9 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         w("# TOF parameters\n")
         w("#  TOF channels                %4d\n" % tofchan.timechannels)
         tdiv = tofchan.divisor
-        w("#  Time per channel            %6.1f microsecs\n" % tdiv)
+        w("#  Time per channel            %6.1f microsecs\n" % (0.1 * tdiv))
         tdel = tofchan.delay
-        w("#  Delay time                  %6.1f microsecs\n" % tdel)
+        w("#  Delay time                  %6.1f microsecs\n" % (0.1 * tdel))
 
         w("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO
         w("#  Elastic time channel\n")  # %4d\n" % config.dataelastictime) # TODO
@@ -172,10 +172,15 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         w("# DATA (number of detectors, number of TOF channels)\n")
         numarr = np.array(image)
         w("# 64 %4d\n" % tofchan.timechannels)
-        for ch in range(64):
+        for ch in range(24):
             w("%2d " % ch)
             for q in range(tofchan.timechannels):
                 w(" %8d" % (numarr[q, ch]))
+            w("\n")
+        for ch in range(24, 64):
+            w("%2d " % ch)
+            for q in range(tofchan.timechannels):
+                w(" %8d" % 0)
             w("\n")
         fp.flush()
 

@@ -63,4 +63,11 @@ devices = dict(
                             tangodevice = tango_base + 'fzjs7/cradle_lo',
                             precision = 1.0,
                            ),
+
+    virtual        = device('devices.generic.VirtualMotor',
+                            description = 'Virtual motor for cont. time scans',
+                            abslimits = (-1e6, 1e6),
+                            speed = 0,
+                            unit = '',
+                           ),
 )

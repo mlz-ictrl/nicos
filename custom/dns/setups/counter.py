@@ -7,13 +7,19 @@ tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
     timer = device("jcns.fpga.FPGATimerChannel",
-                   description = "ZEA-2 counter card time",
+                   description = "Acquisition time",
                    tangodevice = tango_base + 'count/0',
                   ),
     mon1  = device("jcns.fpga.FPGACounterChannel",
-                   description = "ZEA-2 counter card monitor",
+                   description = "Beam monitor counter",
                    tangodevice = tango_base + 'count/0',
                    channel = 0,
                    type = 'monitor',
+                  ),
+    chopctr = device("jcns.fpga.FPGACounterChannel",
+                   description = "Chopper zero signal counter",
+                   tangodevice = tango_base + 'count/0',
+                   channel = 4,
+                   type = 'other',
                   ),
 )

@@ -53,10 +53,10 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         'timechannels': Param('Number of time channels - if set to 1 TOF mode '
                               'is disabled', type=intrange(1, 1024),
                               settable=True),
-        'divisor':      Param('Divisor between hard- and software time slice',
-                              type=int, settable=True),
+        'divisor':      Param('Width of a time channel',
+                              type=int, unit='0.1us', settable=True),
         'delay':        Param('Offset delay in measure begin', type=int,
-                              unit='us', settable=True),
+                              unit='0.1us', settable=True),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
                               'returned by a read', type=tupleof(int, int),
                               default=(0, 0), settable=True, mandatory=True),

@@ -6,18 +6,12 @@ group = "lowlevel"
 includes = ['counter']
 
 sysconfig = dict(
-    datasinks = ['DNSFileSaver', 'YAMLSaver', 'LiveView'],
+    datasinks = ['LiveView'],
 )
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-    DNSFileSaver = device('dns.dnsfileformat.DNSFileSink',
-                          lowlevel = True,
-                         ),
-    YAMLSaver    = device('dns.yamlformat.YAMLFileSink',
-                          lowlevel = True,
-                         ),
     LiveView     = device('devices.datasinks.LiveViewSink',
                           lowlevel = True,
                          ),
@@ -32,8 +26,13 @@ devices = dict(
                           timers = ['timer'],
                           monitors = ['mon1'],
                           images = ['dettof'],
+                          others = ['chopctr'],
                           flipper = 'flipper',
                          ),
+)
+
+extended = dict(
+    poller_cache_reader = ['flipper']
 )
 
 startupcode = '''

@@ -4,7 +4,7 @@ description = 'qmesydaq channel devices'
 group = 'optional'
 
 nethost = 'mesydaq.dns.frm2'
-qm = '//%s/test/qmesydaq/' % nethost
+qm = '//%s/dns/qmesydaq/' % nethost
 
 devices = dict(
     qmon1 = device('devices.vendor.qmesydaq.taco.Counter',

@@ -135,8 +135,8 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             det1['is_in_place'] = True
             if tofchan.timechannels > 1:
                 timechannels = tofchan.timechannels
-                chanwidth = tofchan.divisor / 1000000.
-                tofdelay = tofchan.delay / 1000000.
+                chanwidth = tofchan.divisor / 10000000.
+                tofdelay = tofchan.delay / 10000000.
                 det1['axes'] = self._flowlist(['tube', 'time'])
             else:
                 det1['axes'] = self._flowlist(['tube'])
