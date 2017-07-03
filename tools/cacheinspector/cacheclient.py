@@ -94,6 +94,7 @@ class CICacheClient(BaseCacheClient):
     def _disconnect_action(self):
         with self._dblock:
             self._db.clear()
+        self.disconnect()
         self.signals.disconnected.emit()
 
     def is_connected(self):
