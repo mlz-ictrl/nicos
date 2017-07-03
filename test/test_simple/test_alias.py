@@ -28,24 +28,29 @@ from time import sleep
 
 from nicos.core import UsageError, ConfigurationError, NoDevice
 from nicos.commands.device import read, adjust
+from nicos.commands.basic import ListCommands
 
 from test.utils import raises, ErrorLogged
 
 session_setup = 'alias'
 
 
-def test_alias_nodev(session):
+def test_alias_nodev(session, log):
     alias = session.getDevice('aliasNoDev', object)
     # first, proxy without target
     assert isinstance(alias._obj, NoDevice)
     assert alias.alias == ''
     # accesses raise ConfigurationError
-    assert raises(ConfigurationError, getattr, alias, 'read')
+    assert raises(AttributeError, getattr, alias, 'read')
     assert raises(ConfigurationError, setattr, alias, 'speed', 0)
     assert raises(ErrorLogged, read, alias)
     # but stringification is still the name of the alias object
     assert str(alias) == 'aliasNoDev'
     assert 'aliasNoDev' in repr(alias)
+    with log.assert_msg_matches([r' name +description *$',
+                                 # explicitly no check on help text!
+                                 r'ClearCache\(dev, \.\.\.\)']):
+        ListCommands()
 
 
 def test_alias_dev(session, log):

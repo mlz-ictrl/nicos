@@ -112,7 +112,7 @@ def ListCommands():
     session.log.info('Available commands:')
     items = []
     for name, obj in session.getExportedObjects():
-        if hasattr(obj, 'is_usercommand'):
+        if getattr(obj, 'is_usercommand', False):
             real_func = getattr(obj, 'real_func', obj)
             if getattr(real_func, 'is_hidden', False):
                 continue

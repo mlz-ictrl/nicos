@@ -2151,7 +2151,7 @@ class NoDevice(object):
         return (str, (self.name,))
 
     def __getattr__(self, name):
-        raise ConfigurationError('alias %r does not point to any device' % self.name)
+        raise AttributeError('alias %r does not point to any device' % self.name)
 
     def __setattr__(self, name, value):
         if name != 'name':
