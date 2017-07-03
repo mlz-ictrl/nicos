@@ -97,7 +97,7 @@ def runPylint() {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
             sh '''\
 #! /bin/bash
-. /home/jenkins/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
+. ~/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
 echo $PATH
 set +x
 
@@ -119,7 +119,7 @@ res=$?
 set -e
 
 # switch to the tools venv for running the pylint uploader
-. /home/jenkins/toolsvenv/bin/activate
+. ~/toolsvenv/bin/activate
 ~/tools/pylint2gerrit.py
 
 # cleanup
@@ -158,12 +158,12 @@ def runSetupcheck() {
             ansiColor('xterm') {
                 sh '''\
 #! /bin/bash
-. /home/jenkins/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
+. ~/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
 
 tools/check_setups -o setupcheck.log -s custom/*/setups || ((res++)) || /bin/true
 # */
 # switch to the tools venv for running the setupcheck uploader
-. /home/jenkins/toolsvenv/bin/activate
+. ~/toolsvenv/bin/activate
 ~/tools/sc2gerrit.py
 
 exit $((res))
@@ -212,7 +212,7 @@ addopts = --junit-xml=pytest.xml
 #! /bin/bash
 echo $VENV
 set +x
-. /home/jenkins/pythonvenvs/$VENV/bin/activate
+. ~/pythonvenvs/$VENV/bin/activate
 set -x
 
 pytest -v test'''
@@ -258,7 +258,7 @@ def runDocTest() {
         sh '''\
 #!/bin/bash
 set +x
-. /home/jenkins/pythonvenvs/nicos-w-sys-site-packs/bin/activate
+. ~/pythonvenvs/nicos-w-sys-site-packs/bin/activate
 echo $PATH
 
 export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
