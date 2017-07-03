@@ -773,7 +773,7 @@ class ControlDialog(QDialog):
 
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
-            if self.target.getValue() is not None:  # it's None for button widget
+            if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
             else:

@@ -357,7 +357,7 @@ class ButtonWidget(QWidget):
         self.emit(SIGNAL('valueChosen'), self._values[self.sender()])
 
     def getValue(self):
-        return None
+        return Ellipsis
 
 
 class EditWidget(QLineEdit):
