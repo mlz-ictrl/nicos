@@ -39,13 +39,12 @@ from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
     pyqtSignature as qtsig
 
 from nicos.core import Param, listof
-from nicos.utils import safeFilename
+from nicos.utils import safeFilename, extractKeyAndIndex
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
     enumerateWithProgress, CompatSettings
 from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter, \
     ExponentialFitter
-from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import DeviceParamTree
 from nicos.protocols.cache import cache_load

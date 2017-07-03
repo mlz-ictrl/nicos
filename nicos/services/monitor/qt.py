@@ -38,12 +38,11 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
 from PyQt4.QtCore import Qt, SIGNAL
 
 from nicos.core import Param
-from nicos.utils import findResource
+from nicos.utils import findResource, checkSetupSpec
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay, PictureDisplay, \
     lightColorScheme
-from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.pycompat import iteritems, string_types
 

@@ -32,6 +32,7 @@ import sys
 import errno
 import signal
 import socket
+import fnmatch
 import linecache
 import threading
 import traceback
@@ -697,6 +698,7 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 
+
 field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
                       '(?:#(?P<description>[^}]+))?}}')
 
@@ -1303,3 +1305,81 @@ class ReaderRegistry(object):
     @classmethod
     def filetypes(cls):
         return list(cls.readers)
+
+
+keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
+                        r'(?P<indices>(?:\[[0-9]+\])*)'
+                        r'(?P<scale>\*[0-9.]+(?:[eE][+-]?[0-9]+)?)?'
+                        r'(?P<offset>[+-][0-9.]+(?:[eE][+-]?[0-9]+)?)?$')
+
+
+def extractKeyAndIndex(spec):
+    """Extract a key and possibly subindex from a cache key specification
+    given by the user.  This takes into account the following changes:
+
+    * '/' can be replaced by '.'
+    * If it is not in the form 'dev/key', '/value' is automatically appended.
+    * Subitems can be specified: ``dev.keys[10], det.rates[0][1]``.
+    * A scale factor can be added with ``*X``.
+    * An offset can be added with ``+X`` or ``-X``.
+    """
+    match = keyexpr_re.match(spec.replace(' ', ''))
+    if not match:
+        return spec.lower().replace('.', '/'), (), 1.0, 0
+    groups = match.groupdict()
+    key = groups['dev_or_key'].lower().replace('.', '/')
+    if '/' not in key:
+        key += '/value'
+    indices = groups['indices']
+    try:
+        if indices is not None:
+            indices = tuple(map(int, indices[1:-1].split('][')))
+        else:
+            indices = ()
+    except ValueError:
+        indices = ()
+    scale = groups['scale']
+    try:
+        scale = float(scale[1:]) if scale is not None else 1.0
+    except ValueError:
+        scale = 1.0
+    offset = groups['offset']
+    try:
+        offset = float(offset) if offset is not None else 0.0
+    except ValueError:
+        offset = 0.0
+    return key, indices, scale, offset
+
+
+def checkSetupSpec(setupspec, setups, compat='or', log=None):
+    """Check if the given setupspec should be displayed given the loaded setups.
+    """
+    def fixup_old(s):
+        if s.startswith('!'):
+            return 'not %s' % s[1:]
+        return s
+
+    def subst_setupexpr(match):
+        if match.group() in ('has_setup', 'and', 'or', 'not'):
+            return match.group()
+        return 'has_setup(%r)' % match.group()
+
+    def has_setup(spec):
+        return bool(fnmatch.filter(setups, spec))
+
+    if not setupspec:
+        return True  # no spec -> always visible
+    if not setups:
+        return False  # no setups -> not visible (safety)
+    if isinstance(setupspec, list):
+        setupspec = (' %s ' % compat).join(fixup_old(v) for v in setupspec)
+    if setupspec.startswith('!'):
+        setupspec = fixup_old(setupspec)
+    expr = re.sub(r'[\w\[\]*?]+', subst_setupexpr, setupspec)
+    ns = {'has_setup': has_setup}
+    try:
+        return eval(expr, ns)
+    except Exception:  # wrong spec -> visible
+        if log:
+            log.warning('invalid setup spec: %r', setupspec)
+        return True

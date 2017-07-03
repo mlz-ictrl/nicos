@@ -33,8 +33,8 @@ from PyQt4.QtCore import QObject, pyqtSignal
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup
-from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.config import panel
+from nicos.utils import checkSetupSpec
 
 
 class SetupDepWindowMixin(object):

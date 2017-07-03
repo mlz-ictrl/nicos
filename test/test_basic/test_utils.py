@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -35,7 +36,8 @@ import pytest
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort
+    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort, \
+    checkSetupSpec, extractKeyAndIndex
 from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
@@ -266,3 +268,71 @@ def test_num_sort():
     assert sorted(['X', '1A', '2.4.5A'], key=num_sort) == ['1A', '2.4.5A', 'X']
     # handle non-strings too
     assert sorted([0.4, '1A'], key=num_sort) == [0.4, '1A']
+
+
+# setupspec : loaded_setups : result
+CASES = [
+    (None,         None,            True),
+    (None,         ['a', 'b', 'c'], True),
+    ('a',          ['a', 'b', 'c'], True),
+    ('a and d',    ['a', 'b', 'c'], False),
+    ('a and b',    ['a', 'b', 'c'], True),
+    ('a or d',     ['a', 'b', 'c'], True),
+    ('a or b',     ['a'], True),
+    ('a or b',     ['b'], True),
+    ('a or b',     [], False),
+    ('a or b',     ['c'], False),
+    ('a*',         ['alpha', 'b'],  True),
+    ('c*',         ['alpha', 'b'],  False),
+    ('(b and not (c or h)', ['b'], True),
+    ('(b and not (c or h))', ['b', 'c'], False),
+    ('(b and not (c or h))', ['b', 'h'], False),
+    ('(b and not (c or h))', ['b', 'c', 'h'], False),
+    ('(b and not (c or h))', [], False),
+    ('(b and not (c or h))', ['h'], False),
+    ('(b and not (c or h))', ['h', 'c'], False),
+    ('a and',      ['b'],           True),  # warns
+    # compatibility cases
+    (['a'],        ['a', 'b', 'c'], True),
+    ('!a',         ['a', 'b', 'c'], False),
+    (['!a'],       ['a', 'b', 'c'], False),
+    (['a', 'd'],   ['a', 'b', 'c'], True),
+    (['d'],        ['a', 'b', 'c'], False),
+    (['!d'],       ['a', 'b', 'c'], True),
+    (['a', '!d'],  ['a', 'b', 'c'], True),
+    (['!a', 'd'],  ['a', 'b', 'c'], False),
+    (['!a', '!d'], ['a', 'b', 'c'], True),
+]
+
+
+def test_check_setup_spec():
+    for spec, setups, result in CASES:
+        # print is here to aid in finding the offending input parameters
+        # as the stacktrace doesn't output locals
+        res = checkSetupSpec(spec, setups)
+        print('testing checkSetupSpec(%r, %r) == %r: %r' %
+              (spec, setups, result, res))
+        assert res == result
+
+
+def test_extract_key_and_index():
+    assert extractKeyAndIndex('dev') == ('dev/value', (), 1, 0)
+    assert extractKeyAndIndex('dev.key') == ('dev/key', (), 1, 0)
+    assert extractKeyAndIndex('dev.key[0]') == ('dev/key', (0,), 1, 0)
+    assert extractKeyAndIndex('dev.key[0][1]') == ('dev/key', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev[0][1]') == ('dev/value', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev[0,1]') == ('dev[0,1]', (), 1, 0)
+    assert extractKeyAndIndex('dev.key[0][ 1]') == ('dev/key', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev.key[ 0][ 1]') == ('dev/key', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev.key[ 0 ][ 1]') == ('dev/key', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev.key[ 0 ][ 1 ]') == ('dev/key', (0, 1), 1, 0)
+    assert extractKeyAndIndex('dev.key[10 ][ 1]') == ('dev/key', (10, 1), 1, 0)
+    assert extractKeyAndIndex('dev.key[0') == ('dev/key[0', (), 1, 0)
+    assert extractKeyAndIndex('dev.key0]') == ('dev/key0]', (), 1, 0)
+    assert extractKeyAndIndex('dev.key*10') == ('dev/key', (), 10, 0)
+    assert extractKeyAndIndex('dev.key +5') == ('dev/key', (), 1, 5)
+    assert extractKeyAndIndex('dev.key- 5') == ('dev/key', (), 1, -5)
+    assert extractKeyAndIndex('dev.key*10 +5') == ('dev/key', (), 10, 5)
+    assert extractKeyAndIndex('dev.key[0] * 10+5') == ('dev/key', (0,), 10, 5)
+    assert extractKeyAndIndex('dev*1.2e1 +5e-2') == ('dev/value', (), 12, 0.05)
+    assert extractKeyAndIndex('dev*1e+1+5e1') == ('dev/value', (), 10, 50)

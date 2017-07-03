@@ -46,9 +46,9 @@ from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 from nicos.services.monitor.icon import nicos_icon
-from nicos.guisupport.utils import checkSetupSpec, extractKeyAndIndex
+from nicos.utils import checkSetupSpec, extractKeyAndIndex
+from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 
 
 HEAD = '''\

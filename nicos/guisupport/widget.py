@@ -34,7 +34,7 @@ from copy import copy
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import SIGNAL, pyqtProperty, pyqtWrapperType
 
-from nicos.utils import lazy_property, attrdict
+from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
@@ -42,7 +42,6 @@ from nicos.pycompat import add_metaclass, iteritems
 
 # Import resources file
 import nicos.guisupport.gui_rc  # pylint: disable=W0611
-from nicos.guisupport.utils import extractKeyAndIndex
 
 
 class NicosListener(object):

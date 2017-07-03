@@ -40,7 +40,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
 
 from nicos.guisupport.timeseries import TimeSeries, buildTimeTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.guisupport.utils import extractKeyAndIndex
+from nicos.utils import extractKeyAndIndex
 from nicos.pycompat import zip_longest
 
 
