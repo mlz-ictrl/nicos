@@ -24,9 +24,22 @@
 
 """Test the text client."""
 
+try:
+    import readline
+except ImportError:
+    readline = None
+    is_libedit = False
+else:
+    is_libedit = 'libedit' in readline.__doc__
+
 from nicos.pycompat import from_utf8
 
+import pytest
 
+
+@pytest.mark.skipif(not readline, reason='readline module missing')
+@pytest.mark.skipif(is_libedit,
+                    reason='subtle breaks with libedit readline emulation')
 def test_textclient(cliclient):
     stdout, _ = cliclient.communicate(b'''\
 /log 100
