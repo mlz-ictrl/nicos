@@ -57,7 +57,7 @@
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos.kws1.monitorwidgets
+.. automodule:: nicos_mlz.kws1.gui.monitorwidgets
 
 .. autoclass:: Tube()
 .. autoclass:: Collimation()

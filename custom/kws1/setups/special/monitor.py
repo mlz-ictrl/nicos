@@ -35,7 +35,7 @@ _collimation = Block('Collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
                             'aperture_08', 'aperture_04', 'aperture_02'],
-                   widget='nicos.kws1.monitorwidgets.Collimation',
+                   widget='nicos_mlz.kws1.monitorwidgets.Collimation',
                    width=70, height=12)),
 ])
 
@@ -43,7 +43,7 @@ _detector = Block('Detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
-              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
+              widget='nicos_mlz.kws1.monitorwidgets.Tube', width=70, height=12)
     ),
 ])
 

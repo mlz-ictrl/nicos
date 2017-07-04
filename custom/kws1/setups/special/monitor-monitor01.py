@@ -45,7 +45,7 @@ _collimation = make_blocks('Collimation', 'collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
     BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
                             'aperture_08', 'aperture_04', 'aperture_02'],
-                   widget='nicos.kws1.monitorwidgets.Collimation',
+                   widget='nicos_mlz.kws1.gui.monitorwidgets.Collimation',
                    width=70, height=13)),
 ])
 
@@ -53,7 +53,7 @@ _detector = make_blocks('Detector', 'detector', [
     BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
     BlockRow(
         Field(devices=['det_z', 'det_x', 'det_y'],
-              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=13)
+              widget='nicos_mlz.kws1.gui.monitorwidgets.Tube', width=70, height=13)
     ),
 ])
 
@@ -65,7 +65,7 @@ _polarizer = make_blocks('Polarizer', 'polarizer', [
 _lenses = make_blocks('Lenses', 'lenses', [
     BlockRow(
         Field(devices=['lens_in', 'lens_out'],
-              widget='nicos.kws1.monitorwidgets.Lenses', width=30, height=10)
+              widget='nicos_mlz.kws1.gui.monitorwidgets.Lenses', width=30, height=10)
     ),
 ])
 
@@ -78,7 +78,7 @@ _shutter = make_blocks('Shutter', 'shutter', [
 _sample = make_blocks('Sample', 'sample', [
     BlockRow(Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
-             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+             Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
                    width=10, height=10)),
 ], setups='not sample_rotation')
 
@@ -86,7 +86,7 @@ _sample_withrot = make_blocks('Sample', 'sample', [
     BlockRow(Field(name='Rotation', dev='sam_rot'),
              Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
-             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+             Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
                    width=10, height=10)),
 ], setups='sample_rotation')
 
