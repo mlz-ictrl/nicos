@@ -15,7 +15,6 @@ devices = dict(
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(pointcounter)07d.001',
                                                    '/data_user/D%(pointcounter)07d.001'],
-                               flipimage = 'none',
                                subdir = 'bersans',
                                lowlevel = True,
                               ),

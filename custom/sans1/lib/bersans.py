@@ -26,10 +26,9 @@
 
 import os
 from time import strftime, localtime, time as currenttime
-import numpy as np
 
 from nicos import session
-from nicos.core import Override, Param, oneof
+from nicos.core import Override
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
@@ -359,12 +358,6 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         fp.flush()
 
     def writeData(self, fp, image):
-        # respect flipping options
-        if self.sink.flipimage in ['both', 'updown']:
-            image = np.flipud(image)
-        if self.sink.flipimage in ['both', 'leftright']:
-            image = np.fliplr(image)
-
         # write Data (one line per y)
         for y in range(image.shape[0]):
             line = image[y]
@@ -376,10 +369,8 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
 class BerSANSImageSink(ImageSink):
 
     parameters = {
-        'flipimage': Param('Flip image after reading from det?',
-                           type=oneof('none', 'leftright', 'updown', 'both'),
-                           default='updown', mandatory=True, unit=''),
     }
+
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,

@@ -15,7 +15,6 @@ devices = dict(
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(pointcounter)07d.001',
                                                    '/data_user/D%(pointcounter)07d.001'],
-                               flipimage = 'updown',
                                lowlevel = True,
                                subdir = 'hist',
                               ),
@@ -96,6 +95,7 @@ devices = dict(
     det1_image = device('devices.vendor.qmesydaq.taco.Image',
                         description = 'QMesyDAQ Image',
                         tacodevice = '//%s/sans1/qmesydaq/det' % nethost,
+                        flipaxes = [0],  # flip image up-down
                        ),
     # the combined detector device is in sans1.py or tisane.py
 )

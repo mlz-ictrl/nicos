@@ -24,7 +24,7 @@
 
 """Detector devices for QMesyDAQ type detectors."""
 
-import numpy
+import numpy as np
 
 import IO
 import IOCommon
@@ -49,8 +49,9 @@ class BaseChannel(TacoBaseChannel):
 
     def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.stop)
-        self._taco_guard(self._dev.setMode, IOCommon.MODE_PRESELECTION if value
-                                            else IOCommon.MODE_NORMAL)
+        self._taco_guard(self._dev.setMode,
+                         IOCommon.MODE_PRESELECTION if value
+                         else IOCommon.MODE_NORMAL)
         self._taco_guard(self._dev.enableMaster, value)
 
 
@@ -129,6 +130,8 @@ class Image(BaseChannel, QMesyDAQImage):
         'readout': Param('Readout mode of the Detector', settable=True,
                          type=oneof('raw', 'mapped', 'amplitude'),
                          default='mapped', mandatory=False, chatty=True),
+        'flipaxes': Param('Flip data along these axes after reading from det',
+                          type=listof(int), default=[], unit=''),
     }
 
     taco_class = Detector
@@ -151,22 +154,23 @@ class Image(BaseChannel, QMesyDAQImage):
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], ), dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0])
+            data = np.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
-            return data
         elif res[2] in [0, 1]:  # 2D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]),
                                        dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
+            data = np.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
-            return data.reshape((res[0], res[1]), order='C')
+            data = data.reshape((res[0], res[1]), order='C')
         else:  # 3D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
                                        dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
+            data = np.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
             self.readresult = [data.sum()]
-            return data.reshape((res[0], res[1], res[2]), order='C')
-        return None
+            data = data.reshape((res[0], res[1], res[2]), order='C')
+        for axis in self.flipaxes:
+            data = np.flip(data, axis)
+        return data
 
     def doReadIsmaster(self):
         return False

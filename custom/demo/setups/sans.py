@@ -156,7 +156,6 @@ devices = dict(
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(pointcounter)s.001',
                                '/%(proposal)s_%(pointcounter)s_%(pointnumber)s.bersans'],
-                               flipimage = 'none',
                               ),
     RawImageSink      = device('devices.datasinks.RawImageSink',
                                description = 'Saves image data in RAW format',

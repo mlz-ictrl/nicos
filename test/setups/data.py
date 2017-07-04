@@ -86,9 +86,7 @@ devices = dict(
             '%(scancounter)s_%(pointcounter)s.raw', '/%(pointcounter)08d.raw'
         ]
     ),
-    bersanssink = device('nicos.sans1.bersans.BerSANSImageSink',
-        flipimage = 'none',
-    ),
+    bersanssink = device('nicos.sans1.bersans.BerSANSImageSink'),
     # note: these four will only be created if their prerequisite modules
     # are installed (and they are present in *sinklist*) because device auto
     # creation is off for test sessions
