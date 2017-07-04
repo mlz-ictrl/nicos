@@ -4,14 +4,14 @@ group = 'lowlevel'
 
 includes = ['guidehall']
 
-nethost = 'tacodb.taco.frm2'
+tango_base = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
 
 devices = dict(
-    NL4a     = device('devices.taco.NamedDigitalInput',
+    NL4a     = device('devices.tango.NamedDigitalInput',
                       description = 'NL4a shutter status',
                       mapping = {'closed': 0, 'open': 1},
                       pollinterval = 60,
                       maxage = 120,
-                      tacodevice = '//%s/frm2/shutter/nl4a' % (nethost, ),
+                      tangodevice = tango_base + 'shutter/nl4a',
                      ),
 )
