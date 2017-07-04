@@ -43,38 +43,44 @@ class SelectorLambda(Moveable):
     }
 
     attached_devices = {
-        'seldev': Attach('The selector speed device', Moveable),
+        'seldev':  Attach('The selector speed device', Moveable),
+        'tiltdev': Attach('The tilt angle motor, if present', Moveable,
+                          optional=True),
     }
 
     hardware_access = False
 
-    def _constant(self):
-        """With constant tilt angle (not used yet) the relation between speed
-        and wavelength is just "speed = C/lambda", this function calculates C.
+    def _get_tilt(self, maxage):
+        if self._attached_tiltdev:
+            return self._attached_tiltdev.read(maxage)
+        return 0
 
-        Formula adapted from NVS C++ source code.
+    def _constant(self, tiltang):
+        """Calculate the inverse proportional constant between speed (in rpm)
+        and wavelength (in A), depending on the tilt angle (in degrees).
+
+        Formula adapted from Astrium NVS C++ source code.
         """
-        ang = 0
         v0 = 3955.98
         lambda0 = self.twistangle * 60 * v0 / (360 * self.length * self.maxspeed)
         A = 2 * self.beamcenter * pi / (60 * v0)
-        return (tan(radians(ang)) + (A * self.maxspeed * lambda0)) / \
-            (-A**2 * self.maxspeed * lambda0 * tan(radians(ang)) + A)
+        return (tan(radians(tiltang)) + (A * self.maxspeed * lambda0)) / \
+            (-A**2 * self.maxspeed * lambda0 * tan(radians(tiltang)) + A)
 
     def doRead(self, maxage=0):
         spd = self._attached_seldev.read(maxage)
-        return self._constant() / spd if spd else -1
+        return self._constant(self._get_tilt(maxage)) / spd if spd else -1
 
     def doIsAllowed(self, value):
         if value == 0:
             return False, 'zero wavelength not allowed'
-        speed = int(self._constant() / value)
+        speed = int(self._constant(self._get_tilt(0)) / value)
         allowed, why = self._attached_seldev.isAllowed(speed)
         if not allowed:
             why = 'requested %d rpm, %s' % (speed, why)
         return allowed, why
 
     def doStart(self, value):
-        speed = int(self._constant() / value)
-        self.log.debug('moving selector to %f rpm', speed)
+        speed = int(self._constant(self._get_tilt(0)) / value)
+        self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
