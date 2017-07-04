@@ -1,56 +1,56 @@
 `KWS-1 <http://www.mlz-garching.de/kws-1>`_
 ===========================================
 
-.. automodule:: nicos.kws1.axis
+.. automodule:: nicos_mlz.kws1.devices.axis
 .. autoclass:: DeltaAxis()
 
-.. automodule:: nicos.kws1.chopper
+.. automodule:: nicos_mlz.kws1.devices.chopper
 .. autoclass:: ChopperFrequency()
 .. autoclass:: ChopperParams()
 .. autoclass:: Chopper()
 
-.. automodule:: nicos.kws1.collimation
+.. automodule:: nicos_mlz.kws1.devices.collimation
 .. autoclass:: SlitMotor()
 .. autoclass:: CollimationSlit()
 .. autoclass:: CollimationGuides()
 .. autoclass:: Collimation()
 
-.. automodule:: nicos.kws1.daq
+.. automodule:: nicos_mlz.kws1.devices.daq
 .. autoclass:: KWSImageChannel()
 .. autoclass:: VirtualKWSImageChannel()
 .. autoclass:: KWSDetector()
 
-.. automodule:: nicos.kws1.detector
+.. automodule:: nicos_mlz.kws1.devices.detector
 .. autoclass:: oneof_detector()
 .. autoclass:: DetectorPosSwitcher()
 
-.. automodule:: nicos.kws1.flipper
+.. automodule:: nicos_mlz.kws1.devices.flipper
 .. autoclass:: Flipper()
 
-.. automodule:: nicos.kws1.kwsfileformat
+.. automodule:: nicos_mlz.kws1.devices.kwsfileformat
 .. autoclass:: KWSFileSinkHandler()
 .. autoclass:: KWSFileSink()
 
-.. automodule:: nicos.kws1.lens
+.. automodule:: nicos_mlz.kws1.devices.lens
 .. autoclass:: Lenses()
 .. autoclass:: LensControl()
 
-.. automodule:: nicos.kws1.polarizer
+.. automodule:: nicos_mlz.kws1.devices.polarizer
 .. autoclass:: PolSwitcher()
 .. autoclass:: Polarizer()
 
-.. automodule:: nicos.kws1.sample
+.. automodule:: nicos_mlz.kws1.devices.sample
 .. autoclass:: KWSSample()
 
-.. automodule:: nicos.kws1.selector
+.. automodule:: nicos_mlz.kws1.devices.selector
 .. autoclass:: SelectorSpeed()
 .. autoclass:: SelectorLambda()
 .. autoclass:: SelectorSwitcher()
 
-.. automodule:: nicos.kws1.shutter
+.. automodule:: nicos_mlz.kws1.devices.shutter
 .. autoclass:: Shutter()
 
-.. automodule:: nicos.kws1.yamlformat
+.. automodule:: nicos_mlz.kws1.devices.yamlformat
 .. autoclass:: YAMLFileSinkHandler()
 .. autoclass:: YAMLFileSink()
 

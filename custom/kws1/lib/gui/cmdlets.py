@@ -31,7 +31,7 @@ from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox, QToolButton, \
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.utils import findResource, formatDuration
 from nicos.pycompat import srepr
-from nicos.kws1.gui.measdialogs import MeasDef, SampleDialog, DetsetDialog, \
+from nicos_mlz.kws1.gui.measdialogs import MeasDef, SampleDialog, DetsetDialog, \
     DevicesDialog, RtConfigDialog, LOOPS
 
 

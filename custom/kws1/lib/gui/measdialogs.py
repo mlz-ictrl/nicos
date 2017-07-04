@@ -34,9 +34,9 @@ from PyQt4.QtGui import QDialog, QListWidgetItem, QTableWidgetItem, QLabel, \
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
-from nicos.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
+from nicos_mlz.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
     Polarizer, Collimation, MeasTime, Sample, Device
-from nicos.kws1.gui.sampleconf import parse_sampleconf
+from nicos_mlz.kws1.gui.sampleconf import parse_sampleconf
 
 
 SAMPLES = 'samples'
