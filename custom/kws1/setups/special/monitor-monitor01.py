@@ -167,7 +167,7 @@ _layout = [
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'KWS-1 status',
                      loglevel = 'info',
                      cache = 'phys.kws1.frm2',

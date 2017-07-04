@@ -8,7 +8,7 @@ presets = configdata('config_detector.DETECTOR_PRESETS')
 offsets = configdata('config_detector.DETECTOR_OFFSETS')
 
 devices = dict(
-    detector   = device('kws1.detector.DetectorPosSwitcher',
+    detector   = device('nicos_mlz.kws1.devices.detector.DetectorPosSwitcher',
                         description = 'high-level detector presets',
                         blockingmove = False,
                         moveables = ['det_z', 'det_x', 'det_y'],
@@ -18,13 +18,13 @@ devices = dict(
                         precision = [0.01, 0.1, 0.1],
                        ),
 
-    det_x      = device("kws1.virtual.Standin",
+    det_x      = device("nicos_mlz.kws1.devices.virtual.Standin",
                         description = "detector translation X",
                        ),
-    det_y      = device("kws1.virtual.Standin",
+    det_y      = device("nicos_mlz.kws1.devices.virtual.Standin",
                         description = "detector translation Y",
                        ),
-    det_z      = device("kws1.virtual.Standin",
+    det_z      = device("nicos_mlz.kws1.devices.virtual.Standin",
                         description = "detector translation Z",
                        ),
 )

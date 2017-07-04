@@ -121,7 +121,7 @@ _etplot = Block('', [
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'KWS-1 status',
                      loglevel = 'info',
                      # Use only 'localhost' if the cache is really running on

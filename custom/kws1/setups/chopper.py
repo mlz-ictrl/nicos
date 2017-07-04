@@ -9,7 +9,7 @@ excludes = ['virtual_chopper']
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
-    chopper         = device('kws1.chopper.Chopper',
+    chopper         = device('nicos_mlz.kws1.devices.chopper.Chopper',
                              description = 'high-level chopper/TOF presets',
                              resolutions = [1, 2.5, 5, 10],
                              fmtstr = '%.2f Hz, %.0f deg',
@@ -20,7 +20,7 @@ devices = dict(
                              channels = 64,
                             ),
 
-    chopper_params  = device('kws1.chopper.ChopperParams',
+    chopper_params  = device('nicos_mlz.kws1.devices.chopper.ChopperParams',
                              description = 'Chopper frequency and opening',
                              freq1 = 'chopper1_freq',
                              freq2 = 'chopper2_freq',
@@ -29,7 +29,7 @@ devices = dict(
                              fmtstr = '%.2f Hz, %.0f deg',
                             ),
 
-    chopper1_phase  = device('devices.tango.WindowTimeoutAO',
+    chopper1_phase  = device('nicos.devices.tango.WindowTimeoutAO',
                              description = 'Phase of the first chopper',
                              tangodevice = tango_base + 'chopper/phase1',
                              unit = 'deg',
@@ -39,7 +39,7 @@ devices = dict(
                              timeout = 1800.0,
                              lowlevel = True,
                             ),
-    chopper1_freq   = device('kws1.chopper.ChopperFrequency',
+    chopper1_freq   = device('nicos_mlz.kws1.devices.chopper.ChopperFrequency',
                              description = 'Frequency of the first chopper',
                              tangodevice = tango_base + 'chopper/freq1',
                              unit = 'Hz',
@@ -49,7 +49,7 @@ devices = dict(
                              timeout = 1800.0,
                              lowlevel = True,
                             ),
-    chopper2_phase  = device('devices.tango.WindowTimeoutAO',
+    chopper2_phase  = device('nicos.devices.tango.WindowTimeoutAO',
                              description = 'Phase of the second chopper',
                              tangodevice = tango_base + 'chopper/phase2',
                              unit = 'deg',
@@ -59,7 +59,7 @@ devices = dict(
                              timeout = 1800.0,
                              lowlevel = True,
                             ),
-    chopper2_freq   = device('devices.tango.WindowTimeoutAO',
+    chopper2_freq   = device('nicos.devices.tango.WindowTimeoutAO',
                              description = 'Frequency of the second chopper',
                              tangodevice = tango_base + 'chopper/freq2',
                              unit = 'Hz',

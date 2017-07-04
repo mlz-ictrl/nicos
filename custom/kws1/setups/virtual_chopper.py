@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 65
 
 devices = dict(
-    chopper         = device('kws1.chopper.Chopper',
+    chopper         = device('nicos_mlz.kws1.devices.chopper.Chopper',
                              description = 'high-level chopper/TOF presets',
                              resolutions = [1, 2.5, 5, 10],
                              fmtstr = '%.2f Hz, %.0f deg',
@@ -15,7 +15,7 @@ devices = dict(
                              daq = 'det',
                             ),
 
-    chopper_params  = device('kws1.chopper.ChopperParams',
+    chopper_params  = device('nicos_mlz.kws1.devices.chopper.ChopperParams',
                              description = 'Chopper frequency and opening',
                              freq1 = 'chopper1_freq',
                              freq2 = 'chopper2_freq',
@@ -24,19 +24,19 @@ devices = dict(
                              fmtstr = '%.2f Hz, %.0f deg',
                             ),
 
-    chopper1_phase  = device('kws1.virtual.Standin',
+    chopper1_phase  = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'Phase of the first chopper',
                              lowlevel = True,
                             ),
-    chopper1_freq   = device('kws1.virtual.Standin',
+    chopper1_freq   = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'Frequency of the first chopper',
                              lowlevel = True,
                             ),
-    chopper2_phase  = device('kws1.virtual.Standin',
+    chopper2_phase  = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'Phase of the second chopper',
                              lowlevel = True,
                             ),
-    chopper2_freq   = device('kws1.virtual.Standin',
+    chopper2_freq   = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'Frequency of the second chopper',
                              lowlevel = True,
                             ),

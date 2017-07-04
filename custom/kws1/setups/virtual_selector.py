@@ -7,7 +7,7 @@ display_order = 15
 presets = configdata('config_selector.SELECTOR_PRESETS')
 
 devices = dict(
-    selector        = device('kws1.selector.SelectorSwitcher',
+    selector        = device('nicos_mlz.kws1.devices.selector.SelectorSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['selector_speed'],
@@ -19,11 +19,11 @@ devices = dict(
                              precision = [10.0],
                             ),
 
-    selector_speed  = device('kws1.virtual.Standin',
+    selector_speed  = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'Selector speed control',
                             ),
 
-    selector_lambda = device('kws1.selector.SelectorLambda',
+    selector_lambda = device('nicos_mlz.kws1.devices.selector.SelectorLambda',
                              description = 'Selector wavelength control',
                              seldev = 'selector_speed',
                              unit = 'A',

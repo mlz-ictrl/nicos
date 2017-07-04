@@ -9,56 +9,56 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det_ext_rt = device('devices.generic.ManualSwitch',
+    det_ext_rt = device('nicos.devices.generic.ManualSwitch',
                         description = 'Switch for external-start realtime mode',
                         lowlevel = True,
                         states = ['on', 'off', 1, 0],
                        ),
 
-    det_img    = device('kws1.daq.VirtualKWSImageChannel',
+    det_img    = device('nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',
                         description = 'Image for the large KWS detector',
                         sizes = (128, 128),
                        ),
 
-    det_mode   = device('devices.generic.ReadonlyParamDevice',
+    det_mode   = device('nicos.devices.generic.ReadonlyParamDevice',
                         description = 'Current detector mode',
                         device = 'det_img',
                         parameter = 'mode',
                        ),
 
-    timer      = device('devices.generic.VirtualTimer',
+    timer      = device('nicos.devices.generic.VirtualTimer',
                         description = 'timer',
                         fmtstr = '%.0f',
                        ),
 
-    mon1       = device('devices.generic.VirtualCounter',
+    mon1       = device('nicos.devices.generic.VirtualCounter',
                         description = 'Monitor 1 (before selector)',
                         type = 'monitor',
                         fmtstr = '%d',
                        ),
 
-    mon2       = device('devices.generic.VirtualCounter',
+    mon2       = device('nicos.devices.generic.VirtualCounter',
                         description = 'Monitor 2 (after selector)',
                         type = 'monitor',
                         fmtstr = '%d',
                        ),
 
-    mon3       = device('devices.generic.VirtualCounter',
+    mon3       = device('nicos.devices.generic.VirtualCounter',
                         description = 'Monitor 3 (in detector beamstop)',
                         type = 'monitor',
                         fmtstr = '%d',
                        ),
 
-    kwsformat  = device('kws1.kwsfileformat.KWSFileSink',
+    kwsformat  = device('nicos_mlz.kws1.devices.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                         transpose = False,
                        ),
 
-    yamlformat = device('kws1.yamlformat.YAMLFileSink',
+    yamlformat = device('nicos_mlz.kws1.devices.yamlformat.YAMLFileSink',
                         lowlevel = True,
                        ),
 
-    det        = device('kws1.daq.KWSDetector',
+    det        = device('nicos_mlz.kws1.devices.daq.KWSDetector',
                         description = 'KWS detector',
                         timers = ['timer'],
                         monitors = ['mon1', 'mon2', 'mon3'],
