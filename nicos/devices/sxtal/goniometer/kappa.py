@@ -82,7 +82,7 @@ class Kappa(PositionBase):
         """
         return self.With(theta=-self.theta, omega=self.omega + np.rad2deg(180) - 2 * self.theta)
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return PositionFactory(
@@ -93,7 +93,7 @@ class Kappa(PositionBase):
                                  np.dot(Zrot(self.kappa),
                                         np.dot(Yrot(self.alpha), Zrot(self.phi))))))
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.kappa is None:
@@ -119,30 +119,30 @@ class Kappa(PositionBase):
                                chi=normalangle(chie),
                                phi=normalangle(phie))
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asB()
 
-    def asC(self):
+    def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asB().asC()
+        return self.asB().asC(wavelength)
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asN()
 
-    def asL(self):
+    def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asC().asL()
+        return self.asC().asL(wavelength)
 
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.

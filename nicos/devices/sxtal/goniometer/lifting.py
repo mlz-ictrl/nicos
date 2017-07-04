@@ -41,7 +41,8 @@ class Lifting(PositionBase):
     phi_clockwise = 1
     omega_clockwise = 1
 
-    def __init__(self, p=None, gamma=None, omega=None, nu=None, signtheta=1, _rad=False):
+    def __init__(self, p=None, gamma=None, omega=None, nu=None, signtheta=1,
+                  psi=None, _rad=False):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
@@ -50,16 +51,18 @@ class Lifting(PositionBase):
             self.omega = p.omega
             self.nu = p.nu
             self.signtheta = p.signtheta
+            self.psi = p.psi
         else:
             self.gamma = self._r2d(gamma, _rad)
             self.omega = self._r2d(omega, _rad)
             self.nu = self._r2d(nu, _rad)
             self.signtheta = signtheta
+            self.psi = self._r2d(psi, _rad)
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        raise self.asC().asB()
+        return self.asC().asB()
 
     def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
@@ -77,45 +80,47 @@ class Lifting(PositionBase):
         cx = np.cos(phi) * cxy
         cy = np.sin(phi) * cxy
         return PositionFactory(ptype='cr', c=(cx, cy, cz),
-                               signtheta=self.signtheta)
+                               signtheta=self.signtheta, psi=self.psi)
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asC().asK()
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asC().asE()
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asC().asG()
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asC().asN()
 
-    def asL(self):
+    def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self
+        return self.With()
 
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.
         """
         if not kw.get('_rad', False):
-            for var in ('gamma', 'omega', 'nu'):
+            for var in ('gamma', 'omega', 'nu', 'psi'):
                 if kw.get(var, None) is not None:
                     kw[var] = np.deg2rad(kw[var])
         return PositionFactory(ptype='lr',
                                gamma=kw.get('gamma', self.gamma),
                                omega=kw.get('omega', self.omega),
                                nu=kw.get('nu', self.nu),
-                               signtheta=kw.get('signtheta', self.signtheta))
+                               signtheta=kw.get('signtheta', self.signtheta),
+                               psi=kw.get('psi', self.psi)
+                               )
 
     def towards(self, other, fraction):
         if not other.ptype == self.ptype:
@@ -136,5 +141,7 @@ class Lifting(PositionBase):
             s = s + " omega=%8.3f" % (np.rad2deg(self.omega))
         if self.nu is not None:
             s = s + " nu=%8.3f" % (np.rad2deg(self.nu))
+        if self.psi is not None:
+            s = s + " psi=%8.3f" % (np.rad2deg(self.psi))
         s = s + "]"
         return s

@@ -105,35 +105,35 @@ class GMatrix(PositionBase):
                                phi=phi,
                                chi=chi)
 
-    def asC(self):
+    def asC(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asC()
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asK()
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asB()
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asN()
 
-    def asL(self):
+    def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asE().asL()
+        return self.asE().asL(wavelength)
 
     def Xrot(self, angle):
         """ Rotate 'angle' (clockwise) around the X axis.

@@ -31,6 +31,7 @@ keep maintenance effort low.
 
 import numpy as np
 
+from nicos import session
 
 def PositionFactory(ptype, **kwds):
     """ Position factory function.
@@ -80,7 +81,16 @@ def PositionFactory(ptype, **kwds):
 
 class PositionBase(object):
     def __init__(self):
-        pass
+        self.log = session.log
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop('log')
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.log = session.log
 
     def _r2d(self, val, _rad):
         if not _rad:
@@ -90,6 +100,12 @@ class PositionBase(object):
                 return 0.0
         else:
             return val
+
+    def asType(self, newtype, wavelength=None):
+        if newtype.lower() in typelist:
+            return self.__getattribute__('as%s' % newtype.upper())(wavelength)
+        raise TypeError("unknown position type")
+
 
 from nicos.devices.sxtal.goniometer.euler import Euler
 from nicos.devices.sxtal.goniometer.kappa import Kappa

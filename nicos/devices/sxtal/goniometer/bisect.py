@@ -28,8 +28,6 @@ Bisect
 class for storing a bisecting position.
 """
 
-from __future__ import print_function
-
 from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
@@ -74,7 +72,7 @@ class Bisecting(PositionBase):
              np.sin(self.chi) * d]
         return PositionFactory(ptype='cr', c=c, psi=self.psi, signtheta=signtheta)
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         sinpsi = np.sin(self.psi)
@@ -88,7 +86,7 @@ class Bisecting(PositionBase):
         try:
             chi = np.arctan2(sinche, cosche)
         except ValueError:
-            print("B-E Chi problem:", self)
+            self.log.warn("B-E Chi problem: %r", self)
             chi = 0.0
         if sinchb == 0 and sinpsi == 0:
             omega = self.theta - 90.0 * (signcb - 1.0)
@@ -101,14 +99,14 @@ class Bisecting(PositionBase):
             try:
                 omega = np.arctan2(sinome, cosome) + self.theta
             except ValueError:
-                print("Oops:", self)
+                self.log.warn("B-E Omega problem: %r", self)
                 omega = 0.0
             sinphe = -signch * signcb * sinpsi
             cosphe = signch * signth * signcb * sinchb * cospsi
         try:
             phi = np.arctan2(sinphe, cosphe) + self.phi
         except ValueError:
-            print("Oops:", self)
+            self.log.warn("B-E Phi problem: %r", self)
             phi = 0.0
         return PositionFactory(ptype='er',
                                theta=self.theta,
@@ -116,7 +114,7 @@ class Bisecting(PositionBase):
                                chi=normalangle(chi),
                                phi=normalangle(phi))
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.theta > 0:
@@ -138,23 +136,23 @@ class Bisecting(PositionBase):
                                                       np.dot(Xrot(self.chi),
                                                              Zrot(self.phi))))))))
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asK()
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asN()
 
-    def asL(self):
-        return self.asC().asL()
+    def asL(self, wavelength=None):
+        return self.asC().asL(wavelength)
 
     def With(self, **kw):
         """ Make clone of this position with some angle(s) changed.

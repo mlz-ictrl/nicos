@@ -99,6 +99,7 @@ class CVector(PositionBase):
             wavelength = session.instrument.wavelength or None
         if not wavelength:
             raise NicosError("Cannot perform conversion without knowing wavelength")
+
         cxy = np.sqrt(self.c[0]**2 + self.c[1]**2)
         cabs2 = self.c[0]**2 + self.c[1]**2 + self.c[2]**2
         theta = np.arcsin(np.sqrt(cabs2) * wavelength / 2.0)
@@ -110,29 +111,30 @@ class CVector(PositionBase):
                                signtheta=self.signtheta,
                                gamma=normalangle(gamma),
                                omega=normalangle(omega),
-                               nu=normalangle(nu))
+                               nu=normalangle(nu),
+                               psi=self.psi)
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asB().asE()
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asK()
 
-    def asC(self):
+    def asC(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asG()
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asN()

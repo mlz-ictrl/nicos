@@ -66,22 +66,22 @@ class NEuler(PositionBase):
             self.chi = self._r2d(chi, _rad)
             self.phi = self._r2d(phi, _rad)
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asB()
 
-    def asC(self):
+    def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asE().asC()
+        return self.asE().asC(wavelength)
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asK()
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.omega is not None:
@@ -102,20 +102,20 @@ class NEuler(PositionBase):
                                phi=ph,
                                omega=om)
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.asE().asG()
 
-    def asL(self):
+    def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asE().asL()
+        return self.asE().asL(wavelength)
 
     def Alternate(self):
         """ The alternate N-position that has the same orientation.

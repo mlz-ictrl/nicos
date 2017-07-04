@@ -131,6 +131,7 @@ def absdif(p0, p1):
     """
     p0 = p0.asE()
     p1 = p1.asE()
+
     rotmat = np.dot(p0.asG().matrix, np.linalg.inv(p1.asG().matrix))
     trace = np.trace(rotmat)
     cosang = 0.5 * trace - 0.5

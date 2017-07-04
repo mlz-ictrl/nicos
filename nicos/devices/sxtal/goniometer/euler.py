@@ -31,7 +31,6 @@ class for stroing clockwise eulerian angles
 from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
-from nicos import session
 from nicos.core import NicosError
 from nicos.devices.sxtal.goniometer.posutils import normalangle, Xrot, Zrot
 
@@ -65,7 +64,7 @@ class Euler(PositionBase):
             self.chi = self._r2d(chi, _rad)
             self.phi = self._r2d(phi, _rad)
 
-    def asB(self):
+    def asB(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         sineps = np.sin(self.omega - self.theta)
@@ -100,12 +99,12 @@ class Euler(PositionBase):
             chi=normalangle(chib),
             psi=normalangle(psi))
 
-    def asC(self):
+    def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asB().asC()
+        return self.asB().asC(wavelength)
 
-    def asK(self):
+    def asK(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         if not hasattr(self, 'alpha'):
@@ -116,7 +115,7 @@ class Euler(PositionBase):
         co = np.sin(self.alpha) ** 2 - si ** 2
         con3 = np.cos(self.kappamax / 2.0) ** 2 * np.sin(self.alpha) ** 2
         if con3 > co:
-            session.log.warn("Chi can not be reached on this hardware")
+            self.log.warn("Chi can not be reached on this hardware")
             kappa = np.deg2rad(180.0)
             omega = np.deg2rad(90.0)
             # raise error("Chi high")
@@ -138,17 +137,17 @@ class Euler(PositionBase):
             kappa=normalangle(kappa),
             phi=normalangle(phi))
 
-    def asL(self):
+    def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        return self.asC().asL()
+        return self.asC().asL(wavelength)
 
-    def asE(self):
+    def asE(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         return self.With()
 
-    def asG(self):
+    def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         # print >> sys.stderr, self
@@ -158,7 +157,7 @@ class Euler(PositionBase):
             matrix=np.dot(Zrot(self.omega),
                           np.dot(Xrot(self.chi), Zrot(self.phi))))
 
-    def asN(self):
+    def asN(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.phi is not None:
