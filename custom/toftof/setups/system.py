@@ -17,7 +17,7 @@ modules = ['commands.standard']
 includes = ['notifiers']
 
 devices = dict(
-    TOFTOF = device('devices.instrument.Instrument',
+    TOFTOF = device('nicos.devices.instrument.Instrument',
                     description = 'The famous TOFTOF instrument',
                     responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                     instrument = 'TOFTOF',
@@ -26,7 +26,7 @@ devices = dict(
                     operators = [u'Technische Universität München (TUM)'],
                    ),
 
-    Sample = device('devices.sample.Sample',
+    Sample = device('nicos.devices.sample.Sample',
                     description = 'The current used sample',
                    ),
 
@@ -49,19 +49,19 @@ devices = dict(
                  counterfile = 'counter',
                 ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 
-    dmnsink = device('devices.datasinks.DaemonSink',
+    dmnsink = device('nicos.devices.datasinks.DaemonSink',
                      lowlevel = True,
                     ),
 
-    serialsink = device('devices.datasinks.SerializedSink',
+    serialsink = device('nicos.devices.datasinks.SerializedSink',
                         lowlevel = True,
                        ),
 
@@ -72,7 +72,7 @@ devices = dict(
                      filenametemplate = ['%(pointcounter)08d_0000.raw'],
                      lowlevel = True,
                     ),
-    Space = device('devices.generic.FreeSpace',
+    Space = device('nicos.devices.generic.FreeSpace',
                    description = 'The amount of free space for storing data',
                    path = '/data',
                    minfree = 5,

@@ -9,7 +9,7 @@ includes = []
 tango_base = 'tango://tofhw.toftof.frm2:10000/toftof/'
 
 devices = dict(
-    rc_onoff = device('devices.tango.NamedDigitalOutput',
+    rc_onoff = device('nicos.devices.tango.NamedDigitalOutput',
                       description = 'Activates radial collimator',
                       tangodevice = tango_base + 'rc/_rc_onoff',
                       mapping = {
@@ -18,7 +18,7 @@ devices = dict(
                       },
                      ),
 
-    rc_motor = device('devices.tango.AnalogOutput',
+    rc_motor = device('nicos.devices.tango.AnalogOutput',
                       description = 'Radial collimator motor',
                       tangodevice = tango_base + 'rc/_rc_motor',
                       lowlevel = True,

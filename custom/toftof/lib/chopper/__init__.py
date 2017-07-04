@@ -25,4 +25,5 @@
 from nicos.toftof.chopper.base import BaseChopperController, CRC, Ratio, \
     SlitType, Speed, SpeedReadout, Wavelength
 from nicos.toftof.chopper.real import Controller
-from nicos.toftof.chopper.virtual import Controller as VirtualController, Disc
+from nicos.toftof.chopper.virtual import Controller as VirtualController, \
+    Disc

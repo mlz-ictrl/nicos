@@ -7,7 +7,7 @@ includes = []
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    ngc_motor = device('devices.taco.Motor',
+    ngc_motor = device('nicos.devices.taco.Motor',
                        description = 'The TACO motor for the neutron guide'
                                      ' changing mechnism',
                        tacodevice = '//%s/toftof/huber/ccmot' % (nethost,),

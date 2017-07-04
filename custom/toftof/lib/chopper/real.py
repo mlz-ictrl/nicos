@@ -36,7 +36,6 @@ from nicos.devices.taco import TacoDevice
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.toftof import calculations as calc
-
 from nicos.toftof.chopper.base import BaseChopperController
 
 WAVE_LENGTH = 4181

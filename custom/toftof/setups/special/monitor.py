@@ -200,7 +200,7 @@ _col3 = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'tofhw.toftof.frm2:14869',

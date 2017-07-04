@@ -73,12 +73,12 @@ devices = dict(
                           unit = 'rpm',
                          ),
 
-    chdelaybus   = device('devices.vendor.toni.ModBus',
+    chdelaybus   = device('nicos.devices.vendor.toni.ModBus',
                           tacodevice = '//%s/toftof/rs232/ifchdelay' % \
                                         (nethost,),
                           lowlevel = True,
                          ),
-    chdelay      = device('devices.vendor.toni.DelayBox',
+    chdelay      = device('nicos.devices.vendor.toni.DelayBox',
                           description = 'Trigger time-offset',
                           requires = {'level': 'guest'},
                           bus = 'chdelaybus',

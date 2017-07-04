@@ -23,4 +23,4 @@
 # *****************************************************************************
 
 from nicos.toftof.datasinks.legacy import TofImageSink
-from nicos.toftof.datasinks.live import ToftofLiveViewSink  # as LiveViewSink
+from nicos.toftof.datasinks.live import ToftofLiveViewSink

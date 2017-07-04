@@ -31,10 +31,10 @@ from time import asctime, localtime, strftime, time as currenttime
 from nicos import session
 from nicos.core.constants import LIVE
 from nicos.pycompat import from_maybe_utf8, to_utf8
+from nicos.utils import syncFile
 
 from nicos.toftof import calculations as calc
 from nicos.toftof.datasinks.base import TofSink, TofSinkHandler
-from nicos.utils import syncFile
 
 import numpy as np
 
