@@ -9,7 +9,7 @@ servername = 'VMESPODI'
 nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
-    zs = device('devices.vendor.caress.Motor',
+    zs = device('nicos.devices.vendor.caress.Motor',
                 description = 'HWB ZS',
                 fmtstr = '%.2f',
                 unit = 'mm',

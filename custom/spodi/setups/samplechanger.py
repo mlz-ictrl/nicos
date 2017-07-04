@@ -9,20 +9,20 @@ nameservice = 'spodisrv.spodi.frm2'
 includes = []
 
 devices = dict(
-    samsm = device('devices.vendor.caress.Motor',
-                  description = 'HWB SAMS',
-                  fmtstr = '%.2f',
-                  unit = 'deg',
-                  coderoffset = -9807.33,
-                  abslimits = (-360, 370),
-                  nameserver = '%s' % (nameservice,),
-                  objname = '%s' % (servername),
-                  config = 'SAMS 114 11 0x00f1d000 1 409 2000 100 2 24 50 '
-                           '-1 0 1 4000 1 10 10 0 0',
-                  lowlevel = True,
-                 ),
+    samsm = device('nicos.devices.vendor.caress.Motor',
+                   description = 'HWB SAMS',
+                   fmtstr = '%.2f',
+                   unit = 'deg',
+                   coderoffset = -9807.33,
+                   abslimits = (-360, 370),
+                   nameserver = '%s' % (nameservice,),
+                   objname = '%s' % (servername),
+                   config = 'SAMS 114 11 0x00f1d000 1 409 2000 100 2 24 50 '
+                            '-1 0 1 4000 1 10 10 0 0',
+                   lowlevel = True,
+                  ),
     # Sample changer ***Attention SAMR is also CHIT (Load Frame Chi)***
-    samr = device('devices.vendor.caress.Motor',
+    samr = device('nicos.devices.vendor.caress.Motor',
                   description = 'HWB SAMR',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -33,7 +33,7 @@ devices = dict(
                   config = 'SAMR 115 11 0x00f1e000 4 644 10000 1000 1 0 50 '
                            '1 0 1 4000 1 10 10 0 0',
                  ),
-    sams = device('devices.generic.Switcher',
+    sams = device('nicos.devices.generic.Switcher',
                   description = 'Sample Changer drum',
                   moveable = 'samsm',
                   mapping = {'S1': 1.50,

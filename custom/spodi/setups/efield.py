@@ -7,13 +7,13 @@ includes = []
 nethost = 'spodisrv.spodi.frm2'
 
 devices = dict(
-    E = device('devices.taco.VoltageSupply',
+    E = device('nicos.devices.taco.VoltageSupply',
                description = 'HV',
                tacodevice = '//%s/spodi/hcp/hv' % nethost,
                abslimits = (0, 10000),
                unit = 'V',
               ),
-    E_c = device('devices.taco.AnalogInput',
+    E_c = device('nicos.devices.taco.AnalogInput',
                  description = 'HV current',
                  tacodevice = '//%s/spodi/hcp/current' % nethost,
                  unit = 'A',

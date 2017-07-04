@@ -9,9 +9,9 @@ servername = 'VMESPODI'
 nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
-    tths = device('devices.generic.Axis',
+    tths = device('nicos.devices.generic.Axis',
                   description = 'HWB TTHS',
-                  motor = device('devices.vendor.caress.Motor',
+                  motor = device('nicos.devices.vendor.caress.Motor',
                                  fmtstr = '%.3f',
                                  unit = 'deg',
                                  coderoffset = 1044.04,
@@ -25,9 +25,9 @@ devices = dict(
                   precision = 0.005,
                   maxtries = 10,
                  ),
-    omgs = device('devices.generic.Axis',
+    omgs = device('nicos.devices.generic.Axis',
                   description = 'HWB OMGS',
-                  motor = device('devices.vendor.caress.Motor',
+                  motor = device('nicos.devices.vendor.caress.Motor',
                                  fmtstr = '%.2f',
                                  unit = 'deg',
                                  coderoffset = 2735.92,
