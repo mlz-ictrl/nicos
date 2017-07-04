@@ -26,7 +26,8 @@
 """
 This module contains ESS specific EPICS developments.
 """
-
+from nicos.core import DeviceMixinBase, Param, dictwith, \
+    anytype, pvname, usermethod
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics import EpicsDigitalMoveable
 
@@ -55,3 +56,85 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveable):
 
     def _startRaw(self, target):
         EpicsDigitalMoveable.doStart(self, target)
+
+
+class HasSwitchPv(DeviceMixinBase):
+    """
+    A mixin that can be used with EPICS based devices.
+
+    Devices that inherit this mixin get a new property that indicates
+    whether the device is switched on (that may mean different things
+    in different devices):
+
+        dev.isSwitchedOn
+
+    To switch the device on or off, use the provided methods:
+
+        dev.switchOn()
+        dev.switchOff()
+
+    The link to EPICS is configured via the switchpvs and switchstates
+    parameters. The former defines which PV to read for the status
+    information as well as which one to write to when using the methods.
+    The latter defines what values the PV accepts for on and off
+    respectively.
+    """
+
+    parameters = {
+        'switchstates': Param('Map of boolean switch states to underlying type',
+                              type=dictwith(on=anytype, off=anytype)),
+        'switchpvs': Param('Read and write pv for switching device on and off.',
+                           type=dictwith(read=pvname, write=pvname))
+    }
+
+    def _get_pv_parameters(self):
+        # Use colon prefix to prevent name clashes with
+        # PVs specified in EpicsDevice.param
+        switch_pvs = {'switchpv:' + pv for pv in self.switchpvs}
+
+        return super(HasSwitchPv, self)._get_pv_parameters() | switch_pvs
+
+    def _get_pv_name(self, pvparam):
+        components = pvparam.split(':', 1)
+
+        if len(components) == 2 and components[0] == 'switchpv':
+            return self.switchpvs[components[1]]
+
+        return super(HasSwitchPv, self)._get_pv_name(pvparam)
+
+    @property
+    def isSwitchedOn(self):
+        """
+        True if the device is switched on.
+        """
+        raw_value = self._get_pv('switchpv:read')
+
+        if raw_value not in self.switchstates.values():
+            self.log.warning('State by attached switch device not recognized. '
+                             'Returning raw value.')
+
+            return raw_value
+
+        return raw_value == self.switchstates['on']
+
+    @usermethod
+    def switchOn(self):
+        """
+        Switch the device on (writes the 'on' of switchstates map to the
+        write-pv specified in switchpvs).
+        """
+        if not self.isSwitchedOn:
+            self._put_pv('switchpv:write', self.switchstates['on'])
+        else:
+            self.log.info('Device is already switched on')
+
+    @usermethod
+    def switchOff(self):
+        """
+        Switch the device off (writes the 'off' of switchstates map to the
+        write-pv specified in switchpvs).
+        """
+        if self.isSwitchedOn:
+            self._put_pv('switchpv:write', self.switchstates['off'])
+        else:
+            self.log.info('Device is already switched off')
