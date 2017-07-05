@@ -21,16 +21,16 @@ devices = dict(
     # or
     # >>> hashlib.sha1('password').hexdigest()
     # depending on the hashing algorithm
-    #AuthLDAP   = device('services.daemon.auth.LDAPAuthenticator',
-    #                server = 'phaidra.admin.frm2',
-    #                userbasedn = 'ou=People,dc=frm2,dc=de',
-    #                groupbasedn = 'ou=Group,dc=frm2,dc=de',
-    #                grouproles = {
-    #                    'ictrl': 'admin',
-    #                },
-    #               ),
+    # AuthLDAP   = device('nicos.services.daemon.auth.LDAPAuthenticator',
+    #                     server = 'phaidra.admin.frm2',
+    #                     userbasedn = 'ou=People,dc=frm2,dc=de',
+    #                     groupbasedn = 'ou=Group,dc=frm2,dc=de',
+    #                     grouproles = {
+    #                         'ictrl': 'admin',
+    #                     },
+    #                    ),
 
-    Auth   = device('services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
@@ -38,7 +38,7 @@ devices = dict(
                               ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
                              ],
                    ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     # 'localhost' will normally bind the daemon to the loopback
                     # device, therefore just clients on the same machine will be
                     # able to connect !
