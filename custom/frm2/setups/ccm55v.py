@@ -10,13 +10,13 @@ nethost = setupname
 
 
 devices = {
-    'B_%s' % setupname: device('devices.taco.CurrentSupply',
+    'B_%s' % setupname: device('nicos.devices.taco.CurrentSupply',
                                description = 'The magnetic field',
                                tacodevice = '//%s/magnet/smc120/t' % nethost,
                                abslimits = (-5.555, 5.555),
                               ),
 
-    'sth_%s' % setupname: device('devices.taco.Axis',
+    'sth_%s' % setupname: device('nicos.devices.taco.Axis',
                                  description = 'Cryotstat tube rotation',
                                  tacodevice = '//%s/magnet/axis/tube' % nethost,
                                  abslimits = (-180, 180),
@@ -27,7 +27,7 @@ devices = {
 maxtemps = [None, 4.3, 4.3, 5.1, 4.7, None, None, None, 4.3]
 
 for i in range(1, 9):
-    dev = device('devices.taco.TemperatureSensor',
+    dev = device('nicos.devices.taco.TemperatureSensor',
                  description = '5.5T magnet temperature sensor %d' % i,
                  tacodevice = '//%s/magnet/ls218/sens%d' % (nethost, i),
                  warnlimits = (0, maxtemps[i]),

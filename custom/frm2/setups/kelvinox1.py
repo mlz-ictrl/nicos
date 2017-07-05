@@ -7,7 +7,7 @@ includes = ['alias_T']
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'T_%s_sorb' % setupname: device('devices.tango.Sensor',
+    'T_%s_sorb' % setupname: device('nicos.devices.tango.Sensor',
                                     description = 'Sorb temperature',
                                     tangodevice = tango_base + 'igh/sorb',
                                     unit = 'K',
@@ -15,7 +15,7 @@ devices = {
                                     pollinterval = 1,
                                     maxage = 2,
                                    ),
-    'T_%s_pot' % setupname:  device('devices.tango.Sensor',
+    'T_%s_pot' % setupname:  device('nicos.devices.tango.Sensor',
                                     description = '1K pot temperature',
                                     tangodevice = tango_base + 'igh/pot',
                                     unit = 'K',
@@ -23,7 +23,7 @@ devices = {
                                     pollinterval = 1,
                                     maxage = 2,
                                    ),
-    'T_%s_mix' % setupname:  device('devices.tango.Sensor',
+    'T_%s_mix' % setupname:  device('nicos.devices.tango.Sensor',
                                     description = 'Mix chamber temperature',
                                     tangodevice = tango_base + 'igh/mix',
                                     unit = 'K',

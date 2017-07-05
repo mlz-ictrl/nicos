@@ -19,7 +19,7 @@ devices = {
                                 maxage = 6,
                                ),
 
-    'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
+    'T_%s_stick' % setupname : device('nicos.devices.taco.TemperatureController',
                                       description = 'The control device of the sample(stick)',
                                       tacodevice = '//%s/ccr/stick/control1' % nethost,
                                       abslimits = (0, 700),
@@ -29,7 +29,7 @@ devices = {
                                       maxage = 6,
                                      ),
 
-    'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
+    'T_%s_tube' % setupname : device('nicos.devices.taco.TemperatureController',
                                      description = 'The control device of the tube',
                                      tacodevice = '//%s/ccr/tube/control2' % nethost,
                                      abslimits = (0, 350),
@@ -40,7 +40,7 @@ devices = {
                                      maxage = 6,
                                     ),
 
-    'T_%s_A' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_A' % setupname : device('nicos.devices.taco.TemperatureSensor',
                                   description = '(optional) Sample Temperature',
                                   tacodevice = '//%s/ccr/sample/sensora' % nethost,
                                   unit = 'K',
@@ -49,7 +49,7 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_B' % setupname : device('nicos.devices.taco.TemperatureSensor',
                                   description = '(regulation) Secondary Sample Temperature',
                                   tacodevice = '//%s/ccr/stick/sensorb' % nethost,
                                   unit = 'K',
@@ -58,7 +58,7 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    'p_%s' % setupname : device('devices.taco.TemperatureSensor',
+    'p_%s' % setupname : device('nicos.devices.taco.TemperatureSensor',
                                   description = 'Pressure in sample tube',
                                   tacodevice = '//%s/ccr/coldhead/sensorc' % nethost,
                                   unit = 'mbar',
@@ -67,7 +67,7 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
+    'T_%s_D' % setupname : device('nicos.devices.taco.TemperatureSensor',
                                   description = '(regulation) Temperature at thermal coupling to the stick',
                                   tacodevice = '//%s/ccr/tube/sensord' % nethost,
                                   warnlimits = (0, 300),
@@ -77,13 +77,13 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    '%s_gas_switch' % setupname : device('devices.taco.DigitalOutput',
+    '%s_gas_switch' % setupname : device('nicos.devices.taco.DigitalOutput',
                                          description = 'Switch for the gas valve',
                                          lowlevel = False,
                                          tacodevice = '//%s/ccr/plc/gas' % nethost,
                                         ),
 
-    '%s_vacuum_switch' % setupname : device('devices.taco.DigitalOutput',
+    '%s_vacuum_switch' % setupname : device('nicos.devices.taco.DigitalOutput',
                                             description = 'Switch for the vacuum valve',
                                             lowlevel = False,
                                             tacodevice = '//%s/ccr/plc/vacuum' % nethost,

@@ -12,7 +12,7 @@ devices = {
                                    lowlevel = True,
                                   ),
 
-    'sth_%s' % setupname: device('devices.generic.Axis',
+    'sth_%s' % setupname: device('nicos.devices.generic.Axis',
                                  description = 'Newport rotation axis',
                                  motor = 'sth_%s_m' % (setupname,),
                                  coder = 'sth_%s_m' % (setupname,),

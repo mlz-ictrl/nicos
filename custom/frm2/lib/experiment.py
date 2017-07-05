@@ -33,9 +33,9 @@ from os import path
 from nicos import session
 from nicos.core import Param, Override, oneof
 from nicos.utils import safeName
-from nicos.frm2.proposaldb import queryCycle, queryProposal
 from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
+from nicos.frm2.proposaldb import queryCycle, queryProposal
 
 
 class Experiment(BaseExperiment):

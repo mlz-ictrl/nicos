@@ -7,7 +7,7 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname : device('devices.taco.TemperatureController',
+    'T_%s' % setupname : device('nicos.devices.taco.TemperatureController',
                                 description = 'The sample temperature',
                                 tacodevice = '//%s/box/eurotherm/control' % \
                                              nethost,
@@ -15,7 +15,7 @@ devices = {
                                 unit = 'C',
                                 fmtstr = '%.3f',
                                ),
-    '%s_p' % setupname : device('devices.taco.AnalogInput',
+    '%s_p' % setupname : device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure sensor of the sample space',
                                 tacodevice = '//%s/box/htf/pressure' % nethost,
                                 fmtstr = '%.2g',

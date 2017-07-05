@@ -7,7 +7,7 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname : device('devices.taco.TemperatureController',
+    'T_%s' % setupname : device('nicos.devices.taco.TemperatureController',
                                 description = 'The sample temperature',
                                 tacodevice = '//%s/htf/eurotherm/control' % \
                                              nethost,

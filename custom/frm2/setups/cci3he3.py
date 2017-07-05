@@ -7,7 +7,7 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname: device('devices.taco.TemperatureController',
+    'T_%s' % setupname: device('nicos.devices.taco.TemperatureController',
                                description = 'The control device to the 3He pot',
                                tacodevice = '//%s/box/ls370/control' % nethost,
                                abslimits = (0, 300),
@@ -17,7 +17,7 @@ devices = {
                                maxage = 6,
                               ),
 
-    'T_%s_A' % setupname: device('devices.taco.TemperatureSensor',
+    'T_%s_A' % setupname: device('nicos.devices.taco.TemperatureSensor',
                                  description = 'The mixing chamber temperature',
                                  tacodevice = '//%s/box/ls370/sensora' % nethost,
                                  unit = 'K',
@@ -26,7 +26,7 @@ devices = {
                                  maxage = 6,
                                 ),
 
-    'T_%s_B' % setupname: device('devices.taco.TemperatureSensor',
+    'T_%s_B' % setupname: device('nicos.devices.taco.TemperatureSensor',
                                  description = 'The sample temperature (if installed)',
                                  tacodevice = '//%s/box/ls370/sensorb' % nethost,
                                  unit = 'K',
@@ -35,7 +35,7 @@ devices = {
                                  maxage = 6,
                                 ),
 
-    '%s_p1' % setupname: device('devices.taco.AnalogInput',
+    '%s_p1' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure turbo pump inlet',
                                 tacodevice = '//%s/box/inficon/gauge1' % nethost,
                                 fmtstr = '%.4g',
@@ -43,7 +43,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_p2' % setupname: device('devices.taco.AnalogInput',
+    '%s_p2' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure turbo pump outlet',
                                 tacodevice = '//%s/box/module/gauge2' % nethost,
                                 fmtstr = '%.4g',
@@ -51,7 +51,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_p3' % setupname: device('devices.taco.AnalogInput',
+    '%s_p3' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure compressor inlet',
                                 tacodevice = '//%s/box/module/gauge3' % nethost,
                                 fmtstr = '%.4g',
@@ -59,7 +59,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_p4' % setupname: device('devices.taco.AnalogInput',
+    '%s_p4' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure compressor outlet',
                                 tacodevice = '//%s/box/module/gauge4' % nethost,
                                 fmtstr = '%.4g',
@@ -67,7 +67,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_p5' % setupname: device('devices.taco.AnalogInput',
+    '%s_p5' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure dump/tank',
                                 tacodevice = '//%s/box/module/gauge5' % nethost,
                                 fmtstr = '%.4g',
@@ -75,7 +75,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_p6' % setupname: device('devices.taco.AnalogInput',
+    '%s_p6' % setupname: device('nicos.devices.taco.AnalogInput',
                                 description = 'Pressure vacuum dewar',
                                 tacodevice = '//%s/box/inficon/gauge6' % nethost,
                                 fmtstr = '%.4g',
@@ -83,7 +83,7 @@ devices = {
                                 maxage = 20,
                                ),
 
-    '%s_flow' % setupname: device('devices.taco.AnalogInput',
+    '%s_flow' % setupname: device('nicos.devices.taco.AnalogInput',
                                   description = 'Gas flow',
                                   tacodevice = '//%s/box/module/flow' % nethost,
                                   fmtstr = '%.4g',

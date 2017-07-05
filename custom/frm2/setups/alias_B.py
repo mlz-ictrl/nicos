@@ -4,7 +4,7 @@ group = 'lowlevel'
 includes = []
 
 devices = dict(
-    B = device('devices.generic.DeviceAlias'),
+    B = device('nicos.devices.generic.DeviceAlias'),
 )
 
 startupcode = '''
