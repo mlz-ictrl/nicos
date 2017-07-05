@@ -2,10 +2,10 @@ group = 'optional'
 description = 'virtual temperature device'
 
 devices = dict(
-    T        = device('devices.generic.DeviceAlias'),
-    Ts       = device('devices.generic.DeviceAlias'),
+    T        = device('nicos.devices.generic.DeviceAlias'),
+    Ts       = device('nicos.devices.generic.DeviceAlias'),
 
-    T_demo   = device('devices.generic.VirtualRealTemperature',
+    T_demo   = device('nicos.devices.generic.VirtualRealTemperature',
                       description = 'A virtual (but realistic) temperature controller',
                       abslimits = (2, 1000),
                       warnlimits = (0, 325),
@@ -16,7 +16,7 @@ devices = dict(
                       window = 30.0,
                       lowlevel = True,
                      ),
-    T_sample = device('devices.generic.ReadonlyParamDevice',
+    T_sample = device('nicos.devices.generic.ReadonlyParamDevice',
                       parameter = 'sample',
                       device = 'T_demo',
                       description = 'Temperature of virtual sample',

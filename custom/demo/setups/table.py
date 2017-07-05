@@ -7,7 +7,7 @@ includes = ['system']
 excludes = ['tas']
 
 devices = dict(
-    z     = device('devices.generic.VirtualMotor',
+    z     = device('nicos.devices.generic.VirtualMotor',
                    description = 'z axis',
                    fmtstr = '%.2f',
                    abslimits = (-50, 50),
@@ -16,7 +16,7 @@ devices = dict(
                    unit = 'mm',
                   ),
 
-    y     = device('devices.generic.VirtualMotor',
+    y     = device('nicos.devices.generic.VirtualMotor',
                    description = 'y axis',
                    fmtstr = '%.2f',
                    abslimits = (-100, 100),
@@ -25,7 +25,7 @@ devices = dict(
                    unit = 'mm',
                   ),
 
-    x     = device('devices.generic.VirtualMotor',
+    x     = device('nicos.devices.generic.VirtualMotor',
                    description = 'x axis',
                    fmtstr = '%.2f',
                    abslimits = (-750, 150),
@@ -34,7 +34,7 @@ devices = dict(
                    unit = 'mm',
                   ),
 
-    omega = device('devices.generic.VirtualMotor',
+    omega = device('nicos.devices.generic.VirtualMotor',
                    description = 'omega axis',
                    fmtstr = '%.2f',
                    abslimits = (-180, 180),
@@ -43,7 +43,7 @@ devices = dict(
                    unit = 'deg',
                   ),
 
-    chi   = device('devices.generic.VirtualMotor',
+    chi   = device('nicos.devices.generic.VirtualMotor',
                    description = 'chi axis',
                    fmtstr = '%.2f',
                    abslimits = (-5, 5),
@@ -52,7 +52,7 @@ devices = dict(
                    unit = 'deg',
                   ),
 
-    phi   = device('devices.generic.VirtualMotor',
+    phi   = device('nicos.devices.generic.VirtualMotor',
                    description = 'phi axis',
                    fmtstr = '%.2f',
                    abslimits = (-5, 5),

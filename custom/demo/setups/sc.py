@@ -13,7 +13,7 @@ top = 28.0
 bottom = -31.0
 
 devices = dict(
-    sc1_x = device('devices.generic.VirtualMotor',
+    sc1_x = device('nicos.devices.generic.VirtualMotor',
                    lowlevel = True,
                    fmtstr = '%.2f',
                    abslimits = (0, 600),
@@ -22,7 +22,7 @@ devices = dict(
                    unit = 'mm',
                   ),
 
-    sc1 = device('devices.generic.MultiSwitcher',
+    sc1 = device('nicos.devices.generic.MultiSwitcher',
                  description = 'multi switcher demo',
                  moveables = ['sc1_x', 'z'],
                  mapping = {'1':  [594.5, bottom],  '2': [535.5, bottom],

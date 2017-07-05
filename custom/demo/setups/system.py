@@ -10,10 +10,10 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['commands.standard']  # , 'jcns.commands']
+modules = ['nicos.commands.standard']  # , 'jcns.commands']
 
 devices = dict(
-    demo        = device('devices.instrument.Instrument',
+    demo       = device('nicos.devices.instrument.Instrument',
                         description = 'demo instrument',
                         instrument = 'DEMO',
                         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
@@ -22,11 +22,11 @@ devices = dict(
                         facility = 'NICOS demo instruments',
                        ),
 
-    Sample     = device('devices.tas.TASSample',
+    Sample     = device('nicos.devices.tas.TASSample',
                         description = 'sample object',
                        ),
 
-    Exp        = device('devices.experiment.Experiment',
+    Exp        = device('nicos.devices.experiment.Experiment',
                         description = 'experiment object',
                         dataroot = 'data',
                         sendmail = True,
@@ -35,27 +35,27 @@ devices = dict(
                         reporttemplate = '',
                        ),
 
-    filesink   = device('devices.datasinks.AsciiScanfileSink',
+    filesink   = device('nicos.devices.datasinks.AsciiScanfileSink',
                         lowlevel = True,
                        ),
 
-    conssink   = device('devices.datasinks.ConsoleScanSink',
+    conssink   = device('nicos.devices.datasinks.ConsoleScanSink',
                         lowlevel = True,
                        ),
 
-    dmnsink    = device('devices.datasinks.DaemonSink',
+    dmnsink    = device('nicos.devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
 
-    serialsink = device('devices.datasinks.SerializedSink',
+    serialsink = device('nicos.devices.datasinks.SerializedSink',
                         lowlevel = True,
                        ),
 
-    livesink   = device('devices.datasinks.LiveViewSink',
+    livesink   = device('nicos.devices.datasinks.LiveViewSink',
                         lowlevel = True,
                        ),
 
-    Space      = device('devices.generic.FreeSpace',
+    Space      = device('nicos.devices.generic.FreeSpace',
                         description = 'The amount of free space for storing data',
                         path = None,
                         minfree = 5,

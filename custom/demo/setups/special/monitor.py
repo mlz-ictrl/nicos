@@ -157,7 +157,7 @@ _rightcolumn = Column(_axisblock, _tempblock,)
 _leftcolumn = Column(_tasblock, _sansblock, _refsansblock,)
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'localhost:14869',

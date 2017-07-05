@@ -5,32 +5,32 @@ includes = ['system']
 excludes = ['refsans', 'sans', 'qmchannel', 'pgaa', 'vtof', 'vspodi']
 
 devices = dict(
-    timer    = device('devices.generic.VirtualTimer',
+    timer    = device('nicos.devices.generic.VirtualTimer',
                       lowlevel = True,
                      ),
 
-    mon1     = device('devices.generic.VirtualCounter',
+    mon1     = device('nicos.devices.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'monitor',
                       countrate = 1000,
                       fmtstr = '%d',
                      ),
 
-    ctr1     = device('devices.generic.VirtualCounter',
+    ctr1     = device('nicos.devices.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 2000,
                       fmtstr = '%d',
                      ),
 
-    ctr2     = device('devices.generic.VirtualCounter',
+    ctr2     = device('nicos.devices.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 120,
                       fmtstr = '%d',
                      ),
 
-    det      = device('devices.generic.Detector',
+    det      = device('nicos.devices.generic.Detector',
                       description = 'Classical detector with single channels',
                       timers = ['timer'],
                       monitors = ['mon1'],

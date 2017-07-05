@@ -4,7 +4,7 @@ description = 'for testing the frm2.ccr module'
 includes = ['cryo']
 
 devices = dict(
-    T_stick  = device('devices.generic.VirtualTemperature',
+    T_stick  = device('nicos.devices.generic.VirtualTemperature',
                       description = 'Temperature control of the stick',
                       abslimits = (2, 600),
                       warnlimits = (0, 600),
@@ -12,7 +12,7 @@ devices = dict(
                       unit = 'K',
                      ),
 
-    T_tube   = device('devices.generic.VirtualTemperature',
+    T_tube   = device('nicos.devices.generic.VirtualTemperature',
                       description = 'Temperature control of the cryo tube',
                       abslimits = (0, 300),
                       warnlimits = (0, 300),
