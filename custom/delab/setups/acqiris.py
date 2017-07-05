@@ -20,14 +20,14 @@ acqiris_config = (
 )
 
 devices = dict(
-    tim = device('delab.acqiris.Timer',
+    tim = device('nicos_mlz.delab.devices.acqiris.Timer',
                  description = 'The timer device',
                  nameserver = 'deldaq50.del.frm2',
                  counterfile = '/home/caress/acqiris/data/runid.txt',
                  objname = 'acqirishzb',
                  ismaster = False,
                 ),
-    det1 = device('delab.acqiris.Counter',
+    det1 = device('nicos_mlz.delab.devices.acqiris.Counter',
                   description = 'The counter device',
                   nameserver = 'deldaq50.del.frm2',
                   type = 'counter',

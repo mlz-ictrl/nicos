@@ -32,7 +32,7 @@ try:
 
     import CARESS  # pylint: disable=F0401,E0611,W0403
 
-    sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
+    sys.modules['CARESS'] = sys.modules['nicos_mlz.delab.devices.CARESS']
     import omniORB
     omniORB.updateModule('CARESS')
 except ImportError:
