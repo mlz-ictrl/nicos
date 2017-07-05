@@ -61,18 +61,18 @@ modules = ['nicos.commands.standard']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Skeleton = device('devices.instrument.Instrument',
+    Skeleton = device('nicos.devices.instrument.Instrument',
                       description = 'instrument object',
                       instrument = 'essiip',
                       responsible = 'M. Wedel <michael.wedel@esss.se>',
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'The current used sample',
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = 'data',
                       sendmail = True,
@@ -80,19 +80,19 @@ devices = dict(
                       sample = 'Sample',
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
