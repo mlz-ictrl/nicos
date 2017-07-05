@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     # Configure source and copy addresses to an existing address.
-    email = device('devices.notifiers.Mailer',
+    email = device('nicos.devices.notifiers.Mailer',
         sender = 'hrpd@batan.go.id',
         copies = [
             ('rifai@batan.go.id', 'all'),   # gets all messages

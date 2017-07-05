@@ -55,7 +55,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 includes = [
     'notifiers',
@@ -66,33 +66,33 @@ includes = [
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    hrpd = device('devices.instrument.Instrument',
+    hrpd = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'HRPD',
         responsible = 'rifai <rifai@batan.go.id>',
     ),
-    Sample = device('devices.sample.Sample',
+    Sample = device('nicos.devices.sample.Sample',
         description = 'The current used sample',
     ),
 
     # Configure dataroot here (usually /data).
-    Exp = device('devices.experiment.Experiment',
+    Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = 'data',
         sendmail = True,
         serviceexp = 'service',
         sample = 'Sample',
     ),
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         lowlevel = True,
     ),
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
         lowlevel = True,
     ),
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
         lowlevel = True,
     ),
-    Space = device('devices.generic.FreeSpace',
+    Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = None,
         minfree = 5,
