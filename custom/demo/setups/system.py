@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']  # , 'jcns.commands']
+modules = ['nicos.commands.standard']  # , 'nicos_mlz.jcns.commands']
 
 devices = dict(
     demo       = device('nicos.devices.instrument.Instrument',
@@ -61,7 +61,7 @@ devices = dict(
                         minfree = 5,
                        ),
 
-    UBahn      = device('frm2.ubahn.UBahn',
+    UBahn      = device('nicos_mlz.frm2.devices.ubahn.UBahn',
                         description = 'Next subway departures',
                        ),
 )

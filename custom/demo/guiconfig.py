@@ -12,24 +12,28 @@ main_window = docked(
          ),
         ),
         ('PGAA',
-         panel('pgaa.gui.panels.PGAAPanel', setups='pgaa'),
+         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='pgaa'),
         ),
         ('Shutter/Attenuators',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
+               # TODO path change
                uifile='custom/pgaa/lib/gui/shutter.ui', setups='pgaa'),
         ),
         ('SampleChanger',
-         panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+         panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
+               # TODO path change
                image='custom/sans1/lib/gui/sampleChanger11.png',
                positions=11, setups='sans and sc1'),
         ),
         ('SampleChanger',
-         panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+         panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
+               # TODO path change
                image='custom/sans1/lib/gui/sampleChanger22.png',
                positions=22, setups='sans and sc2'),
         ),
         ('PiBox',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
+               # TODO path change
                uifile='custom/demo/lib/gui/piface.ui', setups='pibox01',)
         ),
 #       ('Setup',
@@ -52,12 +56,14 @@ main_window = docked(
      panel('expinfo.ExpInfoPanel',
            sample_panel=tabbed(
                ('Sample changer',
-                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger11.png',
                       positions=11, setups='sans and sc1',),
                ),
                ('Sample changer',
-                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger22.png',
                       positions=22, setups='sans and sc2'),
                ),
@@ -81,11 +87,13 @@ windows = [
              panel('nicos.clients.gui.panels.setup_panel.DetEnvPanel')),
             ('Samples',
                 panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger22.png',
                       positions=22, setups='sans and sc2')
             ),
             ('Samples',
                 panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger11.png',
                       positions=11, setups='sans and sc1')
             ),

@@ -20,7 +20,7 @@ devices = dict(
                       unit = 'K',
                      ),
 
-    T_ccr    = device('frm2.ccr.CCRControl',
+    T_ccr    = device('nicos_mlz.frm2.devices.ccr.CCRControl',
                       description = 'Control device to regulate sample '
                           'temperature via tube and stick heater',
                       stick = 'T_stick',

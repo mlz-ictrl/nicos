@@ -13,7 +13,7 @@ excludes = ['detector', 'qmchannel']
 includes = ['cryo', 'source']
 
 devices = dict(
-    Sample   = device('sans1.sans1_sample.Sans1Sample',
+    Sample   = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
                       description = 'sample object',
                      ),
 
@@ -152,7 +152,7 @@ devices = dict(
                         curvalue = 10,
                        ),
 
-    BerSANSImageSink  = device('sans1.bersans.BerSANSImageSink',
+    BerSANSImageSink  = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(pointcounter)s.001',
                                '/%(proposal)s_%(pointcounter)s_%(pointnumber)s.bersans'],

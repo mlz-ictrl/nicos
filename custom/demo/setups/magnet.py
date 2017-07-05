@@ -27,7 +27,7 @@ devices = dict(
                                unit = 'A',
                                ramp = 1.,
                               ),
-    B_garfield        = device('frm2.amagnet.GarfieldMagnet',
+    B_garfield        = device('nicos_mlz.frm2.devices.amagnet.GarfieldMagnet',
                                description = 'magnetic field device, handling '
                                              'polarity switching and stuff',
                                currentsource = 'garfield_current',
