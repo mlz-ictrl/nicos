@@ -67,7 +67,7 @@ devices = {
     #     tacodevice = '//%s/%s/ccr/vacuum' % (nethost, domain),
     # ),
 
-    'T_%s' % setupname : device('frm2.ccr.CCRControl',
+    'T_%s' % setupname : device('nicos_mlz.frm2.ccr.CCRControl',
                                 description = 'The main temperature control '
                                               'device of the CCR (LS-336)',
                                 stick = 'T_%s_stick' % setupname,

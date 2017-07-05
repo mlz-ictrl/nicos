@@ -22,4 +22,4 @@
 #
 # *****************************************************************************
 
-from nicos.spodi.gui.panels.live.livedatapanel import LiveDataPanel
+from nicos_mlz.spodi.gui.panels.live.livedatapanel import LiveDataPanel

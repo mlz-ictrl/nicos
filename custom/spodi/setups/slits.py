@@ -128,7 +128,7 @@ devices = dict(
                      maxage = 90,
                      mux = 'mux',
                     ),
-    slits = device('stressi.slit.Slit',
+    slits = device('nicos_mlz.stressi.slit.Slit',
                    description = 'Sample slit 4 blades',
                    left = 'slits_l',
                    right = 'slits_r',
