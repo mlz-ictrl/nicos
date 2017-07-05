@@ -31,7 +31,7 @@ from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
 from nicos.core.errors import PositionError
 from nicos.devices.generic import Switcher
 
-from nicos.stressi.mixins import TransformMove
+from nicos_mlz.stressi.mixins import TransformMove
 
 
 class TransformedMoveable(HasPrecision, TransformMove, Moveable):

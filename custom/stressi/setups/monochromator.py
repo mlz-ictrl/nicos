@@ -58,7 +58,7 @@ devices = dict(
                     precision = 0.001,
                     lowlevel = True,
                    ),
-    wav = device('stressi.wavelength.Wavelength',
+    wav = device('nicos_mlz.stressi.wavelength.Wavelength',
                  description = 'The incoming wavelength',
                  omgm = 'omgm',
                  crystal = 'transm',
