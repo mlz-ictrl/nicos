@@ -29,7 +29,7 @@ from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel
 
 import numpy as np
 
-from nicos.laue.psldrv import PSLdrv
+from nicos_mlz.laue.devices.psldrv import PSLdrv
 
 
 class PSLDetector(ImageChannelMixin, ActiveChannel):

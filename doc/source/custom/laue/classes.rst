@@ -1,8 +1,8 @@
 LAUE
 ====
 
-.. automodule:: nicos.laue.lauetiff
+.. automodule:: nicos_mlz.laue.devices.lauetiff
 .. autoclass:: TIFFLaueSink()
 
-.. automodule:: nicos.laue.psldetector
+.. automodule:: nicos_mlz.laue.devices.psldetector
 .. autoclass:: PSLDetector()

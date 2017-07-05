@@ -102,7 +102,7 @@ lauecryo = Block(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
         title = 'LAUE Status monitor',
         filename = '/data/lauestatus/index.html',
         interval = 10,
