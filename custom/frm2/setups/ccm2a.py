@@ -28,7 +28,7 @@ devices = {
                          fmtstr = "%.1f",
                          warnlimits = (5, 45),
                         ),
-    '%s_waterflow' % setupname: device('frm2.ccmhts.WaterFlow',
+    '%s_waterflow' % setupname: device('nicos_mlz.frm2.ccmhts.WaterFlow',
                          description = 'Flow rate of cooling water',
                          tangodevice = tango_base + 'plc/_waterflow',
                          unit = 'l/min',

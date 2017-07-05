@@ -9,7 +9,7 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname : device('frm2.ccr.CCRControl',
+    'T_%s' % setupname : device('nicos_mlz.frm2.ccr.CCRControl',
                                 description = 'The main temperature control '
                                               'device of the CCR',
                                 stick = 'T_%s_stick' % setupname,
@@ -83,7 +83,7 @@ devices = {
                                   maxage = 6,
                                  ),
 
-    '%s_compressor_switch' % setupname : device('frm2.ccr.CompressorSwitch',
+    '%s_compressor_switch' % setupname : device('nicos_mlz.frm2.ccr.CompressorSwitch',
                                                 description = 'Switch for the compressor',
                                                 tacodevice = '//%s/ccr/plc/on' % nethost,
                                                 offdev = '//%s/ccr/plc/off' % nethost,
