@@ -21,7 +21,7 @@ devices = dict(
     # or
     # >>> hashlib.sha1('password').hexdigest()
     # depending on the hashing algorithm
-    Auth   = device('services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
@@ -29,7 +29,7 @@ devices = dict(
                               ('admin', '741caa4ef1301afb85b1be7f8feabf1f', 'admin'),
                              ],
                    ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     # 'localhost' will normally bind the daemon to the loopback
                     # device, therefore just clients on the same machine will be
                     # able to connect !

@@ -7,7 +7,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    mux = device('devices.vendor.caress.MUX',
+    mux = device('nicos.devices.vendor.caress.MUX',
                  description = 'The famous MUX',
                  nameserver = '%s' % (nameservice,),
                  objname = '%s' % (servername),

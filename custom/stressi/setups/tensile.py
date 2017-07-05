@@ -5,7 +5,7 @@ group = 'optional'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    teload = device('devices.vendor.caress.Motor',
+    teload = device('nicos.devices.vendor.caress.Motor',
                     description = 'load value of the tensile machine',
                     nameserver = '%s' % (nameservice,),
                     config = 'TELOAD 500 TensileLoad.ControllableDevice',
@@ -14,7 +14,7 @@ devices = dict(
                     unit = 'N',
                     fmtstr = '%.2f',
                    ),
-    tepos = device('devices.vendor.caress.Motor',
+    tepos = device('nicos.devices.vendor.caress.Motor',
                    description = 'position value of the tensile machine',
                    nameserver = '%s' % (nameservice,),
                    config = 'TEPOS 500 TensilePos.ControllableDevice',
@@ -23,7 +23,7 @@ devices = dict(
                    unit = 'mm',
                    fmtstr = '%.3f',
                   ),
-    teext = device('devices.vendor.caress.Motor',
+    teext = device('nicos.devices.vendor.caress.Motor',
                    description = 'extension value of the tensile machine',
                    nameserver = '%s' % (nameservice,),
                    config = 'TEEXT 500 TensileExt.ControllableDevice',

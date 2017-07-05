@@ -7,7 +7,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    mot1 = device('devices.vendor.caress.Motor',
+    mot1 = device('nicos.devices.vendor.caress.Motor',
                   description = 'RadColli=ZE',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -20,7 +20,7 @@ devices = dict(
                   #config = 'MOT1 114 11 0x00f1d000 4 4096 1000 100 2 24 50 1 0 1 '
                   #         '3000 1 10 0 0 0',
                  ),
-    rad_fwhm = device('devices.generic.ManualMove',
+    rad_fwhm = device('nicos.devices.generic.ManualMove',
                       description = 'FWHM Radialcollimator',
                       fmtstr = '%.1f',
                       default = 5,

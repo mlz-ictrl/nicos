@@ -5,7 +5,7 @@ group = 'optional'
 excludes = ['primaryslit_huber']
 
 devices = dict(
-    psw = device('devices.generic.ManualMove',
+    psw = device('nicos.devices.generic.ManualMove',
                  description = 'Slit Width',
                  fmtstr = '%.2f',
                  default = 1,
@@ -14,7 +14,7 @@ devices = dict(
                  requires =  {'level': 'admin',},
                 ),
 
-    psh = device('devices.generic.ManualMove',
+    psh = device('nicos.devices.generic.ManualMove',
                  description = 'Slit Height',
                  fmtstr = '%.2f',
                  default = 1,

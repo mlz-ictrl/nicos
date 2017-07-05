@@ -4,6 +4,6 @@ group = 'lowlevel'
 includes = []
 
 devices = dict(
-    chis = device('devices.generic.DeviceAlias'),
-    phis = device('devices.generic.DeviceAlias'),
+    chis = device('nicos.devices.generic.DeviceAlias'),
+    phis = device('nicos.devices.generic.DeviceAlias'),
 )

@@ -117,7 +117,7 @@ _image = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'STRESS-SPEC status monitor',
                      loglevel = 'info',
                      interval = 10,

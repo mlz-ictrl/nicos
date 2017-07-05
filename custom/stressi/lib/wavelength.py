@@ -30,6 +30,7 @@ from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
     Param, SIMULATION, multiStop, status
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.generic import Switcher
+
 from nicos.stressi.mixins import TransformMove
 
 
