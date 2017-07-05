@@ -20,6 +20,10 @@
 
 .. autoclass:: GarfieldMagnet()
 
+.. automodule:: nicos.frm2.ccmsans
+
+.. autoclass:: AsymmetricMagnet()
+
 .. automodule:: nicos.frm2.newport
 
 .. autoclass:: Motor()

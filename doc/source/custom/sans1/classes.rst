@@ -6,10 +6,6 @@
 
 .. autoclass:: BerSANSImageSink()
 
-.. automodule:: nicos.sans1.ccmsans
-
-.. autoclass:: AsymmetricMagnet()
-
 .. automodule:: nicos.sans1.collimotor
 
 .. autoclass:: Sans1ColliSlit()
