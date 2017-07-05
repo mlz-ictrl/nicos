@@ -36,7 +36,7 @@ devices = dict(
         pollinterval = None,
         lowlevel = True,
     ),
-    adet = device('spodi.detector.Detector',
+    adet = device('nicos_mlz.spodi.detector.Detector',
         description = 'Scanning (resolution steps) detector',
         motor = 'tths',
         detector = 'basedet',
