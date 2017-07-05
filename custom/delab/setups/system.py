@@ -9,12 +9,12 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
-modules = ['commands.standard', 'commands.taco']
+modules = ['nicos.commands.standard', 'nicos.commands.taco']
 
 includes = ['notifiers']
 
 devices = dict(
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'experiment object',
                       sample = 'Sample',
                       dataroot = '/localdata/nicos',
@@ -23,30 +23,30 @@ devices = dict(
                       mailsender = 'karl.zeitelhack@frm2.tum.de',
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'currently used sample',
                      ),
 
-    DEL      = device('devices.instrument.Instrument',
+    DEL      = device('nicos.devices.instrument.Instrument',
                       description = 'instrument object',
                       instrument = 'DEL',
                       responsible = 'Karl Zeitelhack <karl.zeitelhack@frm2.tum.de>',
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       semicolon = False,
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 
-    dmnsink  = device('devices.datasinks.DaemonSink',
+    dmnsink  = device('nicos.devices.datasinks.DaemonSink',
                       lowlevel = True,
                      ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'free space for data files',
                       path = '/localdata/nicos',
                       minfree = 10,

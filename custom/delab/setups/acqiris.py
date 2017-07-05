@@ -37,7 +37,7 @@ devices = dict(
                   ismaster = True,
                   config = '\n'.join(acqiris_config),
                  ),
-    acqiris = device('devices.generic.Detector',
+    acqiris = device('nicos.devices.generic.Detector',
                      description = 'Acqiris card',
                      timers  = ['tim'],
                      monitors = [],

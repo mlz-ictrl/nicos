@@ -3,7 +3,7 @@ description = 'Email and SMS notifiers'
 group = 'lowlevel'
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
+    email    = device('nicos.devices.notifiers.Mailer',
                       description = 'Reports via email',
                       sender = 'karl.zeitelhack@frm2.tum.de',
                       copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
@@ -11,6 +11,6 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-#   smser    = device('devices.notifiers.SMSer',
+#   smser    = device('nicos.devices.notifiers.SMSer',
 #                     server = 'triton.admin.frm2'),
 )

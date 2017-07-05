@@ -2,7 +2,7 @@ description = 'setup for the daemon'
 group = 'special'
 
 devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
                     hashing = 'sha1',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [('guest', '', 'guest'),
@@ -10,7 +10,7 @@ devices = dict(
                               ('admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 'admin'),
                              ],
                    ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     server = '0.0.0.0',
                     loglevel = 'info',
                     authenticators = ['Auth'],
