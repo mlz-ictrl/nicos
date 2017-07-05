@@ -36,7 +36,7 @@ from nicos.core import UsageError
 from nicos.commands import usercommand
 from nicos.pycompat import string_types
 
-from nicos.resi import residevice
+from nicos_mlz.resi.devices import residevice
 
 
 @usercommand

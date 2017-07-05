@@ -32,7 +32,7 @@ from os import path
 from nicos.core import Param, UsageError
 from nicos.utils import disableDirectory
 from nicos.devices.experiment import Experiment
-from nicos.frm2.proposaldb import queryCycle
+from nicos_mlz.frm2.devices.proposaldb import queryCycle
 
 
 class ResiExperiment(Experiment):

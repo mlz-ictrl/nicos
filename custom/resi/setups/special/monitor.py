@@ -67,7 +67,7 @@ _forthRow = Row(
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'resictrl.resi.frm2:14869',

@@ -7,7 +7,7 @@ includes = []
 sysconfig = dict(cache='resictrl.resi.frm2')
 
 devices = dict(
-    Poller=device('services.poller.Poller',
+    Poller=device('nicos.services.poller.Poller',
                   loglevel='info',
                   autosetup=True,
                   alwayspoll=['ls340', 'io', 'reactor', 'ubahn', 'outerworld',
