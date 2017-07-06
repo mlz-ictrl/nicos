@@ -30,8 +30,7 @@ from nicos import session
 from nicos.core import Moveable, Param, Override, AutoDevice, LimitError, \
     Value, Attach, oneof, vec3, intrange, tupleof
 from nicos.devices.instrument import Instrument
-from nicos.devices.tas import Monochromator
-
+from nicos.devices.generic.mono import Monochromator
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
 

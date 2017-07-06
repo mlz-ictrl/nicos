@@ -25,16 +25,15 @@
 
 """NICOS triple-axis instrument devices."""
 
-from math import asin, cos, degrees, pi, radians, sin, sqrt
+from math import asin, cos, degrees, pi, radians, sin
 
-from nicos.core import Attach, ComputationError, HasLimits, HasPrecision, \
-    LimitError, Moveable, Override, Param, ProgrammingError, listof, multiReset, \
+from nicos.core import Attach, HasLimits, HasPrecision, \
+    LimitError, Moveable, Override, Param, listof, multiReset, \
     multiStatus, oneof, status, MASTER, SIMULATION
+from nicos.devices.generic.mono import Monochromator as BaseMonochromator, \
+    to_k, from_k, THZ2MEV, ANG2MEV
+
 from nicos.pycompat import listvalues
-
-
-THZ2MEV = 4.1356675
-ANG2MEV = 81.804165
 
 
 def wavevector(dvalue, order, theta):
@@ -45,41 +44,7 @@ def thetaangle(dvalue, order, k):
     return degrees(asin(pi * order / (k * dvalue)))
 
 
-def from_k(value, unit):
-    try:
-        if unit == 'A-1':
-            return value
-        elif unit == 'A':
-            return 2.0 * pi / value
-        elif unit == 'meV':
-            return ANG2MEV * value**2 / (2*pi)**2
-        elif unit == 'THz':
-            return ANG2MEV / THZ2MEV * value**2 / (2*pi)**2
-        else:
-            raise ProgrammingError('unknown energy unit %r' % unit)
-    except (ArithmeticError, ValueError) as err:
-        raise ComputationError('cannot convert %s A-1 to %s: %s' %
-                               (value, unit, err))
-
-
-def to_k(value, unit):
-    try:
-        if unit == 'A-1':
-            return value
-        elif unit == 'A':
-            return 2.0 * pi / value
-        elif unit == 'meV':
-            return 2.0 * pi * sqrt(value / ANG2MEV)
-        elif unit == 'THz':
-            return 2.0 * pi * sqrt(value * THZ2MEV / ANG2MEV)
-        else:
-            raise ProgrammingError('unknown energy unit %r' % unit)
-    except (ArithmeticError, ValueError) as err:
-        raise ComputationError('cannot convert %s A-1 to %s: %s' %
-                               (value, unit, err))
-
-
-class Monochromator(HasLimits, HasPrecision, Moveable):
+class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
     """General monochromator theta/two-theta device.
 
     It supports setting the `unit` parameter to different values and will
@@ -141,10 +106,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     }
 
     parameter_overrides = {
-        'unit':  Override(default='A-1', type=oneof('A-1', 'A', 'meV', 'THz'),
-                          chatty=True),
         'precision': Override(volatile=True, settable=False),
-        'fmtstr': Override(default='%.3f'),
     }
 
     def doInit(self, mode):
@@ -303,10 +265,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doWriteVfocuspars(self, value):
         self.log.info('moving foci to new values')
         self._movefoci(self.focmode, self.hfocuspars, value)
-
-    def doWriteUnit(self, value):
-        if self._cache:
-            self._cache.invalidate(self, 'value')
 
     def doUpdateUnit(self, value):
         if 'unit' not in self._params:
