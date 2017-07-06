@@ -15,6 +15,8 @@ devices = dict(
                     slope = -1200,
                     unit = 'deg',
                     abslimits = (-110.1, -14.1),
+                    startdelay = 1,
+                    stopdelay = 2,
                     zerosteps = 500000,
                     lowlevel = True,
                     confbyte = 56,
@@ -80,9 +82,11 @@ devices = dict(
                     io_flag = 'io_flag',
                     polyswitch = 'polyswitch',
                     obs = [],
-                    precision = 0.011,
-                    offset = -0.151,
+                    precision = 0.005,
+                    offset = -0.151, # -0.549 / 05.2017 GE
                     maxtries = 10,
+                    jitter = 0.2,
+                    dragerror = 1,
                    ),
 
     mth    = device('devices.generic.Axis',
@@ -91,7 +95,7 @@ devices = dict(
                     coder = 'co_mth',
                     obs = [],
                     precision = 0.011,
-                    offset = -0.236,
+                    offset = -0.236, # 0.065 / 05.2017 GE
                     maxtries = 10,
                    ),
 

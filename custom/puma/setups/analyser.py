@@ -17,6 +17,8 @@ devices = dict(
                     zerosteps = 500000,
                     lowlevel = True,
                     confbyte = 104,
+                    startdelay = 1,
+                    stopdelay = 2,
                    ),
 
     st_ath = device('devices.vendor.ipc.Motor',
@@ -55,8 +57,10 @@ devices = dict(
                  coder = 'co_att',
                  obs = [],
                  precision = 0.01,
-                 offset = -0.037, # offset = 0.379, focused before magnet used 16.09.2014
+                 offset = -0.037, # 90.163 / 05.2017 GE
                  # offset = 0.307, # with collimator
+                 jitter = 0.2,
+                 dragerror = 1,
                  maxtries = 30,
                 ),
 
@@ -66,8 +70,8 @@ devices = dict(
                  coder = 'co_ath',
                  obs = [],
                  precision = 0.01,
-                 # offset = -0.678, #with collimator
-                 offset = -0.44176, # offset = -0.719, focussed before magnet used 16.09.2014
+                 # offset = -0.678, # with collimator
+                 offset = -0.44176, # -0.442 / 05.2017 GE
                  maxtries = 8,
                 ),
 

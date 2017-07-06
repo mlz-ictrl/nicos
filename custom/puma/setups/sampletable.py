@@ -17,9 +17,9 @@ devices = dict(
                     confbyte = 120,
                     speed = 20,
                     accel = 100,
-                    # microstep = 1,
+                    microstep = 1,
                     startdelay = 1,
-                    stopdelay = 5,
+                    stopdelay = 3,
                     ramptype = 4,
                     lowlevel = True,
                    ),
@@ -41,9 +41,11 @@ devices = dict(
                     coder = 'co_phi',
                     obs = [],
                     precision = 0.005,
-                    offset = 0.21,
+                    offset = 0.21, #May 2017 done by GE
                     maxtries = 5,
                     loopdelay = 1,
+                    jitter = 0.2,
+                    dragerror = 1,
                    ),
 
 # Magnet phi
@@ -72,7 +74,7 @@ devices = dict(
                      confbyte = 60,
                      speed = 50,
                      accel = 100,
-                     # microstep = 1,
+                     microstep = 1,
                      startdelay = 0,
                      stopdelay = 0,
                      ramptype = 1,
@@ -179,10 +181,12 @@ devices = dict(
     st_stx = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 66,
-                    slope = -6250.0, #2015.03.09
+                    slope = -6030.6, #2017.07.04
                     unit = 'mm',
                     abslimits = (-18.1, 18.1),
                     zerosteps = 500000,
+                    microstep = 8,
+                    precision = 0.005,
                     lowlevel = True,
                    ),
 
@@ -193,6 +197,8 @@ devices = dict(
                     unit = 'mm',
                     abslimits = (-18.1, 18.1),
                     zerosteps = 500000,
+                    microstep = 8,
+                    precision = 0.005,
                     lowlevel = True,
                    ),
 
@@ -200,7 +206,7 @@ devices = dict(
                     bus = 'motorbus3',
                     addr = 74,
                     slope = -194.53,    #2015.02.20
-                    zerosteps = 4591.8, #2015.02.20
+                    zerosteps = 4686,   #2017.07.04
                     unit = 'mm',
                     lowlevel = True,
                    ),
@@ -242,10 +248,11 @@ devices = dict(
     st_stz = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 68, #64
-                    slope = -44800,
+                    slope = -22400,
                     unit = 'mm',
                     abslimits = (-20, 20),
                     zerosteps = 500000,
+                    microstep = 1,
                     lowlevel = True,
                    ),
 
