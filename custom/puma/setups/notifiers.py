@@ -16,7 +16,7 @@ devices = dict(
     smser    = device('devices.notifiers.SMSer',
                       description = 'Reports via SMS',
                       server = 'triton.admin.frm2',
-                      receivers = ['017680508564', '017655576167'],
+                      receivers = ['017680508564', '015219120504'],
                       lowlevel = True,
                      ),
 )
