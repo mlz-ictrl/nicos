@@ -65,18 +65,38 @@ def _devposlist(dev_pos_list, cls):
 
 
 @usercommand
-@helparglist('dev, pos, ...')
+@helparglist('dev1, pos1, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
 @parallel_safe
 def move(*dev_pos_list):
     """Start moving one or more devices to a new position.
 
-    This can be used with multiple devices.  Examples:
+    This command will return immediately without waiting for the movement to
+    finish.  For "move and wait", see `maw()`.
 
-    >>> move(dev, pos)                 # start one device
-    >>> move(dev1, pos1, dev2, pos2)   # start two devices in parallel
-    ...
-    >>> wait(dev, dev1, dev2)          # now wait for all of them
+    The command can be used multiple times to move devices in parallel.
+    Examples:
+
+    >>> move(dev1, 10)    # start device1
+    >>> move(dev2, -3)    # start device2
+
+    However, in this case a shorter version is available:
+
+    >>> move(dev1, 10, dev2, -3)   # start two devices "in parallel"
+
+    .. note::
+
+       There is no collision detection and no guarantee of synchronicity of
+       the movements.  The devices are started quickly one after the other.
+
+    After starting devices it is often required to wait until the movements
+    are finished.  This can be done with the `wait()` command:
+
+    >>> wait(dev1, dev2)          # now wait for all of them
+
+    Again, there is a shorter version available for the whole sequence:
+
+    >>> maw(dev1, 10, dev2, -3)   # move devices in parallel and wait for both
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
         dev.log.info('moving to %s', dev.format(pos, unit=True))
@@ -98,11 +118,28 @@ def drive(*dev_pos_list):
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait for them.
 
-    The command does not return until motion of all devices is completed.  It
-    can be used with multiple devices.  Examples:
+    The command is a combination of the `move()` and `wait()` command.  After
+    starting the movement of the device(s) the command waits until motion of
+    the device(s) is completed.
 
-    >>> maw(dev, pos)                  # move a device to a new position
-    >>> maw(dev1, pos1, dev2, pos2)    # move two devices in parallel
+    A typical application is a sequence of movements, or waiting for a certain
+    device (e.g. temperature) to arrive at its target setpoint.
+
+    >>> maw(dev1, 10)  # move a device to a new position and wait
+
+    This is the shorter version of the following commands:
+
+    >>> move(dev1, 10)
+    >>> wait(dev1)
+
+    The command can also be used with multiple devices.  Examples:
+
+    >>> maw(dev1, 10, dev2, -3)    # move two devices in parallel and wait
+
+    .. note::
+
+        The command will wait until **all** devices have finished their
+        movement.
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
@@ -129,13 +166,39 @@ def switch(*dev_pos_list):
 def wait(*devlist):
     """Wait until motion/action of one or more devices is complete.
 
-    Usually, "wait" returns when the device is out of "busy" status.  A time in
-    seconds can also be used to wait the given number of seconds.
+    This command can wait until a device, a list of devices or all devices have
+    finished their movement or action, i.e. the status of the devices is no
+    longer "busy".
 
-    Examples:
+    The "busy" status is device specific, but in general a moveable device,
+    started by the `move()` command, is going to the target, while a detector
+    device, e.g. started by the `count()` command, is counting.
+
+    The following example waits for all devices, which can be used to ensure
+    that no device is moving or counting before the next step starts.
+
+    >>> wait()
+
+    The next example waits for the T (typically the sample temperature) and B
+    (typically the magnetic field):
 
     >>> wait(T, B)    # wait for T and B devices
-    >>> wait(T, 60)   # wait for T device, and then another 60 seconds
+
+    Sometimes the user wants to wait an additional time after all given devices
+    left the "busy" state. This can be given by a number (the unit is seconds).
+    The next example waits until T leaves the "busy" state and thereafter 60
+    seconds before the next command is executed.
+
+    >>> wait(T, 60)   # wait for the T device, then another 60 seconds
+
+    The same can be done with the following sequence:
+
+    >>> wait(T)
+    >>> sleep(60)
+
+    .. note::
+        The difference is that this version can be interrupted between the
+        `wait()` and `sleep()` commands.
     """
     if not devlist:
         devlist = [session.devices[devname]
