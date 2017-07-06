@@ -8,7 +8,6 @@ devices = dict(
                       sender = 'puma@frm2.tum.de',
                       mailserver = 'smtp.frm2.tum.de',
                       copies = [('jitae.park@frm2.tum.de', 'all'),
-                                ('oleg.sobolev@frm2.tum.de', 'all'),
                                 ('Avishek.Maity@frm2.tum.de', 'all'),
                                ],
                       subject = 'PUMA',
