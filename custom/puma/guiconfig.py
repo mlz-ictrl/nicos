@@ -1,7 +1,7 @@
 """NICOS GUI default configuration."""
 
 main_window = docked (
-        vsplit(
+        vsplit('Console',
                 panel('console.ConsolePanel'),
         ),
         ('Script',
