@@ -3,7 +3,7 @@ group = 'special'
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'MEPHISTO status monitor',
                      loglevel = 'info',
                      cache = 'mephistoctrl.mephisto.frm2',
