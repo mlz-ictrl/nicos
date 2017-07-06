@@ -29,7 +29,7 @@ devices = dict(
                    ),
 
     ki = device('devices.tas.Wavevector',
-                description = 'incoming wavevector',
+                description = 'initial wavevector',
                 unit = 'A-1',
                 base = 'mono',
                 tas = 'puma',
@@ -45,7 +45,7 @@ devices = dict(
                ),
 
     Ei = device('devices.tas.Energy',
-                description = 'incoming energy',
+                description = 'initial energy',
                 unit = 'meV',
                 base = 'mono',
                 tas = 'puma',
@@ -122,7 +122,7 @@ devices = dict(
                        ),
 
     mono_ge311 = device('devices.tas.Monochromator',
-                        description = 'Germanium monochromator',
+                        description = 'Ge-311 monochromator',
                         order = 1,
                         unit = 'A-1',
                         theta = 'mth',
@@ -145,7 +145,7 @@ devices = dict(
                        ),
 
     ana_pg002  = device('devices.tas.Monochromator',
-                        description = 'PG analyzer',
+                        description = 'PG-002 analyzer',
                         unit = 'A-1',
                         theta = 'ath',
                         twotheta = 'att',
@@ -160,7 +160,7 @@ devices = dict(
                        ),
 
     ana_ge311  = device('devices.tas.Monochromator',
-                        description = 'Germanium analyzer',
+                        description = 'Ge-311 analyzer',
                         order = 1,
                         unit = 'A-1',
                         theta = 'ath',

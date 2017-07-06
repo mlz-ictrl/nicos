@@ -212,7 +212,7 @@ devices = dict(
     #                 loopdelay = 2,
     #                ),
 
-# GE311 FOcusing
+# GE311 Focusing
     st_mfhge = device('devices.vendor.ipc.Motor',
                       bus = 'motorbus7',
                       addr = 74,
