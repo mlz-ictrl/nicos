@@ -63,7 +63,6 @@ devices = dict(
     mono   = device('devices.generic.DeviceAlias',
                     alias = 'mono_pg002',
                     devclass = 'devices.tas.Monochromator',
-#                    devclass = 'puma.monoPG.Monochromator',
                    ),
 
     mono_pg002 = device('devices.tas.Monochromator',
@@ -95,8 +94,6 @@ devices = dict(
                         reltheta = True,
                        focush = 'mfhcu',
                        focusv = 'mfvcu',
-                        #focush = None,
-                        #focusv = None,
                         # focus value should equal mth (for arcane reasons...)
                         hfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
                         vfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
@@ -113,8 +110,6 @@ devices = dict(
                         theta = 'mth',
                         twotheta = 'mtt',
                         reltheta = True,
-#                        focush = None,
-#                        focusv = None,
                         focush = 'mfhcu1',
                         focusv = 'mfvcu1',
                         # focus value should equal mth (for arcane reasons...)
@@ -135,8 +130,6 @@ devices = dict(
                         reltheta = True,
                         focush = 'mfhge',
                         focusv = 'mfvge',
-                        #focush = None,
-                        #focusv = None,
                         hfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
                         vfocuspars = [0.40575,14.78787,3.10293,-1.6656,0.42283],
                         abslimits = (3, 12),

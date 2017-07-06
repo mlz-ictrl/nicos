@@ -82,7 +82,6 @@ devices = dict(
                      bus = 'motorbus1',
                      addr = 129,
                      slope = -(2**20)/360.,
-                     # zerosteps = 1181891.4666666666,
                      zerosteps = 954700,
                      unit = 'deg',
                      lowlevel = True,
@@ -111,7 +110,6 @@ devices = dict(
                      # devclass = 'devices.taco.Axis',
                     ),
 
-# Magnet on 22.04.2015
 # Tilting
 
     st_sgx = device('devices.vendor.ipc.Motor',

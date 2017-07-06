@@ -49,36 +49,6 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    # ath_stv = device('devices.generic.virtual.VirtualMotor',
-    #                  unit = 'deg',
-    #                  speed = 1,
-    #                  abslimits = (-180, 180),
-    #                  curvalue = 35,
-    #                 ),
-
-    # att_stv = device('devices.generic.virtual.VirtualMotor',
-    #                  unit = 'deg',
-    #                  speed = 1,
-    #                  abslimits = (-180, 180),
-    #                  curvalue = 70,
-    #                 ),
-
-    # att = device('devices.generic.Axis',
-    #              description = 'Virtual scattering angle two-theta of analyser',
-    #              motor = 'att_stv',
-    #              obs = [],
-    #              precision = 0.01,
-    #              maxtries = 30,
-    #             ),
-
-    # ath = device('devices.generic.Axis',
-    #              description = 'Virtual Rocking angle theta of analyser',
-    #              motor = 'ath_stv',
-    #              obs = [],
-    #              precision = 0.01,
-    #              maxtries = 8,
-    #             ),
-
     att = device('devices.generic.Axis',
                  description = 'Scattering angle two-theta of analyser',
                  motor = 'st_att',
@@ -131,16 +101,11 @@ devices = dict(
                    abslimits = (-55, 55),
                    flatpos = 4.92,
                    startpos = 4,
-                   precision = 0.25,
+                   precision = 0.05,#it was 0.25
                    maxtries = 15,
                   ),
 
 # Focusing horizontal for Ge311 Analysator
-# st_slope = -372.9
-# st_zerosteps = 508372.6
-# co_slope = -81.13
-# co_zerosteps = 6262.19
-
    st_afge = device('puma.ipc_puma.Motor1',
                     bus = 'motorbus6',
                     addr = 68,
