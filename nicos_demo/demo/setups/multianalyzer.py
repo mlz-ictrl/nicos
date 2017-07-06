@@ -10,6 +10,15 @@ devices = dict(
         rotations = ['ra1', 'ra2', 'ra3', 'ra4', 'ra5', 'ra6', 'ra7', 'ra8',
                      'ra9', 'ra10', 'ra11'],
     ),
+    muslit_t = device('nicos.devices.generic.Axis',
+        description = 'translation multianalyzer slit',
+        motor = device('nicos.devices.generic.virtual.VirtualMotor',
+            abslimits = (471, 565),
+            unit = 'mm',
+        ),
+        precision = 1,
+        fmtstr = '%.2f',
+    ),
 )
 
 for i in range(1, 12):

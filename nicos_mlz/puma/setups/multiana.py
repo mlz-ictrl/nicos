@@ -552,4 +552,11 @@ devices = dict(
         offset = 0, # -0.175,
         maxtries = 3,
     ),
+    man = device('nicos_mlz.puma.devices.multianalyzer.PumaMultiAnalyzer',
+        description = 'PUMA multi analyzer',
+        translations = ['ta1', 'ta2', 'ta3', 'ta4', 'ta5', 'ta6', 'ta7', 'ta8',
+                        'ta9', 'ta10', 'ta11'],
+        rotations = ['ra1', 'ra2', 'ra3', 'ra4', 'ra5', 'ra6', 'ra7', 'ra8',
+                     'ra9', 'ra10', 'ra11'],
+    ),
 )

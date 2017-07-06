@@ -8,6 +8,8 @@ includes = ['multianalyzer']
 
 excludes = ['detector', 'vtof', 'refsans', 'qmchannel', 'vspodi']
 
+modules = ['nicos_mlz.puma.commands']
+
 devices = dict(
     med = device('nicos_mlz.puma.devices.multidetector.PumaMultiDetectorLayout',
         description = 'PUMA multi detector',
