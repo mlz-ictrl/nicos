@@ -2,6 +2,7 @@
 
 description = 'Arm 0 B'
 group = 'lowlevel'
+includes = ['arm0']
 
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 

@@ -7,6 +7,18 @@ taco_base = '//resedasrv.reseda.frm2/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
+    arm2_fg_frequency = device('devices.tango.AnalogOutput',
+        description = 'Frequency Generator Arm 2 (Frequency)',
+        tangodevice = '%s/arm2/fg_frequency' % tango_base,
+    ),
+    arm2_fg_amplitude = device('devices.tango.AnalogOutput',
+        description = 'Frequency Generator Arm 2 (Amplitude)',
+        tangodevice = '%s/arm2/fg_amplitude' % tango_base,
+    ),
+    arm2_fg_burst = device('devices.tango.DigitalOutput',
+        description = 'Frequency Generator Arm 2 (Burst)',
+        tangodevice = '%s/arm2/fg_burst' % tango_base,
+    ),
     arm2_rot_mot = device('devices.taco.Motor',
         description = 'Rotation arm 2 (motor)',
         tacodevice = '%s/husco1/motor2' % taco_base,
@@ -15,7 +27,7 @@ devices = dict(
     ),
     arm2_rot_enc = device('devices.taco.Coder',
         description = 'Rotation arm 2 (encoder)',
-        tacodevice = '%s/enc/arm2' % taco_base, # not enc/arm1 due to broken hw
+        tacodevice = '%s/enc/arm2' % taco_base, # not enc/arm2 due to broken hw
         fmtstr = '%.3f',
         lowlevel = True,
     ),
