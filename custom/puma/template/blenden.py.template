@@ -4,6 +4,10 @@ np = int((40 - int(slit1.top())) / 2)
 for i in range(np):
     maw(slit1.top, slit1.top() + 2)
     print i
+np = int((20 - int(slit2.right())) / 1) - 1
+for i in range(np):
+    maw(slit2.right, slit2.right() + 1)
+    print i
 
 move(slit1, (-20, 20, -40, 40))
 move(slit2, (-20, 20, -40, 40))
@@ -37,7 +41,7 @@ scan(slit2.left, -20, 2, 15, countfor)
 maw(slit2.left, -20)
 
 scan(slit2.right, 20, -2, 15, countfor)
-np = int((20 - int(slit2.right())) / 2)
+np = int((20 - int(slit2.right())) / 1) - 1
 for i in range(np):
-    maw(slit2.right, slit2.right() + 2)
+    maw(slit2.right, slit2.right() + 1)
     print i
