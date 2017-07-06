@@ -12,7 +12,7 @@ devices = dict(
                       description = 'timer for the Neutron camera',
                       tangodevice = tango_base + 'camera/timer',
                      ),
-    camimage = device('frm2.camera.CameraImage',
+    camimage = device('nicos_mlz.frm2.devices.camera.CameraImage',
                       description = 'image for the Neutron camera',
                       tangodevice = tango_base + 'camera/image',
                      ),
