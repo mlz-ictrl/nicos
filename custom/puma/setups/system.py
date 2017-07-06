@@ -20,7 +20,7 @@ devices = dict(
     puma   = device('devices.instrument.Instrument',
                     description = 'DAS PUMA',
                     instrument = 'PUMA',
-                    responsible = 'O. Sobolev <oleg.sobolev@frm2.tum.de>',
+                    responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
                     doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
                    ),
     Exp    = device('panda.experiment.PandaExperiment',
