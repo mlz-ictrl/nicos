@@ -125,6 +125,30 @@ def normalangle(val):
     return val
 
 
+def absdif(p0, p1):
+    """
+    Calculate "Rotational" difference between two positions in 'radians'.
+    """
+    p0 = p0.asE()
+    p1 = p1.asE()
+    rotmat = np.dot(p0.asG().matrix, np.linalg.inv(p1.asG().matrix))
+    trace = np.trace(rotmat)
+    cosang = 0.5 * trace - 0.5
+    if cosang >= 1.0:
+        ang = 0.0
+    elif cosang <= -1.0:
+        ang = np.pi
+    else:
+        ang = np.arccos(0.5 * trace - 0.5)
+    return np.sqrt((p0.theta - p1.theta) ** 2 + ang ** 2)
+
+
+def equal(p0, p1, crit=1.e-4):
+    """Are the two positions identical?
+    """
+    return absdif(p0, p1) < crit
+
+
 if __name__ == "__main__":
     v1 = np.array((1, 2, 3))
     v2 = np.array((4, 5, 6))
