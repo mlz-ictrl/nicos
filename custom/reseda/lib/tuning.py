@@ -58,6 +58,9 @@ class EchoTime(Moveable):
         'availtables': Param('Available tunewave tables',
                              type=dictof(str, listof(float)), settable=False,
                              userparam=False, volatile=True),
+        'wavelengthtolerance': Param('Wavelength tolerance for table'
+                                     'determination', type=str, settable=True,
+                                     default=0.1),
     }
 
     valuetype = float
@@ -110,7 +113,7 @@ class EchoTime(Moveable):
     def doReadCurrenttable(self):
         cur_wavelength = self._attached_wavelength.read()
 
-        precision = self._attached_wavelength.precision
+        precision = self.wavelengthtolerance
         table = self.tables.get(session.experiment.measurementmode, {})
 
         # determine current tunewave table by measurement mode and fuzzy
