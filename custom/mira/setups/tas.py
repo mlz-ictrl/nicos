@@ -4,14 +4,14 @@ group = 'basic'
 #includes = ['base', 'mono2', 'analyzer', 'detector', 'alias_sth', 'sample_ext']
 includes = ['base', 'mono2', 'analyzer', 'detector', 'alias_sth', 'sample']
 
-modules = ['commands.tas']
+modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('devices.tas.TASSample',
+    Sample = device('nicos.devices.tas.TASSample',
                     description = 'sample object',
                    ),
 
-    mira   = device('devices.tas.TAS',
+    mira   = device('nicos.devices.tas.TAS',
                     description = 'instrument object',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
@@ -26,7 +26,7 @@ devices = dict(
                     psi360 = False,
                    ),
 
-    ki     = device('devices.tas.Wavevector',
+    ki     = device('nicos.devices.tas.Wavevector',
                     description = 'incoming wavevector, also sets constant-ki mode when moved',
                     unit = 'A-1',
                     base = 'mono',
@@ -34,7 +34,7 @@ devices = dict(
                     scanmode = 'CKI',
                    ),
 
-    kf     = device('devices.tas.Wavevector',
+    kf     = device('nicos.devices.tas.Wavevector',
                     description = 'outgoing wavevector, also sets constant-kf mode when moved',
                     unit = 'A-1',
                     base = 'ana',
@@ -42,7 +42,7 @@ devices = dict(
                     scanmode = 'CKF',
                    ),
 
-    Ei     = device('devices.tas.Energy',
+    Ei     = device('nicos.devices.tas.Energy',
                     description = 'incoming energy, also sets constant-ki mode when moved',
                     unit = 'meV',
                     base = 'mono',
@@ -50,7 +50,7 @@ devices = dict(
                     scanmode = 'CKI',
                    ),
 
-    Ef     = device('devices.tas.Energy',
+    Ef     = device('nicos.devices.tas.Energy',
                     description = 'outgoing energy, also sets constant-kf mode when moved',
                     unit = 'meV',
                     base = 'ana',

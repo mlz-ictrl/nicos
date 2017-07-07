@@ -20,11 +20,11 @@ devices = dict(
                       abslimits = (0, 80000000),
                      ),
 
-    fp1      = device('devices.taco.AnalogInput',
+    fp1      = device('nicos.devices.taco.AnalogInput',
                       description = 'forward power in first RF amplifier',
                       tacodevice = '//mirasrv/mira/ag1016/fp1',
                      ),
-    rp1      = device('devices.taco.AnalogInput',
+    rp1      = device('nicos.devices.taco.AnalogInput',
                       description = 'reverse power in first RF amplifier',
                       tacodevice = '//mirasrv/mira/ag1016/rp1',
                       warnlimits = (0, 20),

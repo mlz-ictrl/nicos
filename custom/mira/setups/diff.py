@@ -6,11 +6,11 @@ includes = ['base', 'mono2', 'detector', 'alias_sth', 'sample']
 modules = ['commands.tas']
 
 devices = dict(
-    Sample = device('devices.tas.TASSample',
+    Sample = device('nicos.devices.tas.TASSample',
                     description = 'sample object',
                    ),
 
-    mira   = device('devices.tas.TAS',
+    mira   = device('nicos.devices.tas.TAS',
                     description = 'instrument object',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
@@ -25,7 +25,7 @@ devices = dict(
                     psi360 = False,
                    ),
 
-    vana   = device('devices.tas.Monochromator',
+    vana   = device('nicos.devices.tas.Monochromator',
                     description = 'virtual analyzer',
                     unit = 'A-1',
                     dvalue = 3.355,
@@ -37,21 +37,21 @@ devices = dict(
                     crystalside = -1,
                    ),
 
-    vath   = device('devices.generic.VirtualMotor',
+    vath   = device('nicos.devices.generic.VirtualMotor',
                     description = 'virtual analysator theta',
                     unit = 'deg',
                     abslimits = (-180, 180),
                     precision = 0.05,
                    ),
 
-    vatt   = device('devices.generic.VirtualMotor',
+    vatt   = device('nicos.devices.generic.VirtualMotor',
                     description = 'virtual analysator two-theta',
                     unit = 'deg',
                     abslimits = (-180, 180),
                     precision = 0.05,
                    ),
 
-    ki     = device('devices.tas.Wavevector',
+    ki     = device('nicos.devices.tas.Wavevector',
                     description = 'incoming wavevector, also sets constant-ki mode when moved',
                     unit = 'A-1',
                     base = 'mono',
@@ -59,7 +59,7 @@ devices = dict(
                     scanmode = 'CKI',
                    ),
 
-    Ei     = device('devices.tas.Energy',
+    Ei     = device('nicos.devices.tas.Energy',
                     description = 'incoming energy, also sets constant-ki mode when moved',
                     unit = 'meV',
                     base = 'mono',
@@ -67,7 +67,7 @@ devices = dict(
                     scanmode = 'CKI',
                    ),
 
-    lam    = device('devices.tas.Wavelength',
+    lam    = device('nicos.devices.tas.Wavelength',
                     description = 'incoming wavelength for diffraction',
                     unit = 'AA',
                     base = 'mono',

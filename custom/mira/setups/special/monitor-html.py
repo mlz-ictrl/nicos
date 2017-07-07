@@ -312,7 +312,7 @@ _column4 = Column(
 
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'MIRA Status monitor',
                      filename = '/miracontrol/status.html',
                      interval = 10,

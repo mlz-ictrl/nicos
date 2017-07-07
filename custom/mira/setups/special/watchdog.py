@@ -38,7 +38,7 @@ includes = ['notifiers']
 # one for priority 2.
 
 devices = dict(
-    Watchdog = device('services.watchdog.Watchdog',
+    Watchdog = device('nicos.services.watchdog.Watchdog',
                       cache = 'mira1.mira.frm2:14869',
                       notifiers = {'default': ['email'],
                                    'critical': ['email', 'smser']},

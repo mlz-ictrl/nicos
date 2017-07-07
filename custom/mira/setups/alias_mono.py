@@ -4,10 +4,10 @@ group = 'lowlevel'
 includes = []
 
 devices = dict(
-    mth  = device('devices.generic.DeviceAlias'),
-    mtt  = device('devices.generic.DeviceAlias'),
-    mtx  = device('devices.generic.DeviceAlias'),
-    mty  = device('devices.generic.DeviceAlias'),
-    mgx  = device('devices.generic.DeviceAlias'),
-    mfv  = device('devices.generic.DeviceAlias'),
+    mth  = device('nicos.devices.generic.DeviceAlias'),
+    mtt  = device('nicos.devices.generic.DeviceAlias'),
+    mtx  = device('nicos.devices.generic.DeviceAlias'),
+    mty  = device('nicos.devices.generic.DeviceAlias'),
+    mgx  = device('nicos.devices.generic.DeviceAlias'),
+    mfv  = device('nicos.devices.generic.DeviceAlias'),
 )

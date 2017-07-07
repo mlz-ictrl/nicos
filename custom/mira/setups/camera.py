@@ -10,7 +10,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    camtimer = device('devices.tango.TimerChannel',
+    camtimer = device('nicos.devices.tango.TimerChannel',
                       description = 'timer for the Neutron camera',
                       tangodevice = tango_base + 'sxccd/timer',
                      ),
@@ -19,7 +19,7 @@ devices = dict(
                       tangodevice = tango_base + 'sxccd/image',
                      ),
 
-    cam      = device('devices.generic.Detector',
+    cam      = device('nicos.devices.generic.Detector',
                       description = 'NeutronOptics camera',
                       timers = ['camtimer'],
                       monitors = [],

@@ -6,12 +6,12 @@ excludes = ['sample']
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
-    co_stt   = device('devices.tango.Sensor',
+    co_stt   = device('nicos.devices.tango.Sensor',
                       lowlevel = True,
                       tangodevice = tango_base + 'sample/phi_ext_enc',
                       unit = 'deg',
                      ),
-    mo_stt   = device('devices.tango.Motor',
+    mo_stt   = device('nicos.devices.tango.Motor',
                       lowlevel = True,
                       tangodevice = tango_base + 'sample/phi_ext_mot',
                       unit = 'deg',
@@ -31,7 +31,7 @@ devices = dict(
                       precision = 0.002,
                      ),
 
-    air_mono  = device('devices.generic.ManualMove',
+    air_mono  = device('nicos.devices.generic.ManualMove',
                        abslimits = (0, 1),
                        unit = '',
                        lowlevel = True,
@@ -48,7 +48,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    air_ana   = device('devices.tango.DigitalOutput',
+    air_ana   = device('nicos.devices.tango.DigitalOutput',
                         tangodevice = tango_base + 'air/det_ext',
                         lowlevel = True,
                        ),

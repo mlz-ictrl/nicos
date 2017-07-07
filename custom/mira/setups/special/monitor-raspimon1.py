@@ -127,7 +127,7 @@ _column3 = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'MIRA Status monitor',
                      loglevel = 'info',
                      cache = 'mira1:14869',
