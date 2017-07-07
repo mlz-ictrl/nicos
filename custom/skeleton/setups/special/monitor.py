@@ -30,7 +30,7 @@ _expcolumn = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
         title = 'NICOS status monitor',
         loglevel = 'info',
         # Use only 'localhost' if the cache is really running on
