@@ -6,19 +6,19 @@ devices = dict(
         description = 'FRM II user office authentication',
     ),
     Auth = device('services.daemon.auth.ListAuthenticator',
-        hashing = 'sha1',
+        hashing = 'md5',
         # first entry is the user name,
         # second the hashed password, third the user level
         passwd = [
             ('guest', '', 'guest'),
-            ('user', '12dea96fec20593566ab75692c9949596833adc9', 'user'),
-            ('admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 'admin'),
+            ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
+            ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
         ],
     ),
     Daemon = device('services.daemon.NicosDaemon',
         server = '0.0.0.0',
         authenticators = [
-#            'UserDBAuth',
+            'UserDBAuth',
             'Auth',
         ],
         loglevel = 'debug',
