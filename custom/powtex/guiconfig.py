@@ -4,56 +4,54 @@
 main_window = docked(
     hsplit(
         vsplit(
-#           panel('generic.GenericPanel',
-#                 uifile = 'custom/jcns/lib/gui/jcnslogo.ui'),
-            panel('expinfo.ExpInfoPanel'),
+            # panel('nicos.clients.gui.panels.generic.GenericPanel',
+            #       uifile = 'custom/jcns/lib/gui/jcnslogo.ui'),
+            panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
         ),
         vsplit(
-            panel('status.ScriptStatusPanel'),
-            panel('console.ConsolePanel'),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+            panel('nicos.clients.gui.panels.console.ConsolePanel'),
         ),
         vsplit(
-            panel('devices.DevicesPanel'),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel'),
         ),
     ),
 )
 
 windows = [
     window('Setup', 'setup',
-        tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-               ('Setups', panel('setup_panel.SetupsPanel')),
+        tabbed(('Experiment', panel('nicos.clients.gui.panels.setup_panel.ExpPanel')),
+               ('Setups', panel('nicos.clients.gui.panels.setup_panel.SetupsPanel')),
         ),
     ),
     window('Editor', 'editor',
         vsplit(
-            panel('scriptbuilder.CommandsPanel'),
-            panel('editor.EditorPanel'),
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.editor.EditorPanel'),
         ),
     ),
     window('Scans', 'plotter',
-            panel('scans.ScansPanel'),
+            panel('nicos.clients.gui.panels.scans.ScansPanel'),
     ),
     window('History', 'find',
-            panel('history.HistoryPanel'),
+            panel('nicos.clients.gui.panels.history.HistoryPanel'),
     ),
     window('Logbook', 'table',
-            panel('elog.ELogPanel'),
+            panel('nicos.clients.gui.panels.elog.ELogPanel'),
     ),
     window('Errors', 'errors',
-            panel('errors.ErrorPanel'),
+            panel('nicos.clients.gui.panels.errors.ErrorPanel'),
     ),
 ]
 
 tools = [
-    tool('Downtime report', 'downtime.DownTimeTool',
-# If not at the FRM II facility you have to change this reporting address
+    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          receiver='f.carsughi@fz-juelich.de',
-# If you are not at the FRM II facility you have to change your mail server
          mailserver='smtp.frm2.tum.de',
-# Please change the sender address to a valid, instrument specific address
          sender='powtex@frm2.tum.de',
         ),
-    tool('Calculator', 'calculator.CalculatorTool'),
-    tool('Emergency stop button', 'estop.EmergencyStopTool',
-         runatstartup = True),
+    tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
+    tool('Emergency stop button',
+         'nicos.clients.gui.tools.estop.EmergencyStopTool',
+         runatstartup=True),
 ]
