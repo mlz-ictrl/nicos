@@ -17,7 +17,7 @@ devices = dict(
                       unit = 'deg',
                       precision = 0.002,
                      ),
-    stt      = device('mira.axis.HoveringAxis',
+    stt      = device('nicos_mlz.mira.axis.HoveringAxis',
                       description = 'sample two-theta angle',
                       abslimits = (-5, 120),
                       motor = 'mo_stt',
@@ -36,12 +36,12 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    air_sample = device('mira.refcountio.RefcountDigitalOutput',
+    air_sample = device('nicos_mlz.mira.refcountio.RefcountDigitalOutput',
                         tangodevice = tango_base + 'air/sample',
                         lowlevel = True,
                        ),
 
-    air_ana    = device('mira.refcountio.RefcountDigitalOutput',
+    air_ana    = device('nicos_mlz.mira.refcountio.RefcountDigitalOutput',
                         tangodevice = tango_base + 'air/det',
                         lowlevel = True,
                        ),

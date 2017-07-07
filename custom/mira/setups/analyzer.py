@@ -36,7 +36,7 @@ devices = dict(
                       unit = 'deg',
                       precision = 0.01,
                      ),
-    att      = device('mira.stargate.ATT',
+    att      = device('nicos_mlz.mira.stargate.ATT',
                       description = 'analyzer two-theta angle',
                       stargate = 'stargate',
                       abslimits = (-90 - 135, -90 + 135),
@@ -64,7 +64,7 @@ devices = dict(
                       crystalside = -1,
                      ),
 
-    stargate = device('mira.stargate.Stargate',
+    stargate = device('nicos_mlz.mira.stargate.Stargate',
                       description = 'Mira-Stargate (i.e. analyser shielding blocks)',
                       tangodevice = tango_base + 'anablocks/mb1',
                       offset_out = 40003,

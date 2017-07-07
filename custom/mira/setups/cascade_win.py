@@ -12,15 +12,15 @@ sysconfig = dict(
 )
 
 devices = dict(
-    psd_padformat = device('mira.cascade.CascadePadSink',
+    psd_padformat = device('nicos_mlz.mira.cascade.CascadePadSink',
                            subdir = 'cascade',
                            lowlevel = True,
                           ),
-    psd_tofformat = device('mira.cascade.CascadeTofSink',
+    psd_tofformat = device('nicos_mlz.mira.cascade.CascadeTofSink',
                            subdir = 'cascade',
                            lowlevel = True,
                           ),
-    psd_xmlformat = device('mira.cascade.MiraXmlSink',
+    psd_xmlformat = device('nicos_mlz.mira.cascade.MiraXmlSink',
                            subdir = 'cascade',
                            timer = 'timer',
                            monitor = 'mon2',
@@ -32,7 +32,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    psd_channel   = device('mira.cascade_win.CascadeDetector',
+    psd_channel   = device('nicos_mlz.mira.cascade_win.CascadeDetector',
                            description = 'CASCADE detector channel',
                            server = 'miracascade.mira.frm2:1234',
                           ),
@@ -44,7 +44,7 @@ devices = dict(
                            images = ['psd_channel'],
                           ),
 
-    PSDHV  = device('mira.iseg.CascadeIsegHV',
+    PSDHV  = device('nicos_mlz.mira.iseg.CascadeIsegHV',
                     description = 'high voltage supply for the CASCADE detector (usually -2850 V)',
                     tangodevice = tango_base + 'psdhv/voltage',
                     abslimits = (-3100, 0),

@@ -17,7 +17,7 @@ devices = dict(
                       lowlevel = True,
                       precision = 0.05,
                      ),
-    m1tt     = device('mira.axis.HoveringAxis',
+    m1tt     = device('nicos_mlz.mira.axis.HoveringAxis',
                       description = 'monochromator two-theta angle',
                       abslimits = (-50.0, 0),
                       motor = 'mo_m1tt',
