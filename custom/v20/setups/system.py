@@ -55,7 +55,7 @@ sysconfig = dict(
 #    notifiers = ['email', 'smser'],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 #includes = ['notifiers']
 
@@ -64,7 +64,7 @@ modules = ['commands.standard']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    V20 = device('devices.instrument.Instrument',
+    V20 = device('nicos.devices.instrument.Instrument',
                       description = 'instrument object',
                       instrument = 'V20',
                       responsible = 'Robin Woracek <robin.woracek@esss.se>',
@@ -73,12 +73,12 @@ devices = dict(
                               'modus=einzel&sprache=de&gid=1845&typoid=50726'
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'The current used sample',
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/home/pi/nicos-core/data',
                       sendmail = True,
@@ -86,19 +86,19 @@ devices = dict(
                       sample = 'Sample',
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = '/home/pi/nicos-core/data',
                       minfree = 5,

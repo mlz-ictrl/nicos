@@ -3,7 +3,7 @@ servername = 'EXV20'
 nameservice = '192.168.1.254'
 
 devices = dict(
-    stage_wfm1=device('devices.vendor.caress.Motor',
+    stage_wfm1=device('nicos.devices.vendor.caress.Motor',
                       description='Linear stage for WFM chopper 1 (upstream)',
                       fmtstr='%.2f',
                       unit='mm',
@@ -15,7 +15,7 @@ devices = dict(
                              '1 -7272.727273 BeckhoffKL5001 BK5120/63/32/0/0 824 4151568',
                       lowlevel=True,
                       ),
-    stage_wfm2=device('devices.vendor.caress.Motor',
+    stage_wfm2=device('nicos.devices.vendor.caress.Motor',
                       description='Linear stage for WFM chopper 2 (downstream)',
                       fmtstr='%.2f',
                       unit='mm',

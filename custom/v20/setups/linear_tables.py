@@ -4,7 +4,7 @@ servername = 'EXV20'
 nameservice = '192.168.1.254'
 
 devices = dict(
-    lin1=device('devices.vendor.caress.Motor',
+    lin1=device('nicos.devices.vendor.caress.Motor',
                 description='Huber linear table 400mm',
                 fmtstr='%.2f',
                 unit='mm',
@@ -15,7 +15,7 @@ devices = dict(
                 config='LIN1 500 nist222dh1787.hmi.de:/st222.caress_object CopleyStepnet '
                        '17 2000 CopleyStepnet 17 2000 0',
                 ),
-    lin2=device('devices.vendor.caress.Motor',
+    lin2=device('nicos.devices.vendor.caress.Motor',
                 description='Huber linear table 100mm',
                 fmtstr='%.2f',
                 unit='mm',

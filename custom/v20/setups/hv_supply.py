@@ -3,7 +3,7 @@ servername = 'EXV20'
 nameservice = '192.168.1.254'
 
 devices = dict(
-    hv_mon = device('devices.vendor.caress.Driveable',
+    hv_mon = device('nicos.devices.vendor.caress.Driveable',
                     description = 'High voltage for beam monitor',
                     fmtstr = '%.2f',
                     unit = 'V',

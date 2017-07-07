@@ -1,7 +1,7 @@
 description = 'Agilent 33521A function generator via EPICS'
 
 devices = dict(
-    amp=device('devices.epics.EpicsWindowTimeoutDevice',
+    amp=device('nicos.devices.epics.EpicsWindowTimeoutDevice',
                description='Amplitude of generated function in V.',
                readpv='FG-Agilent-33521A:ActAmp',
                writepv='FG-Agilent-33521A:Amp',
@@ -9,7 +9,7 @@ devices = dict(
                window=0.5,
                timeout=None,
                unit='V'),
-    freq=device('devices.epics.EpicsWindowTimeoutDevice',
+    freq=device('nicos.devices.epics.EpicsWindowTimeoutDevice',
                 description='Frequency of generated function in Hz.',
                 readpv='FG-Agilent-33521A:ActFreq',
                 writepv='FG-Agilent-33521A:Freq',
@@ -17,7 +17,7 @@ devices = dict(
                 window=0.5,
                 timeout=None,
                 unit='Hz'),
-    phase=device('devices.epics.EpicsWindowTimeoutDevice',
+    phase=device('nicos.devices.epics.EpicsWindowTimeoutDevice',
                  description='Phase shift of generated function in degree.',
                  readpv='FG-Agilent-33521A:ActPhase',
                  writepv='FG-Agilent-33521A:Phase',

@@ -8,7 +8,7 @@ devices = dict(
                         finished='FINISHED',
                         lowlevel=True
                         ),
-    det=device('devices.generic.Detector',
+    det=device('nicos.devices.generic.Detector',
                description='Pixelman Detector',
                others=['pixelman_udp'])
 )
