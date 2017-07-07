@@ -4,7 +4,7 @@ group = 'basic'
 includes = ['base', 'sample']
 excludes = ['tas']
 
-modules = ['commands.tas']
+modules = ['nicos.commands.tas']
 
 devices = dict(
     Sample = device('nicos.devices.tas.TASSample',

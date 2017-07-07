@@ -1,7 +1,7 @@
 description = 'virtual single crytsal diffractometer'
 group = 'basic'
 
-modules = ['commands.sxtal']
+modules = ['nicos.commands.sxtal']
 
 excludes = ['sans', 'refsans', 'tas', 'table']
 

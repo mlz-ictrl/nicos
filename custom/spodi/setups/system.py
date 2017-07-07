@@ -56,7 +56,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 includes = ['notifiers']
 
