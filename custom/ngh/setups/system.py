@@ -28,24 +28,24 @@ group = 'lowlevel'
 #   - instrument
 #       The name of the instrument device, defined somewhere in a
 #       devices dictionary. The class for this device must be
-#       'devices.instrument.Instrument' or an instrument-specific
+#       'nicos.devices.instrument.Instrument' or an instrument-specific
 #       subclass.
 #   - experiment
 #       The name of the experiment "device", defined somewhere in a
 #       devices dictionary. The class for this device must be
-#       'devices.experiment.Experiment' or an instrument-specific
+#       'nicos.devices.experiment.Experiment' or an instrument-specific
 #       subclass.
 #   - datasinks
 #       A list of names of "data sinks", i.e. special devices that
 #       process measured data. These devices must be defined somewhere
 #       in a devices dictionary and be of class
-#       'devices.datasinks.DataSink' or a subclass.
+#       'nicos.devices.datasinks.DataSink' or a subclass.
 #   - notifiers
 #       A list of names of "notifiers", i.e. special devices that can
 #       notify the user or instrument responsibles via various channels
 #       (e.g. email). These devices must be defined somewhere in a
 #       devices dictionary and be of class
-#       'devices.notifiers.Notifier' or a subclass.
+#       'nicos.devices.notifiers.Notifier' or a subclass.
 
 sysconfig = dict(
     cache = 'localhost',
@@ -57,19 +57,19 @@ sysconfig = dict(
 
 includes = ['notifiers']
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'currently used sample',
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = 'data',
                       sendmail = True,
