@@ -159,6 +159,16 @@ _column2 = Column(
         ],
         setups='irf01',
     ),
+    Block('Furnace (HTF20)', [
+        BlockRow(Field(name='Setpoint', key='t_htf20/setpoint', unitkey='t_htf20/unit', format='%.2f'),
+                 Field(name='Temp', dev='T_htf20')),
+        BlockRow(Field(name='P', key='t_htf20/p'), Field(name='I', key='t_htf20/i'),
+                 Field(name='D', key='t_htf20/d')),
+        BlockRow(Field(name='Heater output', key='t_htf20/heateroutput', unit='%', format='%.2f'),
+                 Field(name='Vacuum', dev='vacuum_htf20')),
+        ],
+        setups='htf20',
+    ),
     Block('3He-4He insert (ccidu2)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
