@@ -30,7 +30,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.measure import count
 from nicos.commands.device import maw
 from nicos.commands.scan import manualscan
-from nicos.antares.commands import openbeamimage, darkimage
+from nicos_mlz.antares.commands import openbeamimage, darkimage
 
 
 __all__ = ['grtomo', 'alignsample']

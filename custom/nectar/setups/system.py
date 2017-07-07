@@ -11,7 +11,7 @@ sysconfig = dict(
 )
 
 modules = ['nicos.commands.basic', 'nicos.commands.standard',
-           'antares.commands', 'nectar.commands']
+           'nicos_mlz.antares.commands', 'nicos_mlz.nectar.commands']
 
 includes = ['notifiers']
 
@@ -20,7 +20,7 @@ devices = dict(
                       description = 'sample object',
                      ),
 
-    Exp      = device('antares.experiment.Experiment',
+    Exp      = device('nicos_mlz.antares.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/data/FRM-II',
                       propdb = '/etc/propdb',
