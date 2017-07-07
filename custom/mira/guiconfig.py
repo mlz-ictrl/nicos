@@ -9,7 +9,9 @@ main_window = hsplit(
         # ('Watch Expressions',panel('watch.WatchPanel')),
         ('NICOS devices', panel('devices.DevicesPanel',
                                 icons=True, dockpos='right')),
-        ('Experiment info', panel('expinfo.ExpInfoPanel')),
+        ('Experiment info',
+         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+               sample_panel='nicos.clients.gui.panels.setup_panel.TasSamplePanel')),
     ),
 )
 
