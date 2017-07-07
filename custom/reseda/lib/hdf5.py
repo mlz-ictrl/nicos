@@ -104,10 +104,9 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
         data = point.results[detector.name]  # only 1 detector supported
 
         # data[1]: image (mieze), data[0]: count sums (nrse)
-        scalars = numpy.array(data[0], dtype=numpy.int32)
-        image = numpy.array(data[1][0], dtype=numpy.int32)
 
         if data[0]:
+            scalars = numpy.array(data[0], dtype=numpy.int32)
             # begin point counter at 0
             hdf5dataset = self.current_file.createScalarsDataset(point.number - 1, scalars)
 
@@ -117,6 +116,7 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
                                       % (i, attr)] = getattr(info, attr)
             self._addMetadata(point.metainfo, hdf5dataset)
         if data[1]:
+            image = numpy.array(data[1][0], dtype=numpy.int32)
             self.current_file.createImageDataset(point.number - 1, image)
 
         self.current_file.flush()
