@@ -16,13 +16,13 @@ devices = dict(
 #
 ## hpe3631aserver gkssmagnet exports
 #
-    delta_current = device('devices.taco.CurrentSupply',
+    delta_current = device('nicos.devices.taco.CurrentSupply',
                            description = 'Device test/delta/current of Server hpe3631aserver gkssmagnet',
                            tacodevice = '//%s/test/delta/current' % nethost,
                            abslimits = (0, 100),
                           ),
 
-    delta_voltage = device('devices.taco.AnalogInput',
+    delta_voltage = device('nicos.devices.taco.AnalogInput',
                            description = 'Device test/delta/voltage of Server hpe3631aserver gkssmagnet',
                            tacodevice = '//%s/test/delta/voltage' % nethost,
                           ),

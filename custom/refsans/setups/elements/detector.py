@@ -65,7 +65,7 @@ devices = dict(
                              description = 'Comtec P7888 Fast System: Filename',
                              tacodevice = '%s/detector' % tacodev,
                             ),
-    comtec          = device('devices.generic.Detector',
+    comtec          = device('nicos.devices.generic.Detector',
                              description = "detector, joining all channels",
                              timers = ['comtec_timer'],
                              images = [],

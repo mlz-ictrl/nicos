@@ -17,7 +17,7 @@ includes = ['notifiers']
 
 
 devices = dict(
-    REFSANS  = device('devices.instrument.Instrument',
+    REFSANS  = device('nicos.devices.instrument.Instrument',
                       description = 'Container storing Instrument properties',
                       instrument = 'REFSANS',
                       doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
@@ -26,26 +26,26 @@ devices = dict(
                       #               '<jean-francois.moulin@hzg.de>',
                      ),
 
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'Container storing Sample properties',
                      ),
 
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'Container storing Experiment properties',
                       dataroot = '/data',
                       sample = 'Sample',
                       #~ elog = False,
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       description = 'Device saving scanfiles',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       description = 'Device outputting logmessages to the console',
                      ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         description = 'The daemon Device, coordinating all the heavy lifting',
                        ),
 
@@ -53,7 +53,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       minfree = 5,
                      ),

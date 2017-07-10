@@ -22,7 +22,7 @@ devices = dict(
                       userlimits = (-155.7889, -0.1),
                       lowlevel = True,
                      ),
-    zb0     = device('devices.generic.Axis',
+    zb0     = device('nicos.devices.generic.Axis',
                      description = 'zb0, singleslit',
                      motor = 'zb0_m',
                      coder = 'zb0_m',

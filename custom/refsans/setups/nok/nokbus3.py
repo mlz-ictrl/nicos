@@ -7,7 +7,7 @@ description = 'IPC Motor bus device configuration'
 includes = []
 
 devices = dict(
-    nokbus3 = device('devices.vendor.ipc.IPCModBusTaco',
+    nokbus3 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
                       tacodevice = '//%s/test/network/ipcsms_3' % (nethost,),
                       loglevel = 'info',
                       lowlevel = True,

@@ -17,7 +17,7 @@ includes = []
 #
 
 devices = dict(
-    nokbus1 = device('devices.vendor.ipc.IPCModBusTaco',
+    nokbus1 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
                       tacodevice = '//%s/test/network/ipcsms_1' % (nethost,),
                       loglevel = 'info',
                       lowlevel = True,

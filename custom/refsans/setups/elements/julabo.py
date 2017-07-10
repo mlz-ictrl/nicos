@@ -16,7 +16,7 @@ devices = dict(
 #
 ## julaboserver julabo01 exports
 #
-    julabo_temp = device('devices.taco.TemperatureController',
+    julabo_temp = device('nicos.devices.taco.TemperatureController',
                          description = 'Device test/julabo/temp of Server julaboserver julabo01',
                          tacodevice = '//%s/test/julabo/temp' % nethost,
                          abslimits = (0, 500),

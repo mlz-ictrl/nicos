@@ -24,7 +24,7 @@ devices = dict(
                      userlimits = (-70, 68), # XX: check values!
                      lowlevel = True,
                     ),
-    b1_r    = device('devices.generic.Axis',
+    b1_r    = device('nicos.devices.generic.Axis',
                      description = 'B1, reactorside',
                      motor = 'b1_rm',
                      coder = 'b1_rm',
@@ -46,7 +46,7 @@ devices = dict(
                       userlimits = (-70, 68), # XX: check values!
                       lowlevel = True,
                      ),
-    b1_s    = device('devices.generic.Axis',
+    b1_s    = device('nicos.devices.generic.Axis',
                      description = 'B1, sampleside',
                      motor = 'b1_sm',
                      coder = 'b1_sm',

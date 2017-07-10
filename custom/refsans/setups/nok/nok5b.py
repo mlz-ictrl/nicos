@@ -34,7 +34,7 @@ devices = dict(
                       userlimits = (10, 68), # XX: check values!
                       #lowlevel = True,
                      ),
-#    nok5br_axis     = device('devices.generic.Axis',
+#    nok5br_axis     = device('nicos.devices.generic.Axis',
 #                             description = 'Axis of NOK5b, reactor side',
 #                             motor = 'nok5b_r',
 #                             coder = 'nok5b_r',
@@ -45,7 +45,7 @@ devices = dict(
 #                             unit = 'mm',
 #                             lowlevel = True,
 #                            ),
-#    nok5bs_axis     = device('devices.generic.Axis',
+#    nok5bs_axis     = device('nicos.devices.generic.Axis',
 #                             description = 'Axis of NOK5b, sample side',
 #                             motor = 'nok5b_s',
 #                             coder = 'nok5b_s',

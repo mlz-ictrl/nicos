@@ -24,7 +24,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    nok5br_axis    = device('devices.generic.Axis',
+    nok5br_axis    = device('nicos.devices.generic.Axis',
                             description = 'Axis of NOK5B, reactor side',
                             motor = 'nok5br_motor',
                             coder = 'nok5br_motor',
@@ -73,7 +73,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    nok5bs_axis    = device('devices.generic.Axis',
+    nok5bs_axis    = device('nicos.devices.generic.Axis',
                             description = 'Axis of NOK5B, sample side',
                             motor = 'nok5bs_motor',
                             coder = 'nok5bs_motor',

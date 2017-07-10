@@ -31,7 +31,7 @@ devices = dict(
                          unit = 'mm',
                          lowlevel = True,
                         ),
-    table = device('devices.generic.Axis',
+    table = device('nicos.devices.generic.Axis',
                    description = 'detector table inside tube',
                    motor = 'table_z_motor',
                    obs = ['table_z_obs'],

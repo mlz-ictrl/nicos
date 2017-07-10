@@ -16,28 +16,28 @@ devices = dict(
 #
 ## lakeshore340server lakeshore01 exports
 #
-    ls340_control = device('devices.taco.TemperatureController',
+    ls340_control = device('nicos.devices.taco.TemperatureController',
                            description = 'Device test/ls340/control of Server lakeshore340server lakeshore01',
                            tacodevice = '//%s/test/ls340/control' % nethost,
                            abslimits = (0, 500),
                           ),
 
-    ls340_sensora = device('devices.taco.TemperatureSensor',
+    ls340_sensora = device('nicos.devices.taco.TemperatureSensor',
                            description = 'Device test/ls340/sensora of Server lakeshore340server lakeshore01',
                            tacodevice = '//%s/test/ls340/sensora' % nethost,
                           ),
 
-    ls340_sensorb = device('devices.taco.TemperatureSensor',
+    ls340_sensorb = device('nicos.devices.taco.TemperatureSensor',
                            description = 'Device test/ls340/sensorb of Server lakeshore340server lakeshore01',
                            tacodevice = '//%s/test/ls340/sensorb' % nethost,
                           ),
 
-    ls340_sensorc = device('devices.taco.TemperatureSensor',
+    ls340_sensorc = device('nicos.devices.taco.TemperatureSensor',
                            description = 'Device test/ls340/sensorc of Server lakeshore340server lakeshore01',
                            tacodevice = '//%s/test/ls340/sensorc' % nethost,
                           ),
 
-    ls340_sensord = device('devices.taco.TemperatureSensor',
+    ls340_sensord = device('nicos.devices.taco.TemperatureSensor',
                            description = 'Device test/ls340/sensord of Server lakeshore340server lakeshore01',
                            tacodevice = '//%s/test/ls340/sensord' % nethost,
                           ),
