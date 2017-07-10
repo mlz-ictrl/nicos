@@ -17,7 +17,7 @@ devices = {
             fmtstr = '%.3f',
         ),
     'T_ccr_stick':
-        device('devices.tango.TemperatureController',
+        device('nicos.devices.tango.TemperatureController',
             description = 'The control device of '
             'the sample (stick)',
             tangodevice = '%s/ccr/ctrl_stick' % tango_base,
@@ -26,7 +26,7 @@ devices = {
             fmtstr = '%.3f',
         ),
     'T_ccr_tube':
-        device('devices.tango.TemperatureController',
+        device('nicos.devices.tango.TemperatureController',
             description = 'The control device of the '
             'tube',
             tangodevice = '%s/ccr/ctrl_tube' % tango_base,
@@ -36,14 +36,14 @@ devices = {
             fmtstr = '%.3f',
         ),
     'T_ccr_ssample':
-        device('devices.tango.Sensor',
+        device('nicos.devices.tango.Sensor',
             description = '(optional) Sample temperature',
             tangodevice = '%s/ccr/sens_sample' % tango_base,
             unit = 'K',
             fmtstr = '%.3f',
         ),
     'T_ccr_sstick':
-        device('devices.tango.Sensor',
+        device('nicos.devices.tango.Sensor',
             description = '(regulation) Temperature at '
             'the stick',
             tangodevice = '%s/ccr/sens_stick' % tango_base,
@@ -51,7 +51,7 @@ devices = {
             fmtstr = '%.3f',
         ),
     'T_ccr_scoldhead':
-        device('devices.tango.Sensor',
+        device('nicos.devices.tango.Sensor',
             description = 'Temperature of the coldhead',
             tangodevice = '%s/ccr/sens_coldhead' % tango_base,
             warnlimits = (0, 300),
@@ -59,7 +59,7 @@ devices = {
             fmtstr = '%.3f',
         ),
     'T_ccr_stube':
-        device('devices.tango.Sensor',
+        device('nicos.devices.tango.Sensor',
             description = '(regulation) Temperature at '
             'thermal coupling to the tube',
             tangodevice = '%s/ccr/sens_tube' % tango_base,

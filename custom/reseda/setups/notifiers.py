@@ -3,7 +3,7 @@ description = 'Email and SMS notifiers'
 group = 'lowlevel'
 
 devices = dict(
-    email = device('devices.notifiers.Mailer',
+    email = device('nicos.devices.notifiers.Mailer',
         description = 'Reports via email',
         sender = 'reseda@frm2.tum.de',
         receivers = [
@@ -14,7 +14,7 @@ devices = dict(
     ),
 
     # Configure SMS receivers if wanted and registered with IT.
-    smser = device('devices.notifiers.SMSer',
+    smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
         lowlevel = True,

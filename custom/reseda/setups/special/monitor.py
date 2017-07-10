@@ -137,7 +137,7 @@ _rightcolumn = Column(_sampletableblock,
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'RESEDA Two Arms',
                      loglevel = 'info',
                      cache = 'resedahw2.reseda.frm2',

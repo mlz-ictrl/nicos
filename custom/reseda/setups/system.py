@@ -14,13 +14,13 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 devices = dict(
-    Sample = device('devices.sample.Sample',
+    Sample = device('nicos.devices.sample.Sample',
         description = 'The sample',
     ),
-    reseda = device('devices.instrument.Instrument',
+    reseda = device('nicos.devices.instrument.Instrument',
         description = 'Resonance spin echo spectrometer',
         instrument = 'RESEDA',
         responsible = 'Christian Franz '
@@ -37,16 +37,16 @@ devices = dict(
         mailsender = 'reseda@frm2.tum.de',
         propdb = '/etc/proposaldb',
     ),
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         lowlevel = True,
     ),
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
         lowlevel = True,
     ),
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
         lowlevel = True,
     ),
-    DataSpace = device('devices.generic.FreeSpace',
+    DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = '/data',
         minfree = 5,
