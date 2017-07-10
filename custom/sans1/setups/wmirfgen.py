@@ -62,7 +62,7 @@ devices = dict(
         precision = 0,
     ),
 
-    fg1_frequency = device('sans1.wmirfgen.Frequency',
+    fg1_frequency = device('nicos_mlz.sans1.wmirfgen.Frequency',
         description = 'Device the frequency and frequency modulation',
         tangodevice = tango_base + 'rfgen1/frequency',
         abslimits = (0.1, 40000)
@@ -79,7 +79,7 @@ devices = dict(
         tangodevice = tango_base + 'rfgen1/power',
         abslimits = (-130, 30)
     ),
-    fg2_frequency = device('sans1.wmirfgen.Frequency',
+    fg2_frequency = device('nicos_mlz.sans1.wmirfgen.Frequency',
         description = 'Device the frequency and frequency modulation',
         tangodevice = tango_base + 'rfgen2/frequency',
         abslimits = (0.1, 40000)

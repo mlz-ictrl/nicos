@@ -10,12 +10,12 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-modules = ['nicos.commands.standard', 'sans1.commands']
+modules = ['nicos.commands.standard', 'nicos_mlz.sans1.commands']
 
 includes = ['notifiers']
 
 devices = dict(
-    Sample   = device('sans1.sans1_sample.Sans1Sample',
+    Sample   = device('nicos_mlz.sans1.sans1_sample.Sans1Sample',
                       description = 'sample',
                      ),
 
@@ -26,7 +26,7 @@ devices = dict(
                         responsible = 'Dr. Andre Heinemann <Andre.Heinemann@hzg.de>',
                        ),
 
-    Exp      = device('frm2.experiment.Experiment',
+    Exp      = device('nicos_mlz.frm2.experiment.Experiment',
                       description = 'experiment',
                       dataroot = '/data/nicos',
                       propdb = '/sans1control/propdb',

@@ -27,7 +27,7 @@ devices = dict(
         tangodevice = tango_base + 'phytron/coder',
         unit = 'mm',
     ),
-    ccmsanssc_axis = device('sans1.ccmsanssc.SwordAxis',
+    ccmsanssc_axis = device('nicos_mlz.sans1.ccmsanssc.SwordAxis',
         description = 'translation of the sword',
         abslimits = (0, 600),
         motor = 'ccmsanssc_motor',
