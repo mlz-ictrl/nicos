@@ -9,7 +9,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    HDF5FileSaver = device('reseda.hdf5.ResedaHDF5Sink',
+    HDF5FileSaver = device('nicos_mlz.reseda.devices.hdf5.ResedaHDF5Sink',
         description = 'Saves scalar and image data for scans in a defined structure into HDF5 files.',
         lowlevel = True
     ),

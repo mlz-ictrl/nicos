@@ -28,7 +28,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-37',
         website = 'http://mlz-garching.de/instrumente-und-labore/spektroskopie/reseda.html',
     ),
-    Exp = device('reseda.experiment.Experiment',
+    Exp = device('nicos_mlz.reseda.devices.experiment.Experiment',
         description = 'Experiment object',
         dataroot = '/data',
         sendmail = True,

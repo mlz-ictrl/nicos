@@ -7,14 +7,14 @@ sysconfig = dict(
 )
 
 devices = dict(
-    psd_padformat = device('mira.cascade.CascadePadSink',
+    psd_padformat = device('nicos_mlz.mira.devices.cascade.CascadePadSink',
         subdir = 'cascade',
         lowlevel = True,
     ),
     psd_liveview = device('nicos.devices.datasinks.LiveViewSink',
         lowlevel = True,
     ),
-    psd_channel = device('mira.cascade_win.CascadeDetector',
+    psd_channel = device('nicos_mlz.mira.devices.cascade_win.CascadeDetector',
         description = 'CASCADE detector channel',
         server = 'resedacascade02.reseda.frm2:1234',
     ),

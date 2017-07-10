@@ -41,7 +41,7 @@ devices = dict(
         tangodevice = '%s/cbox/pa_gain' % tango_base,
         pollinterval = 1,
     ),
-    cbox = device('reseda.cbox.CBoxResonanceFrequency',
+    cbox = device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
         pollinterval = 1,
         description = 'CBox',
         unit = 'Hz',

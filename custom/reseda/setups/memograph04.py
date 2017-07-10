@@ -8,7 +8,7 @@ memograph_host = '%s.care.frm2' % setupname
 
 devices = {
     'tap04_t_ing':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'T_in RESEDA2',
@@ -17,7 +17,7 @@ devices = {
             warnlimits = (-1, 17.5),  #-1 no lower value
         ),
     'tap04_t_outg':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'T_out RESEDA2',
@@ -25,7 +25,7 @@ devices = {
             fmtstr = '%.2F',
         ),
     'tap04_p_ing':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'P_in RESEDA2',
@@ -33,7 +33,7 @@ devices = {
             fmtstr = '%.2F',
         ),
     'tap04_p_outg':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'P_out RESEDA2',
@@ -41,7 +41,7 @@ devices = {
             fmtstr = '%.2F',
         ),
     'tap04_flow_ing':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'FLOW_in RESEDA2',
@@ -50,7 +50,7 @@ devices = {
             warnlimits = (0.2, 100),  #100 no upper value
         ),
     'tap04_flow_outg':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'FLOW_out RESEDA2',
@@ -58,7 +58,7 @@ devices = {
             fmtstr = '%.2F',
         ),
     'tap04_leakg':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'Leak RESEDA2',
@@ -67,7 +67,7 @@ devices = {
             warnlimits = (-1, 1),  #-1 no lower value
         ),
     'tap04_coolingg':
-        device('frm2.memograph.MemographValue',
+        device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
             valuename = 'Cooling RESEDA2',

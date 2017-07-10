@@ -8,7 +8,7 @@ tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = {
     'T_ccr':
-        device('frm2.ccr.CCRControl',
+        device('nicos_mlz.frm2.devices.ccr.CCRControl',
             description = 'The main temperature control '
             'device of the CCR',
             stick = 'T_ccr_stick',
