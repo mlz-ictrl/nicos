@@ -9,7 +9,6 @@ devices = dict(
         wavelength = 'selector_lambda',
         dependencies = [
             'subcoil_ps2',
-            'subcoil_ps3',
         ],
         unit = 'ns',
         fmtstr = '%g'
