@@ -35,7 +35,7 @@ devices = dict(
                     unit = '',
                    ),
 
-   cy1 = device('puma.sh_cylinder.SH_Cylinder',
+   cy1 = device('nicos_mlz.puma.devices.sh_cylinder.SH_Cylinder',
                 description = 'Cylinder 1 (Er filter)',
                 io_ref = 'io_sw1',
                 io_air = 'io_air1',
@@ -44,7 +44,7 @@ devices = dict(
                 unit = '',
                ),
 
-   erbium = device('puma.senseswitch.SenseSwitch',
+   erbium = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                    description = 'Erbium filter',
                    moveables = 'cy1',
                    readables = 'io_sw1',
@@ -84,7 +84,7 @@ devices = dict(
                     unit = '',
                    ),
 
-   cy2 = device('puma.sh_cylinder.SH_Cylinder',
+   cy2 = device('nicos_mlz.puma.devices.sh_cylinder.SH_Cylinder',
                 description = 'Cylinder 2 (Collimators)',
                 io_ref = 'io_sw2',
                 io_air = 'io_air2',
@@ -93,7 +93,7 @@ devices = dict(
                 unit = '',
                ),
 
-   alpha1 = device('puma.senseswitch.SenseSwitch',
+   alpha1 = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                    description = 'Primary collimator',
                    moveables = 'cy2',
                    readables = 'io_sw2',
@@ -135,7 +135,7 @@ devices = dict(
                    unit = '',
                   ),
 
-   cy3 = device('puma.sh_cylinder.SH_Cylinder',
+   cy3 = device('nicos_mlz.puma.devices.sh_cylinder.SH_Cylinder',
                 description = 'Cylinder 1 (Sapphire filter)',
                 io_ref = 'io_sw3',
                 io_air = 'io_air3',
@@ -144,7 +144,7 @@ devices = dict(
                 unit = '',
                ),
 
-   sapphire = device('puma.senseswitch.SenseSwitch',
+   sapphire = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                      description = 'Sapphire filter',
                      moveables = 'cy3',
                      readables = 'io_sw3',

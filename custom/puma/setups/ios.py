@@ -33,7 +33,7 @@ devices = dict(
                     unit = '',
                    ),
 
-   atn = device('puma.attenuator.Attenuator',
+   atn = device('nicos_mlz.puma.devices.attenuator.Attenuator',
                 description = 'Sample attenuator, width=0..38mm',
                 io_status = 'att_sw',
                 io_set = 'att_set',
@@ -60,7 +60,7 @@ devices = dict(
     #                  unit = '',
     #                 ),
 
-    # fpg1 = device('puma.senseswitch.SenseSwitch',
+    # fpg1 = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
     #               description = 'First PG filter',
     #               readables = 'fpg_sw',
     #               moveables = 'fpg_set',
@@ -72,7 +72,7 @@ devices = dict(
     #               timeout = 20,
     #              ),
 
-    # fpg1 = device('puma.pgfilter.PGFilter',
+    # fpg1 = device('nicos_mlz.puma.devices.pgfilter.PGFilter',
     #               description = 'automated pg filter',
     #               io_status = 'fpg_sw',
     #               io_set = 'fpg_set',
@@ -98,7 +98,7 @@ devices = dict(
                    lowlevel = True,
                   ),
 
-   fpg2 = device('puma.senseswitch.SenseSwitch',
+   fpg2 = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                  description = 'Second PG filter',
                  moveables = 'uni_st',
                  readables = 'uni_sw',

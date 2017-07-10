@@ -32,7 +32,7 @@ devices = dict(
                     confbyte = 108,
                    ),
 
-    co_att = device('puma.ipc_puma.Coder',
+    co_att = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 91,
                     slope = 2912.7111,
@@ -42,7 +42,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_ath = device('puma.ipc_puma.Coder',
+    co_ath = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 90,
                     slope = 2912.7111,
@@ -77,7 +77,7 @@ devices = dict(
 
 # Focusing horizontal for PG analyzer
 
-   st_afpg = device('puma.ipc_puma.Motor1',
+   st_afpg = device('nicos_mlz.puma.devices.ipc_puma.Motor1',
                     bus = 'motorbus6',
                     addr = 68,
                     slope = 368.4,
@@ -87,7 +87,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-   co_afpg = device('puma.ipc_puma.Coder',
+   co_afpg = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 94,
                     slope = 79.48,
@@ -95,7 +95,7 @@ devices = dict(
                     unit = 'deg',
                     lowlevel = True,
                    ),
-   afpg   = device('puma.focus.FocusAxis',
+   afpg   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                    description = 'Horizontal focus of PG-analyser',
                    motor = 'st_afpg',
                    coder = 'co_afpg',
@@ -110,7 +110,7 @@ devices = dict(
                   ),
 
 # Focusing horizontal for Ge311 Analysator
-   st_afge = device('puma.ipc_puma.Motor1',
+   st_afge = device('nicos_mlz.puma.devices.ipc_puma.Motor1',
                     bus = 'motorbus6',
                     addr = 68,
                     slope = -372.9,
@@ -120,7 +120,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-   co_afge = device('puma.ipc_puma.Coder',
+   co_afge = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 94,
                     slope = -81.13,
@@ -128,7 +128,7 @@ devices = dict(
                     unit = 'deg',
                     lowlevel = True,
                    ),
-   afge   = device('puma.focus.FocusAxis',
+   afge   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                    description = 'Horizontal focus of Ge-analyser',
                    motor = 'st_afge',
                    coder = 'co_afge',
@@ -155,7 +155,7 @@ devices = dict(
                    lowlevel = True,
                   ),
 
-   co_atx = device('puma.ipc_puma.Coder',
+   co_atx = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 96,
                     slope = 157.3,
@@ -186,7 +186,7 @@ devices = dict(
                   ),
 
 
-   co_aty = device('puma.ipc_puma.Coder',
+   co_aty = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                     bus = 'motorbus6',
                     addr = 95,
                     slope = -157.3,
@@ -247,7 +247,7 @@ devices = dict(
                    maxtries = 10,
                    backlash = 0.2,
                   ),
-    st_dslit = device('puma.ipc_puma.Motor',
+    st_dslit = device('nicos_mlz.puma.devices.ipc_puma.Motor',
                       bus = 'motorbus6',
                       addr = 67,
                       slope = 4500,
@@ -257,7 +257,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    co_dslit = device('puma.ipc_puma.Coder',
+    co_dslit = device('nicos_mlz.puma.devices.ipc_puma.Coder',
                       bus = 'motorbus6',
                       addr = 97,
                       slope = 80,

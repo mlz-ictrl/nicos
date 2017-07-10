@@ -75,7 +75,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    mtt    = device('puma.mtt.MttAxis',
+    mtt    = device('nicos_mlz.puma.devices.mtt.MttAxis',
                     description  = 'Monochromator Two Theta',
                     motor = 'st_mtt',
                     coder = 'co_mtt',
@@ -120,7 +120,7 @@ devices = dict(
     #                  ),
 
 # test motors for focus
-    st_mfh = device('puma.ipc_puma.Motor',
+    st_mfh = device('nicos_mlz.puma.devices.ipc_puma.Motor',
                     description = 'Test motor for mfh',
                     bus = 'motorbus7',
                     addr = 74,
@@ -142,7 +142,7 @@ devices = dict(
                     lowlevel = False,
                    ),
 
-    st_mfv = device('puma.ipc_puma.Motor',
+    st_mfv = device('nicos_mlz.puma.devices.ipc_puma.Motor',
                     description = 'Test motor for mfv',
                     bus = 'motorbus7',
                     addr = 75,
@@ -164,7 +164,7 @@ devices = dict(
                     lowlevel = False,
                    ),
 
-    # mfhpg  = device('puma.focus.FocusAxis',
+    # mfhpg  = device('nicos_mlz.puma.devices.focus.FocusAxis',
     #                 description = 'Horizontal focus of PG-Monochromator',
     #                 motor = 'st_mfhpg',
     #                 coder = 'co_mfhpg',
@@ -198,7 +198,7 @@ devices = dict(
     #                   lowlevel = True,
     #                  ),
 
-    # mfvpg  = device('puma.focus.FocusAxis',
+    # mfvpg  = device('nicos_mlz.puma.devices.focus.FocusAxis',
     #                 description = 'Vertical focus of PG-Monochromator',
     #                 motor = 'st_mfvpg',
     #                 coder = 'co_mfvpg',
@@ -233,7 +233,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mfhge   = device('puma.focus.FocusAxis',
+    mfhge   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                      description = 'horizontal focus of Ge311-Monochromator',
                      motor = 'st_mfhge',
                      coder = 'co_mfhge',
@@ -267,7 +267,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mfvge   = device('puma.focus.FocusAxis',
+    mfvge   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                      description = 'orizontal focus of Ge311-Monochromator',
                      motor = 'st_mfvge',
                      coder = 'co_mfvge',
@@ -302,7 +302,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mfhcu   = device('puma.focus.FocusAxis',
+    mfhcu   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                      description = 'Horizontal focus of Cu220-Monochromator',
                      motor = 'st_mfhcu',
                      coder = 'co_mfhcu',
@@ -337,7 +337,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mfvcu   = device('puma.focus.FocusAxis',
+    mfvcu   = device('nicos_mlz.puma.devices.focus.FocusAxis',
                      description = 'Vertical focus of Cu220-Monochromator',
                      motor = 'st_mfvcu',
                      coder = 'co_mfvcu',
@@ -373,7 +373,7 @@ devices = dict(
                        lowlevel = True,
                       ),
 
-    mfhcu1  = device('puma.focus.FocusAxis',
+    mfhcu1  = device('nicos_mlz.puma.devices.focus.FocusAxis',
                      description = 'Horizontal focus of Cu220-Monochromator',
                      motor = 'st_mfhcu1',
                      coder = 'co_mfhcu1',
@@ -407,7 +407,7 @@ devices = dict(
                        lowlevel = True,
                       ),
 
-    mfvcu1 = device('puma.focus.FocusAxis',
+    mfvcu1 = device('nicos_mlz.puma.devices.focus.FocusAxis',
                     description = 'Vertical focus of Cu220-Monochromator',
                     motor = 'st_mfvcu1',
                     coder = 'co_mfvcu1',

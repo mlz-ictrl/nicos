@@ -49,7 +49,7 @@ devices = dict(
                    ),
 
 # Magnet phi
-    # phi = device('puma.comb_ax.CombAxis',
+    # phi = device('nicos_mlz.puma.devices.comb_ax.CombAxis',
     #              description = 'Sample scattering angle Two Theta',
     #              motor = 'st_phi',
     #              coder = 'co_phi',

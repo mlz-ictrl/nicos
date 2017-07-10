@@ -57,7 +57,7 @@ devices = dict(
                      lowlevel = True,
                     ),
 
-    lift   = device('puma.senseswitch.SenseSwitch',
+    lift   = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                     description = 'Monochromator lift',
                     moveables = 'mli',
                     readables = 'sw_lift',
@@ -116,7 +116,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    magazin = device('puma.senseswitch.SenseSwitch',
+    magazin = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                      description = 'Monochromatormagazin',
                      moveables = 'mag',
                      readables = 'io_mag',
@@ -156,7 +156,7 @@ devices = dict(
                        lowlevel = True,
                       ),
 
-    mlock   = device('puma.maglock.MagLock',
+    mlock   = device('nicos_mlz.puma.devices.maglock.MagLock',
                      description = 'Magnetic lock at magazin',
                      states = monostates[:4],
                      magazin = 'magazin',
@@ -184,7 +184,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    grip = device('puma.senseswitch.SenseSwitch',
+    grip = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
                   description = 'monochromator grip',
                   moveables = 'gr_set',
                   readables = 'gr_stat',
@@ -249,7 +249,7 @@ devices = dict(
                        readable = 'monostat_io',
                       ),
 # Mchanger
-    mchanger = device('puma.mchanger.Mchanger',
+    mchanger = device('nicos_mlz.puma.devices.mchanger.Mchanger',
                       description = 'The actual monochromator changer',
                       monochromator = 'mono',
                       mapping = dict(zip(monostates, monodevices)),
