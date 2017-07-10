@@ -5,7 +5,7 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    UserDBAuth = device('frm2.proposaldb.Authenticator',
+    UserDBAuth = device('nicos_mlz.frm2.devices.proposaldb.Authenticator',
                         description = 'FRM II user office authentication',
                        ),
     Auth       = device('nicos.services.daemon.auth.ListAuthenticator',

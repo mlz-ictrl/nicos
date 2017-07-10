@@ -2,7 +2,7 @@ description = 'Large sample manipulation stage using servostar controller'
 group = 'optional'
 
 devices = dict(
-    stx_servostar = device('antares.servostar.ServoStarMotor',
+    stx_servostar = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
         description = 'Sample Translation X',
         tacodevice = 'antares/mani/x',
         pollinterval = 5,
@@ -11,7 +11,7 @@ devices = dict(
         userlimits = (0, 1010),
         abslimits = (0, 1010),
     ),
-    sty_servostar = device('antares.servostar.ServoStarMotor',
+    sty_servostar = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
         description = 'Sample Translation Y',
         tacodevice = 'antares/mani/y',
         pollinterval = 5,
@@ -20,7 +20,7 @@ devices = dict(
         userlimits = (0, 580),
         abslimits = (0, 580),
     ),
-    sry_servostar = device('antares.servostar.ServoStarMotor',
+    sry_servostar = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
         description = 'Sample Rotation around Y',
         tacodevice = 'antares/mani/phi',
         pollinterval = 5,

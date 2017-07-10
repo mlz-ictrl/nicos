@@ -6,14 +6,14 @@ includes = []
 taco_host = 'amagnet'
 
 devices = dict(
-    garfield_onoff = device('antares.switches.ToggleSwitch',
+    garfield_onoff = device('nicos_mlz.antares.devices.switches.ToggleSwitch',
         description = 'Garfield magnet: polarity (+/-) switch',
         tacodevice = '//%s/amagnet/beckhoff/onoff' % taco_host,
         readback = '//%s/amagnet/beckhoff/honoff' % taco_host,
         mapping = {1: 'on',
                    0: 'off'},
     ),
-    garfield_polarity = device('antares.switches.ReadbackSwitch',
+    garfield_polarity = device('nicos_mlz.antares.devices.switches.ReadbackSwitch',
         description = 'Garfield magnet: polarity (+/-) switch',
         tacodevice = '//%s/amagnet/beckhoff/posneg' % taco_host,
         readback = '//%s/amagnet/beckhoff/hpos' % taco_host,
@@ -21,7 +21,7 @@ devices = dict(
                    2: '-'},
         rwmapping = {0: 2},
     ),
-    garfield_connection = device('antares.switches.ReadbackSwitch',
+    garfield_connection = device('nicos_mlz.antares.devices.switches.ReadbackSwitch',
         description = 'Garfield magnet: polarity (+/-) switch',
         tacodevice = '//%s/amagnet/beckhoff/serpar' % taco_host,
         readback = '//%s/amagnet/beckhoff/hpar' % taco_host,

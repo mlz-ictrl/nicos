@@ -7,7 +7,7 @@ includes = []
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
-    mono = device('antares.monochromator.Monochromator',
+    mono = device('nicos_mlz.antares.devices.monochromator.Monochromator',
         description = 'ANTARES PG Double Crystal Monochromator',
         dvalue1 = 3.354,
         dvalue2 = 3.354,

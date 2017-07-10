@@ -13,7 +13,7 @@ devices = dict(
         description = 'The camera\'s internal timer',
         tangodevice = tango_base + 'detector/limaccd',
     ),
-    neo = device('antares.detector.AntaresNeo',
+    neo = device('nicos_mlz.antares.devices.detector.AntaresNeo',
         description = 'Andor Neo sCMOS camera detector image',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/neo',

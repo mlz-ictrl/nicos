@@ -18,7 +18,7 @@ devices = dict(
         images = ['ikonl'],
         timers = ['timer_ikonl'],
     ),
-    ikonl = device('antares.detector.AntaresIkonLCCD',
+    ikonl = device('nicos_mlz.antares.devices.detector.AntaresIkonLCCD',
         description = 'The Andor Ikon L CCD camera detector',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/ikonl',

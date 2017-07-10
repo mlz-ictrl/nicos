@@ -11,7 +11,7 @@ sysconfig = dict(
 )
 
 modules = ['nicos.commands.basic', 'nicos.commands.standard',
-           'antares.commands']
+           'nicos_mlz.antares.commands']
 
 includes = ['notifiers']
 
@@ -19,7 +19,7 @@ devices = dict(
     Sample = device('nicos.devices.experiment.Sample',
         description = 'Default Sample',
     ),
-    Exp = device('antares.experiment.Experiment',
+    Exp = device('nicos_mlz.antares.devices.experiment.Experiment',
         description = 'Antares Experiment',
         dataroot = '/data/FRM-II',
         sample = 'Sample',
