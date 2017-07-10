@@ -7,7 +7,7 @@ includes = ['alias_T']
 tango_base = 'tango://julabo.sans1.frm2:10000/box/'
 
 devices = dict(
-    T_julabo_intern = device('devices.tango.TemperatureController',
+    T_julabo_intern = device('nicos.devices.tango.TemperatureController',
                        description = 'Julabo regulated to internal (bath) sensor',
                        tangodevice = tango_base + 'julabo/control',
                        abslimits = (-40, 250),
@@ -15,7 +15,7 @@ devices = dict(
                        fmtstr = '%.2f',
                        precision = 0.1,
                       ),
-    T_julabo_extern = device('devices.tango.TemperatureController',
+    T_julabo_extern = device('nicos.devices.tango.TemperatureController',
                        description = 'Julabo regulated to external (sample) sensor',
                        tangodevice = tango_base + 'julabo/control_ext',
                        abslimits = (-40, 250),

@@ -16,7 +16,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det1    = device('devices.generic.GatedDetector',
+    det1    = device('nicos.devices.generic.GatedDetector',
                      description = 'QMesyDAQ Image type Detector1',
                      timers = ['det1_timer'],
                      counters = [],
@@ -26,9 +26,9 @@ devices = dict(
                      enablevalues = ['On', 'On'],
                      disablevalues = ['Off', 'Off'],
                     ),
-    tisane_det_pulses = device('devices.generic.DeviceAlias',
+    tisane_det_pulses = device('nicos.devices.generic.DeviceAlias',
                                description = 'tisane detector channel',
-                               devclass = 'devices.generic.PassiveChannel',
+                               devclass = 'nicos.devices.generic.PassiveChannel',
                                alias = 'det1_mon3',
                               )
 )

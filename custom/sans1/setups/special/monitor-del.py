@@ -58,7 +58,7 @@ _leftcolumn = [
 ]
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS1 Detector electronics monitor',
                      loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',

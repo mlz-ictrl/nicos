@@ -610,7 +610,7 @@ _helios01 = Block('Helios', [
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      description='Status monitor',
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',

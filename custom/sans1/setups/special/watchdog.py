@@ -84,7 +84,7 @@ watchlist = [
 includes = ['notifiers']
 
 devices = dict(
-    Watchdog = device('services.watchdog.Watchdog',
+    Watchdog = device('nicos.services.watchdog.Watchdog',
                       cache = 'sans1ctrl.sans1.frm2:14869',
                       #notifiers = {'default': ['info'], 'critical': ['email']},
                       notifiers = {},

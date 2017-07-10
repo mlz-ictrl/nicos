@@ -5,12 +5,12 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-#    selector_speed    = device('devices.taco.Axis',
+#    selector_speed    = device('nicos.devices.taco.Axis',
 #                               tacodevice = '//%s/sans1/table/z-2a' % (nethost, ),
 #                               fmtstr = '%.2f',
 #                               abslimits = (-10, 10),
 #                              ),
-    selector_ng_ax    = device('devices.generic.Axis',
+    selector_ng_ax    = device('nicos.devices.generic.Axis',
                                description = 'selector neutron guide axis',
                                motor = 'selector_ng_mot',
                                coder = 'selector_ng_enc',
@@ -25,7 +25,7 @@ devices = dict(
                                pollinterval = 15,
                                lowlevel = True,
                               ),
-    selector_ng_mot = device('devices.taco.motor.Motor',
+    selector_ng_mot = device('nicos.devices.taco.motor.Motor',
                              description = 'selector neutron guide motor',
                              tacodevice = '//%s/sel/z/motor' % (nethost, ),
                              fmtstr = '%.2f',
@@ -34,14 +34,14 @@ devices = dict(
                              userlimits = (-140, 142.5), #new
                              lowlevel = True,
                             ),
-    selector_ng_enc = device('devices.taco.coder.Coder',
+    selector_ng_enc = device('nicos.devices.taco.coder.Coder',
                              description = 'selector neutron guide encoder',
                              tacodevice = '//%s/sel/z/enc' % (nethost, ),
                              fmtstr = '%.2f',
                              lowlevel = True,
                             ),
 
-    selector_ng    = device('devices.generic.Switcher',
+    selector_ng    = device('nicos.devices.generic.Switcher',
                             description = 'selector neutron guide switcher',
                             #lowlevel = True,
                             moveable = 'selector_ng_ax',
@@ -51,7 +51,7 @@ devices = dict(
                             precision = 0.01,
                            ),
 
-    selector_tilt    = device('devices.generic.Axis',
+    selector_tilt    = device('nicos.devices.generic.Axis',
                               description = 'selector tilt axis',
                               motor = 'selector_tilt_mot',
                               coder = 'selector_tilt_enc',
@@ -67,14 +67,14 @@ devices = dict(
                               #offset = 1.72, #new
                               offset = 2.27, #new
                              ),
-    selector_tilt_mot = device('devices.taco.motor.Motor',
+    selector_tilt_mot = device('nicos.devices.taco.motor.Motor',
                                description = 'selector tilt motor',
                                tacodevice = '//%s/sel/tilt/motor' % (nethost, ),
                                fmtstr = '%.2f',
                                abslimits = (-10, 10),
                                lowlevel = True,
                               ),
-    selector_tilt_enc = device('devices.taco.coder.Coder',
+    selector_tilt_enc = device('nicos.devices.taco.coder.Coder',
                                description = 'selector tilt encoder',
                                tacodevice = '//%s/sel/tilt/enc' % (nethost, ),
                                fmtstr = '%.2f',

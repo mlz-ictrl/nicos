@@ -7,7 +7,7 @@ includes = ['sample_changer']
 tango_base = 'tango://ccmsanssc:10000/box/'
 
 devices = dict(
-    ccmsanssc_switch = device('devices.tango.NamedDigitalOutput',
+    ccmsanssc_switch = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'position switch for pressure valve',
         lowlevel = False,
         tangodevice = tango_base + 'phytron/switch',
@@ -16,13 +16,13 @@ devices = dict(
             'closed': 2
         },
     ),
-    ccmsanssc_motor = device('devices.tango.Motor',
+    ccmsanssc_motor = device('nicos.devices.tango.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'phytron/motor',
         abslimits = (0, 600),
         unit = 'mm',
     ),
-    ccmsanssc_coder = device('devices.tango.Sensor',
+    ccmsanssc_coder = device('nicos.devices.tango.Sensor',
         lowlevel = True,
         tangodevice = tango_base + 'phytron/coder',
         unit = 'mm',
@@ -41,7 +41,7 @@ devices = dict(
         precision = 0.2,
         dragerror = 5,
     ),
-    ccmsanssc_position = device('devices.generic.MultiSwitcher',
+    ccmsanssc_position = device('nicos.devices.generic.MultiSwitcher',
         description = 'position of the sample changer sword',
         moveables = ['ccmsanssc_axis'],
         mapping = {

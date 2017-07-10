@@ -9,7 +9,7 @@ excludes = ['frequency']
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/tisane'
 
 devices = dict(
-    tisane_fc = device('devices.tango.Sensor',
+    tisane_fc = device('nicos.devices.tango.Sensor',
                        description = "Frequency counter for chopper signal",
                        tangodevice = "%s/fc1_frequency" % tango_base,
                        unit = "Hz",

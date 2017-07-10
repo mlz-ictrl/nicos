@@ -23,7 +23,7 @@ devices = dict(
                            pollinterval = 15,
                           ),
 
-    P_spinflipper_forward = device('devices.generic.ReadonlyParamDevice',
+    P_spinflipper_forward = device('nicos.devices.generic.ReadonlyParamDevice',
                                    description = 'Paramdevice used to select the forward power',
                                    lowlevel = True,
                                    device = 'P_spinflipper',
@@ -32,7 +32,7 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-    P_spinflipper_reverse = device('devices.generic.ReadonlyParamDevice',
+    P_spinflipper_reverse = device('nicos.devices.generic.ReadonlyParamDevice',
                                    description = 'Paramdevice used to select the reverse power',
                                    lowlevel = True,
                                    device = 'P_spinflipper',
@@ -41,7 +41,7 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-#    T_spinflipper_AG = device('devices.tango.AnalogInput',
+#    T_spinflipper_AG = device('nicos.devices.tango.AnalogInput',
 #                           description = 'temperature of ag1016',
 #                           tangodevice = tango_base + 'amplifier/temp',
 #                           fmtstr = '%.3f',
@@ -50,7 +50,7 @@ devices = dict(
 #                          ),
 
 # HP33220A
-    A_spinflipper_hp = device('devices.tango.AnalogOutput',
+    A_spinflipper_hp = device('nicos.devices.tango.AnalogOutput',
                               description = 'amplitude of the frequency generator',
                               tangodevice = tango_base + 'funcgen/ampl',
                               fmtstr = '%.3f',
@@ -60,7 +60,7 @@ devices = dict(
                               pollinterval = 15,
                              ),
 
-    F_spinflipper_hp = device('devices.tango.AnalogOutput',
+    F_spinflipper_hp = device('nicos.devices.tango.AnalogOutput',
                               description = 'frequency of the frequency generator',
                               tangodevice = tango_base + 'funcgen/freq',
                               fmtstr = '%.0f',

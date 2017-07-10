@@ -728,7 +728,7 @@ _helios01 = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
                      filename = '/sans1control/webroot/index.html',
                      interval = 10,

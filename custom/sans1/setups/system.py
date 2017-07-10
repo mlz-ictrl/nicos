@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-modules = ['commands.standard', 'sans1.commands']
+modules = ['nicos.commands.standard', 'sans1.commands']
 
 includes = ['notifiers']
 
@@ -19,7 +19,7 @@ devices = dict(
                       description = 'sample',
                      ),
 
-    Instrument = device('devices.instrument.Instrument',
+    Instrument = device('nicos.devices.instrument.Instrument',
                         description = 'SANS1 instrument',
                         instrument = 'SANS-1',
                         doi = 'http://dx.doi.org/10.17815/jlsrf-1-32',
@@ -35,19 +35,19 @@ devices = dict(
                       mailsender = 'sans1@frm2.tum.de',
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       description = 'filesink',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       description = 'conssink',
                      ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         description = 'daemonsink',
                        ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       # only specify if differing from Exp.dataroot
                       #path = '/data/nicos',

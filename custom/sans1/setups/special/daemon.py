@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     UserDB = device('frm2.proposaldb.Authenticator'),
-    Auth   = device('services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
                     hashing = 'md5',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [
@@ -17,7 +17,7 @@ devices = dict(
                               ('edv', 'cb50179ebd60c94a29770c652a848765', 'admin'),
                               ],
                    ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     server = 'sans1ctrl.sans1.frm2',
                     authenticators = ['UserDB', 'Auth'],
                     loglevel = 'debug',

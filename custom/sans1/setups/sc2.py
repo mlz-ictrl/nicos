@@ -7,7 +7,7 @@ includes = ['sample_changer', 'sample_table_1']
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    sc2_y       = device('devices.generic.Axis',
+    sc2_y       = device('nicos.devices.generic.Axis',
                          description = 'Sample Changer 1/2 Axis',
                          pollinterval = 15,
                          maxage = 60,
@@ -18,21 +18,21 @@ devices = dict(
                          coder = 'sc2_yenc',
                          obs=[],
                         ),
-    sc2_ymot    = device('devices.taco.motor.Motor',
+    sc2_ymot    = device('nicos.devices.taco.motor.Motor',
                          description = 'Sample Changer 1/2 Axis motor',
                          tacodevice = '//%s/sans1/samplechanger/y-sc1mot' % (nethost, ),
                          fmtstr = '%.2f',
                          abslimits = (-0, 600),
                          lowlevel = True,
                         ),
-    sc2_yenc    = device('devices.taco.coder.Coder',
+    sc2_yenc    = device('nicos.devices.taco.coder.Coder',
                          description = 'Sample Changer 1/2 Axis encoder',
                          tacodevice = '//%s/sans1/samplechanger/y-sc1enc' % (nethost, ),
                          fmtstr = '%.2f',
                          lowlevel = True,
                         ),
 
-    sc2    = device('devices.generic.MultiSwitcher',
+    sc2    = device('nicos.devices.generic.MultiSwitcher',
                     description = 'Sample Changer 2 Huber device',
                     moveables = ['sc2_y', 'st1_z'],
                     mapping = {11:  [592.5, -32], 10: [533.5, -32],

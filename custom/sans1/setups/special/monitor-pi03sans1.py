@@ -4,7 +4,7 @@ group = 'special'
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      showwatchdog = True,
                      title = 'SANS-1 status monitor',
                      loglevel = 'info',

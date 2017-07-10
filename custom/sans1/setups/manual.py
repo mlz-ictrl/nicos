@@ -3,7 +3,7 @@ description = 'manual move devices'
 group = 'lowlevel'
 
 devices = dict(
-    sa2      = device('devices.generic.ManualMove',
+    sa2      = device('nicos.devices.generic.ManualMove',
                       description = 'sample aperture 2',
                       unit = 'mm',
                       fmtstr = '%.0f',

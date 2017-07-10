@@ -9,7 +9,7 @@ _testblock = Block('HTF03', [
 _testcolumn = Column(_testblock)
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
 #                     loglevel = 'debug',
                      loglevel = 'info',
