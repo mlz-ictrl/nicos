@@ -9,7 +9,7 @@ includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7', 'motorbus8',
 
 
 devices = dict(
-    st_mtt = device('devices.vendor.ipc.Motor',
+    st_mtt = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus4',
                     addr = 52,
                     slope = -1200,
@@ -22,7 +22,7 @@ devices = dict(
                     confbyte = 56,
                    ),
 
-    st_mth = device('devices.vendor.ipc.Motor',
+    st_mth = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus7',
                     addr = 70,
                     slope = -400,
@@ -33,8 +33,8 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    # co_mtt = device('devices.vendor.ipc.Coder',
-    co_mtt = device('devices.vendor.ipc.Resolver',
+    # co_mtt = device('nicos.devices.vendor.ipc.Coder',
+    co_mtt = device('nicos.devices.vendor.ipc.Resolver',
                    #bus = 'motorbus8',
                     bus = 'motorbus14',
                     addr = 120,
@@ -46,8 +46,8 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    # co_mth = device('devices.vendor.ipc.Coder',
-    co_mth = device('devices.vendor.ipc.Resolver',
+    # co_mth = device('nicos.devices.vendor.ipc.Coder',
+    co_mth = device('nicos.devices.vendor.ipc.Resolver',
                    #bus = 'motorbus8',
                     bus = 'motorbus14',
                     addr = 121,
@@ -57,7 +57,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    io_flag = device('devices.vendor.ipc.Input',
+    io_flag = device('nicos.devices.vendor.ipc.Input',
                     bus = 'motorbus9',
                     addr = 102,
                     first = 9,
@@ -66,7 +66,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    polyswitch = device('devices.vendor.ipc.Output',
+    polyswitch = device('nicos.devices.vendor.ipc.Output',
                         bus = 'motorbus9',
                         addr = 115,
                         first = 0,
@@ -89,7 +89,7 @@ devices = dict(
                     dragerror = 1,
                    ),
 
-    mth    = device('devices.generic.Axis',
+    mth    = device('nicos.devices.generic.Axis',
                     description = 'Monochromator Theta',
                     motor = 'st_mth',
                     coder = 'co_mth',
@@ -99,7 +99,7 @@ devices = dict(
                     maxtries = 10,
                    ),
 
-    # st_mfhpg = device('devices.vendor.ipc.Motor',
+    # st_mfhpg = device('nicos.devices.vendor.ipc.Motor',
     #                   bus = 'motorbus7',
     #                   addr = 74,
     #                   slope = -41.5,
@@ -110,7 +110,7 @@ devices = dict(
     #                   confbyte = 44,
     #                  ),
 
-    # co_mfhpg = device('devices.vendor.ipc.Coder',
+    # co_mfhpg = device('nicos.devices.vendor.ipc.Coder',
     #                   bus = 'motorbus1',
     #                   addr = 152,
     #                   slope = -28.9,
@@ -132,7 +132,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    co_mfh = device('devices.vendor.ipc.Coder',
+    co_mfh = device('nicos.devices.vendor.ipc.Coder',
                     description = 'Coder for test motor for mfh',
                     bus = 'motorbus1',
                     addr = 152,
@@ -154,7 +154,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    co_mfv = device('devices.vendor.ipc.Coder',
+    co_mfv = device('nicos.devices.vendor.ipc.Coder',
                     description = 'Coder for test motor for mfv',
                     bus = 'motorbus1',
                     addr = 153,
@@ -178,7 +178,7 @@ devices = dict(
     #                 loopdelay = 2,
     #                ),
 
-    # st_mfvpg = device('devices.vendor.ipc.Motor',
+    # st_mfvpg = device('nicos.devices.vendor.ipc.Motor',
     #                   bus = 'motorbus7',
     #                   addr = 75,
     #                   slope = 142.1,
@@ -189,7 +189,7 @@ devices = dict(
     #                   confbyte = 44,
     #                   ),
 
-    # co_mfvpg = device('devices.vendor.ipc.Coder',
+    # co_mfvpg = device('nicos.devices.vendor.ipc.Coder',
     #                   bus = 'motorbus1',
     #                   addr = 153,
     #                   slope = 75.7,
@@ -213,7 +213,7 @@ devices = dict(
     #                ),
 
 # GE311 Focusing
-    st_mfhge = device('devices.vendor.ipc.Motor',
+    st_mfhge = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'motorbus7',
                       addr = 74,
                       slope = -105.5,
@@ -224,7 +224,7 @@ devices = dict(
                       confbyte = 44,
                      ),
 
-    co_mfhge = device('devices.vendor.ipc.Coder',
+    co_mfhge = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'motorbus1',
                       addr = 152,
                       slope = -20.5,
@@ -247,7 +247,7 @@ devices = dict(
                      loopdelay = 2,
                     ),
 
-    st_mfvge = device('devices.vendor.ipc.Motor',
+    st_mfvge = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'motorbus7',
                       addr = 75,
                       slope = 216.6,
@@ -258,7 +258,7 @@ devices = dict(
                       confbyte = 44,
                      ),
 
-    co_mfvge = device('devices.vendor.ipc.Coder',
+    co_mfvge = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'motorbus1',
                       addr = 153,
                       slope = 46.0,
@@ -282,7 +282,7 @@ devices = dict(
                     ),
 
 # CU220 FOcusing
-    st_mfhcu = device('devices.vendor.ipc.Motor',
+    st_mfhcu = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'motorbus7',
                       addr = 74,
                       slope = -253.3,
@@ -293,7 +293,7 @@ devices = dict(
                       confbyte = 44,
                      ),
 
-    co_mfhcu = device('devices.vendor.ipc.Coder',
+    co_mfhcu = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'motorbus1',
                       addr = 152,
                       slope = -33.8,
@@ -316,7 +316,7 @@ devices = dict(
                      loopdelay = 2,
                     ),
 
-    st_mfvcu = device('devices.vendor.ipc.Motor',
+    st_mfvcu = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'motorbus7',
                       addr = 75,
                       slope = 259.6,
@@ -328,7 +328,7 @@ devices = dict(
                       confbyte = 44,
                      ),
 
-    co_mfvcu = device('devices.vendor.ipc.Coder',
+    co_mfvcu = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'motorbus1',
                       addr = 153,
                       slope = 43.3,
@@ -352,7 +352,7 @@ devices = dict(
                     ),
 
 # CU111 FOcusing
-    st_mfhcu1 = device('devices.vendor.ipc.Motor',
+    st_mfhcu1 = device('nicos.devices.vendor.ipc.Motor',
                        bus = 'motorbus7',
                        addr = 74,
                        slope = -152.7,
@@ -364,7 +364,7 @@ devices = dict(
                        confbyte = 44,
                       ),
 
-    co_mfhcu1 = device('devices.vendor.ipc.Coder',
+    co_mfhcu1 = device('nicos.devices.vendor.ipc.Coder',
                        bus = 'motorbus1',
                        addr = 152,
                        slope = -33.6,
@@ -387,7 +387,7 @@ devices = dict(
                      loopdelay = 2,
                     ),
 
-    st_mfvcu1 = device('devices.vendor.ipc.Motor',
+    st_mfvcu1 = device('nicos.devices.vendor.ipc.Motor',
                        bus = 'motorbus7',
                        addr = 75,
                        slope = 380.5,
@@ -398,7 +398,7 @@ devices = dict(
                        confbyte = 44,
                       ),
 
-    co_mfvcu1 = device('devices.vendor.ipc.Coder',
+    co_mfvcu1 = device('nicos.devices.vendor.ipc.Coder',
                        bus = 'motorbus1',
                        addr = 153,
                        slope = 42.1,
@@ -422,7 +422,7 @@ devices = dict(
                    ),
 # Tilt and Translation
 
-    st_mty = device('devices.vendor.ipc.Motor',
+    st_mty = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus7',
                     addr = 71,
                     slope = 200,
@@ -433,7 +433,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    co_mty = device('devices.vendor.ipc.Coder',
+    co_mty = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
                     addr = 151,
                     slope = 36.37,
@@ -442,7 +442,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    mty    = device('devices.generic.Axis',
+    mty    = device('nicos.devices.generic.Axis',
                     description = 'Translation of Monochromator (corrects '
                                   'depth of crystals',
                     motor = 'st_mty',
@@ -454,7 +454,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    st_mgx = device('devices.vendor.ipc.Motor',
+    st_mgx = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus7',
                     addr = 73,
                     slope = 400,
@@ -465,7 +465,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    mgx   = device('devices.generic.Axis',
+    mgx   = device('nicos.devices.generic.Axis',
                    description = 'tilt of monochromator (up/down)',
                    motor = 'st_mgx',
                    coder = 'st_mgx',
@@ -476,7 +476,7 @@ devices = dict(
                    backlash = 0.25,
                   ),
 
-    st_mgy = device('devices.vendor.ipc.Motor',
+    st_mgy = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus7',
                     addr = 72,
                     slope = -400,
@@ -487,7 +487,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-    mgy   = device('devices.generic.Axis',
+    mgy   = device('nicos.devices.generic.Axis',
                    description = 'tilt of monochromator',
                    motor = 'st_mgy',
                    coder = 'st_mgy',

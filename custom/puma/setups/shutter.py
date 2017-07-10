@@ -8,7 +8,7 @@ includes = ['system', 'motorbus5']
 
 devices = dict(
 
-   io_sw1 = device('devices.vendor.ipc.Input',
+   io_sw1 = device('nicos.devices.vendor.ipc.Input',
                    bus = 'motorbus5',
                    addr = 107,
                    first = 0,
@@ -17,7 +17,7 @@ devices = dict(
                    unit = '',
                   ),
 
-   io_air1 = device('devices.vendor.ipc.Output',
+   io_air1 = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus5',
                     addr = 117,
                     first = 0,
@@ -26,7 +26,7 @@ devices = dict(
                     unit = '',
                    ),
 
-   io_pos1 = device('devices.vendor.ipc.Output',
+   io_pos1 = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus5',
                     addr = 117,
                     first = 3,
@@ -57,7 +57,7 @@ devices = dict(
                    timeout = 10,
                 ),
 
-   io_sw2 = device('devices.vendor.ipc.Input',
+   io_sw2 = device('nicos.devices.vendor.ipc.Input',
                    bus = 'motorbus5',
                    addr = 107,
                    first = 3,
@@ -66,7 +66,7 @@ devices = dict(
                    unit = '',
                   ),
 
-   io_air2 = device('devices.vendor.ipc.Output',
+   io_air2 = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus5',
                     addr = 117,
                     first = 1,
@@ -75,7 +75,7 @@ devices = dict(
                     unit = '',
                    ),
 
-   io_pos2 = device('devices.vendor.ipc.Output',
+   io_pos2 = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus5',
                     addr = 117,
                     first = 4,
@@ -108,7 +108,7 @@ devices = dict(
                    timeout = 10,
                   ),
 
-   io_sw3 = device('devices.vendor.ipc.Input',
+   io_sw3 = device('nicos.devices.vendor.ipc.Input',
                    bus = 'motorbus5',
                    addr = 107,
                    first = 8,
@@ -117,7 +117,7 @@ devices = dict(
                    unit = '',
                   ),
 
-   io_air3 = device('devices.vendor.ipc.Output',
+   io_air3 = device('nicos.devices.vendor.ipc.Output',
                    bus = 'motorbus5',
                    addr = 117,
                    first = 2,
@@ -126,7 +126,7 @@ devices = dict(
                    unit = '',
                   ),
 
-   io_pos3 = device('devices.vendor.ipc.Output',
+   io_pos3 = device('nicos.devices.vendor.ipc.Output',
                    bus = 'motorbus5',
                    addr = 117,
                    first = 7,

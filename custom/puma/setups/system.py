@@ -12,12 +12,12 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 includes = ['notifiers']
 
 devices = dict(
-    puma   = device('devices.instrument.Instrument',
+    puma   = device('nicos.devices.instrument.Instrument',
                     description = 'DAS PUMA',
                     instrument = 'PUMA',
                     responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
@@ -39,10 +39,10 @@ devices = dict(
                     mailsender = 'puma@frm2.tum.de',
                     serviceexp = 'service',
                    ),
-    Sample = device('devices.tas.TASSample',
+    Sample = device('nicos.devices.tas.TASSample',
                     description = 'Currently used Sample',
                    ),
-    filesink   = device('devices.datasinks.AsciiScanfileSink',
+    filesink   = device('nicos.devices.datasinks.AsciiScanfileSink',
                         description = 'metadevice storing the scanfiles',
                         filenametemplate = ['%(proposal)s_'
                                             '%(scancounter)08d.dat',
@@ -50,10 +50,10 @@ devices = dict(
                                             '%(proposal)s_'
                                             '%(scancounter)08d.dat'],
                        ),
-    conssink   = device('devices.datasinks.ConsoleScanSink',
+    conssink   = device('nicos.devices.datasinks.ConsoleScanSink',
                         description = 'handles console output',
                        ),
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         description = 'handles I/O inside daemon',
                        ),
 )

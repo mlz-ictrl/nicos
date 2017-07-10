@@ -7,7 +7,7 @@ group = 'optional'
 includes = ['motorbus1', 'motorbus2', 'motorbus5']
 
 devices = dict(
-    st_echi= device('devices.vendor.ipc.Motor',
+    st_echi= device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus2',
                     addr = 61,
                     slope = 200,
@@ -17,7 +17,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_echi= device('devices.vendor.ipc.Coder',
+    co_echi= device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
                     addr = 132,
                     slope = -8192.5,
@@ -26,7 +26,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    echi   = device('devices.generic.Axis',
+    echi   = device('nicos.devices.generic.Axis',
                     description = 'Chi Angle of the eulerian gradle',
                     motor = 'st_echi',
                     coder = 'co_echi',
@@ -38,7 +38,7 @@ devices = dict(
                    ),
 
 
-    st_ephi= device('devices.vendor.ipc.Motor',
+    st_ephi= device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus5',
                     addr = 84,
                     slope = -200,
@@ -48,7 +48,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_ephi= device('devices.vendor.ipc.Coder',
+    co_ephi= device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
                     addr = 133,
                     slope = 4096,
@@ -58,7 +58,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    ephi   = device('devices.generic.Axis',
+    ephi   = device('nicos.devices.generic.Axis',
                     description = 'Phi Angle of the eulerian gradle',
                     motor = 'st_ephi',
                     coder = 'co_ephi',

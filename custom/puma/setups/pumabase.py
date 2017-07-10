@@ -4,7 +4,7 @@ description = 'basic PUMA triple-axis setup'
 includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor',
             'shutter']
 
-modules = ['commands.tas']
+modules = ['nicos.commands.tas']
 
 group = 'lowlevel'
 
@@ -28,7 +28,7 @@ devices = dict(
                     axiscoupling = True,
                    ),
 
-    ki = device('devices.tas.Wavevector',
+    ki = device('nicos.devices.tas.Wavevector',
                 description = 'initial wavevector',
                 unit = 'A-1',
                 base = 'mono',
@@ -36,7 +36,7 @@ devices = dict(
                 scanmode = 'CKI',
                ),
 
-    kf = device('devices.tas.Wavevector',
+    kf = device('nicos.devices.tas.Wavevector',
                 description = 'final wavevector',
                 unit = 'A-1',
                 base = 'ana',
@@ -44,7 +44,7 @@ devices = dict(
                 scanmode = 'CKF'
                ),
 
-    Ei = device('devices.tas.Energy',
+    Ei = device('nicos.devices.tas.Energy',
                 description = 'initial energy',
                 unit = 'meV',
                 base = 'mono',
@@ -52,7 +52,7 @@ devices = dict(
                 scanmode = 'CKI'
                ),
 
-    Ef = device('devices.tas.Energy',
+    Ef = device('nicos.devices.tas.Energy',
                 description = 'final energy',
                 unit = 'meV',
                 base = 'ana',
@@ -60,12 +60,12 @@ devices = dict(
                 scanmode = 'CKF',
                ),
 
-    mono   = device('devices.generic.DeviceAlias',
+    mono   = device('nicos.devices.generic.DeviceAlias',
                     alias = 'mono_pg002',
-                    devclass = 'devices.tas.Monochromator',
+                    devclass = 'nicos.devices.tas.Monochromator',
                    ),
 
-    mono_pg002 = device('devices.tas.Monochromator',
+    mono_pg002 = device('nicos.devices.tas.Monochromator',
                         description = 'PG-002 monochromator',
                         order = 1,
                         unit = 'A-1',
@@ -85,7 +85,7 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-    mono_cu220 = device('devices.tas.Monochromator',
+    mono_cu220 = device('nicos.devices.tas.Monochromator',
                         description = 'Cu-220 monochromator',
                         order = 1,
                         unit = 'A-1',
@@ -103,7 +103,7 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-    mono_cu111 = device('devices.tas.Monochromator',
+    mono_cu111 = device('nicos.devices.tas.Monochromator',
                         description = 'Cu-111 monochromator',
                         order = 1,
                         unit = 'A-1',
@@ -121,7 +121,7 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-    mono_ge311 = device('devices.tas.Monochromator',
+    mono_ge311 = device('nicos.devices.tas.Monochromator',
                         description = 'Ge-311 monochromator',
                         order = 1,
                         unit = 'A-1',
@@ -138,13 +138,13 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-    ana        = device('devices.generic.DeviceAlias',
+    ana        = device('nicos.devices.generic.DeviceAlias',
                         description  = 'analyser alias device',
                         alias = 'ana_pg002',
-                        devclass = 'devices.tas.Monochromator',
+                        devclass = 'nicos.devices.tas.Monochromator',
                        ),
 
-    ana_pg002  = device('devices.tas.Monochromator',
+    ana_pg002  = device('nicos.devices.tas.Monochromator',
                         description = 'PG-002 analyzer',
                         unit = 'A-1',
                         theta = 'ath',
@@ -159,7 +159,7 @@ devices = dict(
                         crystalside = -1,
                        ),
 
-    ana_ge311  = device('devices.tas.Monochromator',
+    ana_ge311  = device('nicos.devices.tas.Monochromator',
                         description = 'Ge-311 analyzer',
                         order = 1,
                         unit = 'A-1',

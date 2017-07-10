@@ -6,7 +6,7 @@ description = 'Sample table'
 includes = ['motorbus1', 'motorbus2', 'motorbus4', 'motorbus5', 'motorbus3']
 
 devices = dict(
-    st_phi = device('devices.vendor.ipc.Motor',
+    st_phi = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus4',
                     addr = 53,
                     slope = 400,
@@ -24,7 +24,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_phi = device('devices.vendor.ipc.Coder',
+    co_phi = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
                     addr = 128,
                     slope = -(2**26)/360.,
@@ -35,7 +35,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    phi    = device('devices.generic.Axis',
+    phi    = device('nicos.devices.generic.Axis',
                     description = 'Sample scattering angle Two Theta',
                     motor = 'st_phi',
                     coder = 'co_phi',
@@ -62,7 +62,7 @@ devices = dict(
     #              iscomb = False,
     #             ),
 
-    st_psi  = device('devices.vendor.ipc.Motor',
+    st_psi  = device('nicos.devices.vendor.ipc.Motor',
                      bus = 'motorbus2',
                      addr = 58,
                      slope = -400,
@@ -80,7 +80,7 @@ devices = dict(
                      ramptype = 1,
                     ),
 
-    co_psi  = device('devices.vendor.ipc.Coder',
+    co_psi  = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'motorbus1',
                      addr = 129,
                      slope = -(2**20)/360.,
@@ -91,7 +91,7 @@ devices = dict(
                      confbyte = 148,
                     ),
 
-    psi_puma  = device('devices.generic.Axis',
+    psi_puma  = device('nicos.devices.generic.Axis',
                        description = 'Sample rocking angle Theta',
                        motor = 'st_psi',
                        coder = 'co_psi',
@@ -102,19 +102,19 @@ devices = dict(
                        maxtries = 5,
                       ),
 
-     psi    = device('devices.generic.DeviceAlias',
+     psi    = device('nicos.devices.generic.DeviceAlias',
                      description  = 'Sample rocking angle Theta',
                      alias = 'psi_puma',
 # when magnet is on :
                      # alias = 'sth_m7T5_ccr',
-                     devclass = 'devices.generic.Axis',
+                     devclass = 'nicos.devices.generic.Axis',
 # when magnet is on :
-                     # devclass = 'devices.taco.Axis',
+                     # devclass = 'nicos.devices.taco.Axis',
                     ),
 
 # Tilting
 
-    st_sgx = device('devices.vendor.ipc.Motor',
+    st_sgx = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 64, #67
                     slope = -3200,
@@ -124,7 +124,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    st_sgy = device('devices.vendor.ipc.Motor',
+    st_sgy = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 65, #68
                     slope = -3200,
@@ -134,7 +134,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_sgx = device('devices.vendor.ipc.Coder',
+    co_sgx = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus3',
                     addr = 70,
                     slope = -8192,
@@ -144,7 +144,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_sgy = device('devices.vendor.ipc.Coder',
+    co_sgy = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus3',
                     addr = 71,
                     slope = -8192,
@@ -154,7 +154,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    sgx    = device('devices.generic.Axis',
+    sgx    = device('nicos.devices.generic.Axis',
                     description = 'Sample tilt around X',
                     motor = 'st_sgx',
                     coder = 'co_sgx',
@@ -165,7 +165,7 @@ devices = dict(
                     maxtries = 5,
                    ),
 
-    sgy    = device('devices.generic.Axis',
+    sgy    = device('nicos.devices.generic.Axis',
                     description = 'Sample tilt around Y',
                     motor = 'st_sgy',
                     coder = 'co_sgy',
@@ -178,7 +178,7 @@ devices = dict(
 
 # Translation
 
-    st_stx = device('devices.vendor.ipc.Motor',
+    st_stx = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 66,
                     slope = -6030.6, #2017.07.04
@@ -190,7 +190,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    st_sty = device('devices.vendor.ipc.Motor',
+    st_sty = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 67, #65
                     slope = -6250.0, #2015.03.09,
@@ -202,7 +202,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_stx = device('devices.vendor.ipc.Coder',
+    co_stx = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus3',
                     addr = 74,
                     slope = -194.53,    #2015.02.20
@@ -211,7 +211,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_sty = device('devices.vendor.ipc.Coder',
+    co_sty = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus3',
                     addr = 75,
                     slope = -189,
@@ -220,7 +220,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    stx    = device('devices.generic.Axis',
+    stx    = device('nicos.devices.generic.Axis',
                     description = 'Sample translation along X',
                     motor = 'st_stx',
                     coder = 'co_stx',
@@ -233,7 +233,7 @@ devices = dict(
                     abslimits = (-18.1, 18.1),
                    ),
 
-    sty    = device('devices.generic.Axis',
+    sty    = device('nicos.devices.generic.Axis',
                     description = 'Sample translation along Y',
                     motor = 'st_sty',
                     coder = 'co_sty',
@@ -245,7 +245,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    st_stz = device('devices.vendor.ipc.Motor',
+    st_stz = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 68, #64
                     slope = -22400,
@@ -256,7 +256,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    co_stz = device('devices.vendor.ipc.Coder',
+    co_stz = device('nicos.devices.vendor.ipc.Coder',
                     bus = 'motorbus3',
                     addr = 76,
                     slope = 190,
@@ -265,7 +265,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    stz    = device('devices.generic.Axis',
+    stz    = device('nicos.devices.generic.Axis',
                     description = 'Sample translation along Z',
                     motor = 'st_stz',
                     coder = 'co_stz',

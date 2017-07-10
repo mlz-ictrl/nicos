@@ -135,7 +135,7 @@ _rightcolumn = Column(_shutterblock, _tempblock)
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'pumahw.puma.frm2:14869',

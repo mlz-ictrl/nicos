@@ -129,7 +129,7 @@ _rightcolumn = Column(_shutterblock, _tempblock)
 
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'PUMA status monitor',
                      filename='/pumacontrol2/webroot/index.html',
                      interval = 10,

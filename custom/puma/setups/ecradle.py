@@ -8,7 +8,7 @@ includes = ['system', 'motorbus2', 'motorbus5']
 excludes = ['euler']
 
 devices = dict(
-    st_echi    = device('devices.vendor.ipc.Motor',
+    st_echi    = device('nicos.devices.vendor.ipc.Motor',
                         bus = 'motorbus2',
                         addr = 61,
                         slope = 200,
@@ -18,7 +18,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    co_echi    = device('devices.vendor.ipc.Coder',
+    co_echi    = device('nicos.devices.vendor.ipc.Coder',
                         bus = 'motorbus1',
                         addr = 130,
                         slope = -8192,
@@ -29,7 +29,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    echi   = device('devices.generic.Axis',
+    echi   = device('nicos.devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_echi',
                     coder = 'co_echi',
@@ -42,7 +42,7 @@ devices = dict(
                    ),
 
 
-    st_echi1   = device('devices.vendor.ipc.Motor',
+    st_echi1   = device('nicos.devices.vendor.ipc.Motor',
                         bus = 'motorbus2',
                         addr = 61,
                         slope = 1,
@@ -52,7 +52,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    echi1  = device('devices.generic.Axis',
+    echi1  = device('nicos.devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_echi1',
                     coder = 'st_echi1',
@@ -65,7 +65,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    st_ephi    = device('devices.vendor.ipc.Motor',
+    st_ephi    = device('nicos.devices.vendor.ipc.Motor',
                         bus = 'motorbus5',
                         addr = 84,
                         slope = -100,
@@ -76,7 +76,7 @@ devices = dict(
                        ),
 
 
-    co_ephi    = device('devices.vendor.ipc.Coder',
+    co_ephi    = device('nicos.devices.vendor.ipc.Coder',
                         bus = 'motorbus1',
                         addr = 136,
                         slope = 4096,
@@ -87,7 +87,7 @@ devices = dict(
                         confbyte = 148,
                        ),
 
-    ephi   = device('devices.generic.Axis',
+    ephi   = device('nicos.devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_ephi',
                     coder = 'co_ephi',
@@ -98,7 +98,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    st_ephi1   = device('devices.vendor.ipc.Motor',
+    st_ephi1   = device('nicos.devices.vendor.ipc.Motor',
                         bus = 'motorbus5',
                         addr = 84,
                         slope = 1,
@@ -108,7 +108,7 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    ephi1  = device('devices.generic.Axis',
+    ephi1  = device('nicos.devices.generic.Axis',
                     description = 'euler cradle rotation',
                     motor = 'st_ephi1',
                     coder = 'st_ephi1',
@@ -119,7 +119,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    ec = device('devices.tas.ecradle.EulerianCradle',
+    ec = device('nicos.devices.tas.ecradle.EulerianCradle',
                 description = 'Eulerian cradle',
                 cell = 'Sample',
                 tas = 'puma',

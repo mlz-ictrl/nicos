@@ -8,7 +8,7 @@ includes = ['system', 'motorbus6', 'motorbus9']
 
 devices = dict(
 
-   att_sw = device('devices.vendor.ipc.Input',
+   att_sw = device('nicos.devices.vendor.ipc.Input',
                    bus = 'motorbus9',
                    addr = 104,
                    first = 0,
@@ -16,7 +16,7 @@ devices = dict(
                    lowlevel = True,
                    unit = '',
                   ),
-   att_press = device('devices.vendor.ipc.Input',
+   att_press = device('nicos.devices.vendor.ipc.Input',
                       bus = 'motorbus9',
                       addr = 103,
                       first = 13,
@@ -24,7 +24,7 @@ devices = dict(
                       lowlevel = True,
                       unit = '',
                      ),
-   att_set = device('devices.vendor.ipc.Output',
+   att_set = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus9',
                     addr = 114,
                     first = 3,
@@ -42,7 +42,7 @@ devices = dict(
                 unit = 'mm',
                ),
 
-    # fpg_sw = device('devices.vendor.ipc.Input',
+    # fpg_sw = device('nicos.devices.vendor.ipc.Input',
     #                 bus = 'motorbus6',
     #                 addr = 111,
     #                 first = 12,
@@ -51,7 +51,7 @@ devices = dict(
     #                 unit = ''
     #                ),
 
-    # fpg_set = device('devices.vendor.ipc.Output',
+    # fpg_set = device('nicos.devices.vendor.ipc.Output',
     #                  bus = 'motorbus6',
     #                  addr = 103,
     #                  first = 0,
@@ -79,7 +79,7 @@ devices = dict(
     #               unit = ''
     #              ),
 
-   uni_sw = device('devices.vendor.ipc.IPCSwitches',
+   uni_sw = device('nicos.devices.vendor.ipc.IPCSwitches',
                    description = 'Switches of the lift axis card',
                    bus = 'motorbus6',
                    addr = 70,
@@ -87,7 +87,7 @@ devices = dict(
                    lowlevel = True,
                   ),
 
-   uni_st = device('devices.vendor.ipc.Motor',
+   uni_st = device('nicos.devices.vendor.ipc.Motor',
                    description = 'Motor of the lift axis?',
                    bus = 'motorbus6',
                    addr = 70,

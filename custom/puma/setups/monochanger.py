@@ -12,7 +12,7 @@ magazinpos  = [(315.4, 8),   (45.46, 1),  (135.4, 2),   (225.4, 4)]
 
 
 devices = dict(
-    st_lift = device('devices.vendor.ipc.Motor',
+    st_lift = device('nicos.devices.vendor.ipc.Motor',
                      description = 'Motor of the monochromator lift',
                      bus = 'motorbus4',
                      addr = 51,
@@ -24,7 +24,7 @@ devices = dict(
                      confbyte = 52,
                     ),
 
-    co_lift = device('devices.vendor.ipc.Coder',
+    co_lift = device('nicos.devices.vendor.ipc.Coder',
                      description = 'Potentiometer coder of the monochromator' \
                                    ' lift',
                      bus = 'motorbus1',
@@ -36,7 +36,7 @@ devices = dict(
                      readings = 50,
                     ),
 
-    mli    = device('devices.generic.Axis',
+    mli    = device('nicos.devices.generic.Axis',
                     description = 'Axis for the monochromater changer lift',
                     motor = 'st_lift',
                     coder = 'co_lift',
@@ -49,7 +49,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-    sw_lift = device('devices.vendor.ipc.IPCSwitches',
+    sw_lift = device('nicos.devices.vendor.ipc.IPCSwitches',
                      description = 'Switches of the lift axis card',
                      bus = 'motorbus4',
                      addr = 51,
@@ -74,7 +74,7 @@ devices = dict(
 
 
 # Magazin
-    st_mag = device('devices.vendor.ipc.Motor',
+    st_mag = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus7',
                     addr = 76,
                     slope = 200,
@@ -85,7 +85,7 @@ devices = dict(
                     confbyte = 44,
                    ),
 
-#    co_mag = device('devices.vendor.ipc.Coder',
+#    co_mag = device('nicos.devices.vendor.ipc.Coder',
 #                    bus = 'motorbus1',
 #                    addr = 123,
 #                    slope = 181.97,
@@ -94,7 +94,7 @@ devices = dict(
 #                    lowlevel = True,
 #                   ),
 
-    mag    = device('devices.generic.Axis',
+    mag    = device('nicos.devices.generic.Axis',
                     description = 'monochromator magazin moving axis',
                     motor = 'st_mag',
                     coder = 'st_mag',
@@ -107,7 +107,7 @@ devices = dict(
                     lowlevel = False,
                    ),
 
-    io_mag = device('devices.vendor.ipc.Input',
+    io_mag = device('nicos.devices.vendor.ipc.Input',
                     bus = 'motorbus9',
                     addr = 106,
                     first = 3,
@@ -129,7 +129,7 @@ devices = dict(
                     ),
 
 # Magnetic Lock
-    mlock_op = device('devices.vendor.ipc.Input',
+    mlock_op = device('nicos.devices.vendor.ipc.Input',
                       bus = 'motorbus9',
                       addr = 101,
                       first = 0,
@@ -138,7 +138,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mlock_cl = device('devices.vendor.ipc.Input',
+    mlock_cl = device('nicos.devices.vendor.ipc.Input',
                       bus = 'motorbus9',
                       addr = 101,
                       first = 5,
@@ -147,7 +147,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    mlock_set = device('devices.vendor.ipc.Output',
+    mlock_set = device('nicos.devices.vendor.ipc.Output',
                        bus = 'motorbus9',
                        addr = 110,
                        first = 0,
@@ -166,7 +166,7 @@ devices = dict(
                      unit = '',
                     ),
 # Greifer (grip)
-    gr_stat = device('devices.vendor.ipc.Input',
+    gr_stat = device('nicos.devices.vendor.ipc.Input',
                      bus = 'motorbus9',
                      addr = 101,
                      first = 14,
@@ -175,7 +175,7 @@ devices = dict(
                      lowlevel = True,
                     ),
 
-    gr_set = device('devices.vendor.ipc.Output',
+    gr_set = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus9',
                     addr = 110,
                     first = 5,
@@ -197,7 +197,7 @@ devices = dict(
                  ),
 
 # 3R coupling
-    r3_set = device('devices.vendor.ipc.Output',
+    r3_set = device('nicos.devices.vendor.ipc.Output',
                     bus = 'motorbus9',
                     addr = 110,
                     first = 4,
@@ -207,7 +207,7 @@ devices = dict(
                    ),
 
 
-    r3   =  device('devices.generic.Switcher',
+    r3   =  device('nicos.devices.generic.Switcher',
                    description = 'R3 coupling holding monochromators',
                    moveable = 'r3_set',
                    mapping = dict(closed=0, open=1),
@@ -217,7 +217,7 @@ devices = dict(
                   ),
 
 # holdstat
-    holdstat_io = device('devices.vendor.ipc.Input',
+    holdstat_io = device('nicos.devices.vendor.ipc.Input',
                          bus = 'motorbus9',
                          addr = 101,
                          first = 9,
@@ -226,14 +226,14 @@ devices = dict(
                          lowlevel = True,
                         ),
 
-    holdstat = device('devices.generic.ReadonlySwitcher',
+    holdstat = device('nicos.devices.generic.ReadonlySwitcher',
                       description = 'What is in the holder position',
                       # monostates has five elements ! (last one is for 'none')
                       mapping = dict(zip(monostates, [14, 13, 11, 7, 15])),
                       readable = 'holdstat_io',
                      ),
 # holdstat
-    monostat_io = device('devices.vendor.ipc.Input',
+    monostat_io = device('nicos.devices.vendor.ipc.Input',
                          bus = 'motorbus9',
                          addr = 106,
                          first = 0,
@@ -242,7 +242,7 @@ devices = dict(
                          lowlevel = True,
                         ),
 
-    mono_stat = device('devices.generic.ReadonlySwitcher',
+    mono_stat = device('nicos.devices.generic.ReadonlySwitcher',
                        description = 'What is at the monotable',
                        # monostates has five elements ! (last one is for 'none'). Unfortunately, Dummy (like 'none') returns 0
                        mapping = dict(zip(monostates, [4, 1, 2, 3, 0])),
@@ -277,7 +277,7 @@ devices = dict(
                       unit = '',
                      ),
 
-    mono_dummy = device('devices.tas.Monochromator',
+    mono_dummy = device('nicos.devices.tas.Monochromator',
                         description = 'Dummy monochromator, DONT USE FOR EXPERIMENTS!',
                         order = 1,
                         unit = 'A-1',

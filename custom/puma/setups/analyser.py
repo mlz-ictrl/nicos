@@ -8,7 +8,7 @@ group = 'lowlevel'
 
 devices = dict(
 # Att and ATH
-    st_att = device('devices.vendor.ipc.Motor',
+    st_att = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 60,
                     slope = -267.8,
@@ -21,7 +21,7 @@ devices = dict(
                     stopdelay = 2,
                    ),
 
-    st_ath = device('devices.vendor.ipc.Motor',
+    st_ath = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 59,
                     slope = -400,
@@ -51,7 +51,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    att = device('devices.generic.Axis',
+    att = device('nicos.devices.generic.Axis',
                  description = 'Scattering angle two-theta of analyser',
                  motor = 'st_att',
                  coder = 'co_att',
@@ -64,7 +64,7 @@ devices = dict(
                  maxtries = 30,
                 ),
 
-    ath = device('devices.generic.Axis',
+    ath = device('nicos.devices.generic.Axis',
                  description = 'Rocking angle theta of analyser',
                  motor = 'st_ath',
                  coder = 'co_ath',
@@ -145,7 +145,7 @@ devices = dict(
 
 # Tilt and Translation
 
-   st_atx = device('devices.vendor.ipc.Motor',
+   st_atx = device('nicos.devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 64,
                    slope = -2500,
@@ -164,7 +164,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    atx    = device('devices.generic.Axis',
+    atx    = device('nicos.devices.generic.Axis',
                     description = 'Translation of analyser',
                     motor = 'st_atx',
                     coder = 'co_atx',
@@ -175,7 +175,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-   st_aty = device('devices.vendor.ipc.Motor',
+   st_aty = device('nicos.devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 63,
                    slope = -2500,
@@ -195,7 +195,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    aty    = device('devices.generic.Axis',
+    aty    = device('nicos.devices.generic.Axis',
                     description = 'Translation of analyser (corrects depth of pg-crystals)',
                     motor = 'st_aty',
                     coder = 'co_aty',
@@ -206,7 +206,7 @@ devices = dict(
                     loopdelay = 1,
                    ),
 
-   st_agx = device('devices.vendor.ipc.Motor',
+   st_agx = device('nicos.devices.vendor.ipc.Motor',
                    bus = 'motorbus6',
                    addr = 62,
                    slope = -5000,
@@ -216,7 +216,7 @@ devices = dict(
                    lowlevel = True,
                   ),
 
-    agx   = device('devices.generic.Axis',
+    agx   = device('nicos.devices.generic.Axis',
                     description = 'Tilt of analyser (up/down scattering)',
                     motor = 'st_agx',
                     coder = 'st_agx',
@@ -227,7 +227,7 @@ devices = dict(
                     backlash = 0.2,
                    ),
 
-    st_agy = device('devices.vendor.ipc.Motor',
+    st_agy = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 61,
                     slope = 5000,
@@ -237,7 +237,7 @@ devices = dict(
                     lowlevel = True,
                    ),
 
-    agy   = device('devices.generic.Axis',
+    agy   = device('nicos.devices.generic.Axis',
                    description = 'Tilt of analyser',
                    motor = 'st_agy',
                    coder = 'st_agy',
@@ -266,7 +266,7 @@ devices = dict(
                       lowlevel = True,
                      ),
 
-    dslit   = device('devices.generic.Axis',
+    dslit   = device('nicos.devices.generic.Axis',
                      description = 'Slit before detector',
                      motor = 'st_dslit',
                      coder = 'co_dslit',
