@@ -10,7 +10,7 @@ devices = dict(
         description = 'Osci at coil, peak to peak measurement',
         tangodevice = '%s/cbox/osci_pk2pk' % tango_base,
         pollinterval = 1,
-        ),
+    ),
     fg_frequency = device('nicos.devices.tango.AnalogOutput',
         description = 'Frequency generator amplitude',
         tangodevice = '%s/cbox/fg_freq' % tango_base,
