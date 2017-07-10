@@ -22,7 +22,6 @@
 
 .. autoclass:: Coder()
 .. autoclass:: Motor()
-.. autoclass:: SlitMotor()
 
 .. automodule:: nicos.puma.maglock
 
