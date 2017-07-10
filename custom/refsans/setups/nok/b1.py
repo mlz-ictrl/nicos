@@ -13,7 +13,7 @@ devices = dict(
     # beckhoff is at 'optic.refsans.frm2' / 172.25.18.115
     # Blendenschild reactor side
     # lt. docu bs0_r
-    b1_rm   = device('refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
+    b1_rm   = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
                      description = 'CAB1 controlled Blendenschild (M01), reactorside',
                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                      address = 0x3020+0*10, # word adress
@@ -35,7 +35,7 @@ devices = dict(
 
     # Blendenschild sample side
     # lt. docu bs0_s
-    b1_sm    = device('refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
+    b1_sm    = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorCab1M0x',
                       description = 'CAB1 controlled Blendenschild (M02), sample side',
                       tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+1*10, # word adress

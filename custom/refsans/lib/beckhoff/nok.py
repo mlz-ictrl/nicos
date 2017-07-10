@@ -37,7 +37,7 @@ from nicos.devices.abstract import CanReference, Motor, Coder
 from nicos.devices.taco.core import TacoDevice
 
 
-from nicos.refsans.params import motoraddress
+from nicos_mlz.refsans.params import motoraddress
 
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
 # according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf '

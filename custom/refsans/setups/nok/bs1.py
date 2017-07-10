@@ -10,7 +10,7 @@ devices = dict(
 # masks:
 # 2010-06-15 10:42:09 (slit)
 # 12.01.2010 10:35:26 (k1)
-    bs1        = device('refsans.nok_support.DoubleMotorNOK',
+    bs1        = device('nicos_mlz.refsans.nok_support.DoubleMotorNOK',
                         description = 'BS1 double between nok8 and nok9',
                         nok_start = 9764.5,
                         nok_length = 6.0,
@@ -77,7 +77,7 @@ devices = dict(
                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    bs1r_motor = device('refsans.nok_support.NOKMotorIPC',
+    bs1r_motor = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
                         description = 'IPC controlled Motor of BS1, reactor side',
                         abslimits = (-323.075, 458.17375),
                         userlimits = (-178.0, -0.7),
@@ -95,7 +95,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    bs1r_obs   = device('refsans.nok_support.NOKPosition',
+    bs1r_obs   = device('nicos_mlz.refsans.nok_support.NOKPosition',
                         description = 'Position sensing for BS1, reactor side',
                         reference = 'nok_refc2',
                         measure = 'bs1r_poti',
@@ -106,7 +106,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    bs1r_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+    bs1r_poti  = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
                         description = 'Poti for BS1, reactor side',
                         tacodevice = '//%s/test/wb_c/2_1' % nethost,
                         scale = 1,   # mounted from bottom
@@ -162,7 +162,7 @@ devices = dict(
                       ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    bs1s_motor = device('refsans.nok_support.NOKMotorIPC',
+    bs1s_motor = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
                         description = 'IPC controlled Motor of BS1, sample side',
                         abslimits = (-177.315, 142.685),
                         userlimits = (-177.002, 139.998),
@@ -180,7 +180,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    bs1s_obs   = device('refsans.nok_support.NOKPosition',
+    bs1s_obs   = device('nicos_mlz.refsans.nok_support.NOKPosition',
                         description = 'Position sensing for BS1, sample side',
                         reference = 'nok_refc2',
                         measure = 'bs1s_poti',
@@ -191,7 +191,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    bs1s_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+    bs1s_poti  = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
                         description = 'Poti for BS1, sample side',
                         tacodevice = '//%s/test/wb_c/2_2' % nethost,
                         scale = 1,   # mounted from bottom

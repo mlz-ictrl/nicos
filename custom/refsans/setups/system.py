@@ -49,7 +49,7 @@ devices = dict(
                         description = 'The daemon Device, coordinating all the heavy lifting',
                        ),
 
-    configsink = device('refsans.datasinks.ConfigObjDatafileSink',
+    configsink = device('nicos_mlz.refsans.datasinks.ConfigObjDatafileSink',
                         lowlevel = True,
                        ),
 

@@ -12,7 +12,7 @@ devices = dict(
     # according to '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
     # det_z is along the scattered beam (inside the tube)
     # beckhoff is at 'detektorantrieb.refsans.frm2' / 172.25.18.108
-    table_z_motor = device('refsans.beckhoff.nok.BeckhoffMotorDetector',
+    table_z_motor = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorDetector',
                            description = 'table inside tube',
                            tacodevice = '//%s/test/modbus/tablee'% (nethost,),
                            address = 0x3020+0*10, # word adress
@@ -23,7 +23,7 @@ devices = dict(
                            precision = 1,
                            lowlevel = True,
                           ),
-    table_z_obs = device('refsans.beckhoff.nok.BeckhoffCoderDetector',
+    table_z_obs = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffCoderDetector',
                          description = 'Coder of detector table inside tube',
                          tacodevice = '//%s/test/modbus/tablee'% (nethost,),
                          address = 0x3020+1*10, # word adress

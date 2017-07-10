@@ -10,7 +10,7 @@ devices = dict(
 # masks:
 # 12.01.2010 10:34:54 (k1)
 # 12.06.2009 16:22:34 centertest2 (slit)
-    zb3        = device('refsans.nok_support.DoubleMotorNOK',
+    zb3        = device('nicos_mlz.refsans.nok_support.DoubleMotorNOK',
                         description = 'ZB3',
                         nok_start = 8837.5,
                         nok_length = 13.0,
@@ -41,7 +41,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    zb3r_motor = device('refsans.nok_support.NOKMotorIPC',
+    zb3r_motor = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
                         description = 'IPC controlled Motor of ZB3, reactor side',
                         abslimits = (-677.125, 99.125),
                         userlimits = (-221.0, 95.0),
@@ -95,7 +95,7 @@ devices = dict(
                      ),
 
 # generated from global/inf/poti_tracing.inf
-    zb3r_obs   = device('refsans.nok_support.NOKPosition',
+    zb3r_obs   = device('nicos_mlz.refsans.nok_support.NOKPosition',
                         description = 'Position sensing for ZB3, reactor side',
                         reference = 'nok_refc1',
                         measure = 'zb3r_poti',
@@ -106,7 +106,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    zb3r_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+    zb3r_poti  = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
                         description = 'Poti for ZB3, reactor side',
                         tacodevice = '//%s/test/wb_c/1_2' % nethost,
                         scale = -1,  # mounted from top
@@ -162,7 +162,7 @@ devices = dict(
                      ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    zb3s_motor = device('refsans.nok_support.NOKMotorIPC',
+    zb3s_motor = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
                         description = 'IPC controlled Motor of ZB3, sample side',
                         abslimits = (-150.8125, 113.5625),
                         userlimits = (-106.0, 113.562),
@@ -180,7 +180,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    zb3s_obs   = device('refsans.nok_support.NOKPosition',
+    zb3s_obs   = device('nicos_mlz.refsans.nok_support.NOKPosition',
                         description = 'Position sensing for ZB3, sample side',
                         reference = 'nok_refc1',
                         measure = 'zb3s_poti',
@@ -191,7 +191,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    zb3s_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+    zb3s_poti  = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
                         description = 'Poti for ZB3, sample side',
                         tacodevice = '//%s/test/wb_c/1_3' % nethost,
                         scale = 1,   # mounted from bottom
