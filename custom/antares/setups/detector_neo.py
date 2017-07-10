@@ -9,7 +9,7 @@ includes = ['shutters', 'filesavers']
 tango_base = 'tango://antaresccd02.antares.frm2:10000/antares/'
 
 devices = dict(
-    timer_neo = device('devices.vendor.lima.LimaCCDTimer',
+    timer_neo = device('nicos.devices.vendor.lima.LimaCCDTimer',
         description = 'The camera\'s internal timer',
         tangodevice = tango_base + 'detector/limaccd',
     ),
@@ -24,7 +24,7 @@ devices = dict(
         rotation = 90,
         openfastshutter = False,
     ),
-    temp_neo = device('devices.vendor.lima.Andor3TemperatureController',
+    temp_neo = device('nicos.devices.vendor.lima.Andor3TemperatureController',
         description = 'The CMOS chip temperature',
         tangodevice = tango_base + 'detector/neo',
         maxage = 5,
@@ -34,12 +34,12 @@ devices = dict(
         precision = 3,
         fmtstr = '%.0f',
     ),
-    det_neo = device('devices.generic.Detector',
+    det_neo = device('nicos.devices.generic.Detector',
         description = 'The Andor Neo sCMOS camera detector',
         images = ['neo'],
         timers = ['timer_neo'],
     ),
-    socket_neo = device('devices.tango.NamedDigitalOutput',
+    socket_neo = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Powersocket 01 (Neo Camera attached)',
         tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
         'fzjdp_digital/Socket01',

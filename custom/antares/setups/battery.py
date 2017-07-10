@@ -7,7 +7,7 @@ includes = []
 nethost = '172.25.20.210'
 
 devices = dict(
-    T1 = device('devices.taco.TemperatureController',
+    T1 = device('nicos.devices.taco.TemperatureController',
         description = 'The control device to the sample',
         tacodevice = '//%s/mpfc/ls340/control1' % nethost,
         abslimits = (0, 300),
@@ -16,7 +16,7 @@ devices = dict(
         pollinterval = 5,
         maxage = 6,
     ),
-    T2 = device('devices.taco.TemperatureController',
+    T2 = device('nicos.devices.taco.TemperatureController',
         description = 'The control device to the sample',
         tacodevice = '//%s/mpfc/ls340/control2' % nethost,
         abslimits = (0, 300),

@@ -9,11 +9,11 @@ includes = ['shutters', 'filesavers']
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
-    timer_ikonl = device('devices.vendor.lima.LimaCCDTimer',
+    timer_ikonl = device('nicos.devices.vendor.lima.LimaCCDTimer',
         description = 'The camera\'s internal timer',
         tangodevice = tango_base + 'detector/limaccd',
     ),
-    det_ikonl = device('devices.generic.Detector',
+    det_ikonl = device('nicos.devices.generic.Detector',
         description = 'The Andor Neo sCMOS camera detector',
         images = ['ikonl'],
         timers = ['timer_ikonl'],
@@ -34,7 +34,7 @@ devices = dict(
         hsspeed = 1,
         pgain = 1,
     ),
-    temp_ikonl = device('devices.vendor.lima.Andor2TemperatureController',
+    temp_ikonl = device('nicos.devices.vendor.lima.Andor2TemperatureController',
         description = 'The CCD chip temperature',
         tangodevice = tango_base + 'detector/ikonl',
         maxage = 5,

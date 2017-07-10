@@ -8,7 +8,7 @@ includes = []
 
 
 devices = dict(
-    G0rz  = device('devices.tango.Motor',
+    G0rz  = device('nicos.devices.tango.Motor',
                    speed = 1,
                    unit = 'deg',
                    description = 'Rotation of G0 grating around beam direction',
@@ -19,7 +19,7 @@ devices = dict(
                    precision = 0.01,
                   ),
 
-    G0ry  = device('devices.tango.Motor',
+    G0ry  = device('nicos.devices.tango.Motor',
                    speed = 1,
                    unit = 'deg',
                    description = 'Rotation of G0 grating around vertical axis',
@@ -30,7 +30,7 @@ devices = dict(
                    precision = 0.01,
                   ),
 
-    G0tx  = device('devices.tango.Motor',
+    G0tx  = device('nicos.devices.tango.Motor',
                    speed = 0.5,
                    unit = 'mm',
                    description = 'Stepping of G0 perpendicular to the beam direction',
@@ -41,7 +41,7 @@ devices = dict(
                    precision = 0.01,
                   ),
 
-    G1rz  = device('devices.tango.Motor',
+    G1rz  = device('nicos.devices.tango.Motor',
                    speed = 0.2,
                    unit = 'deg',
                    description = 'Rotation of G1 grating around beam direction',
@@ -52,7 +52,7 @@ devices = dict(
                    precision = 0.0005,
                   ),
 
-    G1tz  = device('devices.tango.Motor',
+    G1tz  = device('nicos.devices.tango.Motor',
                    speed = 1,
                    unit = 'mm',
                    description = 'Translation of G1 in beam direction. (Talbot distance)',
@@ -63,7 +63,7 @@ devices = dict(
                    precision = 0.05,
                   ),
 
-    G12rz = device('devices.tango.Motor',
+    G12rz = device('nicos.devices.tango.Motor',
                    speed = 1,
                    unit = 'deg',
                    description = 'Rotation of G2 and G1 around beam axis',

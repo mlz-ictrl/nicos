@@ -187,7 +187,7 @@ _rightcolumn = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                       description = 'Status Display',
                       title = 'raspi02',
                       loglevel = 'info',

@@ -8,7 +8,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Poller = device('services.poller.Poller',
+    Poller = device('nicos.services.poller.Poller',
                      description = 'Device polling service',
                      alwayspoll = ['ubahn'],
                      neverpoll = [],

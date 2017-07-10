@@ -10,12 +10,12 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     # Collimator
-    collimator_io = device('devices.tango.DigitalOutput',
+    collimator_io = device('nicos.devices.tango.DigitalOutput',
         description = 'Tango device for Collimator',
         tangodevice = tango_base + 'fzjdp_digital/Collimator',
         lowlevel = True,
     ),
-    collimator = device('devices.generic.Switcher',
+    collimator = device('nicos.devices.generic.Switcher',
         description = 'Collimator, value is L/D',
         moveable = 'collimator_io',
         mapping = {
@@ -31,7 +31,7 @@ devices = dict(
         unit = 'L/D',
         precision = 0,
     ),
-    pinhole = device('devices.generic.Switcher',
+    pinhole = device('nicos.devices.generic.Switcher',
         description = 'Pinhole diameter',
         moveable = 'collimator_io',
         mapping = {
