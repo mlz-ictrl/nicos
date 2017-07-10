@@ -143,14 +143,65 @@ def _infostr(fn, args, kwargs):
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
-    The general syntax is either to give start, step and number of points:
+    A scan is used to collect data during the experiment depending on the
+    position of one or more devices:
 
-    >>> scan(dev, 0, 1, 11)   # scans from 0 to 10 in steps of 1.
+    - Move the devices to a new position, called a **point**, and wait until
+      all devices have reached their position.
+    - Start the detectors and wait until the requested time and/or monitor
+      counts, called a **preset**, are reached.
 
-    or a list of positions to scan:
+    The output is a sequence of detector data corresponding to the device
+    positions.
 
-    >>> scan(dev, [0, 1, 2, 3, 7, 8, 9])  # scans at the given positions.
+    The command has two basic modes:
 
+    - Equidistant steps between the points
+
+      A start value, the step size, and the number of points are given to the
+      command:
+
+      >>> scan(dev, 0, 1, 11)   # counts at positions from 0 to 10 in steps of 1
+
+      For scans *around* a center, use the `cscan()` command.
+
+    - A user defined list of points
+
+      Here, the command expects a list of points:
+
+      >>> scan(dev, [0, 1, 2, 3, 7, 8, 9])  # counts at the given positions
+
+    Instead of one device, the command also handles a list of devices that
+    should be moved for each step.  In this case, the start and step width
+    also have to be lists:
+
+    >>> scan([dev1, dev2], [0, 0], [0.5, 1], 4)
+
+    The list of points will be:
+
+    ==== ==== ====
+    Step dev1 dev2
+    ==== ==== ====
+    1    0.0  0.0
+    2    0.5  1.0
+    3    1.0  2.0
+    4    1.5  3.0
+    ==== ==== ====
+
+    This also works for the second operation mode:
+
+    >>> scan([dev1, dev2], [[0, 1, 2, 3], [0, 1, 5, 7]])
+
+    with positions:
+
+    ==== ==== ====
+    Step dev1 dev2
+    ==== ==== ====
+    1    0.0  0.0
+    2    1.0  1.0
+    3    2.0  5.0
+    4    3.0  7.0
+    ==== ==== ====
     """
     def mkpos(starts, steps, numpoints):
         return [[start + i*step for (start, step) in zip(starts, steps)]
@@ -167,13 +218,42 @@ def scan(dev, *args, **kwargs):
 @helparglist('dev, center, step, numperside, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def cscan(dev, *args, **kwargs):
-    """Scan around center.
+    """Scan around a center.
 
-    The general syntax is to give center, step and number of points per side:
+    This command is a specialisation of the `scan()` command to scan around a
+    center a number of points left from the center and the same number right
+    from the center with a certain step size.
 
-    >>> cscan(dev, 0, 1, 5)   # scans from -5 to 5 in steps of 1.
+    The command takes as parameters the center, a step size, and number of
+    points on each side of the center:
 
-    The total number of points is (2 * numperside) + 1.
+    >>> cscan(dev, 0, 1, 5)   # scans around 0 from -5 to 5 in steps of 1.
+
+    The total number of points is (2 * numperside) + 1.  The above commands
+    counts at -5, -4, ..., 5.
+
+    The equivalent `scan()` command would be:
+
+    >>> scan(dev, -5, 1, 11)
+
+    The device can also be a list of devices that should be moved for each
+    step.  In this case, the center and step width also have to be lists:
+
+    >>> cscan([dev1, dev2], [0, 0], [0.5, 1], 3)
+
+    Resulting positions:
+
+    ==== ==== ====
+    Step dev1 dev2
+    ==== ==== ====
+    1    -1.5 -3.0
+    2    -1.0 -2.0
+    3    -0.5 -1.0
+    4    0.0  0.0
+    5    0.5  1.0
+    6    1.0  2.0
+    7    1.5  3.0
+    ==== ==== ====
     """
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
@@ -198,7 +278,7 @@ def timescan(numpoints, *args, **kwargs):
 
     Example:
 
-    >>> timescan(500, t=10)
+    >>> timescan(500, t=10)  # counts 500 times, every count for 10 seconds
 
     A special "delay" argument is supported to allow time delays between two
     points:
@@ -280,28 +360,31 @@ def twodscan(dev1, start1, step1, numpoints1,
         scan(dev2, start2, step2, numpoints2, dev1, *args, **kwargs)
 
 
+ADDSCANHELP0 = """
+    In addition to the devices and the position parameters the command accepts
+    parameters to:
+
+    - specify the preset (time to count, monitor counts to reach and similar)
+    - specify the detector(s) to use
+    - add some comments to the datafiles
+    - select the "scan environment" (devices that are read at every point)
+    - move devices before starting the scan
+    - perform multiple counts at every scan point
+"""
+
 ADDSCANHELP1 = """
-    The device can also be a list of devices that should be moved for each
-    step.  In this case, the start and stepwidth also have to be lists:
+    Presets can be given using named arguments:
 
-    >>> scan([dev1, dev2], [0, 0], [0.5, 1], 10)
-
-    This also works for the second basic syntax:
-
-    >>> scan([dev1, dev2], [[0, 1, 2, 3], [0, 2, 4, 6]])
-
-    Presets can be given using keyword arguments:
-
-    >>> scan(dev, ..., t=5)
-    >>> scan(dev, ..., mon1=1000)
+    >>> scan(dev, ..., t=5)        # at each scan point count for 5 seconds
+    >>> scan(dev, ..., mon1=1000)  # at each scan point count unil mon1 is 1000
 
     An info string describing the scan can be given as a string argument:
 
     >>> scan(dev, ..., 'peak search', ...)
 
-    Alternatively you can use the keyword 'info':
+    or using the named argument 'info':
 
-    >>> scan(dev, ..., <more kw args>, info='peak search')
+    >>> scan(dev, ..., <more named args>, info='peak search')
 """
 
 ADDSCANHELP2 = """
@@ -330,11 +413,15 @@ ADDSCANHELP2 = """
     *pol* moved to 'down'.
 """
 
-scan.__doc__ += ADDSCANHELP1 + ADDSCANHELP2
-cscan.__doc__ += (ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'cscan(')
-timescan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'timescan(5, ')
-sweep.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'sweep(dev, ')
-twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
+scan.__doc__ += ADDSCANHELP0 + ADDSCANHELP1 + ADDSCANHELP2
+cscan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP1 + ADDSCANHELP2).replace('scan(',
+                                                                      'cscan(')
+timescan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
+                                                          'timescan(5, ')
+sweep.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
+                                                       'sweep(dev, ')
+twodscan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
+                                                          'twodscan(dev1, ')
 
 
 @usercommand
