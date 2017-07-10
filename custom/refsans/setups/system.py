@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['commands.standard', 'refsans.commands']
+modules = ['nicos.commands.standard', 'refsans.commands']
 includes = ['notifiers']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
