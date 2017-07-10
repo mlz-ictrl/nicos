@@ -17,7 +17,7 @@ devices = dict(
                  tacodevice = '//pgaasrv/pgaa/sample/elcol_press2',
                  lowlevel = True
                 ),
-    ellcol = device('pgaa.beamfocus.BeamFocus',
+    ellcol = device('nicos_mlz.pgaa.beamfocus.BeamFocus',
                     description = 'Switches between focused and collimated Beam',
                     ellipse = 'ell',
                     collimator = 'col',

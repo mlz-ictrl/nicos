@@ -13,7 +13,7 @@ includes = ['system',
            ]
 
 devices = dict(
-    sink = device('pgaa.datasinks.PGAASink',
+    sink = device('nicos_mlz.pgaa.datasinks.PGAASink',
                   settypes = set(['scan']),
                   det1 = '_60p',
                   det2 = 'LEGe',

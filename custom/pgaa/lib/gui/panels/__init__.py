@@ -24,5 +24,5 @@
 
 """NICOS PGAA specific GUI panel package."""
 
-from nicos.pgaa.gui.panels.pgaa import PGAAPanel
-from nicos.pgaa.gui.panels.tomography import TomographyPanel
+from nicos_mlz.pgaa.gui.panels.pgaa import PGAAPanel
+from nicos_mlz.pgaa.gui.panels.tomography import TomographyPanel
