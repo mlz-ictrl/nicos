@@ -3,7 +3,7 @@ description = 'virtual POLI lifting counter'
 group = 'lowlevel'
 
 devices = dict(
-    liftingctr = device('devices.generic.VirtualMotor',
+    liftingctr = device('nicos.devices.generic.VirtualMotor',
                       description = 'lifting counter axis',
                       pollinterval = 15,
                       maxage = 61,

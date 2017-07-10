@@ -268,7 +268,7 @@ column3 = Column(variox1supp1, variox1supp2) + \
 column4 = Column(*cryoplots) + Column(*ccrplots)
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'POLI Status monitor',
                      filename = '/policontrol/webroot/index.html',
                      interval = 10,

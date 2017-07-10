@@ -7,13 +7,13 @@ excludes = ['mono_cu']
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
-    sih = device('devices.tango.Motor',
+    sih = device('nicos.devices.tango.Motor',
                  lowlevel = False,
                  description = 'Silicon monochromator horizontal focus',
                  tangodevice = tango_base + 'fzjs7/sih',
                  fmtstr = '%.2f',
                 ),
-    siv = device('devices.tango.Motor',
+    siv = device('nicos.devices.tango.Motor',
                  lowlevel = False,
                  description = 'Silicon monochromator vertical focus',
                  tangodevice = tango_base + 'fzjs7/siv',

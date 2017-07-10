@@ -9,12 +9,12 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['commands.standard', 'poli.commands']
+modules = ['nicos.commands.standard', 'poli.commands']
 
 includes = ['notifiers', 'table', 'mono', 'slits', 'reactor', 'shutter']
 
 devices = dict(
-    POLI     = device('devices.sxtal.instrument.LiftingSXTal',
+    POLI     = device('nicos.devices.sxtal.instrument.LiftingSXTal',
                       description = 'The POLI instrument',
                       responsible = 'V. Hutanu <vladimir.hutanu@frm2.tum.de>',
                       instrument = 'POLI',
@@ -25,7 +25,7 @@ devices = dict(
                       nu = 'liftingctr',
                      ),
 
-    Sample   = device('devices.sxtal.sample.SXTalSample',
+    Sample   = device('nicos.devices.sxtal.sample.SXTalSample',
                       description = 'The currently used sample',
                      ),
 
@@ -49,19 +49,19 @@ devices = dict(
                       propdb = '/home/jcns/.propdb',
                      ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       lowlevel = True,
                      ),
 
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       lowlevel = True,
                      ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         lowlevel = True,
                        ),
 
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = '/home/jcns/data',
                       minfree = 5,

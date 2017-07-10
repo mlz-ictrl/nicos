@@ -33,7 +33,7 @@ devices = dict(
                   channel = 0,
                  ),
 
-    det   = device('devices.generic.Detector',
+    det   = device('nicos.devices.generic.Detector',
                    description = 'ZEA-2 multichannel counter card',
                    timers = ['timer'],
                    monitors = ['mon1', 'mon2'],

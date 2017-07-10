@@ -6,18 +6,18 @@ excludes = ['table_lifting_virtual']
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
-    co_lftctr = device('devices.tango.Sensor',
+    co_lftctr = device('nicos.devices.tango.Sensor',
                       lowlevel = True,
                       tangodevice = tango_base + 'lftctr/lftctrenc',
                       unit = 'deg',
                      ),
-    mo_lftctr = device('devices.tango.Motor',
+    mo_lftctr = device('nicos.devices.tango.Motor',
                       lowlevel = True,
                       tangodevice = tango_base + 'lftctr/lftctrmot',
                       unit = 'deg',
                       precision = 0.01,
                      ),
-    liftingctr = device('devices.generic.Axis',
+    liftingctr = device('nicos.devices.generic.Axis',
                       description = 'lifting counter axis',
                       motor = 'mo_lftctr',
                       coder = 'co_lftctr',
