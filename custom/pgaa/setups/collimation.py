@@ -7,12 +7,12 @@ includes = []
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
-    ell = device('devices.taco.io.DigitalOutput',
+    ell = device('nicos.devices.taco.io.DigitalOutput',
                  description = '',
                  tacodevice = '//pgaasrv/pgaa/sample/elcol_press1',
                  lowlevel = True
                 ),
-    col = device('devices.taco.io.DigitalOutput',
+    col = device('nicos.devices.taco.io.DigitalOutput',
                  description = '',
                  tacodevice = '//pgaasrv/pgaa/sample/elcol_press2',
                  lowlevel = True
@@ -24,4 +24,3 @@ devices = dict(
                     unit = ''
                    ),
 )
-

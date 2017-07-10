@@ -39,7 +39,7 @@ notifiers = {
 }
 
 devices = dict(
-    Watchdog = device('services.watchdog.Watchdog',
+    Watchdog = device('nicos.services.watchdog.Watchdog',
                       cache = 'tequila.pgaa.frm2:14869',
                       notifiers = notifiers,
                       mailreceiverkey = 'email/receivers',

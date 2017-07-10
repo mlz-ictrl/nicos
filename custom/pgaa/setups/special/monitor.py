@@ -37,7 +37,7 @@ _pressuresample = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'PGAA status monitor',
                      loglevel = 'info',
                      cache = 'tequila.pgaa.frm2',
