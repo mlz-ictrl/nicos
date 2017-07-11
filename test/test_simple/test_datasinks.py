@@ -31,9 +31,12 @@ from os import path
 import pytest
 
 try:
-    import pyfits
+    import astropy.io.fits as pyfits
 except ImportError:
-    pyfits = None
+    try:
+        import pyfits
+    except ImportError:
+        pyfits = None
 
 try:
     import PIL

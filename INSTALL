@@ -37,7 +37,7 @@ If not mentioned otherwise, Python packages are available from PyPi
   - Grace (for scanplot)
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
-  - pyfits (for the handling of FITS formatted files)
+  - astropy or pyfits (for the handling of FITS formatted files)
   - rsa (for encrypted daemon authentication)
   - ldap3 (for ldap authentication)
   - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)

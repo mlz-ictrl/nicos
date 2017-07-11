@@ -33,9 +33,12 @@ from nicos.core import NicosError
 from nicos.pycompat import iteritems, to_ascii_string
 
 try:
-    import pyfits
+    import astropy.io.fits as pyfits
 except ImportError:
-    pyfits = None
+    try:
+        import pyfits
+    except ImportError:
+        pyfits = None
 
 
 class FITSImageSinkHandler(SingleFileSinkHandler):

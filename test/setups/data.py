@@ -49,10 +49,14 @@ except Exception:
     pass
 
 try:
-    import pyfits  # pylint: disable=unused-import
+    import astropy.io.fits  # pylint: disable=unused-import
     sinklist.append('fitssink')
 except Exception:
-    pass
+    try:
+        import pyfits  # pylint: disable=unused-import
+        sinklist.append('fitssink')
+    except Exception:
+        pass
 
 try:
     import quickyaml  # pylint: disable=unused-import
