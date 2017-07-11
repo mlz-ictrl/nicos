@@ -5,6 +5,7 @@ group = 'optional'
 includes = ['det_base']
 
 taco_base = '//resedasrv/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
     det = device('nicos.devices.generic.Detector',
@@ -16,9 +17,9 @@ devices = dict(
         maxage = 2,
         pollinterval = 0.5,
     ),
-    det_rot_mot = device('nicos.devices.taco.Motor',
+    det_rot_mot = device('nicos.devices.tango.Motor',
         description = 'Detector rotation (motor)',
-        tacodevice = '%s/husco2/motor4' % taco_base,
+        tangodevice = '%s/3he_det/rot' % tango_base,
         fmtstr = '%.3f',
         lowlevel = True,
     ),
@@ -35,14 +36,14 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.1,
     ),
-    det_x = device('nicos.devices.taco.Motor',
+    det_x = device('nicos.devices.tango.Motor',
         description = 'Detector x translation (motor)',
-        tacodevice = '%s/husco2/motor5' % taco_base,
+        tangodevice = '%s/3he_det/x' % tango_base,
         fmtstr = '%.3f',
     ),
-    det_y = device('nicos.devices.taco.Motor',
+    det_y = device('nicos.devices.tango.Motor',
         description = 'Detector y translation (motor)',
-        tacodevice = '%s/husco2/motor6' % taco_base,
+        tangodevice = '%s/3he_det/y' % tango_base,
         fmtstr = '%.3f',
     ),
 )
