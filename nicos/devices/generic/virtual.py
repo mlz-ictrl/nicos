@@ -73,16 +73,15 @@ class VirtualMotor(HasOffset, Motor):
             self.curvalue = self.target + self.offset
 
     def doStart(self, pos):
+        self.curstatus = (status.BUSY, 'virtual moving')
         pos = float(pos) + self.offset
+        if self._thread:
+            self._stop = True
+            self._thread.join()
         if self.speed != 0:
-            if self._thread:
-                self.stop()
-                self._thread.join()
-            self.curstatus = (status.BUSY, 'virtual moving')
             self._thread = createThread('virtual motor %s' % self,
                                         self.__moving, (pos,))
         else:
-            self.curstatus = (status.BUSY, 'virtual moving')
             self.log.debug('moving to %s', pos)
             self.curvalue = pos
             self.curstatus = (status.OK, 'idle')
