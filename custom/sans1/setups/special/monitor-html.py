@@ -3,13 +3,11 @@ group = 'special'
 
 _expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=50,
-                       istext=True, maxlen=50),
+        BlockRow(
+                 Field(name='Current status', key='exp/action', width=90,
+                       istext=True, maxlen=90),
                  Field(name='Last file', key='exp/lastpoint'),
-                 Field(name='Current Sample', key='sample/samplename', width=16),
+                 Field(name='Current Sample', key='sample/samplename', width=26),
                 ),
         ],
     ),
