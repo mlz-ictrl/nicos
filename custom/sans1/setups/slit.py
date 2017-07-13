@@ -1,6 +1,6 @@
 description = 'collimation slit'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 
