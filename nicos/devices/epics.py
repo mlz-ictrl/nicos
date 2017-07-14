@@ -91,6 +91,18 @@ FTYPE_TO_VALUETYPE = {
     34: float,
 }
 
+SEVERITY_TO_STATUS = {
+    0: status.OK,  # NO_ALARM
+    1: status.WARN,  # MINOR
+    2: status.ERROR,  # MAJOR
+}
+
+STAT_TO_STATUS = {
+    0: status.OK,  # OK
+    9: status.ERROR,  # Communication error
+    17: status.UNKNOWN,  # Invalid/unknown IOC state
+}
+
 
 class EpicsDevice(DeviceMixinBase):
     """
@@ -152,7 +164,30 @@ class EpicsDevice(DeviceMixinBase):
         return getattr(self, pvparam)
 
     def doStatus(self, maxage=0):
-        return status.OK, ''
+        mapped_status, affected_pvs = self._get_mapped_epics_status()
+
+        return mapped_status, ', '.join(affected_pvs)
+
+    def _get_mapped_epics_status(self):
+        if epics.ca.current_context() is None:
+            epics.ca.use_initial_context()
+
+        status_map = {}
+        for name in self._pvs:
+            epics_status = self._get_pvctrl(name, 'status', update=True)
+            epics_severity = self._get_pvctrl(name, 'severity')
+
+            mapped_status = STAT_TO_STATUS.get(epics_status, None)
+
+            if mapped_status is None:
+                mapped_status = SEVERITY_TO_STATUS.get(
+                    epics_severity, status.UNKNOWN)
+
+            status_map.setdefault(mapped_status, []).append(self._get_pv_name(name))
+
+        max_severity = max(status_map.keys())
+
+        return max_severity, status_map[max_severity]
 
     def _setMode(self, mode):
         super(EpicsDevice, self)._setMode(mode)
@@ -173,7 +208,13 @@ class EpicsDevice(DeviceMixinBase):
                                      % self._get_pv_name(pvparam))
         return result
 
-    def _get_pvctrl(self, pvparam, ctrl, default=None):
+    def _get_pvctrl(self, pvparam, ctrl, default=None, update=False):
+        if update:
+            if epics.ca.current_context() is None:
+                epics.ca.use_initial_context()
+
+            self._pvctrls[pvparam] = self._pvs[pvparam].get_ctrlvars()
+
         return self._pvctrls[pvparam].get(ctrl, default)
 
     def _put_pv(self, pvparam, value, wait=True):
