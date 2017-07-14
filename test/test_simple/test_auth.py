@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+import pytest
+
 from nicos.services.daemon.auth import auth_entry, ListAuthenticator, \
     AuthenticationError
 from nicos.core import GUEST, USER, User
@@ -43,33 +45,40 @@ def test_auth_entry():
     assert raises(ValueError, auth_entry, ['user', ['passwd'], 'user'])
 
 
-def test_passwd_user(session):
+@pytest.fixture(scope='function')
+def ListAuth(request):
     Auth = ListAuthenticator('authenicator',
-                             passwd = [('guest', '', 'guest'),
-                                       ('user', 'user', 'user'),
-                                       ('admin', 'admin', 'admin')])
-    assert Auth.authenticate('user', 'user') == User('user', USER)
-    assert Auth.authenticate('guest', '') == User('guest', GUEST)
-    assert Auth.authenticate('guest', 'somepw') == User('guest', GUEST)
-    assert raises(AuthenticationError, Auth.authenticate, 'user', 'nouser')
-    assert raises(AuthenticationError, Auth.authenticate, 'joedoe', '')
+                             passwd=request.function.passwd)
+    yield Auth
 
 
-def test_any_user(session):
-    Auth = ListAuthenticator('authenicator',
-                             passwd = [('guest', '', 'guest'),
-                                       ('', '', 'admin'),
-                                       ('user', 'user', 'user'),
-                                       ('admin', 'admin', 'admin')])
-    assert Auth.authenticate('user', 'user') == User('user', USER)
-    assert Auth.authenticate('guest', '') == User('guest', GUEST)
-    assert Auth.authenticate('joedoe', '') == User('joedoe', GUEST)
-    assert Auth.authenticate('joedoe', '') != User('joedoe', USER)
-    assert raises(AuthenticationError, Auth.authenticate, 'user', 'user_')
+def test_passwd_user(session, ListAuth):
+    assert ListAuth.authenticate('user', 'user') == User('user', USER)
+    assert ListAuth.authenticate('guest', '') == User('guest', GUEST)
+    assert ListAuth.authenticate('guest', 'somepw') == User('guest', GUEST)
+    assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'nouser')
+    assert raises(AuthenticationError, ListAuth.authenticate, 'joedoe', '')
+
+test_passwd_user.passwd = [('guest', '', 'guest'),
+                           ('user', 'user', 'user'),
+                           ('admin', 'admin', 'admin')]
 
 
-def test_empty_user(session):
-    Auth = ListAuthenticator('authenicator',
-                             passwd = [('admin', 'admin', 'admin'),
-                                       ('', 'passwd', 'admin')])
-    assert Auth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
+def test_any_user(session, ListAuth):
+    assert ListAuth.authenticate('user', 'user') == User('user', USER)
+    assert ListAuth.authenticate('guest', '') == User('guest', GUEST)
+    assert ListAuth.authenticate('joedoe', '') == User('joedoe', GUEST)
+    assert ListAuth.authenticate('joedoe', '') != User('joedoe', USER)
+    assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'user_')
+
+test_any_user.passwd = [('guest', '', 'guest'),
+                        ('', '', 'admin'),
+                        ('user', 'user', 'user'),
+                        ('admin', 'admin', 'admin')]
+
+
+def test_empty_user(session, ListAuth):
+    assert ListAuth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
+
+test_empty_user.passwd = [('admin', 'admin', 'admin'),
+                          ('', 'passwd', 'admin')]
