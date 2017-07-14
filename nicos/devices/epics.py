@@ -162,12 +162,12 @@ class EpicsDevice(DeviceMixinBase):
             for key in self._pvs:
                 self._pvs[key] = HardwareStub(self)
 
-    def _get_pv(self, pvparam):
+    def _get_pv(self, pvparam, as_string=False):
         # since NICOS devices can be accessed from any thread, we have to
         # ensure that the same context is set on every thread
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
-        result = self._pvs[pvparam].get(timeout=self.epicstimeout)
+        result = self._pvs[pvparam].get(timeout=self.epicstimeout, as_string=as_string)
         if result is None:  # timeout
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))
@@ -223,6 +223,17 @@ class EpicsReadable(EpicsDevice, Readable):
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
+
+
+class EpicsStringReadable(EpicsReadable):
+    """
+    This device handles string PVs, also when they are implemented as
+    character waveforms.
+    """
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
 
 
 class EpicsMoveable(EpicsDevice, Moveable):
