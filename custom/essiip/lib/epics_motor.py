@@ -32,10 +32,24 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
     This device exposes some of the functionality provided by the EPICS motor record.
     The PV-names for the fields of the record (readback, speed, etc.) are derived
     by combining the motorpv-parameter with the predefined field names.
+
+    The errorbitpv and reseterrorpv can be provided optionally in case the controller
+    supports reporting errors and a reset-mechanism that tries to recover from
+    certain errors. If present, these are used when calling the reset()-method.
+
+    Another optional PV is the errormsgpv, which contains an error message that
+    may originate from the motor controller or the IOC. If it is present, doStatus
+    uses it for some of the status messages.
     """
     parameters = {
         'motorpv': Param('Name of the motor record PV.',
                          type=pvname, mandatory=True, settable=False),
+        'errormsgpv': Param('Optional PV with error message.',
+                            type=pvname, mandatory=False, settable=False),
+        'errorbitpv': Param('Optional PV with error bit.',
+                            type=pvname, mandatory=False, settable=False),
+        'reseterrorpv': Param('Optional PV with error reset switch.',
+                              type=pvname, mandatory=False, settable=False),
     }
 
     parameter_overrides = {
@@ -49,19 +63,24 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
     # Fields of the motor record with which an interaction via Channel Access is required.
     motor_record_fields = {
-        'readpv': 'DRBV',
-        'writepv': 'DVAL',
-        'donemoving': 'DMOV',
+        'readpv': 'RBV',
+        'writepv': 'VAL',
         'stop': 'STOP',
+
+        'donemoving': 'DMOV',
+        'moving': 'MOVN',
+        'miss': 'MISS',
 
         'homeforward': 'HOMF',
         'homereverse': 'HOMR',
 
         'speed': 'VELO',
-        'set': 'SET',
 
-        'highlimit': 'DHLM',
-        'lowlimit': 'DLLM',
+        'highlimit': 'HLM',
+        'lowlimit': 'LLM',
+        'softlimit': 'LVIO',
+        'lowlimitswitch': 'LLS',
+        'highlimitswitch': 'HLS'
     }
 
     def _get_pv_parameters(self):
@@ -69,19 +88,35 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         Implementation of inherited method to automatically account for fields present in motor record.
         :return: List of PV aliases.
         """
-        return self.motor_record_fields.keys()
+        pvs = set(self.motor_record_fields.keys())
+
+        if self.errormsgpv:
+            pvs.add('errormsgpv')
+
+        if self.errorbitpv:
+            pvs.add('errorbitpv')
+
+        if self.reseterrorpv:
+            pvs.add('reseterrorpv')
+
+        return pvs
 
     def _get_pv_name(self, pvparam):
         """
-        Implementation of inherited method that translates between PV aliases and actual PV names. Automatically adds
-        a prefix to the PV name according to the motorpv parameter.
+        Implementation of inherited method that translates between PV aliases
+        and actual PV names. Automatically adds a prefix to the PV name
+        according to the motorpv parameter.
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
-        motor_record_prefix = getattr(self, 'motorpv')
-        motor_field = self.motor_record_fields[pvparam]
 
-        return '.'.join((motor_record_prefix, motor_field))
+        motor_record_prefix = getattr(self, 'motorpv')
+        motor_field = self.motor_record_fields.get(pvparam)
+
+        if motor_field is not None:
+            return '.'.join((motor_record_prefix, motor_field))
+
+        return getattr(self, pvparam)
 
     def doReadSpeed(self):
         return self._get_pv('speed')
@@ -112,15 +147,46 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         return self._get_pv('readpv') - self.offset
 
     def doStart(self, pos):
-        self._put_pv_blocking('writepv', pos + self.offset)
+        self._put_pv('writepv', pos + self.offset)
+
+    def doReadTarget(self):
+        return self._get_pv('writepv') - self.offset
 
     def doStatus(self, maxage=0):
-        done_moving = self._get_pv('donemoving')
+        general_epics_status, _ = self._get_mapped_epics_status()
+        message = self._get_status_message()
 
-        if done_moving == 0:
+        if general_epics_status == status.ERROR:
+            return status.ERROR, message or 'Unknown problem in record'
+
+        done_moving = self._get_pv('donemoving')
+        moving = self._get_pv('moving')
+        if done_moving == 0 or moving != 0:
             return status.BUSY, 'Motor is moving to target...'
 
-        return status.OK, ''
+        miss = self._get_pv('miss')
+        if miss != 0:
+            return status.NOTREACHED, message or 'Did not reach target position.'
+
+        high_limitswitch = self._get_pv('highlimitswitch')
+        if high_limitswitch != 0:
+            return status.WARN, message or 'At high limit switch.'
+
+        low_limitswitch = self._get_pv('lowlimitswitch')
+        if low_limitswitch != 0:
+            return status.WARN, message or 'At low limit switch.'
+
+        limit_violation = self._get_pv('softlimit')
+        if limit_violation != 0:
+            return status.WARN, message or 'Soft limit violation.'
+
+        return status.OK, message or 'Ready.'
+
+    def _get_status_message(self):
+        if not self.errormsgpv:
+            return None
+
+        return self._get_pv('errormsgpv', as_string=True)
 
     def doStop(self):
         self._put_pv('stop', 1, False)
@@ -133,3 +199,11 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
     def doReference(self):
         self._put_pv_blocking('homeforward', 1)
+
+    def doReset(self):
+        if self.errorbitpv and self.reseterrorpv:
+            error_bit = self._get_pv('errorbitpv')
+            if error_bit == 0:
+                self.log.warning('Error bit is not set, can not reset error state.')
+            else:
+                self._put_pv('reseterrorpv', 1)
