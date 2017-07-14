@@ -142,7 +142,7 @@ exit $res
         verifyStatusCategory: 'test ',
         verifyStatusName: 'pylint',
         verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '!recheck'
+        verifyStatusRerun: '@recheck'
     ])
 
     if (verifyresult['pylint'] < 0) {
@@ -181,7 +181,7 @@ exit $((res))
         verifyStatusCategory: 'test ',
         verifyStatusName: 'setupcheck',
         verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '!recheck'
+        verifyStatusRerun: '@recheck'
     ])
 
     if (verifyresult['sc'] < 0) {
@@ -230,7 +230,7 @@ verifyresult.put(pyver, 1)
         verifyStatusCategory: 'test ',
         verifyStatusName: 'pytest-'+pyver,
         verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '!recheck'
+        verifyStatusRerun: '@recheck'
     ])
 
     junit([allowEmptyResults: true,
@@ -292,7 +292,7 @@ fi
         verifyStatusCategory: 'test ',
         verifyStatusName: 'doc',
         verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '!recheck'
+        verifyStatusRerun: '@recheck'
     ])
 
     if (verifyresult['doc'] < 0) {
