@@ -147,21 +147,3 @@ def equal(p0, p1, crit=1.e-4):
     """Are the two positions identical?
     """
     return absdif(p0, p1) < crit
-
-
-if __name__ == "__main__":
-    v1 = np.array((1, 2, 3))
-    v2 = np.array((4, 5, 6))
-
-    print('length -> 3.74165738677')
-    print(np.linalg.norm(v1))
-
-    print('vectorangle -> 0.225726128553')
-    print(vectorangle(v1, v2))
-
-    m = np.array((1, 0, 0, 0, 2, 0, 0, 0, 3)).reshape(3, 3)
-    print('volume -> 6')
-    print(np.linalg.det(m))
-
-    print('Vrot')
-    print(Vrot((1, 2, 3), 0.5))
