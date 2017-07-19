@@ -2,7 +2,7 @@ description = 'Plug connector switch for neodry60E'
 
 includes = []
 
-group = 'lowlevel'
+#group = 'lowlevel'
 
 tango_base = 'tango://%s:10000/box/' % setupname
 
