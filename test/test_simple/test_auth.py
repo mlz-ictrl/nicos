@@ -23,12 +23,14 @@
 # *****************************************************************************
 
 import pytest
+import hashlib
 
 from nicos.services.daemon.auth import auth_entry, ListAuthenticator, \
     AuthenticationError
 from nicos.core import GUEST, USER, User
 
 from test.utils import raises
+from nicos.pycompat import to_utf8
 
 session_setup = 'empty'
 
@@ -47,8 +49,15 @@ def test_auth_entry():
 
 @pytest.fixture(scope='function')
 def ListAuth(request):
+    passwds = []
+    for (user, pw, level) in request.function.passwd:
+        # note: we currently allow empty password to match any password!
+        hashed = hashlib.sha1(to_utf8(pw)).hexdigest() if pw else pw
+        passwds.append((user, hashed, level))
+
     Auth = ListAuthenticator('authenicator',
-                             passwd=request.function.passwd)
+                             hashing = 'sha1',
+                             passwd=passwds)
     yield Auth
 
 

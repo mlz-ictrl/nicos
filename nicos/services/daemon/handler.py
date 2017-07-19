@@ -21,7 +21,6 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
 """
 The connection handler for the execution daemon, handling the protocol
 commands.
@@ -31,12 +30,8 @@ import os
 import base64
 import socket
 import tempfile
-try:
-    import rsa  # pylint: disable=F0401
-except ImportError:
-    rsa = None
+import rsa
 
-import hashlib
 
 from nicos import session, nicos_version, custom_version, config
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
@@ -275,14 +270,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if self.daemon.trustedhosts:
             self.check_host()
 
-        authenticators, hashing = self.daemon.get_authenticators()
-        if rsa is not None:
-            pubkey, privkey = rsa.newkeys(512)
-            pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
-            bannerhashing = 'rsa,%s' % hashing
-        else:
-            pubkeyStr = ''
-            bannerhashing = hashing
+        authenticators = self.daemon.get_authenticators()
+        pubkey, privkey = rsa.newkeys(512)
+        pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
+        bannerhashing = 'rsa,plain'
 
         # announce version and authentication modality
         self.write(STX, dict(
@@ -309,10 +300,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             password = password[4:]
             password = rsa.decrypt(base64.decodestring(password.encode()),
                                    privkey)
-            if hashing == 'sha1':
-                password = hashlib.sha1(password).hexdigest()
-            elif hashing == 'md5':
-                password = hashlib.md5(password).hexdigest()
 
         # check login data according to configured authentication
         login = credentials['login']

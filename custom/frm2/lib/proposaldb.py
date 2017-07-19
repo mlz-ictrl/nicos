@@ -27,6 +27,7 @@
 
 from os import path
 import datetime
+import hashlib
 
 try:
     import mysql.connector as DB  # pylint: disable=F0401
@@ -39,7 +40,7 @@ except ImportError:
 from nicos import session
 from nicos.core import ConfigurationError, InvalidValueError, USER, User
 from nicos.utils import readFile
-from nicos.pycompat import integer_types, text_type
+from nicos.pycompat import integer_types, text_type, to_utf8, from_maybe_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 
@@ -189,13 +190,14 @@ class Authenticator(BaseAuthenticator):
     Authenticates against the FRM II user office database.
     """
 
-    def pw_hashing(self):
-        return 'md5'
+    def _hash(self, password):
+        password = to_utf8(from_maybe_utf8(password))
+        return hashlib.md5(password).hexdigest()
 
     def authenticate(self, username, password):
         try:
             credentials = queryUser(username)
-            if credentials[1] != password:
+            if credentials[1] != self._hash(password):
                 raise AuthenticationError('wrong password')
             return User(username, USER)
         except AuthenticationError:

@@ -177,17 +177,6 @@ class NicosDaemon(Device):
                                                'startup', self.simmode,
                                                self.autosimulate)
 
-        # check that all configured authenticators use the same hashing method
-        self._pw_hashing = 'sha1'
-        auths = self._attached_authenticators
-        if auths:
-            self._pw_hashing = auths[0].pw_hashing()
-            for auth in auths[1:]:
-                if self._pw_hashing != auth.pw_hashing():
-                    raise ConfigurationError(
-                        self, 'incompatible hash methods for authenticators: '
-                        '%s requires %r, while %s requires %r' %
-                        (auths[0], self._pw_hashing, auth, auth.pw_hashing()))
 
         # cache log messages emitted so far
         self._messages = []
@@ -292,4 +281,4 @@ class NicosDaemon(Device):
         return self._controller.current_script
 
     def get_authenticators(self):
-        return self._attached_authenticators, self._pw_hashing
+        return self._attached_authenticators

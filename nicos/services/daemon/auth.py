@@ -27,7 +27,9 @@
 
 from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, \
     ADMIN, ACCESS_LEVELS, NicosError, User
-from nicos.pycompat import string_types
+import hashlib
+
+from nicos.pycompat import string_types, to_utf8, from_maybe_utf8
 
 try:
     import ldap3  # pylint: disable=F0401
@@ -43,13 +45,6 @@ class AuthenticationError(Exception):
 
 
 class Authenticator(Device):
-
-    def pw_hashing(self):
-        """Return the expected hashing method of the password.
-
-        Can be 'md5', 'sha1' or 'plain' (no hashing).
-        """
-        return 'sha1'
 
     def authenticate(self, username, password):
         """Authenticate a user with given username and password hash.
@@ -140,10 +135,6 @@ class LDAPAuthenticator(Authenticator):
         # create a ldap server object
         self._server = ldap3.Server('%s:%d' % (self.server, self.port))
 
-    def pw_hashing(self):
-        # A plain password is necessary for ldap bind.
-        return 'plain'
-
     def authenticate(self, username, password):
         userdn = self._buildUserDn(username)
 
@@ -229,8 +220,13 @@ class ListAuthenticator(Authenticator):
                          type=listof(auth_entry)),
     }
 
-    def pw_hashing(self):
-        return self.hashing
+    def _hash(self, password):
+        password = to_utf8(from_maybe_utf8(password))
+        if self.hashing == 'sha1':
+            password = hashlib.sha1(password).hexdigest()
+        elif self.hashing == 'md5':
+            password = hashlib.md5(password).hexdigest()
+        return password
 
     def authenticate(self, username, password):
         username = username.strip()
@@ -240,7 +236,7 @@ class ListAuthenticator(Authenticator):
         # matches)
         for (user, pw, level) in self.passwd:
             if user == username:
-                if not pw or pw == password:
+                if not pw or pw == self._hash(password):
                     if not password and level > USER:
                         level = USER  # limit passwordless entries to USER
                     return User(username, level)
@@ -248,8 +244,8 @@ class ListAuthenticator(Authenticator):
                     raise AuthenticationError('Invalid username or password!')
         # check for unspecified user
         for (user, pw, level) in self.passwd:
-            if not user:
-                if pw and pw == password:
+            if user == '':  # pylint: disable=compare-to-empty-string
+                if pw and pw == self._hash(password):
                     if level > USER:
                         level = USER  # limit passworded anonymous to USER
                     return User(username, level)
@@ -267,9 +263,6 @@ class PamAuthenticator(Authenticator):
 
     The access level info can be put into the "gecos" field.
     """
-
-    def pw_hashing(self):
-        return 'plain'
 
     def authenticate(self, username, password):
         try:
