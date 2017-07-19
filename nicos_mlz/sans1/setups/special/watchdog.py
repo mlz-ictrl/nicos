@@ -68,13 +68,7 @@ watchlist = [
          type = None,
          gracetime = 900,
     ),
-    dict(condition = 'coll_tube_value > 0.3',
-         message = 'Check for failure of NeoDry60E',
-         action = 'move(valve_switch, "off")',
-         #type = 'critical',
-         type = None,
-         gracetime = 1,
-    ),
+
 ]
 
 
