@@ -2,7 +2,7 @@ description = 'qmesydaq channel devices'
 
 group = 'optional'
 
-excludes = ['detector', 'sans', 'refsans', 'vtof']
+excludes = ['detector', 'sans', 'refsans', 'vtof', 'pgaa']
 
 nethost = 'taco61.ictrl.frm2'
 qm = '//%s/test/qmesydaq/' % nethost

@@ -550,7 +550,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if self.current_xname != 'Default' and \
            self.current_xname not in curve.datax:
             return
-        if len(curve.datay) == 0:
+        if not curve.datay:
             return
         plotcurve = NicosPlotCurve([], [], filly=0.1)
         self.setCurveData(curve, plotcurve)
@@ -571,7 +571,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
-        if curve.disabled or not len(x):
+        if curve.disabled or not x.size:
             plotcurve.visible = False
         plotcurve.x = x
         plotcurve.y = y

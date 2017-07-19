@@ -453,16 +453,16 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
 
         # now iterate through data (for all ki and for all peaks) and try to
         # assign a d-value assuming the ki not to be completely off!
-        for ki in sorted(data):
-            new_ki = ki + j*dki*ki
+        for ki1 in sorted(data):
+            new_ki = ki1 + j*dki*ki1
             # iterate over ki specific list, start at last element
-            for el in reversed(data[ki]):
+            for el in reversed(data[ki1]):
                 tdval = pi/new_ki/sin(radians(el[1]/2.))  # dvalue from scan
                 distances = [(abs(d-tdval), i) for (i, d) in enumerate(dvals)]
                 mindist = min(distances)
                 if mindist[0] > maxdd:
                     p('%speak at %7.3f -> no hkl found' % (el[3], el[1]))
-                    data[ki].remove(el)
+                    data[ki1].remove(el)
                 else:
                     el[0] = dvals[mindist[1]]
                     p('%speak at %7.3f could be %s at d = %-7.4f' %
@@ -476,9 +476,9 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
         stt0s = []
         mtt0s = []
         rms = 0
-        for ki in sorted(data):
-            new_ki = ki + j*dki*ki
-            peaks = data[ki]
+        for ki1 in sorted(data):
+            new_ki = ki1 + j*dki*ki1
+            peaks = data[ki1]
             failed = True
             if len(peaks) > 2:
                 fit = Fit('ki', model, ['ki', 'stt0'], [new_ki, 0])
@@ -486,18 +486,18 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
                               [el[2] for el in peaks])
                 failed = res._failed
             if failed:
-                restxt.append('%4.3f   %-6d | No fit!' % (ki, len(peaks)))
+                restxt.append('%4.3f   %-6d | No fit!' % (ki1, len(peaks)))
                 rms += 1e6
                 continue
-            mtt0 = dk2tt(dmono, res.ki) - dk2tt(dmono, ki)
+            mtt0 = dk2tt(dmono, res.ki) - dk2tt(dmono, ki1)
             restxt.append('%5.3f   %-6d | %-7.4f  %-7.4f  %-7.4f  %-7.4f  | '
                           '%-7.4f  %-7.4f  | %.2f' %
-                          (ki, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
+                          (ki1, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
                            res.stt0, res.dstt0, res.chi2))
             stt0s.append(res.stt0)
             mtt0s.append(mtt0)
             peaks_fit = [model(el[0], res.ki, res.stt0) for el in peaks]
-            p('___fitted_peaks_for_ki=%.3f___' % ki)
+            p('___fitted_peaks_for_ki=%.3f___' % ki1)
             p('peak       dval     measured fitpos   delta')
             for i, el in enumerate(peaks):
                 p('%-10s %-7.3f  %-7.3f  %-7.3f  %-7.3f%s' % (
@@ -523,7 +523,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             session.log.debug('')
             session.log.debug('*** new best result: RMS = %g', rms)
 
-    if len(beststt0s) == 0:
+    if not beststt0s:
         session.log.warning('No successful fit results!')
         if ki is not None:
             session.log.warning('Is the initial guess for ki too far off?')

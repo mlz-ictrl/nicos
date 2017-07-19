@@ -38,7 +38,7 @@ from nicos.core import FINAL
 session_setup = 'scanning'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def generate_dataset(session):
     """Generate a dataset as if a scan has been run."""
     import numpy

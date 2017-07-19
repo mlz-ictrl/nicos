@@ -230,13 +230,13 @@ class LiveDataPanel(Panel):
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
 
-    def showRoiWindow(self, roi):
-        key = roi + '/roi'
-        widget = self._getLiveWidget(roi)
+    def showRoiWindow(self, roikey):
+        key = roikey + '/roi'
+        widget = self._getLiveWidget(roikey)
         region = self.widget._rois[key]
         if not widget:
             widget = LiveWidget(None)
-            widget.setWindowTitle(roi)
+            widget.setWindowTitle(roikey)
             widget.setColormap(self.widget.getColormap())
             widget.setCenterMark(self.actionMarkCenter.isChecked())
             widget.logscale(self.actionLogScale.isChecked())
@@ -422,7 +422,7 @@ class LiveDataPanel(Panel):
 
         # always allow live data
         if self._last_tag in self._allowed_tags or self._last_tag == 'live':
-            if len(data) and self._last_format:
+            if len(data) and self._last_format:  # pylint: disable=len-as-condition
                 # we got live data with a specified format
                 array = numpy.frombuffer(data, self._last_format)
                 if self._nz > 1:
@@ -501,7 +501,7 @@ class LiveDataPanel(Panel):
             self._no_direct_display = True
         if uid:
             array = self._datacache.get(uid, None)
-            if array is not None and len(array):
+            if array is not None and array.size:
                 self.setData(array)
                 return
         self.setDataFromFile(fname, ftag)

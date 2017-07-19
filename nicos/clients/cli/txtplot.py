@@ -29,7 +29,7 @@ from nicos.utils import createSubprocess
 
 def txtplot(x, y, xlab, ylab, xterm_mode=False):
     """Plot data with gnuplot's dumb ASCII terminal."""
-    if len(x) == 0:
+    if not x.size:
         raise ValueError('Empty plot')
     if len(x) != len(y):
         raise ValueError('Unequal lengths of X and Y values')

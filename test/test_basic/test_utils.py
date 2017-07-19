@@ -192,25 +192,37 @@ def test_retryOnExcept():
     assert x == 0
 
 
-def test_tcpsocket():
-    # create a server socket
+@pytest.fixture()
+def serversocket():
+    """create a server socket"""
+
     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         serv.bind(('localhost', 65432))
         serv.listen(10)
     except Exception:
         pytest.skip('could not bind')
+    yield serv
+    closeSocket(serv)
 
-    # now connect to it using several ways
-    try:
-        sock = tcpSocket('localhost:65432', 1)
-        closeSocket(sock)
-        sock = tcpSocket('localhost', 65432)
-        closeSocket(sock)
-        sock = tcpSocket(('localhost', 65432), 1, timeout=5)
-        closeSocket(sock)
-    finally:
-        closeSocket(serv)
+def test_tcpsocket(serversocket):
+    sock = None
+
+    sockargs = [ ('localhost:65432', 1),
+                ('localhost', 65432),
+                (('localhost', 65432), 1, dict(timeout=5))
+        ]
+    for args in sockargs:
+        try:
+            if len(args) == 3:
+                kwds= args[2]
+                args = args[:2]
+                sock = tcpSocket(*args, **kwds)
+            else:
+                sock = tcpSocket(*args)
+        finally:
+            if sock:
+                closeSocket(sock)
 
 
 def test_timer():

@@ -31,14 +31,16 @@ import pytest
 session_setup = 'spodi'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def prepare(session):
+    """Prepare for SPODI tests"""
+
     session.experiment.new(0, user='user')
 
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
     assert len(basedet._attached_timers) == 1
-    assert len(basedet._attached_counters) == 0
+    assert len(basedet._attached_counters) == 0  #pylint: disable=len-as-condition
     assert len(basedet._attached_monitors) == 1
     assert len(basedet._attached_images) == 1
     adet = session.getDevice('adet')

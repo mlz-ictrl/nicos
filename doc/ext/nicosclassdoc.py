@@ -41,6 +41,7 @@ from sphinx.ext.autodoc import ClassDocumenter
 
 from nicos.core import Device
 from nicos.guisupport.widget import NicosWidget
+from nicos.pycompat import getargspec
 
 
 class PyParameter(PyClassmember):
@@ -99,7 +100,7 @@ class NicosClassDocumenter(ClassDocumenter):
         # add inheritance info, if wanted
         if not self.doc_as_attr:
             self.add_line(u'', '<autodoc>')
-            if len(self.object.__bases__):
+            if self.object.__bases__:
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`~%s.%s`' % (b.__module__, b.__name__)
@@ -303,7 +304,7 @@ def process_signature(app, objtype, fullname, obj, options, args, retann):
         if hasattr(obj, 'help_arglist'):
             return '(' + obj.help_arglist + ')', retann
         else:
-            return inspect.formatargspec(*inspect.getargspec(obj)), retann
+            return inspect.formatargspec(*getargspec(obj)), retann
 
 
 def setup(app):

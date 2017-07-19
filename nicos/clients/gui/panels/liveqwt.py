@@ -218,7 +218,7 @@ class LiveDataPanel(Panel):
             tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
 
         self._runtime = runtime
-        normalized_type = numpy.dtype(dtype).str if dtype != '' else ''
+        normalized_type = numpy.dtype(dtype).str if dtype != '' else ''  # pylint: disable=compare-to-empty-string
         if not fname and normalized_type not in DATATYPES:
             self._last_format = self._last_fname = None
             self.log.warning('Unsupported live data format: %s', params)
@@ -231,6 +231,7 @@ class LiveDataPanel(Panel):
         self._nz = nz
 
     def on_client_livedata(self, data):
+        # pylint: disable=len-as-condition
         d = None
         if self._last_fname:
             if path.isfile(self._last_fname) and self._last_tag in self._allowed_tags:
@@ -282,7 +283,7 @@ class LiveDataPanel(Panel):
         fname = item.data(32)
         ftag = item.data(34)
         cached = item.data(35)
-        if fname == '':
+        if fname == '':  # pylint: disable=compare-to-empty-string
             # show always latest live image
             if self._no_direct_display:
                 self._no_direct_display = False
@@ -290,7 +291,7 @@ class LiveDataPanel(Panel):
                 if self._last_fname and path.isfile(self._last_fname) and \
                    self._last_tag in self._allowed_tags:
                     d = LWData(self._last_fname)
-                elif len(self._datacache):
+                elif self._datacache:
                     val = self._datacache.getlast()
                     d = LWData(*val)
                 if d:

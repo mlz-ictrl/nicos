@@ -271,12 +271,12 @@ def prepareData(x, y, dy, norm):
     Returns x, y and dy arrays, where dy can also be None.
     """
     # make arrays
-    x = np.array(x)
+    x = np.asarray(x)
     # replace complex data types (strings...) by numbers
     if not x.dtype.isbuiltin:
         x = np.zeros(x.shape)
-    y = np.array(y, float)
-    dy = np.array(dy, float)
+    y = np.asarray(y, float)
+    dy = np.asarray(dy, float)
     # normalize
     if norm is not None:
         norm = np.asarray(norm, float)
@@ -286,7 +286,7 @@ def prepareData(x, y, dy, norm):
     indices = np.isfinite(y)
     x = x[indices]
     y = y[indices]
-    if len(dy):
+    if dy.size:
         dy = dy[indices]
         # remove error bars that aren't finite
         dy[~np.isfinite(dy)] = 0

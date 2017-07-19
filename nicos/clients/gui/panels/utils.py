@@ -85,7 +85,7 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
 
     mainitem, dockitems = item
     main = createWindowItem(mainitem, window, menuwindow, topwindow, log)
-    for title, item in dockitems:
+    for title, ditem in dockitems:
         dw = QDockWidget(title, window)
         # prevent closing the dock widget
         dw.setFeatures(QDockWidget.DockWidgetMovable |
@@ -93,12 +93,12 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
         # make the dock title bold
         dw.setStyleSheet('QDockWidget { font-weight: bold; }')
         dw.setObjectName(title)
-        sub = createWindowItem(item, window, menuwindow, topwindow, log)
+        sub = createWindowItem(ditem, window, menuwindow, topwindow, log)
         if isinstance(sub, Panel):
             sub.hideTitle()
         dw.setWidget(sub)
         dw.setContentsMargins(6, 6, 6, 6)
-        dockPos = item.options.get('dockpos', 'left')
+        dockPos = ditem.options.get('dockpos', 'left')
         if dockPos not in dockPosMap:
             log.warn('Illegal dockpos specification %s for panel %r',
                      dockPos, title)

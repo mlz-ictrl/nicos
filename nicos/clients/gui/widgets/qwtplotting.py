@@ -97,7 +97,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
         QwtPlotCurve.setData(self, self._x, self._y)
 
     def boundingRect(self):
-        if len(self._x) == 0 or len(self._y) == 0:
+        if not (self._x.size and self._y.size):
             return QRectF()
 
         logplot = isinstance(self.plot().axisScaleEngine(self.yAxis()),
@@ -402,7 +402,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
     def savePlot(self):
         filename = QFileDialog.getSaveFileName(
             self, 'Select file name', '', 'PDF files (*.pdf)')
-        if filename == '':
+        if not filename:
             return None
         if '.' not in filename:
             filename += '.pdf'

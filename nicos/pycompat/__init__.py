@@ -31,9 +31,10 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id', 'escape_html',
+    'get_thread_id', 'escape_html', 'b64encode', 'b64decode'
 ]
 
+import inspect
 import threading
 
 from nicos._vendor import six
@@ -61,6 +62,20 @@ try:
     from html import escape as escape_html  # pylint: disable=F0401
 except ImportError:
     from cgi import escape as escape_html
+
+# base64 encode/decode
+try:
+    from base64 import encodebytes as b64encode  # pylint: disable=F0401
+    from base64 import decodebytes as b64decode  # pylint: disable=F0401
+except ImportError:
+    from base64 import encodestring as b64encode
+    from base64 import decodestring as b64decode
+
+if six.PY2:
+    getargspec = inspect.getargspec
+else:
+    def getargspec(func):
+        return inspect.getfullargspec(func)[:4]
 
 # missing dict helpers to get a list of items/values
 

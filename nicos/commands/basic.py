@@ -45,7 +45,7 @@ from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist, \
     parallel_safe
 from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
-from nicos.pycompat import builtins, exec_, iteritems
+from nicos.pycompat import builtins, exec_, iteritems, getargspec
 
 
 CO_DIVISION = 0x2000
@@ -122,7 +122,7 @@ def ListCommands():
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist
             else:
-                argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+                argspec = inspect.formatargspec(*getargspec(real_func))
             docstring = real_func.__doc__ or ' '
             signature = real_func.__name__ + argspec
             if len(signature) > 50:
