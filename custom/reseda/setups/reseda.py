@@ -10,4 +10,5 @@ includes = [
     'selector',
     'sampletable',
     'guidehall',
+    'pressure'
 ]
