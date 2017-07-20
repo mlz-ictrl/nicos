@@ -27,7 +27,7 @@ devices = dict(
     ),
     arm1_rot_enc = device('nicos.devices.taco.Coder',
         description = 'Rotation arm 1 (encoder)',
-        tacodevice = '%s/enc/det1_1' % taco_base, # not enc/arm1 due to broken hw
+        tacodevice = '%s/enc/arm1' % taco_base,
         fmtstr = '%.3f',
         lowlevel=True,
     ),
@@ -45,7 +45,7 @@ devices = dict(
         startdelay=2.0,
         stopdelay=2.0,
         fmtstr = '%.3f',
-        precision = 0.1,
+        precision = 0.01,
     ),
     T_arm1_coil1 = device('nicos.devices.tango.AnalogInput',
         description = 'Arm 1 coil 1 temperature',
