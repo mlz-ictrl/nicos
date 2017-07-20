@@ -1,7 +1,7 @@
 group = 'optional'
 description = 'Reseda tunewave table support'
 
-includes = ['selector']
+includes = ['selector', 'coils']
 
 devices = dict(
     echotime = device('reseda.tuning.EchoTime',
