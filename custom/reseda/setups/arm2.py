@@ -45,6 +45,6 @@ devices = dict(
         startdelay = 2.0,
         stopdelay = 2.0,
         fmtstr = '%.3f',
-        precision = 0.1,
+        precision = 0.01,
     ),
 )
