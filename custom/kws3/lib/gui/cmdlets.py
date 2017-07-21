@@ -26,9 +26,9 @@
 
 from nicos.utils import num_sort
 from nicos.clients.gui.cmdlets import register
-from nicos.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
-from nicos.kws1.gui.measdialogs import MeasDef as KWS1MeasDef
-from nicos.kws1.gui.measelement import ChoiceElement, Selector, Chopper, \
+from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
+from nicos_mlz.kws1.gui.measdialogs import MeasDef as KWS1MeasDef
+from nicos_mlz.kws1.gui.measelement import ChoiceElement, Selector, Chopper, \
     MeasTime
 
 

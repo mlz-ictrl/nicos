@@ -7,7 +7,7 @@ display_order = 25
 pol_presets = configdata('config_polarizer.POLARIZER_PRESETS')
 
 devices = dict(
-    polarizer = device('devices.generic.MultiSwitcher',
+    polarizer = device('nicos.devices.generic.MultiSwitcher',
                        description = 'select polarizer presets',
                        blockingmove = False,
                        moveables = ['pol_y', 'pol_tilt'],
@@ -17,10 +17,10 @@ devices = dict(
                        precision = [0.01, 0.01],
                       ),
 
-    pol_y    = device('kws1.virtual.Standin',
+    pol_y    = device('nicos_mlz.kws1.devices.virtual.Standin',
                       description = 'polarizer y-table',
                      ),
-    pol_tilt = device('kws1.virtual.Standin',
+    pol_tilt = device('nicos_mlz.kws1.devices.virtual.Standin',
                       description = 'polarizer tilt',
                      ),
 )

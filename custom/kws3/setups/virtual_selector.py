@@ -7,7 +7,7 @@ display_order = 20
 sel_presets = configdata('config_selector.SELECTOR_PRESETS')
 
 devices = dict(
-    selector        = device('devices.generic.MultiSwitcher',
+    selector        = device('nicos.devices.generic.MultiSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['sel_lambda'],
@@ -17,11 +17,11 @@ devices = dict(
                              precision = [0.05],
                             ),
 
-    sel_speed       = device('kws1.virtual.Standin',
+    sel_speed       = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'selector speed',
                             ),
 
-    sel_lambda      = device('kws1.selector.SelectorLambda',
+    sel_lambda      = device('nicos_mlz.kws1.devices.selector.SelectorLambda',
                              description = 'Selector wavelength control',
                              seldev = 'sel_speed',
                              unit = 'A',
@@ -30,7 +30,7 @@ devices = dict(
                              offset = -0.00195,
                             ),
 
-    sel_rot         = device('kws1.virtual.Standin',
+    sel_rot         = device('nicos_mlz.kws1.devices.virtual.Standin',
                              description = 'selector rotation table',
                             ),
 )

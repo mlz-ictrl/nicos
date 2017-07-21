@@ -11,7 +11,7 @@ sel_presets = configdata('config_selector.SELECTOR_PRESETS')
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    selector        = device('devices.generic.MultiSwitcher',
+    selector        = device('nicos.devices.generic.MultiSwitcher',
                              description = 'select selector presets',
                              blockingmove = False,
                              moveables = ['sel_lambda'],
@@ -21,25 +21,25 @@ devices = dict(
                              precision = [0.05],
                             ),
 
-    sel_speed_valid = device('devices.tango.DigitalOutput',
+    sel_speed_valid = device('nicos.devices.tango.DigitalOutput',
                              tangodevice = tango_base + 'fzjdp_digital/sel_speed_valid',
                              lowlevel = True,
                             ),
-    sel_speed_status = device('devices.tango.DigitalInput',
+    sel_speed_status = device('nicos.devices.tango.DigitalInput',
                              tangodevice = tango_base + 'fzjdp_digital/sel_speed_status',
                              lowlevel = True,
                             ),
-    sel_speed_set   = device('devices.tango.AnalogOutput',
+    sel_speed_set   = device('nicos.devices.tango.AnalogOutput',
                              tangodevice = tango_base + 'fzjdp_analog/sel_speed_set',
                              abslimits = (60, 300),
                              lowlevel = True,
                             ),
-    sel_speed_read  = device('devices.tango.AnalogInput',
+    sel_speed_read  = device('nicos.devices.tango.AnalogInput',
                              tangodevice = tango_base + 'fzjdp_analog/sel_speed_read',
                              lowlevel = True,
                             ),
 
-    sel_speed       = device('kws3.selector.SelectorSpeed',
+    sel_speed       = device('nicos_mlz.kws3.devices.selector.SelectorSpeed',
                              description = 'selector speed',
                              valid = 'sel_speed_valid',
                              speedset = 'sel_speed_set',
@@ -50,7 +50,7 @@ devices = dict(
                              unit = 'Hz',
                             ),
 
-    sel_lambda      = device('kws1.selector.SelectorLambda',
+    sel_lambda      = device('nicos_mlz.kws1.devices.selector.SelectorLambda',
                              description = 'Selector wavelength control',
                              seldev = 'sel_speed',
                              unit = 'A',
@@ -59,7 +59,7 @@ devices = dict(
                              offset = -0.00195,
                             ),
 
-    sel_rot         = device('devices.tango.Motor',
+    sel_rot         = device('nicos.devices.tango.Motor',
                              description = 'selector rotation table',
                              tangodevice = tango_base + 'fzjs7/sel_rot',
                              unit = 'deg',

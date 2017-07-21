@@ -29,7 +29,7 @@ from nicos.core import Moveable, multiWait, UsageError
 from nicos.commands import usercommand
 from nicos.commands.measure import count
 from nicos.pycompat import listitems
-from nicos.kws1.commands import _fixupSampleenv
+from nicos_mlz.kws1.commands import _fixupSampleenv
 
 
 DEFAULT = ['selector', 'resolution', 'sample_pos', 'beamstop', 'detector',

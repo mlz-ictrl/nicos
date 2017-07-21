@@ -3,7 +3,7 @@
 description = 'Fully virtual KWS-3 setup'
 group = 'basic'
 
-modules = ['kws3.commands']
+modules = ['nicos_mlz.kws3.commands']
 
 includes = [
     'virtual_sample',

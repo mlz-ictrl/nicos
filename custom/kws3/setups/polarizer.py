@@ -11,7 +11,7 @@ pol_presets = configdata('config_polarizer.POLARIZER_PRESETS')
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    polarizer = device('devices.generic.MultiSwitcher',
+    polarizer = device('nicos.devices.generic.MultiSwitcher',
                        description = 'select polarizer presets',
                        blockingmove = False,
                        moveables = ['pol_y', 'pol_tilt'],
@@ -21,13 +21,13 @@ devices = dict(
                        precision = [0.01, 0.01],
                       ),
 
-    pol_y     = device('devices.tango.Motor',
+    pol_y     = device('nicos.devices.tango.Motor',
                        description = 'polarizer y-table',
                        tangodevice = tango_base + 'fzjs7/pol_y',
                        unit = 'mm',
                        precision = 0.01,
                       ),
-    pol_tilt  = device('devices.tango.Motor',
+    pol_tilt  = device('nicos.devices.tango.Motor',
                        description = 'polarizer tilt',
                        tangodevice = tango_base + 'fzjs7/pol_tilt',
                        unit = 'deg',
