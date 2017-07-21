@@ -103,7 +103,8 @@ set +x
 
 # map instrument libs into nicos tree (pylint does not use the nicos path magic :( )
 pushd custom
-for d in *;do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d);  done
+for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d); done
+for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos_mlz/$d); done
 popd
 set -x
 
@@ -125,7 +126,8 @@ set -e
 # cleanup
 set +x
 pushd custom
-for d in *;do test -d $d && rm -f ../nicos/$d  ;done
+for d in *; do test -d $d && rm -f ../nicos/$d; done
+for d in *; do test -d $d && rm -f ../nicos_mlz/$d; done
 popd
 set -x
 exit $res
