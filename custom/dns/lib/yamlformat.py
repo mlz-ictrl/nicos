@@ -31,7 +31,7 @@ import quickyaml
 from nicos import session
 from nicos.core import Override
 from nicos.devices.datasinks.image import ImageSink
-from nicos.frm2.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.frm2.devices.yamlbase import YAMLBaseFileSinkHandler
 
 
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):

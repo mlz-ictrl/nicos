@@ -14,7 +14,7 @@ devices = dict(
                  pollinterval = 5,
                  maxage = 6,
                 ),
-    fugwatch = device('poli.highvoltage.HVWatch',
+    fugwatch = device('nicos_mlz.poli.devices.highvoltage.HVWatch',
                       description = 'En-/Disable Watchdog for controlling hv '
                                     'in respect to temperature deviation',
                       states = ['off', 'on'],

@@ -6,7 +6,7 @@ main_window = tabbed(
             hsplit(
                 vsplit(
                     panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                          modules=['poli.gui.cmdlets']),
+                          modules=['nicos_mlz.poli.gui.cmdlets']),
                     panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
                 ),
             ),
@@ -27,8 +27,7 @@ main_window = tabbed(
     )),
     ('Script Editor',
         vsplit(
-            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
-                  modules=['poli.gui.cmdlets']),
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
             panel('nicos.clients.gui.panels.editor.EditorPanel',
                 tools = [
                     tool('Scan Generator',

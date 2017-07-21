@@ -9,7 +9,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard', 'poli.commands']
+modules = ['nicos.commands.standard', 'nicos_mlz.poli.commands']
 
 includes = ['notifiers', 'table', 'mono', 'slits', 'reactor', 'shutter']
 
@@ -30,7 +30,7 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('frm2.experiment.Experiment',
+    Exp      = device('nicos_mlz.frm2.devices.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/data',
                       managerights = dict(enableDirMode=0o775,

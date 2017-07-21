@@ -27,7 +27,7 @@ devices = dict(
                       abslimits = (-4.2, 30),
                       precision = 0.01,
                      ),
-    lubrication = device('poli.lubrication.LubeSwitch',
+    lubrication = device('nicos_mlz.poli.devices.lubrication.LubeSwitch',
                       description = 'lubrication switch',
                       tangodevice = tango_base + 'fzjdp_digital/lubrication',
                       lowlevel = True,

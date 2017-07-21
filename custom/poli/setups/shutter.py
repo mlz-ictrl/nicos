@@ -8,7 +8,7 @@ devices = dict(
         tangodevice = tango_base + 'fzjdp_digital/Shutter',
         lowlevel = True,
     ),
-    Shutter = device('poli.shutter.Shutter',
+    Shutter = device('nicos_mlz.poli.devices.shutter.Shutter',
         description = 'POLI shutter control',
         io = 'ShutterControl',
     ),

@@ -27,7 +27,7 @@
 from nicos import session
 from nicos.core import Param, dictof, tupleof, anytype, multiWait, \
     ConfigurationError
-from nicos.frm2.sample import Sample
+from nicos_mlz.frm2.devices.sample import Sample
 
 
 class KWSSample(Sample):

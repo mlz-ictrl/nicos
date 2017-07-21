@@ -5,7 +5,7 @@ group = 'basic'
 includes = ['nutator', 'cryopad_currents', 'hecells', 'table_lifting_virtual']
 
 devices = dict(
-    Cryopad   = device('poli.cryopad.SXTalCryopad',
+    Cryopad   = device('nicos_mlz.poli.devices.cryopad.SXTalCryopad',
                        description = 'Main cryopad device',
                        sxtal = 'POLI',
                        ttheta = 'gamma',
@@ -16,12 +16,12 @@ devices = dict(
                        unit = 'deg',
                       ),
 
-    Pin       = device('poli.cryopad.CryopadPol',
+    Pin       = device('nicos_mlz.poli.devices.cryopad.CryopadPol',
                        description = 'Incoming polarization direction',
                        cryopad = 'Cryopad',
                        side = 'in'
                       ),
-    Fin       = device('poli.cryopad.CryopadFlip',
+    Fin       = device('nicos_mlz.poli.devices.cryopad.CryopadFlip',
                        description = 'Incoming flipping by nutator current',
                        moveable = 'nutator1c',
                        mapping = {'on': -1.75, 'off': 1.75},
@@ -29,12 +29,12 @@ devices = dict(
                        fallback = 'unknown',
                       ),
 
-    Pout      = device('poli.cryopad.CryopadPol',
+    Pout      = device('nicos_mlz.poli.devices.cryopad.CryopadPol',
                        description = 'Outgoing polarization direction',
                        cryopad = 'Cryopad',
                        side = 'out'
                       ),
-    Fout      = device('poli.cryopad.CryopadFlip',
+    Fout      = device('nicos_mlz.poli.devices.cryopad.CryopadFlip',
                        description = 'Outgoing flipping by nutator current',
                        moveable = 'nutator2c',
                        mapping = {'on': -1.75, 'off': 1.75},

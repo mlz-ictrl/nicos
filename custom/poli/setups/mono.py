@@ -76,7 +76,7 @@ devices = dict(
     #                   device = 'v_m',
     #                   parameter = 'alias',
     #                  ),
-    #mono      = device('poli.mono.MultiSwitcher',
+    #mono      = device('nicos_mlz.poli.devices.mono.MultiSwitcher',
     #                   description = 'monochromator wavelength switcher',
     #                   # note: precision of chi and theta is so large because they are expected
     #                   # to be changed slightly depending on setup
