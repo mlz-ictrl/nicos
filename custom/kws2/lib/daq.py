@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param, SIMULATION
-from nicos.kws1.daq import KWSImageChannel
+from nicos_mlz.kws1.devices.daq import KWSImageChannel
 
 
 class GEImageChannel(KWSImageChannel):

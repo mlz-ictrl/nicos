@@ -27,7 +27,7 @@
 from PyQt4.QtGui import QCheckBox
 
 from nicos.clients.gui.cmdlets import register
-from nicos.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
+from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 
 
 class MeasureTable(KWS1MeasureTable):

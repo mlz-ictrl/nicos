@@ -14,13 +14,13 @@ pv_scales = configdata('config_gedet.PV_SCALES')
 tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
-    ep_HV_all = device('kws2.gedet.MultiHV',
+    ep_HV_all = device('nicos_mlz.kws2.devices.gedet.MultiHV',
                        ephvs = [epname + '_HV' for (epname, _) in eps],
                        lowlevel = True,
                        stepsettle = 2,
                        finalsettle = 30,
                       ),
-    gedet_HV  = device('kws2.gedet.HVSwitcher',
+    gedet_HV  = device('nicos_mlz.kws2.devices.gedet.HVSwitcher',
                        description = 'switches the GE detector HV',
                        moveable = 'ep_HV_all',
                        mapping = {
@@ -35,7 +35,7 @@ devices = dict(
                        precision = 25,
                       ),
 
-    gedet_power = device('devices.generic.MultiSwitcher',
+    gedet_power = device('nicos.devices.generic.MultiSwitcher',
                          description = 'switches the GE detector 54V power supply',
                          moveables = ['ps1_V', 'ps2_V'],
                          mapping = {
@@ -50,7 +50,7 @@ devices = dict(
 
 
 for (epname, epicsid) in eps:
-    devices[epname + '_T']  = device('devices.epics.EpicsReadable',
+    devices[epname + '_T']  = device('nicos.devices.epics.EpicsReadable',
                                      description = epname + ' FPGA temperature',
                                      readpv = epicsid + ':FpgaTemperature',
                                      lowlevel = True,
@@ -59,7 +59,7 @@ for (epname, epicsid) in eps:
                                      fmtstr = '%.1f',
                                      warnlimits = (25, 75),
                                     )
-    devices[epname + '_TB'] = device('devices.epics.EpicsReadable',
+    devices[epname + '_TB'] = device('nicos.devices.epics.EpicsReadable',
                                      description = epname + ' board temperature',
                                      readpv = epicsid + ':RsppTemperature',
                                      lowlevel = True,
@@ -68,7 +68,7 @@ for (epname, epicsid) in eps:
                                      fmtstr='%.1f',
                                      warnlimits = (25, 45),
                                     )
-    devices[epname + '_HV'] = device('devices.epics.EpicsAnalogMoveable',
+    devices[epname + '_HV'] = device('nicos.devices.epics.EpicsAnalogMoveable',
                                      description = epname + ' HV setting',
                                      readpv = epicsid + ':HighVoltage_R',
                                      writepv = epicsid + ':HighVoltage_W',
@@ -81,7 +81,7 @@ for (epname, epicsid) in eps:
                                     )
 
 for ti in range(1, 3):
-    devices['ps%d_V' % ti] = device('kws2.gedet.GEPowerSupply',
+    devices['ps%d_V' % ti] = device('nicos_mlz.kws2.devices.gedet.GEPowerSupply',
                                     description = 'detector power supply voltage',
                                     tangodevice = tango_base + 'gesupply/ps%d' % ti,
                                     unit = 'V',
@@ -90,7 +90,7 @@ for ti in range(1, 3):
                                     warnlimits = (53.9, 54.1),
                                     lowlevel = True,
                                    )
-    devices['ps%d_I' % ti] = device('devices.generic.ReadonlyParamDevice',
+    devices['ps%d_I' % ti] = device('nicos.devices.generic.ReadonlyParamDevice',
                                     description = 'detector power supply current',
                                     device = 'ps%d_V' % ti,
                                     parameter = 'current',

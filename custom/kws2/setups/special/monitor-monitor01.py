@@ -47,7 +47,7 @@ _collimation = make_blocks('Collimation', 'collimation', [
                             'aperture_08', 'aperture_04', 'aperture_02',
                             'pol_in', 'pol_out'],
                    polarizer=2,
-                   widget='nicos.kws1.monitorwidgets.Collimation',
+                   widget='nicos_mlz.kws1.gui.monitorwidgets.Collimation',
                    width=70, height=12)),
 ])
 
@@ -57,7 +57,7 @@ _detector = make_blocks('Detector', 'detector', [
     BlockRow(
         Field(devices=['det_z', 'beamstop_x', 'beamstop_y', 'psd_x', 'psd_y'],
               smalldet=16.0, beamstop=True,
-              widget='nicos.kws1.monitorwidgets.Tube', width=70, height=12)
+              widget='nicos_mlz.kws1.gui.monitorwidgets.Tube', width=70, height=12)
     ),
 ])
 
@@ -69,7 +69,7 @@ _polarizer = make_blocks('Polarizer', 'polarizer', [
 _lenses = make_blocks('Lenses', 'lenses', [
     BlockRow(
         Field(devices=['lens_in', 'lens_out'],
-              widget='nicos.kws1.monitorwidgets.Lenses', width=30, height=10)
+              widget='nicos_mlz.kws1.gui.monitorwidgets.Lenses', width=30, height=10)
     ),
 ])
 
@@ -81,7 +81,7 @@ _shutter = make_blocks('Shutter', 'shutter', [
 _sample = make_blocks('Sample', 'sample', [
     BlockRow(Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
-             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+             Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
                    width=10, height=10),
             ),
 ], setups='not sample_rotation')
@@ -91,7 +91,7 @@ _sample_withrot = make_blocks('Sample', 'sample', [
              Field(name='Tilt', dev='sam_tilt'),
              Field(name='Trans X', dev='sam_trans_x'),
              Field(name='Trans Y', dev='sam_trans_y'),
-             Field(device='ap_sam', widget='nicos.kws1.monitorwidgets.SampleSlit',
+             Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
                    width=10, height=10),
             ),
 ], setups='sample_rotation')
@@ -168,7 +168,7 @@ _layout = [
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'KWS-2 status',
                      loglevel = 'info',
                      cache = 'phys.kws2.frm2',

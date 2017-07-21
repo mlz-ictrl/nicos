@@ -6,7 +6,7 @@ group = 'special'
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
-    UserDB = device('frm2.proposaldb.Authenticator'),
+    # UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
 
     # fixed list of users:
     # first entry is the user name, second the hashed password, third the user
@@ -21,7 +21,7 @@ devices = dict(
     # or
     # >>> hashlib.sha1('password').hexdigest()
     # depending on the hashing algorithm
-    Auth   = device('services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
@@ -29,7 +29,7 @@ devices = dict(
                               ('jcns', '51b8e46e7a54e8033f0d7a3393305cdb', 'admin'),
                              ],
                    ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     # 'localhost' will normally bind the daemon to the loopback
                     # device, therefore just clients on the same machine will be
                     # able to connect !

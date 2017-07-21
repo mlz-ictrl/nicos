@@ -14,24 +14,24 @@ sysconfig = dict(
 tango_base = "tango://phys.kws2.frm2:10000/kws2/"
 
 devices = dict(
-    kwsformat  = device('kws2.kwsfileformat.KWSFileSink',
+    kwsformat  = device('nicos_mlz.kws2.devices.kwsfileformat.KWSFileSink',
                         lowlevel = True,
                         transpose = True,
                         detectors = ['det'],
                        ),
 
-    yamlformat = device('kws2.yamlformat.YAMLFileSink',
+    yamlformat = device('nicos_mlz.kws2.devices.yamlformat.YAMLFileSink',
                         lowlevel = True,
                         detectors = ['det'],
                        ),
 
-    det_mode   = device('devices.generic.ReadonlyParamDevice',
+    det_mode   = device('nicos.devices.generic.ReadonlyParamDevice',
                         description = 'Current detector mode',
                         device = 'det_img',
                         parameter = 'mode',
                        ),
 
-    det_img_ge = device('kws2.daq.GEImageChannel',
+    det_img_ge = device('nicos_mlz.kws2.devices.daq.GEImageChannel',
                         description = 'Image for the large KWS detector',
                         tangodevice = tango_base + 'ge/det',
                         timer = 'timer',
@@ -39,14 +39,14 @@ devices = dict(
                         fmtstr = '%d (%.1f cps)',
                        ),
 
-    det_img_jum = device('kws1.daq.KWSImageChannel',
+    det_img_jum = device('nicos_mlz.kws1.devices.daq.KWSImageChannel',
                         description = 'Image for the small KWS detector',
                         tangodevice = tango_base + 'jumiom/det',
                         timer = 'timer',
                         fmtstr = '%d (%.1f cps)',
                        ),
 
-    det        = device('kws1.daq.KWSDetector',
+    det        = device('nicos_mlz.kws1.devices.daq.KWSDetector',
                         description = 'KWS detector',
                         timers = ['timer'],
                         monitors = ['mon1', 'mon2', 'selctr'],
@@ -56,7 +56,7 @@ devices = dict(
                         liveinterval = 2.0,
                        ),
 
-    det_img    = device('devices.generic.DeviceAlias',
+    det_img    = device('nicos.devices.generic.DeviceAlias',
                         alias = 'det_img_ge',
                         devclass = 'kws1.daq.KWSImageChannel',
                        ),

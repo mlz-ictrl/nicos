@@ -26,13 +26,13 @@
 
 import time
 
+import PyTango
+
 from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import PowerSupply
 from nicos.pycompat import iteritems
-
-import PyTango
 
 
 class HVSwitcher(Switcher):

@@ -32,9 +32,10 @@ from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
     SeqDev
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.tango import Motor as TangoMotor, AnalogInput
-from nicos.kws1.detector import oneof_detector, DetectorPosSwitcherMixin
 from nicos.utils import num_sort
 from nicos.pycompat import iteritems
+from nicos_mlz.kws1.devices.detector import oneof_detector, \
+    DetectorPosSwitcherMixin
 
 
 class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,

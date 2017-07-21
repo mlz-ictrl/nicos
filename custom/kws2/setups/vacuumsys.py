@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
-    pressure_p20 =  device('devices.tango.Sensor',
+    pressure_p20 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure at pump 21',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p20',
                            unit = 'mbar',
@@ -13,7 +13,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p21 =  device('devices.tango.Sensor',
+    pressure_p21 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in collimation container',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p21',
                            unit = 'mbar',
@@ -21,7 +21,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p22 =  device('devices.tango.Sensor',
+    pressure_p22 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in sample chamber',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p22',
                            unit = 'mbar',
@@ -29,7 +29,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p23 =  device('devices.tango.Sensor',
+    pressure_p23 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in detector tube',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p23',
                            unit = 'mbar',
@@ -37,7 +37,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p24 =  device('devices.tango.Sensor',
+    pressure_p24 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in chopper housing',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p24',
                            unit = 'mbar',
@@ -45,7 +45,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p25 =  device('devices.tango.Sensor',
+    pressure_p25 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in lens chamber',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p25',
                            unit = 'mbar',
@@ -53,7 +53,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p26 =  device('devices.tango.Sensor',
+    pressure_p26 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in collimation container',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p26',
                            unit = 'mbar',
@@ -61,7 +61,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p13 =  device('devices.tango.Sensor',
+    pressure_p13 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in KWS1 detector tube',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p13',
                            unit = 'mbar',
@@ -69,7 +69,7 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    pressure_p33 =  device('devices.tango.Sensor',
+    pressure_p33 =  device('nicos.devices.tango.Sensor',
                            description = 'pressure in SANS1 detector tube',
                            tangodevice = tango_base + 'FZJDP_Analog/pressure_p33',
                            unit = 'mbar',
@@ -77,28 +77,28 @@ devices = dict(
                            lowlevel = True,
                           ),
 
-    lenstemp_4   =  device('devices.tango.Sensor',
+    lenstemp_4   =  device('nicos.devices.tango.Sensor',
                            description = 'lens temperature 4',
                            tangodevice = tango_base + 'FZJDP_Analog/lenstemp_4',
                            unit = 'K',
                            fmtstr = '%.1f',
                            lowlevel = True,
                           ),
-    lenstemp_5   =  device('devices.tango.Sensor',
+    lenstemp_5   =  device('nicos.devices.tango.Sensor',
                            description = 'lens temperature 5',
                            tangodevice = tango_base + 'FZJDP_Analog/lenstemp_5',
                            unit = 'K',
                            fmtstr = '%.1f',
                            lowlevel = True,
                           ),
-    lenstemp_6   =  device('devices.tango.Sensor',
+    lenstemp_6   =  device('nicos.devices.tango.Sensor',
                            description = 'lens temperature 6',
                            tangodevice = tango_base + 'FZJDP_Analog/lenstemp_6',
                            unit = 'K',
                            fmtstr = '%.1f',
                            lowlevel = True,
                           ),
-    lens_compressor = device('devices.tango.NamedDigitalInput',
+    lens_compressor = device('nicos.devices.tango.NamedDigitalInput',
                              description = 'lens compressor status',
                              tangodevice = tango_base + 'FZJDP_Digital/lens_compressor',
                              warnlimits = ('on', 'on'),

@@ -3,7 +3,7 @@
 description = 'KWS-2 setup'
 group = 'basic'
 
-modules = ['kws1.commands']
+modules = ['nicos_mlz.kws1.commands']
 
 includes = [
     'sample',

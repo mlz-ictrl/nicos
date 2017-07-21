@@ -27,7 +27,7 @@
 from nicos.core import Moveable, Attach, Param, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import WindowTimeoutAO
-from nicos_mlz.kws1.detector import DetectorPosSwitcherMixin
+from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin
 
 
 class SelectorSpeed(WindowTimeoutAO):
