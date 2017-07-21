@@ -7,16 +7,16 @@ group = 'optional'
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    sat_in  = device('devices.tango.DigitalInput',
+    sat_in  = device('nicos.devices.tango.DigitalInput',
                      tangodevice = tango_base + 'sat/input',
                      lowlevel = True,
                     ),
-    sat_out = device('devices.tango.DigitalOutput',
+    sat_out = device('nicos.devices.tango.DigitalOutput',
                      tangodevice = tango_base + 'sat/output',
                      lowlevel = True,
                     ),
 
-    sat = device('panda.satbox.SatBox',
+    sat = device('nicos_mlz.panda.devices.satbox.SatBox',
                  description = 'Sample beam attenuator',
                  input = 'sat_in',
                  output = 'sat_out',

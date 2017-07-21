@@ -7,7 +7,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Logbook = device('services.elog.Logbook',
+    Logbook = device('nicos.services.elog.Logbook',
                      prefix = 'logbook/',
                      cache = 'phys.panda.frm2'),
 )

@@ -27,7 +27,7 @@ from IO import StringIO
 
 from nicos.core import Attach, Device, Moveable, Readable, status
 from nicos.devices.taco import NamedDigitalOutput, TacoDevice
-from nicos.panda.mcc2 import MCC2Motor
+from nicos_mlz.panda.devices.mcc2 import MCC2Motor
 
 
 class TacoSerial(TacoDevice, Device):

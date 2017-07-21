@@ -7,7 +7,7 @@ group = 'optional'
 
 
 devices = dict(
-    saph_mot = device('devices.vendor.ipc.Motor',
+    saph_mot = device('nicos.devices.vendor.ipc.Motor',
                       description = 'Motor to move the saphire filter',
                       bus = 'bus5',
                       #addr = 66, #old rack, old connectors
@@ -27,7 +27,7 @@ devices = dict(
                       min = 444930, # lower refpos. taken from old config
                       max = 520640, # read out from card
                      ),
-    saph = device('devices.generic.Switcher',
+    saph = device('nicos.devices.generic.Switcher',
                   description = 'saphire filter',
                   moveable = 'saph_mot',
                   mapping = { 'in' : -133, 'out' : -8},

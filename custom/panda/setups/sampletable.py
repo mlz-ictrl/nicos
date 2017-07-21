@@ -35,14 +35,14 @@ TOTALBITS = lambda x: x & 0x1f
 
 
 devices = dict(
-    bus2 = device('devices.vendor.ipc.IPCModBusTango',
+    bus2 = device('nicos.devices.vendor.ipc.IPCModBusTango',
                   tangodevice = tango_base + 'ipc/sample',
                   bustimeout = 0.1,
                   loglevel = 'info',
                   lowlevel = True,
                  ),
 
-    bus4 = device('devices.vendor.ipc.IPCModBusTango',
+    bus4 = device('nicos.devices.vendor.ipc.IPCModBusTango',
                   tangodevice = tango_base + 'ipc/spare',
                   bustimeout = 0.1,
                   loglevel = 'info',
@@ -50,7 +50,7 @@ devices = dict(
                  ),
 
     # STT is first device and has 1 stepper, 0 poti, 1 coder
-    stt_step = device('devices.vendor.ipc.Motor',
+    stt_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(1),
                       slope = 2000,
@@ -67,7 +67,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 2.0,
                      ),
-    stt_enc = device('devices.vendor.ipc.Coder',
+    stt_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus2',
                      addr = CODER(1),
                      slope = -2**20 / 360.0,
@@ -77,7 +77,7 @@ devices = dict(
                      circular = -360, # map values to -180..0..180 degree
                      lowlevel = True,
                     ),
-    stt = device('devices.generic.Axis',
+    stt = device('nicos.devices.generic.Axis',
                  description = 'sample two theta',
                  motor = 'stt_step',
                  coder = 'stt_enc',
@@ -88,7 +88,7 @@ devices = dict(
                 ),
 
     # STH is second device and has 1 stepper, 0 poti, 1 coder
-    sth_st_step = device('devices.vendor.ipc.Motor',
+    sth_st_step = device('nicos.devices.vendor.ipc.Motor',
                          bus = 'bus4',  #was bus2
                          addr = MOTOR(2),
                          slope = 2000,
@@ -104,7 +104,7 @@ devices = dict(
                          lowlevel = True,
                       #~ current = 2.0,
                         ),
-    sth_st_enc = device('devices.vendor.ipc.Coder',
+    sth_st_enc = device('nicos.devices.vendor.ipc.Coder',
                         bus = 'bus2',
                         addr = CODER(2),
                         slope = -2**20 / 360.0,
@@ -114,7 +114,7 @@ devices = dict(
                         circular = 360, # map values to -180..0..180 degree
                         lowlevel = True,
                        ),
-    sth_st = device('devices.generic.Axis',
+    sth_st = device('nicos.devices.generic.Axis',
                     description = 'sth mounted on sampletable',
                     motor = 'sth_st_step',
                     coder = 'sth_st_enc',
@@ -123,7 +123,7 @@ devices = dict(
                    ),
 
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
-    sgx_step = device('devices.vendor.ipc.Motor',
+    sgx_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(3),  #original tripple card
                       #addr = MOTOR(8),
@@ -140,7 +140,7 @@ devices = dict(
                       lowlevel = True,
                    #~ current = 2.0,
                      ),
-    sgx_enc = device('devices.vendor.ipc.Coder',
+    sgx_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus4',
                      addr = CODER(3), #original tripple card
                      #addr = CODER(8),
@@ -153,7 +153,7 @@ devices = dict(
                      circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
                      lowlevel = True,
                     ),
-    sgx = device('devices.generic.Axis',
+    sgx = device('nicos.devices.generic.Axis',
                  description = 'sample goniometer around X',
                  motor = 'sgx_step',
                  coder = 'sgx_enc',
@@ -163,7 +163,7 @@ devices = dict(
                 ),
 
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
-    sgy_step = device('devices.vendor.ipc.Motor',
+    sgy_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(4), #original tripple card on bus2
                       #addr = MOTOR(8),
@@ -180,7 +180,7 @@ devices = dict(
                       lowlevel = True,
                    #~ current = 2.0,
                      ),
-    sgy_enc = device('devices.vendor.ipc.Coder',
+    sgy_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus4',
                      addr = CODER(4),  #original tripple card on bus2
                      #addr = CODER(8),
@@ -192,7 +192,7 @@ devices = dict(
                      circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
                      lowlevel = True,
                     ),
-    sgy = device('devices.generic.Axis',
+    sgy = device('nicos.devices.generic.Axis',
                  description = 'sample goniometer around Y',
                  motor = 'sgy_step',
                  coder = 'sgy_enc',
@@ -201,7 +201,7 @@ devices = dict(
               #~ rotary = True,
                 ),
 
-    vg1      = device('devices.tas.VirtualGonio',
+    vg1      = device('nicos.devices.tas.VirtualGonio',
                       description = 'Gonio along orient1 reflex',
                       cell = 'Sample',
                       gx = 'sgx',
@@ -209,7 +209,7 @@ devices = dict(
                       axis = 1,
                       unit = 'deg',
                      ),
-    vg2      = device('devices.tas.VirtualGonio',
+    vg2      = device('nicos.devices.tas.VirtualGonio',
                       description = 'Gonio along orient2 reflex',
                       cell = 'Sample',
                       gx = 'sgx',
@@ -219,7 +219,7 @@ devices = dict(
                      ),
 
     # STX is fith device and has 1 stepper, 1 poti, 0 coder
-    stx_step = device('devices.vendor.ipc.Motor',
+    stx_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(5),
                       slope = 12800,
@@ -233,7 +233,7 @@ devices = dict(
                    #~ divider = 4,
                    #~ current = 1.5,
                      ),
-    stx_poti = device('devices.vendor.ipc.Coder',
+    stx_poti = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'bus2',
                       addr = POTI(5),
                      slope = 79.75,
@@ -241,7 +241,7 @@ devices = dict(
                       unit = 'mm',
                       lowlevel = True,
                      ),
-    stx = device('devices.generic.Axis',
+    stx = device('nicos.devices.generic.Axis',
                  description = 'sample translation along X',
                  motor = 'stx_step',
                  coder = 'stx_step',
@@ -251,7 +251,7 @@ devices = dict(
                 ),
 
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
-    sty_step = device('devices.vendor.ipc.Motor',
+    sty_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(6),
                       slope = 12800,
@@ -265,7 +265,7 @@ devices = dict(
                    #~ divider = 4,
                    #~ current = 1.5,
                      ),
-    sty_poti = device('devices.vendor.ipc.Coder',
+    sty_poti = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'bus2',
                       addr = POTI(6),
                       slope = 79.65,
@@ -273,7 +273,7 @@ devices = dict(
                       unit = 'mm',
                       lowlevel = True,
                      ),
-    sty = device('devices.generic.Axis',
+    sty = device('nicos.devices.generic.Axis',
                  description = 'sample translation along Y',
                  motor = 'sty_step',
                  coder = 'sty_step',
@@ -283,7 +283,7 @@ devices = dict(
                 ),
 
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
-    stz_step = device('devices.vendor.ipc.Motor',
+    stz_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus2',
                       addr = MOTOR(7),
                       slope = 20000,
@@ -298,7 +298,7 @@ devices = dict(
                    #~ current = 1.5,
                      ),
 
-    stz = device('devices.generic.Axis',
+    stz = device('nicos.devices.generic.Axis',
                  description = 'vertical sample translation',
                  motor = 'stz_step',
                  coder = 'stz_step',

@@ -1,7 +1,7 @@
 7T5 magnet (TACO) workarounds
 -----------------------------
 
-.. automodule:: nicos.panda.misc
+.. automodule:: nicos_mlz.panda.devices.misc
     :members:
     :undoc-members:
 

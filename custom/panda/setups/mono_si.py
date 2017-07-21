@@ -11,7 +11,7 @@ excludes = ['mono_pg', 'mono_cu', 'mono_heusler']
 extended = dict(dynamic_loaded = True)
 
 devices = dict(
-    mono_si     = device('devices.tas.Monochromator',
+    mono_si     = device('nicos.devices.tas.Monochromator',
                          description = 'PANDA Si monochromator',
                          unit = 'A-1',
                          theta = 'mth',
@@ -27,7 +27,7 @@ devices = dict(
                          scatteringsense = -1,
                          crystalside = -1,
                         ),
-    mfh_si_step = device('panda.mcc2.MCC2Motor',
+    mfh_si_step = device('nicos_mlz.panda.devices.mcc2.MCC2Motor',
                          description = 'horizontal focusing MOTOR of Si monochromator',
                          bus = 'focimotorbus',
                          mccmovement = 'linear',
@@ -47,7 +47,7 @@ devices = dict(
                          accel = 5.0 / 54.0,
                          lowlevel = True,
                         ),
-    mfh_si_enc  = device('panda.mcc2.MCC2Coder',
+    mfh_si_enc  = device('nicos_mlz.panda.devices.mcc2.MCC2Coder',
                          description = 'horizontal focusing CODER of Si monochromator',
                          bus = 'focimotorbus',
                          fmtstr = '%.3f',
@@ -60,8 +60,8 @@ devices = dict(
                          coderbits = 25,
                          lowlevel = True,
                         ),
-    #~ mfh_si      = device('devices.generic.Axis',
-    mfh_si      = device('panda.rot_axis.RefAxis',
+    #~ mfh_si      = device('nicos.devices.generic.Axis',
+    mfh_si      = device('nicos_mlz.panda.devices.rot_axis.RefAxis',
                          description = 'horizontal focus of Si monochromator',
                          motor = 'mfh_si_step',
                          coder = 'mfh_si_enc',

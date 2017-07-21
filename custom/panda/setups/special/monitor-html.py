@@ -400,7 +400,7 @@ column3 = Column(tas) + Column(magnet75supp, magnet5supp, kelvinox, foki) + \
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('nicos.services.monitor.html.Monitor',
                      title = 'PANDA Status monitor',
                      filename = '/pandacontrol/webroot/index.html',
                      interval = 10,

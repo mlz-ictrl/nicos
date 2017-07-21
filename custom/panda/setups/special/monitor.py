@@ -455,7 +455,7 @@ column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
           Column(vtiplot)
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'PANDA status monitor',
                      loglevel = 'info',
                      cache = 'phys.panda.frm2',

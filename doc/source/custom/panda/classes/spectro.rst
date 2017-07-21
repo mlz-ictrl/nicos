@@ -1,6 +1,6 @@
 Custom instrument
 -----------------
 
-.. automodule:: nicos.panda.spectro
+.. automodule:: nicos_mlz.panda.devices.spectro
     :members:
     :undoc-members:

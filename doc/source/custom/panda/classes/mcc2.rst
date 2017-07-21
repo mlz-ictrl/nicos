@@ -1,6 +1,6 @@
 Panda MCC2 interface
 --------------------
 
-.. automodule:: nicos.panda.mcc2
+.. automodule:: nicos_mlz.panda.devices.mcc2
     :members:
     :undoc-members:

@@ -64,4 +64,5 @@ tools = [
     tool('Emergency stop button',
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=True),
+    cmdtool('Marche (Server control)', 'marche-gui'),
 ]

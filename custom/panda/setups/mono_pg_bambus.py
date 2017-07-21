@@ -11,7 +11,7 @@ excludes = ['mono_pg', 'mono_si', 'mono_cu', 'mono_heusler']
 extended = dict(dynamic_loaded = True)
 
 devices = dict(
-    mono_pg     = device('devices.tas.Monochromator',
+    mono_pg     = device('nicos.devices.tas.Monochromator',
                          description = 'PG Monochromator of PANDA',
                          unit = 'A-1',
                          theta = 'mth',
@@ -33,7 +33,7 @@ devices = dict(
                          scatteringsense = -1,
                          crystalside = -1,
                         ),
-    mfh_pg_step = device('panda.mcc2.MCC2Motor',
+    mfh_pg_step = device('nicos_mlz.panda.devices.mcc2.MCC2Motor',
                          description = 'horizontal focusing MOTOR of PG monochromator',
                          bus = 'focimotorbus',
                          mccmovement = 'linear',
@@ -54,7 +54,7 @@ devices = dict(
                          accel = 50,
                          lowlevel = True,
                         ),
-    mfh_pg      = device('panda.rot_axis.RotAxis',
+    mfh_pg      = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                          description = 'horizontal focus of PG monochromator',
                          motor = 'mfh_pg_step',
                          coder = 'mfh_pg_step',
@@ -64,7 +64,7 @@ devices = dict(
                          refspeed = 1.5,
                          autoref = -10, # autoref every 10 full turns
                         ),
-    mfv_pg_step = device('panda.mcc2.MCC2Motor',
+    mfv_pg_step = device('nicos_mlz.panda.devices.mcc2.MCC2Motor',
                          description = 'vertical focusing MOTOR of PG monochromator',
                          bus = 'focimotorbus',
                          mccmovement = 'linear',
@@ -84,7 +84,7 @@ devices = dict(
                          accel = 50,
                          lowlevel = True,
                         ),
-    mfv_pg      = device('panda.rot_axis.RotAxis',
+    mfv_pg      = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                          description = 'vertical focus of PG monochromator',
                          motor = 'mfv_pg_step',
                          coder = 'mfv_pg_step',

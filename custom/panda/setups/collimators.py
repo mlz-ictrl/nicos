@@ -33,7 +33,7 @@ P_EVEN = 0
 TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
-    ca1_mot  = device('devices.vendor.ipc.Motor',
+    ca1_mot  = device('nicos.devices.vendor.ipc.Motor',
                       description = 'Stepper motor to move the collimator lift',
                       bus = 'bus5',
                       addr = 81,
@@ -49,7 +49,7 @@ devices = dict(
                       min = 499800,
                       max = 651200,
                      ),
-    ca1      = device('devices.generic.Switcher',
+    ca1      = device('nicos.devices.generic.Switcher',
                       description = 'Collimator CA1 lift',
                       moveable = 'ca1_mot',
                       mapping = {'none': 0, '20m': 310, '60m': 540, '40m': 755},
@@ -58,7 +58,7 @@ devices = dict(
                      ),
 
 
-    ca2_mot  = device('devices.vendor.ipc.Motor',
+    ca2_mot  = device('nicos.devices.vendor.ipc.Motor',
                       description = 'Stepper motor to adjust CA2 collimator',
                       bus = 'bus4',
                       addr = MOTOR(8),

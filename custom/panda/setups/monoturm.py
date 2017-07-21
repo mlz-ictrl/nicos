@@ -30,7 +30,7 @@ TOTALBITS = lambda x: x & 0x1f
 
 
 devices = dict(
-    bus5 = device('devices.vendor.ipc.IPCModBusTango',
+    bus5 = device('nicos.devices.vendor.ipc.IPCModBusTango',
             tangodevice = tango_base + 'ipc/mono',
             bustimeout = 0.1,
             loglevel = 'info',
@@ -38,7 +38,7 @@ devices = dict(
     ),
 
     #~ # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-#~   mfh_step = device('devices.vendor.ipc.Motor',
+#~   mfh_step = device('nicos.devices.vendor.ipc.Motor',
                     #~ bus = 'bus5',
                     #~ addr = MOTOR(1),
                     #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
@@ -56,7 +56,7 @@ devices = dict(
                     #~ lowlevel = True,
                     ##~ current = 0.2,
                    #~ ),
-#~   mfh_poti = device('devices.vendor.ipc.Coder',
+#~   mfh_poti = device('nicos.devices.vendor.ipc.Coder',
                     #~ bus = 'bus5',
                     #~ addr = POTI(1),
                     #~ slope = 1,
@@ -64,8 +64,8 @@ devices = dict(
                     #~ unit = 'deg',
                     #~ lowlevel = True,
                    #~ ),
-##~ mfh = device('devices.generic.Axis',
-#~   mfh = device('panda.rot_axis.RotAxis',
+##~ mfh = device('nicos.devices.generic.Axis',
+#~   mfh = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                #~ motor = 'mfh_step',
                #~ coder = 'mfh_step',
                #~ obs = [],
@@ -81,7 +81,7 @@ devices = dict(
     # endschalter+=599620 steps,poti=852 ca. 3.1 deg
     # 0 = 500000 steps, poti=2259
     # endschalter-=398852, poti=3727 ca 3.16 deg
-    mgx_step = device('panda.ipc.Motor',
+    mgx_step = device('nicos_mlz.panda.devices.ipc.Motor',
                       bus = 'bus5',
                       addr = MOTOR(2),
                       slope = 32000,
@@ -95,7 +95,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 1.5,
                      ),
-    mgx_poti = device('devices.vendor.ipc.Coder',
+    mgx_poti = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'bus5',
                       addr = POTI(2),
                       slope = -459.16,
@@ -103,7 +103,7 @@ devices = dict(
                       unit = 'deg',
                       lowlevel = True,
                      ),
-    mgx = device('devices.generic.Axis',
+    mgx = device('nicos.devices.generic.Axis',
                  description = 'mono tilt (up/down)',
                  motor = 'mgx_step',
                  coder = 'mgx_step',
@@ -116,7 +116,7 @@ devices = dict(
     # endschalter- =248643 steps, poti=0, ca 15.7mm
     # 0 = 500000 steps, poti=3910
     # endschalter+ 553200= steps, poti=4790, ca -3.3mm
-    mtx_step = device('panda.ipc.Motor',
+    mtx_step = device('nicos_mlz.panda.devices.ipc.Motor',
                       bus = 'bus5',
                       addr = MOTOR(3),
                       slope = 16000,
@@ -130,7 +130,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 1.5,
                      ),
-    mtx_poti = device('devices.vendor.ipc.Coder',
+    mtx_poti = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'bus5',
                       addr = POTI(3),
                       slope = 265.25,
@@ -138,7 +138,7 @@ devices = dict(
                       unit = 'mm',
                       lowlevel = True,
                      ),
-    mtx = device('devices.generic.Axis',
+    mtx = device('nicos.devices.generic.Axis',
                  description = 'mono translation (left/right) (needed for Si!)',
                  motor = 'mtx_step',
                  coder = 'mtx_step',
@@ -152,7 +152,7 @@ devices = dict(
     # endschalter- steps=684692, poti= 862, 11.5mm
     # 0 500000 steps, poti=3940
     # endschalter+ = 294059, poti=7436, -12.8mm
-    mty_step = device('panda.ipc.Motor',
+    mty_step = device('nicos_mlz.panda.devices.ipc.Motor',
                       bus = 'bus5',
                       addr = MOTOR(4),
                       slope = -16000,
@@ -166,7 +166,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 1.5,
                      ),
-    mty_poti = device('devices.vendor.ipc.Coder',
+    mty_poti = device('nicos.devices.vendor.ipc.Coder',
                       bus = 'bus5',
                       addr = POTI(4),
                       slope = 269.2655,
@@ -174,7 +174,7 @@ devices = dict(
                       unit = 'mm',
                       lowlevel = True,
                      ),
-    mty = device('devices.generic.Axis',
+    mty = device('nicos.devices.generic.Axis',
                  description = 'mono translation along Y (thickness correction)',
                  motor = 'mty_step',
                  coder = 'mty_step',
@@ -185,7 +185,7 @@ devices = dict(
 
     #
     # MTH is fith device and has 1 stepper, 0 poti, 1 coder
-    mth_step = device('devices.vendor.ipc.Motor',
+    mth_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus5',
                       addr = MOTOR(5),
                       slope = -8000,
@@ -199,7 +199,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 1.5,
                      ),
-    mth_enc = device('devices.vendor.ipc.Coder',
+    mth_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus5',
                      addr = CODER(5),
                      slope = -2**26 / 360.0,
@@ -209,7 +209,7 @@ devices = dict(
                      circular = -360, # map values to -180..0..180 degree
                      lowlevel = True,
                     ),
-    mth = device('devices.generic.Axis',
+    mth = device('nicos.devices.generic.Axis',
                  description = 'rocking angle of monochromator',
                  motor = 'mth_step',
                  coder = 'mth_enc',
@@ -221,7 +221,7 @@ devices = dict(
 
     #
     # MTT is sixth device and has 0 stepper, 0 poti, 1 coder
-    mtt_enc = device('devices.vendor.ipc.Coder',
+    mtt_enc = device('nicos.devices.vendor.ipc.Coder',
                      description = 'rotary encoder on bottom of mtt',
                      bus = 'bus5',
                      addr = CODER(6),
@@ -235,7 +235,7 @@ devices = dict(
 
     #
     # MS1 is seventh device and has 1 stepper, 0 poti, 1 coder
-    ms1_step = device('devices.vendor.ipc.Motor',
+    ms1_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus5',
                    #~ addr = MOTOR(7), #original
                       addr = MOTOR(6),        #test
@@ -251,7 +251,7 @@ devices = dict(
                       microstep = 16,
                       lowlevel = True,
                      ),
-    ms1_enc = device('devices.vendor.ipc.Coder',
+    ms1_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus5',
                      addr = CODER(7),
                      slope = 2**13 / 3.0,        # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
@@ -260,7 +260,7 @@ devices = dict(
                      unit = 'mm',
                      lowlevel = True,
                     ),
-    ms1 = device('devices.generic.Axis',
+    ms1 = device('nicos.devices.generic.Axis',
                  description = 'primary horizontal slit before mono',
                  userlimits = (0, 50),
                  motor = 'ms1_step',
@@ -272,7 +272,7 @@ devices = dict(
 
     #
     # MFV is eigth device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-#~   mfv_step = device('devices.vendor.ipc.Motor',
+#~   mfv_step = device('nicos.devices.vendor.ipc.Motor',
                     #~ bus = 'bus5',
                     #~ addr = MOTOR(8),
                     #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
@@ -286,7 +286,7 @@ devices = dict(
                     ##current = 0.2,
                     #~ lowlevel = True,
                    #~ ),
-#~   mfv_poti = device('devices.vendor.ipc.Coder',
+#~   mfv_poti = device('nicos.devices.vendor.ipc.Coder',
                     #~ bus = 'bus5',
                     #~ addr = POTI(8),
                     #~ slope = 1,
@@ -294,8 +294,8 @@ devices = dict(
                     #~ unit = 'deg',
                     #~ lowlevel = True,
                    #~ ),
-##~   mfv = device('devices.generic.Axis',
-#~   mfv = device('panda.rot_axis.RotAxis',
+##~   mfv = device('nicos.devices.generic.Axis',
+#~   mfv = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                #~ motor = 'mfv_step',
                #~ coder = 'mfv_step',
                #~ obs = [],

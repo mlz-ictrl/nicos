@@ -7,7 +7,7 @@ group = 'optional'
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    TBeFilter = device('devices.tango.Sensor',
+    TBeFilter = device('nicos.devices.tango.Sensor',
                        tangodevice = tango_base + 'analyzer/plc_befiltertemp',
                        warnlimits = (0, 80),
                        unit = 'K',

@@ -9,7 +9,7 @@ group = 'optional'
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    water = device('devices.tango.NamedDigitalInput',
+    water = device('nicos.devices.tango.NamedDigitalInput',
                    description = 'Water flux readout',
                    tangodevice = tango_base + 'water/flow',
                    fmtstr = '%s',

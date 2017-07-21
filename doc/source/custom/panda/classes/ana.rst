@@ -1,6 +1,6 @@
 Analysator
 ----------
 
-.. automodule:: nicos.panda.ana
+.. automodule:: nicos_mlz.panda.devices.ana
     :members:
     :undoc-members:

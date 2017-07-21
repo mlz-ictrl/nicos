@@ -9,7 +9,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Poller = device('services.poller.Poller',
+    Poller = device('nicos.services.poller.Poller',
                     loglevel = 'info',
                     autosetup = True,
                     alwayspoll = ['water'],

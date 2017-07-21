@@ -1,6 +1,6 @@
 Polarized support
 -----------------
 
-.. automodule:: nicos.panda.guidefield
+.. automodule:: nicos_mlz.panda.devices.guidefield
     :members:
     :undoc-members:

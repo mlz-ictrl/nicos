@@ -3,8 +3,8 @@ group = 'special'
 
 
 devices = dict(
-    UserDBAuth = device('frm2.proposaldb.Authenticator'),
-    Auth       = device('services.daemon.auth.ListAuthenticator',
+    UserDBAuth = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
+    Auth       = device('nicos.services.daemon.auth.ListAuthenticator',
                         description = 'Authentication device',
                         hashing = 'md5',
                         # first entry is the user name, second the hashed password, third the user level
@@ -17,7 +17,7 @@ devices = dict(
                                   ('aweber', '3219e862ecf3d51fa1895e053d0e96cd', 'admin'),
                                   ('petr', '54709903e06a8be9a62a649cc8ec2f1d', 'admin')],
                        ),
-    Daemon = device('services.daemon.NicosDaemon',
+    Daemon = device('nicos.services.daemon.NicosDaemon',
                     description = 'Daemon, executing commands and scripts',
                     server = '',
                     authenticators = ['Auth', 'UserDBAuth'],

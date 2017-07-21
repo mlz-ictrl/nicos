@@ -3,7 +3,7 @@ description = 'support device(s) for pressure cells'
 group = 'optional'
 
 devices = dict(
-    p_cell = device('devices.generic.ManualMove',
+    p_cell = device('nicos.devices.generic.ManualMove',
                     description = 'pressure in the pressure cell',
                     default = 0,
                     unit = 'kbar',

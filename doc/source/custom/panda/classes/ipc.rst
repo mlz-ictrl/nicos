@@ -1,6 +1,6 @@
 IPC workarounds
 ---------------
 
-.. automodule:: nicos.panda.ipc
+.. automodule:: nicos_mlz.panda.devices.ipc
     :members:
     :undoc-members:

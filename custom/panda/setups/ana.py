@@ -30,7 +30,7 @@ P_EVEN = 0
 TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
-    bus1 = device('devices.vendor.ipc.IPCModBusTango',
+    bus1 = device('nicos.devices.vendor.ipc.IPCModBusTango',
                   tangodevice = tango_base + 'ipc/ana',
                   bustimeout = 0.1,
                   loglevel = 'info',
@@ -38,7 +38,7 @@ devices = dict(
                  ),
 
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
-    att_step = device('devices.vendor.ipc.Motor',
+    att_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus1',
                       addr = MOTOR(1),
                       slope = -200,
@@ -55,7 +55,7 @@ devices = dict(
                       #~ current = 2.0,
                       lowlevel = True,
                      ),
-    att_enc = device('devices.vendor.ipc.Coder',
+    att_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus1',
                      addr = CODER(1),
                      slope = -2**20 / 360.0,
@@ -65,11 +65,11 @@ devices = dict(
                      circular = -360, # map values to -180..0..180 degree
                      lowlevel = True,
                     ),
-    anablocks = device('panda.ana.AnaBlocks',
+    anablocks = device('nicos_mlz.panda.devices.ana.AnaBlocks',
                        tangodevice = tango_base + 'analyzer/plc_blockcontrol',
                        lowlevel = True,
                       ),
-    att = device('panda.ana.ATT_Axis',
+    att = device('nicos_mlz.panda.devices.ana.ATT_Axis',
                  description = 'Analyser two theta',
                  anablocks = 'anablocks',
                  motor = 'att_step',
@@ -81,7 +81,7 @@ devices = dict(
                  offset = 0.54568,
                 ),
     # temporary disable of the ATT axis to allow movement
-    # att = device('devices.generic.Axis',
+    # att = device('nicos.devices.generic.Axis',
     #             description = 'Analyser two theta',
     #             motor = 'att_step',
     #             coder = 'att_enc',
@@ -93,7 +93,7 @@ devices = dict(
     #            ),
 
     # ath is second device and has 1 stepper, 0 poti, 1 coder
-    ath_step = device('devices.vendor.ipc.Motor',
+    ath_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus1',
                       addr = MOTOR(2),
                       slope = 1600,
@@ -109,7 +109,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 2.0,
                      ),
-    ath_enc = device('devices.vendor.ipc.Coder',
+    ath_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus1',
                      addr = CODER(2),
                      slope = 2**18 / 360.0,
@@ -119,7 +119,7 @@ devices = dict(
                      circular = -360, # map values to -180..0..180 degree
                      lowlevel = True,
                     ),
-    ath = device('devices.generic.Axis',
+    ath = device('nicos.devices.generic.Axis',
                  description = 'analyser rocking angle',
                  motor = 'ath_step',
                  coder = 'ath_enc',
@@ -131,7 +131,7 @@ devices = dict(
                 ),
 
     # agx is third device and has 1 stepper, 0 poti, 1 coder
-    agx_step = device('devices.vendor.ipc.Motor',
+    agx_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus1',
                       addr = MOTOR(3),
                       slope = 3200,
@@ -147,7 +147,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 2.0,
                      ),
-    agx_enc = device('devices.vendor.ipc.Coder',
+    agx_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus1',
                      addr = CODER(3),
                      slope = -2**13,
@@ -157,7 +157,7 @@ devices = dict(
                      circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
                      lowlevel = True,
                     ),
-    agx = device('devices.generic.Axis',
+    agx = device('nicos.devices.generic.Axis',
                  description = 'analyser tilt (up/down)',
                  motor = 'agx_step',
                  coder = 'agx_enc',
@@ -171,7 +171,7 @@ devices = dict(
     # fith device is unused
 
     # aty is sixth device and has 1 stepper, 0 poti, 1 coder
-    aty_step = device('devices.vendor.ipc.Motor',
+    aty_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus1',
                       addr = MOTOR(6),
                       slope = 400,
@@ -185,7 +185,7 @@ devices = dict(
                       #~ divider = 4,
                       #~ current = 1.5,
                      ),
-    aty_enc = device('devices.vendor.ipc.Coder',
+    aty_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus1',
                      addr = CODER(6),
                      slope = -2**13,
@@ -195,7 +195,7 @@ devices = dict(
                      circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
                      lowlevel = True,
                     ),
-    aty = device('devices.generic.Axis',
+    aty = device('nicos.devices.generic.Axis',
                  description = 'analyser translation along Y (thickness correction)',
                  motor = 'aty_step',
                  coder = 'aty_enc',
@@ -207,7 +207,7 @@ devices = dict(
     # eigth device is unused
 
     # afh is seventh device and has 1 stepper, 0 poti, 0 coder
-    afh_step = device('devices.vendor.ipc.Motor',
+    afh_step = device('nicos.devices.vendor.ipc.Motor',
                       bus = 'bus1',
                       addr = MOTOR(7),
                       slope = 8 * 400 / 360.0,
@@ -223,7 +223,7 @@ devices = dict(
                       lowlevel = True,
                       #~ current = 2.0,
                      ),
-    afh_enc = device('devices.vendor.ipc.Coder',
+    afh_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus1',
                      addr = CODER(7),
                      slope = 2**13 / 360.0,
@@ -233,7 +233,7 @@ devices = dict(
                      circular = -360,
                      lowlevel = True,
                     ),
-#~   afh = device('devices.generic.Axis',
+#~   afh = device('nicos.devices.generic.Axis',
                #~ motor = 'afh_step',
                #~ coder = 'afh_enc',
                #~ obs = [],
@@ -241,8 +241,8 @@ devices = dict(
                #~ fmtstr='%.1f',
               #~ ),
 
-#~ afh = device('devices.generic.Axis',
-    afh_pg = device('panda.rot_axis.RotAxis',
+#~ afh = device('nicos.devices.generic.Axis',
+    afh_pg = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                     description = 'horizontal focus of PG analyser',
                     motor = 'afh_step',
                     #~ coder = 'afh_step',
@@ -254,7 +254,7 @@ devices = dict(
                     fmtstr = '%.1f',
                     autoref = None, # disable autoref since there is no refswitch
                    ),
-    afh  = device('devices.generic.DeviceAlias',
+    afh  = device('nicos.devices.generic.DeviceAlias',
                   alias = 'afh_pg',
                  ),
 )

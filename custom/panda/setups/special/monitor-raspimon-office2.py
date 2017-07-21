@@ -405,7 +405,7 @@ column3 = Column(magnet75supp, kelvinox, foki) + \
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'PANDA office status monitor',
                      loglevel = 'info',
                      cache = 'phys.panda.frm2',

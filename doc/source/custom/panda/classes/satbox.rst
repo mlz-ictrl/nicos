@@ -1,6 +1,6 @@
 Attenuator
 ----------
 
-.. automodule:: nicos.panda.satbox
+.. automodule:: nicos_mlz.panda.devices.satbox
     :members:
     :undoc-members:
