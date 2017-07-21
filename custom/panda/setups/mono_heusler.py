@@ -3,10 +3,9 @@ description = 'PANDA Heusler-monochromator'
 group = 'lowlevel'
 
 includes = ['monofoci', 'monoturm', 'panda_s7']
+excludes = ['mono_pg', 'mono_cu', 'mono_si', 'ana_heusler']
 
 modules = []
-
-excludes = ['mono_pg', 'mono_cu', 'mono_si']
 
 extended = dict(dynamic_loaded = True)
 
