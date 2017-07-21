@@ -1,4 +1,4 @@
 Instrument specific commands
 ----------------------------
 
-.. autofunction:: nicos.biodiff.scan.rscan
+.. autofunction:: nicos_mlz.biodiff.commands.rscan

@@ -14,17 +14,17 @@ tango_ikonl = tango_base + "detector/ikonl"
 tango_limaccd = tango_base + "detector/limaccd"
 
 devices = dict(
-    FITSFileSaver = device("devices.datasinks.FITSImageSink",
+    FITSFileSaver = device("nicos.devices.datasinks.FITSImageSink",
                            description = "Saves image data in FITS format",
                            filenametemplate = ["%(proposal)s_"
                                                "%(pointcounter)08d.fits"],
                            subdir = ".",
                           ),
-    ccdtime = device("devices.vendor.lima.LimaCCDTimer",
+    ccdtime = device("nicos.devices.vendor.lima.LimaCCDTimer",
                      description = "Internal LimaCDDTimer",
                      tangodevice = tango_limaccd,
                      ),
-    ccd     = device("devices.vendor.lima.Andor2LimaCCD",
+    ccd     = device("nicos.devices.vendor.lima.Andor2LimaCCD",
                      description = "Andor DV936 CCD camera",
                      tangodevice = tango_limaccd,
                      hwdevice = tango_ikonl,
@@ -36,7 +36,7 @@ devices = dict(
                      hsspeed = 1,
                      pgain = 4,
                     ),
-    ccddet  = device("biodiff.detector.BiodiffDetector",
+    ccddet  = device("nicos_mlz.biodiff.devices.detector.BiodiffDetector",
                      description = "Andor DV936 CCD detector",
                      timers = ["ccdtime"],
                      images = ["ccd"],
@@ -44,7 +44,7 @@ devices = dict(
                      gammashutter = "gammashutter",
                      photoshutter = "photoshutter",
                     ),
-    ccdTemp = device("devices.vendor.lima.Andor2TemperatureController",
+    ccdTemp = device("nicos.devices.vendor.lima.Andor2TemperatureController",
                      description = "Andor DV936 CCD temperature control",
                      tangodevice = tango_ikonl,
                      maxage = 5,

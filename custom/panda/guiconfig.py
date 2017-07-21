@@ -34,7 +34,7 @@ windows = [
 ]
 
 tools = [
-    tool('Downtime report', 'downtime.DownTimeTool',
+    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          receiver='f.carsughi@fz-juelich.de',
          mailserver='smtp.frm2.tum.de',
          sender='panda@frm2.tum.de',

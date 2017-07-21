@@ -33,7 +33,7 @@ from nicos.core.errors import NicosError, MoveError, InvalidValueError
 from nicos.core.constants import FINAL, SIMULATION
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
-from nicos.jcns.shutter import OPEN, CLOSE
+from nicos_mlz.jcns.devices.shutter import OPEN, CLOSE
 
 
 class ImagePlateDrum(PyTangoDevice, Moveable):

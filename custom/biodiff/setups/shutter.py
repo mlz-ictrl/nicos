@@ -11,12 +11,12 @@ _MAP_SHUTTER = {
 }
 
 devices = dict(
-    gammashutter = device("jcns.shutter.Shutter",
+    gammashutter = device("nicos_mlz.jcns.devices.shutter.Shutter",
                           description = "Gamma shutter",
                           tangodevice = tango_base + "fzjdp_digital/expshutter",
                           mapping = _MAP_SHUTTER,
                          ),
-    photoshutter = device("jcns.shutter.Shutter",
+    photoshutter = device("nicos_mlz.jcns.devices.shutter.Shutter",
                           description = "Photo shutter",
                           tangodevice = tango_base + "fzjdp_digital/photoexpshutter",
                           mapping = _MAP_SHUTTER,

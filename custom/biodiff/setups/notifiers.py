@@ -3,7 +3,7 @@ description = 'Email and SMS notifiers'
 group = 'lowlevel'
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
+    email    = device('nicos.devices.notifiers.Mailer',
                       description = 'E-Mail notifier',
                       sender = 'biodiff@frm2.tum.de',
                       copies = [('t.schrader@fz-juelich.de', 'all'),
@@ -14,7 +14,7 @@ devices = dict(
                       subject = '[NICOS] BIODIFF',
                      ),
 
-    smser    = device('devices.notifiers.SMSer',
+    smser    = device('nicos.devices.notifiers.SMSer',
                       description = 'SMS notifier',
                       server = 'triton.admin.frm2',
                       receivers = ['01736746111', '015146192359'],

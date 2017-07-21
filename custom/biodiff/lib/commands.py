@@ -34,9 +34,9 @@ from nicos.core.utils import waitForCompletion
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.devices.abstract import Motor as NicosMotor
-from nicos.biodiff.motor import MicrostepMotor
-from nicos.biodiff.detector import BiodiffDetector
-from nicos.jcns.shutter import OPEN
+from nicos_mlz.biodiff.devices.motor import MicrostepMotor
+from nicos_mlz.biodiff.devices.detector import BiodiffDetector
+from nicos_mlz.jcns.devices.shutter import OPEN
 
 
 def underlying_motor(devices):
