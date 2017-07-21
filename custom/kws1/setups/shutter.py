@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-description = "Beam shutter setup"
-group = "lowlevel"
+description = 'Beam shutter setup'
+group = 'lowlevel'
 display_order = 5
 
 excludes = ['virtual_shutter']
 
-tango_base = "tango://phys.kws1.frm2:10000/kws1/"
+tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
+tango_base_frm2 = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
 
 devices = dict(
     shutter_in  = device('nicos.devices.tango.DigitalInput',
@@ -22,17 +23,17 @@ devices = dict(
                          output = 'shutter_set',
                          input = 'shutter_in',
                         ),
-    nl3b_shutter = device('nicos.devices.taco.NamedDigitalInput',
+    nl3b_shutter = device('nicos.devices.tango.NamedDigitalInput',
                          description = 'Neutron guide 3b shutter status',
                          mapping = {'closed': 0, 'open': 1},
-                         tacodevice = '//tacodb.taco.frm2/frm2/shutter/nl3b',
+                         tangodevice = tango_base_frm2 + 'shutter/nl3b',
                          pollinterval = 60,
                          maxage = 120,
                         ),
-    sixfold_shutter = device('nicos.devices.taco.NamedDigitalInput',
+    sixfold_shutter = device('nicos.devices.tango.NamedDigitalInput',
                          description = 'Sixfold shutter status',
                          mapping = {'closed': 0, 'open': 1},
-                         tacodevice = '//tacodb.taco.frm2/frm2/shutter/sixfold',
+                         tangodevice = tango_base_frm2 + 'shutter/sixfold',
                          pollinterval = 60,
                          maxage = 120,
                         ),
