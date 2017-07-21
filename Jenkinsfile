@@ -105,7 +105,7 @@ set +x
 pushd custom
 for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d); done
 for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos_mlz/$d); done
-for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos_mlz/$d/devices); done
+for d in *; do test -d $d && (ln -s . $PWD/$d/lib/devices); done
 popd
 set -x
 
@@ -129,7 +129,7 @@ set +x
 pushd custom
 for d in *; do test -d $d && rm -f ../nicos/$d; done
 for d in *; do test -d $d && rm -f ../nicos_mlz/$d/devices; done
-for d in *; do test -d $d && rm -f ../nicos_mlz/$d; done
+for d in *; do test -d $d && rm -f $d/lib/devices; done
 popd
 set -x
 exit $res
