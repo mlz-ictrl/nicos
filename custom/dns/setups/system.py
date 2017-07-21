@@ -11,17 +11,17 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 includes = ['notifiers']
 
 devices = dict(
-    Sample   = device('devices.sample.Sample',
+    Sample   = device('nicos.devices.sample.Sample',
                       description = 'Default Sample',
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'Dns Experiment ',
                       dataroot = '/data',
                       managerights = dict(enableDirMode=0o775,
@@ -39,7 +39,7 @@ devices = dict(
                       sendmail = False,
                       ),
 
-    dns  = device('devices.instrument.Instrument',
+    dns  = device('nicos.devices.instrument.Instrument',
                   description = 'DNS Diffuse scattering neutron ' +
                                    'time of flight spectrometer',
                   instrument='DNS',
@@ -49,16 +49,16 @@ devices = dict(
                   operators = [u'Jülich Center for Neutron Science (JCNS)'],
                  ),
 
-    filesink = device('devices.datasinks.AsciiScanfileSink',
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
                      ),
-    conssink = device('devices.datasinks.ConsoleScanSink',
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
                       description = 'Device storing console output.',
                      ),
-    daemonsink = device('devices.datasinks.DaemonSink',
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
                         description = 'Device storing deamon output.',
                        ),
-    Space    = device('devices.generic.FreeSpace',
+    Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,

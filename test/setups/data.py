@@ -96,7 +96,7 @@ devices = dict(
     # creation is off for test sessions
     fitssink = device('devices.datasinks.FITSImageSink'),
     tiffsink = device('devices.datasinks.TIFFImageSink'),
-    yamlsink = device('nicos.dns.yamlformat.YAMLFileSink',
+    yamlsink = device('nicos_mlz.dns.devices.yamlformat.YAMLFileSink',
         filenametemplate = ['%(pointcounter)08d.yaml'],
     ),
 )

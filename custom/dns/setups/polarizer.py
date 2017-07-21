@@ -13,23 +13,23 @@ POLARIZER_POSITIONS = {
 }
 
 devices = dict(
-    # pol_inbeam   = device('devices.generic.MultiSwitcher',
+    # pol_inbeam   = device('nicos.devices.generic.MultiSwitcher',
     #                       description = 'Automatic in/out switch for the polarizer',
     #                       mapping = POLARIZER_POSITIONS,
     #                       fallback = 'unknown',
     #                       moveables = ['pol_trans', 'pol_rot'],
     #                       precision = [0.1, 0.1],
     #                      ),
-    pol_inbeam   = device('devices.generic.ManualSwitch',
+    pol_inbeam   = device('nicos.devices.generic.ManualSwitch',
                           description = 'In/out switch for the polarizer',
                           states = ['in', 'out'],
                          ),
 
-    pol_trans    = device('devices.tango.Motor',
+    pol_trans    = device('nicos.devices.tango.Motor',
                           description = 'Polarizer translation',
                           tangodevice = tango_base + 'fzjs7/pol_trans',
                          ),
-    pol_rot      = device('devices.tango.Motor',
+    pol_rot      = device('nicos.devices.tango.Motor',
                           description = 'Polarizer rotation',
                           tangodevice = tango_base + 'fzjs7/pol_rot',
                          ),

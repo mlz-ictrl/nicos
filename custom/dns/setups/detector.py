@@ -12,16 +12,16 @@ sysconfig = dict(
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-    LiveView     = device('devices.datasinks.LiveViewSink',
+    LiveView     = device('nicos.devices.datasinks.LiveViewSink',
                           lowlevel = True,
                          ),
-    dettof       = device('dns.detector.TofChannel',
+    dettof       = device('nicos_mlz.dns.devices.detector.TofChannel',
                           description = 'TOF data channel',
                           tangodevice = tango_base + 'sistofdetector/1',
                           readchannels = (0, 23),
                           readtimechan = (0, 0),
                          ),
-    det          = device('dns.detector.DNSDetector',
+    det          = device('nicos_mlz.dns.devices.detector.DNSDetector',
                           description = 'Tof detector',
                           timers = ['timer'],
                           monitors = ['mon1'],

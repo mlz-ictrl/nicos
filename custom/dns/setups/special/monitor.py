@@ -70,7 +70,7 @@ _thirdcolumn = Column(
 )
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'DNS status',
                      loglevel = 'info',
                      cache = 'phys.dns.frm2',

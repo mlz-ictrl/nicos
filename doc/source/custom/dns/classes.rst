@@ -1,12 +1,12 @@
 `DNS <http://www.mlz-garching.de/dns>`_
 =======================================
 
-.. automodule:: nicos.dns.detector
+.. automodule:: nicos_mlz.dns.devices.detector
 .. autoclass:: TofChannel()
 .. autoclass:: DNSDetector()
 
-.. automodule:: nicos.dns.dnsfileformat
+.. automodule:: nicos_mlz.dns.devices.dnsfileformat
 .. autoclass:: DNSFileSink()
 
-.. automodule:: nicos.dns.toellner
+.. automodule:: nicos_mlz.dns.devices.toellner
 .. autoclass:: Toellner()
