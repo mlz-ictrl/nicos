@@ -1,9 +1,7 @@
 """NICOS GUI default configuration."""
 
 main_window = docked (
-        vsplit('Console',
-                panel('nicos.clients.gui.panels.console.ConsolePanel'),
-        ),
+        panel('nicos.clients.gui.panels.console.ConsolePanel'),
         ('Script',
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
 #               panel('nicos.clients.gui.panels.watch.WatchPanel'),
