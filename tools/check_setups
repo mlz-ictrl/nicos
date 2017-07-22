@@ -15,10 +15,11 @@ try:
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
+    import PyQt4.QtGui
+    from nicos.clients.gui.panels import Panel
 except ImportError:
-    pass
-    # goto fail
-    # goto fail
+    PyQt4 = None
+    Panel = None
 
 try:
     import nicos
@@ -35,6 +36,7 @@ from nicos.utils import importString
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.stubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
+from nicos.clients.gui import config as guicfg
 from nicos.pycompat import string_types, integer_types, exec_
 
 # get default custom paths
@@ -191,12 +193,12 @@ class SetupChecker(object):
         # try to import the device class
         try:
             cls = importString(devconfig[0], ('nicos.',))
-        except (ImportError, RuntimeError), err:  # the latter for SIP
+        except (ImportError, RuntimeError) as err:
             self.log.warning('device class %r for %r not importable: %s',
                              devconfig[0], devname, err,
                              extra=self.find_deventry(devname))
             return
-        except Exception, e:
+        except Exception as e:
             self.log_error('could not get device class %r for %r:',
                            devconfig[0], devname,
                            extra=self.find_deventry(devname))
@@ -233,7 +235,7 @@ class SetupChecker(object):
                 if pname in config:
                     try:
                         pinfo.type(config[pname])
-                    except (ValueError, TypeError), e:
+                    except (ValueError, TypeError) as e:
                         self.log_error('%s: parameter %r value %r is '
                                        'invalid: %s', devname, pname,
                                        config[pname], e,
@@ -258,17 +260,20 @@ class SetupChecker(object):
                 self.code = fp.read()
             exec_(self.code, self.ns)
             self.ast = ast.parse(self.code)
-        except SyntaxError, e:
+        except SyntaxError as e:
             msg = 'SyntaxError:\t%s' % e.msg
             msg += '\n|line: %s : %s ' % (e.lineno, e.text.strip() if e.text
                                           else '')
             self.log_error(msg, extra={'line': e.lineno})
             return self.good
-        except Exception, e:
+        except Exception as e:
             self.log_exception(e)
             return self.good
         self.log.info('syntax ok')
         self.setup_info[self.setupname] = self.ns
+
+        if self.is_guiconfig:
+            return self.check_guiconfig()
 
         # check for valid group
         group = self.ns.get('group', 'optional')
@@ -278,7 +283,7 @@ class SetupChecker(object):
 
         # check for a description
         description = self.ns.get('description', None)
-        if description in (None, '') and not self.is_guiconfig:
+        if description in (None, ''):
             self.log_error('missing user-friendly setup description',
                            extra=self.find_global('description'))
 
@@ -388,6 +393,86 @@ class SetupChecker(object):
 
         # return overall "ok" flag
         return self.good
+
+    def check_guiconfig(self):
+        # special checks for guiconfig setups
+
+        # check for main window
+        if 'main_window' not in self.ns:
+            self.log_error('main window spec is missing')
+        else:
+            self.check_guiconfig_panel_spec(self.ns['main_window'])
+
+        for window in self.ns.get('windows', []):
+            self.check_guiconfig_window_spec(window)
+
+        for tool in self.ns.get('tools', []):
+            self.check_guiconfig_tool_spec(tool)
+
+        return self.good
+
+    def check_guiconfig_panel_spec(self, spec, context='main window'):
+        # recursively check a panel spec
+        if isinstance(spec, (guicfg.hsplit, guicfg.vsplit)):
+            for child in spec.children:
+                self.check_guiconfig_panel_spec(child, context)
+        elif isinstance(spec, guicfg.tabbed):
+            for child in spec:
+                if not (isinstance(child, tuple) and len(child) == 2):
+                    self.log_error('tab item should be a (name, panel) tuple,'
+                                   ' found %r', child)
+                else:
+                    self.check_guiconfig_panel_spec(child[1], context)
+        elif isinstance(spec, guicfg.docked):
+            self.check_guiconfig_panel_spec(spec[0])
+            for child in spec[1]:
+                if not (isinstance(child, tuple) and len(child) == 2):
+                    self.log_error('dock item should be a (name, panel) tuple,'
+                                   ' found %r', child)
+                else:
+                    self.check_guiconfig_panel_spec(child[1], context)
+        elif isinstance(spec, guicfg.panel):
+            try:
+                cls = importString(spec.clsname,
+                                   ('nicos.clients.gui.panels.', 'nicos.'))
+            except Exception as err:
+                self.log_error('class %r for %s not importable: %s',
+                               spec.clsname, context, err)
+            else:
+                if PyQt4 and not issubclass(cls, Panel):
+                    self.log.warning('class %r for %s is not a Panel '
+                                     'subclass', spec.clsname, context)
+        else:
+            self.log_error('found unsupported panel item %r', spec)
+
+    def check_guiconfig_window_spec(self, spec):
+        # recursively check a window spec
+        if not isinstance(spec, guicfg.window):
+            self.log_error('window spec %r is not a window()', spec)
+
+        self.check_guiconfig_panel_spec(spec.contents, 'window %s' % spec.name)
+
+    def check_guiconfig_tool_spec(self, spec):
+        # recursively check a tool spec
+        if not isinstance(spec, (guicfg.tool, guicfg.cmdtool, guicfg.menu)):
+            self.log_error('tool spec %r is not a tool() or cmdtool()', spec)
+
+        if isinstance(spec, guicfg.menu):
+            for tool in spec.items:
+                self.check_guiconfig_tool_spec(tool)
+
+        if isinstance(spec, guicfg.tool):
+            try:
+                cls = importString(spec.clsname,
+                                   ('nicos.clients.gui.tools.', 'nicos.'))
+            except Exception as err:
+                self.log_error('class %r for tool %r not importable: %s',
+                               spec.clsname, spec.name, err)
+            else:
+                if PyQt4 and not issubclass(cls, (PyQt4.QtGui.QDialog,
+                                                  PyQt4.QtGui.QMainWindow)):
+                    self.log.warning('class %r for tool %r is not a QDialog or'
+                                     ' QMainWindow', spec.clsname, spec.name)
 
 
 parser = argparse.ArgumentParser()
