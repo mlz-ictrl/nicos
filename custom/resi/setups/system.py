@@ -11,7 +11,7 @@ sysconfig = dict(
 
 includes = ['notifiers']
 
-modules = ['commands.standard']
+modules = ['nicos.commands.standard']
 
 devices = dict(
     Exp = device('resi.experiment.ResiExperiment',

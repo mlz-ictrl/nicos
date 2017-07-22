@@ -119,7 +119,7 @@ class SetupChecker(object):
                 if isinstance(key, ast.BinOp):
                     try:
                         code = compile(ast.fix_missing_locations(
-                            ast.Expression(key)),'<string>', 'eval')
+                            ast.Expression(key)), '<string>', 'eval')
                         val = eval(code, self.ns)
                     except Exception:
                         self.log.error('%s: Error evaluating definition',
@@ -338,6 +338,16 @@ class SetupChecker(object):
                 self.log_error('%r must be of type %s (but is %s)' %
                                (vname, vtype, type(self.ns[vname])),
                                extra=self.find_global(vname))
+
+        # check for importability of modules
+        for module in self.ns.get('modules', []):
+            # try to import the device class
+            try:
+                importString(module, ('nicos.',))
+            except Exception as err:
+                self.log_error('module %r not importable: %s',
+                               module, err,
+                               extra=self.find_deventry(devname))
 
         # check for validity of alias_config
         aliascfg = self.ns.get('alias_config', {})
