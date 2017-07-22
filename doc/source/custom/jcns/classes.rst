@@ -1,10 +1,10 @@
 JCNS
 ====
 
-.. automodule:: nicos.jcns.fpga
+.. automodule:: nicos_mlz.jcns.devices.fpga
 .. autoclass:: FPGAChannelBase()
 .. autoclass:: FPGATimerChannel()
 .. autoclass:: FPGACounterChannel()
 
-.. automodule:: nicos.jcns.shutter
+.. automodule:: nicos_mlz.jcns.devices.shutter
 .. autoclass:: Shutter()

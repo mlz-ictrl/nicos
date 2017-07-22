@@ -32,8 +32,8 @@ from nicos.core.params import ArrayDesc
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
     Detector
 from nicos.devices.generic.virtual import VirtualImage
-from nicos.jcns.fpga import FPGAChannelBase
 from nicos.devices.tango import PyTangoDevice
+from nicos_mlz.jcns.devices.fpga import FPGAChannelBase
 
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
