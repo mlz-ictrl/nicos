@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-description = "Virtual detector setup"
-group = "lowlevel"
+description = 'Virtual detector setup'
+group = 'lowlevel'
 display_order = 20
 
 includes = ['virtual_gedet']
@@ -36,26 +36,26 @@ devices = dict(
                         states = ['out', 'in'],
                        ),
 
-    beamstop_x = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "beamstop translation X",
+    beamstop_x = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'beamstop translation X',
                        ),
-    beamstop_y = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "beamstop translation Y",
+    beamstop_y = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'beamstop translation Y',
                        ),
-    det_z      = device("nicos_mlz.kws2.devices.detector.DetectorZAxis",
-                        description = "detector translation Z",
-                        motor = "det_z_mot",
-                        hv = "gedet_HV",
+    det_z      = device('nicos_mlz.kws2.devices.detector.DetectorZAxis',
+                        description = 'detector translation Z',
+                        motor = 'det_z_mot',
+                        hv = 'gedet_HV',
                         abslimits = (0.0, 20.01),
                        ),
-    det_z_mot  = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "detector translation Z",
+    det_z_mot  = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'detector translation Z',
                         lowlevel = True,
                        ),
-    psd_x      = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "small detector translation X",
+    psd_x      = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'small detector translation X',
                        ),
-    psd_y      = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "small detector translation Y",
+    psd_y      = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'small detector translation Y',
                        ),
 )

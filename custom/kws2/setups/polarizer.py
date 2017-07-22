@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-description = "Polarizer setup"
-group = "lowlevel"
+description = 'Polarizer setup'
+group = 'lowlevel'
 display_order = 60
 
 excludes = ['virtual_polarizer']
 
-tango_base = "tango://phys.kws2.frm2:10000/kws2/"
+tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
     polarizer = device('nicos_mlz.kws2.devices.polarizer.Polarizer',

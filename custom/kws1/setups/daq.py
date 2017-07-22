@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-description = "Detector data acquisition setup"
-group = "lowlevel"
+description = 'Detector data acquisition setup'
+group = 'lowlevel'
 display_order = 25
 
 includes = ['counter']
@@ -11,7 +11,7 @@ sysconfig = dict(
     datasinks = ['kwsformat', 'yamlformat'],
 )
 
-tango_base = "tango://phys.kws1.frm2:10000/kws1/"
+tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
     det_ext_rt = device('nicos.devices.tango.NamedDigitalOutput',

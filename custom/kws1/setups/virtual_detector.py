@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-description = "Virtual detector setup"
-group = "lowlevel"
+description = 'Virtual detector setup'
+group = 'lowlevel'
 display_order = 20
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
@@ -18,13 +18,13 @@ devices = dict(
                         precision = [0.01, 0.1, 0.1],
                        ),
 
-    det_x      = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "detector translation X",
+    det_x      = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'detector translation X',
                        ),
-    det_y      = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "detector translation Y",
+    det_y      = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'detector translation Y',
                        ),
-    det_z      = device("nicos_mlz.kws1.devices.virtual.Standin",
-                        description = "detector translation Z",
+    det_z      = device('nicos_mlz.kws1.devices.virtual.Standin',
+                        description = 'detector translation Z',
                        ),
 )

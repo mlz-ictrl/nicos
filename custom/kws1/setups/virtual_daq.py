@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-description = "Detector data acquisition setup"
-group = "lowlevel"
+description = 'Detector data acquisition setup'
+group = 'lowlevel'
 display_order = 25
 
 sysconfig = dict(
