@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-description = "Write files for each measurement"
-group = "optional"
+description = 'Write files for each measurement'
+group = 'optional'
 
 sysconfig = dict(
     datasinks = ['DNSFileSaver', 'YAMLSaver'],
