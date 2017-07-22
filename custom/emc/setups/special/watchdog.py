@@ -24,17 +24,7 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = [
-    dict(condition = 't_value > 100',
-         message = 'Temperature too high',
-         type = 'critical',
-         action = 'maw(T, 0)',
-        ),
-    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-         message = 'phi angle too high for current mono setting',
-         gracetime = 5,
-        ),
-]
+watchlist = []
 
 includes = ['notifiers']
 
@@ -44,7 +34,7 @@ notifiers = {
 }
 
 devices = dict(
-    Watchdog = device('services.watchdog.Watchdog',
+    Watchdog = device('nicos.services.watchdog.Watchdog',
                       # use only 'localhost' if the cache is really running on
                       # the same machine, otherwise use the official computer
                       # name

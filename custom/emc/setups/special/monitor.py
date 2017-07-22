@@ -52,7 +52,7 @@ _kws2 = Column(
 
 devices = dict(
     Monitor = device(
-        'services.monitor.qt.Monitor',
+        'nicos.services.monitor.qt.Monitor',
         title = 'NICOS status monitor',
         loglevel = 'info',
         # Use only 'localhost' if the cache is really running on
