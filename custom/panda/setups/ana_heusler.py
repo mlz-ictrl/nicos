@@ -12,7 +12,7 @@ extended = dict(dynamic_loaded = True)
 # for ipc-stuff
 MOTOR = lambda x: 0x50 + x
 devices = dict(
-    ana_heusler      = device('devices.tas.Monochromator',
+    ana_heusler      = device('nicos.devices.tas.Monochromator',
                               description = 'PANDA\'s Heusler ana',
                               unit = 'A-1',
                               theta = 'ath',
@@ -27,7 +27,7 @@ devices = dict(
                               scatteringsense = -1,
                               crystalside = -1,
                              ),
-    afh_heusler_step = device('devices.vendor.ipc.Motor',
+    afh_heusler_step = device('nicos.devices.vendor.ipc.Motor',
                               description = 'stepper for horizontal focus of heusler ana',
                               bus = 'bus1',
                               addr = MOTOR(8),
@@ -44,7 +44,7 @@ devices = dict(
                               ramptype = 1,
                               lowlevel = True,
                              ),
-    afh_heusler  = device('panda.rot_axis.RotAxis',
+    afh_heusler  = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
                           description = 'horizontal focus of heusler ana',
                           motor = 'afh_heusler_step',
                           coder = 'afh_heusler_step',

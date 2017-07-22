@@ -58,7 +58,7 @@ tools = [
     cmdtool('NICOS status', 'nicos-monitor'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
-    tool('Calculator', 'calculator.CalculatorTool'),
+    tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'nicos.clients.gui.tools.website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
     tool('Neutron activation', 'nicos.clients.gui.tools.website.WebsiteTool',
