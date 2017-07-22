@@ -55,9 +55,7 @@ class docked(tuple):
 
 class window(tuple):
     def __new__(cls, *args):
-        if len(args) == 4:
-            # backwards compatibility: ignore 3rd argument
-            args = args[0], args[1], args[3]
+        assert len(args) == 3
         return tuple.__new__(cls, args)
 
     def __init__(self, *args):  # pylint: disable=super-init-not-called
