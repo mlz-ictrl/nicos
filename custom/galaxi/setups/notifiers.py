@@ -3,7 +3,7 @@ description = 'Email and SMS notifiers'
 group = 'lowlevel'
 
 devices = dict(
-    email     = device('devices.notifiers.Mailer',
+    email     = device('nicos.devices.notifiers.Mailer',
                        description = 'E-Mail notifier',
                        mailserver = 'mail.fz-juelich.de',
                        sender = 'noreply@fz-juelich.de',

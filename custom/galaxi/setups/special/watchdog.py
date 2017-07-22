@@ -20,17 +20,6 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = []
-#watchlist = [
-#    dict(condition = 't_value > 100',
-#         message = 'Temperature too high',
-#         type = 'critical',
-#         action = 'maw(T, 0)',
-#        ),
-#    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-#         message = 'phi angle too high for current mono setting',
-#         gracetime = 5,
-#        ),
-#]
 
 includes = ['notifiers']
 
@@ -40,7 +29,7 @@ notifiers = {
 }
 
 devices = dict(
-    Watchdog = device('services.watchdog.Watchdog',
+    Watchdog = device('nicos.services.watchdog.Watchdog',
                       cache = 'localhost:14869',
                       notifiers = notifiers,
                       mailreceiverkey = 'email/receivers',

@@ -13,22 +13,22 @@ sysconfig = dict(
 )
 
 devices = dict(
-    mythen_timer    = device('galaxi.mythen.MythenTimer',
+    mythen_timer    = device('nicos_mlz.galaxi.devices.mythen.MythenTimer',
                              description = 'Timer',
                              tangodevice = tango_base + 'Mythen/1',
                              lowlevel = True,
                             ),
-    mythen_image    = device('galaxi.mythen.MythenImage',
+    mythen_image    = device('nicos_mlz.galaxi.devices.mythen.MythenImage',
                              description = 'GALAXI Mythen detector data',
                              tangodevice = tango_base + 'Mythen/1',
                             ),
-    mythen          = device('galaxi.mythen.MythenDetector',
+    mythen          = device('nicos_mlz.galaxi.devices.mythen.MythenDetector',
                              description = 'GALAXI Mythen detector',
                              timers = ['mythen_timer'],
                              images = ['mythen_image'],
                              monitors = [],
                             ),
-    pilatus         = device('galaxi.pilatus.PilatusDetector',
+    pilatus         = device('nicos_mlz.galaxi.devices.pilatus.PilatusDetector',
                              description = 'GALAXI Pilatus detector',
                              fmtstr = '%s',
                              subdir = '',
@@ -45,12 +45,12 @@ devices = dict(
                              pchi = 'pchi',
                              pom = 'pom'
                             ),
-    pilatussink     = device('galaxi.pilatus.PilatusSink',
+    pilatussink     = device('nicos_mlz.galaxi.devices.pilatus.PilatusSink',
                              detector = 'pilatus',
                              detectors = ['pilatus'],
                              lowlevel = True,
                             ),
-    mythensink      = device('galaxi.mythendatasink.MythenImageSink',
+    mythensink      = device('nicos_mlz.galaxi.devices.mythendatasink.MythenImageSink',
                              filenametemplate =
                               ['%(Exp.users)s_%(session.experiment.sample.'
                                'filename)s_%(scancounter)s_%(pointnumber)s'

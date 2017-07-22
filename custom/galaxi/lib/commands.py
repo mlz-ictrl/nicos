@@ -27,8 +27,8 @@
 
 from nicos import session
 from nicos.commands import usercommand, helparglist
-from nicos.galaxi.pilatus import PilatusDetector
 from nicos.commands.measure import count as nicos_count
+from nicos_mlz.galaxi.devices.pilatus import PilatusDetector
 
 
 @usercommand

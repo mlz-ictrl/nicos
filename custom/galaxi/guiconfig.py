@@ -2,41 +2,45 @@
 
 main_window = hsplit(
     vsplit(
-        panel('generic.GenericPanel',
+        panel('nicos.clients.gui.panels.generic.GenericPanel',
               uifile = 'custom/galaxi/lib/gui/jcnslogo.ui'),
-        panel('expinfo.ExpInfoPanel'),
+        panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
     vsplit(
-        panel('status.ScriptStatusPanel'),
-        panel('console.ConsolePanel'),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel'),
     ),
     vsplit(
-        panel('devices.DevicesPanel'),
+        panel('nicos.clients.gui.panels.devices.DevicesPanel'),
     ),
 )
 
 windows = [
     window('Setup', 'setup',
-           tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-                  ('Setups',     panel('setup_panel.SetupsPanel'))),
+           tabbed(('Experiment',
+                   panel('nicos.clients.gui.panels.setup_panel.ExpPanel')),
+                  ('Setups',
+                   panel('nicos.clients.gui.panels.setup_panel.SetupsPanel'))),
            ),
     window('Editor', 'editor',
            vsplit(
-               panel('scriptbuilder.CommandsPanel'),
-               panel('editor.EditorPanel'))),
+               panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+               panel('nicos.clients.gui.panels.editor.EditorPanel'))),
     window('Scans', 'plotter',
-           panel('scans.ScansPanel')),
+           panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
-           panel('history.HistoryPanel')),
+           panel('nicos.clients.gui.panels.history.HistoryPanel')),
     window('Logbook', 'table',
-           panel('elog.ELogPanel')),
+           panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Errors', 'errors',
-           panel('errors.ErrorPanel')),
+           panel('nicos.clients.gui.panels.errors.ErrorPanel')),
 ]
 
 tools = [
-    tool('Calculator', 'calculator.CalculatorTool'),
-    tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-    tool('Emergency stop button', 'estop.EmergencyStopTool',
+    tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
+    tool('Report NICOS bug or request enhancement',
+         'nicos.clients.gui.tools.bugreport.BugreportTool'),
+    tool('Emergency stop button',
+         'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=True),
 ]
