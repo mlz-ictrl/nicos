@@ -31,17 +31,17 @@ windows = [
 ]
 
 tools = [
-    tool('Calculator', 'nicos.clients.gui.panels.calculator.CalculatorTool'),
+    tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
-         'nicos.clients.gui.panels.website.WebsiteTool',
+         'nicos.clients.gui.tools.website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-    tool('Neutron activation', 'nicos.clients.gui.panels.website.WebsiteTool',
+    tool('Neutron activation', 'nicos.clients.gui.tools.website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/activation/'),
-    tool('Neutron calculations', 'nicos.clients.gui.panels.website.WebsiteTool',
+    tool('Neutron calculations', 'nicos.clients.gui.tools.website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement',
-         'nicos.clients.gui.panels.bugreport.BugreportTool'),
+         'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Emergency stop button',
-         'nicos.clients.gui.panels.estop.EmergencyStopTool',
+         'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]

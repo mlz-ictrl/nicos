@@ -1,14 +1,14 @@
 """NICOS GUI configuration for ANTARES."""
 
 main_window = docked(
-    vsplit(panel('nicos.clients.gui.panel.sstatus.ScriptStatusPanel'),
+    vsplit(panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
            # panel('nicos.clients.gui.panel.swatch.WatchPanel'),
-           panel('nicos.clients.gui.panel.sconsole.ConsolePanel' ),
+           panel('nicos.clients.gui.panels.console.ConsolePanel' ),
     ),
     ('Experiment info',
-     panel('nicos.clients.gui.panel.sexpinfo.ExpInfoPanel')),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
     ('NICOS devices',
-     panel('nicos.clients.gui.panel.sdevices.DevicesPanel', icons=True,
+     panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
            dockpos='right',)
     ),
 )

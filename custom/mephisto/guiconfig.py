@@ -2,32 +2,32 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panel.status.ScriptStatusPanel'),
-        # panel('nicos.clients.gui.panel.watch.WatchPanel'),
-        panel('nicos.clients.gui.panel.console.ConsolePanel'),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel'),
     ),
     ('NICOS devices',
-     panel('nicos.clients.gui.panel.devices.DevicesPanel', icons=True,
+     panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
            dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panel.expinfo.ExpInfoPanel',)
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)
     ),
 )
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panel.editor.EditorPanel')),
+           panel('nicos.clients.gui.panels.editor.EditorPanel')),
     window('Scans', 'plotter',
-           panel('nicos.clients.gui.panel.scans.ScansPanel')),
+           panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
-           panel('nicos.clients.gui.panel.history.HistoryPanel')),
+           panel('nicos.clients.gui.panels.history.HistoryPanel')),
     window('Logbook', 'table',
-           panel('nicos.clients.gui.panel.elog.ELogPanel')),
+           panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table',
-           panel('nicos.clients.gui.panel.logviewer.LogViewerPanel')),
+           panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
-           panel('nicos.clients.gui.panel.errors.ErrorPanel')),
+           panel('nicos.clients.gui.panels.errors.ErrorPanel')),
 ]
 
 tools = [

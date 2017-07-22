@@ -34,7 +34,7 @@ windows = [
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('NICOS log files', 'table',
-           panel('logviewer.nicos.clients.gui.panels.LogViewerPanel')),
+           panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
 ]
 
 MIEZE_settings = [

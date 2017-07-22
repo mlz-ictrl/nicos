@@ -3,8 +3,8 @@
 main_window = docked(
     vsplit(
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        # panel('nicos.cients.gui.panels.watch.WatchPanel'),
-        panel('nicos.cients.gui.panels.console.ConsolePanel'),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel'),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
