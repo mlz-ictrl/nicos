@@ -35,7 +35,10 @@ from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.utils import findResource
 
-from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
+try:
+    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
+except ImportError:
+    CascadeWidget = TmpImage = None
 
 
 class LiveDataPanel(Panel):
@@ -57,9 +60,13 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.widget = CascadeWidget(self)
-        self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widgetLayout.addWidget(self.widget)
+        if CascadeWidget:
+            self.widget = CascadeWidget(self)
+            self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.widgetLayout.addWidget(self.widget)
+        else:
+            raise RuntimeError('The Cascade live widget is not available')
+
 
         self.rangeFrom = QDoubleSpinBox(self)
         self.rangeTo = QDoubleSpinBox(self)
@@ -261,9 +268,10 @@ class LiveDataPanel(Panel):
             return
         if not filename.endswith('.xml'):
             filename += '.xml'
-        tmpimg = TmpImage()
-        tmpimg.ConvertPAD(pad)
-        tmpimg.WriteXML(filename)
+        if TmpImage:
+            tmpimg = TmpImage()
+            tmpimg.ConvertPAD(pad)
+            tmpimg.WriteXML(filename)
 
     @qtsig('')
     def on_actionSetAsROI_triggered(self):
