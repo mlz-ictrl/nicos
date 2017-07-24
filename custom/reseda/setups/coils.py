@@ -10,8 +10,9 @@ devices = {
         description = 'Coil b%i' % i,
         tangodevice = '%s/coil/b%i' % (tango_base, i),
         fmtstr = '%.3f',
+        tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 12,
     )
-    for i in range(5, 14)
+    for i in range(5, 21)
 }
