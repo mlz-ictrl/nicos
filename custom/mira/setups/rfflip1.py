@@ -7,13 +7,13 @@ excludes = ['mieze']
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
-    amp1     = device('nicos_mlz.mira.rfcircuit.GeneratorDevice',
+    amp1     = device('nicos_mlz.mira.devices.rfcircuit.GeneratorDevice',
                       description = 'amplitude of first function generator',
                       tacodevice = '//mirasrv/mira/hp33220a_1/amp',
                       abslimits = (0, 1),
                      ),
 
-    freq1    = device('nicos_mlz.mira.rfcircuit.GeneratorDevice',
+    freq1    = device('nicos_mlz.mira.devices.rfcircuit.GeneratorDevice',
                       description = 'frequency of first function generator',
                       tacodevice = '//mirasrv/mira/hp33220a_1/freq',
                       fmtstr = '%.0f',
@@ -30,7 +30,7 @@ devices = dict(
                       warnlimits = (0, 20),
                      ),
 
-    Cbox1    = device('nicos_mlz.mira.beckhoff.DigitalOutput',
+    Cbox1    = device('nicos_mlz.mira.devices.beckhoff.DigitalOutput',
                       description = 'first capacitor box',
                       tangodevice = tango_base + 'beckhoff/beckhoff1',
                       startoffset = 8,

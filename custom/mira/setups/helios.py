@@ -8,7 +8,7 @@ devices = dict(
                    abslimits = (0, 2),
                   ),
 
-    pol   = device('nicos_mlz.mira.helios.HePolarizer',
+    pol   = device('nicos_mlz.mira.devices.helios.HePolarizer',
                    description = 'polarization direction of Helios cell with RF flipper',
                    tacodevice = '//mirasrv/mira/ttiql/tti2_2v',
                   ),

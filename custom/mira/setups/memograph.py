@@ -5,7 +5,7 @@ includes = []
 group = 'optional'
 
 devices = dict(
-    t_in_fak40     = device('nicos_mlz.frm2.memograph.MemographValue',
+    t_in_fak40     = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'T_in MIRA',
@@ -14,7 +14,7 @@ devices = dict(
                             warnlimits = (-1, 17.5), #-1 no lower value
                             unit = 'degC',
                            ),
-    t_out_fak40    = device('nicos_mlz.frm2.memograph.MemographValue',
+    t_out_fak40    = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'T_out MIRA',
@@ -24,7 +24,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'degC',
                            ),
-    p_in_fak40     = device('nicos_mlz.frm2.memograph.MemographValue',
+    p_in_fak40     = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'P_in MIRA',
@@ -34,7 +34,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'bar',
                            ),
-    p_out_fak40    = device('nicos_mlz.frm2.memograph.MemographValue',
+    p_out_fak40    = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'P_out MIRA',
@@ -44,7 +44,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'bar',
                            ),
-    flow_in_fak40  = device('nicos_mlz.frm2.memograph.MemographValue',
+    flow_in_fak40  = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'FLOW_in MIRA',
@@ -55,7 +55,7 @@ devices = dict(
                             warnlimits = (0.2, 100), #100 no upper value
                             unit = 'l/min',
                            ),
-    flow_out_fak40 = device('nicos_mlz.frm2.memograph.MemographValue',
+    flow_out_fak40 = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'FLOW_out MIRA',
@@ -65,7 +65,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'l/min',
                            ),
-    leak_fak40     = device('nicos_mlz.frm2.memograph.MemographValue',
+    leak_fak40     = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'Leak MIRA',
@@ -76,7 +76,7 @@ devices = dict(
                             warnlimits = (-1, 1), #-1 no lower value
                             unit = 'l/min',
                            ),
-    cooling_fak40  = device('nicos_mlz.frm2.memograph.MemographValue',
+    cooling_fak40  = device('nicos_mlz.frm2.devices.memograph.MemographValue',
                             hostname = 'memograph02.care.frm2',
                             group = 1,
                             valuename = 'Cooling MIRA',
