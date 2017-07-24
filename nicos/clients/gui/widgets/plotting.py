@@ -91,11 +91,12 @@ class Fitter(object):
     title = 'unknown fit'
     picks = []
 
-    def __init__(self, plot, window, action, curve):
+    def __init__(self, plot, window, action, curve, pickmode):
         self.plot = plot
         self.window = window
         self.action = action
         self.curve = curve
+        self.pickmode = pickmode
         self.data = plot._getCurveData(curve)
 
         self.values = []
@@ -105,7 +106,10 @@ class Fitter(object):
         self.plot._enterFitMode()
         if self.action:
             self.action.setChecked(True)
-        self.plot._fitRequestPick(self.picks[0])
+        if self.pickmode:
+            self.plot._fitRequestPick(self.picks[0])
+        else:
+            self.finish()
 
     def addPick(self, point):
         self.stage += 1
@@ -139,9 +143,13 @@ class LinearFitter(Fitter):
     picks = ['First point', 'Second point']
 
     def do_fit(self):
-        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        m0 = (y2-y1) / (x2-x1)
-        f = LinearFit([m0, y1 - m0*x1], xmin=x1, xmax=x2, timeseries=True)
+        if self.pickmode:
+            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            m0 = (y2-y1) / (x2-x1)
+            pars = [m0, y1 - m0*x1]
+        else:
+            pars = x1 = x2 = None
+        f = LinearFit(pars, xmin=x1, xmax=x2, timeseries=True)
         return f.run_or_raise(*self.data)
 
 
@@ -150,10 +158,14 @@ class ExponentialFitter(Fitter):
     picks = ['First point', 'Second point']
 
     def do_fit(self):
-        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        b0 = np.log(y1 / y2) / (x1 - x2)
-        x0 = x1 - np.log(y1) / b0
-        f = ExponentialFit([b0, x0], xmin=x1, xmax=x2, timeseries=True)
+        if self.pickmode:
+            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            b0 = np.log(y1 / y2) / (x1 - x2)
+            x0 = x1 - np.log(y1) / b0
+            pars = [b0, x0]
+        else:
+            pars = x1 = x2 = None
+        f = ExponentialFit(pars, xmin=x1, xmax=x2, timeseries=True)
         return f.run_or_raise(*self.data)
 
 
@@ -162,12 +174,15 @@ class CosineFitter(Fitter):
     picks = ['Maximum', 'Next minimum']
 
     def do_fit(self):
-        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        a = abs(y1 - y2) / 2.
-        b = (y1 + y2) / 2.
-        width = abs(x1 - x2)
-        freq = 1/(width * 2.)
-        f = CosineFit([a, freq, x1, b])
+        pars = None
+        if self.pickmode:
+            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            a = abs(y1 - y2) / 2.
+            b = (y1 + y2) / 2.
+            width = abs(x1 - x2)
+            freq = 1 / (width * 2.)
+            pars = [a, freq, x1, b]
+        f = CosineFit(pars)
         return f.run_or_raise(*self.data)
 
 
@@ -176,23 +191,29 @@ class GaussFitter(Fitter):
     picks = ['Background', 'Peak', 'Half Maximum']
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        parstart = [x0, abs(y0-yb), abs(x0-xw), yb]
-        totalwidth = abs(x0 - xb)
-        f = GaussFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        if self.pickmode:
+            (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [x0, abs(y0-yb), abs(x0-xw), yb]
+            totalwidth = abs(x0 - xb)
+            xmin = x0 - totalwidth
+            xmax = x0 + totalwidth
+        else:
+            pars = xmin = xmax = None
+        f = GaussFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
 
 class SigmoidFitter(Fitter):
-    """."""
-
     title = 'sigmoid fit'
     picks = ['Left point', 'Right point']
 
     def do_fit(self):
-        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        pastart = [y2 - y1, 1, (x2 - x1) / 2. + x1, y1]
-        f = SigmoidFit(pastart, xmin=x1, xmax=x2)
+        if self.pickmode:
+            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [y2 - y1, 1, (x2 - x1) / 2. + x1, y1]
+        else:
+            pars = x1 = x2 = None
+        f = SigmoidFit(pars, xmin=x1, xmax=x2)
         return f.run_or_raise(*self.data)
 
 
@@ -201,10 +222,15 @@ class PseudoVoigtFitter(Fitter):
     picks = ['Background', 'Peak', 'Half Maximum']
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 0.5]
-        totalwidth = abs(x0 - xb)
-        f = PseudoVoigtFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        if self.pickmode:
+            (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [yb, abs(y0 - yb), x0, abs(x0 - xw), 0.5]
+            totalwidth = abs(x0 - xb)
+            xmin = x0 - totalwidth
+            xmax = x0 + totalwidth
+        else:
+            pars = xmin = xmax = None
+        f = PseudoVoigtFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
 
@@ -213,10 +239,15 @@ class PearsonVIIFitter(Fitter):
     picks = ['Background', 'Peak', 'Half Maximum']
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
-        totalwidth = abs(x0 - xb)
-        f = PearsonVIIFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        if self.pickmode:
+            (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
+            totalwidth = abs(x0 - xb)
+            xmin = x0 - totalwidth
+            xmax = x0 + totalwidth
+        else:
+            pars = xmin = xmax = None
+        f = PearsonVIIFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
 
@@ -225,13 +256,15 @@ class TcFitter(Fitter):
     picks = ['Background', 'Tc']
 
     def do_fit(self):
-        (_, Ib), (Tc, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        alpha0 = 0.5
-        # guess A from maximum data point
-        Tmin = min(self.data[0])
-        A0 = max(self.data[1]) / ((Tc-Tmin)/Tc)**alpha0
-        parstart = [Ib, A0, Tc, alpha0]
-        f = TcFit(parstart)
+        pars = None
+        if self.pickmode:
+            (_, Ib), (Tc, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            alpha0 = 0.5
+            # guess A from maximum data point
+            Tmin = min(self.data[0])
+            A0 = max(self.data[1]) / ((Tc-Tmin)/Tc)**alpha0
+            pars = [Ib, A0, Tc, alpha0]
+        f = TcFit(pars)
         return f.run_or_raise(*self.data)
 
 
@@ -482,7 +515,7 @@ class NicosPlot(DlgUtils):
             fitcurve = visible_curves[0][0]
         return self.plotcurves[fitcurve]
 
-    def beginFit(self, fitterclass, fitteraction):
+    def beginFit(self, fitterclass, fitteraction, pickmode):
         """Begin a fitting operation with given Fitter subclass and QAction."""
         if fitteraction and not fitteraction.isChecked():
             # "unchecking" the action -> cancel fit
@@ -496,7 +529,8 @@ class NicosPlot(DlgUtils):
         if not fitcurve:
             return self.showError('Plot must have a visible curve '
                                   'to be fitted.')
-        self.fitter = fitterclass(self, self.window, fitteraction, fitcurve)
+        self.fitter = fitterclass(self, self.window, fitteraction, fitcurve,
+                                  pickmode)
         self.fitter.begin()
 
     def _getCurveData(self, curve):
@@ -1195,39 +1229,9 @@ class DataSetPlot(NicosGrPlot):
     def fitQuick(self):
         if not self.mouselocation:
             return
-        (coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
-                                                self.dwidth, self.dheight)
+        (_coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
+                                                 self.dwidth, self.dheight)
         if not curve:
             return
-        wc = coord.getWC(self._plot.viewport)
-        whichindex = None
-        for idx, y in enumerate(curve.y):
-            if wc.y == y:
-                whichindex = idx
-                break
-        # try to find good starting parameters
-        peakx, peaky = wc.x, wc.y
-        # use either left or right end of curve as background
-        leftx, lefty = curve.x[0], curve.y[0]
-        rightx, righty = curve.x[-1], curve.y[-1]
-        if abs(peakx - leftx) > abs(peakx - rightx):
-            direction = -1
-            backx, backy = leftx, lefty
-        else:
-            direction = 1
-            backx, backy = rightx, righty
-        i = whichindex
-        n = len(curve.y)
-        while 0 < i < n:
-            if curve.y[i] < (peaky - backy) / 2.:
-                break
-            i += direction
-        if i != whichindex:
-            fwhmx = curve.x[i]
-        else:
-            fwhmx = (peakx + backx) / 2.
-        self.fitter = GaussFitter(self, self.window, None, curve)
-        self.fitter.values = [(backx, backy), (peakx, peaky),
-                              (fwhmx, peaky / 2.)]
+        self.fitter = GaussFitter(self, self.window, None, curve, False)
         self.fitter.begin()
-        self.fitter.finish()

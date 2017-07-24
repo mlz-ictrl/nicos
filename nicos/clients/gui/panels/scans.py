@@ -30,7 +30,8 @@ from math import sqrt
 
 from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QDialog, QMenu, \
     QToolBar, QStatusBar, QFont, QListWidgetItem, QSizePolicy, QPalette, \
-    QKeySequence, QShortcut, QTableWidgetItem
+    QKeySequence, QShortcut, QTableWidgetItem, QActionGroup, QComboBox, \
+    QWidgetAction
 
 from nicos.utils import safeFilename
 from nicos.core.data import ScanData
@@ -121,9 +122,11 @@ class ScansPanel(Panel):
         self.bulk_adding = False
         self.no_openset = False
         self.last_norm_selection = None
+        self.fitclass = GaussFitter
+        self.fitfuncmap = {}
 
         self.menus = None
-        self.bar = None
+        self.bars = None
 
         self.data = self.mainwindow.data
 
@@ -236,23 +239,34 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionScaleY)
             menu1.addAction(self.actionLegend)
             menu1.addSeparator()
+
             menu2 = QMenu('Data &manipulation', self)
             menu2.addAction(self.actionModifyData)
             menu2.addSeparator()
+            ag = QActionGroup(menu2)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
             menu2.addAction(self.actionFitPeak)
+            menu2.addAction(self.actionFitPeakGaussian)
             menu2.addAction(self.actionFitPeakPV)
             menu2.addAction(self.actionFitPeakPVII)
             menu2.addAction(self.actionFitTc)
             menu2.addAction(self.actionFitCosine)
             menu2.addAction(self.actionFitSigmoid)
+            menu2.addAction(self.actionPickForFit)
             menu2.addSeparator()
             menu2.addAction(self.actionFitArby)
+
             self.menus = [menu1, menu2]
 
         return self.menus
 
     def getToolbars(self):
-        if not self.bar:
+        if not self.bars:
             bar = QToolBar('Scans')
             bar.addAction(self.actionSavePlot)
             bar.addAction(self.actionPrint)
@@ -273,11 +287,33 @@ class ScansPanel(Panel):
             bar.addSeparator()
             bar.addAction(self.actionAutoDisplay)
             bar.addAction(self.actionCombine)
-            bar.addAction(self.actionFitPeak)
-            bar.addAction(self.actionFitArby)
-            self.bar = bar
 
-        return [self.bar]
+            fitbar = QToolBar('Scan fitting')
+            fitbar.addAction(self.actionFitPeak)
+            ag = QActionGroup(fitbar)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
+            wa = QWidgetAction(fitbar)
+            self.fitComboBox = QComboBox(fitbar)
+            for a in ag.actions():
+                itemtext = a.text().replace('&', '')
+                self.fitComboBox.addItem(itemtext)
+                self.fitfuncmap[itemtext] = a
+            self.fitComboBox.currentIndexChanged.connect(
+                self.on_fitComboBox_currentIndexChanged)
+            wa.setDefaultWidget(self.fitComboBox)
+            fitbar.addAction(wa)
+            fitbar.addAction(self.actionPickForFit)
+            fitbar.addSeparator()
+            fitbar.addAction(self.actionFitArby)
+
+            self.bars = [bar, fitbar]
+
+        return self.bars
 
     def updateList(self):
         self.datasetList.clear()
@@ -636,32 +672,54 @@ class ScansPanel(Panel):
 
     @pyqtSlot()
     def on_actionFitPeak_triggered(self):
-        self.currentPlot.beginFit(GaussFitter, self.actionFitPeak)
+        self.currentPlot.beginFit(self.fitclass, self.actionFitPeak,
+                                  pickmode=self.actionPickForFit.isChecked())
+
+    @pyqtSlot(int)
+    def on_fitComboBox_currentIndexChanged(self, index):
+        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
+
+    @pyqtSlot()
+    def on_actionFitPeakGaussian_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakGaussian.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = GaussFitter
 
     @pyqtSlot()
     def on_actionFitPeakPV_triggered(self):
-        self.currentPlot.beginFit(PseudoVoigtFitter, self.actionFitPeakPV)
+        cbi = self.fitComboBox.findText(self.actionFitPeakPV.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = PseudoVoigtFitter
 
     @pyqtSlot()
     def on_actionFitPeakPVII_triggered(self):
-        self.currentPlot.beginFit(PearsonVIIFitter, self.actionFitPeakPVII)
+        cbi = self.fitComboBox.findText(self.actionFitPeakPVII.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = PearsonVIIFitter
 
     @pyqtSlot()
     def on_actionFitTc_triggered(self):
-        self.currentPlot.beginFit(TcFitter, self.actionFitTc)
+        cbi = self.fitComboBox.findText(self.actionFitTc.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = TcFitter
 
     @pyqtSlot()
     def on_actionFitCosine_triggered(self):
-        self.currentPlot.beginFit(CosineFitter, self.actionFitCosine)
+        cbi = self.fitComboBox.findText(self.actionFitCosine.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = CosineFitter
 
     @pyqtSlot()
     def on_actionFitSigmoid_triggered(self):
-        self.currentPlot.beginFit(SigmoidFitter, self.actionFitSigmoid)
+        cbi = self.fitComboBox.findText(self.actionFitSigmoid.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = SigmoidFitter
 
     @pyqtSlot()
     def on_actionFitArby_triggered(self):
         # no second argument: the "arbitrary" action is not checkable
-        self.currentPlot.beginFit(ArbitraryFitter, None)
+        self.currentPlot.beginFit(ArbitraryFitter, None,
+                                  pickmode=self.actionPickForFit.isChecked())
 
     def on_quickfit(self):
         if not self.currentPlot or not self.currentPlot.underMouse():

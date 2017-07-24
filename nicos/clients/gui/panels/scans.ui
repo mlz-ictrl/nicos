@@ -219,10 +219,13 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit &amp;Gaussian peak</string>
+    <string>Make &amp;Fit</string>
    </property>
    <property name="iconText">
     <string>Peak fit</string>
+   </property>
+   <property name="toolTip">
+    <string>Fit current plot with selected function</string>
    </property>
   </action>
   <action name="actionLegend">
@@ -393,6 +396,28 @@
    </property>
    <property name="toolTip">
     <string>Y axis</string>
+   </property>
+  </action>
+  <action name="actionPickForFit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pick fit starting points</string>
+   </property>
+   <property name="toolTip">
+    <string>Pick selected points to guess fit params</string>
+   </property>
+  </action>
+  <action name="actionFitPeakGaussian">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fit &amp;Gaussian peak</string>
+   </property>
+   <property name="iconText">
+    <string>Peak fit</string>
    </property>
   </action>
  </widget>
