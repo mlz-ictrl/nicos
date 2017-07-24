@@ -164,7 +164,7 @@ def runSetupcheck() {
 #! /bin/bash
 . ~/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
 
-tools/check_setups -o setupcheck.log -s custom/*/setups || ((res++)) || /bin/true
+tools/check_setups -o setupcheck.log -s custom/*/setups custom/*/guiconfig*.py || ((res++)) || /bin/true
 # */
 # switch to the tools venv for running the setupcheck uploader
 . ~/toolsvenv/bin/activate
