@@ -50,7 +50,7 @@ devices = dict(
                        ),
 
 
-    att        = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    att        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Attenuator',
                         #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
                         #mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
@@ -63,7 +63,7 @@ devices = dict(
                         maxage = 60,
                         precision = 0.1,
                        ),
-    att_m      = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    att_m      = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Attenuator motor',
                         # IP-adresse: 172.16.17.1 alt
                         # IP-adresse: 172.25.49.107 neu
@@ -81,7 +81,7 @@ devices = dict(
                        ),
 
 
-    ng_pol     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    ng_pol     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Neutronguide polariser',
                         mapping = dict(ng=1.060, pol1=117, pol2=234, col=352.7),
                         moveable = 'ng_pol_a',
@@ -99,7 +99,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    ng_pol_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    ng_pol_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Neutronguide polariser motor',
                         # IP-adresse: 172.16.17.1 alt
                         # IP-adresse: 172.25.49.107 neu
@@ -115,7 +115,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    ng_pol_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    ng_pol_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Neutronguide polariser coder',
                         # IP-adresse: 172.16.17.1 alt
                         # IP-adresse: 172.25.49.107 neu
@@ -129,7 +129,7 @@ devices = dict(
                        ),
 
 
-    col_20a    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_20a    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20a',
                         mapping = dict(ng=1.003, col=117, free1=234, las=351),
                         moveable = 'col_20a_a',
@@ -148,7 +148,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_20a_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_20a_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 20a motor',
                         # IP-adresse: 172.16.17.2 alt
                         # IP-adresse: 172.25.49.108 neu
@@ -164,7 +164,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_20a_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_20a_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 20a coder',
                         # IP-adresse: 172.16.17.2 alt
                         # IP-adresse: 172.25.49.108 neu
@@ -177,7 +177,7 @@ devices = dict(
                        ),
 
 
-    col_20b    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_20b    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20b',
                         mapping = dict(ng=0.841, col=117, free1=234, free2=351),
                         moveable = 'col_20b_a',
@@ -196,7 +196,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_20b_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_20b_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 20b',
                         # IP-adresse: 172.16.17.2 alt
                         # IP-adresse: 172.25.49.108 neu
@@ -212,7 +212,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_20b_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_20b_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 20b coder',
                         # IP-adresse: 172.16.17.2 alt
                         # IP-adresse: 172.25.49.108 neu
@@ -225,7 +225,7 @@ devices = dict(
                        ),
 
 
-    col_16a    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_16a    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16a',
                         mapping = dict(ng=1.229, col=117, free1=234, free2=351),
                         moveable = 'col_16a_a',
@@ -244,7 +244,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_16a_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_16a_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 16a motor',
                         # IP-adresse: 172.16.17.3 alt
                         # IP-adresse: 172.25.49.111 neu
@@ -260,7 +260,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_16a_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_16a_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 16a coder',
                         # IP-adresse: 172.16.17.3 alt
                         # IP-adresse: 172.25.49.111 neu
@@ -273,7 +273,7 @@ devices = dict(
                        ),
 
 
-    bg1        = device('nicos_mlz.sans1.collimotor.Sans1ColliSlit',
+    bg1        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSlit',
                         description = 'Background slit1',
                         mapping = {'50mm':0, 'open':90, '20mm':180, '42mm':270 },
                         moveable = 'bg1_m',
@@ -282,13 +282,13 @@ devices = dict(
                         pollinterval = 15,
                         maxage = 60,
                        ),
-    #~ bg1        = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    #~ bg1        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         #~ description = 'Background slit1',
                         #~ mapping = {'P1':0, 'P2':90, 'P3':180, 'P4':270,
                         #~ '50mm':0, 'OPEN':90, '20mm':180, '42mm':270 },
                         #~ moveable = 'col_bg1_m',
                         #~ ),
-    bg1_m      = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    bg1_m      = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Background slit1 motor',
                         # IP-adresse: 172.16.17.3 alt
                         # IP-adresse: 172.25.49.111 neu
@@ -304,7 +304,7 @@ devices = dict(
                        ),
 
 
-    col_16b    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_16b    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16b',
                         mapping = dict(ng=1.486, col=117, free1=234, free2=351),
                         moveable = 'col_16b_a',
@@ -323,7 +323,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_16b_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_16b_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 16b motor',
                         # IP-adresse: 172.16.17.3 alt
                         # IP-adresse: 172.25.49.111 neu
@@ -339,7 +339,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_16b_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_16b_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 16b coder',
                         # IP-adresse: 172.16.17.3 alt
                         # IP-adresse: 172.25.49.111 neu
@@ -352,7 +352,7 @@ devices = dict(
                        ),
 
 
-    col_12a    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_12a    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12a',
                         mapping = dict(ng=1.310, col=117, free1=234, free2=351),
                         moveable = 'col_12a_a',
@@ -371,7 +371,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_12a_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_12a_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 12a motor',
                         # IP-adresse: 172.16.17.4 alt
                         # IP-adresse: 172.25.49.112 neu
@@ -387,7 +387,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_12a_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_12a_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 12a coder',
                         # IP-adresse: 172.16.17.4 alt
                         # IP-adresse: 172.25.49.112 neu
@@ -400,7 +400,7 @@ devices = dict(
                        ),
 
 
-    col_12b    = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_12b    = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12b',
                         mapping = dict(ng=1.348, col=117, free1=234, free2=351),
                         moveable = 'col_12b_a',
@@ -419,7 +419,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_12b_m  = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_12b_m  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 12b motor',
                         # IP-adresse: 172.16.17.4 alt
                         # IP-adresse: 172.25.49.112 neu
@@ -435,7 +435,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_12b_c  = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_12b_c  = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 12b coder',
                         # IP-adresse: 172.16.17.4 alt
                         # IP-adresse: 172.25.49.112 neu
@@ -448,7 +448,7 @@ devices = dict(
                        ),
 
 
-    col_8a     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_8a     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8a',
                         mapping = dict(ng=1.679, col=117, free1=234, free2=351),
                         moveable = 'col_8a_a',
@@ -467,7 +467,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_8a_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_8a_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 8a motor',
                         # IP-adresse: 172.16.17.5 alt
                         # IP-adresse: 172.25.49.113 neu
@@ -483,7 +483,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_8a_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_8a_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 8a coder',
                         # IP-adresse: 172.16.17.5 alt
                         # IP-adresse: 172.25.49.113 neu
@@ -496,7 +496,7 @@ devices = dict(
                        ),
 
 
-    col_8b     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_8b     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8b',
                         mapping = dict(ng=0.909, col=117, free1=234, free2=351),
                         moveable = 'col_8b_a',
@@ -515,7 +515,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_8b_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_8b_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 8b motor',
                         # IP-adresse: 172.16.17.5 alt
                         # IP-adresse: 172.25.49.113 neu
@@ -531,7 +531,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_8b_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_8b_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 8b coder',
                         # IP-adresse: 172.16.17.5 alt
                         # IP-adresse: 172.25.49.113 neu
@@ -544,7 +544,7 @@ devices = dict(
                        ),
 
 
-    bg2        = device('nicos_mlz.sans1.collimotor.Sans1ColliSlit',
+    bg2        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSlit',
                         description = 'Background slit2',
                         mapping = {'28mm':0, '20mm':90, '12mm':180, 'open':274 },
                         moveable = 'bg2_m',
@@ -553,12 +553,12 @@ devices = dict(
                         pollinterval = 15,
                         maxage = 60,
                        ),
-#    bg2        = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+#    bg2        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
 #                        description = 'Background slit2',
 #                        mapping = {'28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
 #                        moveable = 'col_bg2_m',
 #                       ),
-    bg2_m      = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    bg2_m      = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Background slit2 motor',
                         # IP-adresse: 172.16.17.5 alt
                         # IP-adresse: 172.25.49.113 neu
@@ -574,7 +574,7 @@ devices = dict(
                        ),
 
 
-    col_4a     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_4a     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4a',
                         mapping = dict(ng=0.985, col=117, free1=234, free2=351),
                         moveable = 'col_4a_a',
@@ -593,7 +593,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_4a_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_4a_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 4a motor',
                         # IP-adresse: 172.16.17.6 alt
                         # IP-adresse: 172.25.49.114 neu
@@ -609,7 +609,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_4a_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_4a_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 4a coder',
                         # IP-adresse: 172.16.17.6 alt
                         # IP-adresse: 172.25.49.114 neu
@@ -622,7 +622,7 @@ devices = dict(
                        ),
 
 
-    col_4b     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_4b     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4b',
                         mapping = dict(ng=1.010, col=117, free1=234, free2=351),
                         moveable = 'col_4b_a',
@@ -641,7 +641,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_4b_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_4b_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 4b motor',
                         # IP-adresse: 172.16.17.6 alt
                         # IP-adresse: 172.25.49.114 neu
@@ -657,7 +657,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_4b_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_4b_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 4b coder',
                         # IP-adresse: 172.16.17.6 alt
                         # IP-adresse: 172.25.49.114 neu
@@ -670,7 +670,7 @@ devices = dict(
                        ),
 
 
-    col_2a     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_2a     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2a',
                         mapping = dict(ng=1, col=117, free1=234, free2=351),
                         moveable = 'col_2a_a',
@@ -689,7 +689,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_2a_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_2a_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 2a motor',
                         # IP-adresse: 172.16.17.7 alt
                         # IP-adresse: 172.25.49.115 neu
@@ -706,7 +706,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_2a_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_2a_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 2a coder',
                         # IP-adresse: 172.16.17.7 alt
                         # IP-adresse: 172.25.49.115 neu
@@ -719,7 +719,7 @@ devices = dict(
                        ),
 
 
-    col_2b     = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    col_2b     = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2b',
                         mapping = dict(ng=1, col=117, free1=234, free2=351),
                         moveable = 'col_2b_a',
@@ -738,7 +738,7 @@ devices = dict(
                         lowlevel = True,
                         jitter = 1,
                        ),
-    col_2b_m   = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    col_2b_m   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 2b motor',
                         # IP-adresse: 172.16.17.7 alt
                         # IP-adresse: 172.25.49.115 neu
@@ -756,7 +756,7 @@ devices = dict(
                         precision = 0.0025,
                         lowlevel = True,
                        ),
-    col_2b_c   = device('nicos_mlz.sans1.collimotor.Sans1ColliCoder',
+    col_2b_c   = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
                         description = 'Collimotor 2b coder',
                         # IP-adresse: 172.16.17.7 alt
                         # IP-adresse: 172.25.49.115 neu
@@ -769,7 +769,7 @@ devices = dict(
                        ),
 
 
-    sa1        = device('nicos_mlz.sans1.collimotor.Sans1ColliSwitcher',
+    sa1        = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
                         description = 'attenuation slits',
 #                        mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
 #                        '50x50':0, '10mm':70, '20mm':140, 'N.A.':210 },
@@ -779,7 +779,7 @@ devices = dict(
                         pollinterval = 15,
                         maxage = 60,
                        ),
-    sa1_m      = device('nicos_mlz.sans1.collimotor.Sans1ColliMotor',
+    sa1_m      = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
                         description = 'attenuation slits motor',
                         # IP-adresse: 172.16.17.7 alt
                         # IP-adresse: 172.25.49.115 neu

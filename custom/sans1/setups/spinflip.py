@@ -11,7 +11,7 @@ tango_base_truerms = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 
 devices = dict(
 # AG1016 amplifier
-    P_spinflipper = device('nicos_mlz.sans1.spinflipper.SpinflipperPower',
+    P_spinflipper = device('nicos_mlz.sans1.devices.spinflipper.SpinflipperPower',
                            description = 'overall power of ag1016',
                            tangodevice = tango_base + 'amplifier/power',
                            forwardtangodevice = tango_base + 'amplifier/fpower',
@@ -71,7 +71,7 @@ devices = dict(
                              ),
 
 # WUT Box
-    T_spinflipper = device('nicos_mlz.sans1.wut.WutValue',
+    T_spinflipper = device('nicos_mlz.sans1.devices.wut.WutValue',
                             hostname = 'sans1wut-temp-spinflip.sans1.frm2',
                             port = '1',
                             description = 'temperature of spinflipper',
@@ -82,7 +82,7 @@ devices = dict(
     ),
 
 # Keysight 34461A
-    U_spinflipper = device('nicos_mlz.sans1.k34461a.VoltageMeter',
+    U_spinflipper = device('nicos_mlz.sans1.devices.k34461a.VoltageMeter',
                description = 'Voltage of 34461A True RMS Meter',
                tangodevice = tango_base_truerms + 'rmsspinflip/io',
                unit = 'V',
