@@ -39,7 +39,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
     dictof, intrange, nonemptylistof, listof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ArrayDesc, Value
+    HasTimeout, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -164,6 +164,9 @@ class PyTangoDevice(HasCommunication):
     parameters = {
         'tangodevice': Param('Tango device name', type=tangodev,
                              mandatory=True, preinit=True),
+        'tangotimeout': Param('TANGO network timeout for this process',
+                             unit='s', type=floatrange(0.0, 1200), default=3,
+                             settable=True, preinit=True),
     }
 
     tango_status_mapping = {
@@ -233,6 +236,7 @@ class PyTangoDevice(HasCommunication):
         attribute operations with logging and exception mapping.
         """
         device = PyTango.DeviceProxy(address)
+        device.set_timeout_millis(int(self.tangotimeout * 1000))
         # detect not running and not exported devices early, because that
         # otherwise would lead to attribute errors later
         try:
