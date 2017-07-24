@@ -13,7 +13,7 @@ devices = dict(
                            description = 'Saves image data in FITS format',
                            filenametemplate = ['%(pointcounter)08d.fits'],
                           ),
-    DiObSink = device('nicos_mlz.frm2.datasinks.DiObSink',
+    DiObSink = device('nicos_mlz.frm2.devices.datasinks.DiObSink',
                       description = 'Updates di/ob links',
                      ),
 )

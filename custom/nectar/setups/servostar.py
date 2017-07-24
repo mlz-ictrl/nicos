@@ -6,7 +6,7 @@ includes = []
 nethost = 'nectarsrv.nectar.frm2'
 
 devices = dict(
-    stx = device('nicos_mlz.antares.servostar.ServoStarMotor',
+    stx = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
                  description = 'Sample Translation X',
                  tacodevice = '//%s/nectar/mani/x' % nethost,
                  pollinterval = 5,
@@ -15,7 +15,7 @@ devices = dict(
                  abslimits = (0, 1010),
                  comtries = 5,
                 ),
-    sty = device('nicos_mlz.antares.servostar.ServoStarMotor',
+    sty = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
                  description = 'Sample Translation Y',
                  tacodevice = '//%s/nectar/mani/y' % nethost,
                  pollinterval = 5,
@@ -24,7 +24,7 @@ devices = dict(
                  abslimits = (0, 580),
                  comtries = 5,
                 ),
-    sry = device('nicos_mlz.antares.servostar.ServoStarMotor',
+    sry = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
                  description = 'Sample Rotation around Y',
                  tacodevice = '//%s/nectar/mani/phi' % nethost,
                  pollinterval = 5,

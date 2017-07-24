@@ -20,7 +20,7 @@ devices = dict(
                       description = 'sample object',
                      ),
 
-    Exp      = device('nicos_mlz.antares.experiment.Experiment',
+    Exp      = device('nicos_mlz.antares.devices.experiment.Experiment',
                       description = 'experiment object',
                       dataroot = '/data/FRM-II',
                       propdb = '/etc/propdb',
