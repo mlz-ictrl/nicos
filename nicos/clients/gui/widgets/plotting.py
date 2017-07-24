@@ -1038,6 +1038,9 @@ class ViewPlot(NicosGrPlot):
     def setSlidingWindow(self, window):
         self._axes.slidingwindow = window
 
+    def getViewport(self):
+        return self._plot.getAxes(0).getWindow()
+
     def saveData(self):
         curvenames = [self._getCurveLegend(plotcurve)
                       for plotcurve in self.plotcurves]

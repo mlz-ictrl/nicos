@@ -222,7 +222,7 @@
     <string>Make &amp;Fit</string>
    </property>
    <property name="iconText">
-    <string>Peak fit</string>
+    <string>Fit</string>
    </property>
    <property name="toolTip">
     <string>Fit current plot with selected function</string>
@@ -418,6 +418,28 @@
    </property>
    <property name="iconText">
     <string>Peak fit</string>
+   </property>
+  </action>
+  <action name="actionFitExponential">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fit exponential</string>
+   </property>
+   <property name="toolTip">
+    <string>Exponential fit: y = exp(b(x-x0))</string>
+   </property>
+  </action>
+  <action name="actionFitLinear">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fit line</string>
+   </property>
+   <property name="toolTip">
+    <string>Linear fit: y = m*x + t</string>
    </property>
   </action>
  </widget>

@@ -35,15 +35,17 @@ from collections import OrderedDict
 from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QObject, QTimer, \
     QDateTime, QByteArray, QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, \
-    QBrush, QColor, QCompleter, QStyledItemDelegate, QApplication
+    QBrush, QColor, QCompleter, QStyledItemDelegate, QActionGroup, \
+    QComboBox, QWidgetAction, QApplication
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename, extractKeyAndIndex
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
     enumerateWithProgress, CompatSettings
-from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter, \
-    ExponentialFitter
+from nicos.clients.gui.widgets.plotting import ViewPlot, GaussFitter, \
+    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter, \
+    CosineFitter, SigmoidFitter, LinearFitter, ExponentialFitter
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import DeviceParamTree
 from nicos.protocols.cache import cache_load
@@ -440,6 +442,7 @@ class BaseHistoryWindow(object):
         self.keyviews = {}
         # current plot object
         self.currentPlot = None
+        self.fitclass = LinearFitter
 
         self.enablePlotActions(False)
 
@@ -462,9 +465,17 @@ class BaseHistoryWindow(object):
         self.actionLegend.toggled.connect(self.on__actionLegend_toggled)
         self.actionSymbols.toggled.connect(self.on__actionSymbols_toggled)
         self.actionLines.toggled.connect(self.on__actionLines_toggled)
-        self.actionLinearFit.triggered.connect(self.on__actionLinearFit_triggered)
-        self.actionExpFit.triggered.connect(self.on__actionExpFit_triggered)
         self.actionSaveData.triggered.connect(self.on__actionSaveData_triggered)
+        self.actionFitPeak.triggered.connect(self.on__actionFitPeak_triggered)
+        self.actionFitArby.triggered.connect(self.on__actionFitArby_triggered)
+        self.actionFitPeakGaussian.triggered.connect(self.on__actionFitPeakGaussian_triggered)
+        self.actionFitPeakPV.triggered.connect(self.on__actionFitPeakPV_triggered)
+        self.actionFitPeakPVII.triggered.connect(self.on__actionFitPeakPVII_triggered)
+        self.actionFitTc.triggered.connect(self.on__actionFitTc_triggered)
+        self.actionFitCosine.triggered.connect(self.on__actionFitCosine_triggered)
+        self.actionFitSigmoid.triggered.connect(self.on__actionFitSigmoid_triggered)
+        self.actionFitLinear.triggered.connect(self.on__actionFitLinear_triggered)
+        self.actionFitExponential.triggered.connect(self.on__actionFitExponential_triggered)
 
     def openViews(self, views):
         """Open some views given by the specs in *views*, a list of strings.
@@ -516,7 +527,7 @@ class BaseHistoryWindow(object):
             self.actionScaleY, self.actionEditView, self.actionCloseView,
             self.actionDeleteView, self.actionResetView, self.actionUnzoom,
             self.actionLogScale, self.actionLegend, self.actionSymbols,
-            self.actionLines, self.actionLinearFit, self.actionExpFit,
+            self.actionLines, self.actionFitLinear, self.actionFitExponential,
         ]:
             action.setEnabled(on)
 
@@ -790,14 +801,57 @@ class BaseHistoryWindow(object):
     def on__actionLines_toggled(self, on):
         self.currentPlot.setLines(on)
 
-    def on__actionLinearFit_triggered(self):
-        self.currentPlot.beginFit(LinearFitter, self.actionLinearFit)
-
-    def on__actionExpFit_triggered(self):
-        self.currentPlot.beginFit(ExponentialFitter, self.actionExpFit)
-
     def on__actionSaveData_triggered(self):
         self.currentPlot.saveData()
+
+    def on__actionFitPeak_triggered(self):
+        self.currentPlot.beginFit(self.fitclass, self.actionFitPeak,
+                                  self.actionPickForFit.isChecked())
+
+    def on__actionFitLinear_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitLinear.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = LinearFitter
+
+    def on__actionFitExponential_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitExponential.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = ExponentialFitter
+
+    def on__actionFitPeakGaussian_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakGaussian.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = GaussFitter
+
+    def on__actionFitPeakPV_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakPV.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = PseudoVoigtFitter
+
+    def on__actionFitPeakPVII_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakPVII.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = PearsonVIIFitter
+
+    def on__actionFitTc_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitTc.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = TcFitter
+
+    def on__actionFitCosine_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitCosine.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = CosineFitter
+
+    def on__actionFitSigmoid_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitSigmoid.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = SigmoidFitter
+
+    def on__actionFitArby_triggered(self):
+        # no second argument: the "arbitrary" action is not checkable
+        self.currentPlot.beginFit(ArbitraryFitter, None,
+                                  self.actionPickForFit.isChecked())
 
 
 class HistoryPanel(BaseHistoryWindow, Panel):
@@ -810,6 +864,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
 
         Panel.__init__(self, parent, client)
         BaseHistoryWindow.__init__(self)
+        self.fitfuncmap = {}
 
         self.presetmenu = QMenu('&Presets', self)
         self.statusBar = QStatusBar(self)
@@ -852,8 +907,28 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         menu.addAction(self.actionLegend)
         menu.addAction(self.actionSymbols)
         menu.addAction(self.actionLines)
-        menu.addAction(self.actionLinearFit)
-        menu.addAction(self.actionExpFit)
+        menu.addSeparator()
+        ag = QActionGroup(menu)
+        ag.addAction(self.actionFitPeakGaussian)
+        ag.addAction(self.actionFitPeakPV)
+        ag.addAction(self.actionFitPeakPVII)
+        ag.addAction(self.actionFitTc)
+        ag.addAction(self.actionFitCosine)
+        ag.addAction(self.actionFitSigmoid)
+        ag.addAction(self.actionFitLinear)
+        ag.addAction(self.actionFitExponential)
+        menu.addAction(self.actionFitPeak)
+        menu.addAction(self.actionFitPeakGaussian)
+        menu.addAction(self.actionFitPeakPV)
+        menu.addAction(self.actionFitPeakPVII)
+        menu.addAction(self.actionFitTc)
+        menu.addAction(self.actionFitCosine)
+        menu.addAction(self.actionFitSigmoid)
+        menu.addAction(self.actionFitLinear)
+        menu.addAction(self.actionFitExponential)
+        menu.addAction(self.actionPickForFit)
+        menu.addSeparator()
+        menu.addAction(self.actionFitArby)
         menu.addSeparator()
         self._refresh_presets()
         return [menu, self.presetmenu]
@@ -908,9 +983,38 @@ class HistoryPanel(BaseHistoryWindow, Panel):
             bar.addSeparator()
             bar.addAction(self.actionResetView)
             bar.addAction(self.actionDeleteView)
+            bar.addSeparator()
+            bar.addAction(self.actionFitPeak)
+            ag = QActionGroup(bar)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
+            wa = QWidgetAction(bar)
+            self.fitComboBox = QComboBox(bar)
+            for a in ag.actions():
+                itemtext = a.text().replace('&', '')
+                self.fitComboBox.addItem(itemtext)
+                self.fitfuncmap[itemtext] = a
+            self.fitComboBox.currentIndexChanged.connect(
+                self.on_fitComboBox_currentIndexChanged)
+            wa.setDefaultWidget(self.fitComboBox)
+            bar.addAction(wa)
+            bar.addAction(self.actionPickForFit)
+            bar.addSeparator()
+            bar.addAction(self.actionFitArby)
             self.bar = bar
+            self.actionFitLinear.trigger()
 
         return [self.bar]
+
+    @pyqtSlot(int)
+    def on_fitComboBox_currentIndexChanged(self, index):
+        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', '', QByteArray)
@@ -1028,11 +1132,13 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
         self.menus = None
         self.bar = None
+        self.fitfuncmap = {}
 
         for toolbar in self.getToolbars():
             self.addToolBar(toolbar)
         for menu in self.getMenus():
             self.menuBar().addMenu(menu)
+        self.actionFitLinear.trigger()
         self.statusBar = QStatusBar(self)
         self.setStatusBar(self.statusBar)
 
@@ -1055,8 +1161,29 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
             menu.addAction(self.actionLegend)
             menu.addAction(self.actionSymbols)
             menu.addAction(self.actionLines)
-            menu.addAction(self.actionLinearFit)
-            menu.addAction(self.actionExpFit)
+            menu.addSeparator()
+            ag = QActionGroup(menu)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
+            menu.addAction(self.actionFitPeak)
+            menu.addAction(self.actionFitPeakGaussian)
+            menu.addAction(self.actionFitPeakPV)
+            menu.addAction(self.actionFitPeakPVII)
+            menu.addAction(self.actionFitTc)
+            menu.addAction(self.actionFitCosine)
+            menu.addAction(self.actionFitSigmoid)
+            menu.addAction(self.actionFitLinear)
+            menu.addAction(self.actionFitExponential)
+            menu.addAction(self.actionPickForFit)
+            menu.addSeparator()
+            menu.addAction(self.actionFitArby)
+            menu.addSeparator()
             menu.addSeparator()
             menu.addAction(self.actionClose)
             self.menus = menu
@@ -1080,7 +1207,29 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
             bar.addAction(self.actionResetView)
             bar.addAction(self.actionDeleteView)
             self.bar = bar
-
+            bar.addAction(self.actionFitPeak)
+            ag = QActionGroup(bar)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
+            wa = QWidgetAction(bar)
+            self.fitComboBox = QComboBox(bar)
+            for a in ag.actions():
+                self.fitComboBox.addItem(a.text())
+                self.fitfuncmap[a.text()] = a
+            self.fitComboBox.currentIndexChanged.connect(
+                self.on_fitComboBox_currentIndexChanged)
+            wa.setDefaultWidget(self.fitComboBox)
+            bar.addAction(wa)
+            bar.addAction(self.actionPickForFit)
+            bar.addSeparator()
+            bar.addAction(self.actionFitArby)
+            self.bar = bar
         return [self.bar]
 
     def gethistory_callback(self, key, fromtime, totime):
@@ -1089,6 +1238,10 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
     def closeEvent(self, event):
         self.settings.setValue('splitstate', self.splitter.saveState())
         return QMainWindow.closeEvent(self, event)
+
+    @pyqtSlot(int)
+    def on_fitComboBox_currentIndexChanged(self, index):
+        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
 
 
 class StandaloneHistoryApp(CacheClient):

@@ -41,7 +41,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.clients.gui.widgets.plotting import DataSetPlot, GaussFitter, \
     PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter, \
-    CosineFitter, SigmoidFitter
+    CosineFitter, SigmoidFitter, LinearFitter, ExponentialFitter
 from nicos.pycompat import itervalues
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -250,6 +250,8 @@ class ScansPanel(Panel):
             ag.addAction(self.actionFitTc)
             ag.addAction(self.actionFitCosine)
             ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
             menu2.addAction(self.actionFitPeak)
             menu2.addAction(self.actionFitPeakGaussian)
             menu2.addAction(self.actionFitPeakPV)
@@ -257,6 +259,8 @@ class ScansPanel(Panel):
             menu2.addAction(self.actionFitTc)
             menu2.addAction(self.actionFitCosine)
             menu2.addAction(self.actionFitSigmoid)
+            menu2.addAction(self.actionFitLinear)
+            menu2.addAction(self.actionFitExponential)
             menu2.addAction(self.actionPickForFit)
             menu2.addSeparator()
             menu2.addAction(self.actionFitArby)
@@ -297,6 +301,8 @@ class ScansPanel(Panel):
             ag.addAction(self.actionFitTc)
             ag.addAction(self.actionFitCosine)
             ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
             wa = QWidgetAction(fitbar)
             self.fitComboBox = QComboBox(fitbar)
             for a in ag.actions():
@@ -716,11 +722,24 @@ class ScansPanel(Panel):
         self.fitclass = SigmoidFitter
 
     @pyqtSlot()
+    def on_actionFitLinear_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitLinear.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = LinearFitter
+
+    @pyqtSlot()
+    def on_actionFitExponential_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitExponential.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = ExponentialFitter
+
+    @pyqtSlot()
     def on_actionFitArby_triggered(self):
         # no second argument: the "arbitrary" action is not checkable
         self.currentPlot.beginFit(ArbitraryFitter, None,
                                   pickmode=self.actionPickForFit.isChecked())
 
+    @pyqtSlot()
     def on_quickfit(self):
         if not self.currentPlot or not self.currentPlot.underMouse():
             return
