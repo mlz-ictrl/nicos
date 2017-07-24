@@ -35,7 +35,7 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
-           panel('mira.gui.live.LiveDataPanel')),
+           panel('nicos_mlz.mira.gui.live.LiveDataPanel')),
 ]
 
 tools = [
