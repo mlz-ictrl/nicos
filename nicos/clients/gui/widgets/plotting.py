@@ -137,6 +137,9 @@ class Fitter(object):
     def do_fit(self):
         raise NotImplementedError
 
+    def limitsFromPlot(self):
+        return self.plot.getViewport()[:2]
+
 
 class LinearFitter(Fitter):
     title = 'linear fit'
@@ -144,12 +147,14 @@ class LinearFitter(Fitter):
 
     def do_fit(self):
         if self.pickmode:
-            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-            m0 = (y2-y1) / (x2-x1)
-            pars = [m0, y1 - m0*x1]
+            (xmin, y1), (xmax, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            m0 = (y2 - y1) / (xmax - xmin)
+            pars = [m0, y1 - m0*xmin]
         else:
-            pars = x1 = x2 = None
-        f = LinearFit(pars, xmin=x1, xmax=x2, timeseries=True)
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
+        f = LinearFit(pars, xmin=xmin, xmax=xmax, timeseries=True)
         return f.run_or_raise(*self.data)
 
 
@@ -159,13 +164,15 @@ class ExponentialFitter(Fitter):
 
     def do_fit(self):
         if self.pickmode:
-            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-            b0 = np.log(y1 / y2) / (x1 - x2)
-            x0 = x1 - np.log(y1) / b0
+            (xmin, y1), (xmax, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            b0 = np.log(y1 / y2) / (xmin - xmax)
+            x0 = xmin - np.log(y1) / b0
             pars = [b0, x0]
         else:
-            pars = x1 = x2 = None
-        f = ExponentialFit(pars, xmin=x1, xmax=x2, timeseries=True)
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
+        f = ExponentialFit(pars, xmin=xmin, xmax=xmax, timeseries=True)
         return f.run_or_raise(*self.data)
 
 
@@ -182,6 +189,7 @@ class CosineFitter(Fitter):
             width = abs(x1 - x2)
             freq = 1 / (width * 2.)
             pars = [a, freq, x1, b]
+
         f = CosineFit(pars)
         return f.run_or_raise(*self.data)
 
@@ -198,7 +206,9 @@ class GaussFitter(Fitter):
             xmin = x0 - totalwidth
             xmax = x0 + totalwidth
         else:
-            pars = xmin = xmax = None
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
         f = GaussFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
@@ -209,11 +219,13 @@ class SigmoidFitter(Fitter):
 
     def do_fit(self):
         if self.pickmode:
-            (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-            pars = [y2 - y1, 1, (x2 - x1) / 2. + x1, y1]
+            (xmin, y1), (xmax, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [y2 - y1, 1, (xmax - xmin) / 2. + xmin, y1]
         else:
-            pars = x1 = x2 = None
-        f = SigmoidFit(pars, xmin=x1, xmax=x2)
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
+        f = SigmoidFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
 
@@ -229,7 +241,9 @@ class PseudoVoigtFitter(Fitter):
             xmin = x0 - totalwidth
             xmax = x0 + totalwidth
         else:
-            pars = xmin = xmax = None
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
         f = PseudoVoigtFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
@@ -246,7 +260,9 @@ class PearsonVIIFitter(Fitter):
             xmin = x0 - totalwidth
             xmax = x0 + totalwidth
         else:
-            pars = xmin = xmax = None
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
         f = PearsonVIIFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
@@ -264,6 +280,7 @@ class TcFitter(Fitter):
             Tmin = min(self.data[0])
             A0 = max(self.data[1]) / ((Tc-Tmin)/Tc)**alpha0
             pars = [Ib, A0, Tc, alpha0]
+
         f = TcFit(pars)
         return f.run_or_raise(*self.data)
 
@@ -555,6 +572,9 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
     def _plotFit(self, fitter):
+        raise NotImplementedError
+
+    def getViewport(self):
         raise NotImplementedError
 
     def modifyData(self):
@@ -1235,3 +1255,6 @@ class DataSetPlot(NicosGrPlot):
             return
         self.fitter = GaussFitter(self, self.window, None, curve, False)
         self.fitter.begin()
+
+    def getViewport(self):
+        return self._plot.getAxes(0).getWindow()
