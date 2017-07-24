@@ -81,7 +81,7 @@ devices = dict(
                    ),
 
     # Configure dataroot here (usually /data).
-    Exp = device('nicos_mlz.frm2.experiment.Experiment',
+    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
                  description = 'experiment object',
                  dataroot = '/data',
                  propdb = '/spodicontrol/propdb',
@@ -112,7 +112,7 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink',
                       lowlevel = True,
                      ),
-    spodisink = device('nicos_mlz.spodi.datasinks.CaressHistogram',
+    spodisink = device('nicos_mlz.spodi.devices.datasinks.CaressHistogram',
                        description = 'SPODI specific histogram file format',
                        lowlevel = True,
                        filenametemplate = ['run%(pointcounter)06d.ctxt'],
