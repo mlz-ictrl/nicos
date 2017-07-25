@@ -287,23 +287,25 @@ class NewViewDialog(QDialog, DlgUtils):
         for key, indices, scale, offset in keys_indices:
             dev, _, param = key.partition('/')
             for i in range(tree.topLevelItemCount()):
-                if tree.topLevelItem(i).text(0) == dev:
+                if tree.topLevelItem(i).text(0).lower() == dev:
                     devitem = tree.topLevelItem(i)
                     break
             else:
                 continue
             if param == 'value':
                 item = devitem
+                newkey = devitem.text(0)
             else:
                 if not devitem.childCount():
                     tree.on_itemExpanded(devitem)
                 for i in range(devitem.childCount()):
-                    if devitem.child(i).text(0) == param:
+                    if devitem.child(i).text(0).lower() == param:
                         item = devitem.child(i)
                         item.parent().setExpanded(True)
                         break
                 else:
                     continue
+                newkey = devitem.text(0) + '.' + item.text(0)
             suffix = ''.join('[%s]' % i for i in indices)
             if scale != 1:
                 suffix += '*%.4g' % scale
@@ -313,7 +315,7 @@ class NewViewDialog(QDialog, DlgUtils):
             item.setText(1, ','.join(map(str, indices)))
             item.setText(2, '%.4g' % scale)
             item.setText(3, '%.4g' % offset)
-            self.deviceTreeSel[key] = suffix
+            self.deviceTreeSel[newkey] = suffix
         tree.itemChanged.connect(self.on_deviceTree_itemChanged)
 
     def on_deviceTree_itemChanged(self, item, col):
