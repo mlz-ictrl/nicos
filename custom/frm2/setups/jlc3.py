@@ -9,7 +9,7 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname : device('nicos_mlz.frm2.ccr.CCRControl',
+    'T_%s' % setupname : device('nicos_mlz.frm2.devices.ccr.CCRControl',
                                 description = 'The main temperature control device of the ccr',
                                 stick = 'T_%s_stick' % setupname,
                                 tube = 'T_%s_tube' % setupname,
