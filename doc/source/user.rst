@@ -1,6 +1,5 @@
-************
 User's Guide
-************
+============
 
 The documentation in this chapter contains the information that is relevant for
 you, if you are a instrument responsible or you are a user and want to see what
@@ -11,4 +10,5 @@ using setups please check :doc:`installconfig`.
    :maxdepth: 1
 
    gui/invocation
+   userscripts
    commands
