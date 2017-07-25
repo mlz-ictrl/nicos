@@ -26,7 +26,7 @@ from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
 from nicos.commands.measure import count
-from nicos.commands.device import move, wait
+from nicos.commands.device import maw
 from nicos.commands.scan import manualscan
 
 
@@ -66,9 +66,8 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     with manualscan(*moveables):
         for angle in angles:
             # Move the given movable to the target angle
-            for entry in moveables:
-                move(entry, angle)
-            wait(*moveables)
+            args = sum([[entry, angle] for entry in moveables], [])
+            maw(*args)
 
             # Capture the desired amount of images
             for _ in range(imgsperangle):
