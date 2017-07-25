@@ -30,7 +30,7 @@ devices = dict(
                     description = 'The current used sample',
                    ),
 
-    Exp = device('frm2.experiment.Experiment',
+    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
                  description = 'The current running experiment',
                  dataroot = '/data',
                  sample = 'Sample',
@@ -65,10 +65,10 @@ devices = dict(
                         lowlevel = True,
                        ),
 
-    livesink   = device('toftof.datasinks.ToftofLiveViewSink',
+    livesink   = device('nicos_mlz.toftof.devices.datasinks.ToftofLiveViewSink',
                         lowlevel = True,
                        ),
-    tofsink = device('toftof.datasinks.TofImageSink',
+    tofsink = device('nicos_mlz.toftof.devices.datasinks.TofImageSink',
                      filenametemplate = ['%(pointcounter)08d_0000.raw'],
                      lowlevel = True,
                     ),

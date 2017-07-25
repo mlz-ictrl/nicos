@@ -7,7 +7,7 @@ includes = []
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    saf      = device('toftof.safety.SafetyInputs',
+    saf      = device('nicos_mlz.toftof.devices.safety.SafetyInputs',
                       description = 'State of the safety control',
                       i7053 = ['i7053_1', 'i7053_2', 'i7053_3'],
                       fmtstr = '0x%012x',
@@ -39,7 +39,7 @@ devices = dict(
                       tacodevice = '//%s/toftof/shutter/status' % (nethost,),
                       lowlevel = True,
                      ),
-    shutter  = device('toftof.safety.Shutter',
+    shutter  = device('nicos_mlz.toftof.devices.safety.Shutter',
                       description = 'Instrument shutter',
                       open = 'shopen',
                       close = 'shclose',

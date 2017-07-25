@@ -7,7 +7,7 @@ includes = ['alias_T']
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    pyro = device('toftof.impac.TemperatureSensor',
+    pyro = device('nicos_mlz.toftof.devices.impac.TemperatureSensor',
                   description = 'Impac pyrometer thermometer',
                   tacodevice = '//%s/toftof/rs232/ifpyrometer' % (nethost, ),
                   unit = 'C',

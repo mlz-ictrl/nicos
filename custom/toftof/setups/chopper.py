@@ -7,7 +7,7 @@ includes = ['choppermemograph']
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    ch           = device('toftof.chopper.Controller',
+    ch           = device('nicos_mlz.toftof.devices.chopper.Controller',
                           description = 'TOFTOF chopper control device',
                           tacodevice = '//%s/toftof/rs232/ifchoppercontrol' % \
                                         (nethost, ),
@@ -20,7 +20,7 @@ devices = dict(
                           unit = 'rpm',
                           fmtstr = '%.0f',
                          ),
-    chWL         = device('toftof.chopper.Wavelength',
+    chWL         = device('nicos_mlz.toftof.devices.chopper.Wavelength',
                           description = 'Neutron wavelength',
                           chopper = 'ch',
                           chdelay = 'chdelay',
@@ -29,7 +29,7 @@ devices = dict(
                           maxage = 12,
                           unit = 'AA',
                          ),
-    chSpeed      = device('toftof.chopper.Speed',
+    chSpeed      = device('nicos_mlz.toftof.devices.chopper.Speed',
                           description = 'Setpoint of the chopper speed',
                           chopper = 'ch',
                           chdelay = 'chdelay',
@@ -39,14 +39,14 @@ devices = dict(
                           fmtstr = '%.0f',
                           unit = 'rpm',
                          ),
-    chRatio      = device('toftof.chopper.Ratio',
+    chRatio      = device('nicos_mlz.toftof.devices.chopper.Ratio',
                           description = 'Frame overlap ratio',
                           chopper = 'ch',
                           chdelay = 'chdelay',
                           pollinterval = 10,
                           maxage = 12,
                          ),
-    chCRC        = device('toftof.chopper.CRC',
+    chCRC        = device('nicos_mlz.toftof.devices.chopper.CRC',
                           description = 'Chopper rotation sense (CRC=1, '
                                         'parallel=0)',
                           requires = {'level': 'admin'},
@@ -55,7 +55,7 @@ devices = dict(
                           pollinterval = 10,
                           maxage = 12,
                          ),
-    chST         = device('toftof.chopper.SlitType',
+    chST         = device('nicos_mlz.toftof.devices.chopper.SlitType',
                           description = 'Chopper window; large window=0',
                           requires = {'level': 'admin'},
                           chopper = 'ch',
@@ -63,7 +63,7 @@ devices = dict(
                           pollinterval = 10,
                           maxage = 12,
                          ),
-    chDS         = device('toftof.chopper.SpeedReadout',
+    chDS         = device('nicos_mlz.toftof.devices.chopper.SpeedReadout',
                           description = 'Speed of the disks 1 - 7',
                           chopper = 'ch',
                           fmtstr = '[%.0f, %.0f, %.0f, %.0f, %.0f,' \
