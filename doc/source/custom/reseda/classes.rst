@@ -2,35 +2,35 @@
 =============================================
 
 
-.. automodule:: nicos.reseda.current
+.. automodule:: nicos_mlz.reseda.devices.current
 
 .. autoclass:: CurrentA()
 .. autoclass:: CurrentU()
 
-.. automodule:: nicos.reseda.frequencies
+.. automodule:: nicos_mlz.reseda.devices.frequencies
 
 .. autoclass:: Frequencies()
 
-.. automodule:: nicos.reseda.powersupply
+.. automodule:: nicos_mlz.reseda.devices.powersupply
 
 .. autoclass:: PowerSupplyU()
 .. autoclass:: PowerSupplyA()
 
-.. automodule:: nicos.reseda.scatteringvector
+.. automodule:: nicos_mlz.reseda.devices.scatteringvector
 
 .. autoclass:: ScatteringVector()
 
-.. automodule:: nicos.reseda.selector
+.. automodule:: nicos_mlz.reseda.devices.selector
 
 .. autoclass:: Selector()
 .. autoclass:: Wavelength()
 
-.. automodule:: nicos.reseda.tau
+.. automodule:: nicos_mlz.reseda.devices.tau
 
 .. autoclass:: tauTwoarms()
 .. autoclass:: tauMieze()
 
-.. automodule:: nicos.reseda.temperature
+.. automodule:: nicos_mlz.reseda.devices.temperature
 .. autoclass:: TemperatureA()
 .. autoclass:: TemperatureB()
 .. autoclass:: TemperatureC()

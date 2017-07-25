@@ -2,9 +2,9 @@
 ===========================================
 
 
-.. automodule:: nicos.maria.detector
+.. automodule:: nicos_mlz.maria.devices.detector
 .. autoclass:: DenexImage()
 
-.. automodule:: nicos.maria.npsaver
+.. automodule:: nicos_mlz.maria.devices.npsaver
 .. autoclass:: NPGZImageSinkHandler()
 .. autoclass:: NPGZFileSink()

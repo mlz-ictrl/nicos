@@ -4,13 +4,13 @@
 Detector
 --------
 
-.. automodule:: nicos.spodi.detector
+.. automodule:: nicos_mlz.spodi.devices.detector
 
 .. autoclass:: Detector()
 
 Data formats
 ------------
 
-.. automodule:: nicos.spodi.datasinks
+.. automodule:: nicos_mlz.spodi.devices.datasinks
 
 .. autoclass:: CaressHistogram()

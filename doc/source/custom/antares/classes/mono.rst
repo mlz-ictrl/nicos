@@ -1,7 +1,7 @@
 Monochromator
 -------------
 
-.. automodule:: nicos.antares.monochromator
+.. automodule:: nicos_mlz.antares.devices.monochromator
     :members:
     :undoc-members:
 

@@ -1,41 +1,41 @@
 `FRM II <http://www.frm2.tum.de>`_
 ==================================
 
-.. automodule:: nicos.frm2.proposaldb
+.. automodule:: nicos_mlz.frm2.devices.proposaldb
 
 .. autoclass:: ProposalDB()
 .. autoclass:: Authenticator()
 
-.. automodule:: nicos.frm2.experiment
+.. automodule:: nicos_mlz.frm2.devices.experiment
 
 .. autoclass:: Experiment()
 .. autoclass:: ImagingExperiment()
 
-.. automodule:: nicos.frm2.ccr
+.. automodule:: nicos_mlz.frm2.devices.ccr
 
 .. autoclass:: CCRControl()
 .. autoclass:: CompressorSwitch()
 
-.. automodule:: nicos.frm2.amagnet
+.. automodule:: nicos_mlz.frm2.devices.amagnet
 
 .. autoclass:: GarfieldMagnet()
 
-.. automodule:: nicos.frm2.ccmsans
+.. automodule:: nicos_mlz.frm2.devices.ccmsans
 
 .. autoclass:: AsymmetricMagnet()
 
-.. automodule:: nicos.frm2.newport
+.. automodule:: nicos_mlz.frm2.devices.newport
 
 .. autoclass:: Motor()
 
-.. automodule:: nicos.frm2.memograph
+.. automodule:: nicos_mlz.frm2.devices.memograph
 
 .. autoclass:: MemographValue()
 
-.. automodule:: nicos.frm2.ubahn
+.. automodule:: nicos_mlz.frm2.devices.ubahn
 
 .. autoclass:: UBahn()
 
-.. automodule:: nicos.frm2.camera
+.. automodule:: nicos_mlz.frm2.devices.camera
 
 .. autoclass:: CameraImage()

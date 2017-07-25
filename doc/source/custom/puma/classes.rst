@@ -2,55 +2,55 @@
 =========================================
 
 
-.. automodule:: nicos.puma.attenuator
+.. automodule:: nicos_mlz.puma.devices.attenuator
 
 .. autoclass:: Attenuator()
 
-.. automodule:: nicos.puma.comb_ax
+.. automodule:: nicos_mlz.puma.devices.comb_ax
 
 .. autoclass:: CombAxis()
 
-.. automodule:: nicos.puma.filter
+.. automodule:: nicos_mlz.puma.devices.filter
 
 .. autoclass:: PumaFilter()
 
-.. automodule:: nicos.puma.focus
+.. automodule:: nicos_mlz.puma.devices.focus
 
 .. autoclass:: FocusAxis()
 
-.. automodule:: nicos.puma.ipc_puma
+.. automodule:: nicos_mlz.puma.devices.ipc_puma
 
 .. autoclass:: Coder()
 .. autoclass:: Motor()
 
-.. automodule:: nicos.puma.maglock
+.. automodule:: nicos_mlz.puma.devices.maglock
 
 .. autoclass:: MagLock()
 
-.. automodule:: nicos.puma.mchanger
+.. automodule:: nicos_mlz.puma.devices.mchanger
 
 .. autoclass:: Mchanger()
 
-.. automodule:: nicos.puma.mtt
+.. automodule:: nicos_mlz.puma.devices.mtt
 
 .. autoclass:: MttAxis()
 
-.. automodule:: nicos.puma.pgfilter
+.. automodule:: nicos_mlz.puma.devices.pgfilter
 
 .. autoclass:: PGFilter()
 
-.. automodule:: nicos.puma.senseswitch
+.. automodule:: nicos_mlz.puma.devices.senseswitch
 
 .. autoclass:: SenseSwitch()
 
-.. automodule:: nicos.puma.sh_cylinder
+.. automodule:: nicos_mlz.puma.devices.sh_cylinder
 
 .. autoclass:: SH_Cylinder()
 
-.. automodule:: nicos.puma.spectro
+.. automodule:: nicos_mlz.puma.devices.spectro
 
 .. autoclass:: PUMA()
 
-.. automodule:: nicos.puma.sr7
+.. automodule:: nicos_mlz.puma.devices.sr7
 
 .. autoclass:: SR7Shutter()

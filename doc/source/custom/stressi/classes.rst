@@ -4,7 +4,7 @@
 Slits
 -----
 
-.. automodule:: nicos.stressi.slit
+.. automodule:: nicos_mlz.stressi.devices.slit
 
 .. autoclass:: Slit()
 .. autoclass:: TwoAxisSlit()
@@ -12,14 +12,14 @@ Slits
 Data formats
 ------------
 
-.. automodule:: nicos.stressi.datasinks
+.. automodule:: nicos_mlz.stressi.devices.datasinks
 
 .. autoclass:: CaressScanfileSink()
 
 Wave length
 -----------
 
-.. automodule:: nicos.stressi.wavelength
+.. automodule:: nicos_mlz.stressi.devices.wavelength
 
 .. autoclass:: Wavelength()
 .. autoclass:: TransformedMoveable()
@@ -27,7 +27,7 @@ Wave length
 Mixins
 ------
 
-.. automodule:: nicos.stressi.mixins
+.. automodule:: nicos_mlz.stressi.devices.mixins
 
 .. autoclass:: TransformRead()
 .. autoclass:: TransformMove()

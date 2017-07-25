@@ -4,6 +4,6 @@ TREFF
 Button
 ------
 
-.. automodule:: nicos.treff.button
+.. automodule:: nicos_mlz.treff.devices.button
 
 .. autoclass:: Button()

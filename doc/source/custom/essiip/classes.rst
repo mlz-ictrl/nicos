@@ -1,6 +1,6 @@
 ESSIIP
 ======
 
-.. automodule:: nicos.essiip.epics_motor
+.. automodule:: nicos_mlz.essiip.devices.epics_motor
 
 .. autoclass:: EpicsMotor()

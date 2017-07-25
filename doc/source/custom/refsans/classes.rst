@@ -2,7 +2,7 @@
 ===============================================
 
 
-.. automodule:: nicos.refsans.nok_support
+.. automodule:: nicos_mlz.refsans.devices.nok_support
 
 .. autoclass:: PseudoNOK()
 .. autoclass:: NOKMonitoredVoltage()
@@ -13,7 +13,7 @@
 .. autoclass:: SingleMotorNOK()
 .. autoclass:: DoubleMotorNOK()
 
-.. automodule:: nicos.refsans.slits
+.. automodule:: nicos_mlz.refsans.devices.slits
 
 .. autoclass:: Opening()
 .. autoclass:: Slit()
@@ -22,6 +22,6 @@
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos.refsans.monitorwidgets
+.. automodule:: nicos_mlz.refsans.devices.monitorwidgets
 
 .. autoclass:: VRefsans()

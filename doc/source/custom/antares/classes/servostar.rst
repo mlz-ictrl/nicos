@@ -1,7 +1,7 @@
 Servostar Taco workarounds
 --------------------------
 
-.. automodule:: nicos.antares.servostar
+.. automodule:: nicos_mlz.antares.devices.servostar
     :members:
     :undoc-members:
 

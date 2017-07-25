@@ -2,6 +2,6 @@ V20
 ===
 
 
-.. automodule:: nicos.v20.distancedevice
+.. automodule:: nicos_mlz.v20.devices.distancedevice
 
 .. autoclass:: CenteredDistanceDevice()

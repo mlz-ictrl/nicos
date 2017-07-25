@@ -1,7 +1,7 @@
 Tango devices for bitwise access
 --------------------------------
 
-.. automodule:: nicos.antares.partialdio
+.. automodule:: nicos_mlz.antares.devices.partialdio
     :members:
     :undoc-members:
 

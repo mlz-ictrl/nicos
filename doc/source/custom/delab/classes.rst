@@ -1,7 +1,7 @@
 FRM II Detector laboratory
 ==========================
 
-.. automodule:: nicos.delab.acqiris
+.. automodule:: nicos_mlz.delab.devices.acqiris
 
 .. autoclass:: Channel()
 .. autoclass:: Timer()

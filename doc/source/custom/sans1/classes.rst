@@ -2,11 +2,11 @@
 =============================================
 
 
-.. automodule:: nicos.sans1.bersans
+.. automodule:: nicos_mlz.sans1.devices.bersans
 
 .. autoclass:: BerSANSImageSink()
 
-.. automodule:: nicos.sans1.collimotor
+.. automodule:: nicos_mlz.sans1.devices.collimotor
 
 .. autoclass:: Sans1ColliSlit()
 .. autoclass:: Sans1ColliSwitcher()
@@ -18,30 +18,30 @@
 .. autoclass:: BeckhoffDigitalOutput()
 .. autoclass:: BeckhoffNamedDigitalOutput()
 
-.. automodule:: nicos.sans1.hv
+.. automodule:: nicos_mlz.sans1.devices.hv
 
 .. autoclass:: VoltageSwitcher()
 .. autoclass:: VoltageSupply()
 .. autoclass:: Sans1HV()
 .. autoclass:: Sans1HVOffDuration()
 
-.. automodule:: nicos.sans1.mercury
+.. automodule:: nicos_mlz.sans1.devices.mercury
 
 .. autoclass:: OxfordMercury()
 .. autoclass:: MercuryAsymmetricalMagnet()
 
-.. automodule:: nicos.sans1.sans1_sample
+.. automodule:: nicos_mlz.sans1.devices.sans1_sample
 
 .. autoclass:: Sans1Sample()
 
-.. automodule:: nicos.sans1.spinflipper
+.. automodule:: nicos_mlz.sans1.devices.spinflipper
 
 .. autoclass:: SpinflipperPower()
 
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos.sans1.monitorwidgets
+.. automodule:: nicos_mlz.sans1.devices.monitorwidgets
 
 .. autoclass:: Tube2()
 .. autoclass:: BeamOption()

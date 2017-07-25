@@ -1,16 +1,16 @@
 Demo
 ====
 
-.. automodule:: nicos.demo.cpuload
+.. automodule:: nicos_mlz.demo.devices.cpuload
 .. autoclass:: CPULoad()
 
-.. automodule:: nicos.demo.net
+.. automodule:: nicos_mlz.demo.devices.net
 .. autoclass:: Network()
 
-.. automodule:: nicos.demo.notifier
+.. automodule:: nicos_mlz.demo.devices.notifier
 .. autoclass:: DBusNotifier()
 .. autoclass:: Jabberer()
 
-.. automodule:: nicos.demo.servo
+.. automodule:: nicos_mlz.demo.devices.servo
 .. autoclass:: SerComIO()
 .. autoclass:: MicroPythonServo()

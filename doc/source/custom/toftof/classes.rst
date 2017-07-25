@@ -4,7 +4,7 @@
 Chopper
 -------
 
-.. automodule:: nicos.toftof.chopper
+.. automodule:: nicos_mlz.toftof.devices.chopper
 
 .. autoclass:: Controller()
 .. autoclass:: SpeedReadout()
@@ -18,18 +18,18 @@ Chopper
 Pyrometer
 ---------
 
-.. automodule:: nicos.toftof.impac
+.. automodule:: nicos_mlz.toftof.devices.impac
 
 .. autoclass:: TemperatureSensor()
 
 Temperature Controller
 ----------------------
 
-.. automodule:: nicos.toftof.julabo
+.. automodule:: nicos_mlz.toftof.devices.julabo
 
 .. autoclass:: Controller()
 
-.. automodule:: nicos.toftof.lascon
+.. automodule:: nicos_mlz.toftof.devices.lascon
 
 .. autoclass:: Lascon()
 .. autoclass:: TemperatureController()
@@ -38,7 +38,7 @@ Temperature Controller
 Neutron Guide/Collimation
 -------------------------
 
-.. automodule:: nicos.toftof.neutronguide
+.. automodule:: nicos_mlz.toftof.devices.neutronguide
 
 .. autoclass:: Switcher()
 .. autoclass:: Motor()
@@ -46,7 +46,7 @@ Neutron Guide/Collimation
 Radial Collimator
 -----------------
 
-.. automodule:: nicos.toftof.rc
+.. automodule:: nicos_mlz.toftof.devices.rc
 
 .. autoclass:: ModBusDriverHP()
 .. autoclass:: RadialCollimator()
@@ -54,7 +54,7 @@ Radial Collimator
 Safety System
 -------------
 
-.. automodule:: nicos.toftof.safety
+.. automodule:: nicos_mlz.toftof.devices.safety
 
 .. autoclass:: SafetyInputs()
 .. autoclass:: Shutter()
@@ -62,19 +62,19 @@ Safety System
 Detector
 --------
 
-.. automodule:: nicos.toftof.tofcounter
+.. automodule:: nicos_mlz.toftof.devices.tofcounter
 
 .. autoclass:: Monitor()
 .. autoclass:: Timer()
 .. autoclass:: Image()
 
-.. automodule:: nicos.toftof.detector
+.. automodule:: nicos_mlz.toftof.devices.detector
 
 .. autoclass:: Detector()
 
 Data formats
 ------------
 
-.. automodule:: nicos.toftof.datasinks
+.. automodule:: nicos_mlz.toftof.devices.datasinks
 
 .. autoclass:: TofImageSink()
