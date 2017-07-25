@@ -787,7 +787,7 @@ def main(argv):
     mainwindow = MainWindow(log, gui_conf)
     log.addHandler(DebugHandler(mainwindow))
 
-    if len(args) > 0:
+    if args:
         parsed = parseConnectionString(args[0], DEFAULT_PORT)
         if parsed:
             cdata = ConnectionData(**parsed)

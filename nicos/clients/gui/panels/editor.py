@@ -768,7 +768,7 @@ class EditorPanel(Panel):
             defaultext = '.py'
             flt = 'Script files (*.py *.txt)'
         fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
-        if fn == '':
+        if not fn:
             return False
         if not fn.endswith(('.py', '.txt')):
             fn += defaultext

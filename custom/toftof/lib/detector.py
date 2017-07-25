@@ -25,6 +25,7 @@
 """TOFTOF detector."""
 
 from time import time as currenttime
+import io
 
 from nicos import session
 
@@ -237,11 +238,9 @@ class Detector(GenericDetector):
         return self._attached_images[0].numinputs
 
     def _import_detinfo(self):
-        with open(self.detinfofile, 'U') as fp:
+        with io.open(self.detinfofile, newline=None) as fp:
             self._detinfo = list(fp)
-        for line in self._detinfo:
-            if not line.startswith('#'):
-                break
+
         dmap = {}  # maps "Total" (ElNr) to 2theta
         dinfo = []  # dinfo[EntryNr]
         for line in self._detinfo:

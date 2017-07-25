@@ -25,7 +25,6 @@
 """The base class for communication with the NICOS server."""
 
 import os
-import base64
 import socket
 import hashlib
 import threading
@@ -41,8 +40,8 @@ import numpy as np
 from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
     LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
     ACTIVE_COMMANDS, command2code, code2event
-from nicos.pycompat import to_utf8
-from nicos.utils import createThread, tcpSocket
+from nicos.pycompat import to_utf8, b64encode, b64decode
+from nicos.utils import createThread, tcpSocket, closeSocket
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -160,9 +159,9 @@ class NicosClient(object):
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
-                pubkey = rsa.PublicKey.load_pkcs1(base64.decodestring(encodedkey))
+                pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
                 password = rsa.encrypt(to_utf8(password), pubkey)
-                password = 'RSA:' + base64.encodestring(password).decode()
+                password = 'RSA:' + b64encode(password).decode()
             else:
                 pw_hashing = pw_hashing[4:]
         if pw_hashing == 'sha1':
@@ -274,8 +273,7 @@ class NicosClient(object):
 
     def _close(self):
         try:
-            self.socket._sock.close()
-            self.socket.close()
+            closeSocket(self.socket)
         except Exception:
             pass
         self.socket = None

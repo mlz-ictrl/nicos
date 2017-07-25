@@ -71,6 +71,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._number = session.data.assignCounter(self.dataset)
             fp = session.data.createDataFile(self.dataset, self._template[0])
             self._data.filename = fp.filepath
+            fp.close()
             self._data.initial_comment = ['Start Time %.2f' % time.time(), '',
                                           '']
 

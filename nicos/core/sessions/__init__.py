@@ -62,7 +62,7 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
     SIMULATION, MAINTENANCE, guessCorrectCommand
 from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, reraise, \
-    itervalues, iteritems, listvalues
+    itervalues, iteritems, listvalues, getargspec
 from nicos.core.constants import MAIN
 
 
@@ -938,7 +938,7 @@ class Session(object):
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist
             else:
-                argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+                argspec = inspect.formatargspec(*getargspec(real_func))
             self.log.info('Usage: ' + real_func.__name__ + argspec)
             for line in formatDocstring(real_func.__doc__ or '', '   '):
                 self.log.info(line)

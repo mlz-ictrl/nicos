@@ -41,7 +41,9 @@ from test.utils import startSubprocess, killSubprocess, daemon_addr
 def daemon_wait_cb():
     start = time.time()
     wait = 10
+    s = None
     while time.time() < start + wait:
+
         try:
             s = tcpSocket(daemon_addr, 0)
         except socket.error:
@@ -57,14 +59,18 @@ def daemon_wait_cb():
             s.send(ENQ + command2code['quit'] +
                    LENGTH.pack(len(empty)) + empty)
             s.recv(1024)
-            s.close()
             break
+        finally:
+            if s:
+                s.close()
     else:
         raise Exception('daemon failed to start within %s sec' % wait)
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def daemon():
+    """Start a nicos daemon"""
+
     daemon = startSubprocess('daemon', wait_cb=daemon_wait_cb)
     yield
     killSubprocess(daemon)
@@ -119,8 +125,9 @@ class TestClient(NicosClient):
                 break
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def client(daemon):
+    """Create a nicos client session and log in"""
     client = TestClient()
     parsed = parseConnectionString('user:user@' + daemon_addr, 0)
     client.connect(ConnectionData(**parsed))
@@ -136,8 +143,10 @@ def client(daemon):
         client.disconnect()
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def cliclient(daemon):
+    """Create a TextClient session with a cliclient subprocess"""
+
     if os.name != 'posix':
         # text client needs the readline C library
         pytest.skip('text client not available on this system')

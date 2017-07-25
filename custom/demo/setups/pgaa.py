@@ -1,6 +1,8 @@
 description = 'virtual PGAA devices'
 group = 'basic'
 
+excludes = ['qmchannel']
+
 sysconfig = dict(
     datasinks = ['sink']
 )

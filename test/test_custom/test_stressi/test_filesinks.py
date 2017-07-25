@@ -44,8 +44,10 @@ session_setup = 'stressi'
 exp_dataroot = 'stressidata'
 
 
-@pytest.yield_fixture(scope='class', autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
+    """Prepare a dataset for StressSpec"""
+
     session.experiment.setDetectors(['adet'])
 
     # Create devices needed in data sinks
@@ -57,7 +59,7 @@ def prepare(session, dataroot):
     tthm.maw(69)
     transm = session.getDevice('transm')
     wav = session.getDevice('wav')
-    assert wav.plane == ''
+    assert wav.plane == ''  # pylint: disable=compare-to-empty-string
     transm.maw('Ge')
     wav.plane = '311'
     wav.maw(1.7)
@@ -87,5 +89,7 @@ class TestSinks(object):
     @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
     def test_yaml_file_content(self, session):
         yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
-        contents = yaml.load(open(yamlfile))
+
+        with open(yamlfile) as df:
+            contents = yaml.load(df)
         assert contents['experiment']

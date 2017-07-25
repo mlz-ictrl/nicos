@@ -609,7 +609,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             if info.type == 'counter':
                 addvalues = (tths, )
                 buf = b'\x80'
-                if len(addvalues) > 0:
+                if addvalues:
                     buf += pack('BBB', 0x80, FLOATTYPE, 0x81)
                     buf += self._len(len(addvalues))
                 buf += pack('BBB', 0x80, LONGINTEGER, 0x81)
@@ -655,6 +655,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         buf += b'\x00' * t
         self._file_write(buf)
         self._flush()
+        self._file.close()
         self._file = None
         self._wrote_header = False
         self._scan_file = False

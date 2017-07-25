@@ -250,12 +250,13 @@ class SpaceMap(object):
         dir2 = cross(self.cell.cal_zone(), self.cell._orient1)
         # normalize second direction to smallest length
         comp = [abs(c) for c in dir2 if c != 0]
-        if len(comp) == 0:
+        complen = len(comp)
+        if complen == 0:
             # should be impossible: all entries == 0, no change
             f = 1
-        elif len(comp) == 1:
+        elif complen == 1:
             f = comp[0]
-        elif len(comp) == 2:
+        elif complen == 2:
             f = gcd(comp[0], comp[1])
         else:
             f = min(gcd(comp[0], comp[1]), gcd(comp[1], comp[2]),

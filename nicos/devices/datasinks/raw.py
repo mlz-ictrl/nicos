@@ -161,6 +161,8 @@ class RawImageSinkHandler(DataSinkHandler):
             self._datafile.close()
         if self._headerfile:
             self._headerfile.close()
+        if self._logfile:
+            self._logfile.close()
 
 
 class RawImageSink(ImageSink):

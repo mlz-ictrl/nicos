@@ -53,7 +53,7 @@ __all__ = [
 def _devposlist(dev_pos_list, cls):
     devlist = []
     poslist = []
-    if len(dev_pos_list) == 0:
+    if not dev_pos_list:
         raise UsageError('at least one device and position must be given')
     if len(dev_pos_list) % 2 != 0:
         raise UsageError('a position must be given for every device')

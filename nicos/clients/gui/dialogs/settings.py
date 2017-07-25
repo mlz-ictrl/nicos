@@ -96,7 +96,7 @@ class SettingsDialog(QDialog, DlgUtils):
         dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
         if dlg.exec_() != QDialog.Accepted:
             return
-        if dlg.name.text() == '':
+        if not dlg.name.text():
             return
         name = dlg.name.text()
         while name in self.connpresets:

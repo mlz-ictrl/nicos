@@ -33,6 +33,7 @@ from sphinx.domains.python import PyModulelevel
 from sphinx.util.docfields import Field
 from sphinx.util.docstrings import prepare_docstring
 
+from nicos.pycompat import getargspec
 from nicos.services.daemon.handler import ConnectionHandler
 
 
@@ -45,7 +46,7 @@ class DaemonCommand(PyModulelevel):
             self.object = getattr(ConnectionHandler, sig+'_')
         else:
             self.object = getattr(ConnectionHandler, sig)
-        args = inspect.getargspec(self.object)
+        args = getargspec(self.object)
         del args[0][0]  # remove self
         sig = '%s%s' % (sig, inspect.formatargspec(*args))
         return PyModulelevel.handle_signature(self, sig, signode)
@@ -81,4 +82,4 @@ def setup(app):
     app.add_directive('daemoncmd', DaemonCommand)
     app.add_directive('daemonevt', DaemonEvent)
     return {'parallel_read_safe': True,
-            'version': '0.1.0',}
+            'version': '0.1.0'}

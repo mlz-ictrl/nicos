@@ -40,9 +40,9 @@ change-merged''',
                                      [pattern: 'frm2/nicos/nicos-core',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
-                                      branches: [[compareType: 'PLAIN', pattern: 'master'],
+                                      branches: [
+                                                 [compareType: 'PLAIN', pattern: 'pylint17'],
                                                  ],
-                                      topics: [[compareType: 'PLAIN', pattern: 'pylint17']]
                                  ]],
                                  serverName: 'defaultServer',
                                  triggerOnEvents: [
@@ -119,6 +119,7 @@ def runPylint() {
             sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 echo $PATH
 set +x
 
@@ -134,7 +135,7 @@ set +e
 
 PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/R[0-9]*\t[^\t]*\\(.*\\)/R\\1/' | sed -e 's/.\t//' |grep '.py$')
 if [[ -n "$PYFILESCHANGED" ]] ; then
-    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc2 $PYFILESCHANGED | tee pylint_all.txt
+    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
 else
     echo 'no python files changed'
 fi
@@ -185,6 +186,7 @@ def runSetupcheck() {
                 sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 
 tools/check_setups -o setupcheck.log -s custom/*/setups custom/*/guiconfig*.py || ((res++)) || /bin/true
 # */
@@ -228,6 +230,7 @@ echo $venv
 set +x
 . $venv/bin/activate
 set -x
+pip install -r requirements.txt
 echo <<EOF > setup.cfg
 [tool:pytest]
 addopts = --junit-xml=pytest-${pyver}.xml
@@ -283,6 +286,7 @@ def runDocTest() {
 #!/bin/bash
 set +x
 . $NICOSVENV/bin/activate
+pip install -r requirements.txt
 echo $PATH
 set -x
 export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
@@ -329,14 +333,12 @@ fi
 // ************* Start main script ***/
 timestamps {
 
-stage(name: 'checkout code: ' + GERRIT_PROJECT) {
-    node('master') {
+node('master') {
+    stage(name: 'checkout code: ' + GERRIT_PROJECT) {
         checkoutSource()
     }
-}
 
-stage(name: 'prepare') {
-    node('master') {
+    stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'), string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
             docker.image('localhost:5000/nicos-jenkins:xenial').inside(){
                 sh  '''\
@@ -348,10 +350,7 @@ export PYTHONIOENCODING=utf-8
             }
         }
     }
-}
 
-//
-node('master') {
 u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
 u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
 
@@ -389,7 +388,7 @@ parallel pylint: {
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             ws {
                 checkoutSource()
-                docker.image('localhost:5000/nicos-jenkins:latest') {
+                docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
                     runTests('$NICOSVENV', 'python2-centos', false)
                 }
             }
@@ -412,7 +411,8 @@ parallel pylint: {
     }
 },
 failFast: false
-}
+
 /*** set final vote **/
 setGerritReview()
+}
 }

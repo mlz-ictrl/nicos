@@ -139,7 +139,7 @@ def TacoStatus(server=''):
         else:
             return True
 
-    if server == '':
+    if not server:
         server = os.getenv('NETHOST')
     session.log.info('Checking TACO devices on %s...', bold(server))
     for dev in sorted(_list_devices(server)):

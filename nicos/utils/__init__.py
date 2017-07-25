@@ -75,7 +75,7 @@ def deprecated(since=nicos_version, comment=''):
         @wraps(f)
         def new_func(*args, **options):
             for l in [msg, comment]:
-                session.log.warn(l)
+                session.log.warning(l)
             return f(*args, **options)
         new_func.__doc__ += ' %s %s' % (msg, comment)
         return new_func
@@ -160,7 +160,7 @@ class BoundedOrderedDict(OrderedDict):
         OrderedDict.__init__(self, *args, **kwds)
         self._checklen()
 
-    def __setitem__(self, key, value):  # pylint: disable=arguments-differ
+    def __setitem__(self, key, value):  # pylint: disable=signature-differs
         OrderedDict.__setitem__(self, key, value)
         self._checklen()
 
@@ -365,10 +365,14 @@ def tcpSocket(host, defaultport, timeout=None):
 
     # open socket and set options
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if timeout:
-        s.settimeout(timeout)
+    try:
+        if timeout:
+            s.settimeout(timeout)
     # connect
-    s.connect((host, int(port)))
+        s.connect((host, int(port)))
+    except socket.error:
+        closeSocket(s)
+        raise
     return s
 
 
@@ -512,7 +516,10 @@ def chunks(iterable, size):
     sourceiter = iter(iterable)
     while True:
         chunkiter = islice(sourceiter, size)
-        yield chain([next(chunkiter)], chunkiter)
+        nextchunk = next(chunkiter, Ellipsis)
+        if nextchunk is Ellipsis:
+            return
+        yield chain([nextchunk], chunkiter)
 
 
 def importString(import_name, prefixes=()):

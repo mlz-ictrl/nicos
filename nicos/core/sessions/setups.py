@@ -127,7 +127,7 @@ def fixup_stacked_devices(logger, devdict):
 def readSetup(infodict, filepath, logger):
     modname = path.splitext(path.basename(filepath))[0]
     try:
-        with open(filepath, 'r') as modfile:
+        with open(filepath, 'rb') as modfile:
             code = modfile.read()
     except IOError as err:
         logger.exception('Could not read setup '

@@ -248,7 +248,7 @@ class ListAuthenticator(Authenticator):
                     raise AuthenticationError('Invalid username or password!')
         # check for unspecified user
         for (user, pw, level) in self.passwd:
-            if user == '':
+            if not user:
                 if pw and pw == password:
                     if level > USER:
                         level = USER  # limit passworded anonymous to USER
