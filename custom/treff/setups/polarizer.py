@@ -6,10 +6,8 @@ group = 'optional'
 taco_base = '//phys.treff.frm2/treff/'
 tango_base = 'tango://phys.treff.frm2:10000/treff/'
 
-excludes = ["virtual_polarizer"]
-
 devices = dict(
-    pflipper       = device('devices.tango.NamedDigitalOutput',
+    pflipper       = device('nicos.devices.tango.NamedDigitalOutput',
                             description = "Flipper",
                             tangodevice = tango_base + 'FZJDP_Digital/pflipper',
                             mapping = {
@@ -17,11 +15,11 @@ devices = dict(
                                       'down': 0,
                                       }
                            ),
-    polbus1        = device('treff.ipc.IPCModBusTacoJPB',
+    polbus1        = device('nicos_mlz.treff.devices.ipc.IPCModBusTacoJPB',
                             tacodevice = taco_base + 'goett/340',
                             lowlevel = True,
                            ),
-    pol_tilt_mot   = device('devices.vendor.ipc.Motor',
+    pol_tilt_mot   = device('nicos.devices.vendor.ipc.Motor',
                             description = 'Polarizer tilt motor',
                             bus = 'polbus1',
                             addr = 0,
@@ -33,7 +31,7 @@ devices = dict(
                             precision = 0.01,
                             lowlevel = True,
                            ),
-    polarizer_tilt = device('devices.generic.Axis',
+    polarizer_tilt = device('nicos.devices.generic.Axis',
                             description = 'Polarizer tilt',
                             motor = 'pol_tilt_mot',
                             coder = 'pol_tilt_mot',
@@ -41,11 +39,11 @@ devices = dict(
                             precision = 0.01,
                             fmtstr = '%.3f',
                            ),
-    polbus2        = device('treff.ipc.IPCModBusTacoJPB',
+    polbus2        = device('nicos_mlz.treff.devices.ipc.IPCModBusTacoJPB',
                             tacodevice = taco_base + 'goett/330',
                             lowlevel = True,
                            ),
-    pol_y_mot      = device('treff.ipc.Motor',
+    pol_y_mot      = device('nicos_mlz.treff.devices.ipc.Motor',
                             description = 'Polarizer y translation motor',
                             abslimits = (-36.0, 57.),
                             bus = 'polbus2',
@@ -60,7 +58,7 @@ devices = dict(
                             unit = 'mm',
                             lowlevel = True,
                            ),
-    polarizer_y    = device('devices.generic.Axis',
+    polarizer_y    = device('nicos.devices.generic.Axis',
                             description = 'Polarizer y translation',
                             motor = 'pol_y_mot',
                             coder = 'pol_y_mot',

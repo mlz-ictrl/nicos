@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
+    email    = device('nicos.devices.notifiers.Mailer',
                       sender = 'treff@frm2.tum.de',
                       copies = [('andreas.ofner@frm2.tum.de', 'all'),
                                 ('e.vezhlev@fz-juelich.de', 'all'),
@@ -18,7 +18,7 @@ devices = dict(
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
+    smser    = device('nicos.devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
                       lowlevel = True,

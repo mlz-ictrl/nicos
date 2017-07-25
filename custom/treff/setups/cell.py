@@ -6,7 +6,7 @@ group = "optional"
 tango_base = "tango://phys.treff.frm2:10000/treff/"
 
 devices = dict(
-    cell = device("jcns.iviumstat.StopNamedDigitalOutput",
+    cell = device("nicos_mlz.jcns.devices.iviumstat.StopNamedDigitalOutput",
                   description = "Cell charger",
                   tangodevice = tango_base + "ivium/trigger",
                   mapping = {

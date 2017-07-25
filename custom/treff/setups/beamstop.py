@@ -4,14 +4,12 @@ group = 'optional'
 
 taco_base = '//phys.treff.frm2/treff/'
 
-excludes = ['virtual_beamstop']
-
 devices = dict(
-    beambus      = device('treff.ipc.IPCModBusTacoJPB',
+    beambus      = device('nicos_mlz.treff.devices.ipc.IPCModBusTacoJPB',
                           tacodevice = taco_base + 'goett/490',
                           lowlevel = True,
                          ),
-    beamstop_mot = device('treff.ipc.Motor',
+    beamstop_mot = device('nicos_mlz.treff.devices.ipc.Motor',
                           description = 'Beam stop motor',
                           bus = 'beambus',
                           addr = 0,
@@ -25,7 +23,7 @@ devices = dict(
                           unit = 'mm',
                           lowlevel = True,
                          ),
-    beamstop     = device('devices.generic.Axis',
+    beamstop     = device('nicos.devices.generic.Axis',
                           description = 'Beamstop position',
                           motor = 'beamstop_mot',
                           coder = 'beamstop_mot',

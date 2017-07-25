@@ -4,10 +4,8 @@ group = 'optional'
 
 tango_base = 'tango://phys.treff.frm2:10000/treff/'
 
-excludes = ['virtual_filter']
-
 devices = dict(
-    be_filter   = device('devices.tango.NamedDigitalOutput',
+    be_filter   = device('nicos.devices.tango.NamedDigitalOutput',
                          description = 'Beryllium filter',
                          tangodevice = tango_base + 'FZJDP_Digital/BeFilter',
                          mapping = {
@@ -15,7 +13,7 @@ devices = dict(
                             "out": 0,
                          }
                         ),
-    be_heater   = device('devices.tango.NamedDigitalOutput',
+    be_heater   = device('nicos.devices.tango.NamedDigitalOutput',
                          description = 'Beryllium heater',
                          tangodevice = tango_base + 'FZJDP_Digital/BeHeater',
                          mapping = {
@@ -23,7 +21,7 @@ devices = dict(
                             "on"  : 1,
                          }
                         ),
-    T_be_filter = device('devices.tango.AnalogInput',
+    T_be_filter = device('nicos.devices.tango.AnalogInput',
                          description = 'Beryllium filter/crystal temperature',
                          tangodevice = tango_base + 'FZJDP_Analog/TBeFilter',
                          fmtstr = '%.0f',
@@ -31,7 +29,7 @@ devices = dict(
                          pollinterval = 5,
                          maxage = 6,
                         ),
-    T_be_heater = device('devices.tango.AnalogInput',
+    T_be_heater = device('nicos.devices.tango.AnalogInput',
                          description = 'Beryllium heater temperature',
                          tangodevice = tango_base + 'FZJDP_Analog/TBeHeater',
                          fmtstr = '%.0f',
@@ -39,7 +37,7 @@ devices = dict(
                          pollinterval = 5,
                          maxage = 6,
                         ),
-    wavelength  = device('devices.generic.ReadonlySwitcher',
+    wavelength  = device('nicos.devices.generic.ReadonlySwitcher',
                          description = 'wavelength',
                          readable = 'be_filter',
                          mapping = {

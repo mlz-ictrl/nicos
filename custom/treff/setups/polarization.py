@@ -6,7 +6,7 @@ group = "optional"
 includes = ["polarizer", "pow2cc"]
 
 devices = dict(
-    pol_state = device("devices.generic.MultiSwitcher",
+    pol_state = device("nicos.devices.generic.MultiSwitcher",
         description = "Guide field switcher",
         moveables = ["pflipper", "aflipper"],
         mapping = {

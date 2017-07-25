@@ -4,14 +4,12 @@ group = 'optional'
 
 taco_base = '//phys.treff.frm2/treff/'
 
-excludes = ['virtual_analyzer']
-
 devices = dict(
-    anabus          = device('treff.ipc.IPCModBusTacoJPB',
+    anabus          = device('nicos_mlz.treff.devices.ipc.IPCModBusTacoJPB',
                              tacodevice = taco_base + 'goett/480',
                              lowlevel = True,
                             ),
-    analyz_tilt_mot = device('devices.vendor.ipc.Motor',
+    analyz_tilt_mot = device('nicos.devices.vendor.ipc.Motor',
                              description = 'Analyzer tilt motor',
                              bus = 'anabus',
                              addr = 0,
@@ -23,7 +21,7 @@ devices = dict(
                              precision = 0.01,
                              lowlevel = True,
                             ),
-    analyzer_tilt   = device('devices.generic.Axis',
+    analyzer_tilt   = device('nicos.devices.generic.Axis',
                              description = 'Analyzer tilt',
                              motor = 'analyz_tilt_mot',
                              coder = 'analyz_tilt_mot',
