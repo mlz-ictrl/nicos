@@ -1,19 +1,30 @@
 NICOS is a network-based control system written for neutron scattering
-instruments at the `MLZ <http://www.mlz-garching.de/>`_.  Its main goals are
+instruments at the MLZ_.  Its main goals are
 flexibility, ease of use and maintenance, and reusability.
 
-NICOS is an instrument control system which allows a 24/7 remote control of
-scientific instruments.  It was developed at the FRM-II (as a part of the MLZ)
-to control the neutron experiments. It is not limited in use for these
-instruments since it was designed to be very flexible.
+NICOS allows remote control of scientific instruments via both interactive
+interfaces (GUI, command line) and a scripting system.
+The NICOS user scripts are written in Python with some minor restrictions. This
+choice allows for very flexible scripts for complex problems and easy
+interactive use at the same time.
 
-One major goal during the development of NICOS was, that it must be open for
-extensions.
+NICOS features an open interface to allow for different communciation
+backends to the underlying hardware. Just to name a few, by default NICOS
+supports TACO_, TANGO_, EPICS_ and CARESS_
+NICOS allows runtime changes to the hardware configuration and offers a
+plug-and play system for e.g. sample environment systems.
 
-The flexibility in use is mainly given by the syntax for the so-called user
-scripts.  The user may program their experiment(s) for long term running as well
-as for interactive use.
+While NICOS was written to control neutron scattering instruments, it is not
+limited to these due it's very flexible design.
 
-The language for the user scripts is Python with some minor restrictions.  For
-example, it is not allowed to re-assign any names pointing to instrument
-specific devices and commands (functions).
+NICOS offers additional monitoring and log keeping functionality with an
+electronic logbook for user activity, a history cache for all device
+parameters, a background poller, Qt- and html based monitors and a watchdog
+for alerting via email and SMS. Of course, all these features are easily
+configurable.
+
+.. _MLZ: http: //www.mlz-garching.de
+.. _TACO: http://taco.sf.net
+.. _TANGO: http://tango-controls.org
+.. _EPICS: http://www.aps.anl.gov/epics/
+.. _CARESS: http://www.helmholtz-berlin.de/zentrum/locations/it/software/exsteuer/caress_de.html
