@@ -3,7 +3,7 @@
 description = "MARIA setup"
 group = "basic"
 
-modules = ["maria.scan"]
+modules = ["nicos_mlz.maria.scan"]
 
 includes = [
     "guidehall",

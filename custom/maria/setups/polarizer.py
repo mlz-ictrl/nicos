@@ -9,12 +9,12 @@ tango_dio = tango_base + "/FZJDP_Digital"
 tango_ps = tango_base + "/toellner"
 
 devices = dict(
-    pol = device("devices.tango.Motor",
+    pol = device("nicos.devices.tango.Motor",
                  description = "Polarization",
                  tangodevice = tango_s7 + "/pol",
                  precision = 0.01,
                 ),
-    analyzer_shift = device("devices.tango.NamedDigitalOutput",
+    analyzer_shift = device("nicos.devices.tango.NamedDigitalOutput",
                             description = "Analyzer shift",
                             tangodevice = tango_dio + "/analyzershift",
                             mapping = {
@@ -22,7 +22,7 @@ devices = dict(
                                        "out": 0,
                                       },
                            ),
-    pflipper = device("devices.tango.NamedDigitalOutput",
+    pflipper = device("nicos.devices.tango.NamedDigitalOutput",
                       description = "Flipper",
                       tangodevice = tango_dio + "/pflipper",
                       mapping = {
@@ -31,7 +31,7 @@ devices = dict(
                       }
                      ),
     # aflipper (3HE) has inverted up/down mapping
-    aflipper = device("maria.pyro4.NamedDigitalOutput",
+    aflipper = device("nicos_mlz.maria.devices.pyro4.NamedDigitalOutput",
                       description = "Pyro4 Device",
                       pyro4device = "PYRO:he3.cell@3he.maria.frm2:50555",
                       hmackey = "iamverysecret",
@@ -40,13 +40,13 @@ devices = dict(
                           "up": 1,
                       }
                      ),
-    pow4curr1 = device("devices.tango.PowerSupply",
+    pow4curr1 = device("nicos.devices.tango.PowerSupply",
                        description = "Power supply 4 current control ch 1",
                        tangodevice = tango_ps + "/pow4curr1",
                        unit = 'A',
                       ),
 
-    pow4curr2 = device("devices.tango.PowerSupply",
+    pow4curr2 = device("nicos.devices.tango.PowerSupply",
                        description = "Power supply 4 current control ch 2",
                        tangodevice = tango_ps + "/pow4curr2",
                        unit = 'A',

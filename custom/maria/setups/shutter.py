@@ -11,7 +11,7 @@ _MAP_SHUTTER = {
 }
 
 devices = dict(
-    shutter = device("jcns.shutter.Shutter",
+    shutter = device("nicos_mlz.jcns.devices.shutter.Shutter",
         description = "Experiment shutter",
         tangodevice = tango_base + "FZJDP_digital/ExpShutter",
         mapping = _MAP_SHUTTER,

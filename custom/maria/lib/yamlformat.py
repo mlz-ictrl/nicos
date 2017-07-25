@@ -31,7 +31,7 @@ from nicos.core import Override, NicosError
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
-from nicos.frm2.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.frm2.devices.yamlbase import YAMLBaseFileSinkHandler
 
 
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):

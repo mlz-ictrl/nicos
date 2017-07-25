@@ -6,7 +6,7 @@ group = "optional"
 excludes = ["counter"]
 
 devices = dict(
-    timer = device("devices.generic.VirtualTimer",
+    timer = device("nicos.devices.generic.VirtualTimer",
                    description = "Virtual timer channel",
                    lowlevel = True
                   ),

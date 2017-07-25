@@ -17,24 +17,24 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
-    NPGZFileSink  = device("maria.npsaver.NPGZFileSink",
+    NPGZFileSink  = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
                            description = "Saves image data in numpy text "
                                          "format",
                            filenametemplate = [scanbasename + ".gz",
                                                countbasename + ".gz",
                                               ],
                           ),
-    YAMLSaver     = device("maria.yamlformat.YAMLFileSink",
+    YAMLSaver     = device("nicos_mlz.maria.devices.yamlformat.YAMLFileSink",
                            filenametemplate = [scanbasename + ".yaml",
                                                countbasename + ".yaml",
                                               ],
                            lowlevel = True,
                           ),
-    ndpimg        = device("devices.tango.ImageChannel",
+    ndpimg        = device("nicos.devices.tango.ImageChannel",
                            description = "NDP detector image",
                            tangodevice = tango_base + "/fastcomtec/detector",
                           ),
-    ndpdet        = device("devices.generic.Detector",
+    ndpdet        = device("nicos.devices.generic.Detector",
                            description = "NDP detector",
                            timers = ["timer"],
                            monitors = ["mon0", "mon1"],

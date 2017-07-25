@@ -24,7 +24,7 @@
 
 """NICOS MARIA Experiment."""
 
-from nicos.frm2.experiment import Experiment as _Experiment
+from nicos_mlz.frm2.devices.experiment import Experiment as _Experiment
 from nicos.utils import safeName
 
 
