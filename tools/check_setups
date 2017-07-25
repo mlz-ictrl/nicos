@@ -192,7 +192,7 @@ class SetupChecker(object):
             return False
         # try to import the device class
         try:
-            cls = importString(devconfig[0], ('nicos.',))
+            cls = importString(devconfig[0], ())
         except (ImportError, RuntimeError) as err:
             self.log.warning('device class %r for %r not importable: %s',
                              devconfig[0], devname, err,
@@ -348,7 +348,7 @@ class SetupChecker(object):
         for module in self.ns.get('modules', []):
             # try to import the device class
             try:
-                importString(module, ('nicos.',))
+                importString(module, ())
             except Exception as err:
                 self.log_error('module %r not importable: %s',
                                module, err,
@@ -433,8 +433,7 @@ class SetupChecker(object):
                     self.check_guiconfig_panel_spec(child[1], context)
         elif isinstance(spec, guicfg.panel):
             try:
-                cls = importString(spec.clsname,
-                                   ('nicos.clients.gui.panels.', 'nicos.'))
+                cls = importString(spec.clsname, ())
             except Exception as err:
                 self.log_error('class %r for %s not importable: %s',
                                spec.clsname, context, err)
@@ -463,8 +462,7 @@ class SetupChecker(object):
 
         if isinstance(spec, guicfg.tool):
             try:
-                cls = importString(spec.clsname,
-                                   ('nicos.clients.gui.tools.', 'nicos.'))
+                cls = importString(spec.clsname, ())
             except Exception as err:
                 self.log_error('class %r for tool %r not importable: %s',
                                spec.clsname, spec.name, err)
