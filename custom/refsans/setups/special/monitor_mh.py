@@ -46,7 +46,7 @@ _generalcol = Column(
 
 
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
+    Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = description,
                      loglevel = 'info',
                      cache = 'refsansctrl01.refsans.frm2',
