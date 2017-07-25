@@ -31,7 +31,7 @@ devices = dict(
         states = ['45', '90', '135'],
         unit = 'deg',
     ),
-    hrpdsink = device('hrpd.datasinks.HrpdSink',
+    hrpdsink = device('nicos_mlz.hrpd.devices.datasinks.HrpdSink',
         description = 'HRPD specific data file format',
         lowlevel = True,
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt'],
