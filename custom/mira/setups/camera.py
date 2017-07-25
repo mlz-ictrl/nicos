@@ -26,7 +26,7 @@ devices = dict(
                       counters = [],
                       images = ['camimage'],
                      ),
-    tifformat = device("devices.datasinks.TIFFImageSink",
+    tifformat = device("nicos.devices.datasinks.TIFFImageSink",
                        description = "Saves image data in TIFF format",
                        filenametemplate = ["%(proposal)s_%(pointcounter)08d.tiff"],
                        mode = "I",

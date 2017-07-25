@@ -76,7 +76,7 @@ devices = dict(
     ),
 
     # Configure dataroot here (usually /data).
-    Exp = device('devices.experiment.Experiment',
+    Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = 'data',
         sendmail = True,

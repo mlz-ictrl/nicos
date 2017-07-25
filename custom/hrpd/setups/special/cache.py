@@ -8,7 +8,7 @@ devices = dict(
         storepath = 'data/cache',
         loglevel = 'info',
     ),
-    Server = device('services.cache.server.CacheServer',
+    Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
         # 'localhost' will normally bind the cache service to the
         # loopback device

@@ -6,7 +6,7 @@ nethost = 'mesydaq.spheres.frm2'
 qm = '//%s/spheres/qmesydaq/' % nethost
 
 devices = dict(
-#    mon1 = device('devices.vendor.qmesydaq.taco.Counter',
+#    mon1 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
 #                  description = 'QMesyDAQ Counter',
 #                  tacodevice = qm + 'counter0',
 #                  type = 'monitor',
