@@ -8,7 +8,7 @@ devices = dict(
 #
 ## smccorvusserver b2 exports
 #
-    b2 = device('nicos_mlz.refsans.nok_support.DoubleMotorNOK',
+    b2 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
                 description = 'b2 at sample pos',
                 nok_start = 11049.50,
                 nok_length = 13.0,

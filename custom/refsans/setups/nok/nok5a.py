@@ -12,7 +12,7 @@ excludes = ['nok5a_old']
 # according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 devices = dict(
     # NOK5a
-    nok5a_r = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorCab1M1x',
+    nok5a_r = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
                      description = 'nok5a motor (M11), reactor side',
                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                      address = 0x3020+2*10, # word adresses
@@ -22,7 +22,7 @@ devices = dict(
                      abslimits = (0.1, 130),
                      lowlevel = True,
                     ),
-    nok5a_s = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorCab1M1x',
+    nok5a_s = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
                      description = 'nok5a motor (M12), sample side',
                      tacodevice = '//%s/test/modbus/optic'% (nethost,),
                      address = 0x3020+3*10, # word adresses
@@ -54,7 +54,7 @@ devices = dict(
 #                         unit = 'mm',
 #                         lowlevel = True,
 #                        ),
-    nok5a = device('nicos_mlz.refsans.nok_support.DoubleMotorNOKBeckhoff',
+    nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOKBeckhoff',
                    description = 'NOK5a',
                    nok_start = 2418.50,
                    nok_length = 1719.20,

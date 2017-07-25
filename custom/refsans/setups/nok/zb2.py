@@ -10,7 +10,7 @@ devices = dict(
 # masks:
 # Debug (slit)
 # Debug (k1)
-    zb2        = device('nicos_mlz.refsans.nok_support.SingleMotorNOK',
+    zb2        = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
                         description = 'ZB2',
                         motor = 'zb2_motor',
                         coder = 'zb2_motor',
@@ -29,7 +29,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    zb2_motor  = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
+    zb2_motor  = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
                         description = 'IPC controlled Motor of ZB2',
                         abslimits = (-681.9525, 568.04625),
                         userlimits = (-215.69, 93.0),
@@ -47,7 +47,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    zb2_obs    = device('nicos_mlz.refsans.nok_support.NOKPosition',
+    zb2_obs    = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
                         description = 'Position sensing for ZB2',
                         reference = 'nok_refb2',
                         measure = 'zb2_poti',
@@ -58,7 +58,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/poti_tracing.inf
-    zb2_poti   = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
+    zb2_poti   = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
                         description = 'Poti for ZB2',
                         tacodevice = '//%s/test/wb_b/2_3' % nethost,
                         scale = -1,  # mounted from top

@@ -7,7 +7,7 @@ includes = ['nok_ref', 'nokbus3']
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
-    nok7           = device('nicos_mlz.refsans.nok_support.DoubleMotorNOK',
+    nok7           = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
                             description = 'NOK7',
                             nok_start = 7665.5,
                             nok_length = 1190.0,
@@ -70,7 +70,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    nok7r_motor    = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
+    nok7r_motor    = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
                             description = 'IPC controlled Motor of NOK7, reactor side',
                             abslimits = (-437.6, 116.15),
                             userlimits = (-89.475, 116.1),
@@ -88,7 +88,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/poti_tracing.inf
-    nok7r_obs      = device('nicos_mlz.refsans.nok_support.NOKPosition',
+    nok7r_obs      = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
                             description = 'Position sensing for NOK7, reactor side',
                             reference = 'nok_refc1',
                             measure = 'nok7r_poti',
@@ -99,7 +99,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/poti_tracing.inf
-    nok7r_poti     = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
+    nok7r_poti     = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
                             description = 'Poti for NOK7, reactor side',
                             tacodevice = '//%s/test/wb_c/1_0' % nethost,
                             scale = -1,  # mounted from top
@@ -155,7 +155,7 @@ devices = dict(
                        ),
 
 # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    nok7s_motor    = device('nicos_mlz.refsans.nok_support.NOKMotorIPC',
+    nok7s_motor    = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
                             description = 'IPC controlled Motor of NOK7, sample side',
                             abslimits = (-96.94, 125.56),
                             userlimits = (-96.94, 125.55),
@@ -173,7 +173,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/poti_tracing.inf
-    nok7s_obs      = device('nicos_mlz.refsans.nok_support.NOKPosition',
+    nok7s_obs      = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
                             description = 'Position sensing for NOK7, sample side',
                             reference = 'nok_refc1',
                             measure = 'nok7s_poti',
@@ -184,7 +184,7 @@ devices = dict(
                            ),
 
 # generated from global/inf/poti_tracing.inf
-    nok7s_poti     = device('nicos_mlz.refsans.nok_support.NOKMonitoredVoltage',
+    nok7s_poti     = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
                             description = 'Poti for NOK7, sample side',
                             tacodevice = '//%s/test/wb_c/1_1' % nethost,
                             scale = -1,  # mounted from top

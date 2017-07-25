@@ -10,7 +10,7 @@ nethost = 'refsanssrv.refsans.frm2'
 # according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 devices = dict(
     # zb1 is at exit of NOK5b (so on its sample side)
-    zb1_m    = device('nicos_mlz.refsans.beckhoff.nok.BeckhoffMotorCab1M13',
+    zb1_m    = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
                       description = 'CAB1 controlled zb1 (M23), sample side',
                       tacodevice = '//%s/test/modbus/optic'% (nethost,),
                       address = 0x3020+7*10, # word adress

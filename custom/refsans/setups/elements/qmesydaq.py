@@ -11,7 +11,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    BerSANSFileSaver  = device('nicos_mlz.sans1.bersans.BerSANSImageSink',
+    BerSANSFileSaver  = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(pointcounter)07d.001',
                                                    '/data_user/D%(pointcounter)07d.001'],
