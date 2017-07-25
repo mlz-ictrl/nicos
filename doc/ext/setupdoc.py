@@ -196,7 +196,11 @@ class SetupDirective(Directive):
         for devName, (devClass, devParams) in sorted(devices_dict.items(),
                                                      key=lambda d: d[0].lower()):
 
-            if not devClass.startswith('nicos.'):
+            # Try to find classname with nicos prefix
+            # TODO: This should be removed once we transitioned to full path
+            # specs everywhere
+            if not (devClass.startswith('nicos.') or
+                    devClass.startswith('nicos_mlz.')):
                 devClass = 'nicos.' + devClass
 
             klass = self._importDeviceClass(devClass)
