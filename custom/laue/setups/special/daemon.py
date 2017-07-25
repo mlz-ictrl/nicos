@@ -6,7 +6,7 @@ group = 'special'
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
-    UserDB = device('nicos_mlz.frm2.proposaldb.Authenticator'),
+    UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
 
     # fixed list of users:
     # first entry is the user name, second the hashed password, third the user
