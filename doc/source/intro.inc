@@ -10,7 +10,8 @@ interactive use at the same time.
 
 NICOS features an open interface to allow for different communciation
 backends to the underlying hardware. Just to name a few, by default NICOS
-supports TACO_, TANGO_, EPICS_ and CARESS_
+supports TACO_, TANGO_, EPICS_, and CARESS_.
+
 NICOS allows runtime changes to the hardware configuration and offers a
 plug-and play system for e.g. sample environment systems.
 
@@ -18,8 +19,8 @@ While NICOS was written to control neutron scattering instruments, it is not
 limited to these due it's very flexible design.
 
 NICOS offers additional monitoring and log keeping functionality with an
-electronic logbook for user activity, a history cache for all device
-parameters, a background poller, Qt- and html based monitors and a watchdog
+electronic logbook for user activity, a history database for all device
+parameters, a background poller, Qt- and html based monitors, and a watchdog
 for alerting via email and SMS. Of course, all these features are easily
 configurable.
 
