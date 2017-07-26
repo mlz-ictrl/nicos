@@ -26,9 +26,10 @@
 
 from math import asin, degrees, radians, sin, tan
 
-from nicos.core import Attach, HasLimits, Moveable, Override, Param, \
-    PositionError, anytype, dictof, floatrange, none_or, oneof, status
-from nicos.core.utils import multiStatus
+from nicos.core import Attach, HasLimits, Moveable, NicosError, Override, \
+    Param, PositionError, anytype, dictof, floatrange, none_or, oneof, \
+    status
+from nicos.core.utils import multiStatus, statusString
 from nicos.utils import lazy_property
 
 
@@ -77,13 +78,13 @@ class Monochromator(HasLimits, Moveable):
 
     @lazy_property
     def devices(self):
-        return list(self._adevs[i] for i in 'inout phi1 phi2 translation'.split())
+        return [self._adevs[i] for i in 'inout phi1 phi2 translation'.split()]
 
     def _from_lambda(self, lam):
         """Return 3 values used for phi1, phi2 and translation."""
         phi1 = degrees(asin(lam / float(2 * self.dvalue1)))
         phi2 = degrees(asin(lam / float(2 * self.dvalue2)))
-        trans = self.distance / tan(2*radians(phi1))
+        trans = self.distance / tan(2 * radians(phi1))
         return phi1, phi2, trans
 
     def _to_lambda(self, phi1, phi2, trans):
@@ -107,7 +108,7 @@ class Monochromator(HasLimits, Moveable):
             self._moveToParkingpos()
             return
 
-        if self.devices[0].read() == 'out':
+        if self._attached_inout.read() == 'out':
             self.log.debug('moving monochromator into beam')
 
         for d, v in zip(self.devices, ['in'] + list(self._from_lambda(target))):
@@ -123,6 +124,34 @@ class Monochromator(HasLimits, Moveable):
             except PositionError as e:
                 return status.NOTREACHED, str(e)
         return st
+
+    def _combinedStatus(self, maxage=0):
+        try:
+            stvalue = self.doStatus(maxage)
+        except NicosError as err:
+            stvalue = (status.ERROR, str(err))
+        except Exception as err:
+            stvalue = (status.ERROR, 'unhandled %s: %s' %
+                       (err.__class__.__name__, err))
+        if stvalue[0] not in status.statuses:
+            stvalue = (status.UNKNOWN,
+                       'status constant %r is unknown' % stvalue[0])
+
+        if stvalue[0] == status.OK:
+            value = self.read(maxage)
+            if value is None:  # parking pos
+                return stvalue
+            wl = self.warnlimits
+            if wl:
+                if wl[0] is not None and value < wl[0]:
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'below warn limit (%s)' %
+                                     self.format(wl[0], unit=True))
+                elif wl[1] is not None and value > wl[1]:
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'above warn limit (%s)' %
+                                     self.format(wl[1], unit=True))
+        return stvalue
 
     def doRead(self, maxage=0):
         pos = [d.read(maxage) for d in self.devices]
@@ -140,7 +169,7 @@ class Monochromator(HasLimits, Moveable):
         for d, p, t, c in zip(self.devices[1:], pos[1:], tol, compare_pos):
             self.log.debug('%s is at %s and should be at %s for %.4f '
                            'Angstroms', d, d.format(p), d.format(c), lam)
-            if abs(p-c) > t:
+            if abs(p - c) > t:
                 raise PositionError('%s is too far away for %.4f Angstroms' %
                                     (d, lam))
         return lam
