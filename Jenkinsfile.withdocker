@@ -121,6 +121,7 @@ def runPylint() {
             sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements-dev.txt
 pip install -r requirements.txt
 echo $PATH
 set +x
@@ -188,6 +189,7 @@ def runSetupcheck() {
                 sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
+pip install -r requirements-dev.txt
 pip install -r requirements.txt
 
 tools/check_setups -o setupcheck.log -s custom/*/setups custom/*/guiconfig*.py || ((res++)) || /bin/true
@@ -244,6 +246,7 @@ echo $venv
 set +x
 . $venv/bin/activate
 set -x
+pip install -r requirements-dev.txt
 pip install -r requirements.txt
 
 pytest -v test"""
@@ -289,6 +292,7 @@ def runDocTest() {
 #!/bin/bash
 set +x
 . $NICOSVENV/bin/activate
+pip install -r requirements-dev.txt
 pip install -r requirements.txt
 echo $PATH
 set -x
