@@ -11,3 +11,4 @@ line_profiler
 sphinx_rtd_theme
 yapf>=0.12.0
 pytest-randomly>=1.1
+pyftpdlib
