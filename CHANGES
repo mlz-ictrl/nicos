@@ -26,7 +26,7 @@ Release 2.12.0
     warning condition has gone back to normal.
 
   - The electronic logbook now also saves a plain-text version of the console
-    output, which is very similar to the "nicos-*.log" files, but saved in
+    output, which is very similar to the ``nicos-*.log`` files, but saved in
     the user's proposal directory.
 
   - Added "virtual" goniometers for TAS mode that tilt the sample along the

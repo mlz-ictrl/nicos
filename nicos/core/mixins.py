@@ -682,9 +682,9 @@ class IsController(DeviceMixinBase):
     This mixin should be used for cases where limits are strongly
     state-dependent.
 
-    Subclasses need to implement :meth:`isAdevTargetAllowed' function.
-
+    Subclasses need to implement :meth:`isAdevTargetAllowed` function.
     """
+
     def isAdevTargetAllowed(self, adev, adevtarget):
         """Check if target of an attached device is valid
 
