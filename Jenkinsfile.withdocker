@@ -220,6 +220,18 @@ exit $((res))
 }
 
 def runTests(venv, pyver, withcov) {
+
+    writeFile file: 'setup.cfg', text: """
+[tool:pytest]
+addopts = --junit-xml=pytest.xml
+  --junit-prefix=$pyver""" + (withcov ? """
+  --cov
+  --cov-config=.coveragerc
+  --cov-report=html:cov-$pyver
+  --cov-report=term
+""" : "")
+
+
     verifyresult.put(pyver, 0)
     try {
         portallocator([plainports:['NICOS_DAEMON_PORT',
@@ -233,17 +245,6 @@ set +x
 . $venv/bin/activate
 set -x
 pip install -r requirements.txt
-echo <<EOF > setup.cfg
-[tool:pytest]
-addopts = --junit-xml=pytest-${pyver}.xml
-  --junit-prefix=$pyver""" + (withcov ? """
-  --cov
-  --cov-config=.coveragerc
-  --cov-report=html:cov-$pyver
-  --cov-report=term
-""" :"") +
-"""
-EOF
 
 pytest -v test"""
 verifyresult.put(pyver, 1)
