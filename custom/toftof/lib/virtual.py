@@ -27,10 +27,8 @@
 import numpy as np
 
 from nicos.core import Override, Param, intrange
-
 from nicos.devices.generic.virtual import VirtualImage as BaseImage
-
-from nicos.toftof import calculations as calc
+from nicos_mlz.toftof.devices import calculations as calc
 
 
 class VirtualImage(BaseImage):

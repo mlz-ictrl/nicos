@@ -24,9 +24,9 @@
 
 """TOFTOF chopper calculation tests."""
 
-from nicos.toftof.calculations import Eres1, alpha, calculateChopperDelay, \
-    calculateCounterDelay, calculateTimeInterval, phi, phi1, speedRatio, t1, \
-    t2
+from nicos_mlz.toftof.devices.calculations import Eres1, alpha, phi, phi1, \
+    calculateChopperDelay, calculateCounterDelay, calculateTimeInterval, \
+    speedRatio, t1, t2
 
 
 def test_basic_calculations():

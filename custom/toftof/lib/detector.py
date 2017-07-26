@@ -28,13 +28,11 @@ from time import time as currenttime
 import io
 
 from nicos import session
-
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
 from nicos.core.constants import INTERMEDIATE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
-
-from nicos.toftof import calculations as calc
-from nicos.toftof.chopper import BaseChopperController
+from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.devices.chopper import BaseChopperController
 
 
 class Detector(GenericDetector):

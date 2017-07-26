@@ -50,7 +50,7 @@ devices = dict(
                   unit = 'deg',
                   abslimits = (50., 100.),
                  ),
-    tthm_r = device('nicos.stressi.wavelength.TransformedMoveable',
+    tthm_r = device('nicos_mlz.stressi.devices.wavelength.TransformedMoveable',
                     description = 'Base hardware device',
                     dev = 'tthm',
                     informula = '1./0.956 * x - 11.5 / 0.956',

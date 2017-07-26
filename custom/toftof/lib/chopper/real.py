@@ -35,8 +35,8 @@ from nicos.core import ADMIN, NicosError, SIMULATION, requires, status
 from nicos.devices.taco import TacoDevice
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
-from nicos.toftof import calculations as calc
-from nicos.toftof.chopper.base import BaseChopperController
+from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.devices.chopper.base import BaseChopperController
 
 WAVE_LENGTH = 4181
 ACT_POS = 4191

@@ -2,7 +2,7 @@ description = 'MIEZE measurement setup'
 group = 'basic'
 
 includes = ['cascade', 'relay', 'guidehall', 'nl6']
-modules = ['nicos.mira.mieze']
+modules = ['nicos_mlz.mira.mieze_commands']
 
 tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 

@@ -30,7 +30,7 @@ from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import scan
 from nicos.commands.device import maw
-from nicos.frm2.commands.imaging import tomo, \
+from nicos_mlz.frm2.commands.imaging import tomo, \
     openbeamimage as _openbeamimage, \
     darkimage as _darkimage
 

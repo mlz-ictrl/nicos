@@ -1,7 +1,7 @@
 `MIRA <http://www.mlz-garching.de/mira>`_
 =========================================
 
-.. module:: nicos.mira.beckhoff
+.. module:: nicos_mlz.mira.devices.beckhoff
 
 .. autoclass:: DigitalOutput()
 .. autoclass:: NamedDigitalOutput()

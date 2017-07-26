@@ -24,7 +24,7 @@
 
 """Module to test custom specific modules."""
 
-from nicos.refsans.params import motoraddress
+from nicos_mlz.refsans.params import motoraddress
 
 from test.utils import raises
 

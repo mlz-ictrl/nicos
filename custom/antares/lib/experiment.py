@@ -28,7 +28,7 @@
 
 import os
 
-from nicos.frm2.experiment import ImagingExperiment
+from nicos_mlz.frm2.devices.experiment import ImagingExperiment
 
 
 class Experiment(ImagingExperiment):

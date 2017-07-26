@@ -6,9 +6,9 @@ includes = ['virtualtas', 'sampletable', 'analyser', 'power', 'detector',
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('nicos.tas.TASSample'),
+    Sample = device('nicos.devices.tas.TASSample'),
 
-    puma   = device('nicos.tas.TAS',
+    puma   = device('nicos.devices.tas.TAS',
                     instrument = 'PUMA',
                     responsible = 'O. Sobolev <oleg.sobolev@frm2.tum.de>',
                     cell = 'Sample',
@@ -22,7 +22,7 @@ devices = dict(
                     axiscoupling = True,
                    ),
 
-    ki     = device('nicos.tas.Wavevector',
+    ki     = device('nicos.devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'puma',
@@ -30,7 +30,7 @@ devices = dict(
                     abslimits = (1, 5),
                    ),
 
-    kf     = device('nicos.tas.Wavevector',
+    kf     = device('nicos.devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'puma',
@@ -38,7 +38,7 @@ devices = dict(
                     abslimits = (1, 5),
                    ),
 
-    mono     = device('nicos.tas.Monochromator',
+    mono     = device('nicos.devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'mth',
                       twotheta = 'mtt',
@@ -49,7 +49,7 @@ devices = dict(
                       dvalue = 3.355,
                      ),
 
-    ana     = device('nicos.tas.Monochromator',
+    ana     = device('nicos.devices.tas.Monochromator',
                      unit = 'A-1',
                      theta = 'ath_raw',
                      twotheta = 'att',
@@ -60,7 +60,7 @@ devices = dict(
                      dvalue = 3.35,
                     ),
 
-    ec      = device('nicos.puma.ecradle.euler',
+    ec      = device('nicos_mlz.puma.devices.ecradle.euler',
                      psi='psi',
                      echi = 'echi',
                      ephi = 'ephi',

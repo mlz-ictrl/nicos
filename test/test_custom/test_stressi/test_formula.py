@@ -26,7 +26,7 @@
 
 import math
 
-from nicos.stressi.mixins import Formula
+from nicos_mlz.stressi.devices.mixins import Formula
 
 
 def test_basic_calculations():

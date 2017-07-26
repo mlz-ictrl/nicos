@@ -22,5 +22,5 @@
 #
 # *****************************************************************************
 
-from nicos.toftof.datasinks.legacy import TofImageSink
-from nicos.toftof.datasinks.live import ToftofLiveViewSink
+from nicos_mlz.toftof.devices.datasinks.legacy import TofImageSink
+from nicos_mlz.toftof.devices.datasinks.live import ToftofLiveViewSink

@@ -33,7 +33,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 
 from nicos.protocols.cache import cache_load
-from nicos.toftof.safety_desc import bit_description
+from nicos_mlz.toftof.devices.safety_desc import bit_description
 
 
 class SafetyPanel(Panel):

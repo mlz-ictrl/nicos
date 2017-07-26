@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param, oneof
-from nicos.frm2.experiment import Experiment as FRM2Experiment
+from nicos_mlz.frm2.devices.experiment import Experiment as FRM2Experiment
 
 
 class Experiment(FRM2Experiment):

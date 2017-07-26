@@ -26,7 +26,7 @@
 from nicos.core import Attach, HasLimits, HasTimeout, Moveable, Override, \
     Param, Readable, intrange, listof, oneof, status, tupleof
 
-from nicos.toftof import calculations as calc
+from nicos_mlz.toftof.devices import calculations as calc
 
 
 class BaseChopperController(HasTimeout, Readable):

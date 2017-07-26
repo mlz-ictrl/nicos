@@ -25,7 +25,7 @@
 """NICOS MIRA Experiment."""
 
 from nicos.core import Override
-from nicos.frm2.experiment import Experiment
+from nicos_mlz.frm2.devices.experiment import Experiment
 
 
 class MiraExperiment(Experiment):
