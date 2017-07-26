@@ -15,6 +15,14 @@ devices = {
                                fmtstr = '%.3f',
                               ),
 
+    '%s_maxheater' % setupname: device('nicos.devices.tango.AnalogOutput',
+                               description = 'The maximum heater power',
+                               tangodevice = tango_base + 'eurotherm/maxheater',
+                               abslimits = (0, 100),
+                               unit = '%',
+                               fmtstr = '%.0f',
+                              ),
+
     '%s_heatlamp_switch' % setupname: device('nicos.devices.tango.NamedDigitalOutput',
                                 description = 'Switch for the heat lamps',
                                 tangodevice = tango_base + 'plc/_heizlampen',
