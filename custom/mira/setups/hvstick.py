@@ -1,13 +1,11 @@
-description = "high voltage stick"
+description = 'high voltage stick'
+
+tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
-    HV   = device('nicos.devices.taco.VoltageSupply',
-                  description = 'voltage on the HV stick',
-                  tacodevice = '//mirasrv/mira/fughv/voltage',
-                  abslimits = (-5000, 5000),
-                 ),
-    HV_c = device('nicos.devices.taco.AnalogInput',
-                  lowlevel = True,
-                  tacodevice = '//mirasrv/mira/fughv/current',
-                 ),
+    HV = device('nicos.devices.tango.PowerSupply',
+        description = 'voltage on the HV stick',
+        tangodevice = tango_base + 'fughv/voltage',
+        abslimits = (-5000, 5000),
+    ),
 )
