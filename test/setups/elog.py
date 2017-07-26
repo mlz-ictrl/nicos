@@ -27,7 +27,7 @@ from test.utils import cache_addr
 name = 'elog setup'
 
 devices = dict(
-    Logbook = device('services.elog.Logbook',
+    Logbook = device('nicos.services.elog.Logbook',
         prefix = 'logbook/',
         cache = cache_addr,
     ),

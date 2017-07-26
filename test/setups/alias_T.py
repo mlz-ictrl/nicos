@@ -25,7 +25,7 @@
 name = 'shared alias definition'
 
 devices = dict(
-    T = device('devices.generic.DeviceAlias',
+    T = device('nicos.devices.generic.DeviceAlias',
         lowlevel = False,
     ),
 )

@@ -25,12 +25,12 @@
 description = 'test_controller setup'
 
 devices = dict(
-    dev1 = device('devices.generic.VirtualMotor',
+    dev1 = device('nicos.devices.generic.VirtualMotor',
         fmtstr = '%.2f',
         abslimits = (0, 600),
         unit = 'mm',
     ),
-    dev2 = device('devices.generic.VirtualMotor',
+    dev2 = device('nicos.devices.generic.VirtualMotor',
         fmtstr = '%.2f',
         abslimits = (0, 600),
         unit = 'mm',

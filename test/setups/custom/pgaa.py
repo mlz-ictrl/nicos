@@ -28,13 +28,13 @@ includes = ['stdsystem']
 
 devices = dict(
 
-    ellipse = device('devices.generic.ManualSwitch',
+    ellipse = device('nicos.devices.generic.ManualSwitch',
                      states = [0, 1],
                     ),
-    collimator = device('devices.generic.ManualSwitch',
+    collimator = device('nicos.devices.generic.ManualSwitch',
                         states = [0, 1],
                        ),
-    ellcol = device('pgaa.ellcol.EllCol',
+    ellcol = device('nicos_mlz.pgaa.devices.ellcol.EllCol',
                     ellipse = 'ellipse',
                     collimator = 'collimator',
                     unit = '',

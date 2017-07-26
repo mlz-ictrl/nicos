@@ -28,21 +28,21 @@ includes = ['axis']
 
 devices = dict(
     # Take range from the 'axis' device
-    osci = device('devices.generic.Oscillator',
+    osci = device('nicos.devices.generic.Oscillator',
                   moveable = 'axis',
                  ),
     # Set own range and it is stoppable
-    osci2 = device('devices.generic.Oscillator',
+    osci2 = device('nicos.devices.generic.Oscillator',
                    moveable = 'axis',
                    range = (0, 50),
                    stoppable = True,
                   ),
     # configured range outside the attached device limits
-    osci3 = device('devices.generic.Oscillator',
+    osci3 = device('nicos.devices.generic.Oscillator',
                    moveable = 'axis',
                    range = (-110, 0),
                   ),
-    osci4 = device('devices.generic.Oscillator',
+    osci4 = device('nicos.devices.generic.Oscillator',
                    moveable = 'axis',
                    range = (0, 110),
                   ),

@@ -22,23 +22,23 @@
 #
 # *****************************************************************************
 
-name = "test_maria setup"
+name = 'test_maria setup'
 
-includes = ["stdsystem"]
+includes = ['stdsystem']
 
 devices = dict(
-    omega  = device("devices.generic.VirtualMotor",
+    omega  = device('nicos.devices.generic.VirtualMotor',
                     abslimits = (-180, 180),
-                    unit = "deg",
+                    unit = 'deg',
     ),
-    detarm = device("devices.generic.VirtualMotor",
+    detarm = device('nicos.devices.generic.VirtualMotor',
                     abslimits = (-360, 360),
-                    unit = "deg",
+                    unit = 'deg',
     ),
-    t2t    = device("maria.motor.MasterSlaveMotor",
-                    description = "2 theta axis moving detarm = 2 * omega",
-                    master = "omega",
-                    slave = "detarm",
+    t2t    = device('nicos_mlz.maria.devices.motor.MasterSlaveMotor',
+                    description = '2 theta axis moving detarm = 2 * omega',
+                    master = 'omega',
+                    slave = 'detarm',
                     scale = 2.,
                    ),
 )

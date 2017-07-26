@@ -27,7 +27,7 @@ from test.utils import cache_addr
 name = 'cache setup'
 
 devices = dict(
-    Server = device('services.cache.server.CacheServer',
+    Server = device('nicos.services.cache.server.CacheServer',
         server = cache_addr,
         db = 'DB',
         loglevel = 'debug',

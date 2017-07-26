@@ -27,12 +27,12 @@ name = 'test_axis setup'
 includes = ['stdsystem']
 
 devices = dict(
-    dm1 = device('devices.generic.VirtualMotor',
+    dm1 = device('nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         curvalue = 0,
         abslimits = (-100, 100),
     ),
-    dax = device('devices.generic.Axis',
+    dax = device('nicos.devices.generic.Axis',
         motor = 'dm1',
         coder = None,
         obs = [],
@@ -41,7 +41,7 @@ devices = dict(
         loopdelay = 0.02,
         loglevel = 'debug',
     ),
-    dm2 = device('devices.generic.VirtualMotor',
+    dm2 = device('nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         curvalue = 0,
         abslimits = (-100, 100),

@@ -27,12 +27,12 @@ from test.utils import alt_cache_addr
 name = 'setup for cache stresstest with memory-history db'
 
 devices = dict(
-    Server = device('services.cache.server.CacheServer',
+    Server = device('nicos.services.cache.server.CacheServer',
         server = alt_cache_addr,
         db = 'DB3',
         loglevel = 'debug',
     ),
-    DB3 = device('services.cache.server.MemoryCacheDatabaseWithHistory',
+    DB3 = device('nicos.services.cache.server.MemoryCacheDatabaseWithHistory',
         maxentries = 50,
         loglevel = 'debug',
     ),

@@ -40,9 +40,9 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    Sample = device('devices.sample.Sample'),
+    Sample = device('nicos.devices.sample.Sample'),
     # test that both nicos.(...) and (...) work
-    Exp = device('devices.experiment.Experiment',
+    Exp = device('nicos.devices.experiment.Experiment',
         sample = 'Sample',
         elog = True,
         dataroot = path.join(runtime_root, 'data'),
@@ -53,7 +53,7 @@ devices = dict(
         lowlevel = False,
         localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
     ),
-    Instr = device('devices.instrument.Instrument',
+    Instr = device('nicos.devices.instrument.Instrument',
         instrument = 'INSTR',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
         operators = ['NICOS developer team'],

@@ -27,12 +27,12 @@ from test.utils import alt_cache_addr
 name = 'setup for cache stresstest with file db'
 
 devices = dict(
-    Server = device('services.cache.server.CacheServer',
+    Server = device('nicos.services.cache.server.CacheServer',
         server = alt_cache_addr,
         db = 'DB',
         loglevel = 'debug',
     ),
-    DB = device('services.cache.server.FlatfileCacheDatabase',
+    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
         storepath = 'altcache',
         loglevel = 'debug',
     ),

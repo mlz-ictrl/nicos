@@ -27,13 +27,13 @@ name = 'test scanning setup'
 includes = ['axis', 'detector']
 
 devices = dict(
-    motor2 = device('devices.generic.VirtualMotor',
+    motor2 = device('nicos.devices.generic.VirtualMotor',
                     unit = 'deg',
                     curvalue = 0,
                     abslimits = (0, 5),
                    ),
 
-    manual = device('devices.generic.ManualMove',
+    manual = device('nicos.devices.generic.ManualMove',
                     unit = 'mm',
                     abslimits = (-5, 5),
                    ),
@@ -44,7 +44,7 @@ devices = dict(
                     maxage = 0.0,  # no caching!
                    ),
 
-    sry    = device('devices.generic.VirtualMotor',
+    sry    = device('nicos.devices.generic.VirtualMotor',
                     unit = 'deg',
                     curvalue = 0,
                     abslimits = (-360, 360),
