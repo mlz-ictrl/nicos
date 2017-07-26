@@ -1,6 +1,81 @@
 Changelog
 =========
 
+Release 3.0.0
+-------------
+
+In this release, the "custom" directory with setups and modules for instruments
+has been replaced by Python packages.  The most important consequences from this
+change are:
+
+* Individual instrument customizations are separated by facility, called
+  ``nicos_<facility>``.  By default, all such packages are installed alongside
+  with the main ``nicos`` package.
+
+* Custom modules no longer need to be mapped into ``nicos.<instrument>`` with a
+  nonstandard manipulation of ``__path__``, which makes it much easier for tools
+  and IDEs to find and process them.
+
+* All device and class names in setups, as well as ``guiconfig.py``, must now
+  be fully qualified.  There are no shortcuts (leave out ``nicos.``) anymore.
+
+* The ``custom_paths`` setting for ``nicos.conf`` has been replaced with a
+  setting ``setup_package``.  It specifies only a Python package name.  The
+  package is found along ``PYTHONPATH``.
+
+* The ``INSTRUMENT`` environment variable should now be of the form
+  ``nicos_<facility>.<instrument>``.
+
+Other changes:
+
+* GUI
+
+  - The GR-based live detector view can show ROIs.
+
+  - The device list can now show arbitrary parameters of a device, in addition
+    to the current value and status.  Which devices should show which parameters
+    is configured in the ``guiconfig.py`` for each instrument.
+
+  - In the scans panel, opening new scans automatically can now be switched off.
+
+  - If a script exits with an error, the last executed line is marked with a
+    red arrow in the script view.
+
+  - Multiple bugs have been fixed in the find/replace dialog of the script
+    editor.
+
+* Devices
+
+  - A new sequence item, ``SeqWait``, has been added for sequencer devices.
+
+  - EPICS support has been improved considerably.
+
+  - A ``ScanningDetector`` has been added to the generic devices.  On count, it
+    will perform a scan of a device and collect the subscan results.
+
+* Commands
+
+  - A new ``waitfor`` command has been added to replace simple while-loops.
+
+* Core
+
+  - Support has been added for encrypted password and other credentials storage.
+
+  - Daemon slowdown due to slow/hanging/intermittent network connections has
+    been reduced.
+
+* Documentation
+
+  - The user documentation for some commands was extended.
+
+* Test suite
+
+  - Many tests have been added, and the test suite is more reliable due to a
+    rework of test fixtures.
+
+  - Tests can be run in Docker containers.
+
+
 Release 2.12.0
 --------------
 
