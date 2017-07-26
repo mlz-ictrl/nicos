@@ -176,7 +176,7 @@ class VRefsans(NicosWidget, QWidget):
         for k in ['nok0', 'nok1', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
                   'nok6', 'nok7', 'nok8']:
             v = self.values[k]
-            if isinstance(v, tuple) or isinstance(v, readonlylist):
+            if isinstance(v, (tuple, readonlylist)):
                 x, y = v  # pylint: disable=W0633
             elif isinstance(v, int):
                 x, y = 0, v

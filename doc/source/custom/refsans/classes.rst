@@ -22,6 +22,6 @@
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos_mlz.refsans.devices.monitorwidgets
+.. automodule:: nicos_mlz.refsans.gui.monitorwidgets
 
 .. autoclass:: VRefsans()

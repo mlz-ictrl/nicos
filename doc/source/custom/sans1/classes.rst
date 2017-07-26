@@ -41,7 +41,7 @@
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos_mlz.sans1.devices.monitorwidgets
+.. automodule:: nicos_mlz.sans1.gui.monitorwidgets
 
 .. autoclass:: Tube2()
 .. autoclass:: BeamOption()
