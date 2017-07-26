@@ -81,13 +81,13 @@ A simple setup file for the watchdog could look like this::
 
   devices = dict(
 
-      mailer   = device('devices.notifiers.Mailer',
+      mailer   = device('nicos.devices.notifiers.Mailer',
                         sender = 'root@demo'),
 
-      smser    = device('devices.notifiers.SMSer',
+      smser    = device('nicos.devices.notifiers.SMSer',
                         receivers = ['01721234567']),
 
-      Watchdog = device('services.watchdog.Watchdog',
+      Watchdog = device('nicos.services.watchdog.Watchdog',
                         cache = 'localhost:14869',
                         notifiers = {'default': ['mailer'],
                                      'critical': ['mailer', 'smser']},

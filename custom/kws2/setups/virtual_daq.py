@@ -50,7 +50,7 @@ devices = dict(
 
     det_img    = device('nicos.devices.generic.DeviceAlias',
                         alias = 'det_img_ge',
-                        devclass = 'kws1.daq.VirtualKWSImageChannel',
+                        devclass = 'nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',
                        ),
 
     timer      = device('nicos.devices.generic.VirtualTimer',

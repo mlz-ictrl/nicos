@@ -62,7 +62,7 @@ A simple setup file for the poller could look like this::
   )
 
   devices = dict(
-      Poller = device('services.poller.Poller',
+      Poller = device('nicos.services.poller.Poller',
                       autosetup = True,
                       poll = [],
                       alwayspoll = ['reactor'],

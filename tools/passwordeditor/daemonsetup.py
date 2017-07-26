@@ -38,7 +38,7 @@ class DaemonSetup(object):
         # search for the list authenticator entries
         # pylint: disable=not-callable
         auth = self.setup('string',
-                          value="'services.daemon.auth.ListAuthenticator'")
+                          value="'nicos.services.daemon.auth.ListAuthenticator'")
         # and take the first one
         # from the found string value we have to find the device entry
         self.passwd = None

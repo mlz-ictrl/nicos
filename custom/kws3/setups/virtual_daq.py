@@ -29,7 +29,7 @@ devices = dict(
 
     det_img      = device('nicos.devices.generic.DeviceAlias',
                           alias = 'det_img_hrd',
-                          devclass = 'kws1.daq.VirtualKWSImageChannel',
+                          devclass = 'nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',
                          ),
 
     detector     = device('nicos_mlz.kws3.devices.daq.DetSwitcher',

@@ -110,7 +110,7 @@ except the **description** entry:
 
    Example::
 
-      modules = ['commands.standard', 'commands.utility']
+      modules = ['nicos.commands.standard', 'nicos.commands.utility']
 
 ``display_order``
    An integer (range 0-100) that determines how the list of loaded setups is
@@ -194,22 +194,22 @@ The parameters are given as keyword arguments.  Here are some example
 ``devices`` entries::
 
    devices = dict(
-       p   = device('devices.taco.AnalogInput',
+       p   = device('nicos.devices.taco.AnalogInput',
                     description = 'detector gas pressure',
                     tacodevice = 'mira/ccr/pressure',
                     unit = 'bar'),
 
-       mth_motor = device('devices.taco.Motor',
+       mth_motor = device('nicos.devices.taco.Motor',
                           tacodevice = 'mira/motor/mth',
                           lowlevel = True,
                           unit = 'deg'),
 
-       mth_coder = device('devices.taco.Coder',
+       mth_coder = device('nicos.devices.taco.Coder',
                           tacodevice = 'mira/coder/mth',
                           lowlevel = True,
                           unit = 'deg'),
 
-       mth = device('devices.generic.Axis',
+       mth = device('nicos.devices.generic.Axis',
                     description = 'Monochromator theta angle',
                     motor = 'mth_motor',
                     coder = 'mth_coder',

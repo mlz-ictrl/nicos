@@ -19,28 +19,30 @@ A small example configuration file looks like this:
 
    main_window = docked(
        vsplit(
-           panel('status.ScriptStatusPanel'),
-           panel('console.ConsolePanel'),
+           panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+           panel('nicos.clients.gui.panels.console.ConsolePanel'),
        ),
-       ('NICOS devices', panel('devices.DevicesPanel', icons=True, dockpos='right',))
+       ('NICOS devices', panel('nicos.clients.gui.panels.devices.DevicesPanel',
+                               icons=True, dockpos='right'))
    )
 
    windows = [
        window('Editor', 'editor',
            vsplit(
-               panel('scriptbuilder.CommandsPanel'),
-               panel('editor.EditorPanel'),
+               panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+               panel('nicos.clients.gui.panels.editor.EditorPanel'),
            )
        ),
-       window('Scans', 'plotter', panel('scans.ScansPanel')),
+       window('Scans', 'plotter', panel('nicos.clients.gui.panels.scans.ScansPanel')),
    ]
 
    tools = [
-       tool('Calculator', 'calculator.CalculatorTool'),
-       tool('Report NICOS bug', 'website.WebsiteTool',
+       tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
+       tool('Report NICOS bug', 'nicos.clients.gui.tools.website.WebsiteTool',
             url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
    options = {'reader_classes': ['nicos_mlz.demo.demo_file.DemoReader']}
+
 
 There must be three top-level values called ``main_window``, ``windows`` and
 ``tools``.
@@ -156,8 +158,7 @@ The function to create a single panel is:
 .. function:: panel(classname, **options)
 
    This creates a single panel of class ``classname``.  The class name must be
-   fully qualified with the module name to import it from, with the exception
-   that if it begins with ``nicos.clients.gui.panels.`` that can be left out.
+   fully qualified with the module name to import it from.
 
    See :ref:`the example config above <gui-config-example>`.
 
@@ -311,8 +312,7 @@ Tools
    starts the tool.
 
    ``classname`` must be the fully qualified name of a QDialog subclass that is
-   displayed as the tool.  As for panels, ``nicos.clients.gui.tools.`` can be
-   left out of the name if it starts with that.
+   displayed as the tool.
 
    ``options`` are passed to the tool as for panels.
 

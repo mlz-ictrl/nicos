@@ -23,14 +23,14 @@
 # *****************************************************************************
 
 excluded_device_classes = [
-    'devices.abstract.Coder',
-    'devices.abstract.Motor',
-    'devices.abstract.Axis',
-    'devices.abstract.MappedReadable',
-    'devices.abstract.MappedMoveable',
-    'core.device.Readable',
-    'core.device.Moveable',
-    'core.device.Measurable',
-    'devices.vendor.simplecomm.SimpleCommReadable',
-    'devices.vendor.simplecomm.SimpleCommMoveable'
+    'nicos.devices.abstract.Coder',
+    'nicos.devices.abstract.Motor',
+    'nicos.devices.abstract.Axis',
+    'nicos.devices.abstract.MappedReadable',
+    'nicos.devices.abstract.MappedMoveable',
+    'nicos.core.device.Readable',
+    'nicos.core.device.Moveable',
+    'nicos.core.device.Measurable',
+    'nicos.devices.vendor.simplecomm.SimpleCommReadable',
+    'nicos.devices.vendor.simplecomm.SimpleCommMoveable'
 ]

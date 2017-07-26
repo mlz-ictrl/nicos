@@ -51,7 +51,7 @@ A simple setup file for the poller could look like this::
   group = 'special'
 
   devices = dict(
-      Logbook = device('services.elog.Logbook',
+      Logbook = device('nicos.services.elog.Logbook',
                        cache = 'localhost:14869',
                       ),
   )

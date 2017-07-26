@@ -85,7 +85,7 @@ devices = dict(
                                 lowlevel = True,
                                ),
     ana  = device('nicos.devices.generic.DeviceAlias',
-                  devclass = 'devices.tas.Monochromator',
+                  devclass = 'nicos.devices.tas.Monochromator',
                   alias = 'ana_pg',
                  ),
     ana_pg   = device('nicos.devices.tas.Monochromator',
