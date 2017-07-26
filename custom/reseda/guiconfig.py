@@ -17,7 +17,7 @@ main_window = tabbed(
         ),
         )
      ),
-    ('Tunewave table', panel('reseda.gui.tunewavetable.TunewaveTablePanel',
+    ('Tunewave table', panel('nicos_mlz.reseda.gui.tunewavetable.TunewaveTablePanel',
                              tabledev='echotime'))
 )
 

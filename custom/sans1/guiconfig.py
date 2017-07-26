@@ -69,7 +69,7 @@ windows = [
                ('Detectors/Environment',
                 panel('nicos.clients.gui.panels.setup_panel.DetEnvPanel')),
                ('Samples',
-                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
                       # image='custom/sans1/lib/gui/sampleChanger11.png',
                       image='custom/sans1/lib/gui/sampleChanger22.png',
                       # positions = 11, setups='!setup22',)),

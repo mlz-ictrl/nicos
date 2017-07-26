@@ -12,7 +12,7 @@ main_window = docked(
            dockpos='right',),
     ),
     ('Safety system',
-     panel('toftof.gui.safetypanel.SafetyPanel'),
+     panel('nicos_mlz.toftof.gui.safetypanel.SafetyPanel'),
     ),
     ('Detector information',
      panel('nicos.clients.gui.panels.generic.GenericPanel',

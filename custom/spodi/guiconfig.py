@@ -28,7 +28,7 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    window('Live data', 'live', panel('spodi.gui.panels.LiveDataPanel')),
+    window('Live data', 'live', panel('nicos_mlz.spodi.gui.panels.LiveDataPanel')),
 ]
 
 tools = [

@@ -45,7 +45,7 @@ main_window = docked(
           )
     ),
     ('Experiment Information and Setup',
-     panel('expinfo.ExpInfoPanel',
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
            sample_panel=tabbed(
                ('Sample changer',
                 panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
@@ -78,13 +78,13 @@ windows = [
             ('Detectors/Environment',
              panel('nicos.clients.gui.panels.setup_panel.DetEnvPanel')),
             ('Samples',
-                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
                       # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger22.png',
                       positions=22, setups='sans and sc2')
             ),
             ('Samples',
-                panel('sans1.gui.samplechanger.SamplechangerSetupPanel',
+                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
                       # TODO path change
                       image='custom/sans1/lib/gui/sampleChanger11.png',
                       positions=11, setups='sans and sc1')

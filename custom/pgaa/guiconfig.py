@@ -3,10 +3,10 @@
 main_window = docked(
    tabbed(
         ('PGAA',
-         panel('pgaa.gui.panels.PGAAPanel', setups='pgaa',)
+         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
         ),
         ('Tomography',
-         panel('pgaa.gui.panels.TomographyPanel', setups='tomography',),
+         panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomography',),
         ),
         ('Shutter/Attenuators',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
