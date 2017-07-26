@@ -115,7 +115,7 @@ class DaemonSetup(object):
 
 
 if __name__ == '__main__':
-    filename = 'custom/demo/setups/special/daemon.py'
+    filename = 'nicos_mlz/demo/setups/special/daemon.py'
     daemon_setup = DaemonSetup(filename)
 
     pw = daemon_setup.getPasswordEntries()

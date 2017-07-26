@@ -48,7 +48,7 @@ def init(log):
 
     paths = [os.path.join(getNicosDir(), 'nicos', 'devices'),
              os.path.join(getNicosDir(), 'nicos', 'services')] + glob.glob(
-        getNicosDir() + '/custom/*/lib')
+        getNicosDir() + '/nicos_mlz/*/devices')
 
     pys = []
     for pth in paths:
@@ -64,7 +64,7 @@ def init(log):
         moduleName = '.'.join(fqdn)
         if moduleName.endswith('__init__'):
             moduleName = moduleName[:-9]
-        if moduleName.startswith('custom'):
+        if moduleName.startswith('nicos_mlz'):
             # module is from custom instrument, remove lib in it's path
             moduleName = moduleName.split('.')
             moduleName.pop(2)

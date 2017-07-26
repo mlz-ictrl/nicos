@@ -124,16 +124,6 @@ def runPylint() {
 pip install -r requirements-dev.txt
 pip install -r requirements.txt
 echo $PATH
-set +x
-
-# map instrument libs into nicos tree (pylint does not use the nicos path magic :( )
-pushd custom
-for d in *;do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d); done
-for d in *;do test -d $d && test -d $d/lib && (ln -s $PWD/$d/lib ../nicos_mlz/$d); done
-for d in *;do test -d $d && test -d $d/lib && (ln -s $PWD/$d/lib ../nicos_mlz/$d/devices); done
-popd
-set -x
-
 set +e
 
 PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/R[0-9]*\t[^\t]*\\(.*\\)/R\\1/' | sed -e 's/.\t//' |grep '.py$')
@@ -150,14 +140,6 @@ set -e
 . ~/toolsvenv/bin/activate
 ~/tools/pylint2gerrit.py
 
-# cleanup
-set +x
-pushd custom
-for d in *;do test -d $d && rm -f ../nicos/$d; done
-for d in *;do test -d $d && rm -f ../nicos_mlz/$d/devices; done
-for d in *;do test -d $d && rm -f ../nicos_mlz/$d; done
-popd
-set -x
 exit $res
 '''
             verifyresult.put('pylint', 1)
@@ -192,7 +174,7 @@ def runSetupcheck() {
 pip install -r requirements-dev.txt
 pip install -r requirements.txt
 
-tools/check_setups -o setupcheck.log -s custom/*/setups custom/*/guiconfig*.py || ((res++)) || /bin/true
+tools/check_setups -o setupcheck.log -s nicos_mlz/*/setups nicos_mlz/*/guiconfig*.py || ((res++)) || /bin/true
 # */
 # switch to the tools venv for running the setupcheck uploader
 . ~/toolsvenv/bin/activate

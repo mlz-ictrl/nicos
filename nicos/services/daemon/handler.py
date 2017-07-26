@@ -280,7 +280,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             daemon_version = nicos_version,
             custom_version = custom_version,
             nicos_root = config.nicos_root,
-            custom_path = config.custom_path,
+            custom_path = config.setup_package_path,
             pw_hashing = bannerhashing,
             rsakey = pubkeyStr,
             protocol_version = PROTO_VERSION,

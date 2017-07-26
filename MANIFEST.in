@@ -5,7 +5,7 @@ include pylintrc
 include README
 include nicos/RELEASE-VERSION
 
-recursive-include custom *
+recursive-include nicos_mlz *
 recursive-include etc *
 recursive-include resources *
 recursive-include tools *

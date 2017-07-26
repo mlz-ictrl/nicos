@@ -52,7 +52,7 @@ Setup file
 ----------
 
 The setup file for the cache service is by default:
-``custom/<instrument_name>/setups/special/cache.py``.
+``<setup_package>/<instrument_name>/setups/special/cache.py``.
 
 A simple setup file for the cache could look like this::
 

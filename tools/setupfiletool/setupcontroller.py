@@ -35,7 +35,7 @@ from nicos.core.sessions.setups import readSetup
 from setupfiletool.utilities.utilities import getNicosDir
 
 # root directory containing all the setups or subdirs with setups.
-setup_root = os.path.join(getNicosDir(), 'custom')
+setup_root = os.path.join(getNicosDir(), 'nicos_mlz')
 setup_directories = {}
 
 log = None

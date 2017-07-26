@@ -22,32 +22,4 @@
 #
 # *****************************************************************************
 
-"""Temporary package to ease transition to the new custom namespace layout."""
-
-import os
-import sys
-import types
-from os import path
-
-from nicos.configmod import config
-
-pkgpath = config.custom_path
-if path.isdir(pkgpath):
-    for subdir in os.listdir(pkgpath):
-        # create a "nicos_mlz.instrumentname" parent module
-        newmod = sys.modules['nicos_mlz.' + subdir] = \
-            types.ModuleType('nicos_mlz.' + subdir)
-        newmod.__path__ = [path.join(pkgpath, subdir, 'lib')]
-        globals()[subdir] = newmod
-
-        # import old module under the name "devices"
-        devmod = sys.modules['nicos_mlz.' + subdir + '.devices'] = \
-            types.ModuleType('nicos_mlz.' + subdir + '.devices')
-        devmod.__path__ = [path.join(pkgpath, subdir, 'lib')]
-        newmod.devices = devmod
-
-        # and the gui subdir under the name "gui"
-        guimod = sys.modules['nicos_mlz.' + subdir + '.gui'] = \
-            types.ModuleType('nicos_mlz.' + subdir + '.gui')
-        guimod.__path__ = [path.join(pkgpath, subdir, 'lib', 'gui')]
-        newmod.devices = guimod
+"""MLZ specific NICOS package."""

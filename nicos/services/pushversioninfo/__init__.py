@@ -124,7 +124,7 @@ class PushVersionInfo(BaseCacheClient):
             base_host=base_host,
             base_version=nicos_version,
             nicos_root=config.nicos_root,
-            custom_path=config.custom_path,
+            custom_path=config.setup_package_path,
             custom_version=custom_version,
         )
         return infodict

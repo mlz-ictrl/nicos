@@ -8,7 +8,7 @@ from os import path
 rootdir = path.abspath('..')
 binscript = path.join(rootdir, 'bin', 'nicos-gui')
 guidir = path.join(rootdir, 'nicos', 'clients', 'gui')
-customdir = path.join(rootdir, 'custom')
+customdir = path.join(rootdir, 'nicos_mlz')
 
 # Make sure to generate the version file.
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
@@ -24,7 +24,7 @@ def find_custom():
             if fn.endswith('.pyc'):
                 continue
             res.append((path.join(root, fn),
-                        path.join('custom', root[len(customdir) + 1:])))
+                        path.join('nicos_mlz', root[len(customdir) + 1:])))
     return res
 
 

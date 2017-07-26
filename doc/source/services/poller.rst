@@ -50,7 +50,7 @@ Setup file
 ----------
 
 The setup file for the poller service is by default:
-``custom/<instrument_name>/setups/special/poller.py``.
+``<setup_package>/<instrument_name>/setups/special/poller.py``.
 
 A simple setup file for the poller could look like this::
 

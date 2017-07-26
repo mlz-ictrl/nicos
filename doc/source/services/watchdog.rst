@@ -47,7 +47,7 @@ Setup file
 ----------
 
 The setup file for the watchdog daemon is by default:
-``custom/<instrument_name>/setups/special/watchdog``.
+``<setup_package>/<instrument_name>/setups/special/watchdog``.
 
 A simple setup file for the watchdog could look like this::
 

@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
 
         # Initialize a logger required by setups.readSetup()
         self.log = logging.getLogger()
-        self.setuppath = path.join(path.expanduser('.'), 'custom',
+        self.setuppath = path.join(path.abspath('.'), 'nicos_mlz',
                                    config.instrument, 'setups', 'special',
                                    'daemon.py')
         self.setup = None

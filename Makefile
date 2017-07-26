@@ -1,5 +1,5 @@
 .PHONY: clean clean-demo install inplace-install install-venv install-requirements \
-	check setupcheck test testall test-coverage lint jenkinslintall jenkinslint \
+	check setupcheck test testall test-coverage lint \
 	changelint manualrelease release help
 
 SHELL=/bin/bash
@@ -54,7 +54,7 @@ check:
 	$(PYTHON) tools/check_setups $(CHECK_DIRS)
 
 setupcheck:
-	$(PYTHON) tools/check_setups -s custom/*/setups
+	$(PYTHON) tools/check_setups -s nicos_mlz/*/setups nicos_mlz/*/guiconfig.py
 
 T = test
 
@@ -72,21 +72,7 @@ test-coverage:
 		$(PYTHON) `which py.test` -v $(T) --cov --cov-report=html --cov-report=term $(O)
 
 lint:
-	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)
-
-jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
-jenkinslintall:
-	-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc --files-output=y nicos/
-	-if [[ -n "$(CUSTOMPYFILES)" ]]; then \
-		PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc --files-output=y $(CUSTOMPYFILES); \
-	else echo 'no custom python files'; fi
-
-
-jenkinslint:
-	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep "\.py\$$"); \
-	if [[ -n "$$PYFILESCHANGED" ]] ; then \
-		PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc --files-output=y $$PYFILESCHANGED; \
-	else echo 'no python files changed'; fi
+	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_mlz/
 
 changelint:
 	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep "\.py\$$"); \

@@ -37,7 +37,7 @@ class SysconfigWidget(TreeWidgetContextMenu):
         # a list of items of a sysconfig that allow only one value.
         # the others, 'datasinks' and 'notifiers', allow mulitple values.
         # this information was taken from
-        # nicos-core/custom/skeleton/setups/system.py
+        # nicos-core/nicos_mlz/skeleton/setups/system.py
         self.nonListItems = ['cache', 'instrument', 'experiment']
 
     def contextMenuOnItem(self, item, pos):

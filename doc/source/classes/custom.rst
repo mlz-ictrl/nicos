@@ -7,4 +7,4 @@
      :maxdepth: 1
      :glob:
 
-     ../custom/*/classes
+     ../nicos_mlz/*/classes

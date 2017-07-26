@@ -45,17 +45,17 @@ def import_and_check(modname):
         raise
 
 
-custom_dir = path.join(module_root, 'custom')
+custom_dir = path.join(module_root, 'nicos_mlz')
 all_instrs = sorted(os.listdir(custom_dir))
 
 
 @pytest.mark.parametrize('instr', all_instrs)
 def test_import_all(instr):
-    instrlib = path.join(custom_dir, instr, 'lib')
+    instrlib = path.join(custom_dir, instr, 'devices')
     if instr == 'delab':
         return
     if not path.isdir(instrlib):
         return
     for mod in os.listdir(instrlib):
         if mod.endswith('.py'):
-            import_and_check('nicos.%s.%s' % (instr, mod[:-3]))
+            import_and_check('nicos_mlz.%s.%s' % (instr, mod[:-3]))

@@ -116,7 +116,7 @@ class Session(object):
         # current "alias preferences" config
         self.alias_config = {}
         # paths to setup files
-        self._setup_paths = [path.join(config.custom_path, p.strip(), 'setups')
+        self._setup_paths = [path.join(config.setup_package_path, p.strip(), 'setups')
                              for p in config.setup_subdirs.split(',')]
         # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
@@ -219,7 +219,7 @@ class Session(object):
                     cache._ismaster = True
                 # put version info into cache
                 cache.put(self, 'nicosroot', config.nicos_root)
-                cache.put(self, 'custompath', config.custom_path)
+                cache.put(self, 'custompath', config.setup_package_path)
                 cache.put(self, 'nicosversion', nicos_version)
                 cache.put(self, 'customversion', custom_version)
                 if set(self.explicit_setups) - set(['system', 'startup']):
@@ -432,7 +432,7 @@ class Session(object):
         """Read information of all existing setups, and validate them.
 
         Setup modules are looked for in subdirectories of the configured
-        "custom_path".
+        "setup_package".
         """
         return readSetups(self._setup_paths, self.log)
 

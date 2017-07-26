@@ -9,4 +9,4 @@
       :maxdepth: 2
       :glob:
 
-      custom/*/setups
+      nicos_mlz/*/setups

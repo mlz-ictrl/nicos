@@ -1,5 +1,7 @@
 #!groovy
 
+/* USED FOR 2.12 BRANCH ONLY */
+
 //*** job setup */
 properties([
     buildDiscarder(logRotator(artifactDaysToKeepStr: '',

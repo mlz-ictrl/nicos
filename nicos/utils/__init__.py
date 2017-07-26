@@ -326,7 +326,7 @@ def getSysInfo(service):
         host=host,
         nicos_root=config.nicos_root,
         version=nicos_version,
-        custom_path=config.custom_path,
+        custom_path=config.setup_package_path,
         custom_version=custom_version,
     )
     nicosroot_key = config.nicos_root.replace('/', '_')
@@ -1178,10 +1178,16 @@ def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
 
 def findResource(filepath):
     """Helper to find a certain nicos specific, but non-python file."""
-    rmPrefix = 'custom/'
-    if filepath.startswith(rmPrefix):
-        return path.join(config.custom_path, filepath[len(rmPrefix):])
-    return path.join(config.nicos_root, filepath)
+    # strategy: find first path component as a Python package, then
+    # descend from there
+    if not path.isabs(filepath):
+        components = filepath.split('/')
+        try:
+            modpath = path.dirname(__import__(components[0]).__file__)
+        except ImportError as err:
+            raise IOError('cannot find resource %r: %s' % (filepath, err))
+        filepath = path.join(path.abspath(modpath), *components[1:])
+    return filepath
 
 
 def clamp(value, minval, maxval):

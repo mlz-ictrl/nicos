@@ -105,7 +105,7 @@ class SetupDirective(Directive):
         self.env = self.state.document.settings.env
 
         # short setup path:
-        # like it's used in nicos (custom/instr/setups/setup.py)
+        # like it's used in nicos (setup_pkg/instr/setups/setup.py)
         self._shortSetupPath = self.arguments[0]
         self._absSetupPath = self._getAbsoluteSetupPath(self._shortSetupPath)
         self._setupName = path.basename(self._absSetupPath)[:-3]
@@ -304,7 +304,7 @@ class SetupDirective(Directive):
     def _getAbsoluteSetupPath(self, shortPath):
         '''
         Return the absolute path to the setup file.
-        short path is: custom/xy/setups/z.py
+        short path is: setup_pkg/xy/setups/z.py
         '''
         return path.join(self.env.srcdir,
                         self.env.config.setupdoc_setup_base_dir,
@@ -320,7 +320,7 @@ class SetupDirective(Directive):
 ###############################################################################
 
 rstSnipSetupFile = '''
-.. setup:: custom/%(custom)s/setups/%(setupname)s.py
+.. setup:: nicos_mlz/%(custom)s/setups/%(setupname)s.py
 
 '''
 
@@ -355,7 +355,7 @@ def setupdoc_builder_inited(app):
     for custom in os.listdir(cust_doc_dir):
         if not path.isdir(path.join(cust_doc_dir, custom)):
             continue
-        setup_dir = path.join(base_dir, 'custom', custom, 'setups')
+        setup_dir = path.join(base_dir, 'nicos_mlz', custom, 'setups')
         dest_dir = path.join(cust_doc_dir, custom, 'setups')
         setups = _getListOfFiles(setup_dir, '.py')
         rstfiles = _getListOfFiles(dest_dir, '.rst')
@@ -384,7 +384,7 @@ def setupdoc_builder_inited(app):
 
 def setup(app):
     app.add_config_value('setupdoc_setup_base_dir', '../..', '')
-    app.add_config_value('setupdoc_custom_doc_dir', 'custom', '')
+    app.add_config_value('setupdoc_custom_doc_dir', 'nicos_mlz', '')
 
     app.add_directive('setup', SetupDirective)
 

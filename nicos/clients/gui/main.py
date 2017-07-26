@@ -736,7 +736,7 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    configfile = path.join(config.custom_path, config.instrument,
+    configfile = path.join(config.setup_package_path, config.instrument,
                            'guiconfig.py')
     try:
         opts, args = getopt.getopt(argv[1:], 'c:hv', ['config-file=', 'help'])

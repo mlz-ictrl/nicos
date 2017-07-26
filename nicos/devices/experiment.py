@@ -222,7 +222,7 @@ class Experiment(Device):
     def templatepath(self):
         """Paths where all template files are stored."""
         return [path.abspath(path.join(self.dataroot, self.templates))] + \
-            [path.join(config.custom_path, p.strip(), 'template')
+            [path.join(config.setup_package_path, p.strip(), 'template')
              for p in config.setup_subdirs.split(',')]
 
     @property

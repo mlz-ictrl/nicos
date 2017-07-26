@@ -40,7 +40,7 @@ uses all the major components can be started using ::
 This starts the cache, poller, electronic logbook, and daemon services, and also
 starts the graphical interface and a status monitor.
 
-The console will load the demo setups from ``custom/demo/setups``.  The startup
+The console will load the demo setups from ``nicos_mlz/demo/setups``.  The startup
 setup contains a few devices that show basic usage of the NICOS system.  Call
 ``help()`` to get a list of commands.  You can also call ``help(dev)`` to get
 help for an individual device.
@@ -63,7 +63,7 @@ that instrument.  When this is done, the installation process looks like this::
   [sudo] make install INSTRUMENT=<instrument name>
 
 
-The customization is located in a subdirectory of ``custom/``.  It contains a
+The customization is located in a subdirectory of ``nicos_*/``.  It contains a
 file called ``nicos.conf`` that tells the NICOS how the system shall behave (see
 :ref:`nicosconf`).
 
@@ -78,7 +78,7 @@ located in the "root" directory of the NICOS installation, i.e. the directory
 containing the ``__init__.py`` main file.
 
 A file with default settings for each instrument is expected in
-``custom/instrumentname/nicos.conf`` and will be loaded automatically.  The
+``nicos_*/instrumentname/nicos.conf`` and will be loaded automatically.  The
 instrument can either be specified implicitly by the middle part of the
 fully-qualified hostname, given by an ``INSTRUMENT`` environment variable, or in
 the "root" ``nicos.conf`` file (see below).
@@ -94,9 +94,8 @@ The possible entries are:
 
   * ``instrument`` -- the instrument name to find the instrument specific
     ``nicos.conf`` (if not guessable from the hostname)
-  * ``custom_paths`` -- paths (separated by ``:``) to look for the "custom"
-    directory (with instrument-specific libs and setups); the first one that
-    exists will be used
+  * ``setup_package`` -- a Python package to look for the instrument-specific
+    setup directories; the package will be searched for in ``PYTHONPATH``
   * ``setup_subdirs`` -- the subdirectories of the custom path with setups to
     use, separated by ``,`` (e.g. ``panda,frm2``)
   * ``user`` -- system user to use when becoming a daemon

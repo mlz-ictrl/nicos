@@ -15,7 +15,7 @@ The ``bin/designer-nicos`` script should be invoked to start the Qt designer
 with NICOS widgets integrated.  If custom widgets should be included, give
 the module name(s) with widget classes on the command line.  For example, ::
 
-   bin/designer-nicos nicos_mlz.sans1.gui.monitorwidgets custom/sans1/gui/panel.ui
+   bin/designer-nicos nicos_mlz.sans1.gui.monitorwidgets nicos_mlz/sans1/gui/panel.ui
 
 will edit the ``panel.ui`` file with the widgets from
 ``nicos_mlz.sans1.gui.monitorwidgets`` available in addition to the standard widgets

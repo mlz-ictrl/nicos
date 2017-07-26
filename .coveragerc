@@ -1,7 +1,7 @@
 [run]
 source =
 	nicos
-	custom
+	nicos_mlz
 omit =
 	nicos/_vendor/*
 	nicos/clients/gui/*

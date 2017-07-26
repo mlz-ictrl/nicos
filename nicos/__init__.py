@@ -53,15 +53,4 @@ session = Session()
 
 # Read config file and set environment variables.
 from nicos.configmod import config
-
-if config.custom_path != path.join(config.nicos_root, 'custom'):
-    custom_version = get_git_version(cwd=config.custom_path)
-else:
-    custom_version = nicos_version
-
-pkgpath = config.custom_path
-if path.isdir(pkgpath):
-    for subdir in os.listdir(pkgpath):
-        mod = sys.modules['nicos.' + subdir] = types.ModuleType('nicos.' + subdir)
-        mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
-        globals()[subdir] = mod
+custom_version = get_git_version(cwd=path.dirname(__import__(config.setup_package).__file__))

@@ -47,8 +47,8 @@ class config(object):
 
     nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
 
-    custom_path = None    # the path to find custom subdirs
-    setup_subdirs = None  # groups to be used like 'panda,frm2'
+    setup_package = None  # the root package to find setups in
+    setup_subdirs = None  # setup groups to be used like 'panda,frm2'
     pid_path = 'pid'
     logging_path = 'log'
 
@@ -65,40 +65,35 @@ class NicosConfigParser(configparser.SafeConfigParser):
         return key
 
 
-def findValidCustomPath(nicos_root, global_cfg):
-    """Get the custom dir path of the NICOS install.
+def findSetupPackage(nicos_root, global_cfg):
+    """Get the setup package of the NICOS install.
 
-    The custom dirs can be specified by:
-    * environment variable NICOS_CUSTOM_DIR
-    * custom_paths in main `nicos.conf` (here a :-separated list is accepted,
-      the first existing dir wins).
+    The package can be specified by:
 
-    Default is custom in nicos_root.
+    * environment variable NICOS_SETUP_PACKAGE
+    * setup_package in main `nicos.conf`
+
+    Default is `nicos_mlz`.
     """
-    custom_path = None
-    if 'NICOS_CUSTOM' in os.environ:
-        cdir = os.environ['NICOS_CUSTOM']
-        if not path.isabs(cdir):
-            cdir = path.join(nicos_root, cdir)
-        if path.isdir(cdir):
-            custom_path = cdir
+    setup_package = None
 
-    if custom_path is None and global_cfg.has_option('nicos', 'custom_paths'):
-        custom_paths = global_cfg.get('nicos', 'custom_paths')
-        for cdir in custom_paths.split(':'):
-            if not path.isabs(cdir):
-                cdir = path.join(nicos_root, cdir)
-            if path.isdir(cdir):
-                # use first existing custom dir from list
-                custom_path = cdir
-                break
+    if 'NICOS_SETUP_PACKAGE' in os.environ:
+        pkg = os.environ['NICOS_SETUP_PACKAGE']
+        try:
+            __import__(pkg)
+        except ImportError:
+            pass
+        else:
+            setup_package = pkg
 
-    if custom_path is None:
-        #print('The specified custom path does not exist, falling back '
-        #      'to built-in!', file=sys.stderr)
-        custom_path = path.abspath(path.join(nicos_root, 'custom'))
+    if setup_package is None and \
+       global_cfg.has_option('nicos', 'setup_package'):
+        setup_package = global_cfg.get('nicos', 'setup_package')
 
-    return custom_path
+    if setup_package is None:
+        setup_package = 'nicos_mlz'
+
+    return setup_package
 
 
 def readConfig():
@@ -116,7 +111,15 @@ def readConfig():
     global_cfg = NicosConfigParser()
     global_cfg.read(path.join(nicos_root, 'nicos.conf'))
 
-    custom_path = findValidCustomPath(nicos_root, global_cfg)
+    # Apply global PYTHONPATH, so that we can find the setup package in it.
+    if global_cfg.has_option('environment', 'PYTHONPATH'):
+        pypath = global_cfg.get('environment', 'PYTHONPATH')
+        sys.path[:0] = pypath.split(':')
+
+    # Find setup package and its path.
+    setup_package = findSetupPackage(nicos_root, global_cfg)
+    pkg = __import__(setup_package)
+    setup_package_path = path.dirname(pkg.__file__)
 
     # Try to find a good value for the instrument name, either from the
     # environment, from the local config,  or from the hostname.
@@ -132,8 +135,8 @@ def readConfig():
         except (ValueError, IndexError, socket.error):
             pass
         else:
-            # ... but only if a customization exists for it
-            if path.isdir(path.join(custom_path, domain)):
+            # ... but only if a subdir exists for it
+            if path.isdir(path.join(setup_package_path, domain)):
                 instr = domain
     if instr is None:
         instr = 'demo'
@@ -142,7 +145,7 @@ def readConfig():
 
     # Now read the instrument-specific nicos.conf.
     instr_cfg = NicosConfigParser()
-    instr_cfg.read(path.join(custom_path, instr, 'nicos.conf'))
+    instr_cfg.read(path.join(setup_package_path, instr, 'nicos.conf'))
 
     # Now read the whole configuration from both locations, where the
     # local config overrides the instrument specific config.
@@ -159,7 +162,8 @@ def readConfig():
                 environment[name] = cfg.get('environment', name)
 
     values['nicos_root'] = nicos_root
-    values['custom_path'] = custom_path
+    values['setup_package'] = setup_package
+    values['setup_package_path'] = setup_package_path
     return values, environment
 
 

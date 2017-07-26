@@ -43,7 +43,7 @@ Setup file
 ----------
 
 The setup file for the electronic logbook daemon is by default:
-``custom/<instrument_name>/setups/special/elog.py``.
+``<setup_package>/<instrument_name>/setups/special/elog.py``.
 
 A simple setup file for the poller could look like this::
 

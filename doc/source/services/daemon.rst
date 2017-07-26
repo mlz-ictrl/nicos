@@ -49,7 +49,7 @@ Setup file
 ----------
 
 The setup file for the daemon is by default:
-``custom/<instrument_name>/setups/special/daemon.py``.
+``<setup_package>/<instrument_name>/setups/special/daemon.py``.
 
 A simple setup file for the daemon could look like this::
 
