@@ -60,7 +60,7 @@ class CommandsPanel(Panel):
 
         modules = options.get('modules', [])
         for module in modules:
-            importString(module, ('nicos.',))  # should register cmdlets
+            importString(module)  # should register cmdlets
 
         for cmdlet in all_cmdlets:
             def callback(on, cmdlet=cmdlet):

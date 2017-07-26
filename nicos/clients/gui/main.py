@@ -286,7 +286,7 @@ class MainWindow(QMainWindow, DlgUtils):
         classes = self.gui_conf.options.get('reader_classes', [])
         for clsname in classes:
             try:
-                importString(clsname, ['', 'nicos.'])
+                importString(clsname)
             except ImportError:
                 pass
 

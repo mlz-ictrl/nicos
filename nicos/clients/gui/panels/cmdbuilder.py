@@ -82,7 +82,7 @@ class CommandPanel(Panel):
         Panel.setOptions(self, options)
         modules = options.get('modules', [])
         for module in modules:
-            importString(module, ('nicos.',))  # should register cmdlets
+            importString(module)  # should register cmdlets
 
         for cmdlet in all_cmdlets:
             action = QAction(cmdlet.name, self)

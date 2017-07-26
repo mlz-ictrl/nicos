@@ -522,7 +522,7 @@ def chunks(iterable, size):
         yield chain([nextchunk], chunkiter)
 
 
-def importString(import_name, prefixes=()):
+def importString(import_name):
     """Imports an object based on a string.
 
     The string can be either a module name and an object name, separated
@@ -534,19 +534,11 @@ def importString(import_name, prefixes=()):
         modname, obj = import_name.rsplit('.', 1)
     else:
         modname, obj = import_name, None
-    mod = None
     fromlist = [obj] if obj else []
-    errors = []
-    for fullname in [modname] + [p + modname for p in prefixes]:
-        try:
-            mod = __import__(fullname, {}, {}, fromlist)
-        except ImportError as err:
-            errors.append('[%s] %s' % (fullname, err))
-        else:
-            break
-    if mod is None:
-        raise ImportError('Could not import %r: %s' %
-                          (import_name, ', '.join(errors)))
+    try:
+        mod = __import__(modname, {}, {}, fromlist)
+    except ImportError as err:
+        raise ImportError('Could not import %r: %s' % (import_name, err))
     if not obj:
         return mod
     else:

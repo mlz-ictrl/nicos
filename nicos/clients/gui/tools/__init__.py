@@ -38,8 +38,7 @@ def runTool(window, tconfig):
     """
     if isinstance(tconfig, tool):
         try:
-            toolclass = importString(tconfig.clsname,
-                                     ('nicos.clients.gui.tools.',))
+            toolclass = importString(tconfig.clsname)
         except ImportError:
             window.showError('Could not import class %r.' % tconfig.clsname)
         else:

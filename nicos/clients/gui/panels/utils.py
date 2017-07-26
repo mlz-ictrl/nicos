@@ -37,9 +37,8 @@ from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 
 def createPanel(item, window, menuwindow, topwindow, log):
-    prefixes = ('nicos.clients.gui.panels.', 'nicos.')
     try:
-        cls = importString(item.clsname, prefixes=prefixes)
+        cls = importString(item.clsname)
     except Exception:
         log.exception('Could not import class %s to create panel',
                       item.clsname)
