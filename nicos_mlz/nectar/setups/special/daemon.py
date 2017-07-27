@@ -12,18 +12,8 @@ devices = dict(
                              ],
                    ),
 
-    # AuthLDAP = device('nicos.services.daemon.auth.LDAPAuthenticator',
-    #                   server = 'phaidra.admin.frm2',
-    #                   userbasedn = 'ou=People,dc=frm2,dc=de',
-    #                   groupbasedn = 'ou=Group,dc=frm2,dc=de',
-    #                   grouproles = {
-    #                       'nectar' : 'admin',
-    #                       'ictrl' : 'admin',
-    #                   },
-    #                  ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
                     server = '0.0.0.0',
-                    #authenticators = ['AuthLDAP'],
                     authenticators = ['UserDB', 'Auth'],
                     loglevel = 'info',
                    ),

@@ -28,7 +28,7 @@ from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, \
     ADMIN, ACCESS_LEVELS, NicosError, User
 import hashlib
 
-from nicos.pycompat import string_types, to_utf8, from_maybe_utf8
+from nicos.pycompat import string_types, to_utf8, from_maybe_utf8, iteritems
 
 try:
     from nicos.utils.credentials.keystore import nicoskeystore
@@ -123,13 +123,18 @@ class LDAPAuthenticator(Authenticator):
     definition inside the 'roles' dictionary.
     """
 
+    BIND_METHODS = {
+        'none': ldap3.AUTO_BIND_NONE,
+        'no_tls': ldap3.AUTO_BIND_NO_TLS,
+        'tls_before_bind' : ldap3.AUTO_BIND_TLS_BEFORE_BIND,
+        'tls_after_bind': ldap3.AUTO_BIND_TLS_AFTER_BIND,
+
+    }
+
     parameters = {
-        'server': Param('LDAP server',
-                        type=str,
-                        mandatory=True),
-        'port':   Param('LDAP port',
-                        type=int,
-                        default=389),
+        'uri': Param('LDAP connection URI', type=str, mandatory=True),
+        'bindmethod': Param('LDAP port', type=oneof(*BIND_METHODS),
+                      default='no_tls'),
         'userbasedn':  Param('Base dn to query users.',
                              type=str,
                              mandatory=True),
@@ -144,6 +149,10 @@ class LDAPAuthenticator(Authenticator):
                              'Must contain "%(gidnumber)s"', type=str,
                              default='(&(gidNumber=%(gidnumber)s)'
                              '(objectClass=posixGroup))'),
+        'usergroupfilter': Param('Filter groups of a specific user. '
+                             'Must contain "%(username)s"', type=str,
+                             default='(&(memberUid=%(username)s)'
+                                     '(objectClass=posixGroup))'),
         'userroles':   Param('Dictionary of allowed users with their '
                              'associated role',
                              type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
@@ -159,74 +168,75 @@ class LDAPAuthenticator(Authenticator):
             raise NicosError('LDAP authentication not supported (ldap3 '
                              'package missing)')
 
-        # create a ldap server object
-        self._server = ldap3.Server('%s:%d' % (self.server, self.port))
+        self._access_levels = {value : key
+                               for key, value in iteritems(ACCESS_LEVELS)}
 
     def authenticate(self, username, password):
-        userdn = self._buildUserDn(username)
+        userdn = self._get_user_dn(username)
 
         # first of all: try a bind to check user existence and password
-        conn = ldap3.Connection(self._server, user=userdn, password=password)
         try:
-            if not conn.bind():
-                raise AuthenticationError('LDAP bind failed')
-        except Exception:
-            raise AuthenticationError('LDAP connection failed')
+            connection = ldap3.Connection(self.uri, user=userdn,
+                                          password=password,
+                                          auto_bind=self.BIND_METHODS[
+                                              self.bindmethod])
+        except ldap3.core.exceptions.LDAPException as e:
+            raise AuthenticationError('LDAP connection failed (%s)' % e)
 
         userlevel = -1
 
         # check if the user has explicit rights
         if username in self.userroles:
-            userlevel = self._getUserLevelCodeForRoleName(
-                self.userroles[username])
+            userlevel = self._access_levels[self.userroles[username]]
             return User(username, userlevel)
 
         # if no explicit user right was given, check group rights
-        groups = self._getUserGroups(conn, username)
+        groups = self._get_user_groups(connection, username)
 
         for group in groups:
             if group in self.grouproles:
-                userlevel = max(userlevel, self._getUserLevelCodeForRoleName(
-                    self.grouproles[group]))
+                userlevel = max(userlevel,
+                                self._access_levels[self.grouproles[group]])
 
         if userlevel >= 0:
             return User(username, userlevel)
 
         raise AuthenticationError('Login not permitted for the given user')
 
-    def _getUserLevelCodeForRoleName(self, role):
-        for levelCode, name in ACCESS_LEVELS.items():
-            if name == role:
-                return levelCode
-        return -1
+    def _get_user_groups(self, connection, username):
+        # start with the users default group
+        groups = [self._get_default_group(connection, username)]
 
-    def _buildUserDn(self, username):
-        return ('uid=%s,%s' % (username, self.userbasedn))
+        # find additional groups of the user
+        filter_str = self.usergroupfilter % {'username' : username}
+        connection.search(self.groupbasedn, filter_str, ldap3.LEVEL,
+                          attributes=ldap3.ALL_ATTRIBUTES)
 
-    def _getGroupnameForGidnumber(self, conn, gidnumber):
-        filterStr = self.groupfilter % {'gidnumber': gidnumber}
-        if not conn.search(self.groupbasedn, filterStr, ldap3.LEVEL,
+        for group in connection.response:
+            groups.append(group['attributes']['cn'][0])
+
+        return groups
+
+    def _get_default_group(self, connection, username):
+        filter_str = self.userfilter % {'username': username}
+
+        if not connection.search(self.userbasedn, filter_str, ldap3.LEVEL,
                            attributes=ldap3.ALL_ATTRIBUTES):
-            return None
-        try:
-            return conn.response[0]['attributes']['cn'][0]
-        except Exception:
-            return None
+            raise AuthenticationError('User not found in LDAP directory')
 
-    def _getUserGroups(self, conn, username):
-        filterStr = self.userfilter % {'username': username}
-        if not conn.search(self.userbasedn, filterStr, ldap3.LEVEL,
+        return self._get_group_name(connection,
+                                    connection.response[0]['attributes']\
+                                        ['gidNumber'])
+
+    def _get_group_name(self, connection, gid):
+        filter_str = self.groupfilter % {'gidnumber': gid}
+        if not connection.search(self.groupbasedn, filter_str, ldap3.LEVEL,
                            attributes=ldap3.ALL_ATTRIBUTES):
-            return []
+            raise AuthenticationError('Group %s not found' % gid)
+        return connection.response[0]['attributes']['cn'][0]
 
-        try:
-            gidnumbers = [int(num) for num in
-                          conn.response[0]['attributes']['gidNumber']]
-        except Exception:
-            return []
-
-        return [self._getGroupnameForGidnumber(conn, entry)
-                for entry in gidnumbers]
+    def _get_user_dn(self, username):
+        return 'uid=%s,%s' % (username, self.userbasedn)
 
 
 class ListAuthenticator(Authenticator):
