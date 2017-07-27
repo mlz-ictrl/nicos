@@ -1,7 +1,7 @@
 description = 'NICOS system setup'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'sehw.se.frm2',
     instrument = 'SE',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink'],

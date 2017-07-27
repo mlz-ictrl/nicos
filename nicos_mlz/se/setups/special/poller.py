@@ -2,13 +2,13 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = 'sehw.se.frm2'
 )
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-                    autosetup = False,  # important! do not poll everything
-                    poll = ['reactor'],
+                    autosetup = True,
+                    poll = [],
                     alwayspoll = [],
                     blacklist = []),
 )
