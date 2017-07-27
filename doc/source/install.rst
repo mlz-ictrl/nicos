@@ -119,3 +119,7 @@ The possible entries are:
   Any key will be taken as the name of an environment variable and set in the
   NICOS process' environment.  For example, this is useful to set ``NETHOST``
   for TACO, or ``PYTHONPATH`` to find additional Python modules.
+  If you want to amend the environment variable instead of replacing the value,
+  refer to the old value as ``$<VARNAME>``, e.g.
+  ``LD_LIBRARY_PATH=/some/dir:$LD_LIBRARY_PATH``. To keep the ``$`` in
+  the environment variable, escape it as ``$$``.

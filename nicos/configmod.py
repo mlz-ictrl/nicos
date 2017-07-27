@@ -33,6 +33,7 @@ import sys
 import glob
 import socket
 from os import path
+from re import compile as regexcompile, escape as regexescape
 
 from nicos.pycompat import configparser
 
@@ -186,11 +187,16 @@ def applyConfig():
 
     # Apply environment variables.
     for key, value in environment.items():
+        env_re = regexcompile(r'(?<![$])[$]' + regexescape(key))
         if key == 'PYTHONPATH':
             # needs to be special-cased
-            sys.path[:0] = value.split(':')
-        else:
-            os.environ[key] = value
+            # We only need to set the additions here
+            for comp in env_re.sub('', value).split(':'):
+                if comp:
+                    sys.path.insert(0, comp)
+        oldvalue = os.environ.get(key, "")
+        value = env_re.sub(oldvalue, value)
+        os.environ[key] = value
 
     # Set a default setup_subdirs
     if config.setup_subdirs is None:
