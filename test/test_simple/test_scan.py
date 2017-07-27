@@ -336,6 +336,10 @@ def test_tomo(session):
     tomo(10)
     assert sry.read() == 360.0
 
+    sry.maw(0.0)
+    tomo(10, sry)
+    assert sry.read() == 360.0
+
 
 def test_live_count(session):
     det = session.getDevice('det')
