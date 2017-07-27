@@ -5,7 +5,6 @@ include pylintrc
 include README
 include nicos/RELEASE-VERSION
 
-recursive-include nicos_mlz *
 recursive-include etc *
 recursive-include resources *
 recursive-include tools *
@@ -21,5 +20,3 @@ prune test/root
 include doc/Makefile
 recursive-include doc/source *
 recursive-include doc/build/html *
-
-recursive-include nicos/clients/gui/tools/calculator_images *

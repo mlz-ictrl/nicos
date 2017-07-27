@@ -23,10 +23,44 @@
 # *****************************************************************************
 
 import os
+import glob
 from os import path
 from setuptools import setup
 from setuptools.command.install import install as stinstall
 from distutils.dir_util import mkpath  # pylint: disable=E0611,F0401
+
+from nicos import nicos_version
+
+root_packages = ['nicos'] + [d for d in glob.glob('nicos_*') if path.isdir(d)]
+
+scripts = ['bin/' + name for name in os.listdir('bin')
+           if name.startswith('nicos-')] + ['bin/designer-nicos']
+
+
+def find_package_files():
+    """Find all packages, package data files and pure data dirs."""
+    packages = []
+    package_data = {}
+    pure_data_dirs = []
+    for pkg in root_packages:
+        for root, dirs, files in os.walk(pkg):
+            if '__pycache__' in dirs:
+                dirs.remove('__pycache__')
+            if '__init__.py' not in files:
+                # Any non-package gets installed by copy-tree.
+                pure_data_dirs.append(root)
+            else:
+                pkgname = root.replace(os.sep, '.')
+                packages.append(pkgname)
+                # In a package, we only install non-Python files.
+                datas = [f for f in files
+                         if not f.endswith(('.py', '.pyc', '.pyo'))]
+                if datas:
+                    package_data[pkgname] = datas
+    return (packages, package_data, pure_data_dirs)
+
+
+packages, package_data, pure_data_dirs = find_package_files()
 
 
 class nicosinstall(stinstall):
@@ -57,37 +91,39 @@ class nicosinstall(stinstall):
         if not path.isabs(self.install_log):
             self.install_log = path.join(self.install_base, self.install_log)
         self._expand_attrs(['install_pid', 'install_log'])
-        self.install_custom = path.join(self.install_base, 'nicos_mlz')
         self.install_etc = path.join(self.install_base, 'etc')
         self.install_conf = path.join(self.install_base, 'nicos.conf')
         self.install_icons = path.join(self.install_base, 'icons')
-        self.true_custom = self.install_custom
         self.true_etc = self.install_etc
         self.true_pid = self.install_pid
         self.true_log = self.install_log
 
         self.dump_dirs('post-finalize-custom')
         if self.root is not None:
-            self.change_roots('nicos_mlz', 'etc', 'pid', 'log', 'conf', 'icons')
+            self.change_roots('etc', 'pid', 'log', 'conf', 'icons')
         self.dump_dirs('post-finalize-custom_root')
 
     def run(self):
         stinstall.run(self)
+        self.run_install_datadirs()
         self.run_install_icons()
-        self.run_install_custom()
+        self.run_install_etc()
+
+    def run_install_datadirs(self):
+        for datadir in pure_data_dirs:
+            self.copy_tree(datadir, path.join(self.install_data, datadir))
 
     def run_install_icons(self):
         for res in ['16x16', '32x32', '48x48', 'scalable']:
             self.copy_tree(path.join('resources', 'icons', res),
                            path.join(self.install_icons, res))
 
-    def run_install_custom(self):
-        self.copy_tree('nicos_mlz', self.install_custom)
+    def run_install_etc(self):
         self.copy_tree('etc', self.install_etc)
         mkpath(self.install_pid)
         mkpath(self.install_log)
-        nicos_conf_tmpl = \
-"""[nicos]
+        nicos_conf_tmpl = """\
+[nicos]
 pid_path = %s
 logging_path = %s
 installed_from = %s
@@ -101,42 +137,6 @@ installed_from = %s
                 cf.write('\ninstrument = %s\n' % instr)
 
 
-def find_packages():
-    """Return a list of all nicos subpackages."""
-    out = ['nicos']
-    stack = [('nicos', 'nicos.')]
-    while stack:
-        where, prefix = stack.pop(0)
-        for name in os.listdir(where):
-            fn = path.join(where, name)
-            if '.' not in name and path.isdir(fn) and \
-                    path.isfile(path.join(fn, '__init__.py')):
-                out.append(prefix + name)
-                stack.append((fn, prefix + name + '.'))
-    return out
-
-def find_ui_files():
-    """Find all Qt .ui files in nicos.clients.gui subpackages."""
-    res = {}
-    for root, _dirs, files in os.walk('nicos/clients/gui'):
-        uis = [uifile for uifile in files if uifile.endswith('.ui')]
-        if uis:
-            res[root.replace('/', '.')] = uis
-    return res
-
-from nicos import nicos_version
-
-
-scripts = ['bin/' + name for name in os.listdir('bin')
-           if name.startswith('nicos-')] + ['bin/designer-nicos']
-
-
-package_data = {'nicos': ['RELEASE-VERSION'],
-                'nicos.services.web': ['jquery.js', 'support.js'],
-                'nicos.clients.gui.tools.calculator_images':
-                ['braggfml.png', 'miezefml.png']}
-package_data.update(find_ui_files())
-
 setup(
     name = 'nicos',
     version = nicos_version,
@@ -148,23 +148,23 @@ setup(
     description = 'The Networked Instrument Control System of the MLZ',
     url = 'https://forge.frm2.tum.de/projects/NICOS/',
     cmdclass = {'install': nicosinstall},
-    packages = find_packages(),
+    packages = packages,
     package_data = package_data,
     scripts = scripts,
-    classifiers=[
-            'Development Status :: 5 - Production/Stable',
-            'Intended Audience :: Developers',
-            'Intended Audience :: Science/Research',
-            'Natural Language :: English',
-            'License :: OSI Approved :: GPL License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3',
-            'Topic :: Scientific/Engineering',
-            'Topic :: Scientific/Engineering :: Human Machine Interfaces',
-            'Topic :: Scientific/Engineering :: Physics',
-            'Topic :: Scientific/Engineering :: Visualization',
-            ],
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Natural Language :: English',
+        'License :: OSI Approved :: GPL License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Human Machine Interfaces',
+        'Topic :: Scientific/Engineering :: Physics',
+        'Topic :: Scientific/Engineering :: Visualization',
+    ],
 )
