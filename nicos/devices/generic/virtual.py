@@ -175,6 +175,8 @@ class VirtualChannel(ActiveChannel):
             self.curvalue = 0
 
     def doStart(self):
+        if self._thread and self._thread.isAlive():
+            return
         self.curvalue = 0
         self.doResume()
 
@@ -253,7 +255,7 @@ class VirtualCounter(VirtualChannel):
     parameters = {
         'countrate':  Param('The maximum countrate', type=float, default=1000.,
                             settable=False),
-        'gentype':  Param('Type of generating function',
+        'gentype':    Param('Type of generating function',
                             type=oneof('const', 'gauss'), default='gauss',
                             settable=False),
         'type':       Param('Type of channel: monitor or counter',
