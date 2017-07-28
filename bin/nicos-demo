@@ -39,7 +39,7 @@ thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
 
 if not os.environ.get('INSTRUMENT'):
-    os.environ['INSTRUMENT'] = 'demo'
+    os.environ['INSTRUMENT'] = 'nicos_mlz.demo'
 
 dev_null = open(os.devnull, 'wb')
 background_processes = []

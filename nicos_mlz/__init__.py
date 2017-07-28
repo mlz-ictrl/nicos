@@ -23,3 +23,19 @@
 # *****************************************************************************
 
 """MLZ specific NICOS package."""
+
+import socket
+from os import path
+
+
+def determine_instrument(setup_package_path):
+    """MLZ specific way to find the NICOS instrument from the host name."""
+    try:
+        # Take the middle part of the domain name (machine.instrument.frm2)
+        domain = socket.getfqdn().split('.')[1].replace('-', '_')
+    except (ValueError, IndexError, socket.error):
+        pass
+    else:
+        # ... but only if a subdir exists for it
+        if path.isdir(path.join(setup_package_path, domain)):
+            return domain

@@ -31,7 +31,6 @@ from __future__ import print_function
 import os
 import sys
 import glob
-import socket
 from os import path
 from re import compile as regexcompile, escape as regexescape
 
@@ -78,14 +77,9 @@ def findSetupPackage(nicos_root, global_cfg):
     """
     setup_package = None
 
-    if 'NICOS_SETUP_PACKAGE' in os.environ:
-        pkg = os.environ['NICOS_SETUP_PACKAGE']
-        try:
-            __import__(pkg)
-        except ImportError:
-            pass
-        else:
-            setup_package = pkg
+    if 'INSTRUMENT' in os.environ:
+        if '.' in os.environ['INSTRUMENT']:
+            setup_package = os.environ['INSTRUMENT'].split('.')[0]
 
     if setup_package is None and \
        global_cfg.has_option('nicos', 'setup_package'):
@@ -119,26 +113,26 @@ def readConfig():
 
     # Find setup package and its path.
     setup_package = findSetupPackage(nicos_root, global_cfg)
-    pkg = __import__(setup_package)
-    setup_package_path = path.dirname(pkg.__file__)
+    try:
+        setup_package_mod = __import__(setup_package)
+    except ImportError:
+        raise  # TODO: some form of error handling
+    setup_package_path = path.dirname(setup_package_mod.__file__)
 
     # Try to find a good value for the instrument name, either from the
     # environment, from the local config,  or from the hostname.
     instr = None
     if 'INSTRUMENT' in os.environ:
         instr = os.environ['INSTRUMENT']
+        if '.' in instr:
+            instr = instr.split('.')[1]
     elif global_cfg.has_option('nicos', 'instrument'):
         instr = global_cfg.get('nicos', 'instrument')
-    else:
-        try:
-            # Take the middle part of the domain name (machine.instrument.frm2)
-            domain = socket.getfqdn().split('.')[1].replace('-', '_')
-        except (ValueError, IndexError, socket.error):
-            pass
-        else:
-            # ... but only if a subdir exists for it
-            if path.isdir(path.join(setup_package_path, domain)):
-                instr = domain
+    elif hasattr(setup_package_mod, 'determine_instrument'):
+        # Let the setup package have a try.
+        instr = setup_package_mod.determine_instrument(setup_package_path)
+
+    # No luck: try the demo instrument.
     if instr is None:
         instr = 'demo'
         print('No instrument configured or detected, using "%s" instrument.' %
