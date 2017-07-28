@@ -41,27 +41,25 @@ def escape_rst(s, rex=re.compile('([`*:])')):
     return rex.sub(r'\\\1', s)
 
 
-###############################################################################
-##                                 Directives                                ##
-###############################################################################
+# Directives
 
 #
 # Rst snippets
 #
-rstSnipSetupLink = ''':ref:`%(setupname)s <%(setuplink)s>`'''
-rstSnipModuleLink = ':mod:`%(modpath)s`'
-rstSnipParamLink = '`~%(classname)s.%(paramname)s`'
-rstSnipGroup = '''| **Setup group:** :ref:`%(group)s <setup_group>`'''
-rstSnipIncludes = '''| **Included setups:** %(includes)s'''
-rstSnipExcludes = '''| **Excluded setups:** %(excludes)s'''
-rstSnipModules = '''| **Used modules:** %(modules)s'''
-rstSnipDevices = '''
+RST_SETUP_LINK = ''':ref:`%(setupname)s <%(setuplink)s>`'''
+RST_MODULE_LINK = ':mod:`%(modpath)s`'
+RST_PARAM_LINK = '`~%(classname)s.%(paramname)s`'
+RST_GROUP = '''| **Setup group:** :ref:`%(group)s <setup_group>`'''
+RST_INCLUDES = '''| **Included setups:** %(includes)s'''
+RST_EXCLUDES = '''| **Excluded setups:** %(excludes)s'''
+RST_MODULES = '''| **Used modules:** %(modules)s'''
+RST_DEVICES = '''
 Devices
 -------
 
 '''
 
-rstSnipStartupcode = '''
+RST_STARTUPCODE = '''
 Startup code
 ------------
 
@@ -70,7 +68,7 @@ Startup code
     %(startupcode)s
 '''
 
-rstSnipSetup = '''
+RST_SETUP = '''
 .. _%(uniqueid)s:
 
 %(setupname)s
@@ -90,7 +88,12 @@ rstSnipSetup = '''
 %(rst_startupcode)s
 '''
 
-devClassCache = {}  # cache for already imported device classes
+RST_SETUP_FILE = '''
+.. setup:: %(facility)s/%(instr)s/setups/%(setupname)s.py
+
+'''
+
+CLASS_CACHE = {}  # cache for already imported device classes
 
 
 class SetupDirective(Directive):
@@ -110,8 +113,8 @@ class SetupDirective(Directive):
         self._absSetupPath = self._getAbsoluteSetupPath(self._shortSetupPath)
         self._setupName = path.basename(self._absSetupPath)[:-3]
 
-        ## relative to the doc source dir
-        #rel_path = path.join(self.env.config.setupdoc_setup_base_dir,
+        # relative to the doc source dir
+        # rel_path = path.join(self.env.config.setupdoc_setup_base_dir,
         #                     self.arguments[0])
 
         # note actual setup as dependency
@@ -159,50 +162,42 @@ class SetupDirective(Directive):
         setupInfo['rst_devices'] = self._buildDevicesBlock(setupInfo)
         setupInfo['rst_startupcode'] = self._buildStartupcodeBlock(setupInfo)
 
-        return rstSnipSetup % setupInfo
+        return RST_SETUP % setupInfo
 
     def _buildGroupBlock(self, setupInfo):
-        return rstSnipGroup % setupInfo if setupInfo['group'] else ''
+        return RST_GROUP % setupInfo if setupInfo['group'] else ''
 
     def _buildIncludesBlock(self, setupInfo):
         setupInfo['includes'] = ', '.join(self._buildSetupLink(setup)
                                           for setup in setupInfo['includes'])
-        return rstSnipIncludes % setupInfo if setupInfo['includes'] else ''
+        return RST_INCLUDES % setupInfo if setupInfo['includes'] else ''
 
     def _buildExcludesBlock(self, setupInfo):
-        setupInfo['excludes'] = ', '.join(self._buildSetupLink( setup)
+        setupInfo['excludes'] = ', '.join(self._buildSetupLink(setup)
                                           for setup in setupInfo['excludes'])
-        return rstSnipExcludes % setupInfo if setupInfo['excludes'] else ''
+        return RST_EXCLUDES % setupInfo if setupInfo['excludes'] else ''
 
     def _buildModulesBlock(self, setupInfo):
         setupInfo['modules'] = ', '.join(self._buildModuleLink(module)
                                          for module in setupInfo['modules'])
-        return rstSnipModules % setupInfo if setupInfo['modules'] else ''
+        return RST_MODULES % setupInfo if setupInfo['modules'] else ''
 
     def _buildStartupcodeBlock(self, setupInfo):
         if not setupInfo['startupcode'].strip():
             return ''
         setupInfo['startupcode'] = '\n    '.join(prepare_docstring(setupInfo['startupcode']))
-        return rstSnipStartupcode % setupInfo
+        return RST_STARTUPCODE % setupInfo
 
     def _buildDevicesBlock(self, setupInfo):
         devices_dict = setupInfo['devices']
         if not devices_dict:
             return ''
 
-        rst = rstSnipDevices.split()
+        rst = RST_DEVICES.split()
         rst.append('')
 
         for devName, (devClass, devParams) in sorted(devices_dict.items(),
                                                      key=lambda d: d[0].lower()):
-
-            # Try to find classname with nicos prefix
-            # TODO: This should be removed once we transitioned to full path
-            # specs everywhere
-            if not (devClass.startswith('nicos.') or
-                    devClass.startswith('nicos_mlz.')):
-                devClass = 'nicos.' + devClass
-
             klass = self._importDeviceClass(devClass)
 
             if not klass:
@@ -251,20 +246,16 @@ class SetupDirective(Directive):
 
         if path.exists(fullPath):
             setuplink = self._getUniqueSetupId(shortPath)
-            return rstSnipSetupLink % {
-                                       'setupname' : setup_name,
-                                       'setuplink' : setuplink
-                                       }
+            return RST_SETUP_LINK % {'setupname': setup_name,
+                                     'setuplink': setuplink}
         return setup_name
 
     def _buildModuleLink(self, modulePath):
-        return rstSnipModuleLink % {'modpath' : modulePath}
+        return RST_MODULE_LINK % {'modpath': modulePath}
 
     def _buildParamLink(self, paramName, paramInfo):
-        return rstSnipParamLink % {
-                                   'classname' : paramInfo.classname,
-                                   'paramname' : paramName
-                                   }
+        return RST_PARAM_LINK % {'classname': paramInfo.classname,
+                                 'paramname': paramName}
 
     def _buildCSVTable(self, rows, indent_lvl=1, hHeader=True, vHeader=True):
         rst = ['%s.. csv-table::' % (self.indention*indent_lvl)]
@@ -284,15 +275,15 @@ class SetupDirective(Directive):
 
     def _importDeviceClass(self, classPath):
 
-        if classPath in devClassCache:
-            return devClassCache[classPath]
+        if classPath in CLASS_CACHE:
+            return CLASS_CACHE[classPath]
 
         try:
             module, _, klass = classPath.rpartition('.')
             mod = __import__(module, None, None, ['*'])
 
             klass = getattr(mod, klass)
-            devClassCache[classPath] = klass
+            CLASS_CACHE[classPath] = klass
             return klass
         except ImportError as e:
             self.warn('Could not import device class %s' % classPath)
@@ -301,28 +292,19 @@ class SetupDirective(Directive):
             self.warn('Could not get device class %s from module' % classPath)
         return None
 
-    def _getAbsoluteSetupPath(self, shortPath):
-        '''
-        Return the absolute path to the setup file.
-        short path is: setup_pkg/xy/setups/z.py
-        '''
+    def _getAbsoluteSetupPath(self, shortpath):
+        """Return the absolute path to the setup file.
+        Short path is: setup_pkg/xy/setups/z.py
+        """
         return path.join(self.env.srcdir,
-                        self.env.config.setupdoc_setup_base_dir,
-                        shortPath)
+                         self.env.config.setupdoc_setup_base_dir,
+                         shortpath)
 
-    def _getUniqueSetupId(self, shortPath):
-        return 'setup-%s' % shortPath.replace('.', '-').replace('/', '-')
+    def _getUniqueSetupId(self, shortpath):
+        return 'setup-%s' % shortpath.replace('.', '-').replace('/', '-')
 
 
-
-###############################################################################
-##                                   Events                                  ##
-###############################################################################
-
-rstSnipSetupFile = '''
-.. setup:: nicos_mlz/%(custom)s/setups/%(setupname)s.py
-
-'''
+# Events
 
 
 def _getListOfFiles(root, suffix):
@@ -348,43 +330,45 @@ def setupdoc_builder_inited(app):
     .rst files that correspond to removed setups are removed.
     """
     base_dir = path.join(app.builder.srcdir,
-                        app.config.setupdoc_setup_base_dir)
-    cust_doc_dir = path.join(app.builder.srcdir,
-                           app.config.setupdoc_custom_doc_dir)
+                         app.config.setupdoc_setup_base_dir)
 
-    for custom in os.listdir(cust_doc_dir):
-        if not path.isdir(path.join(cust_doc_dir, custom)):
+    for facility in os.listdir(app.builder.srcdir):
+        if not facility.startswith('nicos_'):
             continue
-        setup_dir = path.join(base_dir, 'nicos_mlz', custom, 'setups')
-        dest_dir = path.join(cust_doc_dir, custom, 'setups')
-        setups = _getListOfFiles(setup_dir, '.py')
-        rstfiles = _getListOfFiles(dest_dir, '.rst')
+        facilitydir = path.join(app.builder.srcdir, facility)
+        if not path.isdir(facilitydir):
+            continue
+        for instr in os.listdir(facilitydir):
+            setup_dir = path.join(base_dir, facility, instr, 'setups')
+            if not path.isdir(setup_dir):
+                continue
+            dest_dir = path.join(facilitydir, instr, 'setups')
+            setups = _getListOfFiles(setup_dir, '.py')
+            rstfiles = _getListOfFiles(dest_dir, '.rst')
 
-        added = setups - rstfiles
-        deleted = rstfiles - setups
+            added = setups - rstfiles
+            deleted = rstfiles - setups
 
-        for setup in deleted:
-            os.unlink(path.join(dest_dir, setup + '.rst'))
+            for setup in deleted:
+                os.unlink(path.join(dest_dir, setup + '.rst'))
 
-        for setup in added:
-            rstname = path.join(dest_dir, setup + '.rst')
-            try:
-                os.makedirs(path.dirname(rstname))
-            except OSError:
-                # ignore already existent dirs
-                pass
-            with open(rstname, 'w') as f:
-                f.write(rstSnipSetupFile %
-                        {'custom': custom, 'setupname': setup})
+            for setup in added:
+                rstname = path.join(dest_dir, setup + '.rst')
+                try:
+                    os.makedirs(path.dirname(rstname))
+                except OSError:
+                    # ignore already existent dirs
+                    pass
+                with open(rstname, 'w') as f:
+                    f.write(RST_SETUP_FILE %
+                            {'facility': facility, 'instr': instr,
+                             'setupname': setup})
 
 
-###############################################################################
-##                                   Setup                                   ##
-###############################################################################
+# Setup
 
 def setup(app):
     app.add_config_value('setupdoc_setup_base_dir', '../..', '')
-    app.add_config_value('setupdoc_custom_doc_dir', 'nicos_mlz', '')
 
     app.add_directive('setup', SetupDirective)
 
