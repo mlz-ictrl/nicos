@@ -11,3 +11,4 @@
 
       nicos_mlz/*/setups
       nicos_demo/*/setups
+      nicos_ess/*/setups

@@ -1,7 +1,7 @@
 description = 'Julabo F25 at Utgard Lab.'
 
 devices = dict(
-    T1=device('nicos_mlz.essiip.devices.epics_julabo_controller.EpicsJulaboController',
+    T1=device('nicos_ess.essiip.devices.epics_julabo_controller.EpicsJulaboController',
               description='Julabo F25',
               readpv='Ulab:TEMP',
               writepv='Ulab:TEMP:SP1',

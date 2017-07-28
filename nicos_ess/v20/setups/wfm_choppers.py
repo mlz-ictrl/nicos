@@ -27,7 +27,7 @@ devices = dict(
                              '7 7272.727273 BeckhoffKL5001 BK5120/63/32/4/0 -819 4154609',
                       lowlevel=True,
                       ),
-    wfm_chopper_distance=device('nicos_mlz.v20.devices.distancedevice.CenteredDistanceDevice',
+    wfm_chopper_distance=device('nicos_ess.v20.devices.distancedevice.CenteredDistanceDevice',
                                 description='Distance between WFM choppers 1 and 2',
                                 a='stage_wfm1',
                                 b='stage_wfm2',

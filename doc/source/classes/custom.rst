@@ -9,3 +9,4 @@
 
      ../nicos_mlz/*/classes
      ../nicos_demo/*/classes
+     ../nicos_ess/*/classes
