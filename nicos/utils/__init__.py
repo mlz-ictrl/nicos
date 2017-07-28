@@ -1178,16 +1178,17 @@ def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
 
 def findResource(filepath):
     """Helper to find a certain nicos specific, but non-python file."""
-    # strategy: find first path component as a Python package, then
-    # descend from there
-    if not path.isabs(filepath):
-        components = filepath.split('/')
-        try:
-            modpath = path.dirname(__import__(components[0]).__file__)
-        except ImportError as err:
-            raise IOError('cannot find resource %r: %s' % (filepath, err))
-        filepath = path.join(path.abspath(modpath), *components[1:])
-    return filepath
+    if path.isabs(filepath):
+        return filepath
+    # strategy for relative paths: try to find first path component as a Python
+    # package, then descend from there
+    components = filepath.split('/')
+    try:
+        modpath = path.dirname(__import__(components[0]).__file__)
+    except ImportError:
+        # fallback: relative to the nicos_root directory
+        return path.join(config.nicos_root, filepath)
+    return path.join(path.abspath(modpath), *components[1:])
 
 
 def clamp(value, minval, maxval):
