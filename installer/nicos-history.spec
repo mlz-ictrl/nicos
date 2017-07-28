@@ -2,6 +2,7 @@
 
 import os
 import sys
+import glob
 import subprocess
 from os import path
 
@@ -13,6 +14,18 @@ guidir = path.join(rootdir, 'nicos', 'clients', 'gui')
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
 subprocess.check_call([sys.executable,
                        path.join(rootdir, 'nicos', '_vendor', 'gitversion.py')])
+
+
+# Include all modules/files for the facility directories.
+def find_custom():
+    res = []
+    for facilityroot in glob.glob(path.join(rootdir, 'nicos_*')):
+        for root, _dirs, files in os.walk(facilityroot):
+            for fn in files:
+                if fn.endswith('.pyc'):
+                    continue
+                res.append((path.join(root, fn), root[len(rootdir) + 1:]))
+    return res
 
 
 # Include all .ui files for the main GUI module.
@@ -46,7 +59,7 @@ def find_modules(*modules):
 a = Analysis([binscript],
              pathex=[rootdir],
              binaries=[],
-             datas=find_uis() + [
+             datas=find_uis() + find_custom() + [
                  (path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
              hiddenimports=
                  find_modules('nicos', 'clients', 'gui') +

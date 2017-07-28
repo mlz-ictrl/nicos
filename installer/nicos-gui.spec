@@ -2,13 +2,13 @@
 
 import os
 import sys
+import glob
 import subprocess
 from os import path
 
 rootdir = path.abspath('..')
 binscript = path.join(rootdir, 'bin', 'nicos-gui')
 guidir = path.join(rootdir, 'nicos', 'clients', 'gui')
-customdir = path.join(rootdir, 'nicos_mlz')
 
 # Make sure to generate the version file.
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
@@ -16,15 +16,15 @@ subprocess.check_call([sys.executable,
                        path.join(rootdir, 'nicos', '_vendor', 'gitversion.py')])
 
 
-# Include all modules/files for the custom directory.
+# Include all modules/files for the facility directories.
 def find_custom():
     res = []
-    for root, _dirs, files in os.walk(customdir):
-        for fn in files:
-            if fn.endswith('.pyc'):
-                continue
-            res.append((path.join(root, fn),
-                        path.join('nicos_mlz', root[len(customdir) + 1:])))
+    for facilityroot in glob.glob(path.join(rootdir, 'nicos_*')):
+        for root, _dirs, files in os.walk(facilityroot):
+            for fn in files:
+                if fn.endswith('.pyc'):
+                    continue
+                res.append((path.join(root, fn), root[len(rootdir) + 1:]))
     return res
 
 
