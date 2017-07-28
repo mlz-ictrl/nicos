@@ -25,6 +25,7 @@
 """NICOS custom lib tests: import all custom modules at least once."""
 
 import os
+import glob
 from os import path
 
 import pytest
@@ -45,17 +46,22 @@ def import_and_check(modname):
         raise
 
 
-custom_dir = path.join(module_root, 'nicos_mlz')
-all_instrs = sorted(os.listdir(custom_dir))
+facility_dirs = [d for d in glob.glob(path.join(module_root, 'nicos_*'))
+                 if path.isdir(d)]
+all_instrs = sorted(path.basename(facility_dir) + '.' + instr_dir
+                    for facility_dir in facility_dirs
+                    for instr_dir in os.listdir(facility_dir)
+                    if path.isdir(path.join(facility_dir, instr_dir)))
 
 
-@pytest.mark.parametrize('instr', all_instrs)
-def test_import_all(instr):
-    instrlib = path.join(custom_dir, instr, 'devices')
+@pytest.mark.parametrize('fac_instr', all_instrs)
+def test_import_all(fac_instr):
+    (facility, instr) = fac_instr.split('.')
     if instr == 'delab':
         return
+    instrlib = path.join(module_root, facility, instr, 'devices')
     if not path.isdir(instrlib):
         return
     for mod in os.listdir(instrlib):
         if mod.endswith('.py'):
-            import_and_check('nicos_mlz.%s.%s' % (instr, mod[:-3]))
+            import_and_check('%s.%s.%s' % (facility, instr, mod[:-3]))
