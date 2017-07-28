@@ -174,7 +174,7 @@ def runSetupcheck() {
 pip install -r requirements-dev.txt
 pip install -r requirements.txt
 
-tools/check_setups -o setupcheck.log -s nicos_mlz/*/setups nicos_mlz/*/guiconfig*.py || ((res++)) || /bin/true
+tools/check_setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
 # */
 # switch to the tools venv for running the setupcheck uploader
 . ~/toolsvenv/bin/activate

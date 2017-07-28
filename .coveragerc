@@ -1,7 +1,7 @@
 [run]
-source =
-	nicos
-	nicos_mlz
+include =
+	nicos/*
+	nicos_*/*
 omit =
 	nicos/_vendor/*
 	nicos/clients/gui/*

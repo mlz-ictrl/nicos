@@ -54,7 +54,7 @@ check:
 	$(PYTHON) tools/check_setups $(CHECK_DIRS)
 
 setupcheck:
-	$(PYTHON) tools/check_setups -s nicos_mlz/*/setups nicos_mlz/*/guiconfig.py
+	$(PYTHON) tools/check_setups -s nicos_*/*/setups nicos_*/*/guiconfig.py
 
 T = test
 
@@ -72,7 +72,7 @@ test-coverage:
 		$(PYTHON) `which py.test` -v $(T) --cov --cov-report=html --cov-report=term $(O)
 
 lint:
-	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_mlz/
+	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_*/
 
 changelint:
 	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep "\.py\$$"); \
