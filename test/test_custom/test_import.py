@@ -64,4 +64,4 @@ def test_import_all(fac_instr):
         return
     for mod in os.listdir(instrlib):
         if mod.endswith('.py'):
-            import_and_check('%s.%s.%s' % (facility, instr, mod[:-3]))
+            import_and_check('%s.%s.devices.%s' % (facility, instr, mod[:-3]))
