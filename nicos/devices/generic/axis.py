@@ -203,6 +203,7 @@ class Axis(CanReference, AbstractAxis):
         elif self._errorstate:
             return (status.ERROR, str(self._errorstate))
         else:
+            self.log.debug('no motion thread, using motor status')
             return self._attached_motor.status(maxage)
 
     def doRead(self, maxage=0):
@@ -393,21 +394,23 @@ class Axis(CanReference, AbstractAxis):
         diff = abs(pos - target)
         prec = self.precision
         if (prec > 0 and diff >= prec) or (prec == 0 and diff):
+            msg = 'precision error: difference %.4g, precision %.4g' % \
+                  (diff, self.precision)
             if error:
-                self._errorstate = MoveError(self, 'precision error: '
-                                             'difference %.4g, '
-                                             'precision %.4g' %
-                                             (diff, self.precision))
+                self._errorstate = MoveError(msg)
+            else:
+                self.log.debug(msg)
             return False
         maxdiff = self.dragerror
         for obs in self._attached_obs:
             diff = abs(target - (obs.read() - self.offset))
             if maxdiff > 0 and diff > maxdiff:
+                msg = 'precision error (%s): difference %.4g, maximum %.4g' % \
+                      (obs, diff, maxdiff)
                 if error:
-                    self._errorstate = PositionError(self, 'precision error '
-                                                     '(%s): difference %.4g, '
-                                                     'maximum %.4g' %
-                                                     (obs, diff, maxdiff))
+                    self._errorstate = PositionError(msg)
+                else:
+                    self.log.debug(msg)
                 return False
         return True
 
@@ -558,3 +561,4 @@ class Axis(CanReference, AbstractAxis):
                     self._setErrorState(MoveError, 'motor did not stop after '
                                         'stop request, aborting')
                     moving = False
+        self.log.debug('inner positioning loop finshed')
