@@ -31,7 +31,7 @@ import pytest
 session_setup = 'spodi'
 
 
-@pytest.fixture(scope='class', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def prepare(session):
     """Prepare for SPODI tests"""
 
@@ -44,6 +44,7 @@ def prepare(session):
     assert len(basedet._attached_monitors) == 1
     assert len(basedet._attached_images) == 1
     adet = session.getDevice('adet')
+    # detectors = session.experiment.detectors
     session.experiment.setDetectors([adet])
     assert session.experiment.detlist == ['adet']
 
@@ -53,6 +54,8 @@ def prepare(session):
     assert tths.read() == 0
 
     yield
+
+    # session.experiment.setDetectors(detectors)
 
 
 def test_detector(session):
