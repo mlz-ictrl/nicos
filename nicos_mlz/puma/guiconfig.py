@@ -39,7 +39,7 @@ windows = [
             panel('nicos.clients.gui.panels.live.LiveDataPanel')),
         window('TAS status', 'table',
             panel('nicos.clients.gui.panels.generic.GenericPanel',
-                  uifile='nicos_demo/demo/gui/tasaxes.ui')),
+                  uifile='nicos/clients/gui/panels/tasaxes.ui')),
 ]
 
 tools = [

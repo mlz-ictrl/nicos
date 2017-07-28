@@ -27,7 +27,7 @@ _expcolumn = Column(
 )
 
 _axisblock = Block('Axes', [
-    BlockRow(Field(gui='nicos_demo/demo/gui/tasaxes.ui')),
+    BlockRow(Field(gui='nicos/clients/gui/panels/tasaxes.ui')),
     # BlockRow('mth', 'mtt'),
     # BlockRow('psi', 'phi'),
     # BlockRow('ath', 'att'),
