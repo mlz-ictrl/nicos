@@ -11,6 +11,7 @@ For a full overview over available classes and their functions check
    :maxdepth: 1
 
    install
+   nicosconf
    newsetup
    setups
    services/index
