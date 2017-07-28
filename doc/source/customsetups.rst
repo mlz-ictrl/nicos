@@ -10,3 +10,4 @@
       :glob:
 
       nicos_mlz/*/setups
+      nicos_demo/*/setups

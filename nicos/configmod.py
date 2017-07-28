@@ -73,7 +73,7 @@ def findSetupPackage(nicos_root, global_cfg):
     * environment variable NICOS_SETUP_PACKAGE
     * setup_package in main `nicos.conf`
 
-    Default is `nicos_mlz`.
+    Default is `nicos_demo`.
     """
     setup_package = None
 
@@ -86,7 +86,7 @@ def findSetupPackage(nicos_root, global_cfg):
         setup_package = global_cfg.get('nicos', 'setup_package')
 
     if setup_package is None:
-        setup_package = 'nicos_mlz'
+        setup_package = 'nicos_demo'
 
     return setup_package
 
@@ -116,7 +116,9 @@ def readConfig():
     try:
         setup_package_mod = __import__(setup_package)
     except ImportError:
-        raise  # TODO: some form of error handling
+        print('Setup package %r does not exist, cannot continue.' %
+              setup_package, file=sys.stderr)
+        raise RuntimeError('Setup package %r does not exist.' % setup_package)
     setup_package_path = path.dirname(setup_package_mod.__file__)
 
     # Try to find a good value for the instrument name, either from the
@@ -132,11 +134,16 @@ def readConfig():
         # Let the setup package have a try.
         instr = setup_package_mod.determine_instrument(setup_package_path)
 
-    # No luck: try the demo instrument.
+    # No luck: let the user know.  This cannot happen if setup_package is
+    # not set, because the default is nicos_demo, which always finds the
+    # demo instrument.
     if instr is None:
-        instr = 'demo'
-        print('No instrument configured or detected, using "%s" instrument.' %
-              instr, file=sys.stderr)
+        print('No instrument configured or detected (setup package is %r), '
+              'cannot continue.' % setup_package, file=sys.stderr)
+        print('Please either set INSTRUMENT="setup_package.instrument" in the '
+              'environment, or set the "instrument" key in nicos.conf.',
+              file=sys.stderr)
+        raise RuntimeError('No instrument configured or detected.')
 
     # Now read the instrument-specific nicos.conf.
     instr_cfg = NicosConfigParser()

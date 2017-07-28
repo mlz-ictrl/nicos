@@ -59,7 +59,7 @@ devices = dict(
                      description = 'secondary experiment shutter',
                      states = ['open', 'closed'],
                     ),
-    attenuator = device('nicos_mlz.demo.devices.attenuator.Attenuator',
+    attenuator = device('nicos_demo.demo.devices.attenuator.Attenuator',
                         description = 'Attenuator',
                         blades = ['att1', 'att2', 'att3'],
                        ),

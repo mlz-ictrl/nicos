@@ -40,7 +40,7 @@ uses all the major components can be started using ::
 This starts the cache, poller, electronic logbook, and daemon services, and also
 starts the graphical interface and a status monitor.
 
-The console will load the demo setups from ``nicos_mlz/demo/setups``.  The startup
+The console will load the demo setups from ``nicos_demo/demo/setups``.  The startup
 setup contains a few devices that show basic usage of the NICOS system.  Call
 ``help()`` to get a list of commands.  You can also call ``help(dev)`` to get
 help for an individual device.

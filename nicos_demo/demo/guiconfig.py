@@ -8,7 +8,7 @@ main_window = docked(
                   eta=True),
             # panel('nicos.clients.gui.panels.watch.WatchPanel'),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_mlz/demo/gui/nicos-watermark.png'),
+                  watermark='nicos_demo/demo/gui/nicos-watermark.png'),
          ),
         ),
         ('PGAA',
@@ -30,7 +30,7 @@ main_window = docked(
         ),
         ('PiBox',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
-               uifile='nicos_mlz/demo/gui/piface.ui', setups='pibox01',)
+               uifile='nicos_demo/demo/gui/piface.ui', setups='pibox01',)
         ),
     ),
     ('NICOS devices',

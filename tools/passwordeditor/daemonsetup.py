@@ -112,16 +112,3 @@ class DaemonSetup(object):
         """Write the setup content to file."""
         with open(self._filename, 'w') as f:
             f.write(self.setup.dumps())
-
-
-if __name__ == '__main__':
-    filename = 'nicos_mlz/demo/setups/special/daemon.py'
-    daemon_setup = DaemonSetup(filename)
-
-    pw = daemon_setup.getPasswordEntries()
-    pw.append(('paul', '21e2afd93d5ce53123476032b5dca8a79b546094', 'admin'))
-    daemon_setup.setHashing('md5')
-
-    daemon_setup.updatePasswordEntries(pw)
-
-    daemon_setup.save()

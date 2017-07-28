@@ -27,7 +27,7 @@ _expcolumn = Column(
 )
 
 _axisblock = Block('Axes', [
-    BlockRow(Field(gui='nicos_mlz/demo/gui/tasaxes.ui')),
+    BlockRow(Field(gui='nicos_demo/demo/gui/tasaxes.ui')),
     # BlockRow('mth', 'mtt'),
     # BlockRow('psi', 'phi'),
     # BlockRow('ath', 'att'),
@@ -37,7 +37,7 @@ _axisblock = Block('Axes', [
 )
 
 _refsansblock = Block('Axes', [
-    BlockRow(Field(gui='nicos_mlz/demo/gui/refsansflightchamber.ui')),
+    BlockRow(Field(gui='nicos_demo/demo/gui/refsansflightchamber.ui')),
     BlockRow(Field(widget='nicos_mlz.refsans.gui.monitorwidgets.VRefsans',
                    width=40, height=30,
                    nok2dev='nok2',
@@ -83,7 +83,7 @@ _tasblock = Block('Triple-axis', [
 )
 
 _tempblock = Block('Temperature', [
-    BlockRow(Field(gui='nicos_mlz/demo/gui/cryo.ui')),
+    BlockRow(Field(gui='nicos_demo/demo/gui/cryo.ui')),
     # BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
     # BlockRow(Field(dev='T', plot='T', plotwindow=300, width=50),
     #          Field(key='t/setpoint', name='SetP', plot='T', plotwindow=300))

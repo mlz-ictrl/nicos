@@ -8,3 +8,4 @@
      :glob:
 
      ../nicos_mlz/*/classes
+     ../nicos_demo/*/classes

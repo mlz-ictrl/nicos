@@ -3,13 +3,13 @@ group = "optional"
 includes = []
 
 devices = dict(
-    io = device('nicos_mlz.demo.devices.servo.SerComIO',
+    io = device('nicos_demo.demo.devices.servo.SerComIO',
                 description = "dev for communication",
                 devfile = "/dev/ttyACM0",
                 lowlevel = True,
                ),
 
-    s1 = device('nicos_mlz.demo.devices.servo.MicroPythonServo',
+    s1 = device('nicos_demo.demo.devices.servo.MicroPythonServo',
                 description = "Servo1",
                 io = 'io',
                 channel = 1,
@@ -17,7 +17,7 @@ devices = dict(
                 unit = "deg",
                 abslimits = (-90, 90),
                ),
-    s2 = device('nicos_mlz.demo.devices.servo.MicroPythonServo',
+    s2 = device('nicos_demo.demo.devices.servo.MicroPythonServo',
                 description = "Servo2",
                 io = 'io',
                 channel = 2,
@@ -26,7 +26,7 @@ devices = dict(
                 abslimits = (-90, 90),
                 offset = -90,
                ),
-    s3 = device('nicos_mlz.demo.devices.servo.MicroPythonServo',
+    s3 = device('nicos_demo.demo.devices.servo.MicroPythonServo',
                 description = "Servo3",
                 io = 'io',
                 channel = 3,

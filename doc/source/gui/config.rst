@@ -41,7 +41,7 @@ A small example configuration file looks like this:
        tool('Report NICOS bug', 'nicos.clients.gui.tools.website.WebsiteTool',
             url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
-   options = {'reader_classes': ['nicos_mlz.demo.demo_file.DemoReader']}
+   options = {'reader_classes': ['nicos_demo.demo.demo_file.DemoReader']}
 
 
 There must be three top-level values called ``main_window``, ``windows`` and

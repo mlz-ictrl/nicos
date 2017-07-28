@@ -3,7 +3,7 @@
 main_window = docked(
     vsplit(
      panel('nicos.clients.gui.panels.generic.GenericPanel',
-           uifile='nicos_mlz/demo/gui/piface.ui'),
+           uifile='nicos_demo/demo/gui/piface.ui'),
     )
 )
 
