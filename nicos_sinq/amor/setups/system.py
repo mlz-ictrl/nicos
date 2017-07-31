@@ -49,7 +49,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    instrument=None,
+    instrument='Amor',
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink'],
 )
@@ -63,7 +63,7 @@ modules = ['nicos.commands.standard']
 devices = dict(
     Amor=device('nicos.devices.instrument.Instrument',
                 description='instrument object',
-                instrument='sinq_amor',
+                instrument='SINQ AMOR',
                 responsible='Nikhil Biyani <nikhil.biyani@psi.ch>',
                 ),
 
