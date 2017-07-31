@@ -28,11 +28,12 @@
 import os
 from os import path
 from collections import OrderedDict
+from uuid import uuid4
 
 import numpy
 
 from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
-    QToolBar, QActionGroup
+    QToolBar, QActionGroup, QFileDialog
 from PyQt4.QtCore import QByteArray, QPoint, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 from gr import COLORMAPS as GR_COLORMAPS
@@ -40,7 +41,7 @@ from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
 
 from nicos.utils import BoundedOrderedDict
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, enumerateWithProgress
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget, \
@@ -75,6 +76,7 @@ class LiveDataPanel(Panel):
         self._range_active = False
         self._cachesize = 20
         self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
+        self._fileopen_filter = None
         self.widget = None
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
@@ -85,6 +87,7 @@ class LiveDataPanel(Panel):
         self.layout().addWidget(self.statusBar)
 
         self.toolbar = QToolBar('Live data')
+        self.toolbar.addAction(self.actionOpen)
         self.toolbar.addAction(self.actionPrint)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
@@ -190,6 +193,7 @@ class LiveDataPanel(Panel):
 
     def getMenus(self):
         self.menu = menu = QMenu('&Live data', self)
+        menu.addAction(self.actionOpen)
         menu.addAction(self.actionPrint)
         menu.addSeparator()
         menu.addAction(self.actionKeepRatio)
@@ -390,19 +394,20 @@ class LiveDataPanel(Panel):
             widgetcls = IntegralLiveWidget
         self.initLiveWidget(widgetcls)
 
-    def setData(self, array, uid=None):
+    def setData(self, array, uid=None, display=True):
         """Dispatch data array to corresponding live widgets.
         Cache array based on uid parameter. No caching if uid is ``None``.
         """
-        self._initLiveWidget(array)
         if uid:
             if uid not in self._datacache:
                 self.log.debug('add to cache: %s', uid)
             self._datacache[uid] = array
-        for widget in [self.widget] + self._livewidgets.values():
-            widget.setData(array)
+        if display:
+            self._initLiveWidget(array)
+            for widget in [self.widget] + self._livewidgets.values():
+                widget.setData(array)
 
-    def setDataFromFile(self, filename, tag, uid=None):
+    def setDataFromFile(self, filename, tag, uid=None, display=True):
         """Load data array from file and dispatch to live widgets using
         ``setData``. Do not use caching if uid is ``None``.
         """
@@ -411,7 +416,7 @@ class LiveDataPanel(Panel):
         except KeyError:
             raise NicosError('Unsupported fileformat %r' % tag)
         if array is not None:
-            self.setData(array, uid)
+            self.setData(array, uid, display=display)
         else:
             raise NicosError('Cannot read file %r' % filename)
 
@@ -479,6 +484,7 @@ class LiveDataPanel(Panel):
             self.remove_obsolete_cached_files()
         if scroll:
             self.fileList.scrollToBottom()
+        return item
 
     def on_fileList_itemClicked(self, item):
         if item is None:
@@ -508,6 +514,43 @@ class LiveDataPanel(Panel):
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
+
+    @qtsig('')
+    def on_actionOpen_triggered(self):
+        """Open image file using registered reader classes."""
+        ftypes = dict((ffilter, ftype)
+                      for ftype, ffilter in ReaderRegistry.filefilters())
+        fdialog = QFileDialog(self, "Open data files", "",
+                              ";;".join(ftypes.keys()))
+        fdialog.setAcceptMode(QFileDialog.AcceptOpen)
+        fdialog.setFileMode(QFileDialog.ExistingFiles)
+        if self._fileopen_filter:
+            fdialog.selectNameFilter(self._fileopen_filter)
+        if fdialog.exec_() == QFileDialog.Accepted:
+            self._fileopen_filter = fdialog.selectedNameFilter()
+            tag = ftypes[self._fileopen_filter]
+            files = fdialog.selectedFiles()
+            if files:
+                def _cacheFile(fn, tag):
+                    uid = uuid4()
+                    # setDataFromFile may raise an `NicosException`, e.g.
+                    # if the file cannot be opened.
+                    self.setDataFromFile(fn, tag, uid, display=False)
+                    return self.add_to_flist(fn, None, tag, uid)
+
+                # load and display first item
+                f = files.pop(0)
+                self.fileList.setCurrentItem(_cacheFile(f, tag))
+                cachesize = self._cachesize - 1
+                # add first `cachesize` files to cache
+                for _, f in enumerateWithProgress(files[:cachesize],
+                                                  "Loading data files...",
+                                                  parent=fdialog):
+                    _cacheFile(f, tag)
+                # add further files to file list (open on request/itemClicked)
+                for f in files[cachesize:]:
+                    self.add_to_flist(f, None, tag)
+
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):
