@@ -379,6 +379,20 @@ foki = Block('Foki', [
     ],
 )
 
+memograph = Block('Water Flow', [
+    BlockRow(
+        Field(dev='flow_in_panda', name='In'),
+        Field(dev='flow_out_panda', name='Out'),
+    ),
+    BlockRow(
+        Field(dev='t_in_panda', name='T In'),
+        Field(dev='t_out_panda', name='T Out'),
+    ),
+    BlockRow(Field(dev='leak_panda', name='leak')),
+    ],
+)
+
+
 tas = Block('TAS', [
         BlockRow(Field(name='H', key='panda/value[0]', format='%.3f', unit=''),
                  Field(name='K', key='panda/value[1]', format='%.3f', unit=''),
@@ -393,7 +407,7 @@ tas = Block('TAS', [
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, magnet55, magnet5, magnet14t5, vti)
 
-column3 = Column(tas) + Column(magnet55supp, magnet5supp, kelvinox, foki) + \
+column3 = Column(tas) + Column(magnet55supp, magnet5supp, kelvinox, foki,  memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

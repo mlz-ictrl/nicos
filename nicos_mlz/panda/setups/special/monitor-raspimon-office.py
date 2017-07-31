@@ -397,10 +397,24 @@ foki = Block('Foki', [
     ],
 )
 
+memograph = Block('Water Flow', [
+    BlockRow(
+        Field(dev='flow_in_panda', name='In'),
+        Field(dev='flow_out_panda', name='Out'),
+    ),
+    BlockRow(
+        Field(dev='t_in_panda', name='T In'),
+        Field(dev='t_out_panda', name='T Out'),
+    ),
+    BlockRow(Field(dev='leak_panda', name='leak')),
+    ],
+)
+
+
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, miramagnet, magnet75, magnet14t5, vti)
 
-column3 = Column(magnet75supp, kelvinox, foki) + \
+column3 = Column(magnet75supp, kelvinox, foki, memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 
