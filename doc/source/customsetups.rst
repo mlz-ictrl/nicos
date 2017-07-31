@@ -13,3 +13,4 @@
       nicos_demo/*/setups
       nicos_ess/*/setups
       nicos_sinq/*/setups
+      nicos_batan/*/setups
