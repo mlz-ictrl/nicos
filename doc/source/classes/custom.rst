@@ -11,3 +11,4 @@
      ../nicos_demo/*/classes
      ../nicos_ess/*/classes
      ../nicos_batan/*/classes
+     ../nicos_sinq/*/classes
