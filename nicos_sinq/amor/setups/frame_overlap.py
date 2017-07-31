@@ -7,10 +7,12 @@ devices = dict(
                epicstimeout=3.0,
                description='Frame overlap tilt motor',
                motorpv=pvprefix + 'fom',
+               errormsgpv=pvprefix + 'fom-MsgTxt',
                ),
     ftz=device('nicos_ess.essiip.devices.epics_motor.EpicsMotor',
                epicstimeout=3.0,
                description='Frame overlap z position of rotation axis motor',
                motorpv=pvprefix + 'ftz',
+               errormsgpv=pvprefix + 'ftz-MsgTxt',
                ),
 )
