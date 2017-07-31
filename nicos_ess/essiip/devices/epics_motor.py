@@ -29,17 +29,19 @@ from nicos.devices.abstract import Motor, HasOffset, CanReference
 
 class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
     """
-    This device exposes some of the functionality provided by the EPICS motor record.
-    The PV-names for the fields of the record (readback, speed, etc.) are derived
-    by combining the motorpv-parameter with the predefined field names.
+    This device exposes some of the functionality provided by the EPICS motor
+    record. The PV-names for the fields of the record (readback, speed, etc.)
+    are derived by combining the motorpv-parameter with the predefined field
+    names.
 
-    The errorbitpv and reseterrorpv can be provided optionally in case the controller
-    supports reporting errors and a reset-mechanism that tries to recover from
-    certain errors. If present, these are used when calling the reset()-method.
+    The errorbitpv and reseterrorpv can be provided optionally in case the
+    controller supports reporting errors and a reset-mechanism that tries to
+    recover from certain errors. If present, these are used when calling the
+    reset()-method.
 
     Another optional PV is the errormsgpv, which contains an error message that
-    may originate from the motor controller or the IOC. If it is present, doStatus
-    uses it for some of the status messages.
+    may originate from the motor controller or the IOC. If it is present,
+    doStatus uses it for some of the status messages.
     """
     parameters = {
         'motorpv': Param('Name of the motor record PV.',
@@ -57,11 +59,15 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         'readpv': Override(mandatory=False, userparam=False, settable=False),
         'writepv': Override(mandatory=False, userparam=False, settable=False),
 
-        # speed may change from outside, can't rely on cache
+        # speed, limits and offset may change from outside, can't rely on cache
         'speed': Override(volatile=True),
+        'offset': Override(volatile=True),
+        'abslimits': Override(volatile=True),
+        'userlimits': Override(volatile=True),
     }
 
-    # Fields of the motor record with which an interaction via Channel Access is required.
+    # Fields of the motor record with which an interaction via Channel Access
+    # is required.
     motor_record_fields = {
         'readpv': 'RBV',
         'writepv': 'VAL',
@@ -76,6 +82,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
         'speed': 'VELO',
 
+        'offset': 'OFF',
+
         'highlimit': 'HLM',
         'lowlimit': 'LLM',
         'softlimit': 'LVIO',
@@ -85,7 +93,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
     def _get_pv_parameters(self):
         """
-        Implementation of inherited method to automatically account for fields present in motor record.
+        Implementation of inherited method to automatically account for fields
+        present in motor record.
         :return: List of PV aliases.
         """
         pvs = set(self.motor_record_fields.keys())
@@ -130,6 +139,26 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
         self._put_pv('speed', speed)
 
+    def doReadOffset(self):
+        return self._get_pv('offset')
+
+    def doWriteOffset(self, value):
+        # In EPICS, the offset is defined in following way:
+        # USERval = HARDval + offset
+
+        if self.offset != value:
+            # Set the offset in motor record
+            self._put_pv_blocking('offset', value)
+
+            # Read the limits, values, target again
+            # Reading abslimits will do the following:
+            # call doReadAbslimits() [because the parameter is volatile]
+            # update the internal parameter dictionary
+            # transfer the value to the NICOS cache
+            self.abslimits  # pylint: disable=pointless-statement
+
+            self.log.info('The new user limits are: ' + str(self.userlimits))
+
     def _get_valid_speed(self, newValue):
         min_speed = self._get_pvctrl('speed', 'lower_ctrl_limit', 0.0)
         max_speed = self._get_pvctrl('speed', 'upper_ctrl_limit', 0.0)
@@ -144,13 +173,13 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         return valid_speed
 
     def doRead(self, maxage=0):
-        return self._get_pv('readpv') - self.offset
+        return self._get_pv('readpv')
 
     def doStart(self, pos):
-        self._put_pv('writepv', pos + self.offset)
+        self._put_pv('writepv', pos)
 
     def doReadTarget(self):
-        return self._get_pv('writepv') - self.offset
+        return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
         general_epics_status, _ = self._get_mapped_epics_status()
@@ -166,7 +195,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return status.NOTREACHED, message or 'Did not reach target position.'
+            return status.NOTREACHED, message or \
+                   'Did not reach target position.'
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -191,11 +221,22 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
     def doStop(self):
         self._put_pv('stop', 1, False)
 
-    def doReadAbslimits(self):
-        absmin = self._get_pv('lowlimit')
-        absmax = self._get_pv('highlimit')
+    def doReadUserlimits(self):
+        # User limits are exactly the same at the
+        # EPICS HLM and LLM motor records
+        usrmin = self._get_pv('lowlimit')
+        usrmax = self._get_pv('highlimit')
 
-        return (absmin, absmax)
+        return usrmin, usrmax
+
+    def doReadAbslimits(self):
+        # This should be independent of the offset, and
+        # as the EPICS HLM, LLM fields change with the
+        # offset, it should be corrected accordingly
+        absmin = self._get_pv('lowlimit') - self.offset
+        absmax = self._get_pv('highlimit') - self.offset
+
+        return absmin, absmax
 
     def doReference(self):
         self._put_pv_blocking('homeforward', 1)
@@ -204,6 +245,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
         if self.errorbitpv and self.reseterrorpv:
             error_bit = self._get_pv('errorbitpv')
             if error_bit == 0:
-                self.log.warning('Error bit is not set, can not reset error state.')
+                self.log.warning(
+                    'Error bit is not set, can not reset error state.')
             else:
                 self._put_pv('reseterrorpv', 1)
