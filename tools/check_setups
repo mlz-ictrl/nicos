@@ -39,6 +39,9 @@ from nicos.clients.gui.config import prepareGuiNamespace
 from nicos.clients.gui import config as guicfg
 from nicos.pycompat import string_types, integer_types, exec_
 
+# read NICOS config
+config.apply()
+
 # get default custom paths
 default_dirs = [path.join(config.setup_package_path, p.strip(), 'setups')
                 for p in config.setup_subdirs.split(',')]

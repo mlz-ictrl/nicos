@@ -67,6 +67,8 @@ class TestCacheSession(NoninteractiveSession):
             logging.Formatter('[CACHE] %(asctime)s %(name)s: %(message)s'))
         self.log.addHandler(handler2)
 
+
+config.apply()
 config.user = None
 config.group = None
 config.nicos_root = runtime_root

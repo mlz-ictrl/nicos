@@ -47,6 +47,7 @@ if len(args) > 5:
 else:
     setup_subdirs = '../test'
 
+config.apply()
 config.nicos_root = runtime_root
 config.setup_subdirs = setup_subdirs
 

@@ -30,12 +30,14 @@ from os import path
 from PyQt4 import uic
 from PyQt4.QtGui import QFileDialog, QMainWindow, QMessageBox
 
-from nicos.configmod import config
+from nicos import config
 
 from passwordeditor.daemonsetup import DaemonSetup
 
 from passwordeditor.user import User
 from passwordeditor.userdialog import UserDialog
+
+config.apply()
 
 
 class MainWindow(QMainWindow):

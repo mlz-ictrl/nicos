@@ -75,6 +75,7 @@ class TestDaemonSession(DaemonSession):
             self.log.error('cannot open log file: %s', err)
 
 
+config.apply()
 config.user = None
 config.group = None
 config.nicos_root = runtime_root

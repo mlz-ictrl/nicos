@@ -70,6 +70,7 @@ daemon_addr = 'localhost:%s' % os.environ.get('NICOS_DAEMON_PORT', 14874)
 pythonpath = None
 
 
+config.apply()
 config.user = None
 config.group = None
 config.nicos_root = runtime_root

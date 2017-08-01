@@ -35,7 +35,7 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication, QFileDialog, QIcon, QLabel, QMainWindow,\
     QMessageBox, QTreeWidgetItem
 
-from nicos.configmod import config
+from nicos import config
 from nicos.pycompat import string_types
 
 from setupfiletool import classparser, setupcontroller
@@ -44,6 +44,8 @@ from setupfiletool.setupwidget import SetupWidget
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 
 from utils import format_setup_text
+
+config.apply()
 
 
 class MainWindow(QMainWindow):

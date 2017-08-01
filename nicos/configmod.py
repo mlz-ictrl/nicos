@@ -39,6 +39,9 @@ from nicos.pycompat import configparser
 
 class config(object):
     """Singleton for settings potentially overwritten later."""
+
+    _applied = False  # make only one call to apply
+
     instrument = None
 
     user = None
@@ -56,6 +59,54 @@ class config(object):
     sandbox_simulation = False
     services = 'cache,poller'
     keystorepaths = ['/etc/nicos/keystore', '~/.config/nicos/keystore']
+
+    @classmethod
+    def apply(cls):
+        """Read and then apply the NICOS configuration."""
+        if cls._applied:
+            return
+
+        values, environment = readConfig()
+
+        # Apply session configuration values.
+        for key, value in values.items():
+            setattr(cls, key, value)
+
+        def to_bool(val):
+            if not isinstance(val, bool):
+                return val.lower() in ('yes', 'true', 'on')
+            return val
+
+        # Type-coerce booleans.
+        cls.simple_mode = to_bool(cls.simple_mode)
+        cls.sandbox_simulation = to_bool(cls.sandbox_simulation)
+
+        # Apply environment variables.
+        for key, value in environment.items():
+            env_re = regexcompile(r'(?<![$])[$]' + regexescape(key))
+            if key == 'PYTHONPATH':
+                # needs to be special-cased
+                # We only need to set the additions here
+                for comp in env_re.sub('', value).split(':'):
+                    if comp:
+                        sys.path.insert(0, comp)
+            oldvalue = os.environ.get(key, "")
+            value = env_re.sub(oldvalue, value)
+            os.environ[key] = value
+
+        # Set a default setup_subdirs
+        if cls.setup_subdirs is None:
+            cls.setup_subdirs = cls.instrument
+
+        # Set up PYTHONPATH for Taco libraries.
+        try:
+            tacobase = os.environ['DSHOME']
+        except KeyError:
+            tacobase = '/opt/taco'
+        sys.path.extend(glob.glob(tacobase + '/lib*/python%d.*/site-packages'
+                                  % sys.version_info[0]))
+
+        cls._applied = True
 
 
 # read nicos.conf files
@@ -167,48 +218,3 @@ def readConfig():
     values['setup_package'] = setup_package
     values['setup_package_path'] = setup_package_path
     return values, environment
-
-
-def applyConfig():
-    """Read and then apply the NICOS configuration."""
-    values, environment = readConfig()
-
-    # Apply session configuration values.
-    for key, value in values.items():
-        setattr(config, key, value)
-
-    def to_bool(val):
-        if not isinstance(val, bool):
-            return val.lower() in ('yes', 'true', 'on')
-        return val
-
-    # Type-coerce booleans.
-    config.simple_mode = to_bool(config.simple_mode)
-    config.sandbox_simulation = to_bool(config.sandbox_simulation)
-
-    # Apply environment variables.
-    for key, value in environment.items():
-        env_re = regexcompile(r'(?<![$])[$]' + regexescape(key))
-        if key == 'PYTHONPATH':
-            # needs to be special-cased
-            # We only need to set the additions here
-            for comp in env_re.sub('', value).split(':'):
-                if comp:
-                    sys.path.insert(0, comp)
-        oldvalue = os.environ.get(key, "")
-        value = env_re.sub(oldvalue, value)
-        os.environ[key] = value
-
-    # Set a default setup_subdirs
-    if config.setup_subdirs is None:
-        config.setup_subdirs = config.instrument
-
-    # Set up PYTHONPATH for Taco libraries.
-    try:
-        tacobase = os.environ['DSHOME']
-    except KeyError:
-        tacobase = '/opt/taco'
-    sys.path.extend(glob.glob(tacobase + '/lib*/python%d.*/site-packages'
-                              % sys.version_info[0]))
-
-applyConfig()

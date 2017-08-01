@@ -92,6 +92,9 @@ class Session(object):
         return 'session'
 
     def __init__(self, appname, daemonized=False):
+        # first, read the config if not done already
+        config.apply()
+
         self.appname = appname
         # create a unique session id
         self.sessionid = makeSessionId()

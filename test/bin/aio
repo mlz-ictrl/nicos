@@ -60,6 +60,7 @@ class TestConsoleSession(ConsoleSession):
         self._master_handler = None
 
 
+config.apply()
 config.user = None
 config.group = None
 config.nicos_root = runtime_root

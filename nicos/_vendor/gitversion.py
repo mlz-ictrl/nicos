@@ -18,8 +18,10 @@ from subprocess import Popen, PIPE
 from os import path
 
 # read config file and set environment variables
-from nicos.configmod import config
+from nicos import config
 from nicos.pycompat import from_utf8
+
+config.apply()
 
 
 def get_releasefile_path():

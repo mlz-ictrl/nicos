@@ -77,6 +77,8 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
 # We need to read the nicos.conf file, so let nicos do that.
 from nicos import config
 
+config.apply()
+
 
 def get_config():
     hostname = ''
