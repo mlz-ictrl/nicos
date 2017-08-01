@@ -37,15 +37,17 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  pdf        to make a pdf file with rst2pdf (if installed)"
-	@echo 
+	@echo
 	@echo "Add FULLCODE=1 to the commandline to include the complete code docs"
 	@echo "Add CUSTOMDOC=1 to the commandline to include the custom docs"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf source/auto/*
+	-rm -rf source/custom/*/setups
+	-rm -rf source/nicos_*/*/setups/
 
-codedoc: 
+codedoc:
 	-mkdir -p source/auto
 ifeq ($(FULLCODE),1)
 	./sphinx-autodoc-sourcegen.py  -d source/auto -s rst -f ../lib/nicos/  clients/gui/panels
