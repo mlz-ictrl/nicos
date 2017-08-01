@@ -139,6 +139,7 @@ parser.add_argument('-t', dest='aioclient', action='store_true',
                     help='disable daemon and start console shell')
 
 parser.add_argument('-c', dest='guiconfig', action='store',
+                    default='nicos_demo/demo/guiconfig.py',
                     help='use given GUI config file instead of the default one')
 parser.add_argument('-u', dest='guiuser', action='store',
                     default='guest:guest@localhost',

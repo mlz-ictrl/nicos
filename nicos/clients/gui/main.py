@@ -67,6 +67,7 @@ from nicos.clients.gui.dialogs.help import HelpWindow
 from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
+from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC, BREAK_NOW
 from nicos.pycompat import exec_, iteritems, listvalues, text_type
@@ -736,8 +737,7 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    configfile = path.join(config.setup_package_path, config.instrument,
-                           'guiconfig.py')
+    configfile = None
     try:
         opts, args = getopt.getopt(argv[1:], 'c:hv', ['config-file=', 'help'])
     except getopt.GetoptError as err:
@@ -756,6 +756,23 @@ def main(argv):
             viewonly = True
         else:
             assert False, 'unhandled option'
+
+    if configfile is None:
+        try:
+            config.apply()
+        except RuntimeError:
+            pass
+        # If started from nicos-demo, we get an explicit guiconfig.  Therefore,
+        # if "demo" is detected automatically, let the user choose.
+        if (config.setup_package == 'nicos_demo'
+                and config.instrument == 'demo') or config.instrument is None:
+            configfile = InstrSelectDialog.select('Your instrument could not '
+                                                  'be automatically detected.')
+            if configfile is None:
+                return
+        else:
+            configfile = path.join(config.setup_package_path, config.instrument,
+                                   'guiconfig.py')
 
     with open(configfile, 'rb') as fp:
         configcode = fp.read()

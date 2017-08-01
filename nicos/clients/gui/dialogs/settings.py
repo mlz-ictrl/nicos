@@ -28,7 +28,8 @@ from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.base import ConnectionData
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, SettingGroup
+from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 
 
 class SettingsDialog(QDialog, DlgUtils):
@@ -90,6 +91,16 @@ class SettingsDialog(QDialog, DlgUtils):
         for win in self.main.windows.values():
             win.saveWindowLayout()
         self.showInfo('The window layout was saved.')
+
+    @qtsig('')
+    def on_selectConfigBtn_clicked(self):
+        InstrSelectDialog.select(force=True)
+
+    @qtsig('')
+    def on_clearConfigBtn_clicked(self):
+        with SettingGroup('Instrument') as settings:
+            settings.remove('guiconfig')
+        self.showInfo('Default instrument GUI configuration has been cleared.')
 
     @qtsig('')
     def on_settingAdd_clicked(self):
