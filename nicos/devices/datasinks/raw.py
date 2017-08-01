@@ -191,7 +191,7 @@ class RawImageSink(ImageSink):
 
 
 class RawImageFileReader(ImageFileReader):
-    filetypes = ['raw']
+    filetypes = [('raw', 'NICOS Raw Image File (*.raw)')]
 
     @classmethod
     def fromfile(cls, filename):

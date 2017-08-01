@@ -45,7 +45,7 @@ class NPGZFileSink(ImageSink):
 
 
 class NPGZImageFileReader(ImageFileReader):
-    filetypes = ["npgz"]
+    filetypes = [("npgz", "Compressed Numpy Text Format (*.gz)")]
 
     @classmethod
     def fromfile(cls, filename):

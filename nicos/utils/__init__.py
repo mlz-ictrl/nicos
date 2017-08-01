@@ -1301,16 +1301,21 @@ class ReaderRegistry(object):
 
     @classmethod
     def registerReader(cls, rdcls):
-        for key in rdcls.filetypes:
-            cls.readers[key] = rdcls
+        for key, ffilter in rdcls.filetypes:
+            cls.readers[key] = rdcls, ffilter
 
     @classmethod
     def getReaderCls(cls, key):
-        return cls.readers[key]
+        return cls.readers[key][0]
 
     @classmethod
     def filetypes(cls):
         return list(cls.readers)
+
+    @classmethod
+    def filefilters(cls):
+        return [(ftype, ffilter) for ftype, (_cls, ffilter) in
+                iteritems(cls.readers)]
 
 
 keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'

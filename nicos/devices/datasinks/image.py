@@ -155,7 +155,7 @@ class ReaderMeta(type):
 
 class ImageFileReader(object):
     __metaclass__ = ReaderMeta
-    filetypes = []
+    filetypes = []  # list of (filetype abbreviation, QFileDialog filter str)
 
     @classmethod
     def fromfile(cls, filename):

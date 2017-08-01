@@ -42,7 +42,7 @@ class NPFileSink(ImageSink):
 
 
 class NPImageFileReader(ImageFileReader):
-    filetypes = ["np"]
+    filetypes = [("np", "Numpy Text Format (*.np)")]
 
     @classmethod
     def fromfile(cls, filename):
