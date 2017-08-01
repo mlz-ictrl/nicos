@@ -17,7 +17,7 @@ log/*/current
 
 doc/build/
 doc/source/auto
-doc/source/custom/*/setups
+doc/source/nicos_*/*/setups
 
 .coverage.*
 .cache/
