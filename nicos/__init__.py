@@ -26,11 +26,11 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
-import os
 import sys
-import types
-from os import path
 from logging import getLogger
+
+# Provide the config object.
+from nicos.configmod import config
 
 # Determine our version(s).
 from nicos._vendor.gitversion import get_nicos_version, get_git_version
@@ -48,9 +48,9 @@ elif sys.version_info[0] == 3 and sys.version_info[1] < 3:
 class Session(object):
     log = getLogger('Nicos early logger')
 
+
 session = Session()
 
 
-# Read config file and set environment variables.
-from nicos.configmod import config
-custom_version = get_git_version(cwd=path.dirname(__import__(config.setup_package).__file__))
+def get_custom_version():
+    return get_git_version(cwd=config.setup_package_path)

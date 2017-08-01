@@ -33,7 +33,7 @@ import tempfile
 import rsa
 
 
-from nicos import session, nicos_version, custom_version, config
+from nicos import session, nicos_version, get_custom_version, config
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.core.data import ScanData
 from nicos.utils import closeSocket
@@ -278,7 +278,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         # announce version and authentication modality
         self.write(STX, dict(
             daemon_version = nicos_version,
-            custom_version = custom_version,
+            custom_version = get_custom_version(),
             nicos_root = config.nicos_root,
             custom_path = config.setup_package_path,
             pw_hashing = bannerhashing,

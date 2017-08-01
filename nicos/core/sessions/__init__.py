@@ -41,7 +41,7 @@ from time import sleep, time as currenttime
 
 import numpy
 
-from nicos import config, nicos_version, custom_version
+from nicos import config, nicos_version, get_custom_version
 from nicos.core.acquire import stop_acquire_thread
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink, DataManager
@@ -221,7 +221,7 @@ class Session(object):
                 cache.put(self, 'nicosroot', config.nicos_root)
                 cache.put(self, 'custompath', config.setup_package_path)
                 cache.put(self, 'nicosversion', nicos_version)
-                cache.put(self, 'customversion', custom_version)
+                cache.put(self, 'customversion', get_custom_version())
                 if set(self.explicit_setups) - set(['system', 'startup']):
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
                     cache.put(self, 'mastersetupexplicit',

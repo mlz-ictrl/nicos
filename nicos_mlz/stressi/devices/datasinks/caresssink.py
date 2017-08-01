@@ -31,7 +31,7 @@ import time
 from collections import OrderedDict, namedtuple
 from struct import pack
 
-from nicos import custom_version, nicos_version, session
+from nicos import get_custom_version, nicos_version, session
 from nicos.core import Override, Param, dictof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
@@ -313,7 +313,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _write_version(self):
         self._write_string('VERSIONTEXT', 'NICOS %s(%s); Data Sink %s' %
-                           (nicos_version, custom_version, __version__))
+                           (nicos_version, get_custom_version(), __version__))
 
     def _write_instrument(self, valuelist=None):
         return

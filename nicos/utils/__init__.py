@@ -53,7 +53,7 @@ try:
 except ImportError:
     pwd = grp = None
 
-from nicos import config, nicos_version, custom_version, session
+from nicos import config, nicos_version, get_custom_version, session
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.pycompat import iteritems, string_types, text_type, exec_
 
@@ -327,7 +327,7 @@ def getSysInfo(service):
         nicos_root=config.nicos_root,
         version=nicos_version,
         custom_path=config.setup_package_path,
-        custom_version=custom_version,
+        custom_version=get_custom_version(),
     )
     nicosroot_key = config.nicos_root.replace('/', '_')
     key = 'sysinfo/%s/%s/%s' % (service, host, nicosroot_key)

@@ -33,7 +33,7 @@ except ImportError:
     import json
 
 
-from nicos import nicos_version, custom_version, config
+from nicos import nicos_version, get_custom_version, config
 from nicos.core import Param, Override, none_or
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
@@ -125,7 +125,7 @@ class PushVersionInfo(BaseCacheClient):
             base_version=nicos_version,
             nicos_root=config.nicos_root,
             custom_path=config.setup_package_path,
-            custom_version=custom_version,
+            custom_version=get_custom_version(),
         )
         return infodict
 
