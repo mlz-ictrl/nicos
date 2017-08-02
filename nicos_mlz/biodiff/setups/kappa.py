@@ -32,4 +32,10 @@ devices = dict(
                                precision = 0.001,
                                abslimits = (-390, 390),
                               ),
+    omega_minikappa_cod = device("nicos.devices.tango.Sensor",
+        description = "Mini-kappa omega encoder (23 bit)",
+        tangodevice = tango_base + "FZJDP_Analog/omega_mini_stepper",
+        fmtstr = "%.3f",
+        unit = "deg",
+    ),
 )
