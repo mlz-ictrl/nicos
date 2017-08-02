@@ -3,7 +3,7 @@ Requirements
 
 * At least Python 2.7 or Python 3.3
 
-If not mentioned otherwise, Python packages are available from PyPi
+If not mentioned otherwise, Python packages are available from PyPI
 (https://pypi.python.org/pypi).
 
 * NICOS specific Python packages (available from http://forge.frm2.tum.de/simple)
@@ -15,6 +15,7 @@ If not mentioned otherwise, Python packages are available from PyPi
 
   - numpy
   - pyzmq version >= 2
+  - rsa
 
 * For the provided SysV compatible init script
 
@@ -23,10 +24,10 @@ If not mentioned otherwise, Python packages are available from PyPi
 * For hardware access (optional):
 
   - the MLZ TACO Python libraries (see https://forge.frm2.tum.de/wiki/projects:software_distribution)
-  - pyserial (for TACO-less serial line communication)
-  - pyepics (for epcis interface)
+  - PyTango 8.1.x or 9.x (for TANGO interface, needs TANGO libraries)
+  - EPICSv3 and pyepics (for Epics interface)
   - a working installation of omniORBpy (http://omniorb.sourceforge.net/) (for CARESS interface)
-  - PyTango8 (for TANGO interface, needs TANGO libraries)
+  - pyserial (for TACO-less serial line communication)
 
 * Optional for the basic system:
 
@@ -38,12 +39,11 @@ If not mentioned otherwise, Python packages are available from PyPi
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
   - astropy or pyfits (for the handling of FITS formatted files)
-  - rsa (for encrypted daemon authentication)
   - ldap3 (for ldap authentication)
   - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)
-  - keyring,  keyrings.alt, PyCrypto for encrypted password storage (note: using
-    the keystore commandline programm may require additional system dependent
-    dependecies)
+  - keyring, keyrings.alt, PyCrypto for encrypted password storage (note: using
+    the keystore commandline program may require additional system dependent
+    dependencies)
 
 * For the GUI and status monitor (Due to limitations in the used graphics
   libraries, only Python2 (>=2.7.4) is supported):
@@ -96,22 +96,23 @@ Packages to install for common distributions
 Ubuntu
 ^^^^^^
 
-* Basic system:
+* Basic system::
 
-  apt-get install python python-{dev,zmq,numpy,scipy,psutil} gnuplot
+     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa} gnuplot
 
-* Optional components:
+* Optional components::
 
-  apt-get install python-{mysqldb,docutils,serial,matplotlib,pyfits,lxml,ldap3,rsa,mysql.connector,crypto}
+     apt-get install python-{mysql.connector,docutils,serial,matplotlib,pyfits,lxml}
+     apt-get install python-{ldap3,mysql.connector,crypto,keyring,keyrings.alt,astropy}
 
-* GUI and status monitor:
+* GUI and status monitor::
 
-  apt-get install python-{qt4,qwt5-qt4,qscintilla2}
+     apt-get install python-{qt4,qwt5-qt4,qscintilla2}
 
-* Development and documentation build:
+* Development and documentation build::
 
-  apt-get install python-{sip-dev,qt4-dev,pytest,pytest-cov,mock,coverage,sphinx}
+     apt-get install python-{sip-dev,qt4-dev,pytest,pytest-cov,mock,coverage,sphinx}
 
-* For the livewidget you have to install some development packages:
+* For the livewidget you have to install some development packages::
 
-  apt-get install libqwt5-qt4-dev libtiff5-dev libcfitsio3-dev
+     apt-get install libqwt5-qt4-dev libtiff5-dev libcfitsio3-dev

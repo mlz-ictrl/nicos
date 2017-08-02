@@ -2,9 +2,6 @@
 nicoslivewidget>=1.2 ; python_version < '3.0'
 nicos-pyctl>=1.0
 nicos-quickyaml>=1.1.0
-#since PEP470 externally hosted files are not allowed anymore via pypi
-#mysql-connector-python>=1.0.7
-#http://cdn.mysql.com/Downloads/Connector-Python/mysql-connector-python-2.0.4.zip#md5=3df394d89300db95163f17c843ef49df
 https://cdn.mysql.com/Downloads/Connector-Python/mysql-connector-python-2.1.5.tar.gz#md5=8ff1b29e1af0da4d5a4d63b981b25a24
 scipy>=0.9.0
 matplotlib>=1.1
