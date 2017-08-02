@@ -137,15 +137,17 @@ class EpicsDevice(DeviceMixinBase):
             if epics.ca.current_context() is None:
                 epics.ca.use_initial_context()
 
-            # When there are standard names for PVs (see motor record), the PV names
-            # may be derived from some prefix. To make this more flexible, the pv_parameters
-            # are obtained via a method that can be overridden in subclasses.
+            # When there are standard names for PVs (see motor record), the PV
+            # names may be derived from some prefix. To make this more flexible,
+            # the pv_parameters are obtained via a method that can be overridden
+            # in subclasses.
             pv_parameters = self._get_pv_parameters()
             for pvparam in pv_parameters:
 
                 # Retrieve the actual PV-name from (potentially overridden) method
                 pvname = self._get_pv_name(pvparam)
-                pv = self._pvs[pvparam] = epics.pv.PV(pvname, connection_timeout=self.epicstimeout)
+                pv = self._pvs[pvparam] = epics.pv.PV(
+                    pvname, connection_timeout=self.epicstimeout)
                 pv.connect()
                 if not pv.wait_for_connection(timeout=self.epicstimeout):
                     raise CommunicationError(self, 'could not connect to PV %r'
@@ -154,21 +156,28 @@ class EpicsDevice(DeviceMixinBase):
                 self._pvctrls[pvparam] = pv.get_ctrlvars() or {}
 
     def _get_pv_parameters(self):
-        # The default implementation of this method simply returns the pv_parameters set
+        # The default implementation of this method simply returns the
+        # pv_parameters set
         return self.pv_parameters
 
     def _get_pv_name(self, pvparam):
-        # In the default case, the name of a PV-parameter is stored in a parameter.
-        # This method can be overridden in subclasses in case the name can be derived
-        # using some other information.
+        # In the default case, the name of a PV-parameter is stored in ai
+        # parameter. This method can be overridden in subclasses in case the
+        # name can be derived using some other information.
         return getattr(self, pvparam)
 
     def doStatus(self, maxage=0):
+        # Return the status and the affected pvs in case the status is not OK
         mapped_status, affected_pvs = self._get_mapped_epics_status()
 
-        return mapped_status, ', '.join(affected_pvs)
+        status_message = 'Affected PVs: ' + ', '.join(
+            affected_pvs) if mapped_status != status.OK else ''
+        return mapped_status, status_message
 
     def _get_mapped_epics_status(self):
+        # Checks the status and severity of all the associated PVs.
+        # Returns the worst status (error prone first) and
+        # a list of all associated pvs having that error
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
 
@@ -183,11 +192,10 @@ class EpicsDevice(DeviceMixinBase):
                 mapped_status = SEVERITY_TO_STATUS.get(
                     epics_severity, status.UNKNOWN)
 
-            status_map.setdefault(mapped_status, []).append(self._get_pv_name(name))
+            status_map.setdefault(mapped_status, []).append(
+                self._get_pv_name(name))
 
-        max_severity = max(status_map.keys())
-
-        return max_severity, status_map[max_severity]
+        return max(status_map.items())
 
     def _setMode(self, mode):
         super(EpicsDevice, self)._setMode(mode)
@@ -202,7 +210,8 @@ class EpicsDevice(DeviceMixinBase):
         # ensure that the same context is set on every thread
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
-        result = self._pvs[pvparam].get(timeout=self.epicstimeout, as_string=as_string)
+        result = self._pvs[pvparam].get(timeout=self.epicstimeout,
+                                        as_string=as_string)
         if result is None:  # timeout
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))
