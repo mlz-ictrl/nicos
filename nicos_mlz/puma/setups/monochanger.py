@@ -260,12 +260,14 @@ devices = dict(
                       mlock = 'mlock',
                       holdstat = 'holdstat',
                       mono_stat = 'mono_stat',
-#                      foch = 'mfhpg',
-#                      focv = 'mfvpg',
+                      # foch = 'mfhpg',
+                      # focv = 'mfvpg',
                       changing_positions = dict(
-                                                mth = 90.0,
+                                                # taking into account mth offset 90.0, /2017.07.27
+                                                mth = 90.222,
                                                 mtt = -36.5027,
-                                                mty = 16.14,
+                                                # nominal position is 16.14, but w/o coder we use a slightly different value.
+                                                mty = 18.14,
                                                 mgx = 0,
                                                 mgy = 0,
                                                ),

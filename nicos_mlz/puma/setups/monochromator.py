@@ -13,6 +13,7 @@ devices = dict(
                     bus = 'motorbus4',
                     addr = 52,
                     slope = -1200,
+                    speed = 40,
                     unit = 'deg',
                     abslimits = (-110.1, -14.1),
                     startdelay = 1,
@@ -20,6 +21,7 @@ devices = dict(
                     zerosteps = 500000,
                     lowlevel = True,
                     confbyte = 56,
+                    microstep = 2,
                    ),
 
     st_mth = device('nicos.devices.vendor.ipc.Motor',
@@ -85,8 +87,8 @@ devices = dict(
                     precision = 0.005,
                     offset = -0.151, # -0.549 / 05.2017 GE
                     maxtries = 10,
-                    jitter = 0.2,
-                    dragerror = 1,
+                    jitter = 0.07,
+                    dragerror = 10,
                    ),
 
     mth    = device('nicos.devices.generic.Axis',
