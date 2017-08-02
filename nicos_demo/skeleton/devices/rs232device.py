@@ -23,17 +23,15 @@
 # *****************************************************************************
 
 """
-Skeleton module for using directly or TACO attached RS232 devices.
+Skeleton module for directly using an attached RS232 device.
 
 Please remember to change the class names if copying from this file!
 """
 
-from IO import StringIO
 import serial
 
 from nicos import session
-from nicos.core import Readable, Moveable, Param, CommunicationError, NicosError
-from nicos.devices.taco import TacoDevice
+from nicos.core import Readable, Param, CommunicationError, NicosError
 from nicos.core import SIMULATION
 
 
@@ -106,54 +104,3 @@ class RS232Example(Readable):
 
     def doWriteParam2(self, value):
         self._dev.write('something param2 %s\n' % value)
-
-
-class RS232TACOExample(TacoDevice, Moveable):
-    """RS232 example class uisng a TACO RS232 server
-
-    This class is properly serialized through the server
-    and EOL handling is done by the server as well.
-    """
-
-    parameters = {
-        'param1': Param('First param', unit='Hz', settable=False,
-                        category='general'),
-        'param2': Param('Second param', unit='Vrms',
-                        settable=True, category='general'),
-    }
-
-    taco_class = StringIO
-
-    def doInit(self, mode):
-        if mode == SIMULATION:
-            return
-        reply = self._taco_guard(self._dev.communicate, '*IDN?')
-        if not reply.startswith('<some string>'):
-            raise CommunicationError('wrong identification: %r' % reply)
-
-    def doRead(self, maxage=0):
-        try:
-            value = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
-        except (NicosError, ValueError):
-            # retry communication/handle error
-            value = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
-        return value
-
-    def doReadParam1(self):
-        try:
-            value = float(self._taco_guard(self._dev.communicate,
-                                           'read param 1'))
-        except (NicosError, ValueError):
-            value = 0
-        return value
-
-    def doReadParam2(self):
-        try:
-            value = float(self._taco_guard(self._dev.communicate,
-                                           'read param 2'))
-        except (NicosError, ValueError):
-            value = 0
-        return value
-
-    def doWriteParam2(self, value):
-        float(self._taco_guard(self._dev.communicate, 'read param 2%s' % value))

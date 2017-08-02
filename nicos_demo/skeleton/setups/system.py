@@ -69,7 +69,7 @@ devices = dict(
     Skeleton = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'SKELETON',
-        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+        responsible = 'R. Esponsible <r.esponsible@example.host>',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The current used sample',
