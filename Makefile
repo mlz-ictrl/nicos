@@ -84,7 +84,7 @@ changelint:
 manualrelease: test release
 
 release:
-	cd doc; rm -r build/html; ${MAKE} html
+	cd doc; rm -rf build/html; ${MAKE} html
 	python setup.py sdist
 
 help:
