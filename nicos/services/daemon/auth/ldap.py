@@ -45,15 +45,15 @@ class Authenticator(BaseAuthenticator):
     BIND_METHODS = {
         'none': ldap3.AUTO_BIND_NONE,
         'no_tls': ldap3.AUTO_BIND_NO_TLS,
-        'tls_before_bind' : ldap3.AUTO_BIND_TLS_BEFORE_BIND,
+        'tls_before_bind': ldap3.AUTO_BIND_TLS_BEFORE_BIND,
         'tls_after_bind': ldap3.AUTO_BIND_TLS_AFTER_BIND,
 
     }
 
     parameters = {
-        'uri': Param('LDAP connection URI', type=str, mandatory=True),
-        'bindmethod': Param('LDAP port', type=oneof(*BIND_METHODS),
-                      default='no_tls'),
+        'uri':         Param('LDAP connection URI', type=str, mandatory=True),
+        'bindmethod':  Param('LDAP port', type=oneof(*BIND_METHODS),
+                             default='no_tls'),
         'userbasedn':  Param('Base dn to query users.',
                              type=str,
                              mandatory=True),
@@ -69,9 +69,9 @@ class Authenticator(BaseAuthenticator):
                              default='(&(gidNumber=%(gidnumber)s)'
                              '(objectClass=posixGroup))'),
         'usergroupfilter': Param('Filter groups of a specific user. '
-                             'Must contain "%(username)s"', type=str,
-                             default='(&(memberUid=%(username)s)'
-                                     '(objectClass=posixGroup))'),
+                                 'Must contain "%(username)s"', type=str,
+                                 default='(&(memberUid=%(username)s)'
+                                 '(objectClass=posixGroup))'),
         'userroles':   Param('Dictionary of allowed users with their '
                              'associated role',
                              type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
@@ -87,7 +87,7 @@ class Authenticator(BaseAuthenticator):
             raise NicosError('LDAP authentication not supported (ldap3 '
                              'package missing)')
 
-        self._access_levels = {value : key
+        self._access_levels = {value: key
                                for key, value in iteritems(ACCESS_LEVELS)}
 
     def authenticate(self, username, password):
@@ -127,7 +127,7 @@ class Authenticator(BaseAuthenticator):
         groups = [self._get_default_group(connection, username)]
 
         # find additional groups of the user
-        filter_str = self.usergroupfilter % {'username' : username}
+        filter_str = self.usergroupfilter % {'username': username}
         connection.search(self.groupbasedn, filter_str, ldap3.LEVEL,
                           attributes=ldap3.ALL_ATTRIBUTES)
 
@@ -140,17 +140,17 @@ class Authenticator(BaseAuthenticator):
         filter_str = self.userfilter % {'username': username}
 
         if not connection.search(self.userbasedn, filter_str, ldap3.LEVEL,
-                           attributes=ldap3.ALL_ATTRIBUTES):
+                                 attributes=ldap3.ALL_ATTRIBUTES):
             raise AuthenticationError('User not found in LDAP directory')
 
-        return self._get_group_name(connection,
-                                    connection.response[0]['attributes']\
-                                        ['gidNumber'])
+        return self._get_group_name(
+            connection,
+            connection.response[0]['attributes']['gidNumber'])
 
     def _get_group_name(self, connection, gid):
         filter_str = self.groupfilter % {'gidnumber': gid}
         if not connection.search(self.groupbasedn, filter_str, ldap3.LEVEL,
-                           attributes=ldap3.ALL_ATTRIBUTES):
+                                 attributes=ldap3.ALL_ATTRIBUTES):
             raise AuthenticationError('Group %s not found' % gid)
         return connection.response[0]['attributes']['cn'][0]
 
