@@ -19,24 +19,28 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
-import hashlib
-from test.utils import daemon_addr
+"""NICOS daemon authentication and user abstraction."""
 
-description = 'setup for the execution daemon'
-group = 'special'
+from nicos.core import Device, User, ADMIN
 
-devices = dict(
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        passwd = [('guest', '', 'guest'),
-                  ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
-                  ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin')]
-    ),
-    Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = daemon_addr,
-        loglevel = 'debug',
-        authenticators = ['Auth']
-    ),
-)
+
+class AuthenticationError(Exception):
+    pass
+
+
+class Authenticator(Device):
+
+    def authenticate(self, username, password):
+        """Authenticate a user with given username and password hash.
+
+        On success, must return a User object.  On failure, must raise
+        `AuthenticationError`.
+
+        The default implementation accepts any user and password and grants
+        ADMIN user level.
+        """
+        return User(username, ADMIN)

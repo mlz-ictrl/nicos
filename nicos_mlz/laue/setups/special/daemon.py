@@ -21,7 +21,7 @@ devices = dict(
     # or
     # >>> hashlib.sha1('password').hexdigest()
     # depending on the hashing algorithm
-    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [

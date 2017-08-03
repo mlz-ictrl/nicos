@@ -8,7 +8,7 @@ devices = dict(
     # set on the Experiment object
     UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
 
-    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),

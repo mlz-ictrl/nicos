@@ -28,10 +28,13 @@ import tempfile
 import shutil
 from os import path
 
-from nicos.services.daemon.auth import UserLevelAuthEntry, \
-    UserPassLevelAuthEntry, ListAuthenticator, KeystoreAuthenticator, \
-    AuthenticationError
 from nicos.core import GUEST, USER, ADMIN, User, NicosError
+from nicos.services.daemon.auth import AuthenticationError
+from nicos.services.daemon.auth.params import UserPassLevelAuthEntry, \
+    UserLevelAuthEntry
+from nicos.services.daemon.auth.keyring import Authenticator as \
+    KeyringAuthenticator
+from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
 from nicos.utils.credentials.keystore import nicoskeystore
 
 from test.utils import raises
@@ -141,7 +144,7 @@ def KeystoreAuth(request):
     for user, cred in request.function.creds:
         nicoskeystore.setCredential(user, cred, domain='test_nicos_user')
     try:
-        auth = KeystoreAuthenticator('authenticator',
+        auth = KeyringAuthenticator('authenticator',
                                      access=[('admin', 'admin'),
                                              ('joedoe', 'user')],
                                      userdomain='test_nicos_user',
