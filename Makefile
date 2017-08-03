@@ -24,7 +24,8 @@ install:
 	@echo
 	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty! Do not run make install on instruments"; exit 1; fi
 	mkdir -p $(DESTDIR)$(PREFIX)
-	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+	python setup.py install --prefix=$(PREFIX) \
+	                        $(and $(DESTDIR),--root=$(DESTDIR))
 
 inplace-install:
 	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system
