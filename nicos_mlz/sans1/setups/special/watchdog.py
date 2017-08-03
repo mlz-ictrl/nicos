@@ -68,7 +68,6 @@ watchlist = [
          type = None,
          gracetime = 900,
     ),
-
 ]
 
 
