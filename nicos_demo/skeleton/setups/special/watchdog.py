@@ -44,7 +44,7 @@ includes = [
 
 notifiers = {
     'default': ['email'],
-    'critical': ['email', 'smser'],
+    'critical': ['email'],
 }
 
 devices = dict(

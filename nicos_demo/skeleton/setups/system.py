@@ -52,7 +52,7 @@ sysconfig = dict(
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['email', 'smser'],
+    notifiers = ['email'],
 )
 
 modules = ['nicos.commands.standard']
