@@ -599,13 +599,13 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
         stats = os.stat(filepath)  # only change the requested parts
         owner = owner or stats.st_uid
         group = group or stats.st_gid
-        if isinstance(owner, string_types):
-            owner = pwd.getpwnam(owner)[2]
-        if isinstance(group, string_types):
-            group = grp.getgrnam(group)[2]
         try:
+            if isinstance(owner, string_types):
+                owner = pwd.getpwnam(owner)[2]
+            if isinstance(group, string_types):
+                group = grp.getgrnam(group)[2]
             os.chown(filepath, owner, group)
-        except OSError as e:
+        except (OSError, KeyError) as e:
             if logger:
                 logger.debug('chown(%r, %d, %d) failed: %s',
                              filepath, owner, group, e)

@@ -414,9 +414,8 @@ class Experiment(Device):
                     try:
                         lookup(value)
                     except Exception as e:
-                        raise ConfigurationError(
-                            self, 'managerights: illegal value for key '
-                            '%r: %r (%s)' % (key, value, e), exc=1)
+                        self.log.warning('managerights: illegal value for key '
+                                         '%r: %r (%s)', key, value, e)
         for key in ['enableDirMode', 'enableFileMode',
                     'disableDirMode', 'disableFileMode']:
             value = mrinfo.get(key)
