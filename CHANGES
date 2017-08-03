@@ -59,6 +59,9 @@ Other changes:
 
 * Core
 
+  - The ``rsa`` module is now a required dependency, and will always be used
+    for encrypting credentials between the daemon and its clients.
+
   - Support has been added for encrypted password and other credentials storage.
 
   - Daemon slowdown due to slow/hanging/intermittent network connections has
