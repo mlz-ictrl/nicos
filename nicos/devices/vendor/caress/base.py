@@ -28,7 +28,7 @@ from nicos import session
 from nicos.core import HasLimits, Moveable, POLLER, Param, SIMULATION, status
 from nicos.core.errors import ConfigurationError, NicosError
 from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
-    CARESSDevice, CORBA
+    CARESSDevice, CORBA, KEEP_ACTION
 
 
 class Driveable(HasLimits, CARESSDevice, Moveable):
@@ -102,14 +102,18 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
             self._setROParam('_started', False)
         return state
 
-    def doStop(self):
+    def _stop(self, stopmode=KEEP_ACTION):
+        self.log.debug('Stop: StopMode : %d', stopmode)
         if hasattr(self._caressObject, 'stop_module'):
-            result = self._caress_guard(self._caressObject.stop_module, 11,
+            result = self._caress_guard(self._caressObject.stop_module, stopmode,
                                         self.cid)
             if result in [(CARESS.OK, ACTIVE), (CARESS.OK, ACTIVE1)]:
                 raise NicosError(self, 'Could not stop the module')
         else:
-            result = self._caress_guard(self._caressObject.stop_module_orb, 11,
-                                        self.cid)
+            result = self._caress_guard(self._caressObject.stop_module_orb,
+                                        stopmode, self.cid)
             if result in [(0, ACTIVE), (0, ACTIVE1)]:
                 raise NicosError(self, 'Could not stop the module')
+
+    def doStop(self):
+        self._stop()

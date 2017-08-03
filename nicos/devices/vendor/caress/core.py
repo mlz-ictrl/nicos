@@ -80,6 +80,9 @@ READBLOCK_MULTI = 2
 
 LOAD_NORMAL = 0
 
+KEEP_ACTION = 11
+STOP_ACTION = 12
+
 
 class CARESSDevice(HasCommunication):
     """The CARESS base device."""
