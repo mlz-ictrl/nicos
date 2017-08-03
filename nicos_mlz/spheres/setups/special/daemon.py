@@ -16,5 +16,6 @@ devices = dict(
                     server = '',
                     authenticators = ['Auth'],
                     loglevel = 'info',
+                    autosimulate = True,
                    ),
 )
