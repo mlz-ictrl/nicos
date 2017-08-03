@@ -1,0 +1,68 @@
+ ###############################################
+#                                               #
+# here are some examples you can copy and paste #
+# last modified: A. Wilhelm - 03. June 2017     #
+#                                               #
+ ###############################################
+
+################################################################################
+##move value (e.g. magnetic field) to a desired number of integer points
+
+points = 5 #points will be 0,1,2,3,4 -> for loop will be executed 5 times
+
+for i in range(points):
+    move(B, i) #magnet field B will be moved one after another to points values
+
+################################################################################
+##move value (e.g. magnetic field) to specific numbers of float points
+
+points = [0.2, 0.5, 1, 1.3] #points will be 0.2, 0.5, 1, 1.3 -> for loop will be executed 4 times
+
+for i in points:
+    move(B, i) #magnet field B will be moved one after another to points values
+
+################################################################################
+#2d scan for searching the sample (use DEX.exe for plotting the 2d scan!!!
+dev1 = st1_z # first axis to scan (change only second variable)
+start1 = 2 # start position scan axis one
+step1 = 0.5 # stepwidth of axis one
+numpoints1 = 10 # number of scan points along axis one
+
+dev2 = st1_y # secon axis to scan (change only second variable)
+start2 = 2 # start position scan axis two
+step2 = 0.5 # stepwidth of axis two
+numpoints2 = 10 # number of scan points along axis two
+
+twodscan(dev1, start1, step1, numpoints1, dev2, start2, step2, numpoints2) #do not change
+
+################################################################################
+#wait for temperature to be within a tolerance for a specific value
+
+finishtemp = 20 #temperature to be reached
+maxtime = 15 #maximum time in seconds to get to desired temperature within tolerance
+tolerance = 0.5 #temperatue tolerance above and below finisthemp; acceptable value would be in this example 19.5 - 20.5
+window = 5 #time in seconds, the actual temperature must stay within tolerance
+
+act_temp = T_ccr19_D.read() #change to desired temperature device
+
+#counters, do not change
+i = 0
+windowcount = 0
+
+while i <= maxtime:
+    print str(i) + ' second(s) of ' + str(maxtime) + ' have passed'
+    print 'Actual Temperature: ' + str(act_temp) + ' C'
+    if  act_temp >= finishtemp-tolerance and act_temp <= finishtemp+tolerance:
+        windowcount += 1
+        print 'Temperature for ' + str(windowcount) + ' seconds within tolerance'
+    else:
+        windowcount = 0
+    if windowcount == window:
+        print'Temperature reached after ' + str(i) + ' second(s)'
+        break
+    if i == maxtime:
+        print'Temperature was not reached, continued by maxtime!!!'
+        break
+    sleep(1)
+    i += 1
+    act_temp = T_ccr19_D.read() #change to desired temperature device like above
