@@ -54,5 +54,8 @@ Configure and build the distribution
 You can use ``make install PREFIX=/some/prefix`` to install NICOS into a
 directory.  The target also supports ``DESTDIR`` for building packages.
 
-The toplevel ``nicos.conf`` file (see :ref:`nicosconf`) is searched in
-that directory.
+The toplevel ``nicos.conf`` file (see :ref:`nicosconf`) will be installed in
+that directory and will be loaded on startup. In order to customize the
+contents of the configuration file the ``INSTRUMENT`` and ``SETUPPACKAGE``
+variables can be set to configure the corresponding ``instrument`` and
+``setup_package`` entries.

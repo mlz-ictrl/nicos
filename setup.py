@@ -136,6 +136,10 @@ installed_from = %s
             if instr:
                 cf.write('\ninstrument = %s\n' % instr)
 
+            setup_package = os.getenv('SETUPPACKAGE')
+            if setup_package:
+                cf.write('\nsetup_package = %s\n' % setup_package)
+
 
 setup(
     name = 'nicos',
