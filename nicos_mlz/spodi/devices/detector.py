@@ -129,11 +129,14 @@ class Detector(MeasureSequencer):
         MeasureSequencer.doStart(self)
 
     def doSetPreset(self, **preset):
+        self._tths = None
         if preset:
             self._time_preset = preset.get('t', 0)
             self._mon_preset = preset.get('mon1', preset.get('mon2', 0))
             if 'resosteps' in preset:
                 self.resosteps = int(preset.pop('resosteps'))
+            if 'tths' in preset:
+                self._tths = float(preset.pop('tths'))
         self._attached_detector.doSetPreset(**preset)
 
     def _read_value(self):
@@ -175,6 +178,10 @@ class Detector(MeasureSequencer):
 
     def _generateSequence(self, *args, **kwargs):
         seq = []
+        if self._tths:
+            self._startpos = self._tths
+            seq.append(SeqDev(self._attached_motor, self._startpos,
+                              stoppable=True))
         for step in range(self.resosteps):
             pos = self._startpos - step * self._step_size
             seq.append(SeqDev(self._attached_motor, pos, stoppable=True))
@@ -283,7 +290,7 @@ class Detector(MeasureSequencer):
         return self._arraydesc,
 
     def presetInfo(self):
-        return {'resosteps'} | self._attached_detector.presetInfo()
+        return {'resosteps', 'tths'} | self._attached_detector.presetInfo()
 
     def duringMeasureHook(self, elapsed):
         if self.liveinterval is not None:
