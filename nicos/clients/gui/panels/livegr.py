@@ -99,7 +99,6 @@ class LiveDataPanel(Panel):
 
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
         #                         Integrate | Histogram)
-        self.widgetLayout.addWidget(self.widget)
 
         self.liveitem = QListWidgetItem('<Live>', self.fileList)
         self.liveitem.setData(FILENAME, '')
