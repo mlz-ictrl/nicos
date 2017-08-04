@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
-    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [('guest', '', 'guest'),
                               ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),

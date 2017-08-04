@@ -11,7 +11,7 @@ devices = dict(
     # fixed list of users:
     # first entry is the user name, second the hashed password, third the user level
     # (of course, for real passwords you don't calculate the hash here :)
-    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
                               ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),

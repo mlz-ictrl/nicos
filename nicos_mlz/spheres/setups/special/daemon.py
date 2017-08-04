@@ -5,7 +5,7 @@ group = 'special'
 devices = dict(
     UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
 
-    Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
                               ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),

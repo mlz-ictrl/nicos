@@ -59,7 +59,7 @@ A simple setup file for the daemon could look like this::
   import hashlib
 
   devices = dict(
-      Auth   = device('nicos.services.daemon.auth.ListAuthenticator',
+      Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                       hashing = 'sha1',
                       # first entry is the user name, second the hashed password, third the user level
                       passwd = [('guest', '', 'guest'),
@@ -129,10 +129,18 @@ Daemon class
 Authenticator classes
 ---------------------
 
-.. module:: nicos.services.daemon.auth
+.. module:: nicos.services.daemon.auth.ldap
 
-.. autoclass:: LDAPAuthenticator()
+.. autoclass:: Authenticator()
 
-.. autoclass:: ListAuthenticator()
+.. module:: nicos.services.daemon.auth.keyring
 
-.. autoclass:: PamAuthenticator()
+.. autoclass:: Authenticator()
+
+.. module:: nicos.services.daemon.auth.list
+
+.. autoclass:: Authenticator()
+
+.. module:: nicos.services.daemon.auth.pam
+
+.. autoclass:: Authenticator()
