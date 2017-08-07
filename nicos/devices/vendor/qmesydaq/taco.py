@@ -93,8 +93,8 @@ class MultiCounter(BaseChannel, PassiveChannel):
         # first 3 values are sizes of dimensions
         if len(res) >= expected:
             data = res[3:]
-            # ch is 1 based, _data is 0 based
-            total = sum([self._data[ch - 1] for ch in self.channels])
+            # ch is 1 based, data is 0 based
+            total = sum([data[ch - 1] for ch in self.channels])
         else:
             self.log.warning('not enough data returned, check config! '
                              '(got %d elements, expected >=%d)',
@@ -115,6 +115,9 @@ class MultiCounter(BaseChannel, PassiveChannel):
             resultlist.append(Value('ch%d' % ch, unit='cts', errors='sqrt',
                                     type='counter', fmtstr='%d'))
         return tuple(resultlist)
+
+    def doReadIsmaster(self):
+        return False
 
     def doReadFmtstr(self):
         resultlist = ['sum %d']
