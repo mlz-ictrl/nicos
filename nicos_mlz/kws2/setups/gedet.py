@@ -68,7 +68,8 @@ for (epname, epicsid) in eps:
                                      fmtstr='%.1f',
                                      warnlimits = (25, 45),
                                     )
-    devices[epname + '_HV'] = device('nicos.devices.epics.EpicsAnalogMoveable',
+    devices[epname + '_HV'] = device('nicos_mlz.kws2.devices.gedet.'
+                                     'HVEpicsAnalogMoveable',
                                      description = epname + ' HV setting',
                                      readpv = epicsid + ':HighVoltage_R',
                                      writepv = epicsid + ':HighVoltage_W',

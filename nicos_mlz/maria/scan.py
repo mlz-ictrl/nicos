@@ -44,12 +44,18 @@ class KScan(Scan):
     def beginScan(self):
         device = self._devices[0]
         self._original_speed = device.speed
+        self._original_accel = device.accel
+        self._original_decel = device.decel
         device.speed = self._speed
+        device.accel = 1
+        device.decel = 1
         Scan.beginScan(self)
 
     def endScan(self):
         device = self._devices[0]
         device.speed = self._original_speed
+        device.accel = self._original_accel
+        device.decel = self._original_decel
         Scan.endScan(self)
 
     def acquireCompleted(self):

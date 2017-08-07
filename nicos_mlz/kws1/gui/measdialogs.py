@@ -523,6 +523,7 @@ DEV_BLACKLIST = set((
     'psd_x',
     'psd_y',
     'resolution',
+    'Sample',
     'sam01_ap',
     'sam01_x',
     'sam01_y',

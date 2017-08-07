@@ -28,7 +28,9 @@ import time
 
 import PyTango
 
-from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof
+from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof, \
+    status
+from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import PowerSupply
@@ -143,3 +145,13 @@ class GEPowerSupply(PowerSupply):
             PowerSupply.doStart(self, value)
         elif value == 0:
             self._dev.Off()
+
+
+class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
+
+    def doStatus(self, maxage=None):
+        # HV writepv intermittently goes into unknown state, ignore it
+        code, text = EpicsAnalogMoveable.doStatus(self, maxage)
+        if code == status.UNKNOWN:
+            code = status.OK
+        return code, text

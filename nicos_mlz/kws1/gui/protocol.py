@@ -24,13 +24,12 @@
 
 """Generate a measurement protocol from saved runs."""
 
-import os
 from os import path
 
 from PyQt4.QtGui import QPrintDialog, QPrinter, QFileDialog
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.utils import findResource, printTable
+from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.pycompat import to_utf8
@@ -79,49 +78,9 @@ class ProtocolPanel(Panel, DlgUtils):
 
         with_ts = self.stampBox.isChecked()
 
-        data = []
-        senv = set()
-
-        for fname in os.listdir(path.join(datadir, 'data')):
-            if not fname.endswith('.DAT'):
-                continue
-            parts = fname.split('_')
-            if not (len(parts) > 1 and parts[1].isdigit()):
-                continue
-            runno = int(parts[1])
-            if first is not None and runno < first:
-                continue
-            if last is not None and runno > last:
-                continue
-            try:
-                data.append(self._read(runno, senv,
-                                       path.join(datadir, 'data', fname)))
-            except Exception as err:
-                self.log.warning('could not read %s: %s', fname, err)
-                continue
-        data.sort(key=lambda x: x['#'])
-
-        headers = ['Run', 'Sel', 'Coll', 'Det', 'Sample',
-                   'TOF', 'Pol', 'Lens', 'Time', 'Cts', 'Rate']
-        if with_ts:
-            headers.insert(1, 'Started')
-        for sename in sorted(senv):
-            if sename not in ('T', 'Ts'):
-                headers.append(sename)
-        items = []
-        day = ''
-        for info in data:
-            if 'Sample' not in info:
-                continue
-            if with_ts and info['Day'] != day:
-                day = info['Day']
-                items.append([''] * len(headers))
-                items.append(['', day] + [''] * (len(headers) - 2))
-            items.append([info.get(key, '') for key in headers])
-
-        lines = []
-        printTable(headers, items, lines.append)
-        self.outText.setPlainText('\n'.join(lines) + '\n')
+        text = self.client.eval('session.experiment._generate_protocol('
+                                '%s, %s, %s)' % (first, last, with_ts))
+        self.outText.setPlainText(text)
 
     @qtsig('')
     def on_saveBtn_clicked(self):
@@ -150,54 +109,3 @@ class ProtocolPanel(Panel, DlgUtils):
         doc.setDefaultFont(font)
         printer.setPageMargins(10, 15, 10, 20, QPrinter.Millimeter)
         doc.print_(printer)
-
-    def _read(self, runno, senv, fname):
-        data = {'#': runno, 'Run': str(runno), 'TOF': 'no'}
-        it = iter(open(fname))
-        for line in it:
-            if line.startswith('Standard_Sample '):
-                parts = line.split()
-                data['Day'] = parts[-2]
-                data['Started'] = parts[-1][:-3]
-            elif line.startswith('(* Comment'):
-                next(it)
-                data['Sel'] = next(it).split('|')[-1].strip()[7:]
-                data['Sample'] = next(it).split('|')[0].strip()
-            elif line.startswith('(* Collimation'):
-                next(it)
-                next(it)
-                info = next(it).split()
-                data['Coll'] = info[0] + 'm'
-                data['Pol'] = info[4]
-                data['Lens'] = info[5]
-                if data['Lens'] == 'out-out-out':
-                    data['Lens'] = 'no'
-            elif line.startswith('(* Detector Discription'):
-                for _ in range(3):
-                    next(it)
-                info = next(it).split()
-                data['Det'] = '%.3gm' % float(info[1])
-            elif line.startswith('(* Temperature'):
-                for _ in range(4):
-                    info = next(it)
-                    if 'dummy' in info:
-                        continue
-                    parts = info.split()
-                    data[parts[0]] = parts[3]
-                    senv.add(parts[0])
-            elif line.startswith('(* Real'):
-                data['Time'] = next(it).split()[0] + 's'
-                data['t'] = int(data['Time'][:-1])
-            elif line.startswith('(* Detector Data Sum'):
-                next(it)
-                total = float(next(it).split()[0])
-                data['Cts'] = '%.2g' % total
-                data['Rate'] = '%.0f' % (total / data['t'])
-            elif line.startswith('(* Chopper'):
-                data['TOF'] = 'TOF'
-            elif line.startswith('(* Detector Time Slices'):
-                if data['TOF'] != 'TOF':
-                    data['TOF'] = 'RT'
-            elif line.startswith('(* Detector Data'):
-                break
-        return data
