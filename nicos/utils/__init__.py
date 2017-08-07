@@ -573,7 +573,13 @@ def getPidfileName(appname):
 
 
 def writePidfile(appname):
-    writeFile(getPidfileName(appname), [str(os.getpid())])
+    pidpath = getPidfileName(appname)
+    try:
+        os.makedirs(path.dirname(pidpath))
+    except OSError as err:
+        if err.errno != errno.EEXIST:
+            raise
+    writeFile(pidpath, [str(os.getpid())])
 
 
 def removePidfile(appname):
