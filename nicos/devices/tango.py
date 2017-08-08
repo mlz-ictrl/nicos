@@ -30,6 +30,8 @@ MLZ TANGO interface for the respective device classes.
 """
 
 import re
+import socket
+import os
 
 import PyTango
 import numpy
@@ -41,7 +43,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
     HasTimeout, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
-from nicos.utils import HardwareStub
+from nicos.utils import HardwareStub, tcpSocket, closeSocket
 from nicos.core import SIMULATION
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
@@ -151,6 +153,19 @@ def describe_dev_error(exc):
     return fulldesc
 
 
+def check_tango_host_connection(address, timeout=3.0):
+    """Check pure network connection to the tango host."""
+    tango_host = os.environ.get('TANGO_HOST', 'localhost:10000')
+
+    if address.startswith('tango://'):
+        tango_host = address.split('/')[2]
+
+    try:
+        closeSocket(tcpSocket(tango_host, 10000, timeout=timeout))
+    except socket.error as e:
+        raise CommunicationError(str(e))
+
+
 class PyTangoDevice(HasCommunication):
     """
     Basic PyTango device.
@@ -235,6 +250,7 @@ class PyTangoDevice(HasCommunication):
         Creates the PyTango DeviceProxy and wraps command execution and
         attribute operations with logging and exception mapping.
         """
+        check_tango_host_connection(self.tangodevice, self.tangotimeout)
         device = PyTango.DeviceProxy(address)
         device.set_timeout_millis(int(self.tangotimeout * 1000))
         # detect not running and not exported devices early, because that
@@ -265,6 +281,8 @@ class PyTangoDevice(HasCommunication):
         Wrap given function with logging and exception mapping.
         """
         def wrap(*args, **kwds):
+            info = category + ' ' + args[0] if args else category
+
             # handle different types for better debug output
             if category == 'cmd':
                 self.log.debug('[PyTango] command: %s%r', args[0], args[1:])
@@ -278,13 +296,18 @@ class PyTangoDevice(HasCommunication):
                                args[0])
             elif category == 'constructor':
                 self.log.debug('[PyTango] device creation: %s', args[0])
+                try:
+                    result = func(*args, **kwds)
+                    return self._com_return(result, info)
+                except Exception as err:
+                    self._com_raise(err, info)
+
             elif category == 'internal':
                 self.log.debug('[PyTango integration] internal: %s%r',
                                func.__name__, args)
             else:
                 self.log.debug('[PyTango] call: %s%r', func.__name__, args)
 
-            info = category + ' ' + args[0] if args else category
             return self._com_retry(info, func, *args, **kwds)
 
         # hide the wrapping
