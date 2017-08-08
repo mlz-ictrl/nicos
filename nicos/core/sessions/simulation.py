@@ -100,6 +100,8 @@ class SimLogSender(logging.Handler):
         devinfo = {}
         for devname in self.devices:
             dev = self.session.devices.get(devname)
+            if dev is None:
+                continue
             minmax = dev._sim_getMinMax()
             for _name, _value, _min, _max in minmax:
                 try:
