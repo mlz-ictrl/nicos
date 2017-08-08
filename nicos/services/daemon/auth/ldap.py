@@ -24,7 +24,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, dictof, oneof, ACCESS_LEVELS, NicosError, User
+from nicos.core import Param, dictof, oneof, ACCESS_LEVELS, User
 from nicos.pycompat import iteritems
 from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
     BaseAuthenticator
@@ -81,12 +81,6 @@ class Authenticator(BaseAuthenticator):
     }
 
     def doInit(self, mode):
-        # refuse the usage of the ldap authenticator if the ldap3 package
-        # is missing
-        if not ldap3:
-            raise NicosError('LDAP authentication not supported (ldap3 '
-                             'package missing)')
-
         self._access_levels = {value: key
                                for key, value in iteritems(ACCESS_LEVELS)}
 

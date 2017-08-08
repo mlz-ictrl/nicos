@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, listof, USER, NicosError, User
+from nicos.core import Param, listof, USER, User
 from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
     BaseAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry
@@ -58,13 +58,6 @@ class Authenticator(BaseAuthenticator):
                             type=str, mandatory=False, settable=False,
                             default='nicos_user'),
     }
-
-    def doInit(self, mode):
-        # refuse the usage of the keystore authenticator if the nicoskeystore
-        # is missing
-        if not nicoskeystore:
-            raise NicosError('Keystore authentication not supported (required '
-                             'packages missing)')
 
     def authenticate(self, username, password):
         username = username.strip()
