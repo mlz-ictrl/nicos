@@ -275,7 +275,9 @@ class SimulationSupervisor(Thread):
                         if request.reqid == uuid:
                             request.setSimstate('failed')
                             request.emitETA(emitter._controller)
-                    session.log.warning('Dry run has terminated prematurely')
+                    if not quiet:
+                        session.log.warning('Dry run has terminated '
+                                            'prematurely')
                     return
                 continue
             msgtype, msg = unserialize(socket.recv())
