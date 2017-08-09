@@ -135,7 +135,7 @@ def main(argv):
                 log.warning('Error setting user style sheet from %s',
                             stylefile, exc=1)
 
-    mainwindow = MainWindow(log, gui_conf)
+    mainwindow = MainWindow(log, gui_conf, viewonly)
     log.addHandler(DebugHandler(mainwindow))
 
     if opts.connect:

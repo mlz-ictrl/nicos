@@ -67,7 +67,7 @@ from nicos.clients.gui.config import tabbed
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self, log, gui_conf):
+    def __init__(self, log, gui_conf, viewonly=False):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
@@ -106,7 +106,8 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # set-up the initial connection data
         self.conndata = ConnectionData(host='localhost', port=1301,
-                                       user='guest', password=None)
+                                       user='guest', password=None,
+                                       viewonly=viewonly)
 
         # state members
         self.current_status = None

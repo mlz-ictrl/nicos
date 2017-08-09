@@ -107,6 +107,7 @@ class ConnectionDialog(QDialog):
             # if we have no stored last preset connection, put in the raw data
             self.presetOrAddr.setEditText(
                 '%s:%s' % (lastdata.host, lastdata.port))
+            self.viewonly.setChecked(lastdata.viewonly)
         self.userName.setText(lastdata.user)
         self.password.setFocus()
         self.presetFrame.hide()
