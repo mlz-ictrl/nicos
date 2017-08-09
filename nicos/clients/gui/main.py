@@ -30,15 +30,10 @@ from __future__ import print_function
 import sys
 import logging
 import traceback
-import getopt
+import argparse
 from os import path
 
 from PyQt4.QtGui import QApplication
-try:
-    import PyQt4.QtWebKit  # pylint: disable=unused-import
-    qwebkit_available = True
-except ImportError:
-    qwebkit_available = False
 
 from nicos import config
 from nicos.utils import parseConnectionString
@@ -56,11 +51,17 @@ from nicos.pycompat import exec_
 log = None
 
 
-def usage():
-    print('usage: %s [options] [user_name[:password[@host[:port]]]]' % sys.argv[0])
-    print('   -h|--help : print this page')
-    print("   -c|--config-file file_name : use the configuration file"
-          " 'file_name'")
+def parseargs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config-file', dest='configfile', default=None,
+                        help='use the configuration file CONFIGFILE')
+    parser.add_argument('-v', '--view-only', dest='viewonly', default=False,
+                        action='store_true', help='Run in view-only mode')
+    parser.add_argument('connect', nargs='?', default=None,
+                        help='''A connection string with the following form:
+
+                        [user_name[:password[@host[:port]]]]''')
+    return parser.parse_args()
 
 
 def main(argv):
@@ -88,27 +89,9 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    configfile = None
-    try:
-        opts, args = getopt.getopt(argv[1:], 'c:hv', ['config-file=', 'help'])
-    except getopt.GetoptError as err:
-        log.error('%s', err)
-        usage()
-        sys.exit(1)
+    opts = parseargs()
 
-    viewonly = False
-    for o, a in opts:
-        if o in ['-c', '--config-file']:
-            configfile = a
-        elif o in ['-h', '--help']:
-            usage()
-            sys.exit()
-        elif o == '-v':
-            viewonly = True
-        else:
-            assert False, 'unhandled option'
-
-    if configfile is None:
+    if opts.configfile is None:
         try:
             config.apply()
         except RuntimeError:
@@ -155,11 +138,11 @@ def main(argv):
     mainwindow = MainWindow(log, gui_conf)
     log.addHandler(DebugHandler(mainwindow))
 
-    if args:
-        parsed = parseConnectionString(args[0], DEFAULT_PORT)
+    if opts.connect:
+        parsed = parseConnectionString(opts.connect, DEFAULT_PORT)
         if parsed:
             cdata = ConnectionData(**parsed)
-            cdata.viewonly = viewonly
+            cdata.viewonly = opts.viewonly
             mainwindow.setConnData(cdata)
             if cdata.password is not None:
                 # we have a password, connect right away
