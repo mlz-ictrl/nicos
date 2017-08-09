@@ -38,8 +38,14 @@ import psutil
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
 
-if not os.environ.get('INSTRUMENT'):
+env_instrument = os.environ.get('INSTRUMENT')
+if not env_instrument:
     os.environ['INSTRUMENT'] = 'nicos_demo.demo'
+    defaultguiconfig = 'nicos_demo/demo/guiconfig.py'
+elif '.' in env_instrument:
+    defaultguiconfig = env_instrument.replace('.', '/') + '/guiconfig.py'
+else:
+    defaultguiconfig = 'nicos_demo/' + env_instrument + '/guiconfig.py'
 
 dev_null = open(os.devnull, 'wb')
 background_processes = []
@@ -139,7 +145,7 @@ parser.add_argument('-t', dest='aioclient', action='store_true',
                     help='disable daemon and start console shell')
 
 parser.add_argument('-c', dest='guiconfig', action='store',
-                    default='nicos_demo/demo/guiconfig.py',
+                    default=defaultguiconfig,
                     help='use given GUI config file instead of the default one')
 parser.add_argument('-u', dest='guiuser', action='store',
                     default='guest:guest@localhost',
