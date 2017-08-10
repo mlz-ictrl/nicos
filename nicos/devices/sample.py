@@ -144,6 +144,7 @@ class Sample(Moveable):
         """
         self.samplenumber = number
         self.samplename = parameters['name']
+        self._setROParam('target', parameters['name'])
 
     def doUpdateSamples(self, info):
         self.valuetype = oneof(*(info[n]['name'] for n in sorted(info)))
