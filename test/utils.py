@@ -389,32 +389,38 @@ class TestDevice(HasLimits, Moveable):
         self._read_exception = None
         self._status_exception = None
         self._stop_exception = None
+        self._iscompleted_exception = None
 
     def doRead(self, maxage=0):
         if self._read_exception is not None:
-            raise self._read_exception  # pylint: disable=E0702
+            raise self._read_exception  # pylint: disable=raising-bad-type
         return self._value
 
     def doStart(self, target):
         if self._start_exception is not None and target != 0:
-            raise self._start_exception  # pylint: disable=E0702
+            raise self._start_exception  # pylint: disable=raising-bad-type
         self._value = target
 
     def doStatus(self, maxage=0):
         if self._status_exception is not None:
-            raise self._status_exception  # pylint: disable=E0702
+            raise self._status_exception  # pylint: disable=raising-bad-type
         return status.OK, 'fine'
+
+    def isCompleted(self):
+        if self._iscompleted_exception is not None:
+            raise self._iscompleted_exception  # pylint: disable=raising-bad-type
+        return Moveable.isCompleted(self)
 
     def doStop(self):
         if self._stop_exception is not None:
-            raise self._stop_exception  # pylint: disable=E0702
+            raise self._stop_exception  # pylint: disable=raising-bad-type
 
 
 class TestController(IsController, Moveable):
 
     attached_devices = {
-        'dev1':  Attach('First device', Moveable),
-        'dev2':  Attach('Second device', Moveable),
+        'dev1': Attach('First device', Moveable),
+        'dev2': Attach('Second device', Moveable),
     }
 
     def isAdevTargetAllowed(self, adev, adevtarget):
