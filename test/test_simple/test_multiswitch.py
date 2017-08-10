@@ -85,7 +85,7 @@ def test_multi_switcher_fallback(session):
     assert mswfb.read(0) == 'unknown'
 
 
-def test_multi_switcher_fails(session):
+def test_multi_switcher_fails(session, log):
     assert raises(ConfigurationError, session.getDevice, 'msw3')
     assert raises(ConfigurationError, session.getDevice, 'msw4')
 
@@ -93,4 +93,5 @@ def test_multi_switcher_fails(session):
     msw5.move('1')
     # msw5 has a precision of None for motor 'y', but that motor has
     # a jitter set so that it will never be exactly at 0
-    assert raises(PositionError, msw5.wait)
+    with log.allow_errors():
+        assert raises(PositionError, msw5.wait)

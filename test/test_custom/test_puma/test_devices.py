@@ -30,7 +30,7 @@ from nicos.core.errors import LimitError, MoveError
 session_setup = 'puma'
 
 
-def test_comb_axis(session):
+def test_comb_axis(session, log):
     phi = session.getDevice('phi')
     assert phi.iscomb is False
 
@@ -53,7 +53,8 @@ def test_comb_axis(session):
     assert phi.read(0) == 10
     assert phi._attached_fix_ax.read(0) == -10
 
-    assert raises(LimitError, phi.move, 20)
+    with log.allow_errors():
+        assert raises(LimitError, phi.move, 20)
 
 
 def test_focus_axis(session):
@@ -75,7 +76,8 @@ def test_focus_axis(session):
     ax.maw(ax.abslimits[1])
     assert ax.read(0) == ax.uplimit
 
-def test_mtt_axis(session):
+
+def test_mtt_axis(session, log):
     ax = session.getDevice('mtt')
 
     assert ax.read(0) == 0
@@ -91,4 +93,5 @@ def test_mtt_axis(session):
     # available
     #
     # This test will check the fail due to this missing device
-    assert raises(MoveError, ax.maw, (ax.polypos - 1))
+    with log.allow_errors():
+        assert raises(MoveError, ax.maw, (ax.polypos - 1))

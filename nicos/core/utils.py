@@ -31,9 +31,19 @@ from time import localtime, time as currenttime
 from collections import namedtuple
 
 from nicos import session
-from nicos.core import status, NicosError, SIMULATION
+from nicos.core import status, SIMULATION
+from nicos.core.errors import CommunicationError, ComputationError, \
+    InvalidValueError, LimitError, MoveError, NicosError, \
+    PositionError, TimeoutError
 from nicos.pycompat import reraise, to_ascii_escaped, listitems
 from nicos.utils import formatDuration
+
+
+# Exceptions at which a scan point is measured anyway.
+CONTINUE_EXCEPTIONS = (PositionError, MoveError, TimeoutError)
+# Exceptions at which a scan point is skipped.
+SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
+                   ComputationError)
 
 
 # user access levels
@@ -138,8 +148,10 @@ def multiWait(devices):
     This is the main waiting loop to be used when waiting for multiple devices.
     It checks the device status until all devices are OK or errored.
 
-    Errors raised are handled like in _multiMethod: the first one is reraised
-    at the end, the others are only printed as errors.
+    Errors raised are handled like in the following way:
+    The error is logged, and the first exception with the highest serverity
+    (exception in `CONTIUNE_EXECPTIONS` < `SKIP_EXCPTIONS` < other exceptions)
+    is re-raised the the  end.
 
     *baseclass* allows to restrict the devices waited on.
     """
@@ -151,7 +163,7 @@ def multiWait(devices):
                          for dev in reversed(devlist))
 
     delay = 0.3
-    first_exc = None
+    final_exc = None
     devlist = list(devIter(devices, baseclass=Waitable, allwaiters=True))
     values = {}
     loops = -2  # wait 2 iterations for full loop
@@ -170,10 +182,8 @@ def multiWait(devices):
                     if done:
                         dev.finish()
                 except Exception:
-                    if not first_exc:
-                        first_exc = sys.exc_info()
-                    else:
-                        dev.log.exception('while waiting')
+                    dev.log.exception('while waiting')
+                    final_exc = filterExceptions(sys.exc_info(), final_exc)
                     # remove this device from the waiters - we might still have
                     # its subdevices in the list so that multiWait() should not
                     # return until everything is either OK or ERROR
@@ -209,11 +219,23 @@ def multiWait(devices):
                     session.action(eta_str + target_str)
                 session.delay(delay)
                 eta_update += delay
-        if first_exc:
-            reraise(*first_exc)
+        if final_exc:
+            reraise(*final_exc)
     finally:
         session.endActionScope()
     return values
+
+
+def filterExceptions(curr, prev):
+    if not prev:
+        return curr
+    if (isinstance(prev[1], CONTINUE_EXCEPTIONS) and
+       not isinstance(curr[1], CONTINUE_EXCEPTIONS)):
+        return curr
+    if (isinstance(prev[1], SKIP_EXCEPTIONS) and
+       not isinstance(curr[1], SKIP_EXCEPTIONS + CONTINUE_EXCEPTIONS)):
+        return curr
+    return prev
 
 
 def waitForState(dev, state, delay=0.3, ignore_errors=False):

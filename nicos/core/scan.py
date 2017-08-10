@@ -33,21 +33,15 @@ from nicos import session
 from nicos.core import status
 from nicos.core.device import Readable
 from nicos.core.mixins import HasLimits
-from nicos.core.errors import CommunicationError, ComputationError, \
-    InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
-    PositionError, TimeoutError
+from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.acquire import acquire, read_environment, stop_acquire_thread
 from nicos.core.constants import INTERMEDIATE, SLAVE, SIMULATION, FINAL
-from nicos.core.utils import waitForCompletion, multiWait
+from nicos.core.utils import waitForCompletion, multiWait, SKIP_EXCEPTIONS, \
+    CONTINUE_EXCEPTIONS
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types, reraise
 
 
-# Exceptions at which a scan point is measured anyway.
-CONTINUE_EXCEPTIONS = (PositionError, MoveError, TimeoutError)
-# Exceptions at which a scan point is skipped.
-SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
-                   ComputationError)
 
 
 class SkipPoint(Exception):

@@ -179,7 +179,7 @@ def test_scan_invalidpreset(session, log):
         scan(m, 0, 1, 1, preset=5, t=0.)
 
 
-def test_scan_errorhandling(session):
+def test_scan_errorhandling(session, log):
     t = session.getDevice('tdev')
     m = session.getDevice('motor')
 
@@ -188,41 +188,42 @@ def test_scan_errorhandling(session):
     dataset = session.data._last_scans[-1]
     assert dataset.devvaluelists == [[0], [1], [2]]
 
-    # limit error: skips the data points
-    scan(t, [-10, 0, 10, 3])
-    dataset = session.data._last_scans[-1]
-    assert dataset.devvaluelists == [[0], [3]]
+    with log.allow_errors():
+        # limit error: skips the data points
+        scan(t, [-10, 0, 10, 3])
+        dataset = session.data._last_scans[-1]
+        assert dataset.devvaluelists == [[0], [3]]
 
-    # communication error during move: also skips the data points
-    t._value = 0
-    t._start_exception = CommunicationError()
-    scan(t, [0, 1, 2, 3])
-    dataset = session.data._last_scans[-1]
-    assert dataset.devvaluelists == [[0]]  # tdev.move only raises when target != 0
+        # communication error during move: also skips the data points
+        t._value = 0
+        t._start_exception = CommunicationError()
+        scan(t, [0, 1, 2, 3])
+        dataset = session.data._last_scans[-1]
+        assert dataset.devvaluelists == [[0]]  # tdev.move only raises when target != 0
 
-    # position error during move: ignored
-    t._value = 0
-    t._read_exception = None
-    t._start_exception = PositionError()
-    scan(t, [0, 1, 2, 3])
-    dataset = session.data._last_scans[-1]
-    assert dataset.devvaluelists == [[0], [None], [None], [None]]
+        # position error during move: ignored
+        t._value = 0
+        t._read_exception = None
+        t._start_exception = PositionError()
+        scan(t, [0, 1, 2, 3])
+        dataset = session.data._last_scans[-1]
+        assert dataset.devvaluelists == [[0], [None], [None], [None]]
 
-    # position error during readout: ignored
-    t._read_exception = PositionError()
-    t._start_exception = None
-    scan(t, [0, 1, 2, 3])
-    dataset = session.data._last_scans[-1]
-    assert dataset.devvaluelists == [[None], [None], [None], [None]]
-    # also as an environment device
-    scan(m, [0, 1], t)
-    dataset = session.data._last_scans[-1]
-    assert dataset.devvaluelists == [[0.], [1.]]
-    assert dataset.envvaluelists == [[None], [None]]
+        # position error during readout: ignored
+        t._read_exception = PositionError()
+        t._start_exception = None
+        scan(t, [0, 1, 2, 3])
+        dataset = session.data._last_scans[-1]
+        assert dataset.devvaluelists == [[None], [None], [None], [None]]
+        # also as an environment device
+        scan(m, [0, 1], t)
+        dataset = session.data._last_scans[-1]
+        assert dataset.devvaluelists == [[0.], [1.]]
+        assert dataset.envvaluelists == [[None], [None]]
 
-    # other errors: reraised
-    t._start_exception = RuntimeError()
-    assert raises(RuntimeError, scan, t, [0, 1, 2, 3])
+        # other errors: reraised
+        t._start_exception = RuntimeError()
+        assert raises(RuntimeError, scan, t, [0, 1, 2, 3])
 
 
 def test_cscan(session):
