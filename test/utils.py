@@ -166,7 +166,7 @@ class TestLogHandler(StreamHandler):
             # On error messages, we normally raise an exception so that any
             # errors logged during the test suite do not pass silently.  This
             # can be temporarily changed using the allow_errors() and
-            # expect_errors() context managers.
+            # assert_errors() context managers.
             if self._raising:
                 raise ErrorLogged(record.message)
             self._errors.append(msg)
