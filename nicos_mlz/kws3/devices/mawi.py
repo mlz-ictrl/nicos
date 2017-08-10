@@ -37,7 +37,7 @@ class MeanTemp(PyTangoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        allchannels = self._dev.value[self.first - 1:self.last]
-        if not allchannels:
+        if self.first > self.last:
             return 0
-        return sum(allchannels) / len(allchannels)
+        allchannels = self._dev.value[self.first - 1:self.last]
+        return float(sum(allchannels) / len(allchannels))
