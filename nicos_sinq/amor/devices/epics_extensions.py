@@ -26,8 +26,10 @@
 This module contains SINQ specific EPICS developments.
 """
 
-from nicos.core import Device, Param, pvname
+from nicos.core import Device, Param, pvname, Override
 from nicos.devices.epics import EpicsDevice
+from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
+    CounterChannelMixin, Detector
 
 
 class EpicsAsynController(EpicsDevice, Device):
@@ -73,3 +75,134 @@ class EpicsAsynController(EpicsDevice, Device):
 
         # If reply PV is set, return it's output
         return self._get_pv('replypv') if self.replypv else ''
+
+
+class EpicsPassiveChannel(EpicsDevice, PassiveChannel):
+    """
+    Class to represent EPICS channels.
+
+    These channels can read values directly via EPICS pvs:
+    valuepv -  Provide the value of the channel using this PV
+    """
+
+    parameters = {
+        'valuepv': Param('PV storing the value for this channel', type=pvname,
+                         mandatory=True, settable=False),
+    }
+
+    pv_parameters = set(('valuepv',))
+
+    def doRead(self, maxage=0):
+        return self._get_pv('valuepv')
+
+
+class EpicsActiveChannel(EpicsDevice, ActiveChannel):
+    """
+    Class to represent EPICS channels with preset.
+
+    These channels can read values and also have the functionality to set
+    presets. The reading of values and setting of presets is done directly
+    via EPICS pvs:
+    valuepv -  Provide the value of the channel using this PV
+    presetpv - Set the preset on this channel using this PV
+    """
+
+    parameters = {
+        'valuepv': Param('PV storing the value for this channel', type=pvname,
+                         mandatory=True, settable=False),
+        'presetpv': Param('PV to set the preset for the count', type=pvname,
+                          mandatory=True, settable=False),
+    }
+
+    parameter_overrides = {
+        'preselection': Override(volatile=True),
+    }
+
+    pv_parameters = set(('valuepv', 'presetpv'))
+
+    def doReadPreselection(self):
+        return self._get_pv('presetpv')
+
+    def doWritePreselection(self, preselection):
+        self._put_pv_blocking('presetpv', preselection)
+
+    def doRead(self, maxage=0):
+        return self._get_pv('valuepv')
+
+
+class EpicsCounterPassiveChannel(CounterChannelMixin, EpicsPassiveChannel):
+    """
+    Class that represents EPICS passive channels and provides integer count
+    values
+    """
+    pass
+
+
+class EpicsCounterActiveChannel(CounterChannelMixin, EpicsActiveChannel):
+    """
+    Class that represents EPICS active channels and provides integer count
+    values
+    """
+    pass
+
+
+class EpicsDetector(EpicsDevice, Detector):
+    """
+    Class to represent EPICS Detectors.
+
+    The detector is started/stopped/paused using the pvs provided:
+    startpv - used to start/stop/finish the device
+    pausepv - (optional) used to pause/resume the device
+    """
+
+    parameters = {
+        'startpv': Param('PV to start the counting', type=pvname,
+                         mandatory=True),
+        'pausepv': Param('Optional PV to pause the counting', type=pvname),
+    }
+
+    def doPreinit(self, mode):
+        EpicsDevice.doPreinit(self, mode)
+        Detector.doPreinit(self, mode)
+
+    def _get_pv_parameters(self):
+        pvs = set(['startpv'])
+
+        if self.pausepv:
+            pvs.add('pausepv')
+
+        return pvs
+
+    def doStart(self):
+        self._put_pv('startpv', 1)
+
+    def doPause(self):
+        if self.pausepv:
+            paused = self._get_pv('pausepv')
+            if paused != 1:
+                self._put_pv('pausepv', 1)
+            else:
+                self.log.info('Device is already paused.')
+        else:
+            self.log.warning(
+                'Cant pause, provide pausepv parameter for this to work')
+
+    def doResume(self):
+        if self.pausepv:
+            paused = self._get_pv('pausepv')
+            if paused != 0:
+                self._put_pv('pausepv', 0)
+            else:
+                self.log.info('Device is not paused.')
+        else:
+            self.log.warning(
+                'Cant resume, provide pausepv parameter for this to work')
+
+    def doFinish(self):
+        self._put_pv('startpv', 0, wait=False)
+
+    def doStop(self):
+        self._put_pv('startpv', 0, wait=False)
+
+    def doStatus(self, maxage=0):
+        return EpicsDevice.doStatus(self, maxage)
