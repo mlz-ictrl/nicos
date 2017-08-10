@@ -91,7 +91,8 @@ class BaseCacheClient(Device):
 
     def doShutdown(self):
         self._stoprequest = True
-        self._worker.join()
+        if self._worker.isAlive():
+            self._worker.join()
 
     def _connect(self):
         self._do_callbacks = False
@@ -421,7 +422,8 @@ class BaseCacheClient(Device):
     def wait(self):
         while not self._stoprequest:
             sleep(self._long_loop_delay)
-        self._worker.join()
+        if self._worker.isAlive():
+            self._worker.join()
 
     def quit(self, signum=None):
         self.log.info('quitting on signal %s...', signum)
