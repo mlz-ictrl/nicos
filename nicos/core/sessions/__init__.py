@@ -1216,33 +1216,34 @@ class Session(object):
 
     # -- Logging --------------------------------------------------------------
 
-    def _initLogging(self, prefix=None, console=True):
+    def _initLogging(self, prefix=None, console=True, logfile=True):
         prefix = prefix or self.appname
         initLoggers()
         self._loggers = {}
         self._log_handlers = []
-        self.createRootLogger(prefix, console)
+        self.createRootLogger(prefix, console, logfile)
 
-    def createRootLogger(self, prefix='nicos', console=True):
+    def createRootLogger(self, prefix='nicos', console=True, logfile=True):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        log_path = path.join(config.nicos_root, config.logging_path)
         if console:
             self.log.addHandler(ColoredConsoleHandler())
         self._master_handler = None
-        try:
-            if prefix == 'nicos':
-                self.log.addHandler(NicosLogfileHandler(
-                    log_path, 'nicos', str(os.getpid())))
-                # handler for master session only
-                self._master_handler = NicosLogfileHandler(log_path)
-                self._master_handler.disabled = True
-                self.log.addHandler(self._master_handler)
-            else:
-                self.log.addHandler(NicosLogfileHandler(log_path, prefix))
-        except (IOError, OSError) as err:
-            self.log.error('cannot open log file: %s', err)
+        if logfile:
+            try:
+                log_path = path.join(config.nicos_root, config.logging_path)
+                if prefix == 'nicos':
+                    self.log.addHandler(NicosLogfileHandler(
+                        log_path, 'nicos', str(os.getpid())))
+                    # handler for master session only
+                    self._master_handler = NicosLogfileHandler(log_path)
+                    self._master_handler.disabled = True
+                    self.log.addHandler(self._master_handler)
+                else:
+                    self.log.addHandler(NicosLogfileHandler(log_path, prefix))
+            except (IOError, OSError) as err:
+                self.log.error('cannot open log file: %s', err)
 
     def getLogger(self, name):
         """Return a new NICOS logger for the specified device name."""

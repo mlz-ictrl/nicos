@@ -339,7 +339,7 @@ class TestSession(Session):
             return Session.readSetupInfo(self)
         return self._setup_info
 
-    def createRootLogger(self, prefix='nicos', console=True):
+    def createRootLogger(self, prefix='nicos', console=True, logfile=True):
         self.log = NicosLogger('nicos')
         self.log.parent = None
         self.log.setLevel(DEBUG)

@@ -67,7 +67,7 @@ class CISession(SingleDeviceSession):
 
     _qthandler = None
 
-    def createRootLogger(self, prefix='nicos', console=True):
+    def createRootLogger(self, prefix='nicos', console=True, logfile=True):
         self.log = NicosLogger('nicos')
         self.log.setLevel(INFO)
         self.log.parent = None

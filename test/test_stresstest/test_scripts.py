@@ -45,7 +45,7 @@ class ScriptSessionTest(ScriptSession):
         ScriptSession.__init__(self, appname, daemonized)
         self.setSetupPath(path.join(module_root, 'test', 'setups'))
 
-    def createRootLogger(self, prefix='nicos', console=True):
+    def createRootLogger(self, prefix='nicos', console=True, logfile=True):
         if self.log:
             self._closeLogStreams()
         self.log = loggers.NicosLogger('nicos')
