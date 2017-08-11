@@ -48,15 +48,15 @@ def import_and_check(modname):
 
 facility_dirs = [d for d in glob.glob(path.join(module_root, 'nicos_*'))
                  if path.isdir(d)]
-all_instrs = sorted(path.basename(facility_dir) + '.' + instr_dir
+all_instrs = [(path.basename(facility_dir) , instr_dir)
                     for facility_dir in facility_dirs
                     for instr_dir in os.listdir(facility_dir)
-                    if path.isdir(path.join(facility_dir, instr_dir)))
+                    if path.isdir(path.join(facility_dir, instr_dir))]
 
 
-@pytest.mark.parametrize('fac_instr', all_instrs)
+@pytest.mark.parametrize('fac_instr', all_instrs,ids=str)
 def test_import_all(fac_instr):
-    (facility, instr) = fac_instr.split('.')
+    facility, instr = fac_instr
     if instr == 'delab':
         return
     instrlib = path.join(module_root, facility, instr, 'devices')
