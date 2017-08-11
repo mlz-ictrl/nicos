@@ -359,6 +359,17 @@ class ColoredConsoleHandler(StreamHandler):
         self.stream.flush()
 
 
+class SimDebugHandler(StreamHandler):
+    """
+    A handler class that writes records to standard error.  In a simulation
+    process (even if sandboxed) this will go to the daemon logfile.
+    """
+
+    def __init__(self, stream=None):
+        StreamHandler.__init__(self, sys.stderr)
+        self.setFormatter(NicosLogfileFormatter('(sim) ' + LOGFMT, DATEFMT))
+
+
 class ELogHandler(Handler):
 
     def __init__(self):

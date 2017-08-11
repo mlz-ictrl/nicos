@@ -39,6 +39,8 @@ parser.add_argument('user', type=str, help='user name,user Level')
 parser.add_argument('code', type=str, help='code to be executed')
 parser.add_argument('--quiet', help='send only results', action='store_true',
                     default=False)
+parser.add_argument('--debug', help='send log messages to stderr',
+                    action='store_true', default=False)
 
 opts = parser.parse_args()
 
@@ -48,4 +50,4 @@ if hasattr(signal, 'alarm'):
 
 from nicos.core.sessions.simulation import SimulationSession
 SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
-                      opts.user, opts.code, opts.quiet)
+                      opts.user, opts.code, opts.quiet, opts.debug)

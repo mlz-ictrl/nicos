@@ -43,7 +43,7 @@ from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
-from nicos.utils.loggers import recordToMessage
+from nicos.utils.loggers import recordToMessage, SimDebugHandler
 from nicos.utils.messaging import nicos_zmq_ctx
 from nicos.pycompat import iteritems, exec_, cPickle as pickle
 
@@ -136,8 +136,10 @@ class SimulationSession(Session):
         self.log_sender.level = logging.ERROR  # log only errors before code starts
 
     @classmethod
-    def run(cls, sock, uuid, setups, user, code, quiet=False):
+    def run(cls, sock, uuid, setups, user, code, quiet=False, debug=False):
         session.__class__ = cls
+        session._is_sandboxed = sock.startswith('ipc://')
+        session._debug_log = debug
 
         socket = nicos_zmq_ctx.socket(zmq.DEALER)
         socket.connect(sock)
@@ -215,7 +217,10 @@ class SimulationSession(Session):
         session.shutdown()
 
     def _initLogging(self, prefix=None, console=True):
-        Session._initLogging(self, prefix, console=False)
+        Session._initLogging(self, prefix, console=False,
+                             logfile=not self._is_sandboxed)
+        if self._debug_log:
+            self.log.addHandler(SimDebugHandler())
         self.log.addHandler(self.log_sender)
 
     def getExecutingUser(self):
@@ -262,6 +267,8 @@ class SimulationSupervisor(Thread):
         userstr = '%s,%d' % (user.name, user.level)
         if quiet:
             args.append('--quiet')
+        if config.sandbox_simulation_debug:
+            args.append('--debug')
         proc = createSubprocess(prefixargs +
                                 [sys.executable, scriptname, sockname, uuid,
                                  ','.join(setups), userstr, code] + args)
