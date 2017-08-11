@@ -29,7 +29,7 @@ This module contains SINQ specific EPICS developments.
 from nicos.core import Device, Param, pvname, Override
 from nicos.devices.epics import EpicsDevice
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
-    CounterChannelMixin, Detector
+    CounterChannelMixin, TimerChannelMixin, Detector
 
 
 class EpicsAsynController(EpicsDevice, Device):
@@ -142,6 +142,20 @@ class EpicsCounterActiveChannel(CounterChannelMixin, EpicsActiveChannel):
     """
     Class that represents EPICS active channels and provides integer count
     values
+    """
+    pass
+
+
+class EpicsTimerPassiveChannel(TimerChannelMixin, EpicsPassiveChannel):
+    """
+    Class that represents EPICS passive channels and provides time
+    """
+    pass
+
+
+class EpicsTimerActiveChannel(TimerChannelMixin, EpicsActiveChannel):
+    """
+    Class that represents EPICS active channels and provides time
     """
     pass
 
