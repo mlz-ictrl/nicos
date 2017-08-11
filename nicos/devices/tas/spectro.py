@@ -121,6 +121,10 @@ class TAS(Instrument, Moveable):
             if name in self.__dict__:
                 self.__dict__[name].shutdown()
 
+    def _getWaiters(self):
+        return [self._attached_mono, self._attached_ana,
+                self._attached_phi, self._attached_psi, self._attached_alpha]
+
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
             return ny / THZ2MEV

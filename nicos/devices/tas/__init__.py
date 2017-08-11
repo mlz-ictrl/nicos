@@ -27,6 +27,6 @@
 from nicos.devices.tas.cell import Cell, TASSample
 from nicos.devices.tas.mono import Monochromator
 from nicos.devices.tas.spectro import TAS, TASIndex, Wavevector, Energy, \
-     Wavelength
+    Wavelength
 from nicos.devices.tas.ecradle import EulerianCradle
 from nicos.devices.tas.vgonio import VirtualGonio
