@@ -73,8 +73,10 @@ class ExpInfoPanel(Panel):
         self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
         self.connect(self.client, SIGNAL('initstatus'), self.on_client_initstatus)
 
-        self.detLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
-        self.envLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
+        self.detLabel.setFormatCallback(
+            lambda value, strvalue: ', '.join(sorted(value)))
+        self.envLabel.setFormatCallback(
+            lambda value, strvalue: ', '.join(sorted(value)))
 
         self._sample_panel = None
 
@@ -100,10 +102,10 @@ class ExpInfoPanel(Panel):
             self.client.ask('getstatus')
 
     def on_client_initstatus(self, initstatus):
-        self.setupLabel.setText(', '.join(initstatus['setups'][1]))
+        self.setupLabel.setText(', '.join(sorted(initstatus['setups'][1])))
 
     def on_client_setup(self, data):
-        self.setupLabel.setText(', '.join(data[1]))
+        self.setupLabel.setText(', '.join(sorted(data[1])))
 
     def updateStatus(self, status, exception=False):
         if self._proposal_popup_timer:
