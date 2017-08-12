@@ -100,15 +100,15 @@ def main(argv):
         # if "demo" is detected automatically, let the user choose.
         if (config.setup_package == 'nicos_demo'
                 and config.instrument == 'demo') or config.instrument is None:
-            configfile = InstrSelectDialog.select('Your instrument could not '
-                                                  'be automatically detected.')
-            if configfile is None:
+            opts.configfile = InstrSelectDialog.select(
+                'Your instrument could not be automatically detected.')
+            if opts.configfile is None:
                 return
         else:
-            configfile = path.join(config.setup_package_path, config.instrument,
-                                   'guiconfig.py')
+            opts.configfile = path.join(config.setup_package_path,
+                                        config.instrument, 'guiconfig.py')
 
-    with open(configfile, 'rb') as fp:
+    with open(opts.configfile, 'rb') as fp:
         configcode = fp.read()
 
     ns = prepareGuiNamespace()
@@ -122,8 +122,8 @@ def main(argv):
     stylefiles = [
         path.join(userpath, 'style-%s.qss' % sys.platform),
         path.join(userpath, 'style.qss'),
-        path.splitext(configfile)[0] + '-%s.qss' % sys.platform,
-        path.splitext(configfile)[0] + '.qss',
+        path.splitext(opts.configfile)[0] + '-%s.qss' % sys.platform,
+        path.splitext(opts.configfile)[0] + '.qss',
     ]
     for stylefile in stylefiles:
         if path.isfile(stylefile):
