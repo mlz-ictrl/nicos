@@ -61,8 +61,8 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
     SIMULATION, MAINTENANCE, guessCorrectCommand
 from nicos.core.sessions.setups import readSetups
-from nicos.pycompat import builtins, exec_, string_types, reraise, \
-    itervalues, iteritems, listvalues, getargspec
+from nicos.pycompat import builtins, exec_, string_types, itervalues, \
+    iteritems, listvalues, getargspec
 from nicos.core.constants import MAIN
 
 

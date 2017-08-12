@@ -1117,20 +1117,26 @@ def watchFileTime(filename, log, interval=1.0, sleep=sleep):
         sleep(interval)
 
 
-def watchFileContent(filename, log, interval=1.0, sleep=sleep):
-    """Watch a file until its content changes; then return."""
+def watchFileContent(filenames, log, interval=1.0, sleep=sleep):
+    """Watch files until content changes; then return."""
     def get_content():
         # File could be unavailable temporary on nfs mounts,
         # so let's retry it
-        while True:
-            try:
-                with open(filename, 'r') as f:
-                    return f.read().strip()
-            except IOError as err:
-                log.error('got exception checking for content of %r: %s',
-                          filename, err)
-                sleep(interval / 2)
-                continue
+        result = []
+        for filename in filenames:
+            localinterval = interval
+            while True:
+                try:
+                    with open(filename, 'rb') as f:
+                        result.append(f.read())
+                    break
+                except IOError as err:
+                    log.error('got exception checking for content of %r: %s',
+                              filename, err)
+                    sleep(localinterval)
+                    localinterval = min(2 * localinterval, 300)
+                    continue
+        return result
     content = get_content()
     sleep(interval)
     while True:

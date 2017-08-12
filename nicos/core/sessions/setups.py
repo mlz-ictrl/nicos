@@ -39,14 +39,28 @@ SETUP_GROUPS = set([
 ])
 
 
-def readSetups(paths, logger):
-    infodict = {}
+def iterSetups(paths):
+    """Iterate over full file names of all setups within the given paths."""
     for rootpath in paths:
         for root, _, files in os.walk(rootpath, topdown=False):
             for filename in files:
                 if not filename.endswith('.py'):
                     continue
-                readSetup(infodict, path.join(root, filename), logger)
+                yield path.join(root, filename)
+
+
+def findSetup(paths, setupname):
+    """Return, if found, the full filename for a given setup name."""
+    for filename in iterSetups(paths):
+        if path.basename(filename)[:-3] == setupname:
+            return filename
+
+
+def readSetups(paths, logger):
+    """Read all setups on the given paths."""
+    infodict = {}
+    for filename in iterSetups(paths):
+        readSetup(infodict, filename, logger)
     # check if all includes exist
     for name, info in iteritems(infodict):
         if info is None:
@@ -56,7 +70,6 @@ def readSetups(paths, logger):
                 logger.error('Setup %s includes setup %s which does not '
                              'exist or has errors', name, include)
                 infodict[name] = None
-
     return infodict
 
 
@@ -159,7 +172,7 @@ def readSetup(infodict, filepath, logger):
         'startupcode': ns.get('startupcode', ''),
         'display_order': ns.get('display_order', 50),
         'extended': ns.get('extended', {}),
-        'filename': filepath,
+        'filenames': [filepath],
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
@@ -185,7 +198,7 @@ def readSetup(infodict, filepath, logger):
         oldinfo['display_order'] = ns.get('display_order',
                                           oldinfo['display_order'])
         oldinfo['extended'].update(info['extended'])
-        oldinfo['filename'] = filepath
+        oldinfo['filenames'].append(filepath)
         logger.debug('%r setup partially merged with version '
                      'from parent directory', modname)
     else:

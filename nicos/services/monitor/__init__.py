@@ -160,10 +160,7 @@ class Monitor(BaseCacheClient):
 
     def _checker(self):
         setupname = session.explicit_setups[0]
-        fn = session._setup_info[setupname]['filename']
-        if not path.isfile(fn):
-            self.log.warning('setup watcher could not find %r', fn)
-            return
+        fn = session._setup_info[setupname]['filenames']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting monitor process')
         os.execv(sys.executable, [sys.executable] + sys.argv)

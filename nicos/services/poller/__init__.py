@@ -36,6 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError, DeviceAlias
+from nicos.core.sessions.setups import findSetup
 from nicos.utils import whyExited, watchFileContent, loggers, createThread, \
     createSubprocess
 from nicos.devices.generic.cache import CacheReader
@@ -343,12 +344,13 @@ class Poller(Device):
 
     def _checker(self, setupname):
         if setupname not in session._setup_info:
-            # setup was removed since, do not try to watch it
-            return
-        fn = session._setup_info[setupname]['filename']
-        if not path.isfile(fn):
-            self.log.warning('setup watcher could not find %r', fn)
-            return
+            # setup has errors or has disappeared, try the file directly
+            fn = [findSetup(session._setup_paths, setupname)]
+            # no luck? can't watch anything
+            if fn[0] is None:
+                return
+        else:
+            fn = session._setup_info[setupname]['filenames']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting poller process')
         self.quit()
