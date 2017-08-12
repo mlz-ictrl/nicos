@@ -79,11 +79,14 @@ class Device(tuple):
 
 def prepareNamespace(setupname, filepath):
     """Return a namespace prepared for reading setup "setupname"."""
+    # set of all files consulted via configdata()
+    cd_files = set()
     # device() is a helper function to make configuration prettier
     ns = {
         'device': lambda cls, **params: Device((cls, params)),
-        'configdata': make_load_config(filepath),
+        'configdata': make_load_config(filepath, cd_files),
         'setupname': setupname,
+        '_configdata_files': cd_files,
     }
     if path.basename(setupname).startswith('monitor'):
         ns['Row'] = lambda *args: args
@@ -172,7 +175,7 @@ def readSetup(infodict, filepath, logger):
         'startupcode': ns.get('startupcode', ''),
         'display_order': ns.get('display_order', 50),
         'extended': ns.get('extended', {}),
-        'filenames': [filepath],
+        'filenames': [filepath] + list(ns.get('_configdata_files', ())),
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
@@ -198,7 +201,7 @@ def readSetup(infodict, filepath, logger):
         oldinfo['display_order'] = ns.get('display_order',
                                           oldinfo['display_order'])
         oldinfo['extended'].update(info['extended'])
-        oldinfo['filenames'].append(filepath)
+        oldinfo['filenames'].extend(info['filenames'])
         logger.debug('%r setup partially merged with version '
                      'from parent directory', modname)
     else:

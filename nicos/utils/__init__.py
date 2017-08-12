@@ -1255,7 +1255,7 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     return outer
 
 
-def make_load_config(filepath):
+def make_load_config(filepath, cd_files):
     """Create a load_config function for use in setups."""
     def load_config(name):
         from nicos.core.errors import ConfigurationError
@@ -1269,6 +1269,7 @@ def make_load_config(filepath):
         if path.isfile(fullname):
             with open(fullname) as fp:
                 exec_(fp, ns)
+            cd_files.add(fullname)
         try:
             return ns[element]
         except KeyError:
