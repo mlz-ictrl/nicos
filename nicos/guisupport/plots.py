@@ -32,7 +32,7 @@ import functools
 from time import time as currenttime, strftime, localtime
 
 from PyQt4.QtGui import QWidget, QPen, QBrush
-from PyQt4.QtCore import Qt, QTimer, QSize, pyqtSignal, SIGNAL
+from PyQt4.QtCore import Qt, QTimer, QSize, pyqtSignal
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
     QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
@@ -94,6 +94,7 @@ class TrendPlot(QwtPlot, NicosWidget):
     designer_icon = ':/plotter'
 
     widgetInfo = pyqtSignal(str)
+    timeSeriesUpdate = pyqtSignal(object)
 
     colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
               Qt.darkGray]
@@ -147,7 +148,7 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.canvas().setMouseTracking(True)
         self.picker.moved.connect(self.on_picker_moved)
 
-        self.connect(self, SIGNAL('timeSeriesUpdate'), self.on_timeSeriesUpdate)
+        self.timeSeriesUpdate.connect(self.on_timeSeriesUpdate)
 
     properties = {
         'devices':      PropDef('QStringList', [], '''

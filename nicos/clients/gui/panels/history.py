@@ -37,8 +37,8 @@ from nicos.guisupport.qt import QApplication
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, \
     QBrush, QColor, QCompleter, QStyledItemDelegate
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
-    pyqtSignature as qtsig
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, \
+    pyqtSignal, pyqtSignature as qtsig
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename, extractKeyAndIndex
@@ -68,6 +68,8 @@ def float_with_default(s, d):
 
 
 class View(QObject):
+    timeSeriesUpdate = pyqtSignal(object)
+
     def __init__(self, widget, name, keys_indices, interval, fromtime, totime,
                  yfrom, yto, window, meta, dlginfo, query_func):
         QObject.__init__(self)
@@ -144,8 +146,7 @@ class View(QObject):
             self.timer.timeout.connect(self.on_timer_timeout)
             self.timer.start()
 
-        self.connect(self, SIGNAL('timeSeriesUpdate'),
-                     self.on_timeSeriesUpdate)
+        self.timeSeriesUpdate.connect(self.on_timeSeriesUpdate)
 
     def cleanup(self):
         self.plot.cleanup()
@@ -1005,6 +1006,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
+    newValue = pyqtSignal(object)
+
     def __init__(self, app):
         QMainWindow.__init__(self, None)
         BaseHistoryWindow.__init__(self)
@@ -1016,7 +1019,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
         self.app = app
         self.setCentralWidget(self.splitter)
-        self.connect(self, SIGNAL('newvalue'), self.newvalue_callback)
+        self.newValue.connect(self.newvalue_callback)
 
         self.menus = None
         self.bar = None
@@ -1108,7 +1111,7 @@ class StandaloneHistoryApp(CacheClient):
         self._stoprequest = True
 
     def _propagate(self, data):
-        self._window.emit(SIGNAL('newvalue'), data)
+        self._window.newValue.emit(data)
 
 
 def parseTimeSpec(intv):

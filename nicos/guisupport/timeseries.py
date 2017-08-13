@@ -33,8 +33,6 @@ from time import time as currenttime
 
 import numpy as np
 
-from PyQt4.QtCore import SIGNAL
-
 from nicos.pycompat import number_types, string_types, iteritems
 
 
@@ -272,4 +270,4 @@ class TimeSeries(object):
                 y[0:n - i] = y[i+1:n+1].copy()
                 self.n -= i+1
                 self.real_n -= i+1
-        self.signal_obj.emit(SIGNAL('timeSeriesUpdate'), self)
+        self.signal_obj.timeSeriesUpdate.emit(self)

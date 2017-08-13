@@ -29,7 +29,7 @@ from os import path
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QDoubleSpinBox, QListWidgetItem
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import QByteArray, Qt, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -208,4 +208,3 @@ class LiveDataPanel(Panel):
         with self.sgroup as settings:
             settings.setValue('geometry', self.saveGeometry())
         event.accept()
-        self.emit(SIGNAL('closed'), self)
