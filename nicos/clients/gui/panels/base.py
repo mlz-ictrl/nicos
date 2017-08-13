@@ -108,7 +108,7 @@ class SetupDepPanelMixin(QObject):
                 self.setWidgetVisible.emit(self, enabled)
 
 
-class Panel(QWidget, SetupDepPanelMixin, DlgUtils):
+class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
     panelName = ''
 
     setWidgetVisible = SetupDepPanelMixin.setWidgetVisible

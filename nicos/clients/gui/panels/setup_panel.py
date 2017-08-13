@@ -33,7 +33,7 @@ from nicos.core.params import mailaddress, vec3
 from nicos.guisupport import typedvalue
 from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import loadUi
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.utils import decodeAny
 from nicos.pycompat import iteritems, listitems
@@ -47,12 +47,11 @@ def iterChecked(listwidget):
             yield item
 
 
-class ExpPanel(Panel, DlgUtils):
+class ExpPanel(Panel):
     panelName = 'Experiment setup'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_exp.ui', 'panels')
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
@@ -299,12 +298,11 @@ class AliasWidget(QFrame):
         return self.combo.currentText()
 
 
-class SetupsPanel(Panel, DlgUtils):
+class SetupsPanel(Panel):
     panelName = 'Setup selection'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_setups.ui', 'panels')
 
         self.aliasGroup.hide()
@@ -524,12 +522,11 @@ class SetupsPanel(Panel, DlgUtils):
             self.showInfo('New setups loaded.')
 
 
-class DetEnvPanel(Panel, DlgUtils):
+class DetEnvPanel(Panel):
     panelName = 'Det/Env setup'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_detenv.ui', 'panels')
 
         if client.isconnected:
@@ -607,13 +604,12 @@ sample environment is placed.''')
             self.showInfo('\n'.join(done))
 
 
-class GenericSamplePanel(Panel, DlgUtils):
+class GenericSamplePanel(Panel):
     panelName = 'Sample setup'
     uiName = 'setup_sample.ui'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Setup')
         loadUi(self, self.uiName, 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)

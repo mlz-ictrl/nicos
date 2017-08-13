@@ -34,17 +34,16 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QUrl, QMainWindow, \
     QActionGroup, QWebView, QWebPage
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.clients.gui.utils import loadUi, dialogFromUi
 
 
-class ELogPanel(Panel, DlgUtils):
+class ELogPanel(Panel):
     """Provides a HTML widget for the electronic logbook."""
 
     panelName = 'Electronic logbook'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Logbook')
         loadUi(self, 'elog.ui', 'panels')
 
         self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)

@@ -32,7 +32,7 @@ from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, SettingGroup
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 
 
-class SettingsDialog(QDialog, DlgUtils):
+class SettingsDialog(DlgUtils, QDialog):
     def __init__(self, main):
         QDialog.__init__(self, main)
         DlgUtils.__init__(self, 'Settings')

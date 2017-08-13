@@ -37,7 +37,7 @@ TANGO_DEV_BASE = 'tango://phys.kws1.frm2:10000/kws1/hexapod'
 AXES = ['tx', 'ty', 'tz', 'rz', 'ry', 'rx', 'dt']
 
 
-class HexapodTool(QMainWindow, DlgUtils):
+class HexapodTool(DlgUtils, QMainWindow):
     toolName = 'HexapodTool'
 
     def __init__(self, parent, client, **kwds):

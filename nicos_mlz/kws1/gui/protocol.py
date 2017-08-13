@@ -30,18 +30,17 @@ from nicos.guisupport.qt import pyqtSlot, QPrintDialog, QPrinter, QFileDialog
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import loadUi
 from nicos.pycompat import to_utf8
 
 
-class ProtocolPanel(Panel, DlgUtils):
+class ProtocolPanel(Panel):
     """Generate a measurement protocol from saved runs."""
 
     panelName = 'KWS protocol'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Protocol')
         loadUi(self, findResource('nicos_mlz/kws1/gui/protocol.ui'))
 
         self.firstEdit.setShadowText('default: all')

@@ -176,7 +176,7 @@ class View(QObject):
                 series.add_value(vtime, value)
 
 
-class NewViewDialog(QDialog, DlgUtils):
+class NewViewDialog(DlgUtils, QDialog):
 
     def __init__(self, parent, info=None, client=None):
         QDialog.__init__(self, parent)
@@ -792,7 +792,7 @@ class BaseHistoryWindow(object):
         self.currentPlot.saveData()
 
 
-class HistoryPanel(Panel, BaseHistoryWindow):
+class HistoryPanel(BaseHistoryWindow, Panel):
     """Provides a panel to show time series plots of any cache values."""
 
     panelName = 'History viewer'
@@ -1001,7 +1001,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         self._autoscale(y=on)
 
 
-class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
+class StandaloneHistoryWindow(DlgUtils, QMainWindow, BaseHistoryWindow):
 
     newValue = pyqtSignal(object)
 

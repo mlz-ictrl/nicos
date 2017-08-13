@@ -32,7 +32,6 @@ from nicos.guisupport.qt import Qt, QSize, QEvent, QDialogButtonBox, QLabel, \
     QStyleOptionHeader, QLineEdit, QAbstractItemView, QVBoxLayout
 
 from nicos.core import ProgrammingError
-from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.utils import findResource
@@ -74,7 +73,7 @@ class TableWidget(QTableWidget):
         return False
 
 
-class CustomButtonPanel(Panel, DlgUtils):
+class CustomButtonPanel(Panel):
     """Base class for custom instrument specific panels
 
     with a QDialogButtonBox at the lower right and some glue magic for
@@ -83,7 +82,6 @@ class CustomButtonPanel(Panel, DlgUtils):
     def __init__(self, parent, client,
                  buttons=QDialogButtonBox.Close | QDialogButtonBox.Apply):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, self.panelName)
 
         # make a vertical layout for 'ourself'
         self.vBoxLayout = QVBoxLayout(self)

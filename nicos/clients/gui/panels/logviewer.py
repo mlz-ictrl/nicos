@@ -30,17 +30,16 @@ from cgi import escape
 from nicos.guisupport.qt import pyqtSlot, QDateTime
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import loadUi
 
 
-class LogViewerPanel(Panel, DlgUtils):
+class LogViewerPanel(Panel):
     """Provides a possibility to view various NICOS log files."""
 
     panelName = 'Log viewer'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Logviewer')
 
         self._logPath = 'log'
 

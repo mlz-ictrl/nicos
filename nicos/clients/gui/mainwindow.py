@@ -63,7 +63,7 @@ from nicos.pycompat import iteritems, listvalues, text_type
 from nicos.clients.gui.config import tabbed
 
 
-class MainWindow(QMainWindow, DlgUtils):
+class MainWindow(DlgUtils, QMainWindow):
 
     # Emitted when a panel generates code that an editor panel should add.
     codeGenerated = pyqtSignal(object)

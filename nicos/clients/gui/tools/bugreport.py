@@ -46,7 +46,7 @@ PROJECT_ID = 'NICOS'
 CREATE_TICKET_URL = 'https://forge.frm2.tum.de/redmine/projects/nicos/issues/new'
 
 
-class BugreportTool(QDialog, DlgUtils):
+class BugreportTool(DlgUtils, QDialog):
     toolName = 'BugreportTool'
 
     def __init__(self, parent, client, **kwds):

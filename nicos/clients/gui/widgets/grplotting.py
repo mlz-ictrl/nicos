@@ -143,7 +143,7 @@ class NicosPlotCurve(MaskedPlotCurve):
                 dep.drawGR()
 
 
-class NicosGrPlot(InteractiveGRWidget, NicosPlot):
+class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     axescls = NicosPlotAxes
     HAS_AUTOSCALE = True

@@ -35,7 +35,7 @@ from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup
 
 
-class DownTimeTool(QDialog, DlgUtils):
+class DownTimeTool(DlgUtils, QDialog):
     toolName = 'DownTimeTool'
 
     def __init__(self, parent, client, **configs):

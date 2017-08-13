@@ -321,7 +321,7 @@ class LiveDataPanel(Panel):
                                        str(printer.printerName()))
 
 
-class ToftofProfileWindow(QMainWindow, DlgUtils):
+class ToftofProfileWindow(DlgUtils, QMainWindow):
     def __init__(self, parent):
         QMainWindow.__init__(self, parent)
         DlgUtils.__init__(self, 'Live data')
