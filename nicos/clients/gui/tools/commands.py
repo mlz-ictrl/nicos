@@ -31,7 +31,7 @@ from threading import Thread
 from os import path
 
 from PyQt4.QtGui import QDialog, QPushButton, QMessageBox
-from PyQt4.QtCore import SIGNAL, pyqtSignal, pyqtSlot
+from PyQt4.QtCore import pyqtSignal, pyqtSlot
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import createSubprocess
@@ -53,7 +53,7 @@ class CommandsTool(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'commands.ui', 'tools')
 
-        self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)
+        self.closeBtn.clicked.connect(self.close)
 
         commands = settings.get('commands', [])
         ncmds = len(commands)
@@ -62,8 +62,7 @@ class CommandsTool(QDialog):
         for i, (text, cmd) in enumerate(commands):
             btn = QPushButton(text, self)
             self.buttonLayout.addWidget(btn, i % collen, i // collen)
-            self.connect(btn, SIGNAL('clicked()'),
-                         lambda btncmd=cmd: self.execute(btncmd))
+            btn.clicked.connect(lambda btncmd=cmd: self.execute(btncmd))
 
     def execute(self, cmd):
         self.outputBox.setPlainText('[%s] Executing %s...\n' %

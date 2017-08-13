@@ -29,7 +29,6 @@ import math
 from os import path
 
 from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem
-from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 from nicos.guisupport.utils import DoubleValidator
@@ -69,24 +68,20 @@ class CalculatorTool(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'calculator.ui', 'tools')
 
-        self.connect(self.closeBtn, SIGNAL('clicked()'),
-                     self.doclose)
+        self.closeBtn.clicked.connect(self.doclose)
 
         self.braggfmlLabel.setPixmap(QPixmap(
             path.join(path.dirname(__file__), 'calculator_images',
                       'braggfml.png')))
         for fld in bragg_fields:
-            self.connect(getattr(self, 'chk' + fld), SIGNAL('toggled(bool)'),
-                         self.gen_checked(fld))
+            getattr(self, 'chk' + fld).toggled.connect(self.gen_checked(fld))
 
         self._miezesettings = settings.get('mieze', [])
         if not self._miezesettings:
             self.tabWidget.removeTab(1)
         else:
-            self.connect(self.mzwavelengthInput,
-                         SIGNAL('textChanged(const QString &)'), self.mzcalc)
-            self.connect(self.mzdistanceInput,
-                         SIGNAL('textChanged(const QString &)'), self.mzcalc)
+            self.mzwavelengthInput.textChanged.connect(self.mzcalc)
+            self.mzdistanceInput.textChanged.connect(self.mzcalc)
             self.mzformulaLabel.setPixmap(QPixmap(
                 path.join(path.dirname(__file__), 'calculator_images',
                           'miezefml.png')))
@@ -96,8 +91,7 @@ class CalculatorTool(QDialog):
                 self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
 
         for fld in neutron_fields:
-            self.connect(getattr(self, 'prop' + fld),
-                         SIGNAL('textEdited(const QString &)'), self.n_calc)
+            getattr(self, 'prop' + fld).textEdited.connect(self.n_calc)
 
         self.presets = DlgPresets('nicoscalctool', [
             (self.tabWidget, 0),
@@ -118,8 +112,7 @@ class CalculatorTool(QDialog):
         dblval = DoubleValidator(self)
         for fld in bragg_fields:
             inputbox = getattr(self, 'input'+fld)
-            self.connect(inputbox, SIGNAL('textChanged(const QString &)'),
-                         self.braggcalc)
+            inputbox.textChanged.connect(self.braggcalc)
             inputbox.setValidator(dblval)
 
     def closeEvent(self, event):
@@ -132,7 +125,7 @@ class CalculatorTool(QDialog):
 
     def gen_checked(self, fld):
         def checked(state):
-            getattr(self, 'input'+fld).setEnabled(state)
+            getattr(self, 'input' + fld).setEnabled(state)
             self.braggcalc()
         return checked
 

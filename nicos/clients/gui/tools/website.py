@@ -25,7 +25,7 @@
 """Browser GUI tool."""
 
 from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import SIGNAL, QUrl
+from PyQt4.QtCore import QUrl
 
 from nicos.clients.gui.utils import loadUi
 
@@ -46,11 +46,7 @@ class WebsiteTool(QDialog):
         if site:
             self.webView.load(QUrl(site))
 
-        self.connect(self.closeBtn, SIGNAL('clicked()'),
-                     self.doclose)
-
-    def doclose(self, *ignored):
-        self.close()
+        self.closeBtn.clicked.connect(self.close)
 
     def closeEvent(self, event):
         self.deleteLater()

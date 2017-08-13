@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QMainWindow, QWidget, QAbstractButton, QHBoxLayout, \
     QIcon, QPainter
-from PyQt4.QtCore import SIGNAL, Qt, QByteArray, QSize, QPoint
+from PyQt4.QtCore import Qt, QByteArray, QSize, QPoint
 
 from nicos.clients.gui.utils import SettingGroup
 
@@ -81,11 +81,11 @@ class EmergencyStopTool(QMainWindow):
         layout.setContentsMargins(3, 3, 3, 3)
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-        self.connect(self.btn, SIGNAL('clicked()'), self.dostop)
+        self.btn.clicked.connect(self.dostop)
         self.setFixedSize(self.minimumSize())
         self.show()
 
-    def dostop(self, *ignored):
+    def dostop(self):
         self.client.tell('emergency')
 
     def _saveSettings(self):

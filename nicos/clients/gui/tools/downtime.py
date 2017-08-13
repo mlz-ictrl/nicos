@@ -26,8 +26,8 @@
 
 import collections
 
-from PyQt4.QtGui import QDialog, QPixmap, QIcon, QDialogButtonBox
-from PyQt4.QtCore import SIGNAL, QDateTime
+from PyQt4.QtGui import QDialog, QIcon, QDialogButtonBox
+from PyQt4.QtCore import QDateTime
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils.emails import sendMail
@@ -43,6 +43,10 @@ class DownTimeTool(QDialog, DlgUtils):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, self.toolName)
         loadUi(self, 'downtime.ui', 'tools')
+        self.sendBtn = self.buttonBox.addButton('&Send',
+                                                QDialogButtonBox.AcceptRole)
+        self.sendBtn.setIcon(QIcon(':/mail'))
+        self.sendBtn.setDisabled(True)
 
         self.parentwindow = parent
         self.client = client
@@ -66,22 +70,7 @@ class DownTimeTool(QDialog, DlgUtils):
 
         self.startDown.setDateTime(QDateTime.currentDateTime().addSecs(-3600))
         self.endDown.setDateTime(QDateTime.currentDateTime())
-        self.sendBtn = self.buttonBox.addButton('&Send',
-                                                QDialogButtonBox.AcceptRole)
-        icon = QIcon()
-        icon.addPixmap(QPixmap(':/mail'))
-        self.sendBtn.setIcon(icon)
-        self.sendBtn.setDisabled(True)
         self.errorText.setVisible(False)
-        self.connect(self.buttonBox, SIGNAL('accepted()'), self.on_accept)
-        self.connect(self.buttonBox, SIGNAL('rejected()'), self.on_close)
-        self.connect(self.reasons, SIGNAL('editTextChanged(const QString &)'),
-                     self.on_text_changed)
-        self.connect(self.startDown, SIGNAL('dateTimeChanged(const '
-                                            'QDateTime&)'),
-                     self.on_date_changed)
-        self.connect(self.endDown, SIGNAL('dateTimeChanged(const QDateTime&)'),
-                     self.on_date_changed)
         with self.sgroup as settings:
             self.loadSettings(settings)
         self.reasons.clearEditText()
@@ -98,19 +87,22 @@ class DownTimeTool(QDialog, DlgUtils):
         self.deleteLater()
         self.accept()
 
-    def on_accept(self):
+    def on_buttonBox_accepted(self):
         self._saveSettings()
         self._sendMail()
         self.accept()
 
-    def on_close(self):
+    def on_buttonBox_rejected(self):
         self.reject()
         self.close()
 
-    def on_text_changed(self, text):
+    def on_reasons_editTextChanged(self, text):
         self._enableSend()
 
-    def on_date_changed(self, date):
+    def on_startDown_dateTimeChanged(self, date):
+        self._enableSend()
+
+    def on_endDown_dateTimeChanged(self, date):
         self._enableSend()
 
     def _enableSend(self):

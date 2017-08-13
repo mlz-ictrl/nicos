@@ -24,8 +24,8 @@
 
 """Graphical interface to prepare scan commands."""
 
+from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QDialog, QIntValidator, QButtonGroup
-from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 from nicos.guisupport.utils import DoubleValidator
@@ -55,6 +55,8 @@ def fmt_time(seconds):
 
 
 class ScanTool(QDialog):
+    addCode = pyqtSignal(str)
+
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'scan.ui', 'tools')
@@ -72,43 +74,43 @@ class ScanTool(QDialog):
         self.presetButtonGroup.addButton(self.presetTime)
         self.presetButtonGroup.addButton(self.presetMonitor)
 
-        self.connect(self.scanButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
-        self.connect(self.qscanButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
-        self.connect(self.presetButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
-        self.connect(self.stepsInput, SIGNAL('valueChanged(int)'), self.updateCommand)
-        self.connect(self.timeInput, SIGNAL('valueChanged(int)'), self.updateCommand)
-        self.connect(self.monitorInput, SIGNAL('valueChanged(int)'), self.updateCommand)
+        self.scanButtonGroup.buttonClicked.connect(self.updateCommand)
+        self.qscanButtonGroup.buttonClicked.connect(self.updateCommand)
+        self.presetButtonGroup.buttonClicked.connect(self.updateCommand)
+        self.stepsInput.valueChanged.connect(self.updateCommand)
+        self.timeInput.valueChanged.connect(self.updateCommand)
+        self.monitorInput.valueChanged.connect(self.updateCommand)
 
-        self.connect(self.deviceList, SIGNAL('itemSelectionChanged ()'), self.updateCommand)
+        self.deviceList.itemSelectionChanged .connect(self.updateCommand)
 
-        self.connect(self.scanPreset, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.scanNumsteps, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.scanStep, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.scanStart, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deviceName, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.scanRange, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.scanPreset.textChanged.connect(self.updateCommand)
+        self.scanNumsteps.textChanged.connect(self.updateCommand)
+        self.scanStep.textChanged.connect(self.updateCommand)
+        self.scanStart.textChanged.connect(self.updateCommand)
+        self.deviceName.textChanged.connect(self.updateCommand)
+        self.scanRange.textChanged.connect(self.updateCommand)
 
-        self.connect(self.hInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.kInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.lInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.EInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deltahInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deltakInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deltalInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deltaEInput, SIGNAL('textChanged(QString)'), self.updateCommand)
-        self.connect(self.deltaqInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.hInput.textChanged.connect(self.updateCommand)
+        self.kInput.textChanged.connect(self.updateCommand)
+        self.lInput.textChanged.connect(self.updateCommand)
+        self.EInput.textChanged.connect(self.updateCommand)
+        self.deltahInput.textChanged.connect(self.updateCommand)
+        self.deltakInput.textChanged.connect(self.updateCommand)
+        self.deltalInput.textChanged.connect(self.updateCommand)
+        self.deltaEInput.textChanged.connect(self.updateCommand)
+        self.deltaqInput.textChanged.connect(self.updateCommand)
 
-        self.connect(self.generateBtn, SIGNAL('clicked()'), self.createCommand)
-        self.connect(self.clearAllBtn, SIGNAL('clicked()'), self.clearAll)
-        self.connect(self.quitBtn, SIGNAL('clicked()'), self.close)
-        self.connect(self.scanCalc, SIGNAL('clicked()'), self.calc_scan)
-        self.connect(self.qscanCalc, SIGNAL('clicked()'), self.calc_qscan)
+        self.generateBtn.clicked.connect(self.createCommand)
+        self.clearAllBtn.clicked.connect(self.clearAll)
+        self.quitBtn.clicked.connect(self.close)
+        self.scanCalc.clicked.connect(self.calc_scan)
+        self.qscanCalc.clicked.connect(self.calc_qscan)
 
-        self.connect(self.qscanSingle, SIGNAL('clicked()'), self.set_qlabels)
-        self.connect(self.qscanCentered, SIGNAL('clicked()'), self.set_qlabels)
-        self.connect(self.qscanLong, SIGNAL('clicked()'), self.set_qlabels)
-        self.connect(self.qscanTrans, SIGNAL('clicked()'), self.set_qlabels)
-        self.connect(self.qscanRandom, SIGNAL('clicked()'), self.set_qlabels)
+        self.qscanSingle.clicked.connect(self.set_qlabels)
+        self.qscanCentered.clicked.connect(self.set_qlabels)
+        self.qscanLong.clicked.connect(self.set_qlabels)
+        self.qscanTrans.clicked.connect(self.set_qlabels)
+        self.qscanRandom.clicked.connect(self.set_qlabels)
 
         self._devices = sorted(parent.client.eval(
             '[(dev.name, dev.unit) '
@@ -260,7 +262,7 @@ class ScanTool(QDialog):
             self.qscanEstimation.setText('no estimation possible')
             return 0
 
-    def updateCommand(self):
+    def updateCommand(self, *args):
         self.cmdResult.setText(u'<b>%s</b>' % self._getCommand())
 
     def _getCommand(self):
@@ -331,4 +333,4 @@ class ScanTool(QDialog):
         return cmd + '\n'
 
     def createCommand(self):
-        self.emit(SIGNAL('addCode'), self._getCommand())
+        self.addCode.emit(self._getCommand())
