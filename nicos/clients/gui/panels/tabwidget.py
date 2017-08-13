@@ -24,8 +24,8 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from PyQt4.QtCore import QByteArray, QEvent, QMimeData, QPoint, Qt, SIGNAL, \
-    pyqtSlot
+from PyQt4.QtCore import QByteArray, QEvent, QMimeData, QPoint, Qt, pyqtSlot, \
+    pyqtSignal
 from PyQt4.QtGui import QApplication, QCursor, QDrag, QMainWindow, \
     QMouseEvent, QPixmap, QTabBar, QTabWidget, QWidget
 
@@ -53,6 +53,9 @@ def findTabIndex(tabwidget, w):
 
 
 class TearOffTabBar(QTabBar):
+
+    tabDetached = pyqtSignal(object, object)
+    tabMoved = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTabBar.__init__(self, parent)
@@ -100,14 +103,14 @@ class TearOffTabBar(QTabBar):
             if dragged == Qt.IgnoreAction:
                 # moved outside of tab widget
                 event.accept()
-                self.emit(SIGNAL('on_detach_tab'),
-                          self.tabAt(self._dragStartPos), QCursor.pos())
+                self.tabDetached.emit(self.tabAt(self._dragStartPos),
+                                      QCursor.pos())
             elif dragged == Qt.MoveAction:
                 # moved inside of tab widget
                 if not self._dragDroppedPos.isNull():
                     event.accept()
-                    self.emit(SIGNAL('on_move_tab'), self.tabAt(
-                        self._dragStartPos), self.tabAt(self._dragDroppedPos))
+                    self.tabMoved.emit(self.tabAt(self._dragStartPos),
+                                       self.tabAt(self._dragDroppedPos))
                     self._dragDroppedPos = QPoint()
         else:
             QTabBar.mouseMoveEvent(self, event)
@@ -161,9 +164,9 @@ class TearOffTabWidget(QTabWidget):
         self.setTabBar(self.tabBar)
         self.setMovable(False)
         self.previousTabIdx = 0
-        self.connect(self.tabBar, SIGNAL('on_detach_tab'), self.detachTab)
-        self.connect(self.tabBar, SIGNAL('on_move_tab'), self.moveTab)
-        self.connect(self, SIGNAL('currentChanged(int)'), self.tabChangedTab)
+        self.tabBar.tabDetached.connect(self.detachTab)
+        self.tabBar.tabMoved.connect(self.moveTab)
+        self.currentChanged[int].connect(self.tabChangedTab)
         self.tabIdx = {}
         # don't draw a frame around the tab contents
         self.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
@@ -256,7 +259,7 @@ class TearOffTabWidget(QTabWidget):
                 detachWindow.tabIdx = self.tabIdx[i.index].index
                 break
 
-        self.connect(detachWindow, SIGNAL('on_close'), self.attachTab)
+        detachWindow.closed.connect(self.attachTab)
 
         tearOffWidget = self.widget(index)
         panel = self._getPanel(tearOffWidget)
@@ -302,7 +305,7 @@ class TearOffTabWidget(QTabWidget):
                 toolbar.show()
 
     def attachTab(self, detachWindow):
-        self.disconnect(detachWindow, SIGNAL('on_close'), self.attachTab)
+        detachWindow.closed.connect(self.attachTab)
         detachWindow.saveSettings(False)
         tearOffWidget = detachWindow.centralWidget()
         panel = self._getPanel(tearOffWidget)
@@ -394,13 +397,13 @@ class TearOffTabWidget(QTabWidget):
                 if i.widget == widget:
                     i.setDetached(None)
         else:
-            # self.emit(SIGNAL('on_detach_tab'),
+            # self.tabDetached.emit(
             #           self.tabAt(self._dragStartPos), QCursor.pos())
             detachWindow = DetachedWindow(label, self.parentWidget())
             detachWindow.tabIdx = index
             detachWindow.setAttribute(Qt.WA_DeleteOnClose, True)
             self.tabIdx[index].setDetached(detachWindow)
-            self.connect(detachWindow, SIGNAL('on_close'), self.attachTab)
+            detachWindow.closed.connect(self.attachTab)
 
             panel = self._getPanel(widget)
             panel.setWidgetVisible.disconnect(self.setWidgetVisible)
@@ -411,8 +414,7 @@ class TearOffTabWidget(QTabWidget):
             self._moveActions(widget, detachWindow)
 
             detachWindow.setWidget(widget)
-            detachWindow.connect(self, SIGNAL('destroyed'),
-                                 detachWindow.deleteLater)
+            detachWindow.destroyed.connect(detachWindow.deleteLater)
             with sgroup as settings:
                 detachWindow.restoreGeometry(settings.value('geometry', '',
                                                             QByteArray))
@@ -429,6 +431,8 @@ class TearOffTabWidget(QTabWidget):
 
 
 class DetachedWindow(QMainWindow):
+
+    closed = pyqtSignal(object)
 
     def __init__(self, title, parent):
         self.tabIdx = -1
@@ -450,7 +454,7 @@ class DetachedWindow(QMainWindow):
     def closeEvent(self, event):
         with self.sgroup as settings:
             settings.setValue('detached', False)
-        self.emit(SIGNAL('on_close'), self)
+        self.closed.emit(self)
         self.deleteLater()
 
     def moveEvent(self, event):
