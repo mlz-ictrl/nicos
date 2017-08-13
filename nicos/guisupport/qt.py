@@ -60,6 +60,11 @@ if os.environ.get('NICOS_QT') == '5':
     except (ImportError, RuntimeError):
         QtDBus = None
 
+    try:
+        from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
+    except (ImportError, RuntimeError):
+        QsciScintilla = QsciLexerPython = QsciPrinter = None
+
     import nicos.guisupport.gui_rc_qt5
 
     class QPyNullVariant(object):
@@ -90,6 +95,11 @@ else:
         from PyQt4 import QtDBus
     except (ImportError, RuntimeError):
         QtDBus = None
+
+    try:
+        from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
+    except (ImportError, RuntimeError):
+        QsciScintilla = QsciLexerPython = QsciPrinter = None
 
     import nicos.guisupport.gui_rc_qt4
 

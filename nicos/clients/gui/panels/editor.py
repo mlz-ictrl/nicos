@@ -35,14 +35,7 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QFileSystemWatcher, \
     QDialog, QHeaderView, QHBoxLayout, QTreeWidgetItem, QMessageBox, QMenu, \
     QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, \
     QToolBar, QFileSystemModel, QTabWidget, QInputDialog, QFontMetrics, \
-    QActionGroup
-
-try:
-    from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
-except (ImportError, RuntimeError):
-    has_scintilla = False
-else:
-    has_scintilla = True
+    QActionGroup, QsciScintilla, QsciLexerPython, QsciPrinter
 
 from nicos.utils import formatDuration, formatEndtime
 from nicos.clients.gui.panels import Panel
@@ -54,6 +47,7 @@ from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.pycompat import iteritems
 
+has_scintilla = QsciScintilla is not None
 
 COMMENT_STR = '## '
 
