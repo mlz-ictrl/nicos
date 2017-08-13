@@ -29,7 +29,7 @@ from os import path
 
 from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QListWidgetItem, \
     QDoubleSpinBox, QPrintDialog, QDialog, QMenu, QToolBar, QSizePolicy, QLabel
-from PyQt4.QtCore import QByteArray, Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -226,7 +226,7 @@ class LiveDataPanel(Panel):
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionLoadTOF_triggered(self):
         filename = QFileDialog.getOpenFileName(self,
             'Open TOF File', '', 'TOF File (*.tof *.TOF);;All files (*)')
@@ -234,7 +234,7 @@ class LiveDataPanel(Panel):
             self.widget.LoadTofFile(filename)
             self.add_to_flist(filename, 'tof')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionLoadPAD_triggered(self):
         filename = QFileDialog.getOpenFileName(self,
             'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')
@@ -252,7 +252,7 @@ class LiveDataPanel(Panel):
         if scroll:
             self.fileList.scrollToBottom()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionWriteXml_triggered(self):
         pad = self.widget.GetPad()
         if pad is None:
@@ -268,18 +268,18 @@ class LiveDataPanel(Panel):
             tmpimg.ConvertPAD(pad)
             tmpimg.WriteXML(filename)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.GetPlot().GetZoomer().zoomRect()
         self.client.run('psd_channel.roi = (%s, %s, %s, %s)' %
                         (int(zoom.left()), int(zoom.top()),
                          int(zoom.right()), int(zoom.bottom())))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.widget.GetPlot().GetZoomer().zoom(0)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setColorMode(QPrinter.Color)

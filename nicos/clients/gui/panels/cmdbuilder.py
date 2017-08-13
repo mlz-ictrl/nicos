@@ -25,7 +25,7 @@
 
 """NICOS GUI single cmdlet command input."""
 
-from PyQt4.QtCore import Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, pyqtSlot
 from PyQt4.QtGui import QApplication, QAction, QKeyEvent, QMenu
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
@@ -174,7 +174,7 @@ class CommandPanel(Panel):
         else:
             self.commandInput.setText('')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_simBtn_clicked(self):
         script = self.commandInput.text()
         if not script:
@@ -185,7 +185,7 @@ class CommandPanel(Panel):
     def on_client_simresult(self, data):
         self.simBtn.setEnabled(True)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_runBtn_clicked(self):
         # Make sure we add the command to the history.
         event = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Enter, Qt.NoModifier)

@@ -25,7 +25,7 @@
 """NICOS GUI watch variable panel component."""
 
 from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -82,7 +82,7 @@ class WatchPanel(Panel):
                     self.watch_items[itemname]))
             del self.watch_items[itemname]
 
-    @qtsig('')
+    @pyqtSlot()
     def on_addWatch_clicked(self):
         expr, ok = QInputDialog.getText(self, 'Add watch expression',
                                         'New expression to watch:')
@@ -91,7 +91,7 @@ class WatchPanel(Panel):
         newexpr = [expr + ':default']
         self.client.tell('watch', newexpr)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_deleteWatch_clicked(self):
         item = self.watchView.currentItem()
         if not item:
@@ -100,7 +100,7 @@ class WatchPanel(Panel):
         delexpr = [expr + ':default']
         self.client.tell('unwatch', delexpr)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_oneShotEval_clicked(self):
         expr, ok = QInputDialog.getText(self, 'Evaluate an expression',
                                         'Expression to evaluate:')

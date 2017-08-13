@@ -36,8 +36,7 @@ from PyQt4.QtGui import QDialog, QHeaderView, QHBoxLayout, \
     QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, \
     QToolBar, QFileSystemModel, QTabWidget, QInputDialog, \
     QFontMetrics, QActionGroup
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QByteArray, \
-    QFileSystemWatcher
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray, QFileSystemWatcher
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -480,7 +479,7 @@ class EditorPanel(Panel):
                 return
         self.openFile(fpath)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         if has_scintilla:
             printer = Printer()
@@ -511,7 +510,7 @@ class EditorPanel(Panel):
         #    return
         return script
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionRun_triggered(self):
         script = self.validateScript()
         if script is None:
@@ -524,7 +523,7 @@ class EditorPanel(Panel):
                 return
         self.client.run(script, self.filenames[self.currentEditor])
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSimulate_triggered(self):
         script = self.validateScript()
         if script is None:
@@ -538,7 +537,7 @@ class EditorPanel(Panel):
         self.clearSimPane()
         self.simPane.show()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUpdate_triggered(self):
         script = self.validateScript()
         if script is None:
@@ -552,7 +551,7 @@ class EditorPanel(Panel):
             return
         self.client.tell('update', script, reason)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionGet_triggered(self):
         script = self.client.ask('getscript')
         if script is not None:
@@ -618,7 +617,7 @@ class EditorPanel(Panel):
         if not watcher.files():
             watcher.addPath(self.filenames[editor])
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNew_triggered(self):
         self.newFile()
 
@@ -636,7 +635,7 @@ class EditorPanel(Panel):
         editor.setFocus()
         return editor
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionOpen_triggered(self):
         if self.currentEditor is not None and self.filenames[self.currentEditor]:
             initialdir = path.dirname(self.filenames[self.currentEditor])
@@ -649,7 +648,7 @@ class EditorPanel(Panel):
         self.openFile(fn.encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionReload_triggered(self):
         fn = self.filenames[self.currentEditor]
         if not fn:
@@ -711,14 +710,14 @@ class EditorPanel(Panel):
             settings.setValue('recentf',
                               [a.text() for a in self.recentf_actions])
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSave_triggered(self):
         self.saveFile(self.currentEditor)
         self.window.setWindowTitle(
             '%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSaveAs_triggered(self):
         self.saveFileAs(self.currentEditor)
         self.window.setWindowTitle(
@@ -767,7 +766,7 @@ class EditorPanel(Panel):
         self.tabber.setTabText(self.editors.index(editor), path.basename(fn))
         return self.saveFile(editor)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFind_triggered(self):
         if not self.searchdlg:
             self.searchdlg = SearchDialog(self, self.currentEditor,
@@ -775,27 +774,27 @@ class EditorPanel(Panel):
         self.searchdlg.setEditor(self.currentEditor)
         self.searchdlg.show()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUndo_triggered(self):
         self.currentEditor.undo()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionRedo_triggered(self):
         self.currentEditor.redo()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionCut_triggered(self):
         self.currentEditor.cut()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionCopy_triggered(self):
         self.currentEditor.copy()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPaste_triggered(self):
         self.currentEditor.paste()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionComment_triggered(self):
         clen = len(COMMENT_STR)
         # act on selection?

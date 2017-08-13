@@ -30,8 +30,7 @@ from os import path
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
     QDialogButtonBox, QColor
-from PyQt4.QtCore import Qt, QByteArray
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.clients.gui.panels import Panel
@@ -224,7 +223,7 @@ class SANSPanel(Panel):
         if scroll:
             self.fileList.scrollToBottom()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_start_clicked(self):
         dpos = []
         for dp, cb in zip([1, 2, 5, 10, 20],
@@ -241,11 +240,11 @@ class SANSPanel(Panel):
             (coll, ', '.join(str(x) for x in dpos), ctime)
         self.execScript(code)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.widget.plot().getZoomer().zoom(0)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setColorMode(QPrinter.Color)

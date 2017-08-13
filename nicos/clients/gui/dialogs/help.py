@@ -25,7 +25,7 @@
 """NICOS GUI help window."""
 
 from PyQt4.QtGui import QMainWindow
-from PyQt4.QtCore import QUrl, pyqtSignature as qtsig
+from PyQt4.QtCore import QUrl, pyqtSlot
 
 try:
     from PyQt4.QtWebKit import QWebPage
@@ -69,7 +69,7 @@ class HelpWindow(QMainWindow):
             target = url.toString()
             self.client.eval('session.showHelp(%r)' % target)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_backBtn_clicked(self):
         if not self.history:
             return
@@ -80,11 +80,11 @@ class HelpWindow(QMainWindow):
         self._next_scrollpos = scrollpos
         self.client.eval('session.showHelp(%r)' % target)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_contentsBtn_clicked(self):
         self.client.eval('session.showHelp("index")')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_searchBtn_clicked(self):
         self.webView.findText(self.searchBox.text(),
                               QWebPage.FindWrapsAroundDocument)
@@ -93,6 +93,6 @@ class HelpWindow(QMainWindow):
         self.webView.findText(self.searchBox.text(),
                               QWebPage.FindWrapsAroundDocument)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_closeBtn_clicked(self):
         self.close()

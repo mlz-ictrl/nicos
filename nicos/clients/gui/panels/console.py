@@ -28,7 +28,7 @@ import io
 import sys
 from os import path
 
-from PyQt4.QtCore import Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, pyqtSlot
 from PyQt4.QtGui import QAbstractPrintDialog, QDialog, QFileDialog, QMenu, \
     QMessageBox, QPrintDialog, QPrinter, QTextEdit
 
@@ -202,7 +202,7 @@ class ConsolePanel(Panel):
         else:
             self.log.warning('Strange anchor in outView: %s', url)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         printer = QPrinter()
         printdlg = QPrintDialog(printer, self)
@@ -210,7 +210,7 @@ class ConsolePanel(Panel):
         if printdlg.exec_() == QDialog.Accepted:
             self.outView.print_(printer)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSave_triggered(self):
         fn = QFileDialog.getSaveFileName(self, 'Save', '', 'All files (*.*)')
         if not fn:
@@ -222,16 +222,16 @@ class ConsolePanel(Panel):
         except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionCopy_triggered(self):
         self.outView.copy()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionGrep_triggered(self):
         self.grepPanel.setVisible(True)
         self.grepText.setFocus()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_grepClose_clicked(self):
         self.grepPanel.setVisible(False)
         self.commandInput.setFocus()
@@ -243,7 +243,7 @@ class ConsolePanel(Panel):
     def on_grepText_escapePressed(self):
         self.on_grepClose_clicked()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_grepSearch_clicked(self):
         st = self.grepText.text()
         if not st:
@@ -251,14 +251,14 @@ class ConsolePanel(Panel):
         found = self.outView.findNext(st, self.grepRegex.isChecked())
         self.grepNoMatch.setVisible(not found)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_grepOccur_clicked(self):
         st = self.grepText.text()
         if not st:
             return
         self.outView.occur(st, self.grepRegex.isChecked())
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionAllowLineWrap_triggered(self, checked):
         self.mainwindow.allowoutputlinewrap = checked
         if self.mainwindow.allowoutputlinewrap:

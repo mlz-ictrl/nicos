@@ -25,8 +25,7 @@
 from pprint import pformat
 from datetime import datetime
 
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QEvent, QDateTime, \
-    pyqtSignal
+from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt, QEvent, QDateTime
 from PyQt4.QtGui import QMenu, QTableWidgetItem, QGraphicsView, QFont, QColor,\
     QGraphicsLineItem, QGraphicsScene, QPen, QBrush, QGraphicsEllipseItem, \
     QPainter, QGraphicsTextItem, QDialog, QTextEdit, QFrame
@@ -497,7 +496,7 @@ class TunewaveTablePanel(Panel):
         self._prepare_table()
         self._update_available_tables()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_restorePushButton_clicked(self):
         """Restore an old version of the current table via a advances preview
         dialog."""
@@ -507,7 +506,7 @@ class TunewaveTablePanel(Panel):
         if dlg.exec_():
             self._save_current_table(dlg.table)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_deletePushButton_clicked(self):
         """Delete current table after an additional confirmation."""
         if self.askQuestion('Really delete tunewave table %s/%s?'
@@ -662,7 +661,7 @@ class TunewaveTablePanel(Panel):
         # storage
         self._update_available_tables()
 
-    @qtsig('')
+    @pyqtSlot()
     def _save_current_table(self, table=None):
         """Save the currently shown/selected table to the server side table
         storage."""

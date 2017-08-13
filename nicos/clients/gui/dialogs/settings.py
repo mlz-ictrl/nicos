@@ -25,7 +25,7 @@
 """NICOS GUI settings window."""
 
 from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot
 
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, SettingGroup
@@ -85,24 +85,24 @@ class SettingsDialog(QDialog, DlgUtils):
         else:
             self.main.trayIcon.hide()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_saveLayoutBtn_clicked(self):
         self.main.saveWindowLayout()
         for win in self.main.windows.values():
             win.saveWindowLayout()
         self.showInfo('The window layout was saved.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_selectConfigBtn_clicked(self):
         InstrSelectDialog.select(force=True)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_clearConfigBtn_clicked(self):
         with SettingGroup('Instrument') as settings:
             settings.remove('guiconfig')
         self.showInfo('Default instrument GUI configuration has been cleared.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_settingAdd_clicked(self):
         dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
         if dlg.exec_() != QDialog.Accepted:
@@ -118,7 +118,7 @@ class SettingsDialog(QDialog, DlgUtils):
         QListWidgetItem(name + ' (%s:%s)' % (cdata.host, cdata.port),
                         self.settinglist).setData(32, name)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_settingDel_clicked(self):
         item = self.settinglist.currentItem()
         if item is None:
@@ -126,7 +126,7 @@ class SettingsDialog(QDialog, DlgUtils):
         del self.connpresets[item.data(32)]
         self.settinglist.takeItem(self.settinglist.row(item))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_settingEdit_clicked(self):
         item = self.settinglist.currentItem()
         if item is None:

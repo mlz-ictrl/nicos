@@ -28,8 +28,7 @@ from time import time
 
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
     QActionGroup, QPixmap, QColor
-from PyQt4.QtCore import Qt, QTimer
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QTimer
 
 from nicos.utils import formatEndtime
 from nicos.clients.gui.panels import Panel
@@ -337,56 +336,56 @@ class ScriptStatusPanel(Panel):
             return
         self.script_queue.update(request)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionBreak_triggered(self):
         self.client.tell_action('break', BREAK_AFTER_STEP)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionBreak2_triggered(self):
         self.on_actionBreak_triggered()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionBreakCount_triggered(self):
         self.client.tell_action('break', BREAK_NOW)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionContinue_triggered(self):
         self.client.tell_action('continue')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionStop_triggered(self):
         if self.stopcounting:
             self.client.tell_action('stop', BREAK_NOW)
         else:
             self.client.tell_action('stop', BREAK_AFTER_STEP)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionStop2_triggered(self):
         self.on_actionStop_triggered()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFinish_triggered(self):
         self.client.tell_action('stop', BREAK_AFTER_LINE)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFinishEarly_triggered(self):
         self.client.tell_action('finish')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFinishEarlyAndStop_triggered(self):
         self.client.tell_action('stop', BREAK_AFTER_STEP)
         self.client.tell_action('finish')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionEmergencyStop_triggered(self):
         self.client.tell_action('emergency')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_clearQueue_clicked(self):
         if self.client.tell('unqueue', '*'):
             self.script_queue.clear()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_deleteQueueItem_clicked(self):
         item = self.queueView.currentItem()
         if not item:
@@ -405,12 +404,12 @@ class ScriptStatusPanel(Panel):
         IDs.insert(i + delta, IDs.pop(i))
         self.client.ask('rearrange', IDs)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_upButton_clicked(self):
         if self.queueView.currentItem():
             self.moveItem(-1)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_downButton_clicked(self):
         if self.queueView.currentItem():
             self.moveItem(+1)

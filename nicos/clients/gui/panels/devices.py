@@ -29,8 +29,7 @@ from logging import WARNING
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton, QComboBox, QCursor
-from PyQt4.QtCore import pyqtSignal, Qt, pyqtSignature as qtsig, QRegExp, \
-    QByteArray
+from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt, QRegExp, QByteArray
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
@@ -558,7 +557,7 @@ class DevicesPanel(Panel):
                                    for i in range(item.childCount())))
             it2 += 1
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionShutDown_triggered(self):
         if self._menu_dev:
             if self.askQuestion('This will unload the device until the setup '
@@ -566,12 +565,12 @@ class DevicesPanel(Panel):
                 self.exec_command('RemoveDevice(%s)' % srepr(self._menu_dev),
                                   ask_queue=False)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionReset_triggered(self):
         if self._menu_dev:
             self.exec_command('reset(%s)' % srepr(self._menu_dev))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFix_triggered(self):
         if self._menu_dev:
             reason, ok = QInputDialog.getText(
@@ -581,29 +580,29 @@ class DevicesPanel(Panel):
                 return
             self.exec_command('fix(%s, %r)' % (srepr(self._menu_dev), reason))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionRelease_triggered(self):
         if self._menu_dev:
             self.exec_command('release(%s)' % srepr(self._menu_dev))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionStop_triggered(self):
         if self._menu_dev:
             self.exec_command('stop(%s)' % srepr(self._menu_dev),
                               immediate=True)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionMove_triggered(self):
         if self._menu_dev:
             self._open_control_dialog(self._menu_dev)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionHelp_triggered(self):
         if self._menu_dev:
             self.client.eval('session.showHelp(session.devices[%r])' %
                              self._menu_dev)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPlotHistory_triggered(self):
         if self._menu_dev:
             self.plot_history(self._menu_dev)
@@ -845,7 +844,7 @@ class ControlDialog(QDialog):
             # poll even non volatile parameter as requested explicitely
             self.client.eval(cmd, None)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSetLimits_triggered(self):
         dlg = QDialog(self)
         loadUi(dlg, 'devices_limits.ui', 'panels')
@@ -881,7 +880,7 @@ class ControlDialog(QDialog):
         self.device_panel.exec_command('set(%s, "userlimits", %s)' %
                                        (self.devrepr, newlimits))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAdjustOffset_triggered(self):
         dlg = QDialog(self)
         loadUi(dlg, 'devices_adjust.ui', 'panels')
@@ -896,11 +895,11 @@ class ControlDialog(QDialog):
         self.device_panel.exec_command(
             'adjust(%s, %r)' % (self.devrepr, target.getValue()))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionReference_triggered(self):
         self.device_panel.exec_command('reference(%s)' % self.devrepr)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFix_triggered(self):
         reason, ok = QInputDialog.getText(
             self, 'Fix',
@@ -909,11 +908,11 @@ class ControlDialog(QDialog):
             return
         self.device_panel.exec_command('fix(%s, %r)' % (self.devrepr, reason))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionRelease_triggered(self):
         self.device_panel.exec_command('release(%s)' % self.devrepr)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
             'set(%s, "alias", %s)' %

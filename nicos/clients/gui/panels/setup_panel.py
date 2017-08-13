@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QListWidgetItem, \
     QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, QPushButton
-from PyQt4.QtCore import Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt
 
 from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress, vec3
@@ -137,13 +137,13 @@ class ExpPanel(Panel, DlgUtils):
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
 
-    @qtsig('')
+    @pyqtSlot()
     def on_finishButton_clicked(self):
         if self.client.run('FinishExperiment()', noqueue=True) is None:
             self.showError('Could not finish experiment, a script '
                            'is still running.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_queryDBButton_clicked(self):
         try:
             prop, title, users, _, emails, dataEmails, \
@@ -568,7 +568,7 @@ class DetEnvPanel(Panel, DlgUtils):
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_envHelpBtn_clicked(self):
         self.showInfo('''\
 The devices selected as "environment" get special treatment in some places, \
@@ -682,34 +682,34 @@ class SXTalSamplePanel(GenericSamplePanel):
         self.client.run(code.rstrip())
         self.showInfo('Sample parameters changed.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_setLattice_clicked(self):
         lattice = self.latticeEdit.getValue()
         angles = self.angleEdit.getValue()
         newcell = SXTalCell.fromabc(*(lattice + angles))
         self.cellEdit._reinit(newcell)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_swapHK_clicked(self):
         self._swap(0, 1)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_swapHL_clicked(self):
         self._swap(0, 2)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_swapKL_clicked(self):
         self._swap(1, 2)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_invertH_clicked(self):
         self._invert(0)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_invertK_clicked(self):
         self._invert(1)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_invertL_clicked(self):
         self._invert(2)
 

@@ -27,7 +27,7 @@
 from os import path
 
 from PyQt4.QtGui import QPrintDialog, QPrinter, QFileDialog
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
@@ -49,7 +49,7 @@ class ProtocolPanel(Panel, DlgUtils):
         self.lastEdit.setShadowText('default: all')
         self.fontBox.setValue(self.outText.font().pointSize())
 
-    @qtsig('')
+    @pyqtSlot()
     def on_genBtn_clicked(self):
         datadir = self.client.eval('session.experiment.proposalpath', '')
         if not datadir:
@@ -82,7 +82,7 @@ class ProtocolPanel(Panel, DlgUtils):
                                 '%s, %s, %s)' % (first, last, with_ts))
         self.outText.setPlainText(text)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_saveBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.proposalpath', '')
         fn = QFileDialog.getSaveFileName(self, 'Save protocol', initialdir,
@@ -96,7 +96,7 @@ class ProtocolPanel(Panel, DlgUtils):
         except Exception as err:
             self.showError('Could not save: %s' % err)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_printBtn_clicked(self):
         # Let the user select the desired printer via the system printer list
         printer = QPrinter()

@@ -25,7 +25,7 @@
 """NICOS GUI panel with most important experiment info."""
 
 from PyQt4.QtGui import QDialog, QMessageBox, QPushButton
-from PyQt4.QtCore import pyqtSignature as qtsig, QTimer
+from PyQt4.QtCore import pyqtSlot, QTimer
 
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
@@ -133,29 +133,29 @@ class ExpInfoPanel(Panel):
         elif dlg.clickedButton() == contButton:
             self._proposal_popup_timer.start()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_proposalBtn_clicked(self):
         dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info')
         dlg.exec_()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_setupBtn_clicked(self):
         dlg = PanelDialog(self, self.client, SetupsPanel, 'Setups')
         dlg.exec_()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_sampleBtn_clicked(self):
         dlg = PanelDialog(self, self.client, self._sample_panel,
                           'Sample information')
         dlg.exec_()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_detenvBtn_clicked(self):
         dlg = PanelDialog(self, self.client, DetEnvPanel,
                           'Detectors and environment')
         dlg.exec_()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_remarkBtn_clicked(self):
         dlg = QDialog(self)
         loadUi(dlg, 'expinfo_remark.ui', 'panels')

@@ -37,8 +37,7 @@ from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
     QwtPlotMarker, QwtSymbol
-from PyQt4.QtCore import QByteArray, Qt
-from PyQt4.QtCore import pyqtSignature as qtsig, QSize
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray, QSize
 
 from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.utils import loadUi, DlgUtils
@@ -306,11 +305,11 @@ class LiveDataPanel(Panel):
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.widget.plot().getZoomer().zoom(0)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setColorMode(QPrinter.Color)

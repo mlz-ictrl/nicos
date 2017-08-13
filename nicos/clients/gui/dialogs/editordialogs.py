@@ -25,7 +25,7 @@
 
 
 from PyQt4.QtGui import QDialog, QMessageBox, QStyle
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot
 
 from nicos.guisupport.utils import waitCursor
 from nicos.clients.gui.utils import loadUi
@@ -50,7 +50,7 @@ class SearchDialog(QDialog):
                     self.wrapCheckBox]:
             box.toggled.connect(self.reset_found)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_findNextButton_clicked(self):
         self.findPrevButton.setDefault(False)
         self.findNextButton.setDefault(True)
@@ -67,7 +67,7 @@ class SearchDialog(QDialog):
         self.forward = True
         return ret
 
-    @qtsig('')
+    @pyqtSlot()
     def on_findPrevButton_clicked(self):
         self.findNextButton.setDefault(False)
         self.findPrevButton.setDefault(True)
@@ -88,7 +88,7 @@ class SearchDialog(QDialog):
     def reset_found(self, *args):
         self.found = False
 
-    @qtsig('')
+    @pyqtSlot()
     def on_replaceButton_clicked(self):
         if not self.found:
             if not self.on_findNextButton_clicked():
@@ -96,7 +96,7 @@ class SearchDialog(QDialog):
         self.editor.replace(self.replaceText.currentText())
         self.on_findNextButton_clicked()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_replaceAllButton_clicked(self):
         found = self.editor.findFirst(
                 self.findText.currentText(),

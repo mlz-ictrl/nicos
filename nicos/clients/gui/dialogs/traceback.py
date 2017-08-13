@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QDialog, QPushButton, QFont, QTreeWidgetItem, \
     QDialogButtonBox, QApplication, QClipboard
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot
 
 from nicos.clients.gui.utils import loadUi
 from nicos.pycompat import iteritems
@@ -85,7 +85,7 @@ class TracebackDialog(QDialog):
             for var, value in iteritems(bindings):
                 QTreeWidgetItem(item, ['', var, value])
 
-    @qtsig('')
+    @pyqtSlot()
     def on_ticketButton_clicked(self):
         from nicos.clients.gui.tools.bugreport import BugreportTool
         formatted_log = ''.join(self.view.formatMessage(msg)[0]

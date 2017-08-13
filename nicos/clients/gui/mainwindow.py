@@ -33,7 +33,7 @@ from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
     QLabel, QSystemTrayIcon, QPixmap, QMenu, QIcon, QAction, \
     QFontDialog, QColorDialog
 from PyQt4.QtCore import Qt, QTimer, QSize
-from PyQt4.QtCore import pyqtSignal, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignal, pyqtSlot
 
 try:
     import PyQt4.QtWebKit  # pylint: disable=unused-import
@@ -603,7 +603,7 @@ class MainWindow(QMainWindow, DlgUtils):
             for panel in window.panels:
                 panel.setViewOnly(on)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNicosHelp_triggered(self):
         if not qwebkit_available:
             self.showError('Cannot open help window: QWebKit is not '
@@ -611,7 +611,7 @@ class MainWindow(QMainWindow, DlgUtils):
             return
         self.client.eval('session.showHelp("index")')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNicosDocu_triggered(self):
         if not qwebkit_available:
             self.showError('Cannot open documentation window: QWebKit is not '
@@ -625,13 +625,13 @@ class MainWindow(QMainWindow, DlgUtils):
         dlg.setWindowModality(Qt.NonModal)
         dlg.show()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionDebugConsole_triggered(self):
         if self.debugConsole is None:
             self.debugConsole = DebugConsole(self)
         self.debugConsole.show()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAbout_triggered(self):
         info = {'version': nicos_version,
                 'server_host': 'not connected',
@@ -653,11 +653,11 @@ class MainWindow(QMainWindow, DlgUtils):
             'Custom path: %(custom_path)s\nCustom version: %(custom_version)s'
             % info)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAboutQt_triggered(self):
         QMessageBox.aboutQt(self)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionConnect_triggered(self, on):
         # connection or disconnection request?
         if not on:
@@ -711,14 +711,14 @@ class MainWindow(QMainWindow, DlgUtils):
                 self.tunnelServer = None
         self.client.connect(self.conndata)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPreferences_triggered(self):
         dlg = SettingsDialog(self)
         ret = dlg.exec_()
         if ret == QDialog.Accepted:
             dlg.saveSettings()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFont_triggered(self):
         font, ok = QFontDialog.getFont(self.user_font, self)
         if not ok:
@@ -727,7 +727,7 @@ class MainWindow(QMainWindow, DlgUtils):
             panel.setCustomStyle(font, self.user_color)
         self.user_font = font
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionColor_triggered(self):
         color = QColorDialog.getColor(self.user_color, self)
         if not color.isValid():

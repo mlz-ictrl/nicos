@@ -32,7 +32,7 @@ from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
     QPushButton, QLineEdit, QActionGroup
 from PyQt4.QtWebKit import QWebView, QWebPage
-from PyQt4.QtCore import Qt, QTimer, QUrl, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QTimer, QUrl
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
@@ -192,7 +192,7 @@ class ELogPanel(Panel, DlgUtils):
         elif link == 'forward':
             self.preview.forward()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionRefresh_triggered(self):
         # if for some reason, we have the wrong proposal path, update here
         propdir = self.client.eval('session.experiment.proposalpath', '')
@@ -201,15 +201,15 @@ class ELogPanel(Panel, DlgUtils):
         else:
             self.on_timer_timeout()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionBack_triggered(self):
         self.preview.back()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionForward_triggered(self):
         self.preview.forward()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNewSample_triggered(self):
         name, ok = QInputDialog.getText(self, 'New sample',
                                         'Please enter the new sample name:')
@@ -218,7 +218,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.eval('NewSample(%r)' % name)
         self.timer.start(750)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAddRemark_triggered(self):
         remark, ok = QInputDialog.getText(
             self, 'New remark',
@@ -229,7 +229,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.eval('Remark(%r)' % remark)
         self.timer.start(750)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAddComment_triggered(self):
         dlg = dialogFromUi(self, 'elog_comment.ui', 'panels')
         dlg.helpFrame.setVisible(False)
@@ -243,7 +243,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.eval('LogEntry(%r)' % text)
         self.timer.start(750)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAttachFile_triggered(self):
         dlg = dialogFromUi(self, 'elog_attach.ui', 'panels')
 
@@ -267,7 +267,7 @@ class ELogPanel(Panel, DlgUtils):
                              (desc, remotefn, newname))
         self.timer.start(750)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         # Let the user select the desired printer via the system printer list
         printer = QPrinter()

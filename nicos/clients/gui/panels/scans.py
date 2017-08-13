@@ -31,8 +31,7 @@ from math import sqrt
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut, \
     QTableWidgetItem
-from PyQt4.QtCore import QByteArray, Qt
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
 
 from nicos.utils import safeFilename
 from nicos.core.data import ScanData
@@ -435,7 +434,7 @@ class ScansPanel(Panel):
         self.currentPlot = None
         self.setUidStack = []
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionClosePlot_triggered(self):
         current_set = self.setUidStack.pop()
         if self.setUidStack:
@@ -444,13 +443,13 @@ class ScansPanel(Panel):
             self.setCurrentDataset(None)
         del self.setplots[current_set]
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionResetPlot_triggered(self):
         current_set = self.setUidStack.pop()
         del self.setplots[current_set]
         self.openDataset(current_set)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionDeletePlot_triggered(self):
         if self.currentPlot.dataset.scaninfo != 'combined set':
             if not self.askQuestion('This is not a combined set: still '
@@ -468,19 +467,19 @@ class ScansPanel(Panel):
                 self.datasetList.takeItem(i)
                 break
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSavePlot_triggered(self):
         filename = self.currentPlot.savePlot()
         if filename:
             self.statusBar.showMessage('Plot successfully saved to %s.' %
                                        filename)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         if self.currentPlot.printPlot():
             self.statusBar.showMessage('Plot successfully printed.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         suffix = self.currentPlot.SAVE_EXT
@@ -499,23 +498,23 @@ class ScansPanel(Panel):
                              (descr, remotefn, fname))
         os.unlink(pathname)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.currentPlot.unzoom()
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionAutoScale_toggled(self, on):
         self._autoscale(on, on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionScaleX_toggled(self, on):
         self._autoscale(x=on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionScaleY_toggled(self, on):
         self._autoscale(y=on)
 
@@ -534,7 +533,7 @@ class ScansPanel(Panel):
                 action.setChecked(True)
             action.triggered.connect(self.on_x_action_triggered)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_x_action_triggered(self, text=None):
         if text is None:
             sender = self.sender()
@@ -544,7 +543,7 @@ class ScansPanel(Panel):
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionXAxis_triggered(self):
         self.bar.widgetForAction(self.actionXAxis).showMenu()
 
@@ -559,7 +558,7 @@ class ScansPanel(Panel):
                 action.setChecked(True)
             action.triggered.connect(self.on_y_action_triggered)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_y_action_triggered(self, text=None):
         if text is None:
             sender = self.sender()
@@ -572,11 +571,11 @@ class ScansPanel(Panel):
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionYAxis_triggered(self):
         self.bar.widgetForAction(self.actionYAxis).showMenu()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNormalized_triggered(self):
         if not self.currentPlot:
             return
@@ -613,7 +612,7 @@ class ScansPanel(Panel):
                     none_action.setChecked(False)
                 action.triggered.connect(self.on_norm_action_triggered)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_norm_action_triggered(self, text=None):
         if text is None:
             sender = self.sender()
@@ -628,39 +627,39 @@ class ScansPanel(Panel):
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionModifyData_triggered(self):
         self.currentPlot.modifyData()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitPeak_triggered(self):
         self.currentPlot.beginFit(GaussFitter, self.actionFitPeak)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitPeakPV_triggered(self):
         self.currentPlot.beginFit(PseudoVoigtFitter, self.actionFitPeakPV)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitPeakPVII_triggered(self):
         self.currentPlot.beginFit(PearsonVIIFitter, self.actionFitPeakPVII)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitTc_triggered(self):
         self.currentPlot.beginFit(TcFitter, self.actionFitTc)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitCosine_triggered(self):
         self.currentPlot.beginFit(CosineFitter, self.actionFitCosine)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitSigmoid_triggered(self):
         self.currentPlot.beginFit(SigmoidFitter, self.actionFitSigmoid)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFitArby_triggered(self):
         # no second argument: the "arbitrary" action is not checkable
         self.currentPlot.beginFit(ArbitraryFitter, None)
@@ -670,7 +669,7 @@ class ScansPanel(Panel):
             return
         self.currentPlot.fitQuick()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionCombine_triggered(self):
         current = self.currentPlot.dataset.uid
         dlg = dialogFromUi(self, 'dataops.ui', 'panels')

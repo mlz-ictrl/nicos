@@ -29,7 +29,7 @@ from os import path
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QDoubleSpinBox, QListWidgetItem
-from PyQt4.QtCore import QByteArray, Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -162,7 +162,7 @@ class LiveDataPanel(Panel):
             self.widget.setData(
                 LWData(self._nx, self._ny, self._nz, self._format, data))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.plot().getZoomer().zoomRect()
         # XXX this is detector specific!
@@ -170,11 +170,11 @@ class LiveDataPanel(Panel):
                         (int(zoom.left()), int(zoom.top()),
                          int(zoom.right()), int(zoom.bottom())))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.widget.plot().getZoomer().zoom(0)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setColorMode(QPrinter.Color)

@@ -38,7 +38,7 @@ from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, \
     QBrush, QColor, QCompleter, QStyledItemDelegate
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, \
-    pyqtSignal, pyqtSignature as qtsig
+    pyqtSignal, pyqtSlot
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename, extractKeyAndIndex
@@ -236,7 +236,7 @@ class NewViewDialog(QDialog, DlgUtils):
         self.deviceTree._reinit()
         self._syncDeviceTree()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_devicesExpandBtn_clicked(self):
         self.devicesExpandBtn.hide()
         self._createDeviceTree()
@@ -627,7 +627,7 @@ class BaseHistoryWindow(object):
                         i += 1
         return units, mappings
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionNew_triggered(self):
         self.showNewDialog()
 
@@ -696,7 +696,7 @@ class BaseHistoryWindow(object):
         if item:
             self.on_actionEditView_triggered()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionEditView_triggered(self):
         view = self.viewStack[-1]
         newdlg = NewViewDialog(self, view.dlginfo, client=self.client)
@@ -713,7 +713,7 @@ class BaseHistoryWindow(object):
         if new_view.plot.HAS_AUTOSCALE:
             self._autoscale(True, False)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionCloseView_triggered(self):
         view = self.viewStack.pop()
         if self.viewStack:
@@ -722,7 +722,7 @@ class BaseHistoryWindow(object):
             self.setCurrentView(None)
         view.plot = None
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionResetView_triggered(self):
         view = self.viewStack.pop()
         hassym = view.plot.hasSymbols
@@ -731,7 +731,7 @@ class BaseHistoryWindow(object):
         self.actionSymbols.setChecked(hassym)
         view.plot.setSymbols(hassym)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionDeleteView_triggered(self):
         view = self.viewStack.pop()
         self.clearView(view)
@@ -750,47 +750,47 @@ class BaseHistoryWindow(object):
         view.cleanup()
         return row
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSavePlot_triggered(self):
         filename = self.currentPlot.savePlot()
         if filename:
             self.statusBar.showMessage('View successfully saved to %s.' %
                                        filename)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         if self.currentPlot.printPlot():
             self.statusBar.showMessage('View successfully printed.')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.currentPlot.unzoom()
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionSymbols_toggled(self, on):
         self.currentPlot.setSymbols(on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionLines_toggled(self, on):
         self.currentPlot.setLines(on)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionLinearFit_triggered(self):
         self.currentPlot.beginFit(LinearFitter, self.actionLinearFit)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionExpFit_triggered(self):
         self.currentPlot.beginFit(ExponentialFitter, self.actionExpFit)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSaveData_triggered(self):
         self.currentPlot.saveData()
 
@@ -972,7 +972,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         return self.client.ask('gethistory', key, str(fromtime), str(totime),
                                default=[])
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         suffix = self.currentPlot.SAVE_EXT
@@ -991,15 +991,15 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                              (descr, remotefn, fname))
         os.unlink(pathname)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionAutoScale_toggled(self, on):
         self._autoscale(on, on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionScaleX_toggled(self, on):
         self._autoscale(x=on)
 
-    @qtsig('bool')
+    @pyqtSlot(bool)
     def on_actionScaleY_toggled(self, on):
         self._autoscale(y=on)
 

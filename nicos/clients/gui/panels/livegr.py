@@ -34,8 +34,7 @@ import numpy
 
 from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
     QToolBar, QActionGroup
-from PyQt4.QtCore import QByteArray, QPoint, Qt
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSlot, QByteArray, QPoint, Qt
 from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
@@ -515,7 +514,7 @@ class LiveDataPanel(Panel):
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionOpen_triggered(self):
         """Open image file using registered reader classes."""
         ftypes = dict((ffilter, ftype)
@@ -549,25 +548,25 @@ class LiveDataPanel(Panel):
                 for f in files[cachesize:]:
                     self.add_to_flist(f, None, tag)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionUnzoom_triggered(self):
         self.widget.unzoom()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPrint_triggered(self):
         self.widget.printDialog()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionLogScale_triggered(self):
         for widget in [self.widget] + self._livewidgets.values():
             widget.logscale(self.actionLogScale.isChecked())
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionMarkCenter_triggered(self):
         flag = self.actionMarkCenter.isChecked()
         for widget in [self.widget] + self._livewidgets.values():
             widget.setCenterMark(flag)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionKeepRatio_triggered(self):
         self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
