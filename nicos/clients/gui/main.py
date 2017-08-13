@@ -34,7 +34,7 @@ import traceback
 import argparse
 from os import path
 
-from PyQt4.QtGui import QApplication
+from nicos.guisupport.qt import QApplication
 
 from nicos import config
 from nicos.utils import parseConnectionString
@@ -70,9 +70,6 @@ def parseargs():
 
 def main(argv):
     global log  # pylint: disable=global-statement
-
-    # Import the compiled resource file to register resources
-    import nicos.guisupport.gui_rc  # pylint: disable=unused-import, unused-variable
 
     userpath = path.join(path.expanduser('~'), '.config', 'nicos')
 

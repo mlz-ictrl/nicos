@@ -4,11 +4,11 @@
 
 SHELL=/bin/bash
 
-RCC = pyrcc4
+RCC4 = pyrcc4
 PYTHON = /usr/bin/env python
 
-nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
-	-$(RCC) -py3 -o nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
+nicos/guisupport/gui_rc_qt4.py: resources/nicos-gui.qrc
+	-$(RCC4) -py3 -o $@ $<
 
 clean:
 	rm -rf build

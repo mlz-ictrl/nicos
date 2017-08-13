@@ -25,8 +25,7 @@
 import sys
 from logging import Handler, INFO, WARNING, ERROR
 
-from PyQt4.QtGui import QApplication, QIcon, QPalette
-from PyQt4.QtCore import Qt
+from nicos.guisupport.qt import Qt, QApplication, QIcon, QPalette
 
 from nicos import session
 from nicos.utils.loggers import NicosLogger, ColoredConsoleHandler
@@ -78,9 +77,6 @@ class CISession(SingleDeviceSession):
 
 
 class CacheInspector(CICacheClient):
-
-    # Import the compiled resource file to register resources
-    import nicos.guisupport.gui_rc  # pylint: disable=W0612
 
     def doInit(self, mode):
         CICacheClient.doInit(self, self._mode)
