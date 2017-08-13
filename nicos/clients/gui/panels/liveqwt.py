@@ -155,7 +155,7 @@ class LiveDataPanel(Panel):
         if self._cachesize < 1:
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()
 
     def loadSettings(self, settings):

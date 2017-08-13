@@ -105,5 +105,5 @@ class LiveDataPanel(Panel):
 
     def setOptions(self, options):
         Panel.setOptions(self, options)
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()

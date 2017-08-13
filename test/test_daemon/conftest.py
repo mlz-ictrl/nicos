@@ -138,9 +138,10 @@ def client(daemon):
 
     yield client
 
-    if client.connected:
+    if client.isconnected:
         client._disconnecting = True
         client.disconnect()
+
 
 @pytest.fixture(scope='module')
 def adminclient(daemon):
@@ -155,9 +156,10 @@ def adminclient(daemon):
 
     yield adminclient
 
-    if adminclient.connected:
+    if adminclient.isconnected:
         adminclient._disconnecting = True
         adminclient.disconnect()
+
 
 @pytest.fixture(scope='module')
 def cliclient(daemon):

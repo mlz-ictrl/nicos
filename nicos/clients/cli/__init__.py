@@ -841,21 +841,21 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'cancel':
             self.cancel_menu(arg)
         elif cmd == 'disconnect':
-            if self.connected:
+            if self.isconnected:
                 self.disconnect()
         elif cmd == 'connect':
             self.reconnect_count = 0
-            if self.connected:
+            if self.isconnected:
                 self.put_error('Already connected. Use /disconnect first.')
             else:
                 self.ask_connect()
         elif cmd in ('re', 'reconnect'):
             self.reconnect_count = 0   # no automatic reconnect
-            if self.connected:
+            if self.isconnected:
                 self.disconnect()
             self.ask_connect(ask_all=False)
         elif cmd in ('q', 'quit'):
-            if self.connected:
+            if self.isconnected:
                 self.disconnect()
             return 0   # i.e. exit with success
         elif cmd in ('h', 'help', '?'):

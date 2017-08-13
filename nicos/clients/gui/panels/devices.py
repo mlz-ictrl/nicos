@@ -175,7 +175,7 @@ class DevicesPanel(Panel):
 
         self._create_icons()
 
-        if client.connected:
+        if client.isconnected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)

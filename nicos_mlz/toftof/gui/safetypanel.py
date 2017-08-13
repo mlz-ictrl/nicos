@@ -47,7 +47,7 @@ class SafetyPanel(Panel):
         self.table.horizontalHeader().restoreState(self._headerstate)
         self.clear()
 
-        if client.connected:
+        if client.isconnected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('setup'), self.on_client_connected)

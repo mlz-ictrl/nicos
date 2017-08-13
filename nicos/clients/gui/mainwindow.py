@@ -308,7 +308,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def show(self):
         QMainWindow.show(self)
-        if self.autoconnect and not self.client.connected:
+        if self.autoconnect and not self.client.isconnected:
             self.on_actionConnect_triggered(True)
 
     def startup(self):
@@ -361,7 +361,7 @@ class MainWindow(QMainWindow, DlgUtils):
             settings.setValue('auxwindows', open_wintypes)
 
     def saveSettings(self, settings):
-        settings.setValue('autoconnect', self.client.connected)
+        settings.setValue('autoconnect', self.client.isconnected)
         settings.setValue('connpresets_new', dict((k, v.serialize()) for (k, v)
                                                   in self.connpresets.items()))
         settings.setValue('lastpreset', self.lastpreset)
@@ -638,7 +638,7 @@ class MainWindow(QMainWindow, DlgUtils):
                 'custom_version': '',
                 'nicos_root': '',
                 'custom_path': ''}
-        if self.client.connected:
+        if self.client.isconnected:
             dinfo = self.client.daemon_info
             info['server_host'] = self.conndata.host
             info['server_version'] = dinfo.get('daemon_version', 'unknown')

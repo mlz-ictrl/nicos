@@ -37,7 +37,7 @@ def simple_mode(client):
 
     client.run_and_wait('SetSimpleMode(True)')
     yield
-    if client.connected:
+    if client.isconnected:
         try:
             client.run_and_wait('SetSimpleMode False')
         except Exception:

@@ -82,7 +82,7 @@ class LiveDataPanel(Panel):
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
-        if client.connected:
+        if client.isconnected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('setup'), self.on_client_connected)

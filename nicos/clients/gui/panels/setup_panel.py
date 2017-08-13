@@ -57,7 +57,7 @@ class ExpPanel(Panel, DlgUtils):
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
 
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
@@ -319,7 +319,7 @@ class SetupsPanel(Panel, DlgUtils):
         self._prev_alias_config = None
 
         self._reload_btn = QPushButton('Reload current setup')
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
@@ -533,7 +533,7 @@ class DetEnvPanel(Panel, DlgUtils):
         DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_detenv.ui', 'panels')
 
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('setup'), self.on_client_connected)

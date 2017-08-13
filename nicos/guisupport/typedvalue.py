@@ -100,7 +100,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
         self._reinit()
 
     def _reinit(self, curvalue=None):
-        if not self._client or not self._client.connected:
+        if not self._client or not self._client.isconnected:
             return
         devname = str(self.props['dev'])
         if devname:

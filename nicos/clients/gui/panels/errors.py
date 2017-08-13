@@ -51,7 +51,7 @@ class ErrorPanel(Panel):
 
         self.buttonBox.addButton('Clear', QDialogButtonBox.ResetRole)
 
-        if client.connected:
+        if client.isconnected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('message'), self.on_client_message)

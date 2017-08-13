@@ -89,7 +89,7 @@ class NicosClient(object):
         self.socket = None
         self.event_socket = None
         self.lock = threading.Lock()
-        self.connected = False
+        self.isconnected = False
         self.disconnecting = False
         self.gzip = False
         self.last_reqid = None
@@ -110,7 +110,7 @@ class NicosClient(object):
         *eventmask* is a tuple of event names that should not be sent to this
         client.
         """
-        if self.connected:
+        if self.isconnected:
             raise RuntimeError('client already connected')
         self.disconnecting = False
 
@@ -197,7 +197,7 @@ class NicosClient(object):
         # start event handler
         self.event_thread = createThread('event handler', self.event_handler)
 
-        self.connected = True
+        self.isconnected = True
         self.host, self.port = conndata.host, conndata.port
         self.login = conndata.user
         self.viewonly = conndata.viewonly
@@ -278,8 +278,8 @@ class NicosClient(object):
             pass
         self.socket = None
         self.gzip = False
-        if self.connected:
-            self.connected = False
+        if self.isconnected:
+            self.isconnected = False
             self.signal('disconnected')
 
     def handle_error(self, err):

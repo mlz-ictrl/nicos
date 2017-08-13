@@ -175,7 +175,7 @@ class EditorPanel(Panel):
 
         self.connect(self.client, SIGNAL('simmessage'), self.on_client_simmessage)
         self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
-        if self.client.connected:
+        if self.client.isconnected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('setup'), self.on_client_connected)

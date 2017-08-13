@@ -65,7 +65,7 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selSamples_clicked(self):
-        if not self.client.connected:
+        if not self.client.isconnected:
             QMessageBox.warning(self, 'Error', 'You must be connected to '
                                 'a daemon to be able to select samples.')
             return
@@ -78,7 +78,7 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selDetsets_clicked(self):
-        if not self.client.connected:
+        if not self.client.isconnected:
             QMessageBox.warning(self, 'Error', 'You must be connected to '
                                 'a daemon to be able to select settings.')
             return
@@ -90,7 +90,7 @@ class MeasureTable(Cmdlet):
 
     @pyqtSlot()
     def on_selDevices_clicked(self):
-        if not self.client.connected:
+        if not self.client.isconnected:
             QMessageBox.warning(self, 'Error', 'You must be connected to '
                                 'a daemon to be able to select devices.')
             return
