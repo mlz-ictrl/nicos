@@ -27,7 +27,6 @@
 import time
 
 from PyQt4.QtGui import QDialog, QFrame, QVBoxLayout, QWidget, QDialogButtonBox
-from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
 
@@ -50,7 +49,7 @@ class WatchdogDialog(QDialog):
                         w.hide()
             else:
                 self.close()
-        self.connect(self.buttonBox, SIGNAL('clicked(QAbstractButton*)'), btn)
+        self.buttonBox.clicked.connect(btn)
 
     def addEvent(self, data):
         w = QWidget(self.frame)

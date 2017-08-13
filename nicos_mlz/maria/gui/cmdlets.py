@@ -25,8 +25,6 @@
 
 """NICOS GUI cmdlets for MARIA."""
 
-from PyQt4.QtCore import SIGNAL
-
 from nicos.clients.gui.cmdlets import Cmdlet, register, isFloat
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
@@ -43,8 +41,7 @@ class SScan(Cmdlet):
         self.device.addItems(
             self.client.getDeviceList("nicos.core.device.Moveable"))
         self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL("currentIndexChanged(const QString&)"),
-                     self.on_device_change)
+        self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.stop.setValidator(DoubleValidator(self))
         self.step.setValidator(DoubleValidator(self))
@@ -128,8 +125,7 @@ class KScan(Cmdlet):
             self.client.getDeviceList('nicos.core.device.Moveable',
                                       special_clause='hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_device_change)
+        self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.step.setValidator(DoubleValidator(self))
         self.speed.setValidator(DoubleValidator(self))

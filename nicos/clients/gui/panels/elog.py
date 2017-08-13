@@ -32,7 +32,7 @@ from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
     QPushButton, QLineEdit, QActionGroup
 from PyQt4.QtWebKit import QWebView, QWebPage
-from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
@@ -67,9 +67,8 @@ class ELogPanel(Panel, DlgUtils):
         self.activeGroup.addAction(self.actionNewSample)
 
         self.preview.page().setForwardUnsupportedContent(True)
-        self.connect(self.preview.page(),
-                     SIGNAL('unsupportedContent(QNetworkReply *)'),
-                     self.on_page_unsupportedContent)
+        self.preview.page().unsupportedContent.connect(
+            self.on_page_unsupportedContent)
 
     def getMenus(self):
         if not self.menus:

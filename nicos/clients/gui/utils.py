@@ -32,7 +32,7 @@ import socket
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, SIGNAL, \
+from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, \
     PYQT_VERSION
 from PyQt4.QtGui import QApplication, QColor, QDialog, QFileDialog, QFont, \
     QLabel, QMessageBox, QProgressDialog, QPushButton, QStyle, QTextEdit, \
@@ -191,7 +191,7 @@ class DlgUtils(object):
         btn.setAutoDefault(1)
         btn.setDefault(1)
         btn.setText('Close')
-        qd.connect(btn, SIGNAL('clicked()'), qd.accept)
+        btn.clicked.connect(qd.accept)
         lay.addWidget(btn, 0, QWidget.AlignRight)
         qd.show()
 

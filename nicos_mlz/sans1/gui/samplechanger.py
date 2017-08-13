@@ -30,7 +30,7 @@ positions.
 from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
     QAbstractButton, QStylePainter, QStyleOptionHeader, QStyle, QLineEdit,\
     QAbstractItemView, QVBoxLayout
-from PyQt4.QtCore import SIGNAL, Qt, QSize, QEvent
+from PyQt4.QtCore import Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils
@@ -99,14 +99,17 @@ class CustomButtonPanel(Panel, DlgUtils):
         allButtons = 'Ok Open Save Cancel Close Discard Apply Reset '\
                      'RestoreDefaults Help SaveAll Yes YesToAll No NoToAll '\
                      'Abort Retry Ignore'.split()
-        for n in allButtons:
-            b = self.buttonBox.button(getattr(QDialogButtonBox, n))
-            if b:
-                m = getattr(self, 'on_buttonBox_%s_clicked' % n, None)
-                if not m:
-                    m = lambda self = self, n = n: self.showError(
-                                'on_buttonBox_%s_clicked not implemented!' % n)
-                self.connect(b, SIGNAL('clicked()'), m)
+        for btn_name in allButtons:
+            btn = self.buttonBox.button(getattr(QDialogButtonBox, btn_name))
+            if btn:
+                handler = getattr(self, 'on_buttonBox_%s_clicked' % btn_name,
+                                  None)
+                if not handler:
+                    # pylint: disable=function-redefined
+                    def handler(self=self, n=btn_name):
+                        self.showError('on_buttonBox_%s_clicked not '
+                                       'implemented!' % n)
+                btn.clicked.connect(handler)
 
     def panelState(self):
         """returns current window state as obtained from the stack of parents"""
@@ -153,7 +156,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._tableWidget.setColumnCount(1)
         self._tableWidget.setHorizontalHeaderLabels(['Sample name'])
         self._tableWidget.horizontalHeaderItem(0).setTextAlignment(
-                            Qt.AlignLeft | Qt.AlignVCenter)
+            Qt.AlignLeft | Qt.AlignVCenter)
         self._tableWidget.setSortingEnabled(False)
         self._tableWidget.setCornerLabel('Position')
 

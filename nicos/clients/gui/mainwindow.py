@@ -32,8 +32,8 @@ from time import strftime, time as currenttime
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
     QLabel, QSystemTrayIcon, QPixmap, QMenu, QIcon, QAction, \
     QFontDialog, QColorDialog
-from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, QTimer, QSize
+from PyQt4.QtCore import pyqtSignal, pyqtSignature as qtsig
 
 try:
     import PyQt4.QtWebKit  # pylint: disable=unused-import
@@ -72,6 +72,10 @@ from nicos.clients.gui.config import tabbed
 
 
 class MainWindow(QMainWindow, DlgUtils):
+
+    # Emitted when a panel generates code that an editor panel should add.
+    codeGenerated = pyqtSignal(object)
+
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
@@ -172,17 +176,15 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # setup tray icon
         self.trayIcon = QSystemTrayIcon(self)
-        self.connect(self.trayIcon,
-                     SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
-                     self.on_trayIcon_activated)
+        self.trayIcon.activated.connect(self.on_trayIcon_activated)
         self.trayMenu = QMenu(self)
         nameAction = self.trayMenu.addAction(self.instrument)
         nameAction.setEnabled(False)
         self.trayMenu.addSeparator()
         toggleAction = self.trayMenu.addAction('Hide main window')
         toggleAction.setCheckable(True)
-        self.connect(toggleAction, SIGNAL('triggered(bool)'),
-                     lambda hide: self.setVisible(not hide))
+        toggleAction.triggered[bool].connect(
+            lambda hide: self.setVisible(not hide))
         self.trayIcon.setContextMenu(self.trayMenu)
 
         self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
@@ -236,7 +238,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
             def window_callback(on, i=i):
                 self.createWindow(i)
-            self.connect(action, SIGNAL('triggered(bool)'), window_callback)
+            action.triggered[bool].connect(window_callback)
         if not self.gui_conf.windows:
             self.toolBarWindows.hide()
         else:

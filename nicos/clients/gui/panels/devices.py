@@ -29,7 +29,7 @@ from logging import WARNING
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton, QComboBox, QCursor
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
+from PyQt4.QtCore import pyqtSignal, Qt, pyqtSignature as qtsig, QRegExp, \
     QByteArray
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
@@ -551,7 +551,7 @@ class DevicesPanel(Panel):
             it.value().setHidden(rx.indexIn(it.value().text(0)) == -1)
             it += 1
         it2 = QTreeWidgetItemIterator(self.tree,
-                                     QTreeWidgetItemIterator.HasChildren)
+                                      QTreeWidgetItemIterator.HasChildren)
         while it2.value():
             item = it2.value()
             item.setHidden(not any(not item.child(i).isHidden()
@@ -627,8 +627,8 @@ class DevicesPanel(Panel):
         devinfo = self._devinfo[ldevname]
         item = self._devitems[ldevname]
         dlg = ControlDialog(self, devname, devinfo, item, self.log)
-        self.connect(dlg, SIGNAL('closed'), self._control_dialog_closed)
-        self.connect(dlg, SIGNAL('rejected()'), dlg.close)
+        dlg.closed.connect(self._control_dialog_closed)
+        dlg.rejected.connect(dlg.close)
         self._control_dialogs[ldevname] = dlg
         dlg.show()
         return dlg
@@ -664,6 +664,8 @@ class DevicesPanel(Panel):
 
 class ControlDialog(QDialog):
     """Dialog opened to control and view details for one device."""
+
+    closed = pyqtSignal(object)
 
     def __init__(self, parent, devname, devinfo, devitem, log):
         QDialog.__init__(self, parent)
@@ -919,7 +921,7 @@ class ControlDialog(QDialog):
 
     def closeEvent(self, event):
         event.accept()
-        self.emit(SIGNAL('closed'), self.devname.lower())
+        self.closed.emit(self.devname.lower())
 
     def on_cache(self, subkey, value):
         if subkey not in self.paramItems:

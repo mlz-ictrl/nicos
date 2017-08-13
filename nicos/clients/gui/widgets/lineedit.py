@@ -26,7 +26,7 @@
 
 import re
 
-from PyQt4.QtCore import QEvent, Qt, QRegExp, SIGNAL, pyqtSignal
+from PyQt4.QtCore import QEvent, Qt, QRegExp, pyqtSignal
 from PyQt4.QtGui import QApplication, QColor, QCompleter, QKeyEvent, QLineEdit, \
     QMessageBox, QPalette, QStringListModel, QRegExpValidator
 
@@ -42,7 +42,8 @@ class HistoryLineEdit(QLineEdit):
     """
     A line edit with history stepping.
     """
-    __pyqtSignals__ = ['escapePressed()']
+
+    escapePressed = pyqtSignal()
 
     scrollingKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown]
 
@@ -100,7 +101,7 @@ class HistoryLineEdit(QLineEdit):
             # abort history search
             self.setText(self._start_text)
             self._current = -1
-            self.emit(SIGNAL('escapePressed()'))
+            self.escapePressed.emit()
             QLineEdit.keyPressEvent(self, kev)
 
         elif key_code == Qt.Key_Up:

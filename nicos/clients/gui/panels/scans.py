@@ -31,7 +31,7 @@ from math import sqrt
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut, \
     QTableWidgetItem
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL
+from PyQt4.QtCore import QByteArray, Qt
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.utils import safeFilename
@@ -115,7 +115,7 @@ class ScansPanel(Panel):
         self.actionNormalized.setMenu(self.norm_menu)
 
         quickfit = QShortcut(QKeySequence("G"), self)
-        self.connect(quickfit, SIGNAL('activated()'), self.on_quickfit)
+        quickfit.activated.connect(self.on_quickfit)
 
         self.user_color = Qt.white
         self.user_font = QFont('monospace')

@@ -28,7 +28,7 @@ from os import path
 from time import strftime, localtime
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QMessageBox
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import Qt
 
 import numpy as np
 
@@ -217,8 +217,7 @@ class ArbitraryFitter(Fitter):
             dlg.function.setText(func)
             dlg.fitparams.setPlainText('\n'.join(
                 p + ' = ' for p in params.split()))
-        dlg.connect(dlg.oftenUsed,
-                    SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
+        dlg.oftenUsed.itemClicked.connect(click_cb)
         ret = dlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -480,7 +479,7 @@ class NicosPlot(DlgUtils):
         def checkAll():
             for i in range(dlg.list.count()):
                 dlg.list.item(i).setCheckState(Qt.Checked)
-        dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
+        dlg.selectall.clicked.connect(checkAll)
         for i, descr in visible_curves:
             li = QListWidgetItem(descr, dlg.list)
             if len(visible_curves) == 1:

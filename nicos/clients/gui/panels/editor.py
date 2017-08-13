@@ -36,7 +36,7 @@ from PyQt4.QtGui import QDialog, QHeaderView, QHBoxLayout, \
     QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, \
     QToolBar, QFileSystemModel, QTabWidget, QInputDialog, \
     QFontMetrics, QActionGroup
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QByteArray, \
     QFileSystemWatcher
 
 try:
@@ -110,7 +110,7 @@ class EditorPanel(Panel):
         self.custom_font = None
         self.custom_back = None
 
-        self.connect(parent, SIGNAL('codeGenerated'), self.on_codeGenerated)
+        self.mainwindow.codeGenerated.connect(self.on_codeGenerated)
 
         if not has_scintilla:
             self.actionComment.setEnabled(False)
@@ -127,15 +127,13 @@ class EditorPanel(Panel):
 
         for fn in self.recentf:
             action = QAction(fn, self)
-            self.connect(action, SIGNAL('triggered()'), self.openRecentFile)
+            action.triggered.connect(self.openRecentFile)
             self.recentf_actions.append(action)
             self.menuRecent.addAction(action)
 
         self.tabber = QTabWidget(self, tabsClosable=True, documentMode=True)
-        self.connect(self.tabber, SIGNAL('currentChanged(int)'),
-                     self.on_tabber_currentChanged)
-        self.connect(self.tabber, SIGNAL('tabCloseRequested(int)'),
-                     self.on_tabber_tabCloseRequested)
+        self.tabber.currentChanged.connect(self.on_tabber_currentChanged)
+        self.tabber.tabCloseRequested.connect(self.on_tabber_tabCloseRequested)
 
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
@@ -414,7 +412,7 @@ class EditorPanel(Panel):
         else:
             editor = QScintillaCompatible(self)
         # editor.setFrameStyle(0)
-        self.connect(editor, SIGNAL('modificationChanged(bool)'), self.setDirty)
+        editor.modificationChanged.connect(self.setDirty)
         self._updateStyle(editor)
         return editor
 
@@ -630,9 +628,8 @@ class EditorPanel(Panel):
         self.editors.append(editor)
         self.filenames[editor] = ''
         self.watchers[editor] = QFileSystemWatcher(self)
-        self.connect(self.watchers[editor],
-                     SIGNAL('fileChanged(const QString &)'),
-                     self.on_fileSystemWatcher_fileChanged)
+        self.watchers[editor].fileChanged.connect(
+            self.on_fileSystemWatcher_fileChanged)
         self.tabber.addTab(editor, '(New script)')
         self.tabber.setCurrentWidget(editor)
         self.clearSimPane()
@@ -692,9 +689,8 @@ class EditorPanel(Panel):
         self.editors.append(editor)
         self.filenames[editor] = fn
         self.watchers[editor] = QFileSystemWatcher(self)
-        self.connect(self.watchers[editor],
-                     SIGNAL('fileChanged(const QString &)'),
-                     self.on_fileSystemWatcher_fileChanged)
+        self.watchers[editor].fileChanged.connect(
+            self.on_fileSystemWatcher_fileChanged)
         self.watchers[editor].addPath(fn)
         self.tabber.addTab(editor, path.basename(fn))
         self.tabber.setCurrentWidget(editor)
@@ -703,7 +699,7 @@ class EditorPanel(Panel):
 
     def addToRecentf(self, fn):
         new_action = QAction(fn, self)
-        self.connect(new_action, SIGNAL('triggered()'), self.openRecentFile)
+        new_action.triggered.connect(self.openRecentFile)
         if self.recentf_actions:
             self.menuRecent.insertAction(self.recentf_actions[0], new_action)
             self.recentf_actions.insert(0, new_action)

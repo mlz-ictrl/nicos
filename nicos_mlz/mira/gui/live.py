@@ -29,7 +29,7 @@ from os import path
 
 from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QListWidgetItem, \
     QDoubleSpinBox, QPrintDialog, QDialog, QMenu, QToolBar, QSizePolicy, QLabel
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT, pyqtSignature as qtsig
+from PyQt4.QtCore import QByteArray, Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -75,8 +75,7 @@ class LiveDataPanel(Panel):
             ctrl.setMaximumWidth(90)
             ctrl.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed))
-            self.connect(ctrl, SIGNAL('valueChanged(double)'),
-                         self.on_rangeChanged)
+            ctrl.valueChanged.connect(self.on_rangeChanged)
 
         self.liveitem = QListWidgetItem('<Live>', self.fileList)
         self.liveitem.setData(32, '')
@@ -91,13 +90,10 @@ class LiveDataPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
 
-        self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
-                     self.widget, SLOT("SetLog10(bool)"))
-        self.connect(self.actionSelectChannels, SIGNAL("triggered()"),
-                     self.widget, SLOT("showSumDlg()"))
-        self.connect(self.widget,
-                     SIGNAL('customContextMenuRequested(const QPoint&)'),
-                     self.on_widget_customContextMenuRequested)
+        self.actionLogScale.toggled.connect(self.widget.SetLog10)
+        self.actionSelectChannels.triggered.connect(self.widget.showSumDlg)
+        self.widget.customContextMenuRequested.connect(
+            self.on_widget_customContextMenuRequested)
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', '', QByteArray)

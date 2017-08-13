@@ -29,7 +29,7 @@ from __future__ import print_function
 from os import path
 
 from PyQt4.QtGui import QColor, QButtonGroup, QMessageBox
-from PyQt4.QtCore import pyqtSlot, SIGNAL, QTimer
+from PyQt4.QtCore import pyqtSlot, QTimer
 
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel
@@ -86,8 +86,7 @@ class PGAAPanel(Panel):
         self.buttonGroup.addButton(self.rad_Pos4, 4)
         self.buttonGroup.addButton(self.rad_Pos5, 5)
 
-        self.connect(self.buttonGroup, SIGNAL('buttonClicked(int)'),
-                     self.on_buttonClicked)
+        self.buttonGroup.buttonClicked.connect(self.on_buttonClicked)
 
     def loadSettings(self, settings):
         pass

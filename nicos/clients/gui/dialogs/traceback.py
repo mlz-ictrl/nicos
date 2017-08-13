@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QDialog, QPushButton, QFont, QTreeWidgetItem, \
     QDialogButtonBox, QApplication, QClipboard
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.pycompat import iteritems
@@ -70,7 +70,7 @@ class TracebackDialog(QDialog):
         def copy():
             QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)
             QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
-        parent.connect(button, SIGNAL('clicked()'), copy)
+        button.clicked.connect(copy)
 
         self.message.setText(message[:200])
         self.tree.setFont(view.font())

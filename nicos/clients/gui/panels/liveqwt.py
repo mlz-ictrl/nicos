@@ -37,7 +37,7 @@ from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
     QwtPlotMarker, QwtSymbol
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT
+from PyQt4.QtCore import QByteArray, Qt
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 
 from nicos.utils import BoundedOrderedDict
@@ -110,14 +110,10 @@ class LiveDataPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
 
-        self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
-                     self.widget, SLOT("setLog10(bool)"))
-        self.connect(self.widget,
-                     SIGNAL('customContextMenuRequested(const QPoint&)'),
-                     self.on_widget_customContextMenuRequested)
-        self.connect(self.widget,
-                     SIGNAL('profileUpdate(int, int, void*, void*)'),
-                     self.on_widget_profileUpdate)
+        self.actionLogScale.toggled.connect(self.widget.setLog10)
+        self.widget.profileUpdate.connect(self.on_widget_profileUpdate)
+        self.widget.customContextMenuRequested.connect(
+            self.on_widget_customContextMenuRequested)
 
         self._toftof_profile = None
 
@@ -350,16 +346,14 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
                                       QwtPlotPicker.ClickSelection)
         self.picker.setMousePattern(QwtPlotPicker.MouseSelect1,
                                     Qt.MidButton)
-        self.connect(self.picker, SIGNAL('selected(const QwtDoublePoint&)'),
-                     self.pickerSelected)
+        self.picker.selected.connect(self.pickerSelected)
         layout2 = QHBoxLayout()
         layout2.addWidget(QLabel('Scale:', self))
         self.scale = QComboBox(self)
         self.scale.addItems(['Single detectors, sorted by angle',
                              'Scattering angle 2theta (deg)',
                              'Q value (A-1)'])
-        self.connect(self.scale, SIGNAL('currentIndexChanged(int)'),
-                     self.scaleChanged)
+        self.scale.currentIndexChanged[int].connect(self.scaleChanged)
         layout2.addWidget(self.scale)
         layout2.addStretch()
         self.scaleframe = QFrame(self)

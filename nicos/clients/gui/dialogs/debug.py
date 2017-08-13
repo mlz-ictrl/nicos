@@ -29,7 +29,7 @@ import codeop
 
 from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
     QTextCursor, QSplitter
-from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
+from PyQt4.QtCore import Qt, QCoreApplication, pyqtSignal
 
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
@@ -52,6 +52,8 @@ class StdoutProxy(object):
 
 
 class ConsoleBox(QPlainTextEdit):
+    closeConsole = pyqtSignal()
+
     def __init__(self, ps1='>>> ', ps2='... ', startup_message='', parent=None):
         QPlainTextEdit.__init__(self, parent)
         self.ps1, self.ps2 = ps1, ps2
@@ -145,7 +147,7 @@ class ConsoleBox(QPlainTextEdit):
                 return
             exec_(command, self.namespace)
         except SystemExit:
-            self.emit(SIGNAL('close'))
+            self.closeConsole.emit()
         except:  # pylint: disable=W0702
             traceback_lines = traceback.format_exc().split('\n')
             # Remove traceback mentioning this file, and a linebreak
@@ -175,7 +177,7 @@ class ConsoleBox(QPlainTextEdit):
             self.setCommand(self.getNextHistoryEntry())
             return
         elif event.key() == Qt.Key_D and event.modifiers() == Qt.ControlModifier:
-            self.emit(SIGNAL('close'))
+            self.closeConsole.emit()
         super(ConsoleBox, self).keyPressEvent(event)
 
 
@@ -203,7 +205,7 @@ Helper functions:
         self.mainwidget.addWidget(self.console)
         self.mainwidget.addWidget(self.outbox)
         self.setCentralWidget(self.mainwidget)
-        self.connect(self.console, SIGNAL('close'), self.close)
+        self.console.closeConsole.connect(self.close)
 
         self.console.namespace.update(dict(
             app    = QCoreApplication.instance(),

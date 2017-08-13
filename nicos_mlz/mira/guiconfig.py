@@ -19,8 +19,10 @@ main_window = hsplit(
 
 windows = [
     window('Editor', 'editor',
+        hsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
            panel('nicos.clients.gui.panels.editor.EditorPanel',
-                 tools=[tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')])),
+                 tools=[tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')]))),
     window('Live data', 'live', panel('nicos_mlz.mira.gui.live.LiveDataPanel')),
     window('Camera', 'live',
            panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',

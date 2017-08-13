@@ -214,8 +214,7 @@ class CommonScan(Cmdlet):
         Cmdlet.__init__(self, parent, client, self.uiname)
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_device_change)
+        self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.step.setValidator(DoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
@@ -388,8 +387,7 @@ class ContScan(Cmdlet):
             self.client.getDeviceList('nicos.core.device.Moveable',
                                       special_clause='hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_device_change)
+        self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.stop.setValidator(DoubleValidator(self))
         self.speed.setValidator(DoubleValidator(self))
@@ -498,10 +496,9 @@ class Configure(Cmdlet):
         self.hlayout.insertWidget(5, self.target)
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_device_change)
-        self.connect(self.parameter, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_parameter_change)
+        self.device.currentIndexChanged[str].connect(self.on_device_change)
+        self.parameter.currentIndexChanged[str].connect(
+            self.on_parameter_change)
 
     def on_device_change(self, text):
         self.paraminfo = self.client.getDeviceParamInfo(text)

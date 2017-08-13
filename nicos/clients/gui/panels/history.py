@@ -871,9 +871,9 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                     self.presetdict.pop(name, None)
                     self._refresh_presets()
 
-                self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
+                paction.triggered[bool].connect(launchpreset)
                 pmenu.addAction(paction)
-                self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
+                pdelaction.triggered[bool].connect(delpreset)
                 delmenu.addAction(pdelaction)
         except AttributeError:
             self.presetdict = {}

@@ -30,7 +30,7 @@ from os import path
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
     QDialogButtonBox, QColor
-from PyQt4.QtCore import Qt, QByteArray, SIGNAL, SLOT
+from PyQt4.QtCore import Qt, QByteArray
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -99,14 +99,10 @@ class SANSPanel(Panel):
         client.setup.connect(self.on_client_connected)
         client.cache.connect(self.on_client_cache)
 
-        self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
-                     self.widget, SLOT("setLog10(bool)"))
-        self.connect(self.widget,
-                     SIGNAL('customContextMenuRequested(const QPoint&)'),
-                     self.on_widget_customContextMenuRequested)
-        self.connect(self.widget,
-                     SIGNAL('profileUpdate(int, int, void*, void*)'),
-                     self.on_widget_profileUpdate)
+        self.actionLogScale.toggled.connect(self.widget.setLog10)
+        self.widget.profileUpdate.connect(self.on_widget_profileUpdate)
+        self.widget.customContextMenuRequested.connect(
+            self.on_widget_customContextMenuRequested)
 
     def setSettings(self, settings):
         self._instrument = settings.get('instrument', '')
@@ -275,14 +271,14 @@ class SANSPanel(Panel):
             qwindow.buttonBox.addButton(b2, QDialogButtonBox.ApplyRole)
             qwindow.buttonBox.setFocus()
             result = [0]
+
             def pushed(btn):
                 if btn is b1:
                     result[0] = 1
                 elif btn is b2:
                     result[0] = 2
                 qwindow.accept()
-            self.connect(qwindow.buttonBox, SIGNAL('clicked(QAbstractButton*)'),
-                         pushed)
+            qwindow.buttonBox.clicked.connect(pushed)
             qwindow.exec_()
             if result[0] == 0:
                 return

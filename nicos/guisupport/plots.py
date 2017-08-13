@@ -52,7 +52,7 @@ class ActivePlotPicker(QwtPlotPicker):
 
     def widgetMouseMoveEvent(self, event):
         if self.active:
-            self.emit(SIGNAL('moved(const QPoint &)'), event.pos())
+            self.moved.emit(event.pos())
         return QwtPlotPicker.widgetMouseMoveEvent(self, event)
 
 
@@ -130,8 +130,7 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
         self.zoomer.initMousePattern(2)  # don't bind middle button
-        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
-                     self.on_zoomer_zoomed)
+        self.zoomer.zoomed.connect(self.on_zoomer_zoomed)
 
         self.panner = QwtPlotPanner(self.canvas())
         self.panner.setMouseButton(Qt.MidButton)
@@ -143,8 +142,7 @@ class TrendPlot(QwtPlot, NicosWidget):
                                        QwtPicker.AlwaysOff,
                                        self.canvas())
         self.canvas().setMouseTracking(True)
-        self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
-                     self.on_picker_moved)
+        self.picker.moved.connect(self.on_picker_moved)
 
         self.connect(self, SIGNAL('timeSeriesUpdate'), self.on_timeSeriesUpdate)
 
@@ -255,7 +253,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         def update():
             series.synthesize_value()
         self.ctimers[curve] = QTimer(singleShot=True)
-        self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
+        self.ctimers[curve].timeout.connect(update)
 
     def registerKeys(self):
         for key, name in zip_longest(self.props['devices'], self.props['names']):

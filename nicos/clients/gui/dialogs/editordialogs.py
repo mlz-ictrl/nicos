@@ -25,7 +25,7 @@
 
 
 from PyQt4.QtGui import QDialog, QMessageBox, QStyle
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.guisupport.utils import waitCursor
 from nicos.clients.gui.utils import loadUi
@@ -48,7 +48,7 @@ class SearchDialog(QDialog):
 
         for box in [self.regexpCheckBox, self.caseCheckBox, self.wordCheckBox,
                     self.wrapCheckBox]:
-            self.connect(box, SIGNAL('toggled(bool)'), self.reset_found)
+            box.toggled.connect(self.reset_found)
 
     @qtsig('')
     def on_findNextButton_clicked(self):

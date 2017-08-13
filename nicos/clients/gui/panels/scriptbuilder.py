@@ -24,7 +24,7 @@
 
 """NICOS GUI multiple cmdlet script-builder input."""
 
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QAction, QMenu, QToolButton
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
@@ -136,4 +136,4 @@ class CommandsPanel(Panel):
             code += generated
         if not valid:
             return
-        self.window.emit(SIGNAL('codeGenerated'), code)
+        self.mainwindow.codeGenerated.emit(code)

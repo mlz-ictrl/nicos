@@ -34,7 +34,7 @@ from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
     QwtText, QwtLegend, QwtPlotMarker, QwtPlotPanner, QwtLinearScaleEngine
 from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFileDialog, \
     QPrinter, QPrintDialog, QDialog, QImage
-from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QRectF, QLine, QSize
 
 import numpy as np
 
@@ -234,8 +234,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
                                     self.canvas())
         self.zoomer.initMousePattern(2)  # this will avoid the middle button,
                                          # which we use for panning
-        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
-                     self.on_zoomer_zoomed)
+        self.zoomer.zoomed.connect(self.on_zoomer_zoomed)
 
         self.panner = QwtPlotPanner(self.canvas())
         self.panner.setMouseButton(Qt.MidButton)
@@ -252,14 +251,12 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
 
         self.setCanvasBackground(self.window.user_color)
         self.canvas().setMouseTracking(True)
-        self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
-                     self.on_picker_moved)
+        self.picker.moved.connect(self.on_picker_moved)
 
         self.updateDisplay()
 
         self.setLegend(True)
-        self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
-                     self.on_legendClicked)
+        self.legendClicked.connect(self.on_legendClicked)
 
     def on_zoomer_zoomed(self, rect):
         # when zooming completely out, reset to auto scaling
@@ -475,9 +472,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
             QwtPicker.PointSelection | QwtPicker.ClickSelection,
             QwtPlotPicker.CrossRubberBand,
             QwtPicker.AlwaysOn, self.canvas())
-        self.connect(self.fitPicker,
-                     SIGNAL('selected(const QwtDoublePoint &)'),
-                     self.on_fitPicker_selected)
+        self.fitPicker.selected.connect(self.on_fitPicker_selected)
 
     def on_fitPicker_selected(self, point):
         self.fitter.addPick((point.x(), point.y()))

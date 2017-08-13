@@ -26,7 +26,7 @@
 Custom container widgets.
 """
 
-from PyQt4.QtCore import SIGNAL, pyqtSignal
+from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QHBoxLayout, QSizePolicy, QSpacerItem, QToolButton, \
     QVBoxLayout, QWidget
 from PyQt4.uic import loadUi
@@ -35,6 +35,8 @@ from nicos.guisupport.widget import NicosWidget, PropDef
 
 
 class MultiEntry(QWidget):
+    addOrRemove = pyqtSignal()
+
     def __init__(self, parent, client, uifile):
         QWidget.__init__(self, parent)
         new_layout = QHBoxLayout()
@@ -60,7 +62,7 @@ class MultiEntry(QWidget):
             self.button.setToolTip('Remove this')
 
     def on_button_click(self):
-        self.emit(SIGNAL('addRemove'))
+        self.addOrRemove.emit()
 
 
 class MultiList(NicosWidget, QWidget):
@@ -117,7 +119,7 @@ class MultiList(NicosWidget, QWidget):
 
     def _add(self):
         new_frame = MultiEntry(self, self._client, self.props['uifile'])
-        self.connect(new_frame, SIGNAL('addRemove'), self._addRemove)
+        new_frame.addOrRemove.connect(self._addRemove)
         if self._entries:
             self._entries[-1].setButton('-')
         self._entries.append(new_frame)
