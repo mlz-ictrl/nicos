@@ -27,9 +27,9 @@
 import itertools
 from collections import OrderedDict
 
-from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QDialog, QListWidgetItem, QTableWidgetItem, QLabel, \
-    QVBoxLayout, QFrame, QWidget, QTableWidgetSelectionRange, QFileDialog
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QDialog, QLabel, \
+    QListWidgetItem, QTableWidgetItem, QVBoxLayout, QFrame, QWidget, \
+    QTableWidgetSelectionRange, QFileDialog
 
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.guisupport.utils import DoubleValidator

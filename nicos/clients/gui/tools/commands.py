@@ -30,8 +30,8 @@ from select import select
 from threading import Thread
 from os import path
 
-from PyQt4.QtGui import QDialog, QPushButton, QMessageBox
-from PyQt4.QtCore import pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, QDialog, QPushButton, \
+    QMessageBox
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import createSubprocess

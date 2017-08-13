@@ -31,10 +31,8 @@ import os
 import socket
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, \
-    PYQT_VERSION
-from PyQt4.QtGui import QApplication, QColor, QDialog, QFileDialog, QFont, \
+from nicos.guisupport.qt import uic, PYQT_VERSION, Qt, QByteArray, QDateTime, \
+    QSettings, QSize, QApplication, QColor, QDialog, QFileDialog, QFont, \
     QLabel, QMessageBox, QProgressDialog, QPushButton, QStyle, QTextEdit, \
     QToolButton, QVBoxLayout, QWidget
 

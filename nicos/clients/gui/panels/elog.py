@@ -28,11 +28,10 @@
 from os import path
 from cgi import escape
 
-from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
-    QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
-    QPushButton, QLineEdit, QActionGroup
-from PyQt4.QtWebKit import QWebView, QWebPage
-from PyQt4.QtCore import pyqtSlot, Qt, QTimer, QUrl
+from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QUrl, QMainWindow, \
+    QTextEdit, QDialog, QInputDialog, QMenu, QToolBar, QPrintDialog, \
+    QPrinter, QTextDocument, QDesktopServices, QPushButton, QLineEdit, \
+    QActionGroup, QWebView, QWebPage
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils

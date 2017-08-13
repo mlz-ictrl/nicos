@@ -30,10 +30,8 @@ import logging
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QFileDialog, QIcon, QLabel, QMainWindow,\
-    QMessageBox, QTreeWidgetItem
+from nicos.guisupport.qt import uic, Qt, QApplication, QFileDialog, QIcon, \
+    QLabel, QMainWindow, QMessageBox, QTreeWidgetItem
 
 from nicos import config
 from nicos.pycompat import string_types

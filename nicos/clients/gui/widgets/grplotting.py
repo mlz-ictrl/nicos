@@ -31,14 +31,15 @@ import tempfile
 
 import numpy.ma
 import gr
-from PyQt4 import QtGui
-from PyQt4.QtGui import QApplication, QMenu, QAction
-from PyQt4.QtCore import Qt, QPoint
+from gr.pygr import Plot, PlotAxes, ErrorBar, Text, RegionOfInterest, \
+    CoordConverter
+from gr.pygr.helper import ColorIndexGenerator
+
+from nicos.guisupport.qt import Qt, QPoint, QApplication, QMenu, QAction, \
+    QDialog, QFileDialog, QCursor
+
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
-from gr.pygr import Plot, PlotAxes, ErrorBar, Text, \
-    RegionOfInterest, CoordConverter
-from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
     DataSetPlotMixin, GaussFitter, prepareData
@@ -368,12 +369,11 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     def savePlot(self):
         saveName = None
-        dialog = QtGui.QFileDialog(self, "Select file name", "",
-                                   self._saveTypes)
+        dialog = QFileDialog(self, "Select file name", "", self._saveTypes)
         dialog.selectNameFilter(gr.PRINT_TYPE[gr.PRINT_PDF])
         dialog.setNameFilterDetailsVisible(True)
-        dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
-        if dialog.exec_() == QtGui.QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        if dialog.exec_() == QDialog.Accepted:
             path = dialog.selectedFiles()[0]
             if path:
                 _p, suffix = os.path.splitext(path)
@@ -431,7 +431,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
     def _enterFitMode(self):
         self.window.statusBar.showMessage(self.statusMessage)
         self._cursor = self.cursor()
-        self.setCursor(QtGui.QCursor(Qt.CrossCursor))
+        self.setCursor(QCursor(Qt.CrossCursor))
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
         self.setMouseSelectionEnabled(False)
 

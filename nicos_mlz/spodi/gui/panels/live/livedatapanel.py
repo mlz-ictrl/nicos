@@ -21,12 +21,12 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+
 """SPODI live data panel."""
 
 import numpy
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy, QStatusBar
+from nicos.guisupport.qt import Qt, QFont, QGridLayout, QSizePolicy, QStatusBar
 
 from nicos.clients.gui.panels import Panel
 

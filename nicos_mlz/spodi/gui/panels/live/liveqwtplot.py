@@ -23,8 +23,8 @@
 # *****************************************************************************
 """SPODI live data plot widget (Qwt version)."""
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QPen
+from nicos.guisupport.qt import Qt, QPen
+
 from PyQt4.Qwt5 import QwtPlotCurve
 
 from nicos.clients.gui.widgets.plotting import NicosQwtPlot

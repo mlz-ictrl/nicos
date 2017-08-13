@@ -25,8 +25,8 @@
 
 """NICOS GUI single cmdlet command input."""
 
-from PyQt4.QtCore import Qt, pyqtSlot
-from PyQt4.QtGui import QApplication, QAction, QKeyEvent, QMenu
+from nicos.guisupport.qt import pyqtSlot, Qt, QApplication, QAction, QMenu, \
+    QKeyEvent
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel

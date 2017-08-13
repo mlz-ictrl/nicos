@@ -26,8 +26,7 @@
 
 import collections
 
-from PyQt4.QtGui import QDialog, QIcon, QDialogButtonBox
-from PyQt4.QtCore import QDateTime
+from nicos.guisupport.qt import QDateTime, QDialog, QIcon, QDialogButtonBox
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils.emails import sendMail

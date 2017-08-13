@@ -24,7 +24,7 @@
 
 """Dialog for exporting data."""
 
-from PyQt4.QtGui import QFileDialog, QLabel, QComboBox
+from nicos.guisupport.qt import QFileDialog, QLabel, QComboBox
 
 
 class DataExportDialog(QFileDialog):

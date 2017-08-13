@@ -25,7 +25,7 @@
 """Tree widget for displaying devices/params.
 """
 
-from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem
+from nicos.guisupport.qt import QTreeWidget, QTreeWidgetItem
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import iteritems

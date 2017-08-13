@@ -26,9 +26,9 @@
 
 import re
 
-from PyQt4.QtCore import QEvent, Qt, QRegExp, pyqtSignal
-from PyQt4.QtGui import QApplication, QColor, QCompleter, QKeyEvent, QLineEdit, \
-    QMessageBox, QPalette, QStringListModel, QRegExpValidator
+from nicos.guisupport.qt import pyqtSignal, Qt, QEvent, QRegExp, QColor, \
+    QApplication, QCompleter, QKeyEvent, QLineEdit, QMessageBox, QPalette, \
+    QStringListModel, QRegExpValidator
 
 from nicos.clients.gui.utils import ScriptExecQuestion
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor

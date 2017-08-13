@@ -26,8 +26,8 @@
 
 from contextlib import contextmanager
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QPalette, QValidator, QDoubleValidator
+from nicos.guisupport.qt import Qt, QApplication, QPalette, QValidator, \
+    QDoubleValidator
 
 
 def setBackgroundColor(widget, color):

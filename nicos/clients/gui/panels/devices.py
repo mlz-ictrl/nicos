@@ -26,10 +26,10 @@
 
 from logging import WARNING
 
-from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QRegExp, QCursor, \
+    QByteArray, QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
-    QDialog, QMessageBox, QPushButton, QComboBox, QCursor
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt, QRegExp, QByteArray
+    QDialog, QMessageBox, QPushButton, QComboBox
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit

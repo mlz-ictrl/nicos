@@ -28,8 +28,7 @@ NICOS GUI LED class.
 
 import ast
 
-from PyQt4.QtGui import QLabel, QWidget, QPixmap
-from PyQt4.QtCore import Qt, QSize
+from nicos.guisupport.qt import Qt, QSize, QLabel, QWidget, QPixmap
 
 from nicos.core.status import OK, BUSY
 from nicos.guisupport.widget import NicosWidget, PropDef

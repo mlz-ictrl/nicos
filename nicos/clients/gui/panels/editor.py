@@ -31,12 +31,11 @@ from os import path
 from uuid import uuid1
 from logging import WARNING
 
-from PyQt4.QtGui import QDialog, QHeaderView, QHBoxLayout, \
-    QTreeWidgetItem, QMessageBox, \
-    QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, \
-    QToolBar, QFileSystemModel, QTabWidget, QInputDialog, \
-    QFontMetrics, QActionGroup
-from PyQt4.QtCore import pyqtSlot, Qt, QByteArray, QFileSystemWatcher
+from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QFileSystemWatcher, \
+    QDialog, QHeaderView, QHBoxLayout, QTreeWidgetItem, QMessageBox, QMenu, \
+    QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, \
+    QToolBar, QFileSystemModel, QTabWidget, QInputDialog, QFontMetrics, \
+    QActionGroup
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter

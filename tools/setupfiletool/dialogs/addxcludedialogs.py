@@ -25,8 +25,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog, QListWidgetItem
+from nicos.guisupport.qt import uic, QDialog, QListWidgetItem
 
 
 class AddXcludeDialog(QDialog):

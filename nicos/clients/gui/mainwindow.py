@@ -29,17 +29,9 @@ import sys
 import traceback
 from time import strftime, time as currenttime
 
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
-    QLabel, QSystemTrayIcon, QPixmap, QMenu, QIcon, QAction, \
-    QFontDialog, QColorDialog
-from PyQt4.QtCore import Qt, QTimer, QSize
-from PyQt4.QtCore import pyqtSignal, pyqtSlot
-
-try:
-    import PyQt4.QtWebKit  # pylint: disable=unused-import
-    qwebkit_available = True
-except ImportError:
-    qwebkit_available = False
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QTimer, QSize, \
+    QApplication, QMainWindow, QMessageBox, QDialog, QLabel, QSystemTrayIcon, \
+    QPixmap, QMenu, QIcon, QAction, QFontDialog, QColorDialog, QWebView
 
 try:
     from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
@@ -605,17 +597,17 @@ class MainWindow(QMainWindow, DlgUtils):
 
     @pyqtSlot()
     def on_actionNicosHelp_triggered(self):
-        if not qwebkit_available:
-            self.showError('Cannot open help window: QWebKit is not '
+        if not QWebView:
+            self.showError('Cannot open help window: Qt web extension is not '
                            'available on your system.')
             return
         self.client.eval('session.showHelp("index")')
 
     @pyqtSlot()
     def on_actionNicosDocu_triggered(self):
-        if not qwebkit_available:
-            self.showError('Cannot open documentation window: QWebKit is not '
-                           'available on your system.')
+        if not QWebView:
+            self.showError('Cannot open documentation window: Qt web extension'
+                           ' is not available on your system.')
             return
         from nicos.clients.gui.tools.website import WebsiteTool
         # XXX: change URL to current release version

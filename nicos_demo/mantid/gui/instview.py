@@ -24,17 +24,16 @@
 
 """Mantid Instrument View Panel."""
 
+import os
+
+from nicos.guisupport.qt import QHBoxLayout, QWidget
+
 try:
     import mantid.simpleapi as simpleapi  # pylint: disable=import-error
     import mantidqtpython as mpy  # pylint: disable=import-error
 except ImportError:
     simpleapi = None
     mpy = None
-
-
-import os
-
-from PyQt4.QtGui import QHBoxLayout, QWidget
 
 from nicos.clients.gui.panels import Panel
 from nicos.guisupport.widget import NicosWidget

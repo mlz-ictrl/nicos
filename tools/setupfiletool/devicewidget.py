@@ -25,9 +25,8 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QMessageBox, QSpacerItem, QWidget
+from nicos.guisupport.qt import uic, pyqtSignal, QMessageBox, QSpacerItem, \
+    QWidget
 
 from nicos.guisupport.typedvalue import create
 from nicos.pycompat import string_types

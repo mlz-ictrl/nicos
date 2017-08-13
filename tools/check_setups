@@ -10,15 +10,11 @@ import traceback
 
 from os import path
 
-# force QT api to V2
 try:
-    import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
-    import PyQt4.QtGui
+    import nicos.guisupport.qt as qt
     from nicos.clients.gui.panels import Panel
 except ImportError:
-    PyQt4 = None
+    qt = None
     Panel = None
 
 try:
@@ -441,7 +437,7 @@ class SetupChecker(object):
                 self.log_error('class %r for %s not importable: %s',
                                spec.clsname, context, err)
             else:
-                if PyQt4 and not issubclass(cls, Panel):
+                if qt and not issubclass(cls, Panel):
                     self.log.warning('class %r for %s is not a Panel '
                                      'subclass', spec.clsname, context)
         else:
@@ -470,8 +466,7 @@ class SetupChecker(object):
                 self.log_error('class %r for tool %r not importable: %s',
                                spec.clsname, spec.name, err)
             else:
-                if PyQt4 and not issubclass(cls, (PyQt4.QtGui.QDialog,
-                                                  PyQt4.QtGui.QMainWindow)):
+                if qt and not issubclass(cls, (qt.QDialog, qt.QMainWindow)):
                     self.log.warning('class %r for tool %r is not a QDialog or'
                                      ' QMainWindow', spec.clsname, spec.name)
 

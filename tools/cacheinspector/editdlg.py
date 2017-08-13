@@ -23,10 +23,8 @@
 # *****************************************************************************
 
 from os import path
-from os.path import join
 
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog, QMessageBox
+from nicos.guisupport.qt import uic, QDialog, QMessageBox
 
 from nicos.protocols.cache import cache_load
 
@@ -37,8 +35,8 @@ class EntryEditDialog(QDialog):
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'entryedit.ui'), self)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'entryedit.ui'), self)
         self.setupEvents()
 
     def setupEvents(self):

@@ -26,8 +26,7 @@
 
 from os import path
 
-from PyQt4.QtGui import QPrintDialog, QPrinter, QFileDialog
-from PyQt4.QtCore import pyqtSlot
+from nicos.guisupport.qt import pyqtSlot, QPrintDialog, QPrinter, QFileDialog
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel

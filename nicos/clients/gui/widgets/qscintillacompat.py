@@ -24,10 +24,8 @@
 
 """NICOS GUI user editor qscintilla compat edit widget."""
 
-
-from PyQt4.QtGui import QPlainTextEdit, QTextCursor, QTextDocument, \
-    QColor, QTextEdit, QTextFormat, QPainter, QWidget
-from PyQt4.QtCore import Qt, QRect, QSize
+from nicos.guisupport.qt import Qt, QRect, QSize, QPlainTextEdit, QWidget, \
+    QTextCursor, QTextDocument, QColor, QTextEdit, QTextFormat, QPainter
 
 
 class LineNumberArea(QWidget):

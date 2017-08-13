@@ -24,9 +24,8 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import QRegExp, Qt
-from PyQt4.QtGui import QDialog, QMenu, QRegExpValidator
+from nicos.guisupport.qt import uic, Qt, QRegExp, QDialog, QMenu, \
+    QRegExpValidator
 
 from setupfiletool import classparser
 

@@ -24,7 +24,7 @@
 
 import ast
 
-from PyQt4.QtCore import Qt
+from nicos.guisupport.qt import Qt
 
 from nicos.guisupport.led import ClickableOutputLed, PropDef
 from nicos.pycompat import string_types

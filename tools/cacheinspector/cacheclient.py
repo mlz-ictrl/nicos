@@ -27,7 +27,7 @@ import threading
 from time import time as currenttime
 from collections import namedtuple
 
-from PyQt4.QtCore import QObject, pyqtSignal
+from nicos.guisupport.qt import QObject, pyqtSignal
 
 from nicos.core import Override
 from nicos.devices.cacheclient import BaseCacheClient

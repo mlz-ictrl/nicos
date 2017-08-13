@@ -28,7 +28,7 @@ import re
 import math
 from os import path
 
-from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem
+from nicos.guisupport.qt import QDialog, QPixmap, QTreeWidgetItem
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 from nicos.guisupport.utils import DoubleValidator

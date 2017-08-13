@@ -26,11 +26,7 @@
 import sys
 from os import path
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-
-from PyQt4.QtGui import QApplication
+from nicos.guisupport.qt import QApplication
 
 thisfile = path.abspath(__file__)
 sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))

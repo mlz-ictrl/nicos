@@ -28,9 +28,8 @@ import io
 import sys
 from os import path
 
-from PyQt4.QtCore import Qt, pyqtSlot
-from PyQt4.QtGui import QAbstractPrintDialog, QDialog, QFileDialog, QMenu, \
-    QMessageBox, QPrintDialog, QPrinter, QTextEdit
+from nicos.guisupport.qt import pyqtSlot, Qt, QAbstractPrintDialog, QDialog, \
+    QFileDialog, QMenu, QMessageBox, QPrintDialog, QPrinter, QTextEdit
 
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.clients.gui.panels import Panel, showPanel

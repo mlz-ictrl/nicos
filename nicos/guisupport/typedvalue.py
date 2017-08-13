@@ -29,10 +29,10 @@ The supported types are defined in `nicos.core.params`.
 
 import numpy as np
 
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QLineEdit, QIntValidator, QIcon, QTableWidget, \
-    QCheckBox, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, \
-    QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, QTableWidgetItem
+from nicos.guisupport.qt import pyqtSignal, Qt, QLineEdit, QIntValidator, \
+    QIcon, QTableWidget, QCheckBox, QWidget, QLabel, QComboBox, QHBoxLayout, \
+    QVBoxLayout, QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, \
+    QTableWidgetItem
 
 from nicos.core import params, anytype
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCellType

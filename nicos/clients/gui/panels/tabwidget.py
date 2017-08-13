@@ -24,10 +24,9 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from PyQt4.QtCore import QByteArray, QEvent, QMimeData, QPoint, Qt, pyqtSlot, \
-    pyqtSignal
-from PyQt4.QtGui import QApplication, QCursor, QDrag, QMainWindow, \
-    QMouseEvent, QPixmap, QTabBar, QTabWidget, QWidget
+from nicos.guisupport.qt import pyqtSlot, pyqtSignal, Qt, QByteArray, QEvent, \
+    QMimeData, QPoint, QApplication, QCursor, QDrag, QMainWindow, QWidget, \
+    QMouseEvent, QPixmap, QTabBar, QTabWidget
 
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings

@@ -27,8 +27,7 @@
 import os.path
 from cgi import escape
 
-import PyQt4.QtGui  # pylint: disable=W0611
-from PyQt4.QtCore import QDateTime, pyqtSlot
+from nicos.guisupport.qt import pyqtSlot, QDateTime
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils

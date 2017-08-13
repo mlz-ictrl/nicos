@@ -27,7 +27,7 @@
 import os
 from os import path
 
-from PyQt4.QtGui import QDialog, QIcon, QTreeWidgetItem
+from nicos.guisupport.qt import QDialog, QIcon, QTreeWidgetItem
 
 from nicos import config
 from nicos.clients.gui.utils import loadUi, SettingGroup

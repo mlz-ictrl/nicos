@@ -27,8 +27,9 @@
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QBrush, QColor, QPainter, QPen, QWidget
+from nicos.guisupport.qt import QSize, Qt, QBrush, QColor, QPainter, QPen, \
+    QWidget
+
 from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
 
 
@@ -67,7 +68,7 @@ class Tube2(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'devices':   PropDef('QStringList', [],'position, shift and tilt of '
+        'devices':   PropDef('QStringList', [], 'position, shift and tilt of '
                              'det1, position of det2'),
         'height':    PropDef(int, 10, 'Widget height in characters'),
         'width':     PropDef(int, 30, 'Widget width in characters'),

@@ -24,8 +24,7 @@
 
 """NICOS GUI tools."""
 
-from PyQt4.QtCore import Qt, QTimer
-from PyQt4.QtGui import QAction
+from nicos.guisupport.qt import Qt, QTimer, QAction
 
 from nicos.utils import importString, createSubprocess
 from nicos.clients.gui.config import tool, cmdtool, menu

@@ -32,11 +32,11 @@ from __future__ import print_function
 import sys
 
 from struct import pack, unpack
-from pymodbus.client.sync import ModbusTcpClient # pylint: disable = F0401
+from pymodbus.client.sync import ModbusTcpClient  # pylint: disable=F0401
 
-from PyQt4 import QtGui
-from PyQt4.QtGui import QWidget, QFrame, QLabel, QHBoxLayout, QVBoxLayout, \
-     QPushButton, QLineEdit, QMainWindow
+from nicos.guisupport.qt import QWidget, QFrame, QLabel, QHBoxLayout, \
+    QVBoxLayout, QPushButton, QLineEdit, QMainWindow, QApplication, \
+    QFormLayout, QScrollArea
 
 
 def Stati(status):
@@ -58,6 +58,7 @@ def Stati(status):
 class BaseDev(QWidget):
     has_target = False
     has_status = False
+
     def __init__(self, model, name, addr):
         super(BaseDev, self).__init__()
         self.name = name
@@ -67,15 +68,14 @@ class BaseDev(QWidget):
         self._namelabel = QLabel(name)
         self._namelabel.setMinimumWidth(120)
         self._namelabel.setMaximumWidth(120)
-        #~ self._groupbox = QGroupBox(name)
+        # self._groupbox = QGroupBox(name)
         self._groupbox = QFrame()
-        #~ self._groupbox.setFlat(False)
-        #~ self._groupbox.setCheckable(False)
+        # self._groupbox.setFlat(False)
+        # self._groupbox.setCheckable(False)
         self._hlayout = QHBoxLayout()
         self._hlayout.addWidget(self._namelabel)
         self._hlayout.addWidget(self._groupbox)
         self._hlayout.setSpacing(0)
-
 
         # inside of the groupbox there is a vbox with 1 or 2 hboxes
         self._inner_vbox = QVBoxLayout()
@@ -103,7 +103,6 @@ class BaseDev(QWidget):
             self.stopButton.clicked.connect(self._stop_clicked)
             self._inner_hbox1.addWidget(self.stopButton)
 
-
         # now (conditionally) the second hbox
         if self.has_status:
             self._inner_hbox2 = QHBoxLayout()
@@ -118,7 +117,7 @@ class BaseDev(QWidget):
             self.resetButton = QPushButton('Reset')
             self.resetButton.clicked.connect(self._reset_clicked)
             self._inner_hbox1.addWidget(self.resetButton)
-            #~ self._inner_hbox2.addStretch(0.1)
+            # self._inner_hbox2.addStretch(0.1)
 
         # allow space for resizing
         self._inner_hbox1.addStretch(1)
@@ -152,6 +151,7 @@ class BaseDev(QWidget):
     def _status(self, value):
         return "no status decoder implemented"
 
+
 class ReadWord(BaseDev):
     has_target = False
     has_status = False
@@ -172,14 +172,15 @@ class ReadWord(BaseDev):
 class DiscreteInput(ReadWord):
     has_target = False
     has_status = True
+
     def _go_clicked(self):
         raise NotImplementedError()
 
     def _stop_clicked(self):
-        self.model.WriteWord(self.addr +1, 0x1000)
+        self.model.WriteWord(self.addr + 1, 0x1000)
 
     def _reset_clicked(self):
-        self.model.WriteWord(self.addr +1, 0x0000)
+        self.model.WriteWord(self.addr + 1, 0x0000)
 
     def _update(self):
         self.valueWidget.setText(self._bin2str(self.model.ReadWord(self.addr)))
@@ -191,18 +192,19 @@ class DiscreteInput(ReadWord):
 class DiscreteOutput(DiscreteInput):
     has_target = True
     has_status = True
+
     def _go_clicked(self):
         value = self.targetWidget.text()
         if value:
-            self.model.WriteWord(self.addr +1, self._str2bin(value))
+            self.model.WriteWord(self.addr + 1, self._str2bin(value))
             self.targetWidget.setText('')
-            self.model.WriteWord(self.addr +2, 0x2000)
+            self.model.WriteWord(self.addr + 2, 0x2000)
 
     def _stop_clicked(self):
-        self.model.WriteWord(self.addr +2, 0x1000)
+        self.model.WriteWord(self.addr + 2, 0x1000)
 
     def _reset_clicked(self):
-        self.model.WriteWord(self.addr +2, 0x0000)
+        self.model.WriteWord(self.addr + 2, 0x0000)
 
     def _str2bin(self, value):
         v = str(value).strip()
@@ -225,7 +227,7 @@ class DiscreteOutput(DiscreteInput):
         return v
 
     def _bin2str(self, value):
-        if value <16:
+        if value < 16:
             return '%d' % value
         return '0x%04x' % value
 
@@ -239,6 +241,7 @@ class DiscreteOutput(DiscreteInput):
 class WriteWord(ReadWord):
     has_target = True
     has_status = False
+
     def __init__(self, model, name, addr):
         ReadWord.__init__(self, model, name, addr)
         self.goButton.setText('Set')
@@ -258,13 +261,13 @@ class WriteWord(ReadWord):
     def _str2bin(self, value):
         v = str(value).strip()
         if v.startswith('0x') or v.startswith('0X'):
-            v = int(v[2:],16)
+            v = int(v[2:], 16)
         elif v.startswith('0b') or v.startswith('0B'):
-            v = int(v[2:],2)
+            v = int(v[2:], 2)
         elif v.startswith('0') or v.startswith('o'):
-            v = int(v[2:],8)
+            v = int(v[2:], 8)
         elif v.startswith(('x', 'X',  '$')):
-            v = int(v[1:],16)
+            v = int(v[1:], 16)
         else:
             v = int(v)
         return v
@@ -276,14 +279,15 @@ class WriteWord(ReadWord):
 class AnalogInput(BaseDev):
     has_target = False
     has_status = True
+
     def _go_clicked(self):
         raise NotImplementedError()
 
     def _stop_clicked(self):
-        self.model.WriteWord(self.addr +2, 0x1000)
+        self.model.WriteWord(self.addr + 2, 0x1000)
 
     def _reset_clicked(self):
-        self.model.WriteWord(self.addr +2, 0x0000)
+        self.model.WriteWord(self.addr + 2, 0x0000)
 
     def _update(self):
         self.valueWidget.setText(self._bin2str(self.model.ReadFloat(self.addr)))
@@ -295,10 +299,9 @@ class AnalogInput(BaseDev):
         return '%g' % value
 
 
-
 class LIFT(DiscreteOutput):
     def _status(self, value):
-        stati=['Idle']
+        stati = ['Idle']
         if (value & 0x9000) == 0x9000:
             stati = ['ERR:Movement timed out']
         if value & 0x0800:
@@ -310,10 +313,11 @@ class LIFT(DiscreteOutput):
         if value & 0x0001:
             stati.append('ERR:Actuator Wire open!')
         return ', '.join(stati)
+
 
 class MAGAZIN(DiscreteOutput):
     def _status(self, value):
-        stati=['Idle']
+        stati = ['Idle']
         if (value & 0x9000) == 0x9000:
             stati = ['ERR:Movement timed out']
         if value & 0x0800:
@@ -325,10 +329,11 @@ class MAGAZIN(DiscreteOutput):
         if value & 0x0001:
             stati.append('ERR:Actuator Wire open!')
         return ', '.join(stati)
+
 
 class CLAMP(DiscreteOutput):
     def _status(self, value):
-        stati=['Idle']
+        stati = ['Idle']
         if (value & 0x9000) == 0x9000:
             stati = ['ERR:Movement timed out']
         if value & 0x0800:
@@ -341,33 +346,35 @@ class CLAMP(DiscreteOutput):
             stati.append('ERR:Actuator Wire open!')
         return ', '.join(stati)
 
+
 class MainWindow(QMainWindow):
-    i=0
+    i = 0
+
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
 
         # scroll area Widget contents - layout
-        self.scrollLayout = QtGui.QFormLayout()
+        self.scrollLayout = QFormLayout()
         self.scrollLayout.setContentsMargins(0, 0, 0, 0)
 
         # scroll area Widget contents
-        self.scrollWidget = QtGui.QWidget()
+        self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
 
         # scroll area
-        self.scrollArea = QtGui.QScrollArea()
+        self.scrollArea = QScrollArea()
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.scrollWidget)
 
         # main layout
-        self.mainLayout = QtGui.QVBoxLayout()
+        self.mainLayout = QVBoxLayout()
         self.mainLayout.setSpacing(0)
 
         # add all main to the main vLayout
         self.mainLayout.addWidget(self.scrollArea)
 
         # central Widget
-        self.centralWidget = QtGui.QWidget()
+        self.centralWidget = QWidget()
         self.centralWidget.setLayout(self.mainLayout)
 
         # set central Widget
@@ -386,8 +393,8 @@ class MainWindow(QMainWindow):
 
         widgets = []
         widgets.append(WriteWord(self, 'last_liftpos', addr=58/2))
-        widgets.append(ReadWord(self, 'analog1',addr=92/2))
-        widgets.append(ReadWord(self, 'analog2',addr=96/2))
+        widgets.append(ReadWord(self, 'analog1', addr=92/2))
+        widgets.append(ReadWord(self, 'analog2', addr=96/2))
         widgets.append(AnalogInput(self, 'liftpos_analog', addr=146/2))
         widgets.append(DiscreteInput(self, 'lift_sw', addr=68/2))
         widgets.append(LIFT(self, 'lift', 104/2))
@@ -419,36 +426,36 @@ class MainWindow(QMainWindow):
         for w in widgets:
             self.addWidget(w)
 
-        self.widgets=widgets
+        self.widgets = widgets
 
-        self.startTimer(225) # in ms !
+        self.startTimer(225)  # in ms !
 
     def ReadWord(self, addr):
         return self._registers[int(addr)]
 
     def WriteWord(self, addr, value):
         if self._bus:
-            self._bus.write_register(int(addr|0x4000), int(value))
+            self._bus.write_register(int(addr | 0x4000), int(value))
             self._sync()
 
     def ReadDWord(self, addr):
         return unpack('<I', pack('<HH', self._registers[int(addr)],
-                                         self._registers[int(addr) + 1]))
+                                 self._registers[int(addr) + 1]))
 
     def WriteDWord(self, addr, value):
         if self._bus:
             low, high = unpack('<HH', pack('<I', int(value)))
-            self._bus.write_registers(int(addr|0x4000), [low, high])
+            self._bus.write_registers(int(addr | 0x4000), [low, high])
             self._sync()
 
     def ReadFloat(self, addr):
         return unpack('<f', pack('<HH', self._registers[int(addr) + 1],
-                                         self._registers[int(addr)]))
+                                 self._registers[int(addr)]))
 
     def WriteFloat(self, addr, value):
         if self._bus:
             low, high = unpack('<HH', pack('<f', float(value)))
-            self._bus.write_registers(int(addr|0x4000), [high, low])
+            self._bus.write_registers(int(addr | 0x4000), [high, low])
             self._sync()
 
     def _sync(self):
@@ -459,29 +466,30 @@ class MainWindow(QMainWindow):
             self._registers = [self.i + i for i in range(77)]
             self.i += 1
 
-    def timerEvent(self, event): # pylint: disable=R0915
+    def timerEvent(self, event):  # pylint: disable=R0915
         self._sync()
         for w in self.widgets:
             w._update()
         return
 
     def addWidget(self, which):
-        which.setContentsMargins(10,0,0,0)
+        which.setContentsMargins(10, 0, 0, 0)
         self.scrollLayout.addRow(which)
-        l = QtGui.QFrame()
+        l = QFrame()
         l.setLineWidth(1)
-        #~ l.setMidLineWidth(4)
-        l.setFrameShape(QtGui.QFrame.HLine)
-        l.setContentsMargins(10,0,10,0)
+        # l.setMidLineWidth(4)
+        l.setFrameShape(QFrame.HLine)
+        l.setContentsMargins(10, 0, 10, 0)
         self.scrollLayout.addRow(l)
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     myWindow = MainWindow()
-    myWindow.resize(800,600)
+    myWindow.resize(800, 600)
     myWindow.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

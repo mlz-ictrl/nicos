@@ -25,9 +25,8 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-    QColorDialog, QVBoxLayout
-from PyQt4.QtCore import pyqtSlot, pyqtSignal
+from nicos.guisupport.qt import pyqtSlot, pyqtSignal, QWidget, QMainWindow, \
+    QSplitter, QFontDialog, QColorDialog, QVBoxLayout
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import SettingGroup, loadUi, \

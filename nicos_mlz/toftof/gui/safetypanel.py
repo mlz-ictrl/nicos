@@ -24,8 +24,7 @@
 
 """NICOS GUI panel with information about the TOFTOF safety status."""
 
-from PyQt4.QtGui import QTableWidgetItem
-from PyQt4.QtCore import QByteArray
+from nicos.guisupport.qt import QByteArray, QTableWidgetItem
 
 from nicos.utils import findResource
 

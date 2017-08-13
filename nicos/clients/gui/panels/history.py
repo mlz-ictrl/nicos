@@ -32,13 +32,10 @@ import functools
 from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
 
-from nicos.guisupport.qt import QApplication
-
-from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QObject, QTimer, \
+    QDateTime, QByteArray, QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, \
-    QBrush, QColor, QCompleter, QStyledItemDelegate
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, \
-    pyqtSignal, pyqtSlot
+    QBrush, QColor, QCompleter, QStyledItemDelegate, QApplication
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename, extractKeyAndIndex

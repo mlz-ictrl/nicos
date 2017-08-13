@@ -26,7 +26,8 @@
 
 import time
 
-from PyQt4.QtGui import QDialog, QFrame, QVBoxLayout, QWidget, QDialogButtonBox
+from nicos.guisupport.qt import QDialog, QFrame, QVBoxLayout, QWidget, \
+    QDialogButtonBox
 
 from nicos.clients.gui.utils import loadUi
 

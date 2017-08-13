@@ -24,8 +24,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QWidgetItem
+from nicos.guisupport.qt import uic, QMainWindow, QWidgetItem
 
 
 class WatcherWindow(QMainWindow):

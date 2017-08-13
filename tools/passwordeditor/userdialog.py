@@ -24,8 +24,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog
+from nicos.guisupport.qt import uic, QDialog
 
 
 class UserDialog(QDialog):

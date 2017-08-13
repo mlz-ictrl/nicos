@@ -26,8 +26,8 @@
 from copy import deepcopy
 from os import path
 
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QIcon, QMenu, QMessageBox, QTreeWidgetItem
+from nicos.guisupport.qt import pyqtSignal, Qt, QIcon, QMenu, QMessageBox, \
+    QTreeWidgetItem
 
 from nicos.guisupport.utils import waitCursor
 

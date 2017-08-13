@@ -25,8 +25,7 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from PyQt4.QtGui import QSplitter, QDockWidget, QTabWidget
-from PyQt4.QtCore import Qt
+from nicos.guisupport.qt import Qt, QSplitter, QDockWidget, QTabWidget
 
 from nicos.utils import importString
 from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked

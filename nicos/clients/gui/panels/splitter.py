@@ -25,8 +25,7 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from PyQt4.QtGui import QSplitter
-from PyQt4.QtCore import Qt
+from nicos.guisupport.qt import Qt, QSplitter
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.panels.base import SetupDepPanelMixin

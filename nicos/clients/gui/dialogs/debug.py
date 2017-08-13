@@ -27,9 +27,8 @@
 import sys
 import codeop
 
-from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
-    QTextCursor, QSplitter
-from PyQt4.QtCore import Qt, QCoreApplication, pyqtSignal
+from nicos.guisupport.qt import Qt, QCoreApplication, pyqtSignal, \
+    QMainWindow, QPlainTextEdit, QFont, QTextOption, QTextCursor, QSplitter
 
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622

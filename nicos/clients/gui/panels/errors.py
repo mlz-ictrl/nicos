@@ -26,7 +26,7 @@
 
 from logging import WARNING
 
-from PyQt4.QtGui import QDialogButtonBox
+from nicos.guisupport.qt import QDialogButtonBox
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel

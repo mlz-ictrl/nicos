@@ -31,9 +31,9 @@ from time import time as currenttime
 from os.path import getmtime, isfile
 
 import sip
-from PyQt4.QtCore import Qt, QSize, QTimer, pyqtSignal
-from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
-    QHBoxLayout, QFontMetrics, QPixmap
+
+from nicos.guisupport.qt import pyqtSignal, Qt, QSize, QTimer, QLabel, \
+    QFrame, QColor, QWidget, QVBoxLayout, QHBoxLayout, QFontMetrics, QPixmap
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     statuses

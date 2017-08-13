@@ -27,8 +27,7 @@ import logging
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtGui import QFileDialog, QMainWindow, QMessageBox
+from nicos.guisupport.qt import uic, QFileDialog, QMainWindow, QMessageBox
 
 from nicos import config
 

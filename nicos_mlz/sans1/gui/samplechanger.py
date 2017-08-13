@@ -27,10 +27,9 @@
 positions.
 """
 
-from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
-    QAbstractButton, QStylePainter, QStyleOptionHeader, QStyle, QLineEdit,\
-    QAbstractItemView, QVBoxLayout
-from PyQt4.QtCore import Qt, QSize, QEvent
+from nicos.guisupport.qt import Qt, QSize, QEvent, QDialogButtonBox, QLabel, \
+    QPixmap, QTableWidget, QAbstractButton, QStyle, QStylePainter, \
+    QStyleOptionHeader, QLineEdit, QAbstractItemView, QVBoxLayout
 
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils

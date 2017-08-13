@@ -26,10 +26,8 @@
 Custom container widgets.
 """
 
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QHBoxLayout, QSizePolicy, QSpacerItem, QToolButton, \
-    QVBoxLayout, QWidget
-from PyQt4.uic import loadUi
+from nicos.guisupport.qt import pyqtSignal, uic, QHBoxLayout, QSizePolicy, \
+    QSpacerItem, QToolButton, QVBoxLayout, QWidget
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 
@@ -42,7 +40,7 @@ class MultiEntry(QWidget):
         new_layout = QHBoxLayout()
         self.subwidget = QWidget(self)
         if uifile:
-            loadUi(uifile, self.subwidget)
+            uic.loadUi(uifile, self.subwidget)
         self.button = QToolButton(self)
         self.setButton('+')
         self.button.clicked.connect(self.on_button_click)

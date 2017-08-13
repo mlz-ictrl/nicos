@@ -27,7 +27,7 @@
 import fnmatch
 from os import path
 
-from PyQt4.QtGui import QFileDialog, QLineEdit, QSortFilterProxyModel
+from nicos.guisupport.qt import QFileDialog, QLineEdit, QSortFilterProxyModel
 
 from nicos.core.errors import NicosError
 
@@ -38,7 +38,6 @@ class FileFilterProxyModel(QSortFilterProxyModel):
 
     def setFilterWildcard(self, wildcard):
         self._wildcard = wildcard
-
 
     def filterAcceptsRow(self, row, parent):
         fileModel = self.sourceModel()

@@ -24,13 +24,7 @@
 
 """NICOS GUI help window."""
 
-from PyQt4.QtGui import QMainWindow
-from PyQt4.QtCore import QUrl, pyqtSlot
-
-try:
-    from PyQt4.QtWebKit import QWebPage
-except ImportError:
-    QWebPage = None
+from nicos.guisupport.qt import pyqtSlot, QUrl, QMainWindow, QWebPage
 
 from nicos.clients.gui.utils import loadUi
 

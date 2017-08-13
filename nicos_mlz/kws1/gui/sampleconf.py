@@ -28,10 +28,9 @@
 import math
 import time
 
-from PyQt4.QtCore import pyqtSlot
-from PyQt4.QtGui import QMessageBox, QDialog, QFrame, QVBoxLayout, \
-    QDialogButtonBox, QListWidgetItem, QTableWidgetItem, QFileDialog, \
-    QRadioButton, QLineEdit, QMenu
+from nicos.guisupport.qt import pyqtSlot, QMessageBox, QDialog, QFrame, \
+    QVBoxLayout, QDialogButtonBox, QListWidgetItem, QTableWidgetItem, QMenu, \
+    QFileDialog, QRadioButton, QLineEdit
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel

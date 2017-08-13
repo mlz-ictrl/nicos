@@ -26,9 +26,8 @@
 
 from cgi import escape
 
-from PyQt4.QtCore import QUrl
-from PyQt4.QtGui import QDesktopServices, QDialog, QDialogButtonBox, \
-    QGridLayout, QLabel, QLineEdit, QCheckBox
+from nicos.guisupport.qt import QUrl, QDesktopServices, QDialog, \
+    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QCheckBox
 
 try:
     import redminelib  # pylint: disable=F0401

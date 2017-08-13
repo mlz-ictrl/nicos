@@ -24,15 +24,8 @@
 
 """Dialog for entering authentication data."""
 
-from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QListWidgetItem, QPalette
-from PyQt4.QtCore import QSize
-
-
-try:
-    from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
-except ImportError:
-    class QPyNullVariant(object):
-        pass
+from nicos.guisupport.qt import QSize, QDialog, QFontMetrics, QIcon, \
+    QListWidgetItem, QPalette, QPyNullVariant
 
 from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.base import ConnectionData

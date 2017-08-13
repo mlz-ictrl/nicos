@@ -27,10 +27,9 @@
 import os
 from os import path
 
-from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
-    QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
-    QDialogButtonBox, QColor
-from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
+from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPrinter, QDialog, \
+    QPrintDialog, QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, \
+    QPushButton, QStyle, QDialogButtonBox, QColor
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.clients.gui.panels import Panel

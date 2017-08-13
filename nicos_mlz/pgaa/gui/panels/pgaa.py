@@ -28,8 +28,8 @@ from __future__ import print_function
 
 from os import path
 
-from PyQt4.QtGui import QColor, QButtonGroup, QMessageBox
-from PyQt4.QtCore import pyqtSlot, QTimer
+from nicos.guisupport.qt import pyqtSlot, QTimer, QColor, QButtonGroup, \
+    QMessageBox
 
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel

@@ -24,9 +24,8 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit, QWidget, QSpinBox, \
-    QHBoxLayout
-from PyQt4.QtCore import QObject, pyqtSignal
+from nicos.guisupport.qt import pyqtSignal, QObject, QComboBox, QCheckBox, \
+    QLineEdit, QWidget, QSpinBox, QHBoxLayout
 
 from nicos.utils import num_sort
 from nicos.guisupport import typedvalue

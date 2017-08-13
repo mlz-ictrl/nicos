@@ -31,9 +31,8 @@ import functools
 
 from copy import copy
 
-from nicos.guisupport.qt import QFont, QFontMetrics
-
-from PyQt4.QtCore import pyqtProperty, pyqtWrapperType
+from nicos.guisupport.qt import pyqtProperty, pyqtWrapperType, QFont, \
+    QFontMetrics
 
 from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE

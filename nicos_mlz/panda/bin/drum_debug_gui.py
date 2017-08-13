@@ -32,11 +32,11 @@ from __future__ import print_function
 import sys
 
 from struct import pack, unpack
-from pymodbus.client.sync import ModbusTcpClient # pylint: disable = F0401
+from pymodbus.client.sync import ModbusTcpClient  # pylint: disable=F0401
 
-from PyQt4 import QtGui
-from PyQt4.QtGui import QWidget, QFrame, QLabel, QHBoxLayout, QVBoxLayout, \
-     QPushButton, QLineEdit, QMainWindow
+from nicos.guisupport.qt import QWidget, QFrame, QLabel, QHBoxLayout, \
+    QVBoxLayout, QPushButton, QLineEdit, QMainWindow, QApplication, \
+    QFormLayout, QScrollArea
 
 
 def Stati(status):
@@ -67,7 +67,6 @@ class BaseDev(QWidget):
         self.name = name
         self.model = model
 
-
         self.offset = value_offset
         self.has_status = has_status
         self.has_target = target is not None
@@ -76,15 +75,14 @@ class BaseDev(QWidget):
         self._namelabel = QLabel(name)
         self._namelabel.setMinimumWidth(120)
         self._namelabel.setMaximumWidth(120)
-        #~ self._groupbox = QGroupBox(name)
+        # self._groupbox = QGroupBox(name)
         self._groupbox = QFrame()
-        #~ self._groupbox.setFlat(False)
-        #~ self._groupbox.setCheckable(False)
+        # self._groupbox.setFlat(False)
+        # self._groupbox.setCheckable(False)
         self._hlayout = QHBoxLayout()
         self._hlayout.addWidget(self._namelabel)
         self._hlayout.addWidget(self._groupbox)
         self._hlayout.setSpacing(0)
-
 
         # inside of the groupbox there is a vbox with 1 or 2 hboxes
         self._inner_vbox = QVBoxLayout()
@@ -105,19 +103,18 @@ class BaseDev(QWidget):
             self.targetWidget.setMaximumWidth(120)
             self.targetWidget.returnPressed.connect(
                 lambda *a: model.targeter(index,
-                    (self.targetWidget.text(),
-                     self.targetWidget.setText(''))[0]))
+                                          (self.targetWidget.text(),
+                                           self.targetWidget.setText(''))[0]))
             self._inner_hbox1.addWidget(self.targetWidget)
             self.goButton = QPushButton('Go')
             self.goButton.clicked.connect(
                 lambda *a: model.targeter(index,
-                    (self.targetWidget.text(),
-                     self.targetWidget.setText(''))[0]))
+                                          (self.targetWidget.text(),
+                                           self.targetWidget.setText(''))[0]))
             self._inner_hbox1.addWidget(self.goButton)
             self.stopButton = QPushButton('Stop')
             self.stopButton.clicked.connect(lambda *a: model.stopper(index))
             self._inner_hbox1.addWidget(self.stopButton)
-
 
         # now (conditionally) the second hbox
         if has_status:
@@ -133,7 +130,7 @@ class BaseDev(QWidget):
             self.resetButton = QPushButton('Reset')
             self.resetButton.clicked.connect(lambda *a: model.resetter(index))
             self._inner_hbox1.addWidget(self.resetButton)
-            #~ self._inner_hbox2.addStretch(0.1)
+            # self._inner_hbox2.addStretch(0.1)
 
         # allow space for resizing
         self._inner_hbox1.addStretch(1)
@@ -147,32 +144,33 @@ class BaseDev(QWidget):
 
 
 class MainWindow(QMainWindow):
-    i=0
+    i = 0
+
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
 
         # scroll area Widget contents - layout
-        self.scrollLayout = QtGui.QFormLayout()
+        self.scrollLayout = QFormLayout()
         self.scrollLayout.setContentsMargins(0, 0, 0, 0)
 
         # scroll area Widget contents
-        self.scrollWidget = QtGui.QWidget()
+        self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
 
         # scroll area
-        self.scrollArea = QtGui.QScrollArea()
+        self.scrollArea = QScrollArea()
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.scrollWidget)
 
         # main layout
-        self.mainLayout = QtGui.QVBoxLayout()
+        self.mainLayout = QVBoxLayout()
         self.mainLayout.setSpacing(0)
 
         # add all main to the main vLayout
         self.mainLayout.addWidget(self.scrollArea)
 
         # central Widget
-        self.centralWidget = QtGui.QWidget()
+        self.centralWidget = QWidget()
         self.centralWidget.setLayout(self.mainLayout)
 
         # set central Widget
@@ -203,30 +201,29 @@ class MainWindow(QMainWindow):
         widgets.append(BaseDev(self, 'handle_cw', 5, has_status=True,
                                target='%d' % self.ReadWord(51), addr= 50))
         widgets.append(BaseDev(self, 'handle_ccw', 6, has_status=True,
-                              target='%d' % self.ReadWord(54), addr= 53))
+                               target='%d' % self.ReadWord(54), addr= 53))
         widgets.append(BaseDev(self, 'enc1', 7, has_status=True, addr= 46))
         widgets.append(BaseDev(self, 'enc2', 8, has_status=True, addr= 48))
         widgets.append(BaseDev(self, 'arm_switch', 9, has_status=True,
-                              target='%d' % self.ReadWord(63), addr= 62))
+                               target='%d' % self.ReadWord(63), addr= 62))
         widgets.append(BaseDev(self, 'encoder1', 10, has_status=False, addr= 65))
         widgets.append(BaseDev(self, 'arm', 11, has_status=True,
-                              target='%f' % self.ReadFloat(70), value_offset=2, addr= 68))
+                               target='%f' % self.ReadFloat(70), value_offset=2, addr= 68))
         widgets.append(BaseDev(self, 'magnet', 12, has_status=True,
-                              target='%d' % self.ReadWord(57), addr= 56))
+                               target='%d' % self.ReadWord(57), addr= 56))
         widgets.append(BaseDev(self, 'air', 13, has_status=True,
-                              target='%d' % self.ReadWord(60), addr= 59))
+                               target='%d' % self.ReadWord(60), addr= 59))
 
         for w in widgets:
             self.addWidget(w)
 
-        widgets.sort(key=lambda w:w.index)
-        self.widgets=widgets
+        widgets.sort(key=lambda w: w.index)
+        self.widgets = widgets
 
-
-        self.startTimer(225) # in ms !
+        self.startTimer(225)  # in ms !
 
     def resetter(self, index):
-        w=self.widgets[index]
+        w = self.widgets[index]
         if w.has_status:
             addr = w.base_address + w.offset
             if w.has_target:
@@ -237,12 +234,12 @@ class MainWindow(QMainWindow):
             print("resetter: device %d has no status" % index)
 
     def stopper(self, index):
-        w=self.widgets[index]
+        w = self.widgets[index]
         if w.has_target:
             addr = w.base_address
             if w.name == 'enable_word':
                 print("stopper: DISABLING %d" % (addr))
-                self.WriteWord(addr,0)
+                self.WriteWord(addr, 0)
             else:
                 addr += w.offset
                 if w.has_target:
@@ -254,11 +251,11 @@ class MainWindow(QMainWindow):
             print("stopper: cannot stop - no target %d" % index)
 
     def targeter(self, index, valuestr):
-        w=self.widgets[index]
+        w = self.widgets[index]
         if w.has_target:
-            v=str(valuestr).strip()
+            v = str(valuestr).strip()
             if not v:
-                return #ignore empty values (no value entered into the box?)
+                return  # ignore empty values (no value entered into the box?)
             addr = w.base_address
             if w.offset == 2:
                 v = float(v)
@@ -267,9 +264,9 @@ class MainWindow(QMainWindow):
                 self.WriteFloat(addr, v)
             else:
                 if v.startswith('0x') or v.startswith('0X'):
-                    v = int(v[2:],16)
+                    v = int(v[2:], 16)
                 elif v.startswith(('x', 'X',  '$')):
-                    v = int(v[1:],16)
+                    v = int(v[1:], 16)
                 else:
                     v = int(v)
                 if w.name != 'enable_word':
@@ -283,25 +280,25 @@ class MainWindow(QMainWindow):
         return self._registers[int(addr)]
 
     def WriteWord(self, addr, value):
-        self._bus.write_register(int(addr|0x4000), int(value))
+        self._bus.write_register(int(addr | 0x4000), int(value))
         self._sync()
 
     def ReadDWord(self, addr):
         return unpack('<I', pack('<HH', self._registers[int(addr)],
-                                         self._registers[int(addr) + 1]))
+                                 self._registers[int(addr) + 1]))
 
     def WriteDWord(self, addr, value):
         low, high = unpack('<HH', pack('<I', int(value)))
-        self._bus.write_registers(int(addr|0x4000), [low, high])
+        self._bus.write_registers(int(addr | 0x4000), [low, high])
         self._sync()
 
     def ReadFloat(self, addr):
         return unpack('<f', pack('<HH', self._registers[int(addr) + 1],
-                                         self._registers[int(addr)]))
+                                 self._registers[int(addr)]))
 
     def WriteFloat(self, addr, value):
         low, high = unpack('<HH', pack('<f', float(value)))
-        self._bus.write_registers(int(addr|0x4000), [high, low])
+        self._bus.write_registers(int(addr | 0x4000), [high, low])
         self._sync()
 
     def _sync(self):
@@ -319,7 +316,7 @@ class MainWindow(QMainWindow):
     def stop(self, addr):
         self.WriteWord(addr, 0x1000 | (0x0fff & self.ReadWord(addr)))
 
-    def timerEvent(self, event): # pylint: disable=R0915
+    def timerEvent(self, event):  # pylint: disable=R0915
 
         self._sync()
         w = self.widgets
@@ -327,17 +324,16 @@ class MainWindow(QMainWindow):
         # 1: %MB68: cycle counter
         val = self.ReadWord(34)
         stat = self.ReadWord(35)
-        w[0].valueWidget.setText(bin(65536|val)[3:])
+        w[0].valueWidget.setText(bin(65536 | val)[3:])
         w[0].statvalueWidget.setText('0x%04x' % stat)
         w[0].statusWidget.setText('mtt motor inputs')
 
         # 10: %MB96: spare inputs
         val = self.ReadWord(44)
         stat = self.ReadWord(45)
-        w[1].valueWidget.setText(bin(65536|val)[3:])
+        w[1].valueWidget.setText(bin(65536 | val)[3:])
         w[1].statvalueWidget.setText('0x%04x' % stat)
         w[1].statusWidget.setText('spare inputs')
-
 
         # 17: %MB136: spare outputs
         val = self.ReadWord(59)
@@ -432,7 +428,7 @@ class MainWindow(QMainWindow):
         w[9].statusWidget.setText(', '.join(stati))
         w[9].targetWidget.setPlaceholderText('%d' % target)
 
-     # encoder
+        # encoder
         val = self.ReadFloat(65)
         w[10].valueWidget.setText('%f' % val)
 
@@ -486,25 +482,24 @@ class MainWindow(QMainWindow):
         w[13].statusWidget.setText(', '.join(stati))
         w[13].targetWidget.setPlaceholderText('%d' % target)
 
-
-
     def addWidget(self, which):
-        which.setContentsMargins(10,0,0,0)
+        which.setContentsMargins(10, 0, 0, 0)
         self.scrollLayout.addRow(which)
-        l = QtGui.QFrame()
+        l = QFrame()
         l.setLineWidth(1)
-        #~ l.setMidLineWidth(4)
-        l.setFrameShape(QtGui.QFrame.HLine)
-        l.setContentsMargins(10,0,10,0)
+        # l.setMidLineWidth(4)
+        l.setFrameShape(QFrame.HLine)
+        l.setContentsMargins(10, 0, 10, 0)
         self.scrollLayout.addRow(l)
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     myWindow = MainWindow()
-    myWindow.resize(800,600)
+    myWindow.resize(800, 600)
     myWindow.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

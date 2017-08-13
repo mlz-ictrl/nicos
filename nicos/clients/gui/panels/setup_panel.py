@@ -24,9 +24,9 @@
 
 """NICOS GUI experiment setup window."""
 
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QListWidgetItem, \
-    QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, QPushButton
-from PyQt4.QtCore import pyqtSlot, Qt
+from nicos.guisupport.qt import pyqtSlot, Qt, QDialog, QDialogButtonBox, \
+    QListWidgetItem, QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, \
+    QPushButton
 
 from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress, vec3

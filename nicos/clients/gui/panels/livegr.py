@@ -32,9 +32,9 @@ from uuid import uuid4
 
 import numpy
 
-from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
-    QToolBar, QActionGroup
-from PyQt4.QtCore import pyqtSlot, QByteArray, QPoint, Qt
+from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPoint, QStatusBar, \
+    QSizePolicy, QListWidgetItem, QMenu, QToolBar, QActionGroup
+
 from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent

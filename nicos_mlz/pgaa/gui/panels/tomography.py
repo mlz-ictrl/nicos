@@ -26,7 +26,7 @@
 
 from os import path
 
-from PyQt4.QtGui import QColor, QMessageBox, QMenu
+from nicos.guisupport.qt import QColor, QMessageBox, QMenu
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, ScriptExecQuestion

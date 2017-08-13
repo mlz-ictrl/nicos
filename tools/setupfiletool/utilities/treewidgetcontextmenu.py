@@ -24,7 +24,7 @@
 
 # base class for a QTreeWidget with context menu on items
 
-from PyQt4.QtGui import QTreeWidget
+from nicos.guisupport.qt import QTreeWidget
 
 
 class TreeWidgetContextMenu(QTreeWidget):

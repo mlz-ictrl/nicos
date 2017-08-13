@@ -24,8 +24,8 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtGui import QDialog, QMessageBox, QPushButton
-from PyQt4.QtCore import pyqtSlot, QTimer
+from nicos.guisupport.qt import pyqtSlot, QTimer, QDialog, QMessageBox, \
+    QPushButton
 
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \

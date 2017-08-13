@@ -32,12 +32,12 @@ import numpy
 from os import path
 from math import sin, radians, pi
 
-from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
-    QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
-    QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
+from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QSize, QPrinter, \
+    QPrintDialog, QDialog, QMainWindow, QMenu, QToolBar, QStatusBar, QFont, \
+    QSizePolicy, QListWidgetItem, QLabel, QBrush, QPen, QComboBox, QFrame, \
+    QVBoxLayout, QHBoxLayout
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
     QwtPlotMarker, QwtSymbol
-from PyQt4.QtCore import pyqtSlot, Qt, QByteArray, QSize
 
 from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.utils import loadUi, DlgUtils

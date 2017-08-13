@@ -25,9 +25,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog, QListWidgetItem
+from nicos.guisupport.qt import uic, Qt, QDialog, QListWidgetItem
 
 
 class AddParameterDialog(QDialog):

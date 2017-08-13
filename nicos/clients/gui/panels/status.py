@@ -26,9 +26,8 @@
 
 from time import time
 
-from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
-    QActionGroup, QPixmap, QColor
-from PyQt4.QtCore import pyqtSlot, Qt, QTimer
+from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QToolBar, QMenu, QIcon, \
+    QListWidgetItem, QActionGroup, QPixmap, QColor
 
 from nicos.utils import formatEndtime
 from nicos.clients.gui.panels import Panel

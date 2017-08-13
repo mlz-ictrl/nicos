@@ -24,9 +24,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import QRegExp
-from PyQt4.QtGui import QDialog, QRegExpValidator
+from nicos.guisupport.qt import uic, QRegExp, QDialog, QRegExpValidator
 
 
 class NewSetupDialog(QDialog):

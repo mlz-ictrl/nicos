@@ -22,21 +22,13 @@
 #
 # *****************************************************************************
 
-"""
-Qt designer plugin for NICOS UI widgets.
-"""
-from __future__ import print_function
+"""Qt designer plugin for NICOS UI widgets."""
 
-# need to repeat that here, since the Designer runs this file without importing
-# nicos.guisupport first.
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+from __future__ import print_function
 
 import os
 
-from PyQt4.QtGui import QIcon
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from nicos.guisupport.qt import QIcon, QPyDesignerCustomWidgetPlugin
 
 
 class NicosPluginBase(QPyDesignerCustomWidgetPlugin):

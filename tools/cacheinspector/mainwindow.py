@@ -25,9 +25,8 @@
 from os import path
 from os.path import join
 
-from PyQt4 import uic
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QDialog, QWidgetItem
+from nicos.guisupport.qt import uic, Qt, QMainWindow, QTreeWidgetItem, \
+    QDialog, QWidgetItem
 
 from nicos.guisupport.utils import setBackgroundColor
 

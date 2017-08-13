@@ -25,9 +25,8 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QTreeWidgetItem, QWidget
+from nicos.guisupport.qt import uic, pyqtSignal, pyqtSlot, Qt, QWidget, \
+    QTreeWidgetItem
 
 from setupfiletool.dialogs import AddExcludeDialog, AddIncludeDialog, \
     AddModuleDialog, AddSysconfigDialog

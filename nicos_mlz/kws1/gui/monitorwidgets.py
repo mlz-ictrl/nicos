@@ -22,10 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.guisupport.qt import Qt, QSize, QBrush, QColor, QPainter, QWidget, \
+    QPen, QFont
 
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QBrush, QColor, QPainter, QWidget, QPen, QFont
+from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
 
 

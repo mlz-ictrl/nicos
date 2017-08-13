@@ -28,9 +28,9 @@ import re
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from time import localtime, strftime
 
-from PyQt4.QtCore import QRect, QRegExp, QSize, Qt
-from PyQt4.QtGui import QBrush, QColor, QFont, QMainWindow, QPainter, \
-    QPixmap, QTextBrowser, QTextCharFormat, QTextCursor, QTextEdit
+from nicos.guisupport.qt import Qt, QRect, QRegExp, QSize, QBrush, QColor, \
+    QFont, QMainWindow, QPainter, QPixmap, QTextBrowser, QTextCharFormat, \
+    QTextCursor, QTextEdit
 
 from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
 from nicos.utils.loggers import ACTION, INPUT

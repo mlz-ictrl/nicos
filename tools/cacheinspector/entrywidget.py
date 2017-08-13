@@ -25,10 +25,8 @@
 import time
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtCore import pyqtSlot, pyqtProperty, QTimer
-from PyQt4.QtGui import QLineEdit, QCheckBox, QSpacerItem, QDialog, \
-    QSizePolicy, QColor, QMessageBox
+from nicos.guisupport.qt import uic, pyqtSlot, pyqtProperty, QTimer, QColor, \
+    QLineEdit, QCheckBox, QSpacerItem, QDialog, QSizePolicy, QMessageBox
 
 from nicos.guisupport.utils import setBackgroundColor
 

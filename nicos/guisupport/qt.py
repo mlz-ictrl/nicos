@@ -37,6 +37,7 @@ if 1:  # pylint: disable=using-constant-test
     from PyQt4.QtGui import *
     from PyQt4.QtCore import pyqtWrapperType
     from PyQt4.QtCore import *
+    from PyQt4.QtDesigner import *
     from PyQt4 import uic
 
     try:
@@ -46,6 +47,11 @@ if 1:  # pylint: disable=using-constant-test
     else:
         QWebView = QtWebKit.QWebView
         QWebPage = QtWebKit.QWebPage
+
+    try:
+        from PyQt4 import QtDBus
+    except (ImportError, RuntimeError):
+        QtDBus = None
 
     import nicos.guisupport.gui_rc_qt4
 

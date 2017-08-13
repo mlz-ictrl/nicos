@@ -26,7 +26,7 @@
 import sys
 from os import path
 
-from PyQt4.QtGui import QApplication
+from nicos.guisupport.qt import QApplication
 
 thisfile = path.abspath(__file__)
 sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))

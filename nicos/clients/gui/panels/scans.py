@@ -28,10 +28,9 @@
 import os
 from math import sqrt
 
-from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
-    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut, \
-    QTableWidgetItem
-from PyQt4.QtCore import pyqtSlot, Qt, QByteArray
+from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QDialog, QMenu, \
+    QToolBar, QStatusBar, QFont, QListWidgetItem, QSizePolicy, QPalette, \
+    QKeySequence, QShortcut, QTableWidgetItem
 
 from nicos.utils import safeFilename
 from nicos.core.data import ScanData

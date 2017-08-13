@@ -21,11 +21,10 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
+
 """NICOS GUI user editor utility classes."""
 
-
-from PyQt4.QtGui import QDialog, QMessageBox, QStyle
-from PyQt4.QtCore import pyqtSlot
+from nicos.guisupport.qt import pyqtSlot, QDialog, QMessageBox, QStyle
 
 from nicos.guisupport.utils import waitCursor
 from nicos.clients.gui.utils import loadUi

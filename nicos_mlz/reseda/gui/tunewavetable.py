@@ -25,10 +25,10 @@
 from pprint import pformat
 from datetime import datetime
 
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt, QEvent, QDateTime
-from PyQt4.QtGui import QMenu, QTableWidgetItem, QGraphicsView, QFont, QColor,\
-    QGraphicsLineItem, QGraphicsScene, QPen, QBrush, QGraphicsEllipseItem, \
-    QPainter, QGraphicsTextItem, QDialog, QTextEdit, QFrame
+from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QEvent, QDateTime, \
+    QMenu, QTableWidgetItem, QGraphicsView, QFont, QColor, QGraphicsLineItem, \
+    QGraphicsScene, QPen, QBrush, QGraphicsEllipseItem, QPainter, \
+    QGraphicsTextItem, QDialog, QTextEdit, QFrame
 
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
@@ -146,8 +146,8 @@ class TimelineWidget(QGraphicsView):
         # is always the same and is only moved.
         if self._selection_item is None:
             self._selection_item = QGraphicsEllipseItem(0, 0,
-                                                self.SELECTION_DIAMETER,
-                                                self.SELECTION_DIAMETER)
+                                                        self.SELECTION_DIAMETER,
+                                                        self.SELECTION_DIAMETER)
 
             # The used color is a cubical to the time point color
             self._selection_item.setBrush(QBrush(QColor(0x70, 0xbb, 0x00)))
@@ -170,8 +170,6 @@ class TimelineWidget(QGraphicsView):
         # emit signal at the end to ensure a valid internal state before
         # anything can react to it
         self.timepointSelected.emit(self._time_point_items[item])
-
-
 
     def _add_timeline(self):
         """Draw the timeline."""
@@ -227,7 +225,7 @@ class TimelineWidget(QGraphicsView):
 
         # Create the acutal time point item
         time_point_item = QGraphicsEllipseItem(0, 0, self.TIMEPOINT_DIAMETER,
-                                    self.TIMEPOINT_DIAMETER)
+                                               self.TIMEPOINT_DIAMETER)
 
         # The used color is the strongest one of the FRM II colors.
         time_point_item.setBrush(QBrush(QColor(0x00, 0x71, 0xbb)))
@@ -322,7 +320,7 @@ class PreviewDialog(QDialog):
         totime = self.toDateTimeEdit.dateTime().toTime_t()
 
         result = self._client.ask('gethistory', 'echotime/tables',
-                                str(fromtime), str(totime))
+                                  str(fromtime), str(totime))
 
         # Store the history result in the format {datetime: table}
         self._history = {}  # timestamp : table
@@ -510,7 +508,7 @@ class TunewaveTablePanel(Panel):
     def on_deletePushButton_clicked(self):
         """Delete current table after an additional confirmation."""
         if self.askQuestion('Really delete tunewave table %s/%s?'
-                                    % (self.measurement_mode, self.wavelength),
+                            % (self.measurement_mode, self.wavelength),
                             True):
             self._delete_current_table()
 
@@ -655,8 +653,8 @@ class TunewaveTablePanel(Panel):
         self._stop_edit()
 
         self.client.eval('%s.deleteTable("%s", %s)' % (self._dev,
-                                                         self.measurement_mode,
-                                                         self.wavelength))
+                                                       self.measurement_mode,
+                                                       self.wavelength))
         # Update the internal table cache after the change to the server side
         # storage
         self._update_available_tables()
@@ -672,10 +670,10 @@ class TunewaveTablePanel(Panel):
         if table is None:
             table = self._get_current_table_data()
 
-        self.client.eval('%s.setTable("%s", %s,\n %s)'% (self._dev,
-                                                     self.measurement_mode,
-                                                     self.wavelength,
-                                                        pformat(table)))
+        self.client.eval('%s.setTable("%s", %s,\n %s)' % (self._dev,
+                                                          self.measurement_mode,
+                                                          self.wavelength,
+                                                          pformat(table)))
 
         # Update the internal table cache after the change to the server side
         # storage
@@ -702,9 +700,9 @@ class TunewaveTablePanel(Panel):
     def _fill_table(self):
         """Request the currently selected table from the server side table
         storage and display it in the table widget."""
-        table = self.client.eval('%s.getTable("%s", %s)'% (self._dev,
-                                                         self.measurement_mode,
-                                                         self.wavelength))
+        table = self.client.eval('%s.getTable("%s", %s)' % (self._dev,
+                                                            self.measurement_mode,
+                                                            self.wavelength))
 
         # Disable table sorting while filling to avoid jumping rows
         self.tableWidget.setSortingEnabled(False)
@@ -766,7 +764,7 @@ class TunewaveTablePanel(Panel):
 
         # Stringify the contents (and add a default wavelength)
         values = map(str, sorted(self._available_tables.get(
-                            self.measurement_mode, [0.0])))
+            self.measurement_mode, [0.0])))
         self.wavelengthComboBox.addItems(values)
 
         # Reenable signals for table selection

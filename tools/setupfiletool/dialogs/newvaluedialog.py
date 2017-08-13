@@ -24,8 +24,7 @@
 
 from os import path
 
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog
+from nicos.guisupport.qt import uic, QDialog
 
 
 class NewValueDialog(QDialog):
@@ -36,5 +35,6 @@ class NewValueDialog(QDialog):
                                           'ui',
                                           'dialogs',
                                           'newvaluedialog.ui')), self)
+
     def getValue(self):
         return self.lineEditNewValue.text()

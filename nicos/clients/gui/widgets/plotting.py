@@ -27,8 +27,8 @@
 from os import path
 from time import strftime, localtime
 
-from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QMessageBox
-from PyQt4.QtCore import Qt
+from nicos.guisupport.qt import Qt, QDialog, QFont, QListWidgetItem, \
+    QMessageBox
 
 import numpy as np
 

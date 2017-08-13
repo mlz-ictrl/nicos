@@ -30,8 +30,7 @@ import math
 import numpy
 import numpy.ma
 
-from PyQt4.QtGui import QWidget, QHBoxLayout
-from PyQt4.QtCore import pyqtSignal
+from nicos.guisupport.qt import pyqtSignal, QWidget, QHBoxLayout
 
 import gr
 from gr.pygr.base import GRMeta, GRVisibility
@@ -486,7 +485,6 @@ class IntegralLiveWidget(LiveWidget):
         self.curvey.y = self._array[int(y0):int(y1), :].sum(axis=0,
                                                             dtype=numpy.float)
         self._applymask()
-
 
     def _setData(self, array, nx, ny, nz, newrange):
         LiveWidget._setData(self, array, nx, ny, nz, newrange)

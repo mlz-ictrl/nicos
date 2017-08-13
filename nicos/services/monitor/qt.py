@@ -27,15 +27,9 @@
 import sys
 import traceback
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-
-from PyQt4 import uic
-from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
-    QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-    QCursor, QIcon
-from PyQt4.QtCore import Qt, pyqtSignal
+from nicos.guisupport.qt import uic, pyqtSignal, Qt, QFrame, QLabel, \
+    QPalette, QMainWindow, QVBoxLayout, QColor, QFont, QFontMetrics, \
+    QSizePolicy, QHBoxLayout, QApplication, QCursor, QIcon
 
 from nicos.core import Param
 from nicos.utils import findResource, checkSetupSpec
@@ -189,10 +183,8 @@ class Monitor(BaseMonitor):
                                exc_info=exc_info)
         sys.excepthook = log_unhandled
 
-        self._qtapp = QApplication(['qtapp'],# '-style', 'windows'],
-                                   organizationName='nicos',
-                                   applicationName='gui',
-                                  )
+        self._qtapp = QApplication(['qtapp'], organizationName='nicos',
+                                   applicationName='gui')
         self._master = master = MonitorWindow()
         master.show()
 

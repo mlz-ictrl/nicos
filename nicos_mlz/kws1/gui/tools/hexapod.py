@@ -25,8 +25,7 @@
 
 """Direct manual control of KWS-1 Hexapod via Tango special device."""
 
-from PyQt4.QtCore import QTimer, pyqtSlot
-from PyQt4.QtGui import QMainWindow
+from nicos.guisupport.qt import pyqtSlot, QTimer, QMainWindow
 
 import PyTango
 

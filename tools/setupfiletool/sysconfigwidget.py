@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QMenu, QMessageBox, QTreeWidgetItem
+from nicos.guisupport.qt import pyqtSignal, QMenu, QMessageBox, QTreeWidgetItem
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.dialogs import NewValueDialog

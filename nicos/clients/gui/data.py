@@ -30,8 +30,8 @@ from itertools import chain
 
 import numpy as np
 
-from PyQt4.QtGui import QApplication, QProgressDialog
-from PyQt4.QtCore import QObject, pyqtSignal
+from nicos.guisupport.qt import QObject, pyqtSignal, QApplication, \
+    QProgressDialog
 
 from nicos.utils.fitting import FitResult
 

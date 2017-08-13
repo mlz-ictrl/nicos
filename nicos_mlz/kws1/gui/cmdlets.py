@@ -24,9 +24,8 @@
 
 """Commandlets for KWS(-1)."""
 
-from PyQt4.QtCore import pyqtSlot, QSize
-from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox, QToolButton, \
-    QIcon
+from nicos.guisupport.qt import pyqtSlot, QSize, QDialog, QTableWidgetItem, \
+    QMessageBox, QToolButton, QIcon
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.utils import findResource, formatDuration

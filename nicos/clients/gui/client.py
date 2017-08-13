@@ -27,7 +27,7 @@
 from time import time as currenttime
 from weakref import ref
 
-from PyQt4.QtCore import QObject, pyqtSignal
+from nicos.guisupport.qt import QObject, pyqtSignal
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.base import NicosClient

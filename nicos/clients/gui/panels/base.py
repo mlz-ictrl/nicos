@@ -27,9 +27,8 @@
 
 from time import time as currenttime
 
-from PyQt4.QtGui import QWidget, \
-    QHBoxLayout, QDialog, QPalette
-from PyQt4.QtCore import QObject, pyqtSignal
+from nicos.guisupport.qt import pyqtSignal, QObject, QWidget, QHBoxLayout, \
+    QDialog, QPalette
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup

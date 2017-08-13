@@ -26,10 +26,9 @@
 
 from __future__ import print_function
 
-from nicos.guisupport.utils import DoubleValidator
+from nicos.guisupport.qt import QValidator
 
-# Importing this AFTER nicos.guisupport to have the correct SIP API set.
-from PyQt4.QtGui import QValidator
+from nicos.guisupport.utils import DoubleValidator
 
 
 def test_double_validator():

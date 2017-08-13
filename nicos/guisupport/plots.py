@@ -31,8 +31,8 @@ import functools
 
 from time import time as currenttime, strftime, localtime
 
-from PyQt4.QtGui import QWidget, QPen, QBrush
-from PyQt4.QtCore import Qt, QTimer, QSize, pyqtSignal
+from nicos.guisupport.qt import pyqtSignal, Qt, QTimer, QSize, QWidget, QPen, \
+    QBrush
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
     QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \

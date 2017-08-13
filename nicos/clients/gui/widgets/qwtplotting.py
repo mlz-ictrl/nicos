@@ -32,9 +32,9 @@ from time import localtime, strftime
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
     QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
     QwtText, QwtLegend, QwtPlotMarker, QwtPlotPanner, QwtLinearScaleEngine
-from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFileDialog, \
-    QPrinter, QPrintDialog, QDialog, QImage
-from PyQt4.QtCore import Qt, QRectF, QLine, QSize
+
+from nicos.guisupport.qt import Qt, QRectF, QLine, QSize, QPen, QPainter, \
+    QBrush, QPalette, QFileDialog, QPrinter, QPrintDialog, QDialog, QImage
 
 import numpy as np
 

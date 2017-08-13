@@ -24,8 +24,7 @@
 
 """NICOS GUI command input widgets."""
 
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QColor, QWidget
+from nicos.guisupport.qt import Qt, pyqtSignal, QColor, QWidget
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.typedvalue import DeviceParamEdit

@@ -23,14 +23,13 @@
 # *****************************************************************************
 
 from os import path
-from os.path import join
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog
+
+from nicos.guisupport.qt import uic, QDialog
 
 
 class ConnectDialog(QDialog):
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'connect.ui'), self)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'connect.ui'), self)

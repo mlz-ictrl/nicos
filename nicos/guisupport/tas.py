@@ -28,8 +28,8 @@ from math import cos, pi, sin
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 
-from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
-from PyQt4.QtCore import Qt, QSize, QPointF, QPoint
+from nicos.guisupport.qt import Qt, QSize, QPointF, QPoint, QPainter, \
+    QWidget, QColor, QBrush, QPen, QPolygonF
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED, WARN
 
