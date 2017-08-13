@@ -411,8 +411,7 @@ class Monitor(BaseMonitor):
     def updateTitle(self, text):
         self._timelabel.text = text
 
-    # pylint: disable=W0221
-    def signal(self, field, signal, key, value, time, expired):
+    def signalKeyChange(self, field, key, value, time, expired):
         if field.plot:
             if key == field.key and value is not None:
                 self._plots[field.plot].updatevalues(field._plotcurve,
@@ -483,7 +482,7 @@ class Monitor(BaseMonitor):
         elif key == field.formatkey:
             if value is not None:
                 field.format = value
-                self.signal(field, 'keyChange', field.key, field.value, 0, False)
+                self.signalKeyChange(field, field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
         return escape_html(text) + ' <span class="unit">%s</span><span ' \

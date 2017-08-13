@@ -90,8 +90,8 @@ class Monitor(BaseCacheClient):
     def closeGui(self):
         raise NotImplementedError('Implement closeGui() in subclasses')
 
-    def signal(self, field, signal, *args):
-        raise NotImplementedError('Implement signal() in subclasses')
+    def signalKeyChange(self, field, *args):
+        raise NotImplementedError('Implement signalKeyChange() in subclasses')
 
     def switchWarnPanel(self, on):
         raise NotImplementedError('Implement switchWarnPanel() in subclasses')
@@ -191,7 +191,7 @@ class Monitor(BaseCacheClient):
             time = currenttime()
             for key in self._keymap:
                 for obj in self._keymap[key]:
-                    self.signal(obj, 'keyChange', key, None, time, True)
+                    self.signalKeyChange(obj, key, None, time, True)
             self._keys_expired = True
         self.updateTitle('Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S'))
         sleep(1)
@@ -242,7 +242,7 @@ class Monitor(BaseCacheClient):
         # now check if we need to update something
         objs = self._keymap.get(key, [])
         for obj in objs:
-            self.signal(obj, 'keyChange', key, value, time, expired)
+            self.signalKeyChange(obj, key, value, time, expired)
 
     def _process_warnings(self, warnings):
         # self.log.debug('new warnings: %s', warnings)

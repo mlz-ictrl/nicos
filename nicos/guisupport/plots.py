@@ -32,7 +32,7 @@ import functools
 from time import time as currenttime, strftime, localtime
 
 from PyQt4.QtGui import QWidget, QPen, QBrush
-from PyQt4.QtCore import Qt, SIGNAL, QTimer, QSize
+from PyQt4.QtCore import Qt, QTimer, QSize, pyqtSignal, SIGNAL
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
     QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
@@ -93,7 +93,10 @@ class TrendPlot(QwtPlot, NicosWidget):
     designer_description = 'A trend plotter for one or more devices'
     designer_icon = ':/plotter'
 
-    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan, Qt.darkGray]
+    widgetInfo = pyqtSignal(str)
+
+    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
+              Qt.darkGray]
 
     # pylint: disable=W0231
     def __init__(self, parent, designMode=False):
@@ -199,7 +202,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             strftime('%y-%m-%d %H:%M:%S', localtime(
                 self.invTransform(QwtPlot.xBottom, point.x()))),
             self.invTransform(QwtPlot.yLeft, point.y()))
-        self.emit(SIGNAL('widgetInfo'), info)
+        self.widgetInfo.emit(info)
 
     def on_zoomer_zoomed(self, rect):
         # when zooming completely out, reset to auto scaling

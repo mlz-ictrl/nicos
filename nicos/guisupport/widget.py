@@ -33,7 +33,7 @@ from copy import copy
 
 from nicos.guisupport.qt import QFont, QFontMetrics
 
-from PyQt4.QtCore import SIGNAL, pyqtProperty, pyqtWrapperType
+from PyQt4.QtCore import pyqtProperty, pyqtWrapperType
 
 from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE
@@ -272,7 +272,6 @@ class NicosWidget(NicosListener):
                 else:
                     self.props[prop] = PropDef.convert(pdef.default)
         self._scale = QFontMetrics(self.valueFont).width('0')
-        self.connect(self, SIGNAL('keyChange'), self.on_keyChange)
         self.initUi()
 
     def initUi(self):
@@ -294,6 +293,6 @@ class NicosWidget(NicosListener):
                 self.on_keyChange(ret[0], ret[1], 0, False)
         # auto-connect client signal handlers
         for signal in DAEMON_EVENTS:
-            if hasattr(self, 'on_client_' + signal):
-                self.connect(self._client, SIGNAL(signal),
-                             getattr(self, 'on_client_' + signal))
+            handler = getattr(self, 'on_client_' + signal, None)
+            if handler:
+                getattr(self._client, signal).connect(handler)

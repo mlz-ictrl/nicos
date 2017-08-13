@@ -35,7 +35,7 @@ from PyQt4 import uic
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
     QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
     QCursor, QIcon
-from PyQt4.QtCore import Qt, SIGNAL
+from PyQt4.QtCore import Qt, pyqtSignal
 
 from nicos.core import Param
 from nicos.utils import findResource, checkSetupSpec
@@ -56,6 +56,11 @@ except (RuntimeError, ImportError):
 class MonitorWindow(QMainWindow):
     _wantFullScreen = False
 
+    keyChange = pyqtSignal(object, object)
+    reconfigure = pyqtSignal(object)
+    updateTitle = pyqtSignal(str)
+    switchWarnPanel = pyqtSignal(bool)
+
     def __init__(self):
         self._reconfiguring = False
         QMainWindow.__init__(self)
@@ -65,6 +70,9 @@ class MonitorWindow(QMainWindow):
         icon.addFile(':/appicon-16')
         icon.addFile(':/appicon-48')
         self.setWindowIcon(icon)
+
+        self.keyChange.connect(lambda obj, args: obj.on_keyChange(*args))
+        self.reconfigure.connect(self.do_reconfigure)
 
         self.sgroup = SettingGroup('Monitor')
         with self.sgroup as settings:
@@ -100,11 +108,18 @@ class MonitorWindow(QMainWindow):
                 self.showFullScreen()
         return QMainWindow.event(self, event)
 
+    def do_reconfigure(self, emitdict):
+        self._reconfiguring = True
+        for (layout, blockbox), enabled in iteritems(emitdict):
+            blockbox.enableDisplay(layout, enabled)
+        self.layout().activate()
+
 
 class BlockBox(QFrame):
     """Provide the equivalent of a Tk LabelFrame: a group box that has a
     definite frame around it.
     """
+
     def __init__(self, parent, text, font, config=None):
         config = config or {}
         if config.get('frames', True):
@@ -118,7 +133,6 @@ class BlockBox(QFrame):
                                  autoFillBackground=True, font=font)
             self._label.resize(self._label.sizeHint())
             self._label.show()
-        self.connect(self, SIGNAL('enableDisplay'), self.enableDisplay)
 
     def moveEvent(self, event):
         self._repos()
@@ -222,8 +236,7 @@ class Monitor(BaseMonitor):
         pal.setColor(QPalette.WindowText, self._gray)
         self._titlelabel.setPalette(pal)
         self._titlelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        master.connect(self._titlelabel, SIGNAL('updatetitle'),
-                       self._titlelabel.setText)
+        self._master.updateTitle.connect(self._titlelabel.setText)
 
         masterlayout.addWidget(self._titlelabel)
         masterlayout.addSpacing(0.2 * tiheight)
@@ -239,8 +252,7 @@ class Monitor(BaseMonitor):
         warningslayout.addWidget(self._warnlabel)
         self._warnpanel.setLayout(warningslayout)
         masterlayout.addWidget(self._warnpanel)
-        master.connect(self._warnpanel, SIGNAL('switchwarnpanel'),
-                       self._switch_warnpanel)
+        master.switchWarnPanel.connect(self._switch_warnpanel)
 
         displayframe = QFrame(master)
         self._plots = {}
@@ -256,7 +268,8 @@ class Monitor(BaseMonitor):
                     if key in widget.properties:
                         setattr(widget, key, field[key])
                 widget.setSource(self)
-                master.connect(widget, SIGNAL('widgetInfo'), self.newWidgetInfo)
+                if hasattr(widget, 'widgetInfo'):
+                    widget.widgetInfo.connect(self.newWidgetInfo)
                 return widget
 
             if isinstance(field, string_types):
@@ -343,7 +356,7 @@ class Monitor(BaseMonitor):
                             blocklayout.addLayout(rowlayout)
                     if blockconfig:
                         setups = blockconfig.get('setups', [])
-                        blockbox.setHidden(True) # start hidden
+                        blockbox.setHidden(True)  # start hidden
                         setupnames = [setups] if isinstance(setups, string_types) \
                                      else setups
                         for setupname in setupnames:
@@ -367,29 +380,22 @@ class Monitor(BaseMonitor):
         masterframe.setLayout(masterlayout)
         master.setCentralWidget(masterframe)
 
-        def reconfigure(emitdict):
-            master._reconfiguring = True
-            for (layout, blockbox), enabled in iteritems(emitdict):
-                blockbox.enableDisplay(layout, enabled)
-            master.layout().activate()
-        master.connect(master, SIGNAL('reconfigure'), reconfigure)
-
         # initialize status bar
         self._statuslabel = QLabel(font=stbarfont)
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
 
-    def signal(self, obj, signal, *args):
-        obj.emit(SIGNAL(signal), *args)
+    def signalKeyChange(self, obj, *args):
+        self._master.keyChange.emit(obj, args)
 
     def newWidgetInfo(self, info):
         self._statuslabel.setText(info)
 
     def updateTitle(self, title):
-        self._titlelabel.emit(SIGNAL('updatetitle'), title)
+        self._master.updateTitle.emit(title)
 
     def switchWarnPanel(self, on):
-        self._warnpanel.emit(SIGNAL('switchwarnpanel'), on)
+        self._master.switchWarnPanel.emit(on)
 
     def _switch_warnpanel(self, on):
         if on:
@@ -408,7 +414,7 @@ class Monitor(BaseMonitor):
             self._titlelabel.setPalette(pal)
             # resize to minimum
             self.reconfigureBoxes()
-            #self._master.update()
+            # self._master.update()
 
     def reconfigureBoxes(self):
         emitdict = {}
@@ -417,4 +423,4 @@ class Monitor(BaseMonitor):
                                      compat='and', log=self.log)
             for k in boxes:
                 emitdict[k] = emitdict.get(k, True) and enabled
-        self._master.emit(SIGNAL('reconfigure'), emitdict)
+        self._master.reconfigure.emit(emitdict)

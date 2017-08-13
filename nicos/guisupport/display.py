@@ -31,7 +31,7 @@ from time import time as currenttime
 from os.path import getmtime, isfile
 
 import sip
-from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
+from PyQt4.QtCore import Qt, QSize, QTimer, pyqtSignal
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
     QHBoxLayout, QFontMetrics, QPixmap
 
@@ -165,6 +165,8 @@ class ValueDisplay(NicosWidget, QWidget):
 
     designer_description = 'A widget with name/value labels'
     designer_icon = ':/table'
+
+    widgetInfo = pyqtSignal(str)
 
     def __init__(self, parent, designMode=False, colorScheme=None, **kwds):
         # keys being watched
@@ -370,7 +372,7 @@ class ValueDisplay(NicosWidget, QWidget):
             infotext += ', status is %s: %s' % (statuses.get(const, '?'), msg)
         infotext += ', changed %s ago' % (
             nicedelta(currenttime() - self._lastchange))
-        self.emit(SIGNAL('widgetInfo'), infotext)
+        self.widgetInfo.emit(infotext)
         if from_mouse:
             self._mousetimer = QTimer(self, timeout=lambda:
                                       self._label_entered(widget, event, False)
@@ -381,7 +383,7 @@ class ValueDisplay(NicosWidget, QWidget):
         if self._mousetimer:
             self._mousetimer.stop()
             self._mousetimer = None
-            self.emit(SIGNAL('widgetInfo'), '')
+            self.widgetInfo.emit('')
 
 
 class PictureDisplay(NicosWidget, QWidget):
