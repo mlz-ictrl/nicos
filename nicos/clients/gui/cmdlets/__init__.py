@@ -60,6 +60,7 @@ class Cmdlet(QWidget):
     cmdletUp = pyqtSignal()
     cmdletDown = pyqtSignal()
     cmdletRemove = pyqtSignal()
+    dataChanged = pyqtSignal()
 
     def __init__(self, parent, client, uifile):
         self.client = client
@@ -76,7 +77,7 @@ class Cmdlet(QWidget):
 
     def changed(self, *args):
         """Should be called whenever any value in the cmdlet changes."""
-        self.emit(SIGNAL('dataChanged'))
+        self.dataChanged.emit()
 
     def getValues(self):
         """Return a dict with the values of the cmdlet.
@@ -147,7 +148,7 @@ class Move(Cmdlet):
         on_device_change(entry.device.currentText())
         entry.device.currentIndexChanged['QString'].connect(on_device_change)
         entry.target.setClient(self.client)
-        self.connect(entry.target, SIGNAL('dataChanged'), self.changed)
+        entry.target.dataChanged.connect(self.changed)
 
     def _setDevice(self, values):
         """Helper for setValues for setting a device combo box."""
@@ -493,7 +494,7 @@ class Configure(Cmdlet):
         self.paramvalues = {}
         self.target = DeviceParamEdit(self)
         self.target.setClient(self.client)
-        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
+        self.target.dataChanged.connect(self.changed)
         self.hlayout.insertWidget(5, self.target)
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())

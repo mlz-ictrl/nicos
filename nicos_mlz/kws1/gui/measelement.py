@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QComboBox, QCheckBox, QLineEdit, QWidget, QSpinBox, \
     QHBoxLayout
-from PyQt4.QtCore import QObject, pyqtSignal, SIGNAL
+from PyQt4.QtCore import QObject, pyqtSignal
 
 from nicos.utils import num_sort
 from nicos.guisupport import typedvalue
@@ -315,7 +315,7 @@ class Device(MeasElement):
     def createWidget(self, parent, client):
         self._widget = typedvalue.create(parent, self._valuetype, self.value,
                                          allow_enter=False)
-        self.connect(self._widget, SIGNAL('dataChanged'), self._updateValue)
+        self._widget.dataChanged.connect(self._updateValue)
         return self._widget
 
     def _updateValue(self):

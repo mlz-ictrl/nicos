@@ -154,7 +154,7 @@ class CommandPanel(Panel):
         inst.line.setVisible(False)
         self.frame.layout().insertWidget(0, inst)
         self.current_cmdlet = inst
-        self.connect(inst, SIGNAL('dataChanged'), self.updateCommand)
+        inst.dataChanged.connect(self.updateCommand)
         self.updateCommand()
 
     def _generate(self):

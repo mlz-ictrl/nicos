@@ -778,7 +778,7 @@ class ControlDialog(QDialog):
             def btn_callback(target):
                 self.device_panel.exec_command('move(%s, %s)' %
                                                (self.devrepr, srepr(target)))
-            self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
+            self.target.valueChosen.connect(btn_callback)
             self.targetLayout.takeAt(1).widget().deleteLater()
             self.targetLayout.insertWidget(1, self.target)
 

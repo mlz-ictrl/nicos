@@ -26,7 +26,7 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import SIGNAL, pyqtSignal
+from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QWidget
 
 
@@ -47,10 +47,8 @@ class DeviceParam(QWidget):
             lambda: self.clickedRemoveButton.emit(self.param))
         self.labelParam.setText(self.param + ':')
         self.horizontalLayout.addWidget(self.valueWidget)
-        self.connect(self.valueWidget, SIGNAL('dataChanged'),
-                     self.editedParam.emit)
-        self.connect(self.valueWidget, SIGNAL('valueChosen'),
-                     self.editedParam.emit)
+        self.valueWidget.dataChanged.connect(self.editedParam)
+        self.valueWidget.valueChosen.connect(lambda _: self.editedParam.emit())
 
     def getValue(self):
         return self.valueWidget.getValue()
