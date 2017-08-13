@@ -24,7 +24,7 @@
 
 """Commandlets for KWS(-1)."""
 
-from PyQt4.QtCore import pyqtSlot, SIGNAL, QSize
+from PyQt4.QtCore import pyqtSlot, QSize
 from PyQt4.QtGui import QDialog, QTableWidgetItem, QMessageBox, QToolButton, \
     QIcon
 
@@ -52,7 +52,7 @@ class MeasureTable(Cmdlet):
         for loop in LOOPS:
             self.outerLoop.addItem(loop)
         self.outerLoop.setCurrentIndex(0)
-        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
+        client.experiment.connect(self.on_client_experiment)
         self.expandBtn = QToolButton()
         self.expandBtn.setIcon(QIcon(':/down'))
         self.expandBtn.setAutoRaise(True)

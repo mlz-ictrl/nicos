@@ -28,7 +28,7 @@ from time import time
 
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
     QActionGroup, QPixmap, QColor
-from PyQt4.QtCore import Qt, QTimer, SIGNAL
+from PyQt4.QtCore import Qt, QTimer
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.utils import formatEndtime
@@ -137,15 +137,15 @@ class ScriptStatusPanel(Panel):
         empty.fill(Qt.transparent)
         self.otherlineicon = QIcon(empty)
 
-        self.connect(client, SIGNAL('request'), self.on_client_request)
-        self.connect(client, SIGNAL('processing'), self.on_client_processing)
-        self.connect(client, SIGNAL('blocked'), self.on_client_blocked)
-        self.connect(client, SIGNAL('status'), self.on_client_status)
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
-        self.connect(client, SIGNAL('rearranged'), self.on_client_rearranged)
-        self.connect(client, SIGNAL('updated'), self.on_client_updated)
-        self.connect(client, SIGNAL('eta'), self.on_client_eta)
+        client.request.connect(self.on_client_request)
+        client.processing.connect(self.on_client_processing)
+        client.blocked.connect(self.on_client_blocked)
+        client.status.connect(self.on_client_status)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.disconnected.connect(self.on_client_disconnected)
+        client.rearranged.connect(self.on_client_rearranged)
+        client.updated.connect(self.on_client_updated)
+        client.eta.connect(self.on_client_eta)
 
         bar = QToolBar('Script control')
         bar.setObjectName(bar.windowTitle())

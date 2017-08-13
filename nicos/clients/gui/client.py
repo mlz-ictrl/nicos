@@ -27,7 +27,7 @@
 from time import time as currenttime
 from weakref import ref
 
-from PyQt4.QtCore import QObject, SIGNAL
+from PyQt4.QtCore import QObject, pyqtSignal
 
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.base import NicosClient
@@ -36,8 +36,15 @@ from nicos.protocols.daemon import DAEMON_EVENTS
 
 
 class NicosGuiClient(NicosClient, QObject):
-    siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
-        list(DAEMON_EVENTS)
+    connected = pyqtSignal()
+    disconnected = pyqtSignal()
+    broken = pyqtSignal(object)
+    failed = pyqtSignal(object, object)
+    error = pyqtSignal(object)
+    initstatus = pyqtSignal(object)
+
+    for evt in DAEMON_EVENTS:
+        locals()[evt] = pyqtSignal(object)
 
     def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)
@@ -46,11 +53,11 @@ class NicosGuiClient(NicosClient, QObject):
         NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
         self._event_mask = set(('livedata', 'liveparams'))
-        QObject.connect(self, SIGNAL('cache'), self.on_cache_event)
-        QObject.connect(self, SIGNAL('connected'), self.on_connected_event)
+        self.cache.connect(self.on_cache_event)
+        self.connected.connect(self.on_connected_event)
 
     def signal(self, name, *args):
-        self.emit(SIGNAL(name), *args)
+        getattr(self, name).emit(*args)
 
     def connect(self, conndata, eventmask=None):
         NicosClient.connect(self, conndata, self._event_mask)

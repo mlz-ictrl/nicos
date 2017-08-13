@@ -26,8 +26,6 @@
 
 from logging import WARNING
 
-from PyQt4.QtCore import SIGNAL
-
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
@@ -50,13 +48,13 @@ class GenericPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         self._error_window = None
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
 
     def setOptions(self, options):
         Panel.setOptions(self, options)
         loadUi(self, findResource(options['uifile']))
         if options.get('showmsg'):
-            self.connect(self.client, SIGNAL('message'), self.on_client_message)
+            self.client.message.connect(self.on_client_message)
 
     def on_client_connected(self):
         for ch in self.findChildren(NicosWidget):

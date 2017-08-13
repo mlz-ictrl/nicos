@@ -72,10 +72,10 @@ class PGAAPanel(Panel):
         self.run_color = QColor('#ffdddd')
         self.idle_color = parent.user_color
 
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('message'), self.on_client_message)
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('mode'), self.on_client_mode)
+        client.connected.connect(self.on_client_connected)
+        client.message.connect(self.on_client_message)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.mode.connect(self.on_client_mode)
 
         self.buttonGroup = QButtonGroup()
         self.buttonGroup.addButton(self.rad_Man, -2)

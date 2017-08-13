@@ -822,7 +822,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             item.setData(Qt.UserRole, view)
 
         self.splitter.restoreState(self.splitterstate)
-        self.connect(self.client, SIGNAL('cache'), self.newvalue_callback)
+        self.client.cache.connect(self.newvalue_callback)
 
     def getMenus(self):
         menu = QMenu('&History viewer', self)
@@ -959,7 +959,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         for v in self.views:
             v.plot = None
         self.currentPlot = None
-        self.disconnect(self.client, SIGNAL('cache'), self.newvalue_callback)
+        self.client.cache.disconnect(self.newvalue_callback)
         return True
 
     def addPreset(self, name, info):

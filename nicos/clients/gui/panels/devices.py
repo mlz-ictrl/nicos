@@ -177,12 +177,12 @@ class DevicesPanel(Panel):
 
         if client.isconnected:
             self.on_client_connected()
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
-        self.connect(client, SIGNAL('cache'), self.on_client_cache)
-        self.connect(client, SIGNAL('device'), self.on_client_device)
-        self.connect(client, SIGNAL('setup'), self.on_client_setup)
-        self.connect(client, SIGNAL('message'), self.on_client_message)
+        client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+        client.cache.connect(self.on_client_cache)
+        client.device.connect(self.on_client_device)
+        client.setup.connect(self.on_client_setup)
+        client.message.connect(self.on_client_message)
 
     def updateStatus(self, status, exception=False):
         self._current_status = status

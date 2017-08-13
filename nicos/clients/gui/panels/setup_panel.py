@@ -26,7 +26,7 @@
 
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QListWidgetItem, \
     QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, QPushButton
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, pyqtSignature as qtsig
 
 from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress, vec3
@@ -57,12 +57,11 @@ class ExpPanel(Panel, DlgUtils):
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
 
-        if self.client.isconnected:
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('experiment'),
-                     self.on_client_experiment)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+        client.experiment.connect(self.on_client_experiment)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -319,10 +318,10 @@ class SetupsPanel(Panel, DlgUtils):
         self._prev_alias_config = None
 
         self._reload_btn = QPushButton('Reload current setup')
-        if self.client.isconnected:
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
 
     def on_client_connected(self):
         # fill setups
@@ -533,10 +532,10 @@ class DetEnvPanel(Panel, DlgUtils):
         DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_detenv.ui', 'panels')
 
-        if self.client.isconnected:
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
 
     def on_client_connected(self):
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \

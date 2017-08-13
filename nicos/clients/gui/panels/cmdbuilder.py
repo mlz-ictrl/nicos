@@ -25,7 +25,7 @@
 
 """NICOS GUI single cmdlet command input."""
 
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, pyqtSignature as qtsig
 from PyQt4.QtGui import QApplication, QAction, QKeyEvent, QMenu
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
@@ -65,9 +65,9 @@ class CommandPanel(Panel):
         self.commandInput.completion_callback = self.completeInput
         self.console = None
 
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('mode'), self.on_client_mode)
-        self.connect(client, SIGNAL('simresult'), self.on_client_simresult)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.mode.connect(self.on_client_mode)
+        client.simresult.connect(self.on_client_simresult)
 
     def postInit(self):
         self.console = self.window.getPanel('Console')

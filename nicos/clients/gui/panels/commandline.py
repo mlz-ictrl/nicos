@@ -24,8 +24,6 @@
 
 """NICOS GUI command line input component."""
 
-from PyQt4.QtCore import SIGNAL
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
 from nicos.guisupport.utils import setBackgroundColor
@@ -43,9 +41,9 @@ class CommandLinePanel(Panel):
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
 
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('mode'), self.on_client_mode)
-        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.mode.connect(self.on_client_mode)
+        client.experiment.connect(self.on_client_experiment)
 
     def setViewOnly(self, viewonly):
         self.commandInput.setEnabled(not viewonly)

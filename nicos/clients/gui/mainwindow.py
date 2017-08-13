@@ -125,18 +125,17 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # connect the client's events
         self.client = NicosGuiClient(self, self.log)
-        self.connect(self.client, SIGNAL('error'), self.on_client_error)
-        self.connect(self.client, SIGNAL('broken'), self.on_client_broken)
-        self.connect(self.client, SIGNAL('failed'), self.on_client_failed)
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('disconnected'),
-                     self.on_client_disconnected)
-        self.connect(self.client, SIGNAL('status'), self.on_client_status)
-        self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
-        self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
-        self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
-        self.connect(self.client, SIGNAL('watchdog'), self.on_client_watchdog)
-        self.connect(self.client, SIGNAL('prompt'), self.on_client_prompt)
+        self.client.error.connect(self.on_client_error)
+        self.client.broken.connect(self.on_client_broken)
+        self.client.failed.connect(self.on_client_failed)
+        self.client.connected.connect(self.on_client_connected)
+        self.client.disconnected.connect(self.on_client_disconnected)
+        self.client.status.connect(self.on_client_status)
+        self.client.showhelp.connect(self.on_client_showhelp)
+        self.client.clientexec.connect(self.on_client_clientexec)
+        self.client.plugplay.connect(self.on_client_plugplay)
+        self.client.watchdog.connect(self.on_client_watchdog)
+        self.client.prompt.connect(self.on_client_prompt)
 
         # data handling setup
         self.data = DataHandler(self.client)

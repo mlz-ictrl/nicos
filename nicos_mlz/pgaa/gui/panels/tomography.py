@@ -27,7 +27,6 @@
 from os import path
 
 from PyQt4.QtGui import QColor, QMessageBox, QMenu
-from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, ScriptExecQuestion
@@ -47,10 +46,10 @@ class TomographyPanel(Panel):
         self.run_color = QColor('#ffdddd')
         self.idle_color = parent.user_color
 
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('message'), self.on_client_message)
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('mode'), self.on_client_mode)
+        client.connected.connect(self.on_client_connected)
+        client.message.connect(self.on_client_message)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.mode.connect(self.on_client_mode)
 
     def loadSettings(self, settings):
         # self.hasinput = not settings.value('noinput', False, bool)

@@ -30,10 +30,8 @@ from itertools import chain
 
 import numpy as np
 
-# Wrong number of positional args -> wrong positive on emit
-# pylint: disable=E1121
 from PyQt4.QtGui import QApplication, QProgressDialog
-from PyQt4.QtCore import QObject, SIGNAL
+from PyQt4.QtCore import QObject, pyqtSignal
 
 from nicos.utils.fitting import FitResult
 
@@ -96,6 +94,10 @@ def try_index(seq, index):
 
 
 class DataHandler(QObject):
+    datasetAdded = pyqtSignal(object)
+    pointsAdded = pyqtSignal(object)
+    fitAdded = pyqtSignal(object, object)
+
     def __init__(self, client):
         QObject.__init__(self)
         self.client = client
@@ -105,11 +107,11 @@ class DataHandler(QObject):
         self.currentset = None
         self.bulk_adding = False
 
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('dataset'), self.on_client_dataset)
-        self.connect(self.client, SIGNAL('datapoint'), self.on_client_datapoint)
-        self.connect(self.client, SIGNAL('datacurve'), self.on_client_datacurve)
-        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
+        self.client.connected.connect(self.on_client_connected)
+        self.client.dataset.connect(self.on_client_dataset)
+        self.client.datapoint.connect(self.on_client_datapoint)
+        self.client.datacurve.connect(self.on_client_datacurve)
+        self.client.experiment.connect(self.on_client_experiment)
 
     def on_client_connected(self):
         # retrieve datasets and put them into the scans window
@@ -147,13 +149,13 @@ class DataHandler(QObject):
             except Exception:
                 from nicos.clients.gui.main import log
                 log.error('Error adding datapoint', exc=1)
-        self.emit(SIGNAL('datasetAdded'), dataset)
+        self.datasetAdded.emit(dataset)
 
     def add_existing_dataset(self, dataset, origins=()):
         dataset.uid = str(uuid.uuid1())
         self.sets.append(dataset)
         self.uid2set[dataset.uid] = dataset
-        self.emit(SIGNAL('datasetAdded'), dataset)
+        self.datasetAdded.emit(dataset)
         if self.currentset.uid in origins:
             self.dependent.append(dataset)
 
@@ -166,9 +168,9 @@ class DataHandler(QObject):
         currentset.xresults.append(xvalues)
         currentset.yresults.append(yvalues)
         self._update_curves(currentset, xvalues, yvalues)
-        self.emit(SIGNAL('pointsAdded'), currentset)
+        self.pointsAdded.emit(currentset)
         for depset in self.dependent:
-            self.emit(SIGNAL('pointsAdded'), depset)
+            self.pointsAdded.emit(depset)
 
     def on_client_datacurve(self, data):
         if not self.currentset:
@@ -181,7 +183,7 @@ class DataHandler(QObject):
                             label_x=0, label_y=0, label_contents=[])
         else:
             res = data[0]
-        self.emit(SIGNAL('fitAdded'), self.currentset, res)
+        self.fitAdded.emit(self.currentset, res)
 
     def on_client_experiment(self, data):
         # clear data

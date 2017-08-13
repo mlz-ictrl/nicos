@@ -25,7 +25,7 @@
 
 import numpy
 
-from PyQt4.QtCore import Qt, SIGNAL
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QFont, QGridLayout, QSizePolicy, QStatusBar
 
 from nicos.clients.gui.panels import Panel
@@ -64,10 +64,10 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.gridLayout.addWidget(self.statusBar, 1, 0, 1, 1)
 
-        self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
-        self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('setup'), self.on_client_connected)
+        client.livedata.connect(self.on_client_livedata)
+        client.liveparams.connect(self.on_client_liveparams)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
 
     def on_client_livedata(self, data):
         if data:

@@ -27,7 +27,6 @@
 from logging import WARNING
 
 from PyQt4.QtGui import QDialogButtonBox
-from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -53,9 +52,9 @@ class ErrorPanel(Panel):
 
         if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('message'), self.on_client_message)
-        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
+        client.connected.connect(self.on_client_connected)
+        client.message.connect(self.on_client_message)
+        client.experiment.connect(self.on_client_experiment)
 
     def setCustomStyle(self, font, back):
         self.outView.setFont(font)

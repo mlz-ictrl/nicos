@@ -34,7 +34,7 @@ import numpy
 
 from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
     QToolBar, QActionGroup
-from PyQt4.QtCore import QByteArray, QPoint, Qt, SIGNAL
+from PyQt4.QtCore import QByteArray, QPoint, Qt
 from PyQt4.QtCore import pyqtSignature as qtsig
 from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
@@ -109,10 +109,10 @@ class LiveDataPanel(Panel):
 
         if hasattr(self.window(), 'closed'):
             self.window().closed.connect(self.on_closed)
-        self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
-        self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('cache'), self.on_cache)
+        client.livedata.connect(self.on_client_livedata)
+        client.liveparams.connect(self.on_client_liveparams)
+        client.connected.connect(self.on_client_connected)
+        client.cache.connect(self.on_cache)
 
         self.rois = {}
         self.detectorskey = None

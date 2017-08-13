@@ -25,7 +25,7 @@
 """NICOS GUI panel with information about the TOFTOF safety status."""
 
 from PyQt4.QtGui import QTableWidgetItem
-from PyQt4.QtCore import SIGNAL, QByteArray
+from PyQt4.QtCore import QByteArray
 
 from nicos.utils import findResource
 
@@ -49,10 +49,10 @@ class SafetyPanel(Panel):
 
         if client.isconnected:
             self.on_client_connected()
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('setup'), self.on_client_connected)
-        self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
-        self.connect(client, SIGNAL('cache'), self.on_client_cache)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+        client.cache.connect(self.on_client_cache)
 
     def saveSettings(self, settings):
         settings.setValue('headers', self.table.horizontalHeader().saveState())

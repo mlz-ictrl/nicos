@@ -173,14 +173,14 @@ class EditorPanel(Panel):
         self.activeGroup.addAction(self.actionSimulate)
         self.activeGroup.addAction(self.actionUpdate)
 
-        self.connect(self.client, SIGNAL('simmessage'), self.on_client_simmessage)
-        self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
-        if self.client.isconnected:
+        client.simmessage.connect(self.on_client_simmessage)
+        client.simresult.connect(self.on_client_simresult)
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
-        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+        client.cache.connect(self.on_client_cache)
+        client.experiment.connect(self.on_client_experiment)
 
         if self.openfiles:
             for fn in self.openfiles:

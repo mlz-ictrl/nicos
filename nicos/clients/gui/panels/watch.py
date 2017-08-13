@@ -25,7 +25,6 @@
 """NICOS GUI watch variable panel component."""
 
 from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
@@ -47,8 +46,8 @@ class WatchPanel(Panel):
         loadUi(self, 'watch.ui', 'panels')
 
         self.watch_items = {}
-        self.connect(client, SIGNAL('watch'), self.on_client_watch)
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
+        client.watch.connect(self.on_client_watch)
+        client.initstatus.connect(self.on_client_initstatus)
 
     def setCustomStyle(self, font, back):
         self.watchView.setFont(font)

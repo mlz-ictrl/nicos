@@ -54,11 +54,11 @@ class ELogPanel(Panel, DlgUtils):
         self.menus = None
         self.bar = None
 
-        if self.client.isconnected:
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+        client.experiment.connect(self.on_client_experiment)
 
         self.activeGroup = QActionGroup(self)
         self.activeGroup.addAction(self.actionAddComment)

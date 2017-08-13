@@ -25,7 +25,7 @@
 """Dialog for showing information about new plug-and-play events."""
 
 from PyQt4.QtGui import QMessageBox, QStyle
-from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
+from PyQt4.QtCore import Qt, pyqtSignal
 
 
 class PnPSetupQuestion(QMessageBox):
@@ -35,7 +35,7 @@ class PnPSetupQuestion(QMessageBox):
 
     def __init__(self, parent, client, data):
         self.client = client
-        self.connect(client, SIGNAL('setup'), self.on_client_setup)
+        client.setup.connect(self.on_client_setup)
         self.data = data
         add_mode = data[0] == 'added'
         if add_mode:

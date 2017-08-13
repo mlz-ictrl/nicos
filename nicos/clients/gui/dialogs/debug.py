@@ -220,8 +220,7 @@ Helper functions:
         if not events:
             events = DAEMON_EVENTS.keys()
         for event in events:
-            self.connect(self.parent().client, SIGNAL(event),
-                         make_handler(event))
+            getattr(self.parent().client, event).connect(make_handler(event))
 
     def addLogMsg(self, msg):
         self.outbox.appendPlainText(msg)

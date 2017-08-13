@@ -67,7 +67,6 @@ class LiveDataPanel(Panel):
         else:
             raise RuntimeError('The Cascade live widget is not available')
 
-
         self.rangeFrom = QDoubleSpinBox(self)
         self.rangeTo = QDoubleSpinBox(self)
         for ctrl in [self.rangeFrom, self.rangeTo]:
@@ -85,12 +84,12 @@ class LiveDataPanel(Panel):
 
         self.splitter.restoreState(self.splitterstate)
 
-        self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
-        self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
+        client.livedata.connect(self.on_client_livedata)
+        client.liveparams.connect(self.on_client_liveparams)
         if client.isconnected:
             self.on_client_connected()
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('setup'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("SetLog10(bool)"))

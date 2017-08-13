@@ -25,7 +25,7 @@
 from pprint import pformat
 from datetime import datetime
 
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, Qt, QEvent, QDateTime,\
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QEvent, QDateTime, \
     pyqtSignal
 from PyQt4.QtGui import QMenu, QTableWidgetItem, QGraphicsView, QFont, QColor,\
     QGraphicsLineItem, QGraphicsScene, QPen, QBrush, QGraphicsEllipseItem, \
@@ -463,7 +463,7 @@ class TunewaveTablePanel(Panel):
         self.tableWidget.horizontalHeader().sectionPressed.connect(
             self._stop_edit)
 
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
 
     @property
     def measurement_mode(self):

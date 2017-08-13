@@ -159,10 +159,10 @@ class SamplechangerSetupPanel(CustomButtonPanel):
 
         self.vBoxLayout.insertWidget(0, self._tableWidget)
 
-        if self.client.isconnected:
+        if client.isconnected:
             self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_connected)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
 
     def setOptions(self, options):
         Panel.setOptions(self, options)

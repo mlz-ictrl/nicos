@@ -25,7 +25,7 @@
 """NICOS GUI panel with most important experiment info."""
 
 from PyQt4.QtGui import QDialog, QMessageBox, QPushButton
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, QTimer
+from PyQt4.QtCore import pyqtSignature as qtsig, QTimer
 
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
@@ -69,9 +69,9 @@ class ExpInfoPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'expinfo.ui', 'panels')
         for ch in self.findChildren(NicosWidget):
-            ch.setClient(self.client)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
-        self.connect(self.client, SIGNAL('initstatus'), self.on_client_initstatus)
+            ch.setClient(client)
+        client.setup.connect(self.on_client_setup)
+        client.initstatus.connect(self.on_client_initstatus)
 
         self.detLabel.setFormatCallback(
             lambda value, strvalue: ', '.join(sorted(value)))

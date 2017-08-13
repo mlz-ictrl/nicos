@@ -28,7 +28,7 @@ import io
 import sys
 from os import path
 
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, pyqtSignature as qtsig
 from PyQt4.QtGui import QAbstractPrintDialog, QDialog, QFileDialog, QMenu, \
     QMessageBox, QPrintDialog, QPrinter, QTextEdit
 
@@ -75,12 +75,12 @@ class ConsolePanel(Panel):
         self.grepNoMatch.setVisible(False)
         self.actionAllowLineWrap.setChecked(self.mainwindow.allowoutputlinewrap)
 
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(client, SIGNAL('message'), self.on_client_message)
-        self.connect(client, SIGNAL('simmessage'), self.on_client_simmessage)
-        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
-        self.connect(client, SIGNAL('mode'), self.on_client_mode)
-        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
+        client.connected.connect(self.on_client_connected)
+        client.message.connect(self.on_client_message)
+        client.simmessage.connect(self.on_client_simmessage)
+        client.initstatus.connect(self.on_client_initstatus)
+        client.mode.connect(self.on_client_mode)
+        client.experiment.connect(self.on_client_experiment)
 
         self.outView.setContextMenuPolicy(Qt.CustomContextMenu)
 

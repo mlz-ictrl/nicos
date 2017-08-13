@@ -147,7 +147,7 @@ class NicosClient(object):
                                         % (daemon_proto, PROTO_VERSION))
         except Exception as err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
-                        % (conndata.host, conndata.port, err))
+                        % (conndata.host, conndata.port, err), err)
             return
 
         # log-in sequence

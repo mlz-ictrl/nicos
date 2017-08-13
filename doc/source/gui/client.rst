@@ -28,7 +28,7 @@ NICOS daemon or to query it for current state or values.
    with the same name.  For example, to bind a handler to the ``status`` event
    on a panel, use ::
 
-      self.connect(self.client, SIGNAL('status'), self.on_client_status)
+      self.client.status.connect(self.on_client_status)
 
    **Higher level methods**
 

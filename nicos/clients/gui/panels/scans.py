@@ -145,14 +145,10 @@ class ScansPanel(Panel):
             self.metaTable.setColumnWidth(0, self.tablecolwidth0)
             self.metaTable.setColumnWidth(1, self.tablecolwidth1)
 
-        self.connect(self.data, SIGNAL('datasetAdded'),
-                     self.on_data_datasetAdded)
-        self.connect(self.data, SIGNAL('pointsAdded'),
-                     self.on_data_pointsAdded)
-        self.connect(self.data, SIGNAL('fitAdded'),
-                     self.on_data_fitAdded)
-        self.connect(client, SIGNAL('experiment'),
-                     self.on_client_experiment)
+        self.data.datasetAdded.connect(self.on_data_datasetAdded)
+        self.data.pointsAdded.connect(self.on_data_pointsAdded)
+        self.data.fitAdded.connect(self.on_data_fitAdded)
+        client.experiment.connect(self.on_client_experiment)
 
         self.setCurrentDataset(None)
         self.updateList()
