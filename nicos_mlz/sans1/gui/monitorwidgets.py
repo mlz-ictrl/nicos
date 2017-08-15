@@ -67,15 +67,13 @@ class Tube2(NicosWidget, QWidget):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
-    properties = {
-        'devices':   PropDef('QStringList', [], 'position, shift and tilt of '
-                             'det1, position of det2'),
-        'height':    PropDef(int, 10, 'Widget height in characters'),
-        'width':     PropDef(int, 30, 'Widget width in characters'),
-        'name':      PropDef(str, '', 'Display name'),
-        'posscale':  PropDef(float, 20000, 'Length of the tube'),
-        'color':     PropDef('QColor', _magenta.color(), 'Color of the tube'),
-    }
+    devices = PropDef('devices', 'QStringList', [], 'position, shift and '
+                      'tilt of det1, position of det2')
+    height = PropDef('height', int, 10, 'Widget height in characters')
+    width = PropDef('width', int, 30, 'Widget width in characters')
+    name = PropDef('name', str, '', 'Display name')
+    posscale = PropDef('posscale', float, 20000, 'Length of the tube')
+    color = PropDef('color', 'QColor', _magenta.color(), 'Color of the tube')
 
     def sizeHint(self):
         return QSize(self.props['width'] * self._scale + 10,
@@ -204,12 +202,10 @@ class BeamOption(NicosWidget, QWidget):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
-    properties = {
-        'dev':       PropDef(str, '', 'NICOS device name'),
-        'height':    PropDef(int, 4, 'Widget height in characters'),
-        'width':     PropDef(int, 10, 'Widget width in characters'),
-        'name':      PropDef(str, '', 'Display name'),
-    }
+    dev = PropDef('dev', str, '', 'NICOS device name')
+    height = PropDef('height', int, 4, 'Widget height in characters')
+    width = PropDef('width', int, 10, 'Widget width in characters')
+    name = PropDef('name', str, '', 'Display name')
 
     def sizeHint(self):
         return QSize(self.props['width'] * self._scale,
@@ -280,18 +276,16 @@ class CollimatorTable(NicosWidget, QWidget):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
-    properties = {
-        'dev':       PropDef(str, '', 'NICOS device name of a switcher'),
-        'options':   PropDef('QStringList', [], 'list of valid switcher-values'
-                             ' to display in top-down order (first element '
-                             'will be displayed on top location)'),
-        'disabled_options':   PropDef('QStringList', [],
-                                      'list of valid switcher values for which '
-                                      'all options are display out-of-beam'),
-        'height':    PropDef(int, 4, 'Widget height in characters'),
-        'width':     PropDef(int, 10, 'Widget width in characters'),
-        'name':      PropDef(str, '', 'Display name'),
-    }
+    dev = PropDef('dev', str, '', 'NICOS device name of a switcher')
+    options = PropDef('options', 'QStringList', [], 'list of valid switcher-'
+                      'values to display in top-down order (first element '
+                      'will be displayed on top location)')
+    disabled_options = PropDef('disabled_options', 'QStringList', [],
+                               'list of valid switcher values for which '
+                               'all options are display out-of-beam')
+    height = PropDef('height', int, 4, 'Widget height in characters')
+    width = PropDef('width', int, 10, 'Widget width in characters')
+    name = PropDef('name', str, '', 'Display name')
 
     def registerKeys(self):
         self.registerDevice(self.props['dev'])

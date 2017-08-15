@@ -50,6 +50,15 @@ class DeviceValueEdit(NicosWidget, QWidget):
     dataChanged = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
+    dev = PropDef('dev', str, '', 'Device name')
+    useButtons = PropDef('useButtons', bool, False,
+                         'Use buttons for values with few choices?')
+    allowEnter = PropDef('allowEnter', bool, True,
+                         'Emit valueChosen signal on pressing Enter?')
+    updateValue = PropDef('updateValue', bool, False,
+                          'Update the editor when the device value changes?')
+    showUnit = PropDef('showUnit', bool, True, 'Show the unit next to the input')
+
     def __init__(self, parent, designMode=False, **kwds):
         self._inner = None
         QWidget.__init__(self, parent, **kwds)
@@ -65,17 +74,6 @@ class DeviceValueEdit(NicosWidget, QWidget):
             self._inner.setFocus()
         else:
             QWidget.setFocus(self)
-
-    properties = {
-        'dev':         PropDef(str, '', 'Device name'),
-        'useButtons':  PropDef(bool, False,
-                               'Use buttons for values with few choices?'),
-        'allowEnter':  PropDef(bool, True,
-                               'Emit valueChosen signal on pressing Enter?'),
-        'updateValue': PropDef(bool, False,
-                               'Update the editor when the device value changes?'),
-        'showUnit': PropDef(bool, True, 'Show the unit next to the input'),
-    }
 
     def propertyUpdated(self, pname, value):
         if pname == 'dev':
@@ -141,9 +139,7 @@ class DeviceParamEdit(DeviceValueEdit):
     designer_description = 'Editor for a device parameter with the right ' \
         'kind of widget'
 
-    properties = {
-        'param': PropDef(str, '', 'Parameter name'),
-    }
+    param = PropDef('param', str, '', 'Parameter name')
 
     def propertyUpdated(self, pname, value):
         if pname in ('dev', 'param'):

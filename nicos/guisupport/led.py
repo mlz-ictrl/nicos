@@ -44,6 +44,13 @@ class BaseLed(QLabel, NicosWidget):
 
     _ledPatternName = ':/leds/{color}_{status}'
 
+    ledStatus = PropDef('ledStatus', bool, True, 'Status to display the '
+                        '"On color" (bright)')
+    ledInverted = PropDef('ledInverted', bool, False, 'Status to display the '
+                          '"Off color" (dark)')
+    ledColor = PropDef('ledColor', str, 'green', 'Color of the LED (default '
+                       'is green)')
+
     def __init__(self, parent=None, designMode=False):
         QLabel.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -77,15 +84,6 @@ class BaseLed(QLabel, NicosWidget):
     def registerKeys(self):
         self.registerKey(self.props['key'])
 
-    properties = {
-        'ledStatus':   PropDef(bool, True, 'Status to display the "On color" '
-                               '(bright)'),
-        'ledInverted': PropDef(bool, False, 'Status to display the "Off color" '
-                               '(dark)'),
-        'ledColor':    PropDef(str, 'green', 'Color of the LED (default is '
-                               'green)'),
-    }
-
     def propertyUpdated(self, pname, value):
         self._refresh()
         NicosWidget.propertyUpdated(self, pname, value)
@@ -94,12 +92,10 @@ class BaseLed(QLabel, NicosWidget):
 class ValueLed(BaseLed):
     designer_description = 'LED showing if the selected value is true'
 
-    properties = {
-        'dev':    PropDef(str, '', 'NICOS device to use the value'),
-        'key':    PropDef(str, '', 'Key to use as the value'),
-        'goal':   PropDef(str, '', 'Comparison value (by default the LED is '
-                          'green if value is true/nonzero)'),
-    }
+    dev = PropDef('dev', str, '', 'NICOS device to use the value')
+    key = PropDef('key', str, '', 'Key to use as the value')
+    goal = PropDef('goal', str, '', 'Comparison value (by default the LED is '
+                   'green if value is true/nonzero)')
 
     _goalval = None
 
@@ -130,10 +126,8 @@ class StatusLed(BaseLed):
     designer_description = 'LED showing the status of the device'
     designer_icon = ':/leds/yellow_on'
 
-    properties = {
-        'dev':   PropDef(str, '', 'Device name'),
-        'key':   PropDef(str, '', 'Key name of the device'),
-    }
+    dev = PropDef('dev', str, '', 'Device name')
+    key = PropDef('key', str, '', 'Key name of the device')
 
     def propertyUpdated(self, pname, value):
         if pname == 'dev':
@@ -161,11 +155,11 @@ class ClickableOutputLed(ValueLed):
     designer_description = 'Digital Output Led that changes device state on click'
     designer_icon = ':/leds/orange_on'
 
-    properties = {
-        'ledColor':      PropDef(str, 'orange', 'Default led color'),
-        'stateActive':   PropDef(str, '1', 'Target for active LED state (green)'),
-        'stateInactive': PropDef(str, '0', 'Target for inactive LED state (red)'),
-    }
+    ledColor = PropDef('ledColor', str, 'orange', 'Default led color')
+    stateActive = PropDef('stateActive', str, '1', 'Target for active LED '
+                          'state (green)')
+    stateInactive = PropDef('stateInactive', str, '0', 'Target for inactive '
+                            'LED state (red)')
 
     def __init__(self, parent=None, designMode=False):
         self.current = None

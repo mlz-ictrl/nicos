@@ -31,14 +31,13 @@ import functools
 
 from copy import copy
 
-from nicos.guisupport.qt import pyqtProperty, propertyMetaclass, QFont, \
-    QFontMetrics
+from nicos.guisupport.qt import pyqtProperty, QFont, QFontMetrics
 
 from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import add_metaclass, iteritems
+from nicos.pycompat import iteritems
 
 
 class NicosListener(object):
@@ -175,13 +174,13 @@ class NicosListener(object):
         pass
 
 
-class PropDef(object):
+class PropDef(pyqtProperty):
     all_types = [
         str, float, int,
         'bool',  # only works as C++ type name
     ]
 
-    def __init__(self, ptype, default, doc=''):
+    def __init__(self, prop, ptype, default, doc=''):
         if ptype is bool:
             ptype = 'bool'
         if ptype not in self.all_types:
@@ -191,6 +190,22 @@ class PropDef(object):
         self.default = default
         self.doc = doc
 
+        def getter(self):
+            return self.props[prop]
+
+        def setter(self, value):
+            value = PropDef.convert(value)
+            self.props[prop] = value
+            self.propertyUpdated(prop, value)
+
+        def resetter(self):
+            if callable(default):
+                setattr(self, prop, default(self))
+            else:
+                setattr(self, prop, default)
+
+        pyqtProperty.__init__(self, ptype, getter, setter, resetter, doc=doc)
+
     @staticmethod
     def convert(value):
         if isinstance(value, QFont):
@@ -199,41 +214,6 @@ class PropDef(object):
         return copy(value)
 
 
-class AutoPropMeta(propertyMetaclass):
-    """Works similar to the DeviceMeta in that properties are automatically
-    inherited, and PyQt getters/setters/resetters are generated.
-    """
-
-    def __new__(cls, name, bases, attrs):  # pylint: disable=C0202
-        newtype = propertyMetaclass.__new__(cls, name, bases, attrs)
-        newprops = {}
-        for base in reversed(bases):
-            if hasattr(base, 'properties'):
-                newprops.update(base.properties)
-        newprops.update(attrs.get('properties', {}))
-        newtype.properties = newprops
-
-        for prop, pdef in sorted(iteritems(newprops)):
-            def getter(self, prop=prop):
-                return self.props[prop]
-
-            def setter(self, value, prop=prop):
-                value = PropDef.convert(value)
-                self.props[prop] = value
-                self.propertyUpdated(prop, value)
-
-            def resetter(self, prop=prop):
-                if callable(pdef.default):
-                    setattr(self, prop, pdef.default(self))
-                else:
-                    setattr(self, prop, pdef.default)
-            setattr(newtype, prop,
-                    pyqtProperty(pdef.ptype, getter, setter, resetter,
-                                 doc=pdef.doc))
-        return newtype
-
-
-@add_metaclass(AutoPropMeta)
 class NicosWidget(NicosListener):
     """Base mixin class for a widget that can receive cache events.
 
@@ -253,10 +233,18 @@ class NicosWidget(NicosListener):
     designer_icon = None
 
     # define properties
-    properties = {
-        'valueFont': PropDef('QFont', QFont('monospace'), 'Font used for '
-                             'displaying values'),
-    }
+    valueFont = PropDef('valueFont', 'QFont', QFont('monospace'),
+                        'Font used for displaying values')
+
+    # collects all properties of self's class
+    @lazy_property
+    def properties(self):
+        props = {}
+        for attrname in dir(self.__class__):
+            attr = getattr(self.__class__, attrname)
+            if isinstance(attr, pyqtProperty):
+                props[attrname] = attr
+        return props
 
     # dictionary for storing current property values
     @lazy_property

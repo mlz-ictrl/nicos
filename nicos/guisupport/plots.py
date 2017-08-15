@@ -99,6 +99,27 @@ class TrendPlot(QwtPlot, NicosWidget):
     colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
               Qt.darkGray]
 
+    devices = PropDef('devices', 'QStringList', [], '''
+List of devices or cache keys that the plot should display.
+
+For devices use device name. For keys use cache key with "." or "/" separator,
+e.g. T.heaterpower.
+
+To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
+''')
+    names = PropDef('names', 'QStringList', [], 'Names for the plot curves, '
+                    'defaults to the device names/keys.')
+    legend = PropDef('legend', bool, False, 'If a legend should be shown.')
+    plotwindow = PropDef('plotwindow', int, 3600, 'The range of time in '
+                         'seconds that should be represented by the plot.')
+    plotinterval = PropDef('plotinterval', float, 2, 'The minimum time in '
+                           'seconds between two points that should be '
+                           'plotted.')
+    height = PropDef('height', int, 10, 'Height of the plot widget in units '
+                     'of app font character width.')
+    width = PropDef('width', int, 30, 'Width of the plot widget in units '
+                    'of app font character width.')
+
     # pylint: disable=W0231
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
@@ -149,28 +170,6 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.picker.moved.connect(self.on_picker_moved)
 
         self.timeSeriesUpdate.connect(self.on_timeSeriesUpdate)
-
-    properties = {
-        'devices':      PropDef('QStringList', [], '''
-List of devices or cache keys that the plot should display.
-
-For devices use device name. For keys use cache key with "." or "/" separator,
-e.g. T.heaterpower.
-
-To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
-'''),
-        'names':        PropDef('QStringList', [], 'Names for the plot curves, '
-                                'defaults to the device names/keys.'),
-        'legend':       PropDef(bool, False, 'If a legend should be shown.'),
-        'plotwindow':   PropDef(int, 3600, 'The range of time in seconds that '
-                                'should be represented by the plot.'),
-        'plotinterval': PropDef(float, 2, 'The minimum time in seconds between '
-                                'two points that should be plotted.'),
-        'height':       PropDef(int, 10, 'Height of the plot widget in units '
-                                'of app font character width.'),
-        'width':        PropDef(int, 30, 'Width of the plot widget in units '
-                                'of app font character width.'),
-    }
 
     def propertyUpdated(self, pname, value):
         if pname == 'plotwindow':

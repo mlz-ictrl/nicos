@@ -68,6 +68,19 @@ class VRefsans(NicosWidget, QWidget):
 
     designer_description = 'Display of the REFSANS NOK configuration'
 
+    nok0dev = PropDef('nok0dev', str, '', 'NOK 0 device')
+    nok1dev = PropDef('nok1dev', str, '', 'NOK 1 device')
+    nok2dev = PropDef('nok2dev', str, '', 'NOK 2 device')
+    nok3dev = PropDef('nok3dev', str, '', 'NOK 3 device')
+    nok4dev = PropDef('nok4dev', str, '', 'NOK 4 device')
+    nok5adev = PropDef('nok5adev', str, '', 'NOK 5a device')
+    nok5bdev = PropDef('nok5bdev', str, '', 'NOK 5b device')
+    nok6dev = PropDef('nok6dev', str, '', 'NOK 6 device')
+    nok7dev = PropDef('nok7dev', str, '', 'NOK 7 device')
+    nok8dev = PropDef('nok8dev', str, '', 'NOK 8 device')
+    height = PropDef('height', int, 30, 'Widget height in characters')
+    width = PropDef('width', int, 40, 'Widget width in characters')
+
     def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -104,21 +117,6 @@ class VRefsans(NicosWidget, QWidget):
         self._lengthkeymap = {}
         self._length = [0, 100, 300, 600, 1000, 1720, 1720, 1720, 1190, 880]
         self._fulllength = sum(self._length)
-
-    properties = {
-        'nok0dev':   PropDef(str, '', 'NOK 0 device'),
-        'nok1dev':   PropDef(str, '', 'NOK 1 device'),
-        'nok2dev':   PropDef(str, '', 'NOK 2 device'),
-        'nok3dev':   PropDef(str, '', 'NOK 3 device'),
-        'nok4dev':   PropDef(str, '', 'NOK 4 device'),
-        'nok5adev':  PropDef(str, '', 'NOK 5a device'),
-        'nok5bdev':  PropDef(str, '', 'NOK 5b device'),
-        'nok6dev':   PropDef(str, '', 'NOK 6 device'),
-        'nok7dev':   PropDef(str, '', 'NOK 7 device'),
-        'nok8dev':   PropDef(str, '', 'NOK 8 device'),
-        'height':    PropDef(int, 30, 'Widget height in characters'),
-        'width':     PropDef(int, 40, 'Widget width in characters'),
-    }
 
     def registerKeys(self):
         for dev in ['nok0', 'nok1', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',

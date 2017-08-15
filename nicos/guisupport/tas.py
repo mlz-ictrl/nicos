@@ -85,6 +85,18 @@ class TasWidget(NicosWidget, QWidget):
 
     designer_description = __doc__
 
+    mthdev = PropDef('mthdev', str, '', 'Monochromator rocking angle device')
+    mttdev = PropDef('mttdev', str, '', 'Monochromator scattering angle device')
+    sthdev = PropDef('sthdev', str, '', 'Sample rotation device')
+    sttdev = PropDef('sttdev', str, '', 'Sample scattering angle device')
+    athdev = PropDef('athdev', str, '', 'Analyzer rocking angle device')
+    attdev = PropDef('attdev', str, '', 'Analyzer scattering angle device')
+    Lmsdev = PropDef('Lmsdev', str, '', 'Distance monochromator->sample device')
+    Lsadev = PropDef('Lsadev', str, '', 'Distance sample->analyzer device')
+    Laddev = PropDef('Laddev', str, '', 'Distance analyzer->detector device')
+    height = PropDef('height', int, 30, 'Widget height in characters')
+    width = PropDef('width', int, 40, 'Widget width in characters')
+
     def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -113,20 +125,6 @@ class TasWidget(NicosWidget, QWidget):
         self._keymap = {}
         self._statuskeymap = {}
         self._targetkeymap = {}
-
-    properties = {
-        'mthdev':    PropDef(str, '', 'Monochromator rocking angle device'),
-        'mttdev':    PropDef(str, '', 'Monochromator scattering angle device'),
-        'sthdev':    PropDef(str, '', 'Sample rotation device'),
-        'sttdev':    PropDef(str, '', 'Sample scattering angle device'),
-        'athdev':    PropDef(str, '', 'Analyzer rocking angle device'),
-        'attdev':    PropDef(str, '', 'Analyzer scattering angle device'),
-        'Lmsdev':    PropDef(str, '', 'Distance monochromator->sample device'),
-        'Lsadev':    PropDef(str, '', 'Distance sample->analyzer device'),
-        'Laddev':    PropDef(str, '', 'Distance analyzer->detector device'),
-        'height':    PropDef(int, 30, 'Widget height in characters'),
-        'width':     PropDef(int, 40, 'Widget width in characters'),
-    }
 
     def registerKeys(self):
         for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa',

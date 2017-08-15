@@ -35,9 +35,7 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
 
     designer_description = 'Displays devices and their parameters'
 
-    properties = {
-        'showparams': PropDef(bool, True, 'Show parameters as subitems'),
-    }
+    showparams = PropDef('showparams', bool, True, 'Show parameters as subitems')
 
     def __init__(self, parent, designMode=False, **kwds):
         QTreeWidget.__init__(self, parent, **kwds)

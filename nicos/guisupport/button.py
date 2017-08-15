@@ -26,7 +26,8 @@ import ast
 
 from nicos.guisupport.qt import Qt
 
-from nicos.guisupport.led import ClickableOutputLed, PropDef
+from nicos.guisupport.widget import PropDef
+from nicos.guisupport.led import ClickableOutputLed
 from nicos.pycompat import string_types
 
 
@@ -62,9 +63,7 @@ class SinglePushButton(PushButton):
                            ' one state to swith On or Off'
     designer_icon = ':/leds/yellow_on'
 
-    properties = {
-        'toState': PropDef(str, '1', 'Target for action'),
-    }
+    toState = PropDef('toState', str, '1', 'Target for action')
 
     def __init__(self, parent=None, designMode=False):
         self._stateTo = 1

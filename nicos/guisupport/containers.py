@@ -68,9 +68,7 @@ class MultiList(NicosWidget, QWidget):
 
     designer_description = 'A list (with add/remove controls) of .ui entries'
 
-    properties = {
-        'uifile': PropDef(str, '', 'UI file to use for the entries'),
-    }
+    uifile = PropDef('uifile', str, '', 'UI file to use for the entries')
 
     entryAdded = pyqtSignal(object)
     entryRemoved = pyqtSignal(object)

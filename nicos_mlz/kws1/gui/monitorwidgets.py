@@ -53,6 +53,17 @@ class Tube(NicosWidget, QWidget):
 
     designer_description = 'KWS tube'
 
+    devices = PropDef('devices', 'QStringList', [])
+    height = PropDef('height', int, 10, 'Widget height in characters')
+    width = PropDef('width', int, 30, 'Widget width in characters')
+    name = PropDef('name', str, '')
+    posscale = PropDef('posscale', float, 20)
+    color = PropDef('color', 'QColor', _grey.color())
+    beamstop = PropDef('beamstop', bool, False,
+                       'Beamstop instead of detector Y/Z')
+    smalldet = PropDef('smalldet', float, 0, 'Positioning of small detector, '
+                       'or zero for no small detector')
+
     def __init__(self, parent, designMode=False):
         # z, x, y, small_x, small_y
         self._curval = [0, 0, 0, 0, 0]
@@ -61,18 +72,6 @@ class Tube(NicosWidget, QWidget):
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
-
-    properties = {
-        'devices':   PropDef('QStringList', []),
-        'height':    PropDef(int, 10, 'Widget height in characters'),
-        'width':     PropDef(int, 30, 'Widget width in characters'),
-        'name':      PropDef(str, ''),
-        'posscale':  PropDef(float, 20),
-        'color':     PropDef('QColor', _grey.color()),
-        'beamstop':  PropDef(bool, False, 'Beamstop instead of detector Y/Z'),
-        'smalldet':  PropDef(float, 0, 'Positioning of small detector, '
-                             'or zero for no small detector'),
-    }
 
     def sizeHint(self):
         return QSize(self.props['width'] * self._scale + 10,
@@ -227,6 +226,11 @@ class Collimation(NicosWidget, QWidget):
 
     designer_description = 'KWS collimation'
 
+    devices = PropDef('devices', 'QStringList', [])
+    height = PropDef('height', int, 4)
+    width = PropDef('width', int, 10)
+    polarizer = PropDef('polarizer', int, 0, 'Number of bits for the polarizer')
+
     def __init__(self, parent, designMode=False):
         # coll_in, coll_out, ap_20, ap_14, ap_8, ap_4, ap_2, pol_in, pol_out
         self._curval = [0, 0, (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), 0, 0]
@@ -235,13 +239,6 @@ class Collimation(NicosWidget, QWidget):
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
-
-    properties = {
-        'devices':   PropDef('QStringList', []),
-        'height':    PropDef(int, 4),
-        'width':     PropDef(int, 10),
-        'polarizer': PropDef(int, 0, 'Number of bits for the polarizer'),
-    }
 
     def registerKeys(self):
         for dev in self.props['devices']:
@@ -344,11 +341,9 @@ class Lenses(NicosWidget, QWidget):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
-    properties = {
-        'devices':   PropDef('QStringList', []),
-        'height':    PropDef(int, 4),
-        'width':     PropDef(int, 10),
-    }
+    devices = PropDef('devices', 'QStringList', [])
+    height = PropDef('height', int, 4)
+    width = PropDef('width', int, 10)
 
     def registerKeys(self):
         for dev in self.props['devices']:
@@ -415,13 +410,11 @@ class SampleSlit(NicosWidget, QWidget):
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
-    properties = {
-        'device':    PropDef(str, ''),
-        'maxh':      PropDef(float, 30),
-        'maxw':      PropDef(float, 30),
-        'height':    PropDef(int, 4),
-        'width':     PropDef(int, 10),
-    }
+    device = PropDef('device', str, '')
+    maxh = PropDef('maxh', float, 30)
+    maxw = PropDef('maxw', float, 30)
+    height = PropDef('height', int, 4)
+    width = PropDef('width', int, 10)
 
     def registerKeys(self):
         self.registerDevice(str(self.props['device']))
