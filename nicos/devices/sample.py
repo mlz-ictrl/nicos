@@ -72,6 +72,10 @@ class Sample(Moveable):
     def doStart(self, target):
         self.select(target)
 
+    def doIsAtTarget(self, pos):
+        # never warn about self.target mismatch
+        return True
+
     @property
     def filename(self):
         return safeName(self.samplename)
