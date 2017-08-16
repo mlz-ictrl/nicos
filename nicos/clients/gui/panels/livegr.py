@@ -33,7 +33,7 @@ from uuid import uuid4
 import numpy
 
 from PyQt4.QtGui import QStatusBar, QSizePolicy, QListWidgetItem, QMenu, \
-    QToolBar, QActionGroup, QFileDialog
+    QToolBar, QActionGroup
 from PyQt4.QtCore import QByteArray, QPoint, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 from gr import COLORMAPS as GR_COLORMAPS
@@ -41,6 +41,7 @@ from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
 
 from nicos.utils import BoundedOrderedDict
+from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.clients.gui.utils import loadUi, enumerateWithProgress
 from nicos.clients.gui.panels import Panel
 from nicos.core.errors import NicosError
@@ -519,13 +520,11 @@ class LiveDataPanel(Panel):
         """Open image file using registered reader classes."""
         ftypes = dict((ffilter, ftype)
                       for ftype, ffilter in ReaderRegistry.filefilters())
-        fdialog = QFileDialog(self, "Open data files", "",
-                              ";;".join(ftypes.keys()))
-        fdialog.setAcceptMode(QFileDialog.AcceptOpen)
-        fdialog.setFileMode(QFileDialog.ExistingFiles)
+        fdialog = FileFilterDialog(self, "Open data files", "",
+                                   ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() == QFileDialog.Accepted:
+        if fdialog.exec_() == fdialog.Accepted:
             self._fileopen_filter = fdialog.selectedNameFilter()
             tag = ftypes[self._fileopen_filter]
             files = fdialog.selectedFiles()
@@ -549,7 +548,6 @@ class LiveDataPanel(Panel):
                 # add further files to file list (open on request/itemClicked)
                 for f in files[cachesize:]:
                     self.add_to_flist(f, None, tag)
-
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):

@@ -1,0 +1,60 @@
+############################
+###### Field scan#####
+############################
+#move(shutter,'close')
+#
+move(bsd,9.5)
+move(t2t, 0.64)
+NewSample("S-596-Hyst-RT")
+#
+move(analyzer_shift,'in')
+move(s1_left, 1.0, s1_right, 1.0)
+move(s2_left, 0.6, s2_right, 0.6)
+move(bsd,9.5)
+move(wavelength, 6)
+
+move (magnet, -33)
+sleep (30)
+move (magnet, -15)
+sleep (30)
+move (magnet, 0)
+sleep (30)
+move (magnet, 33)
+sleep (30)
+move (magnet, 15)
+sleep (30)
+move (magnet, 0)
+sleep (30)
+
+#
+move(aflipper,'up')
+#move(shutter,'open')
+sscan(magnet, -0.1, -0.02, -1.5, 15, pflipper=['up','down'])
+sscan(magnet, -1.5, -0.1, -4, 15, pflipper=['up','down'])
+#move(shutter,'close')
+#complete the range
+#
+move (magnet, -33)
+sleep (30)
+move (magnet, -15)
+sleep (30)
+move (magnet, 0)
+sleep (30)
+move (magnet, 33)
+sleep (30)
+move (magnet, 15)
+sleep (30)
+move (magnet, 0)
+sleep (30)
+
+#
+move(aflipper,'down')
+#move(shutter,'open')
+sscan(magnet, -0.1, -0.02, -1.5, 15, pflipper=['up','down'])
+sscan(magnet, -1.5, -0.1, -4, 15, pflipper=['up','down'])
+move(shutter,'close')
+#complete the range
+#
+
+move(analyzer_shift,'out')
+

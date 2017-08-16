@@ -1,0 +1,10 @@
+########## Reset ###########
+move( giref, 13000)
+#move( wavelength, 10)
+move( s1_top, 1, s1_bottom, 1)
+move( s2_top, 1, s2_bottom, 1)
+move( s1_left, 1, s1_right, 1)
+move( s2_left, 1, s2_right, 1)
+move( bsd, 50)
+maw( t2t, 0)
+maw(ds_left,0)

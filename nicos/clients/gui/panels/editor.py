@@ -165,7 +165,8 @@ class EditorPanel(Panel):
         self.fileTree.header().hideSection(3)
         self.fileTree.header().hide()
         self.fileTree.setRootIndex(idx)
-        self.actionShowScripts.setChecked(True)
+        self.actionShowScripts = self.scriptsPane.toggleViewAction()
+        self.actionShowScripts.setText('Show Script Browser')
 
         self.activeGroup = QActionGroup(self)
         self.activeGroup.addAction(self.actionRun)
@@ -480,15 +481,6 @@ class EditorPanel(Panel):
                 self.tabber.setCurrentIndex(i)
                 return
         self.openFile(fpath)
-
-    def on_actionShowScripts_toggled(self, on):
-        if on:
-            self.scriptsPane.show()
-        else:
-            self.scriptsPane.hide()
-
-    def on_scriptsPane_visibilityChanged(self, visible):
-        self.actionShowScripts.setChecked(visible)
 
     @qtsig('')
     def on_actionPrint_triggered(self):

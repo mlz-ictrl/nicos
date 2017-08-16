@@ -8,7 +8,7 @@ devices = dict(
     Rheo_WS = device('nicos.devices.tango.DigitalOutput',
                      description = 'Worksheet to process',
                      tangodevice = tango_base + 'rheo/worksheet',
-                     fmtstr = 'No. %d',
+                     fmtstr = 'No.%d',
                      unit = '',
                     ),
 )

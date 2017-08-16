@@ -53,6 +53,9 @@ class BaseChannel(TacoBaseChannel):
                          IOCommon.MODE_PRESELECTION if value
                          else IOCommon.MODE_NORMAL)
         self._taco_guard(self._dev.enableMaster, value)
+        # workaround for buggy QMesyDAQ
+        if not value:
+            self._taco_guard(self._dev.setPreselection, 0)
 
 
 class Timer(TimerChannelMixin, BaseChannel, ActiveChannel):

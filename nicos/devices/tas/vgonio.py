@@ -93,6 +93,9 @@ class VirtualGonio(Moveable):
         gx, gy = self._transform(vx, vy, -psi0)
         return gx * R2D, gy * R2D
 
+    def _getWaiters(self):
+        return [self._attached_gx, self._attached_gy]
+
     def doRead(self, maxage=0):
         vx, vy = self._calcVirtual(maxage)
         return vx if self.axis == 1 else vy

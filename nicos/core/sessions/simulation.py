@@ -100,6 +100,8 @@ class SimLogSender(logging.Handler):
         devinfo = {}
         for devname in self.devices:
             dev = self.session.devices.get(devname)
+            if dev is None:
+                continue
             minmax = dev._sim_getMinMax()
             for _name, _value, _min, _max in minmax:
                 try:
@@ -273,7 +275,9 @@ class SimulationSupervisor(Thread):
                         if request.reqid == uuid:
                             request.setSimstate('failed')
                             request.emitETA(emitter._controller)
-                    session.log.warning('Dry run has terminated prematurely')
+                    if not quiet:
+                        session.log.warning('Dry run has terminated '
+                                            'prematurely')
                     return
                 continue
             msgtype, msg = unserialize(socket.recv())

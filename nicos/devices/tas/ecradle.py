@@ -117,6 +117,9 @@ class EulerianCradle(Moveable):
         return multiStatus(((name, self._adevs[name])
                             for name in ['chi', 'omega']), maxage)
 
+    def _getWaiters(self):
+        return [self._attached_chi, self._attached_omega]
+
     @usermethod
     def calc_plane(self, r1, r2=None):
         """Calculate chi and omega angles to get a scattering plane in which

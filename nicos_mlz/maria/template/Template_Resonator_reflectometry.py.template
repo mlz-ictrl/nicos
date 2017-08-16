@@ -1,0 +1,34 @@
+#####################################
+######## Reflectometrie Resonator D2O #######
+#####################################
+maw(shutter,'close')
+
+NewSample('resonator_1layer_Microem_Ref')
+
+######### First Part ########
+maw(wavelength, 10)
+maw(bsd, 9.5)
+maw(s1_left, 0.1, s1_right, 0.1)
+maw(s2_left, 0.1, s2_right, 0.1)
+maw(shutter,'open')
+sscan(t2t, 0.2, 0.02, 1.8, 45)
+maw(shutter,'close')
+
+###### Second Part #########
+maw(wavelength, 5)
+maw(bsd, 9.5)
+maw(s1_left, 0.5, s1_right, 0.2)
+maw(s2_left, 0.5, s2_right, 0.2)
+maw(shutter,'open')
+sscan(t2t, 0.1, 0.1, 2.5, 60)
+maw(shutter,'close')
+
+
+
+########## Reset ###########
+maw(bsd, 9.)
+maw(s1_left, 1, s1_right, 1)
+maw(s2_left, 1, s2_right, 1)
+maw(shutter,'open')
+sscan(t2t, 2.0, 0.25, 6, 120)
+maw(shutter,'close')

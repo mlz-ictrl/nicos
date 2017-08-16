@@ -1,0 +1,100 @@
+maw(shutter, 'close')
+maw(bsd,11.25 )
+
+#settings for sample 1
+maw(sc, 155.65)
+maw(rz,1.24)
+maw(ry,-1.3)
+
+maw(shutter, 'open')
+
+NewSample('Sample4_Si_DPOPC_C_H2O')
+maw(wavelength,10)
+maw(s1_left,0.2)
+maw(s1_right,0.2)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.6,0.05,2.0,180)
+
+
+maw(wavelength,5)
+maw(s1_left,0.5)
+maw(s1_right,0.5)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.8,0.1,2.5,300)
+
+
+maw(s1_left,1.0)
+maw(s1_right,1.0)
+maw(s2_left,1.0)
+maw(s2_right,1.0)
+sscan(t2t,2.25,0.25,5.5,500)
+
+maw(shutter, 'close')
+
+#settings for sample 2
+maw(sc, 54.75)
+maw(rz,1.25)
+maw(ry,-0.1)
+
+maw(shutter, 'open')
+
+NewSample('Sample5_Si_DPOPC_2O3_C_H2O')
+maw(wavelength,10)
+maw(s1_left,0.2)
+maw(s1_right,0.2)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.6,0.05,2.0,180)
+
+
+maw(wavelength,5)
+maw(s1_left,0.5)
+maw(s1_right,0.5)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.8,0.1,2.5,300)
+
+
+maw(s1_left,1.0)
+maw(s1_right,1.0)
+maw(s2_left,1.0)
+maw(s2_right,1.0)
+sscan(t2t,2.25,0.25,5.5,500)
+
+maw(shutter, 'close')
+
+#settings for sample 3
+maw(sc, -43.95)
+maw(rz,0.725)
+maw(ry,-0.6)
+
+maw(shutter, 'open')
+
+NewSample('Sample6_Si_DPOPC_1O3_C_H2O')
+maw(wavelength,10)
+maw(s1_left,0.2)
+maw(s1_right,0.2)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.6,0.05,2.0,180)
+
+
+maw(wavelength,5)
+maw(s1_left,0.5)
+maw(s1_right,0.5)
+maw(s2_left,0.2)
+maw(s2_right,0.2)
+sscan(t2t,0.8,0.1,2.5,300)
+
+
+maw(s1_left,1.0)
+maw(s1_right,1.0)
+maw(s2_left,1.0)
+maw(s2_right,1.0)
+sscan(t2t,2.25,0.25,5.5,500)
+
+maw(shutter, 'close')
+maw(t2t,0)
+maw(sc, 190)

@@ -185,8 +185,8 @@ class ScriptRequest(Request):
         self.setSimstate('pending')
         if self.blocks:
             self.runtimes = [0] * len(self.blocks)
-        else:
-            self.runtimes = []
+        else: # if the script was started on the commandline
+            self.runtimes = [0]
         self.eta = -1
 
     def update(self, text, reason, controller, user):

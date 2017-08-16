@@ -35,6 +35,7 @@ devices = dict(
     detimg        = device("nicos_mlz.maria.devices.detector.DenexImage",
                            description = "Denex detector image",
                            tangodevice = tango_base + "/fastcomtec/detector",
+                           fmtstr = "%d",
                           ),
     roi1          = device("nicos.devices.generic.RectROIChannel",
                            description = "ROI 1",

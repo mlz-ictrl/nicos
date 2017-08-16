@@ -9,6 +9,6 @@ devices = dict(
                      description = 'Worksheet to process',
                      tangodevice = tango_base + 'rheo/worksheet',
                      unit = '',
-                     fmtstr = 'No. %d',
+                     fmtstr = 'No.%d',
                     ),
 )

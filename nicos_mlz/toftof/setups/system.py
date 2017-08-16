@@ -38,7 +38,7 @@ devices = dict(
                  propprefix = '',
                  sendmail = True,
                  mailsender = 'toftof@frm2.tum.de',
-                 propdb = '/opt/nicos/propdb',
+                 propdb = '/toftofcontrol/propdb',
                  managerights = dict(enableDirMode=0o775,
                                      enableFileMode=0o664,
                                      disableDirMode=0o550,

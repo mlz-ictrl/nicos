@@ -1,0 +1,74 @@
+# Full-Polarizer Measurement
+
+# Set -8.5 Gs NGF manually
+
+# DO tx SCAN FIRST!!!!
+
+time_per_pic=7200
+
+tx_tenK=-0.75
+tx_rt=0.75
+
+maw(tx, tx_tenK)
+
+# measure at ngf
+NewSample("MARIAIII-rep-10K_fp-ngf")
+maw(shutter,'open')
+timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
+maw(shutter,'close')
+
+# Drive to positive saturation
+while field.read()<2000:
+    magnet_value+=0.1
+    maw(magnet,magnet_value)
+    sleep(1)
+
+# Carefully drive to negative coercive field
+while field.read()>-400:
+    magnet_value-=0.01
+    maw(magnet,magnet_value)
+    sleep(1)
+
+while field.read()>-460:
+    magnet_value-=0.001
+    maw(magnet,magnet_value)
+    sleep(10)
+
+# measure at coercive field
+NewSample("MARIAIII-rep-10K_fp-CoerF")
+maw(shutter,'open')
+timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
+maw(shutter,'close')
+
+# Drive to negative saturation
+while field.read()>-2000:
+    magnet_value-=0.1
+    maw(magnet,magnet_value)
+    sleep(1)
+
+# measure at saturation
+NewSample("MARIAIII-rep-10K_fp-SatF")
+maw(shutter,'open')
+timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
+maw(shutter,'close')
+
+# Carefully drive to ngf field again
+while field.read()<-100:
+    magnet_value+=0.01
+    maw(magnet,magnet_value)
+    sleep(1)
+
+while field.read()<-7:
+    magnet_value+=0.001
+    maw(magnet,magnet_value)
+    sleep(10)
+
+# measure at remanence
+NewSample("MARIAIII-rep-10K_fp-RemF")
+maw(shutter,'open')
+timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
+maw(shutter,'close')
+
+# Warm up to RT
+maw(T, 300)
+maw(magnet, 0)

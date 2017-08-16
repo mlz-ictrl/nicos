@@ -1,0 +1,101 @@
+############################
+###### Reflektometrie polarized ######
+############################
+
+move(bsd,9.5)
+
+#move(polarizer, 474000)
+
+#move(analyzer_shift,'in')
+maw(analyzer_shift,'out')
+
+#!!!!!!
+move(tx, -0.83)
+#!!!!!!
+
+maw (magnet, -33)
+maw (magnet, -15)
+maw (magnet, 0)
+maw (magnet, 15)
+maw (magnet, 33)
+maw (magnet, 15)
+maw (magnet, 0)
+maw (magnet, -0.05)
+
+NewSample("S-585_2R-RT-p2Amp")
+
+maw (magnet, -0.2)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,40,pflipper=['up','down'])
+
+maw(wavelength,6)
+move(s1_left ,1.2 ,s1_right, 1.2)
+move(s2_left, 0.3, s2_right, 0.3)
+move(bsd,9)
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.5, 100,pflipper=['up','down'])
+
+############PNR 2nd Field############
+NewSample("S-585_2R-RT-2Amp")
+
+maw (magnet, -2)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,40,pflipper=['up','down'])
+
+maw(wavelength,6)
+move(s1_left ,1.2 ,s1_right, 1.2)
+move(s2_left, 0.3, s2_right, 0.3)
+move(bsd,9)
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.5, 100,pflipper=['up','down'])
+
+############PNR 3rd Field############
+NewSample("S-585_2R-RT-15Amp")
+
+maw (magnet, -15)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,40,pflipper=['up','down'])
+
+maw(wavelength,6)
+move(s1_left ,1.2 ,s1_right, 1.2)
+move(s2_left, 0.3, s2_right, 0.3)
+move(bsd,9)
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.5, 100,pflipper=['up','down'])
+
+############PNR 4th Field############
+NewSample("S-585_2R-RT-33Amp")
+
+maw (magnet, -33)
+
+maw(wavelength,6)
+maw(s1_left ,1 ,s1_right, 1)
+maw(s2_left, 0.3, s2_right, 0.3)
+maw(shutter,'open')
+sscan(t2t,0.25,0.03,1.3,40,pflipper=['up','down'])
+
+maw(wavelength,6)
+move(s1_left ,1.2 ,s1_right, 1.2)
+move(s2_left, 0.3, s2_right, 0.3)
+move(bsd,9)
+maw(shutter,'open')
+sscan(t2t,1.2, 0.04, 3.5, 100,pflipper=['up','down'])
+####################################
+maw(shutter,'close')
+NewSample("Alignment")
+maw (magnet, 0)
+
+move(s1_left,1,s1_right,1,s2_left,.2,s2_right,.2)
+move(bsd,9.5)

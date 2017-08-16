@@ -72,6 +72,10 @@ class Sample(Moveable):
     def doStart(self, target):
         self.select(target)
 
+    def doIsAtTarget(self, pos):
+        # never warn about self.target mismatch
+        return True
+
     @property
     def filename(self):
         return safeName(self.samplename)
@@ -144,6 +148,7 @@ class Sample(Moveable):
         """
         self.samplenumber = number
         self.samplename = parameters['name']
+        self._setROParam('target', parameters['name'])
 
     def doUpdateSamples(self, info):
         self.valuetype = oneof(*(info[n]['name'] for n in sorted(info)))
