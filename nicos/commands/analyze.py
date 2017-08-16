@@ -195,8 +195,9 @@ def fit(fitclass, *columns, **kwargs):
     descrs = fit.fit_p_descr
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
-        vals.append((descr, '%.5g' % par, '+/- %.5g' % err))
-    printTable(('parameter', 'value', 'error'), vals, session.log.info)
+        vals.append((descr, '%.5g' % par, '+/- %.5g' % err,
+                     '+/- {:.1%}'.format(err / par) if par else '-'))
+    printTable(('parameter', 'value', 'error', 'rel. error'), vals, session.log.info)
     return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 
