@@ -184,8 +184,8 @@ def multiWait(devices):
 
     Errors raised are handled like in the following way:
     The error is logged, and the first exception with the highest serverity
-    (exception in `CONTIUNE_EXECPTIONS` < `SKIP_EXCPTIONS` < other exceptions)
-    is re-raised the the  end.
+    (exception in `CONTINUE_EXECPTIONS` < `SKIP_EXCPTIONS` < other exceptions)
+    is re-raised at the end.
 
     *baseclass* allows to restrict the devices waited on.
     """
@@ -319,24 +319,24 @@ def statusString(*strs):
 def _multiMethod(baseclass, method, devices):
     """Calls a method on a list of devices.
 
-    The first given exception is re-raised after all method calls have been
-    finished, all other exceptions are logged and not re-raised.
+    Errors raised are handled like in the following way:
+    The error is logged, and the first exception with the highest serverity
+    (exception in `CONTINUE_EXCEPTIONS` < `SKIP_EXCEPTIONS` < other exceptions)
+    is re-raised at the end.
 
     Additional arguments are used when calling the method.
     The same arguments are used for *ALL* calls.
     """
-    first_exc = None
+    final_exc = None
     for dev in devIter(devices, baseclass):
         try:
             # method has to be provided by baseclass!
             getattr(dev, method)()
         except Exception:
-            if not first_exc:
-                first_exc = sys.exc_info()
-            else:
-                dev.log.exception('during %s()', method)
-    if first_exc:
-        reraise(*first_exc)
+            dev.log.exception('during %s()', method)
+            final_exc = filterExceptions(sys.exc_info(), final_exc)
+    if final_exc:
+        reraise(*final_exc)
 
 
 def multiStop(devices):
