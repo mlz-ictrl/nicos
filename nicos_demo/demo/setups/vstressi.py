@@ -288,6 +288,7 @@ devices = dict(
     omgs_osc = device('nicos.devices.generic.Oscillator',
                       description = 'Oscillation of OMGS',
                       moveable = 'omgs',
+                      unit = '',
                      ),
 #   histogram = device('nicos_mlz.frm2.devices.qmesydaqsinks.HistogramFileFormat',
 #                      description = 'Histogram data written via QMesyDAQ',
