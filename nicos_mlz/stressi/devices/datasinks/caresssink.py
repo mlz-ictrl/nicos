@@ -200,7 +200,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
                 self._write_float(self.sink.mapping[v])
             else:  # some values are not convertable into a number: lists, ...
-                self.log.warning('%s = %r', k, v)
+                self.log.debug('%s = %r', k, v)
                 self._write_float(0)
 
     def _write_mm1(self, d):
@@ -416,7 +416,11 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                     mastervalues += 'CHIS '
             mastervalues += '%s TIM1 MON)' % devname
         else:
-            mastervalues = 'MM1(%s)SL1(TTHS ADET MON)' % master
+            mastervalues = 'MM1(%s)SL1(TTHS ADET MON' % master
+            for d in self.dataset.environment:
+                if d.name != 'etime':
+                    mastervalues += ' %s' % d.name.upper()
+            mastervalues += ')'
         self._defdata('MASTER1VALUES(%s)' % mastervalues)
 
     def _write_status(self, valuelist=None):
@@ -451,6 +455,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def begin(self):
         ds = self.dataset
+        self.log.debug('begin: %r', ds.settype)
         scaninfo = ds.info.split('-')[-1].strip()
         if scaninfo.startswith('contscan'):
             self._scan_type = 'SGEN2'
@@ -473,14 +478,14 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for dev, key in metainfo:
             self.log.debug('put meta info: %s.%s = %r',
                            dev, key, metainfo[dev, key][0])
-        self._write_header(metainfo)
         return
 
-    def _write_header(self, metainfo):
+    def _write_header(self, point):
         if self._wrote_header:
             return
+        self.log.debug('_write_header: %r', point.settype)
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(metainfo):
+        for (dev, key), (v, _, _, cat) in iteritems(point.metainfo):
             if dev == 'adet':
                 pass
             if cat:
@@ -504,7 +509,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 for device, key, value in bycategory['presets']:
                     # self.log.info('%s.%s = %r', device, key, value)
                     if device == 'adet' and key == 'preset':
-                        if self.dataset.metainfo[device, 'mode'][1] == 'time':
+                        if point.metainfo[device, 'mode'][1] == 'time':
                             master = 'TIM1'
                         else:
                             master = 'MON'
@@ -517,10 +522,15 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d['ADET'] = 0
         if self._scan_type == 'SGEN2':
             d['CHIS'] = 0
-            for dev in self.dataset.devices:
+            for dev in point.devices:
                 d[dev.name.upper()] = 0
             d['TIM1'] = 0
         d['MON'] = 0
+        if self._scan_type != 'SGEN2':
+            # Add environment devices to the SL1 (slaves)
+            for dev in point.environment:
+                if dev.name != 'etime':
+                    d[dev.name.upper()] = 0
         self._write_sl1(d)
 
         d.clear()
@@ -559,7 +569,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def putValues(self, value):
         if self.dataset.settype == POINT:
             return
-        self.log.info('put values (%s): %r', self.dataset.settype, value)
 
     def addSubset(self, point):
         self.log.debug('add subset: %s', point.settype)
@@ -583,7 +592,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
         self.log.debug('storing results %r', self._detvalues)
 
-        self._write_header(point.metainfo)
+        self._write_header(point)
 
         self._string('SETVALUES')
         self._write_integer(point.number)
@@ -592,7 +601,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         else:
             self._write_float(0.)
         self._string('MASTER1VALUES')
-        for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
+        for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             if info.type == 'time':
                 if self._scan_type == 'SGEN1':
                     self._write_integer((100 * val) / 100)
@@ -604,7 +613,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         except ConfigurationError:
             chis = 0
         self._write_float(tths)
-        for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
+        for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             self.log.debug('%s: %r', info.type, val)
             if info.type == 'counter':
                 addvalues = (tths, )
@@ -635,13 +644,16 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             else:
                 self._write_float(0.0)
             self._write_integer(tim1)
-        for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
+        for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             if info.type == 'monitor':
                 self._write_integer(val)
+        if self._scan_type != 'SGEN2':
+            for (info, val) in zip(point.envvalueinfo, point.envvaluelist):
+                if info.name != 'etime':
+                    self._write_float(val)
         self._detvalues = None
 
     def putResults(self, quality, results):
-        self.log.info('put results (%r): %r', quality, results)
         if quality != FINAL and self.dataset.settype != POINT:
             return
 
