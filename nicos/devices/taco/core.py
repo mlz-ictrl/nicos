@@ -209,7 +209,7 @@ class TacoDevice(HasCommunication):
             return self._config['unit']
         if hasattr(self._dev, 'unit'):
             return self._taco_guard(self._dev.unit)
-        return ''
+        return self.parameters['unit'].default
 
     def doWriteUnit(self, value):
         if hasattr(self._dev, 'setUnit'):
