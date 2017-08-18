@@ -185,8 +185,7 @@ class TimerChannelMixin(DeviceMixinBase):
     def doTime(self, preset):
         if self.ismaster:
             return self.preselection
-        else:
-            return 0
+        return 0
 
     def doSimulate(self, preset):
         if self.ismaster:
