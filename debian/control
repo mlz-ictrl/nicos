@@ -12,9 +12,11 @@ Package: nicos-core
 Architecture: all
 Depends: python (>= 2.7),
  python-setuptools,
+ python-dev,
  python-numpy,
  python-zmq (>= 2.0),
  python-psutil (>= 0.4),
+ python-rsa,
  nicos-pyctl,
  nicos-quickyaml
 Description: NICOS core system
@@ -27,14 +29,20 @@ Description: NICOS services
 Package: nicos-optional
 Architecture: all
 Depends: nicos-core,
- python-scipy,
- taco,
+ gnuplot,
+ taco-client-io,
+ taco-client-motor,
+ taco-client-encoder,
+ taco-client-temperature,
+ taco-client-powersupply,
+ taco-client-detector,
+ python-pytango,
  python-mysql.connector,
  python-serial,
- gnuplot,
+ python-scipy,
+ python-docutils,
  python-lxml,
  python-pyfits,
- python-rsa,
  python-ldap3
 Description: NICOS optional components
 
@@ -46,36 +54,14 @@ Depends: nicos-core,
  python-qwt5-qt4,
  python-qscintilla2,
  python-scipy,
+ python-redmine,
  python-matplotlib
 Description: NICOS gui tools
-
-Package: nicos-monitor
-Architecture: all
-Depends: nicos-core,
- python-setuptools,
- python-qt4,
- python-qwt5-qt4,
- python-matplotlib
-Description: NICOS status monitor(s)
-
-Package: nicos-dev
-Architecture: all
-Depends: nicos-core,
- python-pytest,
- python-pytest-cov,
- python-mock,
- python-coverage,
- rst2pdf,
- texlive-latex-base,
- python-sphinx
-Description: NICOS development tools
 
 Package: nicos
 Architecture: all
 Depends: nicos-core,
  nicos-services,
  nicos-optional,
- nicos-gui,
- nicos-monitor,
- nicos-dev
+ nicos-gui
 Description: Meta package for all NICOS components

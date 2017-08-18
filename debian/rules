@@ -17,9 +17,13 @@ export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
 override_dh_install:
 	dh_install --list-missing
 
+override_dh_auto_install:
+	dh_auto_install --buildsystem=python_distutils -- --prefix=/usr/local/nicos
+
 override_dh_installinit:
 	dh_installinit --onlyscripts
 
+override_dh_usrlocal:
 
 %:
 	dh $@ --with python2 --buildsystem=python_distutils

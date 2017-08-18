@@ -1,8 +1,6080 @@
-nicos-core (2.8.0) UNRELEASED; urgency=medium
+nicos-core (3.0.0) UNRELEASED; urgency=medium
 
+  [ Georg Brandl ]
   * Changes.
+  * remove some remaining old $Revision$ tags
+  * tools: remove unused version tool
 
- -- Georg Brandl <georg.brandl@frm2.tum.de>  Fri, 23 Oct 2015 13:18:04 +0200
+  [ Alexander Lenz ]
+  * mira: flip1/flip2: use entangle.
+  * toftof: switch to new rc control.
+
+  [ Andreas Schulz ]
+  * tools/setupfiletool: Drag and drop for devices
+
+  [ Pascal Neubert ]
+  * devices/vendor/scp: Created the SCP devices.
+
+  [ Jens Krüger ]
+  * TOFTOF: Reformat setup
+  * TOFTOF: Fix some setups based on the new rc setup
+  * TOFTOF: Fix some wrong assignments to the symbolic commands
+  * TOFTOF: Fix poller setup for the chopper memograph
+  * TOFTOF: Change some format strings
+  * Improve setup for the PiBox and put it to the FRM2 setups
+
+  [ Georg Brandl ]
+  * remove use of local namespace
+
+  [ Jens Krüger ]
+  * DEMO: Fix pathes
+
+  [ Jens Krueger ]
+  * PGAA: Add shutter/attenuator setup to poller
+
+  [ Jens Krüger ]
+  * PGAA: Switch to the 'tequila' host
+
+  [ Jens Krueger ]
+  * PGAA: Clean up setup files
+
+  [ Björn Pedersen ]
+  * [BIODIFF] Update selector twistangle
+  * [TRIVIAL] Whitespace fixes
+
+  [ Jens Krüger ]
+  * PGAA: Improve the code for shutter and attenuators
+  * PGAA: Make the attenuator to a special switch
+  * PGAA: Modify the monitor setup
+  * TOOLS: Complain about a nonempty include list in 'startup.py'
+  * PGAA: Change the sample setup
+  * PGAA: Fix monitor setup
+
+  [ Enrico Faulhaber ]
+  * FRM2.ProposalDB: support multi-instrument proposals
+
+  [ Jens Krüger ]
+  * PGAA: Configure a shutter terminal
+  * DEMO: Add a GUI setup for the PiBox
+  * PGAA: Use the instrument specific formats in status monitor
+  * PGAA: Add unit to the sample chamber pressure
+  * Empty 'includes' in 'startup.py'.
+  * PGAA: Change format for the sample chamber pressure
+  * Remove instrument specific formats & units for the NGH crane & reactor
+  * FRM2: New format string for the NGH crane position
+
+  [ Björn Pedersen ]
+  * Remove unused argument
+
+  [ Georg Brandl ]
+  * monitor: allow to disable showing the watchdog warnings
+  * JCNS nicos.conf: add /usr/local/bin to PATH.
+
+  [ Enrico Faulhaber ]
+  * IPC: handle resolvers special
+
+  [ Björn Pedersen ]
+  * Live panel: cache live data
+
+  [ Enrico Faulhaber ]
+  * MIRA: provide default for sth.alias
+
+  [ Christian Felder ]
+  * POLI: Use abslimits from tango server.
+
+  [ Georg Brandl ]
+  * check_setups: improve detection of some errors in device dict
+  * commands: add example of using gauss() return value to docstring
+  * cache client: hold the secondary socket lock during the whole operation
+
+  [ Jens Krüger ]
+  * DEMO: Add some devices for presentations
+
+  [ Enrico Faulhaber ]
+  * tools: tool for autofixing obviously wrong settings
+
+  [ Georg Brandl ]
+  * doIsCompleted: fix docstring
+  * cacheclient: remove _sync attribute
+  * poller: do not trigger callbacks on value deletes
+  * session: wait for cache startup when creating client for the session
+  * core: improve alias handling with a new setup file entry
+  * gui: add automatic alias selections according to alias_config to setup panel
+  * check_setups: support for alias_config
+
+  [ Enrico Faulhaber ]
+  * Powderfit: fix for first monitor not counting
+  * [ALL]: adopt setup files to new alias handling
+
+  [ Georg Brandl ]
+  * gui: minor style fixes
+  * session: handle sysconfig a bit differently
+  * changelog: update for 2.9 so far
+
+  [ Jens Krüger ]
+  * Backports to pyqt 4.7
+
+  [ Georg Brandl ]
+  * DEMO: add now needed alias_B setup
+  * MIRA: remove alias_sth custom setup, add alias_config for om
+  * net demo: use total counts instead of interface specific
+  * DEMO: make cpu/net setups optional
+  * gui devices panel: clear old parameter items to avoid exceptions like
+  * gui device panel: present aliases from alias_config in list to change it
+
+  [ Jens Krüger ]
+  * Use the 'Attach' class for all attached devices.
+  * DEMO: Reintroduce the network interface parameter
+
+  [ Enrico Faulhaber ]
+  * PANDA/PUMA: use alias_config in setup files
+
+  [ Björn Pedersen ]
+  * Document moveDevices return value
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix problem coming from the (new) radial collimator
+  * TOFTOF: change the daemon user
+  * TOFTOF: Change the data path
+  * TOOLS: Fix check_setup crash if syntax error was detected
+  * Mark the old syntax for the 'attached_devices' as deprecated.
+  * Update the copyright information of some modules
+  * GUI: Fix live widget panels
+  * GUI: Fix clicking closing button in a panel closes application
+  * Fix: Setup depending display of tabs in the GUI
+  * PGAA: Panel for measuring over different positions
+  * DEMO: Modify GUI config for setup dependending view
+  * GUI: Fix problems with visibility of tabs
+  * GUI: Switch to signals to show/hide panels
+  * GUI: Move the setups option from tabbed to panel
+  * GUI: Remove the import of the GUI elements from config file
+  * GUI: Simplify the code to generate  the GUI
+
+  [ Enrico Faulhaber ]
+  * PYLINTRC: fix builtins
+  * IMAGING: clean user supplied input before using it
+  * PARAMS: make intrange bell on booleans
+  * SETUPS: allow 'anonymous' stacking of devices
+  * Attach: go from a range-tuple to a list
+
+  [ Jens Krüger ]
+  * PGAA: change user for the nicos services to pgaa
+
+  [ Jens Krueger ]
+  * PGAA: Fix start of detector via I/O signals
+  * PGAA: Fix device type for read back device
+
+  [ Jens Krüger ]
+  * PGAA: complete the doc in respect to PGAA
+  * DOC: Add some information about setup dependend GUI configuration
+  * GUI: Create own widgets for the splitters
+
+  [ Björn Pedersen ]
+  * Use a mixin  for setup dependent stuff
+
+  [ Jens Krüger ]
+  * GUI: automatic registration on setup change event
+  * GUI: fix some PEP8 compatibility issues
+  * TOFTOF: add new email address to the watchdog mailing list
+  * GUI: New style for signals and slots
+  * GUI: Add config parameter 'setups' to the splitters
+
+  [ Björn Pedersen ]
+  * Jenkins release: do not run test twice
+
+  [ Jens Krüger ]
+  * GUI: Save setup also for detached tabs
+
+  [ Björn Pedersen ]
+  * Fix logger setup
+
+  [ Georg Brandl ]
+  * Small style fixes.
+
+  [ Jens Krüger ]
+  * DOC: Improve the doc for the monitor/GUI setup files
+  * TOFTOF: Modify the status monitor on request of instrument responsibles
+  * TOFTOF: Enable HTML status monitor
+
+  [ Alexander Lenz ]
+  * core/image: fileformats optional.
+
+  [ Georg Brandl ]
+  * gui: add prepareNamespace function for GUI setups, use in check_setups
+
+  [ Jens Krüger ]
+  * LIVE: Enable the live view of TOFTOF data
+
+  [ Björn Pedersen ]
+  * [RFC] Update pylintrc
+  * pylint:  enforce naming convs.
+  * Clean up cell.py
+  * Clean up  rescalc
+  * Use correct line extension for pylintrc
+
+  [ Georg Brandl ]
+  * demo guiconfig: put command line as first tab
+  * MIRA: do not display live@ image filenames
+
+  [ Jens Krüger ]
+  * TOOLS: Remove complain message for missing description
+
+  [ Georg Brandl ]
+  * nicos-grep-cache: support cache file format v1
+
+  [ Jens Krüger ]
+  * LIVE: Different implementation of TOFTOF live data display
+  * DOC: Improve the monitor setup description
+
+  [ Georg Brandl ]
+  * ascii sink: add "subdir" parameter like for image sinks
+
+  [ Jens Krüger ]
+  * GUI: LivePanel - status message after printing
+  * GUI/Panels Unscramble the crossed imports
+
+  [ Georg Brandl ]
+  * cmdbuilder: fix custom cmdlets not appearing
+  * experiment: code style fixes
+  * DNS: start monitor-html automatically.
+
+  [ Jens Krüger ]
+  * TOFTOF: Add the test scripts
+
+  [ Björn Pedersen ]
+  * Add basic laue test scripts
+  * [LAUE] Fix goniometer classes
+  * [LAUE] Update Esmeralda files
+
+  [ Georg Brandl ]
+  * DNS: add some test scripts
+
+  [ Jens Krüger ]
+  * GUI: disable panels if could not be imported
+
+  [ Sans1 People ]
+  * SANS-1: integrate WuT box for filter Pressure
+
+  [ Jens Krüger ]
+  * GUI: Use parameter log instead of implicit log
+
+  [ Georg Brandl ]
+  * powderfit: disallow giving scans and peaks arguments
+  * params: allow extended description that is only put into the generated documentation.
+  * gui tools: fix import paths
+  * TOFTOF: remove custom iseg module which is not used anymore
+  * PANDA: work around slow springs in mono focus unit
+  * pylintrc: disable a few more warnings
+  * utils: avoid printing entire nicos namespace in tracebacks
+  * all: ignore pylint warnings (mostly tuple unpacking)
+  * all: pep8 fixes
+  * check_setups: space fix
+  * POLI: add test scripts
+
+  [ Enrico Faulhaber ]
+  * core: default anonymous subdevices to lowlevel
+
+  [ Jens Krüger ]
+  * PGAA: more PEP8 conform code
+  * ANTARES: more PEP8 conform code
+  * DEMO: more PEP conform code
+
+  [ Georg Brandl ]
+  * tests: test the VirtualTasDetector
+  * tests: initial tests for the monitor and monitor-html code
+  * tests: basic test for the console (nicos-aio)
+  * utils: remove session dependency by passing logger
+
+  [ Jens Krüger ]
+  * FRM2: more PEP8 conform code
+  * TOFTOF: more PEP8 conform code
+  * DELAB: more PEP8 conform code
+  * BIODIFF: more PEP8 conform code
+  * DNS: more PEP8 conform code
+  * SKELETON: more PEP8 conform code
+  * JCNS: more PEP8 conform code
+  * MIRA: more PEP8 conform code
+
+  [ Björn Pedersen ]
+  * Create mixin for isCompleted
+
+  [ Jens Krüger ]
+  * POLI: more PEP8 conform code
+  * PUMA: more PEP8 conform code
+
+  [ Georg Brandl ]
+  * gui: fix adding new values to plots with string->int mapping
+
+  [ Jens Krüger ]
+  * SANS1: Add optional setup for the Julabo controller
+  * SANS-1: Take the full qualified TACO host name
+
+  [ Georg Brandl ]
+  * gui history: use dev.mapping to construct integers for string values if present
+
+  [ Enrico Faulhaber ]
+  * check_setups: fix error-message
+
+  [ Georg Brandl ]
+  * gui: show a checkbox for session.errorbehavior in the setup GUI panel
+  * powderfit: increase starting rms
+  * core: warn only once when not isAtTarget
+
+  [ Enrico Faulhaber ]
+  * Slits: also poll AutoDevices
+
+  [ Georg Brandl ]
+  * core: disallow _setROParam on DeviceAlias
+  * powderfit: add some debug output, show final RMS
+  * pylintrc: increase max ancestors
+
+  [ Björn Pedersen ]
+  * [SCAN] errorhandler: make unused argument 'dev' optional
+
+  [ Enrico Faulhaber ]
+  * SETUPS: convert alias_config to a dict
+
+  [ Björn Pedersen ]
+  * scan: do not short-circuit waits
+
+  [ Enrico Faulhaber ]
+  * utils: let multiwait also wait for adevs
+
+  [ Jens Krüger ]
+  * PANDA: more PEP8 conform code
+
+  [ Georg Brandl ]
+  * check_setups: show line numbers on console and in output file
+  * test: test tas setalign command
+
+  [ Jens Krüger ]
+  * TEST: Fix pylint (newest version) complains
+
+  [ Georg Brandl ]
+  * all: some Python 3 compatibility fixes
+  * auth: port LDAPAuthenticator to use ldap3
+  * cli client: extend test
+  * test: fix text client test for py3
+
+  [ Enrico Faulhaber ]
+  * utils: provide a universal timer class
+  * commands: make sleep more verbose
+
+  [ Björn Pedersen ]
+  * Build_nicosstack: Update some  versions
+
+  [ Georg Brandl ]
+  * tests: add test for tomo command
+  * daemon: fix RSA auth in py3
+
+  [ Jens Krüger ]
+  * TOFTOF: Change the HTML status monitor output
+
+  [ Björn Pedersen ]
+  * Python3: use printfunction in test scripts
+
+  [ Georg Brandl ]
+  * Antares: fix dtx limits
+  * scans panel: disable plot actions when no plot is open
+  * acqiris: fix wrong status constant
+  * daemon test: give system time to register queued command
+  * tests: test elog daemon during simple test, test elog commands
+  * gui/cli: accept user:pass@host:port connection strings consistently in both client apps
+  * gui history: make sure old ViewPlots and Views are properly destroyed when deleted or edited
+  * gui: use string setup specs everywhere
+  * tests: test the notifier commands
+  * tests: update the .coveragerc
+
+  [ Nectar People ]
+  * nectar: use nectarccd02.
+
+  [ Georg Brandl ]
+  * tests: fix deleting source file in test
+  * tests: simulation may not finish in time
+  * devIter: flip default for onlydevs arg
+
+  [ Jens Krüger ]
+  * SANS1: reformat setup file
+
+  [ Christian Randau ]
+  * Add new instrument powtex.
+
+  [ Christian Felder ]
+  * grplotting: take history sliding window into account
+
+  [ Georg Brandl ]
+  * daemon: clear session actions after command
+  * utils: add "precise" flag for formatDuration
+  * tests: make daemon log output less verbose
+  * tango: make status mapping a property of the device class
+  * sequencer: mark sequence BUSY before the thread starts
+  * tests: loosen up virtual det test a bit
+  * MIRA: basic setups for psd-diff and psd-sans.
+  * DNS: split jcns_mot and dns_io setups into sample, mono, polarizer setups
+  * DNS: use new 4blades_opposite opmode and use correct coordinate system
+  * powderfit: do not try to fit kis with < 3 peaks, add test
+
+  [ Jens Krüger ]
+  * FIX: Down time tool senders address
+
+  [ Georg Brandl ]
+  * sequence: simplify SeqDev
+  * sequence: rename SequenceItem.wait() to isCompleted()
+
+  [ Christian Randau ]
+  * hzb.udc implementation
+
+  [ Georg Brandl ]
+  * core: move target check to finish() method from isCompleted()
+  * core: always wait on adevs of devices, not only in error case
+  * core: introduce Waitable base class for Moveable and Measurable
+
+  [ Enrico Faulhaber ]
+  * core/all: display remaining time for wait, count, scan, ...
+
+  [ Georg Brandl ]
+  * gui: refactor tool handling
+  * all: fix remaining www.frm2.tum.de URLs
+
+  [ Enrico Faulhaber ]
+  * Virtual2Ddetector: limit live updates to 1/s
+
+  [ Jens Krüger ]
+  * SETUP: Put the developer requirements into a separate file
+
+  [ Enrico Faulhaber ]
+  * CORE: provide _adevs entries as attributes
+  * ALL: use new attached_devices names
+
+  [ Georg Brandl ]
+  * Fix SeqDev usage in biodiff detector.
+
+  [ Enrico Faulhaber ]
+  * all: cleanup after adevs -> properties
+
+  [ Georg Brandl ]
+  * all: fix for waitForStatus missing its "errorstates" argument
+  * tests: refactor starting/killing subprocesses into utility methods
+
+  [ Enrico Faulhaber ]
+  * SANS1-collimotor: adopt doStatus to honor thread
+  * doc: update device API docu for _attached_* attributes
+
+  [ Georg Brandl ]
+  * sequencer: fix "is running" condition
+  * tests: stop processes with terminate() first
+  * tests: fix busy-poll
+
+  [ Jens Krüger ]
+  * GUI (Device panel): Save the expansion state
+
+  [ Georg Brandl ]
+  * gui editor: reserve space for 4-digit line numbers in Qscintilla
+  * params: fix tangodev validator (port is mandatory)
+  * [RFC] gui: show warning label when connected as admin.
+
+  [ Jens Krüger ]
+  * TOFTOF: Add the remaining time calculations
+  * PGAA: Increase sync speed for the PGAA panel
+
+  [ Enrico Faulhaber ]
+  * PANDA: fix wrong mcc2.accel calculation
+
+  [ Jens Krüger ]
+  * PGAA: Increase sync speed for the PGAA panel
+
+  [ Georg Brandl ]
+  * POLI: change confusing message in centerpeaks
+  * all: remove compatibility OrderedDict
+  * axis: implement empty _getWaiters
+  * gui: "win" can be None if history panel is not importable
+  * core: check explicit 2.7 requirement
+  * doc: update the requirements sections of readme and docu
+  * core: add estimateTime that calls doEstimateTime with error handling
+  * gui/utils: remove duplication in fitting routines
+  * remove outdated requirement
+  * mention and check Python 3 requirement
+
+  [ Jens Krüger ]
+  * [TOFTOF] Work around for the buggy TACO server
+
+  [ Georg Brandl ]
+  * axis/motor: doTime overhaul
+  * hzb.udc: style fixes, bring up to scratch with latest core API
+
+  [ Jens Krüger ]
+  * PEP8: Fix some PEP8 issues
+
+  [ Christian Felder ]
+  * Fix: traceback in history panel with only one y-value.
+  * poller and watchdog: Ensure use of correct python interpreter.
+
+  [ Georg Brandl ]
+  * commands: restrict number precision in scan infostrings
+  * DNS file format: use different devices for temperature T1 and T2
+
+  [ Jens Krüger ]
+  * PGAA: Add test scripts
+
+  [ Georg Brandl ]
+  * scans panel: show scan metadata entries in a table
+  * monitor: do not blink "status" color for text entries
+
+  [ Enrico Faulhaber ]
+  * Update CCR20: new image, new PLC, new interface
+
+  [ Jens Krüger ]
+  * GUI: make the admin warning a little bit more visible
+  * Device panel: add tooltip for setups
+
+  [ Georg Brandl ]
+  * commands: close open fds when doing _Restart
+  * ipc: shut down socket properly
+
+  [ Stefan Söllradl ]
+  * NECTAR: Add some test scripts for the tomography
+
+  [ Micheal Schulz ]
+  * ANTARES: Test script for tomography
+
+  [ Christian Felder ]
+  * Scans: Do not clear headers in meta table.
+
+  [ Andreas Wilhelm ]
+  * SANS1: Add some basic machine test commands
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix htf poller entry
+  * Update authors list
+  * TOFTOF: Fix description issue
+  * TOFTOF: Fix formatting issues
+  * GUI: Fix tooltip text
+
+  [ Nectar People ]
+  * nectar: Use antares commands.
+  * nectar: reconfigure experiment.
+
+  [ Jens Krüger ]
+  * GUI Status panel: Add an option to abort script execution
+  * DOC: add option description for ScriptStatusPanel
+
+  [ Alexander Lenz ]
+  * frm2/setups: +newport04 +newport05.
+
+  [ Jens Krüger ]
+  * PEP8: make the code a little bit more PEP8 compliant
+  * PEP8: make the code a little bit more PEP8 compliant
+  * MIRA: add test scripts
+
+  [ Georg Brandl ]
+  * FIX: abort/stop during counting
+
+  [ Jens Krüger ]
+  * History plot: Fixes problems with different computer dates
+
+  [ Georg Brandl ]
+  * gui history: fix initial last_update_time
+
+  [ Christian Felder ]
+  * Unify DNS/Biodiff shutter classes.
+
+  [ Alexander Lenz ]
+  * antares: cryomanip limits.
+
+  [ Jens Krüger ]
+  * LAUE: Setup for the TOF counter measurements
+
+  [ Georg Brandl ]
+  * BIODIFF: fix imports.
+
+  [ Jens Krüger ]
+  * TANGO: Move TofDetector to an image producer device
+
+  [ Georg Brandl ]
+  * commands: introduce "parallel safe" flag to prevent using complex commands with "execute now"
+  * clients: view only mode
+  * cache client: make sure to reopen the secondary socket after reply takes too long
+
+  [ Jens Krüger ]
+  * LAUE: Tofcounter
+
+  [ Georg Brandl ]
+  * PANDA: remove editor functionality
+  * proposaldb: fix typo
+  * gui history: show progress dialog when querying history
+
+  [ Alexander Lenz ]
+  * devices/tango: add windowtimeoutao to __all__.
+
+  [ Sans1 People ]
+  * sans1: current setup changes.
+  * sans1: watchdog reconfigured
+  * sans1: monitor changes.
+  * sans1: use entangle for selector.
+
+  [ Georg Brandl ]
+  * elog: handle None in scan tables
+
+  [ Jens Krüger ]
+  * FIX: commandInput missing in CommandPanel
+
+  [ Georg Brandl ]
+  * cache: move unpickling to ast_eval
+  * gui: fix history_new dialog sizing
+
+  [ Jens Krüger ]
+  * DOC: Fix broken link to the NICOS wiki
+
+  [ Georg Brandl ]
+  * utils: hide variables named "credentials" or "password" from extended tracebacks
+  * ldap auth: several fixes
+
+  [ Tobias Schrader ]
+  * BIODIFF: Add some test scripts
+
+  [ Alexander Lenz ]
+  * [deb] add control files.
+
+  [ Jens Krüger ]
+  * TANGO: make the sources a little bit more PEP8 compliant
+
+  [ Enrico Faulhaber ]
+  * SANS1: fix det1_zmot tripped error status
+  * Sans1: Adjust precision for HV
+
+  [ Jens Krüger ]
+  * DOC: Fix wrong inheritance in description
+  * TOOLS: check_setup description is required
+
+  [ Antares People ]
+  * antares: added He pressure sensor
+
+  [ Georg Brandl ]
+  * MIRA: changes for new MIRA magnet PLC implementation
+
+  [ Enrico Faulhaber ]
+  * MAGNET: provide calibration
+  * CCMHTS: set calibration data
+
+  [ Jens Krüger ]
+  * GENERIC: Magnet improve the doc
+  * DOC: Improve some text passages to the default values
+
+  [ Georg Brandl ]
+  * TANGO: make a few attribute-parameters settable
+  * Minor wording fix of stoplevel in cli client.
+
+  [ Jens Krüger ]
+  * FRM2: Fix description of the crane device
+
+  [ Georg Brandl ]
+  * simulation: make "print" statement output occur in the log messages
+  * gui: fix About dialog
+
+  [ Jens Krüger ]
+  * measurement commands: Fix a typo
+
+  [ Georg Brandl ]
+  * monitor: fix color of "istext" fields according to colorscheme
+  * daemon: make script printing a little prettier
+
+  [ Enrico Faulhaber ]
+  * History Window: add default file extension upon data saves
+
+  [ Georg Brandl ]
+  * devices panel: use strings as device arguments
+
+  [ Björn Pedersen ]
+  * Fix for cache shutdown problems
+
+  [ Sans1 People ]
+  * SANS-1: change wut.py to pressure_filter.py and name change change name of devices from wut to pressure filter change monitor setups according to new names
+
+  [ Georg Brandl ]
+  * simulation: ensure dry run always breaks on errors
+
+  [ L.Fleischhauer-Fuss ]
+  * panel cmdbuilder change name for button run and dry run
+
+  [ Georg Brandl ]
+  * tango: TemperatureController needs HasWindowTimeout.
+  * cache client: ignore errors from locking the master value
+  * check_setups: use nicos own importString function
+  * PANDA: remove pausebutton
+  * daemon handler: pep8 fixes
+  * daemon: move bulk of stop and estop methods to Controller.
+  * watchdog: allow to stop/estop the script on condition
+  * these are MLZ base classes now
+  * Fix daemon estop.
+
+  [ Enrico Faulhaber ]
+  * FRM2/CCR12: adopt setup to recent PLC changes
+
+  [ Christian Felder ]
+  * jcns: Add /usr/local/bin to the begging of PATH.
+
+  [ Enrico Faulhaber ]
+  * CORE/MIXINS: do not call timeoutAction after an error
+
+  [ Georg Brandl ]
+  * devices panel: use srepr()
+
+  [ Oleg Sobolev ]
+  * PUMA: Add test script(s)
+
+  [ Jens Krüger ]
+  * STRESSI: Fix settings
+
+  [ Georg Brandl ]
+  * cache client: handle socket being None in select
+
+  [ Jens Krüger ]
+  * NECTAR: add new commands
+
+  [ Michael Schulz ]
+  * ANTARES: add HTML status monitor setup
+
+  [ Christian Felder ]
+  * fix: Experiment._mail does not honor maxAttachmentSize kwarg.
+
+  [ Jens Krüger ]
+  * STRESSI: Fix some specific setups
+
+  [ Alexander Lenz ]
+  * antares: fastshutter mixin + neo support.
+
+  [ Antares People ]
+  * antares: Fix setup specification in monitors.
+  * antares: rename cpci01 to slow.
+  * antares: monitor-html: adapted exp block.
+
+  [ Alexander Lenz ]
+  * antares: split det setups + neo support.
+
+  [ Antares People ]
+  * devices/vendor: fix optional shutter.
+  * antares: tmp disable sms notify
+
+  [ Jens Krüger ]
+  * ETC: fix problems with psutil >= 3.0
+
+  [ Alexander Lenz ]
+  * devices/tango: performance improvements.
+
+  [ Jens Krüger ]
+  * STRESSI: some setup modifications
+
+  [ Antares People ]
+  * antares: remove fastshutter workaround delay.
+  * core/image: improve performance
+
+  [ Jens Krüger ]
+  * CARESS: add doSetPosition to Motor device
+
+  [ Antares People ]
+  * devices/vendor/lima: fix cooler (cached cooleron).
+
+  [ Jens Krüger ]
+  * SKELETON: Shorten the device names for the required devices
+  * STRESSI: Clean (shorten) the device classes for the devices
+
+  [ Alexander Lenz ]
+  * Add ictrl custom.
+
+  [ Jens Krüger ]
+  * STRESSI: Generate a CARESS specific 4blade slit implementation
+  * STRESSI: Add some new devices
+
+  [ Christian Felder ]
+  * experiment: Raise IOError if template could not be found in getTemplate.
+  * Fix tab ordering in setup experiment panel.
+
+  [ Enrico Faulhaber ]
+  * REFSANS: add setup for refsans_flipper
+
+  [ Georg Brandl ]
+  * DOC: fix a few build errors
+
+  [ Jens Krüger ]
+  * STRESSI: Add monochromator entry slit
+  * CARESS: Fix some counter and timer problems
+  * STRESSI: Add timer and monitor setups
+  * DEMO: Modify the STRESSI setups
+
+  [ Georg Brandl ]
+  * setupcheck: avoid double warning for missing attached device
+
+  [ Christian Felder ]
+  * JCNS: fix parameter type for shutter target
+  * sequencer: fix doStatus (use only readable adevs)
+
+  [ Jens Krüger ]
+  * CARESS: Fix PEP8 issues
+
+  [ Alexander Lenz ]
+  * frm2: htf01 updated.
+
+  [ Nectar People ]
+  * nectar: guiconfig: remove tacocp.
+
+  [ Georg Brandl ]
+  * devices: basic EPICS binding
+
+  [ Jens Krüger ]
+  * POWTEX: Remove the 'nicos.'
+  * PGAA: Remove the 'nicos.'
+  * NGH: Remove the 'nicos.'
+  * MEPHISTO: Remove the 'nicos.'
+  * SE: Remove the 'nicos.'
+  * TOFTOF: Remove the 'nicos.'
+  * STRESSI: Remove the 'nicos.'
+  * PANDA: Remove the 'nicos.'
+  * SPHERES: Remove the 'nicos.'
+  * BIODIFF: Remove the 'nicos.'
+  * KWS1: Remove the 'nicos.'
+  * MIRA: Remove the 'nicos.'
+  * POLI: Remove the 'nicos.'
+  * RESEDA: Remove the 'nicos.'
+  * SPODI: Remove the 'nicos.'
+  * NECTAR: Remove the 'nicos.'
+  * GALAXI: Remove the 'nicos.'
+  * ICTRL: Remove the 'nicos.'
+  * DNS: Remove the 'nicos.'
+  * LAUE: Remove the 'nicos.'
+  * RESI: Remove the 'nicos.'
+  * REFSANS: Remove the 'nicos.'
+  * DELAB: Remove the 'nicos.'
+  * PUMA: Remove the 'nicos.'
+  * ANTARES: Remove the 'nicos.'
+  * SANS1: Remove the 'nicos.'
+  * SKELETON: Remove the 'nicos.'
+  * SPODI: configure some devices from the CARESS setup
+  * DEMO: Remove the 'nicos.'
+
+  [ Georg Brandl ]
+  * poller: import device classes in the main thread
+
+  [ Jens Krüger ]
+  * DOC: Change the must/can implement function
+
+  [ Georg Brandl ]
+  * doc: fix damage from 90db5f0210ff48a02914cd1af3080f17a5dba600
+  * KWS2: basic skeleton instrument
+  * cacheclient: handle socket = None better
+  * monitor: allow omitting the legend for trend plots
+
+  [ Björn Pedersen ]
+  * Update pylintrc for pylint 1.5+
+  * fix special method signature
+  * Suppress misisng arguments errors
+
+  [ Georg Brandl ]
+  * doc: document ImagingExperiment.
+  * KWS2: GE detector monitor
+  * pylintrc: fix regexp.
+
+  [ Jens Krüger ]
+  * REFSANS: Add some devices
+
+  [ Björn Pedersen ]
+  * pylint: Restore old line length limit
+
+  [ Georg Brandl ]
+  * pylintrc: disable some lints
+  * watchdog: fix compatibility code
+
+  [ Christian Felder ]
+  * experiment: Use separate thread for zipping and mailing.
+  * experiment: Remove '_*NewHook' and '_*FinishHook'.
+  * experiment: Move zip upload into separate function _upload.
+  * Setup Experiment Panel: Add option to set data email receivers.
+  * experiment: Use list of receivers.
+  * Add new command SetDataReceivers.
+  * Fix pylint warning about misplaced constant in test_commands.
+
+  [ Sans1 People ]
+  * SANS-1: add live detector image to html monitor
+
+  [ Georg Brandl ]
+  * ANTARES: make Tango device references consistent
+  * ANTARES: use tango.NamedDigital{Input,Output} and save some repetition
+
+  [ Matthias Pomm ]
+  * REFSANS: Add some simple devices
+  * REFSANS: Put the optics related setups into 'optic' setups
+
+  [ Jens Krüger ]
+  * SANS1: remove 'nicos.' from devices
+  * SKELETON: Move all notifiers into a separate config
+
+  [ Christian Felder ]
+  * BIODIFF: Enable zipping and sending data.
+
+  [ Jens Krüger ]
+  * ANTARES: Move notifiers into a separate config file
+
+  [ Christian Felder ]
+  * biodiff: add abslimits for kappa.
+
+  [ Georg Brandl ]
+  * all: fix new pylint warnings
+  * CORE/ALL: new multi channel detector API
+
+  [ Christian Felder ]
+  * biodiff: remove unused import.
+
+  [ Jens Krüger ]
+  * Device panel: set the color of the collapsed entries
+  * SPODI: Move notifiers into a separate config file
+  * STRESSI: Move notifiers into a separate config file
+  * TOFTOF: Move notifiers into a separate config file
+  * POWTEX: move notifiers into a separate setup file
+  * DEL: move notifiers into a separate setup file
+  * RESEDA: move notifiers into a separate setup file
+
+  [ Georg Brandl ]
+  * gui history: fix problem with string values when they come too fast
+
+  [ Jens Krüger ]
+  * NECTAR: Move notifiers into a separate config file
+
+  [ Christian Felder ]
+  * jcns.shutter: Fix shutter constant usage.
+  * lima: Remove return of lastfilename.
+  * biodiff: Fix dynamic attached device property usage.
+
+  [ Matthias Pomm ]
+  * Refsans: flipper: latest changes
+
+  [ Jens Krüger ]
+  * STRESSI: Add the setup for the stressi HTF
+  * Tests: add some more setup depending checks
+  * ICTRL: move notifiers into a separate setup file
+  * STRESSI: Fix 'dataroot' setting
+
+  [ Georg Brandl ]
+  * pylintrc: add "menu" to additional builtins (for gui setups)
+  * GUI: do not try to plot columns with the new value type "filename"
+
+  [ Christian Felder ]
+  * Fix typo in nicos.core.scan
+
+  [ Jens Krüger ]
+  * CARESS: Add the image channel implementation
+  * CUSTOM: Fix some wrong entries in watchdog setups
+  * GUI: simplify the setups
+
+  [ Astrid Schneidewind ]
+  * PANDA: Add tests scripts
+
+  [ Jens Krüger ]
+  * ICTRL: add missing includes
+
+  [ Stefan Huber ]
+  * frm2: migrate ccr boxes
+
+  [ Jens Krüger ]
+  * ICTRL: Add some tests for the CCR test box
+  * ICTRL: add CCR test box devices
+  * GUI: Remove the 'nicos.' from GUI setup files
+  * DEMO: add some additional GUI configuration
+  * MIRA: move notifiers into a separate setup file
+  * ICTRL: Improve test script
+  * GUI: Fix setup depending panels used in windows
+  * GUI: Simplify the code
+
+  [ Georg Brandl ]
+  * sequence: better readable status strings
+
+  [ Refsans People ]
+  * refsans: fix typo (vacuum).
+  * refsans: configure notifiers.
+
+  [ Jens Krüger ]
+  * REFSANS: Fix typo
+
+  [ Georg Brandl ]
+  * switcher: pep8
+
+  [ Alexander Lenz ]
+  * frm2: add htf10 setup.
+
+  [ Björn Pedersen ]
+  * Fix flaky manual scan test
+
+  [ Georg Brandl ]
+  * gui: fix inheritance
+  * core: use original traceback when reraising import error
+
+  [ Alexander Lenz ]
+  * frm2: htf10: plc dev renamed.
+  * frm2: htf10: pumpstate -> ndi.
+
+  [ Jens Krüger ]
+  * ICTRL: Extent CCR test script
+
+  [ Oleg Sobolev ]
+  * PUMA: Changes due to introducing a new motorbus device
+
+  [ Antares People ]
+  * antares: changed setups for new Jülich devs
+
+  [ L.Fleischhauer-Fuss ]
+  * GALAXI[WIP]: bruker X-ray source
+  * GALAXI[WIP]: absorber device and setups
+  * GALAXI[WIP]: changed motor and io setups:
+
+  [ Jens Krüger ]
+  * QMesydaq: Add data sinks to control the data file writing
+  * PEP8: generic axis code
+  * PANDA: move notifiers into a separate setup file
+  * DEMO: More realistic setup for the sample changer
+
+  [ Georg Brandl ]
+  * axis: add back ignore_errors for waitForStatus in doStart
+  * KWS2: update to GEdetector monitor
+  * gui: misc pep8 changes
+
+  [ Jens Krüger ]
+  * SANS1: Move notifiers into a separate config file
+
+  [ Georg Brandl ]
+  * DNS: setup update
+  * DNS: simplify old file format a bit
+
+  [ Jens Krüger ]
+  * TOFTOF: Better phase calculation of the chopper
+
+  [ Georg Brandl ]
+  * gui: fix code duplication
+
+  [ Björn Pedersen ]
+  * Add pyepics to requirements
+
+  [ Jens Krüger ]
+  * TOFTOF: chopper - Inactive chopper is not an error
+
+  [ Antares People ]
+  * antares: commit local state.
+
+  [ Christian Felder ]
+  * DNS: adapt html monitor setup
+
+  [ L.Fleischhauer-Fuss ]
+  * DNS: detector fixes for TOF mode, remove 'test' file format
+
+  [ Jens Krüger ]
+  * INSTRUMENT: take the full (official) name of the MLZ
+  * CUSTOM: Add missing descriptions and/or levels
+  * CUSTOM: add the DOI's
+
+  [ Christian Felder ]
+  * DNS: create basic setup "dns"
+
+  [ Georg Brandl ]
+  * DNS: make Tango device references consistent
+  * KWS1: add some setups and custom classes
+
+  [ Jens Krüger ]
+  * Instrument: Add website and operators parameter added
+
+  [ Georg Brandl ]
+  * detector: fix casting error with newer numpy
+  * devices: fix MultiSwitcher unknown position message
+  * params: add a dictwith() validator
+
+  [ Stefan Rainow ]
+  * tango: implemented the detector channel interface into the tango module.
+
+  [ Georg Brandl ]
+  * zipFiles: ignore some exceptions from adding individual files, remove zip otherwise
+
+  [ L.Fleischhauer-Fuss ]
+  * GALAXI testscripts
+
+  [ Refsans People ]
+  * refsans: configure watchdog.
+
+  [ Jens Krüger ]
+  * TOFTOF: Parameters for the monitor/detector rates
+  * PGAA: Create the specific attenuator
+
+  [ Sans1 People ]
+  * SANS1: Change Selector NG Add selector selection within monitors and correct position
+  * SANS1: add additional collimation segment changed laser within ng_pol to collimation segment and moved laser to col20a
+
+  [ Jens Krüger ]
+  * Change the copyright information
+  * CUSTOM: Remove copyright header from setup files
+  * PEP8: widget.py
+  * DEMO: Add the entries for 'website', 'operators', and 'facility'
+
+  [ Georg Brandl ]
+  * virtual: pep8
+  * client: fix querying of single cache key
+
+  [ Stefan Rainow ]
+  * Cache Inspector: GUI improvements
+
+  [ Sans1 People ]
+  * SANS-1: add selector_ng_enc after encoder change
+  * SANS-1: change collimation table position name
+
+  [ Georg Brandl ]
+  * MIRA: setup update
+  * MIRA: add setup for E21 pressure cell.
+
+  [ L.Fleischhauer-Fuss ]
+  * GALAXI: pindioden devices, with offset
+  * GALAXI: pilatus and mythen detector,related setups and fileformat
+  * GALAXI changed count command
+
+  [ Georg Brandl ]
+  * POLI: setup updates
+
+  [ Jens Krüger ]
+  * PEP8: make the pep8 happier
+
+  [ Christian Felder ]
+  * Image Counter: advance counter in ImageProducer prepareImageFile.
+
+  [ Georg Brandl ]
+  * session: be tolerant when popping from action stack
+  * POLI: add command + cmdlet for lubrication of the liftingctr
+
+  [ Björn Pedersen ]
+  * Add getfqdn to utils
+
+  [ Stefan Rainow ]
+  * Added option to disable valueLabel width
+
+  [ Björn Pedersen ]
+  * Split out parseHostPort
+
+  [ Jens Krüger ]
+  * Change the categories of the 'Instrument' parameters
+  * Add the category 'limits' to the HasLimits parameters
+
+  [ Christian Felder ]
+  * SequencerMixin: Use reraise for re-raising.
+
+  [ Georg Brandl ]
+  * setup panel: fix multiple "reload" buttons appearing
+
+  [ Alexander Lenz ]
+  * core: fix anon attached devs in lists.
+
+  [ Georg Brandl ]
+  * LIMA: add a timer channel (for cameras that are not externally gated)
+
+  [ Jens Krüger ]
+  * Substitute 'Base' in imports
+
+  [ Björn Pedersen ]
+  * Fix whitespace errors
+
+  [ Christian Felder ]
+  * biodiff: Use LimaCCDTimer for ccd camera.
+  * BIODIFF, RScan: Avoid interference between microstepping and attached device.
+
+  [ Björn Pedersen ]
+  * Supress locally-enabled warning
+
+  [ Christian Felder ]
+  * BIODIFF, RScan: Consider all movement errors fatal.
+
+  [ Jens Krüger ]
+  * Configurable size of the virtual image channel
+
+  [ Andreas Schulz ]
+  * SetupFileTool Rewrite.
+  * [SetupFileTool] Tooltips, PushButtons, newlines
+
+  [ Jens Krüger ]
+  * Fix typo
+
+  [ Alexander Lenz ]
+  * devices/tango: avoid problematic double conversion
+
+  [ Björn Pedersen ]
+  * Use new pip syntax
+
+  [ L.Fleischhauer-Fuss ]
+  * GALAXI count with breakpoint
+
+  [ Jens Krüger ]
+  * Increase test coverage for parameters
+  * FIX: typo
+
+  [ Enrico Faulhaber ]
+  * utils/timer: avoid sleeping negative amounts
+
+  [ Jens Krüger ]
+  * Increase test coverage of timer device class
+  * Increase coverage for the generic switcher devices.
+  * Increase test coverage of the generic monochromator
+  * DOC: change the description of the slit classes
+  * Attach: Update the last attached devices without use of Attach
+
+  [ Enrico Faulhaber ]
+  * REFSANS: support Comtec P7888 Fast detector
+
+  [ Jens Krüger ]
+  * Fix copyright year of the documentation
+
+  [ Andreas Wilhelm ]
+  * SANS-1: remove selector_winlt
+
+  [ Jens Krüger ]
+  * FIX: switch to the device.instrument.Instrument
+  * TOFTOF: Set manager rights to the used computer setup
+  * DOC: Fix the error message due to missing device classes
+  * DOC: Add a version number to the doc extension modules
+
+  [ Alexander Lenz ]
+  * reseda: use hw2
+
+  [ Jens Krüger ]
+  * MIRA: deactivate not existing device
+  * DOC: collect all mixin classes at one point
+
+  [ Antares People ]
+  * antares: setup changes due to profinet upgrade.
+
+  [ Jens Krüger ]
+  * Update year in copyright information
+  * DOC: Fix some wrong written setup file examples
+  * DOC: improve the doc of multiplicity of attached devices
+  * DOC: Add Galaxi custom class documentation
+  * DOC: Change the name of the html theme
+
+  [ Alexander Lenz ]
+  * frm2: cci3he2: use new dev names.
+
+  [ Georg Brandl ]
+  * MIRA: fix pylint warnings.
+  * utils: fix pep8
+
+  [ Christian Felder ]
+  * Be more explicit in handling casting issues with newer numpy versions.
+  * ErrorPanel: Fix NoneType is not iterable.
+
+  [ Michael Wedel ]
+  * Basic setup to use with two simulated motors.
+
+  [ Georg Brandl ]
+  * monitor: expire existing keys when disconnected
+
+  [ Jens Krüger ]
+  * DOC: Document all parameters for each class
+
+  [ Georg Brandl ]
+  * session: remove nonexisting devices from detlist/envlist after setup change
+  * gui: allow "no instrument" with check box for the bugreport tool
+  * KWS1: small fixes to existing setups/libs
+  * KWS1: add MultiSwitchers for detector pos and selector
+  * KWS1: add full KWS1 setup
+  * KWS1: fix selector precision and warnlimits
+  * KWS1: split Lenses into high-level and low-level device
+
+  [ Alexander Lenz ]
+  * frm2: move cci3he2 to new img.
+
+  [ Georg Brandl ]
+  * all: some style issues
+  * MIRA: remove unused setup ccmhts01_plc
+
+  [ Alexander Lenz ]
+  * frm2: ccidu setups
+
+  [ Georg Brandl ]
+  * Tango temperature controller: select a default precision
+  * JCNS FPGA: add external-start mode and frequency counter
+  * all: mark more incompatible setups (with duplicate devices)
+  * MIRA: remove nonexisting parameter
+
+  [ Jens Krüger ]
+  * DOC: Remove the 'v2' from the generated documentation
+
+  [ Georg Brandl ]
+  * SPODI: fix qmesydaq setup
+  * all: replace alias setting in startupcode by alias_config
+  * core: fix longstanding bug with status propagation
+  * SANS1: implement tilt etc. in tube display
+  * ANTARES: fix sr850 setup
+  * REFSANS: mark conflicting setups
+  * RESI: make residevice importable for setup-check on Jenkins; fix invalid loglevel
+
+  [ Jens Krüger ]
+  * QMESYDAQ: Unify the interfaces
+
+  [ Georg Brandl ]
+  * RESI: temporarily disable TOF detector
+  * ANTARES: mark more exclusive setups
+  * MIRA: make cascade module importable for setup check
+  * Makefile: add a setupcheck target
+  * MIRA: fix adev name
+  * all: resolve more conflicting device names
+  * all: remove empty startupcode from setups and quote consistently
+  * ANTARES: fix setupcheck errors
+
+  [ Jens Krüger ]
+  * GUI: Fix error in case of not existing devices
+
+  [ Georg Brandl ]
+  * all: standardize to tango_base in setups
+  * all: add missing device descriptions (or lowlevel)
+  * MIRA: remove tabs from setup file
+  * setupcheck: change device override exception for actual cases
+  * DEMO: fix setup excludes
+  * status monitor: add an option to show expired values with "n/a" text
+
+  [ Jens Krüger ]
+  * REFSANS: Introduce instrument specific parameter
+  * TOFTOF: Fix some formatting issues in test suite
+
+  [ Georg Brandl ]
+  * core: add setup kind "configdata" for configuration data-only setups
+  * sample: rename reset() method to clear()
+  * SANS1: style fixes.
+  * KWS1: detector (DAQ) class and setup
+  * KWS1: high-level collimation and polarizer devices
+  * KWS1: add fully virtual setup
+  * KWS1: add dynamic-mapping MultiSwitcher subclass
+  * core: change syntax for configdata() according to consensus
+  * KWS1: move presets to their own config setups
+  * core: allow oneof() default with no values
+  * gui: update setup description tooltips when loading setups
+
+  [ Matthias Pomm ]
+  * Diary monitor setup
+
+  [ Stefan Rainow ]
+  * SPHERES: Added mesydaq detector setup
+
+  [ Georg Brandl ]
+  * KWS1: rename "tofslices" to "tofchannels" to be more consistent
+  * KWS1: override counter time preset in realtime mode
+  * KWS1: more work on the preset switchers
+  * core: in simulation mode, do not try to save images
+  * PANDA: minor spacing fix
+  * KWS1: fix maw() for polarizer with "alter" target
+  * KWS1: take precision into account for chopper preset switcher
+  * KWS1: implement minimal _configure for virtual DAQ
+  * livepng sink: handle zero image in log10 mode
+  * poller: allow to create CacheReaders for dependency devices in other setups
+  * KWS1: add fallbacks to switchers, allow polling them
+  * core: rename should_pause_count to countloop_request
+  * daemon: fix repr() of scripts
+  * commands: nicer representation of detector that fails to pause
+  * init script: less verbosity for "still running" message
+
+  [ Enrico Faulhaber ]
+  * Publish infos about running version
+
+  [ Georg Brandl ]
+  * daemon/core: add "finish measurement early" function
+  * Start point for new data API.
+
+  [ Christian Felder ]
+  * NDAPI: Remove init(sink) method and store sink reference.
+
+  [ Enrico Faulhaber ]
+  * DataApi: provide some extra comments
+
+  [ Sans1 People ]
+  * sans1: adapt julabo setup for tango box.
+  * SANS-1: add temperature measurement to spinflipper
+
+  [ Enrico Faulhaber ]
+  * Provide validator for flag-like options
+
+  [ Georg Brandl ]
+  * Move new data API new* modules to the final names.
+  * Fixups after newcount->count.
+  * More quickfixes.
+  * GUI widget for setof().
+  * More fallout fixes.
+
+  [ Enrico Faulhaber ]
+  * ALL: update (c) year information to 2016
+
+  [ Björn Pedersen ]
+  * SXTAL cell
+  * Single crystal instrument
+  * Add laue class handling
+  * Add basic sxtal scan commands
+
+  [ Christian Felder ]
+  * Fix: count does not call finishPoint on DataManager.
+
+  [ Bjoern Pedersen ]
+  * Revert "SXTAL cell"
+  * Revert "Add laue class handling"
+
+  [ Georg Brandl ]
+  * Change data sink API a bit (add->put), use device names in metainfo
+  * Implement the daemon sink completely.
+
+  [ Bjoern Pedersen ]
+  * Revert "Add basic sxtal scan commands"
+  * Revert "Single crystal instrument"
+
+  [ Alexander Lenz ]
+  * core/data: implement datafile as proxy to file.
+
+  [ Georg Brandl ]
+  * params: use frozenset, support sets in cache serialization notation
+  * Various small fixes.
+  * Move exp._last_datasets to dataman_last_scans
+  * Scan updates:
+  * Work on making some tests pass again.
+
+  [ Alexander Lenz ]
+  * devices/datasinks: fits.
+
+  [ Enrico Faulhaber ]
+  * provide a base class for SingleFileSinkHandler
+  * adopt livepng
+
+  [ Georg Brandl ]
+  * Remove old live view format, fix new.
+  * Port Single-file RAW format.
+  * Remove last traces of save()/doSave().
+  * Fix UID transmitted to client.
+  * Port missing changes to core/scan
+  * Remove use of "sinkinfo" on datasets.
+  * Move the LiveViewSink to "special" and fix its import path in setups.
+  * Fix params of ImageType (aka Array)
+  * Remove unused ImageProducer and ImageInfo
+  * Adapt setups to rename of AsciiSink and ConsoleSink
+  * Rename Array class to ArrayDesc.
+  * Restore __all__ in commands.measure.
+  * Tweak the data sink classes and fix remaining nicos.fileformats references.
+  * Split updateLiveData to updateLiveData and notifyDataFile.
+
+  [ Alexander Lenz ]
+  * devices/datasinks/image: fix renames and minor bugs.
+
+  [ Georg Brandl ]
+  * Fixup test_device.
+  * Fix after add* -> put* rename.
+
+  [ Jens Krüger ]
+  * Add the category presets and use it generic detector
+
+  [ Georg Brandl ]
+  * Fix virtual TAS detector raising when TAS is at "zero" position
+  * fix missing import
+
+  [ Christian Felder ]
+  * Refactor DataSink getHandlers method to createHandlers.
+
+  [ Alexander Lenz ]
+  * [WIP] Fix demo, besans and raw format.
+
+  [ Enrico Faulhaber ]
+  * dataman: provide 'getExternFilenames'
+
+  [ Georg Brandl ]
+  * Split core.data into a package.
+  * add missing files
+
+  [ Björn Pedersen ]
+  * GUI: use uid to index scans
+
+  [ Alexander Lenz ]
+  * Add pycompat file.
+
+  [ Björn Pedersen ]
+  * SXTAL cell
+  * Single crystal instrument
+  * Add laue class handling
+  * Add basic sxtal scan commands
+  * QMesyDaq: Use ArrayDesc
+
+  [ Georg Brandl ]
+  * No need to use start(preset), We already call setPreset.
+  * Fix one more scan test.
+  * manager: filenametemplate always gets a dict
+
+  [ Sans1 People ]
+  * SANS-1: add newport06
+
+  [ Georg Brandl ]
+  * remove unnecessary ImageProducer use
+  * Channel mixins: return self.unit if set different from default
+  * scan: move beginScan to beginScan
+
+  [ Björn Pedersen ]
+  * Make intensity hkl-dependent
+
+  [ Georg Brandl ]
+  * scan: port sweep scan
+  * Scan: port ContinuousScan
+  * Scan: port QScan.
+  * Scan: port manualscan
+  * Remove now obsolete monitor setups.
+  * dataman: fix and add some documentation.
+  * MIRA: Add setup and monitor changes for new guide field coil.
+  * MIRA: setup updates
+  * MIRA: fix and update radmon device
+  * Remove some todo comments, mark others as dataapi
+  * Store preset and full filepaths in dataset, store cont. uids as list
+  * On the way to make test_analyze pass.
+  * Fix appendscan().
+  * Add a trimResult() method to free up memory for cached datasets
+  * Pass quality to readArrays() method.
+  * Fix test_analyze.
+
+  [ Christian Felder ]
+  * Add fileclass attribute to SingleFileSinkHandler.
+
+  [ Georg Brandl ]
+  * Introduce isActiveForArray, remove TwoDImageSink
+  * Fixup MIRA cascade file sinks.
+  * Fix import rename error.
+  * Move SimpleScanDataset to core.datasets and use it for sending to elog.
+  * Fixup new code w.r.t. python3.
+  * all: remove counter parameters from exp
+  * add temporary data point which does not use sinks, and split inner_count() from count()
+  * all: add system datasinks to setups with own datasinks
+  * Port Biodiff TIFF sink, move to core.
+
+  [ Alexander Lenz ]
+  * datasinks/tiff: rename handler.
+
+  [ Georg Brandl ]
+  * Fix final setupcheck warnings.
+  * gui: keep compatibility with old "datapoint" event data format.
+
+  [ Christian Felder ]
+  * panda: update filenametemplate
+  * sans1: update filenametemplate for bersans format.
+  * biodiff: update filenametemplate in ccd setup.
+  * delab: update filenametemplate in qmesydaq setup
+  * puma: update filenametemplate
+
+  [ Georg Brandl ]
+  * Data sink API: rename start() to prepare() and remove finish().
+
+  [ Christian Felder ]
+  * demo: update sans filenametemplates
+  * detector, ImageChannelMixin: Use arraydesc and readArray.
+
+  [ Georg Brandl ]
+  * Data files should be opened in prepare(), not begin().
+  * filenametemplate should not be settable (as in AsciiScanfileSink)
+  * Remove special case for soon extinct ImageSink, and fix module name of DataSink
+  * remove unneeded todo comment
+  * Port QMesyDAQ sinks to new API.
+
+  [ Jens Krüger ]
+  * DOC: Add some documentation to the data sinks
+  * DOC: Move some entries
+
+  [ Georg Brandl ]
+  * Fix various nits in data sinks.
+  * count command: show filenames of written data files
+  * SANS: fix BerSANS format w.r.t. histogram file parameter
+  * DEMO: update SANS demo setup so that the BerSANS file saver does not emit warnings
+  * Only emit something for point subsets in scan sinks.
+  * ArrayDesc: properly coerce dtype, make it non-optional
+  * scan sinks: show filenames of written point files
+  * Remove remaining traces of ImageType class and imagetype attribute.
+  * Update ImageChannel API: readFinalImage -> readArray
+  * Detector: add parameters to determine interval of live data and intermediate saves
+  * Filter out OptimizeWarning that sometimes happens in scipy when fitting.
+  * Remove test_all_tests, it is unnecessary.
+  * Restrict coverage results to nicos/ subpackages (omits pseudomodules imported by six).
+  * Use rednose (if present) for nicer test suite output.
+  * Update six to 1.10.
+  * Fix missing reraise if subprocess start failed in test suite.
+  * RESI tests: make skipping a bit nicer
+  * Reorganize custom tests a little, to improve output of nose. Now it says:
+  * Port DNS file format.
+  * virtual channels: no need to remove the thread
+
+  [ Christian Felder ]
+  * TODO: Port laue fileformats to new data API.
+
+  [ Georg Brandl ]
+  * gui: fix scans panel with new ScanData class
+  * gui: make scans panel metadata table nice again
+  * MIRA: use Tango and new data API for CASCADE
+  * raw sinks: make header format match the previous one.
+
+  [ Jens Krüger ]
+  * DEMO: stressi setup is now a basic setup
+
+  [ Georg Brandl ]
+  * Fix remaining filenametemplates.
+  * Fix test.utils on Windows.
+  * Raise SkipTest in setup function.
+  * Make tests that depend on timing resolution pass on Windows.
+  * Self-destruct all test subprocesses after 120 seconds if they keep running.
+  * Add test for builtin raw datasinks, fix Py3 compatibility.
+  * Test and fixup the BerSANS sink.
+  * Test and fixup TIFF and FITS sinks.
+  * daemon: transfer ScanData, not Datasets
+  * BIODIFF: no need anymore to remove empty files
+  * Actually use and test call order with the TestSink.
+  * Add a test for the data manager and datasets itself.
+  * doc: update after new data API renames/removals
+
+  [ Björn Pedersen ]
+  * Convert nicos-demo to argparse
+
+  [ Georg Brandl ]
+  * DNS: add coding declaration to file with umlaut
+  * BIODIFF: add a timeout to selector speed
+
+  [ Björn Pedersen ]
+  * Add profiling options to nicos-demo
+
+  [ Georg Brandl ]
+  * Make "no set of this type to finish" warnings instead of exceptions
+  * gui: get rid of message boxes "you are not connected" on startup
+  * DEMO: tweak virtual temperature
+
+  [ Björn Pedersen ]
+  * Make tests using generators less verbose
+
+  [ Georg Brandl ]
+  * GUI: move action_start_time from mainwindow to client
+
+  [ Jens Krüger ]
+  * TOOLS: use argparse for the command line parsing
+  * DATA: create a base class for file data sinks
+
+  [ Enrico Faulhaber ]
+  * REFSANS: implement refsans comtec 'copy' sink
+
+  [ Georg Brandl ]
+  * Add docstrings for image sinks.
+  * Implement proposal- and sample-relative counters.
+
+  [ Björn Pedersen ]
+  * Fix test_gen wrapper
+
+  [ Georg Brandl ]
+  * Fill the DataSink and DataSinkHandler docs up a bit more.
+  * experiment: style fixes.
+  * Copyright update (and fix pylint warnings).
+  * setup/password tool: style fixes
+  * gui editor: style fixes
+  * Make data manager an attribute of the session.
+  * Reimplement DevStatistics as environment "devices".
+  * test: disable test until patch 10554 is merged
+  * test_analyze: test for availability of the correct fitting function
+  * data: more docs for filename templates
+  * doc: fix stylesheet and ext_desc formatting
+
+  [ Jens Krüger ]
+  * DOC: Rearrange the order of developer doc
+
+  [ Georg Brandl ]
+  * core: override some params with default values if not in setup
+  * cache: fix data manager callback for values determined by ourselves
+  * data: only create data manager on sessions that need it
+
+  [ Sans1 People ]
+  * SANS1: Fix Monitorwidget for devices with UNKNOWN state
+
+  [ Georg Brandl ]
+  * Make the "readresult" parameter userparam=False.
+  * tango: fix doReadUnit for moveables
+
+  [ Alexander Lenz ]
+  * frm2: add irf10 setup.
+
+  [ Christian Felder ]
+  * newdata: MARIA: Add new instrument 'maria'.
+  * newdata: maria: add slits.
+  * newdata: maria: Add ls455 Gauss meter.
+  * newdata: maria: ls332 setup.
+  * newdata: maria: Add power supply setup.
+  * newdata: Maria detector.
+  * newdata: maria: liveview and numpy text (gz) file saver.
+  * fix: wrong argparse.ArgumentParser parse_args usage.
+
+  [ Georg Brandl ]
+  * fix tango_base usage
+
+  [ Björn Pedersen ]
+  * cache: improve usability of prefix callback
+
+  [ Georg Brandl ]
+  * KWS1: add hexapod setup
+  * KWS1: chopper fixes
+
+  [ Alexander Lenz ]
+  * frm2: ccmhts01 setup.
+  * frm2: ccmhts01: fix field unit.
+
+  [ Georg Brandl ]
+  * tango: stop motor if moving when changing target value
+  * cache protocol: use %r for timestamps
+
+  [ L.Fleischhauer-Fuss ]
+  * KWS1: filesaver for current file format
+
+  [ Georg Brandl ]
+  * KWS1: various small setup and custom class updates
+  * core: properly implement Device.move alias
+  * KWS1: fix simulation mode for detector
+  * KWS1: allow selecting individual positions for "open" collimation slits
+  * gui elog: reload button loads from correct proposal dir if it changed
+  * KWS1: add kws1 specific commands
+  * gui data: use %s format for exporting floats, not %.10f
+  * all: introduce doReadArrays to image channels
+
+  [ Antares People ]
+  * antares: remove jcns_mot test setup.
+
+  [ Alexander Lenz ]
+  * frm2: newport06 -> newport10
+
+  [ Georg Brandl ]
+  * gui: implement custom double validator
+  * KWS1: round off read values from the slit motors to avoid excessive updates
+
+  [ Alexander Lenz ]
+  * frm2: update ccidu2.
+
+  [ Georg Brandl ]
+  * KWS1: fix collimation slit precision.
+  * tests: use validator.setBottom/Top instead of setRange
+
+  [ Antares People ]
+  * antares: switch neo to new det api
+
+  [ Björn Pedersen ]
+  * Add local pypi server to requirements-dev
+
+  [ Jens Krüger ]
+  * DEMO: Reformat the GUI setup file
+
+  [ Georg Brandl ]
+  * ANTARES: fix filesaver setup for newdata
+
+  [ Sans1 People ]
+  * SANS-1: add refpos to selector_ng and selector_tilt
+  * SANS-1: adopt monitor setups to newport10
+  * SANS-1: add True-RMS device
+
+  [ Alexander Lenz ]
+  * frm2: newport 4/5 renamed
+
+  [ puma ]
+  * PUMA: latest setup changes
+
+  [ Jens Krüger ]
+  * PUMA: Refactor the FocusAxis code
+
+  [ Georg Brandl ]
+  * SANS1 widgets: WARN was missing from statusbrush
+
+  [ puma ]
+  * PUMA: latest setup changes
+
+  [ Georg Brandl ]
+  * Qt monitor: use orange background for WARN title labels
+  * DEMO: remove sanspanel from default guiconfig
+  * virtual detector: fix race condition
+
+  [ Sans1 People ]
+  * SANS1: add device and setup for ccmsanssc (sample changer sword).
+
+  [ Jens Krüger ]
+  * SPODI: Clean up 'system' setup file
+  * PUMA: Clean up 'system' setup file
+  * POWTEX: Clean up 'system' setup file
+  * RESEDA: Clean up 'system' setup file
+  * PGAA: Clean up 'system' setup file
+  * REFSANS: Clean up 'system' setup file
+  * NGH: Clean up 'system' setup file
+  * MEPHISTO: Clean up 'system' setup file
+  * SE: Clean up 'system' setup file
+  * POLI: Clean up 'system' setup file
+  * STRESSI: Clean up 'system' setup file
+  * NECTAR: Clean up 'system' setup file
+  * RESI: Clean up 'system' setup file
+  * SPHERES: Clean up 'system' setup file
+  * BIODIFF: Clean up 'system' setup file
+  * DNS: Clean up 'system' setup file
+  * KWS1: Clean up 'system' setup file
+  * KWS2: Clean up 'system' setup file
+  * GALAXI: Clean up 'system' setup file
+
+  [ Georg Brandl ]
+  * SPHERES: fix device names
+
+  [ Jens Krüger ]
+  * LAUE: Clean up 'system' setup file
+  * RESI: put the notifiers into a separate setup file
+
+  [ Christian Felder ]
+  * maria: ls455 change group to optional from lowlevel.
+
+  [ Enrico Faulhaber ]
+  * [FRM2/CCMHTS]: update warnlimits from docu
+
+  [ Michael Wedel ]
+  * Add all EPICS data types
+
+  [ Jens Krüger ]
+  * QMesyDAQ: wrong signature of the read parameter helpers
+  * QMesyDAQ: The image device is a passive channel
+  * QMesyDAQ: Fix call of the setMode in taco_guard call
+  * QMesyDAQ: some pep8 requested changes
+  * Watchdog: handle preconditions correctly
+  * Reordering of some symbol imports
+
+  [ Alexander Lenz ]
+  * frm2: ccmhts01: field readback dev + plc dev rename.
+  * se: add ls1&ls2.
+
+  [ Georg Brandl ]
+  * core: merge sysconfig entries for notifiers and datasinks, instead of replacing
+
+  [ Christian Felder ]
+  * Measurable: Call readArrays first because of side-effects in read.
+  * measure: inner_count, count: temporary as preset arg.
+  * DNS: fixes for detector and fileformat (new data API)
+  * DNS: update setups for sample axes
+  * detector: use self._getWaiters instead of adevs
+
+  [ L.Fleischhauer-Fuss ]
+  * Galaxi count command with preset temporary=True
+
+  [ Georg Brandl ]
+  * MIRA: memograph setup update
+  * ALL: updates after renaming of the CCI inserts
+  * MIRA: update memograph setup
+
+  [ Christian Felder ]
+  * count(): use fmtstr to display count results
+
+  [ L.Fleischhauer-Fuss ]
+  * DNS: new yaml based file format, ported to new data api
+
+  [ Christian Felder ]
+  * DNS: prepare use of the livewidget
+
+  [ Georg Brandl ]
+  * core: give the base Sample object more features
+
+  [ Sans1 People ]
+  * SANS-1: correct TrueRMS measurement, use a valid module name
+  * SANS-1: update collimation setup
+
+  [ Georg Brandl ]
+  * KWS1: sample object and GUI configuration
+  * KWS1: cmdlet implementation for measurement definition
+  * KWS1: calculate chopper presets automatically on demand
+  * KWS1: invert device dependency for selector->detector mapping switch.
+  * SANS-1: adapt to core sample changes
+
+  [ Sans1 People ]
+  * SANS-1: adapt positions of ccmsanssc and include in monitors
+
+  [ Jens Krüger ]
+  * TREFF: Add new instrument
+
+  [ Georg Brandl ]
+  * DNS: fix det.reset failing for the image channel
+  * QMesyDaq: fix Image returning the whole image on read()
+
+  [ Björn Pedersen ]
+  * cache-server: Improve error handling
+
+  [ Sans1 People ]
+  * SANS-1: add TISANE pulse values to monitor setups
+
+  [ Georg Brandl ]
+  * Move ls1.py and ls2.py into place.
+
+  [ Jens Krüger ]
+  * CARESS: reduce the inheritance
+
+  [ Georg Brandl ]
+  * KWS-1: add a status monitor setup
+  * SANS-1: round collimotor result
+
+  [ Refsans People ]
+  * REFSANS: reflect instrument setups.
+
+  [ Enrico Faulhaber ]
+  * REFSANS: support HZG supplied Beckhoff Devices
+  * REFSANS: Fix leftovers from working on lib/beckhoff.py
+
+  [ Refsans People ]
+  * REFSANS: update monitor-mp setup
+  * REFSANS: fix wrong status string
+  * DevicePanel: safeguard against malicius status'
+
+  [ Enrico Faulhaber ]
+  * REFSANS: fix duplicate name warning
+
+  [ Björn Pedersen ]
+  * Adapt to pip 8+
+
+  [ Refsans People ]
+  * REFSANS: provide read support for VSD devices
+
+  [ Jens Krüger ]
+  * TOFTOF: remove old and unused setup
+  * TOFOF: Cleanup the poller setup
+  * TOFTOF: change the units for the cooling water temperatures
+
+  [ Sans1 People ]
+  * SANS-1: change NG position within collimation
+
+  [ Jens Krüger ]
+  * TOFTOF: add the sample cooling water control system
+
+  [ Sans1 People ]
+  * SANS-1: adopt precision and position of ng within collimation
+
+  [ Georg Brandl ]
+  * cache: ignore (and log) lines with nullbytes in store files
+
+  [ Enrico Faulhaber ]
+  * FRM2: updates for new CCMHTS control
+
+  [ Georg Brandl ]
+  * FRM2: make proposal db cycle query failure non-fatal
+  * Improve clean_nul_bytes script
+
+  [ Refsans People ]
+  * REFSANS/VSD: update VSD with additional devices
+
+  [ Jens Krüger ]
+  * FRM2: use only the activated controlers for state and completed
+  * STRESSI: reformat setup file
+
+  [ Georg Brandl ]
+  * KWS1: port Hexapod configuration GUI to a NICOS tool
+  * KWS1: chopper "phase" is actually opening angle
+  * data manager: allow not recording data file in the dataset
+
+  [ Jens Krüger ]
+  * FRM2: read the 'mode' parameter from time to time
+
+  [ Georg Brandl ]
+  * KWS1: setup updates
+  * KWS1: add info categories to some important parameters
+  * KWS1: a nicer selection widget for measurement time
+  * KWS1: put chopper/pol/lenses keys into generated kwscount() only when any is nondefault
+  * DNS: factor out parts of YAML file format into common base class
+  * Add a test for the YAML format.
+
+  [ Jens Krüger ]
+  * STRESSI: Add the MUX (multiplexer) device
+  * CARESS: extend the output in case of an init error
+  * CARESS: Fix configuration issue for the image device
+  * STRESSI: FIX device setups
+
+  [ Georg Brandl ]
+  * KWS1: chopper detoffset is actually dependent on det_z distance
+  * KWS1: add polarizer and sample env to old data format
+  * KWS1: create a YAML data sink
+  * KWS1: add devices to read out instantaneous count rate of monitors
+  * KWS1: disallow forbidden frequency ranges for chopper
+  * KWS1: select samples by name; make sure they are unique
+
+  [ Jens Krüger ]
+  * STRESSI: set the default detector
+  * QMesyDAQ: fix the configuration string handling
+
+  [ Georg Brandl ]
+  * detector: passive channels also need a doRead and valueInfo
+  * core: do not add devices with empty status strings to multiStatus
+  * core: move acquire function and DevStatistics to core module, read environment before data files are written
+  * KWS1: several minor DAQ fixes
+  * KWS1: several minor setup updates
+  * KWS1: refactor table cmdlet a bit
+  * KWS1: implement sample position generator
+  * KWS1: fix polarizer switcher
+
+  [ Sans1 People ]
+  * SANS-1: set ng_pol col position after calibration
+
+  [ Georg Brandl ]
+  * KWS1: a nicer dialog to add devices to the sample position
+  * all: fix copy-pasta
+
+  [ Jens Krüger ]
+  * Data sinks: Introduce constants for the dataset types
+
+  [ Georg Brandl ]
+  * all: fix doPause implementations to return true
+  * generic detector: pause as many channels as possible
+  * gui: fix queue delete command
+
+  [ Jens Krüger ]
+  * TOFTOF: Use new data API to write data
+  * TOFTOF: fix typo
+
+  [ Sans1 People ]
+  * SANS-1: adjust col position whitin ng_pol
+
+  [ Jens Krüger ]
+  * TESTS: Move instrument specific tests
+
+  [ Georg Brandl ]
+  * devices: add pause handling to virtual channels
+  * typedvalue: show buttons (if allowed) for boolean values
+  * KWS1: remove unused selector frequency counter
+  * KWS1: add lenses to old data format
+  * KWS1: do not show standard devices in "additional devices to move" selection
+  * KWS1: add a graphical tube for the status monitor
+
+  [ Jens Krüger ]
+  * STRESSI: add some devices
+
+  [ Georg Brandl ]
+  * KWS1: fix dry-run mode
+  * KWS1: better message for invalid detector presets
+
+  [ Jens Krüger ]
+  * DEMO: Update virtual TOFTOF machine
+  * Monitor: allow multiple indices on data arrays
+
+  [ Georg Brandl ]
+  * pylint: "cmdtool" is another config item
+  * KWS1: add KWSlive and marche to tools menu
+  * JCNS: fixes for external start mode of JCNS counter card
+  * core: add a method for resetting timeout on target change
+
+  [ Jens Krüger ]
+  * TOFTOF: update monitor setups
+
+  [ Enrico Faulhaber ]
+  * SANS1: provide basic support for TISANE
+
+  [ Georg Brandl ]
+  * cli client: fix displaying sim results with ":"
+  * KWS1: setup updates
+  * KWS1: minor fixes to data formats
+  * KWS1: fix missing button handler in measure table GUI
+  * KWS1: fix total time calculation for RT mode
+  * KWS1: add setups for sample environments
+  * KWS1: remove "safety" offset in realtime counting
+  * KWS1: enable timing for selector and chopper
+  * KWS1: rename sam_trans_{1,2} to sam_trans_{x,y}
+  * contscan: use temporary point dataset
+  * KWS1: start watchdog setup
+  * cli client: refactor a bit to please pylint
+  * cli client: avoid error messages when instrument is not set
+  * KWS1: fixes to chopper/daq for simulation mode, some cosmetics
+  * simulation: do not use name params from cache
+  * watchdog: fix warnings during gracetime for conditions with multiple values
+  * gui: add a way to re-sort setups in the devices panel
+  * KWS1: measurement table widget requires daemon connection.
+  * KWS1: add display order for setups in GUI
+  * FRM2: switch to quickyaml dumper for writing data files
+  * experiment: do not copy the template dir README to scripts
+  * KWS1: on experiment change, clear measurement table if open
+  * commands: fix output of SetDataReceivers
+  * gui: do not show editor simulation messages in errors view
+
+  [ Sans1 People ]
+  * SANS1: provide tisane_trigger
+  * SANS-1: change monitor setups
+  * SANS-1: adjust selector tower position
+
+  [ Georg Brandl ]
+  * ignore failures writing release version
+
+  [ Alexander Lenz ]
+  * frm2: ccmhts01 -> ccm2a.
+  * spodi: spodictrl-new -> spodictrl.
+  * spodi: use cache, poller only.
+  * spodi: add nguide setup.
+  * spodi: configure nguide polling.
+
+  [ Michael Wedel ]
+  * Basic setup for V20 at HZB with 2 slit systems
+
+  [ Alexander Lenz ]
+  * spodi: configure raspi monitor.
+  * guisupport/trendplot: fix legend prop handling.
+  * spodi: improve raspi monitor
+  * spodi: nguide: improve fmt
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix reading of the chopper speed value
+  * CARESS: read the motor speeds from the configuration line
+  * DEMO: remove stressi setup
+  * TOFTOF: Fix monitor setups
+
+  [ Georg Brandl ]
+  * nicos-grep-cache: fix argument parsing
+  * simulation: call doUpdateValue if it exists
+  * simulation: call doWrite methods in SIMULATION for non-hw access devices
+  * DNS: adapt detector to upcoming standard interface in Tango server
+  * KWS1: in setting tables, select whole row after moving up/down
+  * KWS1: dont close dialog with table input boxes on enter
+  * KWS1: do not move aperture to (0,0,20,20) on NewExperiment
+  * all: remove sans1.commands
+  * gui: do not display mere channels in "Detectors" panel
+
+  [ Alexander Lenz ]
+  * spodi: minor status monitor tweaks
+  * spodi: move cache data to /data
+
+  [ Jens Krüger ]
+  * STRESSI: modify setup description
+  * STRESSI: Fix cache setup
+
+  [ Sans1 People ]
+  * SANS-1: fix html monitor live detector image
+  * SANS-1: adopt monitor setups
+
+  [ Jens Krüger ]
+  * CARESS: Fix some problems with the new CORBA device
+  * CARESS: Introduce constants for the motor types
+  * CARESS: Fix some problems with read/write of values
+  * STRESSI: Integrate the tensile machine
+  * QMESYDAQ: Improve the CARESS specific implementation
+  * QMESYDAQ: Fix a typo
+  * QMESYDAQ: Fix the '500' problem of the timer
+
+  [ Georg Brandl ]
+  * acquire: change pause logic a little bit
+  * gui: expand the description of "environment" devices
+  * gui: disallow queueing of certain commands from GUI
+  * daemon/clients: do not show timing when dry run errors out
+
+  [ Alexander Lenz ]
+  * frm2: newports: fix device path.
+
+  [ Sans1 People ]
+  * SANS-1: change att positions
+
+  [ Jens Krüger ]
+  * DEMO: move some of the sinks to the special virtual instrument setups
+
+  [ L.Fleischhauer-Fuss ]
+  * GALAXI pilatus and mythen newdata and detector api
+  * GALAXI pindioden without subdir
+
+  [ Georg Brandl ]
+  * KWS1: work on watchdog setup
+  * mixins: not all WindowTimeout devices have a setpoint
+  * KWS1: always move devices on kwscount(); make waiting faster
+  * KWS1: some fixes and updates to kwsfileformat
+  * KWS1: simplify chopper devices (adapt to Tango change)
+  * KWS1: switch DAQ to Tango server
+  * KWS1: add retry to flipper if "on not reached"
+  * KWS1: minor setup changes
+  * KWS1: collimation switcher needs to return "unknown" too
+  * KWS1: add count rate readout for detector
+  * KWS1: minor setup and lib updates
+
+  [ Jens Krüger ]
+  * CARESS: Enable the nameserver in the configuration line
+  * QMESYDAQ: Simplify the CARESS related code
+  * QMESYDAQ: remove unreachable code
+
+  [ Enrico Faulhaber ]
+  * SANS1: set categories for tisane parameters.
+
+  [ Georg Brandl ]
+  * gui: a better Remark edit window
+
+  [ Sans1 People ]
+  * SANS-1: adopt monitor setup
+
+  [ Jens Krüger ]
+  * QMESYDAQ: Improve the TACO interface
+  * SANS1: writing histogram/listmode/001 files with the same number
+  * QMESYDAQ: add some parameters to readout the detector conf
+
+  [ Georg Brandl ]
+  * KWS1: take chopper precisions from subdevices
+  * KWS1: remove "alter" from polarizer states
+  * KWS1: allow retrieving current sample info from daemon
+  * gui: in cmdbuilder panel, show "remove" button for cmdlet to clear the frame
+  * KWS1: fixup envlist when using kwscount
+  * KWS1: small fixes/setup changes
+  * KWS1: timefactor is already taken care of in the GUI
+  * grep-cache: second argument is date only, not datetime
+
+  [ Alexander Lenz ]
+  * devices/experiment: ImagingExp. fix super new call.
+
+  [ Georg Brandl ]
+  * KWS1: small fixes to dialogs
+  * KWS1: select samples in list by arrow keys as well
+  * frm2: fixup instrument name from proposaldb for KWSs
+
+  [ Björn Pedersen ]
+  * LivePngSink: Fix log display
+
+  [ Georg Brandl ]
+  * gui: restore saved detached tab geometry from correct setting
+  * all: clean up some mail senders
+
+  [ Jens Krüger ]
+  * Change the sender email addresses
+
+  [ Georg Brandl ]
+  * gui: ignore cache updates with older timestamp
+  * gui history: synthesize a point at the end of the interval
+  * sequencer: reset "stopped" flag on doReset
+  * daemon: show watchdog warnings in log output too
+  * virtual: "move" virtual motors to target on init
+  * core: retrieve previous history for WindowTimeout device
+  * gui: show a message when history query fails
+  * gui: only allow dragging actual tabs
+
+  [ Björn Pedersen ]
+  * png: Use frombuffer instead of fromarray
+  * DeviceValue proxy object
+
+  [ Georg Brandl ]
+  * Fix name
+  * KWS1: add graphical collimation to status monitor
+
+  [ Alexander Lenz ]
+  * vendor/lima: prepareAcq -> start.
+
+  [ Jens Krüger ]
+  * Update list of authors
+
+  [ Georg Brandl ]
+  * Remove wrongly committed file.
+  * doc: fix markup
+
+  [ Jens Krüger ]
+  * DOC: Remove the 2 from NICOS
+  * TOFTOF: Remove a class from the user doc
+  * STRESSI: add missing doc for instrument specific devices
+
+  [ Björn Pedersen ]
+  * Update 2.9 CHANGES
+
+  [ Jens Krüger ]
+  * DOC: Add some missed/Remove deleted classes
+
+  [ Georg Brandl ]
+  * gui: fix handling of data email addresses
+  * all: fix empty lines at end of file
+  * Fix remaining pylint warnings.
+  * nectar: remove newline at eof
+
+  [ JenkinsCodeReview ]
+  * Prepare for release 2.9.0
+  * Start development on 2.10.0-dev
+
+  [ Sans1 People ]
+  * SANS-1: adopt monitor files
+
+  [ Jens Krüger ]
+  * SANS1: Fix problems in histogram and listmode datasinks
+
+  [ Georg Brandl ]
+  * KWS1: minor lib/setup fixes
+  * gui: another fix for data email handling in setup panel
+  * KWS-1: more small fixes
+
+  [ Jens Krüger ]
+  * CORE: Initialize the 'quality' value in 'acquire'
+  * VIRTUAL: Bring the detector image in the right position.
+  * GUI: Fix wrong parameter type to the format string
+  * Live Widget: add missing initialisation of a variable
+
+  [ Alexander Lenz ]
+  * nectar: fix detector setup for new det api.
+
+  [ Andreas Wilhelm ]
+  * SANS-1: Remove watchdog warnings from monitor 1
+  * SANS-1: add tisane specific information to data file
+  * SANS-1: Update some precision values
+  * SANS-1: Fix sample changer setups
+  * SANS-1: small changes to optics
+  * SANS-1: add filenames (listmode, setup, calibration) to bersans file
+
+  [ Jens Krüger ]
+  * SANS-1: Write the TISANE speficic part in data file if setup loaded
+  * SANS-1: Switch the listmode file explicitly on
+  * TOFTOF: Change device names for detector information
+
+  [ Alexander Lenz ]
+  * sans1: modify tisane default values.
+  * sans1: rename spinflip setup to match hostname.
+
+  [ Sans1 People ]
+  * SANS-1: adopt monitor files
+
+  [ Jens Krüger ]
+  * SANS1: Fix problems in histogram and listmode datasinks
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add tisane specific information to data file
+  * SANS-1: add filenames (listmode, setup, calibration) to bersans file
+  * SANS-1: Fill setup, calibration entry with content
+  * SANS-1: Update some precision values
+  * SANS-1: Fix sample changer setups
+  * SANS-1: small changes to optics
+  * SANS-1: Remove watchdog warnings from monitor 1
+
+  [ Jens Krüger ]
+  * SANS-1: Write the TISANE speficic part in data file if setup loaded
+  * SANS-1: Switch the listmode file explicitly on
+
+  [ Alexander Lenz ]
+  * sans1: fix sink subdirs.
+
+  [ Jens Krüger ]
+  * TOFTOF: Create an instrument specific live view sink
+  * TOFTOF: Change the owner of the detector information
+
+  [ Georg Brandl ]
+  * sans1: fix duplicate keyword
+
+  [ Jens Krüger ]
+  * SANS-1: Fix setup file
+
+  [ Alexander Lenz ]
+  * Revert "SANS-1: Fix setup file"
+
+  [ Christian Felder ]
+  * BIODIFF: Fix RScan in respect to new data API.
+  * BIODIFF, RScan: Fix move without microstepping for wait=True
+
+  [ Jens Krüger ]
+  * TOFTOF: Clear monitor/count rates after counting
+
+  [ Alexander Lenz ]
+  * sans1: fix collimotor ref seq.
+
+  [ Jens Krüger ]
+  * DOC: Complete doc of the contscan
+  * Parameters: The default value of the absolute path should be a path separator
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change monitor 1
+
+  [ Alexander Lenz ]
+  * antares: fix detector setups for new data api.
+
+  [ Georg Brandl ]
+  * sans1: fix intent of parameter configuration
+
+  [ Alexander Lenz ]
+  * commands/imaging: ob/di images => new data api.
+
+  [ Jens Krüger ]
+  * SANS-1: Create a copy sink source for detector config files
+
+  [ Alexander Lenz ]
+  * sans1/collimotor: allow ACK flag during movement.
+  * commands/imaging: tomography with mult. moveables.
+
+  [ Jens Krüger ]
+  * SANS-1: Create a copy sink source for detector config files
+
+  [ Alexander Lenz ]
+  * commands/imaging: improve tomo doc.
+
+  [ Björn Pedersen ]
+  * Set limits in simulation without checks
+
+  [ Christian Felder ]
+  * BIODIFF: rename minikappa axes.
+
+  [ Jens Krüger ]
+  * CARESS: add missing doStop for the active channels
+  * CARESS: Code clean up (PEP8)
+
+  [ Alexander Lenz ]
+  * antares: update status monitors.
+
+  [ Jens Krüger ]
+  * QMesyDAQ: add 'histogram' and 'listmode' to CARESS
+  * STRESSI: Use only the histogram sink
+  * STRESSI: Switch to the FRM2 experiment
+
+  [ Georg Brandl ]
+  * KWS1: allow just saving, not applying, sample config
+  * KWS1: move sam_rot to own setup, other setup updates
+  * gui: activate help window to raise it if already open
+  * commands: fix missing commands in sample.__all__
+  * dataset: do not try to access scan metainfo if there are no points
+  * data: INTERRUPTED images should also be written
+
+  [ Stefan Rainow ]
+  * [SPHERES] Adjusted notifiers to be send from proper host
+
+  [ Georg Brandl ]
+  * dataset: trimming wont work if result is None
+  * data: avoid TypeError in sinks when there is no data from detector
+  * gui: fix last scans not appearing after gui restart
+
+  [ Christian Felder ]
+  * DNS: new coil setup
+  * DNS: add a Tango motor subclass that has an offset
+  * DNS: rename mon0 to mon1 to match with generic.detector presets
+  * core, mixins, HasTimeout: Fix movement times out when altered outside NICOS.
+
+  [ Georg Brandl ]
+  * client: fix crash on displaying stop requests
+  * commands: parameter may not be in dev.parameters for aliases
+  * FPGA: time limit is in milliseconds
+  * gui: add "finish early and stop" action
+  * gr plotting: set marker size explicitly when enabling markers
+
+  [ Alexander Lenz ]
+  * core/scan: always read devs after wait.
+
+  [ Georg Brandl ]
+  * JCNS: fix poli specific cmdlets appearing in guiconfig
+  * KWS1: add useful fmtstrs to devices
+  * all: fixup serviceexp parameter and add a check
+
+  [ Andreas Wilhelm ]
+  * SANS-1: remove sample_table_2 setup from sc1 and sc2 setup
+  * SANS-1: add sc2 to sample setup screen
+
+  [ Michael Wedel ]
+  * V20 WFM chopper stages and control for distance
+
+  [ Georg Brandl ]
+  * gui history: fix edit dialog being squished
+  * gui gr plotting: improve autoscale behavior
+  * all: switch immediate stop to opt-in model
+  * remove accidental file
+
+  [ Christian Felder ]
+  * Remove unused kwarg entries from log handlers
+  * Simulation: Add flag to send finish event only.
+
+  [ Alexander Lenz ]
+  * gui: disable dry run buttons during dry run.
+
+  [ Björn Pedersen ]
+  * Remove coverage combine
+
+  [ Christian Felder ]
+  * BIODIFF: RScan: Do not print target not reached warning.
+  * BIODIFF: MicroStepping: Stop underlying motor.
+
+  [ Björn Pedersen ]
+  * CounterChannel: Allow 'other' as type
+  * Monitor: Enhance font configuration
+
+  [ Christian Felder ]
+  * SizedQueue: Fix for python2.7
+  * SizedQueue: Fix for python2.7
+
+  [ Björn Pedersen ]
+  * det forecast: force floating point calc
+
+  [ Enrico Faulhaber ]
+  * TOFTOF: fix wrong mailsender
+  * TOFTOF: fix wrong mailsender
+
+  [ Björn Pedersen ]
+  * test_tas: ensure good tas start values
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix a typo
+
+  [ Christian Felder ]
+  * SizedQueue: Add assertion for maxsize > 0.
+
+  [ Georg Brandl ]
+  * mira: fix att/stargate movement
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add warnings monitor
+  * sans1: commit local state.
+  * SANS-1: change precision of ccmsanssc_position
+  * SANS-1: change precision at ccmsanssc
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix handling of the ratio 1
+
+  [ Björn Pedersen ]
+  * Remove coverage combine
+
+  [ Georg Brandl ]
+  * demo: fixes for Windows
+
+  [ Jens Krüger ]
+  * FIX: make help gives wrong information
+  * DOC: add V20 specific doc
+  * DOC: Specify the instrument specific devices
+  * DOC: Add link to the ESS for the ESSIIP customer
+  * STRESSI: Fix problems with proposal database
+  * TOFTOF: Fix data saving after stop or break
+  * DOC: Do not add '.' if description ends with '.', '!' and '?'
+  * CORE: Add description for the 'expanded_path' type
+  * DOC: Remove the dates from the release version
+
+  [ Georg Brandl ]
+  * data: clear most redundant data from points when their scan is finished
+  * PUMA: add a default for the sample in template
+  * core: do not touch tuples in config that do not contain anonymous devices
+  * test: fix try-finally sequence to avoid UnboundLocalError
+
+  [ Jens Krüger ]
+  * TOFTOF: Add the legend to the rates trend plot
+
+  [ Georg Brandl ]
+  * installer: add a preliminary PyInstaller setup for nicos-gui
+
+  [ Alexander Lenz ]
+  * devices/tango: fix detector integration.
+
+  [ Georg Brandl ]
+  * Makefile: update phony targets, and make help
+  * poller: avoid traceback in file watcher if a previous setup is removed
+  * docs: document /etc/default/nicos-system
+  * gui plotting: handle unsupported data types as zeros
+  * core: disallow parameters called "value" or "status"
+  * test: initialize session and start cache during custom tests
+  * Makefile: prepare for coverage tests of custom
+  * session/setupcheck: check that device names are valid identifiers
+
+  [ Jens Krüger ]
+  * DOC: add some description to the demo setups
+  * DOC: Move page description to the top
+  * DOC: Change the title for some infrastructure 'instruments'
+  * DOC: Add links to the instrument descriptions
+
+  [ Enrico Faulhaber ]
+  * Sequencer: give hint upon reset
+  * Sequencer: allow stopping devices with stop()
+
+  [ Björn Pedersen ]
+  * Fix path for imaging commands
+
+  [ Michael Wedel ]
+  * Validator for EPICS PV-names
+
+  [ Georg Brandl ]
+  * pep8 housekeeping
+
+  [ Jens Krüger ]
+  * CUSTOM: add the Qt specific settings for custom monitorwidgets
+  * LAUE: Fix description of the HBIN format.
+
+  [ Michael Wedel ]
+  * Make epics test-safe
+
+  [ Jens Krüger ]
+  * CUSTOM: add the Qt specific settings for custom monitorwidgets
+
+  [ Georg Brandl ]
+  * session: fixup double setup loading in simulation
+  * gui: fix "reload from disk" command in editor
+  * essiip: param property "hidden" does not exist
+  * all: fix parameter docstring style
+
+  [ Björn Pedersen ]
+  * Fix faulty device test
+  * RESI: Add setups for a monitor
+
+  [ Jens Krüger ]
+  * DOC: Add missing instrument specific docs
+
+  [ Georg Brandl ]
+  * KWS1: remove unused parameter from testing phase
+  * BIODIFF: set up watchdog to send notification in case NL1/Sixfold shutter close.
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add frequency generator setup for sans measurement
+  * SANS-1: add frequeny generator to monitor for sans setup
+  * SANS-1: small changes to ccmsanssc and filesaver
+
+  [ Jens Krüger ]
+  * TOOLS: fix some pylint errors
+  * gui: Allow listed indices also for the display values
+  * Change the spelling from FRM-II to FRM II / MLZ (official)
+  * Update the copyright line (change year to 2016)
+  * CUSTOM/GUI: add doc for the widget properties
+  * DOC: Change the arrangement of the menus
+  * DOC: fill download section
+  * DOC: Move the common class description to the instrument responsibles guide
+  * DOC: use a high res logo for the latex pdf doc
+
+  [ Georg Brandl ]
+  * DOC: remove unused stuff from sidebar template
+
+  [ Jens Krüger ]
+  * DOC: make difference between 'version' and 'release' variable
+
+  [ Georg Brandl ]
+  * gui scans panel: disable "Reset plot" too when no plot is visible
+
+  [ Jens Krüger ]
+  * DOC: add a hint to follow the svg usage in sphinx
+  * PUMA: use the full qualified host names
+
+  [ Georg Brandl ]
+  * DOC: remove unused helper
+
+  [ Jens Krüger ]
+  * DOC: Move the instrument specific device doc
+
+  [ Georg Brandl ]
+  * tango image channel: initialize array desc in init()
+
+  [ Alexander Lenz ]
+  * datasinks/fits: order keys in header.
+  * datasinks/fits: add unit to header key values.
+
+  [ Georg Brandl ]
+  * DOC: fixup LaTeX document root, move glossary into documentation
+
+  [ Jens Krüger ]
+  * LOGO: Fix a shift
+  * DOC: Complete doc of the generic device classes
+  * DOC: Fix doc string
+  * DOC: Fix some formatting issues
+  * DOC: add the search input and button
+  * DOC: Reorganize the core API doc
+  * DOC: Move the abstract and sequencer doc
+  * DOC: Add a common description for the manual devices
+
+  [ Georg Brandl ]
+  * KWS1: add "manual" preset for chopper
+  * KWS1: fix detector array shape for tof mode
+  * KWS1: fix retrieval of sample configs
+  * KWS1: reset "kwscounting" state in case of abrupt process stop
+  * KWS1: fix inability to measure more than 99 h/min/sec
+  * KWS1: setup updates
+  * DOC: improve manual device doc
+  * KWS1: update detector position mapping on init
+
+  [ Antares People ]
+  * antares: commit local state.
+  * antares: added multitomo setup file
+  * antares: commit local state.
+  * antares: detector_neo: add socket.
+
+  [ Enrico Faulhaber ]
+  * [SANS1] suppress intermittend tripped errors
+
+  [ Jens Krüger ]
+  * DOC: Resort widget list doc
+  * DOC: use 'todo::' directive for a TODO
+  * DOC: Add missing reference to output led
+
+  [ Georg Brandl ]
+  * KWS1: select sample from current or from file for meas cmdlet
+  * FRM2: add setup for JCNS electromagnet (jem)
+
+  [ Björn Pedersen ]
+  * Fix missing ext.todo
+  * Fix doc warning
+  * DOC: Fix nicos.core.params
+  * Improved fix for params doc
+
+  [ Jens Krüger ]
+  * DOC: Fix some formatting issues (source code expected)
+  * DOC: add missed sequencer documentation
+
+  [ Enrico Faulhaber ]
+  * [SANS1] make HV more robust against intermittend failures during wait
+
+  [ Jens Krüger ]
+  * FIX: Wrong measurement time in BERSANS file
+  * DOC: Rename the installation and configuration chapter
+  * DOC: Fix wrong reference
+  * DOC: Remove unused file
+  * DOC: Add SPM doc and remove a todo
+
+  [ Nectar People ]
+  * nectar: fix raspi monitor: last image.
+
+  [ Georg Brandl ]
+  * resources: fix logo confusion
+
+  [ Petr Cermak ]
+  * PANDA: update data loading routine for Matlab
+
+  [ Georg Brandl ]
+  * POLI: port Artemis to 2.9
+
+  [ Petr Cermak ]
+  * PANDA: fix cleanup damage in S7 code
+  * PANDA: setups update
+
+  [ Refsans People ]
+  * refsans: commit local state.
+
+  [ Petr Cermak ]
+  * PANDA: change ana block handling to PLC/Entangle
+  * PANDA monochanger: fix changing code, add empty frame
+  * simulation: load dynamic_loaded setups as well
+
+  [ Georg Brandl ]
+  * device: chatty only chats if value actually changes
+  * POLI: setup updates
+  * tas: introduce a better parameter for configuring preferred scattering side of the crystal
+  * tas mono: only use scattering sense in parameter
+
+  [ Mira People ]
+  * MIRA: setups update, remove unused lib modules
+
+  [ Georg Brandl ]
+  * core: disallow device creation from parallel threads
+  * tas spectro: fix typo
+
+  [ Jens Krüger ]
+  * DOC: remove links to not any longer existing classes
+  * DOC: Switch 'XXX' to  'todo'
+  * DOC: Add a todo to move Notifier class to developer doc
+  * DOC: Modify the service doc
+
+  [ Enrico Faulhaber ]
+  * HasWindowTimeout: honor timeout=None and respect window
+
+  [ Petr Cermak ]
+  * PANDA: add setup for neutron camera
+
+  [ Georg Brandl ]
+  * MIRA: use dedicated camera image class
+
+  [ Jens Krüger ]
+  * TOFTOF: Set the status of the PropertyChanger devices
+
+  [ Georg Brandl ]
+  * ANTARES: fix pylint nits in setups
+
+  [ Jens Krüger ]
+  * DOC: Add missing doc for POLI instrument
+
+  [ Georg Brandl ]
+  * POLI: switch camera to Tango server
+
+  [ Jens Krüger ]
+  * DOC: Fix bug in POLI class doc
+
+  [ Georg Brandl ]
+  * gui: fix qwt-specific calls in plotting
+
+  [ Jens Krüger ]
+  * DOC: RTD version of the new doc style
+  * GUI: Update the TAS monitor widget
+
+  [ Georg Brandl ]
+  * guisupport: add tas widgets to designer
+
+  [ Jens Krüger ]
+  * SPODI: Add instrument specific detector device
+  * STRESSI: Fix the data access rights
+
+  [ Enrico Faulhaber ]
+  * DEMO: clean startup state
+
+  [ Michael Wedel ]
+  * Fix pvname import in custom/essiip/epics_motor
+
+  [ Enrico Faulhaber ]
+  * avoid DivisionByZero in tas initialisation
+
+  [ Alexander Lenz ]
+  * tools/reformat_setup.
+
+  [ Reseda People ]
+  * reseda: commit local state.
+
+  [ Georg Brandl ]
+  * POLI: add slit before sample
+  * cli: support ~/x paths for /edit, /run etc
+  * validators: fix error message
+
+  [ Alexander Lenz ]
+  * sans1: ccmsanssc => multiswitcher.
+  * sans1: use sc gui for ccmsanssc.
+
+  [ Michael Wedel ]
+  * V20: Add high voltage supply
+
+  [ Jens Krüger ]
+  * CARESS: add Driveable class
+  * CARESS: Fix formatting issue
+  * STRESSI: Add the secondary slit setup to the standard setup
+  * STRESSI: Fix changed box device name
+  * STRESSI: Fix offset settings of the PSZ device
+  * STRESSI: Add the TTHM device as manual moveable
+  * STRESSI: Restrict the access to some critical devices
+
+  [ Andreas Wilhelm ]
+  * SANS1: fix bersans file saver
+
+  [ Jens Krüger ]
+  * GUI: change 'Gauß' to 'Gaussian' in menu
+  * STRESSI: Add the mail text template.
+  * SETUP_CHECK: add error if found 'exclude'
+  * DOC: Add documentation of 'excludes' directive in setup files
+  * DEMO: add a virtual STRESS-SPEC setup
+  * STRESSI: Add secondary slit setup
+  * CARESS: Fix some problems with the simulation
+  * STRESSI: Fix typo
+  * TOFTOF: change the database storage path of the cache
+  * RESEDA: Fix typo
+  * RESEDA: Use the guide hall setup
+  * STRESSI: create a setup for the robot measurement
+
+  [ root ]
+  * STRESSI: create setups for the different Eulerian cradles
+  * STRESSI: Modify the monitor setup
+  * STRESSI: Modify the slit setups
+
+  [ Christian Felder ]
+  * Fix: BIODIFF rscan shows None in scan results when using microstep motor.
+
+  [ Georg Brandl ]
+  * KWS1: adapt realtime switch to actual situation
+
+  [ Alexander Lenz ]
+  * devices/lima: implement rotation
+
+  [ Michael Wedel ]
+  * V20: Include 2 DAC-channels of bus coupler
+
+  [ Georg Brandl ]
+  * KWS1: keep current loops when clearing table for RT switch
+
+  [ Jens Krüger ]
+  * DEMO: add virtual source to virtual STRESS-SPEC instrument
+
+  [ Alexander Lenz ]
+  * antares: reenable DiObSink.
+
+  [ Christian Felder ]
+  * maria: Change from virtual timer to counter card setup.
+  * maria: add hexapod setup
+  * maria: Add beamstops setup
+
+  [ Enrico Faulhaber ]
+  * Antares amagnet: update setup to reflect latest changes
+  * Fix trailing whitespace
+
+  [ Alexander Lenz ]
+  * devices/lima/andor2: update to latest lima api.
+
+  [ Jens Krüger ]
+  * STRESSI: Disable writing of the QMesydaq Histogram files
+  * STRESSI: Add command builder to editor
+  * STRESSI: Modify the status monitor to instrument scientists request
+  * STRESSI: Add the reactor power to the basic setups
+
+  [ Michael Hofmann ]
+  * STRESSI: Change the default value for ysd (manual move)
+
+  [ Jens Krüger ]
+  * STRESSI: Change to new data API and add new data sink
+  * STRESSI, MONITOR: split the detector data into separate fields
+
+  [ Alexander Lenz ]
+  * devices/lima/generic: stride safe dummy roi.
+
+  [ Christian Felder ]
+  * maria: Add chopper (axis) setup.
+  * maria: Add collimation setup.
+  * maria: Add shutter setup.
+  * maria: Add polarizer setup.
+  * maria: Add Pyro4 aflipper device.
+  * MARIA: Add compressor output (relay 1) ls332.
+  * MARIA: Add waterjulabo model F12-MA.
+  * MARIA: Invert omega and detarm.
+
+  [ Alexander Lenz ]
+  * devices/lima/generic: add warning for simcam.
+
+  [ Antares People ]
+  * antares: sbl: fix tango dev mapping.
+
+  [ root ]
+  * CARESS: Fix problems with init and deinit of the devices
+
+  [ Jens Krüger ]
+  * STRESSI: Change the configuration for the real CORBA devices
+  * STRESSI: Move the MUX device to the lowlevel devices
+  * STRESSI: Fix mailer setup, add missed mail server
+  * STRESSI: Change email address
+  * STRESSI: set used slit motors to lowlevel devices
+  * STRESSI: Rearrange the monitor setup
+  * Core: clean up the 'contscan' code
+
+  [ Georg Brandl ]
+  * KWS1: adapt mailtext to be less confusing if file is not attached
+  * core: do not call doTime with None values
+  * gui: add commands to history on Enter
+  * gui: add cosine as standard fitting function
+  * gui: allow offset/scale for history expressions
+  * contscan: for HasLimits devices, restrict start/end to userlimits instead of canceling the whole scan
+  * cmdlets: offer a box for continuous scanning for scan/cscan
+
+  [ Christian Felder ]
+  * MARIA: Add t2t (2 theta axis // MasterSlaveMotor).
+  * MARIA: fix invertable motor code.
+  * Fix: BIODIFF rscan shows None in scan results when using microstep motor.
+  * BIODIFF: Astrium: Adjust limits.
+
+  [ Jens Krüger ]
+  * STRESSI: calculate wavelength from devices
+
+  [ Alexander Lenz ]
+  * sans1: add chopper setup.
+
+  [ Andreas Wilhelm ]
+  * SANS1: commit local state
+  * SANS-1: change monitor setups
+  * SANS1: make the chopper setup visible to the users
+
+  [ Alexander Lenz ]
+  * devices/lima/generic: implement flip.
+
+  [ Enrico Faulhaber ]
+  * Antares amagnet: fix switching sequence
+
+  [ Antares People ]
+  * antares: commit local state.
+  * frm2/amagnet: make all devs visible..
+
+  [ JenkinsCodeReview ]
+  * Prepare for release 2.10.0
+  * Start development on 2.10.0-post
+
+  [ Jens Krüger ]
+  * CARESS: Change the level of some debug output
+
+  [ Michael Hofmann ]
+  * STRESSI: Remove the secondary slit
+
+  [ Jens Krüger ]
+  * STRESSI: Add HTML status monitor
+  * STRESSI: add the MUX to the slits setup
+  * STRESSI: Modify the OMGS standard speed
+  * CARESS: Fix the return value check
+
+  [ Christian Felder ]
+  * DNS: setups update
+
+  [ Georg Brandl ]
+  * KWS1: setups update
+
+  [ Christian Felder ]
+  * BIODIFF: RScan: Do not print target not reached warning.
+  * BIODIFF: MicroStepping: Stop underlying motor.
+
+  [ Georg Brandl ]
+  * BIODIFF: set up watchdog to send notification in case NL1/Sixfold shutter close.
+
+  [ Jens Krüger ]
+  * TOFTOF: Add magnetic field and sample temperature to the monitor
+  * TOFTOF: Simplify the writing calls for the parameter settings
+  * TOFTOF: Update chopper and detector properties correctly
+
+  [ Petr Cermak ]
+  * PANDA: switch Lakeshore to Tango
+
+  [ Alexander Lenz ]
+  * devices/lima/generic: fix simulation.
+
+  [ Georg Brandl ]
+  * SXTAL: style fixups
+
+  [ Jens Krüger ]
+  * STRESSI: Increase the poll interval/maxage for MUX devices
+
+  [ Georg Brandl ]
+  * CORE: fixup metainfo for contscan
+  * FRM2: fix camera dimension workaround
+  * Tango Image channel: roi and binning should be settable
+
+  [ Jens Krüger ]
+  * STRESSI: Fix problems with CARESS data sink
+  * COMMANDS: Improve the doc of the contscan
+  * DOC: Add links to the official home and project pages
+
+  [ Georg Brandl ]
+  * core: set master_handler in any case
+
+  [ Jens Krüger ]
+  * Describe the main changes in the 2.10.0 release
+
+  [ Georg Brandl ]
+  * changelog: format consistent with older entries
+
+  [ Jens Krüger ]
+  * SPODI: add instrument specific datasink
+  * SPODI: Revert the orientation change of detector data
+  * TOFTOF: Eliminate the monitor signals from detector data
+  * TOFTOF: FIX live sink
+  * DEMO: Add the 'sizes' parameter in 'sans' image setup
+  * Fix some PEP8 issues (double blank after ':')
+  * STRESSI: Create a differential image for the contscan
+  * STRESSI: Configure the live data settings
+  * SPODI: Set the detector data format to FORTRAN ordering
+  * SPODI: Configure the detector device
+  * STRESSI: Add HV power supply current devices
+
+  [ Björn Pedersen ]
+  * LAUE: use pushversioninfo
+
+  [ Georg Brandl ]
+  * core: bring back fit curve callback
+  * gui: fix colspans for metadata table in scans window
+  * SXTAL: obey k/l limits in HKL list generation
+  * SXTAL: add Laue group "1"
+
+  [ Christian Felder ]
+  * BIODIFF: add watchdog alert for selector malfunction
+
+  [ Björn Pedersen ]
+  * Always put commands in the queue if daemon is idle
+
+  [ Christian Felder ]
+  * core: do not raise in manager.expandNameTemplates if any template expands.
+
+  [ Jens Krüger ]
+  * VIRTUAL: Make the virtual image source more realistic
+
+  [ Georg Brandl ]
+  * BIODIFF: suppress errors in dry run from image plate
+  * tango: do not try to access Tango image device in SIMULATION
+  * POLI: rename twotheta motor to gamma.
+  * SXTAL: minor fixes
+  * SXTAL: allow different Instrument subclasses for different geometries
+  * SXTAL: add Lifting geometry
+
+  [ Christian Felder ]
+  * demo: Fix det1_time(r) device name for bersans filesaver.
+
+  [ Jens Krüger ]
+  * DOC: Fix the change of the TAS widget
+  * DOC: Fix wrong doc of the SPODI setups
+  * GUI: Fix formatting issue
+  * DOC: Change the TAS widget origin (for auto doc)
+  * DOC: Fix FRM2 specific classes doc
+
+  [ Michael Hofmann ]
+  * STRESSI: Change some motor configuration due hardware change
+
+  [ Jens Krüger ]
+  * STRESSI: Add live data sink
+
+  [ Georg Brandl ]
+  * TAS: add a method to adjust mth/mtt offsets to a new k
+
+  [ Jens Krüger ]
+  * DOC: Improve the TAS widget doc
+  * DOC: Improve the formatting of doc to the 'TrendPlot' widget
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change format of frequeny generator devices
+  * SANS-1: change collimation back to 20m
+
+  [ Jens Krüger ]
+  * CARESS: Implement the speed setting on hardware
+  * STRESSI: Set the MUX device to highlevel
+  * TOFTOF: Make the 'ramp' parameter for Iseg modules 'volatile'
+
+  [ Björn Pedersen ]
+  * Fix error handling in epics
+
+  [ Jens Krüger ]
+  * CARESS: Fix problem with the CORBA device type init
+  * STRESSI: Fix the absolute limits of the 'chis', and 'phis
+  * STRESSI: Fix the settings of the 'sst' device
+  * STRESSI: Fix setup of the tensile machine
+
+  [ Björn Pedersen ]
+  * experiment stats:  ensure from_time is set
+
+  [ Georg Brandl ]
+  * SXTAL: work on scan commands
+  * SXTAL: add more cell params/more ways to set cell
+  * cli client: fix race condition when starting debug session
+
+  [ Jens Krüger ]
+  * GUI: Add description for the 'valueFont' property of widget
+  * DOC: Move custom widget doc to the custom classes doc
+  * DOC: Add the GUI widgets
+
+  [ Georg Brandl ]
+  * SXTAL: write ubmatrix (rmat^T) into data files
+
+  [ Jens Krüger ]
+  * POLI: Fix formatting issue in 'centerpeak' doc
+
+  [ Georg Brandl ]
+  * console sink: use dynamic column widths
+
+  [ Jens Krüger ]
+  * DOC: Add a hint to the mailer device doc about notifiers
+
+  [ Georg Brandl ]
+  * mixins: add FP tolerance when checking new limits
+
+  [ Jens Krüger ]
+  * STRESSI: Configure watchdog
+  * TOFTOF: Fix some formatting issues (PEP8)
+
+  [ Georg Brandl ]
+  * devicedoc: "commands" was renamed to "methods"
+
+  [ Christian Felder ]
+  * Fix: VirtualCounter does not count for countrate < 1 / self._base_loop_delay.
+
+  [ Georg Brandl ]
+  * commands: fix notify() error message
+
+  [ Björn Pedersen ]
+  * experiment stats:  ensure from_time is set
+
+  [ Christian Felder ]
+  * SingleFileSinkHandler: Do not write files when no image is available.
+
+  [ Jens Krüger ]
+  * GUI/Client: Sync help and current behavior
+  * DOC: devicedoc adds the user methods to the base devices
+  * Fix PEP8 issues
+
+  [ Georg Brandl ]
+  * notifiers: send SMS in queued mode
+  * core: guard setting device alias while loading setups
+  * core: use different exception for "no such parameter" in setattr
+  * SXTAL: apply sample parameters from NewSample()
+  * POLI: make exceptions inside centerpeak() into warnings
+  * SXTAL: properly reset sample info
+
+  [ Jens Krüger ]
+  * DOC: devicedoc: warn if a usermethod hasn't a doc
+
+  [ Georg Brandl ]
+  * CORE: allow giving fmtstr for parameters
+  * commands: activation() and powderfit() are parallel safe
+
+  [ Björn Pedersen ]
+  * Test: Ensure exp is finished
+
+  [ Georg Brandl ]
+  * sweep scan: do the first #multistep steps in simulation
+  * core: guard against detector result of None
+  * experiment: guard against exceptions from diverse reset() methods
+  * scan: guard another instance of bare-exception reraise
+  * data: remove counter file migration
+  * acquire: putResults can fail too
+
+  [ Alexander Lenz ]
+  * core: fix false reraise.
+  * devices/vendor/lima: ignore readout exc on stop.
+
+  [ Björn Pedersen ]
+  * Migrate tests to quickyaml
+
+  [ Alexander Lenz ]
+  * frm2: di/ob sinks: exc safe end.
+
+  [ Jens Krüger ]
+  * DOC: Allow documentation of the widget properties
+  * CARESS/QMESYDAQ: Simplify the code
+
+  [ Georg Brandl ]
+  * SXTAL: use ubmatrix instead of rmat
+  * POLI: make centerpeak() work properly in dry run
+
+  [ Jens Krüger ]
+  * DOC: Fix: substitute ROOTDIR by PREFIX
+  * DOC: Remove doc to some not existing make targets
+  * TEST: Fix some PEP8 issues
+  * TEST: Complete tests of 'oneof' parameter
+  * TEST: add test for the 'setof' parameter
+  * TEST: add test for the 'ArrayDesc' copy operator
+  * TrendPlot: Fix parameter 'devices' description
+
+  [ Enrico Faulhaber ]
+  * SANS1: provide missing descriptions for monitorwidgets
+
+  [ Björn Pedersen ]
+  * Improve VirtualCounter
+
+  [ Jens Krüger ]
+  * DOC: Add pictures to some widget documentation
+  * CUSTOM: add missing doc for 'usermethod'
+  * TEST: add some tests for the commands on devices
+  * KOMPASS: Create new instrument
+  * KOMPASS: Fix group of the kompassuser
+
+  [ Georg Brandl ]
+  * FRM2: B_ccm2a needs a nonzero precision
+  * daemon: make a few debug messages into info()
+
+  [ Jens Krüger ]
+  * DEVICE: Mark the 'setPar' and 'getPar' interface as deprecated.
+  * TEST: Fix problems with text client test
+
+  [ Björn Pedersen ]
+  * Improve command testing
+
+  [ Jens Krüger ]
+  * FreeSpace: Fix doc of 'path' parameter.
+
+  [ Georg Brandl ]
+  * loggers: fix rollover in case of DST changes
+
+  [ Jens Krüger ]
+  * TEST: Include the 'SerializedSink' into test suite
+
+  [ Björn Pedersen ]
+  * Fix client test
+
+  [ Jens Krüger ]
+  * Update AUTHORS file
+  * Fix some PEP8 issues in client test
+
+  [ Georg Brandl ]
+  * test_sleep_command: more tolerance
+  * test: more trimming for sleep command
+
+  [ Jens Krüger ]
+  * STRESSI: Fix typo
+
+  [ Georg Brandl ]
+  * POLI: set up live panel (for camera)
+  * POLI: add initial single crystal command set for matrix calc and hkl lists
+  * POLI: implement qscans and omega scans
+  * SXTAL/POLI: add orientation refinement procedure
+  * POLI: better format strings for HKLs
+  * POLI: allow starting ScanDataset at row != 1
+  * POLI: setup updates
+
+  [ Jens Krüger ]
+  * PictureDisplay: Init a pixmap in case of 'file not found'
+  * STRESSI: Fix the 'high voltage' mailing list
+
+  [ Georg Brandl ]
+  * all: add docutils dependency to readme and requirements
+
+  [ Christian Felder ]
+  * MARIA: Fix mailaddress.
+  * MARIA: Instrument specific experiment, subdirs for each sample.
+  * MARIA: Add monitors to detector setup.
+  * MARIA: Fix priorities for ls332 saenv.
+  * MARIA: Fix hostname/ip address for aflipper.
+  * MARIA: Fix precision and fmtstr for hexapod axes.
+
+  [ Jens Krüger ]
+  * WATCHDOG: Improve precondition handling
+
+  [ Michael Wedel ]
+  * Provide option for readback of target in EpicsMoveable
+
+  [ Georg Brandl ]
+  * POLI: expand docstrings for commands
+  * POLI: fix AcceptIndexing ubmatrix
+  * session: improve error notification mail
+  * session: always accept leading dot for simple mode
+
+  [ Jens Krüger ]
+  * SANS1: Add the current command to the file header
+
+  [ Christian Felder ]
+  * MARIA: Add sscan command (same as scan but with start, step, end).
+  * MARIA: cmdlet for sscan.
+
+  [ Georg Brandl ]
+  * POLI: reorder columns in PosListShow to be more logical
+  * GALAXI: pep8 fixes
+  * SXTAL: these parameters dont need to be volatile
+  * KWS: det_ext_rt switch is optional
+  * KWS: make a common mixin for detector pos switchers
+  * KWS1: make image channel class name detector independent
+  * all: fix diverse doPoll methods
+  * test: one more try to fix sporadic failures in test_daemon
+
+  [ Andreas Wilhelm ]
+  * SANS-1: reverse sc2 positions
+
+  [ Christian Felder ]
+  * core: Introduce a live preset and live() command for threaded counting.
+  * core: Rename `waitForStatus` to `waitForCompletion`.
+
+  [ Georg Brandl ]
+  * TANGO: poll voltage/current for power supplies
+
+  [ Jens Krüger ]
+  * DOC: Move widgets and tools doc to the source files
+
+  [ Georg Brandl ]
+  * tas.ecradle: add docstring for usermethod
+  * tas.ecradle: PEP 8 issues
+  * doc: remove duplicate entry for TrendPlot, move all widgets to gui/widgets.rst
+
+  [ Christian Felder ]
+  * MARIA: Add yaml filesaver.
+  * MARIA: add instrument setup.
+  * MARIA: Add second nametemplate for count commands.
+  * Fix/Restore: MARIA sscan cmdlet ui file.
+
+  [ Jens Krüger ]
+  * History: Allow the input of values with more the one index
+  * FRM2: Fix device names of the HTF0X boxes
+  * Stop in 'contscan' after each temporary point
+  * HISTORY: Fix TypeError due to overriding data
+
+  [ Georg Brandl ]
+  * cli client: fix aborts due to incomplete utf-8 on command line
+  * cli client: fix aborts due to incomplete utf-8 on command line
+  * core: allow executing commands when experiment device fails
+  * POLI: fix wrong order of assignments, fix discrepancy with docstrings
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add legend to every trendplot
+
+  [ Georg Brandl ]
+  * extractKeyAndIndex: support exponential notation in offset and scale
+  * POLI: a few docstring enhancements
+  * core: put numpy module into NICOS namespace
+
+  [ Christian Felder ]
+  * Use safe filename representation for samplename.
+  * Add rectangular region of interest.
+  * watchdog: Add additional debug log output.
+
+  [ Björn Pedersen ]
+  * Cleanup: logging not lazy
+  * Remove double logging suppression
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix the parsed detector information collection
+  * TOFTOF: Move the rate logging to the detector device
+
+  [ Georg Brandl ]
+  * powderfit: fix use of dataset meta info (new data API)
+  * tests: more tolerance for sleep() test
+  * all: more non-lazy logging
+
+  [ Björn Pedersen ]
+  * Install docs improvement
+
+  [ Georg Brandl ]
+  * MIRA: remove obsolete setup and commands for it
+
+  [ Björn Pedersen ]
+  * Exclude sphinx1.5
+
+  [ Georg Brandl ]
+  * all: replace printXXX() commands by session.log
+
+  [ Enrico Faulhaber ]
+  * FRM2: use speaking names for pressures of ccidu{1,2}
+
+  [ Georg Brandl ]
+  * commands: add a hint to powderfit when ki arg may be off
+
+  [ AdrianPotter ]
+  * %r is not a valid Python time format code
+
+  [ Georg Brandl ]
+  * tas: go back to center in all cases for checkalign()
+  * tas: change default accuracy for checkalign()
+  * doc: move duplicate requirements to common INSTALL file
+  * tas: when fixing k,E,lambda special devices, fix mono device as well
+  * gui scans: implement "normalize to maximum of curve"
+  * SXTAL: fix range for arccos() in vecangle() for parallel vectors
+
+  [ Jens Krüger ]
+  * KOMPASS: Bind daemon to all network interfaces
+  * KOMPASS: Add the 'mth' (aka 'A1')
+  * KOMPASS: Bind the cache service to all networks
+
+  [ Björn Pedersen ]
+  * Fix qmesydaq_caress interface
+  * Revert "Fix qmesydaq_caress interface"
+  * Fix qmesydaq_caress interface
+  * Fix qmesydaq_caress interface
+
+  [ Andreas Wilhelm ]
+  * SANS-1: remove R. Gilles as admin
+
+  [ Georg Brandl ]
+  * bin scripts: add copyright header
+
+  [ Christian Felder ]
+  * BIODIFF: Add missing include to ls332 setup.
+
+  [ Georg Brandl ]
+  * history: store open views when closing, allow reopen
+
+  [ Andreas Wilhelm ]
+  * SANS-1: corrected setup name
+
+  [ Jens Krüger ]
+  * Caress/QMesyDAQ: Fix wrong error messages
+  * STRESSI: Add the robot setup
+
+  [ Michael Hofmann ]
+  * STRESSI: Modify speed of chi and phi axes
+  * STRESSI: Change the limits to get easier polfigure setups
+
+  [ Michael Wedel ]
+  * V20: Always import epics devices into the daemon
+  * V20: Add Agilent function generator via EPICS
+  * V20: Add setup for linear tables
+  * V20: Add support for UDP-triggered detector
+  * Update motion control setup for ESSIIP lab
+
+  [ Jens Krüger ]
+  * SPODI: Configure the experiment correctly
+  * SPODI: add daemon, watchdog, and elog service
+  * SPODI: increase plot window for the diag monitor to 7 days
+  * SPODI: Add specific data sink to store results
+
+  [ Michael Wedel ]
+  * Improve support of None timeout in HasWindowTimeout
+
+  [ Enrico Faulhaber ]
+  * Poller: fix double class import by early device creation
+  * CORE/Session: fix misleading debug messages
+
+  [ Jens Krüger ]
+  * SPODI: Fix computer name for the omniNames service
+  * SPODI: QMesyDAQ devices are not 'absdev' type devices
+  * SPODI: configure mailserver in mail notifier
+  * SPODI: Split the sample table setup
+  * SPODI: change file name template for the 'count' data
+  * SPODI: configure mail sender
+  * SPODI: Configure sample changer as switcher
+  * SPODI: Setting up the proposal database usage
+  * SPODI: Enable (explicitly) the electronic logbook for the exp device
+
+  [ Jens Krueger ]
+  * SPODI: Add the neutron guide setup as standard setup
+
+  [ Jens Krüger ]
+  * SPODI: Set the file and directory rights
+  * SPODI: Fix some issues with the sequenced detector
+  * CUSTOM: change the FRM II mailserver name
+  * GALAXI: Add doi
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add temperatur sample changer to monitors
+  * SANS-1: changed condition limits and added HV condition
+  * SANS-1: add temperature sample change
+
+  [ Georg Brandl ]
+  * custom: update for quickyaml v1.1.0
+
+  [ Jens Krüger ]
+  * Update copyright info
+  * Change 'FRM II' to 'MLZ' in copyright
+
+  [ Georg Brandl ]
+  * daemon: add "eventunmask" command
+  * gui: use new eventunmask to avoid sending live data if unneeded
+
+  [ Alexander Lenz ]
+  * [deb] Add git build dep.
+
+  [ Georg Brandl ]
+  * devices: fix dry run mode for epics
+  * KWS2: update GE detector warnlimits
+  * KWS2: add kws specific stuff to guiconfig
+  * KWS1: read image dimensions from detector
+  * KWS1: check for det image subclass only in master mode
+  * KWS1: one more occurrence of realtime switch
+  * KWS1: move configuration to its own method, call detector Prepare from Prepare
+  * KWS1: sort combo box items for other meas. elements than detector
+  * KWS1: round aperture values for datafile instead of truncating
+  * KWS1: add detector RT switch to blacklist for devices dialog
+  * KWS1: setup updates
+  * KWS1: allow offset for selector lambda calculation
+  * IPC: encoder read return has 15 digits
+  * cache: sysinfo must be stored as a string
+  * experiment: properly guard against instrument being unconfigured *or* failed
+  * device panel: proper fallback of setup info
+  * session: use the correct test for an existing experiment device
+
+  [ Jens Krüger ]
+  * STRESSI: Remove some devices from polling
+
+  [ Georg Brandl ]
+  * core: handle initial and new setup more consistently
+  * session: more debug output in setup loading
+
+  [ Jens Krüger ]
+  * POLLER: Avoid TypeError messages in the log file
+  * POLLER: Improve readability of code
+
+  [ Georg Brandl ]
+  * watchdog: handle syntax errors in conditions better
+  * KWS1: adapt detector and fileformat to correct image dimension order
+  * KWS2: initial instrument setup
+  * KWS2: add instrument specific classes and setups
+  * KWS2: some specific GUI adjustments
+  * KWS2: add features to monitor widgets
+  * KWS2: add KWS2 polarizer
+  * KWS2: add high level switch for GE det. power
+
+  [ Jens Krüger ]
+  * POLLER: add check for not 'pollable' devices after creation
+  * Update copyright information (2016 -> 2017)
+
+  [ Alexander Lenz ]
+  * sans1: add wmirfgen.
+
+  [ Georg Brandl ]
+  * bin: remove nicos-tacologger
+  * session: instead of raising a generic "failed already" error, reraise the original error during multi create
+  * device: resolve self.parameters entries from aliases when necessary
+  * clients: give ask() a default keyword and use it in eval()
+  * clients: one more place to return the default in ask()
+  * all: reduce() is not a builtin in Python 3
+
+  [ Jens Krüger ]
+  * PLOT: check for fitter object
+  * SPODI: Fix setup of the tensile/torsion machine
+  * SPODI: Change the E field setup
+  * SPODI: Don't write histogram and listmode files
+
+  [ Georg Brandl ]
+  * setup panel: allow changing exp title during service proposal
+
+  [ Jens Krüger ]
+  * STRESSI: Create some lowlevel devices
+  * SPODI: Fix simulation mode error in detector
+
+  [ Alexander Lenz ]
+  * sans1: wmirfgen: add lockin.
+
+  [ Georg Brandl ]
+  * Revert "Poller: fix double class import by early device creation" (9d26fe04b0e876efc782953a406d272cc42f0c63)
+
+  [ Jens Krüger ]
+  * CARESS: Change the initialization
+  * STRESSI: Change monochromator/wavelength implementation
+  * STRESSI: remove unused setup
+  * STRESSI: Use alias for some common devices
+  * STRESSI: Add user commands for the robot
+  * SPODI: Use the read method instead of doRead in detector
+
+  [ Christian Felder ]
+  * TREFF: Bind daemon to network interfaces.
+
+  [ Georg Brandl ]
+  * KWS: add monitor widget for sample slit
+
+  [ Björn Pedersen ]
+  * Add jenkins pipeline script
+
+  [ Jens Krüger ]
+  * SPODI: Change name of the point data file
+  * SPODI: add sample slit
+
+  [ Weimin Gan ]
+  * STRESSI: open the movement of the roba axis
+
+  [ Jens Krüger ]
+  * STRESSI: Add some CARESS parameters to robot setup
+  * SPODI: write the point counter into the data file
+  * DEMO: change the data file name for vspodi
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add ccmsanssc switch to monitors
+  * SANS-1: add plots to html monitor
+  * SANS-1: adjust att_m open position
+  * SANS-1: add slit setup
+  * SANS-1: add slit to monitors
+  * SANS-1: Remove Spinflipper temperature device
+
+  [ Georg Brandl ]
+  * POLI: adapt livewidget settings
+
+  [ Andreas Wilhelm ]
+  * SANS-1: adjust monitor html
+
+  [ Antares People ]
+  * antares: mezeiflip: lambda via entangle.
+  * antares: monitor updated: raspi02.
+  * antares: mono: adapt precisions.
+  * antares: cyomanip: adapt limits.
+
+  [ Alexander Lenz ]
+  * antares: clean setup format.
+
+  [ Jens Krüger ]
+  * STRESSI: Fix simulation problem with Transformed Read/Moveables
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add ccm2a to monitors
+
+  [ Jens Krüger ]
+  * STRESSI: Fix typo in wavelength device
+  * CARESS: Add debugging output for raw value during read
+  * STRESSI: add debugging output for raw value in mixin read
+  * STRESSI: Fix simulation problem of the wavelength device
+
+  [ Antares People ]
+  * antares: nGI_stepping: close fastshutter.
+
+  [ Georg Brandl ]
+  * commands: fix get() when called with string device
+  * POLI: setup updates
+  * FRM2: add sample changer to jem1
+  * KWS: offer reading current position in sample holder generator
+  * KWS2: update setups
+  * KWS2: polarizer must be hardware_access = True
+  * KWS: automatically select detector to measure
+  * KWS2: add override cmdlet for Measurement
+  * KWS2: add kws2 specifics to data formats, consider distance of small detector
+
+  [ Jens Krüger ]
+  * Add sigmoid fit function
+
+  [ Georg Brandl ]
+  * device: avoid infinite loop over possible alias targets
+  * core: make aliases have their own lowlevel state
+
+  [ Jens Krüger ]
+  * Commands: Add the 'sigmoid' command
+  * Fix copyright year
+  * STRESSI: Fix some pep8 issues
+  * SPODI: add monitor rate calculation
+  * SPODI: Add some experimental data to the data file
+  * DEMO: set 'aliased' device to lowlevel
+  * STRESSI: Fix some formatting issues
+
+  [ Alexander Lenz ]
+  * devices/tango: OnOffSwitch.
+
+  [ Björn Pedersen ]
+  * Jenkins: Fix missing parameters to redmine updater
+
+  [ Jens Krüger ]
+  * STRESSI: Set the as aliases used devices to lowlevel
+  * CARESS: Introduce a MuxMotor device
+  * SPODI: Fix typo in notifiers
+  * SPODI: add a 'manual' wavelength device
+  * STRESSI: Add the UBahn information device
+  * STRESSI: Change format of the sample tool device
+  * STRESSI: Adopt the device names and positions
+  * STRESSI: Change font size in HTML monitor
+  * STRESSI: Change names to the aliases in monitor setups
+  * STRESSI: Implement a specific robot axis
+  * SPODI: Fix rates calculations, add monitor number check
+  * DEMO: Make the virtual SPODI detector similar to real detector
+
+  [ Georg Brandl ]
+  * session: always create lowlevel devices too
+  * KWS: use different class for standin moveables in virtual setups
+  * KWS1: virtual setup update
+
+  [ Jens Krüger ]
+  * REFSANS: Add a watchdog condition to check neutron guide shutters
+  * STRESSI: Add YAML format data sink
+  * TOFTOF: Add a watchdog condition to check neutron guide shutters
+  * MIRA: Add a watchdog condition to check neutron guide shutters
+  * RESEDA: Add a watchdog condition to check neutron guide shutters
+
+  [ Georg Brandl ]
+  * gui: add cmdlet for timescan
+  * KWS: Standin needs HasPrecision
+
+  [ Björn Pedersen ]
+  * Fix Live image caching
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix mail notifier setup (add mailserver entry)
+
+  [ Alexander Lenz ]
+  * devices/vendor/lima/andor2: support undocumented vsspeed.
+
+  [ Nectar People ]
+  * nectar: adapt vsspeed.
+  * nectar: adapt vsspeed.
+  * nectar: fix detector startup code.
+
+  [ Christian Felder ]
+  * TREFF: Add custom goettinger card implementation for juelich profibus variant.
+  * TREFF: Slit setups
+
+  [ Andreas Wilhelm ]
+  * SANS-1: adjust monitor files
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix init problems with the SIS3400 TACO server
+
+  [ Christian Felder ]
+  * GR: bump v0.23.0
+
+  [ Mira People ]
+  * MIRA: minor update
+
+  [ Georg Brandl ]
+  * KWS2: add monitor setup for Raspi monitor
+
+  [ Mira People ]
+  * MIRA: new setup for high temperature sample stick
+
+  [ Christian Felder ]
+  * Move detector ROI implementation into generic detector.
+
+  [ Georg Brandl ]
+  * core: include window in doTime for WindowTimeouts
+
+  [ Jens Krüger ]
+  * ANTARES: add STRESSI tensile machine setup
+  * TOFTOF: display the current file number in GUI status line
+
+  [ Georg Brandl ]
+  * core: for info(), i.e. dataset metainfo, use params from cache
+
+  [ Jens Krüger ]
+  * Make the doi visible to the users (to cite in the publications)
+
+  [ Georg Brandl ]
+  * KWS: add a special class for Julabo temp. control to observe experimentally determined ramp in timing
+  * KWS: optional transpose of image data
+  * core: lowlevel devices should not be "explicit" when autocreated
+  * KWS: make the sample holder info configurable
+  * KWS: fixed order of polarizer settings
+  * KWS: allow selecting samples multiple times
+
+  [ Jens Krüger ]
+  * SPODI: Remove unused variables from setups
+  * SPODI: Remove CARESS related information
+  * SPODI: move data sinks to system setup
+  * SPODI: use the full qualified host names
+  * STRESSI: use full qualified hostnames
+  * STRESSI: Remove unused variables from setup files
+  * STRESSI: Move all caress offset/limits info to stressi setup
+  * STRESSI: Sync format string for the primary slits
+
+  [ Georg Brandl ]
+  * core: _getFromCache func can be called without arg
+  * remove unused changes file
+
+  [ Jens Krüger ]
+  * CHANGELOG: add most important changes for 2.11 release
+
+  [ Georg Brandl ]
+  * KWS: a better fix for meas. element choice ordering
+  * KWS2: need to switch det_img alias earlier
+  * KWS2: set up Eurotherm alias prios to work for temp. monitoring
+  * KWS2: setup update
+
+  [ JenkinsCodeReview ]
+  * Prepare for release 2.11.0
+  * Start development on 2.11.0-post
+
+  [ Björn Pedersen ]
+  * Add  branch release-2.11 to new jenkins build
+
+  [ Petr Cermak ]
+  * PANDA: update script templates
+  * PANDA: use explicit format strings for counters
+  * FRM2: add setup for JCNS magnet jvm1
+
+  [ Enrico Faulhaber ]
+  * ccmsans: move to frm2 to allow other instruments to use it
+
+  [ Georg Brandl ]
+  * loggers: pep8 fixes
+  * detector: Detector now has a doInit that needs to be called
+  * MIRA/PANDA: remove unused setups for magnets
+
+  [ Petr Cermak ]
+  * PANDA: migration to Tango
+  * PANDA: remove unused modules and setups
+  * PANDA: setup update
+  * PANDA: switch sample slits to Tango
+
+  [ Christian Felder ]
+  * TREFF: overhaul system setup and notifiers.
+
+  [ Jens Krüger ]
+  * SPODI: Change the display order of the devices
+  * CARESS: Set the run number default to 0 for the channels
+  * SPODI: Fix the coder offset of the SAMS axis
+  * SPODI: Fix the format of the TTHS axis
+  * SPODI: Fix the limits of the TTHS axis
+  * CARESS: Fix a PEP8 issue
+  * SPODI: Detector: set step size to 0 in case of resosteps 1
+  * QMesyDAQ: Add an option to transpose the CARESS image
+  * SPODI: Fix orientation of the detector image
+  * TOFTOF: Fix assignment of the detector rates in display
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: Counter setup
+
+  [ Georg Brandl ]
+  * device: dont call doInfo in simulation mode
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: Be filter setup
+  * TREFF: Sampletable setup
+
+  [ Christian Felder ]
+  * TREFF: Add detector image + setup + livedisplay
+  * TREFF: Add detector arm.
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: shutter setup
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix (old, legacy) data file format
+
+  [ Georg Brandl ]
+  * remove unused changes file
+
+  [ Jens Krüger ]
+  * CORE: Avoid call of 'doInfo' in simulation service
+
+  [ Christian Felder ]
+  * grplotting: Set markersize in NicosPlotCurve.
+  * MARIA: Add heater range device for ls332
+  * MARIA: Add precision for magnet power supply.
+
+  [ Jens Krüger ]
+  * STRESSI: Fix scan type detection in caress data sink
+  * STRESSI: Add axis devices for the robot devices
+  * DEMO: Add 'phis' and 'chis' devices to the virtual 'STRESSI'
+  * AUTHORS: Fix spelling
+  * MONITOR(HTML): Allow usage of indexed keys
+  * Experiment: The manager rights do not have to read in simulation service
+  * TOFTOF: Do not read detector info file in simulation service
+
+  [ Weimin Gan ]
+  * STRESSI: add the 'pole_figure' command
+  * STRESSI: add the 'change_sample' command
+
+  [ Jens Krüger ]
+  * SPODI: Move 'histogram' and 'listmode' sinks to detector setup
+  * SPODI: Typo in sample changer positions
+  * SPODI: Enable the live view of the 2D data
+  * SPODI: Fix data sink, it should only write data at points
+  * SPODI: Use formatted data in caress histogram file
+  * DEMO: Add 'source' setup to the 'VSPODI' instrument setup
+
+  [ Christian Felder ]
+  * grplotting: Set markersize in NicosPlotCurve.
+
+  [ Georg Brandl ]
+  * CORE: Avoid call of 'doInfo' in simulation service
+
+  [ Jens Krüger ]
+  * DEMO: Change to liveinterval of the 'VSPODI' detector
+  * SPODI: Fix wrong position detection (of detector) in scans
+  * SPODI: Improve the live data generation
+  * SPODI: Add the 'resosteps' as preset parameter of detector
+  * DEMO: add a filter device into the 'VSPODI' setup
+
+  [ Georg Brandl ]
+  * FRM2: fix hardcoded antares hostname
+  * TESTS: allocate alternate cache port
+  * FRM2: fix hardcoded antares hostname
+
+  [ Christian Felder ]
+  * livewidget: Remove unused actions from ui file.
+
+  [ Jens Krüger ]
+  * Fix some PEP8 issues
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: analyzer and beamstop setup
+
+  [ Jens Krüger ]
+  * SPODI: Add the graphite filter device
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: cryo ls332 and gauss meter ls455 setups
+
+  [ Christian Felder ]
+  * TREFF: update guiconfig
+  * TREFF: update detector setup.
+  * TREFF: Add sscan command.
+  * TREFF: Enable adjust for all sampletable axes.
+  * TREFF: add t2t axis
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: polarizer and toellner setups
+
+  [ Jens Krüger ]
+  * SPODI: Fix wrong starting point in data
+
+  [ Georg Brandl ]
+  * data: do not reset cached scans on NewSetup()
+  * TESTS: port to pytest
+  * FRM2: give amagnet current some precision
+  * data: do not reset cached scans on NewSetup()
+  * elog: add plain text logfile output
+  * test_tas: more leniency for virtualdet countrate
+
+  [ Michael Wedel ]
+  * EPICS: Fix PV disconnect message in EpicsDevice
+
+  [ Jens Krüger ]
+  * REQUIREMENTS: change the minimum numpy version
+  * STRESSI: Fix some PEP8 issues
+
+  [ Georg Brandl ]
+  * ANTARES: merge jcns_io into monochromator setup, remove reference to nonexisting jcns_mot
+  * CORE: fix reset() in dry run mode
+
+  [ Björn Pedersen ]
+  * sequencer: log action.run failures as warning
+
+  [ Georg Brandl ]
+  * all: untabify
+
+  [ Alexander Lenz ]
+  * scan plot: hide () for empty units.
+  * devices/tango: Implement ReadableChannel.
+  * sans1: update wmirfgen setup.
+
+  [ Georg Brandl ]
+  * KWS1: add test script
+
+  [ Jens Krüger ]
+  * GUI: Fix some PEP8 issues in tab widget
+
+  [ Björn Pedersen ]
+  * Add Gerrit event type as parameter
+
+  [ Jens Krüger ]
+  * Fix some PEP8 issues on the abstract classes implementation
+
+  [ Björn Pedersen ]
+  * Run tests on Centos for changed merged
+  * Fix syntax error
+
+  [ Jens Krüger ]
+  * GUI: Fix appearance of the panel tool bars
+
+  [ Matthias Pomm ]
+  * REFSANS: Fix user/group settings, adopt service config
+
+  [ Jens Krüger ]
+  * REFSANS: Remove setting of the steps into the controller
+  * SPODI: Add test scripts
+  * STRESSI: Add some test scripts
+  * REFSANS: Fix PEP8 issues
+
+  [ Andreas Wilhelm ]
+  * SANS-1: correct error in monitor html
+
+  [ Georg Brandl ]
+  * TESTS: run fine with readonly checkout
+  * ELOG: missing loglevel for plain output
+  * TESTS: fix test_simulation
+  * TESTS: handle closed stdout more gracefully
+  * DAEMON: fix spurious connection breaks when packet ends within header
+  * DAEMON: fix spurious connection breaks when packet ends within header
+  * CORE: simulation session does not actually need to delay
+  * TESTS: move bin-like scripts into their own directory
+  * TESTS: daemon setups can also use stdsystem
+  * TESTS: slit.reference does not actually do anything
+  * TESTS: try to fix sporadic live test failures
+  * TESTS: disable color in cli client during test
+  * console: improve history file handling
+  * TOOLS: handle non-ascii files in reformat_setup
+  * TESTS: make some tests robust against test order
+  * TESTS: remove tas-related devices from stdsystem setup
+
+  [ Christian Felder ]
+  * livewidget: gr style
+  * livewidget: add integrals over x, y
+  * livewidget: Add colormap chooser.
+  * livewidget: implement logscale
+  * livewidget: get detector pixel's intensity under cursor.
+  * livewidget: Add support for fileformats
+  * livewidget: add min, max scaling for z values.
+  * livewidget: Split classes into LiveWidget and IntegralLiveWidget.
+  * livewidget: Open several livewidget's for regions of interest.
+  * MARIA: Add marche-gui server control as cmdTool
+  * BIODIFF: fix watchdog condition.
+  * MARIA: Add GR Live to guiconfig
+  * TREFF: Add valueInfo for detector image (total counts).
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix some PEP8 issues in chopper classes
+
+  [ Georg Brandl ]
+  * core: make the SimulationSupervisor easier to use in tests
+  * TESTS: make more tests robust against ordering
+
+  [ Jens Krüger ]
+  * TOFTOF: Rotate the live data to the live widget format
+  * SPODI: Add CCR6 setup
+
+  [ Georg Brandl ]
+  * TESTS: reformat setups
+  * TESTS: revamp the test log handler
+
+  [ Björn Pedersen ]
+  * Add a comment keyword to scan commands
+
+  [ Jens Krüger ]
+  * Experiment: Fix log message during finishing experiment
+  * Experiment: Fix some PEP8 issues
+  * GUI: Fix exception in case of no given password in args to GUI client
+  * SPODI: Use configured detector names instead hard coded ones
+  * Antares: Remove custom related symlinks during finishing
+  * STRESSI: Don't use string constant doubled
+
+  [ Georg Brandl ]
+  * STRESSI: caress sink should now work on Py3
+
+  [ Jens Krüger ]
+  * CUSTOM: remove 'nicos.' prefix from device type
+  * TEST: remove prefix 'nicos' from device classes
+  * STRESSI: Use configured detector info for the image data
+  * STRESSI: Use quickyaml module in YAML sink
+  * Display results of the sigmoid fitting
+
+  [ Björn Pedersen ]
+  * Format test
+
+  [ Jens Krüger ]
+  * TEST: Increase the test coverage
+
+  [ Georg Brandl ]
+  * virtual: fix initial assignment of curvalue
+  * all: use integer division where necessary
+
+  [ Björn Pedersen ]
+  * Ensure pylint errors set the stage to fault
+  * Enable jenkins for newproto branch
+  * Jenkinsfile: Do not use the makefile for pylint
+  * Adopt for git 2.10 rename output
+
+  [ Alexander Lenz ]
+  * doc: add flags to cache syntax doc.
+
+  [ Björn Pedersen ]
+  * gitignore: add pushversioninfo setup
+
+  [ Jens Krüger ]
+  * STRESSI: Fix alias settings for different setups
+
+  [ Michael Hofmann ]
+  * STRESSI: Fix secondary slit setup due to changed hardware
+
+  [ Jens Krüger ]
+  * SPODI: Add a simple live widget
+
+  [ Georg Brandl ]
+  * cache: always update clients for nostore messages
+
+  [ Michael Hofmann ]
+  * STRESSI: Combined setup Huber Eulerian and XYZ table
+
+  [ Georg Brandl ]
+  * Change module example slightly.
+
+  [ Jens Krüger ]
+  * Fix: live plot is not available for installations without gr
+  * SPODI: Fix some formatting issues in setup
+
+  [ Alexander Lenz ]
+  * Readable: add possibility to poll parameters.
+  * panels/devices: trigger parameter poll on ctrl dlg.
+
+  [ Georg Brandl ]
+  * minor style fixups
+
+  [ Björn Pedersen ]
+  * [LAUE]: Include utility commands
+  * Laue commands
+  * LAUE: always load slit setup
+  * LAUE: local changes
+  * Update for new hostname @resi
+
+  [ Jens Krüger ]
+  * STRESSI: Fix import errors if yaml and quickyaml not installed
+  * SPODI: Display the detector angle in live data view
+
+  [ Björn Pedersen ]
+  * Complex configuration dependent limits
+  * [LAUE] laue controller impl
+
+  [ Jens Krüger ]
+  * TOOLS/Setup: Fix type error
+  * TOOLS/Setup: Fix some PEP8 issues
+
+  [ Georg Brandl ]
+  * Py3 compat: replace StandardError
+
+  [ Jens Krüger ]
+  * TOOLS/Setup: Add input of a value inside 'sysconfig'
+  * TOOLS/Setup: Code cleanup of the dialogs
+  * TOOLS/Setup: reformat code
+
+  [ Georg Brandl ]
+  * all: close fds on subprocess exec for long running subprocesses
+
+  [ Björn Pedersen ]
+  * Add ttheta convenience args to position objects
+  * Add tool for running asyncronous processes
+  * [dataapi] LAUE: migrate tiff
+  * LAUE: Update to Pillow >=4.0.0
+  * [LAUE] Remove unused fileformats and setups
+
+  [ Georg Brandl ]
+  * CORE: remove obsolete image sink class
+  * doc: remove reference to nonexisting mira.commands
+
+  [ Jens Krüger ]
+  * TOOLS/Setup: Remove the 'super' call when possible
+  * SPODI: Use the NicosPlot for the live widget
+  * TOOLS/Setup: Use 'setup' instead of 'file' for the setup name input
+  * SPODI: Move connected callback to 'setOptions' method
+  * TOOLS/Setup: expand 'Instrument' when select single instrument
+  * TOOLS/Setup: Collapses all instruments when displaying all instruments
+  * TOOLS/Setup: reformat todo list
+  * TOOLS/Setup: Restrict device names to ASCII chars
+  * TOOLS/Setup: Add waiting cursor if adding new device
+  * TOOLS/Setup: ex/includes can be selected from existing setups
+  * TOOLS/Setup: En/disable instrument selection for 'New/Add Setup'
+  * TOOLS/Setup: remove remaining 'super' calls
+  * TOOLS/Setup: Restrict the setup names to ASCII letters
+  * TOOLS/PW-Editor: remove super calls
+  * TOOLS/PW-Editor: Fix some PEP8 issues
+
+  [ Georg Brandl ]
+  * KWS: distinguish between virtual and nonvirtual setups in status monitor
+  * gui: allow showing full timestamp in console window
+  * KWS: add stylesheet to make splitters more visible
+
+  [ Jens Krüger ]
+  * CARESS: some code reformatting
+
+  [ Björn Pedersen ]
+  * [LAUE] LAUE: kappagon can be read and moved
+  * [LAUE] kappa gon setup
+  * [LAUE] Limits update
+  * Bump mysql-connector-python
+  * [LAUE] Remove non-existing classe from doc
+
+  [ Jens Krüger ]
+  * DEMO: Reformat daemon setup
+
+  [ Georg Brandl ]
+  * KWS: add button to expand measurement table size
+
+  [ Björn Pedersen ]
+  * Jenkins: Add timestamps
+
+  [ Jens Krüger ]
+  * TOOLS/Reformat: put the reformat routine into a separate module
+  * TOOLS/Setup: use the reformatting tool routine
+  * CARESS: Fix PEP8 issue
+  * SPODI/Live: Set the detector position to the 'right' value
+
+  [ Georg Brandl ]
+  * daemon: close connection when socket send queue does not get emptied
+
+  [ Alexander Lenz ]
+  * poller: poll volatile params at startup.
+
+  [ Georg Brandl ]
+  * KWS: add a "protocol" panel that creates a very compact view of measurements
+
+  [ Alexander Lenz ]
+  * watchdog: implement ok msg/action.
+
+  [ Georg Brandl ]
+  * gui: add a line widget with "shadow text" when no entry is made
+
+  [ Jens Krüger ]
+  * DEMO: Setup 'motor' device lowlevel
+  * STRESSI: Ignore data values which are None in CARESS sink
+  * Add target and raw position to status if mapped value did not reach the target
+
+  [ Georg Brandl ]
+  * mixins: fix race condition in HasTimeout
+
+  [ Jens Krüger ]
+  * STRESSI: Fix CARESS data sink if 'CHIS' device not available
+
+  [ Michael Hofmann ]
+  * STRESSI: Add a coder to CHIS at the tensile rigg
+
+  [ Björn Pedersen ]
+  * Use full module path
+  * [LAUE] Force qwt live widget
+
+  [ Jens Krüger ]
+  * STRESSI: Fix missing header entries in YAML format
+  * STRESSI: Add some missing device values to YAML format
+
+  [ Georg Brandl ]
+  * DOCS: change name for Laue sink
+
+  [ Jens Krüger ]
+  * STRESSI: Change some (possible) logging output
+
+  [ Georg Brandl ]
+  * commands: print "sleeping ..." also in dry run mode for sleep()
+
+  [ Jens Krüger ]
+  * FRM2: Remove '\' inside strings at end of line
+  * KOMPASS: Add focussing neutron guide setup
+
+  [ Enrico Faulhaber ]
+  * Support Helios01 RF-flipping box
+
+  [ Alexander Lenz ]
+  * reseda: new setup structure.
+
+  [ Jens Krüger ]
+  * Axes: fix some PEP8 issues
+  * CONTSCAN: Create differential images for each step too
+
+  [ Enrico Faulhaber ]
+  * Helios: include category for flippings parameter
+  * Axis: Make abslimits volatile
+  * Axis: allow coder to be optional
+  * Axis: Avoid unneeded reading of motor/coder
+
+  [ Georg Brandl ]
+  * GUI: remove old history entries when clicking "no" on restore question
+
+  [ Enrico Faulhaber ]
+  * GUI: fix regression from 14123
+  * Axis: remove unneeded doReadDragerror method
+
+  [ Jens Krüger ]
+  * CARESS: Use the new Axis code for the configuration
+  * KOMPASS: adopt limits, position, precision, format of focussing guide
+  * KOMPASS: Add Monochromator table axes (mx, my, mc)
+  * KOMPASS: Deactivate some of the incremental coders
+
+  [ Georg Brandl ]
+  * gui: allow watermark background image on console panel
+  * Make the watermark a little lighter.
+
+  [ Jens Krüger ]
+  * GUI: add check for None value to avoid call of None object methods
+
+  [ Georg Brandl ]
+  * GUI: set target by name for alias selections
+  * gui: remove unused attributes
+
+  [ Jens Krüger ]
+  * DOC: Add the MIEZE and NSRE setups of RESEDA
+  * GENERIC: Add an oscillation device
+  * DOC: reorder the generic devices
+  * KOMPASS: Add monochromator focussing axes
+  * KOMPASS: Fix device name
+  * KOMPASS: Set limits on monochromator focussing axes
+  * KOMPASS: Add selector lift devices
+  * TEST: add missing checks after alias adjustments
+  * KOMPASS: Add selector setup
+
+  [ Georg Brandl ]
+  * gui expinfo: allow popping up the proposal dialog after a certain period of inactivity
+
+  [ Björn Pedersen ]
+  * Use a dedicated dialog on timeout
+
+  [ Jens Krüger ]
+  * SPODI: Restructure live plot
+
+  [ Georg Brandl ]
+  * MIRA: allow moving att without stargate
+
+  [ Björn Pedersen ]
+  * Mark main index entries
+  * [LAUE] reformat setup
+
+  [ Christian Felder ]
+  * MARIA: Fix aflipper accidentially flips on same target.
+  * Fix disabling of markers in GR 1D livewidget version.
+  * grplotting: Add axescls attribute to NicosPlot classes.
+
+  [ Björn Pedersen ]
+  * Do not show  time-out dialog for admin
+
+  [ Jens Krüger ]
+  * SPODI: Integrate GR plotwidget into the live plot
+
+  [ Björn Pedersen ]
+  * Fix restart of timeout on viewonly toggle
+
+  [ Christian Felder ]
+  * SPODI: fix autoscale behavior.
+
+  [ Jens Krüger ]
+  * TOFTOF: Add read out for the pressure cell
+
+  [ Christian Felder ]
+  * livewidget: Implement client-side caching of live images.
+  * livewidget: use caching based on PointDataset's uid.
+  * MARIA: Add NPGZImageFileReader.
+
+  [ Jens Krüger ]
+  * SPODI: Update live widget due to protocol change
+  * SPODI: live widget, change order of live parameter resolving
+  * TEST/Axis: add test of the dragerror initialisation
+  * KOMPASS: Fix format string for 'mth' axis
+  * KOMPASS: Update limits and precision of lift selector
+  * DOC: add CARESS devices to the vendor specific devices
+  * DEMO: add the fallback value for the collimation device
+  * KOMPASS: Set new abslimits for mono x and y axes
+  * KOMPASS: Use motor devices as coder devices
+  * KOMPASS: Change format string for mono x and y axes
+  * Fix protocol compatibility issue
+
+  [ Georg Brandl ]
+  * gui: fix traceback on data points of ongoing dataset
+
+  [ Alexander Lenz ]
+  * devices/tango: make abslimits volatile.
+
+  [ Jens Krüger ]
+  * STRESSI: Fix scan type detection in YAML sink
+
+  [ Georg Brandl ]
+  * elog: fix Py3 compatibility
+
+  [ Jens Krüger ]
+  * STRESSI: Prepare the addition of 'slitp' device
+  * TESTS: Complete tests for the 'ManualMove' device class
+  * STRESSI: Create a method to dump the data in YAML format
+  * STRESSI: use internal method to get storage place in YAML format
+  * STRESSI: 'remove' not currently used methods from YAML format
+
+  [ Georg Brandl ]
+  * watchdog: warn if scriptaction is invalid
+
+  [ Björn Pedersen ]
+  * [LAUE] Enable gui timeout
+  * [LAUE] Fix watchdog, stop script on low power
+
+  [ Georg Brandl ]
+  * POLI: switch frmcounter server to counter card in det.poli.frm2
+  * SXTAL: add missing conversion method asL()
+
+  [ Jens Krüger ]
+  * SPODI: simplify step size calculation in detector device
+  * SPODI: Fix runtime error in data sink
+  * SPODI: improve monitor and count rate calculations
+  * SPODI: Fix Py3 incompatibility in datasink
+  * DEMO: remove 'virtual' and 'manual' from device classes
+  * TOFTOF: Fix Py3 incompatibility of legacy data sink
+
+  [ Georg Brandl ]
+  * POLI: add remark header for dataset scan
+  * POLI: show HKLs in ScanDataset
+  * GUI: new sample panel for SXTal samples
+
+  [ Christian Felder ]
+  * Fix watermark code for MessageView.
+
+  [ Jens Krüger ]
+  * TESTS: add the cache clearing at the end of session
+  * TESTS: Remove 'ClearCache' call due to better session cleanup
+
+  [ Georg Brandl ]
+  * POLI: add cryopad routines
+  * POLI: add sink and device for beam polarization
+
+  [ Jens Krüger ]
+  * DNS: Add a watchdog condition to check neutron guide shutters
+
+  [ Georg Brandl ]
+  * gui history: add window to caption of named plots too
+  * commands: fixup contscan docstring
+  * KOMPASS: add neutron camera setup
+
+  [ Alexander Lenz ]
+  * reseda: implement cbox autotuning.
+
+  [ Georg Brandl ]
+  * FRM2: add setups for Kelvinox and Variox
+
+  [ Christian Felder ]
+  * generic.detector: Handle 'postprocess' configuration errors more graceful.
+
+  [ Björn Pedersen ]
+  * check_setups: Evaluate %s substitutions in devname
+
+  [ Georg Brandl ]
+  * minor style fix
+  * gui: remove traces of secondary y axis
+  * POLI: add HTML status monitor setup (thanks Petr)
+  * gui: do not offer fitting fit curves again
+  * kelvinox1: update fmtstr
+
+  [ Jens Krüger ]
+  * TOFTOF: Shorten the real constant values
+  * TOFTOF: Fix wrong speed calculations in virtual chopper
+  * TOFTOF: Improve virtual chopper init
+  * TESTS: add TOFTOF specific test
+
+  [ Christian Felder ]
+  * Fix: TabWidget accidentially shows QToolBar on setWidgetVisible calls.
+
+  [ Georg Brandl ]
+  * GUI: auto-add local contact to mail receivers
+
+  [ Jens Krüger ]
+  * KOMPASS: Add mtt (aka A2) axis to mono setup
+
+  [ Christian Felder ]
+  * GUI: use last target position instead of current value for DeviceValueEdit.
+
+  [ Georg Brandl ]
+  * GUI: add missing setOptions supercalls
+
+  [ Christian Felder ]
+  * livewidget: Add 'detector' parameter to 'liveparams'.
+
+  [ Georg Brandl ]
+  * POLI: show number of skipped scans in ScanDataset
+
+  [ Jens Krüger ]
+  * SPODI: Fix some crashes on closing livewidget
+  * INSTALL: add installation of the NICOS icons
+
+  [ Enrico Faulhaber ]
+  * Axis: Small code refactoring
+
+  [ Christian Felder ]
+  * MARIA/TREFF: MasterSlaveMotor return master and slave position.
+
+  [ Jens Krüger ]
+  * Debian: install the icons into system pathes
+
+  [ Georg Brandl ]
+  * GUI: add a device tree widget to make selection easier in history panel
+  * MIXINS: adjust target after offset change
+  * CORE: for manualscans, add stated env devices *before* default ones
+  * daemon: print correct username when continuing script
+  * params: add a way to not restore certain params in simulation copy
+  * core/KWS: sort switcher values by a "human" sort function
+
+  [ Oleg Sobolev ]
+  * PUMA: Switch to the MesyTec detector electronics
+  * PUMA: Fix setups due to changes of the motorbusses
+  * puma: commit local state.
+  * PUMA: Save the current state
+
+  [ Georg Brandl ]
+  * core: add a command to pause the script to prompt for user confirmation
+  * gui: tweak history device selection tree
+
+  [ Björn Pedersen ]
+  * Fix whitespace error
+
+  [ Georg Brandl ]
+  * gui: remove unused model methods in fitters
+
+  [ Christian Felder ]
+  * livewidget: split into base class and different livewidget classes.
+  * livewidget: add 1D live plot.
+  * livewidget: auto switch underlying plot widget in respect to dimension.
+  * livewidget: Use dual scaling for corresponding detector axes.
+  * MARIA, JCNS: Neutron depth profiling detector setup.
+  * TREFF: Add aflipper with values 'up', 'down'
+
+  [ Johannes Schwarz ]
+  * daemon: switch to request IDs, allow rearranging queue
+
+  [ Georg Brandl ]
+  * SESSION: allow sandboxing simulation runs
+  * gui: preselect previous alias targets in setup panel
+  * POLI: allow giving HKL index when adding position to poslist
+  * experiment: default local contact for service should be empty
+  * POLI: add cmdlet for matrix refinement
+  * TAS: add "virtual" gonios that provide a way to rotate sample along orientation reflex axes
+  * core: handle changing alias config in NewSetup/AddSetup
+  * KWS: fix typo in sample config panel
+  * KWS2: add mail template
+  * KWS protocol panel: show total counts, default to proposal dir
+  * KWS2: setup updates
+  * KWS2: polarizer is inconistent if elements are not all in/out
+
+  [ Jens Krüger ]
+  * TESTS: add tests for the STRESSI specific slit devices
+
+  [ Georg Brandl ]
+  * FRM2: add setup for JCNS humidity cell
+
+  [ Jens Krueger ]
+  * Revert "TESTS: add tests for the STRESSI specific slit devices"
+
+  [ Jens Krüger ]
+  * TESTS: add tests for the STRESSI specific slit devices
+
+  [ Georg Brandl ]
+  * KWS1: setup updates
+  * FRM2: fixups for amagnet
+  * core: move misplaced delay() method to simulation session
+
+  [ Christian Felder ]
+  * DNS: setup updates
+
+  [ Jens Krüger ]
+  * TESTS: add SPODI specific tests
+  * SPODI: Improve time estimation of the detector device
+
+  [ Petr Cermak ]
+  * PANDA: setup updates
+
+  [ Christian Felder ]
+  * DNS: fix power supply limits
+
+  [ Georg Brandl ]
+  * FRM2: add setup for cce2 (CC with extension) cryostat
+
+  [ Mira People ]
+  * MIRA: setup and lib update
+
+  [ Georg Brandl ]
+  * FRM2: switch CCR20 (POLI) to Tango
+
+  [ Christian Felder ]
+  * Fix: livegr cannot be configured as tab.
+
+  [ Georg Brandl ]
+  * nicos-grep-cache: fix py3 compat
+
+  [ Antares People ]
+  * antares: commit local state.
+
+  [ Georg Brandl ]
+  * gui device panel: use device directly if not lowlevel
+  * gui: tweak history device selector
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change WUT 1 box from mA to V
+  * sans1: commit local state.
+
+  [ Jens Krüger ]
+  * TEST: STRESSI specific file sinks tests added
+
+  [ Georg Brandl ]
+  * gui: add exponential fitter for history plot
+
+  [ Björn Pedersen ]
+  * Allow switchable wrapping in console output
+
+  [ Jens Krüger ]
+  * AXIS: Fix 'doTime' for the simulation service
+
+  [ Björn Pedersen ]
+  * Load saved config before creating main window
+
+  [ Jens Krüger ]
+  * Update the AUTHORS file
+
+  [ Sans1 People ]
+  * SANS-1: removed tisane_trigger setup
+  * SANS-1: change hostname do back to dns name
+
+  [ Georg Brandl ]
+  * custom: remove/update live panel entries
+
+  [ Reseda People ]
+  * reseda: add watermark.
+  * reseda: use entangle for frmctr.
+  * reseda: clean poller.
+
+  [ Jens Krüger ]
+  * GUI: Fix some PEP8 issues
+  * FIX: bug reporting tool
+  * GENERIC: add some classes and fix some PEP8 issues
+  * TESTS: Remove pathes from generic classes
+  * CUSTOM: Remove pathes from generic device classes
+
+  [ Fabian Beule ]
+  * EMC: create instrument to monitor Janitza devices
+
+  [ Jens Krüger ]
+  * GUI: Install high resolution scalable icon too
+
+  [ Matthias Pomm ]
+  * REFSANS: Save local changes
+
+  [ Jens Krüger ]
+  * REFSANS: Add 'abslimits' of b2 axes
+
+  [ Matthias Pomm ]
+  * REFSANS: Add b2 axes for reactor and sample side
+
+  [ Jens Krüger ]
+  * Fix copyright info (year)
+  * REFSANS: Fix some issues in the NOK code
+
+  [ Christian Felder ]
+  * TREFF: adapt t2t fmtstr for tuple.
+  * TREFF: Add filter temperatures.
+
+  [ Jens Krüger ]
+  * TEST: Fix test_data:test_empty_manager
+  * TEST: add verbosity option for pytest
+  * HasOffset: Fix adjustment if target value is not set
+  * Add one of the (main) authors of version 1
+  * STRESSI: remove useless method from yaml sink implementation
+  * REFSANS: Fix some formatting issues
+
+  [ Georg Brandl ]
+  * POLI: adapt limits to those in Tango limits
+  * POLI: remove old and obsolete table setup
+  * POLI: add "timestamp" device (important for polarization correction)
+  * POLI: update nicos.conf
+
+  [ Christian Felder ]
+  * livewidget: fix roi registration code.
+  * params: fix oneofdict issue when initialised without value.
+  * TREFF: Enable sending e-mails and data.
+  * MARIA: Enable sending e-mails and data.
+
+  [ Alexander Lenz ]
+  * panels/devices: create icons early
+
+  [ Jens Krüger ]
+  * STUBS: create PyTango stubs
+
+  [ Oleg Sobolev ]
+  * PUMA: Save current changes made at instrument
+
+  [ Jens Krüger ]
+  * [WIP] PGAA: Complete the implementation of the tomography panel
+
+  [ Georg Brandl ]
+  * tests: generate the stubs at the beginning
+
+  [ Johannes Schwarz ]
+  * PGAA: Add sample changing devices
+
+  [ Georg Brandl ]
+  * temporary fix for test suite
+  * clients: do not infinitely try to reconnect
+  * gui: handle missing QtWebKit module more gracefully
+
+  [ Christian Felder ]
+  * Fix setgid in utility setuser function.
+
+  [ Mira People ]
+  * MIRA: Commit local state.
+
+  [ Jens Krüger ]
+  * TOOLS/PW-Editor: Rewrite the password editing tool
+
+  [ Georg Brandl ]
+  * KWS: fix sorting in meas. elements window
+  * requirements: downgrade pytest to Ubuntu 16.04 supplied version
+
+  [ Christian Felder ]
+  * TREFF: Add wavelength device based on Be filter position.
+  * TREFF: Adjust storagepath and network interface for cache.
+
+  [ Georg Brandl ]
+  * utils: fix num_sort to work on non-strings too (e.g. MultiSwitcher)
+
+  [ Christian Felder ]
+  * ANTARES: Migration taco/tango for astrium velocity selector.
+  * Astrium: Remove taco code.
+
+  [ Jens Krüger ]
+  * STRESSI: Fix writing yaml file if only PyYAML installed
+
+  [ Johannes Schwarz ]
+  * PGAA: Device to switch between Ellipse/Collimator
+
+  [ Jens Krüger ]
+  * PGAA: Add test code for the ellipse/collimator changer
+
+  [ Björn Pedersen ]
+  * Ensure python3-compat utf8 in elog
+
+  [ Jens Krüger ]
+  * TESTS: let the tests run randomly
+
+  [ Björn Pedersen ]
+  * jenkins: archive and publish coverage
+  * jenkins: formatting/syntax updates
+
+  [ Christian Felder ]
+  * MARIA: correct permissions for hexapod setup
+
+  [ Jens Krüger ]
+  * Commands: Fix log.info call
+
+  [ Christian Felder ]
+  * MARIA: add astrium selector setup.
+
+  [ Johannes Schwarz ]
+  * PGAA: Add a PGAA specific data sink
+
+  [ Jens Krüger ]
+  * PGAA: fix some PEP8 issues
+
+  [ Johannes Schwarz ]
+  * PGAA: disable detector polling
+
+  [ Björn Pedersen ]
+  * Fix scan test
+
+  [ Johannes Schwarz ]
+  * PGAA: NICOS device for the OrtecMCA Tango Server
+
+  [ Christian Felder ]
+  * MARIA, Selector: Add maximum deviation/delta between limits and requested rpm
+  * MARIA: Deactivate icons in device panel.
+
+  [ Jens Krüger ]
+  * DEMO: add an attenuator device for virtual PGAA instrument
+
+  [ Johannes Schwarz ]
+  * PGAA: Update virtual PGAA sample changer to real version setup
+
+  [ Georg Brandl ]
+  * KWS: allow selecting whether to control shutter with measurement
+
+  [ Björn Pedersen ]
+  * Test: Explicitly unload setups
+
+  [ Georg Brandl ]
+  * KWS3: add basic setup files
+  * KWS3: add/update setups for sample environment
+  * KWS3: add setup for vacuum readouts
+
+  [ L.Fleischhauer-Fuss ]
+  * KWS3: sample setup
+  * KWS3: selector and mirror motor setups
+  * KWS3: detector and polarizer motor setup
+
+  [ Georg Brandl ]
+  * KWS3: implement selector lambda control
+
+  [ Jens Krüger ]
+  * DEMO: Complete the virtual PGAA settings
+  * PGAA: Fix some runtime errors in data sinks
+
+  [ Georg Brandl ]
+  * KWS3: update detector/counter specifics
+
+  [ L.Fleischhauer-Fuss ]
+  * KWS3: shutter setup
+
+  [ Georg Brandl ]
+  * KWS3: fix nicos.conf
+  * KWS3: motor setup updates
+  * KWS3: add switchable sample x/y/ap devices
+
+  [ Jens Krüger ]
+  * Manual/Switch: Add 'doIsAllowed' function
+  * PGAA: add missing user method
+
+  [ Christian Felder ]
+  * core, Scan: Add callback in acquire/count loop to influence stop.
+  * Astrium: Add calculated rpms to error message when out of limits.
+  * MARIA: Add kinematic scan (kscan).
+
+  [ Georg Brandl ]
+  * custom tests: make tests faster by eliminating delays
+
+  [ Björn Pedersen ]
+  * Introduce a further config field for the gui
+  * Introduce a reader registry and use it
+  * MARIA: Upgrade to reader registry usage
+
+  [ Christian Felder ]
+  * Add speed argument to scan and improve help messages.
+  * MARIA: kscan cmdlet.
+
+  [ Jens Krüger ]
+  * PGAA: cleanup setups
+  * PGAA: clean up setup
+  * PGAA: rename the datasink implementation file
+  * PGAA: Reduce the logging level in demo detector
+  * PGAA: add watchdog setup
+  * PGAA: activate watchdog
+  * PGAA: move collimation devices into separate setups
+  * PGAA: add the XYZ sample table setup
+  * PGAA: Fix detector setup
+  * PGAA: change the email addresses of the notifiers
+  * PGAA: Improve code of sample changing devices
+  * DEMO: fix data sink settings for virtual PGAA
+  * PGAA: Remove old data sink file
+
+  [ Georg Brandl ]
+  * gui: fix traceback when changing fixed status
+
+  [ Jens Krüger ]
+  * SPODI: Integrate 'OMGM' into the instrument setup
+  * SPODI: Fix setup typo
+  * SPODI: Change live interval of the detector
+  * SPODI: Configure mailhost, but disable mail sending
+  * SPODI: Add sample oscillation device
+  * SPODI: Integrate a second LakeShore controller into CCR6 setup
+  * PGAA: fix some PEP8 in data sinks
+  * PGAA: data sinks, remove unused parameters
+  * PGAA: data sink, ensure existence 'logfiles' directory
+  * REFSANS: adopt NOK bus devices to new TACO device names
+  * REFSANS: Disable NICOS services on other computers than 'refsansctrl01'
+  * SPODI: Add 'tthm' device
+  * REFSANS: Fix some configuration issues
+  * REFSANS: Fix typo in setup description
+
+  [ Matthias Pomm ]
+  * REFSANS: Fix typo
+
+  [ Jens Krüger ]
+  * REFSANS: Add some additional logging
+  * REFSANS: Fix some PEP8 issues
+  * REFSANS: add missing implementation of the set position routine
+  * REFSANS: Fix starting of the NOK devices
+  * REFSANS: Add check for (missing) method
+  * REFSANS: Fix typo in monitor setup
+  * REFSANS: Set neutron guide related setups to 'lowlevel'
+  * Fix year in copyright information
+
+  [ Matthias Pomm ]
+  * REFSANS: Move included setups into special directory
+  * REFSANS: Clean up setup
+
+  [ Jens Krüger ]
+  * REFSANS: Add B3 setup
+
+  [ Matthias Pomm ]
+  * REFSANS: add the 'pivot' device
+
+  [ Jens Krüger ]
+  * REFSANS: Datasink to store meta data for a data point
+
+  [ Björn Pedersen ]
+  * REFSANS: make the list explicit
+
+  [ Jens Krüger ]
+  * [WIP] IPC Göttingen device access improved
+  * TEST: TOFTOF add test counting on monitor
+
+  [ Alexander Lenz ]
+  * magnet75 renamed to ccm55v.
+
+  [ Georg Brandl ]
+  * KWS: fix ordering of meas elements without sort key
+  * test_refsans: fix similar to e515d6406c6e02c1377cd16bffc3c609ffd92c6e
+  * test_refsans: this is a yield fixture
+
+  [ Christian Felder ]
+  * plot, gr: Ignore mouse events outside plot area.
+  * GR: bump v0.24.0
+
+  [ Stefan Rainow ]
+  * Added "ETA" (estimated finishing time) to script status panel.
+
+  [ Georg Brandl ]
+  * client: remove outdated protocol compat code
+
+  [ Jens Krüger ]
+  * REFSANS: Remove not needed code to check inclination limits
+
+  [ Georg Brandl ]
+  * jhc1: default humidity precision is too small
+
+  [ Antares People ]
+  * Commit local state.
+
+  [ Jens Krüger ]
+  * FRM2: Add 1K heatswitch device to CCR18 setup.
+
+  [ Christian Felder ]
+  * MARIA: Add watchdogs for selector and sixfold + nl5.
+  * TREFF: Add watchdogs for sixfold + nl5.
+
+  [ Georg Brandl ]
+  * KWS1: setup updates
+
+  [ Christian Felder ]
+  * livewidget: Disable grid for detector image.
+
+  [ Björn Pedersen ]
+  * Update CHANGES for 2.12
+  * GUI: Fix main window layout restoration
+
+  [ Georg Brandl ]
+  * htmlhelp: fix looking for devices in the wrong namespace
+
+  [ Björn Pedersen ]
+  * Update for pylint >1.7
+
+  [ Jens Krüger ]
+  * STRESSI: add YAML data sink
+
+  [ Christian Felder ]
+  * Livewidget: add xlines, ylines for marking detector middle.
+
+  [ Michael Hofmann ]
+  * STRESSI: Integrate new mounted coders into setups
+
+  [ Jens Krüger ]
+  * REFSANS: add doc for the setups inside 'elements' subdir
+
+  [ Stefan Rainow ]
+  * [Simulation] Autosimulate only in sandbox mode
+
+  [ Jens Krüger ]
+  * STRESSI: Fix file sink tests
+
+  [ Christian Felder ]
+  * livewidget: Show middle line also in ROI widgets.
+
+  [ Jens Krüger ]
+  * PUMA: Configure sleep time for the MTT axis
+
+  [ JenkinsCodeReview ]
+  * Prepare for release 2.12.0
+  * Start development on 2.12.0-post
+
+  [ Jens Krüger ]
+  * PUMA: Fix some PEP8 issues
+  * PUMA: Change the class name for the MTT axis device
+
+  [ Björn Pedersen ]
+  * Add 2.12 to jenkis job
+  * Fix typo
+
+  [ Jens Krüger ]
+  * PUMA: Fix some PEP8 issues
+  * PUMA: Change the class name for the MTT axis device
+  * STRESSI: Use real hardware for the SSW device
+
+  [ Christian Felder ]
+  * MARIA: Add Ar box monitoring setup.
+  * livewidget: show roi's in roi widgets and propagate all livewidget settings on initialisation.
+
+  [ Jens Krüger ]
+  * SPODI: Fix typo in data sink
+  * SKELETON: Reformat setups
+  * DEMO: Cleanup 'vspodi' setup
+  * TEST: Fix some PEP8 isssues on test script
+
+  [ Christian Felder ]
+  * npgz: save images with unsigned integer format '%u'.
+  * livewidget: mask zeros in logscale plot curves.
+
+  [ Georg Brandl ]
+  * CORE: fix simulation sync with dangling aliases
+  * IPC: two small fixes
+  * KWS3: measurement table variant
+  * KWS3: sample positioning overhaul
+  * KWS3: update from testing
+  * KWS3: setup updates
+
+  [ Christian Felder ]
+  * livewidget: Allow disabling of adjusting select rectangle.
+
+  [ Georg Brandl ]
+  * watchdog: use 19.1 as limit instead of 19.0
+
+  [ Jens Krüger ]
+  * AXIS: Fix 'NoneType' has no method read error
+
+  [ Georg Brandl ]
+  * gui cmdbuilder: fix dry-run messages not appearing in console output
+
+  [ Christian Felder ]
+  * TREFF: Register reader_classes for live widget.
+
+  [ Jens Krüger ]
+  * TOFTOF: Fix writing data file format
+
+  [ Björn Pedersen ]
+  * Add doTime to rendered docs
+
+  [ Georg Brandl ]
+  * gui setup panel: add localcontact only once to mail receivers
+
+  [ Christian Felder ]
+  * MARIA: Rename shutter device.
+  * MARIA: Add alias device for wavelength.
+
+  [ Alexander Lenz ]
+  * gui: hide action label on connect
+  * powderfit command: use simplified dataset (compat).
+
+  [ Georg Brandl ]
+  * detector: remove unneeded instance check
+
+  [ Björn Pedersen ]
+  * [PUMA] Fix MTT simulation mode
+
+  [ Christian Felder ]
+  * MARIA: Add reactor setup in order to monitor reactor power (watchdog).
+  * TREFF: Add reactor setup in order to monitor reactor power (watchdog).
+  * TREFF: configure mailserver and mailsender for Exp device.
+  * MARIA: configure mailserver and mailsender for Exp device
+
+  [ Georg Brandl ]
+  * cache: fix missing delete of old target from cache._rewrites dictionary
+  * core: protect builtins from overwriting in the namespace
+
+  [ Rifai Muslih ]
+  * HRPD: New instrument created
+
+  [ Jens Krüger ]
+  * HRPD: Add instrument specific data file format
+
+  [ Georg Brandl ]
+  * FRM2: fix unit of energy in yaml data
+  * gui setup panel: fix typo
+  * PANDA: do not log.info() when referencing the rot axis in simulation
+
+  [ Alexander Lenz ]
+  * frm2/htf20 setup added.
+
+  [ Mira People ]
+  * mira: Commit local state.
+
+  [ Alexander Lenz ]
+  * frm2/htf10: fix dev names.
+
+  [ Christian Felder ]
+  * MARIA: Add sample changer axis + formatting.
+  * MARIA: Add detector slit ds_left.
+  * MARIA: Add sample changer axis + formatting.
+
+  [ Jens Krüger ]
+  * TESTS: Reduce STRESSI detector size
+
+  [ Björn Pedersen ]
+  * Increase test timeout
+  * Change reckeck string
+
+  [ Jens Krüger ]
+  * TESTS: Reduce test time for STRESSI filesink tests
+
+  [ Georg Brandl ]
+  * config: replace "-" with "_" in DNS name for instrument
+  * Jenkinsfile: minor syntax consistency
+  * scan: do not use "None in [array, ...]"
+  * scans panel: add straight line fit function
+  * remove unused file
+  * Jenkinsfile: only run coverage on merged changes
+
+  [ Jens Krüger ]
+  * TESTS: Reduce STRESSI detector size
+  * TESTS: Reduce test time for STRESSI filesink tests
+
+  [ Georg Brandl ]
+  * TESTS: rework test fixtures to be more reproducible
+  * TESTS: rework test fixtures to be more reproducible
+
+  [ Jens Krüger ]
+  * TEST: Fix axis setup
+
+  [ Georg Brandl ]
+  * J-NSE: add initial instrument
+  * J-NSE: add coil temperature/pressure sensor setup
+  * daemon tests: make independent
+
+  [ Alexander Lenz ]
+  * frm2/htf20 setup added.
+
+  [ Georg Brandl ]
+  * FRM2: make helios01 plug-and-play
+
+  [ Jens Krüger ]
+  * VARIOX: Add the manual heater device
+
+  [ Georg Brandl ]
+  * virtual motor: make "ramp" volatile
+  * scans panel: add a way to prevent automatic opening of new scans
+  * installer: pack nicos.core/nicos.devices
+  * utils: hostnames can contain dashes
+
+  [ Jens Krüger ]
+  * TEST: add missing test for 'parseConnectionString' function
+
+  [ Georg Brandl ]
+  * gui plotting: fix unzoom after changing curve visibility change
+  * gr plotting: dataset plots have symbols by default
+  * gui plotting: fix selecting proper range for scan X values
+
+  [ Jens Krüger ]
+  * BUGREPORT: enable the redmine module > 2.0.0
+  * HTF20: Add an information if the ramp is 0
+
+  [ Christian Felder ]
+  * Livewidget: Calculate sums along x, y in respect to current window.
+
+  [ Georg Brandl ]
+  * POLI: fit center "nan" is bad too
+
+  [ Christian Felder ]
+  * MARIA: Reduce HasWindowTimeoutAO window for selector.
+
+  [ Matthias Pomm ]
+  * REFSANS: upload current working state
+
+  [ Jens Krüger ]
+  * STRESSI: Fix caress data in case of string values
+  * test utils: add 'assert_errors' to the test logger
+  * TESTS: Fix wrong parameter name in test setups
+
+  [ Björn Pedersen ]
+  * daemon session: pnpEvent signature aligned to base
+  * Fix unsupported-item-assignment warning
+
+  [ Jens Krüger ]
+  * TESTS: add test cases for device related commands
+  * TESTS: complete tests for 'read' command
+  * TESTS: complete tests for 'status' command
+  * TESTS: complete tests for reset command
+  * TEST: add test case for the 'reference' command
+
+  [ Georg Brandl ]
+  * daemon: ensure printed script ends with newline
+  * gui editor: add extension to filename even if filename already contains a dot
+  * daemon: update script text (used in error mail) on script update
+  * gui: show last line with a red arrow on error exit from script
+
+  [ Jens Krüger ]
+  * TESTS: Fix PEP8 issue
+  * STRESSI: add setup for the STRESSIHTF2
+
+  [ Björn Pedersen ]
+  * Changes to use the new docker containers
+  * Add pylint17 branch to docker jenkins build
+  * Change the node scope
+
+  [ Georg Brandl ]
+  * gui grplotting: fix adding the wrong curve to the plot on update
+
+  [ Jens Krüger ]
+  * DEMO: Fix typo
+  * TESTS: complete tests for 'stop' command
+
+  [ Björn Pedersen ]
+  * Demo: pgaa and qmchannel are mutually exclusive
+  * Fixes needed for pylint >=1.7
+  * pylint1.7: warning type changed
+  * Fix redefined-argument-from-local errors
+  * Fix compare-to-empty-string warnings
+  * readSetups: read in as binary
+  * Tests: Ensure we close sockets in wait_cb
+  * Toftof: Fix unclosed files
+  * Close client socket correctly
+  * Close secondary data files as well
+  * Test: close opened files
+  * Fix pylint warning
+  * Close files in stresspec sink and tests
+  * refsans: close file in cfg file sink
+  * test scripts: Try to close all log streams
+  * Always run with docker on branch pylint17
+  * Fix len-as-condition warnings
+  * Add docstrings to all fixtures
+  * Change yield_fixture to fixture
+  * Correctly close sockets in daemon wait
+  * log.warn is deprecated in favor of warning
+  * Use the py2/py3 compat escape function
+  * Improve tcpSocket tests
+  * Rewrite chunk to avoid StopIteration
+  * TOFTOF: use io.open for detinfo read-in
+  * Empty string comp in tests
+  * Fix centos build
+
+  [ Christian Felder ]
+  * MARIA: Add pflipper power supplies to polarizer setup.
+  * TREFF: invert pflipper
+  * TREFF: Add highlevel device to control all polarization states.
+
+  [ Björn Pedersen ]
+  * Use py3 compat base64.en/decode function
+
+  [ Georg Brandl ]
+  * daemon: close slow/hanging clients more aggressively
+  * daemon: add log output when closing connections due to full queue
+  * replace len(a) by a.size where it makes sense
+  * replace inspect.getargspec() by a compatibility helper
+
+  [ Christian Felder ]
+  * MARIA: Copy templates on `NewSample`.
+  * livewidget: Fix regression in un-/masking zeros in logscale plots.
+
+  [ Jens Krüger ]
+  * Commands: Fix argument for log10 must be greater 0
+
+  [ Christian Felder ]
+  * Fix: scan plot in log scale shows huge number for 0 counts.
+  * livewidget: Initialize livewidget in respect to array's shape.
+  * livewidget: Optimize scaling for 1D live data.
+
+  [ Jens Krüger ]
+  * STRESSI: ignore device values in caress data file
+
+  [ Christian Felder ]
+  * BIODIFF: Display interlocked axis without error status.
+
+  [ Björn Pedersen ]
+  * Update Jenkinsfile(docker) to install requirements
+
+  [ Jens Krüger ]
+  * FRM2: Add setup for the motorbox01
+  * PUMA: Fix motorbus10 setup
+  * PUMA: Fix some PEP8 issues
+  * PUMA: Change logging output routine
+
+  [ Andreas Wilhelm ]
+  * SANS-1: adopt position of temperature sample changer
+  * SANS-1: adjust ccr plot and values
+
+  [ Georg Brandl ]
+  * experiment: properly handle scripts and pausecount params in dry run
+
+  [ Christian Felder ]
+  * waterjulabo: increase timeout.
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add julabo plot
+
+  [ Christian Felder ]
+  * utils, enableDisableDirectory: Pass logger to enableDisableFileItem calls.
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change julabo view within monitor
+
+  [ Georg Brandl ]
+  * acquire: warn (and record traceback) if device cannot be read for envlist
+
+  [ Christian Felder ]
+  * TREFF: ndp setup.
+  * TREFF: Add iviumstat cell trigger device.
+
+  [ Björn Pedersen ]
+  * Improve RangeListbyStep
+
+  [ Jens Krüger ]
+  * COMMANDS: utility functions return always a list
+  * Generic Axis: give the return value of motor reference back
+
+  [ Michael Hofmann ]
+  * STRESSI: Fix setup of phi motor for eulerian setup
+
+  [ Jens Krüger ]
+  * STRESSI: Add live images to the status monitor(s).
+
+  [ Michael Hofmann ]
+  * STRESSI: Change the encoder of the radial collimator
+
+  [ Jens Krüger ]
+  * STRESSI: add sample oscillation device
+
+  [ Anatoliy Senyshyn ]
+  * SPODI: Reconfigure sample changer
+
+  [ Jens Krüger ]
+  * AUTHORS: Update authors list
+
+  [ Georg Brandl ]
+  * GUI: minor pep8 fixes
+  * all: remove unnecessary commas
+  * history: fix standalone history viewer
+
+  [ Alexander Lenz ]
+  * devices/generic: add ScanningDetector.
+
+  [ Andreas Wilhelm ]
+  * SANS-1: add Temp value
+  * SANS-1: add position options for changed positions
+  * Commit local state.
+  * SANS-1: adjust monitors
+
+  [ Jens Krüger ]
+  * RectROIChannel device: set 'roi' parameter category to 'general'
+  * Add test for 'FunctionType' of the nicos methods
+  * Sequences: Add a new type of sequence item 'SeqWait'
+  * Sequence: Add hook '_cleanUp' at the end of the sequence thread
+  * SPODI: Fix stop function on the detector
+
+  [ Björn Pedersen ]
+  * [GUI] Find+replace
+
+  [ Oleg Sobolev ]
+  * PUMA: Activate html monitor
+  * PUMA: Add new mail receiver
+  * PUMA: Fix att limits
+  * PUMA: Add Ge311 analyzer setup
+  * PUMA: Change some parameters on sample table devices
+  * PUMA: Update some config parameters of monochromator
+  * PUMA: deactivate some filter devices
+  * PUMA: Fix some formatting issues
+  * PUMA: Change GUI setup
+  * PUMA: cleanup of basic setup
+
+  [ Björn Pedersen ]
+  * [RESI] Adopt to current working  environment
+  * [RESI] ensure module is importable for setup check
+  * [RESI] Fix service list
+
+  [ Jens Krüger ]
+  * TOOLS/SETUP: Sort the instrument list alphabetically
+  * GUISUPPORT: Add context mananger 'waitCursor'
+  * TOOLS/SETUP: Use the 'waitCursor' context manager
+
+  [ Georg Brandl ]
+  * minor docstring fixup
+
+  [ Jens Krüger ]
+  * PUMA: Clean up code of special IPC implementations
+  * PUMA: Clean up code for the 'combined axis' and add tests
+  * TEST: Speed up PUMA custom test
+  * PUMA: Code clean up 'focus axis' and add tests
+
+  [ Björn Pedersen ]
+  * [DOC] Increase the toc depth for latex-pdfs
+  * [Test] Fix simulationSync signature
+  * [Test] Use the correct setup for test_encoding
+
+  [ Jens Krüger ]
+  * PUMA: Add MTT axis specific tests
+  * TESTS: move all tests for device related commands into a class
+  * TESTS: add checks for the list commands output
+
+  [ Alexander Lenz ]
+  * guisupport/DeviceValueEdit: make unit optional.
+
+  [ Björn Pedersen ]
+  * [RESI] Switch to filebased cache
+
+  [ Jens Krüger ]
+  * TOFTOF: Cleanup some code sequences in legacy data sink.
+  * TEST/TOFTOF: Increase the test coverage
+
+  [ Georg Brandl ]
+  * KWS1: setup updates
+  * KWS2: add DLS sync "detector"
+
+  [ Petr Cermak ]
+  * PANDA: update mono changer after testing
+
+  [ Georg Brandl ]
+  * KWS2: setup updates
+  * POLI: restructure setups
+  * POLI: lib/setup updates
+
+  [ Björn Pedersen ]
+  * [GUI] Fix replace all endless loops
+  * [GUI] Add a wait cursor for replace-All
+  * [GUI]Find: Ensure to operate on the correct editor
+  * [GUI] Refactor editor panel code
+  * [GUI] Simplify lexer handling
+
+  [ Georg Brandl ]
+  * Jenkinsfile: use "~" for home, like in Jenkinsfile_withdocker
+
+  [ Christian Felder ]
+  * TREFF: Fix iviumstat template, wait for cell.
+
+  [ Georg Brandl ]
+  * Do not run text client test on macOS.
+  * UTILS: move checkSetupSpec, extractKeyAndIndex to nicos.utils
+
+  [ Björn Pedersen ]
+  * [RESI] Add hover feet to monitor
+
+  [ Jens Krüger ]
+  * REFSANS: rename the original NOK code file
+
+  [ Alexander Lenz ]
+  * reseda: special version of hdf5.
+
+  [ Georg Brandl ]
+  * DEVICE: fix userlimit restriction after abslimits change
+  * MARIA: do not abort writing data when status of a device fails
+
+  [ Björn Pedersen ]
+  * Fix ListCommands for non-bound Alias devices
+
+  [ Georg Brandl ]
+  * GUI: "None" is actually a valid value for some SPECIAL devices
+  * SANS1: support image flipping in readout, instead of data sink
+  * FRM2: use Tango server for reactor/guide hall status
+
+  [ Jens Krüger ]
+  * ESSIIP: Add copyright file header
+  * ESSIIP: Switch to fully qualified class
+  * HRPD: Switch to fully qualified classes
+  * DEMO: Switch to fully qualified class
+  * STRESSI: Switch to fully qualified class
+  * FRM2: Switch to fully qualified class
+  * DELAB: Switch to fully qualified class names
+  * ICTRL:  Switch to fully qualified class names
+  * SPODI: Switch to fully qualified class names
+  * TOFTOF: Remove unused setups
+  * TOFTOF: Switch to fully qualified class names
+
+  [ Alexander Lenz ]
+  * reseda: tunewave table support.
+
+  [ Jens Krüger ]
+  * KOMPASS: Change email address of instrument responsible
+  * KOMPASS: Switch to fully qualified class names
+
+  [ Jitae Park ]
+  * PUMA: Remove instrument responsible
+  * PUMA: change cellphone number of the instrument responsible
+  * PUMA: Increase timeouts of the slits
+  * PUMA: Remove not used devices and dev configs
+
+  [ Jens Krüger ]
+  * PUMA: Fix typo in GUI configuration
+
+  [ Jitae Park ]
+  * PUMA: Change instrument responsible
+  * PUMA: Adopt slit template
+  * PUMA: update setup parameters of mono, ana, and table
+  * PUMA: Change some descriptions
+
+  [ Jens Krüger ]
+  * MEPHISTO:  Switch to fully qualified class names
+
+  [ Mira People ]
+  * MIRA: Add TAS setup tool to the GUI
+  * MIRA: Add the HTF20 to the HTML monitor
+
+  [ Jens Krüger ]
+  * MIRA: Switch to fully qualified class names
+  * NECTAR: Switch to fully qualified class names
+  * Use fully qualified module names for the commands
+  * STRESSI: Improve the wavelength device
+  * NGH: Switch to fully qualified class names
+  * SKELETON: switch to fully qualified class names
+  * SE: Switch to fully qualified class names
+
+  [ Christian Felder ]
+  * TREFF: Change precision and fmtstr for t2t axes.
+
+  [ Jens Krüger ]
+  * V20: Switch to fully qualified class names
+
+  [ Reseda People ]
+  * reseda: arm setups.
+
+  [ Alexander Lenz ]
+  * reseda: echotime dev: add wavelength tolerance.
+
+  [ Reseda People ]
+  * reseda: enable userdb auth.
+  * reseda: hdf5: only use data if it's there.
+  * reseda: add filesavers.
+  * reseda: fix sample table setup.
+
+  [ Jens Krüger ]
+  * POWTEX: Switch to fully qualified class names
+  * REFSANS: Switch to fully qualified class names
+
+  [ Alexander Lenz ]
+  * windows: nicos-history exe
+
+  [ Jens Krüger ]
+  * CUSTOM: use fully qualified module name for the commands
+  * PUMA: Switch to fully qualified class names
+  * SANS1: Switch to fully qualified class names
+  * ANTARES: Switch to fully qualified class names
+  * POLI: Switch to fully qualified class names
+  * PGAA: Switch to fully qualified class names
+
+  [ L.Fleischhauer-Fuss ]
+  * TREFF: Mc setups
+
+  [ Jens Krüger ]
+  * DOC: Fix moved class implementation
+  * RESEDA: Switch to fully qualified class names
+
+  [ Alexander Lenz ]
+  * reseda: add basic tuning configuration.
+
+  [ Reseda People ]
+  * reseda: enable elog.
+  * reseda: sample translation via entangle.
+  * reseda: consistent setup format.
+  * reseda: restructure hupp entangle devices.
+
+  [ Björn Pedersen ]
+  * Migrate to astropy.io.fits
+
+  [ Michael Wedel ]
+  * ESSIIP: Introduce EpicsMappedMoveable
+  * ESSIIP: Adjust configuration files
+
+  [ Jens Krüger ]
+  * VIRTUAL: motor start/stop/wait fixed
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change settings for html monitor
+  * SANS-1: change group level and autoload of setup
+
+  [ Björn Pedersen ]
+  * Use configured retrigger regex in gerritverify
+
+  [ Enrico Faulhaber ]
+  * REFSANS: add memograph
+
+  [ Christian Felder ]
+  * MARIA: Configure axis for vertical slit s2.
+
+  [ Georg Brandl ]
+  * demo: remove sanspanel
+
+  [ Michael Wedel ]
+  * ESSIIP: Improve implementation of EpicsMotor
+
+  [ Björn Pedersen ]
+  * Add first tests for the posutils
+  * Add utility functions for sxtal positions
+  * Remove old code from posutils
+  * Suppress arguments-differ
+  * Final step to  activate new jenkins jobs
+  * Add a generic monochromator device
+  * Add tests for sxtal position code
+
+  [ Reseda People ]
+  * reseda: arm1: use original encoder again.
+  * reseda: arm2: adapt precision of rotation.
+  * reseda: add first coils.
+  * reseda: add pressure sensors.
+  * reseda: fix setup format.
+
+  [ Georg Brandl ]
+  * custom layout: add transitional package nicos_mlz
+  * KWS1: switch to fully qualified class names in guiconfig
+  * KWS1: move monitorwidgets to GUI subpkg, use fully qualified class names
+  * KWS1 setups: switch to fully qualified class names in setups
+  * Jenkinsfile: link libs into nicos_mlz
+  * KWS1: switch to fully qualified class names in imports/doc
+
+  [ Christian Felder ]
+  * DNS: setup/lib updates
+
+  [ Georg Brandl ]
+  * Jenkinsfile: link lib/devices into nicos_mlz
+  * KWS3: custom updates
+  * Jenkinsfile: link lib/devices to .
+  * KWS2: switch to nicos_mlz
+  * KWS3: switch to nicos_mlz
+  * DNS: switch to nicos_mlz
+  * POLI: switch to nicos_mlz
+  * PANDA: switch to nicos_mlz
+  * J-NSE: add setup for power suplies
+  * J-NSE: add setup for compressor status
+
+  [ Björn Pedersen ]
+  * Fix jenkinsfiles
+
+  [ Georg Brandl ]
+  * J-NSE: switch to nicos_mlz
+  * BIODIFF: switch to nicos_mlz
+  * PANDA: remove unused lib
+
+  [ Petr Cermak ]
+  * PANDA: setup updates
+
+  [ Georg Brandl ]
+  * PANDA: remove unused classes from monochanger
+
+  [ Stefan Rainow ]
+  * SPHERES: switch to nicos_mlz
+
+  [ Jens Krüger ]
+  * DOC: make the 'scan' and 'cscan' doc more userfriendly
+
+  [ Georg Brandl ]
+  * PANDA: fix excludes
+
+  [ Jens Krüger ]
+  * DOC: improve description of the commands
+
+  [ Georg Brandl ]
+  * KWS: adapt shutter setups
+  * KWS: use consistent quotes in setups
+  * DNS/POLI: use consistent quotes in setups
+  * JCNS: fixup missed fully qualified classes
+  * GALAXI: update outdated guiconfig format
+  * GALAXI: switch to nicos_mlz
+  * PUMA: fixup invalid guiconfig
+  * CUSTOM: repair destroyed guiconfigs
+  * JCNS: complete migration to nicos_mlz
+  * EMC: switch to nicos_mlz
+  * tools: check_setups now tries to import modules
+  * tools: check_setups now checks guiconfig for validity
+  * SANS1: update outdated guiconfig format
+  * GUI: remove support for outdated guiconfig format
+
+  [ Jens Krüger ]
+  * NECTAR: move to facility package 'nicos_mlz'
+  * PGAA: move to facility package 'nicos_mlz'
+  * POWTEX: move to facility package 'nicos_mlz'
+  * SKELETON: move to facility package 'nicos_mlz'
+  * SPODI: move to facility package 'nicos_mlz'
+  * MEPHISTO: move to facility package 'nicos_mlz'
+  * STRESSI: move to facility package 'nicos_mlz'
+  * HRPD: move to facility package 'nicos_mlz'
+  * FRM2: move to facility package 'nicos_mlz'
+  * SANS1: move to facility package 'nicos_mlz'
+  * REFSANS: move to facility package 'nicos_mlz'
+  * MIRA: move to facility package 'nicos_mlz'
+  * GUICONFIG: Fix package names
+
+  [ Georg Brandl ]
+  * Jenkinsfile: check guiconfigs too
+
+  [ Björn Pedersen ]
+  * RESI: Switch to fully qualified class names
+  * NLAUE: Switch to fully-qualified names
+
+  [ Alexander Lenz ]
+  * devices/tango: introduce tangotimeout.
+
+  [ Reseda People ]
+  * reseda: fix slit tangodevice names.
+  * reseda: increase tangotimeout for coil ps.
+
+  [ Björn Pedersen ]
+  * Fix Mira live widget
+  * Add a basic credentials impl.
+  * Provide push token via keystore
+  * Add a keystore editor tool
+  * Use fixtures in auth tests
+
+  [ Jens Krüger ]
+  * ANTARES: move to facility package 'nicos_mlz'
+  * SANS1: Fix change to 'nicos_mlz'
+  * NECTAR: Fix change to 'nicos_mlz'
+  * PGAA: Fix change to 'nicos_mlz'
+  * ICTRL: move to facility package 'nicos_mlz'
+  * HRPD: Fix change to 'nicos_mlz'
+  * KOMPASS: move to facility package 'nicos_mlz'
+
+  [ Christian Felder ]
+  * Fix: Add support for empty passwords in keyring
+  * Fix: nicos-keystore delete does not work.
+
+  [ Jens Krüger ]
+  * DELAB: move to facility package 'nicos_mlz'
+  * PUMA: move to facility package 'nicos_mlz'
+  * STRESSI: Fix change to 'nicos_mlz'
+  * NGH: move to facility package 'nicos_mlz'
+  * RESEDA: move to facility package 'nicos_mlz'
+  * MIRA: Fix change to 'nicos_mlz'
+  * SPODI: Fix change to 'nicos_mlz'
+  * DEMO: move to facility package 'nicos_mlz'
+
+  [ Björn Pedersen ]
+  * Adopt doc path generation to new layout
+  * Switch from sphinx Directive to docutils
+
+  [ Jens Krüger ]
+  * FRM2: Fix changet to 'nicos_mlz'
+  * TOFTOF: Switch to 'nicos_mlz' meta package
+  * FRM2: Add 'stressihtf2' device setup
+  * RESEDA: switch to 'nicos_mlz' package
+  * CUSTOM: Fix some remaining not 'full packaged' devices
+
+  [ Matthias Pomm ]
+  * REFSANS: Disable some watchdog rules
+  * REFSANS: Add new status monitor setup (memograph, source)
+
+  [ Jens Krüger ]
+  * CUSTOM: Fix remaining changes to 'nicos_mlz'
+  * REFSANS: Fix change to 'nicos_mlz'
+  * REFSANS: Fix 'full qualified package' name
+
+  [ Björn Pedersen ]
+  * Jenkins: Fix branch <-> job conbfiguration
+
+  [ Christian Felder ]
+  * MARIA: Switch to nicos_mlz.
+  * TREFF: Switch to nicos_mlz.
+
+  [ Georg Brandl ]
+  * gui history: fix sync of textbox and tree for edit window
+
+  [ Jens Krüger ]
+  * FRM2: move CCMSANS code from sans1 to frm2
+
+  [ Björn Pedersen ]
+  * Add more info on the scripting/command language
+  * DOC: Rewrite intro
+
+  [ Georg Brandl ]
+  * GUI: allow showing arbitrary parameters in device list
+
+  [ Jens Krüger ]
+  * Commands: add a 'waitfor' command
+
+  [ Björn Pedersen ]
+  * [SANS1] add _runFailed to HV sequencer
+
+  [ Jens Krüger ]
+  * CUSTOM: switch remaining device setups to 'nicos_mlz'
+  * DOC: switch to 'nicos_mlz' package
+
+  [ Georg Brandl ]
+  * commands: simplify tomo() move and wait
+
+  [ Michael Wedel ]
+  * EPICS: Improve handling of string PVs
+
+  [ Andreas Wilhelm ]
+  * SANS-1: change groups of setup
+
+  [ Georg Brandl ]
+  * all: missing fully qualified name changes
+  * check_setups: remove automatic prefixes
+  * all: more "nicos.custom" import updates
+  * TEST: switch to fully qualified names in setups
+  * all: even more fully qualified names
+  * doc: fix markup errors
+  * utils: remove prefixes arg from importString
+  * sans1/refsans: move monitorwidgets to gui/
+
+  [ Björn Pedersen ]
+  * Change the way we write the setup.cfg for pytest
+
+  [ Jens Krüger ]
+  * MIRA: Switch high voltage stick to TANGO device drivers
+  * DOC: Fix some formatting issues in introduction
+  * POLI: fix copyright header: year
+
+  [ Björn Pedersen ]
+  * Jenkins: also update venv with requirement-dev
+
+  [ Georg Brandl ]
+  * SANS1: add dev/param pseudo devices for BerSANS IEEE headers
+
+  [ Jens Krüger ]
+  * SANS1: Fix wrong device path
+
+  [ Georg Brandl ]
+  * irf10: add maxheater device
+
+  [ Jens Krüger ]
+  * TEST: Add another test case for tomo command
+
+  [ Björn Pedersen ]
+  * Change password hashing handling
+  * Implement authentication via the keyval store
+  * Refactor auth_entry validator
+
+  [ Michael Wedel ]
+  * EPICS: Improve default doStatus
+
+  [ Georg Brandl ]
+  * CUSTOM: move into new facility package nicos_mlz
+  * virtual timer: allow starting multiple times without speeding up time
+
+  [ Jens Krüger ]
+  * PANDA: Add cooling water information devices
+  * ANTARES: add cooling water information devices
+  * SPODI: Add cooling water information devices
+
+  [ Georg Brandl ]
+  * tests: support multiple facility packages
+  * add support for more facility packages to coverage/lint targets
+  * setup.py: install facility packages properly
+
+  [ Jens Krüger ]
+  * STRESSI: Add cooling water information devices
+  * PUMA: Add cooling water information devices
+  * POLI: add cooling water information devices
+  * STRESSI: Improve implementation of wavelength device
+  * ANTARES: remove garfield related devices and setups
+  * MIRA: Remove helios related devices and setups
+
+  [ Georg Brandl ]
+  * Windows installer: support multiple facility packages
+  * setupdoc: support multiple facility dirs
+  * tests: fix wrong import path for custom tests
+  * utils: restore compatibility for findResource
+
+  [ Björn Pedersen ]
+  * nicos conf: Make Environment vars additive
+  * Move nicos.conf doc to own file
+
+  [ Georg Brandl ]
+  * config: make INSTRUMENT contain the setup package + instrument
+
+  [ Jens Krüger ]
+  * RESI: add cooling water information devices
+
+  [ Björn Pedersen ]
+  * [CacheInspector] Disconnect fully on cache failure
+
+  [ Jens Krüger ]
+  * PUMA: add multi analyzer device
+
+  [ Georg Brandl ]
+  * Jenkins: next release should be 3.0
+  * DEMO: move to facility nicos_demo
+  * gui: move tasaxes to core package
+
+  [ Matthias Pomm ]
+  * REFSANS: include mode-setting setup
+
+  [ Nikhil Biyani ]
+  * SINQ: Added the motors in SINQ AMOR
+
+  [ Michael Wedel ]
+  * ESSIIP: Added Julabo F25 setup
+
+  [ Andreas Wilhelm ]
+  * SANS-1: remove pumpe-pi setup from includes and watchdog
+
+  [ Petr Cermak ]
+  * PANDA: add memograph to monitor setups
+
+  [ Alexander Lenz ]
+  * se: change process user/group
+  * se: configure services.
+
+  [ Antares People ]
+  * antares: Commit local state.
+
+  [ Jens Krüger ]
+  * ESS: Create own package
+
+  [ Georg Brandl ]
+  * Update remaining references to custom_path, default setup_package is now nicos_demo.
+  * Update nicos.conf for JCNS instruments.
+
+  [ Jens Krüger ]
+  * SINQ: Create own package
+
+  [ Nikhil Biyani ]
+  * SINQ: Added the error message PVs to motor setups
+
+  [ Jens Krüger ]
+  * BATAN: create a separate package
+
+  [ Georg Brandl ]
+  * JCNS: add Taco library location to PYTHONPATH
+
+  [ Jens Krüger ]
+  * Adopt ignoring generated doc source directories
+  * DOC: Improve clean target
+
+  [ Antares People ]
+  * antares: Commit local state.
+
+  [ Christian Felder ]
+  * ReaderRegistry: Provide filter string for filetypes.
+
+  [ Jens Krüger ]
+  * TESTS: restore list of detectors in SPODI detector test
+
+  [ Christian Felder ]
+  * livewidget: Load previously measured files.
+
+  [ Georg Brandl ]
+  * SAMPLE: make it a moveable
+  * config: place custom_version behind a function call
+  * config: apply manually on request
+  * Update install docs for 3.0.
+
+  [ Jens Krüger ]
+  * Update CHANGES for the next release
+
+  [ Alexander Lenz ]
+  * daemon/auth: rewrite ldap authenticator.
+
+  [ Nikhil Biyani ]
+  * SINQ: New Epics Asyn contoller device class
+
+  [ Georg Brandl ]
+  * SKELETON: move to nicos_demo
+
+  [ Christian Felder ]
+  * BIODIFF: Add mini-kappa omega encoder.
+
+  [ J. T. Park ]
+  * PUMA: save latest changes in setups
+
+  [ Jens Krüger ]
+  * SKELETON: Remove the 'smser' device references
+
+  [ Nikhil Biyani ]
+  * EPICS: Improve the default status of EpicsDevice
+
+  [ Georg Brandl ]
+  * gui: add a "select guiconfig" dialog
+
+  [ Michael Wedel ]
+  * [EPICS] Replace pyepics with pvaPy
+  * [EPICS] Example setup for pvaPy
+
+  [ Alexander Lenz ]
+  * frm2: add "global" frm2 nicos.conf.
+
+  [ Christian Felder ]
+  * Fix: Omit --root setting in setup.py install if DESTDIR is unset.
+
+  [ Alexander Lenz ]
+  * Update ldap3 version requirement to API v2.
+
+  [ Jens Krüger ]
+  * SETUP: add setup_package to global nicos.conf
+
+  [ Christian Felder ]
+  * Fix minor bug in release job.
+
+  [ JenkinsCodeReview ]
+  * Prepare for release 3.0.0
+
+  [ Jens Krüger ]
+  * CARESS: Add a stopaction type
+
+  [ Georg Brandl ]
+  * changelog: mention rsa dependency change
+
+  [ Andreas Wilhelm ]
+  * sans1: minor setup fixes.
+
+  [ Michael Wedel ]
+  * DOC: Complete doc of the ESSIIP specific devices
+
+  [ Alexander Lenz ]
+  * tools/reformat_setup: split consecutive brackets.
+
+  [ Jens Krüger ]
+  * REFSANS: Fix cache data path
+
+  [ Christian Felder ]
+  * daemon, auth: Move authenticators to separate modules.
+
+  [ Stefan Rainow ]
+  * [Live] Removed remnant from livegr
+
+  [ Georg Brandl ]
+  * KWS: move protocol generation to daemon, do it automatically at finish
+  * ldap: fixup code formatting
+  * experiment: make missing managerights user/group only a warning
+  * session: remove one more instance of automatic "nicos." prefix
+
+  [ Christian Felder ]
+  * KWS2: Fix ep_HVs writepv accidential goes to unknown state (epics status 17).
+
+  [ Alexander Lenz ]
+  * services: create dirs for pid files.
+
+  [ Nectar People ]
+  * nectar: configure ldap auth.
+
+  [ Reseda People ]
+  * reseda: configure ldap auth.
+
+  [ Antares People ]
+  * antares: configure ldap auth.
+
+  [ Mira People ]
+  * mira: configure ldap auth.
+  * mira: fix monitor 2.
+
+  [ Andreas Wilhelm ]
+  * sans1: configure ldap auth.
+
+  [ Nectar People ]
+  * netar: add html monitor.
+
+  [ Reseda People ]
+  * reseda: reconfigure atts.
+
+  [ Andreas Wilhelm ]
+  * SANS1: add a template file containing some typical cmds
+
+  [ Christian Felder ]
+  * JCNS: Ohe hexapod workspaces configuration.
+  * MARIA: Adjust accel, decel on kscan.
+  * MARIA: Fix s2 units between motor and coder differ in simulation.
+
+  [ Georg Brandl ]
+  * KWS2: setup update
+  * KWS1: setup updates
+  * qmesydaq: fix MultiCounter
+  * gui editor: fix behavior of "toggle script view" action
+  * simulation: catch device list changing during simulation run
+  * simulation: do not emit warning if quiet
+
+  [ Christian Felder ]
+  * Remove try import leftovers from authentication modules.
+
+  [ Georg Brandl ]
+  * nicos_mlz: fix old install locations
+
+  [ Christian Felder ]
+  * MARIA: Fix selector temperature warning thresholds.
+  * MARIA: Add templates provided by S. Mattauch
+
+  [ Georg Brandl ]
+  * qmesydaq: work around failure to reset monitor preset with enableMaster
+  * nicos-demo: honor INSTRUMENT setting for guiconfig
+
+  [ Nikhil Biyani ]
+  * SINQ: Added the magnet in the SINQ AMOR
+
+  [ Georg Brandl ]
+  * KWS3: fix mawi_therm device
+  * KWS: fixup rheo format string
+  * FRM2: add jpc1 (pressure cell) setup
+
+  [ Björn Pedersen ]
+  * Fix comment text
+
+  [ Georg Brandl ]
+  * move setup to proper location
+  * sample: set target on select
+  * tas: fix getWaiters
+
+  [ Nikhil Biyani ]
+  * SINQ: Adapted Channels and Detectors to EPICS
+
+  [ Björn Pedersen ]
+  * [GUI] Split main and mainwindow
+
+  [ Nikhil Biyani ]
+  * ESS: Synchronize OFFset PV with EpicsMotor Offset
+
+  [ Stefan Rainow ]
+  * [Bugfix] ETA for commandline scripts
+
+  [ Georg Brandl ]
+  * gui expinfo: sort setups/dets/envs for display
+
+  [ Christian Felder ]
+  * MARIA: Change fmtstr for detector cts.
+  * Live: Add fnmatch filter based on text entered in QFileDialog.
+
+  [ Björn Pedersen ]
+  * Avoid name  clashes in custom tests
+  * GUI: use argparse for options
+  * [GUI] Correctly forward viewonly
+  * cacheclient: keep track of worker thread start
+
+  [ Georg Brandl ]
+  * gui: fix cherry pick accident
+  * gui: fix another cherry pick accident
+  * sample: do not do target checks
+
+  [ Nikhil Biyani ]
+  * SINQ: Added the neutron counter box in AMOR
+
+  [ Jens Krüger ]
+  * DEMO: Fix unit in vstressi setup for osc device.
+
+  [ Alexander Lenz ]
+  * frm2: remove default pid path.
+  * [deb] cleanup debian control files.
+
+ -- Georg Brandl <g.brandl@fz-juelich.de>  Fri, 18 Aug 2017 16:51:53 +0200
 
 nicos-core (2.0.0) unstable; urgency=low
 
