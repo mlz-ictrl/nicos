@@ -17,6 +17,7 @@ export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
 override_dh_install:
 	mkdir -p etc/init.d
 	ln -s /usr/local/nicos/etc/nicos-system etc/init.d/nicos-system
+	rm debian/tmp/usr/local/nicos/nicos.conf
 	dh_install --list-missing
 
 override_dh_auto_install:
