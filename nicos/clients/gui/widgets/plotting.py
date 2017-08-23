@@ -38,7 +38,7 @@ from gr.pygr import Plot, PlotAxes, ErrorBar, Text, RegionOfInterest, \
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.guisupport.qt import Qt, QPoint, QApplication, QMenu, QAction, \
-    QDialog, QFileDialog, QCursor, QFont, QListWidgetItem, QMessageBox
+    QDialog, QFileDialog, QCursor, QFont, QListWidgetItem
 
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
@@ -1003,35 +1003,81 @@ class ViewPlot(NicosGrPlot):
 
         curve_index = dlg.curveCombo.currentIndex()
         if curve_index == 0:
-            curves = self.plotcurves
-            filenames = [base + '_' +
-                         safeFilename(self._getCurveLegend(curve)) + ext
-                         for curve in curves]
+            curvedata = [convertXCol(fmtno, *self._getCurveData(c)[:2])
+                         for c in self.plotcurves]
+            if len(curvedata) > 1:
+                filenames = [base + '_' +
+                             safeFilename(self._getCurveLegend(c)) + ext
+                             for c in self.plotcurves]
+            else:
+                filenames = [sel_filename]
+        elif curve_index == 1:
+            curvedata = [synthesizeSingleCurveData(
+                [self._getCurveData(c)[:2] for c in self.plotcurves], fmtno)]
+            filenames = [sel_filename]
         else:
-            curves = [self.plotcurves[curve_index - 1]]
+            curve = self.plotcurves[curve_index - 2]
+            curvedata = [convertXCol(fmtno, *self._getCurveData(curve)[:2])]
             filenames = [sel_filename]
 
-        for curve, filename in zip(curves, filenames):
-            x, y, _ = self._getCurveData(curve)
-            n = len(x)
+        for curve, filename in zip(curvedata, filenames):
+            np.savetxt(filename, curve, fmt='%s')
 
-            if n < 1:
-                QMessageBox.information(
-                    self, 'Error',
-                    'No data in curve %r' % self._getCurveLegend(curve))
-                continue
 
-            with open(filename, 'wb') as fp:
-                for i in range(n):
-                    if fmtno == 0:
-                        fp.write('%s\t%s\n' % (x[i] - x[0], y[i]))
-                    elif fmtno == 1:
-                        fp.write('%s\t%s\n' % (x[i], y[i]))
-                    else:
-                        fp.write('%s\t%s\n' % (
-                            time.strftime('%Y-%m-%d.%H:%M:%S',
-                                          time.localtime(x[i])),
-                            y[i]))
+def convertXCol(fmtno, x, *ys):
+    ystack = [np.asarray(y) for y in ys]
+    if fmtno == 0:    # seconds since first datapoint
+        x = np.asarray(x)
+        return np.stack([x - x[0]] + ystack, 1)
+    elif fmtno == 1:  # UNIX timestamp
+        x = np.asarray(x)
+        return np.stack([x] + ystack, 1)
+    elif fmtno == 2:  # formatted time
+        return np.stack([np.array([time.strftime('%Y-%m-%d.%H:%M:%S',
+                                                 time.localtime(v))
+                                   for v in x])] + ystack, 1)
+    raise NotImplementedError('invalid time format')
+
+
+def synthesizeSingleCurveData(curvedata, fmtno, window=0.1):
+    """Generate a single matrix with value Y1...Yn for a single time column
+    from a list of separate (X, Y) curves
+
+    Y values of curves that don't have data for inbetween points is not
+    interpolated, but the last value is repeated.
+    """
+    ncurves = len(curvedata)
+    lastvalues = [None] * ncurves
+    indices = [0] * ncurves
+    times = []
+    points = [[] for _ in range(ncurves)]
+    timestamps = [c[0] for c in curvedata]
+    yvalues = [c[1] for c in curvedata]
+
+    while True:
+        # find the curve with the least unused timestamp
+        ileast = min(range(ncurves),
+                     key=lambda i: timestamps[i][indices[i]])
+        lastvalues[ileast] = yvalues[ileast][indices[ileast]]
+        ts = timestamps[ileast][indices[ileast]]
+        indices[ileast] += 1
+        # find any curves where the next unused timestamp is close to the
+        # found least timestamp
+        for i in range(ncurves):
+            if i != ileast and timestamps[i][indices[i]] - ts <= window:
+                lastvalues[i] = yvalues[i][indices[i]]
+                indices[i] += 1
+        # once all curves have seen a value, synthesize a point with the
+        # current "lastvalues"
+        if None not in lastvalues:
+            times.append(ts)
+            for pts, value in zip(points, lastvalues):
+                pts.append(value)
+        # if any of the curves have been exhausted, stop
+        if any(indices[i] >= len(timestamps[i]) for i in range(ncurves)):
+            break
+
+    return convertXCol(fmtno, times, *points)
 
 
 class DataSetPlot(NicosGrPlot):
