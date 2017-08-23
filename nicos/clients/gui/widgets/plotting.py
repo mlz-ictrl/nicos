@@ -24,6 +24,7 @@
 #
 # *****************************************************************************
 
+from os import path
 from time import strftime, localtime
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QMessageBox
@@ -31,6 +32,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 
 import numpy as np
 
+from nicos.utils import safeFilename
 from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
     PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, ExponentialFit
 from nicos.clients.gui.dialogs.data import DataExportDialog
@@ -594,37 +596,49 @@ class ViewPlotMixin(object):
         curvenames = [self._getCurveLegend(plotcurve)
                       for plotcurve in self.plotcurves]
         dlg = DataExportDialog(self, curvenames,
-                               'Select curve, file name and format',
+                               'Select curve(s), file name and format',
                                '', 'ASCII data files (*.dat)')
         res = dlg.exec_()
         if res != QDialog.Accepted:
             return
         if not dlg.selectedFiles():
             return
-        curve = self.plotcurves[dlg.curveCombo.currentIndex()]
         fmtno = dlg.formatCombo.currentIndex()
-        filename = dlg.selectedFiles()[0]
-        if '.' not in filename:
-            filename += '.dat'
+        sel_filename = dlg.selectedFiles()[0]
+        if '.' not in sel_filename:
+            sel_filename += '.dat'
+        base, ext = path.splitext(sel_filename)
 
-        x, y, _ = self._getCurveData(curve)
-        n = len(x)
+        curve_index = dlg.curveCombo.currentIndex()
+        if curve_index == 0:
+            curves = self.plotcurves
+            filenames = [base + '_' +
+                         safeFilename(self._getCurveLegend(curve)) + ext
+                         for curve in curves]
+        else:
+            curves = [self.plotcurves[curve_index - 1]]
+            filenames = [sel_filename]
 
-        if n < 1:
-            QMessageBox.information(self, 'Error',
-                                    'No data in selected curve!')
-            return
+        for curve, filename in zip(curves, filenames):
+            x, y, _ = self._getCurveData(curve)
+            n = len(x)
 
-        with open(filename, 'wb') as fp:
-            for i in range(n):
-                if fmtno == 0:
-                    fp.write('%s\t%s\n' % (x[i] - x[0], y[i]))
-                elif fmtno == 1:
-                    fp.write('%s\t%s\n' % (x[i], y[i]))
-                else:
-                    fp.write('%s\t%s\n' % (
-                        strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
-                        y[i]))
+            if n < 1:
+                QMessageBox.information(
+                    self, 'Error',
+                    'No data in curve %r' % self._getCurveLegend(curve))
+                continue
+
+            with open(filename, 'wb') as fp:
+                for i in range(n):
+                    if fmtno == 0:
+                        fp.write('%s\t%s\n' % (x[i] - x[0], y[i]))
+                    elif fmtno == 1:
+                        fp.write('%s\t%s\n' % (x[i], y[i]))
+                    else:
+                        fp.write('%s\t%s\n' % (
+                            strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
+                            y[i]))
 
     def setSlidingWindow(self, window):
         pass

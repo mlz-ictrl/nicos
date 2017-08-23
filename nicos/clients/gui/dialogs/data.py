@@ -36,6 +36,7 @@ class DataExportDialog(QFileDialog):
         layout = self.layout()
         layout.addWidget(QLabel('Curve:', self), 4, 0)
         self.curveCombo = QComboBox(self)
+        self.curveCombo.addItem('all (in separate files)')
         self.curveCombo.addItems(curvenames)
         layout.addWidget(self.curveCombo, 4, 1)
         layout.addWidget(QLabel('Time format:', self), 5, 0)
