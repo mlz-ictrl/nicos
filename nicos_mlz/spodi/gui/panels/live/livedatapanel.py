@@ -80,7 +80,7 @@ class LiveDataPanel(Panel):
                 # The orientation of the tths is in negative direction but
                 # it will be used in positive direction to avoid type the '-'
                 # for each position in the frontend
-                start = -det[0] - (det[2] - step)
+                start = det[0] - (det[2] - step)
                 end = start + self._nx * step
                 self.dataPlot.setCurveData((numpy.arange(start, end, step),
                                             numpy.sum(d, axis=1)))
