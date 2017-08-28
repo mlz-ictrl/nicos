@@ -22,12 +22,15 @@
 #
 # *****************************************************************************
 
+"""Imaging commands."""
+
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.device import reset
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 from nicos.commands.utility import floatrange
+from nicos.core.device import Measurable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
 
@@ -36,14 +39,19 @@ __all__ = ['tomo']
 
 
 @usercommand
-@helparglist('nangles, moveables, imgsperangle=1, [detectors], [presets]')
+@helparglist('nangles, moveables, imgsperangle=1, ref_first=True, '
+             '[detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
+def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
+         **preset):
     """Performs a tomography.
 
     This is done by scanning over 360 deg in *nangles* steps and capturing a
     desired amount of images (*imgsperangle*) per step.  The scanning movement
     will be done by all given moveables.
+    Additionally to the calculated angles, a fixed acqisition at 180 deg will
+    be done (for reference). It can be prepended or inserted in the correct
+    order (ref_first).
 
     Examples:
 
@@ -51,8 +59,8 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
     >>> tomo(10, sry, 5) # multiple images per angle
     >>> tomo(10, sry, t=1) # tomography with 1s exposure time
-    >>> tomo(10, sry, 1, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
-    >>> tomo(10, sry, 5, det_neo, det_ikonl, t=1) # full version
+    >>> tomo(10, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
+    >>> tomo(10, sry, 5, True, det_neo, det_ikonl, t=1) # full version
     """
 
     session.log.info('Starting tomography scan.')
@@ -61,13 +69,21 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
         moveables = [session.getDevice('sry')]
-
-    if not isinstance(moveables, list):
+    elif not isinstance(moveables, list):
         moveables = [moveables]
 
     session.log.info('Performing 360 deg scan.')
 
     angles = [180.0] + floatrange(0.0, 360.0, num=nangles)
+
+    # This only for compatibility to older scripts
+    if isinstance(ref_first, Measurable):
+        detlist += (ref_first,)
+    elif ref_first is False:  # explicit check for ref_first=False
+        angles = sorted(angles)
+
+    session.log.debug('Used angles: %r', angles)
+
     with manualscan(*moveables) as scan:
         for angle in angles:
             # Move the given movable to the target angle
