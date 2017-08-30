@@ -30,7 +30,7 @@ devices = dict(
                     description = 'The current used sample',
                    ),
 
-    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.toftof.devices.experiment.Experiment',
                  description = 'The current running experiment',
                  dataroot = '/data',
                  sample = 'Sample',

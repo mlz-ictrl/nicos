@@ -18,18 +18,31 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-from nicos.devices.sxtal.xtal.symmetry import _test as symtest
-from nicos.devices.sxtal.xtal.sxtalcell import _test as sxtaltest
+"""NICOS TOFTOF experiment class."""
+
+from nicos import session
+
+from nicos_mlz.frm2.devices.experiment import Experiment as BaseExperiment
 
 
-def test_symmetry():
-    for test in symtest():
-        test[0](*test[1:])
+class Experiment(BaseExperiment):
+    """TOFTOF experiment.
 
+    The service experiment will be filled up with instrument specific data.
+    """
 
-def test_cell():
-    sxtaltest()
+    def _newPropertiesHook(self, proposal, kwds):
+        if self.proptype == 'service':
+            upd = {
+                'title': 'Maintenance',
+                'user': session.instrument.responsible,
+                'localcontact': session.instrument.responsible,
+                'sample': 'Unknown',
+            }
+            kwds.update(upd)
+            return kwds
+        return BaseExperiment._newPropertiesHook(self, proposal, kwds)

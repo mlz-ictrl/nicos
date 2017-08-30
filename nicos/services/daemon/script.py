@@ -650,10 +650,6 @@ class ExecutionController(Controller):
                 # get a script (or other request) from the queue
                 request = self.queue.get()
 
-                if session.cache and self.autosim:
-                    self.simulate_request(request, quiet=True)
-                    request.setSimstate('running')
-                self.reqid_work = request.reqid
                 self.log.info('processing request %s', request.reqid)
                 if isinstance(request, EmergencyStopRequest):
                     self.execute_estop(request.user)
@@ -661,6 +657,10 @@ class ExecutionController(Controller):
                 elif not isinstance(request, ScriptRequest):
                     self.log.error('unknown request: %s', request)
                     continue
+                self.reqid_work = request.reqid
+                if session.cache and self.autosim:
+                    self.simulate_request(request, quiet=True)
+                    request.setSimstate('running')
                 # notify clients that we're processing this request now
                 self.eventfunc('processing', request.serialize())
                 # notify clients of "input"
