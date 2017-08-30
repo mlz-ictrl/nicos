@@ -25,7 +25,7 @@
 """Devices via the CARESS device service."""
 
 from nicos import session
-from nicos.core import HasLimits, Moveable, POLLER, Param, SIMULATION, status
+from nicos.core import HasLimits, Moveable, POLLER, Param, SIMULATION
 from nicos.core.errors import ConfigurationError, NicosError
 from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
     CARESSDevice, CORBA, KEEP_ACTION
@@ -96,11 +96,7 @@ class Driveable(HasLimits, CARESSDevice, Moveable):
         self._setROParam('_started', True)
 
     def doStatus(self, maxage=0):
-        state = CARESSDevice.doStatus(self, maxage)
-        if self._started and state[0] == status.OK:
-            self.doStop()
-            self._setROParam('_started', False)
-        return state
+        return CARESSDevice.doStatus(self, maxage)
 
     def _stop(self, stopmode=KEEP_ACTION):
         self.log.debug('Stop: StopMode : %d', stopmode)
