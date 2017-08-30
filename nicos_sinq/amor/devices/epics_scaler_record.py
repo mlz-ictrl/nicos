@@ -40,10 +40,11 @@ class EpicsScalerRecord(EpicsDetector):
     driver error messages from the counter box
 
     Following codes are used for status:
-    0 - Ok, but not counting
-    1 - Currently counting
-    2 - No beam present
-    3 - Counting paused
+
+    * 0 - Ok, but not counting
+    * 1 - Currently counting
+    * 2 - No beam present
+    * 3 - Counting paused
     """
 
     parameters = {
