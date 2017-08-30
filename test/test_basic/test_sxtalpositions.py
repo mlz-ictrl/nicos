@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   pedersen
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 """
