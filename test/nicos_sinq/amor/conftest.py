@@ -27,6 +27,7 @@
 test_devices = {
     'sinq_motor': ['com', 'coz', 'aom', 'd1b'],
     'sinq_magnet': ['pby'],
+    'sinq_counter': ['psd_tof'],
 }
 
 
@@ -40,6 +41,7 @@ def pytest_addoption(parser):
 def pytest_generate_tests(metafunc):
     sinq_movable = []
     sinq_motor = []
+    sinq_counter = []
     devices = []
     for devs in test_devices.values():
         devices += devs
@@ -56,6 +58,8 @@ def pytest_generate_tests(metafunc):
                     sinq_motor.append(dev)
                 elif dev in test_devices['sinq_magnet']:
                     sinq_movable.append(dev)
+                elif dev in test_devices['sinq_counter']:
+                    sinq_counter.append(dev)
             else:
                 print('WARNING: ' + dev + ' not found in testable devices')
 
@@ -64,3 +68,6 @@ def pytest_generate_tests(metafunc):
 
     if 'sinq_movable' in metafunc.fixturenames:
         metafunc.parametrize('sinq_movable', sinq_movable)
+
+    if 'sinq_counter' in metafunc.fixturenames:
+        metafunc.parametrize('sinq_counter', sinq_counter)
