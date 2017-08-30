@@ -4,6 +4,6 @@ HRPD
 Data formats
 ------------
 
-.. automodule:: nicos_mlz.hrpd.devices.datasinks
+.. automodule:: nicos_batan.hrpd.devices.datasinks
 
 .. autoclass:: HrpdSink()
