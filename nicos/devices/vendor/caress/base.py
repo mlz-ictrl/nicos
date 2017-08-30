@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, HasLimits, HasPrecision, Moveable, \
-    Param
+    Param, status
 from nicos.core.errors import ConfigurationError, NicosError
 from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
     CHTYPE_INT32, CORBA, CORBA_DEVICE, DEVICE_DRIVABLE, DEVICE_READABLE, \
@@ -138,4 +138,6 @@ class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
                 raise NicosError(self, 'Could not stop the module')
 
     def doStop(self):
-        self._stop()
+        if self._started and CARESSDevice.doStatus(self, 0)[0] != status.OK:
+            self._stop()
+            self._setROParam('_started', False)
