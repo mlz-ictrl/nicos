@@ -33,7 +33,7 @@ from nicos.utils.credentials.keystore import nicoskeystore
 
 
 class Authenticator(BaseAuthenticator):
-    """Authenticates against the fixed list of usernames, and
+    r"""Authenticates against the fixed list of usernames, and
     user levels given in the "access" parameter (in order).
     Passwords are stored in an external keystore
 
@@ -41,12 +41,15 @@ class Authenticator(BaseAuthenticator):
     Password less entriesare restricted to 'at most' USER level.
 
     You can set passwords via:
-    a) the nicos-keyring tool:
 
-        `nicos-keyring add nicos_user <username>`
-    b) the keyring tool (this may required addtional dependencies to be
-     installed):
-    `keyring -b keyrings.alt.file.EncryptedKeyring set nicos_user <username>`
+    a) the `nicos-keystore` tool:
+
+       `nicos-keystore add nicos_user \<username\>`
+
+    b) the `keyring` tool (this may required addtional dependencies to be
+       installed):
+
+       `keyring -b keyrings.alt.file.EncryptedKeyring set nicos_user \<username\>`
 
     Empty passwords are accepted.
     """
