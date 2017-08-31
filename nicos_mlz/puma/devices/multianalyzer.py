@@ -264,43 +264,37 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
         if check == 2:
             self.log.info('reset of %s sucessful', self.name)
 
-    def _refrotation(self):
-        for ax in self._rotation:
-            if self.stoprequest == 0:
+    def _reference(self, devlist):
+        if self.stoprequest == 0:
+            for ax in devlist:
                 if not ax.motor.isAtReference():
-                    ax.reference()
-        multiWait(self._rotation)
+                    self.log.debug('reference: %s', ax.name)
+                    ax.motor.reference()
+            multiWait([ax.motor for ax in devlist])
 
         check = 0
-        for ax in self._rotation:
+        for ax in devlist:
             if ax.motor.isAtReference():
                 check += 1
+            else:
+                self.log.warn('%s is not at reference: %r %r', ax.name,
+                              ax.motor.refpos, ax.motor.read(0))
+        return check == len(devlist)
 
-        return check == 11
+    def _refrotation(self):
+        return self._reference(self._rotation)
 
     def _reftranslation(self):
         # TODO: Check if reset is really needed !
-        # for ax in self._translation:
-        #     if self.stoprequest == 0:
+        # if self.stoprequest == 0:
+        #     for ax in self._translation:
         #         if not ax.motor.isAtReference():
         #             ax.motor.usermin = 0
         #             session.delay(0.5)
         #             ax.motor.usermax = 0
         #             ax.reset()
         #             session.delay(0.5)
-
-        for ax in self._translation:
-            if self.stoprequest == 0:
-                if not ax.motor.isAtReference():
-                    ax.reference()
-        multiWait(self._translation)
-
-        check = 0
-        for ax in self._translation:
-            if ax.motor.isAtReference():
-                check += 1
-
-        return check == 11
+        return self._reference(self._translation)
 
     def doStop(self):
         for dev in self._translation + self._rotation:
