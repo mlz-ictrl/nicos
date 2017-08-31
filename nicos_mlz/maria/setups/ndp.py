@@ -7,7 +7,7 @@ includes = ["counter"]
 excludes = ["det"]
 
 sysconfig = dict(
-    datasinks = ["NPGZFileSink", "YAMLSaver"],
+    datasinks = ["LiveViewSink", "NPGZFileSink", "YAMLSaver"],
 )
 
 tango_base = "tango://phys.maria.frm2:10000/ndp"
@@ -17,6 +17,9 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
+    LiveViewSink  = device("nicos.devices.datasinks.LiveViewSink",
+                           description = "Sends image data to LiveViewWidget",
+                          ),
     NPGZFileSink  = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
                            description = "Saves image data in numpy text "
                                          "format",
