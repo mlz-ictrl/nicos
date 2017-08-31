@@ -23,6 +23,7 @@
 # *****************************************************************************
 """PUMA specific virtual devices."""
 
+from nicos import session
 from nicos.core import Param, none_or
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import VirtualMotor
@@ -39,10 +40,16 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
 
     def doReference(self, *args):
         if self.refpos is not None:
-            return self.setPosition(self.refpos)
+            self.setPosition(self.refpos)
+            self._setROParam('target', self.refpos)
+            self.log.debug('%r %r', self.refpos, self.target)
+            session.delay(0.1)
+            ret = self.read(0)
+            self.log.debug('%s %r', self.name, self.isAtReference())
+            return ret
         return self.refpos
 
     def isAtReference(self):
         if self.refpos is None:
             return False
-        return abs(self.refpos - self.read()) <= self.precision
+        return abs(self.refpos - self.read(0)) <= self.precision
