@@ -10,7 +10,7 @@ sysconfig = dict(
     datasinks = ["LiveViewSink", "NPGZFileSink", "YAMLSaver"],
 )
 
-tango_base = "tango://phys.maria.frm2:10000/ndp"
+tango_ndp = "tango://phys.maria.frm2:10000/ndp"
 
 basename = "%(proposal)s_%(session.experiment.sample.filename)s_"
 scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
@@ -35,7 +35,7 @@ devices = dict(
                           ),
     ndpimg        = device("nicos.devices.tango.ImageChannel",
                            description = "NDP detector image",
-                           tangodevice = tango_base + "/fastcomtec/detector",
+                           tangodevice = tango_ndp + "/fastcomtec/detector",
                           ),
     ndpdet        = device("nicos.devices.generic.Detector",
                            description = "NDP detector",
