@@ -207,7 +207,7 @@ def runTests(venv, pyver, withcov) {
 
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
-addopts = --junit-xml=pytest.xml
+addopts = --junit-xml=pytest-${pyver}.xml
   --junit-prefix=$pyver""" + (withcov ? """
   --cov
   --cov-config=.coveragerc
