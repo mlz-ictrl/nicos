@@ -8,21 +8,34 @@ group = 'configdata'
 # well in the DETECTOR_OFFSETS table below.
 
 DETECTOR_PRESETS = {
-    '3A': {
-        '2m':      dict(z=2,    x=13.0,  y=596.8),
+    '2.9A tilt': {
+        '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
+        '2m':      dict(z=2,    x=18.8,  y=596.8),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
         '8m':      dict(z=8,    x=22.5,  y=593.8),
         '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
         'Small':   dict(det='small', x=0.0, y=711.4),
         '20m DB':  dict(z=19.9, x=13.0,  y=500.0, attenuator='in'),
         '20m':     dict(z=19.9, x=21.0,  y=586.0),
     },
+    '3.95A tilt': {
+        '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
+#        '6m':      dict(z=6,    x=16.0,  y=603.6),
+        '8m':      dict(z=8,    x=21.5,  y=594.0),
+        '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
+#        '8m att':  dict(z=8,    x=13.0,  y=500.0),
+        '20m':     dict(z=19.9, x=20.0,  y=586.0),
+        'Small':   dict(det='small', x=0.0, y=711.4),
+    },
     '4.66A': {
         '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
         '2m':      dict(z=2,    x=18.8,  y=597.8),
-        '4m':      dict(z=4,    x=20.3,  y=597.5),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
         '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
-        '8m':      dict(z=8,    x=22.5,  y=593),
-        '20m':     dict(z=19.9, x=21.0,  y=586.0),
+        '8m':      dict(z=8,    x=21.5,  y=594),
+        '20m':     dict(z=19.9, x=20.0,  y=586.5),
         'Small':   dict(det='small', x=0.0, y=711.4),
 ##########################################################################
 ############################# ACHTUNG ####################################
@@ -31,15 +44,46 @@ DETECTOR_PRESETS = {
 ##########################################################################
 ##########################################################################
     },
-    '5A': {
+    '4.66A tilt': {
         '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
         '2m':      dict(z=2,    x=18.8,  y=597.8),
-        '4m':      dict(z=4,    x=20.3,  y=597.5),
-#       '6m':      dict(z=6,    x=16.0,  y=603.6),
-        '8m':      dict(z=8,    x=21.5,  y=593.0),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
+        '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
+        '8m':      dict(z=8,    x=13.0,  y=594),
+        '20m':     dict(z=19.9, x=20.0,  y=586.0),
+        'Small':   dict(det='small', x=0.0, y=711.4),
+    },
+    '5A': {
+        '1.5m':    dict(z=1.5,  x=19.0,  y=596.5),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
+#        '6m':      dict(z=6,    x=16.0,  y=603.6),
+        '8m':      dict(z=8,    x=21.5,  y=594.0),
         '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
 #        '8m att':  dict(z=8,    x=13.0,  y=500.0),
-        '20m':     dict(z=19.9, x=18.0,  y=590.0),
+        '20m':     dict(z=19.9, x=20.0,  y=586.5),
+        'Small':   dict(det='small', x=0.0, y=711.4),
+    },
+    '5A tilt': {
+        '1.5m':    dict(z=1.5,  x=19.0,  y=596.5),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
+#        '6m':      dict(z=6,    x=16.0,  y=603.6),
+        '8m':      dict(z=8,    x=21.5,  y=594.0),
+        '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
+#        '8m att':  dict(z=8,    x=13.0,  y=500.0),
+        '20m':     dict(z=19.9, x=20.0,  y=586.5),
+        'Small':   dict(det='small', x=0.0, y=711.4),
+    },
+    '6A tilt': {
+        '1.5m':    dict(z=1.5,  x=19.0,  y=596.5),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '4m':      dict(z=4,    x=19.5,  y=597.5),
+#        '6m':      dict(z=6,    x=16.0,  y=603.6),
+        '8m':      dict(z=8,    x=21.5,  y=594.0),
+        '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
+#        '8m att':  dict(z=8,    x=13.0,  y=500.0),
+        '20m':     dict(z=19.9, x=20.0,  y=586.5),
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
     '6A': {
@@ -50,25 +94,36 @@ DETECTOR_PRESETS = {
     '7A': {
         '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
         '2m':      dict(z=2,    x=18.8,  y=597.9),
-        '2m DB':   dict(z=2,    x=16.9,  y=500.0, attenuator='in'),
+#        '2m DB':   dict(z=2,    x=16.9,  y=500.0, attenuator='in'),
         '4m':      dict(z=4,    x=20.3,  y=597.5),
         '8m':      dict(z=8,    x=22.0,  y=592.0),
         '8m DB':   dict(z=8,    x=20.0,  y=500.0, attenuator='in'),
         '20m':     dict(z=19.9, x=20.5,  y=581.2),
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
+    '7A tilt': {
+        '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
+        '2m':      dict(z=2,    x=18.8,  y=597.9),
+#        '2m DB':   dict(z=2,    x=16.9,  y=500.0, attenuator='in'),
+        '4m':      dict(z=4,    x=20.3,  y=597.5),
+        '8m':      dict(z=8,    x=20.9,  y=592.5),
+        '8m DB':   dict(z=8,    x=20.9,  y=500.0, attenuator='in'),
+        '20m':     dict(z=19.9, x=20.5,  y=581.2),
+        'Small':   dict(det='small', x=0.0, y=711.4),
+    },
     '8A': {
-        '2m':      dict(z=2,    x=13.0,  y=597.8),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
         '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
         '8m':      dict(z=8,    x=2.5,   y=610.0),
         '20m':     dict(z=19.9, x=1.0,   y=610.0),
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
     '9A': {
-        '2m':      dict(z=2,    x=13.0,  y=597.8),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '4m':      dict(z=4,    x=16.3,  y=604.0),
         '8m DB':   dict(z=8  ,  x=13.0,  y=500.0, attenuator='in'),
         'Small':   dict(det='small', x=0.0, y=711.4),
-#only 20 m have been updated at lambda = 10 A
+# only 20 m have been updated at lambda = 10 A
     },
     '10A': {
         '1.5m':    dict(z=1.5,  x=18.8,  y=596.8),
@@ -76,7 +131,7 @@ DETECTOR_PRESETS = {
         '4m':      dict(z=4,    x=16.3,  y=604.0),
         '8m':      dict(z=8,    x=16.3,  y=600.0),
         '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
-        '20m':     dict(z=19.9, x=21.5,  y=567.8),
+        '20m':     dict(z=19.9, x=21.5,  y=568.5),
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
     '11.3A': {
@@ -89,8 +144,9 @@ DETECTOR_PRESETS = {
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
     '19A': {
-        '20m':     dict(z=19.9, x=16.0,  y=517.0),
-        '8m DB':   dict(z=8,    x=13.0,  y=500.0, attenuator='in'),
+        '2m':      dict(z=2,    x=18.8,  y=597.8),
+        '20m':     dict(z=19.9, x=16.0,  y=500.0),
+        '8m':      dict(z=8,    x=13.0,  y=500.0),
         'Small':   dict(det='small', x=0.0, y=711.4),
     },
 }

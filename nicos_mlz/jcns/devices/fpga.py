@@ -200,3 +200,18 @@ class FPGARate(PyTangoDevice, Readable):
 
         self._last = cur
         return res
+
+
+class FPGAFrequency(PyTangoDevice, Readable):
+    """Provides the frequency readout of the counter card as a Readable."""
+
+    parameters = {
+        'multiplier': Param('Multiplier for return value', default=1.0),
+    }
+
+    parameter_overrides = {
+        'unit':    Override(mandatory=False, default='Hz'),
+    }
+
+    def doRead(self, maxage=0):
+        return self._dev.DevFPGACountReadFreq() * self.multiplier
