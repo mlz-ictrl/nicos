@@ -193,7 +193,11 @@ class DataManager(object):
     #
 
     def putMetainfo(self, metainfo):
-        # metainfo is {(devname, param): (rawvalue, strvalue, unit, category)}
+        """Put some metainfo into the topmost (point) dataset.
+
+        *metainfo* is a dictionary of the form ``{(devname, param):
+        (rawvalue, strvalue, unit, category)}``.
+        """
         if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring metainfo')
             return
@@ -201,9 +205,13 @@ class DataManager(object):
         self._current.dispatch('putMetainfo', metainfo)
 
     def putValues(self, values):
-        # values is {devname: (timestamp, value)}
-        # if timestamp is None, it is the canonical position of the device
-        # for the point
+        """Put some values into the topmost (point) dataset.
+
+        *values* is a dictionary of the form ``{devname: (timestamp, value)``.
+
+        If *timestamp* is None, this value is the "canonical" position of the
+        device for the point.
+        """
         if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring values')
             return
@@ -211,7 +219,15 @@ class DataManager(object):
         self._current.dispatch('putValues', values)
 
     def putResults(self, quality, results):
-        # results is {devname: (readvalue, arrays)}
+        """Put some detector results into the topmost (point) dataset.
+
+        *quality* is one of the data quality constants from
+        :mod:`nicos.core.constants`, i.e. `LIVE`, `INTERMEDIATE`, `FINAL`,
+        `INTERRUPTED`.
+
+        *results* is a dictionary with the form
+        ``{devname: (readvalue, arrays)}``.
+        """
         if self._current.settype != POINT:
             self.log.warning('No current point dataset, ignoring results')
             return
