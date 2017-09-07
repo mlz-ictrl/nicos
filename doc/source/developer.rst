@@ -13,6 +13,7 @@ development environment and coding  guidelines.
    overview
    components
    deviceapi
+   dataapi/index
    classes/abstract
    sequencer
    gui/index

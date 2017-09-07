@@ -47,10 +47,6 @@ Data Sinks
 These data sinks provide different ways of processing measured data.  They can
 be configured in setups like normal devices and selected in :ref:`sysconfig`.
 
-.. module:: nicos.core.data
-
-.. autoclass:: DataSink()
-
 .. module:: nicos.devices.datasinks
 
 .. autoclass:: ConsoleScanSink()
