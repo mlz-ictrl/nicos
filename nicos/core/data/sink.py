@@ -86,7 +86,7 @@ class DataSinkHandler(object):
         """Prepare writing this dataset.
 
         This is usually the place to assign the file counter with the data
-        manager's `assignCounter() and request a file with `createDataFile()`.
+        manager's `assignCounter()` and request a file with `createDataFile()`.
         If a file should only be created when actual data to save is present,
         you can defer this to `putResults` or `putMetainfo`.
         """
