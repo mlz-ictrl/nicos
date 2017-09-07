@@ -207,7 +207,7 @@ class DataManager(object):
     def putValues(self, values):
         """Put some values into the topmost (point) dataset.
 
-        *values* is a dictionary of the form ``{devname: (timestamp, value)``.
+        *values* is a dictionary of the form ``{devname: (timestamp, value)}``.
 
         If *timestamp* is None, this value is the "canonical" position of the
         device for the point.
