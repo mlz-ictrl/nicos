@@ -23,6 +23,7 @@ devices = dict(
     imgdrum  = device("nicos_mlz.biodiff.devices.detector.ImagePlateDrum",
                       description = "Image plate detector drum",
                       tangodevice = _TANGO_DEV,
+                      comdelay = 5.0,
                      ),
     imgplate = device("nicos_mlz.biodiff.devices.detector.ImagePlateImage",
                       description = "Image plate image",

@@ -135,12 +135,6 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
         self._lastStatus = st
         return st, msg
 
-    def doInfo(self):
-        for p in ("drumpos", "readheadpos", "drumexpo", "readspeed",
-                  "erasespeed", "freqlaser", "timeerase"):
-            self._pollParam(p)
-        return []
-
     def doFinish(self):
         self._moveTo = None
 
