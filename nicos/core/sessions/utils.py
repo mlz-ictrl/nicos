@@ -58,6 +58,7 @@ class NicosNamespace(dict):
     def __init__(self):
         dict.__init__(self)
         self.__forbidden = set(builtins.__dict__)
+        self.__forbidden.discard('__doc__')
 
     def addForbidden(self, name):
         self.__forbidden.add(name)
