@@ -245,6 +245,7 @@ class MeasTime(MeasElement):
         layout = QHBoxLayout()
         self._widget.number = QSpinBox(self._widget)
         self._widget.number.setValue(30)
+        self._widget.number.setMinimum(1)
         self._widget.number.setMaximum(10000)
         self._widget.unit = QComboBox(self._widget)
         self._widget.unit.addItems(['sec', 'min', 'hr'])
