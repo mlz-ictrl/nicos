@@ -126,7 +126,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
         det1['is_in_place'] = True
-        detimg = session.getDevice('det_img')
+        detimg = session.getDevice('det')._attached_images[0]
         uses_tof = detimg.mode == 'tof'
         if uses_tof:
             tof = meas['setup']['time_of_flight']

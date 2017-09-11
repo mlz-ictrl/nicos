@@ -206,7 +206,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
                 w('\n')
 
     def _writedet_tof(self, w, image, fp):
-        detimg = session.getDevice('det_img')
+        detimg = session.getDevice('det')._attached_images[0]
         cp = session.getDevice('chopper_params')
         chop_params = cp.read()
         if chop_params[0] != 0:  # no chopper in realtime mode
