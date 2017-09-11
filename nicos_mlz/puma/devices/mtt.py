@@ -307,9 +307,10 @@ class MttAxis(Axis):
                 t -= self.loopdelay
                 self.log.debug('Waiting for MB')
                 if t < 0:
-                    self._setErrorState(MoveError, 'timeout occured during '
-                                        'wait for mobile block change')
-                    self._stoprequest = 2
-                    self.log.debug('Error state = %s', self._errorstate)
+                    msg = 'timeout occured during wait for mobile block change'
+                    # self._setErrorState(MoveError, msg)
+                    # self._stoprequest = 2
+                    # self.log.debug('Error state = %s', self._errorstate)
+                    self.log.warning(msg)
                     break
         return inh
