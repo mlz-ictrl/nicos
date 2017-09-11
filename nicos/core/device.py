@@ -466,10 +466,12 @@ class Device(object):
                         raise ConfigurationError(
                             self, 'device %r item %d has wrong type (should be %s)' %
                             (aname, i + 1, entry.devclass.__name__))
+                devlist.append(dev)
+            for dev in devlist:
+                if dev is not None:
                     dev._sdevs.add(self._name)
                     if isinstance(self, IsController):
                         dev._controllers.add(self._name)
-                devlist.append(dev)
             self.__dict__['_attached_%s' % aname] = self._adevs[aname] = \
                 devlist[0] if entry.single else devlist
 
