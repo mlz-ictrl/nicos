@@ -106,7 +106,10 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
     """FPGATimerChannel implements one time channel for ZEA-2 counter card."""
 
     def _setPreselection(self):
-        millis = int(self.preselection * 1000)
+        # Time limit 0 counts without limit, so set it to 1 ms instead
+        # (this is typically an accident, but counting infinitely is more
+        # likely to cause lost beamtime).
+        millis = int(self.preselection * 1000 or 1)
         self._dev.DevFPGACountSetTimeLimit(millis)
         self._dev.DevFPGACountSetMinTime(millis)
 
@@ -143,8 +146,9 @@ class FPGACounterChannel(CounterChannelMixin, FPGAChannelBase):
     def _setPreselection(self):
         self._dev.DevFPGACountSetMinTime(0)
         self._dev.DevFPGACountSetTimeLimit(3600*24*1000)
+        # Clamped to 1 for the same reason as the timer channel.
         self._dev.DevFPGACountSetCountLimit([self.channel,
-                                             int(self.preselection)])
+                                             int(self.preselection) or 1])
 
     def doRead(self, maxage=0):
         return self._dev.DevFPGACountReadCount(self.channel)
