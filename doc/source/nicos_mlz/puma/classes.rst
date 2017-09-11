@@ -22,6 +22,7 @@
 
 .. autoclass:: Coder()
 .. autoclass:: Motor()
+.. autoclass:: ReferenceMotor()
 
 .. automodule:: nicos_mlz.puma.devices.maglock
 
@@ -34,6 +35,14 @@
 .. automodule:: nicos_mlz.puma.devices.mtt
 
 .. autoclass:: MttAxis()
+
+.. automodule:: nicos_mlz.puma.devices.multianalyzer
+
+.. autoclass:: PumaMultiAnalyzer()
+
+.. automodule:: nicos_mlz.puma.devices.multidetector
+
+.. autoclass:: PumaMultiDetectorLayout()
 
 .. automodule:: nicos_mlz.puma.devices.pgfilter
 
