@@ -26,12 +26,16 @@
 
 import pytest
 
-from nicos_ess.essiip.devices.epics_extensions import HasSwitchPv
+try:
+    from nicos_ess.essiip.devices.epics_extensions import HasSwitchPv
+except ImportError:
+    HasSwitchPv = None
+
 from .utils import unit_value, is_at_target
 
 session_setup = 'sinq_amor_movable'
 
-
+@pytest.mark.skipif(HasSwitchPv is None, reason='epics not importable')
 class TestMovable(object):
     device = None  # Holds the current device object under test
 
