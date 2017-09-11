@@ -117,20 +117,24 @@ devices = dict(
     st_sgx = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 64, #67
-                    slope = -3200,
+                    slope = -1600,
                     unit = 'deg',
                     abslimits = (-15.6, 15.6),
                     zerosteps = 500000,
+                    microstep = 8,
+                    speed = 50,
                     lowlevel = True,
                    ),
 
     st_sgy = device('nicos.devices.vendor.ipc.Motor',
                     bus = 'motorbus3',
                     addr = 65, #68
-                    slope = -3200,
+                    slope = -1600,
                     unit = 'deg',
                     abslimits = (-15.6, 15.6),
                     zerosteps = 500000,
+                    microstep = 8,
+                    speed = 50,
                     lowlevel = True,
                    ),
 
@@ -252,7 +256,7 @@ devices = dict(
                     unit = 'mm',
                     abslimits = (-20, 20),
                     zerosteps = 500000,
-                    microstep = 1,
+                    microstep = 2,
                     lowlevel = True,
                    ),
 
