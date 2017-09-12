@@ -92,51 +92,51 @@ class Motor1(IPCMotor):
         msg = ''
         # msg += (state & 2) and ', backward' or ', forward'
         # msg += (state & 4) and ', halfsteps' or ', fullsteps'
-        if state & 16:
+        if state & 0x10:
             msg += ', inhibit active'
-        if state & 128:
+        if state & 0x80:
             msg += ', reference switch active'
-        if state & 256:
+        if state & 0x100:
             msg += ', software limit - reached'
-        if state & 512:
+        if state & 0x200:
             msg += ', software limit + reached'
-        if state & 16384 == 0:
+        if state & 0x4000 == 0:
             msg += ', external power stage enabled'
-        if state & 32:
+        if state & 0x20:
             msg += ', limit switch - active'
-        if state & 64:
+        if state & 0x40:
             msg += ', limit switch + active'
         if self._hwtype == 'single':
             msg += (state & 8) and ', relais on' or ', relais off'
             if state & 8:
                 # on single cards, if relay is ON, card is supposedly BUSY
                 st = status.BUSY
-        if state & 32768:
+        if state & 0x8000:
             st = status.BUSY
             msg += ', waiting for start/stopdelay'
 
         # check error states last
-        # if state & 32 and state & 64:
+        # if state & 0x20 and state & 0x40:
         #     st = status.ERROR
         #     msg = msg.replace('limit switch - active, limit switch + active '
         #                       'EMERGENCY STOP pressed or both limit switches'
         #                       ' broken')
-        # if state & 1024:
+        # if state & 0x400:
         #     st = status.ERROR
         #     msg += ', device overheated'
-        # if state & 2048:
+        # if state & 0x800:
         #     st = status.ERROR
         #     msg += ', motor undervoltage'
-        # if state & 4096:
+        # if state & 0x1000:
         #     st = status.ERROR
         #     msg += ', motor not connected or leads broken'
-        # if state & 8192:
+        # if state & 0x2000:
         #     st = status.ERROR
         #     msg += ', hardware failure or device not reset after power-on'
 
         # if it's moving, it's not in error state! (except if the emergency
         # stop is active)
-        if state & 1 and (state & 96 != 96):
+        if state & 1 and (state & 0x60 != 0x60):
             st = status.BUSY
             msg = ', moving' + msg
         self.log.debug('status is %d:%s', st, msg[2:])
