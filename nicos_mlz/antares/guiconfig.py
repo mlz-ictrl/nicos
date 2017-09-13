@@ -2,7 +2,7 @@
 
 main_window = docked(
     vsplit(panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-           # panel('nicos.clients.gui.panel.swatch.WatchPanel'),
+           # panel('nicos.clients.gui.panels.watch.WatchPanel'),
            panel('nicos.clients.gui.panels.console.ConsolePanel' ),
     ),
     ('Experiment info',

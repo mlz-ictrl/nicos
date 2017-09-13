@@ -54,7 +54,7 @@ main_window = docked(
                       positions=22, setups='sans and sc2'),
                ),
                ('TAS sample',
-                panel('nicos.clients.gui.panel.setup_panel.TasSamplePanel',
+                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
                       setups='tas',)
                ),
            )

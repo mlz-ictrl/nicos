@@ -24,23 +24,30 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = []
+watchlist = [
+    dict(condition = 'o2_nguide_value > 0.4',
+         message = 'O2 pressure in neutron guide exceeds 0.4 %%',
+         type = 'neutronguide',
+         gracetime = 60,
+    ),
+]
 
 includes = ['notifiers']
 
 notifiers = {
     'default':  ['email'],
     'critical': ['email', 'smser'],
+    'neutronguide': ['ngmail'],
 }
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      # use only 'localhost' if the cache is really running on
-                      # the same machine, otherwise use the official computer
-                      # name
-                      cache = 'spodictrl.spodi.frm2',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        # use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the official computer
+        # name
+        cache = 'spodictrl.spodi.frm2',
+        notifiers = notifiers,
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )
