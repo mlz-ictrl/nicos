@@ -6,7 +6,7 @@ includes = ['system', 'motorbus10']
 
 excludes = ['detectorM']
 
-group = 'lowlevel'
+group = 'optional'
 
 devices = dict(
 # Detectors
