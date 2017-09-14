@@ -7,10 +7,8 @@ devices = dict(
     ubahn = device('nicos_mlz.frm2.devices.ubahn.UBahn',
                    description = 'Next subway departures',
                   ),
-    meteo = device('nicos_mlz.jcns.devices.meteo.MeteoStation',
+    meteo = device('nicos.devices.tango.Sensor',
                    description = 'Outdoor air temperature',
-                   query = 'temperature/air',
-                   location = 'Garching',
-                   unit = 'C',
+                   tangodevice = 'tango://ictrlfs.ictrl.frm2:10000/frm2/meteo/temp',
                   ),
 )
