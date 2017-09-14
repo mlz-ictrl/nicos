@@ -302,10 +302,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
         return check == 11
 
-    def doStop(self):
-        for dev in self._translation + self._rotation:
-            dev.stop()
-
     def doRead(self, maxage=0):
         return [dev.read() for dev in self._translation + self._rotation]
 
