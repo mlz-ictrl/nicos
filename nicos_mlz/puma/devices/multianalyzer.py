@@ -296,10 +296,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
         #             session.delay(0.5)
         return self._reference(self._translation)
 
-    def doStop(self):
-        for dev in self._translation + self._rotation:
-            dev.stop()
-
     def doRead(self, maxage=0):
         return [dev.read() for dev in self._translation + self._rotation]
 

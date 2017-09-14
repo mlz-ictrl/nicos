@@ -202,10 +202,6 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
             raise PositionError('reference drive failed')
         self.log.info('reference drive successful')
 
-    def doStop(self):
-        for dev in self._rotdetector0 + self._rotguide0:
-            dev.stop()
-
     def doRead(self, maxage=0):
         return [d.read(maxage) for d in self._rotdetector0 + self._rotguide0]
 
