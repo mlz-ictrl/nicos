@@ -3,7 +3,8 @@ group = 'lowlevel'
 
 devices = dict(
     motorbus14 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-                        tacodevice = 'puma/rs485/moxa2_6',
+                        # tacodevice = 'puma/rs485/moxa2_6',
+                        tacodevice = 'puma/rs485/motorbus14',
                         bustimeout = 0.1,
                         lowlevel = True,
                        ),
