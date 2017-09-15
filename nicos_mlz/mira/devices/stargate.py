@@ -42,7 +42,8 @@ done in three different holding registers with addresses n, n+2, n+4.
 
 from time import time as currenttime
 
-from nicos.core import Param, listof, status, InvalidValueError, Attach
+from nicos.core import Param, listof, status, InvalidValueError, Attach, \
+    SIMULATION
 from nicos.devices import tango
 from nicos_mlz.mira.devices.axis import HoveringAxis
 
@@ -143,13 +144,23 @@ class ATT(HoveringAxis):
                               type=bool, settable=True, default=True),
     }
 
-    def _preMoveAction(self):
+    def _move_stargate(self):
         if self.movestargate:
             self._attached_stargate.start(
                 self._attached_stargate.get_chevrons_for_att(self.target))
         else:
             self.log.warning('moving stargate blocks is disabled')
+
+    def _preMoveAction(self):
+        self._move_stargate()
         HoveringAxis._preMoveAction(self)
+
+    def doStart(self, pos):
+        # Since the _preMoveAction is not executed in simulation mode,
+        # we have to move the stargate here too.
+        if self._mode == SIMULATION:
+            self._move_stargate()
+        HoveringAxis.doStart(self, pos)
 
     def doStatus(self, maxage=0):
         if not self.movestargate:
