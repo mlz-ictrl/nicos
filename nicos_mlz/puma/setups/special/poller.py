@@ -17,7 +17,6 @@ devices = dict(
         # devices which are never polled
         neverpoll = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4',
                      'motorbus5', 'motorbus6', 'motorbus6a', 'motorbus7',
-                     'motorbus6', 'motorbus9', 'motorbus10', 'motorbus11',
-                     'motorbus12',]
+                     'motorbus6', 'motorbus9', 'motorbus10', 'motorbus11',],
     ),
 )
