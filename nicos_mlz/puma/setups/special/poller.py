@@ -12,9 +12,9 @@ devices = dict(
         autosetup = True,
         # setups for which all devices are polled
         poll = ['lakeshore', 'detector', 'befilter'],
-        # devices which are always polled
+        # setups which are always polled
         alwayspoll = [],
-        # devices which are never polled
+        # setups which are never polled
         neverpoll = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4',
                      'motorbus5', 'motorbus6', 'motorbus6a', 'motorbus7',
                      'motorbus6', 'motorbus9', 'motorbus10', 'motorbus11',],
