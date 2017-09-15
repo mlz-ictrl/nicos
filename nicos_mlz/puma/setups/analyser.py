@@ -57,7 +57,7 @@ devices = dict(
                  coder = 'co_att',
                  obs = [],
                  precision = 0.01,
-                 offset = -0.037, # 90.163 / 05.2017 GE
+                 offset = 0.426, # 90.163 / 05.2017 GE
                  # offset = 0.307, # with collimator
                  jitter = 0.2,
                  dragerror = 1,
@@ -71,7 +71,7 @@ devices = dict(
                  obs = [],
                  precision = 0.01,
                  # offset = -0.678, # with collimator
-                 offset = -0.44176, # -0.442 / 05.2017 GE
+                 offset = -0.664, # -0.442 / 05.2017 GE
                  maxtries = 8,
                 ),
 
@@ -180,7 +180,7 @@ devices = dict(
                    addr = 63,
                    slope = -2500,
                    unit = 'mm',
-                   abslimits = (-7.1, 7.1),
+                   abslimits = (-7.1, 15),
                    zerosteps = 500000,
                    lowlevel = True,
                   ),

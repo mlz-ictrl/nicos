@@ -27,6 +27,7 @@
 from math import sqrt
 from time import time as currenttime, localtime
 from uuid import uuid4
+from threading import Lock
 
 from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, UNKNOWN
 from nicos.core.errors import ProgrammingError
@@ -90,6 +91,10 @@ class BaseDataset(object):
         # A user-defined "info string" for this dataset.
         self.info = ''
 
+        # A lock to suppress updates to valuestats from the cacheCallback in
+        # the datamanager
+        self._statslock = Lock()
+
         self.__dict__.update(kwds)
 
     def __str__(self):
@@ -101,6 +106,7 @@ class BaseDataset(object):
         # data that cannot be pickled, such as file objects.
         state = self.__dict__.copy()
         state.pop('handlers', None)
+        state.pop('_statslock', None)
         return state
 
     def dispatch(self, method, *args):
@@ -151,28 +157,29 @@ class PointDataset(BaseDataset):
         BaseDataset.__init__(self, **kwds)
 
     def _addvalues(self, values):
-        for devname, (timestamp, value) in iteritems(values):
-            self.values[devname] = value
-            if timestamp is None:
-                self.canonical_values[devname] = value
-                continue
-            elif isinstance(value, number_types):
-                # collect statistics
-                current = self._valuestats.setdefault(devname, [])
-                if not current:
-                    # first value: record timestamp and value
-                    current.extend([0, 0, 0, value, value, timestamp, value])
-                else:
-                    oldtime, oldvalue = current[-2:]
-                    dt = timestamp - oldtime
-                    if dt >= 0:
-                        current[0] += dt
-                        current[1] += dt * oldvalue
-                        current[2] += dt * oldvalue ** 2
-                        current[3] = min(current[3], value)
-                        current[4] = max(current[4], value)
-                        current[5] = timestamp
-                        current[6] = value
+        with self._statslock:
+            for devname, (timestamp, value) in iteritems(values):
+                self.values[devname] = value
+                if timestamp is None:
+                    self.canonical_values[devname] = value
+                    continue
+                elif isinstance(value, number_types):
+                    # collect statistics
+                    current = self._valuestats.setdefault(devname, [])
+                    if not current:
+                        # first value: record timestamp and value
+                        current.extend([0, 0, 0, value, value, timestamp, value])
+                    else:
+                        oldtime, oldvalue = current[-2:]
+                        dt = timestamp - oldtime
+                        if dt >= 0:
+                            current[0] += dt
+                            current[1] += dt * oldvalue
+                            current[2] += dt * oldvalue ** 2
+                            current[3] = min(current[3], value)
+                            current[4] = max(current[4], value)
+                            current[5] = timestamp
+                            current[6] = value
 
     def _reslist(self, devices, resdict, index=-1):
         ret = []
@@ -203,15 +210,16 @@ class PointDataset(BaseDataset):
     @property
     def valuestats(self):
         res = {}
-        for devname in self._valuestats:
-            t0, t1, t2, mini, maxi, _, lastv = self._valuestats[devname]
-            if t0 > 0:
-                mean = t1 / t0
-                stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
-            else:
-                mean = lastv
-                stdev = float('inf')
-            res[devname] = mean, stdev, mini, maxi
+        with self._statslock:
+            for devname in self._valuestats:
+                t0, t1, t2, mini, maxi, _, lastv = self._valuestats[devname]
+                if t0 > 0:
+                    mean = t1 / t0
+                    stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
+                else:
+                    mean = lastv
+                    stdev = float('inf')
+                res[devname] = mean, stdev, mini, maxi
         return res
 
     @lazy_property

@@ -65,8 +65,8 @@ except NameError as e:
     printerror("The requested setup 'panda' is not fully loaded!")
     raise NameError('One of the required devices is not loaded : %s, please check!' % e)
 
-    from nicos import session
-    ana.alias = session.getDevice('ana_heusler')
-    afh.alias = session.getDevice('afh_heusler')
-    del session
+from nicos import session
+ana.alias = session.getDevice('ana_heusler')
+afh.alias = session.getDevice('afh_heusler')
+del session
 '''

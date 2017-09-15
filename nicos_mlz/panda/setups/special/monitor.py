@@ -110,25 +110,18 @@ detector = Block('Detector', [
 
 bambus = Block('Detector', [
     BlockRow(
-        Field(name='events', key='det/value[0]', format='%d'),
-        Field(name='time', key='det/value[1]', format='%4g'),
-        Field(name='mon1', key='det/value[2]', format='%d'),
-        Field(name='mon2', key='det/value[3]', format='%d'),
-        Field(name='ch_sum', key='det/value[4]', format='%d'),
+        Field(name='time', dev='timer'),
+        Field(name='mon1', dev='mon1'),
+        Field(name='mon2', dev='mon2'),
     ),
     BlockRow(
-        Field(name='2.5 A1', key='det/value[5]', format='%d'),
-        Field(name='3.0 A3', key='det/value[7[', format='%d'),
-        Field(name='3.5 A5', key='det/value[9]', format='%d'),
-        Field(name='4.0 A7', key='det/value[11]', format='%d'),
-        Field(name='4.5 A9', key='det/value[13]', format='%d'),
+        Field(name='3.0meV', key='det/value[8]', format='%d'),
+        Field(name='3.5meV', key='det/value[7]', format='%d'),
+        Field(name='4.0meV', key='det/value[6]', format='%d'),
     ),
     BlockRow(
-        Field(name='2.5 B2', key='det/value[6]', format='%d'),
-        Field(name='3.0 B4', key='det/value[8]', format='%d'),
-        Field(name='3.5 B6', key='det/value[10]', format='%d'),
-        Field(name='4.0 B8', key='det/value[12]', format='%d'),
-        Field(name='4.5 B10', key='det/value[14]', format='%d'),
+        Field(name='4.5meV', key='det/value[5]', format='%d'),
+        Field(name='5.0meV', key='det/value[4]', format='%d'),
     ),
     ],
     setups='bambus',

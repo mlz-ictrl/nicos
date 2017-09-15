@@ -252,7 +252,8 @@ class DataManager(object):
         self.putMetainfo(newinfo)
 
     def cacheCallback(self, key, value, time):
-        if not self._current or self._current.settype != POINT:
+        if (not self._current or self._current.settype != POINT
+            or self._current.finished is not None):
             return
         devname = session.device_case_map.get(key.split('/')[0])
         if devname is not None:
