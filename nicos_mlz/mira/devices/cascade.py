@@ -151,7 +151,7 @@ class CascadeDetector(ImageChannel):
         #     dctotal =
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
-            roi = data[x1:x2, y1:y2].sum()
+            roi = data[y1:y2, x1:x2].sum()
             croi, dcroi = 0., 0.
             # XXX implement for MIEZE
             # if self.mode == 'tof':
