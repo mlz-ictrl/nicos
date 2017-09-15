@@ -11,7 +11,7 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         autosetup = True,
         # setups for which all devices are polled
-        poll = ['lakeshore', 'detector', 'befilter'],
+        # poll = ['lakeshore', 'detector', 'befilter'],
         # setups which are always polled
         alwayspoll = [],
         # setups which are never polled
