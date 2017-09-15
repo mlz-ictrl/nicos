@@ -13,7 +13,7 @@ devices = dict(
     smser    = device('nicos.devices.notifiers.SMSer',
                       description = 'Reports via SMS',
                       server = 'triton.admin.frm2',
-                      receivers = ['01719251564', '01782979497'],
+                      receivers = ['01719251564'],
                       lowlevel = True,
                      ),
 )
