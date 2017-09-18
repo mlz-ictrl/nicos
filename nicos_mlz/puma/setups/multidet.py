@@ -4,7 +4,7 @@ description = 'Multidetector motors'
 
 includes = ['system', 'motorbus10']
 
-excludes = ['detectorM']
+excludes = ['detectorM', 'detector']
 
 group = 'optional'
 

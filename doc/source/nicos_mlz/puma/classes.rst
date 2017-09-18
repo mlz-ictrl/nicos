@@ -44,6 +44,10 @@
 
 .. autoclass:: PumaMultiDetectorLayout()
 
+.. automodule:: nicos_mlz.puma.devices.coupledaxis
+
+.. autoclass:: PumaCoupledAxis()
+
 .. automodule:: nicos_mlz.puma.devices.pgfilter
 
 .. autoclass:: PGFilter()
