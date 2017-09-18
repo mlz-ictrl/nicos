@@ -39,10 +39,11 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
 
     def doReference(self, *args):
         if self.refpos is not None:
-            return self.setPosition(self.refpos)
-        return self.refpos
+            self._setROParam('target', self.refpos)
+            self.setPosition(self.refpos)
+        return None
 
     def isAtReference(self):
         if self.refpos is None:
             return False
-        return abs(self.refpos - self.read()) <= self.precision
+        return abs(self.refpos - self.read(0)) <= self.precision
