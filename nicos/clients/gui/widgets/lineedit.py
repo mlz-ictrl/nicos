@@ -50,6 +50,9 @@ class HistoryLineEdit(QLineEdit):
         QLineEdit.__init__(self, parent)
         self.run_color = QColor('#ffdddd')
         self.idle_color = self.palette().color(QPalette.Base)
+        self.active_fgcolor = QColor('#000000')
+        self.inactive_fgcolor = QColor('#c9c9c9')
+        self.error_fgcolor = QColor("#ff0000")
         self.history = history or []
         self.scrollWidget = None
         self.completion_callback = lambda text: []
@@ -184,6 +187,7 @@ class CommandLineEdit(HistoryLineEdit):
         self.returnPressed.connect(self.on_returnPressed)
         self.setValidator(QRegExpValidator(QRegExp(r"^\S.*"), self))
         self.current_status = None
+        self.error_status = None
 
     execRequested = pyqtSignal(str, str)
 
@@ -192,22 +196,29 @@ class CommandLineEdit(HistoryLineEdit):
         self.current_status = status
         if status != 'idle':
             setBackgroundColor(self, self.run_color)
+            if not self.error_status:
+                setForegroundColor(self, self.inactive_fgcolor)
         else:
             setBackgroundColor(self, self.idle_color)
+            if not self.error_status:
+                setForegroundColor(self, self.active_fgcolor)
         self.update()
         self.setEnabled(status != 'disconnected')
 
     def on_textChanged(self):
+        setForegroundColor(self, self.active_fgcolor)
         try:
             script = self.text()
             if not script or script.strip().startswith('#'):
                 return
             compile(script + '\n', 'script', 'single')
         except Exception:
-            setForegroundColor(self, QColor("#ff0000"))
+            self.error_status = True
+            setForegroundColor(self, self.error_fgcolor)
             self.update()
         else:
-            setForegroundColor(self, QColor("#000000"))
+            self.error_status = False
+            setForegroundColor(self, self.active_fgcolor)
 
     def on_returnPressed(self):
         script = self.text()

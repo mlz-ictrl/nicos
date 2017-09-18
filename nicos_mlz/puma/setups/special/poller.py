@@ -9,8 +9,14 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-                    autosetup = True,
-                    poll = ['lakeshore', 'detector', 'befilter'], # setups for which all devices are polled
-                    alwayspoll = [],    # devices which are always polled
-                    neverpoll = []),    # devices which are never polled
+        autosetup = True,
+        # setups for which all devices are polled
+        poll = ['lakeshore', 'detector', 'befilter'],
+        # devices which are always polled
+        alwayspoll = [],
+        # devices which are never polled
+        neverpoll = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4',
+                     'motorbus5', 'motorbus6', 'motorbus6a', 'motorbus7',
+                     'motorbus6', 'motorbus9', 'motorbus10', 'motorbus11',],
+    ),
 )

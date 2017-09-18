@@ -253,7 +253,7 @@ devices = dict(
                      ),
     ms1_enc = device('nicos.devices.vendor.ipc.Coder',
                      bus = 'bus5',
-                     addr = CODER(7),
+                     addr = CODER(8),
                      slope = 2**13 / 3.0,        # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
                      zerosteps = 555555,
                      confbyte = SSI | BINARY | P_NONE | TOTALBITS(26),
