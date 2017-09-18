@@ -21,6 +21,7 @@ for i in range(1, 12):
             unit = 'mm',
             refpos = 0.,
             fmtstr = '%.3f',
+            speed = 5,
         ),
         precision = 0.01,
     )
@@ -32,6 +33,7 @@ for i in range(1, 12):
             unit = 'deg',
             refpos = 0.1,
             fmtstr = '%.3f',
+            speed = 5,
         ),
         precision = 0.01,
     )
