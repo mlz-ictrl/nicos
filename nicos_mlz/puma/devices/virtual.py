@@ -66,6 +66,8 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
                              'point')
 
     def isAtReference(self, refswitch=None):
+        if self.refpos is None:
+            return False
         pos = self.read(0)
         is_at_refpos = abs(self.refpos - self.read(0)) <= self.precision
         if refswitch == 'low':
