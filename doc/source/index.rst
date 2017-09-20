@@ -11,5 +11,6 @@ Welcome to NICOS
    Project Page <https://forge.frm2.tum.de/redmine/projects/nicos>
    documentation
    download
+   howtos/index
    indices
    changes
