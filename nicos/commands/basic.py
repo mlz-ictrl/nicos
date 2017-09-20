@@ -39,7 +39,7 @@ from nicos.core import requires, Device, Readable, ModeError, NicosError, \
 from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
     String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
-from nicos.utils import formatDuration, printTable
+from nicos.utils import formatDuration, printTable, fixupScript
 from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist, \
@@ -664,6 +664,8 @@ def _RunScript(filename, statdevices, debug=False):
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
         code = fp.read()
+        # guard against bare excepts
+        code = fixupScript(code)
         # quick guard against self-recursion
         if session.experiment and session.experiment.scripts and \
                 code.strip() == session.experiment.scripts[-1].strip():
@@ -699,6 +701,7 @@ def _RunScript(filename, statdevices, debug=False):
 def _RunCode(code, debug=False):
     if session.mode == SIMULATION:
         starttime = session.clock.time
+    code = fixupScript(code)
     try:
         exec_(code, session.namespace)
     except Exception:

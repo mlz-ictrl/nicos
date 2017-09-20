@@ -35,10 +35,10 @@ from uuid import uuid1
 from threading import Lock, Event, current_thread
 
 from nicos import session, config
-from nicos.utils import createThread
+from nicos.utils import createThread, fixupScript
 from nicos.utils.loggers import INPUT
 from nicos.core.utils import system_user
-from nicos.services.daemon.utils import formatScript, fixupScript, \
+from nicos.services.daemon.utils import formatScript, \
     updateLinecache, ScriptQueue, parseScript, splitBlocks
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb

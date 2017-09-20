@@ -1400,3 +1400,13 @@ def checkSetupSpec(setupspec, setups, compat='or', log=None):
         if log:
             log.warning('invalid setup spec: %r', setupspec)
         return True
+
+
+_bare_except = re.compile(r'^([ \t]*)except[ \t]*:', re.MULTILINE)
+
+
+def fixupScript(script):
+    """Perform some fixup operations on the script."""
+    # Replace bare except clauses by "except Exception" to prevent
+    # catching the ControlStop exception if running under the daemon
+    return _bare_except.sub(r'\1except Exception:', script)

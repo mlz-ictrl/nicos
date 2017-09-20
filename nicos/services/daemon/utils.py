@@ -32,6 +32,7 @@ import linecache
 from threading import Lock, Event
 
 from nicos import session
+from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 from nicos.pycompat import text_type
 
@@ -66,16 +67,6 @@ def formatScript(script, prompt='>>>'):
         end = '-' * (16 + len(prompt)) + (' <<<' if prompt == '>>>' else '----')
         text = _excessive_ws_re.sub('\n', script.text + '\n')
         return '%s\n%s%s' % (start, text, end)
-
-
-_bare_except = re.compile(r'^([ \t]*)except[ \t]*:', re.MULTILINE)
-
-
-def fixupScript(script):
-    """Perform some fixup operations on the script."""
-    # Replace bare except clauses by "except Exception" to prevent
-    # catching the ControlStop exception used by pyctl
-    return _bare_except.sub(r'\1except Exception:', script)
 
 
 # pylint: disable=redefined-builtin
