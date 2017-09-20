@@ -23,279 +23,24 @@
 #
 # *****************************************************************************
 
-"""NICOS cache server."""
-
 import os
 import shutil
 import threading
 from os import path
 from time import time as currenttime, sleep, localtime, mktime
-from collections import deque
 
 from nicos import config
-from nicos.core import Device, Param, ConfigurationError, intrange
-from nicos.utils import ensureDirectory, allDays, createThread
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, \
-    OP_LOCK_LOCK, OP_LOCK_UNLOCK, FLAG_NO_STORE
+from nicos.core import Param
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
 from nicos.pycompat import iteritems, listitems
+from nicos.services.cache.database.base import CacheDatabase
+from nicos.services.cache.database.entry import CacheEntry
+from nicos.utils import ensureDirectory, allDays, createThread
 
 try:  # Windows compatibility: it does not provide os.link
     os_link = os.link
 except AttributeError:
     os_link = lambda a, b: None
-
-
-class Entry(object):
-    __slots__ = ('time', 'ttl', 'value', 'expired')
-
-    def __init__(self, time, ttl, value):
-        self.time = time
-        self.ttl = ttl
-        self.value = value
-        self.expired = False
-
-    def __repr__(self):
-        if self.expired:
-            return '(%s+%s@%s)' % (self.time, self.ttl, self.value)
-        return '%s+%s@%s' % (self.time, self.ttl, self.value)
-
-
-class CacheDatabase(Device):
-
-    def doInit(self, mode):
-        if self.__class__ is CacheDatabase:
-            raise ConfigurationError(
-                'CacheDatabase is an abstract class, use '
-                'either MemoryCacheDatabase or FlatfileCacheDatabase')
-        self._lock_lock = threading.Lock()
-        self._locks = {}
-        self._rewrite_lock = threading.Lock()
-        # map incoming prefix -> set of new prefixes
-        self._rewrites = {}
-        # map new prefix -> incoming prefix
-        self._inv_rewrites = {}
-
-    def initDatabase(self):
-        """Initialize the database from persistent store, if present."""
-        pass
-
-    def clearDatabase(self):
-        """Clear the database also from persistent store, if present."""
-        self.log.info('clearing database')
-
-    def rewrite(self, key, value):
-        """Rewrite handling."""
-        if value:
-            value = value.lower()
-        current = self._inv_rewrites.get(key)
-        with self._rewrite_lock:
-            if current is not None:
-                self._rewrites[current].discard(key)
-                if not self._rewrites[current]:
-                    del self._rewrites[current]
-                del self._inv_rewrites[key]
-            if value:
-                self._rewrites.setdefault(value, set()).add(key)
-                self._inv_rewrites[key] = value
-
-    def lock(self, key, value, time, ttl):
-        """Lock handling code, common to both subclasses."""
-        with self._lock_lock:
-            entry = self._locks.get(key)
-            # want to lock?
-            req, client_id = value[0], value[1:]
-            if req == OP_LOCK_LOCK:
-                if entry and entry.value != client_id and \
-                   (not entry.ttl or entry.time + entry.ttl >= currenttime()):
-                    # still locked by different client, deny (tell the client
-                    # the current client_id though)
-                    self.log.debug('lock request %s=%s, but still locked by %s',
-                                   key, client_id, entry.value)
-                    return [key + OP_LOCK + entry.value + '\n']
-                else:
-                    # not locked, expired or locked by same client, overwrite
-                    ttl = ttl or 600  # set a maximum time to live
-                    self.log.debug('lock request %s=%s ttl %s, accepted',
-                                   key, client_id, ttl)
-                    self._locks[key] = Entry(time, ttl, client_id)
-                    return [key + OP_LOCK + '\n']
-            # want to unlock?
-            elif req == OP_LOCK_UNLOCK:
-                if entry and entry.value != client_id:
-                    # locked by different client, deny
-                    self.log.debug('unlock request %s=%s, but locked by %s',
-                                   key, client_id, entry.value)
-                    return [key + OP_LOCK + entry.value + '\n']
-                else:
-                    # unlocked or locked by same client, allow
-                    self.log.debug('unlock request %s=%s, accepted',
-                                   key, client_id)
-                    self._locks.pop(key, None)
-                    return [key + OP_LOCK + '\n']
-
-
-class MemoryCacheDatabase(CacheDatabase):
-    """Cache database that keeps the current value for each key in memory."""
-
-    def doInit(self, mode):
-        self._db = {}
-        self._db_lock = threading.Lock()
-        CacheDatabase.doInit(self, mode)
-
-    def ask(self, key, ts, time, ttl):
-        dbkey = key if '/' in key else 'nocat/' + key
-        with self._db_lock:
-            if dbkey not in self._db:
-                return [key + OP_TELLOLD + '\n']
-            lastent = self._db[dbkey][-1]
-        # check for already removed keys
-        if lastent.value is None:
-            return [key + OP_TELLOLD + '\n']
-        # check for expired keys
-        if lastent.ttl:
-            remaining = lastent.time + lastent.ttl - currenttime()
-            op = remaining > 0 and OP_TELL or OP_TELLOLD
-            if ts:
-                return ['%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                            key, op, lastent.value)]
-            else:
-                return [key + op + lastent.value + '\n']
-        if ts:
-            return ['%r@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
-        else:
-            return [key + OP_TELL + lastent.value + '\n']
-
-    def ask_wc(self, key, ts, time, ttl):
-        ret = set()
-        with self._db_lock:
-            # look for matching keys
-            for dbkey, entries in iteritems(self._db):
-                if key not in dbkey:
-                    continue
-                lastent = entries[-1]
-                # check for removed keys
-                if lastent.value is None:
-                    continue
-                if dbkey.startswith('nocat/'):
-                    dbkey = dbkey[6:]
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - currenttime()
-                    op = remaining > 0 and OP_TELL or OP_TELLOLD
-                    if ts:
-                        ret.add('%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                                    dbkey, op, lastent.value))
-                    else:
-                        ret.add(dbkey + op + lastent.value + '\n')
-                elif ts:
-                    ret.add('%r@%s%s%s\n' % (lastent.time, dbkey,
-                                             OP_TELL, lastent.value))
-                else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\n')
-        return ret
-
-    def ask_hist(self, key, fromtime, totime):
-        return []
-
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        always_send_update = False
-        # remove no-store flag
-        if key.endswith(FLAG_NO_STORE):
-            key = key[:-len(FLAG_NO_STORE)]
-            always_send_update = True
-        try:
-            category, subkey = key.rsplit('/', 1)
-        except ValueError:
-            category = 'nocat'
-            subkey = key
-        newcats = [category]
-        if category in self._rewrites:
-            newcats.extend(self._rewrites[category])
-        for newcat in newcats:
-            key = newcat + '/' + subkey
-            with self._db_lock:
-                entries = self._db.setdefault(key, [])
-                if entries:
-                    lastent = entries[-1]
-                    if lastent.value == value and not lastent.ttl:
-                        # not a real update
-                        send_update = False
-                # never cache more than a single entry, memory fills up too fast
-                entries[:] = [Entry(time, ttl, value)]
-            if send_update or always_send_update:
-                for client in self._server._connected.values():
-                    if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value or '', time, ttl)
-
-
-class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
-    """Cache database that keeps everything in memory.
-
-    A certain amount of old values is also kept, determined by the
-    *maxentries* parameter.
-    """
-
-    parameters = {
-        'maxentries': Param('Maximum history length',
-                            type=intrange(0, 100), default=10, settable=False),
-    }
-
-    def ask_hist(self, key, fromtime, totime):
-        if fromtime > totime:
-            return []
-        ret = []
-        # return the first value before the range too
-        inrange = False
-        try:
-            entries = self._db[key]
-            for entry in entries:
-                if fromtime <= entry.time <= totime:
-                    ret.append('%r@%s=%s\n' % (entry.time, key, entry.value))
-                    inrange = True
-                elif not inrange and entry.value:
-                    ret = ['%r@%s=%s\n' % (entry.time, key, entry.value)]
-        except Exception:
-            self.log.exception('error reading store for history query')
-        if not inrange:
-            return []
-        return [''.join(ret)]
-
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        always_send_update = False
-        # remove no-store flag
-        if key.endswith(FLAG_NO_STORE):
-            key = key[:-len(FLAG_NO_STORE)]
-            always_send_update = True
-        try:
-            category, subkey = key.rsplit('/', 1)
-        except ValueError:
-            category = 'nocat'
-            subkey = key
-        newcats = [category]
-        if category in self._rewrites:
-            newcats.extend(self._rewrites[category])
-        for newcat in newcats:
-            key = newcat + '/' + subkey
-            with self._db_lock:
-                queue = deque([Entry(None, None, None)], self.maxentries)
-                entries = self._db.setdefault(key, queue)
-                lastent = entries[-1]
-                if lastent.value == value and not lastent.ttl:
-                    # not a real update
-                    send_update = False
-                entries.append(Entry(time, ttl, value))
-            if send_update or always_send_update:
-                for client in self._server._connected.values():
-                    if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value or '', time, ttl)
 
 
 class FlatfileCacheDatabase(CacheDatabase):
@@ -378,10 +123,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                 subkey, time, hasttl, value = line.rstrip().split(None, 3)
                 if hasttl == '+':
                     # the value is valid indefinitely, so we can use it
-                    db[subkey] = Entry(float(time), None, value)
+                    db[subkey] = CacheEntry(float(time), None, value)
                 elif value != '-':
                     # the value is not valid indefinitely, add it but mark as expired
-                    db[subkey] = Entry(float(time), None, value)
+                    db[subkey] = CacheEntry(float(time), None, value)
                     db[subkey].expired = True
                 elif subkey in db:  # implied: value == '-'
                     # the value is already present, but now explicitly invalidated
@@ -403,7 +148,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             try:
                 subkey, time, value = line.rstrip().split(None, 2)
                 if value != '-':
-                    db[subkey] = Entry(float(time), None, value)
+                    db[subkey] = CacheEntry(float(time), None, value)
                 elif subkey in db:  # implied: value == '-'
                     db[subkey].expired = True
             except Exception:
@@ -706,7 +451,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                         # do not delete old value, it is already expired
                         update = not store_on_disk
                 if update:
-                    db[subkey] = Entry(time, ttl, value)
+                    db[subkey] = CacheEntry(time, ttl, value)
                     if store_on_disk:
                         fd.write('%s\t%s\t%s\t%s\n' % (
                             subkey, time,
