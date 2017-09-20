@@ -4,10 +4,16 @@ description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB=device('nicos.services.cache.server.FlatfileCacheDatabase',
-              storepath='data/cache',
-              loglevel='info',
-              ),
+    serializer=device(
+        'nicos.services.cache.database.entry.JsonCacheEntrySerializer'),
+
+    DB=device(
+        'nicos.services.cache.database.kafka.KafkaCacheDatabase',
+        currenttopic='nicos-json',
+        brokers=['localhost:9092'],
+        loglevel='info',
+        serializer='serializer'
+    ),
 
     Server=device('nicos.services.cache.server.CacheServer',
                   db='DB',
