@@ -7,7 +7,7 @@ includes = ['alias_B']
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'B_%s' % setupname: device('nicos.devices.tango.Actuator',
+    'B_%s' % setupname: device('nicos.devices.tango.RampActuator',
                          description = 'magnetic field device',
                          tangodevice = tango_base + 'plc/_magneticfield',
                          unit = 'T',

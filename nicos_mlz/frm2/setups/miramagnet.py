@@ -6,7 +6,7 @@ includes = ['alias_B']
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = dict(
-    I_miramagnet   = device('nicos.devices.tango.Actuator',
+    I_miramagnet   = device('nicos.devices.tango.RampActuator',
                             description = 'MIRA Helmholtz magnet current',
                             tangodevice = tango_base + 'beckhoff/plc_i',
                             abslimits = (-250, 250),

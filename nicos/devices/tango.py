@@ -41,7 +41,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
     dictof, intrange, nonemptylistof, listof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, ArrayDesc, Value, floatrange
+    HasTimeout, HasPrecision, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub, tcpSocket, closeSocket
 from nicos.core import SIMULATION
@@ -51,8 +51,8 @@ from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
-    'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
-    'TemperatureController', 'PowerSupply', 'DigitalInput',
+    'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'RampActuator',
+    'Motor', 'TemperatureController', 'PowerSupply', 'DigitalInput',
     'NamedDigitalInput', 'PartialDigitalInput', 'DigitalOutput',
     'NamedDigitalOutput', 'PartialDigitalOutput', 'StringIO', 'DetectorChannel',
     'TimerChannel', 'CounterChannel', 'ImageChannel', 'TOFChannel',
@@ -519,7 +519,29 @@ class Motor(CanReference, Actuator):
         return 2 * (s / a) ** 0.5
 
 
-class TemperatureController(HasWindowTimeout, Actuator):
+class RampActuator(HasPrecision, AnalogOutput):
+    """
+    A class wrapping the Tango Actuator interface that does not inherit the
+    NICOS motor interface.
+
+    It treats the value changing speed in terms of the "ramp" attribute
+    (set in units/minute), not the "speed" attribute (set in units/second)
+    that the `Actuator` class uses.
+    """
+
+    parameter_overrides = {
+        'ramp':         Param('Temperature ramp', unit='main/min',
+                              type=float, settable=True, volatile=True),
+    }
+
+    def doReadRamp(self):
+        return self._dev.ramp
+
+    def doWriteRamp(self, value):
+        self._dev.ramp = value
+
+
+class TemperatureController(HasWindowTimeout, RampActuator):
     """
     A temperature control loop device.
     """
@@ -538,8 +560,6 @@ class TemperatureController(HasWindowTimeout, Actuator):
                               category='general', volatile=True),
         'heateroutput': Param('Heater output', type=float, category='general',
                               volatile=True),
-        'ramp':         Param('Temperature ramp', unit='main/min',
-                              type=float, settable=True, volatile=True),
     }
 
     parameter_overrides = {
@@ -547,12 +567,6 @@ class TemperatureController(HasWindowTimeout, Actuator):
         # on startup, so select a usually sensible default.
         'precision':    Override(mandatory=False, default=0.1),
     }
-
-    def doReadRamp(self):
-        return self._dev.ramp
-
-    def doWriteRamp(self, value):
-        self._dev.ramp = value
 
     def doReadP(self):
         return self._dev.p
@@ -590,25 +604,17 @@ class TemperatureController(HasWindowTimeout, Actuator):
             self._pollParam('d')
 
 
-class PowerSupply(HasTimeout, Actuator):
+class PowerSupply(HasTimeout, RampActuator):
     """
     A power supply (voltage and current) device.
     """
 
     parameters = {
-        'ramp':    Param('Current/voltage ramp', unit='main/min',
-                         type=float, settable=True, volatile=True),
         'voltage': Param('Actual voltage', unit='V',
                          type=float, settable=False, volatile=True),
         'current': Param('Actual current', unit='A',
                          type=float, settable=False, volatile=True),
     }
-
-    def doReadRamp(self):
-        return self._dev.ramp
-
-    def doWriteRamp(self, value):
-        self._dev.ramp = value
 
     def doReadVoltage(self):
         return self._dev.voltage

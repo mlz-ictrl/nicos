@@ -72,7 +72,7 @@ devices = dict(
         description = 'Needle valve opening',
         tangodevice = tango_base + 'ls336/control3mout',
     ),
-    I_vm5 = device('nicos.devices.tango.Actuator',
+    I_vm5 = device('nicos.devices.tango.RampActuator',
         description = 'Current in the magnet',
         tangodevice = tango_base + 'supply/field',
         precision = 60,
