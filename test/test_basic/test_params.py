@@ -27,11 +27,13 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, \
     oneofdict, none_or, limits, mailaddress, Param, Value, absolute_path, \
-    relative_path, subdir, nicosdev, nonemptystring, host, ipv4, dictwith, \
-    Attach, setof, ArrayDesc
+    relative_path, subdir, nicosdev, nonemptystring, host, hostport, ipv4, \
+    dictwith, Attach, setof, ArrayDesc
 from nicos.core.errors import ProgrammingError, ConfigurationError
 
 from test.utils import raises
+
+# pylint: disable=compare-to-empty-string
 
 
 def test_param_class():
@@ -377,6 +379,29 @@ def test_host():
     assert raises(ValueError, host, 'localhost:0')
     assert raises(ValueError, host, 'localhost:65536')
     assert raises(ValueError, host, 'localhost:port')
+
+
+def test_hostport():
+    assert hostport(defaulthost='localhost')('') == ''
+    assert hostport(defaulthost='localhost')(None) == 'localhost'
+    assert hostport(defaulthost='localhost')('otherhost') == 'otherhost'
+
+    assert hostport(defaultport=123)('') == ''
+    assert hostport(defaultport=123)('otherhost') == 'otherhost:123'
+    assert hostport(defaultport='456')('otherhost') == 'otherhost:456'
+    assert hostport(defaultport=123)('otherhost:789') == 'otherhost:789'
+    assert hostport()(('name', 1234)) == 'name:1234'
+
+    assert hostport(defaulthost='localhost', defaultport=123)('') == ''
+    assert hostport(defaulthost='localhost',
+                    defaultport='456')('otherhost') == 'otherhost:456'
+    assert hostport(defaulthost='localhost',
+                    defaultport='456')('otherhost:789') == 'otherhost:789'
+
+    assert raises(ValueError, hostport().__call__, ':123')
+
+    assert raises(ValueError, hostport, **{'defaultport': 'abc'})
+    assert raises(ValueError, hostport, **{'defaultport': '9999999'})
 
 
 def test_ipv4():

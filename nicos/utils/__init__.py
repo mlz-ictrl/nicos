@@ -323,22 +323,31 @@ def getSysInfo(service):
     return key, res
 
 
-def parseHostPort(host, defaultport):
+def parseHostPort(host, defaultport, missingportok=False):
     """Parse host[:port] string and tuples
 
     Specify 'host[:port]' or a (host, port) tuple for the mandatory argument.
     If the port specification is missing, the value of the defaultport is used.
-    """
 
+    On wrong input, this function will raise a ValueError.
+    """
     if isinstance(host, (tuple, list)):
         host, port = host
     elif ':' in host:
         host, port = host.rsplit(':', 1)
-        port = int(port)
     else:
         port = defaultport
-    assert 0 < port < 65536
-    assert ':' not in host
+    if not missingportok and port is None:
+        raise ValueError('a valid port is required')
+    if port is not None:
+        try:
+            port = int(port)
+        except ValueError:
+            raise ValueError('invalid port number: ' + port)
+        if not 0 < port < 65536:
+            raise ValueError('port number out of range')
+    if ':' in host:
+        raise ValueError('host name must not contain ":"')
     return host, port
 
 

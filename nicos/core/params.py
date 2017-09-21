@@ -30,7 +30,7 @@ from os import path
 
 import numpy as np
 
-from nicos.utils import readonlylist, readonlydict
+from nicos.utils import readonlylist, readonlydict, parseHostPort
 from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type, string_types
 
@@ -882,18 +882,54 @@ def ipv4(val='0.0.0.0'):
     return val
 
 
-def host(val=''):
-    """a host[:port] value"""
-    if not isinstance(val, string_types):
-        raise ValueError('must be a string!')
-    if val.count(':') > 1:
-        raise ValueError('%r is not in the form host_name[:port]' % val)
-    if ':' in val:
-        _, p = val.split(':')
+class hostport(object):
+    """Validator for a host[:port] value.
+
+    Optionally, defaulthost and/or defaultport can be specified.
+    """
+
+    def __init__(self, defaulthost='', defaultport=None):
+        self.__doc__ = "a host[:port] value"
+        self.defaulthost = defaulthost
+        if defaultport is not None:
+            self.defaultport = self._checkport(defaultport)
+        else:
+            self.defaultport = defaultport
+
+    def _checkport(self, p):
         try:
             p = int(p)
             if not 0 < p < 65536:
-                raise ValueError()
+                raise ValueError
         except ValueError:
-            raise ValueError('%r does not contain a valid port number' % val)
-    return val
+            raise ValueError('The port is not a valid port number')
+        return p
+
+    def _addDefaults(self, host, port=None):
+        host = host or self.defaulthost
+        port = port if port is not None else self.defaultport
+        return (host + ':%d' % port) if port else host
+
+    def __call__(self, val=''):
+        if val is None:
+            if self.defaulthost:
+                return self._addDefaults(None)
+            else:
+                raise ValueError('A None host is not allowed '
+                                 'without defaulthost')
+        if not isinstance(val, string_types + (tuple, list)):
+            raise ValueError('must be a string or tuple/list (host, port)!')
+        if not val:
+            return ''
+
+        try:
+            host, port = parseHostPort(val, self.defaultport, True)
+        except ValueError:
+            raise ValueError('%r is not in the form host_name[:port]' % (val,))
+        if not host:
+            raise ValueError('Empty hostname is not allowed')
+        return self._addDefaults(host, port)
+
+
+# backwards compatibility
+host = hostport()
