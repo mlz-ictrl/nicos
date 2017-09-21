@@ -114,15 +114,28 @@ def checkoutSource() {
     sh '''git describe'''
 }
 
-def runPylint() {
-    verifyresult.put('pylint',0)
-    try {
-        withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
-            sh '''\
+
+def refreshVenv() {
+    sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
 pip install -r requirements-dev.txt
 pip install -r requirements.txt
+allcustreq=`find . -mindepth 2 -name requirements\\*.txt`
+for custreq in $allcustreq ; do
+   pip install -r $custreq
+done
+    '''
+}
+
+def runPylint() {
+    verifyresult.put('pylint',0)
+    try {
+        withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
+        refreshVenv()
+            sh '''\
+#! /bin/bash
+. $NICOSVENV/bin/activate
 echo $PATH
 set +e
 
@@ -167,12 +180,11 @@ def runSetupcheck() {
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP',
                                 variable: 'GERRITHTTP')]) {
+            refreshVenv()
             ansiColor('xterm') {
                 sh '''\
 #! /bin/bash
 . $NICOSVENV/bin/activate
-pip install -r requirements-dev.txt
-pip install -r requirements.txt
 
 tools/check_setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
 # */
@@ -204,7 +216,7 @@ exit $((res))
 }
 
 def runTests(venv, pyver, withcov) {
-
+    refreshVenv()
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
 addopts = --junit-xml=pytest-${pyver}.xml
@@ -228,8 +240,6 @@ echo $venv
 set +x
 . $venv/bin/activate
 set -x
-pip install -r requirements-dev.txt
-pip install -r requirements.txt
 
 pytest -v test"""
 verifyresult.put(pyver, 1)
@@ -270,12 +280,11 @@ verifyresult.put(pyver, 1)
 def runDocTest() {
     verifyresult.put('doc', 0)
     try {
+        refreshVenv()
         sh '''\
 #!/bin/bash
 set +x
 . $NICOSVENV/bin/activate
-pip install -r requirements-dev.txt
-pip install -r requirements.txt
 echo $PATH
 set -x
 export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
