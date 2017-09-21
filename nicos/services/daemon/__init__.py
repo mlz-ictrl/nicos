@@ -34,7 +34,7 @@ import threading
 from nicos import nicos_version, config
 from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
 from nicos.core.utils import system_user
-from nicos.utils import closeSocket, createThread
+from nicos.utils import closeSocket, createThread, parseHostPort
 from nicos.pycompat import get_thread_id, queue, socketserver, listitems
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
@@ -147,7 +147,8 @@ class NicosDaemon(Device):
 
     parameters = {
         'server':         Param('Address to bind to (host or host[:port])',
-                                type=host, mandatory=True,
+                                type=host(defaultport=DEFAULT_PORT),
+                                mandatory=True,
                                 ext_desc='The default port is ``1301``.'),
         'maxlogins':      Param('Maximum number of simultaneous clients '
                                 'served', type=int,
@@ -182,14 +183,7 @@ class NicosDaemon(Device):
         # cache log messages emitted so far
         self._messages = []
 
-        address = self.server
-        if ':' not in address:
-            host = address
-            port = DEFAULT_PORT
-        else:
-            host, port = address.split(':')
-            port = int(port)
-
+        host, port = parseHostPort(self.server, DEFAULT_PORT)
         Server.request_queue_size = self.maxlogins * 2
         Server.allow_reuse_address = self.reuseaddress
         self._server = Server(self, (host, port), ConnectionHandler)

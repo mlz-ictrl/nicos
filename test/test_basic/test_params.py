@@ -27,7 +27,7 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, \
     oneofdict, none_or, limits, mailaddress, Param, Value, absolute_path, \
-    relative_path, subdir, nicosdev, nonemptystring, host, hostport, ipv4, \
+    relative_path, subdir, nicosdev, nonemptystring, host, ipv4, \
     dictwith, Attach, setof, ArrayDesc
 from nicos.core.errors import ProgrammingError, ConfigurationError
 
@@ -369,39 +369,37 @@ def test_string_params():
 
 
 def test_host():
-    assert host('localhost') == 'localhost'
-    assert host('localhost:14869') == 'localhost:14869'
-    assert host('') == ''
-    assert raises(ValueError, host, None)
-    assert raises(ValueError, host, 123)
-    assert raises(ValueError, host, 'localhost:')
-    assert raises(ValueError, host, 'localhost:14869:')
-    assert raises(ValueError, host, 'localhost:0')
-    assert raises(ValueError, host, 'localhost:65536')
-    assert raises(ValueError, host, 'localhost:port')
+    assert host()('localhost') == 'localhost'
+    assert host()('localhost:14869') == 'localhost:14869'
+    assert host()('') == ''
+    assert raises(ValueError, host(), None)
+    assert raises(ValueError, host(), 123)
+    assert raises(ValueError, host(), 'localhost:')
+    assert raises(ValueError, host(), 'localhost:14869:')
+    assert raises(ValueError, host(), 'localhost:0')
+    assert raises(ValueError, host(), 'localhost:65536')
+    assert raises(ValueError, host(), 'localhost:port')
+    assert host(defaulthost='localhost')('') == ''
+    assert host(defaulthost='localhost')(None) == 'localhost'
+    assert host(defaulthost='localhost')('otherhost') == 'otherhost'
 
+    assert host(defaultport=123)('') == ':123'
+    assert host(defaultport=123)('otherhost') == 'otherhost:123'
+    assert host(defaultport='456')('otherhost') == 'otherhost:456'
+    assert host(defaultport=123)('otherhost:789') == 'otherhost:789'
+    assert host()(('name', 1234)) == 'name:1234'
 
-def test_hostport():
-    assert hostport(defaulthost='localhost')('') == ''
-    assert hostport(defaulthost='localhost')(None) == 'localhost'
-    assert hostport(defaulthost='localhost')('otherhost') == 'otherhost'
+    assert host(defaulthost='localhost',
+                defaultport=123)('') == ':123'
+    assert host(defaulthost='localhost',
+                defaultport='456')('otherhost') == 'otherhost:456'
+    assert host(defaulthost='localhost',
+                defaultport='456')('otherhost:789') == 'otherhost:789'
 
-    assert hostport(defaultport=123)('') == ''
-    assert hostport(defaultport=123)('otherhost') == 'otherhost:123'
-    assert hostport(defaultport='456')('otherhost') == 'otherhost:456'
-    assert hostport(defaultport=123)('otherhost:789') == 'otherhost:789'
-    assert hostport()(('name', 1234)) == 'name:1234'
+    assert raises(ValueError, host().__call__, ':123')
 
-    assert hostport(defaulthost='localhost', defaultport=123)('') == ''
-    assert hostport(defaulthost='localhost',
-                    defaultport='456')('otherhost') == 'otherhost:456'
-    assert hostport(defaulthost='localhost',
-                    defaultport='456')('otherhost:789') == 'otherhost:789'
-
-    assert raises(ValueError, hostport().__call__, ':123')
-
-    assert raises(ValueError, hostport, **{'defaultport': 'abc'})
-    assert raises(ValueError, hostport, **{'defaultport': '9999999'})
+    assert raises(ValueError, host, **{'defaultport': 'abc'})
+    assert raises(ValueError, host, **{'defaultport': '9999999'})
 
 
 def test_ipv4():

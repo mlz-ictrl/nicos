@@ -79,7 +79,8 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
             'Kafka topic where the current values of cache are streamed',
             type=str, mandatory=True),
         'brokers': Param('List of Kafka bootstrap servers.',
-                         type=listof(host), default=['localhost:9092']),
+                         type=listof(host(defaultport=9092)),
+                         default=['localhost']),
     }
 
     attached_devices = {

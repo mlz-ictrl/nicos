@@ -882,7 +882,7 @@ def ipv4(val='0.0.0.0'):
     return val
 
 
-class hostport(object):
+class host(object):
     """Validator for a host[:port] value.
 
     Optionally, defaulthost and/or defaultport can be specified.
@@ -906,7 +906,7 @@ class hostport(object):
         return p
 
     def _addDefaults(self, host, port=None):
-        host = host or self.defaulthost
+        host = host if host is not None else self.defaulthost
         port = port if port is not None else self.defaultport
         return (host + ':%d' % port) if port else host
 
@@ -920,7 +920,7 @@ class hostport(object):
         if not isinstance(val, string_types + (tuple, list)):
             raise ValueError('must be a string or tuple/list (host, port)!')
         if not val:
-            return ''
+            return self._addDefaults('')
 
         try:
             host, port = parseHostPort(val, self.defaultport, True)
@@ -929,7 +929,3 @@ class hostport(object):
         if not host:
             raise ValueError('Empty hostname is not allowed')
         return self._addDefaults(host, port)
-
-
-# backwards compatibility
-host = hostport()

@@ -47,7 +47,7 @@ class PixelmanUDPChannel(ActiveChannel):
 
     parameters = {
         'host': Param('IP and port for Pixelman Detector UDP interface.',
-                      type=host),
+                      type=host()),
         'acquire': Param('Keyword to send for starting the acquisition',
                          type=str),
         'finished': Param('Keyword to wait for to determine '

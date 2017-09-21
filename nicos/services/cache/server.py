@@ -43,7 +43,8 @@ from time import time as currenttime, sleep
 
 from nicos import session, config
 from nicos.core import Device, Param, host, Attach
-from nicos.utils import loggers, closeSocket, createThread, getSysInfo
+from nicos.utils import loggers, closeSocket, createThread, getSysInfo, \
+    parseHostPort
 from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
 # pylint: disable=W0611
@@ -328,7 +329,8 @@ class CacheServer(Device):
     """
 
     parameters = {
-        'server':   Param('Address to bind to (host or host:port)', type=host,
+        'server':   Param('Address to bind to (host or host:port)',
+                          type=host(defaultport=DEFAULT_CACHE_PORT),
                           mandatory=True,
                           ext_desc="The default port is ``14869``."),
     }
@@ -362,12 +364,7 @@ class CacheServer(Device):
 
     def _bind_to(self, address, proto='tcp'):
         # bind to the address with the given protocol; return socket and address
-        if ':' not in address:
-            host = address
-            port = DEFAULT_CACHE_PORT
-        else:
-            host, port = address.split(':')
-            port = int(port)
+        host, port = parseHostPort(address, DEFAULT_CACHE_PORT)
         serversocket = socket.socket(
             socket.AF_INET, proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

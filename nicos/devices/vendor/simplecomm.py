@@ -106,7 +106,8 @@ class EthernetCommunicator(Communicator):
 
     parameters = {
         'host':       Param('The server address',
-                            type=host, mandatory=True),
+                            type=host(defaultport=14728),
+                            mandatory=True),
     }
 
     def doInit(self, mode):
@@ -115,7 +116,7 @@ class EthernetCommunicator(Communicator):
 
     def _connect(self):
         self.log.info('Connecting to %r', self.host)
-        self._sock = tcpSocket(self.host, defaultport=14728)
+        self._sock = tcpSocket(self.host, None)
         # set connected true if tcpSocket does not raise a socket.error
         self._connected = True
 

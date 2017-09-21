@@ -47,7 +47,8 @@ class BaseCacheClient(Device):
 
     parameters = {
         'cache':  Param('"host[:port]" of the cache instance to connect to',
-                        type=host, mandatory=True),
+                        type=host(defaultport=DEFAULT_CACHE_PORT),
+                        mandatory=True),
         'prefix': Param('Cache key prefix', type=str, mandatory=True),
     }
 

@@ -241,8 +241,11 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return DeviceComboWidget(parent, curvalue, client,
                                  allow_enter=allow_enter)
     elif typ in (params.tacodev, params.tangodev, params.mailaddress,
-                 params.host, params.ipv4,
-                 params.subdir, params.relative_path, params.absolute_path):
+                 params.ipv4, params.subdir, params.relative_path,
+                 params.absolute_path):
+        # XXX validate via regexp
+        return EditWidget(parent, str, curvalue, allow_enter=allow_enter)
+    elif isinstance(typ, params.host):
         # XXX validate via regexp
         return EditWidget(parent, str, curvalue, allow_enter=allow_enter)
     elif typ == anytype:
