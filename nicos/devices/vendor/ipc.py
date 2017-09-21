@@ -974,7 +974,7 @@ class Motor(HasTimeout, NicosMotor):
         bus.send(self.addr, 31)  # reset card
         session.delay(0.2)
         if self._hwtype != 'single':
-            # triple cards need a LONG time for resetting
+            # triple and sixfold cards need a LONG time for resetting
             session.delay(2)
         # update state
         bus.send(self.addr, 41, speed, 3)
