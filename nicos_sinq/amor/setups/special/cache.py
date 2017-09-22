@@ -5,11 +5,11 @@ group = 'special'
 
 devices = dict(
     serializer=device(
-        'nicos.services.cache.database.entry.JsonCacheEntrySerializer'),
+        'nicos.services.cache.database.entry.FlatbuffersCacheEntrySerializer'),
 
     DB=device(
         'nicos.services.cache.database.kafka.KafkaCacheDatabase',
-        currenttopic='nicos-json',
+        currenttopic='nicos-flatbuffers',
         brokers=['localhost:9092'],
         loglevel='info',
         serializer='serializer'

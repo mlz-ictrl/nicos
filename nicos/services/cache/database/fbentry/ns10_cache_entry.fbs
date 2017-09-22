@@ -1,0 +1,13 @@
+
+file_identifier "ns10";
+
+/// pylint: skip-file
+table CacheEntry {
+        key:string;            // key for this entry
+        time:double;           // time when this entry was set
+        ttl:double;            // time to live
+        expired:bool = false;  // is this entry already expired (manually or using ttl)
+        value:string;          // value for the key
+}
+
+root_type CacheEntry;
