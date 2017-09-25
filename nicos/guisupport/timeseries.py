@@ -163,8 +163,7 @@ class TimeSeries(object):
                 # other values we can't use
                 else:
                     continue
-            else:
-                value = value * self.scale + self.offset
+            value = value * self.scale + self.offset
             if delta < self.interval:
                 # value comes too fast -> ignore
                 lvalue = value
@@ -202,7 +201,7 @@ class TimeSeries(object):
         self.y = y
         if self.string_mapping:
             self.info = ', '.join(
-                '%s=%s' % (v, k) for (k, v) in
+                '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
                 sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
 
     def synthesize_value(self):
@@ -218,7 +217,7 @@ class TimeSeries(object):
             if isinstance(value, string_types):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 self.info = ', '.join(
-                    '%s=%s' % (v, k) for (k, v) in
+                    '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
                     sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
             else:
                 return
