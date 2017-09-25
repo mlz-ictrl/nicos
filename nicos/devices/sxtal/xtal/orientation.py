@@ -82,6 +82,7 @@ class RefinementParams(object):
         self.errors = {}
         self.varnames = []
         self.varinit = []
+        self.chi2 = 0.
 
     def __getattr__(self, name):
         return self.params[name]
@@ -220,5 +221,6 @@ class orient(object):
             raise ComputationError('Optimization failed: %s' % errmsg)
 
         p.update(popt)
-        p.update_errors(pcov[i,i] for i in range(len(popt)))
+        p.update_errors(pcov[i, i] for i in range(len(popt)))
+        p.chi2 = sum(np.power(residuals(popt), 2)) / nfree
         return get_new_cell(p), p

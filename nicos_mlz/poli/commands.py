@@ -605,7 +605,7 @@ def PosListShow(listname='default'):
                 u'γ', u'ω', u'ν', u'I', u'σ(I)',
                 'h', 'k', 'l',
                 u'γ_calc', u'ω_calc', u'ν_calc'),
-               items, session.log.info)
+               items, session.log.info, rjust=True)
 
 
 def _add_to_pos_list(pos, intensity, args):
@@ -787,9 +787,11 @@ n                                ! extended output
 
     # read output from Indexus
     p1, p2 = None, None
+    table = []
     peaks = []
     dgamma = 0.
     dnu = 0.
+    chi2 = 0.
     with open(path.join(root, 'indexus.lis'), 'r') as fp:
         lines = iter(fp)
         for line in lines:
@@ -800,30 +802,36 @@ n                                ! extended output
                 dgamma = float(line.split()[2])
             elif line.startswith(' offset nu:'):
                 dnu = float(line.split()[2])
+            elif line.startswith(' chi2:'):
+                chi2 = float(line.split()[1])
             elif line.startswith(' list:'):
                 session.log.info('Indexed reflections:')
-                for line in lines:
-                    session.log.info(line.rstrip())
-                    if not line.strip():
+                for i, line in enumerate(lines):
+                    if not line.strip():  # empty line after table
                         break
-                    info = line.strip().strip('*').split()
-                    if info[0] == 'H':
+                    cols = line.strip().strip('*').split()
+                    if cols[0] == 'H':   # header
                         continue
-                    peaks.append([info[0], info[1], info[2]])
+                    peaks.append([float(ix) for ix in cols[:3]])
+                    table.append([str(i)] + cols)
                 break
+    printTable(('pos#', 'h', 'k', 'l', u'γ', u'ω', u'ν', u'I', u'σ(I)'),
+               table, session.log.info, rjust=True)
 
     # calculate UB matrix from "best combination" of two peaks
     or_calc = orient(*sample.cell.cellparams())
     pos1 = posl[p1][0]
     pos2 = posl[p2][0]
-    hkl1 = [int(round(float(ix))) for ix in peaks[p1]]
-    hkl2 = [int(round(float(ix))) for ix in peaks[p2]]
+    hkl1 = [int(round(ix)) for ix in peaks[p1]]
+    hkl2 = [int(round(ix)) for ix in peaks[p2]]
     new_cell = or_calc.Reorient(hkl1, pos1, hkl2, pos2)
     IndexPeaks._last_result = (new_cell.rmat.T, (dgamma, dnu), listname, peaks)
     session.log.info('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate'
                      ' UB matrix:', *(tuple(hkl1) + tuple(hkl2)))
     for row in new_cell.rmat.T:
-        session.log.info('%8.4f %8.4f %8.4f', *row)
+        session.log.info(' %8.4f %8.4f %8.4f', *row)
+    session.log.info('')
+    session.log.info('Fit quality χ²: %8.4f', chi2)
     session.log.info('')
     session.log.info('Offsets:')
     session.log.info('  delta gamma = %8.4f   delta nu = %8.4f', dgamma, dnu)
@@ -866,7 +874,7 @@ def AcceptIndexing():
         return
     for i in range(len(posl)):
         posl[i] = (posl[i][0],
-                   [int(round(float(ix))) for ix in peaks[i]],
+                   [int(round(ix)) for ix in peaks[i]],
                    posl[i][2])
     lists[listname] = posl
     sample.poslists = lists
@@ -1092,9 +1100,12 @@ def RefineMatrix(listname='default', **kwds):
                      p.errors['delta_nu'])
 
     session.log.info('')
+    session.log.info(u'Reduced χ² (χ²/NDF): %8.4f', p.chi2)
+
+    session.log.info('')
     session.log.info('New UB matrix:')
     for row in new_cell.rmat.T:
-        session.log.info('%8.4f %8.4f %8.4f', *row)
+        session.log.info(' %8.4f %8.4f %8.4f', *row)
 
     session.log.info('')
     session.log.info('Use AcceptRefinement() to use this refined data.')

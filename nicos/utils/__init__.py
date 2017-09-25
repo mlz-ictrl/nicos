@@ -274,7 +274,7 @@ def formatDocstring(s, indentation=''):
     return lines
 
 
-def printTable(headers, items, printfunc, minlen=0):
+def printTable(headers, items, printfunc, minlen=0, rjust=False):
     """Print tabular information nicely formatted."""
     if not headers and not items:
         return
@@ -283,12 +283,13 @@ def printTable(headers, items, printfunc, minlen=0):
     for row in [headers or []] + items:
         for i, item in enumerate(row):
             rowlens[i] = max(rowlens[i], len(item))
-    fmtstr = ('%%-%ds  ' * ncolumns) % tuple(rowlens)
+    rfmtstr = ('%%%ds  ' * ncolumns) % tuple(rowlens)
+    lfmtstr = ('%%-%ds  ' * ncolumns) % tuple(rowlens)
     if headers:
-        printfunc(fmtstr % tuple(headers))
-        printfunc(fmtstr % tuple('=' * l for l in rowlens))
+        printfunc(lfmtstr % tuple(headers))
+        printfunc(lfmtstr % tuple('=' * l for l in rowlens))
     for row in items:
-        printfunc(fmtstr % tuple(row))
+        printfunc((rfmtstr if rjust else lfmtstr) % tuple(row))
 
 
 def getVersions(obj):
