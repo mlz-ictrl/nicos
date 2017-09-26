@@ -115,7 +115,7 @@ def checkoutSource() {
 }
 
 
-def refreshVenv(venv="NICOSVENV") {
+def refreshVenv(venv='$NICOSVENV') {
     sh '''\
 #! /bin/bash
 . $venv/bin/activate
