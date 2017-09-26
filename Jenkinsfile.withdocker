@@ -115,10 +115,10 @@ def checkoutSource() {
 }
 
 
-def refreshVenv() {
+def refreshVenv(venv="NICOSVENV") {
     sh '''\
 #! /bin/bash
-. $NICOSVENV/bin/activate
+. $venv/bin/activate
 pip install -r requirements-dev.txt
 pip install -r requirements.txt
 allcustreq=`find . -mindepth 2 -name requirements\\*.txt`
@@ -216,7 +216,7 @@ exit $((res))
 }
 
 def runTests(venv, pyver, withcov) {
-    refreshVenv()
+    refreshVenv(venv)
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
 addopts = --junit-xml=pytest-${pyver}.xml
