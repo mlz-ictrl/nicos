@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 description = 'doppler control devices'
 
 group = 'optional'
 
-nethost = 'phys.spheres.frm2'
-doppler = 'tango://%s:10000/spheres/doppler/' % nethost
+tangohost = 'phys.spheres.frm2'
+doppler = 'tango://%s:10000/spheres/doppler/' % tangohost
 
 devices = dict(
     doppler_switch = device('nicos.devices.tango.NamedDigitalOutput',

@@ -13,7 +13,7 @@ main_window = tabbed(
             tabbed(
                 ('All output',
                     panel('nicos.clients.gui.panels.console.ConsolePanel',
-                          hasinput=False, hasmenu=False)),
+                          hasinput=False, hasmenu=False, eta=True)),
                 ('Errors/Warnings',
                     panel('nicos.clients.gui.panels.errors.ErrorPanel')),
             ),

@@ -3,8 +3,8 @@
 description = 'Setup for the sample environment.'
 group = 'optional'
 
-host = 'phys.spheres.frm2'
-tango_sample = 'tango://' + host + ':10000/spheres/sample/'
+tangohost = 'phys.spheres.frm2'
+tango_sample = 'tango://%s:10000/spheres/sample/' % tangohost
 
 devices = dict(
     c_temperature = device('nicos_mlz.spheres.devices.sample.SEController',

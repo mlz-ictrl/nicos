@@ -9,7 +9,6 @@ sysconfig = dict(
 )
 
 tangohost = 'phys.spheres.frm2'
-tangohost = 'localhost'
 sis = 'tango://%s:10000/spheres/sis/' % tangohost
 
 basename = '%(proposal)s_%(session.experiment.sample.filename)s_'
