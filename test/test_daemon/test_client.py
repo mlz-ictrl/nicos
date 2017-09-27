@@ -123,3 +123,16 @@ def test_simulation(client):
     for name, _data, _exc in client.iter_signals(idx, timeout=10.0):
         if name == 'simresult':
             return
+
+
+def test_dualaccess(client, adminclient):
+    load_setup(client, 'daemontest')
+    adminclient.run('fix(dm2, "test")', 'adminfix')
+    client.wait_idle()
+    assert "fixed by 'admin'" in client.eval('dm2.fixed')
+    client.run('release(dm2)')
+    assert "fixed by 'admin'" in client.eval('dm2.fixed')
+    client.run('count(10)')
+    adminclient.tell('exec', 'release(dm2)')
+    client.wait_idle()
+    assert 'fixed by' not in client.eval('dm2.fixed')

@@ -142,6 +142,22 @@ def client(daemon):
         client._disconnecting = True
         client.disconnect()
 
+@pytest.fixture(scope='module')
+def adminclient(daemon):
+    """Create a nicos admin client session and log in"""
+    adminclient = TestClient()
+    parsed = parseConnectionString('admin:admin@' + daemon_addr, 0)
+    adminclient.connect(ConnectionData(**parsed))
+    assert ('connected', None, None) in adminclient._signals
+
+    # wait until initial setup is done
+    adminclient.wait_idle()
+
+    yield adminclient
+
+    if adminclient.connected:
+        adminclient._disconnecting = True
+        adminclient.disconnect()
 
 @pytest.fixture(scope='module')
 def cliclient(daemon):

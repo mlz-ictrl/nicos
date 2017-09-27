@@ -27,7 +27,7 @@
 import sys
 import threading
 
-from nicos.core import AccessError, ACCESS_LEVELS, User, watchdog_user
+from nicos.core import AccessError, ACCESS_LEVELS, watchdog_user
 from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
@@ -144,11 +144,11 @@ class DaemonSession(NoninteractiveSession):
                         break
                 else:
                     raise AccessError('invalid access level name: %r' % rlevel)
-            if script and rlevel > script.userlevel:
+            if script and rlevel > script.user.level:
                 raise AccessError('%s access is not sufficient, %s access '
                                   'is required' % (
-                                      ACCESS_LEVELS.get(script.userlevel,
-                                                        str(script.userlevel)),
+                                      ACCESS_LEVELS.get(script.user.level,
+                                                        str(script.user.level)),
                                       ACCESS_LEVELS.get(rlevel, str(rlevel))))
         return NoninteractiveSession.checkAccess(self, required)
 
@@ -170,8 +170,7 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc_private('showhelp', data)
 
     def getExecutingUser(self):
-        s = self.daemon_device.current_script()
-        return User(s.user, s.userlevel)
+        return self.daemon_device.current_user()
 
     def clientExec(self, func, args):
         """Execute a function client-side."""

@@ -33,6 +33,7 @@ import threading
 
 from nicos import nicos_version, config
 from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
+from nicos.core.utils import system_user
 from nicos.utils import closeSocket, createThread
 from nicos.pycompat import get_thread_id, queue, socketserver, listitems
 from nicos.services.daemon.auth import Authenticator
@@ -279,6 +280,9 @@ class NicosDaemon(Device):
 
     def current_script(self):
         return self._controller.current_script
+
+    def current_user(self):
+        return getattr(self._controller.thread_data, 'user', system_user)
 
     def get_authenticators(self):
         return self._attached_authenticators

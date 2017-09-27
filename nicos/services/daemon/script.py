@@ -32,7 +32,7 @@ import traceback
 from os import path
 from bdb import BdbQuit
 from uuid import uuid1
-from threading import Lock, Event, current_thread
+from threading import Lock, Event, current_thread, local as thread_local
 
 from nicos import session, config
 from nicos.utils import createThread, fixupScript
@@ -67,15 +67,11 @@ class Request(object):
     quiet = False
 
     def __init__(self, user):
-        try:
-            self.user = user.name
-            self.userlevel = user.level
-        except AttributeError:
-            raise RequestError('No valid user object supplied')
+        self.user = user
         self.reqid = str(uuid1())
 
     def serialize(self):
-        return {'reqid': self.reqid, 'user': self.user}
+        return {'reqid': self.reqid, 'user': self.user.name}
 
 
 class EmergencyStopRequest(Request):
@@ -121,7 +117,7 @@ class ScriptRequest(Request):
 
     def serialize(self):
         return {'reqid': self.reqid, 'name': self.name, 'script': self.text,
-                'user': self.user}
+                'user': self.user.name}
 
     def __repr__(self):
         if self.name:
@@ -286,6 +282,8 @@ class ExecutionController(Controller):
     working of the Controller object and the trace function.
     """
 
+    thread_data = thread_local()
+
     def __init__(self, log, eventfunc, startupsetup, simmode, autosim):
         self.log = log              # daemon logger object
         self.eventfunc = eventfunc  # event emitting callback
@@ -440,6 +438,7 @@ class ExecutionController(Controller):
     def exec_script(self, code, user, handler):
         # execute code in the script namespace (this is called not from
         # the script thread, but from a handle thread)
+        self.thread_data.user = user
         temp_request = ScriptRequest(code, None, user)
         temp_request.parse()
         session.log.log(INPUT, formatScript(temp_request, '---'))
@@ -649,10 +648,11 @@ class ExecutionController(Controller):
             while 1:
                 # get a script (or other request) from the queue
                 request = self.queue.get()
+                self.thread_data.user = request.user
 
                 self.log.info('processing request %s', request.reqid)
                 if isinstance(request, EmergencyStopRequest):
-                    self.execute_estop(request.user)
+                    self.execute_estop(request.user.name)
                     continue
                 elif not isinstance(request, ScriptRequest):
                     self.log.error('unknown request: %s', request)
