@@ -56,7 +56,11 @@ def parseargs():
     parser.add_argument('-c', '--config-file', dest='configfile', default=None,
                         help='use the configuration file CONFIGFILE')
     parser.add_argument('-v', '--view-only', dest='viewonly', default=False,
-                        action='store_true', help='Run in view-only mode')
+                        action='store_true', help='run in view-only mode')
+    parser.add_argument('-t', '--use-tunnel', dest='tunnel', default='',
+                        action='store', help='use a ssh tunnel to connect. '
+                        'TUNNEL is a string with the following form:'
+                        ' [user_name@]host.')
     parser.add_argument('connect', nargs='?', default=None,
                         help='''A connection string with the following form:
 
@@ -130,7 +134,7 @@ def main(argv):
                 log.warning('Error setting user style sheet from %s',
                             stylefile, exc=1)
 
-    mainwindow = MainWindow(log, gui_conf, opts.viewonly)
+    mainwindow = MainWindow(log, gui_conf, opts.viewonly, opts.tunnel)
     log.addHandler(DebugHandler(mainwindow))
 
     if opts.connect:

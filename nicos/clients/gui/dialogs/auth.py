@@ -36,18 +36,19 @@ except ImportError:
 
 from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.base import ConnectionData
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, splitTunnelString
 
 
 class ConnectionDialog(QDialog):
     """A dialog to request connection parameters."""
 
     @classmethod
-    def getConnectionData(cls, parent, connpresets, lastpreset, lastdata):
-        self = cls(parent, connpresets, lastpreset, lastdata)
+    def getConnectionData(cls, parent, connpresets, lastpreset, lastdata,
+                          tunnel=''):
+        self = cls(parent, connpresets, lastpreset, lastdata, tunnel)
         ret = self.exec_()
         if ret != QDialog.Accepted:
-            return None, None, None
+            return None, None, None, tunnel
         new_addr = self.presetOrAddr.currentText()
         new_name = preset_name = ''
         if new_addr in connpresets:
@@ -66,16 +67,29 @@ class ConnectionDialog(QDialog):
             new_data = ConnectionData(host, port, self.userName.text(),
                                       self.password.text())
         new_data.viewonly = self.viewonly.isChecked()
+        if tunnel:
+            tunnel = '%s:%s@%s' % (self.remoteUserName.text(),
+                                   self.remotePassword.text(),
+                                   self.remoteHost.text())
+        else:
+            tunnel = ''
         if not new_name:
             preset_name = self.newPresetName.text()
-        return new_name, new_data, preset_name
+        return new_name, new_data, preset_name, tunnel
 
-    def __init__(self, parent, connpresets, lastpreset, lastdata):
+    def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         QDialog.__init__(self, parent)
         loadUi(self, 'auth.ui', 'dialogs')
         self.connpresets = connpresets
         if isinstance(lastpreset, QPyNullVariant):
             lastpreset = None
+
+        self.viaFrame.setHidden(not tunnel)
+        if tunnel:
+            host, username, password = splitTunnelString(tunnel)
+            self.remoteHost.setText(host)
+            self.remoteUserName.setText(username)
+            self.remotePassword.setText(password)
 
         pal = self.quickList.palette()
         pal.setColor(QPalette.Window, pal.color(QPalette.Base))

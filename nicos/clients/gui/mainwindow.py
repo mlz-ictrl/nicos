@@ -41,6 +41,11 @@ try:
 except ImportError:
     qwebkit_available = False
 
+try:
+    from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
+except ImportError:
+    SSHTunnelForwarder = None
+
 from nicos import nicos_version
 from nicos.utils import importString
 from nicos.core.utils import ADMIN
@@ -48,7 +53,7 @@ from nicos.clients.base import ConnectionData
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle
+    loadBasicWindowSettings, loadUserStyle, splitTunnelString
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.tools import createToolMenu, startStartupTools
@@ -67,7 +72,7 @@ from nicos.clients.gui.config import tabbed
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self, log, gui_conf, viewonly=False):
+    def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
@@ -78,6 +83,13 @@ class MainWindow(QMainWindow, DlgUtils):
         icon.addFile(':/appicon-16')
         icon.addFile(':/appicon-48')
         self.setWindowIcon(icon)
+
+        if tunnel and SSHTunnelForwarder is None:
+            self.showError('You want to establish a connection to NICOS via '
+                           "a SSH tunnel, but the 'sshtunnel' module is not "
+                           'installed. The tunneling feature will disabled.')
+        self.tunnel = tunnel if SSHTunnelForwarder is not None else ''
+        self.tunnelServer = None
 
         # hide admin label until we are connected as admin
         self.adminLabel.hide()
@@ -384,8 +396,7 @@ class MainWindow(QMainWindow, DlgUtils):
         if self.helpWindow:
             self.helpWindow.close()
 
-        if self.client.connected:
-            self.client.disconnect()
+        self.on_actionConnect_triggered(False)
 
         event.accept()
         QApplication.instance().quit()
@@ -650,11 +661,17 @@ class MainWindow(QMainWindow, DlgUtils):
         # connection or disconnection request?
         if not on:
             self.client.disconnect()
+            if self.tunnelServer:
+                self.tunnelServer.stop()
+                self.tunnelServer = None
             return
 
         self.actionConnect.setChecked(False)  # gets set by connection event
-        new_name, new_data, save = ConnectionDialog.getConnectionData(
-            self, self.connpresets, self.lastpreset, self.conndata)
+        ret = ConnectionDialog.getConnectionData(self, self.connpresets,
+                                                 self.lastpreset,
+                                                 self.conndata, self.tunnel)
+        new_name, new_data, save, tunnel = ret
+
         if new_data is None:
             return
         if save:
@@ -663,6 +680,34 @@ class MainWindow(QMainWindow, DlgUtils):
         else:
             self.lastpreset = new_name
         self.conndata = new_data
+        if tunnel:
+            try:
+                host, username, password = splitTunnelString(tunnel)
+                self.tunnelServer = SSHTunnelForwarder(
+                    host, ssh_username=username, ssh_password=password,
+                    remote_bind_address=(self.conndata.host,
+                                         self.conndata.port),
+                    compression=True)
+                self.tunnelServer.start()
+                tunnel_port = self.tunnelServer.local_bind_port
+
+                # corresponding ssh command line (debug)
+                # print 'ssh -f %s -L %d:%s:%d -N' % (host, tunnel_port,
+                #                                     self.conndata.host,
+                #                                     self.conndata.port)
+
+                # store the established tunnel information host, user, and
+                # password for the next connection try to avoid typing password
+                # for every (re)connection via the GUI
+                self.tunnel = tunnel
+                self.conndata.host = 'localhost'
+                self.conndata.port = tunnel_port
+            except ValueError as e:
+                self.showError(e.message)
+                self.tunnelServer = None
+            except BaseSSHTunnelForwarderError as e:
+                self.showError(e.message)
+                self.tunnelServer = None
         self.client.connect(self.conndata)
 
     @qtsig('')

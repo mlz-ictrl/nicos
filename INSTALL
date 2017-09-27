@@ -60,6 +60,7 @@ If not mentioned otherwise, Python packages are available from PyPI
     http://forge.frm2.tum.de/simple)
   - cfitsio (optional, required by nicos-livewidget, this not a Python package)
   - python-redmine (optional, for the bug reporting dialog)
+  - sshtunnel (optional, for the ssh tunneling between GUI and server)
 
 * For development (running tests, generating documentation):
 

@@ -9,9 +9,12 @@ Usage of the script::
 
 The script has several options:
 
--h, --help                    show the help message and exit
--c file, --config-file file   use ``file`` as the configuration file
--v, --view-only               run in view-only mode
+-h, --help                      show the help message and exit
+-c file, --config-file file     use ``file`` as the configuration file
+-v, --view-only                 run in view-only mode
+-t tunnel, --use-tunnel tunnel  ``tunnel`` string contains ``user_name`` and
+                                ``host`` to establish a ssh tunnel:
+                                [user_name]@host.
 
 Apart from the options, you can also give an argument: the "connection string"
 consisting of  ``user_name``, ``password``, ``host``, and ``port``.

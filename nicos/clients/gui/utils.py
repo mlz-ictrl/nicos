@@ -51,6 +51,18 @@ def getXDisplay():
         return lhost + os.environ.get('DISPLAY', ':0')
 
 
+def splitTunnelString(tunnel):
+    tmp = tunnel.split('@')
+    host = tmp[-1]
+    username, password = '', ''
+    if len(tmp) > 1:
+        tmp = tmp[0].split(':')
+        username = tmp[0]
+        if len(tmp) > 1:
+            password = tmp[1]
+    return host, username, password
+
+
 uipath = path.dirname(__file__)
 
 
