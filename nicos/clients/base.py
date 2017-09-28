@@ -24,10 +24,10 @@
 
 """The base class for communication with the NICOS server."""
 
-import os
 import socket
 import hashlib
 import threading
+import uuid
 from time import time as currenttime
 
 try:
@@ -96,10 +96,7 @@ class NicosClient(object):
         self.viewonly = True
         self.user_level = None
         self.last_action_at = 0
-
-        unique_id = to_utf8(str(currenttime()) + str(os.getpid()))
-        # spurious warning due to hashlib magic # pylint: disable=E1121
-        self.client_id = hashlib.md5(unique_id).digest()
+        self.client_id = b''
 
     def signal(self, name, *args):
         # must be overwritten
@@ -116,6 +113,9 @@ class NicosClient(object):
         if self.connected:
             raise RuntimeError('client already connected')
         self.disconnecting = False
+
+        self.client_id = uuid.uuid1().bytes
+
         try:
             self.socket = tcpSocket(conndata.host, conndata.port,
                                     timeout=TIMEOUT)
