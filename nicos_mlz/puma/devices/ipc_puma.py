@@ -20,6 +20,7 @@
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Oleg Sobolev <oleg.sobolev@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -254,6 +255,7 @@ class ReferenceMotor(CanReference, Motor):
             # always busy, but only the state of the motor is important
             while Motor.doStatus(self, 0)[0] == status.BUSY:
                 session.delay(self._base_loop_delay)
+            Motor.doStop(self)
 
     def _reference(self):
         """Drive motor to reference switch."""
@@ -339,9 +341,11 @@ class ReferenceMotor(CanReference, Motor):
         self.log.debug('reference direction: %s', self.refswitch)
         if self.refswitch in ['high', 'low']:
             if self.refdirection == 'lower':
-                start, stop = self.abslimits[1], self.abslimits[0]
+                stop, start = self._hw_limits
+                if start < stop:
+                    start, stop = stop, start
             else:
-                start, stop = self.abslimits
+                start, stop = self._hw_limits
             self.setPosition(start)
             self.log.debug('move %f from %f', start, stop)
             self._start(stop)
@@ -377,3 +381,7 @@ class ReferenceMotor(CanReference, Motor):
                 raise TimeoutError(self, 'timeout occured during reference '
                                    'drive')
         self._setrefcounter()
+
+    @property
+    def _hw_limits(self):
+        return (self._fromsteps(self.min), self._fromsteps(self.max))
