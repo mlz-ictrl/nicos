@@ -31,7 +31,7 @@ from nicos.core.data import DataSink, DataSinkHandler
 from nicos.core.data.manager import DataFile
 from nicos.devices.datasinks import FileSink
 from nicos.utils import syncFile, ReaderRegistry
-
+from nicos.pycompat import add_metaclass
 
 class ImageSink(FileSink):
     """Base class for sinks that save arrays to "image" files."""
@@ -153,8 +153,8 @@ class ReaderMeta(type):
         return new_class
 
 
+@add_metaclass(ReaderMeta)
 class ImageFileReader(object):
-    __metaclass__ = ReaderMeta
     filetypes = []  # list of (filetype abbreviation, QFileDialog filter str)
 
     @classmethod
