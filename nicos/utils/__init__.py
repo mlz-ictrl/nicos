@@ -1341,6 +1341,23 @@ class ReaderRegistry(object):
                 iteritems(cls.readers)]
 
 
+class FitterRegistry(object):
+    fitters = dict()
+
+    @classmethod
+    def registerFitter(cls, rdcls):
+        for name in rdcls.names:
+            cls.fitters[name] = rdcls
+
+    @classmethod
+    def getFitterCls(cls, key):
+        try:
+            return cls.fitters[key.lower()]
+        except KeyError:
+            raise KeyError('Unknown fitter name %r, known fitters: %s' %
+                           (key, ', '.join(cls.fitters)))
+
+
 keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
                         r'(?P<indices>(?:\[[0-9]+\])*)'
                         r'(?P<scale>\*[0-9.]+(?:[eE][+-]?[0-9]+)?)?'

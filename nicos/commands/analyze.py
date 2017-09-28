@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import NicosError, UsageError
-from nicos.utils import printTable
+from nicos.utils import printTable, FitterRegistry
 from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import string_types
@@ -44,7 +44,7 @@ from nicos.commands.device import maw
 
 __all__ = [
     'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss', 'sigmoid',
-    'center', 'checkoffset', 'findpeaks',
+    'center', 'checkoffset', 'findpeaks', 'ListFitters',
 ]
 
 
@@ -290,31 +290,69 @@ sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')
 
 
 @usercommand
-@helparglist('dev, center, step, numpoints, ...')
-def center(dev, center, step, numpoints, *args, **kwargs):
-    """Move the given device to the maximum of a Gaussian fit through a scan.
+def ListFitters():
+    """Print a table with all known fitters usable for `center()`,
+    `checkoffset()` and related commands.
+    """
+    items = []
+    for k, v in FitterRegistry.fitters.items():
+        items.append((k, 'yes' if v.center_index is not None else 'no'))
+    items.sort()
+    printTable(('name', 'can center'), items, session.log.info)
 
+
+def _scanFC(dev, center, step, numpoints, sname, *args, **kwargs):
+    """
     The scan is performed around *center* with the given parameters.
 
     This supports all arguments and keyword arguments that `cscan()` supports,
-    and additionally a keyword "ycol" that gives the Y column of the dataset to
-    use for the Gaussian fit (see the help for `gauss()` for the meaning of
-    this parameter).
+    and additionally:
+
+    * a keyword "fit", that specifies the fit function to use. Defaults to
+      gaussian if not specified.
+
+      Use `ListFitters()` to see possible values.
+
+    * a keyword "ycol" that gives the Y column of the dataset to use for the
+      fit.
     """
     ycol = kwargs.pop('ycol', -1)
-    cscan(dev, center, step, numpoints, 'centering', *args, **kwargs)
-    params, _ = gauss(ycol)
-    # do not allow moving outside of the scanned region
-    minvalue = center - step*numpoints
-    maxvalue = center + step*numpoints
-    if params is None:
-        session.log.warning('Gaussian fit failed, no centering done')
-    elif not minvalue <= params[0] <= maxvalue:
-        session.log.warning('Gaussian fit resulted in center outside scanning '
+    fitname = kwargs.pop('fit', 'gauss')
+    fitclass = FitterRegistry.getFitterCls(fitname)
+    if fitclass.center_index is None:
+        raise UsageError('Fit class is not suitable for centering.')
+    cscan(dev, center, step, numpoints, sname, *args, **kwargs)
+    params, _ = fit(fitclass, ycol)
+    newcenter = params[fitclass.center_index] if params is not None else None
+    minvalue = center - step * numpoints
+    maxvalue = center + step * numpoints
+    return minvalue, newcenter, maxvalue
+
+
+@usercommand
+@helparglist('dev, center, step, numpoints, ...')
+def center(dev, center, step, numpoints, *args, **kwargs):
+    """Move the given device to the maximum of a fit through a scan.
+
+    Examples:
+
+    >>> center(omega, 5, 0.1, 10)  # scan and use a Gauss fit
+    >>> center(omega, 5, 0.1, 10, fit='sigmoid')  # use different fit function
+    """
+    minvalue, newcenter, maxvalue = _scanFC(dev, center, step, numpoints,
+                                            'centering',
+                                            *args, **kwargs)
+    if newcenter is None:
+        session.log.warning('Fit failed, no centering done')
+    elif not minvalue <= newcenter <= maxvalue:
+        # do not allow moving outside of the scanned region
+        session.log.warning('Fit resulted in center outside scanning '
                             'area, no centering done')
     else:
         session.log.info('centered peak for %s', dev)
-        maw(dev, params[0])
+        maw(dev, newcenter)
+
+center.__doc__ += _scanFC.__doc__
 
 
 @usercommand
@@ -323,32 +361,32 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     """Readjust offset of the given device to the center of a scan.
 
     The adjustment is done so that afterwards, the given *center* coincides
-    with the center of a Gaussian fit through the scan performed with the given
+    with the center of a fit through the scan performed with the given
     stepsize and number of points.
 
-    This supports all arguments and keyword arguments that `cscan()` supports,
-    and additionally a keyword "ycol" that gives the Y column of the dataset to
-    use for the Gaussian fit (see the help for `gauss()` for the meaning of
-    this parameter).
+    Examples:
+
+    >>> checkoffset(omega, 5, 0.1, 10)  # scan and use a Gauss fit
+    >>> checkoffset(omega, 5, 0.1, 10, fit='sigmoid')  # use different fit function
     """
-    ycol = kwargs.pop('ycol', -1)
-    cscan(dev, center, step, numpoints, 'offset check', *args, **kwargs)
-    params, _ = gauss(ycol)
-    # do not allow moving outside of the scanned region
-    minvalue = center - step*numpoints
-    maxvalue = center + step*numpoints
-    if params is None:
-        session.log.warning('Gaussian fit failed, offset unchanged')
-    elif not minvalue <= params[0] <= maxvalue:
-        session.log.warning('Gaussian fit resulted in center outside scanning '
+    minvalue, newcenter, maxvalue = _scanFC(dev, center, step, numpoints,
+                                            'offset check',
+                                            *args, **kwargs)
+    if newcenter is None:
+        session.log.warning('Fit failed, offset unchanged')
+    elif not minvalue <= newcenter <= maxvalue:
+        # do not allow moving outside of the scanned region
+        session.log.warning('Fit resulted in center outside scanning '
                             'area, offset unchanged')
     else:
-        diff = params[0] - center
-        session.log.info('center of Gaussian fit at %s',
-                         dev.format(params[0], True))
+        diff = newcenter - center
+        session.log.info('center of fit at %s',
+                         dev.format(newcenter, True))
         session.log.info('adjusting offset of %s by %s',
                          dev, dev.format(diff, True))
         dev.offset += diff
+
+checkoffset.__doc__ += _scanFC.__doc__
 
 
 @usercommand

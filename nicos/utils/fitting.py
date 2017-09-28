@@ -32,9 +32,10 @@ try:
 except ImportError:
     leastsq = None
 
+from nicos.utils import FitterRegistry
 from nicos.utils.analyze import estimateFWHM
 from nicos.core import ProgrammingError
-from nicos.pycompat import getargspec
+from nicos.pycompat import getargspec, add_metaclass
 
 
 def _general_function(params, xdata, ydata, function):
@@ -115,7 +116,38 @@ class FitError(Exception):
     pass
 
 
+class FitterMeta(type):
+    """Fittter metaclass.
+
+    Metaclass that adds all `Fit` classes to the Fitter registry.
+    """
+
+    def __new__(mcs, clsname, bases, attrs):
+        new_class = type.__new__(mcs, clsname, bases, attrs)
+        # Add the notification class to the registry.
+        FitterRegistry.registerFitter(new_class)
+
+        return new_class
+
+
+@add_metaclass(FitterMeta)
 class Fit(object):
+    """Fit base class
+
+    Derived classes may set the following class properties:
+
+    `names`
+       A list of names used to resolve the class by user supplied name, e.g.
+       used in the center/checkoffset usercommands. Use an empty list if the
+       function needs parameters.
+
+    `center_index`
+       The index of the returned param, that is suitable for centering.
+       Set to None if no param is suitable.
+    """
+
+    names = []
+    center_index = None
 
     def __init__(self, title, model, parnames=None, parstart=None,
                  xmin=None, xmax=None):
@@ -248,6 +280,7 @@ class PredefinedFit(Fit):
 class LinearFit(PredefinedFit):
     """Fits with a straight line."""
 
+    names = ['linear', 'line']
     fit_title = 'linear fit'
     fit_params = ['m', 't']
     fit_p_descr = ['slope', 'offset']
@@ -279,6 +312,7 @@ class LinearFit(PredefinedFit):
 class ExponentialFit(PredefinedFit):
     """Fits with a simple exponential."""
 
+    names = ['exp', 'exponential']
     fit_title = 'exp. fit'
     fit_params = ['b', 'x0']
 
@@ -327,8 +361,10 @@ class ExponentialFit(PredefinedFit):
 class CosineFit(PredefinedFit):
     """Fits with a cosine including offset."""
 
+    names = ['cos', 'cosine']
     fit_title = 'cosine fit'
     fit_params = ['A', 'f', 'x0', 'B']
+    center_index = 2
     fit_p_descr = fit_params
 
     def fit_model(self, x, A, f, x0, B):
@@ -396,9 +432,11 @@ FWHM_TO_SIGMA = 2 * sqrt(2 * log(2))
 class GaussFit(PredefinedFit):
     """Fits with a Gaussian model."""
 
+    names = ['gauss', 'gaussian']
     fit_title = 'gauss'
     fit_params = ['x0', 'A', 'fwhm', 'B']
     fit_p_descr = ['center', 'amplitude', 'FWHM', 'background']
+    center_index = 0
 
     def fit_model(self, x, x0, A, fwhm, B):
         return abs(B) + A * exp(-(x - x0) ** 2 / (2 * (fwhm / FWHM_TO_SIGMA) ** 2))
@@ -421,9 +459,11 @@ class GaussFit(PredefinedFit):
 
 class PseudoVoigtFit(PredefinedFit):
 
+    names = ['pseudovoigt', 'pseudo-voigt']
     fit_title = 'pseudo-voigt'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'eta']
     fit_p_descr = fit_params
+    center_index = 2
 
     def fit_model(self, x, B, A, x0, hwhm, eta):
         eta = eta % 1.0
@@ -454,6 +494,8 @@ class PseudoVoigtFit(PredefinedFit):
 
 class PearsonVIIFit(PredefinedFit):
 
+    names = ['pearson', 'pearson-vii']
+    center_index = 2
     fit_title = 'pearson-vii'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'm']
     fit_p_descr = fit_params
@@ -480,9 +522,11 @@ class PearsonVIIFit(PredefinedFit):
 class TcFit(PredefinedFit):
     """Fits a power law critcal temperature."""
 
+    names = ['tc', 'tcfit']
     fit_title = 'Tc fit'
     fit_params = ['B', 'A', 'Tc', 'alpha']
     fit_p_descr = fit_params
+    center_index = 2
 
     def fit_model(self, T, B, A, Tc, alpha):
         # Model:
@@ -516,8 +560,10 @@ class TcFit(PredefinedFit):
 class SigmoidFit(PredefinedFit):
     """Fit a Sigmoid function."""
 
+    names = ['sigmoid']
     fit_title = 'Sigmoid'
     fit_params = ['a', 'b', 'x0', 'c']
+    center_index = 2
 
     def fit_model(self, x, a, b, x0, c):
         v = a / (1 + exp(-b * (x - x0))) + c
