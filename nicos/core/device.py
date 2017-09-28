@@ -25,8 +25,6 @@
 """Base device classes for usage in NICOS."""
 
 import sys
-import types
-import inspect
 import re
 from time import time as currenttime
 
@@ -47,7 +45,7 @@ from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString, deprecated
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
-    string_types, integer_types, number_types, getargspec
+    string_types, integer_types, number_types
 from nicos.protocols.cache import FLAG_NO_STORE
 
 ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
@@ -267,25 +265,6 @@ class DeviceMeta(DeviceMixinMeta):
                 raise ProgrammingError('%r device: attached device helper '
                                        'property %r collides with attribute' %
                                        (name, pname))
-
-        # check names of methods to comply with coding style
-        for aname in attrs:
-            if aname.startswith(('_', 'do')):
-                continue
-            value = getattr(newtype, aname)
-            if not isinstance(value, (types.FunctionType, types.MethodType)):
-                newtype.class_attributes[aname] = value
-                continue
-            argspec = getargspec(value)
-            if argspec[0] and argspec[0][0] == 'self':
-                del argspec[0][0]  # get rid of "self"
-            args = inspect.formatargspec(*argspec)
-            if value.__doc__:
-                docline = value.__doc__.strip().splitlines()[0]
-            else:
-                docline = ''
-            newtype.methods[aname] = (args, docline, newtype,
-                                      hasattr(value, 'is_usermethod'))
 
         return newtype
 

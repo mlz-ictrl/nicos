@@ -24,6 +24,8 @@
 
 """Meta classes and Mixins for usage in NICOS."""
 
+import types
+import inspect
 import threading
 from time import time as currenttime
 
@@ -33,7 +35,7 @@ from nicos.core.errors import ConfigurationError, CommunicationError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString
-from nicos.pycompat import add_metaclass, itervalues
+from nicos.pycompat import add_metaclass, itervalues, getargspec
 from nicos.utils import lazy_property
 
 
@@ -63,6 +65,27 @@ class DeviceMixinMeta(type):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
+
+        # add usermethods to registry, check names of methods to comply with
+        # coding style
+        for aname in attrs:
+            if aname.startswith(('_', 'do')):
+                continue
+            value = getattr(newtype, aname)
+            if not isinstance(value, (types.FunctionType, types.MethodType)):
+                newtype.class_attributes[aname] = value
+                continue
+            argspec = getargspec(value)
+            if argspec[0] and argspec[0][0] == 'self':
+                del argspec[0][0]  # get rid of "self"
+            args = inspect.formatargspec(*argspec)
+            if value.__doc__:
+                docline = value.__doc__.strip().splitlines()[0]
+            else:
+                docline = ''
+            newtype.methods[aname] = (args, docline, newtype,
+                                      hasattr(value, 'is_usermethod'))
+
         return newtype
 
     def __instancecheck__(cls, inst):  # pylint: disable=C0203

@@ -31,7 +31,7 @@ from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
 from nicos.core import SIMULATION, Device, Moveable, Waitable, Measurable, \
     Readable, HasOffset, HasLimits, TimeoutError, UsageError, AccessError, \
-    formatStatus, INFO_CATEGORIES, multiWait
+    formatStatus, INFO_CATEGORIES, multiWait, DeviceMixinBase
 from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, \
     Multi
@@ -919,7 +919,7 @@ def ListMethods(dev):
             if cls is mcls and is_user:
                 items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:
-            if issubclass(base, Device):
+            if issubclass(base, (Device, DeviceMixinBase)):
                 _list(base)
     _list(dev.__class__)
     dev.log.info('Device methods:')

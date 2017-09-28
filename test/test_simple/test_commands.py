@@ -460,6 +460,7 @@ class TestDevice(object):
         motor = session.createDevice('motor', explicit=True)
         alias = session.getDevice('aliasAxis')
         exp = session.getDevice('Exp')
+        axis = session.getDevice('axis')
 
         # create a description with more than 40 chars
         motor.description = 'Blaahh ' * 10
@@ -479,6 +480,9 @@ class TestDevice(object):
         with log.assert_msg_matches([r'\.addUser\(.* Experiment',
                                      r'\.version\(.* Device']):
             ListMethods(exp)
+        # axis contains 'usermethods' inherited from CanReference mixin
+        with log.assert_msg_matches([r'\.reference\(.']):
+            ListMethods(axis)
         with log.assert_msg_matches([r'All created devices',
                                      r'motor\s*VirtualMotor']):
             ListDevices()
