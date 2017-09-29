@@ -271,29 +271,26 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
                              "using 0.0 instead", exc=1)
 
         try:
-            det1_image = session.getDevice('det1_image')
-            Histfile = det1_image.histogramfile
-            Listfile = det1_image.listmodefile.split('\'')[1]
-            Setupfile = det1_image.configfile
-            LookUpTable = det1_image.calibrationfile
+            # Setupfile = session.getDevice('det1_image').histogramfile
+            Histfile = metainfo['det1_image', 'histogramfile'][1]
         except Exception:
             Histfile = ''
-            Listfile = ''
-            Setupfile = 'setup'
-            LookUpTable = 'lookup'
 
         try:
-            Listfile = session.getDevice('det1_image').listmodefile.split('\'')[1]
+            # Listfile = session.getDevice('det1_image').listmodefile.split('\'')[1]
+            Listfile = metainfo['det1_image', 'listmodefile'][1].split('\'')[1]
         except Exception:
             Listfile = ''
 
         try:
-            Setupfile = session.getDevice('det1_image').configfile
+            # Setupfile = session.getDevice('det1_image').configfile
+            Setupfile = metainfo['det1_image', 'configfile'][1]
         except Exception:
             Setupfile = 'setup'
 
         try:
-            LookUpTable = session.getDevice('det1_image').calibrationfile
+            # LookUpTable = session.getDevice('det1_image').calibrationfile
+            LookUpTable = metainfo['det1_image', 'calibrationfile'][1]
         except Exception:
             LookUpTable = 'lookup'
 
