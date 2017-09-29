@@ -41,11 +41,10 @@ from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.mainwindow import MainWindow
-from nicos.clients.gui.utils import SettingGroup, DebugHandler
-from nicos.clients.gui.config import gui_config, prepareGuiNamespace
+from nicos.clients.gui.utils import DebugHandler
+from nicos.clients.gui.config import processGuiConfig
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 from nicos.protocols.daemon import DEFAULT_PORT
-from nicos.pycompat import exec_
 
 
 log = None
@@ -111,13 +110,7 @@ def main(argv):
     with open(opts.configfile, 'rb') as fp:
         configcode = fp.read()
 
-    ns = prepareGuiNamespace()
-    exec_(configcode, ns)
-    gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
-                          ns.get('tools', []), ns.get('name', 'NICOS'),
-                          ns.get('options', {}))
-    if gui_conf.name != 'NICOS':
-        SettingGroup.global_group = gui_conf.name
+    gui_conf = processGuiConfig(configcode)
 
     stylefiles = [
         path.join(userpath, 'style-%s.qss' % sys.platform),
