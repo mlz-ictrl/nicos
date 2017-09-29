@@ -71,7 +71,6 @@ class MainWindow(QMainWindow, DlgUtils):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
-        self.menuTools.extraActions = []
 
         # set app icon in multiple sizes
         icon = QIcon()
