@@ -132,6 +132,7 @@ class MainWindow(QMainWindow, DlgUtils):
         # panel configuration
         self.gui_conf = gui_conf
         self.initDataReaders()
+        self.mainwindow = self
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
@@ -147,58 +148,11 @@ class MainWindow(QMainWindow, DlgUtils):
         self.splitters = []
         self.windowtypes = []
         self.windows = {}
-        self.mainwindow = self
 
         # setting presets
         self.instrument = self.gui_conf.name
 
-        self.sgroup = SettingGroup('MainWindow')
-        with self.sgroup as settings:
-            loadUserStyle(self, settings)
-
-        # load saved settings and stored layout for panel config
-        with self.sgroup as settings:
-            self.loadSettings(settings)
-
-        # create panels in the main window
-        widget = createWindowItem(self.gui_conf.main_window, self, self, self,
-                                  self.log)
-        if widget:
-            self.centralLayout.addWidget(widget)
-        self.centralLayout.setContentsMargins(0, 0, 0, 0)
-        # call postInit after creation of all panels
-        for panel in self.panels:
-            panel.postInit()
-
-        with self.sgroup as settings:
-            # geometry and window appearance
-            loadBasicWindowSettings(self, settings)
-            self.update()
-            # load auxiliary windows state
-            self.loadAuxWindows(settings)
-
-        if len(self.splitstate) == len(self.splitters):
-            for sp, st in zip(self.splitters, self.splitstate):
-                sp.restoreState(st)
-
-        if not self.gui_conf.windows:
-            self.menuBar().removeAction(self.menuWindows.menuAction())
-
-        for i, wconfig in enumerate(self.gui_conf.windows):
-            action = QAction(QIcon(':/' + wconfig.icon), wconfig.name, self)
-            self.toolBarWindows.addAction(action)
-            self.menuWindows.addAction(action)
-
-            def window_callback(on, i=i):
-                self.createWindow(i)
-            self.connect(action, SIGNAL('triggered(bool)'), window_callback)
-        if not self.gui_conf.windows:
-            self.toolBarWindows.hide()
-        else:
-            self.toolBarWindows.show()
-
-        # create tools menu
-        createToolMenu(self, self.gui_conf.tools, self.menuTools)
+        self.createWindowContent()
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
@@ -231,11 +185,55 @@ class MainWindow(QMainWindow, DlgUtils):
         # plug-n-play notification windows
         self.pnpWindows = {}
 
-        if isinstance(self.gui_conf.main_window, tabbed) and widget:
-            widget.tabChangedTab(0)
-
         # create initial state
         self.setStatus('disconnected')
+
+    def createWindowContent(self):
+        self.sgroup = SettingGroup('MainWindow')
+        with self.sgroup as settings:
+            loadUserStyle(self, settings)
+            # load saved settings and stored layout for panel config
+            self.loadSettings(settings)
+
+        # create panels in the main window
+        widget = createWindowItem(self.gui_conf.main_window, self, self, self,
+                                  self.log)
+        if widget:
+            self.centralLayout.addWidget(widget)
+        self.centralLayout.setContentsMargins(0, 0, 0, 0)
+
+        # call postInit after creation of all panels
+        for panel in self.panels:
+            panel.postInit()
+
+        with self.sgroup as settings:
+            # geometry and window appearance
+            loadBasicWindowSettings(self, settings)
+            self.update()
+            # load auxiliary windows state
+            self.loadAuxWindows(settings)
+        if len(self.splitstate) == len(self.splitters):
+            for sp, st in zip(self.splitters, self.splitstate):
+                sp.restoreState(st)
+
+        if not self.gui_conf.windows:
+            self.menuBar().removeAction(self.menuWindows.menuAction())
+        for i, wconfig in enumerate(self.gui_conf.windows):
+            action = QAction(QIcon(':/' + wconfig.icon), wconfig.name, self)
+            self.toolBarWindows.addAction(action)
+            self.menuWindows.addAction(action)
+
+            def window_callback(on, i=i):
+                self.createWindow(i)
+            self.connect(action, SIGNAL('triggered(bool)'), window_callback)
+        if not self.gui_conf.windows:
+            self.toolBarWindows.hide()
+        else:
+            self.toolBarWindows.show()
+
+        createToolMenu(self, self.gui_conf.tools, self.menuTools)
+        if isinstance(self.gui_conf.main_window, tabbed) and widget:
+            widget.tabChangedTab(0)
 
     def createWindow(self, wtype):
         # for the history_wintype or editor_wintype
