@@ -46,6 +46,7 @@ class InstrSelectDialog(QDialog):
             self.reasonLbl.hide()
             self.saveBox.hide()
 
+        self.confTree.itemDoubleClicked.connect(self.handleDoubleClick)
         for entry in sorted(os.listdir(config.nicos_root)):
             full = path.join(config.nicos_root, entry)
             if not (entry.startswith('nicos_') and path.isdir(full)):
@@ -58,6 +59,10 @@ class InstrSelectDialog(QDialog):
                     continue
                 item = QTreeWidgetItem(pkgitem, [subentry])
                 item.setData(0, QTreeWidgetItem.UserType, configfile)
+
+    def handleDoubleClick(self, item, _col):
+        if item.data(0, QTreeWidgetItem.UserType):
+            self.accept()
 
     @classmethod
     def select(cls, reason='', force=False):
