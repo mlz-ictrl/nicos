@@ -1038,7 +1038,10 @@ class Readable(Device):
         """
         if self._sim_active:
             return self._sim_value
-        return self._getFromCache('value', self.doRead, maxage)
+        val = self._getFromCache('value', self.doRead, maxage)
+        if self._mode == SIMULATION:
+            self._sim_setValue(val)
+        return val
 
     @usermethod
     def status(self, maxage=None):

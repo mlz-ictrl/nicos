@@ -161,6 +161,12 @@ class TAS(Instrument, Moveable):
                             '%.4f' % self._sim_min[i], '%.4f' % self._sim_max[i]))
         return ret
 
+    def _sim_setValue(self, pos):
+        self._sim_old_value = self._sim_value
+        self._sim_value = pos
+        self._sim_min = tuple(map(min, pos, self._sim_min or pos))
+        self._sim_max = tuple(map(max, pos, self._sim_max or pos))
+
     def doReset(self):
         self.doWriteScatteringsense(self.scatteringsense)
 
@@ -194,9 +200,7 @@ class TAS(Instrument, Moveable):
         if self.spurioncheck and self._mode == SIMULATION:
             self._spurionCheck(pos)
         # store the min and max values of h,k,l, and E for simulation
-        self._sim_value = pos
-        self._sim_min = tuple(map(min, pos, self._sim_min or pos))
-        self._sim_max = tuple(map(max, pos, self._sim_max or pos))
+        self._sim_setValue(pos)
 
     def doFinish(self):
         # make sure index members read the latest value
@@ -258,7 +262,8 @@ class TAS(Instrument, Moveable):
             ny = self._attached_cell.cal_ny(monovalue, anavalue)
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
-        return [hkl[0], hkl[1], hkl[2], ny]
+        pos = [hkl[0], hkl[1], hkl[2], ny]
+        return pos
 
     def _calpos(self, pos, printout=True, checkonly=True):
         qh, qk, ql, ny, sc, sm = pos

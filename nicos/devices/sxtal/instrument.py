@@ -171,6 +171,12 @@ class SXTalBase(Instrument, Moveable):
                             '%.4f' % self._sim_max[i]))
         return ret
 
+    def _sim_setValue(self, pos):
+        self._sim_old_value = self._sim_value
+        self._sim_value = pos
+        self._sim_min = tuple(map(min, pos, self._sim_min or pos))
+        self._sim_max = tuple(map(max, pos, self._sim_max or pos))
+
     def doStart(self, hkl):
         poslist = self._extractPos(self._calcPos(hkl))
         self._waiters = []
@@ -179,9 +185,7 @@ class SXTalBase(Instrument, Moveable):
             dev.start(devvalue)
             self._waiters.append(dev)
         # store the min and max values of h,k,l, and E for simulation
-        self._sim_value = hkl
-        self._sim_min = tuple(map(min, hkl, self._sim_min or hkl))
-        self._sim_max = tuple(map(max, hkl, self._sim_max or hkl))
+        self._sim_setValue(hkl)
 
     def doFinish(self):
         # make sure index members read the latest value
