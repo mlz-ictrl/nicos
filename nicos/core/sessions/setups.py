@@ -26,10 +26,10 @@
 Setup file handling.
 """
 
-import os
 from os import path
 
 from nicos.utils import make_load_config, Device
+from nicos.utils.files import iterSetups
 from nicos.pycompat import exec_, iteritems, listitems
 from nicos.core.params import nicosdev_re
 
@@ -37,23 +37,6 @@ from nicos.core.params import nicosdev_re
 SETUP_GROUPS = set([
     'basic', 'optional', 'plugplay', 'lowlevel', 'special', 'configdata'
 ])
-
-
-def iterSetups(paths):
-    """Iterate over full file names of all setups within the given paths."""
-    for rootpath in paths:
-        for root, _, files in os.walk(rootpath, topdown=False):
-            for filename in files:
-                if not filename.endswith('.py'):
-                    continue
-                yield path.join(root, filename)
-
-
-def findSetup(paths, setupname):
-    """Return, if found, the full filename for a given setup name."""
-    for filename in iterSetups(paths):
-        if path.basename(filename)[:-3] == setupname:
-            return filename
 
 
 def readSetups(paths, logger):

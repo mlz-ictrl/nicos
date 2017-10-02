@@ -36,7 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError, DeviceAlias
-from nicos.core.sessions.setups import findSetup
+from nicos.utils.files import findSetup
 from nicos.utils import whyExited, watchFileContent, loggers, createThread, \
     createSubprocess
 from nicos.devices.generic.cache import CacheReader

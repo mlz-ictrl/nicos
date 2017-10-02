@@ -32,6 +32,23 @@ import os
 from os import path
 
 
+def iterSetups(paths):
+    """Iterate over full file names of all setups within the given paths."""
+    for rootpath in paths:
+        for root, _, files in os.walk(rootpath, topdown=False):
+            for filename in files:
+                if not filename.endswith('.py'):
+                    continue
+                yield path.join(root, filename)
+
+
+def findSetup(paths, setupname):
+    """Return, if found, the full filename for a given setup name."""
+    for filename in iterSetups(paths):
+        if path.basename(filename)[:-3] == setupname:
+            return filename
+
+
 def findNicosFacilityDirs(where):
     for facility in sorted(os.listdir(where)):
         full = path.join(where, facility)
