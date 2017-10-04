@@ -870,6 +870,7 @@ class Session(object):
         should return a compiled code object that is then executed instead of
         the command.
         """
+        command = command.strip()
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
         if self._spmode:
