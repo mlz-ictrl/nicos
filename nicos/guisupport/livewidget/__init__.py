@@ -25,8 +25,6 @@
 
 """NICOS livewidget with GR."""
 
-import re
-from os import path
 import math
 
 import numpy
@@ -296,6 +294,11 @@ class LiveWidgetBase(QWidget):
         changed. Overwrite this method e.g. to mask values before applying
         logscale."""
 
+    def updateAxesRange(self, nx, ny):
+        """This method will be called whenever the shape of the incoming data
+        has been changed. Overwrite this method e.g. to rescale the axes."""
+        self.axes.setWindow(0, nx, 0, ny)
+
     def setData(self, array):
         self._array = array
         nz, ny, nx = 1, 1, 1
@@ -313,7 +316,7 @@ class LiveWidgetBase(QWidget):
 
         if (ny, nx) != self._axesrange:
             if not self._fixedsize:
-                self.axes.setWindow(0, nx, 0, ny)
+                self.updateAxesRange(nx, ny)
                 newrange = True
             self.axes.xlines = [nx / 2]
             self.axes.ylines = [ny / 2]
@@ -525,7 +528,7 @@ class LiveWidget1D(LiveWidgetBase):
 
         self.plot._lstAxes = []
         self.plot._countAxes = 0
-        self.curve = MaskedPlotCurve([0], [0], linecolor=COLOR_BLUE)
+        self.curve = MaskedPlotCurve([0], [.1], linecolor=COLOR_BLUE)
         self.axes = AutoScaleAxes(self, viewport=self.plot.viewport,
                                   xdual=True)
         self.axes.setGrid(True)
@@ -548,6 +551,10 @@ class LiveWidget1D(LiveWidgetBase):
                             self._axesrange[1] + self.axes.xtick,
                             0, max(1, self.curve.y.max()) + self.axes.ytick)
         self.gr.update()
+
+    def updateAxesRange(self, nx, ny):
+        ymin = .1 if self._logscale else 0
+        self.axes.setWindow(0, nx, ymin, ny)
 
     def _setData(self, array, nx, ny, nz, newrange):
         self.curve.x = numpy.arange(0, nx)
