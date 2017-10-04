@@ -329,6 +329,10 @@ def setupdoc_builder_inited(app):
 
     .rst files that correspond to removed setups are removed.
     """
+    # ignore setups if 'customdoc' is __not__ enabled
+    if not app.tags.has('customdoc'):
+        return
+
     base_dir = path.join(app.builder.srcdir,
                          app.config.setupdoc_setup_base_dir)
 
