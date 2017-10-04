@@ -5,20 +5,20 @@ The NICOS GUI is invoked with the ``nicos-gui`` script.
 
 Usage of the script::
 
-   nicos-gui [options] [username@server [password]]
+   nicos-gui [options] [user_name[:password[@host[:port]]]]
 
 The script has several options:
 
 -h, --help                    show the help message and exit
 -c file, --config-file file   use ``file`` as the configuration file
+-v, --view-only               run in view-only mode
 
-Apart from the options, you can also give one or two arguments: the first is a
-"connection string" consisting of ``username@server`` (server can be a host name
-or ``hostname:port``), the second can be the password for connecting (if the
-password is not given, the user will be asked).
+Apart from the options, you can also give an argument: the "connection string"
+consisting of  ``user_name``, ``password``, ``host``, and ``port``.
 
-If both connection string and password are given, the client connects
-automatically on startup.
+If the "connection string" contains the user_name, password and host, the client
+connects automatically on startup, otherwise the user will be asked for missing
+parts of the "connection string".
 
 Log file
 --------
