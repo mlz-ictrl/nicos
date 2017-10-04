@@ -8,8 +8,9 @@ devices = dict(
         'nicos.services.cache.database.entry.FlatbuffersCacheEntrySerializer'),
 
     DB=device(
-        'nicos.services.cache.database.kafka.KafkaCacheDatabase',
+        'nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
         currenttopic='nicos-flatbuffers',
+        historytopic='nicos-flatbuffers-history',
         brokers=['localhost:9092'],
         loglevel='info',
         serializer='serializer'

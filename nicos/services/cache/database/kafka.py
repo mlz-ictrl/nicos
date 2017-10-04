@@ -276,3 +276,93 @@ class KafkaCacheDatabase(CacheDatabase):
                 for client in self._server._connected.values():
                     if client is not from_client:
                         client.update(newkey, OP_TELL, value or '', time, ttl)
+
+
+class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
+    """ Cache database that stores cache in Kafka topics with History.
+
+    The current values from cache are stored in a log compacted kafka topic
+    with key -> value (CacheEntry) pairs. The history is saved in different
+    topic without log compaction just as messages. This is done as no deletion
+    is required in the history topic and log compaction would not help.
+    The encoded messages have key stored in them along with the CacheEntry
+    instances.
+    """
+
+    parameters = {
+        'historytopic': Param(
+            'Kafka topic where the history values are stored',
+            type=str, mandatory=True),
+    }
+
+    def doInit(self, mode):
+        KafkaCacheDatabase.doInit(self, mode)
+
+        if self.historytopic not in self._consumer.topics():
+            raise ConfigurationError(
+                'Topic "%s" does not exit. Create this topic and restart.'
+                % self.historytopic)
+
+        # Create the history consumer
+        self._history_consumer = KafkaConsumer(bootstrap_servers=self.brokers)
+
+        partitions = self._history_consumer.partitions_for_topic(
+            self.historytopic)
+        self._history_consumer.assign(
+            [TopicPartition(self.historytopic, p) for p in partitions])
+
+    def doShutdown(self):
+        self._history_consumer.close()
+        KafkaCacheDatabase.doShutdown(self)
+
+    def ask_hist(self, key, fromtime, totime):
+        self.log.debug('Hist for %s in (%s, %s)' % (key, fromtime, totime))
+        buffer_time = 10
+
+        # Get the assignment
+        assignment = self._history_consumer.assignment()
+
+        # Reset the offset to match fromtime
+        offsets = self._history_consumer.offsets_for_times(
+            {p: fromtime * 1000 for p in assignment})
+
+        # The partitions should be in correct location before starting to
+        # consume
+        for partition in offsets:
+            self._history_consumer.seek(partition, offsets[partition].offset)
+
+        end = self._consumer.end_offsets(list(assignment))
+        found_some = False
+        for partition in assignment:
+            while self._history_consumer.position(partition) < end[partition]:
+                msg = next(self._history_consumer)
+                time = msg.timestamp
+
+                # As the messages are not strictly arranged in the order of
+                # timestamp, we read extra messages written in buffer time
+                # and try to find if there is something which we need in those
+                # messages.
+                if time > (totime + buffer_time) * 1000:
+                    break
+
+                if msg.value is not None:
+                    msgkey, entry = self._attached_serializer.decode(msg.value)
+                    if (msgkey == key and not entry.expired and
+                                    fromtime <= entry.time <= totime):
+                        self.log.info("%s -> %s" % (msgkey, entry))
+                        found_some = True
+                        yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+
+        # Return at least the last value, if none match the range
+        if not found_some and key in self._db:
+            entry = self._db[key]
+            self.log.debug("Not found in provided range, fetching current.")
+            yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+
+    def _update_topic(self, key, entry):
+        KafkaCacheDatabase._update_topic(self, key, entry)
+        self._producer.send(
+            topic=self.historytopic,
+            value=self._attached_serializer.encode(entry, key),
+            timestamp_ms=entry.time * 1000)
+        self._producer.flush()
