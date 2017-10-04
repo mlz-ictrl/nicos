@@ -110,7 +110,7 @@ class ConnectionDialog(QDialog):
 
         self.presetOrAddr.addItems(sorted(connpresets))
         self.presetOrAddr.setEditText(lastpreset)
-        if not lastpreset:
+        if not lastpreset and lastdata:
             # if we have no stored last preset connection, put in the raw data
             self.presetOrAddr.setEditText(
                 '%s:%s' % (lastdata.host, lastdata.port))
