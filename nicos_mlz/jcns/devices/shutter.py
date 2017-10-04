@@ -28,7 +28,7 @@ from nicos.core.params import Param
 
 
 OPEN = "open"
-CLOSE = "close"
+CLOSED = "closed"
 
 
 class Shutter(NamedDigitalOutput):
@@ -39,7 +39,7 @@ class Shutter(NamedDigitalOutput):
 
     parameters = {
         'stoptarget': Param('Target position on Stop', type=str,
-                            default='close', userparam=False)
+                            default='closed', userparam=False)
     }
 
     def doStop(self):

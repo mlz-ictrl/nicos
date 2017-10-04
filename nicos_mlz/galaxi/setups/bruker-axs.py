@@ -46,7 +46,7 @@ devices = dict(
     shutter      = device('nicos.devices.tango.NamedDigitalOutput',
                           description = 'XRayShutter',
                           tangodevice = tango_base + 'XRayShutter/1',
-                          mapping = dict( open=1, close=2 ),
+                          mapping = dict(open=1, closed=2),
                          ),
     tubecond     = device('nicos_mlz.galaxi.devices.conditioner.TubeConditioner',
                           description = 'XRayTubeCondition',

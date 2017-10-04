@@ -1,4 +1,4 @@
-maw(shutter, 'close')
+maw(shutter, 'closed')
 maw(bsd,11.25 )
 
 #settings for sample 1
@@ -31,7 +31,7 @@ maw(s2_left,1.0)
 maw(s2_right,1.0)
 sscan(t2t,2.25,0.25,6.0,360)
 
-maw(shutter, 'close')
+maw(shutter, 'closed')
 
 #settings for sample 2
 maw(sc, 54.75)
@@ -63,7 +63,7 @@ maw(s2_left,1.0)
 maw(s2_right,1.0)
 sscan(t2t,2.25,0.25,6.0,360)
 
-maw(shutter, 'close')
+maw(shutter, 'closed')
 
 #settings for sample 3
 maw(sc, -43.95)
@@ -95,6 +95,6 @@ maw(s2_left,1.0)
 maw(s2_right,1.0)
 sscan(t2t,2.25,0.25,6.0,360)
 
-maw(shutter, 'close')
+maw(shutter, 'closed')
 maw(t2t,0)
 maw(sc, 190)

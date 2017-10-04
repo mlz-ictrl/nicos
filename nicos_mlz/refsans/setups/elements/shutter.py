@@ -17,7 +17,7 @@ devices = dict(
                      description = 'Instrument shutter',
                      moveable = 'shutter_m',
                      precision = 0.5,
-                     mapping = {'close': 0, 'open': 55},
+                     mapping = {'closed': 0, 'open': 55},
                      fallback = 'offline',
                     ),
 )

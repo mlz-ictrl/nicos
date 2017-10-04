@@ -7,7 +7,7 @@ tango_base = "tango://phys.biodiff.frm2:10000/biodiff/"
 
 _MAP_SHUTTER = {
     "open": 1,
-    "close": 2,
+    "closed": 2,
 }
 
 devices = dict(

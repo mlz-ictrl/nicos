@@ -15,7 +15,7 @@ maw(tx, tx_tenK)
 NewSample("MARIAIII-rep-10K_fp-ngf")
 maw(shutter,'open')
 timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
-maw(shutter,'close')
+maw(shutter,'closed')
 
 # Drive to positive saturation
 while field.read()<2000:
@@ -38,7 +38,7 @@ while field.read()>-460:
 NewSample("MARIAIII-rep-10K_fp-CoerF")
 maw(shutter,'open')
 timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
-maw(shutter,'close')
+maw(shutter,'closed')
 
 # Drive to negative saturation
 while field.read()>-2000:
@@ -50,7 +50,7 @@ while field.read()>-2000:
 NewSample("MARIAIII-rep-10K_fp-SatF")
 maw(shutter,'open')
 timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
-maw(shutter,'close')
+maw(shutter,'closed')
 
 # Carefully drive to ngf field again
 while field.read()<-100:
@@ -67,7 +67,7 @@ while field.read()<-7:
 NewSample("MARIAIII-rep-10K_fp-RemF")
 maw(shutter,'open')
 timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','down','up','down'])
-maw(shutter,'close')
+maw(shutter,'closed')
 
 # Warm up to RT
 maw(T, 300)

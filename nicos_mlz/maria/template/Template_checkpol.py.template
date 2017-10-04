@@ -1,4 +1,4 @@
-maw(shutter,'close')
+maw(shutter,'closed')
 maw(pol, 474000)
 maw(t2t,0)
 maw(analyzer_shift,'in')
@@ -11,6 +11,6 @@ sscan(wavelength, 5, 1, 12, 300,  pflipper=['up', 'down'])
 
 
 
-maw(shutter,'close')
+maw(shutter,'closed')
 maw(analyzer_shift,'out')
 maw(bsd, 11.25)

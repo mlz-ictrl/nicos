@@ -1,7 +1,7 @@
 ############################
 ###### Field scan#####
 ############################
-#move(shutter,'close')
+#move(shutter,'closed')
 #
 move(bsd,9.5)
 move(t2t, 0.64)
@@ -31,7 +31,7 @@ move(aflipper,'up')
 #move(shutter,'open')
 sscan(magnet, -0.1, -0.02, -1.5, 15, pflipper=['up','down'])
 sscan(magnet, -1.5, -0.1, -4, 15, pflipper=['up','down'])
-#move(shutter,'close')
+#move(shutter,'closed')
 #complete the range
 #
 move (magnet, -33)
@@ -52,7 +52,7 @@ move(aflipper,'down')
 #move(shutter,'open')
 sscan(magnet, -0.1, -0.02, -1.5, 15, pflipper=['up','down'])
 sscan(magnet, -1.5, -0.1, -4, 15, pflipper=['up','down'])
-move(shutter,'close')
+move(shutter,'closed')
 #complete the range
 #
 

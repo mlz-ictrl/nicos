@@ -122,7 +122,7 @@ devices = dict(
                        unit = 'mbar',
                       ),
     shutter = device('nicos.devices.generic.ManualSwitch',
-                     states = ['close', 'open'],
+                     states = ['closed', 'open'],
                     ),
     zb0 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
                  motor = device('nicos.devices.generic.VirtualMotor',

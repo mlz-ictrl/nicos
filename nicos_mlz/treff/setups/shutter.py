@@ -7,7 +7,7 @@ tango_base = "tango://phys.treff.frm2:10000/treff/"
 
 _MAP_SHUTTER = {
     "open": 1,
-    "close": 0,
+    "closed": 0,
 }
 
 devices = dict(

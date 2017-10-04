@@ -93,7 +93,7 @@ move(bsd,9)
 maw(shutter,'open')
 sscan(t2t,1.2, 0.04, 3.5, 100,pflipper=['up','down'])
 ####################################
-maw(shutter,'close')
+maw(shutter,'closed')
 NewSample("Alignment")
 maw (magnet, 0)
 

@@ -33,7 +33,7 @@ from nicos.core.errors import NicosError, MoveError, InvalidValueError
 from nicos.core.constants import FINAL, SIMULATION
 from nicos.devices.generic.detector import Detector, PassiveChannel, \
     ImageChannelMixin
-from nicos_mlz.jcns.devices.shutter import OPEN, CLOSE
+from nicos_mlz.jcns.devices.shutter import OPEN, CLOSED
 
 
 class ImagePlateDrum(PyTangoDevice, Moveable):
@@ -291,9 +291,9 @@ class BiodiffDetector(Detector):
     def doPrepare(self):
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(CLOSE)
+            self._attached_photoshutter.maw(CLOSED)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(CLOSE)
+            self._attached_gammashutter.maw(CLOSED)
         Detector.doPrepare(self)
 
     def doStart(self):
@@ -306,11 +306,11 @@ class BiodiffDetector(Detector):
 
     def _check_shutter(self):
         if (self.ctrl_photoshutter and
-                self._attached_photoshutter.read() == CLOSE):
+                self._attached_photoshutter.read() == CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter and
-                self._attached_gammashutter.read() == CLOSE):
+                self._attached_gammashutter.read() == CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -319,14 +319,14 @@ class BiodiffDetector(Detector):
         self._check_shutter()
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(CLOSE)
+            self._attached_photoshutter.maw(CLOSED)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(CLOSE)
+            self._attached_gammashutter.maw(CLOSED)
 
     def doStop(self):
         Detector.doStop(self)
         # close shutter
         if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(CLOSE)
+            self._attached_photoshutter.maw(CLOSED)
         if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(CLOSE)
+            self._attached_gammashutter.maw(CLOSED)

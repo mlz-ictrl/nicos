@@ -11,20 +11,20 @@ devices = dict(
     expshutter = device('nicos_mlz.jcns.devices.shutter.Shutter',
                         description = 'Experiment Shutter',
                         tangodevice = tango_base + 'fzjdp_digital/ExpShutter',
-                        mapping = dict(open=1, close=2),
+                        mapping = dict(open=1, closed=2),
                        ),
 
     nlashutter = device('nicos.devices.tango.NamedDigitalInput',
                         description = 'Status of NlaShutter',
                         tangodevice = tango_base + 'fzjdp_digital/NlaShutter',
-                        mapping = dict(open=1, close=2),
+                        mapping = dict(open=1, closed=2),
                         lowlevel = True,
                        ),
 
     fastshut   = device('nicos.devices.tango.NamedDigitalInput',
                         description = 'Status of fastshutter',
                         tangodevice = tango_base + 'fzjdp_digital/Schnellschluss',
-                        mapping = dict(open=1, close=2),
+                        mapping = dict(open=1, closed=2),
                         lowlevel = True,
                        ),
 

@@ -1,6 +1,6 @@
 ###### GISANS #######
 
-maw(shutter,'close')
+maw(shutter,'closed')
 NewSample("GISANS_resonator_microem_0p28")
 
 maw(s1_left, 1, s1_right, 1, s1_top, 8, s1_bottom, 8)
@@ -15,4 +15,4 @@ maw(ds_left,45.5)
 
 maw(shutter,'open')
 timescan(1,7200)
-maw(shutter,'close')
+maw(shutter,'closed')
