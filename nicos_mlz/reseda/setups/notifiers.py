@@ -19,4 +19,8 @@ devices = dict(
         receivers = [],
         lowlevel = True,
     ),
+    slacker = device('nicos.devices.notifiers.Slacker',
+        receivers = ['#nicos_build-up'],
+        lowlevel = True,
+    ),
 )
