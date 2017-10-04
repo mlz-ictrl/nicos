@@ -44,6 +44,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - keyring, keyrings.alt, PyCrypto for encrypted password storage (note: using
     the keystore commandline program may require additional system dependent
     dependencies)
+  - slackclient python package to use the Slack notifier
 
 * For the GUI and status monitor (Due to limitations in the used graphics
   libraries, only Python2 (>=2.7.4) is supported):
