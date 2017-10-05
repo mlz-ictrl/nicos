@@ -27,6 +27,7 @@
 from PyQt4.QtGui import QDialog, QStyle
 
 from nicos.clients.gui.utils import loadUi
+from nicos.pycompat import from_maybe_utf8
 
 
 class ErrorDialog(QDialog):
@@ -42,6 +43,7 @@ class ErrorDialog(QDialog):
 
     def addMessage(self, message):
         existing = self.errorText.text()
+        message = from_maybe_utf8(message)
         if existing:
             self.errorText.setText(existing + '\n' + message)
         else:
