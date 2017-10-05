@@ -27,6 +27,7 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import logging
 import traceback
@@ -97,8 +98,9 @@ def main(argv):
             pass
         # If started from nicos-demo, we get an explicit guiconfig.  Therefore,
         # if "demo" is detected automatically, let the user choose.
-        if (config.setup_package == 'nicos_demo'
-                and config.instrument == 'demo') or config.instrument is None:
+        if (config.setup_package == 'nicos_demo' and
+            config.instrument == 'demo' and
+            'INSTRUMENT' not in os.environ) or config.instrument is None:
             opts.configfile = InstrSelectDialog.select(
                 'Your instrument could not be automatically detected.')
             if opts.configfile is None:
