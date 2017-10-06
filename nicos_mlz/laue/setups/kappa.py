@@ -41,7 +41,7 @@ devices = dict(
    stz =  device('nicos.devices.taco.Motor',
                       description = 'sample z translation',
                       tacodevice = '//lauectrl.laue.frm2/laue/hubermc9300/samplez',
-                      abslimits = (-10, 25),
+                      abslimits = (-12, 25),
                       fmtstr = '%.3f'),
 
    detz =  device('nicos.devices.taco.Motor',
