@@ -109,6 +109,7 @@ class TimeSeries(object):
     Represents a plot curve that shows a time series for a value.
     """
     minsize = 500
+    maxsize = 5000
 
     def __init__(self, name, interval, scale, offset, window, signal_obj,
                  info=None, mapping=None):
@@ -120,8 +121,7 @@ class TimeSeries(object):
         self.window = window
         self.scale = scale
         self.offset = offset
-        self.x = None
-        self.y = None
+        self.data = None
         self.n = 0
         self.real_n = 0
         self.last_y = None
@@ -134,16 +134,22 @@ class TimeSeries(object):
                 ('%+g' % self.offset if self.offset else '') +
                 (' (' + self.info + ')' if self.info else ''))
 
+    @property
+    def x(self):
+        return np.hsplit(self.data, 2)[0].view()
+
+    @property
+    def y(self):
+        return np.hsplit(self.data, 2)[1].view()
+
     def init_empty(self):
-        self.x = np.zeros(self.minsize)
-        self.y = np.zeros(self.minsize)
+        self.data = np.zeros((self.minsize, 2))
 
     def init_from_history(self, history, starttime, endtime, valueindex=()):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
-        x = np.zeros(3 * len(history) + 2)
-        y = np.zeros(3 * len(history) + 2)
+        self.data = np.zeros((max(self.minsize, (3 * len(history) + 2)), 2))
         i = 0
         vtime = value = None  # stops pylint from complaining
         for vtime, value in history:
@@ -170,34 +176,30 @@ class TimeSeries(object):
             if delta > maxdelta and lvalue is not None:
                 # synthesize one or two points inbetween
                 if vtime - self.interval > ltime + self.interval:
-                    x[i] = ltime + self.interval
-                    y[i] = lvalue
+                    self.x[i] = ltime + self.interval
+                    self.y[i] = lvalue
                     i += 1
-                x[i] = vtime - self.interval
-                y[i] = lvalue
+                self.x[i] = vtime - self.interval
+                self.y[i] = lvalue
                 i += 1
-            x[i] = ltime = max(vtime, starttime)
-            y[i] = lvalue = value
+            self.x[i] = ltime = max(vtime, starttime)
+            self.y[i] = lvalue = value
             i += 1
-        if i and y[i-1] != value:
+        if i and self.y[i-1] != value:
             # In case the final value was discarded because it came too fast,
             # add it anyway, because it will potentially be the last one for
             # longer, and synthesized.
-            x[i] = vtime
-            y[i] = value
+            self.x[i] = vtime
+            self.y[i] = value
             i += 1
-        elif i and x[i-1] < endtime - self.interval:
+        elif i and self.x[i-1] < endtime - self.interval:
             # In case the final value is very old, synthesize a point
             # right away at the end of the interval.
-            x[i] = endtime
-            y[i] = value
+            self.x[i] = endtime
+            self.y[i] = value
             i += 1
         self.n = self.real_n = i
         self.last_y = lvalue
-        x.resize((2 * i or 500,))
-        y.resize((2 * i or 500,))
-        self.x = x
-        self.y = y
         if self.string_mapping:
             self.info = ', '.join(
                 '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
@@ -222,38 +224,36 @@ class TimeSeries(object):
                 return
         elif use_scale:
             value = value * self.scale + self.offset
-        n, x, y = self.n, self.x, self.y
+        n = self.n
         real_n = self.real_n
         self.last_y = value
         # do not add value if it comes too fast
-        if real_n > 0 and x[real_n - 1] > vtime - self.interval:
+        if real_n > 0 and self.x[real_n - 1] > vtime - self.interval:
             return
         self._last_update_time = currenttime()
+        xsize = self.data.shape[0]
         # double array size if array is full
-        if n >= x.shape[0]:
+        if n >= xsize:
+
             # we select a certain maximum # of points to avoid filling up memory
             # and taking forever to update
-            if x.shape[0] > 5000:
+            if xsize > self.maxsize:
                 # don't add more points, make existing ones more sparse
-                x[:n/2] = x[1::2]
-                y[:n/2] = y[1::2]
+                self.x[:n/2] = self.x[1::2]
+                self.y[:n/2] = self.y[1::2]
                 n = self.n = self.real_n = n // 2
             else:
-                del x, y  # remove references
-                self.x.resize((2 * self.x.shape[0],))
-                self.y.resize((2 * self.y.shape[0],))
-                x = self.x
-                y = self.y
+                self.data.resize((2 * xsize, 2))
         # fill next entry
         if not real and real_n < n - 1:
             # do not generate endless amounts of synthesized points,
             # two are enough (one at the beginning, one at the end of
             # the interval without real points)
-            x[n-1] = vtime
-            y[n-1] = value
+            self.x[n-1] = vtime
+            self.y[n-1] = value
         else:
-            x[n] = vtime
-            y[n] = value
+            self.x[n] = vtime
+            self.y[n] = value
             self.n += 1
             if real:
                 self.real_n = self.n
@@ -261,14 +261,14 @@ class TimeSeries(object):
         if self.window:
             i = -1
             threshold = vtime - self.window
-            while x[i+1] < threshold and i < n:
-                if x[i+2] > threshold:
-                    x[i+1] = threshold
+            while self.x[i+1] < threshold and i < n:
+                if self.x[i+2] > threshold:
+                    self.x[i+1] = threshold
                     break
                 i += 1
             if i >= 0:
-                x[0:n - i] = x[i+1:n+1].copy()
-                y[0:n - i] = y[i+1:n+1].copy()
+                self.x[0:n - i] = self.x[i+1:n+1].copy()
+                self.y[0:n - i] = self.y[i+1:n+1].copy()
                 self.n -= i+1
                 self.real_n -= i+1
         self.signal_obj.timeSeriesUpdate.emit(self)
