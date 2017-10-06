@@ -73,7 +73,7 @@ class GRWidget(InteractiveGRWidget):
     def __init__(self, widget, **kwds):
         InteractiveGRWidget.__init__(self, widget, **kwds)
         self.widget = widget
-        self.adjustSelectRect = self._adjustSelectRect
+        self.adjustSelectRect = self._noadjustSelectRect
 
     def setAdjustSelection(self, flag):
         if flag:
@@ -226,7 +226,6 @@ class LiveWidgetBase(QWidget):
         layout.addWidget(self.gr)
         self.setLayout(layout)
 
-        self.gr.keepRatio = 0.999
         self.plot = Plot(self, viewport=(.1, .95, .1, .95))
         self.axes = Axes(self, viewport=self.plot.viewport, xdual=True,
                          ydual=True)
