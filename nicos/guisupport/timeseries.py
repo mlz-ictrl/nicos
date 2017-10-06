@@ -34,6 +34,7 @@ from time import time as currenttime
 import numpy as np
 
 from nicos.pycompat import number_types, string_types, iteritems
+from nicos._vendor.lttb import lttb
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -239,9 +240,9 @@ class TimeSeries(object):
             # and taking forever to update
             if xsize > self.maxsize:
                 # don't add more points, make existing ones more sparse
-                self.x[:n/2] = self.x[1::2]
-                self.y[:n/2] = self.y[1::2]
-                n = self.n = self.real_n = n // 2
+                self.data = lttb.downsample(self.data, n_out=xsize / 2)
+                n = self.n = self.real_n = self.data.shape[0]
+                self.data.resize((n * 2, 2))
             else:
                 self.data.resize((2 * xsize, 2))
         # fill next entry
