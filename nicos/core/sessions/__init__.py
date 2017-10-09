@@ -50,7 +50,7 @@ from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.core.utils import system_user
 from nicos.devices.notifiers import Notifier
-from nicos.utils import formatDocstring, formatScriptError, which
+from nicos.utils import formatDocstring, formatScriptError, fixupScript, which
 from nicos.utils.loggers import initLoggers, NicosLogger, \
     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
@@ -663,6 +663,7 @@ class Session(object):
         if allow_startupcode:
             for code in startupcode:
                 if code:
+                    code = fixupScript(code)
                     try:
                         self.log.debug('executing startup code: %r', code)
                         # no local_namespace here

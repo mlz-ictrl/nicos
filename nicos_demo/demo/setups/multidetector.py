@@ -111,6 +111,7 @@ for i in range(11):
             unit = 'deg',
             refpos = 0,
             fmtstr = '%.3f',
+            speed = 3,
         ),
         precision = 0.01,
     )
@@ -121,6 +122,7 @@ for i in range(11):
             unit = 'deg',
             refpos = 0,
             fmtstr = '%.3f',
+            speed = 1,
         ),
         precision = 0.01,
     )

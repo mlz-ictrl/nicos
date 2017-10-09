@@ -400,7 +400,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
             # if motor moving==0 and target reached==1 -> break
             if (statval & (1 << 7) == 0) and (statval & (1 << 6)):
                 break
-            if statval & (3 << 10):  # limit switch triggered or stop issued
+            if statval & (7 << 10):  # limit switch triggered or stop issued
                 session.delay(0.1)
                 break
 

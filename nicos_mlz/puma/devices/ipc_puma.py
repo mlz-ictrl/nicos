@@ -20,6 +20,7 @@
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Oleg Sobolev <oleg.sobolev@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -28,8 +29,25 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
 
-from nicos.core import Override, status
+import time
+
+from nicos import session
+from nicos.core import Override, Param, intrange, oneof, status
+from nicos.core.constants import SIMULATION
+from nicos.core.errors import NicosError, TimeoutError, UsageError
+from nicos.core.mixins import HasOffset
+from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
+from nicos.utils import createThread
+
+DIR_POS = 34
+DIR_NEG = 35
+SET_CURR_POS = 43
+MOVE_REL = 46
+WRITE_CONFIG_BYTE = 49
+
+CURR_POS = 130
+STATUS = 134
 
 
 class Coder(IPCCoder):
@@ -55,7 +73,7 @@ class Motor(IPCMotor):
     def doWriteConfbyte(self, value):
         self.log.warning('Config byte can\'t be changed like this.')
         # if self._hwtype == 'single':
-        #     self._attached_bus.send(self.addr, 49, value, 3)
+        #     self._attached_bus.send(self.addr, WRITE_CONFIG_BYTE, value, 3)
         # else:
         #     raise InvalidValueError(self, 'confbyte not supported by card')
         # self.log.info('parameter change not permanent, use _store() method '
@@ -64,7 +82,7 @@ class Motor(IPCMotor):
 
     def doWriteSteps(self, value):
         self.log.debug('not setting new steps value: %s', value)
-        # self._attached_bus.send(self.addr, 43, value, 6)
+        # self._attached_bus.send(self.addr, SET_CURR_POS, value, 6)
         return
 
 
@@ -78,7 +96,7 @@ class Motor1(IPCMotor):
     def doWriteConfbyte(self, value):
         self.log.warning('Config byte can\'t be changed like this.')
         # if self._hwtype == 'single':
-        #     self._attached_bus.send(self.addr, 49, value, 3)
+        #     self._attached_bus.send(self.addr, WRITE_CONFIG_BYTE, value, 3)
         # else:
         #     raise InvalidValueError(self, 'confbyte not supported by card')
         # self.log.info('parameter change not permanent, use _store() method '
@@ -86,7 +104,7 @@ class Motor1(IPCMotor):
         return
 
     def doStatus(self, maxage=0):
-        state = self._attached_bus.get(self.addr, 134)
+        state = self._attached_bus.get(self.addr, STATUS)
         st = status.OK
 
         msg = ''
@@ -141,3 +159,229 @@ class Motor1(IPCMotor):
             msg = ', moving' + msg
         self.log.debug('status is %d:%s', st, msg[2:])
         return st, msg[2:]
+
+
+class ReferenceMotor(CanReference, Motor):
+    """IPC stepper card motor with reference capability."""
+
+    parameters = {
+        'refswitch': Param('Type of the reference switch',
+                           type=oneof('high', 'low', 'ref'),
+                           mandatory=True, settable=False),
+        'maxtries': Param('Number of tries to reach the target', type=int,
+                          default=3, settable=True),
+        'parkpos': Param('Position to move after reaching reference switch',
+                         unit='main', settable=False, default=0),
+        'refpos': Param('Number of steps at reference position',
+                        type=intrange(0, 999999), settable=False,
+                        default=500000),
+        'refspeed': Param('Speed value during the reference move',
+                          type=intrange(0, 255), settable=False),
+        'refstep': Param('Steps to move away from reference switch',
+                         type=intrange(0, 999999), settable=False,
+                         default=2000),
+        'refmove': Param('Steps to move to the reference switch',
+                         type=intrange(0, 10000), settable=False,
+                         default=100),
+        'refdirection': Param('Direction of the reference move'
+                              'to "lower" or "upper" step values',
+                              type=oneof('lower', 'upper'), settable=False,
+                              default='lower'),
+    }
+
+    parameters_override = {
+        'timeout': Override(default=600.),
+    }
+
+    def doInit(self, mode):
+        Motor.doInit(self, mode)
+        self._stoprequest = 0
+        self._refcontrol = None
+
+    def doStop(self):
+        self._stoprequest = 1
+        Motor.doStop(self)
+        if self._refcontrol and self._refcontrol.isAlive():
+            self._refcontrol.join()
+        self._refcontrol = None
+
+    def doStatus(self, maxage=0):
+        """Return the status of the motor controller."""
+        if self._mode == SIMULATION:
+            return (status.OK, '')
+        elif self._refcontrol and self._refcontrol.isAlive():
+            return (status.BUSY, 'referencing')
+        return Motor.doStatus(self, maxage)
+
+    def doReference(self):
+        if self.doStatus()[0] == status.BUSY:
+            self.stop()
+            self.wait()
+
+        self.reset()
+        self.wait()
+
+        if self.doStatus()[0] == status.OK:
+            if self._refcontrol and self._refcontrol.isAlive():
+                self._refcontrol.join()
+            self._refcontrol = None
+
+            if self._refcontrol is None:
+                threadname = 'referencing %s' % self
+                self._refcontrol = createThread(threadname, self._reference)
+                session.delay(0.2)
+        else:
+            raise NicosError(self, 'in error or busy state')
+
+    def doWriteSteps(self, value):
+        self.log.debug('setting new steps value: %s', value)
+        self._attached_bus.send(self.addr, SET_CURR_POS, value, 6)
+        ret = self._attached_bus.get(self.addr, CURR_POS)
+        self.log.debug('set new steps value: %s', ret)
+        return ret
+
+    def _start(self, target):
+        target = self._tosteps(target)
+        self.log.debug('target is %d steps', target)
+        pos = self._tosteps(self.read(0))
+        self.log.debug('pos is %d steps', pos)
+        diff = target - pos
+        if diff:
+            self._attached_bus.send(self.addr,
+                                    DIR_NEG if diff < 0 else DIR_POS)
+            self._attached_bus.send(self.addr, MOVE_REL, abs(diff), 6)
+            session.delay(0.1)  # moved here from doWait.
+            # hw_wait will not work here, since the status of the device is
+            # always busy, but only the state of the motor is important
+            while Motor.doStatus(self, 0)[0] == status.BUSY:
+                session.delay(self._base_loop_delay)
+            Motor.doStop(self)
+
+    def _reference(self):
+        """Drive motor to reference switch."""
+        # init referencing
+        self.log.debug('referencing')
+
+        self._stoprequest = 0
+
+        try:
+            _min, _max = self.min, self.max
+            motspeed = self.speed
+            self._resetlimits()
+            if not self.isAtReference():
+                # check configuration; set direction of drive
+                self.log.debug('in _reference checkrefswitch')
+                self._drive_to_reference(self.refspeed)
+            if self.isAtReference():
+                self._move_away_from_reference()
+            self._move_until_referenced(time.time())
+            if self.isAtReference():
+                self._start(self.parkpos)
+            if self._stoprequest == 1:
+                raise NicosError(self, 'reference stopped by user')
+        except TimeoutError as e:
+            self.log.error('%s occured during referencing', e)
+        except NicosError as e:
+            self.log.error('%s: occured during referencing', e)
+        except Exception as e:
+            self.log.error('%s: occured during referencing', e)
+        finally:
+            self.log.debug('in finally')
+            self.speed = motspeed
+            self.min = _min
+            self.max = _max
+            self.log.debug('stoprequest: %d', self._stoprequest)
+            try:
+                temp = self.read(0)
+                self.log.info('new position of %s is now %.3f %s', self.name,
+                              temp, self.unit)
+                if self.abslimits[0] <= temp <= self.abslimits[1]:
+                    self._resetlimits()
+                else:
+                    self.log.warn('in _referencing limits not restored after '
+                                  'positioning')
+            except NicosError as e:
+                self.log.debug('error catched in finally positioning %s', e)
+                self.log.debug('in finally positioning restorelimits failed')
+                self.log.warn('limits not restored after positioning')
+
+    def isAtReference(self):
+        """Check whether configured reference switch is active."""
+        self.log.debug('in isAtReference function')
+        return (self.refswitch == 'high' and self._isAtHighlimit()) or \
+               (self.refswitch == 'low' and self._isAtLowlimit()) or \
+               (self.refswitch == 'ref' and self._isAtReferenceSwitch())
+
+    def _isAtHighlimit(self):
+        return bool(self._attached_bus.get(self.addr, STATUS) & 0x40)
+
+    def _isAtLowlimit(self):
+        return bool(self._attached_bus.get(self.addr, STATUS) & 0x20)
+
+    def _isAtReferenceSwitch(self):
+        return bool(self._attached_bus.get(self.addr, STATUS) & 0x80)
+
+    def _setrefcounter(self):
+        self.log.debug('in setrefcounter')
+        if not self.isAtReference():
+            raise UsageError('cannot set reference counter, not at reference '
+                             'point')
+        self.steps = self.refpos
+
+    def _resetlimits(self):
+        alim = self.abslimits
+        if isinstance(self, HasOffset):
+            newlim = (alim[0] - self.offset, alim[1] - self.offset)
+        else:
+            newlim = alim
+        if self.userlimits != newlim:
+            self.userlimits = newlim
+
+    def _drive_to_reference(self, refspeed):
+        self.log.debug('reference direction: %s', self.refswitch)
+        if self.refswitch in ['high', 'low']:
+            if self.refdirection == 'lower':
+                stop, start = self._hw_limits
+                if start < stop:
+                    start, stop = stop, start
+            else:
+                start, stop = self._hw_limits
+            self.setPosition(start)
+            self.log.debug('move %f from %f', start, stop)
+            self._start(stop)
+            self.log.debug('finished at %f', self.read(0))
+            if self._stoprequest:
+                raise NicosError(self, 'reference stopped by user')
+
+    def _move_away_from_reference(self):
+        self.log.debug('%s limit switch active', self.refswitch)
+        self.steps = self.refpos
+        d = abs(self.refstep / self.slope)
+        if self.refdirection == 'lower':
+            d = -d
+        self.log.debug('move away from reference switch %f', d)
+        self._start(self.read(0) - d)
+        if self._stoprequest:
+            raise NicosError(self, 'reference stopped by user')
+
+    def _move_until_referenced(self, starttime):
+        # calculate the step size for each reference move
+        d = abs(self.refmove / self.slope)
+        if self.refdirection == 'lower':
+            d = -d
+        while not self.isAtReference():
+            p = self.read(0)
+            t = p + d
+            self.log.debug('move to %s limit switch %r -> %r',
+                           self.refswitch, p, t)
+            self._start(t)
+            if self._stoprequest:
+                raise NicosError(self, 'reference stopped by user')
+            if time.time() - starttime > self.timeout:
+                raise TimeoutError(self, 'timeout occured during reference '
+                                   'drive')
+        self._setrefcounter()
+
+    @property
+    def _hw_limits(self):
+        return (self._fromsteps(self.min), self._fromsteps(self.max))
