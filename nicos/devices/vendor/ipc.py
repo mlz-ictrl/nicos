@@ -761,10 +761,18 @@ class Motor(HasTimeout, NicosMotor):
 
     @lazy_property
     def _hwtype(self):
-        """Returns 'single' or 'triple', used for features that only one of the
-        card types supports.
+        """Returns 'single', 'triple', or 'sixfold', used for features that
+        only one of the card types supports.
         """
-        return self.doReadDivider() == -1 and 'single' or 'triple'
+        if self._mode == SIMULATION:
+            return 'single'   # can't determine value in simulation mode!
+        if self.doReadDivider() == -1:
+            try:
+                self._attached_bus.get(self.addr, 142)
+                return 'sixfold'
+            except InvalidCommandError:
+                return 'single'
+        return 'triple'
 
     def doReadUserlimits(self):
         if self.slope < 0:
@@ -965,8 +973,8 @@ class Motor(HasTimeout, NicosMotor):
         maxstep = bus.get(self.addr, 131)
         bus.send(self.addr, 31)  # reset card
         session.delay(0.2)
-        if self._hwtype == 'triple':
-            # triple cards need a LONG time for resetting
+        if self._hwtype != 'single':
+            # triple and sixfold cards need a LONG time for resetting
             session.delay(2)
         # update state
         bus.send(self.addr, 41, speed, 3)
