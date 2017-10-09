@@ -28,16 +28,10 @@ import subprocess
 from time import time as currenttime
 
 from nicos.core import Device, Param, listof, mailaddress, oneof, tupleof, \
-    usermethod, floatrange, ConfigurationError
-from nicos.pycompat import text_type, escape_html
+    usermethod, floatrange
+from nicos.pycompat import text_type
 from nicos.utils import createThread, createSubprocess
 from nicos.utils.emails import sendMail
-from nicos.utils.credentials.keystore import nicoskeystore
-
-try:
-    import slackclient
-except ImportError:
-    slackclient = None
 
 
 class Notifier(Device):
@@ -205,47 +199,3 @@ class SMSer(Notifier):
         self.log.info('%sSMS message sent to %s',
                       what and what + ' ' or '', ', '.join(receivers))
         return True
-
-
-class Slacker(Notifier):
-    """Slack notifications via a workspace specific app.
-
-    To use this notifier, you can register your own Slack App (or use an
-    existing one) via https://api.slack.com/apps and install it to your
-    workspace. On installation you'll receive an OAuth token which needs
-    to be stored in the nicos keyring (domain: nicos) using the
-    ``keystoretoken`` as identifier.
-    """
-
-    parameters = {
-        'receivers': Param('Slack receiver channels (format: #channel)',
-                           type=listof(str), settable=True),
-        'keystoretoken': Param('Id used in the keystore for the OAuth token',
-                               type=str, default='slack'),
-    }
-
-    def doInit(self, mode):
-        if slackclient is None:
-            raise ConfigurationError('slackclient package is missing')
-
-        token = nicoskeystore.getCredential(self.keystoretoken)
-        if not token:
-            raise ConfigurationError('Slack API token missing in keyring')
-        self._slack = slackclient.SlackClient(token)
-
-    def send(self, subject, body, what=None, short=None, important=True):
-        message = escape_html('*%s*\n\n```%s```' % (subject, body), False)
-
-        for entry in self.receivers:
-            self.log.debug('Send slack message to %s' % entry)
-            try:
-                reply = self._slack.api_call('chat.postMessage', channel=entry,
-                                             text=message)
-                if reply['ok']:
-                    continue
-                error = reply['error']
-            except Exception as e:
-                error = str(e)
-
-            self.log.warning('Could not send slack message to %s: %s' %
-                             (entry, error))
