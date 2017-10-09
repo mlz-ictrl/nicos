@@ -37,7 +37,7 @@ import pytest
 session_setup = 'stressi'
 
 
-@pytest.yield_fixture(scope='function', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def fcleanup(session):
     yield
 
