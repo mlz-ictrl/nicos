@@ -32,7 +32,7 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 import time
 
 from nicos import session
-from nicos.core import Override, Param, intrange, oneof, status
+from nicos.core import Override, Param, intrange, none_or, oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import NicosError, TimeoutError, UsageError
 from nicos.core.mixins import HasOffset
@@ -171,7 +171,8 @@ class ReferenceMotor(CanReference, Motor):
         'maxtries': Param('Number of tries to reach the target', type=int,
                           default=3, settable=True),
         'parkpos': Param('Position to move after reaching reference switch',
-                         unit='main', settable=False, default=0),
+                         type=none_or(float), unit='main', settable=False,
+                         default=None),
         'refpos': Param('Number of steps at reference position',
                         type=intrange(0, 999999), settable=False,
                         default=500000),
@@ -276,7 +277,8 @@ class ReferenceMotor(CanReference, Motor):
                 self._move_away_from_reference()
             self._move_until_referenced(time.time())
             if self.isAtReference():
-                self._start(self.parkpos)
+                if self.parkpos is not None:
+                    self._start(self.parkpos)
             if self._stoprequest == 1:
                 raise NicosError(self, 'reference stopped by user')
         except TimeoutError as e:
