@@ -12,6 +12,7 @@ zero    = (0, .15, -.50, -2.15, -2.15, (0, 0), 'off', 0)
 # fields with spin flipper
 zero_sf = (0, .15, -.50, -2.15, -2.15, (-0.95,-0.35), 'on', 0)
 x7_sf   = (-0.5, -1.5, -1.20, -2.15, -2.15, (-0.925,-0.45), 'on', 0)
+x20_sf  = (-0.5, -1.5, -1.20, -2.15, -2.15, (-0.9,-0.58), 'on', 0)
 # x7_old: (0.94,0.40)
 mx7_sf  = (0, 2.30, -0.35, -2.15, -2.15, (-0.9, -0.5), 'on', 0)
 # y7 and my7 swapped, 22-july-2016
@@ -19,8 +20,10 @@ my7_sf   = (-0.3, 2.0, -2.95, -2.15, -2.15, (-0.85,-0.53), 'on', 0)
 # y7_old: (0.945,0.31)/(0.98,0.32)
 # was (1.0,0.15) before 20.05.15; changed to (1.0,0.32) on 20.05.15
 y7_sf  = (0, -1.40, 1.65, -2.15, -2.15, (-0.95, -0.4), 'on', 0)
+y20_sf = (0, -1.40, 1.65, -2.15, -2.15, (-0.95, -0.5), 'on', 0)
 #
 z7_sf   = (0, .15, -.50, 0.0, 0.0, (-0.95,-0.4), 'on', 0)
+z20_sf  = (0, .15, -.50, 0.0, 0.0, (-0.9,-0.53), 'on', 0)
 # z7_old: (0.94,0.35)
 mz7_sf  = (0, .15, -.50, -4.3, -4.3, (-0.9,-0.5), 'on', 0)
 z7_high_sf   = (0, .15, -.50, 5.0, 5.0, (-0.925,-0.35), 'on', 0)
@@ -28,14 +31,17 @@ z7_default_sf   = (0, 0, 0, 0, 0, (-0.95,-0.35), 'on', 0)
 #old ZB=ZT=4A
 # fields without spin flipper
 zero_nsf = zero_sf[:6] + ('off', 0)
-x7_nsf  = x7_sf[:6] + ('off', 0)
-mx7_nsf = mx7_sf[:6] + ('off', 0)
-y7_nsf  = y7_sf[:6] + ('off', 0)
-my7_nsf = my7_sf[:6] + ('off', 0)
-z7_nsf  = z7_sf[:6] + ('off', 0)
-mz7_nsf = mz7_sf[:6] + ('off', 0)
+x7_nsf   = x7_sf[:6]  + ('off', 0)
+x20_nsf  = x20_sf[:6] + ('off', 0)
+mx7_nsf  = mx7_sf[:6] + ('off', 0)
+y7_nsf   = y7_sf[:6]  + ('off', 0)
+y20_nsf  = y20_sf[:6] + ('off', 0)
+my7_nsf  = my7_sf[:6] + ('off', 0)
+z7_nsf   = z7_sf[:6]  + ('off', 0)
+mz7_nsf  = mz7_sf[:6] + ('off', 0)
 z7_high_nsf = z7_high_sf[:6] + ('off', 0)
 z7_default_nsf = z7_default_sf[:6] + ('off', 0)
+z20_nsf  = z20_sf[:6] + ('off', 0)
 
 polchange_mapping = {'+': 0, '-': 1}
 
@@ -174,6 +180,12 @@ devices = dict(
                           'z7_high_nsf': z7_high_nsf,
                           'z7_default_sf': z7_default_sf,
                           'z7_default_nsf': z7_default_nsf,
+                          'x20_nsf': x20_nsf,
+                          'x20_sf': x20_sf,
+                          'y20_nsf': y20_nsf,
+                          'y20_sf': y20_sf,
+                          'z20_nsf': z20_nsf,
+                          'z20_sf': z20_sf,
 
                       },
                       precision = [.1, .1, .1, .1, .1, 0, 0, 10000],
