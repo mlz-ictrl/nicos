@@ -42,7 +42,7 @@ session_setup = 'multianalyzer'
 
 class TestMultiAnalyzer(object):
 
-    @pytest.yield_fixture(scope='function', autouse=True)
+    @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):
         man = session.getDevice('man')
         session.getDevice('ra1').release()
