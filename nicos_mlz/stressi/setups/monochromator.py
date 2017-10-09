@@ -45,7 +45,7 @@ devices = dict(
 #                 nameserver = '%s' % (nameservice,),
 #                 objname = '%s' % (servername),
 #                 config = 'TTHM 115 11 0xf0f1f000 4 20600 512 32 1 0 0'
-#                           ' 0 0 1 5000 10 50 0 0',
+#                          ' 0 0 1 5000 10 50 0 0',
                   fmtstr = '%.2f',
                   unit = 'deg',
                   abslimits = (50., 100.),
