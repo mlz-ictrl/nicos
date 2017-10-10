@@ -245,18 +245,17 @@ class TestSinks(object):
     def test_yaml_sink_1(self, session):
         yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
         assert path.isfile(yamlfile)
-        if not yaml:  # only do string level check if the yaml loader is not available
-            with open(yamlfile) as df:
-                data = df.read()
-        # note: whitespace is significant in the following lines!
-                assert '''instrument:
-        name: INSTR''' in data
-                assert '''experiment:
-        number: p1234
-        proposal: p1234''' in data
-                assert '''    sample:
-            description:
-                name: mysample''' in data
+        with open(yamlfile) as df:
+            data = df.read()
+            # note: whitespace is significant in the following lines!
+            assert '''instrument:
+    name: INSTR''' in data
+            assert '''experiment:
+    number: p1234
+    proposal: p1234''' in data
+            assert '''    sample:
+        description:
+            name: mysample''' in data
 
     @pytest.mark.skipif(not (quickyaml and yaml),
                         reason='QuickYAML/PyYAML libraries missing')
