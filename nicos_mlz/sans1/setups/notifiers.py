@@ -10,7 +10,7 @@ devices = dict(
                                 ('Andre.Heinemann@hzg.de', 'important'),
                                 ('sebastian.busch@hzg.de', 'important'),
                                 ('sebastian.muehlbauer@frm2.tum.de', 'important')],
-                      mailserver ='mailhost.frm2.tum.de',
+                      mailserver = 'mailhost.frm2.tum.de',
                       subject = 'SANS-1',
                      ),
     warning = device('nicos.devices.notifiers.Mailer',
@@ -18,7 +18,7 @@ devices = dict(
                      sender = 'sans1@frm2.tum.de',
                      copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                      subject = 'SANS-1 Warning',
-                     mailserver='mailhost.frm2.tum.de',
+                     mailserver = 'mailhost.frm2.tum.de',
                     ),
 
     info    = device('nicos.devices.notifiers.Mailer',
@@ -26,6 +26,7 @@ devices = dict(
                      sender = 'sans1@frm2.tum.de',
                      copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                      subject = 'SANS-1 Info',
+                     mailserver = 'mailhost.frm2.tum.de',
                     ),
 
 #    smser    = device('nicos.devices.notifiers.SMSer',
