@@ -82,6 +82,11 @@ class Pulse(BaseSequencer):
     def doRead(self, maxage=0):
         return self.onvalue if self._seq_is_running() else self.offvalue
 
+    def doIsAtTarget(self, pos):
+        # Even if we were sent to onvalue, we will not arrive there after the
+        # sequence is done.
+        return pos == self.offvalue
+
     def _generateSequence(self, target):  # pylint: disable=W0221
         seq = []
         if target == self.onvalue:

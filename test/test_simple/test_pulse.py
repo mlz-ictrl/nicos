@@ -62,6 +62,7 @@ def test_movement(session):
     pulse1.maw('up')
     assert sw.read(0) == 'down'
     assert sw._started_to == ['up', 'down']
+    assert pulse1.isAtTarget('down')
 
     del sw._started_to[:]
     pulse1.maw('down')
