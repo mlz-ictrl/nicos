@@ -2,7 +2,7 @@ description = 'PUMA collimator devices'
 
 group = 'optional'
 
-includes = ['motorbus9']
+includes = ['motorbus9', 'motorbus6']
 
 devices = dict(
     alpha4 = device('nicos.devices.generic.ReadonlySwitcher',
