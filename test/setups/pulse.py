@@ -25,14 +25,14 @@
 name = 'test_pulse setup'
 
 devices = dict(
-    sw = device('nicos.devices.generic.ManualSwitch',
+    sw = device('test.test_simple.test_pulse.PulseSwitch',
         states = ['up', 'down'],
     ),
     # well configured
     pulse1 = device('nicos.devices.generic.Pulse',
         onvalue = 'up',
         offvalue = 'down',
-        ontime = 0.2,
+        ontime = 0.01,
         moveable = 'sw',
     ),
     # onvalue wrong

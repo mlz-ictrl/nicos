@@ -27,8 +27,18 @@
 from test.utils import raises
 
 from nicos.core import ConfigurationError, status
+from nicos.devices.generic.manual import ManualSwitch
 
 session_setup = 'pulse'
+
+
+class PulseSwitch(ManualSwitch):
+
+    _started_to = []
+
+    def doStart(self, pos):
+        self._started_to.append(pos)
+        ManualSwitch.doStart(self, pos)
 
 
 def test_params(session):
@@ -36,7 +46,7 @@ def test_params(session):
     # check well defined device
     assert pulse1.onvalue == 'up'
     assert pulse1.offvalue == 'down'
-    assert pulse1.ontime == 0.2
+    assert pulse1.ontime == 0.01
 
     # check the test for 'up' and 'down' values
     assert raises(ConfigurationError, session.getDevice, 'pulse2')
@@ -46,18 +56,17 @@ def test_params(session):
 def test_movement(session):
     pulse1 = session.getDevice('pulse1')
     sw = session.getDevice('sw')
+
     # check sequence running
+    del sw._started_to[:]
     pulse1.maw('up')
     assert sw.read(0) == 'down'
+    assert sw._started_to == ['up', 'down']
+
+    del sw._started_to[:]
     pulse1.maw('down')
     assert sw.read(0) == 'down'
-
-    # read the used device which should have the onvalue after the half ontime
-    pulse1.move('up')
-    session.delay(pulse1.ontime / 2.)
-    assert sw.read(0) == pulse1.onvalue
-    pulse1.wait()
-    assert sw.read(0) == pulse1.offvalue
+    assert sw._started_to == ['down']
 
 
 def test_starting(session):
