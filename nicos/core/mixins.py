@@ -73,7 +73,6 @@ class DeviceMixinMeta(type):
                 continue
             value = getattr(newtype, aname)
             if not isinstance(value, (types.FunctionType, types.MethodType)):
-                newtype.class_attributes[aname] = value
                 continue
             argspec = getargspec(value)
             if argspec[0] and argspec[0][0] == 'self':
@@ -108,7 +107,7 @@ class DeviceMixinBase(object):
     """
 
     __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices',
-                       'methods', 'class_attributes']
+                       'methods']
 
 
 class AutoDevice(DeviceMixinBase):
