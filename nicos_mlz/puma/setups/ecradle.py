@@ -4,7 +4,7 @@ description = 'Eulerian cradle'
 
 group = 'lowlevel'
 
-includes = ['system', 'motorbus2', 'motorbus5']
+includes = ['system', 'motorbus1', 'motorbus2', 'motorbus5']
 excludes = ['euler']
 
 devices = dict(

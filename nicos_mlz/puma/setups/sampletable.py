@@ -3,7 +3,7 @@
 description = 'Sample table'
 
 
-includes = ['motorbus1', 'motorbus2', 'motorbus4', 'motorbus5', 'motorbus3']
+includes = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4']
 
 devices = dict(
     st_phi = device('nicos.devices.vendor.ipc.Motor',
