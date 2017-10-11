@@ -219,6 +219,15 @@ class HardwareStub(object):
                                'simulation mode' % name)
 
 
+class Device(tuple):
+    """Helper class for reading setups, to distinguish device() from
+    lists/tuples of devices.
+
+    The class is placed in this module because it is serialized and the client
+    should not need to import nicos.core.sessions.
+    """
+
+
 def _s(n):
     return int(n), (int(n) != 1 and 's' or '')
 

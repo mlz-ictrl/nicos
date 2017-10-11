@@ -29,7 +29,7 @@ Setup file handling.
 import os
 from os import path
 
-from nicos.utils import make_load_config
+from nicos.utils import make_load_config, Device
 from nicos.pycompat import exec_, iteritems, listitems
 from nicos.core.params import nicosdev_re
 
@@ -71,10 +71,6 @@ def readSetups(paths, logger):
                              'exist or has errors', name, include)
                 infodict[name] = None
     return infodict
-
-
-class Device(tuple):
-    pass
 
 
 def prepareNamespace(setupname, filepath):
