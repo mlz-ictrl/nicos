@@ -510,7 +510,7 @@ class TestDevice(object):
         motor = session.getDevice('motor')
         assert motor.read() == 0.
         waitfor(motor, '== 0')
-        motor.speed = 1
+        motor.speed = 10
         move(motor, 2)
         waitfor(motor, '> 1.2')
         assert raises(TimeoutError, waitfor, motor, '< 1', 0.1)
