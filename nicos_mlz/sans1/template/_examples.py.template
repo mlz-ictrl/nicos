@@ -23,6 +23,7 @@ for i in points:
 
 ################################################################################
 #2d scan for searching the sample (use DEX.exe for plotting the 2d scan!!!
+
 dev1 = st1_z # first axis to scan (change only second variable)
 start1 = 2 # start position scan axis one
 step1 = 0.5 # stepwidth of axis one
@@ -33,7 +34,9 @@ start2 = 2 # start position scan axis two
 step2 = 0.5 # stepwidth of axis two
 numpoints2 = 10 # number of scan points along axis two
 
-twodscan(dev1, start1, step1, numpoints1, dev2, start2, step2, numpoints2) #do not change
+time = 10 #counting time at each scanpoint
+
+twodscan(dev1, start1, step1, numpoints1, dev2, start2, step2, numpoints2, time) #do not change
 
 ################################################################################
 #wait for temperature to be within a tolerance for a specific value
