@@ -32,7 +32,7 @@ import numpy
 from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
-    LIVE, INTERMEDIATE, anytype, tupleof, Moveable, SubscanMeasurable, anytype
+    LIVE, INTERMEDIATE, anytype, tupleof, Moveable, SubscanMeasurable
 from nicos.core.errors import ConfigurationError
 from nicos.core.utils import multiWait
 from nicos.utils import uniq
@@ -148,8 +148,7 @@ class RectROIChannel(PostprocessPassiveChannel):
     parameters = {
         'roi': Param('Rectangular region of interest (x, y, width, height)',
                      tupleof(int, int, int, int),
-                     settable=True, category='general',
-                    ),
+                     settable=True, category='general'),
     }
 
     parameter_overrides = {
@@ -297,8 +296,7 @@ class Detector(Measurable):
         'postprocess':   Param('Post processing list containing tuples of '
                                '(PostprocessPassiveChannel, ImageChannelMixin, '
                                '...)',
-                               type=listof(tuple),
-                              ),
+                               type=listof(tuple)),
     }
 
     parameter_overrides = {
@@ -614,14 +612,14 @@ class GatedDetector(Detector):
 
     attached_devices = {
         'gates':   Attach('Gating devices', Moveable,
-                           multiple=True, optional=True),
+                          multiple=True, optional=True),
     }
 
     parameters = {
-        'enablevalues': Param('List of values to enable the gates',
-                              type=listof(anytype), default=[]),
+        'enablevalues':  Param('List of values to enable the gates',
+                               type=listof(anytype), default=[]),
         'disablevalues': Param('List of values to disable the gates',
-                              type=listof(anytype), default=[]),
+                               type=listof(anytype), default=[]),
     }
 
     def _enable_gates(self):
@@ -687,7 +685,8 @@ class ScanningDetector(SubscanMeasurable):
 
     def doStart(self):
         positions = [[p] for p in self.positions]
-        self.readresult = self._processDataset(Scan([self._attached_scandev],
+        self.readresult = self._processDataset(Scan(
+            [self._attached_scandev],
             positions, None, detlist=[self._attached_detector],
             preset=self._preset, subscan=True).run())
 
