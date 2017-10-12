@@ -127,6 +127,20 @@ class Panel(QWidget, SetupDepPanelMixin, DlgUtils):
         with self.sgroup as settings:
             self.loadSettings(settings)
 
+    def closeWindow(self):
+        """Try to close the window containing this panel.
+
+        If the window is the main window, nothing will be done.
+        """
+        from nicos.clients.gui.panels.tabwidget import DetachedWindow
+        from nicos.clients.gui.panels.auxwindows import AuxiliaryWindow
+        obj = self
+        while hasattr(obj, 'parent'):
+            obj = obj.parent()
+            if isinstance(obj, (DetachedWindow, AuxiliaryWindow, PanelDialog)):
+                obj.close()
+                return
+
     def postInit(self):
         """This method can be implemented to perform actions after all panels
         has been instantiated. It will be automatically called after all panels

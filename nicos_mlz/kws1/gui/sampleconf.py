@@ -34,8 +34,7 @@ from PyQt4.QtGui import QMessageBox, QDialog, QFrame, QVBoxLayout, \
     QRadioButton, QLineEdit, QMenu
 
 from nicos.utils import findResource
-from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
-from nicos.clients.gui.panels.tabwidget import DetachedWindow
+from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport import typedvalue
 from nicos.guisupport.utils import DoubleValidator
@@ -421,19 +420,10 @@ class KWSSamplePanel(Panel):
             if do_apply:
                 self.client.run(script, self.filename)
                 self.showInfo('Sample info has been transferred to the daemon.')
-            self._close()
+            self.closeWindow()
 
     def on_buttonBox_rejected(self):
-        self._close()
-
-    def _close(self):
-        # traverse stack of widgets and close the right ones...
-        obj = self
-        while hasattr(obj, 'parent'):
-            obj = obj.parent()
-            if isinstance(obj, (DetachedWindow, AuxiliaryWindow, PanelDialog)):
-                obj.close()
-                return
+        self.closeWindow()
 
     def _clearDisplay(self):
         item = self.frame.layout().takeAt(0)

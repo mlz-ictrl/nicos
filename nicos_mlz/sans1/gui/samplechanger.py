@@ -34,7 +34,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils
-from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
+from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.utils import findResource
 from nicos.pycompat import from_maybe_utf8
@@ -120,14 +120,7 @@ class CustomButtonPanel(Panel, DlgUtils):
         return "main"
 
     def on_buttonBox_Close_clicked(self):
-        """close the right instance"""
-        # traverse stack of Widgets and close the right ones...
-        obj = self
-        while hasattr(obj, 'parent'):
-            obj = obj.parent()
-            if isinstance(obj, (DetachedWindow, AuxiliaryWindow, PanelDialog)):
-                obj.close()
-                return
+        self.closeWindow()
 
     def on_buttonBox_Ok_clicked(self):
         """OK = Apply + Close"""

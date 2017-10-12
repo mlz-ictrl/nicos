@@ -32,8 +32,7 @@ from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress, vec3
 from nicos.guisupport import typedvalue
 from nicos.guisupport.widget import NicosWidget
-from nicos.clients.gui.panels.tabwidget import DetachedWindow
-from nicos.clients.gui.panels import Panel, AuxiliaryWindow, PanelDialog
+from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.utils import decodeAny
@@ -201,15 +200,7 @@ class ExpPanel(Panel, DlgUtils):
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance
-            # traverse stack of Widgets and close the right ones...
-            obj = self
-            while hasattr(obj, 'parent'):
-                obj = obj.parent()
-                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
-                                    PanelDialog)):
-                    obj.close()
-                    return
+            self.closeWindow()
 
     def applyChanges(self):
         done = []
@@ -410,23 +401,12 @@ class SetupsPanel(Panel, DlgUtils):
                 item.setHidden(item.checkState() == Qt.Unchecked and
                                not self.showPnpBox.isChecked())
 
-    def _close(self):
-        # close the right instance
-        # traverse stack of Widgets and close the right ones...
-        obj = self
-        while hasattr(obj, 'parent'):
-            obj = obj.parent()
-            if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
-                                PanelDialog)):
-                obj.close()
-                return
-
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            self._close()
+            self.closeWindow()
         elif role == QDialogButtonBox.ResetRole:
             if self.client.run('NewSetup()', noqueue=True) is None:
                 self.showError('Could not reload setups, a script is running.')
@@ -435,7 +415,7 @@ class SetupsPanel(Panel, DlgUtils):
                 # Close the window only in case of use in a dialog, not in a
                 # tabbed window or similiar
                 if isinstance(self.parent(), QDialog):
-                    self._close()
+                    self.closeWindow()
 
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
@@ -605,15 +585,7 @@ sample environment is placed.''')
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance
-            # traverse stack of Widgets and close the right ones...
-            obj = self
-            while hasattr(obj, 'parent'):
-                obj = obj.parent()
-                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
-                                    PanelDialog)):
-                    obj.close()
-                    return
+            self.closeWindow()
 
     def applyChanges(self):
         done = []
@@ -657,15 +629,7 @@ class GenericSamplePanel(Panel, DlgUtils):
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance
-            # traverse stack of Widgets and close the right ones...
-            obj = self
-            while hasattr(obj, 'parent'):
-                obj = obj.parent()
-                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
-                                    PanelDialog)):
-                    obj.close()
-                    return
+            self.closeWindow()
 
     def getEditBoxes(self):
         return [self.samplenameEdit]
