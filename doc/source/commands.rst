@@ -103,6 +103,9 @@ Device commands
 .. autofunction:: adjust
 .. autofunction:: reference
 
+.. autofunction:: disable
+.. autofunction:: enable
+
 .. autofunction:: history
 
 .. autofunction:: getall

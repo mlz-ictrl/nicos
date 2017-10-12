@@ -34,7 +34,7 @@ from nicos.core.errors import NicosError, ProgrammingError, \
     CacheLockError, AccessError, CacheError, SPMError
 from nicos.core.mixins import AutoDevice, DeviceMixinBase, HasLimits, \
     HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
-    HasCommunication, IsController
+    HasCommunication, IsController, CanDisable
 from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
     User, system_user, watchdog_user, usermethod

@@ -575,10 +575,18 @@ Currently NICOS supports the following list of common mixin classes:
 
 .. autoclass:: HasCommunication()
 
+
 ``IsController``
-==================
+================
 
 .. autoclass:: IsController()
+
+
+``CanDisable``
+==============
+
+.. autoclass:: CanDisable()
+
 
 .. module:: nicos.devices.abstract
 

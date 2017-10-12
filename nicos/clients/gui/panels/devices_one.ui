@@ -332,6 +332,22 @@
     <string>Reference drive</string>
    </property>
   </action>
+  <action name="actionEnable">
+   <property name="text">
+    <string>Enable</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable/switch on the device</string>
+   </property>
+  </action>
+  <action name="actionDisable">
+   <property name="text">
+    <string>Disable</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable/switch off the device</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>moveBtns</tabstop>

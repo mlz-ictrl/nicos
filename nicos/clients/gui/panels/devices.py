@@ -841,6 +841,10 @@ class ControlDialog(QDialog):
                 menu.addAction(self.actionReference)
             menu.addAction(self.actionFix)
             menu.addAction(self.actionRelease)
+            if 'nicos.core.mixins.CanDisable' in classes:
+                menu.addSeparator()
+                menu.addAction(self.actionEnable)
+                menu.addAction(self.actionDisable)
             menuBtn = QPushButton('More', self)
             menuBtn.setMenu(menu)
             self.moveBtns.clear()
@@ -972,6 +976,14 @@ class ControlDialog(QDialog):
     @pyqtSlot()
     def on_actionRelease_triggered(self):
         self.device_panel.exec_command('release(%s)' % self.devrepr)
+
+    @pyqtSlot()
+    def on_actionEnable_triggered(self):
+        self.device_panel.exec_command('enable(%s)' % self.devrepr)
+
+    @pyqtSlot()
+    def on_actionDisable_triggered(self):
+        self.device_panel.exec_command('disable(%s)' % self.devrepr)
 
     @pyqtSlot()
     def on_setAliasBtn_clicked(self):

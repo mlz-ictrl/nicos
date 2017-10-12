@@ -27,7 +27,7 @@
 from nicos.core import ADMIN, AccessError, CommunicationError, \
     ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
     LimitError, Moveable, Param, ProgrammingError, UsageError, NicosError, \
-    requires, status, usermethod, Attach
+    CanDisable, requires, status, usermethod, Attach
 from nicos.core.sessions.utils import MAINTENANCE
 from nicos.commands.basic import NewSetup
 
@@ -43,7 +43,7 @@ class Dev1(Device):
     pass
 
 
-class Dev2(HasLimits, HasOffset, Moveable):
+class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
     attached_devices = {
         'attached':  Attach('Test attached device', Dev1),
         'attlist':   Attach('Test list of attached devices', Dev1,
@@ -117,6 +117,9 @@ class Dev2(HasLimits, HasOffset, Moveable):
 
     def doVersion(self):
         return [('testversion', 1.0)]
+
+    def doEnable(self, on):
+        methods_called.add('doEnable %s' % on)
 
     @usermethod
     @requires(level=ADMIN, mode=MAINTENANCE)
@@ -280,6 +283,11 @@ def test_methods(session):
     dev2.wait()
     assert 'doFinish' in methods_called
     assert 'isAtTarget' in methods_called
+    dev2.enable()
+    assert 'doEnable True' in methods_called
+    dev2.disable()
+    assert 'doEnable False' in methods_called
+
     # test info() method
     keys = set(value[0] for value in dev2.info())
     assert 'testkey' in keys

@@ -29,8 +29,8 @@ import shutil
 import tempfile
 import timeit
 
-from nicos.core import GUEST, UsageError, LimitError, NicosError, AccessError, \
-    TimeoutError, status as devstatus
+from nicos.core import GUEST, UsageError, LimitError, NicosError, MoveError, \
+    AccessError, TimeoutError, status as devstatus
 from nicos.utils import ensureDirectory
 
 from nicos.commands import usercommandWrapper
@@ -38,7 +38,7 @@ from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
     status, stop, reset, get, getall, setall, fix, release, adjust, \
     version, history, info, limits, resetlimits, ListParams, ListMethods, \
-    ListDevices, unfix, reference, finish, waitfor
+    ListDevices, unfix, reference, finish, waitfor, disable, enable
 from nicos.commands.device import set  # pylint: disable=W0622
 from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
@@ -335,7 +335,7 @@ class TestDevice(object):
         move(motor, 10)
         stop(motor)
 
-    @pytest.mark.timeout(timeout=60,method='thread', func_only=True)
+    @pytest.mark.timeout(timeout=60, method='thread', func_only=True)
     def test_stop_privileged(self, session, log):
         # Change the user level to lower access rights to check that the stop
         # on higher level requesting devices will be ignored
@@ -348,7 +348,7 @@ class TestDevice(object):
         with session.withUserLevel(GUEST):
             assert pdev.status(0)[0] == devstatus.BUSY
             assert motor.status(0)[0] == devstatus.BUSY
-            assert raises (AccessError, pdev.stop)
+            assert raises(AccessError, pdev.stop)
             stop(pdev, motor)
             wait(motor)
             assert motor.status(0)[0] == devstatus.OK
@@ -364,6 +364,12 @@ class TestDevice(object):
         pdev = session.getDevice('privdev')
         with session.withUserLevel(GUEST):
             assert raises(AccessError, set, pdev, 'description', 'foo')
+
+    def test_privileged_disable(self, session, log):
+        AddSetup('device')
+        pdev = session.getDevice('privdev')
+        with session.withUserLevel(GUEST):
+            assert raises(AccessError, disable, pdev)
 
     def test_reset(self, session, log):
         """Check reset() command."""
@@ -405,6 +411,15 @@ class TestDevice(object):
         assert raises(UsageError, release)
         assert raises(UsageError, release, ())
         assert raises(UsageError, unfix, ())
+
+    def test_disable_and_enable(self, session, log):
+        """Check disable() and enable() commands."""
+        motor = session.getDevice('motor')
+        maw(motor, 0)
+        disable(motor)
+        assert raises(MoveError, move, motor, 10)
+        enable(motor)
+        maw(motor, 1)
 
     def test_adjust(self, session, log):
         """Check adjust() command."""

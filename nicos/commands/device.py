@@ -31,7 +31,7 @@ from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
 from nicos.core import SIMULATION, Device, Moveable, Waitable, Measurable, \
     Readable, HasOffset, HasLimits, TimeoutError, UsageError, AccessError, \
-    formatStatus, INFO_CATEGORIES, multiWait, DeviceMixinBase
+    formatStatus, INFO_CATEGORIES, multiWait, DeviceMixinBase, CanDisable
 from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, \
     Multi
@@ -49,6 +49,7 @@ __all__ = [
     'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
     'unfix', 'adjust', 'version', 'history', 'limits', 'resetlimits',
     'reference', 'ListParams', 'ListMethods', 'ListDevices', 'waitfor',
+    'enable', 'disable',
 ]
 
 
@@ -630,6 +631,46 @@ def release(*devlist):
 def unfix(*devlist):
     """Same as `release()`."""
     return release(*devlist)
+
+
+@usercommand
+@helparglist('dev, ...')
+@spmsyntax(Multi(Dev(CanDisable)))
+@parallel_safe
+def disable(*devlist):
+    """Disable one or more devices.
+
+    The exact meaning depends on the device hardware, and not all devices
+    can be disabled.  For power supplies, this might switch the output off.
+
+    Example:
+
+    >>> disable(phi)
+    """
+    for dev in devlist:
+        dev = session.getDevice(dev, CanDisable)
+        dev.disable()
+        dev.log.info('now disabled')
+
+
+@usercommand
+@helparglist('dev, ...')
+@spmsyntax(Multi(Dev(CanDisable)))
+@parallel_safe
+def enable(*devlist):
+    """Enable one or more devices.
+
+    The exact meaning depends on the device hardware, and not all devices
+    can be disabled.  For power supplies, this might switch the output on.
+
+    Example:
+
+    >>> enable(phi, psi)
+    """
+    for dev in devlist:
+        dev = session.getDevice(dev, CanDisable)
+        dev.enable()
+        dev.log.info('now enabled')
 
 
 @usercommand

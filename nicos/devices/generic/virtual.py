@@ -39,14 +39,15 @@ from nicos.utils.timer import Timer
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
     Override, none_or, oneof, tupleof, floatrange, intrange, Measurable, \
     Moveable, Value, MASTER, SIMULATION, POLLER, Attach, HasWindowTimeout, \
-    listof, SubscanMeasurable, ArrayDesc
+    listof, SubscanMeasurable, ArrayDesc, CanDisable, MoveError, \
+    InvalidValueError
 from nicos.core.scan import Scan
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
     ImageChannelMixin
 
 
-class VirtualMotor(HasOffset, Motor):
+class VirtualMotor(HasOffset, CanDisable, Motor):
     """A virtual motor that can be set to move in finite time
     using a thread.
     """
@@ -73,6 +74,8 @@ class VirtualMotor(HasOffset, Motor):
             self._setROParam('curvalue', self.target + self.offset)
 
     def doStart(self, pos):
+        if self.curstatus[0] == status.DISABLED:
+            raise MoveError(self, 'cannot move, motor is disabled')
         self._setROParam('curstatus', (status.BUSY, 'virtual moving'))
         pos = float(pos) + self.offset
         if self._thread:
@@ -137,6 +140,15 @@ class VirtualMotor(HasOffset, Motor):
 
     def doWriteRamp(self, value):
         self.speed = value / 60.
+
+    def doEnable(self, on):
+        if not on:
+            if self.curstatus[0] != status.OK:
+                raise InvalidValueError(self, 'cannot disable busy device')
+            self.curstatus = (status.DISABLED, 'disabled')
+        else:
+            if self.curstatus[0] == status.DISABLED:
+                self.curstatus = (status.OK, 'idle')
 
 
 class VirtualCoder(HasOffset, Coder):

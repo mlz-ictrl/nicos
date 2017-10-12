@@ -30,11 +30,12 @@ import threading
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import MAINTENANCE, MASTER, status
-from nicos.core.errors import ConfigurationError, CommunicationError
+from nicos.core import MAINTENANCE, MASTER, SLAVE, status
+from nicos.core.errors import ConfigurationError, CommunicationError, \
+    ModeError, AccessError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
-from nicos.core.utils import statusString
+from nicos.core.utils import statusString, usermethod
 from nicos.pycompat import add_metaclass, itervalues, getargspec
 from nicos.utils import lazy_property
 
@@ -710,8 +711,41 @@ class HasCommunication(DeviceMixinBase):
         raise CommunicationError(self, str(err))
 
 
+class CanDisable(DeviceMixinBase):
+    """Mixin class for devices that can be disabled and enabled."""
+
+    def _enable(self, on):
+        what = 'enable' if on else 'disable'
+        if self._mode == SLAVE:
+            raise ModeError(self, '%s not possible in slave mode' % what)
+        if getattr(self, 'requires', None):
+            try:
+                session.checkAccess(self.requires)
+            except AccessError as err:
+                raise AccessError(self, 'cannot %s device: %s' % (what, err))
+        if self._sim_active:
+            return
+        self.doEnable(on)
+
+    @usermethod
+    def enable(self):
+        """Enable this device.  This operation is forbidden in slave mode.
+
+        .. method:: doEnable(on)
+
+           This method must be present and is called to execute the action
+           with a True argument for `enable`, and False for `disable`.
+        """
+        self._enable(True)
+
+    @usermethod
+    def disable(self):
+        """Disable this device.  This operation is forbidden in slave mode."""
+        self._enable(False)
+
+
 class IsController(DeviceMixinBase):
-    """Mixin class for complex Controllers
+    """Mixin class for complex Controllers.
 
     This mixin should be used for cases where limits are strongly
     state-dependent.
@@ -729,5 +763,6 @@ class IsController(DeviceMixinBase):
         """
         raise NotImplementedError('Please implement the isAdevTargetAllowed'
                                   ' method')
+
 
 from nicos.core.device import DeviceAlias, NoDevice, Readable

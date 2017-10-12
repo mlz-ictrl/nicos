@@ -41,7 +41,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
     dictof, intrange, nonemptylistof, listof, NicosError, CommunicationError, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, HasPrecision, ArrayDesc, Value, floatrange
+    HasTimeout, HasPrecision, CanDisable, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub, tcpSocketContext, squeeze
 from nicos.core import SIMULATION
@@ -394,7 +394,7 @@ class Sensor(AnalogInput, Coder):
         self._dev.Adjust(value)
 
 
-class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
+class AnalogOutput(PyTangoDevice, HasLimits, CanDisable, Moveable):
     """
     The AnalogOutput handles all devices which set an analogue value.
 
@@ -403,8 +403,8 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
     value between the limits. The compactness is limited by the resolution of
     the hardware.
 
-    This class should be considered as a base class for motors, temperature
-    controllers, ...
+    This class should be considered as a base class e.g. for motors or
+    temperature controllers.
     """
 
     valuetype = float
@@ -436,6 +436,12 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
     def doStop(self):
         self._dev.Stop()
+
+    def doEnable(self, on):
+        if on:
+            self._dev.On()
+        else:
+            self._dev.Off()
 
 
 class WindowTimeoutAO(HasWindowTimeout, AnalogOutput):
