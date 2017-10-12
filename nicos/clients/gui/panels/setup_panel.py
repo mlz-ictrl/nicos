@@ -32,7 +32,7 @@ from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress, vec3
 from nicos.guisupport import typedvalue
 from nicos.guisupport.widget import NicosWidget
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import loadUi
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.utils import decodeAny
@@ -55,12 +55,21 @@ class ExpPanel(Panel):
         loadUi(self, 'setup_exp.ui', 'panels')
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
+        self._new_exp_panel = None
+        self._finish_exp_panel = None
 
         if client.isconnected:
             self.on_client_connected()
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
+
+    def setOptions(self, options):
+        Panel.setOptions(self, options)
+        # Additional dialog panels to pop up after NewExperiment() and before
+        # FinishExperiment() respectively.
+        self._new_exp_panel = options.get('new_exp_panel')
+        self._finish_exp_panel = options.get('finish_exp_panel')
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -138,6 +147,10 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_finishButton_clicked(self):
+        if self._finish_exp_panel:
+            dlg = PanelDialog(self, self.client, self._finish_exp_panel,
+                              'Finish experiment')
+            dlg.exec_()
         if self.client.run('FinishExperiment()', noqueue=True) is None:
             self.showError('Could not finish experiment, a script '
                            'is still running.')
@@ -235,6 +248,10 @@ class ExpPanel(Panel):
                                'still running.')
                 return
             done.append('New experiment started.')
+            if self._new_exp_panel:
+                dlg = PanelDialog(self, self.client, self._new_exp_panel,
+                                  'New experiment')
+                dlg.exec_()
         else:
             if title != self._orig_proposal_info[1]:
                 self.client.run('Exp.title = %r' % title)

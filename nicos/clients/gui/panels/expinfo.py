@@ -83,6 +83,8 @@ class ExpInfoPanel(Panel):
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
+        self._new_exp_panel = options.get('new_exp_panel')
+        self._finish_exp_panel = options.get('finish_exp_panel')
         self._timeout = options.get('popup_proposal_after', 0)
         if self._timeout:
             self._proposal_popup_timer = QTimer(interval=self._timeout * 3600000)
@@ -135,7 +137,9 @@ class ExpInfoPanel(Panel):
 
     @pyqtSlot()
     def on_proposalBtn_clicked(self):
-        dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info')
+        dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info',
+                          new_exp_panel=self._new_exp_panel,
+                          finish_exp_panel=self._finish_exp_panel)
         dlg.exec_()
 
     @pyqtSlot()

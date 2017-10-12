@@ -51,7 +51,7 @@ class SetupDepWindowMixin(object):
 
 
 class PanelDialog(SetupDepWindowMixin, QDialog):
-    def __init__(self, parent, client, panelcfg, title):
+    def __init__(self, parent, client, panelcfg, title, **options):
         from nicos.clients.gui.panels.utils import createWindowItem
         self.panels = []
         QDialog.__init__(self, parent)
@@ -63,9 +63,9 @@ class PanelDialog(SetupDepWindowMixin, QDialog):
         self.user_font = self.font()
         if isinstance(panelcfg, type) and issubclass(panelcfg, Panel):
             panelcfg = panel('%s.%s' % (panelcfg.__module__,
-                                        panelcfg.__name__))
+                                        panelcfg.__name__), **options)
         elif isinstance(panelcfg, str):
-            panelcfg = panel(panelcfg)
+            panelcfg = panel(panelcfg, **options)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         pnl = createWindowItem(panelcfg, self, self, self.mainwindow, self.log)
