@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.devices.epics import EpicsWindowTimeoutDevice
 from nicos.core import status, Param, Override, pvname
-from nicos_ess.essiip.devices.epics_extensions import HasSwitchPv
+from nicos.devices.epics import EpicsWindowTimeoutDevice
+from nicos_ess.devices.epics.extensions import HasSwitchPv
 
 
 class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDevice):

@@ -27,7 +27,7 @@
 import pytest
 
 try:
-    from nicos_ess.essiip.devices.epics_extensions import HasSwitchPv
+    from nicos_ess.devices.epics.extensions import HasSwitchPv
 except ImportError:
     HasSwitchPv = None
 

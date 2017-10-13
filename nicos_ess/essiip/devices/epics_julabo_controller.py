@@ -29,7 +29,7 @@ This module provides control for Julabo devices via EPICS.
 
 from nicos.core import Param, pvname, status, ConfigurationError
 from nicos.devices.epics import EpicsWindowTimeoutDevice
-from .epics_extensions import HasSwitchPv
+from nicos_ess.devices.epics.extensions import HasSwitchPv
 
 
 class EpicsJulaboController(HasSwitchPv, EpicsWindowTimeoutDevice):
