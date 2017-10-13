@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
+u"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 import select
 import socket
@@ -65,6 +65,7 @@ PRINTABLES = {
 
 def convert(string):
     return ''.join(PRINTABLES.get(c, c) for c in string)
+
 
 IPC_MAGIC = {
     # motor cards
@@ -467,8 +468,8 @@ class Coder(NicosCoder):
     """
 
     parameters = {
-        'addr':      Param('Bus address of the coder', type=int,
-                           mandatory=True),
+        'addr':      Param('Bus address of the coder',
+                           type=intrange(32, 256), mandatory=True),
         'confbyte':  Param('Configuration byte of the coder', settable=True,
                            type=intrange(0, 255), prefercache=False),
         'zerosteps': Param('Coder steps for physical zero', type=float,
@@ -678,7 +679,10 @@ class Motor(HasTimeout, NicosMotor):
     """
 
     parameters = {
-        'addr':       Param('Bus address of the motor', type=int, mandatory=True),
+        'addr':       Param('Bus address of the motor',
+                            # 0 for the profibus card adaptor
+                            type=oneof(*([0] + list(range(32, 256)))),
+                            mandatory=True),
         'unit':       Param('Motor unit', type=str, default='steps'),
         'zerosteps':  Param('Motor steps for physical zero', type=float,
                             unit='steps', settable=True),
@@ -1189,7 +1193,8 @@ class Input(Readable):
     """IPC I/O card digital input class."""
 
     parameters = {
-        'addr':  Param('Bus address of the card', type=int, mandatory=True),
+        'addr':  Param('Bus address of the card', type=intrange(32, 255),
+                       mandatory=True),
         'first': Param('First bit to read', type=intrange(0, 15),
                        mandatory=True),
         'last':  Param('Last bit to read', type=intrange(0, 15),
@@ -1297,7 +1302,8 @@ class SlitMotor(HasTimeout, NicosMotor):
     """
 
     parameters = {
-        'addr':       Param('Bus address of the slit', type=int, mandatory=True),
+        'addr':       Param('Bus address of the slit', type=intrange(32, 255),
+                            mandatory=True),
         'side':       Param('Side of axis', type=int, mandatory=True),
         'unit':       Param('Axis unit', type=str, default='mm'),
         'zerosteps':  Param('Motor steps for physical zero', type=int,
