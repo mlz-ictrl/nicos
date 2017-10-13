@@ -26,6 +26,7 @@
 
 from __future__ import print_function
 
+import os
 from time import sleep
 
 import pytest
@@ -37,7 +38,13 @@ from test.utils import startCache, killSubprocess, alt_cache_addr, raises, \
 
 session_setup = 'cachestress'
 
-all_setups = ['cache_db', 'cache_mem', 'cache_mem_hist']
+
+def all_setups():
+    for setup in ['cache_db', 'cache_mem', 'cache_mem_hist']:
+        yield setup
+
+    if os.environ.get('KAFKA_URI', None):
+        yield 'cache_kafka'
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -49,7 +56,7 @@ def guard_cached_connection():
     CacheClient._use_cache = True
 
 
-@pytest.mark.parametrize('setup', all_setups)
+@pytest.mark.parametrize('setup', all_setups())
 def test_basic(session, setup):
     cache = startCache(alt_cache_addr, setup)
     try:
@@ -71,7 +78,7 @@ def test_basic(session, setup):
         killSubprocess(cache)
 
 
-@pytest.mark.parametrize('setup', all_setups)
+@pytest.mark.parametrize('setup', all_setups())
 def test_restart(session, setup):
     cc = session.cache
     testval = 'test2'
