@@ -158,11 +158,7 @@ class DataHandler(QObject):
             self.dependent.append(dataset)
 
     def on_client_datapoint(self, data):
-        if len(data) == 3:
-            # XXX: compatibility, remove later
-            (uid, xvalues, yvalues) = data
-        else:
-            uid, (xvalues, yvalues) = self.currentset.uid, data
+        uid, xvalues, yvalues = data
         currentset = self.uid2set.get(uid)
         if not currentset:
             # happens when we didn't catch the beginning of the dataset

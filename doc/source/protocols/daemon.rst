@@ -294,13 +294,13 @@ for this event should be serialized.
 
    A new point has been added to the dataset.
 
-   :arg: A tuple of sequences: ``(xvalues, yvalues)``.
+   :arg: A tuple: ``(dataset uid, xvalues list, yvalues list)``.
 
 .. daemonevt:: datacurve
 
-   A new data curve has been added to the dataset.
+   A new fit data curve has been added to the dataset.
 
-   :arg: A tuple of ``(curve name, xvalues, yvalues)``.
+   :arg: A tuple of ``(curve name, xvalues list, yvalues list)``.
 
 .. daemonevt:: liveparams
 
