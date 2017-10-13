@@ -105,6 +105,8 @@ class NicosPlotCurve(MaskedPlotCurve):
 
     GR_MARKER_SIZE = 1.0
 
+    _parent = ''
+
     def __init__(self, x, y, errBar1=None, errBar2=None,
                  linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
                  linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
@@ -293,6 +295,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
     def on_legendItemClicked(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
             event.curve.visible = not event.curve.visible
+            if event.curve._parent:
+                event.curve._parent.disabled = not event.curve._parent.disabled
             self.update()
 
     def on_roiItemClicked(self, event):
@@ -329,8 +333,10 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     def addPlotCurve(self, plotcurve, replot=False):
         existing_curve = next((c for c in self._axes.getCurves()
-                               if c.legend == plotcurve.legend), None)
+                               if c._parent is plotcurve._parent), None)
         if existing_curve and not replot:
+            existing_curve.visible = plotcurve.visible
+            existing_curve.legend = plotcurve.legend
             # update curve
             existing_curve.x, existing_curve.y = plotcurve.x, plotcurve.y
             if plotcurve.errorBar1 and existing_curve.errorBar1:
@@ -553,6 +559,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if not curve.datay:
             return
         plotcurve = NicosPlotCurve([], [], filly=0.1)
+        plotcurve._parent = curve
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
@@ -571,12 +578,11 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
-        if curve.disabled or not x.size:
-            plotcurve.visible = False
         plotcurve.x = x
         plotcurve.y = y
         plotcurve.filly = 0.1 if self.isLogScaling() else 0
-        plotcurve.legend = curve.full_description
+        plotcurve.visible = not (curve.disabled or curve.hidden or not x.size)
+        plotcurve.legend = curve.full_description if not curve.hidden else ''
 
     def setLogScale(self, on):
         NicosGrPlot.setLogScale(self, on)

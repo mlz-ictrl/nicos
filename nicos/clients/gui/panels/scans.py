@@ -104,6 +104,10 @@ class ScansPanel(Panel):
         self.x_menu.aboutToShow.connect(self.on_x_menu_aboutToShow)
         self.actionXAxis.setMenu(self.x_menu)
 
+        self.y_menu = QMenu(self)
+        self.y_menu.aboutToShow.connect(self.on_y_menu_aboutToShow)
+        self.actionYAxis.setMenu(self.y_menu)
+
         self.actionAutoDisplay.setChecked(True)
 
         self.norm_menu = QMenu(self)
@@ -201,7 +205,7 @@ class ScansPanel(Panel):
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
             self.actionScaleX, self.actionScaleY,
-            self.actionXAxis, self.actionNormalized,
+            self.actionXAxis, self.actionYAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitTc, self.actionFitCosine, self.actionFitSigmoid,
@@ -228,6 +232,7 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionDeletePlot)
             menu1.addSeparator()
             menu1.addAction(self.actionXAxis)
+            menu1.addAction(self.actionYAxis)
             menu1.addAction(self.actionNormalized)
             menu1.addSeparator()
             menu1.addAction(self.actionUnzoom)
@@ -259,6 +264,7 @@ class ScansPanel(Panel):
             bar.addAction(self.actionPrint)
             bar.addSeparator()
             bar.addAction(self.actionXAxis)
+            bar.addAction(self.actionYAxis)
             bar.addAction(self.actionNormalized)
             bar.addSeparator()
             bar.addAction(self.actionLogScale)
@@ -545,6 +551,34 @@ class ScansPanel(Panel):
     @qtsig('')
     def on_actionXAxis_triggered(self):
         self.bar.widgetForAction(self.actionXAxis).showMenu()
+
+    def on_y_menu_aboutToShow(self):
+        self.y_menu.clear()
+        if not self.currentPlot:
+            return
+        for curve in self.currentPlot.dataset.curves:
+            action = self.y_menu.addAction(curve.full_description)
+            action.setCheckable(True)
+            if not curve.hidden:
+                action.setChecked(True)
+            action.triggered.connect(self.on_y_action_triggered)
+
+    @qtsig('')
+    def on_y_action_triggered(self, text=None):
+        if text is None:
+            sender = self.sender()
+            text = sender.text()
+        if not self.currentPlot:
+            return
+        for curve in self.currentPlot.dataset.curves:
+            if curve.full_description == text:
+                curve.hidden = not curve.hidden
+        self.currentPlot.updateDisplay()
+        self.on_actionUnzoom_triggered()
+
+    @qtsig('')
+    def on_actionYAxis_triggered(self):
+        self.bar.widgetForAction(self.actionYAxis).showMenu()
 
     @qtsig('')
     def on_actionNormalized_triggered(self):

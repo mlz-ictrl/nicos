@@ -59,6 +59,7 @@ class Curve(object):
     yindex = -1
     dyindex = -1
     disabled = False
+    hidden = False
     function = False
     default_xname = None
 
@@ -199,6 +200,23 @@ class DataHandler(QObject):
         xnameunits = [name_unit(name, unit) for name, unit
                       in zip(dataset.xnames, dataset.xunits)]
         dataset.datax = dict((key, []) for key in xnameunits)
+        for i, (name, info) in enumerate(zip(dataset.xnames, dataset.xvalueinfo)):
+            if info.type != 'other':
+                continue
+            curve = Curve()
+            curve.datax = dataset.datax
+            curve.datanorm = dataset.datanorm
+            curve.default_xname = name_unit(dataset.xnames[dataset.xindex],
+                                            dataset.xunits[dataset.xindex])
+            if info.unit:
+                curve.description = '%s (%s)' % (name, info.unit)
+            else:
+                curve.description = name
+            curve.yindex = -i-1
+            curve.dyindex = -1
+            curve.hidden = True
+            curves.append(curve)
+
         for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
             if info.type in ('info', 'error', 'filename'):
                 continue
@@ -238,10 +256,14 @@ class DataHandler(QObject):
         for index, name in currentset.normindices:
             currentset.datanorm[name].append(try_index(yvalues, index))
         for curve in currentset.curves:
-            curve.datay.append(try_index(yvalues, curve.yindex))
-            if curve.dyindex >= 0:
-                curve.datady.append(try_index(yvalues, curve.dyindex))
-            elif curve.dyindex == -2:
-                curve.datady.append(np.sqrt(try_index(yvalues, curve.yindex)))
-            else:
+            if curve.yindex < 0:
+                curve.datay.append(try_index(xvalues, -curve.yindex-1))
                 curve.datady.append(0)
+            else:
+                curve.datay.append(try_index(yvalues, curve.yindex))
+                if curve.dyindex >= 0:
+                    curve.datady.append(try_index(yvalues, curve.dyindex))
+                elif curve.dyindex == -2:
+                    curve.datady.append(np.sqrt(try_index(yvalues, curve.yindex)))
+                else:
+                    curve.datady.append(0)

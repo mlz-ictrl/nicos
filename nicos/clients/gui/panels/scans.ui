@@ -387,6 +387,14 @@
     <string>Auto display new</string>
    </property>
   </action>
+  <action name="actionYAxis">
+   <property name="text">
+    <string>&amp;Y axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Y axis</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
