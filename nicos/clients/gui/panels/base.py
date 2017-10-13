@@ -44,10 +44,11 @@ class SetupDepWindowMixin(object):
         values = client.ask('getcachekeys', 'session/mastersetup',
                             quiet=True, default=[])
         for key, value in values:
-            currtime = currenttime()
-            for widget in client._reg_keys[key]:
-                if widget():
-                    widget().on_keyChange(key, value, currtime, False)
+            if key == 'session/mastersetup':
+                currtime = currenttime()
+                for widget in client._reg_keys[key]:
+                    if widget():
+                        widget().on_keyChange(key, value, currtime, False)
 
 
 class PanelDialog(SetupDepWindowMixin, QDialog):
