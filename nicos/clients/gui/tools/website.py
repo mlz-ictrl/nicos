@@ -24,9 +24,12 @@
 
 """Browser GUI tool."""
 
-from nicos.guisupport.qt import QUrl, QDialog
+from nicos.guisupport.qt import QUrl, QDialog, QWebView
 
 from nicos.clients.gui.utils import loadUi
+
+if QWebView is None:
+    raise ImportError('Qt webview component is not available')
 
 
 class WebsiteTool(QDialog):
@@ -40,6 +43,8 @@ class WebsiteTool(QDialog):
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'website.ui', 'tools')
+        self.webView = QWebView(self)
+        self.layout().addWidget(self.webView)
 
         site = settings.get('url', '')
         if site:

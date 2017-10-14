@@ -91,65 +91,10 @@
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QWebView" name="webView">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="url">
-      <url>
-       <string>about:blank</string>
-      </url>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>fwdBtn</sender>
-   <signal>clicked()</signal>
-   <receiver>webView</receiver>
-   <slot>forward()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>52</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>84</x>
-     <y>168</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>backBtn</sender>
-   <signal>clicked()</signal>
-   <receiver>webView</receiver>
-   <slot>back()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>23</x>
-     <y>52</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>26</x>
-     <y>135</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

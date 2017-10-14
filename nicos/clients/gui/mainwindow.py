@@ -52,15 +52,18 @@ from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
-from nicos.clients.gui.dialogs.help import HelpWindow
 from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC, BREAK_NOW
 from nicos.pycompat import iteritems, listvalues, text_type
-
 from nicos.clients.gui.config import tabbed
+
+try:
+    from nicos.clients.gui.dialogs.help import HelpWindow
+except ImportError:
+    HelpWindow = None
 
 
 class MainWindow(DlgUtils, QMainWindow):
@@ -515,6 +518,8 @@ class MainWindow(DlgUtils, QMainWindow):
         self.setStatus('disconnected')
 
     def on_client_showhelp(self, data):
+        if not HelpWindow:
+            return
         if self.helpWindow is None:
             self.helpWindow = HelpWindow(self, self.client)
         self.helpWindow.showHelp(data)
@@ -597,7 +602,7 @@ class MainWindow(DlgUtils, QMainWindow):
 
     @pyqtSlot()
     def on_actionNicosHelp_triggered(self):
-        if not QWebView:
+        if not HelpWindow:
             self.showError('Cannot open help window: Qt web extension is not '
                            'available on your system.')
             return

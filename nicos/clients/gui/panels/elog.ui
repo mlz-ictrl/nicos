@@ -33,15 +33,6 @@
       <property name="margin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QWebView" name="preview" native="true">
-        <property name="url" stdset="0">
-         <url>
-          <string>about:blank</string>
-         </url>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -118,16 +109,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
- <tabstops>
-  <tabstop>preview</tabstop>
- </tabstops>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>

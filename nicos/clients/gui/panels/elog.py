@@ -36,6 +36,9 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QUrl, QMainWindow, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 
+if QWebView is None:
+    raise ImportError('Qt webview component is not available')
+
 
 class ELogPanel(Panel):
     """Provides a HTML widget for the electronic logbook."""
@@ -45,8 +48,11 @@ class ELogPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         loadUi(self, 'elog.ui', 'panels')
+        self.preview = QWebView(self)
+        self.frame.layout().addWidget(self.preview)
 
-        self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)
+        self.timer = QTimer(self, singleShot=True,
+                            timeout=self.on_timer_timeout)
         self.propdir = None
 
         self.menus = None
@@ -64,9 +70,10 @@ class ELogPanel(Panel):
         self.activeGroup.addAction(self.actionAttachFile)
         self.activeGroup.addAction(self.actionNewSample)
 
-        self.preview.page().setForwardUnsupportedContent(True)
-        self.preview.page().unsupportedContent.connect(
-            self.on_page_unsupportedContent)
+        page = self.preview.page()
+        if hasattr(page, 'setForwardUnsupportedContent'):  # QWebKit only
+            page.setForwardUnsupportedContent(True)
+            page.unsupportedContent.connect(self.on_page_unsupportedContent)
 
     def getMenus(self):
         if not self.menus:
@@ -119,25 +126,26 @@ class ELogPanel(Panel):
         self.activeGroup.setEnabled(not viewonly)
 
     def on_timer_timeout(self):
-        try:
-            frame = self.preview.page().mainFrame().childFrames()[1]
-        except IndexError:
-            self.log.error('No logbook seems to be loaded.')
-            self.on_client_connected()
-            return
-        scrollval = frame.scrollBarValue(Qt.Vertical)
-        was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
+        if hasattr(self.preview.page(), 'mainFrame'):  # QWebKit only
+            try:
+                frame = self.preview.page().mainFrame().childFrames()[1]
+            except IndexError:
+                self.log.error('No logbook seems to be loaded.')
+                self.on_client_connected()
+                return
+            scrollval = frame.scrollBarValue(Qt.Vertical)
+            was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
 
-        # restore current scrolling position in document on reload
-        def callback(new_size):
-            nframe = self.preview.page().mainFrame().childFrames()[1]
-            if was_at_bottom:
-                nframe.setScrollBarValue(Qt.Vertical,
-                                         nframe.scrollBarMaximum(Qt.Vertical))
-            else:
-                nframe.setScrollBarValue(Qt.Vertical, scrollval)
-            self.preview.loadFinished.disconnect(callback)
-        self.preview.loadFinished.connect(callback)
+            # restore current scrolling position in document on reload
+            def callback(new_size):
+                nframe = self.preview.page().mainFrame().childFrames()[1]
+                if was_at_bottom:
+                    nframe.setScrollBarValue(Qt.Vertical,
+                                             nframe.scrollBarMaximum(Qt.Vertical))
+                else:
+                    nframe.setScrollBarValue(Qt.Vertical, scrollval)
+                self.preview.loadFinished.disconnect(callback)
+            self.preview.loadFinished.connect(callback)
         self.preview.reload()
 
     def on_client_connected(self):
@@ -150,9 +158,10 @@ class ELogPanel(Panel):
         self.propdir = self.client.eval('session.experiment.proposalpath', '')
         if not self.propdir:
             return
-        logfile = path.join(self.propdir, 'logbook', 'logbook.html')
+        logfile = path.abspath(path.join(
+            self.propdir, 'logbook', 'logbook.html'))
         if path.isfile(logfile):
-            self.preview.load(QUrl(logfile))
+            self.preview.load(QUrl('file://' + logfile))
         else:
             self.preview.setHtml(
                 '<style>body { font-family: sans-serif; }</style>'
