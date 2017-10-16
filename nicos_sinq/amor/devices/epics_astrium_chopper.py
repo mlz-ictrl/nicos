@@ -27,18 +27,18 @@ from collections import OrderedDict
 
 from nicos.core import Attach, ConfigurationError, Override, Param, Readable, \
     UsageError, pvname, status, usermethod
-from nicos.devices.epics import EpicsDevice, EpicsMoveable, \
-    EpicsWindowTimeoutDevice
+from nicos_ess.devices.epics.base import EpicsDeviceEss, \
+    EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
 
 
-class EpicsChopperSpeed(EpicsWindowTimeoutDevice):
+class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
     """
     Used to represent speed setter for the chopper
     """
     valuetype = int
 
 
-class EpicsChopperDisc(EpicsDevice, Readable):
+class EpicsChopperDisc(EpicsDeviceEss, Readable):
     """
     Class that represents one of the chopper disc in the
     chopper system. The chopper disk can be either MASTER
@@ -69,11 +69,11 @@ class EpicsChopperDisc(EpicsDevice, Readable):
 
     attached_devices = {
         'speed': Attach('Device to set the speed if master',
-                        EpicsWindowTimeoutDevice, optional=True),
+                        EpicsWindowTimeoutDeviceEss, optional=True),
         'phase': Attach('Device to set the phase if slave',
-                        EpicsWindowTimeoutDevice, optional=True),
+                        EpicsWindowTimeoutDeviceEss, optional=True),
         'ratio': Attach('Device to set the speed ratio if slave',
-                        EpicsMoveable, optional=True),
+                        EpicsDigitalMoveableEss, optional=True),
     }
 
     # Represents all the associated property values of the disc,
@@ -124,8 +124,8 @@ class EpicsChopperDisc(EpicsDevice, Readable):
                          self._displayed_props())
 
     def doStatus(self, maxage=0):
-        if EpicsDevice.doStatus(self, maxage)[0] == status.ERROR:
-            return EpicsDevice.doStatus(self, maxage)
+        if EpicsDeviceEss.doStatus(self, maxage)[0] == status.ERROR:
+            return EpicsDeviceEss.doStatus(self, maxage)
 
         if self._attached_speed and \
            self._attached_speed.status()[0] == status.BUSY:

@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.core import status, Param, Override, pvname
 from nicos.devices.abstract import Motor, HasOffset, CanReference
+from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 
-class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveable, Motor):
+class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
     record. The PV-names for the fields of the record (readback, speed, etc.)

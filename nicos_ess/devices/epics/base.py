@@ -28,6 +28,7 @@ This module contains ESS specific Base classes for EPICS.
 
 from nicos import session
 from nicos.core import Param
+from nicos.core.errors import ConfigurationError
 from nicos.devices.epics import EpicsDevice, EpicsReadable, \
     EpicsStringReadable, EpicsMoveable, EpicsAnalogMoveable, \
     EpicsDigitalMoveable, EpicsWindowTimeoutDevice
@@ -63,9 +64,13 @@ class EpicsDeviceEss(EpicsDevice):
             pv_details[pv] = (topic, schema)
 
         # Configure the forwarder if the KafkaForwarder is available
-        forwarder = session.getDevice('KafkaForwarder')
-        if forwarder is not None:
-            forwarder.add(pv_details)
+        # Get the forwarded topic and schema for the PV
+        try:
+            forwarder = session.getDevice('KafkaForwarder')
+            if forwarder is not None:
+                forwarder.add(pv_details)
+        except ConfigurationError:
+            pass
 
 
 class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):

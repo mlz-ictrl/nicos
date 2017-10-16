@@ -27,12 +27,12 @@ This module contains SINQ specific EPICS developments.
 """
 
 from nicos.core import Device, Param, pvname, Override
-from nicos.devices.epics import EpicsDevice, EpicsReadable
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
     CounterChannelMixin, TimerChannelMixin, Detector
+from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadableEss
 
 
-class EpicsAsynController(EpicsDevice, Device):
+class EpicsAsynController(EpicsDeviceEss, Device):
     """
     Device to directly control the devices connected to
     the asyn controller via EPICS.
@@ -77,7 +77,7 @@ class EpicsAsynController(EpicsDevice, Device):
         return self._get_pv('replypv') if self.replypv else ''
 
 
-class EpicsPassiveChannel(EpicsReadable, PassiveChannel):
+class EpicsPassiveChannel(EpicsReadableEss, PassiveChannel):
     """
     Class to represent EPICS channels.
 
@@ -87,7 +87,7 @@ class EpicsPassiveChannel(EpicsReadable, PassiveChannel):
     pass
 
 
-class EpicsActiveChannel(EpicsReadable, ActiveChannel):
+class EpicsActiveChannel(EpicsReadableEss, ActiveChannel):
     """
     Class to represent EPICS channels with preset.
 
@@ -108,7 +108,7 @@ class EpicsActiveChannel(EpicsReadable, ActiveChannel):
     }
 
     def _get_pv_parameters(self):
-        readable_params = EpicsReadable._get_pv_parameters(self)
+        readable_params = EpicsReadableEss._get_pv_parameters(self)
         return readable_params | set(['presetpv'])
 
     def doReadPreselection(self):
@@ -148,7 +148,7 @@ class EpicsTimerActiveChannel(TimerChannelMixin, EpicsActiveChannel):
     pass
 
 
-class EpicsDetector(EpicsDevice, Detector):
+class EpicsDetector(EpicsDeviceEss, Detector):
     """
     Class to represent EPICS Detectors.
 
@@ -164,7 +164,7 @@ class EpicsDetector(EpicsDevice, Detector):
     }
 
     def doPreinit(self, mode):
-        EpicsDevice.doPreinit(self, mode)
+        EpicsDeviceEss.doPreinit(self, mode)
         Detector.doPreinit(self, mode)
 
     def _get_pv_parameters(self):
@@ -207,4 +207,4 @@ class EpicsDetector(EpicsDevice, Detector):
         self._put_pv('startpv', 0, wait=False)
 
     def doStatus(self, maxage=0):
-        return EpicsDevice.doStatus(self, maxage)
+        return EpicsDeviceEss.doStatus(self, maxage)

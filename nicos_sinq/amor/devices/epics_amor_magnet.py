@@ -23,11 +23,11 @@
 # *****************************************************************************
 
 from nicos.core import status, Param, Override, pvname
-from nicos.devices.epics import EpicsWindowTimeoutDevice
+from nicos_ess.devices.epics.base import EpicsWindowTimeoutDeviceEss
 from nicos_ess.devices.epics.extensions import HasSwitchPv
 
 
-class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDevice):
+class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
     """
     Magnets in the AMOR instrument
 
@@ -118,7 +118,7 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDevice):
         if not self.isSwitchedOn:
             return status.OK, 'Off'
 
-        return EpicsWindowTimeoutDevice.doStatus(self, maxage)
+        return EpicsWindowTimeoutDeviceEss.doStatus(self, maxage)
 
     def doReadAbslimits(self):
         absmin = self._get_pv('lowlimit')
