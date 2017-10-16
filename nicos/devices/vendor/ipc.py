@@ -761,7 +761,7 @@ class Motor(HasTimeout, NicosMotor):
         return int(float(value) * self.slope + self.zerosteps)
 
     def _fromsteps(self, value):
-        return float((value - self.zerosteps) / self.slope)
+        return float(value - self.zerosteps) / self.slope
 
     @lazy_property
     def _hwtype(self):
@@ -1334,7 +1334,7 @@ class SlitMotor(HasTimeout, NicosMotor):
         return int(float(value) * self.slope + self.zerosteps)
 
     def _fromsteps(self, value):
-        return float((value - self.zerosteps) / self.slope)
+        return float(value - self.zerosteps) / self.slope
 
     def doRead(self, maxage=0):
         steps = self._attached_bus.get(self.addr, self.side + 166)
