@@ -98,4 +98,14 @@ devices = dict(
                  path=None,
                  minfree=5,
                  ),
+
+    KafkaForwarder=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description="Configures commands to forward-epics-to-kafka",
+        cmdtopic="forward-epics-cmds",
+        statustopic="forward-epics-status",
+        instpvtopic="amor-pvs",
+        instpvschema='f142',
+        brokers=["localhost:9092"],
+        ),
 )
