@@ -128,8 +128,8 @@ IPC_MAGIC = {
     154: ['Set encoder configuration', (3, 0, 255), 1],    # ##
     155: ['Select endat memory range', (3, 161, 185), 1],  #
     # 156 is used DIFFERENTLY for resolvers and endat-coders !!!
-    #156: ['Read statusbyte', None, 10],         #
-    #156: ['Read endat parameter', (3, 0, 15), 15],         #
+    # 156: ['Read statusbyte', None, 10],                  #
+    # 156: ['Read endat parameter', (3, 0, 15), 15],       #
     157: ['Write endat parameter', (3, 0, 15), 1],         #
     # 4-wing slits
     160: ['Set bottom target position', (4, 0, 4095), 1],
