@@ -469,7 +469,7 @@ class Coder(NicosCoder):
 
     parameters = {
         'addr':      Param('Bus address of the coder',
-                           type=intrange(32, 256), mandatory=True),
+                           type=intrange(32, 255), mandatory=True),
         'confbyte':  Param('Configuration byte of the coder', settable=True,
                            type=intrange(0, 255), prefercache=False),
         'zerosteps': Param('Coder steps for physical zero', type=float,
