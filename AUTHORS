@@ -13,6 +13,7 @@ Contributors:
 * Fabian Beule <f.beule@fz-juelich.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Robert Georgii <robert.georgii@frm2.tum.de>
+* Michael Hart <michael.hart@stfc.ac.uk>
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>
 * Peter Link <peter.link@frm2.tum.de>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
@@ -30,7 +31,7 @@ Instrument-specific code was contributed by:
 
 * Fabian Beule <f.beule@fz-juelich.de>
 * Petr Cermak <p.cermak@fz-juelich.de>
-* Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz.juelich.de>
+* Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
 * Weimin Gan <weimin.gan@hzg.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
@@ -38,7 +39,9 @@ Instrument-specific code was contributed by:
 * Stefanie Keuler <s.keuler@fz-juelich.de>
 * Sabrina Kirstein <s.kirstein@fz-juelich.de>
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
+* Avishek Maity <Avishek.Maity@frm2.tum.de>
 * Rifai Muslih <rifai@batan.go.id>
+* J. T. Park <jitae.park@frm2.tum.de>
 * Matthias Pomm <matthias.pomm@hzg.de>
 * Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>
 * Tobias Schrader <t.schrader@fz-juelich.de>
