@@ -758,7 +758,7 @@ class Motor(HasTimeout, NicosMotor):
             return [('IPC motor card', str(version))]
 
     def _tosteps(self, value):
-        return int(float(value) * self.slope + self.zerosteps)
+        return int(float(value) * self.slope + self.zerosteps + 0.5)
 
     def _fromsteps(self, value):
         return float(value - self.zerosteps) / self.slope
@@ -1331,7 +1331,7 @@ class SlitMotor(HasTimeout, NicosMotor):
         return [('IPC slit axis', str(self._attached_bus.get(self.addr, 165)))]
 
     def _tosteps(self, value):
-        return int(float(value) * self.slope + self.zerosteps)
+        return int(float(value) * self.slope + self.zerosteps + 0.5)
 
     def _fromsteps(self, value):
         return float(value - self.zerosteps) / self.slope
