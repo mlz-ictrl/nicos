@@ -24,7 +24,8 @@
 """PUMA specific virtual devices."""
 
 from nicos import session
-from nicos.core import Param, none_or
+from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
+    status
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import VirtualMotor
 
@@ -49,7 +50,55 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
             return ret
         return self.refpos
 
-    def isAtReference(self):
-        if self.refpos is None:
-            return False
-        return abs(self.refpos - self.read(0)) <= self.precision
+    def isAtReference(self, refswitch=None):
+        pos = self.read(0)
+        is_at_refpos = abs(self.refpos - self.read(0)) <= self.precision
+        if refswitch == 'low':
+            return is_at_refpos and (abs(self.abslimits[0] - pos) <
+                                     abs(self.abslimits[1] - pos))
+        elif refswitch == 'high':
+            return is_at_refpos and (abs(self.abslimits[0] - pos) >
+                                     abs(self.abslimits[1] - pos))
+        return is_at_refpos
+
+
+class DigitalInput(Moveable):
+    """A test DigitalInput."""
+
+    parameters = {
+        '_value': Param('Simulated value',
+                        type=intrange(0, 0xFFFFFFFF), default=0,
+                        settable=False, userparam=False,),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, settable=False, default=''),
+        'fmtstr': Override(default='%d'),
+    }
+
+    valuetype = intrange(0, 0xFFFFFFFF)
+
+    def doRead(self, maxage=0):
+        return self._value
+
+    def doStatus(self, maxage=0):
+        return status.OK, 'idle'
+
+
+class LogoFeedBack(DigitalInput):
+    """Device to simulate the LOGO feed back."""
+    attached_devices = {
+        'input': Attach('Digital input device', DigitalInput),
+    }
+
+    def doRead(self, maxage=0):
+        v = self._attached_input.read(maxage)
+        return sum((0x2 | min(1, ((1 << i) & v))) << (2 * i)
+                   for i in range(8))
+
+
+class DigitalOutput(DigitalInput):
+    """A test DigitalOutput."""
+
+    def doStart(self, target):
+        self._setROParam('_value', target)

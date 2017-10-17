@@ -63,3 +63,10 @@
 .. automodule:: nicos_mlz.puma.devices.sr7
 
 .. autoclass:: SR7Shutter()
+
+.. automodule:: nicos_mlz.puma.devices.seccoll
+
+.. autoclass:: PumaSecCollBlockChanger()
+.. autoclass:: PumaSecCollLift()
+.. autoclass:: PumaSecCollPair()
+.. autoclass:: PumaSecondaryCollimator()
