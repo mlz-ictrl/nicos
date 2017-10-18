@@ -30,9 +30,10 @@ import numpy
 
 from nicos.core import Readable, Moveable, Attach, Param, tupleof
 from nicos.pycompat import xrange, iteritems  # pylint: disable=W0622
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
 
-class CBoxResonanceFrequency(Moveable):
+class CBoxResonanceFrequency(BaseSequencer):
     """Class to control the RESEDA capacity box, used to adjust the resonant
     circuits.
 
@@ -137,16 +138,18 @@ class CBoxResonanceFrequency(Moveable):
     def doRead(self, maxage=0):
         return self._getResonanceFrequency(1)
 
-    def doStart(self, value):
-        self._adevs['fg'].maw(value)
-        self._tuneInput(value)
-        self._tuneCapacity(value)
-
     def doWriteUse_Second_Coil(self, value):
         self._adevs['power_divider'].maw(value)
 
     def doReadUse_Second_Coil(self):
         return self._adevs['power_divider'].read()
+
+    def _generateSequence(self, target):
+        return [
+            SeqDev(self._adevs['fg'], target),
+            SeqMethod(self, '_tuneInput', target),
+            SeqMethod(self, '_tuneCapacity', target),
+        ]
 
     def _applyCapacity(self, capacity):
         setup = self._capacities[capacity]
@@ -219,11 +222,11 @@ class CBoxResonanceFrequency(Moveable):
 
     def _determineTransformer(self, freq):
         if freq > self.transformer_threshold_frequencies[1]:
-            return 3
-        elif freq > self.transformer_threshold_frequencies[0]:
             return 2
-        else:
+        elif freq > self.transformer_threshold_frequencies[0]:
             return 1
+        else:
+            return 0
 
     def _determineHighpass(self, frequency):
         result = 0
