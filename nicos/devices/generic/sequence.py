@@ -26,7 +26,6 @@
 """Devices performing an unlocking/locking sequence upon moving."""
 
 import sys
-import time
 from datetime import timedelta
 from time import time as currenttime
 
@@ -296,7 +295,7 @@ class SequencerMixin(DeviceMixinBase):
         self.log.debug(self._seq_status[1])
         if self._cache and oldstatus != self._seq_status:
             self._cache.put(self, 'status', self._seq_status,
-                            time.time(), self.maxage)
+                            currenttime(), self.maxage)
 
     def _seq_is_running(self):
         return self._seq_thread and self._seq_thread.is_alive()
