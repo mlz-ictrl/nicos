@@ -38,6 +38,7 @@ import nicos
 # ones.
 extensions = [
     #'rst2pdf.pdfbuilder',
+    'sphinx.ext.graphviz',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',

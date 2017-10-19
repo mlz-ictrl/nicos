@@ -3,6 +3,61 @@
 Components of the NICOS system
 ==============================
 
+
+.. digraph:: Components
+
+    rankdir = LR;
+
+    subgraph cluster0 {
+        node [style=filled,color=white];
+        style = "rounded,filled";
+        color = lightsalmon;
+
+
+        "nicos-watchdog" {rank = same; "nicos-elog"; "nicos-poller"}
+        "nicos-cache" {rank = same; "nicos-daemon";}
+
+        "nicos-cache"   -> "nicos-daemon"
+        "nicos-cache"   -> "nicos-poller"
+        "nicos-cache"   -> "nicos-watchdog"
+        "nicos-cache"   -> "nicos-elog"
+        "nicos-watchdog"-> "nicos-cache"
+        "nicos-daemon"  -> "nicos-cache"
+        "nicos-poller"  -> "nicos-cache"
+
+        edge[style=invis];
+        "nicos-watchdog" -> "nicos-poller" -> "nicos-elog"
+
+        label = "Servers";
+    }
+
+    subgraph cluster1 {
+        node [style=filled,color=white];
+        style = "rounded,filled";
+        color = lightblue;
+
+        "nicos-gui"{rank = same; "nicos-history";}
+        "nicos-history"
+        "nicos-monitor"
+        "nicos-client"
+
+        edge[style=invis];
+        "nicos-gui" -> "nicos-history" -> "nicos-monitor" -> "nicos-client"
+
+        label = "Clients";
+    }
+
+
+    "nicos-cache"   -> "nicos-gui"
+    "nicos-cache"   -> "nicos-client"
+    "nicos-cache"   -> "nicos-monitor"
+    "nicos-cache"   -> "nicos-history"
+    "nicos-daemon"  -> "nicos-gui"
+    "nicos-daemon"  -> "nicos-client"
+    "nicos-gui"     -> "nicos-daemon"
+    "nicos-client"  -> "nicos-daemon"
+
+
 The NICOS components come in the form of executables located in the ``bin``
 subdirectory of the NICOS source:
 
