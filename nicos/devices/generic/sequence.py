@@ -197,7 +197,7 @@ class SeqSleep(SequenceItem):
     def isCompleted(self):
         if not self.stopflag and self.endtime > currenttime():
             # arbitrary choice of max 5s
-            time.sleep(min(5, self.endtime - currenttime()))
+            session.delay(min(5, self.endtime - currenttime()))
             return False
         if self.duration > 3:
             session.endActionScope()
@@ -409,7 +409,7 @@ class SequencerMixin(DeviceMixinBase):
                     # 0.1s - code execution time
                     t = .1 - (currenttime() - t)
                     if waiters and t > 0:
-                        time.sleep(t)
+                        session.delay(t)
 
                 # stop if requested
                 if self._seq_stopflag:
