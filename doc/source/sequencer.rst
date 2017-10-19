@@ -30,7 +30,7 @@ method :meth:`SequencerMixin._set_seq_status`.
 
 This mechanism can also be used by devices wanting to define their own movement thread,
 without having to use the Sequencer.
-in this case, derive from BaseSequencer and redefine :meth:`_sequence` and upon known status
+In this case, derive from BaseSequencer and redefine :meth:`_sequence` and upon known status
 changes call ``_set_seq_status(statusCode, statusString)`` whereas statuscode and statusString
 are the quantities a call to :meth:`status` should return.
 
@@ -54,6 +54,8 @@ Each possible action is derived from `SequenceItem`. You can choose between:
 
 * :class:`SeqSleep` for waiting a certain time (used for well-known delays,
   e.g. ramping um high voltages)
+
+* :class:`SeqWait` to wait until the given device has reached the idle state
 
 * :class:`SeqNOP` for the ``No operation`` task.
 
@@ -99,6 +101,7 @@ The result is used to create the status string.
 .. autoclass:: SeqCall
 .. autoclass:: SeqMethod
 .. autoclass:: SeqSleep
+.. autoclass:: SeqWait
 .. autoclass:: SeqNOP
 
 .. autoclass:: SequencerMixin()
