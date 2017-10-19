@@ -130,6 +130,7 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
             return 69
         return 3
 
+
 class Sans1HV(BaseSequencer):
     valuetype = float
     attached_devices = {
@@ -230,7 +231,6 @@ class Sans1HV(BaseSequencer):
         # signal single retry of the action
         return 1
 
-
     def doRead(self, maxage=0):
         voltage = self._attached_supply.read(maxage)
         # everything below the last rampstep is no HV yet...
@@ -282,8 +282,8 @@ class Sans1HVOffDuration(Readable):
             hours = int(secs / 3600)
             mins = int(secs / 60) % 60
             secs = int(secs) % 60
-            return "%g:%02d:%02d" % (hours, mins, secs)
-        return "never"
+            return '%g:%02d:%02d' % (hours, mins, secs)
+        return 'never'
 
 
 class Sans1ZMotor(TacoMotor):
