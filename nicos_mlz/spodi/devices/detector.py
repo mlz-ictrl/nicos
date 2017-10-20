@@ -145,8 +145,8 @@ class Detector(MeasureSequencer):
             self._array_data[self._step::self.resosteps] = imgret
 
     def _incStep(self):
-        # if self._step - 1 < self.resosteps:
-        self._step += 1
+        if self._step < self.resosteps - 1:
+            self._step += 1
 
     def _startDet(self):
         """Start the detector and mark it running.
