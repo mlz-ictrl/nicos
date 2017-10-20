@@ -38,17 +38,17 @@ _pressuresample = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'PGAA status monitor',
-                     loglevel = 'info',
-                     cache = 'tequila.pgaa.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 16,
-                     padding = 5,
-                     layout = [
-                                  Row(_pgaageneral),
-                                  Row(_pressuresample,),
-                              ],
-                    ),
+        title = 'PGAA status monitor',
+        loglevel = 'info',
+        cache = 'tequila.pgaa.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 16,
+        padding = 5,
+        layout = [
+                  Row(_pgaageneral),
+                  Row(_pressuresample,),
+                 ],
+    ),
 )
