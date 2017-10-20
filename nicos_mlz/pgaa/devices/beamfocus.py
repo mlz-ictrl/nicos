@@ -23,10 +23,7 @@
 # *****************************************************************************
 """Classes for the focussing guide."""
 
-import time
-
-from nicos.core import Attach, Moveable, Param, status
-from nicos.utils import createThread
+from nicos.core import Attach, Moveable, oneof
 
 
 class BeamFocus(Moveable):
@@ -36,62 +33,34 @@ class BeamFocus(Moveable):
         'collimator': Attach('output signal for collimator', Moveable)
     }
 
-    parameters = {
-        'timeout': Param('sleeping time after moving',
-                         type=float, settable=False, default=8),
-    }
+    valuetype = oneof('Ell', 'Col')
 
     def doInit(self, mode):
-        self._timer = True
-        self._thread = None
         ell_state = self._attached_ellipse.read()
         col_state = self._attached_collimator.read()
 
         if [ell_state, col_state] == [1, 1]:
-            # reset
-            self._reset()
+            self.reset()
 
-    def _reset(self):
+    def doReset(self):
         self._attached_ellipse.move(0)
         self._attached_collimator.move(0)
 
-    def doIsAllowed(self, pos):
-        if self.doStatus()[0] == status.BUSY:
-            return False, 'Device Busy'
-        if pos in ['Ell', 'Col']:
-            return True, 'Ok'
-        return False, 'Invalid Value'
-
     def doStart(self, pos):
-        if pos == self.doRead():
-            return
-        if pos == 'Ell':
-            self._attached_collimator.move(0)
-            self._attached_ellipse.move(1)
-        elif pos == 'Col':
-            self._attached_ellipse.move(0)
-            self._attached_collimator.move(1)
-        self._timer = False
-        self._thread = createThread('sleep', self._wait)
-
-    def doStatus(self, maxage=0):
-        # poller gives wrong state but maw works
-        if self._timer is False:
-            return status.BUSY, 'moving/waiting'
-        return status.OK, 'idle'
+        if pos != self.doRead(0):
+            if pos == 'Ell':
+                self._attached_collimator.move(0)
+                self._attached_ellipse.move(1)
+            elif pos == 'Col':
+                self._attached_ellipse.move(0)
+                self._attached_collimator.move(1)
+            self._hw_wait()
 
     def doRead(self, maxage=0):
         ell = self._attached_ellipse.read(maxage)
         col = self._attached_collimator.read(maxage)
-        # if self._timer == False:
-        #    return None
         if [ell, col] == [0, 1]:
             return 'Col'
         elif [ell, col] == [1, 0]:
             return 'Ell'
-        else:
-            return None
-
-    def _wait(self):
-        time.sleep(self.timeout)
-        self._timer = True
+        return None
