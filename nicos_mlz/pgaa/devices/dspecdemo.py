@@ -46,9 +46,6 @@ class DSPec(Measurable):
         'preselection': Param('presel', type=dict, settable=True,
                               mandatory=False),
     }
-    # attached_devices = {
-    #   'sink': Attach('Sink to pass additional data to', DataSink)
-    # }
 
     @usermethod
     def getvals(self):
@@ -136,18 +133,6 @@ class DSPec(Measurable):
         self._started = time.time()
         self.log.debug('started')
         return
-        # try:
-        #     self._dev.Stop()
-        #     self._dev.Clear()
-        #     self._dev.Start()
-        # except NicosError:
-        #     try:
-        #         self._dev.stop()
-        #         self._dev.Init()
-        #         self._dev.Clear()
-        #         self._dev.Start()
-        #     except NicosError:
-        #         pass
 
     def doPause(self):
         self.doStop()
@@ -156,28 +141,10 @@ class DSPec(Measurable):
     def doResume(self):
         self.state = status.BUSY
         return True
-        # try:
-        #     self._dev.Stop()
-        #     self._dev.Clear()
-        #     self._dev.Start()
-        # except NicosError:
-        #     try:
-        #         self._dev.stop()
-        #         self._dev.Init()
-        #         self._dev.Clear()
-        #         self._dev.Start()
-        #     except NicosError:
-        #         pass
-        # return True
 
     def doStop(self):
         self.state = status.OK
         return
-        # try:
-        #     self._dev.Stop()
-        # except NicosError:
-        #     self._dev.Init()
-        #     self._dev.Stop()
 
     def doIsCompleted(self):
         if self._started is None:
