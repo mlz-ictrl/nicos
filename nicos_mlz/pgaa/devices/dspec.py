@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Classes to access to the DSpec detector."""
 
-import time
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import Measurable, Param, Value, status, usermethod
@@ -169,8 +169,8 @@ class DSPec(PyTangoDevice, Measurable):
             except NicosError:
                 pass
 
-        self._started = time.time()
-        self._lastread = time.time()
+        self._started = currenttime()
+        self._lastread = currenttime()
 
     def doPause(self):
         self._dev.Stop()
@@ -202,27 +202,27 @@ class DSPec(PyTangoDevice, Measurable):
         if self._started is None:
             return True
         if self._dont_stop_flag is True:
-            return (time.time() - self._started) >= self._preset['value']
+            return (currenttime() - self._started) >= self._preset['value']
 
-        if (time.time() - self._lastread) > (60 * 30):
+        if (currenttime() - self._lastread) > (60 * 30):
             try:
                 self._read_cache = self.doRead()
                 self.log.warning('spectrum cached')
             except NicosError:
                 self.log.warning('try to cache spectrum failed')
             finally:
-                self._lastread = time.time()
+                self._lastread = currenttime()
 
         if self._stop is not None:
-            if time.time() >= self._stop:
+            if currenttime() >= self._stop:
                 return True
 
         if self._preset['cond'] in ['LiveTime', 'TrueTime']:
-            if ((time.time() - self._started) + 20) < self._preset['value']:
+            if ((currenttime() - self._started) + 20) < self._preset['value']:
                 # self.log.warning('poll every 0.2 secs')
                 return False
-            elif ((time.time() - self._started) < self._preset['value']) or \
-                 ((time.time() - self._started) > self._preset['value']):
+            elif ((currenttime() - self._started) < self._preset['value']) or \
+                 ((currenttime() - self._started) > self._preset['value']):
                 self.log.warning('poll every 1 secs')
                 session.delay(1)
             try:

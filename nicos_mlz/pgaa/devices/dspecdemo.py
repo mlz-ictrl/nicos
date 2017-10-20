@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
-import time
+from time import time as currenttime
 
 from nicos.core import Measurable, Param, Value, status, usermethod
 from nicos.core.errors import NicosError
@@ -96,14 +96,14 @@ class DSPec(Measurable):
 
     def doReadTruetime(self, maxage=0):
         if self._started is not None:
-            return time.time() - self._started
+            return currenttime() - self._started
         else:
             return 0
         # return self._dev.Truetime[0]
 
     def doReadLivetime(self, maxage=0):
         if self._started is not None:
-            return time.time() - self._started
+            return currenttime() - self._started
         else:
             return 0
 
@@ -130,7 +130,7 @@ class DSPec(Measurable):
 
     def doStart(self):
         self.state = status.BUSY
-        self._started = time.time()
+        self._started = currenttime()
         self.log.debug('started')
         return
 
@@ -150,10 +150,10 @@ class DSPec(Measurable):
         if self._started is None:
             return True
         if self._stop is not None:
-            if time.time() >= self._stop:
+            if currenttime() >= self._stop:
                 return True
         if self.preselection['cond'] in ['TrueTime', 'LiveTime']:
-            if time.time() - self._started >= self.preselection['value']:
+            if currenttime() - self._started >= self.preselection['value']:
                 return True
         return False
 
