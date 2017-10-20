@@ -25,6 +25,7 @@
 
 import time
 
+from nicos import session
 from nicos.core import Measurable, Param, Value, status, usermethod
 from nicos.core.errors import NicosError
 from nicos.devices.tango import PyTangoDevice
@@ -223,7 +224,7 @@ class DSPec(PyTangoDevice, Measurable):
             elif ((time.time() - self._started) < self._preset['value']) or \
                  ((time.time() - self._started) > self._preset['value']):
                 self.log.warning('poll every 1 secs')
-                time.sleep(1)
+                session.delay(1)
             try:
                 # self.log.warning('poll')
                 stop = self._dev.PollTime[0]
