@@ -112,7 +112,8 @@ class SampleChanger(BaseSequencer):
 
     attached_devices = {
         'motor': Attach('Stage rotation', Moveable),
-        'push': Attach('', Moveable),  # SamplePusher),
+        'push': Attach('Moving sample to rotation stage',
+                       Moveable),  # SamplePusher),
     }
 
     parameter_overrides = {
