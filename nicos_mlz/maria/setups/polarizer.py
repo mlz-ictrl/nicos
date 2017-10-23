@@ -40,9 +40,11 @@ devices = dict(
                           "up": 1,
                       }
                      ),
-    pow4curr1 = device("nicos.devices.tango.PowerSupply",
+    pow4curr1 = device("nicos_mlz.maria.devices.powersupply."
+                       "ReadOnlyPowerSupply",
                        description = "Power supply 4 current control ch 1",
                        tangodevice = tango_ps + "/pow4curr1",
+                       setpoint = 0.6,
                        unit = 'A',
                       ),
 
