@@ -51,7 +51,7 @@ devices = dict(
         pollinterval = 2,
         timeout = 3,
     ),
-    att = device('nicos_mlz.pgaa.devices.attenuator.Attenuator',
+    att = device('nicos_mlz.pgaa.devices.Attenuator',
         description = 'Attenuator device',
         moveables = ['att1', 'att2', 'att3'],
         readables = None,
