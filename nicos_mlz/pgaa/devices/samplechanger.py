@@ -25,7 +25,8 @@
 
 from IO import StringIO
 
-from nicos.core import Attach, Device, Moveable, Readable, status
+from nicos.core import Attach, Device, Moveable, Override, Readable, status
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 from nicos.devices.taco import NamedDigitalOutput, TacoDevice
 from nicos_mlz.panda.devices.mcc2 import MCC2Motor
 
@@ -99,3 +100,31 @@ class SampleMotor(MCC2Motor):
         if not self._attached_sensor.read(0):
             return False, 'top sensor not active'
         return True, 'ok'
+
+
+class SampleChanger(BaseSequencer):
+    """The PGAA sample changer device."""
+
+    attached_devices = {
+        'motor': Attach('Stage rotation', Moveable),
+        'push': Attach('', Moveable),  # SamplePusher),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default=''),
+        'fmtstr': Override(default='%.f'),
+    }
+
+    def _generateSequence(self, target):
+        seq = []
+        if target != self.doRead(0):
+            seq.append(SeqDev(self._attached_push, 'up', stoppable=False))
+            seq.append(SeqSleep(2))
+            seq.append(SeqDev(self._attached_motor, target,
+                              stoppable=False))
+            seq.append(SeqSleep(2))
+            seq.append(SeqDev(self._attached_push, 'down', stoppable=False))
+        return seq
+
+    def doRead(self, maxage=0):
+        return self._attached_motor.read(maxage)
