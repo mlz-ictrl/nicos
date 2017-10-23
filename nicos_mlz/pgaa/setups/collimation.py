@@ -21,6 +21,5 @@ devices = dict(
         description = 'Switches between focused and collimated Beam',
         ellipse = 'ell',
         collimator = 'col',
-        unit = ''
     ),
 )

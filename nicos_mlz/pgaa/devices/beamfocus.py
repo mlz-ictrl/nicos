@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Classes for the focussing guide."""
 
-from nicos.core import Attach, Moveable, oneof
+from nicos.core import Attach, Moveable, Override, oneof
 
 
 class BeamFocus(Moveable):
@@ -31,6 +31,11 @@ class BeamFocus(Moveable):
     attached_devices = {
         'ellipse': Attach('output signal for ellipse', Moveable),
         'collimator': Attach('output signal for collimator', Moveable)
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%s'),
     }
 
     valuetype = oneof('Ell', 'Col')
