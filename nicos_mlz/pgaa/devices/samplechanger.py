@@ -46,6 +46,11 @@ class SamplePusher(NamedDigitalOutput):
         'motor': Attach('Stage rotation', Moveable),
     }
 
+    parameter_overrides = {
+        'unit': Override(default=''),
+        'fmtstr': Override(default='%s'),
+    }
+
     def doInit(self, mode):
         NamedDigitalOutput.doInit(self, mode)
         self._target_sens = None
