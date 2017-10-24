@@ -2,7 +2,7 @@
 ###### Reflektometrie polarized ######
 ############################
 #move(shutter,'closed')
-maw(bsd,9.5)
+maw(bsd,-7.8)
 
 #move(polarizer, 474000)
 

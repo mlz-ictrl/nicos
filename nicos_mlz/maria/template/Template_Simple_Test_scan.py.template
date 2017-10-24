@@ -1,0 +1,12 @@
+maw(shutter, 'close')
+maw(s1_left,1)
+maw(s1_right,1)
+maw(s2_left,1)
+maw(s2_right,1)
+maw(bsd,10.25 )
+
+NewSample('Ni500_7pO2_4p5A')
+maw(wavelength,4.5)
+maw(shutter, 'open')
+sscan(t2t,0.2,0.025,4.6,60)
+maw(shutter, 'close')

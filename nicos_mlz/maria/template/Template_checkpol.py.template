@@ -13,4 +13,4 @@ sscan(wavelength, 5, 1, 12, 300,  pflipper=['up', 'down'])
 
 maw(shutter,'closed')
 maw(analyzer_shift,'out')
-maw(bsd, 11.25)
+maw(bsd, -7.8)

@@ -1,0 +1,87 @@
+# The script assumes that the user has performed an initial "laser" alignment
+# and that 'tx' and 'rz' are somewhat close to the optimum ones
+# also the beamstop position 'bsd' is assumed to be correct (i.e. blocking onlythe direct beam)
+
+
+# Go to Reflectivity Mode and prepare instrument setup
+maw(shutter,'close')
+maw(giref, -6000)
+maw(selector_lambda, 6)
+move( s1_top, 70, s1_bottom, 74.3)
+move( s2_top, 22.4, s2_bottom, 21.47)
+maw( s1_left, 0.2, s1_right, 0.2)
+maw( s2_left, 0.2, s2_right, 0.2)
+maw(ds_left,0)
+maw(pol, 769600)
+maw(analyzer_shift, 'out')
+maw(bs1_trans,0)
+maw(bs2_trans,0)
+maw(atten_A, 'out')
+maw(atten_B, 'out')
+maw(atten_C, 'out')
+
+
+# Keep initial values of tx,rz,ry,bsd
+initial_tx_value=tx.read()
+initial_rz_value=rz.read()
+initial_ry_value=ry.read()
+initial_bsd_value=bsd.read()
+
+NewSample("auto_alignement")
+#f = open('alignement_scan.dat', 'w')
+
+
+# Initial tx scan at t2t=0, search for the biggest jump in the transmitted intensity
+maw(t2t, 0)
+maw(bsd, initial_bsd_value+10)
+maw(shutter,'open')
+
+d_roi6=0
+new_tx=tx.read()
+maw(tx, initial_tx_value-5)
+count(2)
+roi6_p=roi6.read()
+while tx.read()<initial_tx_value+5:
+        maw(tx, tx.read()+0.25)
+        count(2)
+        roi6_n=roi6.read()
+        if abs(roi6_n[0]-roi6_p[0])>d_roi6:
+                d_roi6=abs(roi6_n[0]-roi6_p[0])
+                new_tx=tx.read()
+        print 'candidate tx:',new_tx
+        roi6_p=roi6_n
+
+maw(shutter,'close')
+
+
+# 2D tx,rz scan in reflection condition
+new_tx_2=new_tx
+maw(tx, new_tx)
+maw(t2t,0.3)
+maw(bsd, initial_bsd_value)
+maw(shutter,'open')
+
+max_roi6=0
+maw(tx, new_tx-1)
+maw(rz, initial_rz_value-0.5)
+new_rz=rz.read()
+
+while tx.read()<new_tx+1:
+        maw(rz, initial_rz_value-0.5)
+        while rz.read()<initial_rz_value+0.5:
+                count(2)
+                if roi6.read()>max_roi6:
+                        max_roi6=roi6.read()
+                        new_tx_2=tx.read()
+                        new_rz=rz.read()
+                #f.write(tx.read(),rz.read(),roi6.read())
+                maw(rz, rz.read()+0.05)
+        maw(tx, tx.read()+0.1)
+
+maw(shutter,'close')
+
+# Go to the found optimum values
+maw(rz, new_rz)
+maw(tx, new_tx_2)
+delta=(slit1_left.read()+slit1_right.read()+slit2_left.read()+slit2_right.read())
+sscan(tx,new_tx_2-2*delta,float(round(delta/8.0,1)),new_tx_2+2*delta,4)

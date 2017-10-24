@@ -18,6 +18,7 @@ timescan(1,time_per_pic,pflipper=['up','up','down', 'down'], aflipper=['up','dow
 maw(shutter,'closed')
 
 # Drive to positive saturation
+magnet_value=magnet.read()+.022
 while field.read()<2000:
     magnet_value+=0.1
     maw(magnet,magnet_value)

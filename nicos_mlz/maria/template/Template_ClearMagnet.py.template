@@ -1,0 +1,25 @@
+magnet_value=magnet.read()
+maw(magnet,magnet_value)
+field_value=field.read()
+if field_value < 0:
+    addvalue=.001
+else:
+    addvalue=-.001
+field_value=field.read()    
+while field_value<-1 or field_value>1 :
+    magnet_value+=addvalue
+    maw(magnet,magnet_value)
+    sleep(.2)
+    field_value=field.read()
+sleep(30)    
+field_value=field.read()
+if field_value < 0:
+    addvalue=.001
+else:
+    addvalue=-.001
+field_value=field.read()        
+while field_value<-.2 or field_value>.2 :
+    magnet_value+=addvalue
+    maw(magnet,magnet_value)
+    sleep(5)
+    field_value=field.read()
