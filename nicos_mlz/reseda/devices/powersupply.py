@@ -18,72 +18,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Aleks Wischolit <aleks.wischolit@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Readout of FUG power supplies."""
-
-#import time
-
-from IO import StringIO
-
-from nicos.core import Readable, Override, status, Param, NicosError
-from nicos.devices.taco.core import TacoDevice
+from nicos.core import Override
+from nicos.devices.tango import PowerSupply as TangoPowerSupply
 
 
-class PowerSupplyU(TacoDevice, Readable):
-
-    taco_class = StringIO
-
-    parameters = {
-        'channel': Param('Channel of the power supply', type=int,
-                         mandatory=True),
-    }
-
+class PowerSupply(TangoPowerSupply):
+    """Temporary workaround fro VERY slow power supplies."""
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='V'),
+        'abslimits': Override(volatile=False),
+        'current': Override(volatile=False),
+        'voltage': Override(volatile=False),
     }
 
-    def doRead(self, maxage=0):
-        # INST:SEL 1;MEAS:VOLT?
-        # INST:SEL 2;MEAS:VOLT?
-        tmp = int (self._taco_guard(self._dev.communicate,'INST:NSEL?'))
-        if tmp != self.channel:
-            raise NicosError(self, 'wrong channel selected')
-            #self._taco_guard(self._dev.writeLine, 'INST:NSEL %d' %
-            #                 (self.channel))
-            #time.sleep(0.05)
-        tmp = self._taco_guard(self._dev.communicate,'MEAS:VOLT?')
-        return float (tmp)
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
-
-
-
-class PowerSupplyA(TacoDevice, Readable):
-
-    taco_class = StringIO
-
-    parameters = {
-        'channel': Param('Channel of the power supply', type=int,
-                         mandatory=True),
-    }
-
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
-    }
-
-    def doRead(self, maxage=0):
-        tmp = int(self._taco_guard(self._dev.communicate,'INST:NSEL?'))
-        if tmp != self.channel:
-            raise NicosError(self, 'wrong channel selected')
-            #self._taco_guard(self._dev.writeLine, 'INST:NSEL %d' %
-            #                 (self.channel))
-            #time.sleep(0.05)
-        tmp = self._taco_guard(self._dev.communicate,'MEAS:CURR?')
-        return float (tmp)
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
+    def doPoll(self, n, maxage):
+        if n % 2:
+            self._pollParam('voltage', 1)
+            self._pollParam('current', 1)
