@@ -61,7 +61,7 @@ devices = {
         device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
-            valuename = 'Leak RESEDA1',
+            valuename = 'Leak RESEDA',
             description = 'leakage memograph',
             fmtstr = '%.2F',
             warnlimits = (-1, 1),  #-1 no lower value
@@ -70,7 +70,7 @@ devices = {
         device('nicos_mlz.frm2.devices.memograph.MemographValue',
             hostname = memograph_host,
             group = 3,
-            valuename = 'Cooling RESEDA1',
+            valuename = 'Cooling RESEDA',
             description = 'cooling memograph',
             fmtstr = '%.2F',
         ),
