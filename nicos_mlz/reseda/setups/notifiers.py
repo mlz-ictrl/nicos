@@ -5,14 +5,14 @@ group = 'lowlevel'
 devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         description = 'Reports via email',
+        mailserver = 'mailhost.frm2.tum.de',
         sender = 'reseda@frm2.tum.de',
         receivers = [
-            'christian.franz@frm2.tum.de', 'thorsten.schroeder@frm2.tum.de'
+            'christian.franz@frm2.tum.de', 'olaf.soltwedel@frm2.tum.de'
         ],
-        subject = 'NICOS',
+        subject = 'NICOS@RESEDA',
         lowlevel = True,
     ),
-
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
