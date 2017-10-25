@@ -26,7 +26,7 @@
 
 from test.utils import raises
 
-from nicos.core import ConfigurationError, status
+from nicos.core import ConfigurationError, waitForCompletion
 from nicos.devices.generic.manual import ManualSwitch
 
 session_setup = 'pulse'
@@ -72,11 +72,17 @@ def test_movement(session):
 
 def test_starting(session):
     pulse1 = session.getDevice('pulse1')
+    sw = session.getDevice('sw')
     # Test the start if sequence was running
+    del sw._started_to[:]
     pulse1.move('up')
-    assert pulse1.status(0)[0] == status.BUSY
     pulse1.maw('up')
+    assert sw._started_to == ['up', 'down', 'up', 'down'] or \
+           sw._started_to == ['up', 'up', 'down']
 
     # Test the start if target == read value
+    del sw._started_to[:]
     pulse1.maw('down')
     pulse1.move('down')
+    waitForCompletion(pulse1)
+    assert sw._started_to == ['down', 'down']  # started two times
