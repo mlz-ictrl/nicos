@@ -24,6 +24,7 @@
 
 from nicos import session
 from nicos.core import Moveable, UsageError
+from nicos.core.acquire import acquire
 from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
@@ -57,6 +58,11 @@ class KScan(Scan):
         device.accel = self._original_accel
         device.decel = self._original_decel
         Scan.endScan(self)
+
+    def acquire(self, point, preset):
+        # take into account live preset which is popped in the base class
+        # implementation
+        acquire(point, preset, iscompletefunc=self.acquireCompleted)
 
     def acquireCompleted(self):
         return all(d.isCompleted() for d in self._devices)
