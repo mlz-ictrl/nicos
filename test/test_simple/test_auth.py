@@ -19,6 +19,8 @@
 #
 # Module authors:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -32,10 +34,16 @@ from nicos.core import GUEST, USER, ADMIN, User, NicosError
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.params import UserPassLevelAuthEntry, \
     UserLevelAuthEntry
-from nicos.services.daemon.auth.keyring import Authenticator as \
-    KeyringAuthenticator
+try:
+    from nicos.services.daemon.auth.keyring import Authenticator as \
+        KeyringAuthenticator
+except ImportError:
+    KeyringAuthenticator = None
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
-from nicos.utils.credentials.keystore import nicoskeystore
+try:
+    from nicos.utils.credentials.keystore import nicoskeystore
+except ImportError:
+    nicoskeystore = None
 
 from test.utils import raises
 from nicos.pycompat import to_utf8
@@ -158,6 +166,8 @@ def KeystoreAuth(request):
         shutil.rmtree(nicoskeystore.keyrings[-1].storepath)
 
 
+@pytest.mark.skipif(KeyringAuthenticator is None,
+                    reason='keyring packages not installed')
 def test_keystore_auth(session, KeystoreAuth):
     assert KeystoreAuth.userdomain == 'test_nicos_user'
 
@@ -170,6 +180,9 @@ test_keystore_auth.creds = [('admin', 'admin'),
                             ('joedoe', 'userpass')
                            ]
 
+
+@pytest.mark.skipif(nicoskeystore is None,
+                    reason='keyring packages not installed')
 def test_keystore_auth_nokeys(session, KeystoreAuth):
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', '')

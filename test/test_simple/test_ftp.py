@@ -30,10 +30,16 @@ import pytest
 import tempfile
 import os
 
-from pyftpdlib.servers import ThreadedFTPServer
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.filesystems import AbstractedFS
-from pyftpdlib.authorizers import DummyAuthorizer
+try:
+    from pyftpdlib.servers import ThreadedFTPServer
+    from pyftpdlib.handlers import FTPHandler
+    from pyftpdlib.filesystems import AbstractedFS
+    from pyftpdlib.authorizers import DummyAuthorizer
+except ImportError:
+    ThreadedFTPServer = object
+    FTPHandler = object
+    AbstractedFS = object
+    DummyAuthorizer = object
 
 from nicos.utils import createThread
 from nicos.utils import ftp
@@ -143,7 +149,8 @@ def upload(session):
     yield t
     os.unlink(t)
 
-
+@pytest.mark.skipif(ThreadedFTPServer is object,
+                    reason='pyftpdlib package not installed')
 def test_ftp(session, ftpserver, upload):
     ftp.FTP_SERVER = 'localhost'
     ftp.FTP_PORT = 12345
