@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -49,9 +50,19 @@ devices = dict(
     aliasAxis = device('nicos.devices.generic.DeviceAlias',
         alias = 'axis',
     ),
+    limit_motor = device('nicos.devices.generic.VirtualMotor',
+        unit = 'mm',
+        curvalue = 0,
+        abslimits = (-100, 100),
+    ),
+    limit_coder = device('nicos.devices.generic.VirtualCoder',
+        motor = 'limit_motor',
+        unit = 'mm',
+        lowlevel = True,
+    ),
     limit_axis = device('nicos.devices.generic.Axis',
-        motor = 'motor',
-        coder = 'coder',
+        motor = 'limit_motor',
+        coder = 'limit_coder',
         obs = [],
         abslimits = (-1, 1),
         precision = 0,
@@ -90,5 +101,19 @@ devices = dict(
             abslimits = (-100, 100),
         ),
         precision = 0,
+    ),
+    nolimit_axis = device('nicos.devices.generic.Axis',
+        motor = 'nolimit_motor',
+        coder = 'coder',
+        obs = [],
+        precision = 0,
+        loopdelay = 0.02,
+        loglevel = 'debug',
+    ),
+    nolimit_motor = device('nicos.devices.generic.VirtualMotor',
+        unit = 'mm',
+        curvalue = 0,
+        abslimits = (-100, 100),
+        userlimits = (-50, 50),
     ),
 )

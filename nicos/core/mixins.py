@@ -244,8 +244,8 @@ class HasLimits(DeviceMixinBase):
         Used by the HasOffset mixin class to adjust the offset. *value* is the
         offset value, *diff* the offset difference.
         """
-        limits = self.userlimits
         self._new_offset = value
+        limits = self.userlimits
         self.userlimits = (limits[0] - diff, limits[1] - diff)
         del self._new_offset
 

@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -48,10 +49,29 @@ def test_params(session):
     axis2 = session.getDevice('limit_axis')
     assert axis2.abslimits == (-1, +1)
     # offset
-    axis.maw(1)
-    assert axis.read() == approx(1)
-    axis.offset = 1
-    assert axis.read() == approx(0)
+    axis2.maw(1)
+    assert axis2.read() == approx(1)
+    axis2.offset = 1
+    assert axis2.read() == approx(0)
+
+
+def test_motor_limits(session):
+    axis = session.getDevice('nolimit_axis')
+    motor = session.getDevice('nolimit_motor')
+
+    assert axis.abslimits == motor.abslimits == (-100, 100)
+    assert axis.userlimits == motor.userlimits == (-50, 50)
+
+    # test userlimits propagation
+    ul = axis.userlimits
+    delta = int(.1 * abs(ul[1] - ul[0]))
+    newul = (ul[0] - delta, ul[1] + delta)
+    axis.userlimits = newul
+    assert axis.userlimits == motor.userlimits == newul
+
+    # test offset propagation
+    axis.offset = delta
+    assert axis.userlimits == (newul[0] - axis.offset, newul[1] - axis.offset)
 
 
 def test_movement(session):

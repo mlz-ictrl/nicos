@@ -20,6 +20,7 @@
 # Module authors:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -51,6 +52,7 @@ class Axis(CanReference, AbstractAxis):
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
         'abslimits': Override(mandatory=False, volatile=True),
+        'userlimits': Override(volatile=True),
     }
 
     parameters = {
@@ -104,22 +106,35 @@ class Axis(CanReference, AbstractAxis):
     def doReadUnit(self):
         return self._attached_motor.unit
 
-    def doReadAbslimits(self):
-        # check axis limits against motor absolute limits (the motor should not
-        # have user limits defined)
-        if 'abslimits' in self._config:
-            amin, amax = self._config['abslimits']
-            mmin, mmax = self._attached_motor.abslimits
-            if amin < mmin:
-                raise ConfigurationError(self, 'absmin (%s) below the motor '
-                                         'absmin (%s)' % (amin, mmin))
-            if amax > mmax:
-                raise ConfigurationError(self, 'absmax (%s) above the motor '
-                                         'absmax (%s)' % (amax, mmax))
+    def _readlimits(self, configkey):  # abslimits or userlimits
+        # should not raise when changing offset
+        # therefore check for _new_offset attribute
+        mmin, mmax = getattr(self._attached_motor, configkey)
+        if configkey in self._config:
+            amin, amax = self._config[configkey]
+            if amin < mmin and not hasattr(self, '_new_offset'):
+                raise ConfigurationError(self, configkey + ': min (%s) below '
+                                         'motor\'s min (%s)' % (amin, mmin))
+            if amax > mmax and not hasattr(self, '_new_offset'):
+                raise ConfigurationError(self, configkey + ': max (%s) above '
+                                         'motor\'s max (%s)' % (amin, mmin))
         else:
-            mmin, mmax = self._attached_motor.abslimits
             amin, amax = mmin, mmax
         return amin, amax
+
+    def doReadAbslimits(self):
+        # check axis limits against motor's absolute limits
+        return self._readlimits('abslimits')
+
+    def doReadUserlimits(self):
+        # check axis limits against motor's user limits
+        return self._readlimits('userlimits')
+
+    def doWriteUserlimits(self, limits):
+        rval = AbstractAxis.doWriteUserlimits(self, limits)
+        if rval:
+            limits = rval
+        self._attached_motor.userlimits = limits
 
     def doIsAllowed(self, target):
         # do limit check here already instead of in the thread
@@ -271,11 +286,13 @@ class Axis(CanReference, AbstractAxis):
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
+        self._new_offset = value
         if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
                              'command and try it again')
         if self._errorstate:
             raise self._errorstate  # pylint: disable=E0702
+        del self._new_offset
         HasOffset.doWriteOffset(self, value)
 
     def _preMoveAction(self):
