@@ -25,7 +25,12 @@ main_window = docked(
            dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+           sample_panel=panel(# 'Sample changer',
+                              'nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                              # image='nicos_mlz/sans1/gui/sampleChanger22.png',
+                              positions=16, setups='pgaa'),
+          ),
     ),
 )
 
