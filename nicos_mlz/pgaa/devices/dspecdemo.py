@@ -23,247 +23,57 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
-from time import time as currenttime
+from nicos.core import Override, Param, intrange, tupleof
+from nicos.devices.generic.detector import Detector
+from nicos.devices.generic.virtual import VirtualImage
 
-from nicos.core import Measurable, Param, Value, status, usermethod
-from nicos.core.errors import NicosError
+
+class Spectrum(VirtualImage):
+
+    parameter_overrides = {
+        'sizes': Override(type=tupleof(intrange(1, 1), intrange(1, 16384)),
+                          default=(1, 16384)),
+    }
 
 
-class DSPec(Measurable):
+class DSPec(Detector):
 
     parameters = {
         'prefix': Param('prefix for filesaving',
                         type=str, settable=False, mandatory=True),
-        'truetime': Param('truetime',
-                          type=float, settable=False, mandatory=False,
-                          prefercache=True),
-        'livetime': Param('livetime',
-                          type=float, settable=False, mandatory=False,
-                          prefercache=True),
-        'state': Param('state',
-                       type=int, settable=True, mandatory=False,
-                       default=status.OK),
         'preselection': Param('presel', type=dict, settable=True,
-                              mandatory=False),
+                              userparam=False, mandatory=False),
     }
 
-    @usermethod
-    def getvals(self):
-        spectrum = [1] * 16384
-        return spectrum
+    def _presetiter(self):
+        for dev in self._attached_timers:
+            yield(dev.name, dev)
+        # yield Detector._presetiter(self)
 
-    @usermethod
     def getEcal(self):
         return '0 0 0'
 
-    @usermethod
-    def getlive(self):
-        return self.truetime
-
-    @usermethod
-    def getpoll(self):
-        return self._dev.PollTime[0]
-
-    @usermethod
-    def gettrue(self):
-        return self.livetime
-
-    @usermethod
-    def initdev(self):
-        self._dev.Init()
-
-    @usermethod
-    def getstate(self):
-        return self._dev.Status()
-
-    @usermethod
-    def savefile(self):
-        self.doFinish()
-
-    @usermethod
-    def resetvals(self):
+    def _clear(self):
         self._started = None
         self._stop = None
         self._preset = {}
 
-    def doUpdatePreselection(self, value):
-        self._preset = value
+    def doReset(self):
+        self._clear()
+        Detector.doReset(self)
 
     def doPreinit(self, mode):
-        self._started = None
-        self._stop = None
-        self._preset = {}
-
-    def doReadTruetime(self, maxage=0):
-        if self._started is not None:
-            return currenttime() - self._started
-        else:
-            return 0
-        # return self._dev.Truetime[0]
-
-    def doReadLivetime(self, maxage=0):
-        if self._started is not None:
-            return currenttime() - self._started
-        else:
-            return 0
-
-    def doStatus(self, maxage=0):
-        self.log.debug('status %s', self.state)
-        return self.state, 'TESTING' if self.state == status.OK else 'MOVING'
-
-    def doPoll(self, n, maxage=0):
-        return ((status.OK, ''), [0 for _i in range(16384)])
-
-    def doReadIsmaster(self):
-        pass
-
-    def doRead(self, maxage=0):
-        return [1 for _i in range(16384)]
+        Detector.doPreinit(self, mode)
+        self._clear()
 
     def doSetPreset(self, **preset):
-        self._started = None
-        self._stop = None
+        self._clear()
         self.preselection = preset
 
-        if preset['cond'] == 'ClockTime':
+        if 'cond' in preset and preset['cond'] == 'ClockTime':
             self._stop = preset['value']
-
-    def doStart(self):
-        self.state = status.BUSY
-        self._started = currenttime()
-        self.log.debug('started')
-        return
-
-    def doPause(self):
-        self.doStop()
-        return True
-
-    def doResume(self):
-        self.state = status.BUSY
-        return True
-
-    def doStop(self):
-        self.state = status.OK
-        return
-
-    def doIsCompleted(self):
-        if self._started is None:
-            return True
-        if self._stop is not None:
-            if currenttime() >= self._stop:
-                return True
-        if self.preselection['cond'] in ['TrueTime', 'LiveTime']:
-            if currenttime() - self._started >= self.preselection['value']:
-                return True
-        return False
-
-    def valueInfo(self):
-        return (Value('DSpecSpectra', type='counter'),)
-
-    def doFinish(self):
-        try:
-            self.doStop()
-        except NicosError:
-            pass
-        # reset values
-        self._started = None
-        self._stop = None
-        self._preset = {}
-
-        # temp
-        return
-
-        # try:
-        #     spectra = [int(i) for i in self.doRead()]
-        # except NicosError:
-        #     self._preset['Comment'] += 'CACHED'
-        #     spectra = self._cache.get(self, 'value')
-        #     if spectra is None:
-        #         self.log.warning('no spectra cached')
-        #         return
-        #     self.log.warning('using cached spectra')
-
-        # timeb = []
-        # tb_time = array('i', [int(self._started)])
-        # tb_fill = array('h', [0, 0, 0])
-        # timeb.extend([tb_time, tb_fill])
-
-        # Type elap:
-        # elap = []
-        # el_time = array('i', [int(self.livetime * 100),
-        #                       int(self.truetime * 100)])
-        # el_fill_1 = array('i', [0])
-        # el_fill_2 = array('d', [0])
-        # elap.extend([el_time, el_fill_1, el_fill_2])
-
-        # Type xcal:
-        # xcal = []
-        # ec_fill_1 = array('f', [0, 0, 0])
-        # !! exchange sinkinfo with preset when scan command is used
-        # unit = array('c', '{:<5}'.format(''))
-        # ec_fill_2 = array('c', '\t\t\t')
-        # xcal.extend([ec_fill_1, unit, ec_fill_2])
-
-        # Type mcahead:
-        # mcahead = []
-        # mc_fill = array('h', [0, 1, 0])
-        # mc_fill2 = array('i', [0])
-
-        # !! exchange sinkinfo with preset when scan command is used
-        # spectr_name = array('c', '{:<26}'.format(self._preset['Name'][:26]))
-        # mc_fill3 = array('h', [0])
-        # filler = array('h', [0 for i in range(19)])
-        # nchans = array('h', [16384])
-
-        # mcahead.extend([mc_fill, mc_fill2, spectr_name, mc_fill3])
-        # mcahead.extend(timeb)
-        # mcahead.extend(elap)
-        # mcahead.extend(xcal)
-        # mcahead.extend([filler, nchans])
-
-        # spec_data = array('i', [0 for i in range(16384)])
-        # spec_data = array('i', spectra)
-
-        # dir_ = os.path.dirname(__file__)
-        # filename = self.filename()
-        # path = os.path.join(dir_, filename)
-        # with open(filename, 'wb') as f:
-        #     for data in mcahead:
-        #         data.tofile(f)
-        #     spec_data.tofile(f)
-        # self.log.warning('ok written?')
-        # reset values
-        # self._started = None
-        # self._stop = None
-        # self._preset = {}
-
-    def presetInfo(self):
-        return ('cond', 'value', 'Name', 'Name', 'Comment', 'Pos', 'Beam',
-                'Attenuator', 'ElCol', 'started', 'Subfolder', 'Detectors',
-                'Filename')
-
-    def filename(self):
-        code = ''
-
-        blades = {
-            100.: ('out', 'out', 'out'),
-            47.: ('out', 'in', 'out'),
-            16.: ('in', 'out', 'out'),
-            7.5: ('in', 'in', 'out'),
-            5.9: ('out', 'out', 'in'),
-            3.5: ('out', 'in', 'in'),
-            2.7: ('in', 'out', 'in'),
-            1.6: ('in', 'in', 'in')
-        }[self._preset['Attenuator']]
-
-        for i, item in enumerate(blades):
-            if item == 'in':
-                code += str(i + 1)
-
-        code += 'E' if self._preset['ElCol'] == 'Ell' else 'C'
-        if self._preset['Beam'] == 'closed':
-            code += 'O'
-
-        filename = 'logfiles/%s_%s_%s__%s' % (
-            self.prefix, self._preset['Name'], self._preset['Comment'], code)
-        return filename
+        if preset:
+            self._time_preset = preset['t'] if 't' in preset else 0
+            self._mon_preset = preset['mon1'] if 'mon1' in preset else \
+                preset['mon2'] if 'mon2' in preset else 0
+        Detector.doSetPreset(self, **preset)
