@@ -4,6 +4,8 @@ description = 'GALAXI digital in- and outputs'
 
 group = 'optional'
 
+display_order = 20
+
 tango_base = 'tango://localhost:10000/galaxi/'
 tango_digital = tango_base + 'fzjdp_digital/'
 tango_analog  = tango_base + 'fzjdp_analog/'

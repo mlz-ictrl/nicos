@@ -4,6 +4,8 @@ description = 'GALAXI Mythen and Pilatus detector setup'
 
 group = 'optional'
 
+display_order = 10
+
 includes = ['absorber', 'jcns_mot', 'pindiodes', 'jcns_io']
 
 tango_base = 'tango://localhost:10000/galaxi/'
@@ -53,7 +55,7 @@ devices = dict(
     mythensink      = device('nicos_mlz.galaxi.devices.mythendatasink.MythenImageSink',
                              filenametemplate =
                               ['%(Exp.users)s_%(session.experiment.sample.'
-                               'filename)s_%(scancounter)s_%(pointnumber)s'
+                               'filename)s_%(scancounter)s.%(pointnumber)s'
                                '.mydat'],
                              lowlevel = True,
                              detectors = ['mythen']

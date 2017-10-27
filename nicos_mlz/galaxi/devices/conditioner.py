@@ -25,6 +25,7 @@
 
 """GALAXI x-ray tube conditioner"""
 
+from nicos import session
 from nicos.devices.tango import PyTangoDevice, AnalogInput
 from nicos.core.device import Moveable
 from nicos.core.params import Attach
@@ -56,3 +57,4 @@ class TubeConditioner(PyTangoDevice, Moveable):
         elif self._attached_time.read(0) + value > interval:
             self.log.debug('Start cond')
             self._dev.StartCond()
+            session.delay(5.0)

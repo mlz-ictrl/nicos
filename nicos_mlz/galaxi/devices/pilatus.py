@@ -281,7 +281,7 @@ class PilatusSink(FileSink):
         'filenametemplate': Override(
             default=['%(session.experiment.users)s_'
                      '%(session.experiment.sample.samplename)s_'
-                     '%(scancounter)s_%(pointnumber)s.tif'],
+                     '%(scancounter)s.%(pointnumber)s.tif'],
             settable=False),
         'settypes': Override(default=['point']),
     }

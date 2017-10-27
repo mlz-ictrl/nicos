@@ -37,11 +37,11 @@ def count(num=1, **preset):
     """GALAXI specific command: Count with Pilatus detector and rewrite image"""
 
     exp = session.experiment
-    for _det in exp.detectors:
-        if isinstance(_det, PilatusDetector):
-            _det.nextfilename = 'tmpcount.tif'
     preset['temporary'] = True
     for _ in range(num):
+        for _det in exp.detectors:
+            if isinstance(_det, PilatusDetector):
+                _det.nextfilename = 'tmpcount.tif'
         nicos_count(**preset)
         # allow daemon to stop here
         session.breakpoint(2)

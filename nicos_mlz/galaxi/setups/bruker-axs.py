@@ -4,6 +4,8 @@ description = 'GALAXI Bruker AXS X-Ray'
 
 group = 'basic'
 
+display_order = 5
+
 tango_base = 'tango://localhost:10000/galaxi/'
 
 devices = dict(

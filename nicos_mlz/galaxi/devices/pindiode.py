@@ -73,22 +73,23 @@ class SingleDetectors(Measurable):
         return values
 
     def doPrepare(self):
-        self._timeval = time.time() + self._timeout
         self.log.debug('Pindiode prepare')
+        timeval = time.time() + self._timeout
         if self.detector not in session.experiment.detlist:
             self._attached_pintimer.start(0)
             while self._attached_pincontrol.read(0) != 1:
-                if time.time() > self._timeval:
+                if time.time() > timeval:
                     self.log.warning('Pinstate timeout in prepare')
                     return
                 session.delay(0.02)
 
     def doStart(self):
         self.log.debug('Integral start')
+        timeval = time.time() + self._timeout
         if self.detector not in session.experiment.detlist:
             self._attached_pintimer.start(self._preset)
         while self.status(0)[0] != status.BUSY:
-            if time.time() > self._timeval:
+            if time.time() > timeval:
                 self.log.warning('Pinstate timeout in start')
                 return
             session.delay(0.02)
@@ -106,10 +107,11 @@ class SingleDetectors(Measurable):
 
     def doStatus(self, maxage=0):
         self.log.debug('Integral status')
+        timeval = time.time() + self._timeout
         state = self._attached_pinstate.read(0)
         self._attached_pintimer.poll()
         if state == 'counting':
-            if time.time() > (self._timeval + self._preset):
+            if time.time() > (timeval + self._preset):
                 return status.ERROR, 'Timeout in PIN diode device.'
             return status.BUSY, 'The device is in MOVING state.'
         return status.OK, 'The device is in ON state.'
