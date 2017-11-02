@@ -83,6 +83,7 @@ devices = dict(
                     coder = 'co_mtt',
                     io_flag = 'io_flag',
                     polyswitch = 'polyswitch',
+                    polypos = -89.7,
                     obs = [],
                     precision = 0.005,
                     offset = -0.151, # -0.549 / 05.2017 GE

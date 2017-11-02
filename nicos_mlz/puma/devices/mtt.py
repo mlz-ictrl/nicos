@@ -148,7 +148,7 @@ class MttAxis(Axis):
         # Shielding block position
         if abs(self._poly) == 1:
             self.log.debug('positions = %s', positions)
-            positions.insert(0, (self.polypos, True))
+            positions.insert(0, (self.polypos + self.offset, True))
             self.log.debug('positions = %s', positions)
 
         for (pos, precise) in positions:
@@ -276,7 +276,7 @@ class MttAxis(Axis):
     def _switchpoly(self):
         """Start air pressure cylinder for additional shielding block."""
         self.log.debug('Switch poly0, mtt = %s', self.read(0))
-        temp = self.read(0)
+        temp = self.read(0) - self.offset
         if abs(temp - self.polypos) <= 0.1:
             self.log.debug('Switch poly: %d', self._poly)
             if self._poly < 0 and self._attached_polyswitch.read(0) != 1:
