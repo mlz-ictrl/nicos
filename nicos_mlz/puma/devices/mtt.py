@@ -278,13 +278,15 @@ class MttAxis(Axis):
         self.log.debug('Switch poly0, mtt = %s', self.read(0))
         temp = self.read(0)
         if abs(temp - self.polypos) <= 0.1:
-            self.log.debug('Switch poly')
+            self.log.debug('Switch poly: %d', self._poly)
             if self._poly < 0 and self._attached_polyswitch.read(0) != 1:
+                self.log.debug('Move poly block out')
                 self._attached_polyswitch.maw(1)
                 if self._attached_polyswitch.read(0) != 1:
                     self._setErrorState(MoveError, 'shielding block in way, '
                                         'cannot move 2Theta monochromator')
             elif self._poly > 0 and self._attached_polyswitch.read() != 0:
+                self.log.debug('Move poly block in')
                 self._attached_polyswitch.maw(0)
                 if self._attached_polyswitch.read(0) != 0:
                     self._setErrorState(MoveError, 'shielding block not on '
