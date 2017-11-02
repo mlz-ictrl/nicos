@@ -93,8 +93,11 @@ class TearOffTabBar(QTabBar):
             mimedata.setData('action', 'application/tab-detach')
             drag.setMimeData(mimedata)
 
-            pixmap = QPixmap.grabWidget(self.parentWidget().currentWidget()) \
-                            .scaled(640, 480, Qt.KeepAspectRatio)
+            if hasattr(QPixmap, 'grabWidget'):  # Qt4
+                pixmap = QPixmap.grabWidget(self.parentWidget().currentWidget())
+            else:
+                pixmap = self.parentWidget().currentWidget().grab()
+            pixmap = pixmap.scaled(640, 480, Qt.KeepAspectRatio)
             drag.setPixmap(pixmap)
             drag.setDragCursor(QPixmap(), Qt.LinkAction)
 
@@ -214,7 +217,7 @@ class TearOffTabWidget(QTabWidget):
         for m in panel.getMenus():
             m.menuAction().setVisible(visible)
 
-    @pyqtSlot('QWidget', bool, name='setWidgetVisible')
+    @pyqtSlot(QWidget, bool)
     def setWidgetVisible(self, widget, visible):
         w = self._findFirstWindow(widget)  # get widget which is related to tab
         for i in self.tabIdx.values():     # search for it in the list of tabs

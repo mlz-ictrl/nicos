@@ -147,7 +147,11 @@ class EditorPanel(Panel):
         self.warnWidget.hide()
 
         self.simOutStack.setCurrentIndex(0)
-        self.simRanges.header().setResizeMode(QHeaderView.ResizeToContents)
+        hdr = self.simRanges.header()
+        if hasattr(hdr, 'setResizeMode'):  # Qt4
+            hdr.setResizeMode(QHeaderView.ResizeToContents)
+        else:
+            hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.simPane.hide()
 
         self.splitter.restoreState(self.splitterstate)

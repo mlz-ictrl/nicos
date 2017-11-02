@@ -23,13 +23,51 @@
 # *****************************************************************************
 
 """Qt 4/5 compatibility layer.
+
+At the moment, only Qt 4 is fully tested.  Therefore, to use Qt 5, the
+environment variable NICOS_QT=5 has to be set to select this version.
 """
 
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import
 # PyQt4.QtCore re-exports the original bin, hex and oct builtins
 # pylint: disable=redefined-builtin
 
-if 1:  # pylint: disable=using-constant-test
+# this one is temporary until build machines have Qt5 installed:
+# pylint: disable=import-error
+
+import os
+
+if os.environ.get('NICOS_QT') == '5':
+    import sip
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
+    from PyQt5.QtCore import QObject, pyqtWrapperType
+    from PyQt5.QtCore import *
+    from PyQt5.QtPrintSupport import *
+    from PyQt5.QtDesigner import *
+    from PyQt5 import uic
+
+    try:
+        from PyQt5 import QtWebEngineWidgets
+    except (ImportError, RuntimeError):
+        QWebView = QWebPage = None
+    else:
+        QWebView = QtWebEngineWidgets.QWebEngineView
+        QWebPage = QtWebEngineWidgets.QWebEnginePage
+
+    try:
+        from PyQt5 import QtDBus
+    except (ImportError, RuntimeError):
+        QtDBus = None
+
+    import nicos.guisupport.gui_rc_qt5
+
+    class QPyNullVariant(object):
+        pass
+
+    propertyMetaclass = type(QObject)
+
+else:
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)

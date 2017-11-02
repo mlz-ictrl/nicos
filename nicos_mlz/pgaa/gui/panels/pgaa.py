@@ -163,7 +163,6 @@ class PGAAPanel(Panel):
         else:
             self.client.tell('exec', script)
 
-    @pyqtSlot(str)
     def manPosChanged(self, text):
         self.rad_Man.setChecked(True)
 

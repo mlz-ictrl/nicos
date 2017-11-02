@@ -1,14 +1,20 @@
 .PHONY: clean clean-demo install inplace-install install-venv install-requirements \
-	check setupcheck test testall test-coverage lint \
+	guirc check setupcheck test testall test-coverage lint \
 	changelint manualrelease release help
 
 SHELL=/bin/bash
 
 RCC4 = pyrcc4
+RCC5 = pyrcc5
 PYTHON = /usr/bin/env python
 
 nicos/guisupport/gui_rc_qt4.py: resources/nicos-gui.qrc
 	-$(RCC4) -py3 -o $@ $<
+
+nicos/guisupport/gui_rc_qt5.py: resources/nicos-gui.qrc
+	-$(RCC5) -o $@ $<
+
+guirc: nicos/guisupport/gui_rc_qt4.py nicos/guisupport/gui_rc_qt5.py
 
 clean:
 	rm -rf build

@@ -31,7 +31,7 @@ import functools
 
 from copy import copy
 
-from nicos.guisupport.qt import pyqtProperty, pyqtWrapperType, QFont, \
+from nicos.guisupport.qt import pyqtProperty, propertyMetaclass, QFont, \
     QFontMetrics
 
 from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
@@ -199,13 +199,13 @@ class PropDef(object):
         return copy(value)
 
 
-class AutoPropMeta(pyqtWrapperType):
+class AutoPropMeta(propertyMetaclass):
     """Works similar to the DeviceMeta in that properties are automatically
     inherited, and PyQt getters/setters/resetters are generated.
     """
 
     def __new__(cls, name, bases, attrs):  # pylint: disable=C0202
-        newtype = pyqtWrapperType.__new__(cls, name, bases, attrs)
+        newtype = propertyMetaclass.__new__(cls, name, bases, attrs)
         newprops = {}
         for base in reversed(bases):
             if hasattr(base, 'properties'):

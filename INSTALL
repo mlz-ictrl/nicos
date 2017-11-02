@@ -46,10 +46,9 @@ If not mentioned otherwise, Python packages are available from PyPI
     dependencies)
   - slackclient python package to use the Slack notifier
 
-* For the GUI and status monitor (Due to limitations in the used graphics
-  libraries, only Python2 (>=2.7.4) is supported):
+* For the GUI and status monitor:
 
-  - PyQt4 (not installable with pip)
+  - PyQt4 or PyQt5 (not installable with pip)
   - gr (optional, for plots)
   - PyQwt (optional, for the transition period as an alternative to gr, for plots)
     (not installable with pip)
