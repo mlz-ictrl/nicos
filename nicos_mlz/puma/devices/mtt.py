@@ -293,6 +293,9 @@ class MttAxis(Axis):
                                         'position, measurement without'
                                         'shielding yields to enlarged '
                                         'background')
+            # It takes this time to move up/down. There is no switch to indicate
+            # the end position is reached
+            session.delay(5)
 
     def _checkinhibit(self):
         """Check if a mobil block change arised."""
