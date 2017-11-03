@@ -25,7 +25,7 @@
 """Module to test custom specific modules."""
 
 from test.utils import raises
-from nicos.core.errors import LimitError, MoveError
+from nicos.core.errors import LimitError  # , MoveError
 
 session_setup = 'puma'
 
@@ -93,5 +93,5 @@ def test_mtt_axis(session, log):
     # available
     #
     # This test will check the fail due to this missing device
-    with log.allow_errors():
-        assert raises(MoveError, ax.maw, (ax.polypos - 1))
+    # with log.allow_errors():
+    #     assert raises(MoveError, ax.maw, (ax.polypos - 1))
