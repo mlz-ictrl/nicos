@@ -305,8 +305,8 @@ class MttAxis(Axis):
             t = self.polysleep
             self.log.debug('Waiting for MB. mtt = %s', self.read(0))
             while self._attached_io_flag.read(0) == 1:
-                session.delay(1)
-                t -= 1
+                session.delay(self.loopdelay)
+                t -= self.loopdelay
                 self.log.debug('Waiting for MB')
                 if t < 0:
                     self._setErrorState(MoveError, 'timeout occured during '
