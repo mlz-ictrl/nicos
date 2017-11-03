@@ -24,8 +24,6 @@
 
 """MTT class for PUMA."""
 
-from time import sleep
-
 from nicos import session
 from nicos.core import Attach, MoveError, Moveable, Param, \
     Readable, SIMULATION, status, waitForCompletion
@@ -185,7 +183,7 @@ class MttAxis(Axis):
                 self._stoprequest = 2
                 stoptries = 10
                 continue
-            sleep(self.loopdelay)
+            session.delay(self.loopdelay)
             # Check Mobile block change
             seen_inhibit = self._checkinhibit()
             # poll accurate current values and status of child devices so that
