@@ -49,11 +49,13 @@ _excessive_ws_re = re.compile(r'\n\s*\n')
 
 def formatScript(script, prompt='>>>'):
     """Format a script with timestamp."""
+    username = script.user.name if script.user else ''
+
     if script.quiet:
-        return '%s [%s %s] %s' % (prompt, script.user,
+        return '%s [%s %s] %s' % (prompt, username,
                                   time.strftime(TIMESTAMP_FMT), script.name)
     if script.user:
-        prompt = '%s [%s %s] ' % (prompt, script.user,
+        prompt = '%s [%s %s] ' % (prompt, username,
                                   time.strftime(TIMESTAMP_FMT))
     else:
         prompt = '%s [%s] ' % (prompt, time.strftime(TIMESTAMP_FMT))
