@@ -1426,7 +1426,7 @@ class Session(object):
         """Check if the current user fulfills the requirements given in the
         *required* dictionary.  Raise `.AccessError` if check failed.
 
-        This is called by the `.requires` decorator.
+        This is called by the `nicos.core.device.requires` decorator.
         """
         if 'mode' in required:
             if self.mode != required['mode']:

@@ -375,7 +375,7 @@ class Attach(object):
 
 class Value(object):
     """This class defines the properties of the "value" read from `.Readable`
-    and `.Measurable` classes.  Their `.valueInfo` method must return a tuple
+    and `.Measurable` classes.  Their ``.valueInfo()`` method must return a tuple
     of instances of this class.
 
     * The *name* parameter is the name of the value.  By convention, if only

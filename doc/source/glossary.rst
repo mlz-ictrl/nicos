@@ -8,8 +8,8 @@ Glossary
       Each NICOS device can depend on other devices of which only the interface
       is specified.  In this way, subcomponents with the same interface can be
       replaced without a change of the device code.  Attached devices are
-      declared in device classes in an `.attached_devices` dictionary and
-      configured in setup files like regular parameters.
+      declared in device classes in a `nicos.core.device.Device.attached_devices`
+      dictionary and configured in setup files like regular parameters.
 
    cache
       The NICOS cache is a service that should run once for every instrument.

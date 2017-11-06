@@ -40,6 +40,7 @@ from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
 
 from nicos.core import Device
+from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget
 from nicos.pycompat import getargspec
 
@@ -171,6 +172,7 @@ class NicosClassDocumenter(ClassDocumenter):
 
     def document_members(self, all_members=False):
         if not issubclass(self.object, Device) and \
+           not issubclass(self.object, DeviceMixinBase) and \
            not issubclass(self.object, NicosWidget):
             return ClassDocumenter.document_members(self, all_members)
 

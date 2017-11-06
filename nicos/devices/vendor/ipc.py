@@ -181,7 +181,7 @@ class InvalidCommandError(ProgrammingError):
 class IPCModBus(Device):
     """Abstract class for IPC protocol communication over RS-485.
 
-    A device of this type is needed as the `.bus` parameter of the other IPC
+    A device of this type is needed as the ``.bus`` parameter of the other IPC
     devices.
 
     Concrete implementations are `IPCModBusTaco`, `IPCModBusTCP`,

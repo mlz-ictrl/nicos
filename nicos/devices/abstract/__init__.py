@@ -176,7 +176,8 @@ class MappedReadable(HasMapping, Readable):
 
         This method is called with the value returned by `._readRaw()` and
         should map the raw value to a high-level value.  By default, it maps
-        values according to the reverse of the `.mapping` parameter.
+        values according to the reverse of the
+        `nicos.core.mixins.HasMapping.mapping` parameter.
         """
         if value in self._inverse_mapping:
             return self._inverse_mapping[value]
@@ -222,7 +223,8 @@ class MappedMoveable(MappedReadable, Moveable):
 
         This method is called to get a value to pass to `._startRaw()` and
         should map the high-level value to a raw value.  By default, it maps
-        values according to the `.mapping` parameter.
+        values according to the
+        `nicos.core.mixins.HasMapping.mapping` parameter.
         """
         if not self.relax_mapping:
             # be strict...
