@@ -31,7 +31,7 @@ devices = dict(
                     zerosteps = 9392594,
                     confbyte = 154,
                     unit = 'deg',
-                    circular = 360, # map values to -180..0..180 degree
+                    circular = -360, # map values to -180..0..180 degree
                     lowlevel = True,
                    ),
 
