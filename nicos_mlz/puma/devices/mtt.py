@@ -46,8 +46,11 @@ class MttAxis(Axis):
     parameters = {
         'polypos': Param('Shielding block change position', default=-89.8,
                          unit='deg'),
-        'polysleep': Param('Sleep time to change the shielding block',
-                           default=10, unit='s', settable=False),
+        'polysleep': Param('Sleep time to change the polyethylen shielding '
+                           'block',
+                           default=5, unit='s', settable=False),
+        'blocksleep': Param('Sleep time to change a mobile block',
+                            default=20, unit='s', settable=False),
     }
 
     def doInit(self, mode):
@@ -71,11 +74,10 @@ class MttAxis(Axis):
             self.log.debug('need to stop axis first')
             self.stop()
             waitForCompletion(self, ignore_errors=True)
-            # raise NicosError(self, 'axis is moving now, please issue a stop '
-            #                  'command and try it again')
 
         if self._posthread:
-            self._posthread.join()
+            if self._posthread.isAlive():
+                self._posthread.join()
             self._posthread = None
 
         self._target = target
@@ -91,7 +93,12 @@ class MttAxis(Axis):
         It should be overwritten in derived classes for special actions.
         To abort the move, raise an exception from this method.
         """
-        self._poly = self._checkpoly()
+        self._poly = 0
+        current = self.read(0)
+        if self._target < self.polypos and current >= self.polypos:
+            self._poly = -1
+        elif self._target > self.polypos and current <= self.polypos:
+            self._poly = 1
         self.log.debug('self._poly = %s', self._poly)
 
     def _postMoveAction(self):
@@ -144,7 +151,7 @@ class MttAxis(Axis):
                     else:
                         self.log.debug('cannot move to backlash position')
         # Shielding block position
-        if abs(self._poly) == 1:
+        if self._poly != 0:
             self.log.debug('positions = %s', positions)
             positions.insert(0, (self.polypos + self.offset, True))
             self.log.debug('positions = %s', positions)
@@ -156,9 +163,7 @@ class MttAxis(Axis):
                 self._setErrorState(MoveError,
                                     'error in positioning: %s' % err)
             if self._stoprequest == 2 or self._errorstate:
-                self._poly = 0
                 break
-            self._switchpoly()
         try:
             self._postMoveAction()
         except Exception as err:
@@ -167,10 +172,15 @@ class MttAxis(Axis):
 
     def _positioning(self, target, precise=True):
         self.log.debug('start positioning, target is %s', target)
-        seen_inhibit = 0
         moving = False
         offset = self.offset
         tries = self.maxtries
+
+        # enforce initial good agreement between motor and coder
+        if not self._checkDragerror():
+            self._attached_motor.setPosition(self._getReading())
+            self._errorstate = None
+
         self._lastdiff = abs(target - self.read(0))
         self._attached_motor.start(target + offset)
         moving = True
@@ -184,25 +194,20 @@ class MttAxis(Axis):
                 stoptries = 10
                 continue
             session.delay(self.loopdelay)
+
             # Check Mobile block change
-            seen_inhibit = self._checkinhibit()
+            self._checkinhibit()
+
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            _, pos = self.poll()
+            _status, pos = self.poll()
             mstatus, mstatusinfo = self._attached_motor.status()
             if mstatus != status.BUSY:
-                self.log.debug('mstatus = %s', mstatus)
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
-                elif seen_inhibit == 1:
-                    # motor stopped because of the MB change
-                    tries += 1
-                    self.log.debug('reset inhibit')
-                    seen_inhibit = 0
-                    self.log.debug('moving %s %s', moving, self._stoprequest)
                 elif not precise and not self._errorstate:
                     self.log.debug('motor stopped and precise positioning '
                                    'not requested')
@@ -262,20 +267,15 @@ class MttAxis(Axis):
                     self._setErrorState(MoveError, 'motor did not stop after '
                                         'stop request, aborting')
                     moving = False
-
-    def _checkpoly(self):
-        current = self.read(0)
-        if self._target < self.polypos and current >= self.polypos:
-            return -1
-        elif self._target > self.polypos and current <= self.polypos:
-            return 1
-        return 0
+        self._switchpoly()
 
     def _switchpoly(self):
         """Start air pressure cylinder for additional shielding block."""
-        self.log.debug('Switch poly0, mtt = %s', self.read(0))
-        temp = self.read(0) - self.offset
-        if abs(temp - self.polypos) <= 0.1:
+        if self._stoprequest == 2 or self._errorstate:
+            self._poly = 0
+        if self._poly != 0 and \
+           abs(self.read(0) - self.offset - self.polypos) <= 0.1:
+            self.log.debug('Switch poly0, mtt = %s', self.read(0))
             self.log.debug('Switch poly: %d', self._poly)
             if self._poly < 0 and self._attached_polyswitch.read(0) != 1:
                 self.log.debug('Move poly block out')
@@ -283,7 +283,7 @@ class MttAxis(Axis):
                 if self._attached_polyswitch.read(0) != 1:
                     self._setErrorState(MoveError, 'shielding block in way, '
                                         'cannot move 2Theta monochromator')
-            elif self._poly > 0 and self._attached_polyswitch.read() != 0:
+            elif self._poly > 0 and self._attached_polyswitch.read(0) != 0:
                 self.log.debug('Move poly block in')
                 self._attached_polyswitch.maw(0)
                 if self._attached_polyswitch.read(0) != 0:
@@ -291,21 +291,22 @@ class MttAxis(Axis):
                                         'position, measurement without'
                                         'shielding yields to enlarged '
                                         'background')
-            # It takes this time to move up/down. There is no switch to indicate
-            # the end position is reached
-            session.delay(5)
+            # It takes this time to move up/down. There is no switch to
+            # indicate the end position is reached
+            session.delay(self.polysleep)
 
     def _checkinhibit(self):
         """Check if a mobil block change arised."""
-        inh = self._attached_io_flag.read(0)
-        if inh == 1:
-            self._attached_motor.stop()
-            t = self.polysleep
-            self.log.debug('Waiting for MB. mtt = %s', self.read(0))
+        if self._attached_io_flag.read(0) == 1:
+            # save last motor target
+            target = self._attached_motor.target
+            self.motor.stop()
+            t = self.blocksleep
+            self.log.info('Waiting for MB change. mtt = %s', self.read(0))
             while self._attached_io_flag.read(0) == 1:
+                self.log.debug('Waiting for MB: %.2fs', t)
                 session.delay(self.loopdelay)
                 t -= self.loopdelay
-                self.log.debug('Waiting for MB')
                 if t < 0:
                     msg = 'timeout occured during wait for mobile block change'
                     # self._setErrorState(MoveError, msg)
@@ -313,4 +314,7 @@ class MttAxis(Axis):
                     # self.log.debug('Error state = %s', self._errorstate)
                     self.log.warning(msg)
                     break
-        return inh
+            self.log.info('MB change took %1.f s', self.blocksleep - t)
+            # restart motor to target
+            if not self._stoprequest:
+                self._attached_motor.move(target)
