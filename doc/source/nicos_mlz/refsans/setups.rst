@@ -25,7 +25,7 @@ Service setups
 Parameter definition
 ====================
 
-.. module:: custom.refsans.lib.params
+.. module:: nicos_mlz.refsans.params
 
 .. function:: motoraddress
 
