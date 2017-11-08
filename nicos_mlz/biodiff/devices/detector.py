@@ -308,6 +308,14 @@ class BiodiffDetector(Detector):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
+    def _getWaiters(self):
+        adevs = dict(self._adevs)
+        if not self.ctrl_photoshutter:
+            adevs.pop(self._attached_photoshutter.name)
+        if not self.ctrl_gammashutter:
+            adevs.pop(self._attached_gammashutter.name)
+        return adevs
+
     def doFinish(self):
         Detector.doFinish(self)
         self._check_shutter()
