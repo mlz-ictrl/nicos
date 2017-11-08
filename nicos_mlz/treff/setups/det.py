@@ -3,7 +3,9 @@
 description = "Jumiom detector setup"
 group = "basic"
 
-includes = ["counter", "sampletable"]
+includes = ["counter", "sampletable",
+            "guidehall", "nl5", "reactor",
+           ]
 
 sysconfig = dict(
     datasinks = ["NPGZFileSink", "YAMLSaver", "LiveViewSink"],
