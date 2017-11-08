@@ -24,9 +24,12 @@
 
 import numpy as np
 
-from nicos.core import status, Value, ArrayDesc
+from nicos.core import status, Value, ArrayDesc, Attach, Moveable, Param
+from nicos.core.errors import InvalidValueError
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
+    Detector
+from nicos_mlz.jcns.devices.shutter import OPEN, CLOSED
 
 
 class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
@@ -56,3 +59,34 @@ class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doStatus(self, maxage=0):
         return status.OK, "idle"
+
+
+class MariaDetector(Detector):
+
+    attached_devices = {
+        "shutter": Attach("Shutter to open before exposure", Moveable),
+    }
+
+    parameters = {
+        "ctrl_shutter": Param("Open shutter automatically before "
+                              "exposure?", type=bool, settable=True,
+                              mandatory=False, default=True),
+    }
+
+    def doStart(self):
+        # open shutter before exposure
+        if self.ctrl_shutter:
+            self._attached_shutter.maw(OPEN)
+        Detector.doStart(self)
+
+    def doFinish(self):
+        Detector.doFinish(self)
+        if self.ctrl_shutter and self._attached_shutter.read() == CLOSED:
+            raise InvalidValueError(self, 'shutter not open after exposure, '
+                                    'check safety system')
+
+    def _getWaiters(self):
+        adevs = dict(self._adevs)
+        if not self.ctrl_shutter:
+            adevs.pop(self._attached_shutter.name)
+        return adevs

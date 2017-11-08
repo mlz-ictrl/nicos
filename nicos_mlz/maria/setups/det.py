@@ -3,7 +3,7 @@
 description = "Denex detector setup"
 group = "optional"
 
-includes = ["counter"]
+includes = ["counter", "shutter"]
 
 sysconfig = dict(
     datasinks = ["NPGZFileSink", "YAMLSaver", "LiveViewSink"],
@@ -61,8 +61,9 @@ devices = dict(
                            description = "ROI 6",
                            roi = (508, 300, 8, 420),
                           ),
-    det           = device("nicos.devices.generic.Detector",
+    det           = device("nicos_mlz.maria.devices.detector.MariaDetector",
                            description = "Denex detector",
+                           shutter = "shutter",
                            timers = ["timer"],
                            monitors = ["mon0", "mon1"],
                            images = ["detimg"],

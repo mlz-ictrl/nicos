@@ -3,7 +3,7 @@
 description = "Neutron depth profiling detector setup"
 group = "basic"
 
-includes = ["counter"]
+includes = ["counter", "shutter"]
 excludes = ["det"]
 
 sysconfig = dict(
@@ -37,8 +37,9 @@ devices = dict(
                            description = "NDP detector image",
                            tangodevice = tango_ndp + "/fastcomtec/detector",
                           ),
-    ndpdet        = device("nicos.devices.generic.Detector",
+    ndpdet        = device("nicos_mlz.maria.devices.detector.MariaDetector",
                            description = "NDP detector",
+                           shutter = "shutter",
                            timers = ["timer"],
                            monitors = ["mon0", "mon1"],
                            images = ["ndpimg"],
