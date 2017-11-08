@@ -15,3 +15,10 @@ includes = ['nok1', 'nok2', 'nok3', 'nok4',
             'b2',
             'h2',
             ]
+
+devices = dict(
+    optic = device('nicos_mlz.refsans.devices.optic.Optic',
+        description = 'Beam optic',
+        # nok2 = 'nok2',
+    ),
+)
