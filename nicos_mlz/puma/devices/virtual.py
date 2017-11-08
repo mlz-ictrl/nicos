@@ -26,8 +26,10 @@
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
     status
+from nicos.core.errors import UsageError
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import VirtualMotor
+from nicos.pycompat import string_types
 
 
 class VirtualReferenceMotor(CanReference, VirtualMotor):
@@ -37,18 +39,31 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         'refpos': Param('Reference position if given',
                         type=none_or(float), settable=False, default=None,
                         unit='main'),
+        'addr': Param('Bus address of the motor', type=intrange(32, 255),
+                      default=71),
     }
 
     def doReference(self, *args):
+        refswitch = args[0] if args and isinstance(args[0], string_types) \
+            else None
+        self.log.debug('reference: %s', refswitch)
+        self._setrefcounter()
+        if self.refpos is not None:
+            ret = self.read(0)
+            self.log.debug('%s %r', self.name, self.isAtReference())
+            return ret
+        return self.refpos
+
+    def _setrefcounter(self):
+        self.log.debug('in setrefcounter')
         if self.refpos is not None:
             self.setPosition(self.refpos)
             self._setROParam('target', self.refpos)
             self.log.debug('%r %r', self.refpos, self.target)
             session.delay(0.1)
-            ret = self.read(0)
-            self.log.debug('%s %r', self.name, self.isAtReference())
-            return ret
-        return self.refpos
+        if not self.isAtReference():
+            raise UsageError('cannot set reference counter, not at reference '
+                             'point')
 
     def isAtReference(self, refswitch=None):
         pos = self.read(0)

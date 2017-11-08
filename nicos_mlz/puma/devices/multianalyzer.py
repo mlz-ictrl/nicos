@@ -23,20 +23,32 @@
 # *****************************************************************************
 """PUMA multi analyser class."""
 
-from nicos.core import Attach, HasTimeout, Moveable, Override, Param
+import sys
+
+from nicos import session
+from nicos.core import Attach, HasTimeout, Moveable, Override, Param, status, \
+    tupleof
 from nicos.core.errors import PositionError
-from nicos.core.utils import multiWait
+from nicos.core.utils import filterExceptions, multiStatus, multiWait
 
 from nicos.devices.abstract import CanReference
 
+from nicos.pycompat import reraise
+
 
 class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
+    """PUMA multianalyzer device.
+
+    The device combines 11 devices consisting of a rotation and a translation.
+    """
+
+    _num_axes = 11
 
     attached_devices = {
         'translations': Attach('Translation axes of the crystals',
-                               CanReference, multiple=11),
+                               CanReference, multiple=_num_axes),
         'rotations': Attach('Rotation axes of the crystals',
-                            CanReference, multiple=11),
+                            CanReference, multiple=_num_axes),
     }
 
     parameters = {
@@ -44,225 +56,275 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
                           type=float, settable=False, default=0,),
         'general_reset': Param('',
                                type=int, settable=False, default=0),
+        '_status': Param('read only status',
+                         type=bool, settable=False, userparam=False,
+                         default=False),
     }
 
     parameter_overrides = {
         'timeout': Override(default=600),
         'unit': Override(mandatory=False, default=''),
+        'fmtstr': Override(volatile=True),
     }
 
     hardware_access = False
 
     stoprequest = 0
 
+    valuetype = tupleof(*(float for i in range(2 * _num_axes)))
+
     def doInit(self, mode):
         self._rotation = self._attached_rotations
         self._translation = self._attached_translations
+        self._setROParam('_status', False)
 
     def doIsAllowed(self, target):
         """Check if requested targets are within allowed range for devices."""
-        if len(target) != 22:
-            return False, 'requested positions not complete: ' \
-                          'no. of positions %s instead of 22 ! (%r)' % (
-                              len(target), target)
-
-        notallowed = False
         why = []
-        for i in range(11):
-            ok, _why = self._translation[i].isAllowed(target[i])
-            if ok:
-                self.log.debug('requested translation %2d to %.2f mm allowed',
-                               i + 1, target[i])
-            else:
-                why.append('requested translation %2d to %.2f mm out of '
-                           'limits: %s' % (i + 1, target[i], _why))
-                notallowed = True
-
-        for i in range(11, 22):
-            ok, _why = self._rotation[i - 11].isAllowed(target[i])
+        for i, (ax, t) in enumerate(zip(self._rotation,
+                                        target[self._num_axes:])):
+            ok, w = ax.isAllowed(t)
             if ok:
                 self.log.debug('requested rotation %2d to %.2f deg allowed',
-                               i - 11 + 1, target[i])
+                               i + 1, t)
             else:
                 why.append('requested rotation %d to %.2f deg out of limits: '
-                           '%s' % (i - 11 + 1, target[i], _why))
-                notallowed = True
-
-        if notallowed:
+                           '%s' % (i + 1, t, w))
+        for i, (ax, t) in enumerate(zip(self._translation,
+                                        target[:self._num_axes])):
+            ok, w = ax.isAllowed(t)
+            if ok:
+                self.log.debug('requested translation %2d to %.2f mm allowed',
+                               i + 1, t)
+            else:
+                why.append('requested translation %2d to %.2f mm out of '
+                           'limits: %s' % (i + 1, t, w))
+        if why:
             return False, '; '.join(why)
         return True, ''
 
+    def doStatus(self, maxage=0):
+        if self._status:
+            return status.BUSY, 'moving'
+        return multiStatus(self._adevs, maxage)
+
+    def valueInfo(self):
+        ret = []
+        for dev in self._attached_rotations + self._attached_translations:
+            ret.extend(dev.valueInfo())
+        return tuple(ret)
+
+    def doReadFmtstr(self):
+        return ', '.join('%s = %s' % (v.name, v.fmtstr)
+                         for v in self.valueInfo())
+
     def doStart(self, target):
-        # check if requested positions already reached within precision
-        mvt, mvr = self._checkPositionReached(target)
-        if not mvt and not mvr:
-            self.log.debug('device already at requested position, nothing to '
-                           'do!')
+        try:
+            self._setROParam('_status', True)
+            # check if requested positions already reached within precision
+            mvt, mvr = self._checkPositionReached(target)
+            if not mvt and not mvr:
+                self.log.debug('device already at requested position, nothing '
+                               'to do!')
+                self._printPos()
+                return
+
+            # requested position not equal current position ==>> start checking
+            # for allowed movement
+
+            # first check for translation
+            if mvt:
+                self.log.debug('The following translation axes start moving: '
+                               '%r', mvt)
+                # check if translation movement is allowed, i.e. if all
+                # rotation axis at reference switch
+                if not self._checkRefSwitchRotation(range(self._num_axes)):
+                    if not self._refrotation():
+                        raise PositionError(self, 'Could not reference '
+                                            'rotations')
+
+                self.log.debug('all rotation at refswitch, start translation')
+                for i, dev in enumerate(self._translation):
+                    dev.move(target[i])
+                self._hw_wait(self._translation)
+
+                if self._checkPositionReachedTrans(target):
+                    raise PositionError(self, 'Axes: %r did not reach target')
+                self.log.debug('translation movement done')
+
+                # else:
+                #     # try to reference individual reference switches, then
+                #     # drive translation checks if neighbouring translations
+                #     # are far enough to reference if yes, drive to reference
+                #     # sucessful -> yes -> drive translation
+                #     for i in mvt:
+                #         self.log.debug('list mvt %d %r, %s, %s, %s, %s',
+                #                        len(mvt), mvt, i, i - 1, i + 1,
+                #                        target[i])
+
+                #         for j in range(3):
+                #             if 0 in mvt:
+                #                 self.log.info('0 in mvt')
+                #                 if not self._checkRefSwitchRotation([i]):
+                #                     self.log.info('move %s to refswitch',
+                #                                   self._rotation[i])
+                #                     if self._checkTransNeighbour(i):
+                #                         self._rotation[i].reference()
+                #                         self._rotation[i].wait()
+                #                 if not self._checkRefSwitchRotation([i + 1]):
+                #                     self.log.info('move +1 %s to refswitch',
+                #                                   self._rotation[i + 1])
+                #                     if self._checkTransNeighbour(i + 1):
+                #                         self._rotation[i + 1].reference()
+                #                         self._rotation[i + 1].wait()
+                #                 if self._checkRefSwitchRotation([i, i + 1]):
+                #                     self._translation[mvt[i]].maw(target[i])
+
+                #                 if not self._checkPositionReachedTrans(
+                #                    target)[0]:
+                #                     self.log.debug('translation movement '
+                #                                    'done case 3a')
+                #                     break
+                #             elif 10 in mvt:
+                #                 self.log.info('10 in mvt')
+                #                 if not self._checkRefSwitchRotation([i]):
+                #                     self.log.info('move %s to refswitch',
+                #                                   self._rotation[i])
+                #                     if self._checkTransNeighbour(i):
+                #                         self._rotation[i].reference()
+                #                         self._rotation[i].wait()
+
+                #                 if not self._checkRefSwitchRotation([i - 1]):
+                #                     self.log.info('move -1 %s to refswitch',
+                #                                   self._rotation[i - 1])
+                #                     if self._checkTransNeighbour(i - 1):
+                #                         self._rotation[i - 1].reference()
+                #                         self._rotation[i - 1].wait()
+                #                 if self._checkRefSwitchRotation([i, i - 1]):
+                #                     self._translation[mvt[i]].maw(target[i])
+
+                #                 if not self._checkPositionReachedTrans(
+                #                    target)[0]:
+                #                     self.log.debug('translation movement '
+                #                                    'done case 3b')
+                #                     break
+                #             elif self._checkRefSwitchRotation(
+                #                     [i, i - 1, i + 1]):
+                #                 self._translation[i].maw(target[i])
+
+                #                 if self._checkPositionReachedTrans(
+                #                    target)[0] == 0:
+                #                     self.log.debug('translation movement '
+                #                                    'done case 3c')
+                #                     break
+                #             elif not self._checkRefSwitchRotation(
+                #                     [i, i - 1, i + 1]):
+                #                 self.log.info('j: %s check for translation '
+                #                               'allowed', j)
+                #                 if not self._checkRefSwitchRotation([i]):
+                #                     self.log.info('move %s to refswitch',
+                #                                   self._rotation[i])
+                #                     if self._checkTransNeighbour(i):
+                #                         self._rotation[i].reference()
+                #                         self._rotation[i].wait()
+                #                 if not self._checkRefSwitchRotation([i - 1]):
+                #                     self.log.info('move -1 %s to refswitch',
+                #                                   self._rotation[i - 1])
+                #                     if self._checkTransNeighbour(i - 1):
+                #                         self._rotation[i - 1].reference()
+                #                         self._rotation[i - 1].wait()
+                #                 if not self._checkRefSwitchRotation([i + 1]):
+                #                     self.log.info('move +1 %s to refswitch',
+                #                                   self._rotation[i + 1])
+                #                     if self._checkTransNeighbour(i + 1):
+                #                         self._rotation[i + 1].reference()
+                #                         self._rotation[i + 1].wait()
+
+                #                 if self._checkRefSwitchRotation(
+                #                    [i, i - 1, i + 1]):
+                #                     self._translation[i].maw(target[i])
+
+                #                 if not self._checkPositionReachedTrans(
+                #                    target)[0]:
+                #                     self.log.debug('translation movement '
+                #                                    'done case 4')
+                #                     break
+                #                 else:
+                #                     raise PositionError(self, 'Translation '
+                #                                         'drive not '
+                #                                         'successful')
+                #             else:
+                #                 self.log.error('cannot move translation:%s',
+                #                                i)
+
+                #       self._hw_wait(self._translation)
+
+            # Rotation Movement
+            mvr = self._checkPositionReachedRot(target)
+            if mvr:
+                self.log.debug('The following rotation axes start moving: %r',
+                               mvr)
+                for i in mvr:
+                    if not self._checkTransNeighbour(i):
+                        self.log.warn('neighbour XX distance < %7.3f; cannot '
+                                      'move rotation!', self.distance)
+                        continue
+                    # TODO: check move or maw
+                    self._rotation[i].move(target[self._num_axes + i])
+                self._hw_wait([self._rotation[i] for i in mvr])
+                if self._checkPositionReachedRot(target):
+                    raise PositionError(self, 'Rotation drive not successful')
+                self.log.debug('rotation movement done')
+        finally:
+            self._setROParam('_status', False)
             self._printPos()
-            return
-
-        # requested position not equal current position ==>> start checking
-        # for allowed movement
-
-        # first check for translation
-        if mvt:
-            self.log.debug('The following translation axes start moving: %r',
-                           mvt)
-            # check if translation movement is allowed, i.e. if all
-            # rotation axis at reference switch
-            if not self._checkRefSwitchRotation(range(11)):
-                if not self._refrotation():
-                    raise PositionError(self, 'Could not reference rotations')
-
-            self.log.debug('all rotation at refswitch, start translation')
-            for i, dev in enumerate(self._translation):
-                dev.move(target[i])
-            multiWait(self._translation)
-
-            if self._checkPositionReachedTrans(target):
-                raise PositionError(self, 'Axes: %r did not reach target')
-            self.log.debug('translation movement done')
-
-            # else:
-            #     # try to reference individual reference switches, then drive
-            #     # translation checks if neighbouring translations are far
-            #     # enough to reference if yes, drive to reference sucessful
-            #     # -> yes -> drive translation
-            #     for i in mvt:
-            #         self.log.debug('list mvt %d %r, %s, %s, %s, %s',
-            #                        len(mvt), mvt, i, i - 1, i + 1, target[i])
-
-            #         for j in range(3):
-            #             if 0 in mvt:
-            #                 self.log.info('0 in mvt')
-            #                 if not self._checkRefSwitchRotation([i]):
-            #                     self.log.info('move %s to refswitch',
-            #                                   self._rotation[i])
-            #                     if self._checkTransNeighbour(i):
-            #                         self._rotation[i].reference()
-            #                         self._rotation[i].wait()
-            #                 if not self._checkRefSwitchRotation([i + 1]):
-            #                     self.log.info('move +1 %s to refswitch',
-            #                                   self._rotation[i + 1])
-            #                     if self._checkTransNeighbour(i + 1):
-            #                         self._rotation[i + 1].reference()
-            #                         self._rotation[i + 1].wait()
-            #                 if self._checkRefSwitchRotation([i, i + 1]):
-            #                     self._translation[mvt[i]].maw(target[i])
-
-            #                 if not self._checkPositionReachedTrans(
-            #                    target)[0]:
-            #                     self.log.debug('translation movement '
-            #                                    'done case 3a')
-            #                     break
-            #             elif 10 in mvt:
-            #                 self.log.info('10 in mvt')
-            #                 if not self._checkRefSwitchRotation([i]):
-            #                     self.log.info('move %s to refswitch',
-            #                                   self._rotation[i])
-            #                     if self._checkTransNeighbour(i):
-            #                         self._rotation[i].reference()
-            #                         self._rotation[i].wait()
-
-            #                 if not self._checkRefSwitchRotation([i - 1]):
-            #                     self.log.info('move -1 %s to refswitch',
-            #                                   self._rotation[i - 1])
-            #                     if self._checkTransNeighbour(i - 1):
-            #                         self._rotation[i - 1].reference()
-            #                         self._rotation[i - 1].wait()
-            #                 if self._checkRefSwitchRotation([i, i - 1]):
-            #                     self._translation[mvt[i]].maw(target[i])
-
-            #                 if not self._checkPositionReachedTrans(
-            #                    target)[0]:
-            #                     self.log.debug('translation movement '
-            #                                    'done case 3b')
-            #                     break
-            #             elif self._checkRefSwitchRotation(
-            #                     [i, i - 1, i + 1]):
-            #                 self._translation[i].maw(target[i])
-
-            #                 if self._checkPositionReachedTrans(
-            #                    target)[0] == 0:
-            #                     self.log.debug('translation movement '
-            #                                    'done case 3c')
-            #                     break
-            #             elif not self._checkRefSwitchRotation(
-            #                     [i, i - 1, i + 1]):
-            #                 self.log.info('j: %s check for translation '
-            #                               'allowed', j)
-            #                 if not self._checkRefSwitchRotation([i]):
-            #                     self.log.info('move %s to refswitch',
-            #                                   self._rotation[i])
-            #                     if self._checkTransNeighbour(i):
-            #                         self._rotation[i].reference()
-            #                         self._rotation[i].wait()
-            #                 if not self._checkRefSwitchRotation([i - 1]):
-            #                     self.log.info('move -1 %s to refswitch',
-            #                                   self._rotation[i - 1])
-            #                     if self._checkTransNeighbour(i - 1):
-            #                         self._rotation[i - 1].reference()
-            #                         self._rotation[i - 1].wait()
-            #                 if not self._checkRefSwitchRotation([i + 1]):
-            #                     self.log.info('move +1 %s to refswitch',
-            #                                   self._rotation[i + 1])
-            #                     if self._checkTransNeighbour(i + 1):
-            #                         self._rotation[i + 1].reference()
-            #                         self._rotation[i + 1].wait()
-
-            #                 if self._checkRefSwitchRotation(
-            #                    [i, i - 1, i + 1]):
-            #                     self._translation[i].maw(target[i])
-
-            #                 if not self._checkPositionReachedTrans(
-            #                    target)[0]:
-            #                     self.log.debug('translation movement '
-            #                                    'done case 4')
-            #                     break
-            #                 else:
-            #                     raise PositionError(self, 'Translation '
-            #                                         'drive not successful')
-            #             else:
-            #                 self.log.error('cannot move translation:%s', i)
-
-            #       multiWait(self._translation)
-
-        # Rotation Movement
-        mvr = self._checkPositionReachedRot(target)
-        if mvr:
-            self.log.debug('The following rotation axes start moving: %r', mvr)
-            for i in mvr:
-                if not self._checkTransNeighbour(i):
-                    self.log.warn('neighbour XX distance < %7.3f; cannot move '
-                                  'rotation!', self.distance)
-                    continue
-                # TODO: check move or maw
-                self._rotation[i].move(target[i + 11])
-            multiWait([self._rotation[i] for i in mvr])
-            if self._checkPositionReachedRot(target):
-                raise PositionError(self, 'Rotation drive not successful')
-            self.log.debug('rotation movement done')
-        self._printPos()
-        self.log.debug('Analyser movement done')
+            self.log.debug('Analyser movement done')
 
     def doReset(self):
         for dev in self._rotation + self._translation:
             dev.reset()
 
     def doReference(self, *args):
-        check = 0
-        if self._refrotation():
-            check += 1
+        check = self._refrotation()
+        if not check:
+            self.log.warn('reference of rotations not successful')
+        check += self._reftranslation()
+        if check != 2:
+            self.log.warn('reference of translations not succesful')
         else:
-            self.log.warn('reset of rotation not successful')
+            self.log.debug('reset of %s sucessful', self.name)
 
-        if self._reftranslation():
-            check += 1
-        else:
-            self.log.warn('cannot reset translation')
-
-        if check == 2:
-            self.log.info('reset of %s sucessful', self.name)
+    def _hw_wait(self, devices):
+        loops = 0
+        final_exc = None
+        devlist = devices[:]  # make a 'real' copy of the list
+        while devlist:
+            loops += 1
+            for dev in devlist[:]:
+                try:
+                    done = dev.doStatus(0)[0]
+                except Exception:
+                    dev.log.exception('while waiting')
+                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    # remove this device from the waiters - we might still
+                    # have its subdevices in the list so that _hw_wait()
+                    # should not return until everything is either OK or
+                    # ERROR
+                    devlist.remove(dev)
+                if done == status.BUSY:
+                    # we found one busy dev, normally go to next iteration
+                    # until this one is done (saves going through the whole
+                    # list of devices and doing unnecessary HW communication)
+                    if loops % 10:
+                        break
+                    # every 10 loops, go through everything to get an accurate
+                    # display in the action line
+                    continue
+                devlist.remove(dev)
+            if devlist:
+                session.delay(self._base_loop_delay)
+        if final_exc:
+            reraise(*final_exc)
 
     def _reference(self, devlist):
         if self.stoprequest == 0:
@@ -297,7 +359,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
         return self._reference(self._translation)
 
     def doRead(self, maxage=0):
-        return [dev.read() for dev in self._translation + self._rotation]
+        return [dev.read(maxage) for dev in self._translation + self._rotation]
 
     def _printPos(self):
         out = []
@@ -318,7 +380,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     # to be checked
     def _checkTransNeighbour(self, trans):
-        if not 0 <= trans < 11:
+        if not 0 <= trans < self._num_axes:
             self.log.warn('cannot move translation: %d', trans)
             return False
 
@@ -342,7 +404,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     def _checkPositionReachedTrans(self, position):
         mv = []
-        request = self.doRead()[0:11]
+        request = self.doRead(0)[0:self._num_axes]
 
         for i in range(len(self._translation)):
             if abs(position[i] - request[i]) > self._translation[i].precision:
@@ -354,10 +416,11 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     def _checkPositionReachedRot(self, position):
         mv = []
-        request = self.doRead()[11:22]
+        request = self.doRead(0)[self._num_axes:2 * self._num_axes]
 
         for i in range(len(self._rotation)):
-            if abs(position[i + 11] - request[i]) > self._rotation[i].precision:
+            if abs(position[i + self._num_axes] - request[i]) > \
+               self._rotation[i].precision:
                 self.log.debug('xx%2d rotation start moving', i + 1)
                 mv.append(i)
             else:

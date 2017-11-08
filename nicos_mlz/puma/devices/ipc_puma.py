@@ -38,6 +38,7 @@ from nicos.core.errors import NicosError, TimeoutError, UsageError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
+from nicos.pycompat import string_types
 from nicos.utils import createThread
 
 DIR_POS = 34
@@ -214,13 +215,17 @@ class ReferenceMotor(CanReference, Motor):
             return (status.BUSY, 'referencing')
         return Motor.doStatus(self, maxage)
 
-    def doReference(self):
+    def doReference(self, *args):
+        refswitch = args[0] if args and isinstance(args[0], string_types) \
+            else None
         if self.doStatus()[0] == status.BUSY:
             self.stop()
             self.wait()
 
-        self.reset()
-        self.wait()
+        # The sixfold and triple cards will be reset as whole card, so values
+        # of all channels will reset !!!
+        # self.reset()
+        # self.wait()
 
         if self.doStatus()[0] == status.OK:
             if self._refcontrol and self._refcontrol.isAlive():
@@ -229,7 +234,8 @@ class ReferenceMotor(CanReference, Motor):
 
             if self._refcontrol is None:
                 threadname = 'referencing %s' % self
-                self._refcontrol = createThread(threadname, self._reference)
+                self._refcontrol = createThread(threadname, self._reference,
+                                                args=(refswitch,))
                 session.delay(0.2)
         else:
             raise NicosError(self, 'in error or busy state')
@@ -243,44 +249,57 @@ class ReferenceMotor(CanReference, Motor):
 
     def _start(self, target):
         target = self._tosteps(target)
-        self.log.debug('target is %d steps', target)
         pos = self._tosteps(self.read(0))
-        self.log.debug('pos is %d steps', pos)
+        self.log.debug('target is %d steps, pos is %d steps', target, pos)
         diff = target - pos
         if diff:
             self._attached_bus.send(self.addr,
                                     DIR_NEG if diff < 0 else DIR_POS)
             self._attached_bus.send(self.addr, MOVE_REL, abs(diff), 6)
-            session.delay(0.1)  # moved here from doWait.
+            session.delay(0.1)
             # hw_wait will not work here, since the status of the device is
             # always busy, but only the state of the motor is important
-            while Motor.doStatus(self, 0)[0] == status.BUSY:
+            while Motor.doStatus(self, 0)[0] == status.BUSY and \
+                    not self._stoprequest:
                 session.delay(self._base_loop_delay)
+            # motor must be stopped, the hardware will go again if any of the
+            # limit switches is released again, this leads to unpredictable
+            # results!
             Motor.doStop(self)
 
-    def _reference(self):
+    def _reference(self, refswitch=None):
         """Drive motor to reference switch."""
+        self.log.debug('referencing: %s', refswitch)
+
         # init referencing
-        self.log.debug('referencing')
-
         self._stoprequest = 0
-
+        # if reference switch is explicitly given only drive to given limit
+        # switch
+        fullref = refswitch is None
+        if refswitch is None:
+            refswitch = self.refswitch
+        if refswitch == self.refswitch:
+            refdirection = self.refdirection
+        else:  # refdirection must be opposite from configured
+            if self.refdirection == 'upper':
+                refdirection = 'lower'
+            else:
+                refdirection = 'upper'
+            self.log.debug('switch %s, direction %s, %s', refswitch,
+                           self.refdirection, refdirection)
         try:
-            _min, _max = self.min, self.max
-            motspeed = self.speed
+            _min, _max, motspeed = self.min, self.max, self.speed
             self._resetlimits()
-            if not self.isAtReference():
-                # check configuration; set direction of drive
-                self.log.debug('in _reference checkrefswitch')
-                self._drive_to_reference(self.refspeed)
-            if self.isAtReference():
-                self._move_away_from_reference()
-            self._move_until_referenced(time.time())
-            if self.isAtReference():
-                if self.parkpos is not None:
-                    self._start(self.parkpos)
-            if self._stoprequest == 1:
-                raise NicosError(self, 'reference stopped by user')
+            self._drive_to_limit_switch(refswitch, refdirection)
+            if fullref:
+                if self.isAtReference():
+                    self._move_away_from_reference(refswitch, refdirection)
+                self._move_until_referenced(time.time())
+                if self.isAtReference():
+                    if self.parkpos is not None:
+                        self._start(self.parkpos)
+                if self._stoprequest == 1:
+                    raise NicosError(self, 'reference stopped by user')
         except TimeoutError as e:
             self.log.error('%s occured during referencing', e)
         except NicosError as e:
@@ -288,31 +307,40 @@ class ReferenceMotor(CanReference, Motor):
         except Exception as e:
             self.log.error('%s: occured during referencing', e)
         finally:
-            self.log.debug('in finally')
+            self.log.debug('stoprequest: %d', self._stoprequest)
             self.speed = motspeed
             self.min = _min
             self.max = _max
-            self.log.debug('stoprequest: %d', self._stoprequest)
-            try:
-                temp = self.read(0)
-                self.log.info('new position of %s is now %.3f %s', self.name,
-                              temp, self.unit)
-                if self.abslimits[0] <= temp <= self.abslimits[1]:
-                    self._resetlimits()
-                else:
-                    self.log.warn('in _referencing limits not restored after '
-                                  'positioning')
-            except NicosError as e:
-                self.log.debug('error catched in finally positioning %s', e)
-                self.log.debug('in finally positioning restorelimits failed')
-                self.log.warn('limits not restored after positioning')
+            if fullref:
+                try:
+                    temp = self.read(0)
+                    self.log.info('new position of %s is now %.3f %s',
+                                  self.name, temp, self.unit)
+                    if self.abslimits[0] <= temp <= self.abslimits[1]:
+                        self._resetlimits()
+                    else:
+                        self.log.warn('in _referencing limits not restored '
+                                      'after positioning')
+                except NicosError as e:
+                    self.log.warn('error catched in finally positioning %s', e)
 
-    def isAtReference(self):
+    def _drive_to_limit_switch(self, switch, direction):
+        self.log.debug('driving to %r switch towards %r', switch, direction)
+        if not self.isAtReference(switch):
+            self.log.debug('in _drive_to_limitswitch checkrefswitch')
+            self._drive_to_reference(self.refspeed, switch, direction)
+            if not self.isAtReference(switch):
+                if self._stoprequest == 1:
+                    raise NicosError(self, 'limitswitch drive stopped by user')
+
+    def isAtReference(self, refswitch=None):
         """Check whether configured reference switch is active."""
         self.log.debug('in isAtReference function')
-        return (self.refswitch == 'high' and self._isAtHighlimit()) or \
-               (self.refswitch == 'low' and self._isAtLowlimit()) or \
-               (self.refswitch == 'ref' and self._isAtReferenceSwitch())
+        if refswitch is None:
+            refswitch = self.refswitch
+        return (refswitch == 'high' and self._isAtHighlimit()) or \
+               (refswitch == 'low' and self._isAtLowlimit()) or \
+               (refswitch == 'ref' and self._isAtReferenceSwitch())
 
     def _isAtHighlimit(self):
         return bool(self._attached_bus.get(self.addr, STATUS) & 0x40)
@@ -339,27 +367,34 @@ class ReferenceMotor(CanReference, Motor):
         if self.userlimits != newlim:
             self.userlimits = newlim
 
-    def _drive_to_reference(self, refspeed):
-        self.log.debug('reference direction: %s', self.refswitch)
-        if self.refswitch in ['high', 'low']:
-            if self.refdirection == 'lower':
-                stop, start = self._hw_limits
-                if start < stop:
-                    start, stop = stop, start
+    def _drive_to_reference(self, refspeed, refswitch, refdirection):
+        self.log.debug('reference: switch %s, direction %s', refswitch,
+                       refdirection)
+        if refswitch in ['high', 'low']:
+            if refdirection == 'lower':
+                if self.slope > 0:
+                    stop, start = self._hw_limits
+                else:
+                    start, stop = self._hw_limits
             else:
-                start, stop = self._hw_limits
+                if self.slope > 0:
+                    start, stop = self._hw_limits
+                else:
+                    stop, start = self._hw_limits
+            # if start > stop:
+            #     start, stop = stop, start
             self.setPosition(start)
-            self.log.debug('move %f from %f', start, stop)
+            self.log.debug('move to %f from %f', stop, start)
             self._start(stop)
             self.log.debug('finished at %f', self.read(0))
             if self._stoprequest:
                 raise NicosError(self, 'reference stopped by user')
 
-    def _move_away_from_reference(self):
-        self.log.debug('%s limit switch active', self.refswitch)
+    def _move_away_from_reference(self, refswitch, refdirection):
+        self.log.debug('%s limit switch active', refswitch)
         self.steps = self.refpos
         d = abs(self.refstep / self.slope)
-        if self.refdirection == 'lower':
+        if refdirection == 'lower':
             d = -d
         self.log.debug('move away from reference switch %f', d)
         self._start(self.read(0) - d)

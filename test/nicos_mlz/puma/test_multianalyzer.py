@@ -31,9 +31,7 @@ try:
 except ImportError:
     maketrans = str.maketrans
 
-from test.utils import raises
-
-from nicos.core.errors import LimitError
+from nicos.core.errors import LimitError, InvalidValueError
 
 import pytest
 
@@ -63,11 +61,14 @@ class TestMultiAnalyzer(object):
         man = session.getDevice('man')
         assert not man.isAllowed([300] + [0] * 10 + [1] + [0] * 10)[0]
         # To less arguments
-        assert raises(LimitError, man, 'move', [0] * 21)
+        with pytest.raises(InvalidValueError):
+            man.move([0] * 21)
         # To many arguments
-        assert raises(LimitError, man, 'move', [0] * 23)
+        with pytest.raises(InvalidValueError):
+            man.move([0] * 23)
         # one of the translations and one of the rotations out of range
-        assert raises(LimitError, man, 'move', [300] * 22)
+        with pytest.raises(LimitError):
+            man.move([300] * 22)
 
         dirname = os.path.dirname(__file__)
         # read good targets from file

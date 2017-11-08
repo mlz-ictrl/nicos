@@ -39,6 +39,7 @@ session_setup = 'multidetector'
 
 
 class TestMultiDetector(object):
+    """Test class for the PUMA multidetector arranging device."""
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):
@@ -48,14 +49,18 @@ class TestMultiDetector(object):
 
         med.stop()
         med.reset()
+        med.reference()
+        med.wait()
 
     def test_internal_functions(self, session):
+        """Test class internal functions."""
         med = session.getDevice('med')
         assert not med._checkPositionReached(None, '')
         assert not med._checkPositionReached([], '')
         assert not med._checkPositionReached(range(11), '')
 
     def test_targets(self, session):
+        """Test a set of targets."""
         med = session.getDevice('med')
         # To less arguments
         assert not med.isAllowed([0] * 21)[0]
@@ -67,6 +72,20 @@ class TestMultiDetector(object):
         assert med.isAllowed([-2.5 * i for i in range(11)] + [0] * 11)[0]
         # Some of the positions are to close together
         assert not med.isAllowed([-2.2 * i for i in range(11)] + [0] * 11)[0]
+
+    def test_movement(self, session):
+        """Test moves to different positions."""
+        med = session.getDevice('med')
+        med.maw([-2.5 * i for i in range(11)] + [0] * 11)
+        # Code should return immediately
+        med.move([-2.5 * i for i in range(11)] + [0] * 11)
+
+        assert med.read(0) == [-2.5 * i for i in range(11)] + [0] * 11
+
+        for r, e in zip(med._read_corr()[0], [-8.92, -9.39, -9.98, -10.70,
+                                              -11.54, -12.5, -13.58, -14.81,
+                                              -16.15, -17.61, -19.19]):
+            assert r == approx(e, abs=0.01)
 
         dirname = os.path.dirname(__file__)
         # read good targets from file
@@ -83,16 +102,8 @@ class TestMultiDetector(object):
                 v = map(float, s.translate(maketrans('][,', '   ')).split())
                 assert not med.isAllowed(list(v))[0]
 
-
-    def test_movement(self, session):
+    def test_reference(self, session):
+        """Test different reference parameters."""
         med = session.getDevice('med')
-        med.maw([-2.5 * i for i in range(11)] + [0] * 11)
-        # Code should return immediately
-        med.move([-2.5 * i for i in range(11)] + [0] * 11)
-
-        assert med.read(0) == [-2.5 * i for i in range(11)] + [0] * 11
-
-        for r, e in zip(med._read_corr()[0], [-8.92, -9.39, -9.98, -10.70,
-                                              -11.54, -12.5, -13.58, -14.81,
-                                              -16.15, -17.61, -19.19]):
-            assert r == approx(e, abs=0.01)
+        assert med.reference() == [-3.5 * (x + 1) for x in range(11)] + \
+            [0] * 11

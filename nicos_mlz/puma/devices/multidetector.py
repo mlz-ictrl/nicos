@@ -25,23 +25,36 @@
 
 import math
 
+import sys
+
 from nicos import session
 
-from nicos.core import Attach, Moveable, Override, Param, tupleof
-from nicos.core.errors import PositionError
+from nicos.core import Attach, Moveable, Override, Param, status, tupleof
 from nicos.core.mixins import HasTimeout
-from nicos.core.utils import multiWait
+from nicos.core.utils import filterExceptions, multiStatus
+
+from nicos.devices.abstract import CanReference
+
+from nicos.pycompat import reraise
 
 
-class PumaMultiDetectorLayout(HasTimeout, Moveable):
+class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
+    """PUMA multidetector arrangement device.
+
+    There are 11 detector/blades(collimator) combinations moving on a circle.
+    The detector tubes are mounted vertically and the blade can be moved around
+    the detector, where the pivot point is the center of the detector tube.
+    """
 
     _num_axes = 11
 
     attached_devices = {
-        'rotdetector': Attach('', Moveable, multiple=_num_axes),
-        'rotguide': Attach('', Moveable, multiple=_num_axes),
+        'rotdetector': Attach('Detector tube position devices',
+                              Moveable, multiple=_num_axes),
+        'rotguide': Attach('Detector guide devices',
+                           Moveable, multiple=_num_axes),
         # 'man': Attach('multi analyzer', Moveable),
-        'att': Attach('coupled axes detector', Moveable),
+        'att': Attach('Coupled axes detector', Moveable),
     }
 
     valuetype = tupleof(*(float for i in range(2 * _num_axes)))
@@ -55,11 +68,15 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         'detectorradius': Param('',
                                 type=float, settable=False, default=761.9,
                                 unit='mm'),
+        '_status': Param('read only status',
+                         type=bool, settable=False, userparam=False,
+                         default=False),
     }
 
     parameter_overrides = {
         'timeout': Override(default=600.),
         'unit': Override(mandatory=False, default='', settable=False),
+        'fmtstr': Override(volatile=True),
     }
 
     hardware_access = False
@@ -76,133 +93,243 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         self._rotdetector1 = self._rotdetector0[::-1]
         self._rotguide0 = self._attached_rotguide
         self._rotguide1 = self._rotguide0[::-1]
+        self._setROParam('_status', False)
+
+    def doStatus(self, maxage=0):
+        if self._status:
+            return status.BUSY, 'moving'
+        return multiStatus(self._attached_rotdetector +
+                           self._attached_rotguide, maxage)
+
+    def valueInfo(self):
+        ret = []
+        for dev in self._attached_rotdetector + self._attached_rotguide:
+            ret.extend(dev.valueInfo())
+        return tuple(ret)
+
+    def doReadFmtstr(self):
+        return ', '.join('%s = %s' % (v.name, v.fmtstr)
+                         for v in self.valueInfo())
 
     def doIsAllowed(self, target):
-        notallowed = []
         # check if requested position is allowed in principle
         why = []
-        for i, dev in enumerate(self._attached_rotdetector):
-            ok, _why = dev.isAllowed(target[i])
+        for dev, pos in zip(self._rotdetector0, target[:self._num_axes]):
+            ok, _why = dev.isAllowed(pos)
             if ok:
-                self.log.debug('requested rotation %2d to %.2f deg allowed',
-                               i + 1, target[i])
+                self.log.debug('%s: requested position %.3f deg allowed', dev,
+                               pos)
             else:
-                why.append('requested rotation %2d to %.2f deg out of limits;'
-                           '%s' % (i + 1, target[i], _why))
-                notallowed.append(1)
+                why.append('%s: requested position %.3f deg out of limits; %s'
+                           % (dev, pos, _why))
         # now check detector and guide rotation allowed within single limits
         # and sequence limits
-
-        if notallowed:
-            self.log.warn('notallowed : %r %s', notallowed, '; '.join(why))
+        if why:
             return False, '; '.join(why)
-        if not self._sequentialAngleLimit(target[:self._num_axes]):
-            return False, 'Some of the positions are to close to others'
-        return True, ''
+        return self._sequentialAngleLimit(target[:self._num_axes])
 
     def doStart(self, target):
         """Move multidetector to correct scattering angle of multi analyzer.
 
         It takes account into the different origins of the analyzer blades.
         """
-        # check if requested positions already reached within precision
-        check = self._checkPositionReached(target[:self._num_axes], 'raw')
-        self._printPos()
-        if check:
-            self.log.debug('device already at requested position, nothing to!')
-            return
+        try:
+            # check if requested positions already reached within precision
+            check = self._checkPositionReached(target[0:self._num_axes], 'raw')
+            self._printPos()
+            if check:
+                self.log.debug('device already at requested position, nothing '
+                               'to do!')
+                return
 
-        self.log.debug('try to start multidetector')
+            self.log.debug('try to start multidetector')
+            self._setROParam('_status', True)
 
-        # reference of guide blades before movement
-        # self.reference('det')
-        # self.wait()
-        # self.reference('guide')
-        # self.wait()
+            # reference of guide blades before movement
+            # self.reference('det')
+            # self.wait()
+            # self.reference('guide')
+            # self.wait()
 
-        # calculate the angles for the device movement
-        # pos = self._correctAnglesMove(position) # 11 angle values for device
+            # calculate the angles for the device movement
+            # pos = self._correctAnglesMove(position) # 11 angles for device
 
-        # move individual guide to zero
-        # self.rg1.reference() # guide No 1 is defect
-        for i, d in enumerate(self._rotguide1):
-            d.move(-0.5 * i)
-        multiWait(self._rotguide1)
+            # move individual guide to zero
+            # self.rg1.reference() # guide No 1 is defect
 
-        # move device to device angle
-        # Goetz collision sort
-        nstart = [[0] * self._num_axes] * self._num_axes
-        for i in range(self._num_axes):
-            for j in range(self._num_axes):
-                nstart[i][j] = 0
-            i1 = i + 1
-            for j in range(i1, self._num_axes):
-                if target[i] < self._rotdetector0[j].read() + 2.5:
-                    nstart[i][j] = 1
+            # Most left position of the guides
+            l = min(self._rotguide0[0].read(0), -5)
+            # spread the guides to the left with a distance of 0.5 deg to
+            # ensure all guides can be moved to zero position and will not
+            # touch another guide
+            for i, d in enumerate(self._rotguide0):
+                self.log.info('move %s to %f', d, l + 0.5 * i)
+                d.move(l + 0.5 * i)
+                session.delay(0.5)
+            self.log.debug('Wait for finishing')
+            self._hw_wait(self._rotguide0)
+            # remove all remaining move commands on cards due to touching any
+            # limit switch
+            self.stop()
 
-        istart = [0] * self._num_axes
-        for _k in range(self._num_axes):
-            if 0 not in istart:
-                break
-            # ready = 1
-            # for i in range(self._num_axes):
-            #     if istart[i] == 0:
-            #         ready = 0
-            # if ready != 0:
-            #     break
+            # move all guides to zero position starting with the most right
+            # guide so the guides and detectors are in well defined state.
+            for d in self._rotguide1:
+                d.move(0)
+                session.delay(0.5)
+            self._hw_wait(self._rotguide1)
+            # remove all remaining move commands on cards due to touching any
+            # limit switch
+            self.stop()
+
+            # move detectors to device angle
+            self.log.debug('Collision sorting')
+            # Goetz collision sort
+            nstart = [[0] * self._num_axes] * self._num_axes
             for i in range(self._num_axes):
-                _sum = 0
-                if istart[i] == 1:
-                    continue
-                i1 = i + 1
-                for j in range(i1, self._num_axes):
-                    _sum += nstart[i][j]
-                if _sum != 0:
-                    continue
-                istart[i] = 1
-                self._rotdetector0[i].move(target[i])
-                session.delay(2)
-                for j in range(self._num_axes):
-                    nstart[j][i] = 0
-        multiWait(self._rotdetector0)
+                for j in range(i + 1, self._num_axes):
+                    if target[i] < self._rotdetector0[j].read(0) + 2.5:
+                        nstart[i][j] = 1
+            self.log.debug('Collision sorting done: %r', nstart)
 
-        # self.rg1.reference()   # guide No 1 is defect
-        for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
-            self._rotguide0[n].move(target[n + self._num_axes])
-            self.log.info('guide No %s', n + 1)
-        multiWait(self._rotguide0)
+            istart = [0] * self._num_axes
+            for _k in range(self._num_axes):
+                if 0 not in istart:
+                    break
+                # ready = 1
+                # for i in range(self._num_axes):
+                #     if istart[i] == 0:
+                #         ready = 0
+                # if ready != 0:
+                #     break
+                for i in range(self._num_axes):
+                    if istart[i] == 0:
+                        if sum(nstart[i][i + 1:self._num_axes]) == 0:
+                            istart[i] = 1
+                            self.log.info('Move detector #%d', i + 1)
+                            self._rotdetector0[i].move(target[i])
+                            session.delay(2)
+                            for j in range(self._num_axes):
+                                nstart[j][i] = 0
+            self._hw_wait(self._rotdetector0)
+            # remove all remaining move commands on cards due to touching any
+            # limit switch
+            self.stop()
+
+            # self.rg1.reference()   # guide No 1 is defect
+            for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
+                self._rotguide0[n].move(target[n + self._num_axes])
+                self.log.info('Move guide #%d', n + 1)
+            self._hw_wait(self._rotguide0)
+            # remove all remaining move commands on cards due to touching any
+            # limit switch
+            self.stop()
+        finally:
+            self._setROParam('_status', False)
 
     def doReset(self):
         for dev in self._rotguide0 + self._rotdetector0:
-            dev.reset()
+            # one reset per card is sufficient, since the card will be reset
+            # completely
+            if dev.motor.addr in [71, 77, 83, 89]:
+                dev.reset()
 
-    def doReference(self, what='all', order=0):
-        if what == 'det':
-            if order == 0:
-                for d in self._rotdetector0:
-                    d.reference()
-                    session.delay(10)
-            elif order == 1:
-                for d in self._rotdetector1:
-                    d.reference()
-                    session.delay(10)
-            multiWait(self._rotdetector0)
-        elif what == 'guide':
-            if order == 0:
-                for d in self._rotguide0:
-                    d.reference()
-                    session.delay(10)
-            elif order == 1:
-                for d in self._rotguide1:
-                    d.reference()
-                    session.delay(10)
-            multiWait(self._rotguide0)
-        if self._checkLimitSwitches(what) != 1:
-            raise PositionError('reference drive failed')
-        self.log.info('reference drive successful')
+    def doReference(self, *args):
+        # self.doReset()
+        self.stop()
+        for d, g in zip(self._rotdetector1, self._rotguide1):
+            self.log.info('reference: %s, %s', d, g)
+            self._reference_det_guide(d, g)
+            session.delay(1.5)
+        for i, (d, g) in enumerate(zip(self._rotdetector0, self._rotguide0)):
+            d.userlimits = d.abslimits
+            d.move(d.read(0) + 10 - i)
+            g.reference()
+            self._hw_wait([d, g])
+        self.log.info('referencing of guides is finished')
+        for d in self._rotguide1:
+            d.move(0)
+            session.delay(1)
+        self._hw_wait(self._rotguide1)
+        self.log.info('zeroing of guides finished')
 
     def doRead(self, maxage=0):
         return [d.read(maxage) for d in self._rotdetector0 + self._rotguide0]
+
+    def _reference_det_guide(self, det, guide):
+        """Drive 'det' and 'guide' devices to references.
+
+        The 'det' device will be moved to its reference position, whereas the
+        'guide' device will only moved to a position hitting the upper limit
+        switch. So the 'det' and 'guide' devices are in a position all other
+        pairs could be referenced too.
+
+        If the 'guide' hits the upper limit switch and the 'det' is not at it's
+        reference position it will be moved away in steps of 1 deg.
+        """
+        try:
+            if not det.motor.isAtReference('high') and \
+               not det.motor.isAtReference('low'):
+                det.reference()
+                self._hw_wait([det])
+                while guide.motor.isAtReference('high'):
+                    while guide.motor.isAtReference('high'):
+                        p = guide.motor.read(0)
+                        if not guide.motor.isAllowed(p - 1)[0]:
+                            self.log.info('set new position: %f', (p + 1))
+                            guide.motor.setPosition(p + 1)
+                            self.log.info('new position is: %f',
+                                          guide.motor.read(0))
+                            session.delay(1)
+                            self.log.info('new position is: %f',
+                                          guide.motor.read(0))
+                        guide.motor.move(p - 1)
+                        self._hw_wait([guide])
+                    det.reference()
+                    self._hw_wait([det])
+                self.log.info('det: %f', det.read(0))
+            else:
+                det.motor._setrefcounter()
+            if not guide.motor.isAtReference('high'):
+                guide.motor.reference('high')
+            else:
+                det.motor._setrefcounter()
+            self.log.info('after guide ref start, det: %f', det.read(0))
+            self._hw_wait([guide])
+        finally:
+            pass
+
+    def _hw_wait(self, devices):
+        loops = 0
+        final_exc = None
+        devlist = devices[:]  # make a 'real' copy of the list
+        while devlist:
+            loops += 1
+            for dev in devlist[:]:
+                try:
+                    done = dev.doStatus(0)[0]
+                except Exception:
+                    dev.log.exception('while waiting')
+                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    # remove this device from the waiters - we might still
+                    # have its subdevices in the list so that _hw_wait()
+                    # should not return until everything is either OK or
+                    # ERROR
+                    devlist.remove(dev)
+                if done == status.BUSY:
+                    # we found one busy dev, normally go to next iteration
+                    # until this one is done (saves going through the whole
+                    # list of devices and doing unnecessary HW communication)
+                    if loops % 10:
+                        break
+                    # every 10 loops, go through everything to get an accurate
+                    # display in the action line
+                    continue
+                devlist.remove(dev)
+            if devlist:
+                session.delay(self._base_loop_delay)
+        if final_exc:
+            reraise(*final_exc)
 
     def _read_corr(self):
         """Read the physical unit of axis."""
@@ -254,7 +381,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         nonreached = []
 
         for i, p in enumerate(pos):
-            self.log.info('%s %s', p, temp[i])
+            self.log.debug('%s %s', p, temp[i])
             if abs(p - temp[i]) <= self._rotdetector0[i].precision:
                 reached.append(i)
                 check += 1
@@ -272,11 +399,11 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         origins
         """
         anatranslist1 = list(range(-125, -5, 20)) + [0] + \
-                        list(range(25, 126, 20))
+            list(range(25, 126, 20))
         # anatranslist1 = [-125, -105, -85, -65, -45, -25, 0, 25, 45, 65, 85,
         #                  105, 125]
 
-        # anatranslist = self.man._read()[0:self._num_axes]
+        # anatranslist = self._attached_man._read()[0:self._num_axes]
         # for i in range(len(anatranslist)):
         #     if anatranslist[i] <= 125.:
         #         temp = anatranslist[i] - 125.
@@ -294,7 +421,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         Needed for the calculation of real angles of detectors due to different
         origins
         """
-        self.anarot = self.att.read()
+        self.anarot = self._attached_att.read()
         return self.anarot
 
     def _correctZeroAna(self, position):
@@ -334,47 +461,38 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         return read1
 
     def _checkLimitSwitches(self, what):
-        highlimit = []
-        lowlimit = []
-        refswitches = []
-        ref = 0
+        lis = []
+        if what in ['det', 'all']:
+            lis += self._rotdetector0
+        if what == ['guide', 'all']:
+            lis += self._rotguide0
 
-        if what == 'det':
-            lis = self._rotdetector0
-        elif what == 'guide':
-            lis = self._rotguide0
-        else:
-            return False
-
-        for i in range(self._num_axes):
-            templs1 = (lis[i].motor._status() >> 5) & 1
-            # templs2 = (lis[i].stepper._status() >> 6) & 1
-            if what == 'det':
-                if templs1 == 1 and (lis[i].refswitch == 'high'):
-                    highlimit.append(1)
-                    lowlimit.append(0)
-                    refswitches.append(1)
-                    ref += 1
-                elif templs1 == 0 and (lis[i].refswitch == 'high'):
-                    highlimit.append(0)
-                    lowlimit.append(0)
-                    refswitches.append(0)
-            elif what == 'guide':
-                if templs1 == 1 and (lis[i].refswitch == 'low'):
-                    highlimit.append(0)
-                    lowlimit.append(1)
-                    refswitches.append(1)
-                    ref += 1
-                elif templs1 == 0 and (lis[i].refswitch == 'low'):
-                    highlimit.append(0)
-                    lowlimit.append(0)
-                    refswitches.append(0)
-
-            self.log.info('%s %s', lis[i], ref)
-
-        self.log.info('highlimit: %s', highlimit)
-        self.log.info('lowlimit:  %s', lowlimit)
-        self.log.info('refswitch: %s', refswitches)
+        ref = sum(dev.motor.isAtReference() for dev in lis)
+        # for dev in lis:
+        #     templs1 = (dev.motor._status() >> 5) & 1
+        #     if what == 'det':
+        #         ref += dev.motor.isAtReference()
+        #         if templs1 == 1 and (lis[i].refswitch == 'high'):
+        #             highlimit.append(1)
+        #             lowlimit.append(0)
+        #             refswitches.append(1)
+        #             ref += 1
+        #         elif templs1 == 0 and (lis[i].refswitch == 'high'):
+        #             highlimit.append(0)
+        #             lowlimit.append(0)
+        #             refswitches.append(0)
+        #     elif what == 'guide':
+        #         ref += dev.motor.isAtReference()
+        #         if templs1 == 1 and (lis[i].refswitch == 'low'):
+        #             highlimit.append(0)
+        #             lowlimit.append(1)
+        #             refswitches.append(1)
+        #             ref += 1
+        #         elif templs1 == 0 and (lis[i].refswitch == 'low'):
+        #             highlimit.append(0)
+        #             lowlimit.append(0)
+        #             refswitches.append(0)
+        #     self.log.debug('%s %s', dev, ref)
 
         return ref == len(lis)
 
@@ -385,6 +503,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         notallowed = []
         self.log.debug('position: %s', pos)
         self.log.debug('anglis: %s', self.anglis)
+        why = []
 
         for i in range(len(pos)):
             self.log.debug('check position %s %s', i, pos[i])
@@ -393,16 +512,16 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
                     allowed.append(i)
                     check += 1
                 else:
-                    self.log.warn('case 0: %s %s %s', pos[i], pos[i + 1],
-                                  self.anglis[0])
+                    why.append('case 0: %s %s %s' % (pos[i], pos[i + 1],
+                                                     self.anglis[0]))
                     notallowed.append(i)
             elif i == 10:
                 if abs(pos[i] - pos[i - 1]) > self.anglis[9]:
                     allowed.append(i)
                     check += 1
                 else:
-                    self.log.warn('case 10: %s %s %s', pos[i], pos[i - 1],
-                                  self.anglis[9])
+                    why.append('case 10: %s %s %s' % (pos[i], pos[i - 1],
+                                                      self.anglis[9]))
                     notallowed.append(i)
             else:
                 if abs(pos[i] - pos[i + 1]) > self.anglis[i] and \
@@ -410,13 +529,13 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
                     allowed.append(i)
                     check += 1
                 else:
-                    self.log.warn('%s %s %s %s', pos[i - 1], pos[i],
-                                  pos[i + 1], self.anglis[i])
+                    why.append('%s %s %s %s' % (pos[i - 1], pos[i], pos[i + 1],
+                                                self.anglis[i]))
                     notallowed.append(i)
             self.log.debug('check: %s', check)
         self.log.debug('movement allowed for the following axes: %s', allowed)
         if check != self._num_axes:
             self.log.warn('movement not allowed for the following axes: %s',
                           notallowed)
-            return False
-        return True
+            return False, '; '.join(why)
+        return True, ''
