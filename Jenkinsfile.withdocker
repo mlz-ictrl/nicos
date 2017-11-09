@@ -127,46 +127,15 @@ def publishGerrit(name, value) {
 
 
 def refreshVenv(venv='$NICOSVENV') {
-    sh """\
-#! /bin/bash
-. $venv/bin/activate
-pip install -r requirements-dev.txt
-pip install -r requirements.txt
-allcustreq=`find . -mindepth 2 -name requirements\\*.txt`
-for custreq in \$allcustreq ; do
-   pip install -r \$custreq
-done
-    """
+    sh "./ciscripts/run_venvupdate.sh $venv"
 }
 
 def runPylint() {
     verifyresult.put('pylint',0)
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
-        refreshVenv()
-            sh '''\
-#! /bin/bash
-. $NICOSVENV/bin/activate
-echo $PATH
-set +e
-
-PYFILESCHANGED=`~/tools2/bin/changedfiles --py`
-if [[ -n "$PYFILESCHANGED" ]] ; then
-    set -o pipefail
-    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
-    res=$?
-    set +o pipefail
-else
-    echo 'no python files changed'
-    res = 0
-fi
-
-set -e
-
-~/tools2/bin/pylint2gerrit
-
-exit $res
-'''
+            refreshVenv()
+            sh './ciscripts/run_pylint.sh'
             verifyresult.put('pylint', 1)
         }
     }
@@ -188,16 +157,7 @@ def runSetupcheck() {
                                 variable: 'GERRITHTTP')]) {
             refreshVenv()
             ansiColor('xterm') {
-                sh '''\
-#! /bin/bash
-. $NICOSVENV/bin/activate
-
-tools/check_setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
-
-~/tools2/bin/sc2gerrit
-
-exit $((res))
-'''
+                sh './ciscripts/run_setupcheck.sh'
             }
             verifyresult.put('sc', 1)
         }
@@ -232,15 +192,8 @@ addopts = --junit-xml=pytest-${pyver}.xml
                                    'NICOS_CACHE_PORT',
                                    'NICOS_CACHE_ALT_PORT']]) {
             timeout(10) {
-              sh """\
-#! /bin/bash
-echo $venv
-set +x
-. $venv/bin/activate
-set -x
-
-pytest -v test"""
-verifyresult.put(pyver, 1)
+              sh "./ciscripts/run_pytest.sh $venv"
+              verifyresult.put(pyver, 1)
             } // timeout
         } // wrap
     } catch(all) {
@@ -273,23 +226,7 @@ def runDocTest() {
     verifyresult.put('doc', 0)
     try {
         refreshVenv()
-        sh '''\
-#!/bin/bash
-set +x
-. $NICOSVENV/bin/activate
-echo $PATH
-set -x
-export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
-if [[ -n "$doc_changed" ]]; then
-
-    cd doc
-    make html
-    make latexpdf
-else
-    echo 'no changes in doc/'
-fi
-'''
-
+        sh './ciscripts/run_doctest.sh'
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'doc/build/latex/NICOS.*'])
         publishHTML([allowMissing: true,
