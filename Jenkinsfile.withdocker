@@ -114,6 +114,17 @@ def checkoutSource() {
     sh '''git describe'''
 }
 
+def publishGerrit(name, value) {
+    gerritverificationpublisher([
+        verifyStatusValue: value,
+        verifyStatusName: name,
+        verifyStatusCategory: 'test',
+        verifyStatusReporter: 'jenkins',
+        verifyStatusRerun: '@recheck'
+    ])
+
+}
+
 
 def refreshVenv(venv='$NICOSVENV') {
     sh """\
@@ -165,13 +176,7 @@ exit $res
         verifyresult.put('pylint',-1)
     }
     echo "pylint: result=" + verifyresult['pylint']
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['pylint'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'pylint',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('pylint', verifyresult['pylint'])
 
     if (verifyresult['pylint'] < 0) {
         error('Failure in pylint')
@@ -205,13 +210,7 @@ exit $((res))
         verifyresult.put('sc', -1)
     }
     echo "setupcheck: result=" + verifyresult['sc']
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['sc'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'setupcheck',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('setupcheck',verifyresult['sc'])
 
     if (verifyresult['sc'] < 0) {
          error('Failure in setupcheck')
@@ -253,13 +252,7 @@ verifyresult.put(pyver, 1)
     }
 
     echo "Test $pyver: result=" + verifyresult[pyver]
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult[pyver],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'pytest-'+pyver,
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('pytest-'+pyver, verifyresult[pyver])
 
     junit([allowEmptyResults: true,
            keepLongStdio: true,
@@ -315,14 +308,7 @@ fi
         verifyresult.put('doc',-1 )
     }
     echo "Docs: result=" + verifyresult['doc']
-
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['doc'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'doc',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('doc', verifyresult['doc'])
 
     if (verifyresult['doc'] < 0) {
         error('Failure in doc test')
