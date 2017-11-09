@@ -27,7 +27,7 @@ import math
 
 from nicos import session
 
-from nicos.core import Attach, Moveable, Override, Param
+from nicos.core import Attach, Moveable, Override, Param, tupleof
 from nicos.core.errors import PositionError
 from nicos.core.mixins import HasTimeout
 from nicos.core.utils import multiWait
@@ -35,12 +35,16 @@ from nicos.core.utils import multiWait
 
 class PumaMultiDetectorLayout(HasTimeout, Moveable):
 
+    _num_axes = 11
+
     attached_devices = {
-        'rotdetector': Attach('', Moveable, multiple=11),
-        'rotguide': Attach('', Moveable, multiple=11),
+        'rotdetector': Attach('', Moveable, multiple=_num_axes),
+        'rotguide': Attach('', Moveable, multiple=_num_axes),
         # 'man': Attach('multi analyzer', Moveable),
         'att': Attach('coupled axes detector', Moveable),
     }
+
+    valuetype = tupleof(*(float for i in range(2 * _num_axes)))
 
     parameters = {
         'general_reset': Param('',
@@ -75,10 +79,6 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
 
     def doIsAllowed(self, target):
         notallowed = []
-        # check if list of requested positions is complete
-        if len(target) != 22:
-            return False, 'requested positions not complete: no. of positions'\
-                          ' %d instead of 22 ! (%s)' % (len(target), target)
         # check if requested position is allowed in principle
         why = []
         for i, dev in enumerate(self._attached_rotdetector):
@@ -90,14 +90,13 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
                 why.append('requested rotation %2d to %.2f deg out of limits;'
                            '%s' % (i + 1, target[i], _why))
                 notallowed.append(1)
-        # doAllowed for guide
         # now check detector and guide rotation allowed within single limits
         # and sequence limits
 
-        if notallowed or not self._sequentialAngleLimit(target[0:11]):
-            if notallowed:
-                self.log.warn('notallowed : %r %s', notallowed, '; '.join(why))
-                return False, '; '.join(why)
+        if notallowed:
+            self.log.warn('notallowed : %r %s', notallowed, '; '.join(why))
+            return False, '; '.join(why)
+        if not self._sequentialAngleLimit(target[:self._num_axes]):
             return False, 'Some of the positions are to close to others'
         return True, ''
 
@@ -107,7 +106,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
-        check = self._checkPositionReached(target[0:11], 'raw')
+        check = self._checkPositionReached(target[:self._num_axes], 'raw')
         self._printPos()
         if check:
             self.log.debug('device already at requested position, nothing to!')
@@ -132,44 +131,44 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
 
         # move device to device angle
         # Goetz collision sort
-        nstart = [[0] * 11] * 11
-        for i in range(11):
-            for j in range(11):
+        nstart = [[0] * self._num_axes] * self._num_axes
+        for i in range(self._num_axes):
+            for j in range(self._num_axes):
                 nstart[i][j] = 0
             i1 = i + 1
-            for j in range(i1, 11):
+            for j in range(i1, self._num_axes):
                 if target[i] < self._rotdetector0[j].read() + 2.5:
                     nstart[i][j] = 1
 
-        istart = [0] * 11
-        for _k in range(11):
+        istart = [0] * self._num_axes
+        for _k in range(self._num_axes):
             if 0 not in istart:
                 break
             # ready = 1
-            # for i in range(11):
+            # for i in range(self._num_axes):
             #     if istart[i] == 0:
             #         ready = 0
             # if ready != 0:
             #     break
-            for i in range(11):
+            for i in range(self._num_axes):
                 _sum = 0
                 if istart[i] == 1:
                     continue
                 i1 = i + 1
-                for j in range(i1, 11):
+                for j in range(i1, self._num_axes):
                     _sum += nstart[i][j]
                 if _sum != 0:
                     continue
                 istart[i] = 1
                 self._rotdetector0[i].move(target[i])
                 session.delay(2)
-                for j in range(11):
+                for j in range(self._num_axes):
                     nstart[j][i] = 0
         multiWait(self._rotdetector0)
 
         # self.rg1.reference()   # guide No 1 is defect
         for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
-            self._rotguide0[n].move(target[n + 11])
+            self._rotguide0[n].move(target[n + self._num_axes])
             self.log.info('guide No %s', n + 1)
         multiWait(self._rotguide0)
 
@@ -277,7 +276,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         # anatranslist1 = [-125, -105, -85, -65, -45, -25, 0, 25, 45, 65, 85,
         #                  105, 125]
 
-        # anatranslist = self.man._read()[0:11]
+        # anatranslist = self.man._read()[0:self._num_axes]
         # for i in range(len(anatranslist)):
         #     if anatranslist[i] <= 125.:
         #         temp = anatranslist[i] - 125.
@@ -347,7 +346,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
         else:
             return False
 
-        for i in range(11):
+        for i in range(self._num_axes):
             templs1 = (lis[i].motor._status() >> 5) & 1
             # templs2 = (lis[i].stepper._status() >> 6) & 1
             if what == 'det':
@@ -416,7 +415,7 @@ class PumaMultiDetectorLayout(HasTimeout, Moveable):
                     notallowed.append(i)
             self.log.debug('check: %s', check)
         self.log.debug('movement allowed for the following axes: %s', allowed)
-        if check != 11:
+        if check != self._num_axes:
             self.log.warn('movement not allowed for the following axes: %s',
                           notallowed)
             return False
