@@ -4,7 +4,7 @@ description = 'Monochromator'
 
 group = 'lowlevel'
 
-includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7', 'motorbus8',
+includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7',
             'motorbus9', 'motorbus14']
 
 
@@ -37,7 +37,6 @@ devices = dict(
 
     # co_mtt = device('nicos.devices.vendor.ipc.Coder',
     co_mtt = device('nicos.devices.vendor.ipc.Resolver',
-                   #bus = 'motorbus8',
                     bus = 'motorbus14',
                     addr = 120,
                     slope = -182.044,
@@ -50,7 +49,6 @@ devices = dict(
 
     # co_mth = device('nicos.devices.vendor.ipc.Coder',
     co_mth = device('nicos.devices.vendor.ipc.Resolver',
-                   #bus = 'motorbus8',
                     bus = 'motorbus14',
                     addr = 121,
                     slope = -181.638,
