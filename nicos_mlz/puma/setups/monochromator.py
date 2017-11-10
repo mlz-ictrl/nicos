@@ -86,7 +86,7 @@ devices = dict(
                     precision = 0.005,
                     offset = -0.151, # -0.549 / 05.2017 GE
                     maxtries = 10,
-                    jitter = 0.07,
+                    jitter = 0.1,
                     dragerror = 10,
                    ),
 
