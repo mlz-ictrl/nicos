@@ -1,4 +1,4 @@
-description = 'Slits before analyser'
+description = 'Slits before detector'
 
 group = 'optional'
 
