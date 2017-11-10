@@ -75,38 +75,6 @@ _tasblock = Block('Triple-axis', [
     setups='puma',
 )
 
-_tempblock = Block('Temperature', [
-     BlockRow(Field(name='Control',dev='t_ls340'),
-              Field(key='t_ls340/setpoint', name='Setpoint')),
-     BlockRow(Field(name='Ts',dev='t_ls340_b'),
-              Field(name='Heater power', key='t_ls340/heaterpower')),
-     # BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
-     #          Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
-     #          Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
-     BlockRow(Field(dev='T', plot='T',
-                    plotwindow=12*3600, width=100, height=40),
-              Field(dev='Ts', plot='T',
-                    plotwindow=12*3600, width=100, height=40),
-             ),
-    ],
-    setups='lakeshore',
-)
-
-# _tempblock = Block('Temperature', [
-#     BlockRow(Field(name='T_stick',dev='t_ccr16_stick'),
-#              Field(key='t_ccr16_stick/setpoint', name='Setpoint_stick'),
-#              Field(key='t_ccr16_stick/heaterpower',name='heaterpower_stick')),
-#     BlockRow(Field(name='T_tube',dev='t_ccr16_tube'),
-#              Field(key='t_ccr16_tube/setpoint', name='Setpoint_tube'),
-#              Field(key='t_ccr16_tube/heaterpower',name='heaterpower_tube')),
-#     BlockRow(Field(name='Pressure',dev='ccr16_p1'),
-#              Field(name='Coldhead',dev='T_ccr16_C'),
-#              Field(name='compressor',dev='ccr16_compressor'),
-#              Field(name='vacuum',dev='ccr16_vacuum_switch')),
-#     ],
-#     setups='ccr16',
-# )
-
 _shutterblock = Block('Shutter / Filters', [
     BlockRow(Field(name='alpha1', dev='alpha1'),
              Field(name='sapphire filter',  dev='sapphire'),
@@ -125,7 +93,40 @@ _reactor = Block('Reactor power', [
 
 _leftcolumn = Column(_tasblock, _detectorblock, _reactor)
 _middlecolumn = Column(_axisblock, _sampletable, _slits)
-_rightcolumn = Column(_shutterblock, _tempblock)
+_rightcolumn = Column(_shutterblock,
+    Block('Temperature (LakeShore)', [
+        BlockRow(Field(name='Control',dev='t_ls340'),
+                 Field(key='t_ls340/setpoint', name='Setpoint')),
+        BlockRow(Field(name='Ts',dev='t_ls340_b'),
+                 Field(name='Heater power', key='t_ls340/heaterpower')),
+        # BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
+        #          Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
+        #          Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
+        BlockRow(Field(dev='T', plot='T', plotwindow=12*3600, width=100,
+                       height=40),
+                 Field(dev='Ts', plot='T', plotwindow=12*3600, width=100,
+                       height=40),),
+    ], setups='lakeshore'),
+    Block('Temperature (CCR18)', [
+        BlockRow(Field(name='T_tube',dev='t_ccr18_tube'),
+                 Field(key='t_ccr18_tube/setpoint', name='Setpoint_tube'),
+                 Field(key='t_ccr18_tube/heaterpower',name='heaterpower_tube')),
+        BlockRow(Field(dev='T', plot='T',
+                        plotwindow=12*3600, width=100, height=40),
+                  Field(key='t_ccr18_tube/setpoint', name='Setpoint', plot='T',
+                        plotwindow=12*3600, width=100, height=40),
+                 ),
+     ], setups='ccr18',),
+     Block('Temperature (CCR16)', [
+        BlockRow(Field(name='T_stick',dev='t_ccr16_stick'),
+                 Field(key='t_ccr16_stick/setpoint', name='Setpoint_stick'),
+                 Field(key='t_ccr16_stick/heaterpower',name='heaterpower_stick')),
+        BlockRow(Field(name='Pressure',dev='ccr16_p1'),
+                 Field(name='Coldhead',dev='T_ccr16_C'),
+                 Field(name='compressor',dev='ccr16_compressor'),
+                 Field(name='vacuum',dev='ccr16_vacuum_switch')),
+     ], setups='ccr16',)
+)
 
 
 devices = dict(
