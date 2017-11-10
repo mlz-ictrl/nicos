@@ -4,7 +4,7 @@ description = 'Attenuator and PGFilter'
 
 group = 'lowlevel'
 
-includes = ['system', 'motorbus6', 'motorbus9']
+includes = ['motorbus6', 'motorbus9']
 
 devices = dict(
 
@@ -42,42 +42,35 @@ devices = dict(
                 unit = 'mm',
                ),
 
-    # fpg_sw = device('nicos.devices.vendor.ipc.Input',
-    #                 bus = 'motorbus6',
-    #                 addr = 111,
-    #                 first = 12,
-    #                 last = 12,
-    #                 lowlevel = True,
-    #                 unit = ''
-    #                ),
+   fpg_sw = device('nicos.devices.vendor.ipc.Input',
+                   bus = 'motorbus6',
+                   addr = 111,
+                   first = 12,
+                   last = 13,
+                   lowlevel = True,
+                   unit = ''
+                  ),
 
-    # fpg_set = device('nicos.devices.vendor.ipc.Output',
-    #                  bus = 'motorbus6',
-    #                  addr = 103,
-    #                  first = 0,
-    #                  last = 0,
-    #                  lowlevel = True,
-    #                  unit = '',
-    #                 ),
+   fpg_set = device('nicos.devices.vendor.ipc.Output',
+                    bus = 'motorbus6',
+                    addr = 103,
+                    first = 4,
+                    last = 4,
+                    lowlevel = True,
+                    unit = '',
+                   ),
 
-    # fpg1 = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
-    #               description = 'First PG filter',
-    #               readables = 'fpg_sw',
-    #               moveables = 'fpg_set',
-    #               mapping = {'in': (1, 1),
-    #                          'out': (0, 0),
-    #                         },
-    #               precision = [0, 0],
-    #               blockingmove = True,
-    #               timeout = 20,
-    #              ),
-
-    # fpg1 = device('nicos_mlz.puma.devices.pgfilter.PGFilter',
-    #               description = 'automated pg filter',
-    #               io_status = 'fpg_sw',
-    #               io_set = 'fpg_set',
-    #               unit = ''
-    #              ),
+   fpg1 = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
+                 description = 'First PG filter',
+                 readables = 'fpg_sw',
+                 moveables = 'fpg_set',
+                 mapping = {'in': (1, 1),
+                            'out': (0, 0),
+                           },
+                 precision = [0, 0],
+                 blockingmove = True,
+                 timeout = 20,
+                ),
 
    uni_sw = device('nicos.devices.vendor.ipc.IPCSwitches',
                    description = 'Switches of the lift axis card',
@@ -102,9 +95,9 @@ devices = dict(
                  description = 'Second PG filter',
                  moveables = 'uni_st',
                  readables = 'uni_sw',
-                 mapping = dict(In  = (500000, 1),
-                                out = (536400, 2),
-                               ),
+                 mapping = {'in': (500000, 1),
+                            'out': (536400, 2),
+                           },
                  precision = [350, 0],
                  blockingmove = True,
                  timeout = 300,
