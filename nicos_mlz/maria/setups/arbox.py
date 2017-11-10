@@ -79,4 +79,12 @@ devices = dict(
          pollinterval = 5,
          maxage = 6,
     ),
+    T_oven = device("nicos.devices.tango.AnalogInput",
+         description = "Oven temperature",
+         tangodevice = tango_base + "FZJDP_Analog/TOven",
+         fmtstr = "%.1f",
+         unit = "C",
+         pollinterval = 5,
+         maxage = 6,
+    ),
 )
