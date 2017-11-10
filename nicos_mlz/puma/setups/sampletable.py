@@ -19,7 +19,7 @@ devices = dict(
                     accel = 100,
                     microstep = 2,
                     startdelay = 1,
-                    stopdelay = 3,
+                    stopdelay = 7,
                     ramptype = 4,
                     lowlevel = True,
                    ),
