@@ -48,7 +48,7 @@ from nicos.pycompat import iteritems, from_utf8, string_types, escape_html
 from nicos.services.monitor.icon import nicos_icon
 # required for import order on Py3
 import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
-from nicos.clients.gui.widgets.grplotting import NicosTimePlotAxes
+from nicos.clients.gui.widgets.plotting import NicosTimePlotAxes
 from nicos.utils import checkSetupSpec, extractKeyAndIndex
 
 

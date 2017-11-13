@@ -20,7 +20,7 @@ NICOS system and execute commands.
    This is the GUI client part of the server-client execution shell.  It
    connects to a ``nicos-daemon`` instance (see below) that controls the
    instrument.  The GUI uses `Qt <http://qt.nokia.com>`_ for the basic
-   functionality, and `Qwt <http://qwt.sf.net/>`_ for the data plotting and
+   functionality, and `GR <http://gr-framework.org/>`_ for the data plotting and
    analysis windows.
 
 .. describe:: nicos-client

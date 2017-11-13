@@ -51,7 +51,6 @@ Architecture: all
 Depends: nicos-core,
  python-setuptools,
  python-qt4,
- python-qwt5-qt4,
  python-qscintilla2,
  python-scipy,
  python-redmine

@@ -23,8 +23,8 @@
 # *****************************************************************************
 """SPODI live data plot widget (GR version)."""
 
-from nicos.clients.gui.widgets.plotting import NicosGrPlot, NicosPlotCurve
-from nicos.clients.gui.widgets.grplotting import NicosPlotAxes
+from nicos.clients.gui.widgets.plotting import NicosGrPlot, NicosPlotCurve, \
+    NicosPlotAxes
 
 
 class LivePlotAxes(NicosPlotAxes):

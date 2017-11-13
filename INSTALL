@@ -50,8 +50,6 @@ If not mentioned otherwise, Python packages are available from PyPI
 
   - PyQt4 or PyQt5 (not installable with pip)
   - gr (optional, for plots)
-  - PyQwt (optional, for the transition period as an alternative to gr, for plots)
-    (not installable with pip)
   - QScintilla-python (optional, for the script editor component)
     (not installable with pip)
   - scipy (optional, for fitting)
@@ -76,7 +74,7 @@ Detailed version requirements can always be found in the requirements.txt
 file in the root of the source tree.
 
 If not supplied by the distribution (see below), most dependencies (except
-PytQt, PyQwt, sip) can be installed from the Python package repository::
+PytQt, sip) can be installed from the Python package repository::
 
   pip install -r requirements.txt
 
@@ -108,12 +106,12 @@ Ubuntu
 
 * GUI and status monitor::
 
-     apt-get install python-{qt4,qwt5-qt4,qscintilla2}
+     apt-get install python-{qt4,qscintilla2}
 
 * Development and documentation build::
 
      apt-get install python-{sip-dev,qt4-dev,pytest,pytest-cov,mock,coverage,sphinx}
 
-* For the livewidget you have to install some development packages::
+* For the old live data widget you have to install some development packages::
 
      apt-get install libqwt5-qt4-dev libtiff5-dev libcfitsio3-dev

@@ -18,29 +18,77 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Christian Felder <c.felder@fz-juelich.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
-#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
+"""NICOS GR plotting backend."""
 
+import os
+import time
+import tempfile
 from os import path
-from time import strftime, localtime
-
-from nicos.guisupport.qt import Qt, QDialog, QFont, QListWidgetItem, \
-    QMessageBox
 
 import numpy as np
+import numpy.ma
+import gr
+from gr.pygr import Plot, PlotAxes, ErrorBar, Text, RegionOfInterest, \
+    CoordConverter
+from gr.pygr.helper import ColorIndexGenerator
 
-from nicos.utils import safeFilename
-from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
-    PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, ExponentialFit
+from nicos.guisupport.qt import Qt, QPoint, QApplication, QMenu, QAction, \
+    QDialog, QFileDialog, QCursor, QFont, QListWidgetItem, QMessageBox
+
+from qtgr import InteractiveGRWidget
+from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
+
+from nicos.guisupport.timeseries import buildTickDistAndSubTicks
+from nicos.guisupport.grplotting import MaskedPlotCurve
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
-from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
+from nicos.utils import safeFilename
+from nicos.utils.fitting import Fit, FitResult, LinearFit, GaussFit, \
+    PseudoVoigtFit, PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, \
+    ExponentialFit
+from nicos.pycompat import string_types, exec_, xrange as range  # pylint: disable=W0622
 
 
-TIMEFMT = '%Y-%m-%d %H:%M:%S'
+DATEFMT = "%Y-%m-%d"
+TIMEFMT = "%H:%M:%S"
+
+
+def prepareData(x, y, dy, norm):
+    """Prepare and sanitize data for plotting.
+
+    x, y and dy are lists or arrays. norm can also be None.
+
+    Returns x, y and dy arrays, where dy can also be None.
+    """
+    # make arrays
+    x = np.asarray(x)
+    # replace complex data types (strings...) by numbers
+    if not x.dtype.isbuiltin:
+        x = np.zeros(x.shape)
+    y = np.asarray(y, float)
+    dy = np.asarray(dy, float)
+    # normalize
+    if norm is not None:
+        norm = np.asarray(norm, float)
+        y /= norm
+        dy /= norm
+    # remove infinity/NaN
+    indices = np.isfinite(y)
+    x = x[indices]
+    y = y[indices]
+    if dy.size:
+        dy = dy[indices]
+        # remove error bars that aren't finite
+        dy[~np.isfinite(dy)] = 0
+    # if there are no errors left, don't bother drawing them
+    if dy.sum() == 0:
+        return x, y, None
+    return x, y, dy
 
 
 class Fitter(object):
@@ -264,37 +312,95 @@ class ArbitraryFitter(Fitter):
         self.plot._plotFit(res)
 
 
-def prepareData(x, y, dy, norm):
-    """Prepare and sanitize data for plotting.
+class NicosPlotAxes(PlotAxes):
 
-    x, y and dy are lists or arrays. norm can also be None.
+    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
+        dx, dy = 0, 0
+        if self.autoscale & PlotAxes.SCALE_X:
+            dx = xtick
+        if self.autoscale & PlotAxes.SCALE_Y:
+            dy = ytick
+        return xmin - dx, xmax + dx, ymin - dy, ymax + dy
 
-    Returns x, y and dy arrays, where dy can also be None.
-    """
-    # make arrays
-    x = np.asarray(x)
-    # replace complex data types (strings...) by numbers
-    if not x.dtype.isbuiltin:
-        x = np.zeros(x.shape)
-    y = np.asarray(y, float)
-    dy = np.asarray(dy, float)
-    # normalize
-    if norm is not None:
-        norm = np.asarray(norm, float)
-        y /= norm
-        dy /= norm
-    # remove infinity/NaN
-    indices = np.isfinite(y)
-    x = x[indices]
-    y = y[indices]
-    if dy.size:
-        dy = dy[indices]
-        # remove error bars that aren't finite
-        dy[~np.isfinite(dy)] = 0
-    # if there are no errors left, don't bother drawing them
-    if dy.sum() == 0:
-        return x, y, None
-    return x, y, dy
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            xmin, xmax = original_win[:2]
+            cmin, cmax = vc.xmin, vc.xmax
+            new_x = curvechanged.x[-1]
+            if cmax > xmax and new_x > xmax:
+                return original_win
+            elif cmin < xmin and new_x < xmin:
+                return original_win
+        return PlotAxes.doAutoScale(self, curvechanged)
+
+
+class NicosTimePlotAxes(NicosPlotAxes):
+
+    def __init__(self, viewport, xtick=None, ytick=None, majorx=None,
+                 majory=None, drawX=True, drawY=True, slidingwindow=None):
+        NicosPlotAxes.__init__(self, viewport, xtick, ytick, majorx, majory,
+                               drawX, drawY)
+        self.slidingwindow = slidingwindow
+
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        res = NicosPlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
+        if res:
+            tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
+            self.xtick = tickdist / self.majorx
+        return res
+
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        win = NicosPlotAxes.doAutoScale(self, curvechanged)
+        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
+        if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
+           (vc.xmax - xmin) > self.slidingwindow:
+            xmin = vc.xmax - self.slidingwindow
+            self.setWindow(xmin, xmax, ymin, ymax)
+        return self.getWindow()
+
+
+class NicosPlotCurve(MaskedPlotCurve):
+
+    GR_MARKER_SIZE = 1.0
+
+    _parent = ''
+
+    def __init__(self, x, y, errBar1=None, errBar2=None,
+                 linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
+                 linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
+        MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
+                                 linetype, markertype, linecolor, markercolor,
+                                 legend, fillx=fillx, filly=filly)
+        self._dependent = []
+
+    @property
+    def dependent(self):
+        """Return dependent objects which implement the GRMeta interface."""
+        return self._dependent
+
+    @dependent.setter
+    def dependent(self, value):
+        self._dependent = value
+
+    @property
+    def visible(self):
+        return MaskedPlotCurve.visible.__get__(self)
+
+    @visible.setter
+    def visible(self, flag):
+        MaskedPlotCurve.visible.__set__(self, flag)
+        for dep in self.dependent:
+            dep.visible = flag
+
+    def drawGR(self):
+        gr.setmarkersize(self.GR_MARKER_SIZE)
+        MaskedPlotCurve.drawGR(self)
+        for dep in self.dependent:
+            if dep.visible:
+                dep.drawGR()
 
 
 class NicosPlot(DlgUtils):
@@ -507,64 +613,367 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
 
-class DataSetPlotMixin(object):
-    def __init__(self, dataset):
-        self.dataset = dataset
-        self.current_xname = dataset.default_xname
+class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
-    def titleString(self):
-        return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
-            (self.dataset.name, self.dataset.scaninfo,
-             strftime(TIMEFMT, self.dataset.started))
+    axescls = NicosPlotAxes
+    HAS_AUTOSCALE = True
+    SAVE_EXT = '.svg'
 
-    def xaxisName(self):
-        return self.current_xname
+    def __init__(self, parent, window, timeaxis=False):
+        InteractiveGRWidget.__init__(self, parent)
+        NicosPlot.__init__(self, window, timeaxis=timeaxis)
 
-    def yaxisName(self):
-        return ''
+        self.timeaxis = timeaxis or (self.axescls == NicosTimePlotAxes)
+        self.leftTurnedLegend = True
+        self.statusMessage = None
+        self.mouselocation = None
+        self._cursor = self.cursor()
+        self._mouseSelEnabled = self.getMouseSelectionEnabled()
 
-    def addAllCurves(self):
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
+        dictPrintType = dict(gr.PRINT_TYPE)
+        for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
+            dictPrintType.pop(prtype)
+        self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
+                           ";;".join(gr.GRAPHIC_TYPE.values()))
+        self._saveName = None
+        self._color = ColorIndexGenerator()
+        self._plot = Plot(viewport=(.1, .85, .15, .88))
+        self._plot.setLegendWidth(0.05)
+        self._axes = self.axescls(viewport=self._plot.viewport)
+        self._axes.backgroundColor = 0
+        self._plot.addAxes(self._axes)
+        self._plot.title = self.titleString()
+        self.addPlot(self._plot)
 
-    def visibleCurves(self):
-        return [(i, curve.full_description)
-                for (i, curve) in enumerate(self.dataset.curves)
-                if self._isCurveVisible(self.plotcurves[i])]
+        guiConn = GUIConnector(self)
+        guiConn.connect(LegendEvent.ROI_CLICKED, self.on_legendItemClicked,
+                        LegendEvent)
+        guiConn.connect(ROIEvent.ROI_CLICKED, self.on_roiItemClicked, ROIEvent)
+        guiConn.connect(MouseEvent.MOUSE_PRESS, self.on_fitPicker_selected)
+        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        self.logXinDomain.connect(self.on_logXinDomain)
+        self.logYinDomain.connect(self.on_logYinDomain)
+        self.setLegend(True)
+        self.updateDisplay()
 
-    def visibleDataCurves(self):
-        # visibleCurves only includes data curves anyway
-        return self.visibleCurves()
+    def xtickCallBack(self, x, y, _svalue, value):
+        gr.setcharup(-1. if self.leftTurnedLegend else 1., 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT if self.leftTurnedLegend else
+                        gr.TEXT_HALIGN_LEFT, gr.TEXT_VALIGN_TOP)
+        dx = .015
+        timeVal = time.localtime(value)
+        gr.text(x + (dx if self.leftTurnedLegend else -dx), y,
+                time.strftime(DATEFMT, timeVal))
+        gr.text(x - (dx if self.leftTurnedLegend else -dx), y,
+                time.strftime(TIMEFMT, timeVal))
+        gr.setcharup(0., 1.)
 
-    def enableCurvesFrom(self, otherplot):
-        visible = {}
-        for curve in otherplot.plotcurves:
-            visible[self._getCurveLegend(curve)] = self._isCurveVisible(curve)
-        changed = False
-        remaining = len(self.plotcurves)
-        for plotcurve in self.plotcurves:
-            namestr = self._getCurveLegend(plotcurve)
-            if namestr in visible:
-                self.setVisibility(plotcurve, visible[namestr])
-                changed = True
-                if not visible[namestr]:
-                    remaining -= 1
-        # no visible curve left?  enable all of them again
-        if not remaining:
-            for plotcurve in self.plotcurves:
-                # XXX only if it has a legend item (excludes monitor/time columns)
-                self.setVisibility(plotcurve, True)
-        if changed:
+    def setAutoScaleFlags(self, xflag, yflag):
+        mask = 0x0
+        if xflag:
+            mask |= PlotAxes.SCALE_X
+        if yflag:
+            mask |= PlotAxes.SCALE_Y
+        self.setAutoScale(mask)
+
+    def setBackgroundColor(self, color):
+        pass  # not implemented
+
+    def setFonts(self, font, bold, larger):
+        pass  # not implemented
+
+    def updateDisplay(self):
+        self._plot.title = self.titleString()
+        if self.subTitleString():
+            self._plot.subTitle = self.subTitleString()
+        self._plot.xlabel = self.xaxisName()
+        self._plot.ylabel = self.yaxisName()
+        if self.normalized:
+            self._plot.ylabel += " (norm: %s)" % self.normalized
+
+        self.plotcurves = []
+        self.addAllCurves()
+        if self.timeaxis:
+            self._plot.viewport = (.1, .85, .18, .88)
+            self._axes.setXtickCallback(self.xtickCallBack)
+            self._plot.offsetXLabel = -.08
+
+        scale = self.yaxisScale()
+        if scale:
+            axes = self._plot.getAxes(0)
+            curwin = axes.getWindow()
+            if not curwin:
+                curwin = [0, 1, scale[0], scale[1]]
+                curves = axes.getCurves()
+                xmins = []
+                xmaxs = []
+                for c in curves:
+                    if c.visible:
+                        xmins.append(min(c.x))
+                        xmaxs.append(max(c.x))
+                if xmins and xmaxs:
+                    curwin[0] = min(xmins)
+                    curwin[1] = max(xmaxs)
+            axes.setWindow(curwin[0], curwin[1], scale[0], scale[1])
+        InteractiveGRWidget.update(self)
+
+    def isLegendEnabled(self):
+        return self._plot.isLegendEnabled()
+
+    def setLegend(self, on):
+        self._plot.setLegend(on)
+        self.update()
+
+    def isLogScaling(self, idx=0):
+        axes = self._plot.getAxes(idx)
+        return (axes.scale & gr.OPTION_Y_LOG if axes is not None else False)
+
+    def setLogScale(self, on):
+        self._plot.setLogY(on, rescale=True)
+        self.update()
+
+    def setSymbols(self, on):
+        markertype = gr.MARKERTYPE_OMARK if on else gr.MARKERTYPE_DOT
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.markertype = markertype
+        self.hasSymbols = on
+        self.update()
+
+    def setLines(self, on):
+        linetype = None
+        if on:
+            linetype = gr.LINETYPE_SOLID
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.linetype = linetype
+        self.hasLines = on
+        self.update()
+
+    def unzoom(self):
+        self._plot.reset()
+        self.update()
+
+    def on_logXinDomain(self, flag):
+        if not flag:
+            self._plot.setLogX(flag)
             self.update()
 
+    def on_logYinDomain(self, flag):
+        if not flag:
+            self.setLogScale(flag)
 
-class ViewPlotMixin(object):
-    def __init__(self, view):
+    def on_legendItemClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            event.curve.visible = not event.curve.visible
+            if event.curve._parent:
+                event.curve._parent.disabled = not event.curve._parent.disabled
+            self.update()
+
+    def on_roiItemClicked(self, event):
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            if isinstance(event.roi.reference, FitResult):
+                menu = QMenu(self)
+                actionClipboard = QAction("Copy fit values to clipboard", menu)
+                menu.addAction(actionClipboard)
+                p0dc = event.getDC()
+                selectedItem = menu.exec_(self.mapToGlobal(QPoint(p0dc.x,
+                                                                  p0dc.y)))
+                if selectedItem == actionClipboard:
+                    res = event.roi.reference
+                    text = '\n'.join(
+                        (n + '\t' if n else '\t') +
+                        (v + '\t' if isinstance(v, string_types)
+                         else '%g\t' % v) +
+                        (dv if isinstance(dv, string_types)
+                         else '%g' % dv)
+                        for (n, v, dv) in res.label_contents)
+                    QApplication.clipboard().setText(text)
+
+    def on_mouseMove(self, event):
+        if event.getWindow():  # inside plot
+            self.mouselocation = event
+            wc = event.getWC(self._plot.viewport)
+            if self.statusMessage:
+                msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
+            else:
+                msg = "X = %g, Y = %g" % (wc.x, wc.y)
+            self.window.statusBar.showMessage(msg)
+        else:
+            self.window.statusBar.clearMessage()
+
+    def addPlotCurve(self, plotcurve, replot=False):
+        existing_curve = next((c for c in self._axes.getCurves()
+                               if c._parent is plotcurve._parent), None)
+        if existing_curve and not replot:
+            existing_curve.visible = plotcurve.visible
+            existing_curve.legend = plotcurve.legend
+            # update curve
+            existing_curve.x, existing_curve.y = plotcurve.x, plotcurve.y
+            if plotcurve.errorBar1 and existing_curve.errorBar1:
+                mcolor = existing_curve.errorBar1.markercolor
+                existing_curve.errorBar1 = plotcurve.errorBar1
+                existing_curve.errorBar1.markercolor = mcolor
+            else:
+                existing_curve.errorBar1 = plotcurve.errorBar1
+            if plotcurve.errorBar2 and existing_curve.errorBar2:
+                mcolor = existing_curve.errorBar2.markercolor
+                existing_curve.errorBar2 = plotcurve.errorBar2
+                existing_curve.errorBar2.markercolor = mcolor
+            else:
+                existing_curve.errorBar2 = plotcurve.errorBar2
+            if existing_curve not in self.plotcurves:
+                self.plotcurves.append(existing_curve)
+        else:
+            color = self._color.getNextColorIndex()
+            plotcurve.linecolor = color
+            plotcurve.markercolor = color
+            plotcurve.markertype = gr.MARKERTYPE_OMARK if self.hasSymbols \
+                else gr.MARKERTYPE_DOT
+            if plotcurve.errorBar1:
+                plotcurve.errorBar1.markercolor = color
+            if plotcurve.errorBar2:
+                plotcurve.errorBar2.markercolor = color
+            self._axes.addCurves(plotcurve)
+            self.plotcurves.append(plotcurve)
+
+    def savePlot(self):
+        saveName = None
+        dialog = QFileDialog(self, "Select file name", "", self._saveTypes)
+        dialog.selectNameFilter(gr.PRINT_TYPE[gr.PRINT_PDF])
+        dialog.setNameFilterDetailsVisible(True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        if dialog.exec_() == QDialog.Accepted:
+            path = dialog.selectedFiles()[0]
+            if path:
+                _p, suffix = os.path.splitext(path)
+                if suffix:
+                    suffix = suffix.lower()
+                else:
+                    # append selected name filter suffix (filename extension)
+                    nameFilter = dialog.selectedNameFilter()
+                    for k, v in gr.PRINT_TYPE.items():
+                        if v == nameFilter:
+                            suffix = '.' + k
+                            path += suffix
+                            break
+                if suffix and (suffix[1:] in gr.PRINT_TYPE or
+                               suffix[1:] in gr.GRAPHIC_TYPE):
+                    self.save(path)
+                    saveName = os.path.basename(path)
+                    self._saveName = saveName
+                else:
+                    raise Exception("Unsupported file format")
+        return saveName
+
+    def printPlot(self):
+        self.printDialog("Nicos-" + self._saveName if self._saveName
+                         else "untitled")
+        return True
+
+    @property
+    def plot(self):
+        """Get current gr.pygr.Plot object."""
+        return self._plot
+
+    def _save(self, extension=".pdf"):
+        fd, pathname = tempfile.mkstemp(extension)
+        self.save(pathname)
+        os.close(fd)
+        return pathname
+
+    def saveQuietly(self):
+        return self._save(".svg")
+
+    def _getCurveData(self, curve):
+        errBar1 = curve.errorBar1
+        return [curve.x, curve.y, errBar1.dpos if errBar1 else None]
+
+    def _getCurveLegend(self, curve):
+        return curve.legend
+
+    def _isCurveVisible(self, curve):
+        return curve.visible
+
+    def setVisibility(self, item, on):
+        item.visible = on
+
+    def _enterFitMode(self):
+        self.window.statusBar.showMessage(self.statusMessage)
+        self._cursor = self.cursor()
+        self.setCursor(QCursor(Qt.CrossCursor))
+        self._mouseSelEnabled = self.getMouseSelectionEnabled()
+        self.setMouseSelectionEnabled(False)
+
+    def _fitRequestPick(self, paramname):
+        self.statusMessage = 'Fitting: Click on %s' % paramname
+        self.window.statusBar.showMessage(self.statusMessage)
+
+    def _leaveFitMode(self):
+        self.fitter = None
+        self.statusMessage = None
+        self.setCursor(self._cursor)
+        self.setMouseSelectionEnabled(self._mouseSelEnabled)
+
+    def _plotFit(self, res):
+        color = self._color.getNextColorIndex()
+        resultcurve = NicosPlotCurve(res.curve_x, res.curve_y,
+                                     legend=res._title,
+                                     linecolor=color, markercolor=color)
+        self.addPlotCurve(resultcurve, True)
+        resultcurve.markertype = gr.MARKERTYPE_DOT
+        self.window.statusBar.showMessage("Fitting complete")
+
+        text = '\n'.join(
+            (n + ': ' if n else '') +
+            (v if isinstance(v, string_types) else '%g' % v) +
+            (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
+            for (n, v, dv) in res.label_contents)
+        grtext = Text(res.label_x, res.label_y, text, self._axes, .012,
+                      hideviewport=False)
+        resultcurve.dependent.append(grtext)
+        coord = CoordConverter(self._axes.sizex, self._axes.sizey,
+                               self._axes.getWindow())
+        roi = RegionOfInterest(reference=res, regionType=RegionOfInterest.TEXT,
+                               axes=self._axes)
+        for nxi, nyi in zip(*grtext.getBoundingBox()):
+            coord.setNDC(nxi, nyi)
+            roi.append(coord.getWC(self._axes.viewport))
+        self._plot.addROI(roi)
+        self.update()
+
+    def on_fitPicker_selected(self, point):
+        if self.fitter and point.getButtons() & MouseEvent.LEFT_BUTTON and \
+                point.getWindow():
+            p = point.getWC(self._plot.viewport)
+            self.fitter.addPick((p.x, p.y))
+
+    def _modifyCurve(self, curve, op):
+        new_y = [eval(op, {'x': v1, 'y': v2})
+                 for (v1, v2) in zip(curve.x, curve.y)]
+        if curve.errorBar1:
+            curve.errorBar1.y = new_y
+        if curve.errorBar2:
+            curve.errorBar2.y = new_y
+        curve.y = new_y
+
+
+class ViewPlot(NicosGrPlot):
+
+    axescls = NicosTimePlotAxes
+
+    def __init__(self, parent, window, view):
         self.view = view
         self.series2curve = {}
+        NicosGrPlot.__init__(self, parent, window, timeaxis=True)
+        self.setSymbols(False)
+
+    def cleanup(self):
+        self.view = None
+        self._axes.setXtickCallback(None)
 
     def titleString(self):
-        return '<h3>%s</h3>' % self.view.name
+        return self.view.name
 
     def xaxisName(self):
         return 'time'
@@ -576,9 +985,30 @@ class ViewPlotMixin(object):
         if self.view.yfrom is not None:
             return (self.view.yfrom, self.view.yto)
 
+    def on_mouseMove(self, event):
+        wc = event.getWC(self.plot.viewport)
+        # overridden to show the correct timestamp
+        ts = time.strftime(DATEFMT + ' ' + TIMEFMT, time.localtime(wc.x))
+        if self.statusMessage:
+            msg = "%s (X = %s, Y = %g)" % (self.statusMessage, ts, wc.y)
+        else:
+            msg = "X = %s, Y = %g" % (ts, wc.y)
+        self.window.statusBar.showMessage(msg)
+
     def addAllCurves(self):
         for i, series in enumerate(self.view.series.values()):
             self.addCurve(i, series)
+
+    def addCurve(self, i, series, replot=False):
+        n = series.n
+        if n > 0:
+            color = self._color.getNextColorIndex()
+            plotcurve = NicosPlotCurve(series.x[:n], series.y[:n],
+                                       legend=series.title,
+                                       linecolor=color, markercolor=color)
+            plotcurve._parent = series
+            self.series2curve[series] = plotcurve
+            self.addPlotCurve(plotcurve, replot)
 
     def visibleCurves(self):
         return [(i, self._getCurveLegend(plotcurve))
@@ -590,6 +1020,17 @@ class ViewPlotMixin(object):
                 for (i, plotcurve) in enumerate(self.plotcurves)
                 if self._isCurveVisible(plotcurve)
                 and 'fit' not in self._getCurveLegend(plotcurve)]
+
+    def pointsAdded(self, series):
+        plotcurve = self.series2curve[series]
+        plotcurve.x = series.x[:series.n].copy()
+        plotcurve.y = series.y[:series.n].copy()
+        plotcurve.legend = series.title
+        self._axes.addCurves(plotcurve)
+        InteractiveGRWidget.update(self)
+
+    def setSlidingWindow(self, window):
+        self._axes.slidingwindow = window
 
     def saveData(self):
         curvenames = [self._getCurveLegend(plotcurve)
@@ -636,17 +1077,155 @@ class ViewPlotMixin(object):
                         fp.write('%s\t%s\n' % (x[i], y[i]))
                     else:
                         fp.write('%s\t%s\n' % (
-                            strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
+                            time.strftime('%Y-%m-%d.%H:%M:%S',
+                                          time.localtime(x[i])),
                             y[i]))
 
-    def setSlidingWindow(self, window):
-        pass
 
+class DataSetPlot(NicosGrPlot):
 
-# pylint: disable=W0611
-try:
-    from nicos.clients.gui.widgets.grplotting import DataSetPlot, ViewPlot, \
-        NicosGrPlot, NicosPlotCurve
-except ImportError:
-    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot, ViewPlot, \
-        NicosQwtPlot
+    axescls = NicosPlotAxes
+
+    def __init__(self, parent, window, dataset):
+        self.dataset = dataset
+        self.current_xname = dataset.default_xname
+        NicosGrPlot.__init__(self, parent, window)
+        self.setSymbols(True)
+
+    def titleString(self):
+        return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
+
+    def subTitleString(self):
+        return "started %s" % time.strftime(DATEFMT + ' ' + TIMEFMT,
+                                            self.dataset.started)
+
+    def xaxisName(self):
+        return self.current_xname
+
+    def yaxisName(self):
+        return ''
+
+    def addAllCurves(self):
+        for i, curve in enumerate(self.dataset.curves):
+            self.addCurve(i, curve)
+
+    def addCurve(self, i, curve, replot=False):
+        if self.current_xname != 'Default' and \
+           self.current_xname not in curve.datax:
+            return
+        if not curve.datay:
+            return
+        plotcurve = NicosPlotCurve([], [], filly=0.1)
+        plotcurve._parent = curve
+        self.setCurveData(curve, plotcurve)
+        self.addPlotCurve(plotcurve, replot)
+        if curve.function:
+            plotcurve.markertype = gr.MARKERTYPE_DOT
+
+    def setCurveData(self, curve, plotcurve):
+        xname = curve.default_xname \
+            if self.current_xname == 'Default' else self.current_xname
+        if self.normalized == 'Maximum':
+            norm = [max(curve.datay)] * len(curve.datay)
+        else:
+            norm = curve.datanorm[self.normalized] if self.normalized else None
+        x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
+                               norm)
+        y = numpy.ma.masked_equal(y, 0)
+        if dy is not None:
+            errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
+            plotcurve.errorBar1 = errbar
+        plotcurve.x = x
+        plotcurve.y = y
+        plotcurve.filly = 0.1 if self.isLogScaling() else 0
+        plotcurve.visible = not (curve.disabled or curve.hidden or not x.size)
+        plotcurve.legend = curve.full_description if not curve.hidden else ''
+
+    def enableCurvesFrom(self, otherplot):
+        visible = {}
+        for curve in otherplot.plotcurves:
+            visible[self._getCurveLegend(curve)] = self._isCurveVisible(curve)
+        changed = False
+        remaining = len(self.plotcurves)
+        for plotcurve in self.plotcurves:
+            namestr = self._getCurveLegend(plotcurve)
+            if namestr in visible:
+                self.setVisibility(plotcurve, visible[namestr])
+                changed = True
+                if not visible[namestr]:
+                    remaining -= 1
+        # no visible curve left?  enable all of them again
+        if not remaining:
+            for plotcurve in self.plotcurves:
+                # XXX only if it has a legend item (excludes monitor/time columns)
+                self.setVisibility(plotcurve, True)
+        if changed:
+            self.update()
+
+    def visibleCurves(self):
+        return [(i, curve.full_description)
+                for (i, curve) in enumerate(self.dataset.curves)
+                if self._isCurveVisible(self.plotcurves[i])]
+
+    def visibleDataCurves(self):
+        # visibleCurves only includes data curves anyway
+        return self.visibleCurves()
+
+    def setLogScale(self, on):
+        NicosGrPlot.setLogScale(self, on)
+        filly = .1 if self.isLogScaling() else 0
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.filly = filly
+        self.update()
+
+    def pointsAdded(self):
+        curve = None
+        for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
+            self.setCurveData(curve, plotcurve)
+        if self.plotcurves and len(self.plotcurves[0].x) == 2:
+            # When there is only one point, GR autoselects a range related to
+            # the magnitude of the point. Now that we have two points, we can
+            # scale to actual X interval of the scan.
+            self._axes.reset()
+        self.updateDisplay()
+
+    def fitQuick(self):
+        if not self.mouselocation:
+            return
+        (coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
+                                                self.dwidth, self.dheight)
+        if not curve:
+            return
+        wc = coord.getWC(self._plot.viewport)
+        whichindex = None
+        for idx, y in enumerate(curve.y):
+            if wc.y == y:
+                whichindex = idx
+                break
+        # try to find good starting parameters
+        peakx, peaky = wc.x, wc.y
+        # use either left or right end of curve as background
+        leftx, lefty = curve.x[0], curve.y[0]
+        rightx, righty = curve.x[-1], curve.y[-1]
+        if abs(peakx - leftx) > abs(peakx - rightx):
+            direction = -1
+            backx, backy = leftx, lefty
+        else:
+            direction = 1
+            backx, backy = rightx, righty
+        i = whichindex
+        n = len(curve.y)
+        while 0 < i < n:
+            if curve.y[i] < (peaky - backy) / 2.:
+                break
+            i += direction
+        if i != whichindex:
+            fwhmx = curve.x[i]
+        else:
+            fwhmx = (peakx + backx) / 2.
+        self.fitter = GaussFitter(self, self.window, None, curve)
+        self.fitter.values = [(backx, backy), (peakx, peaky),
+                              (fwhmx, peaky / 2.)]
+        self.fitter.begin()
+        self.fitter.finish()
