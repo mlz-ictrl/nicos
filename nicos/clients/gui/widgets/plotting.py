@@ -43,8 +43,8 @@ from nicos.guisupport.qt import Qt, QPoint, QApplication, QMenu, QAction, \
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
 
-from nicos.guisupport.timeseries import buildTickDistAndSubTicks
-from nicos.guisupport.grplotting import MaskedPlotCurve
+from nicos.guisupport.plots import NicosPlotAxes, NicosTimePlotAxes, \
+    MaskedPlotCurve, DATEFMT, TIMEFMT
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.utils import safeFilename
@@ -52,10 +52,6 @@ from nicos.utils.fitting import Fit, FitResult, LinearFit, GaussFit, \
     PseudoVoigtFit, PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, \
     ExponentialFit
 from nicos.pycompat import string_types, exec_, xrange as range  # pylint: disable=W0622
-
-
-DATEFMT = "%Y-%m-%d"
-TIMEFMT = "%H:%M:%S"
 
 
 def prepareData(x, y, dy, norm):
@@ -310,56 +306,6 @@ class ArbitraryFitter(Fitter):
         res.label_contents = list(zip(*res._pars))
 
         self.plot._plotFit(res)
-
-
-class NicosPlotAxes(PlotAxes):
-
-    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
-        dx, dy = 0, 0
-        if self.autoscale & PlotAxes.SCALE_X:
-            dx = xtick
-        if self.autoscale & PlotAxes.SCALE_Y:
-            dy = ytick
-        return xmin - dx, xmax + dx, ymin - dy, ymax + dy
-
-    def doAutoScale(self, curvechanged=None):
-        vc = self.getVisibleCurves() or self.getCurves()
-        original_win = self.getWindow()
-        if original_win and curvechanged:
-            xmin, xmax = original_win[:2]
-            cmin, cmax = vc.xmin, vc.xmax
-            new_x = curvechanged.x[-1]
-            if cmax > xmax and new_x > xmax:
-                return original_win
-            elif cmin < xmin and new_x < xmin:
-                return original_win
-        return PlotAxes.doAutoScale(self, curvechanged)
-
-
-class NicosTimePlotAxes(NicosPlotAxes):
-
-    def __init__(self, viewport, xtick=None, ytick=None, majorx=None,
-                 majory=None, drawX=True, drawY=True, slidingwindow=None):
-        NicosPlotAxes.__init__(self, viewport, xtick, ytick, majorx, majory,
-                               drawX, drawY)
-        self.slidingwindow = slidingwindow
-
-    def setWindow(self, xmin, xmax, ymin, ymax):
-        res = NicosPlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
-        if res:
-            tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
-            self.xtick = tickdist / self.majorx
-        return res
-
-    def doAutoScale(self, curvechanged=None):
-        vc = self.getVisibleCurves() or self.getCurves()
-        win = NicosPlotAxes.doAutoScale(self, curvechanged)
-        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
-        if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
-           (vc.xmax - xmin) > self.slidingwindow:
-            xmin = vc.xmax - self.slidingwindow
-            self.setWindow(xmin, xmax, ymin, ymax)
-        return self.getWindow()
 
 
 class NicosPlotCurve(MaskedPlotCurve):
@@ -986,7 +932,7 @@ class ViewPlot(NicosGrPlot):
             return (self.view.yfrom, self.view.yto)
 
     def on_mouseMove(self, event):
-        wc = event.getWC(self.plot.viewport)
+        wc = event.getWC(self._plot.viewport)
         # overridden to show the correct timestamp
         ts = time.strftime(DATEFMT + ' ' + TIMEFMT, time.localtime(wc.x))
         if self.statusMessage:

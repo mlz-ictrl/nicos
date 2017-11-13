@@ -31,64 +31,113 @@ import functools
 
 from time import time as currenttime, strftime, localtime
 
-from nicos.guisupport.qt import pyqtSignal, Qt, QTimer, QSize, QWidget, QPen, \
-    QBrush
+from nicos.guisupport.qt import pyqtSignal, QWidget, QTimer, QSize, \
+    QHBoxLayout
 
-from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
-    QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
-    QwtText, QwtLinearScaleEngine, QwtScaleDiv, QwtDoubleInterval
+import gr
+from gr.pygr import Plot, PlotCurve, PlotAxes
+from qtgr import InteractiveGRWidget
+from qtgr.events import GUIConnector, MouseEvent, LegendEvent
+import numpy.ma
 
-from nicos.guisupport.timeseries import TimeSeries, buildTimeTicks
+from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import extractKeyAndIndex
 from nicos.pycompat import zip_longest
 
 
-class ActivePlotPicker(QwtPlotPicker):
-    """QwtPlotPicker that emits mouse move events when activated."""
-    def __init__(self, *args):
-        QwtPlotPicker.__init__(self, *args)
-        self.active = True
-
-    def widgetMouseMoveEvent(self, event):
-        if self.active:
-            self.moved.emit(event.pos())
-        return QwtPlotPicker.widgetMouseMoveEvent(self, event)
+DATEFMT = '%Y-%m-%d'
+TIMEFMT = '%H:%M:%S'
+SHORTTIMEFMT = '%H:%M'
 
 
-class TimeScaleDraw(QwtScaleDraw):
-    def __init__(self, showdate=True, showsecs=True):
-        QwtScaleDraw.__init__(self)
-        self.fmtstring = '%y-%m-%d\n%H:%M:%S'
-        if not showdate:
-            self.fmtstring = self.fmtstring[9:]
-        if not showsecs:
-            self.fmtstring = self.fmtstring[:-3]
+class MaskedPlotCurve(PlotCurve):
+    """Plot curve that handles masked arrays as X and Y data."""
 
-    def label(self, value, strf=strftime, localt=localtime):
-        try:
-            ret = QwtText(strf(self.fmtstring, localt(value)))
-        except ValueError:
-            ret = QwtText("<unknown>")
-        return ret
+    def __init__(self, *args, **kwargs):
+        # fill values for masked x, y
+        self.fillx = kwargs.pop('fillx', 0)
+        self.filly = kwargs.pop('filly', 0)
+        PlotCurve.__init__(self, *args, **kwargs)
+
+    @property
+    def x(self):
+        x = PlotCurve.x.__get__(self)
+        if numpy.ma.is_masked(x):
+            return x.filled(self.fillx)
+        return x
+
+    @x.setter
+    def x(self, x):
+        PlotCurve.x.__set__(self, x)
+
+    @property
+    def y(self):
+        y = PlotCurve.y.__get__(self)
+        if numpy.ma.is_masked(y):
+            return y.filled(self.filly)
+        return y
+
+    @y.setter
+    def y(self, y):
+        PlotCurve.y.__set__(self, y)
 
 
-class TimeScaleEngine(QwtLinearScaleEngine):
-    def divideScale(self, x1, x2, maxmaj, maxmin, stepsize=0.):
-        interval = QwtDoubleInterval(x1, x2).normalized()
-        try:
-            ticks = buildTimeTicks(x1, x2)
-        except Exception:
-            # print('!!! could not build ticking for', x1, 'and', x2)
-            ticks = [], [], [x1, x2]
-        # print ticks
-        scalediv = QwtScaleDiv(interval, *ticks)
-        if x1 > x2:
-            scalediv.invert()
-        return scalediv
+class NicosPlotAxes(PlotAxes):
+    """Plot axes that enable automatic extension of the window by a tick
+    distance in order to keep the curves from the edge of the grid.
+    """
+
+    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
+        dx, dy = 0, 0
+        if self.autoscale & PlotAxes.SCALE_X:
+            dx = xtick
+        if self.autoscale & PlotAxes.SCALE_Y:
+            dy = ytick
+        return xmin - dx, xmax + dx, ymin - dy, ymax + dy
+
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        original_win = self.getWindow()
+        if original_win and curvechanged:
+            xmin, xmax = original_win[:2]
+            cmin, cmax = vc.xmin, vc.xmax
+            new_x = curvechanged.x[-1]
+            if cmax > xmax and new_x > xmax:
+                return original_win
+            elif cmin < xmin and new_x < xmin:
+                return original_win
+        return PlotAxes.doAutoScale(self, curvechanged)
 
 
-class TrendPlot(QwtPlot, NicosWidget):
+class NicosTimePlotAxes(NicosPlotAxes):
+    """Plot axes with automatic sensible formatting of time X axis."""
+
+    def __init__(self, viewport, xtick=None, ytick=None, majorx=None,
+                 majory=None, drawX=True, drawY=True, slidingwindow=None):
+        NicosPlotAxes.__init__(self, viewport, xtick, ytick, majorx, majory,
+                               drawX, drawY)
+        self.slidingwindow = slidingwindow
+
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        res = NicosPlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
+        if res:
+            tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
+            self.xtick = tickdist / self.majorx
+        return res
+
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        win = NicosPlotAxes.doAutoScale(self, curvechanged)
+        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
+        if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
+           (vc.xmax - xmin) > self.slidingwindow:
+            xmin = vc.xmax - self.slidingwindow
+            self.setWindow(xmin, xmax, ymin, ymax)
+        return self.getWindow()
+
+
+class TrendPlot(QWidget, NicosWidget):
 
     designer_description = 'A trend plotter for one or more devices'
     designer_icon = ':/plotter'
@@ -96,8 +145,8 @@ class TrendPlot(QwtPlot, NicosWidget):
     widgetInfo = pyqtSignal(str)
     timeSeriesUpdate = pyqtSignal(object)
 
-    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
-              Qt.darkGray]
+    # colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
+    #           Qt.darkGray]
 
     devices = PropDef('devices', 'QStringList', [], '''
 List of devices or cache keys that the plot should display.
@@ -129,95 +178,85 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.series = {}
         self.legendobj = None
 
-        QwtPlot.__init__(self, parent)
+        # X label settings, default values for default window of 3600s
+        self._showdate = False
+        self._showsecs = False
+
+        QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
     def initUi(self):
-        if QwtPlot is QWidget:
-            raise RuntimeError('Plotting is not available on this system, '
-                               'please install PyQwt.')
-
-        # appearance setup
-        self.setCanvasBackground(Qt.white)
-
         # axes setup
-        self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
-        self.setAxisScaleDraw(QwtPlot.xBottom,
-                              TimeScaleDraw(showdate=False, showsecs=False))
-        self.setAxisLabelAlignment(QwtPlot.xBottom,
-                                   Qt.AlignBottom | Qt.AlignLeft)
-        self.setAxisLabelRotation(QwtPlot.xBottom, -45)
+        self.widget = InteractiveGRWidget(self)
+        self.plot = Plot(viewport=(.1, .95, .25, .95))
+        self.axes = NicosTimePlotAxes(self.plot._viewport)
+        self.plot.addAxes(self.axes)
+        self.plot.setLegend(True)
+        self.plot.setLegendWidth(0.07)
+        self.plot.offsetXLabel = -.2
+        self.axes.setXtickCallback(self.xtickCallBack)
+        self.widget.addPlot(self.plot)
+        layout = QHBoxLayout()
+        layout.addWidget(self.widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
 
-        # subcomponents: grid, legend, zoomer
-        grid = QwtPlotGrid()
-        grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
-        grid.attach(self)
-        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
-                                    self.canvas())
-        self.zoomer.initMousePattern(2)  # don't bind middle button
-        self.zoomer.zoomed.connect(self.on_zoomer_zoomed)
+        self.curves = []
 
-        self.panner = QwtPlotPanner(self.canvas())
-        self.panner.setMouseButton(Qt.MidButton)
-
-        self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
-                                       QwtPicker.PointSelection |
-                                       QwtPicker.DragSelection,
-                                       QwtPlotPicker.NoRubberBand,
-                                       QwtPicker.AlwaysOff,
-                                       self.canvas())
-        self.canvas().setMouseTracking(True)
-        self.picker.moved.connect(self.on_picker_moved)
+        # event support
+        guiConn = GUIConnector(self.widget)
+        guiConn.connect(LegendEvent.ROI_CLICKED, self.on_legendItemClicked,
+                        LegendEvent)
+        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
 
         self.timeSeriesUpdate.connect(self.on_timeSeriesUpdate)
 
+    def xtickCallBack(self, x, y, _svalue, value):
+        gr.setcharup(-1., 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
+        dx = .02
+        timeVal = localtime(value)
+        if self._showdate:
+            gr.text(x + dx, y - 0.01, strftime(DATEFMT, timeVal))
+        if self._showsecs:
+            gr.text(x - dx, y - 0.01, strftime(TIMEFMT, timeVal))
+        else:
+            gr.text(x - dx, y - 0.01, strftime(SHORTTIMEFMT, timeVal))
+        gr.setcharup(0., 1.)
+
     def propertyUpdated(self, pname, value):
         if pname == 'plotwindow':
-            showdate = value > 24*3600
-            showsecs = value < 300
-            self.setAxisScaleDraw(QwtPlot.xBottom,
-                                  TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+            self._showdate = value > 24*3600
+            self._showsecs = value < 300
         elif pname in ('width', 'height'):
             self.setMinimumSize(
                 QSize(self._scale * (self.props['width'] + .5),
                       self._scale * (self.props['height'] + .5)))
         elif pname == 'legend':
-            if value:
-                self.legendobj = QwtLegend(self)
-                self.legendobj.setMidLineWidth(100)
-            else:
-                self.legendobj = None
-            self.insertLegend(self.legendobj, QwtPlot.TopLegend)
+            self.plot.setLegend(value)
         NicosWidget.propertyUpdated(self, pname, value)
 
     def setFont(self, font):
-        QwtPlot.setFont(self, font)
-        if self.legendobj:
-            self.legendobj.setFont(font)
-        self.setAxisFont(QwtPlot.yLeft, font)
-        self.setAxisFont(QwtPlot.xBottom, font)
+        pass  # TODO: can't set font for GR right now
 
-    def on_picker_moved(self, point):
-        info = "t = %s, y = %g" % (
-            strftime('%y-%m-%d %H:%M:%S', localtime(
-                self.invTransform(QwtPlot.xBottom, point.x()))),
-            self.invTransform(QwtPlot.yLeft, point.y()))
-        self.widgetInfo.emit(info)
+    def on_mouseMove(self, event):
+        wc = event.getWC(self.plot.viewport)
+        ts = strftime(DATEFMT + ' ' + TIMEFMT, localtime(wc.x))
+        msg = 't = %s, y = %g' % (ts, wc.y)
+        self.widgetInfo.emit(msg)
 
-    def on_zoomer_zoomed(self, rect):
-        # when zooming completely out, reset to auto scaling
-        if self.zoomer.zoomRectIndex() == 0:
-            self.setAxisAutoScale(QwtPlot.xBottom)
-            self.setAxisAutoScale(QwtPlot.yLeft)
-            self.zoomer.setZoomBase()
+    def on_legendItemClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            event.curve.visible = not event.curve.visible
+            self.update()
 
     def on_timeSeriesUpdate(self, series):
         curve = self.plotcurves[series]
-        curve.setData(series.x[:series.n], series.y[:series.n])
-        if self.zoomer.zoomRect() == self.zoomer.zoomBase():
-            self.zoomer.setZoomBase(True)
-        else:
-            self.replot()
+        curve.x = series.x[:series.n]
+        curve.y = series.y[:series.n]
+        c = self.axes.getCurves()
+        self.axes.setWindow(c.xmin, c.xmax, c.ymin, c.ymax)
+        self.widget.update()
         self.ctimers[curve].start(5000)
 
     def on_keyChange(self, key, value, time, expired):
@@ -241,15 +280,13 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         series = TimeSeries(key, self.props['plotinterval'], 1.0, 0.0,
                             self.props['plotwindow'], self)
         series.init_empty()
-        curve = QwtPlotCurve(title)
+        curve = PlotCurve([currenttime()], [0], legend=title)
         self.plotcurves[series] = curve
-        curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
         self.ncurves += 1
-        curve.attach(self)
-        curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-        if self.legendobj:
-            self.legendobj.find(curve).setIdentifierWidth(30)
+        self.curves.append(curve)
+        self.axes.addCurves(curve)
         self.series[key, index] = series
+        self.widget.update()
 
         # record the current value at least every 5 seconds, to avoid curves
         # not updating if the value doesn't change

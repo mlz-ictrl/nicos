@@ -172,7 +172,7 @@
  <customwidgets>
   <customwidget>
    <class>TrendPlot</class>
-   <extends>QwtPlot</extends>
+   <extends>QWidget</extends>
    <header>nicos.guisupport.plots</header>
   </customwidget>
   <customwidget>
