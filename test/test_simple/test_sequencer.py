@@ -96,7 +96,7 @@ def test_seqmethod(session):
     sm = SeqMethod(sm1, 'fix', 'blubb')
     assert repr(sm) == "sm1 fix"
 
-    assert sm1.fixed == ''
+    assert sm1.fixed == ''  # pylint:disable=compare-to-empty-string
 
     sm.check()
     sm.run()
@@ -107,7 +107,7 @@ def test_seqmethod(session):
     sm1.release()
 
 
-def test_seqsleep():
+def test_seqsleep(session):  # pylint:disable=unused-argument
     # Sleeping??
     sw = SeqSleep(0.1)
     assert repr(sw).startswith('0.1')
