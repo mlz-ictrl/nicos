@@ -51,7 +51,7 @@ sysconfig = dict(
     cache='localhost',
     instrument='Amor',
     experiment='Exp',
-    datasinks=['conssink', 'filesink', 'daemonsink'],
+    datasinks=['NexusDataSink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing']
@@ -81,18 +81,6 @@ devices = dict(
                sample='Sample',
                ),
 
-    filesink=device('nicos.devices.datasinks.AsciiScanfileSink',
-                    lowlevel=True,
-                    ),
-
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink',
-                    lowlevel=True,
-                    ),
-
-    daemonsink=device('nicos.devices.datasinks.DaemonSink',
-                      lowlevel=True,
-                      ),
-
     Space=device('nicos.devices.generic.FreeSpace',
                  description='The amount of free space for storing data',
                  path=None,
@@ -107,5 +95,22 @@ devices = dict(
         instpvtopic="amor-pvs",
         instpvschema='f142',
         brokers=["localhost:9092"],
-        ),
+    ),
+
+    NexusDataSink=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
+        description="Sink for NeXus file writer (kafka-to-nexus)",
+        brokers=["localhost:9092"],
+        cmdtopic="file-writer-cmds",
+        status_provider='NexusFileWriter',
+        templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
+        templatename='amor_default'
+    ),
+
+    NexusFileWriter=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
+        description="Status for nexus file writing",
+        brokers=["localhost:9092"],
+        statustopic="file-writer-status",
+    )
 )
