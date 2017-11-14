@@ -54,7 +54,7 @@ sysconfig = dict(
     datasinks=['conssink', 'filesink', 'daemonsink'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
