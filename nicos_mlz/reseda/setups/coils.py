@@ -3,4 +3,4 @@
 description = 'Coils'
 group = 'optional'
 
-includes = ['guide_fields', 'mezei_flippers', 'resonance_flippers', 'static_flippers', 'sub_coils']
+includes = ['guide_fields', 'resonance_flippers', 'static_flippers', 'sub_coils']
