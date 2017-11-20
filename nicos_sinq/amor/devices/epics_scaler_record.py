@@ -76,18 +76,18 @@ class EpicsScalerRecord(EpicsDetector):
 
         # Check if user set both time and count preset
         if countpreset and timepreset:
-            self.log.warn('Both count and time preset cannot be set at '
-                          'the same time.')
-            self.log.warn('Using just the count preset.')
+            self.log.debug('Both count and time preset cannot be set at '
+                           'the same time.')
+            self.log.debug('Using just the count preset.')
             for name in timepreset:
                 preset.pop(name)
             timepreset = set()
 
         if timepreset:
             preset['n'] = 0
-            self.log.info('Setting time preset of %f',
-                          preset[timepreset.pop()])
-            self.log.info('Also updating the count preset to 0')
+            self.log.debug('Setting time preset of %f',
+                           preset[timepreset.pop()])
+            self.log.debug('Also updating the count preset to 0')
 
         if countpreset:
             preset['t'] = 0
@@ -117,3 +117,30 @@ class EpicsScalerRecord(EpicsDetector):
                 return status.OK, 'Paused'
 
         return EpicsDetector.doStatus(self, maxage)
+
+    def doInfo(self):
+        ret = []
+
+        # Check for the mode and preset
+        mode = ''
+        value = 0
+        unit = ''
+        for d in self._masters:
+            for k in self._presetkeys:
+                if self._presetkeys[k] and self._presetkeys[k].name == d.name:
+                    preselection = d.preselection
+                    if preselection != 0:
+                        value = preselection
+                        unit = d.unit
+                        mode = 'timer' if k.startswith('t') else 'monitor'
+                        break
+        ret.append(('mode', mode, mode, '', 'presets'))
+        ret.append(('preset', value, '%s' % value, unit, 'presets'))
+
+        # Add rest of the channels to the info as well
+        for channel in self._attached_timers + self._attached_counters:
+            value = channel.read(0)
+            ret.append((channel.name, value, '%s' % value,
+                        channel.unit, 'presets'))
+
+        return ret

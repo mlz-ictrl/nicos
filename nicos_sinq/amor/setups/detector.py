@@ -8,8 +8,7 @@ devices = dict(
         epicstimeout=3.0,
         description='Used to set and view time preset',
         unit='sec',
-        lowlevel=True,
-        valuepv=pvprefix + '.TP',
+        readpv=pvprefix + '.TP',
         presetpv=pvprefix + '.TP',
     ),
     elapsedtime=device(
@@ -17,16 +16,14 @@ devices = dict(
         epicstimeout=3.0,
         description='Used to view elapsed time while counting',
         unit='sec',
-        lowlevel=True,
-        valuepv=pvprefix + '.T',
+        readpv=pvprefix + '.T',
     ),
     countpreset=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterActiveChannel',
         epicstimeout=3.0,
         description='Used to set and view count preset',
         type='counter',
-        lowlevel=True,
-        valuepv=pvprefix + '.PR2',
+        readpv=pvprefix + '.PR2',
         presetpv=pvprefix + '.PR2',
     ),
     c1=device(
@@ -35,7 +32,7 @@ devices = dict(
         description='First scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S2',
+        readpv=pvprefix + '.S2',
     ),
     c2=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -43,7 +40,7 @@ devices = dict(
         description='Second scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S3',
+        readpv=pvprefix + '.S3',
     ),
     c3=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -51,7 +48,7 @@ devices = dict(
         description='Third scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S4',
+        readpv=pvprefix + '.S4',
     ),
     c4=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -59,7 +56,7 @@ devices = dict(
         description='Fourth scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S5',
+        readpv=pvprefix + '.S5',
     ),
     c5=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -67,7 +64,7 @@ devices = dict(
         description='Fifth scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S6',
+        readpv=pvprefix + '.S6',
     ),
     c6=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -75,7 +72,7 @@ devices = dict(
         description='Sixth scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S7',
+        readpv=pvprefix + '.S7',
     ),
     c7=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -83,7 +80,7 @@ devices = dict(
         description='Seventh scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S8',
+        readpv=pvprefix + '.S8',
     ),
     c8=device(
         'nicos_sinq.amor.devices.epics_extensions.EpicsCounterPassiveChannel',
@@ -91,7 +88,7 @@ devices = dict(
         description='Eighth scalar counter channel',
         type='counter',
         lowlevel=True,
-        valuepv=pvprefix + '.S9',
+        readpv=pvprefix + '.S9',
     ),
     psd_tof=device(
         'nicos_sinq.amor.devices.epics_scaler_record.EpicsScalerRecord',

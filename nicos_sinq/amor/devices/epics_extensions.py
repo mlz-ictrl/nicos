@@ -27,7 +27,7 @@ This module contains SINQ specific EPICS developments.
 """
 
 from nicos.core import Device, Param, pvname, Override
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics import EpicsDevice, EpicsReadable
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
     CounterChannelMixin, TimerChannelMixin, Detector
 
@@ -77,39 +77,28 @@ class EpicsAsynController(EpicsDevice, Device):
         return self._get_pv('replypv') if self.replypv else ''
 
 
-class EpicsPassiveChannel(EpicsDevice, PassiveChannel):
+class EpicsPassiveChannel(EpicsReadable, PassiveChannel):
     """
     Class to represent EPICS channels.
 
     These channels can read values directly via EPICS pvs:
-    valuepv -  Provide the value of the channel using this PV
+    readpv -  Provide the value of the channel using this PV
     """
-
-    parameters = {
-        'valuepv': Param('PV storing the value for this channel', type=pvname,
-                         mandatory=True, settable=False),
-    }
-
-    pv_parameters = set(('valuepv',))
-
-    def doRead(self, maxage=0):
-        return self._get_pv('valuepv')
+    pass
 
 
-class EpicsActiveChannel(EpicsDevice, ActiveChannel):
+class EpicsActiveChannel(EpicsReadable, ActiveChannel):
     """
     Class to represent EPICS channels with preset.
 
     These channels can read values and also have the functionality to set
     presets. The reading of values and setting of presets is done directly
     via EPICS pvs:
-    valuepv -  Provide the value of the channel using this PV
+    readpv -  Provide the value of the channel using this PV
     presetpv - Set the preset on this channel using this PV
     """
 
     parameters = {
-        'valuepv': Param('PV storing the value for this channel', type=pvname,
-                         mandatory=True, settable=False),
         'presetpv': Param('PV to set the preset for the count', type=pvname,
                           mandatory=True, settable=False),
     }
@@ -118,16 +107,15 @@ class EpicsActiveChannel(EpicsDevice, ActiveChannel):
         'preselection': Override(volatile=True),
     }
 
-    pv_parameters = set(('valuepv', 'presetpv'))
+    def _get_pv_parameters(self):
+        readable_params = EpicsReadable._get_pv_parameters(self)
+        return readable_params | set(['presetpv'])
 
     def doReadPreselection(self):
         return self._get_pv('presetpv')
 
     def doWritePreselection(self, preselection):
         self._put_pv_blocking('presetpv', preselection)
-
-    def doRead(self, maxage=0):
-        return self._get_pv('valuepv')
 
 
 class EpicsCounterPassiveChannel(CounterChannelMixin, EpicsPassiveChannel):
