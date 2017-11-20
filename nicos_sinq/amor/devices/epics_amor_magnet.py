@@ -116,7 +116,7 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDevice):
             return status.ERROR, '%d: %s' % (code, msg)
 
         if not self.isSwitchedOn:
-            return status.WARN, 'Device is switched off'
+            return status.OK, 'Off'
 
         return EpicsWindowTimeoutDevice.doStatus(self, maxage)
 
@@ -125,3 +125,8 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDevice):
         absmax = self._get_pv('highlimit')
 
         return absmin, absmax
+
+    def doInfo(self):
+        # Add the state in the information of this magnet
+        state = 'on' if self.isSwitchedOn else 'off'
+        return [('state', state, state, '', 'general')]
