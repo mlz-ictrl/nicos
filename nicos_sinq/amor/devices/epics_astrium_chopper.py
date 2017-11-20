@@ -26,7 +26,7 @@
 from collections import OrderedDict
 
 from nicos.core import Attach, ConfigurationError, Override, Param, Readable, \
-    UsageError, pvname, status, usermethod
+    UsageError, pvname, status, usermethod, HasPrecision
 from nicos_ess.devices.epics.base import EpicsDeviceEss, \
     EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
 
@@ -47,7 +47,7 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
     phase values can be set for the disc.
 
     Other parameters such as water flow, temperature, vacuum,
-    lost current can also be seen in the formatted value of the
+    loss current can also be seen in the formatted value of the
     device.
     """
 
@@ -84,7 +84,7 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
          ('speed', 'ActSpd',),
          ('phase', 'ActPhs',),
          ('ratio', 'Ratio',),
-         ('lost_curr', 'LostCurr',),
+         ('loss_curr', 'LossCurr',),
          ('vibration', 'Vibration',),
          ('temperature', 'Temp',),
          ('water_flow', 'WaterFlow',),
@@ -110,29 +110,37 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
         return fmt
 
     def _displayed_props(self):
-        # User would be interested to see all the properties but state
-        # State is displayed in the status message
-        props = self.properties.keys()[1:]
-        return props
+        # Just display the speed and phase in read, rest are in info
+        return ['speed', 'phase']
 
     def doRead(self, maxage=0):
         # List of all string converted values from properties key list
         return [str(self._get_pv(prop)) for prop in self._displayed_props()]
 
+    def doInfo(self):
+        ret = []
+        for prop in self.properties.keys():
+            ret.append((prop,
+                        self._get_pv(prop),
+                        '%s' % self._get_pv(prop),
+                        '%s' % self._get_pvctrl(prop, 'units', ''),
+                        'general'))
+        return ret
+
     def doReadFmtstr(self):
-        return ', '.join('%s = %s' % (v, self._get_pv_fmtstr(v)) for v in
+        return ', '.join(' %s' % (self._get_pv_fmtstr(v)) for v in
                          self._displayed_props())
 
     def doStatus(self, maxage=0):
         if EpicsDeviceEss.doStatus(self, maxage)[0] == status.ERROR:
             return EpicsDeviceEss.doStatus(self, maxage)
 
-        if self._attached_speed and \
-           self._attached_speed.status()[0] == status.BUSY:
+        if (self._attached_speed
+            and self._attached_speed.status(maxage)[0] == status.BUSY):
             return status.BUSY, 'Speed moving to target'
 
-        if self._attached_phase and \
-           self._attached_phase.status()[0] == status.BUSY:
+        if (self._attached_phase
+            and self._attached_phase.status(maxage)[0] == status.BUSY):
             return status.BUSY, 'Phase moving to target'
 
         return status.OK, 'Master' if self.isMaster else 'Slave'
@@ -181,7 +189,7 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
             raise ConfigurationError('No device attached to set the ratio')
 
 
-class EpicsAstriumChopper(Readable):
+class EpicsAstriumChopper(HasPrecision, Readable):
     """
     Main class to control Astrium Chopper in SINQ instruments. A list
     of attached choppers provide the chopper discs in the system.
@@ -221,9 +229,7 @@ class EpicsAstriumChopper(Readable):
         return [str((ch.speed, ch.phase)) for ch in self._attached_choppers]
 
     def doReadFmtstr(self):
-        fmt = '(speed, phase): '
-        fmt += ', '.join(ch.name + ' = %s' for ch in self._attached_choppers)
-        return fmt
+        return ', '.join(ch.name + ': %s' for ch in self._attached_choppers)
 
     def doStatus(self, maxage=0):
         errors = []
@@ -246,7 +252,8 @@ class EpicsAstriumChopper(Readable):
                     # If the master slave is busy, that means the speed
                     # is still moving to target
                     busy.append('Moving to target speed')
-            elif abs(ch.ratio * ch.speed - self._master.speed) > 0.01:
+            elif (abs(ch.ratio * ch.speed - self._master.speed) >
+                      self.precision):
                 # If a slave speed ratio does not match with the master,
                 # this would imply the speed of slave is being changed
                 busy.append('Setting the correct speed of %s' % ch.name)
@@ -258,7 +265,7 @@ class EpicsAstriumChopper(Readable):
         if busy:
             return status.BUSY, ', '.join(busy)
 
-        return status.OK, 'Working' if self._master.speed > 0 else 'Idle'
+        return status.OK, 'Spinning' if self._master.speed > 0 else 'Idle'
 
     @usermethod
     def chspeed(self, speed):
@@ -304,7 +311,7 @@ class EpicsAstriumChopper(Readable):
     @usermethod
     def stop(self):
         """
-        Sets the speed of all chopper discs to 0
+        Stops changing the speed of the chopper disks
         :return:
         """
-        self.chspeed(0)
+        self.chspeed(self._master.speed)

@@ -19,7 +19,6 @@ devices = dict(
         epicstimeout=3.0,
         basepv=pvprefix + 'ch1',
         speed='ch1_speed',
-        lowlevel=True,
     ),
     ch2_phase=device('nicos_ess.devices.epics.base.EpicsWindowTimeoutDeviceEss',
         description='Phase controller for the slave chopper 2',
@@ -45,10 +44,10 @@ devices = dict(
         basepv=pvprefix + 'ch2',
         phase='ch2_phase',
         ratio='ch2_ratio',
-        lowlevel=True,
     ),
     chopper=device('nicos_sinq.amor.devices.epics_astrium_chopper.EpicsAstriumChopper',
         description='Astrium Chopper',
+        precision=1,
         choppers=['ch1', 'ch2']
     )
 
