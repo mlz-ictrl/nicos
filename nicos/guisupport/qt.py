@@ -41,7 +41,7 @@ if os.environ.get('NICOS_QT') == '5':
     import sip
     from PyQt5.QtGui import *
     from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import QObject, pyqtWrapperType
+    from PyQt5.QtCore import QObject
     from PyQt5.QtCore import *
     from PyQt5.QtPrintSupport import *
     from PyQt5.QtDesigner import *
