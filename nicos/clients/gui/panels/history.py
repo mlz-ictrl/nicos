@@ -443,6 +443,29 @@ class BaseHistoryWindow(object):
 
         self.enablePlotActions(False)
 
+        # NOTE: for this class, automatic connections don't work on PyQt4 >=
+        # 4.12 since this class is not derived from QObject. But on older PyQt4
+        # and PyQt5, they do work, so we change use the usual naming scheme
+        # slightly to avoid double connections.
+        self.viewList.currentItemChanged.connect(self.on__viewList_currentItemChanged)
+        self.viewList.itemClicked.connect(self.on__viewList_itemClicked)
+        self.viewList.itemDoubleClicked.connect(self.on__viewList_itemDoubleClicked)
+        self.actionNew.triggered.connect(self.on__actionNew_triggered)
+        self.actionEditView.triggered.connect(self.on__actionEditView_triggered)
+        self.actionCloseView.triggered.connect(self.on__actionCloseView_triggered)
+        self.actionResetView.triggered.connect(self.on__actionResetView_triggered)
+        self.actionDeleteView.triggered.connect(self.on__actionDeleteView_triggered)
+        self.actionSavePlot.triggered.connect(self.on__actionSaveData_triggered)
+        self.actionPrint.triggered.connect(self.on__actionPrint_triggered)
+        self.actionUnzoom.triggered.connect(self.on__actionUnzoom_triggered)
+        self.actionLogScale.toggled.connect(self.on__actionLogScale_toggled)
+        self.actionLegend.toggled.connect(self.on__actionLegend_toggled)
+        self.actionSymbols.toggled.connect(self.on__actionSymbols_toggled)
+        self.actionLines.toggled.connect(self.on__actionLines_toggled)
+        self.actionLinearFit.triggered.connect(self.on__actionLinearFit_triggered)
+        self.actionExpFit.triggered.connect(self.on__actionExpFit_triggered)
+        self.actionSaveData.triggered.connect(self.on__actionSaveData_triggered)
+
     def openViews(self, views):
         """Open some views given by the specs in *views*, a list of strings.
 
@@ -502,14 +525,14 @@ class BaseHistoryWindow(object):
                        self.actionScaleY]:
             action.setEnabled(on)
 
-    def on_viewList_currentItemChanged(self, item, previous):
+    def on__viewList_currentItemChanged(self, item, previous):
         if item is None:
             return
         for view in self.views:
             if view.listitem == item:
                 self.openView(view)
 
-    def on_viewList_itemClicked(self, item):
+    def on__viewList_itemClicked(self, item):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
         self.on_viewList_currentItemChanged(item, None)
@@ -624,8 +647,7 @@ class BaseHistoryWindow(object):
                         i += 1
         return units, mappings
 
-    @pyqtSlot()
-    def on_actionNew_triggered(self):
+    def on__actionNew_triggered(self):
         self.showNewDialog()
 
     def showNewDialog(self, devices=''):
@@ -689,12 +711,11 @@ class BaseHistoryWindow(object):
             view.plot.setSlidingWindow(view.window)
             view.plot.show()
 
-    def on_viewList_itemDoubleClicked(self, item):
+    def on__viewList_itemDoubleClicked(self, item):
         if item:
             self.on_actionEditView_triggered()
 
-    @pyqtSlot()
-    def on_actionEditView_triggered(self):
+    def on__actionEditView_triggered(self):
         view = self.viewStack[-1]
         newdlg = NewViewDialog(self, view.dlginfo, client=self.client)
         newdlg.setWindowTitle('Edit history view')
@@ -710,8 +731,7 @@ class BaseHistoryWindow(object):
         if new_view.plot.HAS_AUTOSCALE:
             self._autoscale(True, False)
 
-    @pyqtSlot()
-    def on_actionCloseView_triggered(self):
+    def on__actionCloseView_triggered(self):
         view = self.viewStack.pop()
         if self.viewStack:
             self.setCurrentView(self.viewStack[-1])
@@ -719,8 +739,7 @@ class BaseHistoryWindow(object):
             self.setCurrentView(None)
         view.plot = None
 
-    @pyqtSlot()
-    def on_actionResetView_triggered(self):
+    def on__actionResetView_triggered(self):
         view = self.viewStack.pop()
         hassym = view.plot.hasSymbols
         view.plot = None
@@ -728,8 +747,7 @@ class BaseHistoryWindow(object):
         self.actionSymbols.setChecked(hassym)
         view.plot.setSymbols(hassym)
 
-    @pyqtSlot()
-    def on_actionDeleteView_triggered(self):
+    def on__actionDeleteView_triggered(self):
         view = self.viewStack.pop()
         self.clearView(view)
         if self.viewStack:
@@ -747,48 +765,38 @@ class BaseHistoryWindow(object):
         view.cleanup()
         return row
 
-    @pyqtSlot()
-    def on_actionSavePlot_triggered(self):
+    def on__actionSavePlot_triggered(self):
         filename = self.currentPlot.savePlot()
         if filename:
             self.statusBar.showMessage('View successfully saved to %s.' %
                                        filename)
 
-    @pyqtSlot()
-    def on_actionPrint_triggered(self):
+    def on__actionPrint_triggered(self):
         if self.currentPlot.printPlot():
             self.statusBar.showMessage('View successfully printed.')
 
-    @pyqtSlot()
-    def on_actionUnzoom_triggered(self):
+    def on__actionUnzoom_triggered(self):
         self.currentPlot.unzoom()
 
-    @pyqtSlot(bool)
-    def on_actionLogScale_toggled(self, on):
+    def on__actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
 
-    @pyqtSlot(bool)
-    def on_actionLegend_toggled(self, on):
+    def on__actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
-    @pyqtSlot(bool)
-    def on_actionSymbols_toggled(self, on):
+    def on__actionSymbols_toggled(self, on):
         self.currentPlot.setSymbols(on)
 
-    @pyqtSlot(bool)
-    def on_actionLines_toggled(self, on):
+    def on__actionLines_toggled(self, on):
         self.currentPlot.setLines(on)
 
-    @pyqtSlot()
-    def on_actionLinearFit_triggered(self):
+    def on__actionLinearFit_triggered(self):
         self.currentPlot.beginFit(LinearFitter, self.actionLinearFit)
 
-    @pyqtSlot()
-    def on_actionExpFit_triggered(self):
+    def on__actionExpFit_triggered(self):
         self.currentPlot.beginFit(ExponentialFitter, self.actionExpFit)
 
-    @pyqtSlot()
-    def on_actionSaveData_triggered(self):
+    def on__actionSaveData_triggered(self):
         self.currentPlot.saveData()
 
 
@@ -1001,7 +1009,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         self._autoscale(y=on)
 
 
-class StandaloneHistoryWindow(DlgUtils, QMainWindow, BaseHistoryWindow):
+class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
     newValue = pyqtSignal(object)
 
