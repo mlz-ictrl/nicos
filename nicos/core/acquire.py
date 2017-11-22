@@ -183,7 +183,8 @@ def read_environment(envlist):
     for dev in envlist:
         if isinstance(dev, DevStatistics):
             try:
-                dev.dev.read(0)
+                if dev.dev:
+                    dev.dev.read(0)
             except NicosError:
                 pass
             continue

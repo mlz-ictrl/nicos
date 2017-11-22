@@ -31,17 +31,16 @@ from contextlib import contextmanager
 
 from nicos import session
 from nicos.core import status
-from nicos.core.device import Readable
 from nicos.core.mixins import HasLimits
 from nicos.core.errors import LimitError, ModeError, NicosError
-from nicos.core.acquire import acquire, read_environment, stop_acquire_thread
+from nicos.core.params import Value
+from nicos.core.acquire import acquire, read_environment, stop_acquire_thread, \
+    DevStatistics
 from nicos.core.constants import INTERMEDIATE, SLAVE, SIMULATION, FINAL
 from nicos.core.utils import waitForCompletion, multiWait, SKIP_EXCEPTIONS, \
     CONTINUE_EXCEPTIONS
 from nicos.utils import Repeater
 from nicos.pycompat import iteritems, number_types, reraise
-
-
 
 
 class SkipPoint(Exception):
@@ -383,15 +382,14 @@ class Scan(object):
             self.endScan()
 
 
-class ElapsedTime(Readable):
-    temporary = True
+class ElapsedTime(DevStatistics):
     started = 0
 
-    def doRead(self, maxage=0):
+    def retrieve(self, *ignored):
         return currenttime() - self.started
 
-    def doStatus(self, maxage=0):
-        return status.OK, ''
+    def valueInfo(self):
+        return (Value('etime', unit='s', fmtstr='%.1f'),)
 
 
 class SweepScan(Scan):
@@ -407,7 +405,7 @@ class SweepScan(Scan):
     def __init__(self, devices, startend, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, subscan=False):
-        self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
+        self._etime = ElapsedTime(None)
         # for sweeps the dry run usually shows only one step; in the case of
         # multisteps we take the first N
         self._simpoints = 1
@@ -448,10 +446,6 @@ class SweepScan(Scan):
         if self.dataset and self.dataset.counter > 0:
             return '%s #%s' % (stype, self.dataset.counter)
         return stype
-
-    def endScan(self):
-        self._etime.shutdown()
-        Scan.endScan(self)
 
     def preparePoint(self, num, xvalues):
         if session.mode == SIMULATION and num > self._simpoints:
