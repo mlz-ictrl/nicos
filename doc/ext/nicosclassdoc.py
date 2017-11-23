@@ -41,7 +41,7 @@ from sphinx.ext.autodoc import ClassDocumenter
 
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
-from nicos.guisupport.widget import NicosWidget
+from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import getargspec
 
 
@@ -180,8 +180,8 @@ class NicosClassDocumenter(ClassDocumenter):
             return
         orig_indent = self.indent
 
-        if hasattr(self.object, 'properties'):
-            self._format_properties(self.object.properties.items(), orig_indent)
+        if issubclass(self.object, NicosWidget):
+            self._format_properties(self.object, orig_indent)
 
         if hasattr(self.object, 'methods'):
             self._format_methods(self.object.methods.items(), orig_indent)
@@ -234,25 +234,28 @@ class NicosClassDocumenter(ClassDocumenter):
                                     for (name, info) in baseparaminfo),
                           '<autodoc>')
 
-    def _format_properties(self, propertiesinfolist, orig_indent):
+    def _format_properties(self, obj, orig_indent):
         self.add_line('', '<autodoc>')
         self.add_line('**Parameters**', '<autodoc>')
         self.add_line('', '<autodoc>')
 
-        for param, info in sorted(propertiesinfolist):
+        for prop in sorted(dir(obj.__class__)):
+            info = getattr(obj.__class__, prop, None)
+            if not isinstance(info, PropDef):
+                continue
             if isinstance(info.ptype, type):
                 ptype = info.ptype.__name__
             else:
                 ptype = info.ptype or '?'
             addinfo = [ptype]  # info.doc info.ptype, info.default
             self.add_line('.. parameter:: %s : %s' %
-                          (param, ', '.join(addinfo)), '<autodoc>')
+                          (prop, ', '.join(addinfo)), '<autodoc>')
             self.add_line('', '<autodoc>')
             descr = info.doc or ''
             if descr and not descr.endswith(('.', '!', '?')):
                 descr += '.'
             self.indent += self.content_indent
-            self.add_line(descr, '<%s.%s description>' % (self.object, param))
+            self.add_line(descr, '<%s.%s description>' % (self.object, prop))
             # self.add_line('', '<autodoc>')
             self.indent = orig_indent
 
