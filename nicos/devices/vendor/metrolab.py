@@ -22,10 +22,9 @@
 #
 # *****************************************************************************
 
-"""Class for THM 1176 magnetic field probe."""
+"""Class for Metrolab THM 1176 magnetic field probe."""
 
 import os
-import re
 import math
 import fcntl
 import struct
@@ -35,16 +34,14 @@ from nicos.core import status, Measurable, Param, Value, usermethod, \
     CommunicationError, ModeError
 from nicos.core import SIMULATION, SLAVE
 
-usbbus_pat = re.compile(r'Bus=(\s*\d+)')
-usbdev_pat = re.compile(r'Dev#=(\s*\d+)')
-
 USBDEVFS_RESET = 21780
 
 
-class THM(Measurable):
+class THM1176(Measurable):
 
     parameters = {
-        'device':       Param('USB device name', type=str, mandatory=True),
+        'device':       Param('USBTMC device name', type=str, mandatory=True),
+        'usbdevice':    Param('Raw USB device name', type=str, mandatory=True),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=80, settable=True),
     }
@@ -60,24 +57,18 @@ class THM(Measurable):
 
     def doReset(self, t=3):
         # get usbdevfs file name
-        self.log.debug('resetting...')
-        devline = os.popen('grep -B3 Metrolab /proc/bus/usb/devices | '
-                           'head -n1', 'r').read().strip()
-        if devline:
-            busno = int(usbbus_pat.search(devline).group(1))
-            devno = int(usbdev_pat.search(devline).group(1))
-            usbdevfsfile = '/proc/bus/usb/%03d/%03d' % (busno, devno)
-            self.log.debug('usbdevfs file is %s', usbdevfsfile)
-            dfile = os.open(usbdevfsfile, os.O_RDWR)
-            fcntl.ioctl(dfile, USBDEVFS_RESET)
-            self.log.debug('USBDEVFS_RESET ioctl done')
-            os.close(dfile)
-            session.delay(2.5)
         if self._io is not None:
             try:
                 os.close(self._io)
             except OSError:
                 pass
+        self.log.debug('resetting...')
+        dfile = os.open(self.usbdevice, os.O_RDWR)
+        fcntl.ioctl(dfile, USBDEVFS_RESET)
+        self.log.debug('USBDEVFS_RESET ioctl done')
+        os.close(dfile)
+        session.delay(2.5)
+        self.log.debug('re-opening device...')
         self._io = os.open(self.device, os.O_RDWR)
         try:
             ident = self._query('*IDN?', binary=False, t=0)
@@ -180,7 +171,7 @@ class THM(Measurable):
 
     def doRead(self, maxage=0):
         n = self.measurements
-        xs = self._query('MEASURE:ARRAY:X? %d,,5' % n)
+        xs = self._query('READ:ARRAY:X? %d,,5' % n)
         ys = self._query('FETCH:ARRAY:Y? %d,5' % n)
         zs = self._query('FETCH:ARRAY:Z? %d,5' % n)
         (x, dx), (y, dy), (z, dz) = \

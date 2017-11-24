@@ -2,9 +2,10 @@ description = 'THM1176 gaussmeter probe for magnetic field measurements'
 group = 'optional'
 
 devices = dict(
-    Bf  = device('nicos_mlz.mira.devices.thm1176.THM',
+    Bf  = device('nicos.devices.vendor.metrolab.THM1176',
                  description = 'THM 1176 gaussmeter',
-                 device = '/dev/usbtmc0',
+                 device = '/dev/usbtmc_THM1176',
+                 usbdevice = '/dev/usb_THM1176',
                 ),
 )
 
