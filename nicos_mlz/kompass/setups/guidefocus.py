@@ -2,19 +2,19 @@ description = 'Neutron guide focussing devices'
 
 group = 'lowlevel'
 
-nethost = 'kompasshw.kompass.frm2'
+tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
 devices = dict(
-    lguide_m = device('nicos.devices.taco.Motor',
+    lguide_m = device('nicos.devices.tango.Motor',
                       description = 'Long table motor',
-                      tacodevice = '//%s/kompass/ltable/motor' % nethost,
+                      tangodevice = tango_base + 'ltable/motor',
                       abslimits = (-0.5, 209.5),
                       fmtstr = '%.2f',
                       lowlevel = True,
                      ),
-    lguide_c = device('nicos.devices.taco.Coder',
+    lguide_c = device('nicos.devices.tango.Sensor',
                       description = 'Long table coder',
-                      tacodevice = '//%s/kompass/ltable/coder' % nethost,
+                      tangodevice = tango_base + 'ltable/coder',
                       fmtstr = '%.2f',
                       lowlevel = True,
                      ),
@@ -25,16 +25,16 @@ devices = dict(
                     fmtstr = '%.2f',
                     precision = 0.01,
                    ),
-    sguide_m = device('nicos.devices.taco.Motor',
+    sguide_m = device('nicos.devices.tango.Motor',
                       description = 'Short table motor',
-                      tacodevice = '//%s/kompass/stable/motor' % nethost,
+                      tangodevice = tango_base + 'stable/motor',
                       abslimits = (-0.5, 206.5),
                       fmtstr = '%.2f',
                       lowlevel = True,
                      ),
-    sguide_c = device('nicos.devices.taco.Coder',
+    sguide_c = device('nicos.devices.tango.Sensor',
                       description = 'Short table coder',
-                      tacodevice = '//%s/kompass/stable/coder' % nethost,
+                      tangodevice = tango_base + 'stable/coder',
                       fmtstr = '%.2f',
                       lowlevel = True,
                      ),
