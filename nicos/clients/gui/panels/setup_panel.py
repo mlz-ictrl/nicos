@@ -305,6 +305,7 @@ class SetupsPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'setup_setups.ui', 'panels')
 
+        self.errorLabel.hide()
         self.aliasGroup.hide()
         self._aliasWidgets = {}
         self._alias_config = None
@@ -332,12 +333,14 @@ class SetupsPanel(Panel):
         self._loaded_basic = None
         self.basicSetup.clear()
         self.optSetups.clear()
+        self.errorLabel.hide()
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
             Qt.ItemIsEnabled
         keep = QListWidgetItem('<keep current>', self.basicSetup)
         if self._setupinfo is not None:
             for name, info in sorted(self._setupinfo.items()):
                 if info is None:
+                    self.errorLabel.show()
                     continue
                 if info['group'] == 'basic':
                     QListWidgetItem(name, self.basicSetup)
