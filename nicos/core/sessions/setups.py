@@ -50,7 +50,7 @@ def readSetups(paths, logger):
             continue  # erroneous setup
         for include in info['includes']:
             if not infodict.get(include):
-                logger.error('Setup %s includes setup %s which does not '
+                logger.error('Setup "%s" includes setup "%s" which does not '
                              'exist or has errors', name, include)
                 infodict[name] = None
     return infodict
