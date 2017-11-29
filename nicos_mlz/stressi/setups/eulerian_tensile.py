@@ -8,7 +8,7 @@ includes = ['aliases_chiphi', 'system', 'mux', 'monochromator', 'detector',
 excludes = ['eulerian_huber', 'eulerian_newport', 'robot']
 
 sysconfig = dict(
-    datasinks = ['caresssink'],
+    datasinks = ['caresssink', 'yamlsink'],
 )
 
 servername = 'VME'
