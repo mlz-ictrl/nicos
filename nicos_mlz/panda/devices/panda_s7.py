@@ -720,7 +720,7 @@ class Panda_mtt(CanReference, AbstractAxis):
         for (pos, precise) in positions:
             try:
                 self.log.debug('go to %s', self.fmtstr % pos)
-                self._Axis__positioning(pos, precise)
+                self.__positioning(pos, precise)
             except Exception as err:
                 self._setErrorState(MoveError,
                                     'error in positioning: %s' % err)
