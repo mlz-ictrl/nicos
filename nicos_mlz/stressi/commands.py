@@ -26,6 +26,7 @@
 import numpy
 
 from nicos import session
+from nicos.core.errors import PositionError
 from nicos.commands import usercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.device import maw
@@ -36,23 +37,37 @@ __all__ = (
     'change_sample'
 )
 
+
+def move_dev(dev, pos, sleeptime=0, maxtries=3):
+    session.log.info('Moving %s to %f', dev, pos)
+    d = session.getDevice(dev)
+    for _ in range(maxtries):
+        d.maw(pos)
+        if sleeptime:
+            sleep(sleeptime)
+        if abs(d.read() - pos) < d.precision:
+            return
+    raise PositionError(dev, 'Could not move %d to %f' % (dev, pos))
+
+
 @usercommand
 @helparglist('')
 def gauge_to_base():
-    session.getDevice('phis').speed = 50
-    session.getDevice('xt').speed = 40
+    session.getDevice('phis').speed = 2 * 50
+    session.getDevice('xt').speed = 2 * 40
     dev_pos = [('robt', 13),
 
-               ('zt', -400), ('robj3', -1), ('robj1', -1), ('robj2', -2),
-               ('robj3', -110),
+               ('zt', -400), ('robj3', -1), ('robj1', -1),
+               ('robj2', -2), ('robj3', -110),
 
                ('zt', 140), ('chis', 190), ('robb', -2), ('phis', 10),
                ('yt', 610), ('xt', -515)]
 
     for dev, pos in dev_pos:
-        session.log.info('Move %s to %f', dev, pos)
-        session.getDevice(dev).maw(pos)
-        sleep(5)
+        move_dev(dev, pos)  # or sleeptime=5
+    session.log.info('Base reached')
+    session.getDevice('phis').speed = 50
+    session.getDevice('xt').speed = 40
 
 
 @usercommand
@@ -65,38 +80,36 @@ def base_to_gauge(tool):
         # Move to measurement position 1
         >>> base_to_gauge(1)
     """
-    session.getDevice('phis').speed = 50
-    session.getDevice('xt').speed = 40
+    session.getDevice('phis').speed = 2 * 50
+    session.getDevice('xt').speed = 2 * 40
     # omgr in robot software offset must be <= -10
-    dev_pos = [('zt', -200), ('robj3', -1), ('robj1', -70), ('robj3', -100),
-               ('xt', 0),
+    dev_pos = [('zt', -200), ('robj3', -1),
+               ('robj1', -70), ('robj3', -100), ('xt', 0),
                ]
     for dev, pos in dev_pos:
-        session.log.info('Move %s to %f', dev, pos)
-        session.getDevice(dev).maw(pos)
-        sleep(5)
+        move_dev(dev, pos)  # or sleeptime=7
 
     # select tool (gauge volume)
-    session.getDevice('robt').maw(tool)
-    sleep(5)
+    move_dev('robt', tool, maxtries=1)
 
     # move to gauge center
-    dev = 'chis'
-    pos = 180.
-    session.log.info('Move %s to %f', dev, pos)
-    session.getDevice(dev).maw(pos)
-    sleep(5)
-    pos = 0
+    move_dev('chis', 180.)
+
+    session.getDevice('xt').speed = 40
     for dev in ['robb', 'phis', 'zt', 'xt', 'yt']:
-        session.log.info('Move %s to %f', dev, pos)
-        session.getDevice(dev).maw(pos)
-        sleep(5)
+        move_dev(dev, 0)  # or sleeptime=5
+    session.log.info('Tool %d reached', tool)
+    session.getDevice('phis').speed = 50
 
 
 @usercommand
 @helparglist('samplenumber')
 def set_sample(sample):
-    session.getDevice('robs').maw(int(sample))
+    # the CARESS device give pos 0 during movement, which confuses the axis
+    # code if the position is moving up
+    move_dev('robs', 0, maxtries=1)
+    move_dev('robs', int(sample), maxtries=1)
+    session.log.info('Sample %d got', int(sample))
 
 
 @usercommand
