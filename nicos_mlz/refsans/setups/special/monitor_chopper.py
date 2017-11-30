@@ -1,9 +1,12 @@
 # created by Martin Haese, Tel FRM 10763
-# last modified 21.07.2017
+# last modified 27.10.2017
 # to call it
 # ssh refsans@refsansctrl02 oder 01
 # cd /refsanscontrol
 # ./bin/nicos-monitor -S monitor_chopper
+# or
+# cd /refsanscontrol/src/nicos-core
+# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
 description = 'REFSANS chopper monitor'
 group = 'special'
@@ -14,9 +17,11 @@ group = 'special'
 _chconfigcol = Column(
     Block(' chopper configuration ', [
         BlockRow(
+            Field(name='reactor power', dev='reactor_power', width=14, unit='MW'),
+            Field(name='6-fold shutter', dev='sixfold_shutter', width=14),
             Field(name='lambda min', dev='chopper_lambda_min', width=14, unit='AA'),
             Field(name='lambda max', dev='chopper_lambda_max', width=14, unit='AA'),
-            Field(name='resolution', dev='chopper_delta_lambda_lambda', width=14),
+            Field(name='resolution', dev='lambda_resolution', width=14),
             Field(name='flight path', dev='chopper_to_detector', width=14, unit='mm'),
             ),
         ],
@@ -37,28 +42,28 @@ _diskcol = Column(
     Block('chopper disk setting',[
         BlockRow(
             Field(dev='ch_disk1', name='disk 1',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['run', 'stop'],
                   width=8, height=18),
             Field(dev='ch_disk2', name='disk 2',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['virt 6', 'gap 5', 'gap 4', 'gap 3',
                             'gap 2', 'gap 1', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk3', name='disk 3',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['gap 6', 'gap 5', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk4', name='disk 4',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['gap 6', 'gap 5', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk5', name='disk 5',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['run', 'stop'],
                   width=8, height=18),
             Field(dev='ch_disk6', name='disk 6',
-                  widget='nicos.sans1.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['run', 'stop'],
                   width=8, height=18),
             ),
@@ -72,8 +77,9 @@ _diskcol = Column(
 _tididiagcol = Column(
     Block(' time distance diagram ', [
         BlockRow(
-            Field(dev='td_diag', picture='time_distance.png',
-                width=64, height=48),
+            Field(dev='td_diag',
+                picture='/refsanscontrol/src/nicos-core/nicos_mlz/refsans/setups/screenshots/time_distance.png',
+                width=57, height=48),
             ),
         ],
     ),

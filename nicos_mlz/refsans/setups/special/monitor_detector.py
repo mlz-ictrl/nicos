@@ -1,27 +1,41 @@
 # created by Martin Haese, Tel FRM 10763
-# last modified 21.07.2017
+# last modified 30.10.2017
 # to call it
 # ssh refsans@refsansctrl02 oder 01
 # cd /refsanscontrol
 # ./bin/nicos-monitor -S monitor_detector
+# or
+# cd /refsanscontrol/src/nicos-core
+# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_detector
 
 description = 'REFSANS detector monitor'
 group = 'special'
+
+_experimentcol = Column(
+    Block(' experiment ', [
+        BlockRow(
+                 Field(name='proposal', key='exp/proposal', width=8),
+                 Field(name='proposer', key='exp/proposal', width=24),
+                 Field(name='title',    key='exp/title',    width=24,
+                       istext=True, maxlen=20),
+                 Field(name='current status', key='exp/action', width=24,
+                       istext=True, maxlen=40),
+            )
+        ],
+    ),
+)
 
 # Legende fuer _detconfigcol
 # dev='...' stellt hier nur die moeglichen Werte dar, keine devices
 
 _detconfigcol = Column(
-    Block(' detector configuration ', [
+    Block(' detector information ', [
         BlockRow(
-            Field(name='data acquisition system', dev='das_mesytec_fast_both', width=24),
-            Field(name='tube pivot',   dev='tube_pivot_position', width=12),
-            Field(name='tube height',  dev='tube', width=12),
-            Field(name='table',        dev='table', width=12),
-            Field(name='tube offset',  dev='tube_horizontal_offset', width=12, unit='mm'),
-            Field(name='tube angle',   dev='tube_vertical_angle', width=12, unit='deg'),
-            Field(name='total counts', dev='detector_count_rate', width=12),
-            Field(name='count rate',   dev='detector_count_rate', width=12, unit='cps'),
+            Field(name='data acquisition system', dev='das_mesytec_fast_both', width=22),
+            Field(name='total counts', dev='detector_count_rate', width=16),
+            Field(name='count time',   dev='detector_count_time', width=16, unit='sec'),
+            Field(name='count rate',   dev='detector_count_rate', width=16, unit='cps'),
+            Field(name='last file', key='det/lastfilenumber'),
             ),
         ],
     ),
@@ -32,8 +46,10 @@ _detconfigcol = Column(
 _detarecol = Column(
     Block(' active detector area ', [
         BlockRow(
-            Field(dev='detector', picture='detector_area.png',
-                width=68, height=50),
+            Field(dev='detector',
+                picture='/refsanscontrol/src/nicos-core/nicos_mlz/refsans/setups/screenshots/detector_2D.png',
+                # picture='detector_area.png',
+                width=54, height=40),
             ),
         ],
     ),
@@ -44,8 +60,10 @@ _detarecol = Column(
 _histogramcol = Column(
     Block(' wavelength histogram ', [
         BlockRow(
-            Field(dev='histogram', picture='histogram.png',
-                width=50, height=50),
+            Field(dev='histogram',
+                picture='/refsanscontrol/src/nicos-core/nicos_mlz/refsans/setups/screenshots/detector_histo.png',
+                # picture='histogram.png',
+                width=50, height=40),
             ),
         ],
     ),
@@ -95,6 +113,7 @@ devices = dict(
         fontsize = 12,
         padding = 5,
         layout = [
+            Row(_experimentcol),
             Row(_detconfigcol),
             Row(_detarecol, _histogramcol),
             Row(_beanstop1col, _beanstop2col, _momentumcol),

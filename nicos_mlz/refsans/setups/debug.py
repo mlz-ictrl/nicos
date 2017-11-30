@@ -1,8 +1,8 @@
-description = 'Setup to test some components (only used during dev phase)'
+description = 'debug MP only'
 
 group = 'basic'
 
-includes = ['nok5a', 'sample']
+includes = ['optic_x']
 
 startupcode = """
 # set offsets of the blades ...

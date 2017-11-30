@@ -3,7 +3,7 @@ description = 'devices for fast detector using comtec p7888 for REFSANS'
 # to be included by refsans?
 group = 'optional'
 
-excludes = ['detector']
+excludes = ['fast']
 
 sysconfig = dict(
     datasinks = ['RawFileSaver'],
