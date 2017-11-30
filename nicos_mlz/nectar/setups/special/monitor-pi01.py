@@ -18,6 +18,11 @@ _expcolumn = Column(
         ),
         ],
     ),
+    Block('Reactor', [
+        BlockRow(
+            Field(name='Reactor Power', dev='ReactorPower'),
+        ),
+    ]),
 )
 
 _translationColumn = Column(
