@@ -20,7 +20,7 @@ toolpath = '/opt/caress'
 
 devices = dict(
     dummyO = device('nicos.devices.vendor.caress.Motor',
-                    description = 'Feedback device for the robotor',
+                    description = 'Feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',
                     coderoffset = 0,
@@ -33,7 +33,7 @@ devices = dict(
                     pollinterval = None,
                    ),
     dummyT = device('nicos.devices.vendor.caress.Motor',
-                    description = 'Feedback device for the robotor',
+                    description = 'Feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',
                     coderoffset = 0,
