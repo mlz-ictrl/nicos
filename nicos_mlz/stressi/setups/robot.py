@@ -23,27 +23,25 @@ devices = dict(
                     description = 'Feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',
-                    coderoffset = 0,
-                    abslimits = (0, 0),
+                    coderoffset = -1229.1539993286133,
+                    abslimits = (0, 140),
                     nameserver = '%s' % (nameservice,),
                     objname = 'VME',
                     config = 'DUMMYO 114 11 0x00f1c000 1 4096 500 50 2 24 50 '
                              '-1 10 1 5000 1 10 0 0 0',
                     lowlevel = True,
-                    pollinterval = None,
                    ),
     dummyT = device('nicos.devices.vendor.caress.Motor',
                     description = 'Feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',
-                    coderoffset = 0,
-                    abslimits = (0, 0),
+                    coderoffset = 1244.04814453125,
+                    abslimits = (0, 140),
                     nameserver = '%s' % (nameservice,),
                     objname = 'VME',
                     config = 'DUMMYT 114 11 0x00f1c000 3 4096 500 5  2 24 50 '
                              '1 10 1 3000 1 30 0 0 0',
                     lowlevel = True,
-                    pollinterval = None,
                    ),
     # *** Roboter Kath ***
     robx = device('nicos.devices.generic.Axis',
@@ -310,8 +308,8 @@ devices = dict(
 )
 
 alias_config = {
-    'tths': {'tths_r': 200,},
-    'omgs': {'omgs_r': 200,},
+    'tths': {'dummyT': 200, 'tths_r': 100,},
+    'omgs': {'dummyO': 200, 'omgs_r': 100,},
     'chis': {'roba_t': 200,},
     'phis': {'robc': 200,},
     'xt': {'robx': 200,},
