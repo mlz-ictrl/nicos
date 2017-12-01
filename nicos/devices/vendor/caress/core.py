@@ -332,21 +332,22 @@ class CARESSDevice(HasCommunication):
         else:
             _ = ()
             self.log.debug('read module: %d', self.cid)
-            result = self._caressObject.read_module_orb(0, self.cid, _)
-            self.log.debug('read_module: %r', result)
-            if result[0] != 0:
+            l, result = self._caressObject.read_module_orb(0, self.cid, _)
+            self.log.debug('read_module: %d, %r', l, result)
+            if l != 0:
                 raise CommunicationError(self,
                                          'Could not read the CARESS module: %d'
                                          % self.cid)
-            if result[1][0].value() != self.cid:
+            if result[0].value() != self.cid:
                 raise CommunicationError(self,
                                          'Answer from wrong module!: %d %r' %
-                                         (self.cid, result[1][0]))
-            if result[1][1].value() == OFF_LINE:
+                                         (self.cid, result[0]))
+            state = result[1].value()
+            if state == OFF_LINE:
                 raise NicosError(self, 'Module is off line!')
-            if result[1][2].value() < 1:
+            if result[2].value() < 1:
                 raise InvalidValueError(self, 'No position in data')
-            return result[1][1].value(), result[1][4].value()
+            return state, result[4].value()
 
     def doRead(self, maxage=0):
         try:
