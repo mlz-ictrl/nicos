@@ -139,12 +139,16 @@ def pole_figure(numrows, speed, timedelta, sampleinfo):
     positions = numpy.arange(90 + dchi, 180, 2 * dchi)[::-1]
     maw(phis, 0)
     for i, chipos in enumerate(positions):
-        maw(chis, round(chipos, 2))
+        move_dev(chis, round(chipos, 2), maxtries=2)
+        sleep(5)
         start, end = (360., 0.) if i % 2 else (0., 360.)
         contscan(phis, start, end, speed, timedelta,
                  '%s_Chis_%s' % (sampleinfo, str(chis.read())))
+    sleep(5)
     maw(phis, 0)
+    sleep(5)
     maw(chis, 180)
+    sleep(5)
 
 
 @usercommand
