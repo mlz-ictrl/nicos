@@ -42,5 +42,13 @@ class Shutter(NamedDigitalOutput):
                             default='closed', userparam=False)
     }
 
+    def doInit(self, mode):
+        NamedDigitalOutput.doInit(self, mode)
+        # TODO: remove this code after successful migration
+        if self.stoptarget == 'close':
+            self._setROParam('stoptarget', CLOSED)
+            self.log.warning('stoptarget parameter has been changed to %r',
+                             CLOSED)
+
     def doStop(self):
         self.maw(self.stoptarget)
