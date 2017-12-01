@@ -365,6 +365,11 @@ class CARESSDevice(HasCommunication):
                 return status.BUSY, 'moving or in manual mode'
             elif state == DONE:
                 return status.OK, 'idle or paused'
+            elif state == LOADED:
+                return status.OK, 'loaded'
+            elif state == NOT_ACTIVE:
+                return status.OK, 'device is not active'
+            self.log.warning('Unhandled status : %r', state)
             return status.OK, 'idle'
         except (InvalidValueError, CommunicationError, NicosError) as e:
             return status.ERROR, e.message
