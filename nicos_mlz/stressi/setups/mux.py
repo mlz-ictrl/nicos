@@ -13,5 +13,6 @@ devices = dict(
                  objname = '%s' % (servername),
                  config = 'MUX3 38 4 ttyS1 1',
                  lowlevel = True,
+                 initsleep = 0,
                 ),
 )

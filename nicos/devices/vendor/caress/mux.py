@@ -24,11 +24,20 @@
 
 """MUX Device via the CARESS device service."""
 
-from nicos.core import Device
+from nicos import session
+from nicos.core import Device, Param, floatrange
 from nicos.devices.vendor.caress.core import CARESSDevice
 
 
 class MUX(CARESSDevice, Device):
 
+    parameters = {
+        'initsleep': Param('sleep time after initialize',
+                           type=floatrange(0), default=10, settable=False,
+                           userparam=False),
+    }
+
     def doInit(self, mode):
+        session.delay(self.initsleep)
         CARESSDevice.doInit(self, mode)
+        session.delay(self.initsleep)
