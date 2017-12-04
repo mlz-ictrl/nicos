@@ -65,9 +65,9 @@ def gauge_to_base():
 
     for dev, pos in dev_pos:
         move_dev(dev, pos)  # or sleeptime=5
-    session.log.info('Base reached')
     session.getDevice('phis').speed = 50
     session.getDevice('xt').speed = 40
+    session.log.info('Base reached')
 
 
 @usercommand
@@ -98,8 +98,8 @@ def base_to_gauge(tool):
     session.getDevice('xt').speed = 40
     for dev in ['robb', 'phis', 'zt', 'xt', 'yt']:
         move_dev(dev, 0)  # or sleeptime=5
-    session.log.info('Tool %d reached', tool)
     session.getDevice('phis').speed = 50
+    session.log.info('Tool %d reached', tool)
 
 
 @usercommand
