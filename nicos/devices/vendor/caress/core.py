@@ -39,6 +39,10 @@ try:
     sys.modules['ABSDEV'] = sys.modules['nicos.devices.vendor.caress._GlobalIDL']
     omniORB.updateModule('CARESS')
     omniORB.updateModule('ABSDEV')
+    # Clear client timeout to avoid some timeouts due to waitings in CARESS
+    omniORB.setClientCallTimeout(0)
+    # omniORB.setClientThreadCallTimeout(0)
+    # omniORB.setClientConnectTimeout(0)
 except ImportError:
     omniORB = None
 
@@ -291,6 +295,7 @@ class CARESSDevice(HasCommunication):
         _cid = self._getCID(self.config.split(None, 2)[0])
         self._init(_cid)
         if session.sessiontype != POLLER:
+            # omniORB.setClientCallTimeout(self._caressObject, 0)
             self._setROParam('cid', _cid)
             if self._cache:
                 self._cache.invalidate(self, 'cid')
