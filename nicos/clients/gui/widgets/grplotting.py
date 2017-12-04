@@ -521,6 +521,7 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
             plotcurve = NicosPlotCurve(series.x[:n], series.y[:n],
                                        legend=series.title,
                                        linecolor=color, markercolor=color)
+            plotcurve._parent = series
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
 

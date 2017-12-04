@@ -113,6 +113,7 @@ class TimeSeries(object):
     def __init__(self, name, interval, scale, offset, window, signal_obj,
                  info=None, mapping=None):
         self.name = name
+        self.disabled = False
         self.signal_obj = signal_obj
         self.info = info
         self.interval = interval
