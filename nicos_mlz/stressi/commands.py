@@ -107,9 +107,10 @@ def base_to_gauge(tool):
 def set_sample(sample):
     # the CARESS device give pos 0 during movement, which confuses the axis
     # code if the position is moving up
-    move_dev('robs', 0, maxtries=1)
-    move_dev('robs', int(sample), maxtries=1)
-    session.log.info('Sample %d got', int(sample))
+    d = session.getDevice('robs')
+    if d.read() != sample:
+        move_dev('robs', int(sample), maxtries=1)
+    session.log.info('Got sample %d', int(sample))
 
 
 @usercommand
