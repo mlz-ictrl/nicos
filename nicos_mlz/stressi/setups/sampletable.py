@@ -9,7 +9,7 @@ nameservice = 'stressictrl.stressi.frm2'
 includes = ['aliases']
 
 devices = dict(
-    tths_s = device('nicos.devices.vendor.caress.Motor',
+    tths_s = device('nicos.devices.vendor.caress.HoveringMotor',
                   description = 'HWB TTHS',
                   fmtstr = '%.2f',
                   unit = 'deg',

@@ -25,11 +25,14 @@
 """Motor device via the CARESS device service."""
 
 from nicos import session
-from nicos.core import Attach, HasOffset, Override, POLLER, Param
+from nicos.core import Attach, HasOffset, Override, POLLER, Param, status
 from nicos.core.errors import NicosError
 from nicos.devices.abstract import Motor as AbstractMotor
+from nicos.devices.generic.sequence import SeqCall, SeqSleep, SequencerMixin
+
 from nicos.devices.vendor.caress.base import Driveable
-from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE
+from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE, \
+    STOP_ACTION
 from nicos.devices.vendor.caress.mux import MUX
 
 EKF_44520_ABS = 114  # EKF 44520 motor control, abs. encoder, VME
@@ -72,6 +75,9 @@ class Motor(HasOffset, Driveable, AbstractMotor):
     def doSetPosition(self, pos):
         pass
 
+    def doStop(self):
+        self._stop(STOP_ACTION)
+
     def _set_speed(self, config):
         tmp = config.split()
         # The  7th entry is the number of motor steps and the  6th entry the
@@ -104,6 +110,55 @@ class Motor(HasOffset, Driveable, AbstractMotor):
                     raise NicosError(self, 'Could not set speed to module!'
                                      '(%r) %d' % ((res,), self._device_kind()))
         self._params['speed'] = speed
+
+
+class HoveringMotor(SequencerMixin, Motor):
+    """CARESS motor using airpads."""
+
+    parameters = {
+        'stopdelay': Param('Delay before switching off air',
+                           type=int, settable=False, default=0, unit='s'),
+    }
+
+    hardware_access = True
+
+    def doInit(self, mode):
+        tmp = self.config.split()
+        self._setROParam('stopdelay', 0)
+        # set the sleep time in CARESS to 0 and restore the config line in
+        # cache after initialization
+        if int(tmp[1]) in [EKF_44520_ABS, EKF_44520_INCR] and \
+           len(tmp) > 12 and int(tmp[12]) > 1:
+            self._setROParam('stopdelay', int(tmp[12]))
+            tmp[12] = '1'
+            self._setROParam('config', ' '.join(tmp))
+        Motor.doInit(self, mode)
+        if int(tmp[1]) in [EKF_44520_ABS, EKF_44520_INCR] and \
+           len(tmp) > 12 and int(tmp[12]) > 1:
+            tmp[12] = '%d' % self.stopdelay
+            self._setROParam('config', ' '.join(tmp))
+
+    def _generateSequence(self, target):  # pylint: disable=W0221
+        return [SeqCall(Motor.doStart, self, target),
+                SeqCall(self._hw_wait),
+                SeqSleep(self.stopdelay),
+                SeqCall(Motor.doStop, self)]
+
+    def _hw_wait(self):
+        # overridden: query Axis status, not HoveringAxis status
+        while Motor.doStatus(self, 0)[0] == status.BUSY:
+            session.delay(self._base_loop_delay)
+
+    def doStart(self, target):
+        if self._seq_is_running():
+            self.stop()
+            self.log.info('waiting for motor to stop...')
+            self.wait()
+        self._startSequence(self._generateSequence(target))
+
+    def doStop(self):
+        # stop only the axis, but the sequence has to run through
+        Motor.doStop(self)
 
 
 class MuxMotor(Motor):
