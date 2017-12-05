@@ -11,7 +11,7 @@ nameservice = 'spodisrv.spodi.frm2'
 devices = dict(
     tths = device('nicos.devices.generic.Axis',
                   description = 'HWB TTHS',
-                  motor = device('nicos.devices.vendor.caress.Motor',
+                  motor = device('nicos.devices.vendor.caress.EKFMotor',
                                  fmtstr = '%.3f',
                                  unit = 'deg',
                                  coderoffset = 1044.04,
@@ -27,7 +27,7 @@ devices = dict(
                  ),
     omgs = device('nicos.devices.generic.Axis',
                   description = 'HWB OMGS',
-                  motor = device('nicos.devices.vendor.caress.Motor',
+                  motor = device('nicos.devices.vendor.caress.EKFMotor',
                                  fmtstr = '%.2f',
                                  unit = 'deg',
                                  coderoffset = 2735.92,

@@ -7,7 +7,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    mot1 = device('nicos.devices.vendor.caress.Motor',
+    mot1 = device('nicos.devices.vendor.caress.EKFMotor',
                   description = 'RadColli=ZE',
                   fmtstr = '%.2f',
                   unit = 'deg',

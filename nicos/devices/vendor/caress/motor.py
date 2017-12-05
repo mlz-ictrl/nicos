@@ -112,8 +112,8 @@ class Motor(HasOffset, Driveable, AbstractMotor):
         self._params['speed'] = speed
 
 
-class HoveringMotor(SequencerMixin, Motor):
-    """CARESS motor using airpads."""
+class EKFMotor(SequencerMixin, Motor):
+    """EKF CARESS motor."""
 
     parameters = {
         'stopdelay': Param('Delay before switching off air',

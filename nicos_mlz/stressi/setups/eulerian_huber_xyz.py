@@ -16,7 +16,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    xe =      device('nicos.devices.vendor.caress.Motor',
+    xe =      device('nicos.devices.vendor.caress.EKFMotor',
                      description = 'HWB XE',
                      fmtstr = '%.2f',
                      unit = 'mm',
@@ -27,7 +27,7 @@ devices = dict(
                      config = 'XE 115 11 0x00f1c000 4 50 1000 100 1 0 0 0 0 1'
                               ' 5000 1 10 0 0 0',
                     ),
-    ye =      device('nicos.devices.vendor.caress.Motor',
+    ye =      device('nicos.devices.vendor.caress.EKFMotor',
                      description = 'HWB YE',
                      fmtstr = '%.2f',
                      unit = 'mm',
@@ -38,7 +38,7 @@ devices = dict(
                      config = 'YE 115 11 0x00f1d000 2 50 1000 100 1 0 0 0 0 1 '
                               '5000 1 10 0 0 0',
                     ),
-    ze =      device('nicos.devices.vendor.caress.Motor',
+    ze =      device('nicos.devices.vendor.caress.EKFMotor',
                      description = 'HWB ZE',
                      fmtstr = '%.2f',
                      unit = 'mm',

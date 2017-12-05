@@ -23,6 +23,7 @@ the moment used at SPODI and STRESS-SPEC instruments at the
 .. module:: nicos.devices.vendor.caress.motor
 
 .. autoclass:: Motor
+.. autoclass:: EKFMotor
 .. autoclass:: MuxMotor
 
 .. module:: nicos.devices.vendor.caress.mux

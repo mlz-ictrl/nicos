@@ -19,7 +19,7 @@ caresspath = '/opt/caress'
 toolpath = '/opt/caress'
 
 devices = dict(
-    dummyO = device('nicos.devices.vendor.caress.HoveringMotor',
+    dummyO = device('nicos.devices.vendor.caress.EKFMotor',
                     description = 'OMGS feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',
@@ -31,7 +31,7 @@ devices = dict(
                              '-1 10 1 5000 1 10 0 0 0',
                     lowlevel = True,
                    ),
-    dummyT = device('nicos.devices.vendor.caress.HoveringMotor',
+    dummyT = device('nicos.devices.vendor.caress.EKFMotor',
                     description = 'TTHS feedback device for the robot',
                     fmtstr = '%.2f',
                     unit = 'deg',

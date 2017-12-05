@@ -57,7 +57,7 @@ devices = dict(
                    config = 'TOMOM 500 TorsionMom.ControllableDevice',
                    absdev = False,
                   ),
-    chit = device('nicos.devices.vendor.caress.Motor',
+    chit = device('nicos.devices.vendor.caress.EKFMotor',
                   description = 'HWB CHIT',
                   fmtstr = '%.2f',
                   unit = 'deg',

@@ -9,7 +9,7 @@ servername = 'VMESPODI'
 nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
-    xs = device('nicos.devices.vendor.caress.Motor',
+    xs = device('nicos.devices.vendor.caress.EKFMotor',
                 description = 'HWB XS',
                 fmtstr = '%.2f',
                 unit = 'mm',
@@ -20,7 +20,7 @@ devices = dict(
                 config = 'XS 115 11 0x00f1c000 4 3200 6000 200 1 0 50 '
                          '-1 0 1 5300 1 10 10 0 500',
                ),
-    ys = device('nicos.devices.vendor.caress.Motor',
+    ys = device('nicos.devices.vendor.caress.EKFMotor',
                 description = 'HWB YS',
                 fmtstr = '%.2f',
                 unit = 'mm',

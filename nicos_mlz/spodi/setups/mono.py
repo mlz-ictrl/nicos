@@ -10,7 +10,7 @@ includes = []
 
 devices = dict(
 # ;Monochromator
-    omgm = device('nicos.devices.vendor.caress.Motor',
+    omgm = device('nicos.devices.vendor.caress.EKFMotor',
                   description = 'HWB OMGM',
                   fmtstr = '%.3f',
                   unit = 'deg',
@@ -27,7 +27,7 @@ devices = dict(
                   unit = 'deg',
                   states = (155.,),
                  ),
-#   chim = device('nicos.devices.vendor.caress.Motor',
+#   chim = device('nicos.devices.vendor.caress.EKFMotor',
 #                 description = 'HWB CHIM',
 #                 fmtstr = '%.2f',
 #                 unit = 'deg',
@@ -38,7 +38,7 @@ devices = dict(
 #                 config = 'CHIM 114 11 0x00f1e000 1 8192 6000 200 2 25 50 '
 #                          '-1 0 1 5300 1 10 10 0 1000',
 #                ),
-#   zm = device('nicos.devices.vendor.caress.Motor',
+#   zm = device('nicos.devices.vendor.caress.EKFMotor',
 #               description = 'HWB ZM',
 #               fmtstr = '%.2f',
 #               unit = 'mm',
@@ -49,7 +49,7 @@ devices = dict(
 #               config = 'ZM 114 11 0x00f1d000 2 4096 6000 200 2 25 50 '
 #                        '1 0 1 3360 1 10 10 0 500',
 #              ),
-#   ym = device('nicos.devices.vendor.caress.Motor',
+#   ym = device('nicos.devices.vendor.caress.EKFMotor',
 #               description = 'HWB YM',
 #               fmtstr = '%.2f',
 #               unit = 'mm',
@@ -60,7 +60,7 @@ devices = dict(
 #               config = 'YM 114 11 0x00f1d000 3 4096 6000 200 2 25 50 '
 #                        '1 0 1 5300 1 10 10 0 500',
 #              ),
-#   xm = device('nicos.devices.vendor.caress.Motor',
+#   xm = device('nicos.devices.vendor.caress.EKFMotor',
 #               description = 'HWB XM',
 #               fmtstr = '%.2f',
 #               unit = 'mm',

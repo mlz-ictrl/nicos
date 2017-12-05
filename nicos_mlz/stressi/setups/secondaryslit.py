@@ -8,7 +8,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    sst = device('nicos.devices.vendor.caress.Motor',
+    sst = device('nicos.devices.vendor.caress.EKFMotor',
                  description = 'HWB SST',
                  fmtstr = '%.2f',
                  unit = 'mm',

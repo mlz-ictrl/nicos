@@ -16,7 +16,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    chis_n = device('nicos.devices.vendor.caress.Motor',
+    chis_n = device('nicos.devices.vendor.caress.EKFMotor',
                     description = 'HWB CHIN',
                     fmtstr = '%.2f',
                     unit = 'deg',
@@ -30,7 +30,7 @@ devices = dict(
                     #          '0 0 1 5000 1 10 0 0 0',
                     lowlevel = True,
                    ),
-    phis_n = device('nicos.devices.vendor.caress.Motor',
+    phis_n = device('nicos.devices.vendor.caress.EKFMotor',
                     description = 'HWB PHIN',
                     fmtstr = '%.2f',
                     unit = 'deg',
@@ -44,7 +44,7 @@ devices = dict(
                              '1 5000 1 10 0 0 0',
                     lowlevel = True,
                    ),
-    # phis = device('nicos.devices.vendor.caress.Motor',
+    # phis = device('nicos.devices.vendor.caress.EKFMotor',
     #               description = 'HWB PHIS',
     #               fmtstr = '%.2f',
     #               unit = 'deg',

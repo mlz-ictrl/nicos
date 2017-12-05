@@ -9,7 +9,7 @@ nameservice = 'spodisrv.spodi.frm2'
 includes = []
 
 devices = dict(
-    samsm = device('nicos.devices.vendor.caress.Motor',
+    samsm = device('nicos.devices.vendor.caress.EKFMotor',
                    description = 'HWB SAMS',
                    fmtstr = '%.2f',
                    unit = 'deg',
@@ -22,7 +22,7 @@ devices = dict(
                    lowlevel = True,
                   ),
     # Sample changer ***Attention SAMR is also CHIT (Load Frame Chi)***
-    samr = device('nicos.devices.vendor.caress.Motor',
+    samr = device('nicos.devices.vendor.caress.EKFMotor',
                   description = 'HWB SAMR',
                   fmtstr = '%.2f',
                   unit = 'deg',

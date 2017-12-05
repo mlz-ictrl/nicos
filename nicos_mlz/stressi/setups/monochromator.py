@@ -7,7 +7,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    omgm = device('nicos.devices.vendor.caress.Motor',
+    omgm = device('nicos.devices.vendor.caress.EKFMotor',
                   description = 'HWB OMGM',
                   fmtstr = '%.2f',
                   unit = 'deg',
@@ -18,7 +18,7 @@ devices = dict(
                   config = 'OMGM 114 11 0x00f1e000 2 4096 2000 200 2 24 50 1 0 1 3000 1 10 0 0 0',
                   requires =  {'level': 'admin',},
                  ),
-    transm_m = device('nicos.devices.vendor.caress.Motor',
+    transm_m = device('nicos.devices.vendor.caress.EKFMotor',
                       description = 'HWB TRANSM',
                       fmtstr = '%.3f',
                       unit = 'cm',
@@ -38,7 +38,7 @@ devices = dict(
                     unit = '',
                     requires =  {'level': 'admin',},
                    ),
-#   tthm = device('nicos.devices.vendor.caress.Motor',
+#   tthm = device('nicos.devices.vendor.caress.EKFMotor',
     tthm = device('nicos.devices.generic.ManualMove',
                   description = 'Take off angle',
                   default = 84.0,

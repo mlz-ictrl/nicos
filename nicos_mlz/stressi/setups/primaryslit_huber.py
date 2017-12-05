@@ -9,7 +9,7 @@ servername = 'VME'
 nameservice = 'stressictrl.stressi.frm2'
 
 devices = dict(
-    psw = device('nicos.devices.vendor.caress.Motor',
+    psw = device('nicos.devices.vendor.caress.EKFMotor',
                  description = 'HWB PSW',
                  fmtstr = '%.2f',
                  unit = 'mm',
@@ -20,7 +20,7 @@ devices = dict(
                  config = 'PSW 114 11 0x00f1c000 4 4096 1000 100 2 24 50 -1 0 '
                           '1 3000 1 10 0 0 0',
                 ),
-    psh = device('nicos.devices.vendor.caress.Motor',
+    psh = device('nicos.devices.vendor.caress.EKFMotor',
                  description = 'HWB PSH',
                  fmtstr = '%.2f',
                  unit = 'mm',
