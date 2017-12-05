@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['sample_changer', 'sample_table_1']
 
-nethost = 'sans1srv.sans1.frm2'
+tango_host = 'tango://sans1hw.sans1.frm2:10000/sans1/sample_changer/'
 
 devices = dict(
     sc2_y = device('nicos.devices.generic.Axis',
@@ -18,16 +18,16 @@ devices = dict(
         coder = 'sc2_yenc',
         obs = [],
     ),
-    sc2_ymot = device('nicos.devices.taco.motor.Motor',
+    sc2_ymot = device('nicos.devices.tango.Motor',
         description = 'Sample Changer 1/2 Axis motor',
-        tacodevice = '//%s/sans1/samplechanger/y-sc1mot' % (nethost,),
+        tangodevice = tango_host + 'y_mot',
         fmtstr = '%.2f',
         abslimits = (-0, 600),
         lowlevel = True,
     ),
-    sc2_yenc = device('nicos.devices.taco.coder.Coder',
+    sc2_yenc = device('nicos.devices.tango.Sensor',
         description = 'Sample Changer 1/2 Axis encoder',
-        tacodevice = '//%s/sans1/samplechanger/y-sc1enc' % (nethost,),
+        tangodevice = tango_host + 'y_enc',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -60,7 +60,7 @@ devices = dict(
         },
         # changed by sbusch 2017-JUN-09 with tilted st1 (chi broken),
         # adjusted 4...7, 15...18
-        #mapping = { 7: [360.6, -32.0],  6: [301.8, -32.0],
+        # mapping = { 7: [360.6, -32.0],  6: [301.8, -32.0],
         #            5: [242.6, -31.9],  4: [183.6, -31.8],
         #           18: [358.2,  27.2], 17: [299.2,  27.2],
         #           16: [240.2,  27.1], 15: [181.1,  27.0],

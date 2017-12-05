@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['sample_changer', 'sample_table_1']
 
-nethost = 'sans1srv.sans1.frm2'
+tango_host = 'tango://sans1hw.sans1.frm2:10000/sans1/sample_changer/'
 
 devices = dict(
     sc_t_y = device('nicos.devices.generic.Axis',
@@ -18,16 +18,16 @@ devices = dict(
         coder = 'sc_t_yenc',
         obs = [],
     ),
-    sc_t_ymot = device('nicos.devices.taco.motor.Motor',
+    sc_t_ymot = device('nicos.devices.tango.Motor',
         description = 'Sample Changer 1/2/t Axis motor',
-        tacodevice = '//%s/sans1/samplechanger/y-sc1mot' % (nethost,),
+        tangodevice = tango_host + 'y_mot',
         fmtstr = '%.2f',
         abslimits = (-0, 600),
         lowlevel = True,
     ),
-    sc_t_yenc = device('nicos.devices.taco.coder.Coder',
+    sc_t_yenc = device('nicos.devices.tango.Sensor',
         description = 'Sample Changer 1/2/t Axis encoder',
-        tacodevice = '//%s/sans1/samplechanger/y-sc1enc' % (nethost,),
+        tangodevice = tango_host + 'y_enc',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
