@@ -71,15 +71,15 @@ _thirdcolumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'DNS status',
-                     loglevel = 'info',
-                     cache = 'phys.dns.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     layout = [
-                         Row(_expcolumn),
-                         Row(_firstcolumn, _secondcolumn, _thirdcolumn),
-                     ],
-                    ),
+        title = 'DNS status',
+        loglevel = 'info',
+        cache = 'phys.dns.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        layout = [
+            Row(_expcolumn),
+            Row(_firstcolumn, _secondcolumn, _thirdcolumn),
+        ],
+    ),
 )

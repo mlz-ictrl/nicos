@@ -142,18 +142,18 @@ _plotcolumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-                     title = 'NICOS status monitor for DNS',
-                     loglevel = 'info',
-                     cache = 'phys.dns.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     filename = '/dnscontrol/webroot/index.html',
-                     fontsize = 17,
-                     layout = [
-                         Row(_expcolumn),
-                         Row(_firstcolumn, _secondcolumn, _thirdcolumn),
-                         Row(_plotcolumn),
-                     ],
-                    ),
+        title = 'NICOS status monitor for DNS',
+        loglevel = 'info',
+        cache = 'phys.dns.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        filename = '/dnscontrol/webroot/index.html',
+        fontsize = 17,
+        layout = [
+            Row(_expcolumn),
+            Row(_firstcolumn, _secondcolumn, _thirdcolumn),
+            Row(_plotcolumn),
+        ],
+    ),
 )

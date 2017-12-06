@@ -9,9 +9,9 @@ sysconfig = dict(
 
 devices = dict(
     DNSFileSaver = device('nicos_mlz.dns.devices.dnsfileformat.DNSFileSink',
-                          lowlevel = True,
-                         ),
-    YAMLSaver    = device('nicos_mlz.dns.devices.yamlformat.YAMLFileSink',
-                          lowlevel = True,
-                         ),
+        lowlevel = True,
+    ),
+    YAMLSaver = device('nicos_mlz.dns.devices.yamlformat.YAMLFileSink',
+        lowlevel = True,
+    ),
 )
