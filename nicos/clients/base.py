@@ -300,7 +300,7 @@ class NicosClient(object):
                 msg = 'Server communication interrupted by user.'
             else:
                 msg = 'Exception occurred: %s.' % err
-            self.signal('broken', msg, err)
+            self.signal('broken', msg)
             self._close()
 
     def _write(self, command, args):
