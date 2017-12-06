@@ -5,16 +5,16 @@ group = 'lowlevel'
 display_order = 5
 
 devices = dict(
-    shutter    = device('nicos.devices.generic.ManualSwitch',
-                        description = 'virtual shutter',
-                        states = ['open', 'closed'],
-                       ),
+    shutter = device('nicos.devices.generic.ManualSwitch',
+        description = 'virtual shutter',
+        states = ['open', 'closed'],
+    ),
     nl3a_shutter = device('nicos.devices.generic.ManualSwitch',
-                        description = 'NL3a shutter status',
-                        states = ['open', 'closed'],
-                       ),
+        description = 'NL3a shutter status',
+        states = ['open', 'closed'],
+    ),
     sixfold_shutter = device('nicos.devices.generic.ManualSwitch',
-                        description = 'Sixfold shutter status',
-                        states = ['open', 'closed'],
-                       ),
+        description = 'Sixfold shutter status',
+        states = ['open', 'closed'],
+    ),
 )

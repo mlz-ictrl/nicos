@@ -74,12 +74,9 @@ notifiers = {
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      # use only 'localhost' if the cache is really running on
-                      # the same machine, otherwise use the official computer
-                      # name
-                      cache = 'localhost',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        cache = 'localhost',
+        notifiers = notifiers,
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )

@@ -45,16 +45,17 @@ _column4 = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'KWS-2 GE detector status',
-                     loglevel = 'info',
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
-                     cache = 'localhost',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     noexpired = True,
-                     layout = [Row(_column1, _column1b, _column2, _column3), Row(_column4)],
-                    ),
+        title = 'KWS-2 GE detector status',
+        loglevel = 'info',
+        # Use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the hostname (official
+        # computer name) or an IP address.
+        cache = 'localhost',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        noexpired = True,
+        layout = [Row(_column1, _column1b, _column2, _column3),
+                  Row(_column4)],
+    ),
 )

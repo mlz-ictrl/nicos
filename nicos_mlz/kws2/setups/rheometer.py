@@ -6,9 +6,9 @@ tango_base = 'tango://phys.kws2.frm2:10000/rheo/'
 
 devices = dict(
     Rheo_WS = device('nicos.devices.tango.DigitalOutput',
-                     description = 'Worksheet to process',
-                     tangodevice = tango_base + 'rheo/worksheet',
-                     fmtstr = 'No.%d',
-                     unit = '',
-                    ),
+        description = 'Worksheet to process',
+        tangodevice = tango_base + 'rheo/worksheet',
+        fmtstr = 'No.%d',
+        unit = '',
+    ),
 )

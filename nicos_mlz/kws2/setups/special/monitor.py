@@ -124,20 +124,23 @@ _etplot = Block('', [
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'KWS-2 status',
-                     loglevel = 'info',
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
-                     cache = 'phys.kws2.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Bitstream Vera Sans Mono',
-                     padding = 0,
-                     layout = [
-                         Row(Column(_experiment)),
-                         Row(Column(_selector, _chopper, _polarizer, _daq),
-                             Column(_shutter, _collimation, _detector, _sample, _sample_withrot),
-                             Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot)),
-                     ],
-                    ),
+        title = 'KWS-2 status',
+        loglevel = 'info',
+        cache = 'phys.kws2.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Bitstream Vera Sans Mono',
+        padding = 0,
+        layout = [
+            Row(Column(_experiment)),
+            Row(
+                Column(_selector, _chopper, _polarizer, _daq),
+                Column(
+                    _shutter, _collimation, _detector, _sample, _sample_withrot
+                ),
+                Column(
+                    _peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot
+                )
+            ),
+        ],
+    ),
 )
