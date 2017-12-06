@@ -43,7 +43,6 @@ devices = dict(
         description = 'sca3 - 30 min. collimator',
         angle = -109.732, # 81156,
         stpos = 109.,
-        # sec': 55996070,
         tt = 'mtt',
         st = 'phi',
         block = 'sca3b',
