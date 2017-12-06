@@ -68,9 +68,9 @@ class Attenuator(HasLimits, Moveable):
                 raise NicosError(self, 'inconsistency of attenuator status, '
                                  'check device!')
 
-#                if self.io_press == 0:
-#                    msg = 'no air pressure; cannot move attenuator'
-#                    raise DeviceUndefinedError(msg)
+            # if self.io_press == 0:
+            #     msg = 'no air pressure; cannot move attenuator'
+            #     raise DeviceUndefinedError(msg)
             result = 0
             temp = 0
             for i in range(4, -1, -1):
