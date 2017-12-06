@@ -168,13 +168,13 @@ _layout = [
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'KWS-1 status',
-                     loglevel = 'info',
-                     cache = 'phys.kws1.frm2',
-                     font = 'Droid Sans',
-                     valuefont = 'Droid Sans Mono',
-                     fontsize = 14,
-                     padding = 3,
-                     layout = _layout,
-                    ),
+        title = 'KWS-1 status',
+        loglevel = 'info',
+        cache = 'phys.kws1.frm2',
+        font = 'Droid Sans',
+        valuefont = 'Droid Sans Mono',
+        fontsize = 14,
+        padding = 3,
+        layout = _layout,
+    ),
 )
