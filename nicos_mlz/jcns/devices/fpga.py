@@ -55,20 +55,21 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
 
     def _setPreselection(self):
         """This method must be present and should set the the preselection
-        value for the card before start."""
+        value for the card before start.
+        """
         raise NotImplementedError
 
     def doStart(self):
-        self._dev.DevFPGACountReset()
         if self.ismaster:
+            self._dev.DevFPGACountReset()
             # preselection has to be set here and not in doWritePreset
             # because `DevFPGACountReset()` resets all values.
             self._setPreselection()
-        if self.extmode:
-            self.extwait = True
-            self._dev.DevFPGACountArmForExternalStart(self.extmask)
-        else:
-            self._dev.DevFPGACountStart()
+            if self.extmode:
+                self.extwait = True
+                self._dev.DevFPGACountArmForExternalStart(self.extmask)
+            else:
+                self._dev.DevFPGACountStart()
 
     def doFinish(self):
         self.extwait = False
