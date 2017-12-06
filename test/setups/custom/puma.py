@@ -70,9 +70,9 @@ devices = dict(
                  obs = [],
                  precision = 0.011,
                  offset = 0.0,
-                 maxtries = 10,
+                 maxtries = 1,
                  backlash = -0.1,
                  loopdelay = 0.02,
-                 polysleep = 1,
+                 polysleep = 0.02,
                 ),
 )
