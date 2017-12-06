@@ -535,7 +535,7 @@ class BaseHistoryWindow(object):
     def on__viewList_itemClicked(self, item):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
-        self.on_viewList_currentItemChanged(item, None)
+        self.on__viewList_currentItemChanged(item, None)
         # is it a "saved from last time" item?
         info = item.data(Qt.UserRole)
         if info is not None:
