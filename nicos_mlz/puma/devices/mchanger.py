@@ -21,7 +21,6 @@
 #   Oleg Sobolev <oleg.sobolev@frm2.tum.de>
 #
 # *****************************************************************************
-
 """PUMA Monochromator changer."""
 
 from nicos import session
@@ -37,14 +36,14 @@ class Mchanger(Moveable):
         'magazine': Attach('Magazine', Moveable),
         'r3': Attach('3R coupling', Moveable),
         'lift': Attach('Lift', Moveable),
-        'grip': Attach('Greifer', Moveable),
+        'grip': Attach('Grip', Moveable),
         'mlock': Attach('Magnetic lock', Moveable),
         'holdstat': Attach('Read status of monochromators holders of the '
                            'magazine', Readable),
-        # 'foch': Attach('Horizontal focusing', Moveable),
-        # 'focv': Attach('Vertical focusing', Moveable),
+        'focush': Attach('Horizontal focusing', Moveable),
+        'focusv': Attach('Vertical focusing', Moveable),
         'mono_stat': Attach('Read status of monochromators on the monotable',
-                            Readable),
+                            Moveable),
     }
 
     parameters = {
@@ -75,11 +74,11 @@ class Mchanger(Moveable):
                                      self.init_positions.values()))
 
     def doStart(self, target):
-        curpos = self.doRead(0)
-        if curpos == target:
-            self.log.info('%s is already in the beam.', target)
-            return
         try:
+            curpos = self.doRead(0)
+            if self.isAtTarget(curpos, target=target):
+                self.log.info('%s is already in the beam.', target)
+                return
             self._move2start()
         except PositionError:
             self.log.info('Cannot start monochromator change')
@@ -91,7 +90,7 @@ class Mchanger(Moveable):
             self._change_alias('None')
             self._moveUp(curpos)
 
-        # now carpos is 'None' ....
+        # now curpos is 'None' ....
         if target != 'None':
             self.log.info('Put down %s', target)
             self._moveDown(target)
@@ -101,11 +100,9 @@ class Mchanger(Moveable):
 
     def doRead(self, maxage=0):
         up = self._attached_holdstat.read(maxage)
-        down = self._attached_mono_stat.read(maxage)
-        if up != 'None':
-            if up != down:
-                raise PositionError(self, 'unknown position of %s' % self.name)
-        return self._attached_holdstat.read(maxage)
+        if up not in ('None', self._attached_mono_stat.read(maxage)):
+            raise PositionError(self, 'unknown position of %s' % self.name)
+        return up
 
     def doIsAllowed(self, pos):
         if self._attached_lift.read(0) != 'ref':
@@ -152,7 +149,7 @@ class Mchanger(Moveable):
         #     foch.wait()
         # if focv is not None:
         #     focv.wait()
-        self.log.info('Switch off the foch and focv motors')
+        self.log.info('Switch off the focush and focusv motors')
         if focv is not None:
             focv.motor.power = 'off'
         if foch is not None:
@@ -162,7 +159,7 @@ class Mchanger(Moveable):
         aliasdevice = self._attached_monochromator
         foch = session.getDevice(aliasdevice.alias)._attached_focush
         focv = session.getDevice(aliasdevice.alias)._attached_focusv
-        self.log.info('Switch on the foch and focv motors')
+        self.log.info('Switch on the focush and focusv motors')
         if focv is not None:
             focv.motor.power = 'on'
         if foch is not None:
@@ -225,8 +222,7 @@ class Mchanger(Moveable):
         aliastarget = self.mapping.get(pos, None)
         aliasdevice = self._attached_monochromator
         if aliastarget and hasattr(aliasdevice, 'alias'):
-            self.log.info("switching alias '%s' to '%s'", aliasdevice,
-                          aliastarget)
+            self.log.info('switching alias %r to %r', aliasdevice, aliastarget)
             aliasdevice.alias = session.getDevice(aliastarget)
         else:
             self.log.info('NOT changing Aliasdevice')
@@ -234,18 +230,18 @@ class Mchanger(Moveable):
     def _step(self, devicename, pos):
         """Make one step in the changing sequence.
 
-        evaluates the given keyword argument and
+        Evaluates the given keyword argument and
         moves the attached_device with the keyname to the value-position.
         Also checks success
         """
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
-            self.log.info("Open '%s'", dev.name)
+            self.log.info('Open %r', dev.name)
         elif pos == 'closed':
-            self.log.info("Close '%s'", dev.name)
+            self.log.info('Close %r', dev.name)
         else:
-            self.log.info("Move '%s' to '%s' position", dev.name, pos)
+            self.log.info('Move %r to %r position', dev.name, pos)
         try:
             dev.start(pos)
             if devicename == 'r3':  # R3 does not wait!
@@ -261,5 +257,6 @@ class Mchanger(Moveable):
             else:
                 raise
         if dev.read(0) != pos:
-            raise PositionError("Device '%s' did not reach its target '%s', "
-                                'aborting' % (dev, pos))
+            raise PositionError(
+                self, 'Device %r did not reach its target %r, aborting' % (
+                    dev, pos))

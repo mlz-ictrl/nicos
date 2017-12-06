@@ -247,8 +247,8 @@ devices = dict(
         mlock = 'mlock',
         holdstat = 'holdstat',
         mono_stat = 'mono_stat',
-        # foch = 'mfhpg',
-        # focv = 'mfvpg',
+        focush = 'mfhpg',
+        focusv = 'mfvpg',
         changing_positions = dict(
             # taking into account mth offset 90.0, /2017.07.27
             mth = 90.222,
