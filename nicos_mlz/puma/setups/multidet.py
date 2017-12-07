@@ -8,6 +8,8 @@ excludes = ['detectorM', 'detector']
 
 group = 'optional'
 
+modules = ['nicos_mlz.puma.commands']
+
 nethost = 'pumasrv.puma.frm2'
 
 inner_slope = 4061.72

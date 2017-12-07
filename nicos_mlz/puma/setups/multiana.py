@@ -4,6 +4,8 @@ description = 'Multidetector motors'
 
 includes = ['system', 'motorbus10']
 
+modules = ['nicos_mlz.puma.commands']
+
 group = 'optional'
 
 tr_slope = 2064
