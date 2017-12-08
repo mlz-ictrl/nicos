@@ -68,7 +68,7 @@ class Flipper(HasTimeout, Moveable):
         if self._mode == SIMULATION:
             # in simulation mode, we don't know that the current will
             # change when changing the voltage of the power supply
-            return 'on' if self._attached_supply.read(maxage) > 0 else 'off'
+            return 'on' if self._attached_output.read(maxage) else 'off'
         current = self._attached_supply.current
         if current > 0.1:
             return 'on'
@@ -76,11 +76,11 @@ class Flipper(HasTimeout, Moveable):
 
     def doStart(self, target):
         if target == 'on':
-            self._attached_supply.start(10.0)
+            # self._attached_supply.start(10.0)
             self._attached_output.start(1)
         else:
             self._attached_output.start(0)
-            self._attached_supply.start(0.0)
+            # self._attached_supply.start(0.0)
 
     def timeoutAction(self):
         self.log.warning('did not reach target, trying again...')

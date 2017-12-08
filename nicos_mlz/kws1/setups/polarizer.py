@@ -74,7 +74,7 @@ devices = dict(
     flip_ps = device('nicos.devices.tango.PowerSupply',
         tangodevice = tango_base + 'flipperps/volt',
         lowlevel = True,
-        abslimits = (0, 11),
+        abslimits = (0, 20),
         timeout = 3,
     ),
     flipper = device('nicos_mlz.kws1.devices.flipper.Flipper',

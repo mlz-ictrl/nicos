@@ -60,4 +60,13 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
+    UBahn = device('nicos_mlz.frm2.devices.ubahn.UBahn',
+        description = 'Next departures of the U-Bahn from station '
+                      'Garching-Forschungszentrum to Munich',
+        fmtstr='%s',
+    ),
+    OutsideTemp = device('nicos.devices.tango.Sensor',
+        description = 'Outdoor air temperature',
+        tangodevice = 'tango://ictrlfs.ictrl.frm2:10000/frm2/meteo/temp',
+    ),
 )
