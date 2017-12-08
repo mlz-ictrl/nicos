@@ -25,7 +25,11 @@
 """Module to test custom specific modules."""
 
 from test.utils import raises
+
+from nicos.commands.device import adjust
 from nicos.core.errors import ConfigurationError, LimitError
+
+import pytest
 
 session_setup = 'refsans'
 
@@ -51,6 +55,7 @@ def test_single_nok(session):
 
     # nok1.reference()
 
+
 def test_nok_pos(session):
     obs = session.getDevice('obs')
     assert obs.read(0) == 459.
@@ -59,3 +64,66 @@ def test_nok_pos(session):
 
 def test_nok_inclination_failed(session):
     assert raises(ConfigurationError, session.getDevice, 'nok_inc_failed')
+
+
+class TestSingleSlit(object):
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        d = session.getDevice('zb1')
+        d.mode = 'slit'
+        d.offset = 0
+        d.maw(0)
+        d._setROParam('_offsets', {})
+        assert d._offsets == {}
+
+    def test_simple(self, session):
+        d = session.getDevice('zb1')
+        assert d.read(0) == 0.
+        assert d.mode == 'slit'
+
+    def test_change_mode(self, session):
+        # Change mode and check positions of slit and motor
+        d = session.getDevice('zb1')
+        d.mode = 'gisans'
+        assert d.read(0) == 0.
+        assert d._attached_motor.read(0) == -100.
+
+    def test_change_position(self, session):
+        # Move slit and check positions of slit and motor
+        d = session.getDevice('zb1')
+        d.maw(-5)
+        assert d.read(0) == -5.
+        assert d._attached_motor.read(0) == -5.
+
+        # Change mode and check positions of slit and motor
+        d.mode = 'gisans'
+        assert d.read(0) == -5.
+        assert d._attached_motor.read(0) == -105.
+
+    def test_stop(self, session):
+        # test simply the stop method
+        d = session.getDevice('zb1')
+        d.stop()
+
+    def test_offsets(self, session):
+        d = session.getDevice('zb1')
+
+        # only adjust to new value
+        assert d.read(0) == 0
+        adjust(d, 0.5)
+        # check for offset and mode specific offset
+        assert d._offsets['slit'] == -0.5
+        assert d.offset == -0.5
+
+        # change mode, maw away and adjust again
+        d.mode = 'gisans'
+        d.wait()
+        # assert raises(KeyError, d._offsets['gisans'])
+        d.maw(-1)
+        adjust(d, 0)
+        # check for offset and mode specific offset
+        assert d._offsets['gisans'] == -1
+        assert d.offset == -1
+        # check for the mode specific offsets
+        assert (d._offsets['slit'], d._offsets['gisans']) == (-0.5, -1.)

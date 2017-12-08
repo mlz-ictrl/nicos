@@ -25,8 +25,8 @@
 
 import time
 
-from nicos.core import ConfigurationError, DeviceMixinBase, HasPrecision, \
-    MoveError, Moveable, Readable, SIMULATION, status
+from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
+    Readable, SIMULATION, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
     limits, none_or, nonemptylistof, tupleof
@@ -41,33 +41,7 @@ from nicos.devices.vendor.ipc import Motor as IPCMotor
 
 from nicos.utils import clamp, lazy_property
 
-#
-#
-# The following stuff should go away in the future.
-# It is here due to the 'disorganised' structure beeing used so far
-# and because we can't change ALL of it in one go.
-#
-
-
-class PseudoNOK(DeviceMixinBase):
-    """Placeholder device, doing nothing, but storing some locational data."""
-
-    parameters = {
-        'nok_start':  Param('Start of the  NOK (ab NLE2b)',
-                            type=float, settable=False, mandatory=False,
-                            unit='mm', default=0),
-        'nok_length': Param('Length of the NOK',
-                            type=float, default=0, settable=False,
-                            mandatory=False, unit='mm'),
-        'nok_end':    Param('End of the NOK (beginning from NLE2b)',
-                            type=float, default=0, settable=False,
-                            mandatory=False, unit='mm'),
-        'nok_gap':    Param('Gap after the NOK (beginning from NLE2b)',
-                            type=float, default=0, settable=False,
-                            mandatory=False, unit='mm'),
-        'masks':      Param('Masks for this NOK',
-                            type=dict, settable=False, default={}),
-    }
+from nicos_mlz.refsans.devices.mixins import PseudoNOK
 
 
 class NOKMonitoredVoltage(AnalogInput):
@@ -306,7 +280,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                    type=limits, mandatory=True),
         'backlash':          Param('Backlash correction in phys. units',
                                    type=float, default=0., unit='main'),
-        'offsets':          Param('Offsets of NOK-Motors (reactor side, sample side)',
+        'offsets':           Param('Offsets of NOK-Motors (reactor side, sample side)',
                                    type=tupleof(float,float), default=(0.,0.),
                                    settable=False, unit='main'),
     }

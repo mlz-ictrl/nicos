@@ -22,16 +22,23 @@
 #
 # *****************************************************************************
 
-"""Special device for Refsans slits"""
+"""Special devices for Refsans slits."""
 
 
 #~ from time import sleep
 from math import tan, radians
 
-from nicos.core import Moveable, HasPrecision, Param, Value, Override, oneof, \
-    AutoDevice, tupleof, dictof, multiWait, multiReset, ProgrammingError, Attach
-from nicos.utils import lazy_property
+from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
+    Param, Value, dictof, dictwith, multiReset, multiWait, oneof, tupleof
+from nicos.core.errors import ProgrammingError
+from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
+
+from nicos.utils import lazy_property
+
+from nicos_mlz.refsans.devices.mixins import PseudoNOK
+
+MODES = ['slit', 'point', 'gisans']
 
 
 class Opening(object):
@@ -315,6 +322,58 @@ class Slit(CanReference, Moveable):
         if opmode == CENTER:
             return [0.5 * (positions[0] + positions[1]), positions[0] - positions[1]]
         return positions
+
+
+class SingleSlit(PseudoNOK, HasOffset, Moveable):
+    """Slit using one axis."""
+
+    attached_devices = {
+        'motor': Attach('moving motor', Moveable),
+    }
+
+    parameters = {
+        'mode': Param('Beam mode',
+                      type=oneof(*MODES),
+                      settable=True, userparam=True, default='slit'),
+        '_offsets': Param('List of offsets per mode position',
+                          settable=False, userparam=False,
+                          type=dictof(str, float), default={}),
+    }
+
+    parameter_overrides = {
+        'masks': Override(type=dictwith(**dict((name, float) for name in MODES)),
+                          unit='', mandatory=True),
+    }
+
+    valuetype = float
+
+    def doWriteOffset(self, value):
+        HasOffset.doWriteOffset(self, value)
+        # deep copy is need to be able to change the values
+        d = self._offsets.copy()
+        d[self.mode] = value
+        self._setROParam('_offsets', d)
+
+    def doRead(self, maxage=0):
+        return self._attached_motor.read(maxage) - self.masks[self.mode] - \
+            self.offset
+
+    def doIsAllowed(self, target):
+        return self._attached_motor.isAllowed(target + self.masks[self.mode])
+
+    def doStop(self):
+        self._attached_motor.stop()
+
+    def doStart(self, target):
+        self._attached_motor.start(target + self.masks[self.mode] +
+                                   self.offset)
+
+    def doWriteMode(self, mode):
+        self._attached_motor.start(self._attached_motor.read(0) +
+                                   self.masks[mode] - self.masks[self.mode])
+        # update the offset parameter from offset mapping
+        self._setROParam('offset', self._offsets.get(mode, 0.))
+        self.log.debug('New offset is now: %f', self.offset)
 
 
 class SlitAxis(AutoDevice, Moveable):
