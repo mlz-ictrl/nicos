@@ -460,6 +460,7 @@ class EditorPanel(Panel):
     def on_client_experiment(self, data):
         (_, proptype) = data
         self._set_scriptdir()
+        self.simPane.hide()
         if proptype == 'user':
             # close existing tabs when switching TO a user experiment
             for index in range(len(self.editors) - 1, -1, -1):
