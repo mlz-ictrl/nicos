@@ -34,7 +34,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="devBox"/>
+    <widget class="QComboBox" name="devBox">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
