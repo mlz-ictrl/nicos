@@ -54,6 +54,10 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
         return status.OK, ''
 
     def doStart(self, pos):
+        # do not start moving if already there, since the stability check in
+        # the SPS always waits
+        if pos == self.target and abs(self.read(0) - pos) < self.precision:
+            return
         stbits = self._attached_status.read(0)
         if not stbits & 1:
             raise MoveError(self, 'selector is in local mode')
