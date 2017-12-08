@@ -63,6 +63,12 @@ watchlist = [
          gracetime = 10,
          type = 'default',
     ),
+    dict(condition = 'abs(b_ccm3a_value - b_ccm3a_readback_value) > 0.2',
+         message = '3T magnet readback and setpoint differ by >0.2 T',
+         gracetime = 10,
+         type = 'default',
+         setup = 'ccm3a',
+    ),
 ]
 
 includes = ['notifiers']
