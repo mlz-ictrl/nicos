@@ -220,9 +220,14 @@ class DevStatistics(object):
 
     def __init__(self, dev):
         self.dev = dev
+        self.devname = str(dev)
 
     def __str__(self):
-        return '%s:%s' % (self.dev, self.statname)
+        return self.name
+
+    @property
+    def name(self):
+        return '%s:%s' % (self.devname, self.statname)
 
     def retrieve(self, valuestats):
         raise NotImplementedError('%s.retrieve() must be implemented'

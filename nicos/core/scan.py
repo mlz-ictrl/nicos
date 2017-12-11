@@ -383,7 +383,12 @@ class Scan(object):
 
 
 class ElapsedTime(DevStatistics):
+    statname = 'elapsedtime'
     started = 0
+
+    def __init__(self, name):
+        DevStatistics.__init__(self, None)
+        self.devname = name
 
     def retrieve(self, *ignored):
         return currenttime() - self.started
@@ -405,7 +410,7 @@ class SweepScan(Scan):
     def __init__(self, devices, startend, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, subscan=False):
-        self._etime = ElapsedTime(None)
+        self._etime = ElapsedTime('SweepScan')
         # for sweeps the dry run usually shows only one step; in the case of
         # multisteps we take the first N
         self._simpoints = 1
