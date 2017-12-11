@@ -606,6 +606,10 @@ class MainWindow(DlgUtils, QMainWindow):
             self.showError('Cannot open help window: Qt web extension is not '
                            'available on your system.')
             return
+        if not self.client.isconnected:
+            self.showError('Cannot open online help: you are not connected '
+                           'to a daemon.')
+            return
         self.client.eval('session.showHelp("index")')
 
     @pyqtSlot()
