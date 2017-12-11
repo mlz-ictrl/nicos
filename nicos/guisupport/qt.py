@@ -50,7 +50,13 @@ if os.environ.get('NICOS_QT') == '5':
     try:
         from PyQt5 import QtWebEngineWidgets
     except (ImportError, RuntimeError):
-        QWebView = QWebPage = None
+        try:
+            from PyQt5 import QtWebKitWidgets
+        except (ImportError, RuntimeError):
+            QWebView = QWebPage = None
+        else:
+            QWebView = QtWebKitWidgets.QWebView
+            QWebPage = QtWebKitWidgets.QWebPage
     else:
         QWebView = QtWebEngineWidgets.QWebEngineView
         QWebPage = QtWebEngineWidgets.QWebEnginePage
