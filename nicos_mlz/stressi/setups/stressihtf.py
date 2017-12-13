@@ -8,12 +8,12 @@ nethost = setupname
 
 devices = {
     'T_%s' % setupname: device('nicos.devices.taco.TemperatureController',
-                               description = 'The sample temperature',
-                               tacodevice = '//%s/box/et/control' % nethost,
-                               abslimits = (0, 2000),
-                               unit = 'C',
-                               fmtstr = '%.1f',
-                              ),
+        description = 'The sample temperature',
+        tacodevice = '//%s/box/et/control' % nethost,
+        abslimits = (0, 2000),
+        unit = 'C',
+        fmtstr = '%.1f',
+    ),
 }
 
 alias_config = {

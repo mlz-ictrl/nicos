@@ -118,22 +118,22 @@ _image = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-                     title = 'STRESS-SPEC status monitor',
-                     loglevel = 'info',
-                     interval = 10,
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
-                     filename = '/stressicontrol/status.html',
-                     cache = 'stressictrl.stressi.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     prefix = 'nicos/',
-                     # padding = 2,
-                     fontsize = 24,
-                     layout = [Row(_expcolumn),
-                               Row(_sampletable, _measurement, _eulerian),
-                               Row(_image)],
-                    ),
+        title = 'STRESS-SPEC status monitor',
+        loglevel = 'info',
+        interval = 10,
+        # Use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the hostname (official
+        # computer name) or an IP address.
+        filename = '/stressicontrol/status.html',
+        cache = 'stressictrl.stressi.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        prefix = 'nicos/',
+        # padding = 2,
+        fontsize = 24,
+        layout = [Row(_expcolumn),
+                  Row(_sampletable, _measurement, _eulerian),
+                  Row(_image)],
+    ),
 )
