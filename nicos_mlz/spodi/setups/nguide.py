@@ -8,7 +8,6 @@ includes = []
 
 taco_base = '//nguidectrl.spodi.frm2/spodi/'
 
-
 devices = dict(
     p1_nguide = device('nicos.devices.taco.AnalogInput',
         description = 'Pressure 1',

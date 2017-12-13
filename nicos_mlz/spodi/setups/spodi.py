@@ -2,8 +2,10 @@ description = 'SPODI setup'
 
 group = 'basic'
 
-includes = ['system', 'mux', 'sampletable', 'detector', 'nguide', 'slits',
-            'filter', 'mono']
+includes = [
+    'system', 'mux', 'sampletable', 'detector', 'nguide', 'slits', 'filter',
+    'mono'
+]
 
 # caress@spodictrl:/opt/caress>./dump_u1 bls
 # BLS: OMGS=(-360,360) TTHS=(-3.1,160) OMGM=(40,80) CHIM=(-3,3) XM=(-15,15)
@@ -21,8 +23,8 @@ includes = ['system', 'mux', 'sampletable', 'detector', 'nguide', 'slits',
 
 devices = dict(
     wav = device('nicos.devices.generic.ManualMove',
-                 description = 'Monochromator wavelength',
-                 unit = 'AA',
-                 abslimits = (1, 2.6),
-                ),
+        description = 'Monochromator wavelength',
+        unit = 'AA',
+        abslimits = (1, 2.6),
+    ),
 )

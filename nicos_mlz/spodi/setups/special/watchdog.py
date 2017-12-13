@@ -25,17 +25,18 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 'o2_nguide_value > 0.4',
-         message = 'O2 pressure in neutron guide exceeds 0.4 %%',
-         type = 'neutronguide',
-         gracetime = 60,
+    dict(
+        condition = 'o2_nguide_value > 0.4',
+        message = 'O2 pressure in neutron guide exceeds 0.4 %%',
+        type = 'neutronguide',
+        gracetime = 60,
     ),
 ]
 
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['email'],
+    'default': ['email'],
     'critical': ['email', 'smser'],
     'neutronguide': ['ngmail'],
 }

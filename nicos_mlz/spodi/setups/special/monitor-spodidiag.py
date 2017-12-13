@@ -82,16 +82,16 @@ _ngtempcolumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
-                     cache = 'spodictrl.spodi.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     fontsize = 15,
-                     layout = [Row(_expcolumn), Row(_ngpresscolumn, _ngo2column, _ngtempcolumn)],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        # Use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the hostname (official
+        # computer name) or an IP address.
+        cache = 'spodictrl.spodi.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        fontsize = 15,
+        layout = [Row(_expcolumn), Row(_ngpresscolumn, _ngo2column, _ngtempcolumn)],
+    ),
 )
