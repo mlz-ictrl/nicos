@@ -13,37 +13,32 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = '(sixfold_value == "closed" or nl2a_value == "closed") '
-                     'and reactorpower_value > 19.1',
-         message = 'NL2a or sixfold shutter closed',
-         type = 'critical',
-        ),
-    dict(condition = 'ch_value < 140',
-           message = 'Choppers are down! DO SOMETHING!',
+    dict(
+        condition = '(sixfold_value == "closed" or nl2a_value == "closed") '
+        'and reactorpower_value > 19.1',
+        message = 'NL2a or sixfold shutter closed',
+        type = 'critical',
     ),
-    dict(condition = 'flow_in_ch_cooling < 10',
-         message = 'Cooling water flow is less than 10 l/min',
-         priority = 1,
+    dict(
+        condition = 'ch_value < 140',
+        message = 'Choppers are down! DO SOMETHING!',
     ),
-    dict(condition = 't_in_ch_cooling > 25',
-         message = 'Cooling water temperature greater than 25 C',
-         priority = 2,
+    dict(
+        condition = 'flow_in_ch_cooling < 10',
+        message = 'Cooling water flow is less than 10 l/min',
+        priority = 1,
     ),
-    dict(condition = 'leak_ch_cooling > 3',
-         message = 'There is a leak in the chopper cooling system',
-         priority = 2,
-        ),
-#   dict(condition = 'cooltemp_value > 300',
-#        message = 'Cooling water temperature exceeds 30 C',
-#        priority = 2,
-#   ),
-#   dict(condition = 'psdgas_value == "empty"',
-#        message = 'PSD gas is empty, change bottle!',
-#        priority = 2,
-#        setup = 'cascade',
-#   ),
+    dict(
+        condition = 't_in_ch_cooling > 25',
+        message = 'Cooling water temperature greater than 25 C',
+        priority = 2,
+    ),
+    dict(
+        condition = 'leak_ch_cooling > 3',
+        message = 'There is a leak in the chopper cooling system',
+        priority = 2,
+    ),
 ]
-
 
 # The Watchdog device has two lists of notifiers, one for priority 1 and
 # one for priority 2.
@@ -52,9 +47,9 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'tofhw.toftof.frm2:14869',
-                      notifiers = {'default': ['emailer']},
-                      watch = watchlist,
-                      mailreceiverkey = 'emailer/receivers',
-                     ),
+        cache = 'tofhw.toftof.frm2:14869',
+        notifiers = {'default': ['emailer']},
+        watch = watchlist,
+        mailreceiverkey = 'emailer/receivers',
+    ),
 )

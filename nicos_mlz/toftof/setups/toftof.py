@@ -18,6 +18,6 @@ includes = [
     'samplememograph',
 ]
 
-startupcode='''
+startupcode = '''
 SetDetectors(det)
 '''
