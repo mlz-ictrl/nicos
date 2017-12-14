@@ -713,7 +713,7 @@ class BaseHistoryWindow(object):
 
     def on__viewList_itemDoubleClicked(self, item):
         if item:
-            self.on_actionEditView_triggered()
+            self.on__actionEditView_triggered()
 
     def on__actionEditView_triggered(self):
         view = self.viewStack[-1]
