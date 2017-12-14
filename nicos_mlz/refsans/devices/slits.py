@@ -29,7 +29,8 @@
 from math import tan, radians
 
 from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
-    Param, Value, dictof, dictwith, multiReset, multiWait, oneof, tupleof
+    Param, Value, dictof, dictwith, floatrange, multiReset, multiWait, oneof, \
+    tupleof
 from nicos.core.errors import ProgrammingError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
@@ -374,6 +375,94 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
         # update the offset parameter from offset mapping
         self._setROParam('offset', self._offsets.get(mode, 0.))
         self.log.debug('New offset is now: %f', self.offset)
+
+
+class DoubleSlit(PseudoNOK, Moveable):
+    """Double slit using two SingleSlits."""
+
+    attached_devices = {
+        'slit_r': Attach('Reactor side single slit', SingleSlit),
+        'slit_s': Attach('Sample side single slit', SingleSlit),
+    }
+
+    parameters = {
+        'mode': Param('Modus of Beam',
+                      type=oneof(*MODES),
+                      settable=True, userparam=True, default='slit'),
+        'maxheight': Param('Max opening of the slit',
+                           type=floatrange(0), settable=False, default=12.),
+    }
+
+    def doInit(self, mode):
+        # Even if the slit could not be become closer then 0 and not more
+        # opened the maxheight the instrument scientist want to scan over
+        # the limits to find out the 'open' and 'closed' point for the neutrons
+        self.valuetype = tupleof(floatrange(-1, self.maxheight + 1), float)
+
+    def doWriteMode(self, mode):
+        for d in self._adevs.values():
+            d.mode = mode
+
+    def _calculate_slits(self, arg, direction):
+        self.log.debug('calculate slits: dir:%s mode:%s arg %s', direction,
+                       self.mode, str(arg))
+        if direction:
+            reactor, sample = arg
+            opening = self.maxheight - (sample - reactor)
+            height = (sample + reactor) / 2.0
+            res = [opening, height]
+        else:
+            opening, height = arg
+            reactor = height - (self.maxheight - opening) / 2.0
+            sample = height + (self.maxheight - opening) / 2.0
+            res = [reactor, sample]
+        self.log.debug('res %s', res)
+        return res
+
+    def doRead(self, maxage=0):
+        return self._calculate_slits([self._attached_slit_r.read(maxage),
+                                      self._attached_slit_s.read(maxage)],
+                                     True)
+
+    def doIsAllowed(self, targets):
+        self.log.debug('DoubleSlit doIsAllowed %s', targets)
+        targets = self._calculate_slits(targets, False)
+        why = []
+        for dev, pos in zip([self._attached_slit_r, self._attached_slit_s],
+                            targets):
+            ok, _why = dev.isAllowed(pos)
+            if ok:
+                self.log.debug('%s: requested position %.3f mm allowed', dev,
+                               pos)
+            else:
+                why.append('%s: requested position %.3f mm out of limits; %s'
+                           % (dev, pos, _why))
+        if why:
+            return False, '; '.join(why)
+        return True, ''
+
+    # def doIsAtTarget(self, targets):
+    #     # check precision, only move if needed!
+    #     self.log.debug('DoubleSlit doIsAtTarget %s', targets)
+    #     targets = self.rechnen_motor(targets, False, 'doIsAtTarget')
+    #     self.log.debug('%s', targets)
+    #     traveldists = [target - dev.doRead(0)
+    #                    for target, dev in zip(targets, self._devices)]
+    #     return max(abs(v) for v in traveldists) <= self.precision
+
+    def doStop(self):
+        for dev in self._adevs.values():
+            dev.stop()
+
+    def doStart(self, targets):
+        """Generate and start a sequence if none is running.
+        """
+        self.log.debug('start: %r', targets)
+        targets = self._calculate_slits(targets, False)
+        self.log.debug('recalculated targets: %r', targets)
+        for dev, target in zip([self._attached_slit_r, self._attached_slit_s],
+                               targets):
+            dev.start(target)
 
 
 class SlitAxis(AutoDevice, Moveable):

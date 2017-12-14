@@ -27,7 +27,7 @@
 from test.utils import raises
 
 from nicos.commands.device import adjust
-from nicos.core.errors import ConfigurationError, LimitError
+from nicos.core.errors import ConfigurationError, InvalidValueError, LimitError
 
 import pytest
 
@@ -127,3 +127,51 @@ class TestSingleSlit(object):
         assert d.offset == -1
         # check for the mode specific offsets
         assert (d._offsets['slit'], d._offsets['gisans']) == (-0.5, -1.)
+
+
+class TestDoubleSlit(object):
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        dev = session.getDevice('zb3')
+        dev.mode = 'slit'
+        dev.maw([12, 0])
+
+        # check for the same mode of the double slit and attached single slits
+        for d in [dev, session.getDevice('zb3r'), session.getDevice('zb3s')]:
+            assert d.mode == 'slit'
+
+    def test_changemode(self, session):
+        # check that attached single slits follow the mode of double slit
+        dev = session.getDevice('zb3')
+        dev.mode = 'gisans'
+        for d in [dev, session.getDevice('zb3r'), session.getDevice('zb3s')]:
+            assert d.mode == 'gisans'
+
+    def test_move(self, session):
+        # move to max opening and zero position, check double and single positions
+        d, r, s = (session.getDevice('zb3'), session.getDevice('zb3r'),
+                   session.getDevice('zb3s'))
+
+        d.maw([12, 0])
+        assert d.read(0) == [12, 0]
+        assert (r.read(0), s.read(0)) == (0, 0)
+
+        # move to a reduced opening, check double and single positions
+        d.maw([6, 0])
+        assert d.read(0) == [6, 0]
+        assert (r.read(0), s.read(0)) == (-3, 3)
+
+        # move to position with reduced opening
+        d.maw([6, -10])
+        assert d.read(0) == [6, -10]
+        assert (r.read(0), s.read(0)) == (-13, -7)
+
+    def test_failures(self, session):
+        d = session.getDevice('zb3')
+        assert raises(InvalidValueError, d.maw, (-10, 0))
+        assert raises(LimitError, d.maw, (12, -200))
+
+    def test_stop(self, session):
+        d = session.getDevice('zb3')
+        d.stop()
