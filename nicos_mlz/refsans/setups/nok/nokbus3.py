@@ -8,9 +8,9 @@ includes = []
 
 devices = dict(
     nokbus3 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-                      tacodevice = '//%s/test/network/ipcsms_3' % (nethost,),
-                      loglevel = 'info',
-                      lowlevel = True,
-                      bustimeout = 0.5,
-            ),
+        tacodevice = '//%s/test/network/ipcsms_3' % (nethost,),
+        loglevel = 'info',
+        lowlevel = True,
+        bustimeout = 0.5,
+    ),
 )

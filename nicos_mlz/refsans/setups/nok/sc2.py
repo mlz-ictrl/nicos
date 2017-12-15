@@ -7,8 +7,8 @@ tacodev = '//%s/test' % nethost
 
 devices = dict(
     sc2 = device('nicos.devices.taco.Motor',
-                 description = 'sc2 Motor',
-                 tacodevice = '%s/sc2/motor' % tacodev,
-                 abslimits = (-150, 150),
-                ),
+        description = 'sc2 Motor',
+        tacodevice = '%s/sc2/motor' % tacodev,
+        abslimits = (-150, 150),
+    ),
 )

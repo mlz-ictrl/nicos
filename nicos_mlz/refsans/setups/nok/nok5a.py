@@ -13,59 +13,59 @@ excludes = ['nok5a_old']
 devices = dict(
     # NOK5a
     nok5a_r = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
-                     description = 'nok5a motor (M11), reactor side',
-                     tacodevice = '//%s/test/modbus/optic'% (nethost,),
-                     address = 0x3020+2*10, # word adresses
-                     slope = 10000, # FULL steps per turn * turns per mm
-                     unit = 'mm',
-                     # acording to docu:
-                     abslimits = (0.1, 130),
-                     lowlevel = True,
-                    ),
+        description = 'nok5a motor (M11), reactor side',
+        tacodevice = '//%s/test/modbus/optic'% (nethost,),
+        address = 0x3020+2*10, # word adresses
+        slope = 10000, # FULL steps per turn * turns per mm
+        unit = 'mm',
+        # acording to docu:
+        abslimits = (0.1, 130),
+        lowlevel = True,
+    ),
     nok5a_s = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
-                     description = 'nok5a motor (M12), sample side',
-                     tacodevice = '//%s/test/modbus/optic'% (nethost,),
-                     address = 0x3020+3*10, # word adresses
-                     slope = 10000, # FULL steps per turn * turns per mm
-                     unit = 'mm',
-                     # acording to docu:
-                     abslimits = (0.1, 130),
-                     lowlevel = True,
-                    ),
-#    nok5ar_axis = device('nicos.devices.generic.Axis',
-#                         description = 'Axis of NOK5a, reactor side',
-#                         motor = 'nok5a_r',
-#                         coder = 'nok5a_r',
-#                         obs = [],
-#                         offset = 71.0889,
-#                         backlash = 0,
-#                         precision = 1000.05,
-#                         unit = 'mm',
-#                         lowlevel = True,
-#                        ),
-#    nok5as_axis = device('nicos.devices.generic.Axis',
-#                         description = 'Axis of NOK5a, sample side',
-#                         motor = 'nok5a_s',
-#                         coder = 'nok5a_s',
-#                         obs = [],
-#                         offset = 79.6439,
-#                         backlash = 0,
-#                         precision = 1000.002,
-#                         unit = 'mm',
-#                         lowlevel = True,
-#                        ),
+        description = 'nok5a motor (M12), sample side',
+        tacodevice = '//%s/test/modbus/optic'% (nethost,),
+        address = 0x3020+3*10, # word adresses
+        slope = 10000, # FULL steps per turn * turns per mm
+        unit = 'mm',
+        # acording to docu:
+        abslimits = (0.1, 130),
+        lowlevel = True,
+    ),
+    # nok5ar_axis = device('nicos.devices.generic.Axis',
+    #     description = 'Axis of NOK5a, reactor side',
+    #     motor = 'nok5a_r',
+    #     coder = 'nok5a_r',
+    #     obs = [],
+    #     offset = 71.0889,
+    #     backlash = 0,
+    #     precision = 1000.05,
+    #     unit = 'mm',
+    #     lowlevel = True,
+    # ),
+    # nok5as_axis = device('nicos.devices.generic.Axis',
+    #     description = 'Axis of NOK5a, sample side',
+    #     motor = 'nok5a_s',
+    #     coder = 'nok5a_s',
+    #     obs = [],
+    #     offset = 79.6439,
+    #     backlash = 0,
+    #     precision = 1000.002,
+    #     unit = 'mm',
+    #     lowlevel = True,
+    # ),
     nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOKBeckhoff',
-                   description = 'NOK5a',
-                   nok_start = 2418.50,
-                   nok_length = 1719.20,
-                   nok_end = 4137.70,
-                   nok_gap = 1.0,
-                   nok_motor = [3108.00, 3888.00],
-                   offsets = (71.0889, 79.6439),  # reactor side, sample side
-                   inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
-                   motor_r = 'nok5a_r',
-                   motor_s = 'nok5a_s',
-                   backlash = -2,   # is this configured somewhere?
-                   precision = 0.002,
-                  ),
+        description = 'NOK5a',
+        nok_start = 2418.50,
+        nok_length = 1719.20,
+        nok_end = 4137.70,
+        nok_gap = 1.0,
+        nok_motor = [3108.00, 3888.00],
+        offsets = (71.0889, 79.6439),  # reactor side, sample side
+        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+        motor_r = 'nok5a_r',
+        motor_s = 'nok5a_s',
+        backlash = -2,   # is this configured somewhere?
+        precision = 0.002,
+    ),
 )

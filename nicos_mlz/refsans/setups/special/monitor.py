@@ -52,18 +52,18 @@ _refcolumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'refsansctrl01.refsans.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 12,
-                     padding = 5,
-                     layout = [
-                               Row(_expcolumn),
-                               Row(_nokcolumn, _refcolumn),
-                               Row(_flippercolumn),
-                              ],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'refsansctrl01.refsans.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 12,
+        padding = 5,
+        layout = [
+            Row(_expcolumn),
+            Row(_nokcolumn, _refcolumn),
+            Row(_flippercolumn),
+        ],
+    ),
 )

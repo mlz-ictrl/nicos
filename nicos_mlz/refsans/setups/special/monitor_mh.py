@@ -47,17 +47,17 @@ _generalcol = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = description,
-                     loglevel = 'info',
-                     cache = 'refsansctrl01.refsans.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 12,
-                     padding = 5,
-                     layout = [
-                               Row(_experimentcol),
-                               Row(_generalcol),
-                              ],
-                    ),
+        title = description,
+        loglevel = 'info',
+        cache = 'refsansctrl01.refsans.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 12,
+        padding = 5,
+        layout = [
+            Row(_experimentcol),
+            Row(_generalcol),
+        ],
+    ),
 )

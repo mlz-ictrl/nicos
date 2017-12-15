@@ -2,13 +2,20 @@ description = 'GISANS setup'
 
 group = 'basic'
 
-includes = ['vacuum', 'shutter', 'tube', 'guidehall', 'reactor', 'fak40',
-            'optic', 'poti_ref', 'nl2b',
-            'pumpstand',
-            'pivot',
-            'table',
-            ]
-
+includes = [
+    'vacuum',
+    'shutter',
+    'tube',
+    'guidehall',
+    'reactor',
+    'fak40',
+    'optic',
+    'poti_ref',
+    'nl2b',
+    'pumpstand',
+    'pivot',
+    'table',
+]
 
 startupcode = """
 # set offsets of the blades ...

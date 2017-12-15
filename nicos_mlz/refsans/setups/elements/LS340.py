@@ -5,41 +5,36 @@ group = 'optional'
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
-#
-## rs232server cryo exports
-#
-#    rs232_cryo = device('unknown_class:StringIO',
-#                        description = 'Device test/rs232/cryo of Server rs232server cryo',
-#                        tacodevice = '//%s/test/rs232/cryo' % nethost,
-#                       ),
+    #
+    ## rs232server cryo exports
+    #
+    # rs232_cryo = device('unknown_class:StringIO',
+    #     description = 'Device test/rs232/cryo of Server rs232server cryo',
+    #     tacodevice = '//%s/test/rs232/cryo' % nethost,
+    # ),
 
-#
-## lakeshore340server lakeshore01 exports
-#
+    #
+    ## lakeshore340server lakeshore01 exports
+    #
     ls340_control = device('nicos.devices.taco.TemperatureController',
-                           description = 'Device test/ls340/control of Server lakeshore340server lakeshore01',
-                           tacodevice = '//%s/test/ls340/control' % nethost,
-                           abslimits = (0, 500),
-                          ),
-
+        description = 'Device test/ls340/control of Server lakeshore340server lakeshore01',
+        tacodevice = '//%s/test/ls340/control' % nethost,
+        abslimits = (0, 500),
+    ),
     ls340_sensora = device('nicos.devices.taco.TemperatureSensor',
-                           description = 'Device test/ls340/sensora of Server lakeshore340server lakeshore01',
-                           tacodevice = '//%s/test/ls340/sensora' % nethost,
-                          ),
-
+        description = 'Device test/ls340/sensora of Server lakeshore340server lakeshore01',
+        tacodevice = '//%s/test/ls340/sensora' % nethost,
+    ),
     ls340_sensorb = device('nicos.devices.taco.TemperatureSensor',
-                           description = 'Device test/ls340/sensorb of Server lakeshore340server lakeshore01',
-                           tacodevice = '//%s/test/ls340/sensorb' % nethost,
-                          ),
-
+        description = 'Device test/ls340/sensorb of Server lakeshore340server lakeshore01',
+        tacodevice = '//%s/test/ls340/sensorb' % nethost,
+    ),
     ls340_sensorc = device('nicos.devices.taco.TemperatureSensor',
-                           description = 'Device test/ls340/sensorc of Server lakeshore340server lakeshore01',
-                           tacodevice = '//%s/test/ls340/sensorc' % nethost,
-                          ),
-
+        description = 'Device test/ls340/sensorc of Server lakeshore340server lakeshore01',
+        tacodevice = '//%s/test/ls340/sensorc' % nethost,
+    ),
     ls340_sensord = device('nicos.devices.taco.TemperatureSensor',
-                           description = 'Device test/ls340/sensord of Server lakeshore340server lakeshore01',
-                           tacodevice = '//%s/test/ls340/sensord' % nethost,
-                          ),
-
+        description = 'Device test/ls340/sensord of Server lakeshore340server lakeshore01',
+        tacodevice = '//%s/test/ls340/sensord' % nethost,
+    ),
 )
