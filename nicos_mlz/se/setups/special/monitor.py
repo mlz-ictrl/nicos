@@ -24,13 +24,13 @@ _col1 = [
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'localhost:14869',
-                     prefix = 'nicos/',
-                     font = 'Ubuntu',
-                     valuefont = 'DejaVu Sans Mono',
-                     padding = 5,
-                     layout = [[_expcolumn], [_col1]],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'localhost:14869',
+        prefix = 'nicos/',
+        font = 'Ubuntu',
+        valuefont = 'DejaVu Sans Mono',
+        padding = 5,
+        layout = [[_expcolumn], [_col1]],
+    ),
 )

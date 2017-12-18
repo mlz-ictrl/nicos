@@ -8,10 +8,12 @@ devices = dict(
         groupbasedn = 'ou=Group,dc=frm2,dc=de',
         grouproles = {
             'se': 'admin',
-            'ictrl': 'admin',}
+            'ictrl': 'admin',
+        }
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '0.0.0.0',
         authenticators = ['LDAPAuth'],
-        loglevel = 'info',),
+        loglevel = 'info',
+    ),
 )
