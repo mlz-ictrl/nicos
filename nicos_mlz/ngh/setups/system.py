@@ -64,16 +64,15 @@ modules = ['nicos.commands.standard']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Sample   = device('nicos.devices.sample.Sample',
-                      description = 'currently used sample',
-                     ),
-
+    Sample = device('nicos.devices.sample.Sample',
+        description = 'currently used sample',
+    ),
     # Configure dataroot here (usually /data).
-    Exp      = device('nicos.devices.experiment.Experiment',
-                      description = 'experiment object',
-                      dataroot = 'data',
-                      sendmail = True,
-                      serviceexp = 'p0',
-                      sample = 'Sample',
-                     ),
+    Exp = device('nicos.devices.experiment.Experiment',
+        description = 'experiment object',
+        dataroot = 'data',
+        sendmail = True,
+        serviceexp = 'p0',
+        sample = 'Sample',
+    ),
 )

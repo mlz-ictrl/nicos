@@ -20,19 +20,21 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 't_in_memograph_kws123_value > 3',
-         message = 'Temperatur zu hoch (T_in KWS-123)',
-         priority = 1,
-         gracetime = 5),
+    dict(
+        condition = 't_in_memograph_kws123_value > 3',
+        message = 'Temperatur zu hoch (T_in KWS-123)',
+        priority = 1,
+        gracetime = 5
+    ),
 ]
 
 includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'localhost:14869',
-                      notifiers = {1:['email']},
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        cache = 'localhost:14869',
+        notifiers = {1: ['email']},
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )
