@@ -6,11 +6,11 @@ nethost = 'testbox.se.frm2'
 
 devices = dict(
     hgm09 = device('nicos_mlz.antares.devices.hgm09.HGM09',
-                   description = 'Gaussmeter for ccmsans',
-                   tacodevice = '//%s/test/rs232/ttyacm0' % (nethost, ),
-                   fmtstr = '%.3f',
-                   maxage = 120,
-                   pollinterval = 15,
-                   tacotimeout = 5,
-                  ),
+        description = 'Gaussmeter for ccmsans',
+        tacodevice = '//%s/test/rs232/ttyacm0' % (nethost,),
+        fmtstr = '%.3f',
+        maxage = 120,
+        pollinterval = 15,
+        tacotimeout = 5,
+    ),
 )

@@ -14,14 +14,14 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det1    = device('nicos.devices.generic.Detector',
-                     description = 'QMesyDAQ Image type Detector1',
-                     timers = ['det1_timer'],
-                     counters = [],
-                     monitors = ['det1_mon1', 'det1_mon2'],
-                     images = ['det1_image'],
-                     liveinterval = 30.0,
-                    ),
+    det1 = device('nicos.devices.generic.Detector',
+        description = 'QMesyDAQ Image type Detector1',
+        timers = ['det1_timer'],
+        counters = [],
+        monitors = ['det1_mon1', 'det1_mon2'],
+        images = ['det1_image'],
+        liveinterval = 30.0,
+    ),
 )
 
 startupcode = '''

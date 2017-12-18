@@ -10,9 +10,7 @@ devices = dict(
     valve_switch = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'plug connector switch for neodry60E',
         tangodevice = tango_base + 'switchbox/switch',
-        mapping = {
-            'on': 1,
-            'off': 0
-        }
+        mapping = {'on': 1,
+                   'off': 0}
     ),
 )

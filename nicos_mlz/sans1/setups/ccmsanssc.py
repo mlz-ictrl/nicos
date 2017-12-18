@@ -11,10 +11,8 @@ devices = dict(
         description = 'position switch for pressure valve',
         lowlevel = False,
         tangodevice = tango_base + 'phytron/switch',
-        mapping = {
-            'free': 1,
-            'closed': 2
-        },
+        mapping = {'free': 1,
+                   'closed': 2},
     ),
     ccmsanssc_motor = device('nicos.devices.tango.Motor',
         lowlevel = True,

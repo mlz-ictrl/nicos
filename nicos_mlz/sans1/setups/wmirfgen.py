@@ -61,7 +61,6 @@ devices = dict(
         fallback = '<undefined>',
         precision = 0,
     ),
-
     fg1_frequency = device('nicos_mlz.sans1.devices.wmirfgen.Frequency',
         description = 'Device the frequency and frequency modulation',
         tangodevice = tango_base + 'rfgen1/frequency',
