@@ -5,13 +5,12 @@ group = 'special'
 
 devices = dict(
     DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
-                storepath = '/home/crandau/data/cache',
-                loglevel = 'info',
-               ),
-
+        storepath = '/home/crandau/data/cache',
+        loglevel = 'info',
+    ),
     Server = device('nicos.services.cache.server.CacheServer',
-                    db = 'DB',
-                    server = 'localhost',
-                    loglevel = 'info',
-                   ),
+        db = 'DB',
+        server = 'localhost',
+        loglevel = 'info',
+    ),
 )
