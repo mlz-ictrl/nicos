@@ -17,9 +17,7 @@ devices = dict(
     shutter1 = device('nicos.devices.generic.Switcher',
         description = 'Shutter 1',
         moveable = 'shutter1_io',
-        mapping = dict(
-            open = 1, closed = 2
-        ),
+        mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
     ),
@@ -31,9 +29,7 @@ devices = dict(
     shutter2 = device('nicos.devices.generic.Switcher',
         description = 'Shutter 2',
         moveable = 'shutter2_io',
-        mapping = dict(
-            open = 1, closed = 2
-        ),
+        mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
     ),
@@ -45,9 +41,7 @@ devices = dict(
     fastshutter = device('nicos.devices.generic.Switcher',
         description = 'Fast shutter',
         moveable = 'fastshutter_io',
-        mapping = dict(
-            open = 1, closed = 2
-        ),
+        mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
     ),

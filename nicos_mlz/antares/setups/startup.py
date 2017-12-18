@@ -5,6 +5,8 @@ group = 'lowlevel'
 
 includes = []
 
-sysconfig = dict(cache = 'antareshw.antares.frm2',)
+sysconfig = dict(
+    cache = 'antareshw.antares.frm2',
+)
 
 devices = dict()

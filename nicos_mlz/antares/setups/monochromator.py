@@ -81,7 +81,6 @@ devices = dict(
         precision = 0,
         lowlevel = True,
     ),
-
     monoswitch_io = device('nicos.devices.tango.DigitalOutput',
         description = 'Tango device for Monoswitch in/out',
         tangodevice = tango_base + 'fzjdp_digital/Monochromator',

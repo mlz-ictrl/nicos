@@ -4,7 +4,9 @@ description = 'Detector file savers'
 
 group = 'lowlevel'
 
-sysconfig = dict(datasinks = ['FITSFileSaver', 'DiObSink'],)
+sysconfig = dict(
+    datasinks = ['FITSFileSaver', 'DiObSink'],
+)
 
 devices = dict(
     FITSFileSaver = device('nicos.devices.datasinks.FITSImageSink',

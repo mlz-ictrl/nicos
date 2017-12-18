@@ -44,9 +44,7 @@ devices = dict(
         description = 'Powersocket 01 (Neo Camera attached)',
         tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
         'fzjdp_digital/Socket01',
-        mapping = dict(
-            on = 1, off = 0
-        ),
+        mapping = dict(on = 1, off = 0),
     )
 )
 

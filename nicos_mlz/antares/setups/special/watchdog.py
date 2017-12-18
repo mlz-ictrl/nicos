@@ -20,35 +20,37 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 'reactorpower_value < 19.1',
-         message = 'Possible Reactor Shutdown! Reactor power < 19MW',
-         type = 'critical',
-         setup = 'reactor',
-         gracetime = 300,
-        ),
-    dict(condition = 'He_pressure_value < 30',
-         message = 'Pressure in He bottle less than 30bar. Please change soon!',
-         type = 'default',
-         setup = 'reactor',
-         gracetime = 300,
-        ),
+    dict(
+        condition = 'reactorpower_value < 19.1',
+        message = 'Possible Reactor Shutdown! Reactor power < 19MW',
+        type = 'critical',
+        setup = 'reactor',
+        gracetime = 300,
+    ),
+    dict(
+        condition = 'He_pressure_value < 30',
+        message = 'Pressure in He bottle less than 30bar. Please change soon!',
+        type = 'default',
+        setup = 'reactor',
+        gracetime = 300,
+    ),
 ]
 
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['warning', 'smser'],
+    'default': ['warning', 'smser'],
     'critical': ['warning', 'smser'],
 }
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      # use only 'localhost' if the cache is really running on
-                      # the same machine, otherwise use the official computer
-                      # name
-                      cache = 'localhost',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        # use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the official computer
+        # name
+        cache = 'localhost',
+        notifiers = notifiers,
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )

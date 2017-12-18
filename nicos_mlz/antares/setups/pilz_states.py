@@ -25,45 +25,33 @@ devices = dict(
     tourbutton1 = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Tourbutton1',
         tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton1',
-        mapping = dict(
-            unpressed = 1, pressed = 0
-        ),
+        mapping = dict(unpressed = 1, pressed = 0),
     ),
     tourbutton2 = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Tourbutton2',
         tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton2',
-        mapping = dict(
-            unpressed = 1, pressed = 0
-        ),
+        mapping = dict(unpressed = 1, pressed = 0),
     ),
     tourbutton3 = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Tourbutton3',
         tangodevice = tango_base + 'fzjdp_digital/PilzSecTourButton3',
-        mapping = dict(
-            unpressed = 1, pressed = 0
-        ),
+        mapping = dict(unpressed = 1, pressed = 0),
     ),
 
     # door state
     door_rot = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Rotating door',
         tangodevice = tango_base + 'fzjdp_digital/PilzDoorRot',
-        mapping = dict(
-            closed = 1, open = 0
-        ),
+        mapping = dict(closed = 1, open = 0),
     ),
     door_slide = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Sliding door',
         tangodevice = tango_base + 'fzjdp_digital/PilzDoorSlide',
-        mapping = dict(
-            closed = 1, open = 0
-        ),
+        mapping = dict(closed = 1, open = 0),
     ),
     pilz_state = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Pilz state',
         tangodevice = tango_base + 'fzjdp_digital/PilzFailure',
-        mapping = dict(
-            ok = 0, failure = 1
-        ),
+        mapping = dict(ok = 0, failure = 1),
     ),
 )
