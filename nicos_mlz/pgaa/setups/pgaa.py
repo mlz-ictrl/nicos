@@ -6,15 +6,16 @@ sysconfig = dict(
     datasinks = ['sink']
 )
 
-includes = ['system',
-            'reactor',
-            'nl4b',
-            'pressure',
-            'sample',
-            'pilz',
-            'detector',
-            'collimation',
-           ]
+includes = [
+    'system',
+    'reactor',
+    'nl4b',
+    'pressure',
+    'sample',
+    'pilz',
+    'detector',
+    'collimation',
+]
 
 devices = dict(
     sink = device('nicos_mlz.pgaa.devices.PGAASink',

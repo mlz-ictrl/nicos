@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = []
 
-nethost= 'pgaasrv.pgaa.frm2'
+nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     shutter = device('nicos_mlz.pgaa.devices.pilz.Switch',
@@ -13,7 +13,8 @@ devices = dict(
         readback = '//%s/pgaa/pilz/ishutter' % (nethost,),
         error = '//%s/pgaa/pilz/eshutter' % (nethost,),
         remote = '//%s/pgaa/pilz/erc' % (nethost,),
-        mapping = {'closed': 2, 'open': 1},
+        mapping = {'closed': 2,
+                   'open': 1},
         maxage = 5,
         pollinterval = 2,
         timeout = 3,
@@ -24,7 +25,8 @@ devices = dict(
         error = '//%s/pgaa/pilz/eatt1' % (nethost,),
         readback = '//%s/pgaa/pilz/iatt1' % (nethost,),
         remote = '//%s/pgaa/pilz/erc' % (nethost,),
-        mapping = {'out': 0, 'in': 1},
+        mapping = {'out': 0,
+                   'in': 1},
         maxage = 5,
         pollinterval = 2,
         timeout = 3,
@@ -35,7 +37,8 @@ devices = dict(
         error = '//%s/pgaa/pilz/eatt2' % (nethost,),
         readback = '//%s/pgaa/pilz/iatt2' % (nethost,),
         remote = '//%s/pgaa/pilz/erc' % (nethost,),
-        mapping = {'out': 0, 'in': 1},
+        mapping = {'out': 0,
+                   'in': 1},
         maxage = 5,
         pollinterval = 2,
         timeout = 3,
@@ -46,7 +49,8 @@ devices = dict(
         error = '//%s/pgaa/pilz/eatt3' % (nethost,),
         readback = '//%s/pgaa/pilz/iatt3' % (nethost,),
         remote = '//%s/pgaa/pilz/erc' % (nethost,),
-        mapping = {'out': 0, 'in': 1},
+        mapping = {'out': 0,
+                   'in': 1},
         maxage = 5,
         pollinterval = 2,
         timeout = 3,
@@ -58,14 +62,15 @@ devices = dict(
         precision = None,
         unit = '%',
         fmtstr = '%.1f',
-        mapping = {100.: ('out', 'out', 'out'),
-                   47.: ('out', 'in', 'out'),
-                   16.: ('in', 'out', 'out'),
-                   7.5: ('in', 'in', 'out'),
-                   5.9: ('out', 'out', 'in'),
-                   3.5: ('out', 'in', 'in'),
-                   2.7: ('in', 'out', 'in'),
-                   1.6: ('in', 'in', 'in'),
-                  },
-        ),
+        mapping = {
+            100.: ('out', 'out', 'out'),
+            47.: ('out', 'in', 'out'),
+            16.: ('in', 'out', 'out'),
+            7.5: ('in', 'in', 'out'),
+            5.9: ('out', 'out', 'in'),
+            3.5: ('out', 'in', 'in'),
+            2.7: ('in', 'out', 'in'),
+            1.6: ('in', 'in', 'in'),
+        },
+    ),
 )

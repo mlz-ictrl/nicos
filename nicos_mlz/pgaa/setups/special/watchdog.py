@@ -20,21 +20,21 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-#    dict(condition = 't_value > 100',
-#         message = 'Temperature too high',
-#         type = 'critical',
-#         action = 'maw(T, 0)',
-#        ),
-#    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-#         message = 'phi angle too high for current mono setting',
-#         gracetime = 5,
-#        ),
+    # dict(condition = 't_value > 100',
+    #      message = 'Temperature too high',
+    #      type = 'critical',
+    #      action = 'maw(T, 0)',
+    # ),
+    # dict(condition = 'phi_value > 100 and mono_value > 1.5',
+    #      message = 'phi angle too high for current mono setting',
+    #      gracetime = 5,
+    # ),
 ]
 
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['mailer'],
+    'default': ['mailer'],
     'critical': ['mailer', 'smser'],
 }
 

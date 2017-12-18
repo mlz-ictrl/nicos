@@ -2,15 +2,16 @@ description = 'PGAA setup with Huber sample table'
 
 group = 'basic'
 
-includes = ['system',
-            'reactor',
-            'nl4b',
-            'pressure',
-            'sampletable',
-            'pilz',
-            'detector',
-            'collimation',
-           ]
+includes = [
+    'system',
+    'reactor',
+    'nl4b',
+    'pressure',
+    'sampletable',
+    'pilz',
+    'detector',
+    'collimation',
+]
 
 devices = dict(
     sink = device('nicos_mlz.pgaa.devices.PGAASink',
