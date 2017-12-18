@@ -7,7 +7,7 @@ sysconfig = dict(
 
 devices = dict(
     Logbook = device('nicos.services.elog.Logbook',
-                     prefix = 'logbook/',
-                     cache = 'localhost',
-                    ),
+        prefix = 'logbook/',
+        cache = 'localhost',
+    ),
 )

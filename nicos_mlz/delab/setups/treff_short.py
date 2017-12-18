@@ -1,8 +1,9 @@
 description = 'DEL setup at beam TREFF'
 
-includes = ['voltage',
-            'short_table_treff',
-           ]
+includes = [
+    'voltage',
+    'short_table_treff',
+]
 
 modules = []
 

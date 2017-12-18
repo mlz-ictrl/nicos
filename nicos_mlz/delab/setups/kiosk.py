@@ -1,8 +1,9 @@
 description = 'DEL setup in the kiosk'
 
-includes = ['voltage',
-            'table_lab',
-           ]
+includes = [
+    'voltage',
+    'table_lab',
+]
 
 modules = []
 
