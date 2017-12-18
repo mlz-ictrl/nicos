@@ -10,17 +10,15 @@ tango_base = 'tango://nectarccd02.nectar.frm2:10000/nectar/'
 nethost = 'nectarsrv.nectar.frm2'  # taco
 
 devices = dict(
-    timer   = device('nicos.devices.vendor.lima.LimaCCDTimer',
-                     description = 'The camera\'s internal timer',
-                     tangodevice = tango_base + 'detector/limaccd',
-                    ),
-
-    det     = device('nicos.devices.generic.Detector',
-                     description = 'The Andor Neo sCMOS camera detector',
-                     images = ['ccd'],
-                     timers = ['timer'],
-                    ),
-
+    timer = device('nicos.devices.vendor.lima.LimaCCDTimer',
+        description = 'The camera\'s internal timer',
+        tangodevice = tango_base + 'detector/limaccd',
+    ),
+    det = device('nicos.devices.generic.Detector',
+        description = 'The Andor Neo sCMOS camera detector',
+        images = ['ccd'],
+        timers = ['timer'],
+    ),
     ccd = device('nicos.devices.vendor.lima.Andor2LimaCCD',
         description = 'The CCD detector',
         tangodevice = tango_base + 'detector/limaccd',
@@ -47,7 +45,6 @@ devices = dict(
         precision = 3,
         fmtstr = '%.0f',
     ),
-
     fov_mot = device('nicos.devices.taco.Motor',
         description = 'Camera translation x (field of view)',
         tacodevice = '//%s/nectar/cam/fov' % nethost,
@@ -55,7 +52,7 @@ devices = dict(
         comtries = 3,
         lowlevel = True,
     ),
-    fov    = device('nicos.devices.generic.Axis',
+    fov = device('nicos.devices.generic.Axis',
         description = 'Camera translation x (field of view)',
         pollinterval = 5,
         maxage = 12,
@@ -64,9 +61,8 @@ devices = dict(
         precision = 0.1,
         motor = 'fov_mot',
         coder = 'fov_mot',
-        obs=[],
+        obs = [],
     ),
-
     focus_mot = device('nicos.devices.taco.Motor',
         description = 'Camera lens roation axis (focus)',
         tacodevice = '//%s/nectar/cam/focus' % nethost,
@@ -74,7 +70,7 @@ devices = dict(
         comtries = 3,
         lowlevel = True,
     ),
-    focus    = device('nicos.devices.generic.Axis',
+    focus = device('nicos.devices.generic.Axis',
         description = 'Camera lens roation axis (focus)',
         pollinterval = 5,
         maxage = 12,
@@ -83,7 +79,7 @@ devices = dict(
         precision = 0.1,
         motor = 'focus_mot',
         coder = 'focus_mot',
-        obs=[],
+        obs = [],
     ),
 )
 

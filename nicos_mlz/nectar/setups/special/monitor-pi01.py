@@ -70,12 +70,13 @@ _ubahnColumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'nectarhw.nectar.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     layout = [[_expcolumn],[_translationColumn, _detectorblock, _ubahnColumn]],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'nectarhw.nectar.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        layout = [[_expcolumn],
+                  [_translationColumn, _detectorblock, _ubahnColumn]],
+    ),
 )
