@@ -15,8 +15,19 @@ devices = dict(
         # setups which are always polled
         alwayspoll = [],
         # setups which are never polled
-        neverpoll = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4',
-                     'motorbus5', 'motorbus6', 'motorbus6a', 'motorbus7',
-                     'motorbus6', 'motorbus9', 'motorbus10', 'motorbus11',],
+        neverpoll = [
+            'motorbus1',
+            'motorbus2',
+            'motorbus3',
+            'motorbus4',
+            'motorbus5',
+            'motorbus6',
+            'motorbus6a',
+            'motorbus7',
+            'motorbus6',
+            'motorbus9',
+            'motorbus10',
+            'motorbus11',
+        ],
     ),
 )

@@ -135,13 +135,14 @@ _rightcolumn = Column(_shutterblock,
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'pumahw.puma.frm2:14869',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     layout = [Row(_expcolumn), Row(_leftcolumn, _middlecolumn,
-                               _rightcolumn)],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'pumahw.puma.frm2:14869',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        layout = [Row(_expcolumn),
+                  Row(_leftcolumn, _middlecolumn, _rightcolumn)
+                 ],
+    ),
 )

@@ -10,7 +10,6 @@ devices = dict(
         tangodevice = tango_base + 'monitor/hv',
         fmtstr = '%.0f',
     ),
-
     hvdetector = device('nicos.devices.tango.PowerSupply',
         description = 'HV for the detectors',
         tangodevice = tango_base + 'detector/hv',

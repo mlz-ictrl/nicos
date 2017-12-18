@@ -12,7 +12,7 @@ devices = dict(
         lowlevel = True,
     ),
 
-# motorbus for slit1 (old motorbus6)
+    # motorbus for slit1 (old motorbus6)
     motorbus6a = device('nicos.devices.vendor.ipc.IPCModBusTaco',
         # tacodevice = '//%s/puma/rs485/moxa1_6' % nethost,
         tacodevice = '//%s/puma/rs485/motorbus6a' % nethost,

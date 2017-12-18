@@ -19,7 +19,7 @@ refstep_d = 500
 refstep_g = 100
 
 devices = dict(
-# Detectors
+    # Detectors
     st_rd11 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
         bus = 'motorbus10',
         addr = 71,
@@ -256,7 +256,7 @@ devices = dict(
         maxtries = 1,
     ),
 
-# Guides
+    # Guides
     st_rg11 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
         bus = 'motorbus10',
         addr = 72,

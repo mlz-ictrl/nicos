@@ -13,10 +13,11 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = 'mono_status[0] == 220',
-         message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',
-         gracetime = 600,
-         type = 'critical',
+    dict(
+        condition = 'mono_status[0] == 220',
+        message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',
+        gracetime = 600,
+        type = 'critical',
     ),
 ]
 
@@ -27,9 +28,9 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'pumahw.puma.frm2:14869',
-                      notifiers = {'default': ['email'],
-                                   'critical': ['email', 'smser']},
-                      watch = watchlist,
-                     ),
+        cache = 'pumahw.puma.frm2:14869',
+        notifiers = {'default': ['email'],
+                     'critical': ['email', 'smser']},
+        watch = watchlist,
+    ),
 )

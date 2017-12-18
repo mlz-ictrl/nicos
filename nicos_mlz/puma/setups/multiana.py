@@ -12,7 +12,7 @@ tr_slope = 2064
 ro_slope = -1797
 
 devices = dict(
-# Translations
+    # Translations
     st_ta1 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
         bus = 'motorbus10',
         addr = 180,
@@ -333,7 +333,7 @@ devices = dict(
         maxtries = 3,
     ),
 
-#rotations
+    # Rotations
     st_ra1 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
         bus = 'motorbus10',
         addr = 192,

@@ -14,7 +14,6 @@ devices = dict(
         zerosteps = 500000,
         lowlevel = True,
     ),
-
     co_dslit = device('nicos_mlz.puma.devices.ipc_puma.Coder',
         bus = 'motorbus6',
         addr = 97,
