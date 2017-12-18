@@ -13,22 +13,27 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = '(sixfold_value == "closed" or nl6_value == "closed") '
-                     'and reactorpower_value > 19.1',
-         message = 'NL6 or sixfold shutter closed',
-         type = 'critical',
-        ),
-    dict(condition = 'cooltemp_value > 25',
-         message = 'Cooling water temperature exceeds 25C, clean filter or check FAK40 or MIRA Leckmon!',
-         type = 'critical',
+    dict(
+        condition = '(sixfold_value == "closed" or nl6_value == "closed") '
+        'and reactorpower_value > 19.1',
+        message = 'NL6 or sixfold shutter closed',
+        type = 'critical',
     ),
-    dict(condition = 'psdgas_value == "empty"',
-         message = 'PSD gas is empty, change bottle very soon!',
-         type = 'critical',
-         setup = 'cascade',
+    dict(
+        condition = 'cooltemp_value > 25',
+        message =
+        'Cooling water temperature exceeds 25C, clean filter or check FAK40 or MIRA Leckmon!',
+        type = 'critical',
     ),
-    dict(condition = 'tbe_value > 70',
-         message = 'Be filter temperature > 70 K, check cooling water!',
+    dict(
+        condition = 'psdgas_value == "empty"',
+        message = 'PSD gas is empty, change bottle very soon!',
+        type = 'critical',
+        setup = 'cascade',
+    ),
+    dict(
+        condition = 'tbe_value > 70',
+        message = 'Be filter temperature > 70 K, check cooling water!',
     ),
 ]
 
@@ -39,10 +44,10 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'mira1.mira.frm2:14869',
-                      notifiers = {'default': ['email'],
-                                   'critical': ['email', 'smser']},
-                      watch = watchlist,
-                      mailreceiverkey = 'email/receivers',
-                     ),
+        cache = 'mira1.mira.frm2:14869',
+        notifiers = {'default': ['email'],
+                     'critical': ['email', 'smser']},
+        watch = watchlist,
+        mailreceiverkey = 'email/receivers',
+    ),
 )

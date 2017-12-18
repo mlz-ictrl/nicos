@@ -313,14 +313,15 @@ _column4 = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-                     title = 'MIRA Status monitor',
-                     filename = '/miracontrol/status.html',
-                     interval = 10,
-                     loglevel = 'info',
-                     cache = 'mira1:14869',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 17,
-                     layout = [[_expcolumn], [_column1, _column2, _column3], [_column4]]),
+        title = 'MIRA Status monitor',
+        filename = '/miracontrol/status.html',
+        interval = 10,
+        loglevel = 'info',
+        cache = 'mira1:14869',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 17,
+        layout = [[_expcolumn], [_column1, _column2, _column3], [_column4]]
+    ),
 )

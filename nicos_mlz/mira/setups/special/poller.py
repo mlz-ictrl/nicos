@@ -11,9 +11,10 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-                    autosetup = True,
-                    alwayspoll = ['ubahn', 'meteo', 'memograph', 'radmon'],
-                    neverpoll = ['gaussmeter'],
-                    loglevel = 'info',
-                    blacklist = ['psd_channel']),
+        autosetup = True,
+        alwayspoll = ['ubahn', 'meteo', 'memograph', 'radmon'],
+        neverpoll = ['gaussmeter'],
+        loglevel = 'info',
+        blacklist = ['psd_channel']
+    ),
 )

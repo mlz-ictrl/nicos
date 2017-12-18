@@ -275,13 +275,14 @@ _column3 = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'MIRA Sample environment',
-                     loglevel = 'info',
-                     cache = 'mira1:14869',
-                     prefix = 'nicos/',
-                     font = 'Droid Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 22,
-                     padding = 5,
-                     layout = [[_column1, _column2, _column3]])
+        title = 'MIRA Sample environment',
+        loglevel = 'info',
+        cache = 'mira1:14869',
+        prefix = 'nicos/',
+        font = 'Droid Sans',
+        valuefont = 'Consolas',
+        fontsize = 22,
+        padding = 5,
+        layout = [[_column1, _column2, _column3]]
+    )
 )

@@ -7,12 +7,12 @@ tango_base = 'tango://mira1.mira.frm2:10000/mira/'
 
 devices = dict(
     T_julabo = device('nicos.devices.tango.TemperatureController',
-                      description = 'temperature regulation',
-                      tangodevice = tango_base + 'humidity/tempctrl',
-                      pollinterval = 0.7,
-                      maxage = 2,
-                      unit = 'degC',
-                     ),
+        description = 'temperature regulation',
+        tangodevice = tango_base + 'humidity/tempctrl',
+        pollinterval = 0.7,
+        maxage = 2,
+        unit = 'degC',
+    ),
 )
 
 alias_config = {

@@ -4,11 +4,11 @@ group = 'optional'
 includes = ['base']
 
 devices = dict(
-    Bf  = device('nicos.devices.vendor.metrolab.THM1176',
-                 description = 'THM 1176 gaussmeter',
-                 device = '/dev/usbtmc_THM1176',
-                 usbdevice = '/dev/usb_THM1176',
-                ),
+    Bf = device('nicos.devices.vendor.metrolab.THM1176',
+        description = 'THM 1176 gaussmeter',
+        device = '/dev/usbtmc_THM1176',
+        usbdevice = '/dev/usb_THM1176',
+    ),
 )
 
 startupcode = '''
