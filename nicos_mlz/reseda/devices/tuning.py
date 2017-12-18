@@ -59,7 +59,7 @@ class EchoTime(Moveable):
                              type=dictof(str, listof(float)), settable=False,
                              userparam=False, volatile=True),
         'wavelengthtolerance': Param('Wavelength tolerance for table'
-                                     'determination', type=str, settable=True,
+                                     'determination', type=float, settable=True,
                                      default=0.1),
     }
 
