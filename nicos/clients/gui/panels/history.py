@@ -455,7 +455,7 @@ class BaseHistoryWindow(object):
         self.actionCloseView.triggered.connect(self.on__actionCloseView_triggered)
         self.actionResetView.triggered.connect(self.on__actionResetView_triggered)
         self.actionDeleteView.triggered.connect(self.on__actionDeleteView_triggered)
-        self.actionSavePlot.triggered.connect(self.on__actionSaveData_triggered)
+        self.actionSavePlot.triggered.connect(self.on__actionSavePlot_triggered)
         self.actionPrint.triggered.connect(self.on__actionPrint_triggered)
         self.actionUnzoom.triggered.connect(self.on__actionUnzoom_triggered)
         self.actionLogScale.toggled.connect(self.on__actionLogScale_toggled)
