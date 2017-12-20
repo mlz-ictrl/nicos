@@ -11,7 +11,7 @@ if [[ -n "$PYFILESCHANGED" ]] ; then
     set +o pipefail
 else
     echo 'no python files changed'
-    res = 0
+    res=0
 fi
 
 set -e
