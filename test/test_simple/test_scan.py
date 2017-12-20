@@ -38,6 +38,7 @@ from nicos.commands.scan import appendscan, contscan, cscan, manualscan, \
     scan, sweep, timescan, twodscan
 from nicos.core import CommunicationError, ModeError, NicosError, \
     PositionError, UsageError
+from nicos.core.acquire import CountResult
 from nicos.core.scan import ContinuousScan
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.core.status import BUSY, OK
@@ -302,21 +303,23 @@ def test_manualscan(session):
     slow_motor.maw(0)
 
     # normal
-    with manualscan(mot):
+    with manualscan(mot, det, t=0.):
         assert mot in session._manualscan._envlist
         for i in range(3):
             mot.maw(i)
-            count()
+            count_result = count()
         assert raises(NicosError, manualscan)
+
+    assert isinstance(count_result, CountResult) and len(count_result) == 5
 
     # with multistep
     SetEnvironment('slow_motor')
     try:
-        with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.1):
+        with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.):
             assert c in session._manualscan._envlist
             for i in range(3):
                 mot.maw(i)
-                count()
+                count_result = count()
     finally:
         SetEnvironment()
     dataset = session.data._last_scans[-1]
@@ -325,6 +328,9 @@ def test_manualscan(session):
     assert dataset.envvaluelists == [[0., 0., 0.], [0., 0., 0.],
                                      [1., 1., 0.], [1., 1., 0.],
                                      [2., 2., 0.], [2., 2., 0.]]
+
+    assert isinstance(count_result, list)
+    assert isinstance(count_result[0], CountResult)
 
 
 def test_specialscans(session):

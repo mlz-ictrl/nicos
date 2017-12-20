@@ -29,8 +29,8 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
-from nicos.core.acquire import Average, MinMax, acquire, read_environment, \
-    stop_acquire_thread
+from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
+    read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
 from nicos.pycompat import iteritems, number_types, string_types
@@ -42,10 +42,6 @@ __all__ = [
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
     'avg', 'minmax',
 ]
-
-
-class CountResult(list):
-    __display__ = None
 
 
 def inner_count(detectors, preset, temporary=False, threaded=False):
@@ -91,21 +87,13 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
     else:
         _acquire_func()
 
-    msg = []
-    retval = []
-    for det in detectors:
-        res = point.results[det.name]
-        if res is not None:
-            for (info, val) in zip(det.valueInfo(), res[0]):
-                msg.append('%s = %s' % (info.name, info.fmtstr % val))
-                retval.append(val)
-
+    result, msg = CountResult.from_point(point)
     if not session.experiment.forcescandata:
         for filename in point.filenames:
             msg.append('file = %s' % filename)
         session.log.info('count: %s', ', '.join(msg))
 
-    return CountResult(retval)
+    return result
 
 
 def _count(*detlist, **preset):

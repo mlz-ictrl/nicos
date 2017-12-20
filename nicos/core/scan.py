@@ -35,8 +35,8 @@ from numpy import array_equal, ndarray
 
 from nicos import session
 from nicos.core import status
-from nicos.core.acquire import DevStatistics, acquire, read_environment, \
-    stop_acquire_thread
+from nicos.core.acquire import CountResult, DevStatistics, acquire, \
+    read_environment, stop_acquire_thread
 from nicos.core.constants import FINAL, INTERMEDIATE, SIMULATION, SLAVE
 from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
@@ -274,7 +274,7 @@ class Scan(object):
             else:
                 waitdevs.append(dev)
         if not wait:
-            return
+            return None
         waitresults = {}
 
         try:
@@ -705,9 +705,11 @@ class ManualScan(Scan):
         if not self._multistep:
             return self._step_inner(preset)
         else:
+            results = []
             for i in range(self._mscount):
                 self.moveDevices(self._devices, self._mspos[i])
-                self._step_inner(preset)
+                results.append(self._step_inner(preset))
+            return results
 
     def _step_inner(self, preset):
         preset = preset or self._preset
@@ -726,7 +728,7 @@ class ManualScan(Scan):
             pass
         finally:
             self.finishPoint()
-        return point
+        return CountResult.from_point(point)[0]
 
 
 class QScan(Scan):

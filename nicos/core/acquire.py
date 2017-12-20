@@ -284,3 +284,20 @@ DevStatistics.subclasses = {
     Average.statname: Average,
     MinMax.statname:  MinMax,
 }
+
+
+class CountResult(list):
+    """Represents the result from a count(), as returned to the script."""
+    __display__ = None
+
+    @classmethod
+    def from_point(cls, point):
+        msg = []
+        retval = []
+        for det in point.detectors:
+            res = point.results[det.name]
+            if res is not None:
+                for (info, val) in zip(det.valueInfo(), res[0]):
+                    msg.append('%s = %s' % (info.name, info.fmtstr % val))
+                    retval.append(val)
+        return cls(retval), msg
