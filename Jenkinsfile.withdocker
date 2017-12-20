@@ -116,7 +116,7 @@ def checkoutSource() {
     sh '''#!/bin/bash
 if [[ ! -d ciscripts ]] ;  then
     echo "Rebasing change to get ciscripts: If this fails, rebase manually!"
-    git rebase -f -v $GERRIT_BRANCH check
+    git rebase -f -v origin/$GERRIT_BRANCH check
 fi'''
 }
 
