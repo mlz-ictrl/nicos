@@ -575,6 +575,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
+        self._markertype = gr.MARKERTYPE_OMARK
 
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
@@ -679,7 +680,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.update()
 
     def setSymbols(self, on):
-        markertype = gr.MARKERTYPE_OMARK if on else gr.MARKERTYPE_DOT
+        markertype = self._markertype if on else gr.MARKERTYPE_DOT
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
@@ -774,7 +775,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             color = self._color.getNextColorIndex()
             plotcurve.linecolor = color
             plotcurve.markercolor = color
-            plotcurve.markertype = gr.MARKERTYPE_OMARK if self.hasSymbols \
+            plotcurve.markertype = self._markertype if self.hasSymbols \
                 else gr.MARKERTYPE_DOT
             if plotcurve.errorBar1:
                 plotcurve.errorBar1.markercolor = color
@@ -902,6 +903,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         if curve.errorBar2:
             curve.errorBar2.y = new_y
         curve.y = new_y
+
+    def setMarkerType(self, markertype):
+        self._markertype = markertype
 
 
 class ViewPlot(NicosGrPlot):
