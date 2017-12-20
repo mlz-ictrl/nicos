@@ -150,7 +150,7 @@ def runPylint() {
 echo $PATH
 set +e
 
-PYFILESCHANGED=`/home/jenkins/tools2/bin/changedfiles --py`
+PYFILESCHANGED=`~/tools2/bin/changedfiles --py`
 if [[ -n "$PYFILESCHANGED" ]] ; then
     set -o pipefail
     PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
@@ -163,7 +163,7 @@ fi
 
 set -e
 
-/home/jenkins/tools2/bin/pylint2gerrit
+~/tools2/bin/pylint2gerrit
 
 exit $res
 '''
@@ -194,7 +194,7 @@ def runSetupcheck() {
 
 tools/check_setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
 
-/home/jenkins/tools2/bin/sc2gerrit
+~/tools2/bin/sc2gerrit
 
 exit $((res))
 '''
@@ -327,7 +327,7 @@ node('master') {
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
-/home/jenkins/tools2/bin/mlzrmupdater
+~/tools2/bin/mlzrmupdater
 '''
             }
         }
