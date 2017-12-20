@@ -130,22 +130,21 @@ def refreshVenv(venv='$NICOSVENV', checkupdates=false) {
     def res = sh([returnStdout:true, script: "./ciscripts/run_venvupdate.sh $venv"])
 
     echo res
-    writeFile ([file: 'pip.out', text: res])
-    def pconf = [:]
-    pconf.append([parserName: 'pip-output-error', pattern: 'pip.out'])
-    pconf.append([parserName: 'pip-output-error-compile', pattern: 'pip.out'])
-
     if (checkupdates) {
+        def pconf = [:]
+        pconf.append([parserName: 'pip-output-error', pattern: 'pip.out'])
+        pconf.append([parserName: 'pip-output-error-compile', pattern: 'pip.out'])
         pconf.append([parserName: 'pip-output-updated', pattern: 'pip.out'])
-    }
-    warnings([canComputeNew: false,
+        writeFile ([file: 'pip.out', text: res])
+        warnings([canComputeNew: false,
               canResolveRelativePaths: false,
               canRunOnFailed: true,
               failedTotalAll: '0',
               healthy: '0',
               parserConfigurations: pconf,
               unHealthy: '1',
-    ])
+        ])
+    }
 }
 
 def runPylint() {
