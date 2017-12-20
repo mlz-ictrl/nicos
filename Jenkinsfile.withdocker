@@ -106,6 +106,7 @@ def checkoutSource() {
               ],
               extensions: [
                   [$class: 'CleanCheckout'],
+                  [$class: 'LocalBranch', localBranch: 'check'],
                   [$class: 'hudson.plugins.git.extensions.impl.BuildChooserSetting',
                    buildChooser: [$class: "com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser"]],
               ]
@@ -115,7 +116,7 @@ def checkoutSource() {
     sh '''#!/bin/bash
 if [[ ! -d ciscripts ]] ;  then
     echo "Rebasing change to get ciscripts: If this fails, rebase manually!"
-    git rebase -f -v
+    git rebase -f -v $GERRIT_BRANCH check
 fi'''
 }
 
