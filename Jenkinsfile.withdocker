@@ -112,10 +112,11 @@ def checkoutSource() {
             ]
         )
     sh '''git describe'''
-    sh '''if [[ ! -d ciscripts ]] ;  then
+    sh '''#!/bin/bash
+if [[ ! -d ciscripts ]] ;  then
     echo "Rebasing change to get ciscripts: If this fails, rebase manually!"
     git rebase -f -v
-    fi'''
+fi'''
 }
 
 def publishGerrit(name, value) {
