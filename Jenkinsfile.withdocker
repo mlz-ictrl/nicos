@@ -131,10 +131,9 @@ def refreshVenv(venv='$NICOSVENV', checkupdates=false) {
 
     echo res
     writeFile ([file: 'pip.out', text: res])
-
-    def pconf = [[parserName: 'pip-output-error', pattern: 'pip.out'],
-                 [parserName: 'pip-output-error-compile', pattern: 'pip.out']
-                ]
+    def pconf = [:]
+    pconf.append([parserName: 'pip-output-error', pattern: 'pip.out'])
+    pconf.append([parserName: 'pip-output-error-compile', pattern: 'pip.out'])
 
     if (checkupdates) {
         pconf.append([parserName: 'pip-output-updated', pattern: 'pip.out'])
