@@ -253,7 +253,7 @@ class Scan(object):
             else:
                 waitdevs.append(dev)
         if not wait:
-            return None
+            return
         waitresults = {}
 
         try:
@@ -680,11 +680,9 @@ class ManualScan(Scan):
         if not self._multistep:
             return self._step_inner(preset)
         else:
-            lastpoint = None
             for i in range(self._mscount):
                 self.moveDevices(self._devices, self._mspos[i])
-                lastpoint = self._step_inner(preset)
-            return lastpoint
+                self._step_inner(preset)
 
     def _step_inner(self, preset):
         preset = preset or self._preset
