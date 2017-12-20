@@ -150,7 +150,7 @@ def runPylint() {
 echo $PATH
 set +e
 
-PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/R[0-9]*\t[^\t]*\\(.*\\)/R\\1/' | sed -e 's/.\t//' |grep '.py$')
+PYFILESCHANGED=`/home/jenkins/tools2/bin/changedfiles --py`
 if [[ -n "$PYFILESCHANGED" ]] ; then
     set -o pipefail
     PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
@@ -163,9 +163,7 @@ fi
 
 set -e
 
-# switch to the tools venv for running the pylint uploader
-. ~/toolsvenv/bin/activate
-~/tools/pylint2gerrit.py
+/home/jenkins/tools2/bin/pylint2gerrit
 
 exit $res
 '''
@@ -195,10 +193,8 @@ def runSetupcheck() {
 . $NICOSVENV/bin/activate
 
 tools/check_setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
-# */
-# switch to the tools venv for running the setupcheck uploader
-. ~/toolsvenv/bin/activate
-~/tools/sc2gerrit.py
+
+/home/jenkins/tools2/bin/sc2gerrit
 
 exit $((res))
 '''
@@ -331,8 +327,7 @@ node('master') {
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
-. ~/toolsvenv/bin/activate
-~/tools/redmineupdater.py
+/home/jenkins/tools2/bin/mlzrmupdater
 '''
             }
         }
