@@ -42,15 +42,15 @@ watchlist = [
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['email'],
+    'default': ['email'],
     'critical': ['email', 'smser'],
 }
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'localhost:14869',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        cache = 'localhost:14869',
+        notifiers = notifiers,
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )

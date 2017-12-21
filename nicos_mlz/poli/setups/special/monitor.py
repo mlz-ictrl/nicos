@@ -26,12 +26,12 @@ _tablecolumn = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'localhost:14869',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     layout = [Row(_expcolumn), Row(_tablecolumn)],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'localhost:14869',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        layout = [Row(_expcolumn), Row(_tablecolumn)],
+    ),
 )

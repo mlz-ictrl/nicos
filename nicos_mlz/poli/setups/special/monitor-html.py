@@ -269,14 +269,17 @@ column4 = Column(*cryoplots) + Column(*ccrplots)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-                     title = 'POLI Status monitor',
-                     filename = '/policontrol/webroot/index.html',
-                     interval = 10,
-                     loglevel = 'info',
-                     cache = 'phys.poli.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 17,
-                     layout = [[_expcolumn], [column1, column2, column3], [column4]]),
+        title = 'POLI Status monitor',
+        filename = '/policontrol/webroot/index.html',
+        interval = 10,
+        loglevel = 'info',
+        cache = 'phys.poli.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 17,
+        layout = [[_expcolumn],
+                  [column1, column2, column3],
+                  [column4]]
+    ),
 )
