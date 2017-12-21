@@ -11,3 +11,4 @@ keyrings.alt>=2.0
 PyCrypto>=2.6.1
 slackclient>=1.0.9
 sshtunnel>=0.1.2
+requests>=2.0
