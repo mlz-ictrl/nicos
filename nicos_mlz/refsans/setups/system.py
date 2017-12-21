@@ -24,6 +24,7 @@ devices = dict(
         responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@hzg.de>',
         # responsible = 'Matthias Pomm <matthias.pomm@hzg.de>',
         operators = ['German Engineering Materials Science Centre (GEMS)'],
+        website = 'http://www.mlz-garching.de/refsans',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'Container storing Sample properties',

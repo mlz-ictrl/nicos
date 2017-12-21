@@ -46,6 +46,7 @@ devices = dict(
                    instrument = 'MARIA',
                    responsible = 'Stefan Mattauch <s.mattauch@fz-juelich.de>',
                    operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+                   website = 'http://www.mlz-garching.de/maria',
                   ),
 
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

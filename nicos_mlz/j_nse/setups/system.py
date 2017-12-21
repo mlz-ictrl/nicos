@@ -25,6 +25,7 @@ devices = dict(
         instrument = 'J-NSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',
         operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        website = 'http://www.mlz-garching.de/j-nse',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',

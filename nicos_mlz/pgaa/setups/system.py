@@ -25,6 +25,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-46',
         responsible = 'Dr. Zsolt Revay <zsolt.revay@frm2.tum.de>',
         operators = [u'Universität zu Köln'],
+        website = 'http://www.mlz-garching.de/pgaa',
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'The currently running experiment',

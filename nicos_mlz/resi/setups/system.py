@@ -30,6 +30,7 @@ devices = dict(
                             responsible = 'B. Pedersen <bjoern.pedersen@frm2.tum.de>',
                             operators = [u'Ludwig-Maximilians-Universität '
                                          u'München (LMU)'],
+                            website = 'http://www.mlz-garching.de/resi',
                            ),
 
     Sample = device('nicos.devices.sample.Sample',

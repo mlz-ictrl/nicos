@@ -89,6 +89,7 @@ devices = dict(
         operators = ['RWTH Aachen University',
                      u'Georg-August-Universität Göttingen',
                      u'Jülich Centre for Neutron Science (JCNS)'],
+        website = 'http://www.mlz-garching.de/powtex',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Device storing scanfiles in Ascii output format.',

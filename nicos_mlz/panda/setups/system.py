@@ -42,6 +42,7 @@ devices = dict(
                                  '<astrid.schneidewind@frm2.tum.de>',
                    doi = 'http://dx.doi.org/10.17815/jlsrf-1-35',
                    operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+                   website = 'http://www.mlz-garching.de/panda',
                   ),
     Sample   = device('nicos.devices.tas.TASSample',
                        description = 'Sample under investigation',

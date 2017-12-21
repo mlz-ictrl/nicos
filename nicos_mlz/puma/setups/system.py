@@ -22,11 +22,12 @@ devices = dict(
         instrument = 'PUMA',
         responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
+        website = 'http://www.mlz-garching.de/puma',
         operators = [
             u'Technische Universität München (TUM)',
             u'Institut für Physikalische Chemie, Georg-August-Universität '
             u'Göttingen',
-        ]
+        ],
     ),
     Exp = device('nicos_mlz.panda.devices.experiment.PandaExperiment',
         description = 'Experiment of PUMA',

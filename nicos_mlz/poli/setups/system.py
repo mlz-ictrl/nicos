@@ -26,6 +26,7 @@ devices = dict(
                       omega = 'sth',
                       nu = 'liftingctr',
                       operators = ['RWTH Aachen University'],
+                      website = 'http://www.mlz-garching.de/poli',
                      ),
 
     Sample   = device('nicos.devices.sxtal.sample.SXTalSample',

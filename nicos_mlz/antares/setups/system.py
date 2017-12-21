@@ -44,6 +44,7 @@ devices = dict(
         responsible = 'Michael Schulz <michael.schulz@frm2.tum.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-42',
         operators = [u'Technische Universität München (TUM)'],
+        website = 'http://www.mlz-garching.de/antares',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Scanfile storing device',

@@ -27,6 +27,7 @@ devices = dict(
         operators = ['German Engineering Materials Science Centre (GEMS)',
                      u'Technische Universität München (TUM)',
                     ],
+        website = 'http://www.mlz-garching.de/sans-1',
     ),
     Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
         description = 'experiment',

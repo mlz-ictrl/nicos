@@ -49,6 +49,7 @@ devices = dict(
                      operators = [u'Technische Universität München (TUM)',
                                   u'Jülich Centre for Neutron Science (JCNS)',
                                  ],
+                     website = 'http://www.mlz-garching.de/biodiff',
                     ),
 
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

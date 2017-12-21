@@ -23,6 +23,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-27',
         responsible = 'A. Radulescu <a.radulescu@fz-juelich.de>',
         operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        website = 'http://www.mlz-garching.de/kws-2',
     ),
     Sample = device('nicos_mlz.kws1.devices.sample.KWSSample',
         description = 'Sample object',
