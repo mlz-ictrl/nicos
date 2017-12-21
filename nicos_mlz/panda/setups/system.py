@@ -36,11 +36,12 @@ devices = dict(
                       ),
 
     panda = device('nicos.devices.instrument.Instrument',
-                    description = 'the PANDA spectrometer',
-                    instrument = 'PANDA',
-                    responsible = 'Astrid Schneidewind ' +
-                                  '<astrid.schneidewind@frm2.tum.de>',
+                   description = 'the PANDA spectrometer',
+                   instrument = 'PANDA',
+                   responsible = 'Astrid Schneidewind '
+                                 '<astrid.schneidewind@frm2.tum.de>',
                    doi = 'http://dx.doi.org/10.17815/jlsrf-1-35',
+                   operators = [u'Jülich Centre for Neutron Science (JCNS)'],
                   ),
     Sample   = device('nicos.devices.tas.TASSample',
                        description = 'Sample under investigation',

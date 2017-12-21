@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 description = 'system setup'
 
 sysconfig = dict(
@@ -21,6 +22,7 @@ devices = dict(
         'neutrons',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-48',
         responsible = 'Dr. Jens Klenke <jens.klenke@frm2.tum.de>',
+        operators = [u'Technische Universität München (TUM)'],
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'MEPHISTO Experiment ',

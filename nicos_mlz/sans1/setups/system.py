@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -23,6 +24,9 @@ devices = dict(
         instrument = 'SANS-1',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-32',
         responsible = 'Dr. Andre Heinemann <Andre.Heinemann@hzg.de>',
+        operators = ['German Engineering Materials Science Centre (GEMS)',
+                     u'Technische Universität München (TUM)',
+                    ],
     ),
     Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
         description = 'experiment',

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # description: Description of the setup (detailed)
 description = 'system setup'
 
@@ -68,6 +69,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'ictrl',
         responsible = 'JK <jkrueger@frm2.tum.de>',
+        operators = [u'Technische Universität München (TUM)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The current used sample',

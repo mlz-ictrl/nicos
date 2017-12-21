@@ -23,8 +23,8 @@ devices = dict(
                    responsible = 'Andreas Ofner<andreas.ofnert@frm2.tum.de>',
                    website = 'http://www.mlz-garching.de',
                    operators = [u'Technische Universität München (TUM)',
-                                u'Jülich Center for Neutron Science (JCNS)',
-                                ],
+                                u'Jülich Centre for Neutron Science (JCNS)',
+                               ],
                   ),
 
     Sample   = device('nicos.devices.sample.Sample',

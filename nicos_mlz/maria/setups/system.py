@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -44,6 +45,7 @@ devices = dict(
                    description = 'MAgnetic Reflectometer with Incident Angle',
                    instrument = 'MARIA',
                    responsible = 'Stefan Mattauch <s.mattauch@fz-juelich.de>',
+                   operators = [u'Jülich Centre for Neutron Science (JCNS)'],
                   ),
 
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

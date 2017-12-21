@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -35,6 +36,7 @@ devices = dict(
         instrument = 'NECTAR',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-45',
         responsible = 'Malgorzata Makowska <malgorzata.makowska@frm2.tum.de>',
+        operators = [u'Technische Universität München (TUM)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         lowlevel = True,

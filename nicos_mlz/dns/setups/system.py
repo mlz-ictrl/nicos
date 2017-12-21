@@ -46,7 +46,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-33',
         responsible = 'Yixi Su <y.su@fz-juelich.de>',
         website = 'http://www.mlz-garching.de/dns',
-        operators = [u'Jülich Center for Neutron Science (JCNS)'],
+        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Device storing scanfiles in Ascii output format.',

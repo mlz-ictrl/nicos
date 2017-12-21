@@ -77,7 +77,7 @@ devices = dict(
         operators = [
             u'Technische Universität München (TUM)',
             u'Technische Universität Clausthal',
-            'German Engineering Materials Center (GEMS)'
+            'German Engineering Materials Science Centre (GEMS)'
         ],
     ),
     Sample = device('nicos.devices.sample.Sample',

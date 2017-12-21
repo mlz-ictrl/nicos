@@ -1,4 +1,6 @@
+#  -*- coding: utf-8 -*-
 description = 'system setup only'
+
 group = 'basic'
 
 sysconfig = dict(
@@ -25,7 +27,10 @@ devices = dict(
                                           'diffractometer',
                             instrument = 'RESI',
                             doi = 'http://dx.doi.org/10.17815/jlsrf-1-23',
-                            responsible = 'B. Pedersen <bjoern.pedersen@frm2.tum.de>'),
+                            responsible = 'B. Pedersen <bjoern.pedersen@frm2.tum.de>',
+                            operators = [u'Ludwig-Maximilians-Universität '
+                                         u'München (LMU)'],
+                           ),
 
     Sample = device('nicos.devices.sample.Sample',
                     description = 'The sample',

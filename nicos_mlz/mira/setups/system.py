@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 description = 'system setup only'
+
 group = 'lowlevel'
 
 sysconfig = dict(
@@ -32,6 +34,7 @@ devices = dict(
         instrument = 'MIRA',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-21',
         responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
+        operators = [u'Technische Universität München (TUM)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         semicolon = False,

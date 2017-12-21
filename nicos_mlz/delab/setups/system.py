@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 description = 'system setup only'
+
 group = 'lowlevel'
 
 sysconfig = dict(
@@ -29,6 +31,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'DEL',
         responsible = 'Karl Zeitelhack <karl.zeitelhack@frm2.tum.de>',
+        operators = [u'Technische Universität München (TUM)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         semicolon = False,

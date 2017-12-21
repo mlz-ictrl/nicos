@@ -65,6 +65,7 @@ devices = dict(
                 description='instrument object',
                 instrument='SINQ AMOR',
                 responsible='Nikhil Biyani <nikhil.biyani@psi.ch>',
+                operators=['Paul-Scherrer-Institut (PSI)'],
                 ),
 
     Sample=device('nicos.devices.sample.Sample',

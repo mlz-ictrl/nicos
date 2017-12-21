@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # description: Description of the setup (detailed)
 description = 'system setup for POWTEX'
 
@@ -84,7 +85,10 @@ devices = dict(
     POWTEX = device('nicos.devices.instrument.Instrument',
         description = 'POWTEX Instrument test',
         instrument = 'POWTEX',
-        responsible = 'andreas.houben@ac.rwth-aachen.de'
+        responsible = 'Andreas Houben <andreas.houben@ac.rwth-aachen.de>',
+        operators = ['RWTH Aachen University',
+                     u'Georg-August-Universität Göttingen',
+                     u'Jülich Centre for Neutron Science (JCNS)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Device storing scanfiles in Ascii output format.',

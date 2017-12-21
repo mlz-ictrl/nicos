@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -22,6 +23,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
         responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@hzg.de>',
         # responsible = 'Matthias Pomm <matthias.pomm@hzg.de>',
+        operators = ['German Engineering Materials Science Centre (GEMS)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'Container storing Sample properties',

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # description: Description of the setup (detailed)
 description = 'system setup'
 
@@ -23,6 +24,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'J-NSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',
+        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',

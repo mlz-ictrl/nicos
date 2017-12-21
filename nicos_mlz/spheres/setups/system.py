@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -18,8 +19,9 @@ devices = dict(
     Spheres = device('nicos.devices.instrument.Instrument',
                       description = 'SPHERES instrument object',
                       instrument = 'SPHERES',
-                     doi = 'http://dx.doi.org/10.17815/jlsrf-1-38',
+                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-38',
                       responsible = 'Michaela Zamponi <m.zamponi@fz-juelich.de>',
+                      operators = [u'Jülich Centre for Neutron Science (JCNS)'],
                      ),
 
     Sample   = device('nicos.devices.sample.Sample',

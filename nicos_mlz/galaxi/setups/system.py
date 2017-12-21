@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 description = 'system setup for GALAXI '
 
 group = 'lowlevel'
@@ -37,6 +38,7 @@ devices = dict(
                      facility = 'FZ-Juelich',
                      responsible= 'Ulrich Ruecker <u.ruecker@fz-juelich.de>',
                      doi = 'http://dx.doi.org/10.17815/jlsrf-2-109',
+                     operators = [u'Jülich Centre for Neutron Science (JCNS)'],
                     ),
 
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
