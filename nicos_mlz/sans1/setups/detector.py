@@ -73,7 +73,7 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
     ),
-    # det1_hv    = device('nicos.devices.generic.Switcher',
+    # det1_hv = device('nicos.devices.generic.Switcher',
     det1_hv = device('nicos_mlz.sans1.devices.hv.VoltageSwitcher',
         description = 'high voltage of detector 1 switcher',
         moveable = 'det1_hv_ax',

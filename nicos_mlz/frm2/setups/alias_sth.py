@@ -4,5 +4,5 @@ group = 'lowlevel'
 includes = []
 
 devices = dict(
-    sth  = device('nicos.devices.generic.DeviceAlias'),
+    sth = device('nicos.devices.generic.DeviceAlias'),
 )

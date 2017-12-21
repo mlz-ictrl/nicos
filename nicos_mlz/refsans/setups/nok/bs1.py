@@ -114,7 +114,7 @@ devices = dict(
     ),
 
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
-    bs1s_axis  = device('nicos.devices.generic.Axis',
+    bs1s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of BS1, sample side',
         motor = 'bs1s_motor',
         coder = 'bs1s_motor',
@@ -191,7 +191,7 @@ devices = dict(
     ),
 
     # generated from global/inf/poti_tracing.inf
-    bs1s_poti  = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
         tacodevice = '//%s/test/wb_c/2_2' % nethost,
         scale = 1,   # mounted from bottom
