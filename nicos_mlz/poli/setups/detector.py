@@ -4,28 +4,28 @@ group = 'lowlevel'
 includes = []
 excludes = ['zeadetector']
 
-nethost = 'phys.poli.frm2'
+tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
-    timer = device('nicos.devices.taco.FRMTimerChannel',
-                   tacodevice = '//%s/poli/frmctr/at' % nethost,
+    timer = device('nicos.devices.tango.TimerChannel',
+                   tangodevice = tango_base + 'frmctr/timer',
                    fmtstr = '%.2f',
                    lowlevel = True,
                   ),
-    mon1  = device('nicos.devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/poli/frmctr/a2' % nethost,
+    mon1  = device('nicos.devices.tango.CounterChannel',
+                   tangodevice = tango_base + 'frmctr/ctr1',
                    type = 'monitor',
                    fmtstr = '%d',
                    lowlevel = True,
                   ),
-    mon2  = device('nicos.devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/poli/frmctr/a3' % nethost,
+    mon2  = device('nicos.devices.tango.CounterChannel',
+                   tangodevice = tango_base + 'frmctr/ctr2',
                    type = 'monitor',
                    fmtstr = '%d',
                    lowlevel = True,
                   ),
-    ctr1  = device('nicos.devices.taco.FRMCounterChannel',
-                   tacodevice = '//%s/poli/frmctr/a1' % nethost,
+    ctr1  = device('nicos.devices.tango.CounterChannel',
+                   tangodevice = tango_base + 'frmctr/ctr0',
                    type = 'counter',
                    fmtstr = '%d',
                    lowlevel = True,
