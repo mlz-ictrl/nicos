@@ -12,8 +12,8 @@ group = 'optional'
 #             mono stuff is in monoturm setup
 
 # BUS 4 (spare one)
-# channel  1     2   3   4   5   6   7   8
-#        sth_st  --- --- --- --- --- --- ca2
+# channel  1   2   3   4   5   6   7   8
+#         sth  -   -   -   -  ca2  -   -
 
 # eases address settings: 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
 MOTOR = lambda x: 0x50 + x
@@ -36,7 +36,7 @@ devices = dict(
     ca1_mot  = device('nicos.devices.vendor.ipc.Motor',
                       description = 'Stepper motor to move the collimator lift',
                       bus = 'bus5',
-                      addr = 81,
+                      addr = MOTOR(1),
                       slope = 200.0,
                       unit = 'mm',
                       abslimits = (-1, 760),
@@ -61,7 +61,7 @@ devices = dict(
     ca2_mot  = device('nicos.devices.vendor.ipc.Motor',
                       description = 'Stepper motor to adjust CA2 collimator',
                       bus = 'bus4',
-                      addr = MOTOR(8),
+                      addr = MOTOR(6),
                       slope = 164.0,  #0.0061 mm/1.8deg
                       unit = 'mm',
                       abslimits = (-1, 760),

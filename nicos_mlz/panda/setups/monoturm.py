@@ -2,14 +2,24 @@
 
 description = 'Monoturm, everything inside the Monochromator housing'
 
+includes = ['sampletable']
+
 group = 'lowlevel'
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
+# BUS 5 (mono)
 # channel 1   2   3   4   5   6   7   8
-#         ca1 mgx mtx mty mth mtt ms1 saph
+# MOTORS ca1 mgx mtx mty mth  -   -  saph
+# CODERS  -  mgx mtx mty mth mtt  -   -
 #                                    saphire is in saph setup
-#         ca1 is in collimators setup
+#        ca1 is in collimators setup
+
+# BUS 4 (spare one)
+# channel  1   2   3   4   5   6   7   8
+# MOTORS  sth  -   -   -   -  ca2 ms1  -
+# CODERS  sth  -   -   -   -   -   -  ms1
+
 
 # eases address settings: 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
 MOTOR = lambda x: 0x50 + x
@@ -31,10 +41,10 @@ TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
     bus5 = device('nicos.devices.vendor.ipc.IPCModBusTango',
-            tangodevice = tango_base + 'ipc/mono',
-            bustimeout = 0.1,
-            loglevel = 'info',
-            lowlevel = True,
+        tangodevice = tango_base + 'ipc/mono',
+        bustimeout = 0.1,
+        loglevel = 'info',
+        lowlevel = True,
     ),
 
     #~ # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
@@ -236,9 +246,8 @@ devices = dict(
     #
     # MS1 is seventh device and has 1 stepper, 0 poti, 1 coder
     ms1_step = device('nicos.devices.vendor.ipc.Motor',
-                      bus = 'bus5',
-                   #~ addr = MOTOR(7), #original
-                      addr = MOTOR(6),        #test
+                      bus = 'bus4',  #spare
+                      addr = MOTOR(7),
                       slope = -1600 / 3.0,
                       unit = 'mm',
                       abslimits = (-1.0, 51.0),
@@ -252,7 +261,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     ms1_enc = device('nicos.devices.vendor.ipc.Coder',
-                     bus = 'bus5',
+                     bus = 'bus4',   #spare
                      addr = CODER(8),
                      slope = 2**13 / 3.0,        # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
                      zerosteps = 555555,
