@@ -10,10 +10,10 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-                    loglevel = 'info',
-                    autosetup = True,
-                    alwayspoll = ['water'],
-                    neverpoll = ['blenden_old'],
-                    blacklist = [],
-                    ),
+        loglevel = 'info',
+        autosetup = True,
+        alwayspoll = ['water'],
+        neverpoll = ['blenden_old'],
+        blacklist = [],
+    ),
 )

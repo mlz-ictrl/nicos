@@ -417,16 +417,16 @@ column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs)
 column3 = Column(magnet75supp, kelvinox, foki, memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
-
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'PANDA office status monitor',
-                     loglevel = 'info',
-                     cache = 'phys.panda.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     fontsize = 15,
-                     valuefont = 'Luxi Sans',
-                     layout = [Row(expcolumn), Row(column1, column2, column3)],
-                     )
+        title = 'PANDA office status monitor',
+        loglevel = 'info',
+        cache = 'phys.panda.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        fontsize = 15,
+        valuefont = 'Luxi Sans',
+        layout = [Row(expcolumn),
+                  Row(column1, column2, column3)],
+    )
 )

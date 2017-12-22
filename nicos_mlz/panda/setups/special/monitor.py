@@ -461,13 +461,14 @@ column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'PANDA status monitor',
-                     loglevel = 'info',
-                     cache = 'phys.panda.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     fontsize = 17,
-                     valuefont = 'Luxi Sans',
-                     layout = [Row(expcolumn), Row(column1, column2, column3, column4)],
-                     )
+        title = 'PANDA status monitor',
+        loglevel = 'info',
+        cache = 'phys.panda.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        fontsize = 17,
+        valuefont = 'Luxi Sans',
+        layout = [Row(expcolumn),
+                  Row(column1, column2, column3, column4)],
+    )
 )
