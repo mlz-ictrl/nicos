@@ -15,37 +15,37 @@ tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
     ep_HV_all = device('nicos_mlz.kws2.devices.gedet.MultiHV',
-                       ephvs = [epname + '_HV' for (epname, _) in eps],
-                       lowlevel = True,
-                       stepsettle = 2,
-                       finalsettle = 30,
-                      ),
-    gedet_HV  = device('nicos_mlz.kws2.devices.gedet.HVSwitcher',
-                       description = 'switches the GE detector HV',
-                       moveable = 'ep_HV_all',
-                       mapping = {
-                           'off': (0,) * len(eps),
-                           'on':  tuple(hv_values[n[0]] for n in eps),
-                       },
-                       pv_values = {
-                           epicsid: pv_common + pv_single[epname] + pv_scales[epname]
-                           for (epname, epicsid) in eps
-                       },
-                       fallback = 'inbetween',
-                       precision = 25,
-                      ),
+        ephvs = [epname + '_HV' for (epname, _) in eps],
+        lowlevel = True,
+        stepsettle = 2,
+        finalsettle = 30,
+    ),
+    gedet_HV = device('nicos_mlz.kws2.devices.gedet.HVSwitcher',
+        description = 'switches the GE detector HV',
+        moveable = 'ep_HV_all',
+        mapping = {
+            'off': (0,) * len(eps),
+            'on':  tuple(hv_values[n[0]] for n in eps),
+        },
+        pv_values = {
+            epicsid: pv_common + pv_single[epname] + pv_scales[epname]
+            for (epname, epicsid) in eps
+        },
+        fallback = 'inbetween',
+        precision = 25,
+    ),
 
     gedet_power = device('nicos.devices.generic.MultiSwitcher',
-                         description = 'switches the GE detector 54V power supply',
-                         moveables = ['ps1_V', 'ps2_V'],
-                         mapping = {
-                             'off': [0, 0],
-                             'on': [54, 54],
-                         },
-                         precision = [0.1, 0.1],
-                         warnlimits = ('on', 'on'),  # should always be on
-                         fallback = 'unknown',
-                        ),
+        description = 'switches the GE detector 54V power supply',
+        moveables = ['ps1_V', 'ps2_V'],
+        mapping = {
+            'off': [0, 0],
+            'on': [54, 54],
+        },
+        precision = [0.1, 0.1],
+        warnlimits = ('on', 'on'),  # should always be on
+        fallback = 'unknown',
+    ),
 )
 
 for (epname, epicsid) in eps:

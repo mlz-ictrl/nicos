@@ -189,16 +189,15 @@ _p_filter = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'SANS-1 status monitor',
-                     loglevel = 'debug',
-#                    loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 11,#12
-                     padding = 0,#3
-                     layout = [
-                               ],
-                    ),
+        title = 'SANS-1 status monitor',
+        loglevel = 'debug',
+        # loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 11,  # 12
+        padding = 0,  # 3
+        layout = [],
+    ),
 )

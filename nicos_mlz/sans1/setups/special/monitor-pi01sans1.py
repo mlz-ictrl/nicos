@@ -260,21 +260,21 @@ _col_slit = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     showwatchdog = False,
-                     title = 'SANS-1 status monitor',
-                     loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consola',
-                     fontsize = 12,#12
-                     padding = 0,#3
-                     layout = [
-                                 Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
-                                 Row(_sans1det),
-                                 #Row(_sans1general),
-                                 Row(_ubahncolumn, _pressurecolumn, _p_filter),
-                                 Row(_expcolumn),
-                               ],
-                    ),
+        showwatchdog = False,
+        title = 'SANS-1 status monitor',
+        loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consola',
+        fontsize = 12,#12
+        padding = 0,#3
+        layout = [
+            Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
+            Row(_sans1det),
+            # Row(_sans1general),
+            Row(_ubahncolumn, _pressurecolumn, _p_filter),
+            Row(_expcolumn),
+        ],
+    ),
 )

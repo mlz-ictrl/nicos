@@ -12,14 +12,14 @@ devices = dict(
     col_2a_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
         description = 'CollimatorMotor 2a',
         # IP-adresse: 172.16.17.7
-        tacodevice='//%s/sans1/coll/col-2m'% (nethost, ),
+        tacodevice = '//%s/sans1/coll/col-2m' % (nethost, ),
         address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
+        slope = 200*4,  # FULL steps per turn * turns per mm
         microsteps = 8,
         unit = 'mm',
         refpos = -8.,
         abslimits = (-400, 600),
-        #hw_disencfltr = 'enabled',
+        # hw_disencfltr = 'enabled',
         autozero = 20,
         autopower =1,
     ),

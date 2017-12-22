@@ -14,12 +14,12 @@ SELECTOR_POSITIONS = {
 
 devices = dict(
     # selector_inbeam = device('nicos.devices.generic.Switcher',
-    #                          description = 'Automatic in/out switch for the selector',
-    #                          mapping = SELECTOR_POSITIONS,
-    #                          fallback = 'unknown',
-    #                          moveable = 'selector_lift',
-    #                          precision = 0.1,
-    #                         ),
+    #     description = 'Automatic in/out switch for the selector',
+    #     mapping = SELECTOR_POSITIONS,
+    #     fallback = 'unknown',
+    #     moveable = 'selector_lift',
+    #     precision = 0.1,
+    # ),
     selector_inbeam = device('nicos.devices.generic.ManualSwitch',
         description = 'In/out switch for the selector',
         states = ['in', 'out'],

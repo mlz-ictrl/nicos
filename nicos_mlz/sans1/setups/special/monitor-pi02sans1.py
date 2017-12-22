@@ -658,37 +658,37 @@ _helios01 = Block('Helios', [
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     showwatchdog = False,
-                     title = 'SANS-1 status monitor',
-                     loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consola',
-                     fontsize = 12,#12
-                     padding = 0,#3
-                     layout = [
-                                Row(_sans1reactor, _sans1general, _sans1crane),
-                                Row(
-                                    Column(_ccmsanssc),
-                                    Column(_sc1, _sc2, _sc_t, _st2, _st1),
-                                    Column(_tisane_counts, _fg1, _helios01),
-                                    Column(_fc, _fg2),
-                                    Column(_htf01, _htf03, _irf01, _ccm2a,
-                                           _ccmsans, _miramagnet, _amagnet,
-                                           _sans1julabo, *newports),
-                                    Column(_ccmsans_temperature),
-                                    Column(_htf01_plot, _htf03_plot,
-                                           _irf01_plot, _spinflipper,
-                                           _julabo_plot),
-                                    Column(*ccrs) + Column(_birmag),
-                                    Column(*cryos),
-                                   ),
-                                Row(
-                                    Column(_ccm2a_plot, _ccmsans_plot,
-                                           _miramagnet_plot, _amagnet_plot),
-                                    Column(*T_Ts_plot),
-                                   ),
-                            ],
-                    ),
+        showwatchdog = False,
+        title = 'SANS-1 status monitor',
+        loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consola',
+        fontsize = 12,#12
+        padding = 0,#3
+        layout = [
+            Row(_sans1reactor, _sans1general, _sans1crane),
+            Row(
+                Column(_ccmsanssc),
+                Column(_sc1, _sc2, _sc_t, _st2, _st1),
+                Column(_tisane_counts, _fg1, _helios01),
+                Column(_fc, _fg2),
+                Column(_htf01, _htf03, _irf01, _ccm2a,
+                       _ccmsans, _miramagnet, _amagnet,
+                       _sans1julabo, *newports),
+                Column(_ccmsans_temperature),
+                Column(_htf01_plot, _htf03_plot,
+                       _irf01_plot, _spinflipper,
+                       _julabo_plot),
+                Column(*ccrs) + Column(_birmag),
+                Column(*cryos),
+            ),
+            Row(
+                Column(_ccm2a_plot, _ccmsans_plot,
+                       _miramagnet_plot, _amagnet_plot),
+                Column(*T_Ts_plot),
+            ),
+        ],
+    ),
 )

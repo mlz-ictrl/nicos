@@ -110,24 +110,23 @@ _newport = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-                     title = 'SPODI status monitor',
-                     loglevel = 'info',
-                     interval = 10,
-                     # Use only 'localhost' if the cache is really running on
-                     # the same machine, otherwise use the hostname (official
-                     # computer name) or an IP address.
-                     filename = '/spodicontrol/webroot/index.html',
-                     cache = 'spodictrl.spodi.frm2',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     prefix = 'nicos/',
-                     padding = 0,
-                     fontsize = 24,
-                     layout = [Row(_expcolumn),
-                               Row(_frm, _instrument, _sampletable),
-                               Row(_cryo, _htf,),
-                               Row(_tension),
-                               Row(_magnet, _e,),
-                               Row(_sc, _newport),],
-                    ),
+        title = 'SPODI status monitor',
+        loglevel = 'info',
+        interval = 10,
+        filename = '/spodicontrol/webroot/index.html',
+        cache = 'spodictrl.spodi.frm2',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        prefix = 'nicos/',
+        padding = 0,
+        fontsize = 24,
+        layout = [
+            Row(_expcolumn),
+            Row(_frm, _instrument, _sampletable),
+            Row(_cryo, _htf,),
+            Row(_tension),
+            Row(_magnet, _e,),
+            Row(_sc, _newport),
+        ],
+    ),
 )

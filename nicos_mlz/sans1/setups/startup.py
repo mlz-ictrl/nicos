@@ -6,13 +6,5 @@ sysconfig = dict(
     cache = 'sans1ctrl.sans1.frm2',
 )
 
-# STARTUP NEVER INCLUDES ANYTHING !!!
-#includes = ['table',
-#            'detector',
-#            'tube',
-#            'collimation',
-#            'reactor',
-#            'system',
-#           'magnet_sans1',
-#           'htf02',
-#]
+# STARTUP NEVER INCLUDES ANYTHING.
+# includes = []

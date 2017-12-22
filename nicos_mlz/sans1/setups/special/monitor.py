@@ -179,21 +179,21 @@ _sans1det = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'SANS-1 status monitor',
-                     loglevel = 'debug',
-#                    loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 15,#12
-                     padding = 0,#3
-                     layout = [
-                                 Row(_selcolumn,_collimationcolumn),
-                                 Row(_sans1det),
-                                 #Row(_sans1general),
-                                 Row(_pressurecolumn),
-                                 Row(_expcolumn),
-                               ],
-                    ),
+        title = 'SANS-1 status monitor',
+        loglevel = 'debug',
+        # loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 15,  # 12
+        padding = 0,  # 3
+        layout = [
+            Row(_selcolumn,_collimationcolumn),
+            Row(_sans1det),
+            # Row(_sans1general),
+            Row(_pressurecolumn),
+            Row(_expcolumn),
+        ],
+    ),
 )

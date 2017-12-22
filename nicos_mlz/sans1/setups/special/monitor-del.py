@@ -59,17 +59,17 @@ _leftcolumn = [
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'SANS1 Detector electronics monitor',
-                     loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 16,
-                     padding = 5,
-                     layout = [
-#                                 [_expcolumn],
-                                  [_leftcolumn, _rightcolumn]
-                              ],
-                    ),
+        title = 'SANS1 Detector electronics monitor',
+        loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 16,
+        padding = 5,
+        layout = [
+            # [_expcolumn],
+            [_leftcolumn, _rightcolumn]
+        ],
+    ),
 )

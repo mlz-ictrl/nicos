@@ -233,20 +233,20 @@ _col_slit = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'SANS-1 status monitor',
-                     loglevel = 'debug',
-#                    loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     fontsize = 11,#12
-                     padding = 0,#3
-                     layout = [
-                                 Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
-                                 Row(_sans1det),
-                                 Row(_pressurecolumn, _p_filter, _temp_garching),
-                                 Row(_expcolumn),
-                               ],
-                    ),
+        title = 'SANS-1 status monitor',
+        loglevel = 'debug',
+        # loglevel = 'info',
+        cache = 'sans1ctrl.sans1.frm2',
+        prefix = 'nicos/',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        fontsize = 11,#12
+        padding = 0,#3
+        layout = [
+            Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
+            Row(_sans1det),
+            Row(_pressurecolumn, _p_filter, _temp_garching),
+            Row(_expcolumn),
+        ],
+    ),
 )
