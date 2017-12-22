@@ -129,13 +129,13 @@ _forthRow = Row(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'phys.biodiff.frm2:14869',
-                     font = 'Luxi Sans',
-                     fontsize = 19,
-                     valuefont = 'Droid Sans Mono',
-                     padding = 0,
-                     layout = [Row(_expcolumn), _secondRow, _thirdRow, _forthRow],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'phys.biodiff.frm2:14869',
+        font = 'Luxi Sans',
+        fontsize = 19,
+        valuefont = 'Droid Sans Mono',
+        padding = 0,
+        layout = [Row(_expcolumn), _secondRow, _thirdRow, _forthRow],
+    ),
 )
