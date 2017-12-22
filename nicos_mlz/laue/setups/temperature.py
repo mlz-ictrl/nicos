@@ -10,12 +10,12 @@ includes = ['alias_T']
 
 devices = dict(
     T_manual = device('nicos.devices.generic.ManualMove',
-                      description = 'sample temperature (no cryo)',
-                      default = 297.0,
-                      abslimits = (0, 5000),
-                      unit = 'K',
-                      fmtstr = '%.0f',
-                     ),
+        description = 'sample temperature (no cryo)',
+        default = 297.0,
+        abslimits = (0, 5000),
+        unit = 'K',
+        fmtstr = '%.0f',
+    ),
 )
 
 alias_config = {

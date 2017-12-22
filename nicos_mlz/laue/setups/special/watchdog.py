@@ -33,18 +33,18 @@ watchlist = [
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['wemail'],
+    'default': ['wemail'],
     'critical': ['wemail', 'smser'],
 }
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      # use only 'localhost' if the cache is really running on
-                      # the same machine, otherwise use the official computer
-                      # name
-                      cache = 'lauectrl.laue.frm2',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'wemail/receivers',
-                      watch = watchlist,
-                     ),
+        # use only 'localhost' if the cache is really running on
+        # the same machine, otherwise use the official computer
+        # name
+        cache = 'lauectrl.laue.frm2',
+        notifiers = notifiers,
+        mailreceiverkey = 'wemail/receivers',
+        watch = watchlist,
+    ),
 )
