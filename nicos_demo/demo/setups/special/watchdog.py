@@ -70,15 +70,15 @@ watchlist = [
     #      gracetime = 10, ),
 ]
 
-
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')
 # and one for priority 2 ('critical').
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      cache = 'localhost:14869',
-                      notifiers = {'default': [], 'critical': []},
-                      watch = watchlist,
-                      loglevel = 'info',
-                     ),
+        cache = 'localhost:14869',
+        notifiers = {'default': [],
+                     'critical': []},
+        watch = watchlist,
+        loglevel = 'info',
+    ),
 )

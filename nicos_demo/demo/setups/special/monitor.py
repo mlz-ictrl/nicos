@@ -158,15 +158,20 @@ _leftcolumn = Column(_tasblock, _sansblock, _refsansblock,)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'info',
-                     cache = 'localhost:14869',
-                     font = 'Luxi Sans',
-                     valuefont = 'Consolas',
-                     padding = 0,
-                     colors = 'light',
-                     layout = [Row(_expcolumn),
-                               Row(_leftcolumn, _rightcolumn, ),
-                               Row(_pgaacolumn)],
-                    ),
+        title = 'NICOS status monitor',
+        loglevel = 'info',
+        cache = 'localhost:14869',
+        font = 'Luxi Sans',
+        valuefont = 'Consolas',
+        padding = 0,
+        colors = 'light',
+        layout = [
+            Row(_expcolumn),
+            Row(
+                _leftcolumn,
+                _rightcolumn,
+            ),
+            Row(_pgaacolumn)
+        ],
+    ),
 )
