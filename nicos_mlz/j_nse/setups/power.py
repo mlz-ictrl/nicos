@@ -6,15 +6,15 @@ tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
     temp_rack1 = device('nicos.devices.tango.Sensor',
-                        description = 'PSU Temperature in Rack 1',
-                        tangodevice = tango_base + 'supply_temp/pow02',
-                        unit = 'degC',
-                       ),
+        description = 'PSU Temperature in Rack 1',
+        tangodevice = tango_base + 'supply_temp/pow02',
+        unit = 'degC',
+    ),
     temp_rack2 = device('nicos.devices.tango.Sensor',
-                        description = 'PSU Temperature in Rack 2',
-                        tangodevice = tango_base + 'supply_temp/pow23',
-                        unit = 'degC',
-                       ),
+        description = 'PSU Temperature in Rack 2',
+        tangodevice = tango_base + 'supply_temp/pow23',
+        unit = 'degC',
+    ),
 )
 
 for i in range(1, 39):

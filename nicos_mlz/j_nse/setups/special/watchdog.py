@@ -24,8 +24,7 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = [
-]
+watchlist = []
 
 includes = [
     'notifiers',

@@ -30,7 +30,6 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         # cannot use /data until main instrument control is switched to NICOS

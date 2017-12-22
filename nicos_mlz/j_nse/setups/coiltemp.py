@@ -6,25 +6,25 @@ tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
     coil_p1 = device('nicos.devices.tango.Sensor',
-                     description = 'vacuum in coil 1 vessel',
-                     tangodevice = tango_base + 'coilpressure/p1',
-                     unit = 'mbar',
-                     fmtstr = '%.3g',
-                     pollinterval = 60,
-                     maxage = 130,
-                    ),
+        description = 'vacuum in coil 1 vessel',
+        tangodevice = tango_base + 'coilpressure/p1',
+        unit = 'mbar',
+        fmtstr = '%.3g',
+        pollinterval = 60,
+        maxage = 130,
+    ),
     coil_p2 = device('nicos.devices.tango.Sensor',
-                     description = 'vacuum in coil 2 vessel',
-                     tangodevice = tango_base + 'coilpressure/p2',
-                     unit = 'mbar',
-                     fmtstr = '%.3g',
-                     pollinterval = 60,
-                     maxage = 130,
-                    ),
+        description = 'vacuum in coil 2 vessel',
+        tangodevice = tango_base + 'coilpressure/p2',
+        unit = 'mbar',
+        fmtstr = '%.3g',
+        pollinterval = 60,
+        maxage = 130,
+    ),
 )
 
 sensor_names = {
-#    (1, 1): 'xyz',
+    # (1, 1): 'xyz',
 }
 
 channels = ['', 'A', 'C1', 'C2', 'C3', 'C4', 'C5',
