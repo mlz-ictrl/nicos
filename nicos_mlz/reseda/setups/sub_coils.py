@@ -2,6 +2,7 @@
 
 description = 'Substraction coils'
 group = 'lowlevel'
+display_order = 26
 
 tango_base = 'tango://heinzinger.reseda.frm2:10000/box/heinzinger'
 

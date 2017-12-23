@@ -2,7 +2,7 @@
 
 description = 'Guide fields'
 group = 'lowlevel'
-
+display_order = 20
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = {

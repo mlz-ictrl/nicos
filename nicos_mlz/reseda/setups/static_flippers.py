@@ -2,6 +2,7 @@
 
 description = 'Static flippers'
 group = 'lowlevel'
+display_order = 22
 
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
@@ -13,6 +14,7 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
     sf_0b = device('nicos.devices.tango.PowerSupply',
         description = 'Static flipper arm 0 - B',
@@ -21,6 +23,7 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
     sf_1 = device('nicos.devices.tango.PowerSupply',
         description = 'Static flipper arm 1',
@@ -29,6 +32,7 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
     hsf_0a = device('nicos.devices.tango.PowerSupply',
         description = 'Helmholtz mezei flipper arm 0 - A',
@@ -37,6 +41,7 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
     hsf_0b = device('nicos.devices.tango.PowerSupply',
         description = 'Helmholtz mezei flipper arm 0 - B',
@@ -45,6 +50,7 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
     hsf_1 = device('nicos.devices.tango.PowerSupply',
         description = 'Helmholtz mezei flipper arm 1',
@@ -53,5 +59,6 @@ devices = dict(
         tangotimeout = 5.0,
         pollinterval = 5,
         maxage = 15,
+        abslimits = (0, 5),
     ),
 )

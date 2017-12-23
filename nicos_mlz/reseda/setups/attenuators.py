@@ -2,7 +2,7 @@
 
 description = 'Attenuators'
 group = 'optional'
-
+display_order = 2
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/iobox'
 
 devices = dict(
