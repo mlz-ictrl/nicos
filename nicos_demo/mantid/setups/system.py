@@ -64,37 +64,31 @@ modules = ['nicos.commands.standard']
 # The parameters are given as keyword arguments.
 devices = dict(
     # Configure dataroot here (usually /data).
-    Exp      = device('nicos.devices.experiment.Experiment',
-                      description = 'experiment object',
-                      dataroot = 'data',
-                      sendmail = True,
-                      serviceexp = 'service',
-                      sample = 'Sample',
-                     ),
-
-    Sample=device('nicos.devices.sample.Sample',
-                  description='The current used sample',
-                  ),
-
+    Exp = device('nicos.devices.experiment.Experiment',
+        description = 'experiment object',
+        dataroot = 'data',
+        sendmail = True,
+        serviceexp = 'service',
+        sample = 'Sample',
+    ),
+    Sample = device('nicos.devices.sample.Sample',
+        description = 'The current used sample',
+    ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-                      lowlevel = True,
-                     ),
-
+        lowlevel = True,
+    ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
-                      lowlevel = True,
-                     ),
-
+        lowlevel = True,
+    ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                        lowlevel = True,
-                       ),
-
-    Space    = device('nicos.devices.generic.FreeSpace',
-                      description = 'The amount of free space for storing data',
-                      path = None,
-                      minfree = 5,
-                     ),
+        lowlevel = True,
+    ),
+    Space = device('nicos.devices.generic.FreeSpace',
+        description = 'The amount of free space for storing data',
+        path = None,
+        minfree = 5,
+    ),
 )
-
 
 startupcode = '''
 from nicos.core import SIMULATION
