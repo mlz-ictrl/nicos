@@ -2,7 +2,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2017 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2018 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -108,7 +108,7 @@ def cleanup():
                 proc.terminate()
         except OSError as e:
             # might already have terminated early
-            echo('could not stop %s %s: %s\n' % (nice_name, e))
+            echo('could not stop %s: %s\n' % (nice_name, e))
         else:
             proc.wait()
     # under some circumstances (re-start due to internal errors)
