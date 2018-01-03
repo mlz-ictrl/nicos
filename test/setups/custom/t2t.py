@@ -18,19 +18,27 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <g.brandl@fz-juelich.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""Tango motor with offset."""
+name = 'test_t2t setup'
 
-from nicos.core import HasOffset
-from nicos.devices.tango import Motor as TangoMotor
+includes = ['stdsystem']
 
-
-class Motor(HasOffset, TangoMotor):
-    def doRead(self, maxage=0):
-        return TangoMotor.doRead(self, maxage) - self.offset
-
-    def doStart(self, target):
-        return TangoMotor.doStart(self, target + self.offset)
+devices = dict(
+    omega  = device('nicos.devices.generic.VirtualMotor',
+                    abslimits = (-180, 180),
+                    unit = 'deg',
+    ),
+    detarm = device('nicos.devices.generic.VirtualMotor',
+                    abslimits = (-360, 360),
+                    unit = 'deg',
+    ),
+    t2t    = device('nicos_mlz.jcns.devices.motor.MasterSlaveMotor',
+                    description = '2 theta axis moving detarm = 2 * omega',
+                    master = 'omega',
+                    slave = 'detarm',
+                    scale = 2.,
+                   ),
+)

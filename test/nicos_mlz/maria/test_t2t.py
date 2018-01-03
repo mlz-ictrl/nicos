@@ -24,7 +24,7 @@
 
 """MARIA specific 2 theta unit tests."""
 
-session_setup = "maria"
+session_setup = "t2t"
 
 
 def test_maria_t2t(session):

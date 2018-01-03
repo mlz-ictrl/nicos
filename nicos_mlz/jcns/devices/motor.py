@@ -30,10 +30,32 @@ from nicos.devices.tango import Motor as TangoMotor
 
 
 class Motor(HasOffset, TangoMotor):
-    """Tango motor with offset and the possibility to invert the axis."""
+    """Tango motor with offset.
+
+    This class is provided for motors which do not need any other features
+    of the NICOS axis except the user offset.
+    """
+
+    def doRead(self, maxage=0):
+        return TangoMotor.doRead(self, maxage) - self.offset
+
+    def doStart(self, target):
+        return TangoMotor.doStart(self, target + self.offset)
+
+    def doSetPosition(self, value):
+        return TangoMotor.doSetPosition(self, value + self.offset)
+
+
+class InvertableMotor(HasOffset, TangoMotor):
+    """Tango motor with offset and the possibility to invert the axis.
+
+    In order to invert axes which can't be inverted on controller level this
+    class additionally provides the ``invert`` parameter.
+    """
 
     parameters = {
-        "invert": Param("Invert axis", type=bool, settable=True, default=False),
+        "invert": Param("Invert axis", type=bool, settable=True,
+                        default=False),
     }
 
     def _invertPosition(self, pos):
@@ -66,6 +88,8 @@ class Motor(HasOffset, TangoMotor):
 
 
 class MasterSlaveMotor(Moveable):
+    """Combined master slave motor with possibility to apply a scale to the
+    slave motor."""
 
     attached_devices = {
         "master": Attach("Master motor controlling the movement", Moveable),
