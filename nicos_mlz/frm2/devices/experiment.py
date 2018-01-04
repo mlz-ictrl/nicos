@@ -186,7 +186,7 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
 
     @property
     def elogpath(self):
-        """path to the eLogbook of the curent experiment/sample"""
+        """path to the eLogbook of the current experiment/sample"""
         return path.join(self.proposalpath, 'logbook')
 
     @property
