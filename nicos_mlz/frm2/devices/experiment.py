@@ -76,6 +76,7 @@ class Experiment(BaseExperiment):
                 kwds.update(upd)
         return kwds
 
+    # pylint: disable=inconsistent-return-statements
     def _fillProposal(self, proposal, kwds):
         """Fill proposal info from proposal database."""
         if not self.propdb:
