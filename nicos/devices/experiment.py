@@ -183,17 +183,17 @@ class Experiment(Device):
 
     @property
     def scriptpath(self):
-        """Path to the scripts of the curent experiment/sample."""
+        """Path to the scripts of the current experiment/sample."""
         return path.join(self.samplepath, 'scripts')
 
     @property
     def elogpath(self):
-        """Path to the eLogbook of the curent experiment/sample."""
+        """Path to the eLogbook of the current experiment/sample."""
         return path.join(self.samplepath, 'logbook')
 
     @property
     def datapath(self):
-        """Path to the data storage of the curent experiment/sample.
+        """Path to the data storage of the current experiment/sample.
 
         Here scanfiles and images of image-type detectors will be stored.
         """
