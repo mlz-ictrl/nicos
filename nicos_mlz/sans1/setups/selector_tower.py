@@ -24,6 +24,7 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
         lowlevel = True,
+        requires = dict(level='admin'),
     ),
     selector_ng_mot = device('nicos.devices.taco.motor.Motor',
         description = 'selector neutron guide motor',
@@ -33,6 +34,7 @@ devices = dict(
         abslimits = (-140, 142.5), #new
         userlimits = (-140, 142.5), #new
         lowlevel = True,
+        requires = dict(level='admin'),
     ),
     selector_ng_enc = device('nicos.devices.taco.coder.Coder',
         description = 'selector neutron guide encoder',
@@ -40,17 +42,17 @@ devices = dict(
         fmtstr = '%.2f',
         lowlevel = True,
     ),
-
     selector_ng = device('nicos.devices.generic.Switcher',
         description = 'selector neutron guide switcher',
-        #lowlevel = True,
+        # lowlevel = True,
         moveable = 'selector_ng_ax',
-        #mapping = {'sel1': -140, 'ng': 0, 'sel2': 140}, old value
-        #mapping = {'SEL1': -138.4, 'NG': 1.6, 'SEL2': 141.6}, #new "tisane"-value
-        mapping = {'SEL1': -137.6, 'NG': 2.4, 'SEL2': 142.4}, #new "tisane"-value
+        # mapping = {'sel1': -140, 'ng': 0, 'sel2': 140}, old value
+        # mapping = {'SEL1': -138.4, 'NG': 1.6, 'SEL2': 141.6}, #new "tisane"-value
+        # mapping = {'SEL1': -137.6, 'NG': 2.4, 'SEL2': 142.4}, #new "tisane"-value
+        mapping = {'SEL1 NVS042': -137.6, 'NG': 2.4, 'SEL2 NVS020': 142.4}, #new "tisane"-value
         precision = 0.01,
+        requires = dict(level='admin'),
     ),
-
     selector_tilt = device('nicos.devices.generic.Axis',
         description = 'selector tilt axis',
         motor = 'selector_tilt_mot',
@@ -66,6 +68,7 @@ devices = dict(
         #offset = 1, old
         #offset = 1.72, #new
         offset = 2.27, #new
+        requires = dict(level='admin'),
     ),
     selector_tilt_mot = device('nicos.devices.taco.motor.Motor',
         description = 'selector tilt motor',
@@ -73,6 +76,7 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (-10, 10),
         lowlevel = True,
+        requires = dict(level='admin'),
     ),
     selector_tilt_enc = device('nicos.devices.taco.coder.Coder',
         description = 'selector tilt encoder',

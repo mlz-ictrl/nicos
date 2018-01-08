@@ -19,22 +19,22 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='selector_rpm', dev='selector_rpm', width=10),
+                 Field(name='selector_rpm', dev='selector_rpm', width=11),
                 ),
         BlockRow(
-                 Field(name='selector_lambda', dev='selector_lambda', width=10),
+                 Field(name='selector_lambda', dev='selector_lambda', width=11),
                 ),
         BlockRow(
-                 Field(name='selector_ng', dev='selector_ng', width=10),
+                 Field(name='selector_ng', dev='selector_ng', width=11),
                 ),
         BlockRow(
-                 Field(name='selector_tilt', dev='selector_tilt', width=10, format = '%.1f'),
+                 Field(name='selector_tilt', dev='selector_tilt', width=11, format = '%.1f'),
                 ),
         BlockRow(
-                 Field(name='water flow', dev='selector_wflow', width=10, format = '%.1f'),
+                 Field(name='water flow', dev='selector_wflow', width=11, format = '%.1f'),
                 ),
         BlockRow(
-                 Field(name='rotor temp.', dev='selector_rtemp', width=10, format = '%.1f'),
+                 Field(name='rotor temp.', dev='selector_rtemp', width=11, format = '%.1f'),
                  ),
         ],
     ),
