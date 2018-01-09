@@ -402,7 +402,7 @@ class Session(object):
             try:
                 return self.getDevice(configured, cls)
             except Exception:
-                self.log.exception('%s device %r failed to create',
+                self.log.exception("%s device '%s' failed to create",
                                    key, configured)
                 raise
         else:
@@ -411,7 +411,7 @@ class Session(object):
                 try:
                     dev = self.getDevice(devname, cls)
                 except Exception:
-                    self.log.exception('%s device %r failed to create',
+                    self.log.exception("%s device '%s' failed to create",
                                        key, devname)
                     raise
                 else:
@@ -483,18 +483,18 @@ class Session(object):
 
         for setupname in setupnames[:]:
             if setupname in self.loaded_setups:
-                self.log.warning('setup %s is already loaded, use '
+                self.log.warning("setup '%s' is already loaded, use "
                                  'NewSetup() without arguments to reload',
                                  setupname)
                 setupnames.remove(setupname)
             elif self._setup_info.get(setupname, Ellipsis) is None:
                 raise ConfigurationError(
-                    'Setup %s exists, but could not be read (see above); '
+                    "Setup '%s' exists, but could not be read (see above); "
                     'please fix the file and try again'
                     % setupname)
             elif setupname not in self._setup_info:
                 raise ConfigurationError(
-                    'Setup %s does not exist (setup paths are %s)' %
+                    "Setup '%s' does not exist (setup paths are %s)" %
                     (setupname,
                      ', '.join(path.normpath(p) for p in self._setup_paths)))
 
@@ -506,11 +506,11 @@ class Session(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            self.log.info('importing module %s... ', modname)
+            self.log.info("importing module '%s'... ", modname)
             try:
                 mod = self._nicos_import(modname)
             except Exception as err:
-                self.log.error('Exception importing %s: %s', modname, err)
+                self.log.error("Exception importing '%s': %s", modname, err)
                 return
             for name, command in iteritems(mod.__dict__):
                 if getattr(command, 'is_usercommand', False):
@@ -526,8 +526,8 @@ class Session(object):
             for key, value in iteritems(new):
                 if key == 'datasinks':
                     if not isinstance(value, list):
-                        raise ConfigurationError('sysconfig entry %s must be '
-                                                 'a list' % key)
+                        raise ConfigurationError("sysconfig entry '%s' must be"
+                                                 ' a list' % key)
                     old.setdefault('datasinks', set()).update(value)
                 elif key == 'notifiers':
                     old.setdefault('notifiers', set()).update(value)
@@ -540,26 +540,27 @@ class Session(object):
             info = self._setup_info[name]
             if info is None:
                 raise ConfigurationError(
-                    'Setup %s exists, but could not be read; '
+                    "Setup '%s' exists, but could not be read; "
                     'please fix the file and try again'
                     % setupname)
             if name not in setupnames:
-                self.log.debug('loading include setup %r (%s)',
+                self.log.debug("loading include setup '%s' (%s)",
                                name, info['description'])
             if name in self.excluded_setups:
-                raise ConfigurationError('Cannot load setup %r, it is '
+                raise ConfigurationError("Cannot load setup '%s', it is "
                                          'excluded by one of the current '
                                          'setups' % name)
 
             if info['group'] == 'special' and not allow_special:
-                raise ConfigurationError('Cannot load special setup %r' % name)
+                raise ConfigurationError("Cannot load special setup '%s'" %
+                                         name)
             if info['group'] == 'configdata':
-                raise ConfigurationError('Cannot load data-only setup %r' %
+                raise ConfigurationError("Cannot load data-only setup '%s'" %
                                          name)
             for exclude in info['excludes']:
                 if exclude in self.loaded_setups:
-                    raise ConfigurationError('Cannot load setup %r when setup '
-                                             '%r is already loaded' %
+                    raise ConfigurationError("Cannot load setup '%s' when "
+                                             "setup '%s' is already loaded" %
                                              (name, exclude))
 
             self.loaded_setups.add(name)
@@ -588,7 +589,7 @@ class Session(object):
            'system' not in self.loaded_setups:
             load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
-            self.log.info('loading setup %r (%s)',
+            self.log.info("loading setup '%s' (%s)",
                           setupname,
                           self._setup_info[setupname]['description'])
             inner_load(setupname, sysconfig, devlist, startupcode)
@@ -632,7 +633,7 @@ class Session(object):
                 except Exception:
                     if raise_failed:
                         raise
-                    self.log.exception('device %r failed to create', devname)
+                    self.log.exception("device '%s' failed to create", devname)
                     failed_devs.append(devname)
 
         # validate and try to attach sysconfig devices
@@ -727,7 +728,7 @@ class Session(object):
                 for dev in devs:
                     dev.log.error('can not unload, dependency still active!')
                 raise NicosError('Deadlock detected! Session.unloadSetup '
-                                 'failed on these devices: %r' % devs)
+                                 "failed on these devices: '%s'" % devs)
 
         if self.data is not None:
             self.data.reset()
@@ -777,11 +778,11 @@ class Session(object):
         """Unexport the object with *name* from the NICOS namespace."""
         if name not in self.namespace:
             if warn:
-                self.log.warning('unexport: name %r not in namespace', name)
+                self.log.warning("unexport: name '%s' not in namespace", name)
             return
         if name not in self._exported_names:
             if warn:
-                self.log.warning('unexport: name %r not exported by NICOS',
+                self.log.warning("unexport: name '%s' not exported by NICOS",
                                  name)
         self.namespace.removeForbidden(name)
         del self.namespace[name]
@@ -800,11 +801,11 @@ class Session(object):
             if aliasname not in self.devices:
                 # complain about this; setups should make sure that the device
                 # exists when configuring it
-                self.log.warning('alias device %s does not exist, cannot set '
-                                 'its target', aliasname)
+                self.log.warning("alias device '%s' does not exist, cannot set"
+                                 ' its target', aliasname)
                 continue
             if targets == prev_config.get(aliasname):
-                self.log.debug('not changing alias for %s, selections have '
+                self.log.debug("not changing alias for '%s', selections have "
                                'not changed', aliasname)
                 continue
             aliasdev = self.getDevice(aliasname)
@@ -814,11 +815,11 @@ class Session(object):
                         try:
                             aliasdev.alias = target
                         except Exception:
-                            self.log.exception('could not set %s alias',
+                            self.log.exception("could not set '%s' alias",
                                                aliasdev)
                     break
             else:
-                self.log.warning('none of the desired targets for alias %s '
+                self.log.warning("none of the desired targets for alias '%s' "
                                  'actually exist', aliasname)
 
     def handleInitialSetup(self, setup, mode=SLAVE):
@@ -851,7 +852,7 @@ class Session(object):
             setups = self.cache.get(self, 'mastersetupexplicit')
             if not setups or setups == ['startup']:
                 return
-            self.log.info('loading previously used master setups: %s',
+            self.log.info("loading previously used master setups: '%s'",
                           ', '.join(setups))
             self.unloadSetup()
             self.startMultiCreate()
@@ -909,7 +910,7 @@ class Session(object):
             from nicos.commands.basic import ListCommands
             ListCommands()
         elif isinstance(obj, Device):
-            self.log.info('%s is a device of class %s.',
+            self.log.info("'%s' is a device of class '%s'.",
                           obj.name, obj.__class__.__name__)
             if obj.description:
                 self.log.info('Device description: %s', obj.description)
@@ -1000,7 +1001,7 @@ class Session(object):
         configured devices.  Normally this raises ConfigurationError, but can
         be overridden in subclasses to extend behavior.
         """
-        raise ConfigurationError(source, 'device %r not found in '
+        raise ConfigurationError(source, "device '%s' not found in "
                                  'configuration' % devname)
 
     def importDevice(self, devname, replace_classes=None):
@@ -1015,10 +1016,10 @@ class Session(object):
         try:
             devcls = self._nicos_import(modname, clsname)
         except (ImportError, AttributeError) as err:
-            raise ConfigurationError('failed to import device class %r: %s'
+            raise ConfigurationError("failed to import device class '%s': %s"
                                      % (devclsname, err))
         if not isinstance(devcls, DeviceMeta):
-            raise ConfigurationError('configured device class %r is not a '
+            raise ConfigurationError("configured device class '%s' is not a "
                                      'Device or derived class' % devclsname)
         if replace_classes is not None:
             for orig_class, replace_class, class_config in replace_classes:
@@ -1047,10 +1048,10 @@ class Session(object):
                     found_in.append(sname)
             if found_in:
                 raise ConfigurationError(
-                    'device %r not found in configuration, but you can load '
+                    "device '%s' not found in configuration, but you can load "
                     'one of these setups with AddSetup to create it: %s' %
                     (devname, ', '.join(map(repr, found_in))))
-            raise ConfigurationError('device %r not found in configuration'
+            raise ConfigurationError("device '%s' not found in configuration"
                                      % devname)
         if devname in self.devices:
             if not recreate:
@@ -1062,14 +1063,14 @@ class Session(object):
 
         devcls, devconfig = self.importDevice(devname, replace_classes)
         if 'description' in devconfig:
-            self.log.info('creating device %r (%s)... ',
+            self.log.info("creating device '%s' (%s)... ",
                           devname, devconfig['description'])
         else:
-            self.log.info('creating device %r... ', devname)
+            self.log.info("creating device '%s'... ", devname)
 
         try:
             dev = devcls(devname, **devconfig)
-            self.log.debug('device %r created', devname)
+            self.log.debug("device '%s' created", devname)
         except Exception as err:
             if self._failed_devices is not None:
                 self._failed_devices[devname] = err
@@ -1086,9 +1087,9 @@ class Session(object):
     def destroyDevice(self, devname):
         """Shutdown a device and remove it from the list of created devices."""
         if devname not in self.devices:
-            self.log.warning('device %r not created', devname)
+            self.log.warning("device '%s' not created", devname)
             return
-        self.log.info('shutting down device %r...', devname)
+        self.log.info("shutting down device '%s'...", devname)
         dev = self.devices[devname]
         try:
             dev.shutdown()
@@ -1147,10 +1148,10 @@ class Session(object):
         if event == 'added':
             self.log.info('new sample environment detected: %s',
                           description or '')
-            self.log.info('load setup %r to activate', setupname)
+            self.log.info("load setup '%s' to activate", setupname)
         elif event == 'removed':
             self.log.info('sample environment removed: %s', description or '')
-            self.log.info('unload setup %r to clear its devices', setupname)
+            self.log.info("unload setup '%s' to clear its devices", setupname)
 
     def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
