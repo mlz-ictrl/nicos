@@ -18,58 +18,37 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Aleks Wischolit <aleks.wischolit@frm2.tum.de>
+#   Christian Franz <christian.franz@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Readout of the Astrium selector."""
-
-from IO import StringIO
-
 from nicos.core import Readable, Override, Attach, status
-from nicos.devices.taco.core import TacoDevice
 
-
-class Selector(TacoDevice, Readable):
-    """
-    Device object for a astrium selector.
-    """
-    taco_class = StringIO
-
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default='rpm'),
-    }
-
-    def doRead(self, maxage=0):
-        tmp = self._taco_guard(self._dev.communicate,'FDR')
-        ##FDR                                             \RPM  22794
-        value = tmp[-6:].strip()
-        return float(value)
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
-
-
-class Wavelength(Readable):
+class wavelength(Readable):
 
     attached_devices = {
-        'selector': Attach('to calculate the wavelength', Readable),
-        'tiltangle': Attach('calculation', Readable)
+        'selspeed': Attach('Selector rotation speed in rpm', Readable),
+        'tilt': Attach('Selector cradle encoder angle in deg', Readable),
     }
 
+
     parameter_overrides = {
-        'unit':   Override(mandatory=False, default='A')
+        'unit':  Override(mandatory=False, default='A'),
     }
 
     def doRead(self, maxage=0):
-        I = self._attached_selector.read(maxage)
-        Angle = self._attached_tiltangle.read(maxage)
 
-        if Angle <= -7.5:
-            Lambda = 9.70 - (3.9536 * (10**-4) * I + 5.2364 * (10**-9) *(I**2))
-        else:
-            Lambda = 14.58 - 0.00057182 * I + 7.5893 * (10**-9) * (I**2)
-        return float(Lambda)
+        speed= self._attached_selector_speed.read(maxage)
+        tilt = self._attached_selcradle.read(maxage)
+
+        alpha = 48.27    # screw angle in deg
+        L = 250.0          # selector length in mm
+        R = 160.0          # selector radius in mm
+
+        lambda_ = 6.59e5 * (alpha * L/R * tilt) / (speed * L)
+
+        return lambda_
+
 
     def doStatus(self, maxage=0):
         return status.OK, ''
