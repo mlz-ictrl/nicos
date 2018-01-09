@@ -9,7 +9,8 @@ taco_base = '//resedasrv/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    scandet = device('nicos.devices.generic.ScanningDetector',
+#    scandet = device('nicos.devices.generic.ScanningDetector',
+    scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
         description = 'Scanning detector for scans per echotime',
         scandev = 'subcoil_ps2',
         detector = 'det',
@@ -28,7 +29,7 @@ devices = dict(
     det_hv = device('nicos.devices.tango.PowerSupply',
         description = 'High voltage power supply of the 3he detector',
         tangodevice = '%s/3he_det/hv' % tango_base,
-        abslimits = (0, 1000),
+        abslimits = (0, 1350),
     ),
     det_rot_mot = device('nicos.devices.tango.Motor',
         description = 'Detector rotation (motor)',

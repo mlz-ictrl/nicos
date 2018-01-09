@@ -78,11 +78,13 @@ class EchoTime(Moveable):
         # find correct echotime for current device setup in currently active
         # tunewave table
         for echotime, tunedevs in iteritems(self.currenttable):
+            self.log.debug('%s', echotime)
             success = True
             for tunedev, value in iteritems(tunedevs):
                 # fuzzy matching necessary due to maybe oscillating devices
-                if not self._fuzzy_match(value, devs.get(tunedev, None),
-                                     self._tunedevs[tunedev].precision):
+                prec = getattr(self._tunedevs[tunedev], 'precision', 0)
+                if not self._fuzzy_match(value, devs.get(tunedev, None), prec):
+                    self.log.debug('%s', tunedev)
                     success = False
                     break
             if success:

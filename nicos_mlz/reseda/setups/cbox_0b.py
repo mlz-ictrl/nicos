@@ -43,12 +43,12 @@ devices = {
             tangodevice = '%s/%s/pa_revp' % (tango_base, setupname),
             pollinterval = 3,
         ),
-    '%s_gain' % setupname:
-        device('nicos.devices.tango.AnalogOutput',
-            description = 'Power amplifier gain',
-            tangodevice = '%s/%s/pa_gain' % (tango_base, setupname),
-            pollinterval = 3,
-        ),
+#    '%s_gain' % setupname:
+#        device('nicos.devices.tango.AnalogOutput',
+#            description = 'Power amplifier gain',
+#            tangodevice = '%s/%s/pa_gain' % (tango_base, setupname),
+#            pollinterval = 3,
+#        ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
             pollinterval = 3,
@@ -65,9 +65,10 @@ devices = {
                 tangodevice = '%s/%s/plc_highpass' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
             ),
-            pa_fwdp = 'cbox_0a_fwdp',
-            pa_revp = 'cbox_0a_revp',
-            fg = 'cbox_0a_fg_freq',
+            pa_fwdp = '%s_fwdp' % setupname,
+            pa_revp = '%s_revp' % setupname,
+            fg = '%s_fg_freq' % setupname,
+            coil_amp = '%s_coil_amp' % setupname,
             diplexer = device('nicos.devices.tango.DigitalOutput',
                 description =
                 'Lowpass filter to smooth the signal (enable for low frequency, disable for high frequency)',

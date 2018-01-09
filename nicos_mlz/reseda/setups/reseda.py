@@ -5,8 +5,8 @@ group = 'lowlevel'
 includes = [
     'reactor',
     'fak40',
-    'memograph02',
-    'memograph04',
+    # 'memograph02',
+    # 'memograph04',
     'selector',
     'sampletable',
     'guidehall',

@@ -358,19 +358,6 @@ _sqtblock = Block(
     ],
 )
 
-_capacitanceblock = Block(
-    'Capacitance',
-    [
-        BlockRow(
-            Field(name = 'K0', dev = 'C00', unit = '', width = 10),
-            Field(name = 'K/s 0', dev = 'C01', unit = '', width = 10),
-            Field(name = 'K1', dev = 'C10', unit = '', width = 10),
-            Field(name = 'K/s 1', dev = 'C11', unit = '', width = 10),
-            Field(name = 'K2', dev = 'C20', unit = '', width = 10),
-            Field(name = 'K/s 2', dev = 'C21', unit = '', width = 10),
-        ),
-    ],
-)
 
 _leftcolumn = Column(
     _beamblock,
@@ -390,10 +377,10 @@ devices = dict(
         title = 'RESEDA Two Arms',
         loglevel = 'info',
         cache = 'resedahw2.reseda.frm2',
-        font = 'Luxi Sans',
-        fontsize = 18,
-        valuefont = 'Consolas',
-        padding = 5,
+       # font = 'Luxi Sans',
+       # fontsize = 18,
+       # valuefont = 'Consolas',
+       # padding = 5,
         layout = [Row(_expcolumn), Row(_leftcolumn, _rightcolumn)],
     )
 )

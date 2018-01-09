@@ -90,6 +90,7 @@ class CBoxResonanceFrequency(BaseSequencer):
         'pa_revp': Attach('Device to measure the reverse power for adjustment '
                           'quality', Readable),
         'fg': Attach('Frequency generator', Moveable),
+        'coil_amp': Attach('Current in coil represented by Voltage measured by Keithley', Readable),
     }
 
     parameters = {
@@ -258,6 +259,17 @@ class CBoxResonanceFrequency(BaseSequencer):
         return result
 
     def _getCurrentAdjustmentQuality(self):
+        """Reads the current adjustment quality multiple times (defined by
+        "tuning_points") and returns the median."""
+        current_coil1 = numpy.median([self._adevs['coil_amp'].read(0)
+                                for _ in xrange(self.tuning_points)])
+
+       # current_coil2 = numpy.median([self._adevs['coil2_amp'].read(0)
+       #                         for _ in xrange(self.tuning_points)])
+
+        return current_coil1
+
+    def _getCurrentAdjustmentQualityOLD(self):
         """Reads the current adjustment quality multiple times (defined by
         "tuning_points") and returns the median."""
         revp = numpy.median([self._adevs['pa_revp'].read(0)

@@ -18,36 +18,28 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Christian Franz <christian.franz@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Override, Attach, status
+from nicos.core import Override
+from nicos.devices.generic import ScanningDetector as NicosScanDet
 
-class wavelength(Readable):
 
-    attached_devices = {
-        'selspeed': Attach('Selector rotation speed in rpm', Readable),
-        'tilt': Attach('Selector cradle encoder angle in deg', Readable),
-    }
 
+class ScanningDetector(NicosScanDet):
+    """Reseda scanning detector."""
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
+        'positions' : Override(settable=True),
     }
 
-    def doRead(self, maxage=0):
+    def _processDataset(self, dataset):
+        return []  # implement in subclass if necessary
 
-        speed= self._attached_selector_speed.read(maxage)
-        tilt = self._attached_selcradle.read(maxage)
-
-        alpha = 48.27    # screw angle in deg
-        L = 250.0          # selector length in mm
-        R = 160.0          # selector radius in mm
-
-        lambda_ = 6.59e5 * (alpha * L/R * tilt) / (speed * L)
-
-        return lambda_
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
+    def valueInfo(self):
+        if self.readresult:
+            raise NotImplementedError('Result processing implemented, but '
+                                      'valueInfo missing')
+        else:
+            return ()
