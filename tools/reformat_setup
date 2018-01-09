@@ -68,7 +68,7 @@ def parseArgv(argv):
 
 
 def reformatFile(fn, inplace=False, diff=False):
-    logging.debug('Reformatting %s ...' % fn)
+    logging.debug('Reformatting %s ...', fn)
 
     with open(fn, 'rb') as f:
         origin = f.read().decode('utf-8')
