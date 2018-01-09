@@ -50,6 +50,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
 
     parameters = {
         'server':   Param('Host:port of server', type=str, mandatory=True),
+        'slave':    Param('Slave mode', type=bool, default=True),
         'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
@@ -136,7 +137,8 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
 
     def doWritePreselection(self, value):
         self._last_preset = value
-        value = 1000000  # master controls preset
+        if not self.slave:
+            value = 1000000  # master controls preset
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             self._raise_reply('could not set measurement time', reply)
@@ -209,11 +211,15 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
     def doFinish(self):
         # stopped by the master, but wait for detector to actually
         # finish countloop
+        if not self.slave:
+            self._checked_communicate('CMD_stop', 'OKAY', 'stop')
         while self._getstatus().get('stop', '0') != '1':
             sleep(0.005)
 
     def doStop(self):
         # wait for detector to actually finish countloop
+        if not self.slave:
+            self._checked_communicate('CMD_stop', 'OKAY', 'stop')
         while self._getstatus().get('stop', '0') != '1':
             sleep(0.005)
 
