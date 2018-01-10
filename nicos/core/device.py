@@ -1147,7 +1147,7 @@ class Readable(Device):
             try:
                 ret = self.doPoll(n, maxage)
             except Exception:
-                self.log.debug('error in doPoll', exc=1)
+                self.log.warning('error in doPoll', exc=1)
         if ret is not None and ret[0] is not None:
             ct = currenttime()
             self._cache.put(self, 'status', ret[0], ct, self.maxage)
