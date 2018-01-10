@@ -116,6 +116,7 @@ disable=access-member-before-definition
         ,no-else-return # not critical, can be done later
         ,invalid-unary-operand-type
         ,arguments-differ # it is unclear if this helpful for us.
+        ,inconsistent-return-statements # unhelpful
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
