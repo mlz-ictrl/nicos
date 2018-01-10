@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2017-2018 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2018 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,6 +25,7 @@
 """
 Test the IsController mixin.
 """
+
 from nicos.core import LimitError
 from test.utils import raises
 
