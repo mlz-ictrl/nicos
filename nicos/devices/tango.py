@@ -529,9 +529,9 @@ class RampActuator(HasPrecision, AnalogOutput):
     that the `Actuator` class uses.
     """
 
-    parameter_overrides = {
-        'ramp':         Param('Temperature ramp', unit='main/min',
-                              type=float, settable=True, volatile=True),
+    parameters = {
+        'ramp': Param('Ramp of the main value', unit='main/min',
+                      type=float, settable=True, volatile=True),
     }
 
     def doReadRamp(self):
