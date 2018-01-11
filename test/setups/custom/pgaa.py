@@ -27,17 +27,16 @@ name = 'test_pgaa setup'
 includes = ['stdsystem']
 
 devices = dict(
-
     ellipse = device('nicos.devices.generic.ManualSwitch',
-                     states = [0, 1],
-                    ),
+        states = [0, 1],
+    ),
     collimator = device('nicos.devices.generic.ManualSwitch',
-                        states = [0, 1],
-                       ),
+        states = [0, 1],
+    ),
     ellcol = device('nicos_mlz.pgaa.devices.ellcol.EllCol',
-                    ellipse = 'ellipse',
-                    collimator = 'collimator',
-                    unit = '',
-                    timeout = 0.5,
-                   ),
+        ellipse = 'ellipse',
+        collimator = 'collimator',
+        unit = '',
+        timeout = 0.5,
+    ),
 )
