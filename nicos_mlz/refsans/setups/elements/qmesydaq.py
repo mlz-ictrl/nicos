@@ -7,16 +7,23 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/qmesydaq' % nethost
 
 sysconfig = dict(
-    datasinks = ['BerSANSFileSaver'],
+    datasinks = ['Listmode'],
 )
 
 devices = dict(
-    BerSANSFileSaver = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
-        description = 'Saves image data in BerSANS format',
-        filenametemplate = [
-            'D%(pointcounter)07d.001', '/data_user/D%(pointcounter)07d.001'
-        ],
-        subdir = 'bersans',
+    # BerSANSFileSaver = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
+    #     description = 'Saves image data in BerSANS format',
+    #     filenametemplate = [
+    #         'D%(pointcounter)07d.001', '/data_user/D%(pointcounter)07d.001'
+    #     ],
+    #     subdir = 'bersans',
+    #     lowlevel = True,
+    # ),
+    Listmode = device('nicos_mlz.frm2.devices.qmesydaqsinks.ListmodeSink',
+        description = 'Listmode data written via QMesyDAQ',
+        image = 'image',
+        subdir = 'list',
+        filenametemplate = ['%(pointcounter)07d.mdat'],
         lowlevel = True,
     ),
     # LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',
