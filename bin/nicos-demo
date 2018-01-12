@@ -171,7 +171,8 @@ debug.add_argument('--clear-cache', action='store_true',
 
 parser.add_argument('-O', dest='oh', action='store_true',
                     help=argparse.SUPPRESS)
-
+parser.add_argument('--version', action='store_true',
+                    help='show NICOS version number and exit')
 parser.add_argument('guiargs', nargs=argparse.REMAINDER,
                     help='remaining arguments are passed to the GUI')
 
@@ -181,6 +182,11 @@ if opts.profile:
     spawnargs = {'profile': opts.profile}
 else:
     spawnargs = {}
+
+if opts.version:
+    sys.path.insert(0, path.dirname(bin_path))
+    import nicos
+    parser.exit(message=nicos.__version__ + '\n')
 
 echo('Starting NICOS demo system, please wait:')
 
