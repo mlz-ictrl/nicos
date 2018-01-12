@@ -535,7 +535,7 @@ class Device(object):
                             prefercache = paraminfo.settable
                         if lastconfig and lastconfig.get(param) != cfgvalue:
                             self.log.warning(
-                                'value of %s from cache (%s) differs from '
+                                "value of '%s' from cache (%s) differs from "
                                 'configured value (%s), using configured '
                                 'since it was changed in the setup file',
                                 param, valuestr, cfgvstr)
@@ -543,12 +543,12 @@ class Device(object):
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
-                                'value of %s from cache (%s) differs from '
+                                "value of '%s' from cache (%s) differs from "
                                 'configured value (%s), using cached',
                                 param, valuestr, cfgvstr)
                         else:
                             self.log.warning(
-                                'value of %s from cache (%s) differs from '
+                                "value of '%s' from cache (%s) differs from "
                                 'configured value (%s), using configured',
                                 param, valuestr, cfgvstr)
                             value = cfgvalue
@@ -564,7 +564,7 @@ class Device(object):
                         valuestr = self.formatParam(param, value)
                         defvstr = self.formatParam(param, paraminfo.default)
                         self.log.warning(
-                            'value of %s from cache (%s) differs from '
+                            "value of '%s' from cache (%s) differs from "
                             'default value (%s), using default',
                             param, valuestr, defvstr)
                         value = paraminfo.default
