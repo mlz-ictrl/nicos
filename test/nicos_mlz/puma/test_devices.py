@@ -25,7 +25,9 @@
 """Module to test custom specific modules."""
 
 from test.utils import raises
-from nicos.core.errors import LimitError  # , MoveError
+from nicos.core.errors import LimitError, PositionError  # , MoveError
+
+import pytest
 
 session_setup = 'puma'
 
@@ -95,3 +97,52 @@ def test_mtt_axis(session, log):
     # This test will check the fail due to this missing device
     # with log.allow_errors():
     #     assert raises(MoveError, ax.maw, (ax.polypos - 1))
+
+
+class TestCad(object):
+    """Test class for the PUMA coupled axis device."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        cad = session.getDevice('cad')
+        assert cad.read(0) == 0
+
+        yield
+
+        cad.maw(0)
+        assert cad.read(0) == 0
+
+    def test_reset(self, session):
+        cad = session.getDevice('cad')
+        cad.reset()
+
+        # test reset if there is a small mismatch between both axes
+        cad.tt.move(-2)
+        cad.reset()
+        assert cad.read(0) == 0
+
+    def test_internals(self, session):
+        cad = session.getDevice('cad')
+        assert cad._checkReachedPosition(None) is False
+
+    def test_move(self, session):
+        cad = session.getDevice('cad')
+        # test move in both directions and smaller than single step
+        for p in [-10, -2, 0]:
+            cad.maw(p)
+            assert cad.read(0) == p
+
+    def test_fails(self, session):
+        th = session.getDevice('ath')
+        th.maw(10)
+
+        cad = session.getDevice('cad')
+
+        assert raises(PositionError, cad.reset)
+
+        assert raises(LimitError, cad.maw, -2)
+
+        th.maw(0)
+        th.userlimits = 0, 50
+        assert raises(LimitError, cad.maw, -60)
+        th.userlimits = th.abslimits

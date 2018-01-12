@@ -28,14 +28,14 @@ import math
 import sys
 
 from nicos import session
-from nicos.core import Attach, HasLimits, HasPrecision, HasTimeout, Moveable, \
-    Override, Param, floatrange, status
+from nicos.core import Attach, HasLimits, HasPrecision, Moveable, \
+    Override, Param, floatrange, status  # HasTimeout,
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiReset, multiStatus
 from nicos.pycompat import reraise
 
 
-class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
+class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
     """PUMA multianalyzer coupled 'att' axis.
 
     This axis moves two axes and the movement of one axis is allowed only
@@ -47,14 +47,16 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
     movement.
     """
 
+    hardware_access = False
+
     attached_devices = {
         'tt': Attach('tth', Moveable),
         'th': Attach('th', Moveable),
     }
 
     parameter_overrides = {
-        'timeout': Override(settable=False, default=600),
-        'precision': Override(settable=False, default=1.),
+        # 'timeout': Override(settable=False, default=600),
+        'precision': Override(settable=False, default=.1),
         'abslimits': Override(mandatory=False, default=(-60, 0)),
     }
 
@@ -62,6 +64,9 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
         'difflimit': Param('increment of the allowed angle movement of one '
                            'axis without collision of the other axis',
                            type=floatrange(0, 5), settable=False, default=3.),
+        'dragerror': Param('Maximum deviation between both axes when read out '
+                           'during a positioning step', unit='main', default=1,
+                           settable=True),
         '_status': Param('read only status',
                          type=bool, settable=False, userparam=False,
                          default=False),
@@ -100,61 +105,61 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
     def doStart(self, position):
         """Move coupled axis (tt/th).
 
-        The tt axis should without moving the coupled axis th (tt+th == 0)
+        The tt axis should without moving the coupled axis th (tt + th == 0)
         """
         if self.doStatus(0)[0] == status.BUSY:
             self.log.error('device busy')
 
-        try:
-            self._setROParam('_status', True)
-            target = (position, -position)
+        target = (position, -position)
+        if not self._checkReachedPosition(target):
+            try:
+                self._setROParam('_status', True)
 
-            if self._checkReachedPosition(target):
-                self.log.info('requested position %.3f reached within '
-                              'precision', position)
-                self._setROParam('_status', False)
-                return
-
-            self.__setDiffLimit()
-
-            tt = self.tt.read(0)
-            th = self.th.read(0)
-
-            if abs(tt - target[0]) > self.difflimit or \
-               abs(th - target[1]) > self.difflimit:
-                delta = abs(tt - position)
-                mod = math.fmod(delta, self.difflimit)
-                steps = int(delta / self.difflimit)
-                self.log.debug('delta/self.difflimit, mod: %s, %s', steps, mod)
-
-                if tt > position:
-                    self.log.debug('case tt > position')
-                    delta = -self.difflimit
-                elif tt < position:
-                    self.log.debug('case tt < position')
-                    delta = self.difflimit
-
-                for i in range(1, steps + 1):
-                    d = i * delta
-                    self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
-                                   i, tt + d, th - d)
-                    self.__setDiffLimit()
-                    self.tt.move(tt + d)
-                    self.th.move(th - d)
-                    self._hw_wait()
-
-            if not self._checkReachedPosition(target):
-                self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
-                               steps, tt + d, th - d)
                 self.__setDiffLimit()
-                self.tt.move(position)
-                self.th.move(-position)
-                self._hw_wait()
-            if not self._checkReachedPosition(target):
-                PositionError(self, "couldn't reach requested position %7.3f" %
-                              position)
-        finally:
-            self._setROParam('_status', False)
+
+                tt = self.tt.read(0)
+                th = self.th.read(0)
+
+                if abs(tt - target[0]) > self.difflimit or \
+                   abs(th - target[1]) > self.difflimit:
+                    delta = abs(tt - position)
+                    mod = math.fmod(delta, self.difflimit)
+                    steps = int(delta / self.difflimit)
+                    self.log.debug('delta/self.difflimit, mod: %s, %s', steps,
+                                   mod)
+
+                    if tt > position:
+                        self.log.debug('case tt > position')
+                        delta = -self.difflimit
+                    elif tt < position:
+                        self.log.debug('case tt < position')
+                        delta = self.difflimit
+
+                    for i in range(1, steps + 1):
+                        d = i * delta
+                        self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
+                                       i, tt + d, th - d)
+                        self.__setDiffLimit()
+                        self.tt.move(tt + d)
+                        self.th.move(th - d)
+                        self._hw_wait()
+                else:
+                    steps = 1
+
+                if not self._checkReachedPosition(target):
+                    self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
+                                   steps, position, -position)
+                    self.__setDiffLimit()
+                    self.tt.move(position)
+                    self.th.move(-position)
+                    self._hw_wait()
+                if not self._checkReachedPosition(target):
+                    PositionError(self, "couldn't reach requested position "
+                                  '%7.3f' % position)
+            finally:
+                self.log.debug('Clear status flag')
+                self._setROParam('_status', False)
+                self.poll()
 
     def _hw_wait(self):
 
@@ -198,8 +203,8 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
             if (tt + th) <= self.difflimit:
                 self.tt.maw(-th)
                 return
-            PositionError(self, '%s and %s are not close enough' %
-                          (self.tt, self.th))
+            raise PositionError(self, '%s and %s are not close enough' %
+                                (self.tt, self.th))
 
     def doRead(self, maxage=0):
         """Read back the value of the 2theta axis."""
@@ -215,7 +220,7 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
     def __setDiffLimit(self):
         """Set limits of device in dependence of allowed set of difflimit."""
         if self._checkZero(self.tt.read(0), self.th.read(0)):
-            for ax in self._adevs:
+            for ax in [self.tt, self.th]:
                 p = ax.read(0)
                 self.log.debug('%s, %s', ax, p)
                 limit = self.difflimit
@@ -224,8 +229,8 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
                 self.log.debug('user limits for %s: %r',
                                ax.name, (absMin, absMax))
                 # ax.userlimits = (absMin, absMax)
-                # self.log.debug('user limits for %s: %r', ax.name,
-                #                ax.userlimits)
+                self.log.debug('user limits for %s: %r', ax.name,
+                               ax.userlimits)
         else:
             raise PositionError(self, 'cannot set new limits; coupled axes %s '
                                 'and %s are not close enough difference > %f '
@@ -235,9 +240,11 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
         """Check if requested positions are reached for individual axes."""
         if pos is None:
             return False
-        return self.tt.isAtTarget(self.tt.read(0)) and \
-            self.th.isAtTarget(self.th.read(0))
+        # This may appear in the test and fresh setup systems
+        if None in (self.tt.target, self.th.target):
+            return False
+        return self.tt.isAtTarget(pos[0]) and self.th.isAtTarget(pos[1])
 
     def _checkZero(self, tt, th):
         """Check if the two axes are within the allowed limit."""
-        return abs(tt + th) <= self.precision
+        return abs(tt + th) <= self.dragerror

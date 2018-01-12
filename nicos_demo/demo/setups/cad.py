@@ -11,7 +11,7 @@ devices = dict(
         th = 'ath',
         fmtstr = '%.3f',
         unit = 'deg',
-        precision = 1.,
+        precision = .1,
     ),
 )
 
