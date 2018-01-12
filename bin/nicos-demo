@@ -112,25 +112,41 @@ def cleanup():
         echo('NICOS demo finished.\n')
 
 
-parser = argparse.ArgumentParser()
+PROFHELP = '''start processes with profiling:
+- mprof: run the mprof memory profiler
+- kernprof: run kernprof globally
+- line_prof: run kernprof in line_by_line mode
+See https://pypi.python.org/pypi/memory_profiler and
+https://github.com/rkern/line_profiler for
+extended documentation.'''
 
-services = parser.add_argument_group('services to suppress/start')
+parser = argparse.ArgumentParser(
+    description='Start a demo session of NICOS services and a client.',
+    epilog='Remaining arguments are passed to the GUI.',
+    formatter_class=argparse.RawTextHelpFormatter,
+)
+
+services = parser.add_argument_group(
+    'service selection',
+    description='''without options, the following services are started:
+
+    cache, poller, daemon, monitor''')
 # These services are opt-out.
 services.add_argument('--noelog', '-E', action='store_true',
-                      help='disable electronic logbook')
+                      help='disable the electronic logbook')
 services.add_argument('--nowatchdog', '-W', action='store_true',
-                      help='disable watchdog')
+                      help='disable the watchdog')
 services.add_argument('--nomonitor', '-M', action='store_true',
-                      help='disable monitor')
+                      help='disable the monitor')
 services.add_argument('--nopoller', '-P', action='store_true',
-                      help='disable poller')
+                      help='disable the poller')
 services.add_argument('--nodaemon', '-D', action='store_true',
-                      help='disable daemon')
+                      help='disable the daemon')
 # These services are opt-in.
 services.add_argument('--htmlmonitor', '-H', action='store_true',
-                      help='start the web monitor service')
+                      help='start the web monitor')
 services.add_argument('--pushversioninfo', action='store_true',
-                      help='start the version update daemon')
+                      help='start the version update service')
 
 monitor = parser.add_argument_group('monitor related options')
 monitor.add_argument('--monitorsetup', '-m', action='store',
@@ -138,7 +154,9 @@ monitor.add_argument('--monitorsetup', '-m', action='store',
 monitor.add_argument('--htmlmonitorsetup',  action='store',
                      help='use given web monitor setup instead of the default one')
 
-cgroup = parser.add_argument_group('client selection')
+cgroup = parser.add_argument_group(
+    'client selection',
+    description='without options, the GUI is started')
 client = cgroup.add_mutually_exclusive_group()
 client.add_argument('--noclient', '-N', action='store_true',
                     help='do not start any client')
@@ -155,26 +173,20 @@ ui.add_argument('-u', dest='guiuser', action='store',
                 help='use given user:password@server for the daemon login')
 
 debug = parser.add_argument_group('debug options')
-debug.add_argument('--profile',
-                   action='store', default=None,
+debug.add_argument('--profile', action='store', default=None,
                    choices=['mprof', 'kernprof', 'line_prof'],
-                   help='''start processes with profiling - available:
-'mprof': Run the mprof memory profiler,
-'kernprof': Run kernprof globally,
-'line_prof': Run kernprof in line_by_line mode.
-See https://pypi.python.org/pypi/memory_profiler and
-https://github.com/rkern/line_profiler for extended documentation.''')
+                   help=PROFHELP)
 
 debug.add_argument('--clear-cache', action='store_true',
                    help='clear the cache')
 
+parser.add_argument('--version', action='store_true',
+                    help='show NICOS version number and exit')
 
 parser.add_argument('-O', dest='oh', action='store_true',
                     help=argparse.SUPPRESS)
-parser.add_argument('--version', action='store_true',
-                    help='show NICOS version number and exit')
 parser.add_argument('guiargs', nargs=argparse.REMAINDER,
-                    help='remaining arguments are passed to the GUI')
+                    help=argparse.SUPPRESS)
 
 opts = parser.parse_args()
 
