@@ -81,7 +81,8 @@ def wait():
 @atexit.register
 def cleanup():
     # clean up processes, even if nicos-demo is terminated early
-    if background_processes:
+    need_cleanup = bool(background_processes)
+    if need_cleanup:
         echo('Cleaning up...\n')
     pgid = None
     for nice_name, proc, prof in reversed(background_processes):
@@ -107,58 +108,70 @@ def cleanup():
     # from its parents, so do a final safety kill
     if pgid:
         os.killpg(pgid, signal.SIGTERM)
-    echo('NICOS demo finished.\n')
+    if need_cleanup:
+        echo('NICOS demo finished.\n')
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E', dest='noelog', action='store_true',
-                    help='disable electronic logbook')
-parser.add_argument('-W', dest='nowatchdog', action='store_true',
-                    help='disable watchdog')
-parser.add_argument('-M', dest='nomonitor', action='store_true',
-                    help='disable monitor')
-parser.add_argument('-m', dest='monitorsetup', action='store',
-                    help='use given monitor setup instead of the default one')
-parser.add_argument('-H', dest='htmlmonitor', action='store_true',
-                    help='start the web status service')
-parser.add_argument('-O', dest='oh', action='store',
-                    help='does nothing (yet)')
 
-parser.add_argument('-D', dest='nodaemon', action='store_true',
-                    help='disable daemon')
-parser.add_argument('--clear-cache', dest='clearcache', action='store_true',
-                    help='clear the cache')
-parser.add_argument('-T', dest='textclient', action='store_true',
-                    help='start text daemon client instead of GUI')
-parser.add_argument('-N', dest='noclient', action='store_true',
+services = parser.add_argument_group('services to suppress/start')
+# These services are opt-out.
+services.add_argument('--noelog', '-E', action='store_true',
+                      help='disable electronic logbook')
+services.add_argument('--nowatchdog', '-W', action='store_true',
+                      help='disable watchdog')
+services.add_argument('--nomonitor', '-M', action='store_true',
+                      help='disable monitor')
+services.add_argument('--nodaemon', '-D', action='store_true',
+                      help='disable daemon')
+# These services are opt-in.
+services.add_argument('--htmlmonitor', '-H', action='store_true',
+                      help='start the web monitor service')
+services.add_argument('--pushversioninfo', action='store_true',
+                      help='start the version update daemon')
+
+monitor = parser.add_argument_group('monitor related options')
+monitor.add_argument('--monitorsetup', '-m', action='store',
+                     help='use given monitor setup instead of the default one')
+monitor.add_argument('--htmlmonitorsetup',  action='store',
+                     help='use given web monitor setup instead of the default one')
+
+cgroup = parser.add_argument_group('client selection')
+client = cgroup.add_mutually_exclusive_group()
+client.add_argument('--noclient', '-N', action='store_true',
                     help='do not start any client')
-parser.add_argument('-t', dest='aioclient', action='store_true',
+client.add_argument('--textclient', '-T', action='store_true',
+                    help='start text daemon client instead of GUI')
+client.add_argument('--aioclient', action='store_true',
                     help='disable daemon and start console shell')
 
-parser.add_argument('-c', dest='guiconfig', action='store',
-                    default='',
-                    help='use given GUI config file instead of the default one')
-parser.add_argument('-u', dest='guiuser', action='store',
-                    default='guest:guest@localhost',
-                    help='use given user:password@server for the daemon login')
-# It usually doesn't make sense to start this service.  Therefore it is set
-# to False by default and only has a long option.
-parser.add_argument('--pushversioninfo', dest='pushversioninfo',
-                    action='store_true', default=False,
-                    help='Start the version update daemon')
+ui = parser.add_argument_group('graphical user interface options')
+ui.add_argument('--guiconfig', '-c', action='store', default='',
+                help='use given GUI config file instead of the default one')
+ui.add_argument('-u', dest='guiuser', action='store',
+                default='guest:guest@localhost',
+                help='use given user:password@server for the daemon login')
 
-parser.add_argument('--profile', dest='profile',
-                    action='store', default=None,
-                    choices=['mprof', 'kernprof', 'line_prof'],
-                    help='''Start processes with profiling - available:
+debug = parser.add_argument_group('debug options')
+debug.add_argument('--profile',
+                   action='store', default=None,
+                   choices=['mprof', 'kernprof', 'line_prof'],
+                   help='''start processes with profiling - available:
 'mprof': Run the mprof memory profiler,
 'kernprof': Run kernprof globally,
 'line_prof': Run kernprof in line_by_line mode.
 See https://pypi.python.org/pypi/memory_profiler and
 https://github.com/rkern/line_profiler for extended documentation.''')
 
-parser.add_argument('restargs', nargs=argparse.REMAINDER,
+debug.add_argument('--clear-cache', action='store_true',
+                   help='clear the cache')
+
+
+parser.add_argument('-O', dest='oh', action='store_true',
                     help=argparse.SUPPRESS)
+
+parser.add_argument('guiargs', nargs=argparse.REMAINDER,
+                    help='remaining arguments are passed to the GUI')
 
 opts = parser.parse_args()
 
@@ -169,7 +182,7 @@ else:
 
 echo('Starting NICOS demo system, please wait:')
 
-if not opts.clearcache:
+if not opts.clear_cache:
     spawn('nicos-cache', **spawnargs)
 else:
     spawn('nicos-cache', '--clear', **spawnargs)
@@ -225,7 +238,7 @@ elif not opts.nodaemon:
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
-            guiargs.extend(['-D', opts.guiuser] + opts.restargs)
+            guiargs.extend(['-D', opts.guiuser] + opts.guiargs)
             spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()
