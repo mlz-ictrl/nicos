@@ -110,7 +110,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     def valueInfo(self):
         ret = []
-        for dev in self._attached_rotations + self._attached_translations:
+        for dev in self._attached_translations + self._attached_rotations:
             ret.extend(dev.valueInfo())
         return tuple(ret)
 
