@@ -356,7 +356,8 @@ def guessCorrectCommand(source, attribute=False):
             poi = object_parts[1]
         else:
             poi = object_parts[0]
-            if poi in session.configured_devices:
+            if poi in session.configured_devices and \
+               poi not in session.namespace:
                 if poi in session.devices:
                     session.log.info('Use CreateDevice(%r) to export the '
                                      'device of this name', str(poi))
