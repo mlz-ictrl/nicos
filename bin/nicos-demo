@@ -122,6 +122,8 @@ services.add_argument('--nowatchdog', '-W', action='store_true',
                       help='disable watchdog')
 services.add_argument('--nomonitor', '-M', action='store_true',
                       help='disable monitor')
+services.add_argument('--nopoller', '-P', action='store_true',
+                      help='disable poller')
 services.add_argument('--nodaemon', '-D', action='store_true',
                       help='disable daemon')
 # These services are opt-in.
@@ -204,9 +206,10 @@ if not opts.noelog:
     echo(' elog')
     sleep(0.1)
 
-spawn('nicos-poller', **spawnargs)
-echo(' poller')
-sleep(0.1)
+if not opts.nopoller:
+    spawn('nicos-poller', **spawnargs)
+    echo(' poller')
+    sleep(0.1)
 
 if not opts.nomonitor:
     monitorargs = ['-S', 'monitor-' + opts.monitorsetup] \
