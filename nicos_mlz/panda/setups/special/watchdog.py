@@ -34,6 +34,12 @@ watchlist = [
          type = 'critical',
          setup = 'water',
     ),
+    dict(condition = 'T_value > 1.9 and T_setpoint < 1.9',
+        message = 'Cooling of JVM is not enough!!! Ts > 1.9K.',
+        gracetime = 20,
+        type = 'default',
+        setup = 'jvm1',
+    ),
     # dict(condition = 'sgy_fixedby != None and abs(sgy_target - sgy_value) > 0.1',
     #      message = 'SGY moved without reason, trying to fix automatically!',
     #      gracetime = 2,
@@ -122,7 +128,8 @@ devices = dict(
             'onlyastrid': ['email3']
         },
         watch = watchlist,
-        mailreceiverkey = '',
+        mailreceiverkey = 'email/receivers',  ## replace all email addresses with MailRecievers from current experiment
+        #mailreceiverkey = '',   ## normal settings
         loglevel = 'debug',
     ),
 )

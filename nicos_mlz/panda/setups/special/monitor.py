@@ -364,9 +364,9 @@ magnet5supp = Block('Magnet', [
         Field(dev='vm5_nv_manual', name='NV'),
     ),
     BlockRow(
-        Field(dev='vm5_pvti', name='p:vti'),
-        Field(dev='vm5_psample', name='sample'),
-        Field(dev='vm5_ppump', name='pump'),
+        Field(dev='vm5_piso', name='p(iso)'),
+        Field(dev='vm5_psample', name='p(sa.)', fontsize = 12),
+        Field(dev='vm5_pvti', name='p(vti)'),
     ),
     ],
     setups='jvm1',
@@ -403,6 +403,27 @@ vtiplot = Block('Needle Valve', [
     ),
     ],
     setups='variox',
+)
+
+jvmplots = Block('JVM 5', [
+    BlockRow(
+        Field(dev='vm5_pvti', plot='p',
+            plotwindow=3600, width=30, height=20),
+        Field(dev='vm5_nv_manual', plot='p',
+            plotwindow=3600, width=30, height=20),
+        ),
+    BlockRow(
+        Field(dev='T_vm5_vti', plot='Tmag',
+            plotwindow=12*3600, width=30, height=20),
+        Field(dev='T_vm5_sample', plot='Tmag',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    BlockRow(
+        Field(dev='vm5_lhe', plot='lhe',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    ],
+    setups='jvm1',
 )
 
 magnet14t5 = Block('14.5T Magnet', [
@@ -456,8 +477,9 @@ column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs)
 column3 = Column(magnet55supp, magnet5supp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
-column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
-          Column(vtiplot)
+column4 = Column(*cryoplots) + Column(*ccrplots) + \
+          Column(jvmplots) + Column(vtiplot) + \
+          Column(lakeshoreplot)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -466,7 +488,7 @@ devices = dict(
         cache = 'phys.panda.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
-        fontsize = 17,
+        fontsize = 16,
         valuefont = 'Luxi Sans',
         layout = [Row(expcolumn),
                   Row(column1, column2, column3, column4)],
