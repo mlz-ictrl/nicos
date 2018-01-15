@@ -34,6 +34,7 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QStatusBar, \
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.utils import findResource
+from nicos.pycompat import string_types
 
 try:
     from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
@@ -151,11 +152,10 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
+        tag, _uid, _det, filename, dtype, nx, ny, nt, runtime = params
         # TODO: remove compatibility code
-        if len(params) == 7:  # Protocol version < 16
-            tag, filename, dtype, nx, ny, nt, runtime = params
-        elif len(params) == 9:  # Protocol version >= 16
-            tag, _uid, _det, filename, dtype, nx, ny, nt, runtime = params
+        if not isinstance(filename, string_types):
+            filename, nx, ny, nt = filename[0], nx[0], ny[0], nt[0]
 
         if dtype == '<u4' and nx == 128 and ny == 128 and tag != 'MiraXML':
             if nt == 1:

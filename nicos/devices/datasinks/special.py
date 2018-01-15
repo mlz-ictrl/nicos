@@ -90,23 +90,35 @@ class LiveViewSinkHandler(DataSinkHandler):
             result = results[self.detector.name]
             if result is None:
                 return
-            data = result[1][0]
-            if data is not None:
-                if len(data.shape) == 1:
-                    resX, resY, resZ = data.shape, 1, 1
-                elif len(data.shape) == 2:
-                    (resX, resY), resZ = data.shape, 1
-                else:
-                    resX, resY, resZ = data.shape
-                if self.dataset.filenames and self.dataset.filenames[0]:
-                    filename = self.dataset.filenames[0]
-                else:
-                    filename = self.sink.filenametemplate[0] % self.dataset.counter
+            buffers = []
+            filenames = []
+            nx, ny, nz = [], [], []
+            for i, data in enumerate(result[1]):
+                if data is not None:
+                    if len(data.shape) == 1:
+                        resX, resY, resZ = data.shape, 1, 1
+                    elif len(data.shape) == 2:
+                        (resX, resY), resZ = data.shape, 1
+                    else:
+                        resX, resY, resZ = data.shape
+                    if self.dataset.filenames and \
+                            i < len(self.dataset.filenames) and \
+                            self.dataset.filenames[i]:
+                        filename = self.dataset.filenames[i]
+                    else:
+                        filename = self.sink.filenametemplate[
+                                       0] % self.dataset.counter
+                    nx += [resX]
+                    ny += [resY]
+                    nz += [resZ]
+                    filenames += [filename]
+                    buffers += [memory_buffer(data.astype('<u4'))]
+            if buffers:
                 session.updateLiveData('Live', self.dataset.uid,
-                                       self.detector.name, filename,
-                                       '<u4', resX, resY, resZ,
+                                       self.detector.name, filenames,
+                                       '<u4', nx, ny, nz,
                                        currenttime() - self.dataset.started,
-                                       memory_buffer(data.astype('<u4')))
+                                       buffers)
 
 
 class LiveViewSink(ImageSink):

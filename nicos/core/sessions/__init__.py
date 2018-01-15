@@ -1372,16 +1372,17 @@ class Session(object):
           by clients to determine if they can display this data.
         * uid - a unique id for the corresponding data point.
         * detector - name of the detector device.
-        * filename - the filename displayed for cached data.
+        * filename - list of filenames displayed for cached data.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
-        * nx, ny, nt - three integers giving the dimensions of the data array,
+        * nx, ny, nt - three lists of integers giving the dimensions of the data
+          arrays,
           if it is in array format.
         * time - the current measurement time, for determining count rate.
-        * data - the actual data as a byte string.
+        * data - the actual data as a list of byte strings.
         """
 
-    def notifyDataFile(self, tag, uid, detector, filename):
+    def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
         """Notify clients that a new data file has been written, which might
         be viewed by live-data views.
 
@@ -1391,7 +1392,7 @@ class Session(object):
           by clients to determine if they can open/display this data.
         * uid - a unique id for the corresponding data point.
         * detector - name of the detector device.
-        * filename - a string giving the filename of the data.
+        * filename_or_filenames - an iterable of file paths or a single one.
         """
 
     def notifyFitCurve(self, dataset, title, xvalues, yvalues):

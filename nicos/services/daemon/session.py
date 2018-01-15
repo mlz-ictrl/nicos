@@ -114,11 +114,17 @@ class DaemonSession(NoninteractiveSession):
                        time, data):
         self.emitfunc('liveparams', (tag, uid, detector, filename, dtype,
                                      nx, ny, nt, time))
-        self.emitfunc('livedata', data)
+        for buf in data:  # data is a list of ``memory_buffer``
+            self.emitfunc('livedata', buf)
 
-    def notifyDataFile(self, tag, uid, detector, filename):
-        self.emitfunc('liveparams', (tag, uid, detector, filename,
-                                     '', 0, 0, 0, 0))
+    def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
+        if isinstance(filename_or_filenames, string_types):
+            filenames = [filename_or_filenames]
+        else:
+            filenames = filename_or_filenames
+        nxyt = len(filenames) * [0]
+        self.emitfunc('liveparams', (tag, uid, detector, filenames,
+                                     '', nxyt, nxyt, nxyt, 0))
         self.emitfunc('livedata', '')
 
     def notifyFitCurve(self, dataset, title, xvalues, yvalues):

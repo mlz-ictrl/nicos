@@ -40,6 +40,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
     QwtPlotMarker, QwtSymbol
 
 from nicos.utils import BoundedOrderedDict
+from nicos.pycompat import string_types
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel
 
@@ -206,11 +207,10 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
 
     def on_client_liveparams(self, params):
+        tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
         # TODO: remove compatibility code
-        if len(params) == 7:  # Protocol version < 16
-            tag, fname, dtype, nx, ny, nz, runtime = params
-        elif len(params) == 9:  # Protocol version >= 16
-            tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
+        if not isinstance(fname, string_types):
+            fname, nx, ny, nz = fname[0], nx[0], ny[0], nz[0]
 
         self._runtime = runtime
         normalized_type = numpy.dtype(dtype).str if dtype != '' else ''  # pylint: disable=compare-to-empty-string

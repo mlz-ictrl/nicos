@@ -36,12 +36,14 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 18
+PROTO_VERSION = 19
 
 # old versions with which the client is still compatible
-# (currently none)
+# 18 -> 19: Add support for multiple images in 'liveparams' event
+#           (using lists for shapes and filenames) and send one 'livedata'
+#           event for each array
 
-COMPATIBLE_PROTO_VERSIONS = []
+COMPATIBLE_PROTO_VERSIONS = [18]
 
 # message serialization/deserialization
 

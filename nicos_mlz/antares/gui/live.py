@@ -34,6 +34,7 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPrinter, QDialog, \
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.utils import findResource
+from nicos.pycompat import integer_types
 
 from nicoslivewidget import LWWidget, LWData
 
@@ -141,11 +142,10 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
+        _tag, _uid, _det, _fname, dtype, nx, ny, nz, runtime = params
         # TODO: remove compatibility code
-        if len(params) == 7:  # Protocol version < 16
-            _tag, _fname, dtype, nx, ny, nz, runtime = params
-        elif len(params) == 9:  # Protocol version >= 16
-            _tag, _uid, _det, _fname, dtype, nx, ny, nz, runtime = params
+        if not isinstance(nx, integer_types):
+            nx, ny, nz = nx[0], ny[0], nz[0]
 
         self._runtime = runtime
         if dtype not in DATATYPES:

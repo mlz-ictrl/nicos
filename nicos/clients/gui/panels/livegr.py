@@ -48,7 +48,7 @@ from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget, \
     LiveWidget1D, DATATYPES
 from nicos.protocols.cache import cache_load
 from nicos.utils import ReaderRegistry
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, string_types
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
@@ -68,11 +68,11 @@ class LiveDataPanel(Panel):
         self._allowed_tags = set()
         self._allowed_detectors = set()
         self._ignore_livedata = False  # ignore livedata, e.g. wrong detector
+        self._last_idx = 0
         self._last_tag = None
-        self._last_fname = None
+        self._last_fnames = None
         self._last_format = None
         self._runtime = 0
-        self._no_direct_display = False
         self._range_active = False
         self._cachesize = 20
         self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
@@ -100,9 +100,9 @@ class LiveDataPanel(Panel):
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
         #                         Integrate | Histogram)
 
-        self.liveitem = QListWidgetItem('<Live>', self.fileList)
-        self.liveitem.setData(FILENAME, '')
-        self.liveitem.setData(FILEFORMAT, '')
+        self.liveitems = []
+        self.setLiveItems(1)
+        self._livechannel = 0
 
         self.splitter.restoreState(self.splitterstate)
 
@@ -115,6 +115,28 @@ class LiveDataPanel(Panel):
 
         self.rois = {}
         self.detectorskey = None
+
+    def setLiveItems(self, n):
+        nitems = len(self.liveitems)
+        if n < nitems:
+            nfiles = self.fileList.count()
+            for i in range(nitems - 1, n - 1, -1):
+                self.liveitems.pop(i)
+                self.fileList.takeItem(nfiles - nitems + i)
+            if self._livechannel > n:
+                self._livechannel = 0 if n > 0 else None
+        else:
+            for i in range(nitems, n):
+                item = QListWidgetItem('<Live #%d>' % (i + 1))
+                item.setData(FILENAME, i)
+                item.setData(FILEFORMAT, '')
+                item.setData(FILETAG, 'live')
+                self.fileList.insertItem(self.fileList.count(), item)
+                self.liveitems.append(item)
+        if n == 1:
+            self.liveitems[0].setText('<Live>')
+        else:
+            self.liveitems[0].setText('<Live #1>')
 
     def initLiveWidget(self, widgetcls):
         if isinstance(self.widget, widgetcls):
@@ -356,12 +378,10 @@ class LiveDataPanel(Panel):
                              + '/detlist').lower()
 
     def on_client_liveparams(self, params):
+        tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
         # TODO: remove compatibility code
-        if len(params) == 7:  # Protocol version < 16
-            tag, fname, dtype, nx, ny, nz, runtime = params
-            uid, det = None, None
-        elif len(params) == 9:  # Protocol version >= 16
-            tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
+        if isinstance(fname, string_types):
+            fname, nx, ny, nz = [fname], [nx], [ny], [nz]
 
         if self._allowed_detectors and det not in self._allowed_detectors:
             self._ignore_livedata = True
@@ -370,7 +390,8 @@ class LiveDataPanel(Panel):
         self._runtime = runtime
         self._last_uid = uid
         if dtype:
-            self._last_fname = None
+            self.setLiveItems(len(fname))
+            self._last_fnames = None
             normalized_type = numpy.dtype(dtype).str
             if normalized_type not in DATATYPES:
                 self._last_format = None
@@ -378,12 +399,13 @@ class LiveDataPanel(Panel):
                 return
             self._last_format = normalized_type
         elif fname:
-            self._last_fname = fname
+            self._last_fnames = fname
             self._last_format = None
         self._last_tag = tag.lower()
         self._nx = nx
         self._ny = ny
         self._nz = nz
+        self._last_idx = 0
 
     def _initLiveWidget(self, array):
         """Initialize livewidget based on array's shape"""
@@ -420,37 +442,49 @@ class LiveDataPanel(Panel):
             raise NicosError('Cannot read file %r' % filename)
 
     def on_client_livedata(self, data):
-        # but display it right now only if on <Live> setting and no ignore
-        if self._no_direct_display or self._ignore_livedata:
+        if self._ignore_livedata:  # ignore all live events
             return
 
-        # always allow live data
+        idx = self._last_idx  # 0 <= array number < n
+        self._last_idx += 1
+        # check for allowed tags but always allow live data
         if self._last_tag in self._allowed_tags or self._last_tag == 'live':
-            if len(data) and self._last_format:  # pylint: disable=len-as-condition
+            # pylint: disable=len-as-condition
+            if len(data) and self._last_format:
                 # we got live data with a specified format
+                uid = str(self._last_uid) + '-' + str(idx)
                 array = numpy.frombuffer(data, self._last_format)
-                if self._nz > 1:
-                    array = array.reshape((self._nz, self._ny, self._nx))
-                elif self._ny > 1:
-                    array = array.reshape((self._ny, self._nx))
-                self.setData(array, self._last_uid)
-            elif self._last_fname:
+                if self._nz[idx] > 1:
+                    array = array.reshape((self._nz[idx], self._ny[idx],
+                                           self._nx[idx]))
+                elif self._ny[idx] > 1:
+                    array = array.reshape((self._ny[idx], self._nx[idx]))
+                # update display for selected live channel, just cache
+                # otherwise
+                self.setData(array, uid, display=(idx == self._livechannel))
+                self.liveitems[idx].setData(FILEUID, uid)
+            else:
                 # we got no live data, but a filename with the data
                 # filename corresponds to full qualififed path here
-                self.add_to_flist(self._last_fname, self._last_format,
-                                  self._last_tag, self._last_uid)
-                try:
-                    self.setDataFromFile(self._last_fname,
-                                         self._last_tag,
-                                         self._last_uid)
-                except Exception as e:
-                    if self._last_uid in self._datacache:
-                        # image is already cached
-                        # suppress error message for cached image
-                        self.log.debug(e)
-                    else:
-                        # image is not cached and could not be loaded
-                        self.log.exception(e)
+                for i, filename in enumerate(self._last_fnames):
+                    uid = str(self._last_uid) + '-' + str(i)
+                    self.add_to_flist(filename, self._last_format,
+                                      self._last_tag, uid)
+                    try:
+                        # update display for selected live channel, just cache
+                        # otherwise
+                        self.setDataFromFile(filename,
+                                             self._last_tag,
+                                             uid,
+                                             display=(i == self._livechannel))
+                    except Exception as e:
+                        if self._last_uid in self._datacache:
+                            # image is already cached
+                            # suppress error message for cached image
+                            self.log.debug(e)
+                        else:
+                            # image is not cached and could not be loaded
+                            self.log.exception(e)
 
     def remove_obsolete_cached_files(self):
         """Removes outdated cached files from the file list or set cached flag
@@ -478,7 +512,8 @@ class LiveDataPanel(Panel):
         item.setData(FILEFORMAT, fformat)
         item.setData(FILETAG, ftag)
         item.setData(FILEUID, uid)
-        self.fileList.insertItem(self.fileList.count() - 1, item)
+        self.fileList.insertItem(self.fileList.count() - len(self.liveitems),
+                                 item)
         if uid:
             self.remove_obsolete_cached_files()
         if scroll:
@@ -488,28 +523,26 @@ class LiveDataPanel(Panel):
     def on_fileList_itemClicked(self, item):
         if item is None:
             return
-        elif item == self.liveitem:
-            self._no_direct_display = False
-            return
 
         fname = item.data(FILENAME)
         ftag = item.data(FILETAG)
-        uid = item.data(FILEUID)
-        if not fname:
-            # show always latest live image
-            self._no_direct_display = False
-            if self._last_fname and self._last_tag in self._allowed_tags:
-                fname = self._last_fname
-                ftag = self._last_tag
+        if item in self.liveitems and ftag == 'live':  # show live image
+            self._livechannel = int(fname)
+            fname = None
+            self.log.debug("set livechannel: %d", self._livechannel)
         else:
-            # show image from file
-            self._no_direct_display = True
-        if uid:
+            self._livechannel = None
+            self.log.debug("no direct display")
+
+        uid = item.data(FILEUID)
+        if uid:  # show image from cache
             array = self._datacache.get(uid, None)
             if array is not None and array.size:
                 self.setData(array)
                 return
-        self.setDataFromFile(fname, ftag)
+        if fname:
+            # show image from file
+            self.setDataFromFile(fname, ftag)
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
