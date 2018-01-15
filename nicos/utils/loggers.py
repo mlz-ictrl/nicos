@@ -90,8 +90,7 @@ class NicosLogger(Logger):
                 msg = from_maybe_utf8(msg)
             else:
                 msg = text_type(msg)
-            args = tuple(from_maybe_utf8(arg) if isinstance(arg, binary_type)
-                         else arg for arg in msgs[1:])
+            args = msgs[1:]
         if extramsgs:
             if msg:
                 msg += ' '
