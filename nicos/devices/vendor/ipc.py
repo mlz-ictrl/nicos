@@ -1045,9 +1045,15 @@ class Motor(HasTimeout, NicosMotor):
         if state & 16384 == 0:
             msg += ', external power stage enabled'
         if state & 32:
-            msg += ', limit switch - active'
+            if self._hwtype == 'sixfold' and self.firmware < 63:
+                msg += ', limit switch + active'
+            else:
+                msg += ', limit switch - active'
         if state & 64:
-            msg += ', limit switch + active'
+            if self._hwtype == 'sixfold' and self.firmware < 63:
+                msg += ', limit switch - active'
+            else:
+                msg += ', limit switch + active'
         if self._hwtype == 'single':
             msg += (state & 8) and ', relais on' or ', relais off'
             if state & 8:

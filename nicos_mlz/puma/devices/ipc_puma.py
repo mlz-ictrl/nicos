@@ -342,14 +342,26 @@ class ReferenceMotor(CanReference, Motor):
                (refswitch == 'low' and self._isAtLowlimit()) or \
                (refswitch == 'ref' and self._isAtReferenceSwitch())
 
+    def _read_status(self):
+        return self._attached_bus.get(self.addr, STATUS)
+
     def _isAtHighlimit(self):
-        return bool(self._attached_bus.get(self.addr, STATUS) & 0x40)
+        val = self._read_status()
+        if self._hwtype == 'sixfold':
+            if self.firmware < 63:
+                return bool(val & 0x20)
+        return bool(val & 0x40)
 
     def _isAtLowlimit(self):
-        return bool(self._attached_bus.get(self.addr, STATUS) & 0x20)
+        val = self._read_status()
+        if self._hwtype == 'sixfold':
+            if self.firmware < 63:
+                return bool(val & 0x40)
+        return bool(val & 0x20)
 
     def _isAtReferenceSwitch(self):
-        return bool(self._attached_bus.get(self.addr, STATUS) & 0x80)
+        val = self._read_status()
+        return bool(val & 0x80)
 
     def _setrefcounter(self):
         self.log.debug('in setrefcounter')
