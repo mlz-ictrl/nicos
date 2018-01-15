@@ -41,6 +41,7 @@ devices = dict(
 )
 
 alias_config = {
-    'T': {'T_ls340': 200},
-    'Ts': {'T_ls340_B': 100, 'T_ls340_A': 90, 'T_ls340_C': 80, 'T_ls340_D': 70},
+    # give priority to sample-env T aliases
+    'T': {'T_ls340': 190},
+    'Ts': {'T_ls340_B': 95, 'T_ls340_A': 85, 'T_ls340_C': 75, 'T_ls340_D': 65},
 }

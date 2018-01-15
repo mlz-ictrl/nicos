@@ -2,7 +2,8 @@
 
 description = 'Analyser'
 
-includes = ['system']
+# sampletable.py contains all buses
+includes = ['system','sampletable']
 excludes = ['bambus']
 
 group = 'lowlevel'
@@ -30,12 +31,6 @@ P_EVEN = 0
 TOTALBITS = lambda x: x & 0x1f
 
 devices = dict(
-    bus1 = device('nicos.devices.vendor.ipc.IPCModBusTango',
-        tangodevice = tango_base + 'ipc/ana',
-        bustimeout = 0.1,
-        loglevel = 'info',
-        lowlevel = True,
-    ),
 
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
     att_step = device('nicos.devices.vendor.ipc.Motor',

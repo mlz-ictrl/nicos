@@ -2,6 +2,7 @@
 
 description = 'Monoturm, everything inside the Monochromator housing'
 
+# sampletable.py contains all buses
 includes = ['sampletable']
 
 group = 'lowlevel'
@@ -39,12 +40,7 @@ TOTALBITS = lambda x: x & 0x1f
 
 
 devices = dict(
-    bus5 = device('nicos.devices.vendor.ipc.IPCModBusTango',
-        tangodevice = tango_base + 'ipc/mono',
-        bustimeout = 0.1,
-        loglevel = 'info',
-        lowlevel = True,
-    ),
+
 
     # # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
     # mfh_step = device('nicos.devices.vendor.ipc.Motor',
@@ -261,7 +257,7 @@ devices = dict(
         lowlevel = True,
     ),
     ms1_enc = device('nicos.devices.vendor.ipc.Coder',
-        bus = 'bus4',   # spare
+        bus = 'bus1',   # spare
         addr = CODER(8),
         slope = 2**13 / 3.0,  # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
         zerosteps = 555555,
