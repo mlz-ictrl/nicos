@@ -117,7 +117,7 @@ class Axis(CanReference, AbstractAxis):
                                          'motor\'s min (%s)' % (amin, mmin))
             if amax > mmax and not hasattr(self, '_new_offset'):
                 raise ConfigurationError(self, configkey + ': max (%s) above '
-                                         'motor\'s max (%s)' % (amin, mmin))
+                                         'motor\'s max (%s)' % (amax, mmax))
         else:
             amin, amax = mmin, mmax
         return amin, amax
