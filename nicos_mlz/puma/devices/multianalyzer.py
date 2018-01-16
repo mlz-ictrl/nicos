@@ -99,9 +99,32 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
             else:
                 why.append('requested translation %2d to %.2f mm out of '
                            'limits: %s' % (i + 1, t, w))
+        for i, rot in enumerate(target[self._num_axes:]):
+            l, h = self._calc_rotlimits(i, target)
+            if not l <= rot <= h:
+                why.append('requested rotation %2d to %.2f deg out of limits: '
+                           '(%.3f, %3f)' % (i + 1, rot, l, h))
         if why:
             return False, '; '.join(why)
         return True, ''
+
+    def _calc_rotlimits(self, trans, target):
+        if 0 <= trans < 10:
+            deltati = target[trans + 1] - target[trans]
+            if deltati < -11.9:
+                rmini = -50 + (deltati + 20) * 3
+            elif -11.9 <= deltati <= -2.8:
+                rmini = -23.3
+            if deltati > -2.8:
+                rmini = -34.5 - deltati * 4
+            if (rmini < -60):
+                rmini = -60.
+        else:
+            deltati = -12
+            rmini = -60.
+        self.log.debug('calculated rot limits (%d %d): %.1f -> [%.1f, %.1f]',
+                       trans + 1, trans, deltati, rmini, 0.5)
+        return rmini, 0.5
 
     def doStatus(self, maxage=0):
         if self._status:

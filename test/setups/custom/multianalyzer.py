@@ -11,8 +11,8 @@ devices = dict(
 for i in range(1, 12):
     devices['ta%d' % i] = device('nicos.devices.generic.Axis',
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-0.1, 250.1),
-            userlimits = (-0.001, 250.001),
+            abslimits = (-125.1, 125.1),
+            userlimits = (-125, 250),
             unit = 'mm',
             refpos = 0.,
             fmtstr = '%.3f',
