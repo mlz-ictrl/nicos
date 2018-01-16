@@ -46,9 +46,7 @@ class ProgrammableUnit(MappedReadable, EpicsReadable):
     }
 
     def _get_pv_parameters(self):
-        pvs = EpicsReadable._get_pv_parameters(self)
-        pvs.add('commandpv')
-        return pvs
+        return EpicsReadable._get_pv_parameters(self) | {'commandpv'}
 
     def doInit(self, mode):
         EpicsReadable.doInit(self, mode)
