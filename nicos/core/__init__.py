@@ -32,9 +32,9 @@ from nicos.core.errors import NicosError, ProgrammingError, \
     PositionError, MoveError, LimitError, CommunicationError, \
     HardwareError, TimeoutError, ComputationError, \
     CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.mixins import DeviceMixinBase, AutoDevice, HasLimits, \
+from nicos.core.mixins import AutoDevice, DeviceMixinBase, HasLimits, \
     HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
-    HasCommunication
+    HasCommunication, IsController
 from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
     Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, \
     usermethod, requires
