@@ -272,8 +272,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                not det.motor.isAtReference('low'):
                 det.reference()
                 self._hw_wait([det])
-                while guide.motor.isAtReference('high'):
-                    while guide.motor.isAtReference('high'):
+                while guide.motor.isAtReference('low'):
+                    while guide.motor.isAtReference('low'):
                         p = guide.motor.read(0)
                         if not guide.motor.isAllowed(p - 1)[0]:
                             self.log.info('set new position: %f', (p + 1))
@@ -290,8 +290,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                 self.log.info('det: %f', det.read(0))
             else:
                 det.motor._setrefcounter()
-            if not guide.motor.isAtReference('high'):
-                guide.motor.reference('high')
+            if not guide.motor.isAtReference('low'):
+                guide.motor.reference('low')
             else:
                 det.motor._setrefcounter()
             self.log.info('after guide ref start, det: %f', det.read(0))
