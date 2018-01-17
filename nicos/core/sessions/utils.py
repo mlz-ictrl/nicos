@@ -359,10 +359,10 @@ def guessCorrectCommand(source, attribute=False):
             if poi in session.configured_devices and \
                poi not in session.namespace:
                 if poi in session.devices:
-                    session.log.info('Use CreateDevice(%r) to export the '
+                    session.log.info("Use CreateDevice('%s') to export the "
                                      'device of this name', str(poi))
                 else:
-                    session.log.info('Use CreateDevice(%r) to try creating '
+                    session.log.info("Use CreateDevice('%s') to try creating "
                                      'the device of this name', str(poi))
                 return
         for key in allowed_keys:
