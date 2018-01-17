@@ -22,11 +22,11 @@
 #
 # *****************************************************************************
 
-"""Monochromator changer"""
+"""PUMA Monochromator changer."""
 
 from nicos import session
-from nicos.core import PositionError, Moveable, Readable, Param, Attach, \
-    oneof, dictof, anytype, multiWait
+from nicos.core import Attach, Moveable, Param, PositionError, Readable, \
+    anytype, dictof, multiWait, oneof
 # from nicos.pycompat import list
 
 
@@ -127,7 +127,7 @@ class Mchanger(Moveable):
         for dev, pos in self._changing_values.items():
             dev.start(pos)
 
-#        multiWait(self._changing_values)
+        # multiWait(self._changing_values)
         multiWait(self._changing_values.keys())
 
         for dev, pos in self._changing_values.items():
@@ -138,27 +138,27 @@ class Mchanger(Moveable):
         for dev in self._changing_values:
             dev.fix('Monochromator change in progress')
         # may block change of alias!
-#       self._attached_monochromator.fix('Monochromator change in progress')
+        # self._attached_monochromator.fix('Monochromator change in progress')
 
         # test this!
-#       self.log.debug('Disabling Powerstages for %s',
-#                       ', '.join(sorted(self.changing_positions)))
-#       for dev in self.changing_positions:
-#           dev.power = 'off'
+        # self.log.debug('Disabling Powerstages for %s',
+        #                ', '.join(sorted(self.changing_positions)))
+        # for dev in self.changing_positions:
+        #     dev.power = 'off'
 
     def _focusOut(self):
         self.log.info('Focusing to the flat position is temporaly desaibled')
         aliasdevice = self._attached_monochromator
         foch = session.getDevice(aliasdevice.alias)._attached_focush
         focv = session.getDevice(aliasdevice.alias)._attached_focusv
-#        if foch is not None:
-#            foch.start(0)
-#        if focv is not None:
-#            focv.start(0)
-#        if foch is not None:
-#            foch.wait()
-#        if focv is not None:
-#            focv.wait()
+        # if foch is not None:
+        #     foch.start(0)
+        # if focv is not None:
+        #     focv.start(0)
+        # if foch is not None:
+        #     foch.wait()
+        # if focv is not None:
+        #     focv.wait()
         self.log.info('Switch off the foch and focv motors')
         if focv is not None:
             focv.motor.power = 'off'
@@ -176,15 +176,15 @@ class Mchanger(Moveable):
             foch.motor.power = 'on'
 
     def _finalize(self):
-        ''' to be called after a successfull monochange'''
+        """Called after a successful monochromator change."""
         # test this!
-#       self.log.debug('Enabling Powerstages for %s',
-#                      ', '.join(sorted(self.changing_positions)))
-#       for dev in self._changing_values:
-#           dev.power = 'on'
+        # self.log.debug('Enabling Powerstages for %s',
+        #                ', '.join(sorted(self.changing_positions)))
+        # for dev in self._changing_values:
+        #     dev.power = 'on'
 
         self.log.info('releasing mono devices')
-#       self._attached_monochromator.release()
+        # self._attached_monochromator.release()
         for dev in self._changing_values:
             dev.release()
         self.log.info('move mono devices to the nominal positions')
@@ -229,32 +229,30 @@ class Mchanger(Moveable):
         self._step('grip', 'closed')
         self._step('mlock', 'closed')
 
-
-#        self._change_alias(pos)
+        # self._change_alias(pos)
 
     def _change_alias(self, pos):
-        '''
-        changes the alias of the monochomator DeviceAlias
-        '''
+        """Change the alias of the monochomator DeviceAlias."""
         aliastarget = self.mapping.get(pos, None)
         aliasdevice = self._attached_monochromator
         if aliastarget and hasattr(aliasdevice, 'alias'):
-            self.log.info('switching alias %r to %r', aliasdevice, aliastarget)
+            self.log.info("switching alias '%s' to '%s'", aliasdevice,
+                          aliastarget)
             aliasdevice.alias = session.getDevice(aliastarget)
         else:
             self.log.info('NOT changing Aliasdevice')
 
     def _step(self, devicename, pos):
-        '''makes one step in the changing sequence:
+        """Make one step in the changing sequence.
 
         evaluates the given keyword argument and
         moves the attached_device with the keyname to the value-position.
         Also checks success
-        '''
-#       if len(kwargs) != 1:
-#           raise ProgrammingError('_step called with more than '\
-#                                    'ONE keyworded argument!')
-#       devicename, pos = kwargs.items()[0]
+        """
+        # if len(kwargs) != 1:
+        #     raise ProgrammingError('_step called with more than '
+        #                            'ONE keyworded argument!')
+        # devicename, pos = kwargs.items()[0]
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
@@ -271,7 +269,8 @@ class Mchanger(Moveable):
                 session.delay(2)
             dev.wait()
         except Exception:
-            if devicename == 'lift':  # most probably it is touching the limit switch
+            # most probably it is touching the limit switch
+            if devicename == 'lift':
                 dev._adevs['moveables'][0].motor.stop()
                 self.log.info('Limit switch ?')
             else:
