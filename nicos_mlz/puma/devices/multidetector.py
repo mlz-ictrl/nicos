@@ -71,6 +71,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         '_status': Param('read only status',
                          type=bool, settable=False, userparam=False,
                          default=False),
+        'refgap': Param('Gap between detectors during the reference of the '
+                        'guides',
+                        type=float, settable=False, userparam=False,
+                        default=1.),
     }
 
     parameter_overrides = {
@@ -243,7 +247,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             session.delay(1.5)
         for i, (d, g) in enumerate(zip(self._rotdetector0, self._rotguide0)):
             d.userlimits = d.abslimits
-            d.move(d.read(0) + 10 - i)
+            d.move(d.read(0) + (10 - i) * self.refgap)
             g.reference()
             self._hw_wait([d, g])
         self.log.info('referencing of guides is finished')
