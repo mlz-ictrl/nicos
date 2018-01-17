@@ -231,7 +231,7 @@ devices = dict(
         description = 'What is at the monotable',
         # monostates has five elements ! (last one is for 'none').
         # Unfortunately, Dummy (like 'none') returns 0
-        mapping = dict(zip(monostates, [4, 1, 2, 3, 0])),
+        mapping = dict(zip(monostates, [4, 5, 2, 3, 0])),
         readable = 'monostat_io',
     ),
 
