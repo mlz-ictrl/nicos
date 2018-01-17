@@ -1,6 +1,57 @@
 Changelog
 =========
 
+Release 3.1.0
+-------------
+
+* Core
+
+  - The poller now doesn't completely give up when a setup file has syntax
+    errors.  Instead, it tries to restart after each file change.
+
+  - The HTML monitor now uses GR instead of Matplotlib for plotting.
+
+  - Added a Kafka backend for the cache server.
+
+  - "Exec now" commands are now executed in the context of the calling client,
+    not a generic "system" user.
+
+* GUI
+
+  - Qt 5 is now supported by the GUI application.  Set ``NICOS_QT=5`` to enable
+    if PyQt5 is installed on the system.  In later versions, this will become
+    the default mode.
+
+  - Support for Qwt as plotting backend has been removed.
+
+  - Added a SSH tunnel option to the client, available with the ``-t`` option.
+
+  - The GR live widget now supports one-dimensional data and multiple live channels.
+
+  - All curves in a history plot can now be saved to data files at the same
+    time.
+
+  - Offset and scale in history plots is now applied to string values mapped
+    to integers.
+
+  - All scan columns can now be plotted as Y values in scan plots.
+
+  - The setup panel now shows a hint if some setups are not offered for
+    loading because of errors.
+
+* Devices
+
+  - Added a generic "pulse" device (that switches an attached device to a
+    different value for a selected time).
+
+  - Tango device creation now fails faster if the Tango host is down.
+
+  - Added a notifier class for Slack.
+
+  - The limit handling in the generic Axis class has been overhauled to
+    better take the motor's limits into account.
+
+
 Release 3.0.0
 -------------
 
