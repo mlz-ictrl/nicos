@@ -149,18 +149,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             self.log.debug('try to start multidetector')
             self._setROParam('_status', True)
 
-            # reference of guide blades before movement
-            # self.reference('det')
-            # self.wait()
-            # self.reference('guide')
-            # self.wait()
-
-            # calculate the angles for the device movement
-            # pos = self._correctAnglesMove(position) # 11 angles for device
-
-            # move individual guide to zero
-            # self.rg1.reference() # guide No 1 is defect
-
             # Most left position of the guides
             l = min(self._rotguide0[0].read(0), -5)
             # spread the guides to the left with a distance of 0.5 deg to
@@ -220,7 +208,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             # limit switch
             self.stop()
 
-            # self.rg1.reference()   # guide No 1 is defect
             for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
                 self._rotguide0[n].move(target[n + self._num_axes])
                 self.log.info('Move guide #%d', n + 1)
@@ -339,8 +326,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         """Read the physical unit of axis."""
         readraw0, _readraw1 = self._read_raw()
 
-        temp0 = self._correctAnglesRead(readraw0)
-        temp1 = temp0  # self._correctAnglesRead(readraw0, 'guide')
+        temp1 = temp0 = self._correctAnglesRead(readraw0)
 
         self.log.debug('detector rotation corrected:       %r', temp0)
         self.log.debug('detector guide rotation corrected: %r', temp1)
@@ -402,21 +388,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         Needed for the calculation of real angles of detectors due to different
         origins
         """
+        # [-125, -105, -85, -65, -45, -25, 0, 25, 45, 65, 85, 105, 125]
         anatranslist1 = list(range(-125, -5, 20)) + [0] + \
             list(range(25, 126, 20))
-        # anatranslist1 = [-125, -105, -85, -65, -45, -25, 0, 25, 45, 65, 85,
-        #                  105, 125]
-
-        # anatranslist = self._attached_man._read()[0:self._num_axes]
-        # for i in range(len(anatranslist)):
-        #     if anatranslist[i] <= 125.:
-        #         temp = anatranslist[i] - 125.
-        #         anatranslist1.append(temp)
-        #     else:
-        #         temp = anatranslist[i]
-        #         anatranslist1.append(temp)
-        # self.log.debug('anatranslist raw: %s', anatranslist)
-        # self.log.debug('anatranslist cor: %s', anatranslist1)
         return anatranslist1
 
     def _readZeroAna(self):
@@ -472,32 +446,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             lis += self._rotguide0
 
         ref = sum(dev.motor.isAtReference() for dev in lis)
-        # for dev in lis:
-        #     templs1 = (dev.motor._status() >> 5) & 1
-        #     if what == 'det':
-        #         ref += dev.motor.isAtReference()
-        #         if templs1 == 1 and (lis[i].refswitch == 'high'):
-        #             highlimit.append(1)
-        #             lowlimit.append(0)
-        #             refswitches.append(1)
-        #             ref += 1
-        #         elif templs1 == 0 and (lis[i].refswitch == 'high'):
-        #             highlimit.append(0)
-        #             lowlimit.append(0)
-        #             refswitches.append(0)
-        #     elif what == 'guide':
-        #         ref += dev.motor.isAtReference()
-        #         if templs1 == 1 and (lis[i].refswitch == 'low'):
-        #             highlimit.append(0)
-        #             lowlimit.append(1)
-        #             refswitches.append(1)
-        #             ref += 1
-        #         elif templs1 == 0 and (lis[i].refswitch == 'low'):
-        #             highlimit.append(0)
-        #             lowlimit.append(0)
-        #             refswitches.append(0)
-        #     self.log.debug('%s %s', dev, ref)
-
         return ref == len(lis)
 
     def _sequentialAngleLimit(self, pos):
