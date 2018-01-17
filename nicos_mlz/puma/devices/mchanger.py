@@ -132,8 +132,8 @@ class Mchanger(Moveable):
 
         for dev, pos in self._changing_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
-                raise PositionError(self, '%r did not reach target position %r'
-                                    % (dev, pos))
+                raise PositionError(self, "'%s' did not reach target position "
+                                    "'%s'" % (dev, pos))
 
         for dev in self._changing_values:
             dev.fix('Monochromator change in progress')
@@ -195,8 +195,8 @@ class Mchanger(Moveable):
 
         for dev, pos in self._init_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
-                raise PositionError(self, '%r did not reach target position %r'
-                                    % (dev, pos))
+                raise PositionError(self, "'%s' did not reach target position "
+                                    "'%s'" % (dev, pos))
 
     def _moveUp(self, pos):
         # self._change_alias('None')
@@ -258,11 +258,11 @@ class Mchanger(Moveable):
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
-            self.log.info('Open %s', dev.name)
+            self.log.info("Open '%s'", dev.name)
         elif pos == 'closed':
-            self.log.info('Close %s', dev.name)
+            self.log.info("Close '%s'", dev.name)
         else:
-            self.log.info('Move %s to %r position', dev.name, pos)
+            self.log.info("Move '%s' to '%s' position", dev.name, pos)
         try:
             dev.start(pos)
             if devicename == 'r3':  # R3 does not wait!
@@ -277,5 +277,5 @@ class Mchanger(Moveable):
             else:
                 raise
         if dev.read(0) != pos:
-            raise PositionError('Device %r did not reach its target %r, '
+            raise PositionError("Device '%s' did not reach its target '%s', "
                                 'aborting' % (dev, pos))
