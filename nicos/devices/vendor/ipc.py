@@ -845,7 +845,7 @@ class Motor(HasTimeout, NicosMotor):
             # microstepping cards
             return [1, 2, 4, 8, 16][self._attached_bus.get(self.addr, 141)]
         except InvalidCommandError:
-            # sinple cards only support full or half steps
+            # simple cards only support full or half steps
             return [1, 2][(self._attached_bus.get(self.addr, 134) & 4) >> 2]
 
     def doWriteMicrostep(self, value):
