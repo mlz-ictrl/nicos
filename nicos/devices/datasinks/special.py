@@ -85,6 +85,12 @@ class LiveViewSinkHandler(DataSinkHandler):
         if len(self.detector.arrayInfo()) > 1:
             self.log.warning('image sink only supports one array per detector')
 
+    def processArrays(self, result):
+        """Derived classes may override this in order to pre process data
+        arrays in respect to the read result with the form
+        ``(readvalue, arrays)``."""
+        return result[1]
+
     def putResults(self, quality, results):
         if self.detector.name in results:
             result = results[self.detector.name]
@@ -93,7 +99,8 @@ class LiveViewSinkHandler(DataSinkHandler):
             buffers = []
             filenames = []
             nx, ny, nz = [], [], []
-            for i, data in enumerate(result[1]):
+            arrays = self.processArrays(result)
+            for i, data in enumerate(arrays):
                 if data is not None:
                     if len(data.shape) == 1:
                         resX, resY, resZ = data.shape, 1, 1
