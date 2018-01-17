@@ -144,6 +144,7 @@ class LiveDataPanel(Panel):
 
         if self.widget:
             self.widgetLayout.removeWidget(self.widget)
+            self.widget.deleteLater()
         self.widget = widgetcls(self)
         # set keep ratio defaults for new livewidget instances
         if isinstance(self.widget, LiveWidget1D):
