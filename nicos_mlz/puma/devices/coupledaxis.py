@@ -95,7 +95,7 @@ class PumaCoupledAxis(HasTimeout, HasPrecision, HasLimits, Moveable):
             if self._checkZero(self.tt.read(0), self.th.read(0)):
                 return True, ''
             return False, '%s and %s are not close enough' % (self.tt, self.th)
-        return False, '; '.join([th_allowed[0], tt_allowed[1]])
+        return False, '; '.join([th_allowed[1], tt_allowed[1]])
 
     def doStart(self, position):
         """Move coupled axis (tt/th).
