@@ -38,7 +38,7 @@ from qtgr import InteractiveGRWidget
 from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
     Coords2D
 
-from nicos.guisupport.grplotting import MaskedPlotCurve
+from nicos.guisupport.plots import MaskedPlotCurve
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
