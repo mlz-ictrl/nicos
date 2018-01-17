@@ -6,7 +6,7 @@ excludes = ['detector', 'qmchannel']
 
 sysconfig = dict(
     instrument = 'VSPODI',
-    datasinks = ['spodisink'],
+    datasinks = ['spodisink', 'spodilivesink'],
 )
 
 includes = ['source']
@@ -114,6 +114,9 @@ devices = dict(
         filenametemplate = ['m1%(pointcounter)08d.ctxt'],
         detectors = ['adet'],
     ),
+    spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink',
+        lowlevel=True,
+    ),
     # hv1 = device('nicos.devices.generic.VirtualMotor',
     #     description = 'ISEG HV power supply 1',
     #     requires = {'level': 'admin'},
@@ -137,3 +140,4 @@ display_order = 40
 startupcode = '''
 SetDetectors(adet)
 '''
+#

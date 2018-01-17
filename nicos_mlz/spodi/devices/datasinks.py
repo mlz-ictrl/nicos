@@ -26,9 +26,14 @@
 
 from time import strftime, time as currenttime
 
+import numpy as np
+
 from nicos.core import Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.special import \
+    LiveViewSinkHandler as BaseLiveViewSinkHandler, \
+    LiveViewSink as BaseLiveViewSink
 from nicos.pycompat import iteritems, to_utf8
 
 
@@ -137,3 +142,13 @@ class CaressHistogram(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class LiveViewSinkHandler(BaseLiveViewSinkHandler):
+
+    def processArrays(self, result):
+        return [np.sum(array, axis=1) for array in result[1]]
+
+
+class LiveViewSink(BaseLiveViewSink):
+    handlerclass = LiveViewSinkHandler

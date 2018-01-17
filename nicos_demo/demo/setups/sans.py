@@ -4,7 +4,7 @@ group = 'basic'
 sysconfig = dict(
     instrument = 'sans',
     datasinks = ['BerSANSImageSink', 'RawImageSink', 'LivePNGSinkLog',
-                 'LivePNGSink', 'filesink',
+                 'LivePNGSink', 'filesink', 'livesink',
     ],
 )
 
@@ -180,6 +180,9 @@ devices = dict(
         filename = 'data/live_lin.png',
         log10 = False,
         interval = 1,
+    ),
+    livesink = device('nicos.devices.datasinks.LiveViewSink',
+        lowlevel=True,
     ),
     det1_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'demo timer',

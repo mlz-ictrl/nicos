@@ -52,7 +52,9 @@ sysconfig = dict(
     cache = 'spodictrl.spodi.frm2',
     instrument = 'Spodi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'spodisink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'spodilivesink',
+        'spodisink',
+    ],
     notifiers = ['email', 'smser'],
 )
 
@@ -109,7 +111,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
         lowlevel = True,
     ),
-    livesink = device('nicos.devices.datasinks.LiveViewSink',
+    spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink',
         lowlevel = True,
     ),
     spodisink = device('nicos_mlz.spodi.devices.datasinks.CaressHistogram',
