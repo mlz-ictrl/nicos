@@ -8,8 +8,8 @@ tango_s7 = tango_base + "/FZJS7"
 
 devices = dict(
     chopper_lift = device("nicos.devices.tango.Motor",
-                          description = "Chopper",
-                          tangodevice = tango_s7 + "/chopper",
-                          precision = 0.01,
-                         ),
+        description = "Chopper",
+        tangodevice = tango_s7 + "/chopper",
+        precision = 0.01,
+    ),
 )

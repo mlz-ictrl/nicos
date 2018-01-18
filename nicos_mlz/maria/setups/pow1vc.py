@@ -10,7 +10,7 @@ excludes = ["pow1cc"]
 
 devices = dict(
     pow1volt = device("nicos.devices.tango.PowerSupply",
-                      description = "Power supply 1 voltage control",
-                      tangodevice = _PS_URL % "pow1volt",
-                     ),
+        description = "Power supply 1 voltage control",
+        tangodevice = _PS_URL % "pow1volt",
+    ),
 )

@@ -11,12 +11,12 @@ hexapod_workspaces = [
     # (workspace_id, workspace_definition_list)
     #
     # workspace_definition_list:
-    # [xn, xp, yn, yp, zn, zp, rzn, rzp, ryn, ryp,
-    #  rxn, rxp, tx, ty, tz, rz, ry, rx]
+    # [xn, xp, yn, yp, zn, zp, rzn, rzp, ryn, ryp, rxn, rxp,
+    #  tx, ty, tz, rz, ry, rx]
     (
         10, [
-            -75., 75., -45., 45., -100., 100., -190., 120., -5., 5., -5., 5., 0.,
-            0., 0., 0., 0., 0.
+            -75., 75., -45., 45., -100., 100., -190., 120., -5., 5., -5., 5.,
+            0., 0., 0., 0., 0., 0.
         ]
     ),
     # (

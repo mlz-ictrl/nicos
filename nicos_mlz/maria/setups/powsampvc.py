@@ -10,11 +10,11 @@ excludes = ["powsampcc"]
 
 devices = dict(
     powsampvolt1 = device("nicos.devices.tango.PowerSupply",
-                          description = "Sample voltage control ch 1",
-                          tangodevice = _PS_URL % "powsampvolt1",
-                         ),
+        description = "Sample voltage control ch 1",
+        tangodevice = _PS_URL % "powsampvolt1",
+    ),
     powsampvolt2 = device("nicos.devices.tango.PowerSupply",
-                          description = "Sample voltage control ch 2",
-                          tangodevice = _PS_URL % "powsampvolt2",
-                         ),
+        description = "Sample voltage control ch 2",
+        tangodevice = _PS_URL % "powsampvolt2",
+    ),
 )
