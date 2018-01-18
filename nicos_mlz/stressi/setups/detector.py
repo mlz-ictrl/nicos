@@ -7,6 +7,8 @@ caresspath = '/opt/caress'
 toolpath = '/opt/caress'
 nethost = 'stressisrv.stressi.frm2'
 
+tango_host = 'tango://ps01.stressi.frm2:10000/stressi/det/'
+
 devices = dict(
     mon = device('nicos.devices.vendor.qmesydaq.caress.Counter',
         description = 'HWB MON',
@@ -67,27 +69,27 @@ devices = dict(
         abslimits = (700, 1700),
         requires = {'level': 'admin'},
     ),
-    hv1 = device('nicos.devices.taco.VoltageSupply',
-        description = 'ISEG HV power supply 1',
+    hv1 = device('nicos.devices.tango.PowerSupply',
+        description = 'HV power supply anode',
         requires = {'level': 'admin'},
-        tacodevice = '//%s/stressi/det/hv1' % nethost,
+        tangodevice = tango_host + 'hv1',
         abslimits = (0, 3200),
-        # ramp = 120,
     ),
-    hv1_current = device('nicos.devices.taco.AnalogInput',
-        description = 'ISEG HV power supply 1 current',
-        tacodevice = '//%s/stressi/det/current1' % nethost,
+    hv1_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'HV power supply anode current',
+        device = 'hv1',
+        parameter = 'current',
     ),
-    hv2 = device('nicos.devices.taco.VoltageSupply',
-        description = 'ISEG HV power supply 2',
+    hv2 = device('nicos.devices.tango.PowerSupply',
+        description = 'HV power supply drift',
         requires = {'level': 'admin'},
-        tacodevice = '//%s/stressi/det/hv2' % nethost,
+        tangodevice = tango_host + 'hv2',
         abslimits = (-2500, 0),
-        # ramp = 120,
     ),
-    hv2_current = device('nicos.devices.taco.AnalogInput',
-        description = 'ISEG HV power supply 2 current',
-        tacodevice = '//%s/stressi/det/current2' % nethost,
+    hv2_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'HV power supply drift current',
+        device = 'hv2',
+        parameter = 'current',
     ),
 )
 
