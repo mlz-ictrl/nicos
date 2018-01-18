@@ -29,7 +29,11 @@ from nicos.devices.tango import PyTangoDevice
 
 
 class Trigger(PyTangoDevice, Moveable):
-    """sends a preconfigured string upon move to the configured StringIO"""
+    """sends a preconfigured string upon move to the configured StringIO
+
+    This should only be used with SCPY devices and the string to be send
+    should *not* provoke an answer.
+    """
     parameters = {
         'strings': Param('mapping of nicos-value to pre-configured string',
                          type=dictof(str, str), settable=True, unit=''),
@@ -46,8 +50,15 @@ class Trigger(PyTangoDevice, Moveable):
             self._setROParam('target', self.safesetting)
 
     def doStart(self, value):
+        # !ALWAYS! send selected string
         self._dev.WriteLine(self.strings[value])
+        # wait until our buffer is empty
         self._dev.Flush()
+        # send a query and wait for the response,
+        # which will only come after the above string was fully processed
+        # note: this relies on the fact that the selected string above will NOT
+        # provoke an answer, but just set parameters (base it on the *LRN? output)
+        self._dev.Communicate('SYST:ERR?')
 
     def doStatus(self, maxage=0):
         return status.OK, 'indeterminate'
