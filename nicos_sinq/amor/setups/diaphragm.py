@@ -75,4 +75,10 @@ devices = dict(
                motorpv=pvprefix + 'd2b',
                errormsgpv=pvprefix + 'd2b-MsgTxt',
                ),
+    dbs=device('nicos_ess.devices.epics.motor.EpicsMotor',
+               epicstimeout=3.0,
+               description='Diaphragms s (lower edge) motor',
+               motorpv='SQ:AMOR:motb:dbs',
+               errormsgpv='SQ:AMOR:motb:dbs-MsgTxt',
+               ),
 )
