@@ -100,7 +100,7 @@ _temperatureblock = Block('Cryo Temperature', [
     BlockRow(Field(plot='Temperature', name='T', dev='T', width=40, height=20, plotwindow=3600),
         ),
     ],
-    setups=['ccr7'],
+    setups=['cc_puma'],
 )
 
 _garfieldblock = Block('Garfield Magnet', [
@@ -222,7 +222,7 @@ for cryo, name in cryodict.items():
 
 _leftcolumn = Column(
     _selectorblock,
-#    _temperatureblock,
+    _temperatureblock,
     _filterwheelblock,
     _sockets1block,
     _sockets2block,
