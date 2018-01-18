@@ -18,7 +18,7 @@ guirc: nicos/guisupport/gui_rc_qt4.py nicos/guisupport/gui_rc_qt5.py
 
 clean:
 	rm -rf build
-	find . -name '*.pyc' -print0 | xargs -0 rm -f
+	find . -name '*.pyc' -exec rm -f {} \;
 
 clean-demo: clean
 	-rm -rf data/cache/*
