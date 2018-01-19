@@ -199,6 +199,26 @@ class ReferenceMotor(CanReference, Motor):
         Motor.doInit(self, mode)
         self._stoprequest = 0
         self._refcontrol = None
+        if mode != SIMULATION:
+            try:
+                current_val = self.doReadSpeed()
+                if self.speed != current_val:
+                    self.doWriteSpeed(self.speed)
+            except NicosError:
+                self.log.warning("Could not write 'speed' value")
+            try:
+                current_val = self.doReadAccel()
+                if self.accel != current_val:
+                    self.doWriteAccel(self.accel)
+            except NicosError:
+                self.log.warning("Could not write 'accel' value")
+            try:
+                current_val = self.doReadMicrostep()
+                if self.microstep != current_val:
+                    self.doWriteMicrostep(self.microstep)
+            except NicosError:
+                self.log.warning("Could not write 'microstep' value")
+        self._lasterror = None
 
     def doStop(self):
         self._stoprequest = 1
