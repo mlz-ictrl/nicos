@@ -134,7 +134,8 @@ class Axis(CanReference, AbstractAxis):
         rval = AbstractAxis.doWriteUserlimits(self, limits)
         if rval:
             limits = rval
-        self._attached_motor.userlimits = limits
+        self._attached_motor.userlimits = (limits[0] + self.offset,
+                                           limits[1] + self.offset)
 
     def doIsAllowed(self, target):
         # do limit check here already instead of in the thread
