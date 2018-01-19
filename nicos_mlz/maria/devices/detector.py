@@ -90,7 +90,7 @@ class MariaDetector(Detector):
     def _getWaiters(self):
         adevs = dict(self._adevs)
         if not self.ctrl_shutter:
-            adevs.pop(self._attached_shutter.name)
+            adevs.pop("shutter")
         return adevs
 
     def _presetiter(self):
