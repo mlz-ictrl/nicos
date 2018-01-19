@@ -213,8 +213,7 @@ class ScriptRequest(Request):
             self.text = text
             session.scriptEvent('update', (self.name, self.text))
             # also set the updating user as the new user of the script
-            # (but the old userlevel remains)
-            self.user = user.name
+            self.user = user
             if session._experiment and session.mode == MASTER:
                 scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
