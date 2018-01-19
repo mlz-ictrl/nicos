@@ -25,28 +25,26 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition='(sixfold_value == \'closed\' or nl5_value == \'closed\') '
-                   'and reactorpower_value > 19.1',
-         message='NL5 or sixfold shutter closed',
-         type='critical',
-         ),
+    dict(
+        condition = '(sixfold_value == \'closed\' or nl5_value == \'closed\') '
+                    'and reactorpower_value > 19.1',
+        message = 'NL5 or sixfold shutter closed',
+        type = 'critical',
+    ),
 ]
 
 includes = ['notifiers']
 
 notifiers = {
-    'default':  ['email'],
+    'default': ['email'],
     'critical': ['email', 'smser'],
 }
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-                      # use only 'localhost' if the cache is really running on
-                      # the same machine, otherwise use the official computer
-                      # name
-                      cache = 'localhost',
-                      notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
-                      watch = watchlist,
-                     ),
+        cache = 'localhost',
+        notifiers = notifiers,
+        mailreceiverkey = 'email/receivers',
+        watch = watchlist,
+    ),
 )
