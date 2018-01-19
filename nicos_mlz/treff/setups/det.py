@@ -5,6 +5,7 @@ group = "basic"
 
 includes = [
     "counter",
+    "shutter",
     "sampletable",
     "guidehall",
     "nl5",
@@ -50,9 +51,11 @@ devices = dict(
         description = "ROI 1",
         roi = (123, 50, 14, 140),
     ),
-    det = device("nicos.devices.generic.Detector",
+    det = device("nicos_mlz.maria.devices.detector.MariaDetector",
         description = "Jumiom detector",
+        shutter = "expshutter",
         timers = ["timer"],
+        lives = ["timer"],
         monitors = ["mon0", "mon1"],
         images = ["detimg"],
         counters = ["roi1"],

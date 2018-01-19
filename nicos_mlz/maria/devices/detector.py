@@ -65,6 +65,8 @@ class MariaDetector(Detector):
 
     attached_devices = {
         "shutter": Attach("Shutter to open before exposure", Moveable),
+        "lives": Attach("Live channels", PassiveChannel,
+                        multiple=True, optional=True)
     }
 
     parameters = {
@@ -90,3 +92,30 @@ class MariaDetector(Detector):
         if not self.ctrl_shutter:
             adevs.pop(self._attached_shutter.name)
         return adevs
+
+    def _presetiter(self):
+        for i, dev in enumerate(self._attached_lives):
+            if i == 0:
+                yield ("live", dev)
+            yield ("live%d" % (i + 1), dev)
+        for itm in Detector._presetiter(self):
+            yield itm
+
+    def doSetPreset(self, **preset):
+        Detector.doSetPreset(self, **preset)
+        preset = self._getPreset(preset)
+        if not preset:
+            return
+
+        for dev in self._attached_lives:
+            dev.islive = False
+
+        for name in preset:
+            if name in self._presetkeys and name.startswith("live"):
+                dev = self._presetkeys[name]
+                dev.ismaster = True
+                dev.islive = True
+        self.log.debug("   presets: %s", preset)
+        self.log.debug("presetkeys: %s", self._presetkeys)
+        self.log.debug("   masters: %s", self._masters)
+        self.log.debug("    slaves: %s", self._slaves)

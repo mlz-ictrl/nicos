@@ -106,7 +106,14 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
 class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
     """FPGATimerChannel implements one time channel for ZEA-2 counter card."""
 
+    parameters = {
+        'islive': Param('If this channel is a live channel', type=bool,
+                        settable=True, userparam=False, default=False),
+    }
+
     def _setPreselection(self):
+        if self.islive:  # do not set presets on live setting
+            return
         # Time limit 0 counts without limit, so set it to 1 ms instead
         # (this is typically an accident, but counting infinitely is more
         # likely to cause lost beamtime).

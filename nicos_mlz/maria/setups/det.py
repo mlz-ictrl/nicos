@@ -67,6 +67,7 @@ devices = dict(
         description = "Denex detector",
         shutter = "shutter",
         timers = ["timer"],
+        lives = ["timer"],
         monitors = ["mon0", "mon1"],
         images = ["detimg"],
         counters = ["roi1", "roi2", "roi3", "roi4", "roi5", "roi6"],
