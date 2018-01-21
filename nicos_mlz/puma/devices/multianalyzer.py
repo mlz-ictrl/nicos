@@ -73,9 +73,11 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     valuetype = tupleof(*(float for i in range(2 * _num_axes)))
 
-    def doInit(self, mode):
+    def doPreinit(self, mode):
         self._rotation = self._attached_rotations
         self._translation = self._attached_translations
+
+    def doInit(self, mode):
         self._setROParam('_status', False)
 
     def doIsAllowed(self, target):
@@ -133,7 +135,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     def valueInfo(self):
         ret = []
-        for dev in self._attached_translations + self._attached_rotations:
+        for dev in self._translation + self._rotation:
             ret.extend(dev.valueInfo())
         return tuple(ret)
 
