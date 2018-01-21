@@ -27,6 +27,8 @@ rg_refdirection = 'lower'
 rg_zerosteps = 500000
 rg_refstep = 100
 
+level = False
+
 devices = dict(
     # Detectors
     st_rd11 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
@@ -194,6 +196,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 38.611, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd10 = device('nicos.devices.generic.Axis',
         description = 'Detector 10 position',
@@ -202,6 +205,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 36.198, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd9 = device('nicos.devices.generic.Axis',
         description = 'Detector 9 position',
@@ -210,6 +214,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 33.722, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd8 = device('nicos.devices.generic.Axis',
         description = 'Detector 8 position',
@@ -218,6 +223,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 31.257, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd7 = device('nicos.devices.generic.Axis',
         description = 'Detector 7 position',
@@ -226,6 +232,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 28.892,
         maxtries = 1,
+        lowlevel = level,
     ),
     rd6 = device('nicos.devices.generic.Axis',
         description = 'Detector 6 position',
@@ -234,6 +241,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 26.499, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd5 = device('nicos.devices.generic.Axis',
         description = 'Detector 5 position',
@@ -242,6 +250,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 24.042, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd4 = device('nicos.devices.generic.Axis',
         description = 'Detector 4 position',
@@ -250,6 +259,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 21.652, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd3 = device('nicos.devices.generic.Axis',
         description = 'Detector 3 position',
@@ -258,6 +268,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 19.164, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd2 = device('nicos.devices.generic.Axis',
         description = 'Detector 2 position',
@@ -266,6 +277,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 16.857, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     rd1 = device('nicos.devices.generic.Axis',
         description = 'Detector 1 position',
@@ -274,6 +286,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 14.372, # 0
         maxtries = 1,
+        lowlevel = level,
     ),
     # Guides
     st_rg11 = device('nicos_mlz.puma.devices.ipc_puma.ReferenceMotor',
@@ -426,6 +439,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.27,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg10 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 10 guide',
@@ -434,6 +448,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.24,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg9 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 9 guide',
@@ -442,6 +457,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.13,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg8 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 8 guide',
@@ -450,6 +466,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.11,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg7 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 7 guide',
@@ -458,6 +475,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.34,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg6 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 6 guide',
@@ -466,6 +484,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.22,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg5 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 5 guide',
@@ -474,6 +493,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.41,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg4 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 4 guide',
@@ -482,6 +502,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.02,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg3 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 3 guide',
@@ -490,6 +511,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.04,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg2 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 2 guide',
@@ -498,6 +520,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.27,
         maxtries = 1,
+        lowlevel = level,
     ),
     rg1 = device('nicos.devices.generic.Axis',
         description = 'Rotation of the detector 1 guide',
@@ -506,6 +529,7 @@ devices = dict(
         precision = 0.01,
         offset = 0, # 7.73,
         maxtries = 1,
+        lowlevel = level,
     ),
     med = device('nicos_mlz.puma.devices.multidetector.PumaMultiDetectorLayout',
         description = 'PUMA multi detector',

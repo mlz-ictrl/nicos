@@ -2,6 +2,8 @@ description = 'PUMA multianalyzer device'
 
 group = 'optional'
 
+level = False
+
 devices = dict(
     man = device('nicos_mlz.puma.devices.multianalyzer.PumaMultiAnalyzer',
         description = 'PUMA multi analyzer',
@@ -33,6 +35,7 @@ for i in range(1, 12):
             speed = 5.0,
         ),
         precision = 0.01,
+        lowlevel = level,
     )
     devices['ra%d' % i] = device('nicos.devices.generic.Axis',
         description = 'Rotation crystal %d multianalyzer' % i,
@@ -45,4 +48,5 @@ for i in range(1, 12):
             speed = 5.0,
         ),
         precision = 0.01,
+        lowlevel = level,
     )

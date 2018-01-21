@@ -10,6 +10,8 @@ excludes = ['detector', 'vtof', 'refsans', 'qmchannel', 'vspodi']
 
 modules = ['nicos_mlz.puma.commands']
 
+level = False
+
 devices = dict(
     med = device('nicos_mlz.puma.devices.multidetector.PumaMultiDetectorLayout',
         description = 'PUMA multi detector',
@@ -111,6 +113,7 @@ for i in range(11):
             speed = 3,
         ),
         precision = 0.01,
+        lowlevel = level,
     )
     devices['rg%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation guide %d multidetector' % (i + 1),
@@ -122,6 +125,7 @@ for i in range(11):
             speed = 1,
         ),
         precision = 0.01,
+        lowlevel = level,
     )
     devices['ctr%d' % (i + 1)] = device('nicos.devices.generic.VirtualCounter',
         lowlevel = True,
