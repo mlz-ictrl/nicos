@@ -88,6 +88,7 @@ devices = dict(
 
 extended = dict(
     poller_cache_reader = ['det_x', 'det_y', 'det_z'],
+    representative = 'resolution',
 )
 
 alias_config = {

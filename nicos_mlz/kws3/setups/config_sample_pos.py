@@ -3,16 +3,16 @@ group = 'configdata'
 
 #open_pos_mir_ap2  = (0, 3, 75, 20)
 # with 2.2T JEM:
-open_pos_mir_ap2  = (0, 3.0, 80, 20)
-open_pos_sam10_ap = (0, 0, 100,  83)
+open_pos_mir_ap2  = (0, 3.0, 100, 23)
+open_pos_sam10_ap = (-0.25, -10, 100,  40)
 open_pos_sam01_ap = (0, 0, 25,  25)
 
 
 #open_pos_sam10_ap = (1, -11.5, 27,  22)
 
 
-dock_pos_sam10_x = 150.000
-dock_pos_sam10_y = 5.000
+dock_pos_sam10_x = 140.000
+dock_pos_sam10_y = 1.000
 
 dock_pos_sam01_x = 150.00
 dock_pos_sam01_y = 30.00

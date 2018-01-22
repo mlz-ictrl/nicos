@@ -59,9 +59,11 @@ devices = dict(
         timers = ['timer'],
         monitors = ['mon1', 'mon2'],
         images = ['det_img'],
-        counters = ['det_5x5max'],
+        counters = [],
+#        counters = ['det_5x5max'],
         others = [],
-        postprocess = [('det_5x5max', 'det_img')],
+        postprocess = [],
+#        postprocess = [('det_5x5max', 'det_img')],
         shutter = 'shutter',
         liveinterval = 2.0,
     ),
@@ -69,6 +71,7 @@ devices = dict(
 
 extended = dict(
     poller_cache_reader = ['shutter'],
+    representative = 'det',
 )
 
 alias_config = {
