@@ -111,7 +111,8 @@ class MariaDetector(Detector):
             dev.islive = False
 
         for name in preset:
-            if name in self._presetkeys and name.startswith("live"):
+            if name in self._presetkeys and self._presetkeys[name] and \
+                    name.startswith("live"):
                 dev = self._presetkeys[name]
                 dev.ismaster = True
                 dev.islive = True
