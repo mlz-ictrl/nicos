@@ -40,4 +40,24 @@ devices = dict(
                             description='WFM Chopper Cascade IOC',
                             lowlevel=True,
                             requires={'user': 'admin'}),
+
+    wfm_c1=device('nicos_ess.v20.devices.jcns_choppers.JCNSChopper',
+                  unit='Deg',
+                  pvprefix='V20:C01:',
+                  description='WFM Chopper 1'),
+
+    wfm_c2=device('nicos_ess.v20.devices.jcns_choppers.JCNSChopper',
+                  unit='Deg',
+                  pvprefix='V20:C02:',
+                  description='WFM Chopper 2'),
+
+    wfm_c3=device('nicos_ess.v20.devices.jcns_choppers.JCNSChopper',
+                  unit='Deg',
+                  pvprefix='V20:C03:',
+                  description='WFM Chopper 3'),
+
+    wfm_c4=device('nicos_ess.v20.devices.jcns_choppers.JCNSChopper',
+                  unit='Deg',
+                  pvprefix='V20:C04:',
+                  description='WFM Chopper 4')
 )
