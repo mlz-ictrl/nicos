@@ -23,10 +23,10 @@ devices = dict(
     # depending on the hashing algorithm
     Auth   = device('nicos.services.daemon.auth.list.Authenticator',
                     # the hashing maybe 'md5' or 'sha1'
-                    hashing = 'md5',
-                    passwd = [('guest', '', 'guest'),
-                              ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),
-                              ('admin', 'f3309476bdb36550aa8fb90ae748c9cc', 'admin'),
+                    hashing = 'sha1',
+                    passwd = [('guest', '5698b08399150da341866a25e24a86e75e6b824d', 'guest'),
+                              ('user', '0d0d9cd4c8e8a5e2e41fc213b9583b8d57127f0b', 'user'),
+                              ('admin', '16b240db2878a9b89fd2ad342195e50baef45564', 'admin'),
                              ],
                    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
