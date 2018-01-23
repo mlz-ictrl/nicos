@@ -344,7 +344,6 @@ class TimeScan(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, 'timescan.ui')
-        self.numpoints.valueChanged.connect(self.on_range_change)
         self.seconds.valueChanged.connect(self.changed)
 
     def on_infBox_toggled(self, on):
