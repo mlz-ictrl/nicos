@@ -1,4 +1,4 @@
-description = 'WFM choppers'
+description = 'WFM Chopper cascade'
 servername = 'EXV20'
 nameservice = '192.168.1.254'
 
@@ -33,4 +33,11 @@ devices = dict(
                                 b='stage_wfm2',
                                 coordinates='equal',
                                 ),
+
+    wfm_choppers_ioc=device('nicos_ess.v20.devices.rest_service.RestServiceClientDevice',
+                            host='172.17.0.2:8080',
+                            service='wfm_chopper_cascade',
+                            description='WFM Chopper Cascade IOC',
+                            lowlevel=True,
+                            requires={'user': 'admin'}),
 )
