@@ -402,9 +402,9 @@ class PumaSecondaryCollimator(HasTimeout, BlockingSequencer):
                 if self._pairs[i].read(maxage) == 'frame':
                     res0 |= 1 << i
         if self._pairs[3].read(maxage) == 'frame':
-            self.log.info('diaphragma alpha2 in beam')
+            self.log.debug('diaphragma alpha2 in beam')
         else:
-            self.log.info('no diaphragma alpha2 in beam')
+            self.log.debug('no diaphragma alpha2 in beam')
         for i, val in enumerate(self._switchlist[1]):
             if res0 == val:
                 return self._switchlist[0][i]
