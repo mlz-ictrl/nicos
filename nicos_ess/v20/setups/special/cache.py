@@ -5,7 +5,7 @@ group = 'special'
 
 devices = dict(
     DB     = device('nicos.services.cache.server.FlatfileCacheDatabase',
-                    storepath = '/home/pi/nicos-core/data/cache',
+                    storepath = '/opt/nicos-data/data/cache',
                     loglevel = 'info',
                    ),
 

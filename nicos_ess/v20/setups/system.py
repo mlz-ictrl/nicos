@@ -80,7 +80,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp      = device('nicos.devices.experiment.Experiment',
                       description = 'experiment object',
-                      dataroot = '/home/pi/nicos-core/data',
+                      dataroot = '/opt/nicos-data/data',
                       sendmail = True,
                       serviceexp = 'p0',
                       sample = 'Sample',
@@ -97,7 +97,7 @@ devices = dict(
 
     Space    = device('nicos.devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      path = '/home/pi/nicos-core/data',
+                      path = '/opt/nicos-data/data',
                       minfree = 5,
                      ),
 )
