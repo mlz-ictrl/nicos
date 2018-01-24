@@ -91,7 +91,6 @@ devices = dict(
         obs = [],
         precision = 0.005,
         offset = 0,
-        userlimits = (5, 355),
         maxtries = 5,
     ),
 

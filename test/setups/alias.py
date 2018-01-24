@@ -54,12 +54,12 @@ devices = dict(
         unit = 'mm',
         curvalue = 0,
         abslimits = (-100, 100),
+        userlimits = (-50, 50),
     ),
     axis = device('nicos.devices.generic.Axis',
         motor = 'axis_motor',
         coder = 'axis_motor',
         obs = [],
         precision = 0,
-        userlimits = (-50, 50),
     ),
 )

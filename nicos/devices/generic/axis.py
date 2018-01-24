@@ -86,6 +86,14 @@ class Axis(CanReference, AbstractAxis):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
+        # Check for userlimits in configuration
+        if 'userlimits' in self._config:
+            self.log.warning('userlimits in setup file ignored; configure '
+                             'them on the motor device if really needed')
+        if getattr(self._attached_motor, 'offset', 0) != 0:
+            self.log.warning('motor has a nonzero offset; this will cause '
+                             'general confusion and problems with userlimits')
+
         self._hascoder = self._attached_coder is not None and \
             self._attached_motor != self._attached_coder
         self._errorstate = None
@@ -106,42 +114,44 @@ class Axis(CanReference, AbstractAxis):
     def doReadUnit(self):
         return self._attached_motor.unit
 
-    def _readlimits(self, configkey):  # abslimits or userlimits
-        # should not raise when changing offset
-        # therefore check for _new_offset attribute
-        mmin, mmax = getattr(self._attached_motor, configkey)
-        if configkey in self._config:
-            amin, amax = self._config[configkey]
-            if amin < mmin and not hasattr(self, '_new_offset'):
-                raise ConfigurationError(self, configkey + ': min (%s) below '
-                                         'motor\'s min (%s)' % (amin, mmin))
-            if amax > mmax and not hasattr(self, '_new_offset'):
-                raise ConfigurationError(self, configkey + ': max (%s) above '
-                                         'motor\'s max (%s)' % (amax, mmax))
+    def doReadAbslimits(self):
+        mot_amin, mot_amax = self._attached_motor.abslimits
+        # if abslimits are configured, use them, but they can only restrict,
+        # not widen, the motor's abslimits
+        if 'abslimits' in self._config:
+            amin, amax = self._config['abslimits']
+            if amin < mot_amin - abs(mot_amin * 1e-12):
+                raise ConfigurationError(self, 'abslimits: min (%s) below '
+                                         "motor's min (%s)" % (amin, mot_amin))
+            if amax > mot_amax + abs(mot_amax * 1e-12):
+                raise ConfigurationError(self, 'abslimits: max (%s) above '
+                                         "motor's max (%s)" % (amax, mot_amax))
         else:
-            amin, amax = mmin, mmax
+            amin, amax = mot_amin, mot_amax
         return amin, amax
 
-    def doReadAbslimits(self):
-        # check axis limits against motor's absolute limits
-        return self._readlimits('abslimits')
-
     def doReadUserlimits(self):
-        # check axis limits against motor's user limits
-        return self._readlimits('userlimits')
+        # userlimits are always taken from the motor to avoid multiple
+        # conflicting limit settings
+        umin, umax = self._attached_motor.userlimits
+        return umin - self.offset, umax - self.offset
 
     def doWriteUserlimits(self, limits):
         rval = AbstractAxis.doWriteUserlimits(self, limits)
         if rval:
             limits = rval
-        self._attached_motor.userlimits = (limits[0] + self.offset,
-                                           limits[1] + self.offset)
+        # if the offset is currently changing, we need to use _new_offset
+        self._attached_motor.userlimits = (
+            limits[0] + getattr(self, '_new_offset', self.offset),
+            limits[1] + getattr(self, '_new_offset', self.offset)
+        )
 
     def doIsAllowed(self, target):
         # do limit check here already instead of in the thread
         ok, why = self._attached_motor.isAllowed(target + self.offset)
         if not ok:
-            return ok, 'motor cannot move there: ' + why
+            return ok, 'motor cannot move there (offset = %.3f): %s' % (
+                self.offset, why)
         return True, ''
 
     def doStart(self, target):

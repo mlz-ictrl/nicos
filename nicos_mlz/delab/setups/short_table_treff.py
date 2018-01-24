@@ -21,8 +21,6 @@ devices = dict(
         obs = [],
         fmtstr = '%.3f',
         precision = 0.01,
-        abslimits = (0, 277),
-        userlimits = (0, 277),
     ),
     mo_y = device('nicos.devices.taco.Motor',
         lowlevel = True,
@@ -38,7 +36,5 @@ devices = dict(
         obs = [],
         fmtstr = '%.3f',
         precision = 0.01,
-        abslimits = (0, 264.5),
-        userlimits = (0, 264.5),
     ),
 )
