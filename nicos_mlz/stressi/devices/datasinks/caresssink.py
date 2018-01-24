@@ -418,7 +418,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         else:
             mastervalues = 'MM1(%s)SL1(TTHS ADET MON' % master
             for d in self.dataset.environment:
-                if hasattr(d, 'name') and d.name != 'etime':
+                if hasattr(d, 'name') and \
+                   d.name != 'etime' and \
+                   not d.name.endswith(':elapsedtime'):
                     mastervalues += ' %s' % d.name.upper()
             mastervalues += ')'
         self._defdata('MASTER1VALUES(%s)' % mastervalues)
@@ -529,7 +531,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         if self._scan_type != 'SGEN2':
             # Add environment devices to the SL1 (slaves)
             for dev in point.environment:
-                if hasattr(dev, 'name') and dev.name != 'etime':
+                if hasattr(dev, 'name') and \
+                   dev.name != 'etime' and \
+                   not dev.name.endswith(':elapsedtime'):
                     d[dev.name.upper()] = 0
         self._write_sl1(d)
 
@@ -649,7 +653,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self._write_integer(val)
         if self._scan_type != 'SGEN2':
             for (info, val) in zip(point.envvalueinfo, point.envvaluelist):
-                if hasattr(info, 'name') and info.name != 'etime':
+                if hasattr(info, 'name') and \
+                   info.name != 'etime' and \
+                   not info.name.endwith(':elapsedtime'):
                     self._write_float(val)
         self._detvalues = None
 
