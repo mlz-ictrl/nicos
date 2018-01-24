@@ -81,7 +81,7 @@ _measurement = Column(
         BlockRow(Field(dev='tepos',)),
         BlockRow(Field(dev='teext',)),
     ],
-    setups = 'tensile',
+    setups = 'tensile*',
     ),
 )
 
