@@ -105,10 +105,7 @@ def cleanup():
                     c.terminate()
                 sleep(0.5)
             else:
-                if nice_name.endswith('monitor-html'):
-                    proc.kill()
-                else:
-                    proc.terminate()
+                proc.terminate()
         except OSError as e:
             # might already have terminated early
             echo('could not stop %s: %s\n' % (nice_name, e))
