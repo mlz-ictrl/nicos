@@ -63,7 +63,7 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
     parameters = {
         'difflimit': Param('increment of the allowed angle movement of one '
                            'axis without collision of the other axis',
-                           type=floatrange(0, 5), settable=False, default=3.),
+                           type=floatrange(0, 60), settable=False, default=3.),
         'dragerror': Param('Maximum deviation between both axes when read out '
                            'during a positioning step', unit='main', default=1,
                            settable=True),
@@ -140,8 +140,8 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
                         self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
                                        i, tt + d, th - d)
                         self.__setDiffLimit()
-                        self.tt.move(tt + d)
                         self.th.move(th - d)
+                        self.tt.move(tt + d)
                         self._hw_wait()
                 else:
                     steps = 1
@@ -150,8 +150,8 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
                     self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
                                    steps, position, -position)
                     self.__setDiffLimit()
-                    self.tt.move(position)
                     self.th.move(-position)
+                    self.tt.move(position)
                     self._hw_wait()
                 if not self._checkReachedPosition(target):
                     PositionError(self, "couldn't reach requested position "
