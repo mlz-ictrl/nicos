@@ -40,7 +40,7 @@ class PolarizationFileSinkHandler(SingleFileSinkHandler):
         fp.seek(0)
         wrapper = TextIOWrapper(fp)
         wrapper.write('\n%s PUMA Polarisation File Header V2.0\n' %
-                      self.sink.commentchar * 3)
+                      (self.sink.commentchar * 3))
         # XXX(dataapi): add a utility function to convert metainfo to old
         # by-category format
         bycategory = {}
