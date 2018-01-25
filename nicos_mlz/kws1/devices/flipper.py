@@ -51,6 +51,10 @@ class Flipper(HasTimeout, Moveable):
         'unit':     Override(mandatory=False, default=''),
     }
 
+    def _getWaiters(self):
+        # since the PS is only used for readout, discard its target check
+        return [self._attached_output]
+
     def doStatus(self, maxage=0):
         if self._mode == SIMULATION:
             # in simulation mode, we don't know that the current will
