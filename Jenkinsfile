@@ -1,7 +1,5 @@
 #!groovy
 
-/* USED FOR 2.12 BRANCH ONLY */
-
 //*** job setup */
 properties([
     buildDiscarder(logRotator(artifactDaysToKeepStr: '',
@@ -11,9 +9,9 @@ properties([
     parameters([
         string(defaultValue: 'frm2/nicos/nicos-core',
                description: '', name: 'GERRIT_PROJECT'),
-        string(defaultValue: 'refs/heads/release-2.12',
+        string(defaultValue: 'refs/heads/master',
                description: '', name: 'GERRIT_BRANCH'),
-        string(defaultValue: 'refs/heads/release-2.12',
+        string(defaultValue: 'refs/heads/master',
                description: '', name: 'GERRIT_REFSPEC'),
         choice(choices: '''\
 patchset-created
@@ -34,17 +32,21 @@ change-merged''',
             paramsToUseForLimit: '',
             throttleEnabled: false,
             throttleOption: 'project'],
-        pipelineTriggers([gerrit(commentTextParameterMode: 'PLAIN',
+        pipelineTriggers([gerrit(silent:true,
+                                 commentTextParameterMode: 'PLAIN',
                                  commitMessageParameterMode: 'PLAIN',
                                  customUrl: '',
                                  gerritProjects: [
                                      [pattern: 'frm2/nicos/nicos-core',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
-                                      branches: [[compareType: 'PLAIN', pattern: 'release-2.12'],
-                                                 [compareType: 'PLAIN', pattern: 'release-2.11'],],
-                                     ]
-                                 ],
+                                      branches: [[compareType: 'PLAIN', pattern: 'master'],
+                                                 [compareType: 'PLAIN', pattern: 'newprotocol'],
+                                                 [compareType: 'PLAIN', pattern: 'release-3.0'],
+                                                 [compareType: 'PLAIN', pattern: 'release-3.1'],
+                                                 [compareType: 'PLAIN', pattern: 'pylint17'],
+                                                 ],
+                                 ]],
                                  serverName: 'defaultServer',
                                  triggerOnEvents: [
                                         patchsetCreated(excludeDrafts: false,
@@ -63,11 +65,6 @@ change-merged''',
 this.verifyresult = [:]
 
 // ************* Function defs ***/
-def prepareNode() {
-    echo(GERRIT_PROJECT)
-    deleteDir()
-    unstash 'source'
-}
 
 def parseLogs(parserConfigurations) {
     step([$class: 'WarningsPublisher',
@@ -91,49 +88,79 @@ def parseLogs(parserConfigurations) {
           unstableTotalNormal: '0'])
 }
 
+def checkoutSource() {
+    echo(GERRIT_PROJECT)
+    deleteDir()
+    checkout(
+        changelog: true, poll: false,
+        scm: [$class: 'GitSCM',
+              branches: [[name: "$GERRIT_BRANCH"]],
+              doGenerateSubmoduleConfigurations: false, submoduleCfg: [],
+              userRemoteConfigs: [
+                  [refspec: GERRIT_REFSPEC,
+                   // use local mirror via git
+                   url: 'file:///home/git/' + GERRIT_PROJECT
+                   // use gerrit directly
+                   //credentialsId: 'jenkinsforge',
+                   //url: 'ssh://forge.frm2.tum.de:29418/' + GERRIT_PROJECT,
+                  ]
+              ],
+              extensions: [
+                  [$class: 'CleanCheckout'],
+                  [$class: 'LocalBranch', localBranch: 'check'],
+                  [$class: 'hudson.plugins.git.extensions.impl.BuildChooserSetting',
+                   buildChooser: [$class: "com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser"]],
+              ]
+            ]
+        )
+    sh '''git describe'''
+    sh '''#!/bin/bash
+if [[ ! -d ciscripts ]] ;  then
+    echo "Rebasing change to get ciscripts: If this fails, rebase manually!"
+    git rebase -f -v origin/$GERRIT_BRANCH
+fi'''
+}
+
+def publishGerrit(name, value) {
+    gerritverificationpublisher([
+        verifyStatusValue: value,
+        verifyStatusName: name,
+        verifyStatusCategory: 'test',
+        verifyStatusReporter: 'jenkins',
+        verifyStatusRerun: '@recheck'
+    ])
+
+}
+
+
+def refreshVenv(venv='$NICOSVENV', checkupdates=false) {
+    def res = sh([returnStdout:true, script: "./ciscripts/run_venvupdate.sh $venv"])
+
+    echo res
+    if (checkupdates) {
+        def pconf = [
+            [parserName: 'pip-output-error', pattern: 'pip.out'],
+            [parserName: 'pip-output-error-compile', pattern: 'pip.out'],
+            [parserName: 'pip-output-updated', pattern: 'pip.out'],
+        ]
+        writeFile ([file: 'pip.out', text: res])
+        warnings([canComputeNew: false,
+              canResolveRelativePaths: false,
+              canRunOnFailed: true,
+              failedTotalAll: '0',
+              healthy: '0',
+              parserConfigurations: pconf,
+              unHealthy: '1',
+        ])
+    }
+}
+
 def runPylint() {
     verifyresult.put('pylint',0)
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
-            sh '''\
-#! /bin/bash
-. ~/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
-echo $PATH
-set +x
-
-# map instrument libs into nicos tree (pylint does not use the nicos path magic :( )
-pushd custom
-for d in *; do test -d $d && (ln -s $PWD/$d/lib ../nicos/$d); done
-for d in *; do test -d $d && test -d $d/lib && (ln -s $PWD/$d/lib ../nicos_mlz/$d); done
-for d in *; do test -d $d && test -d $d/lib && (ln -s . $PWD/$d/lib/devices); done
-popd
-set -x
-
-set +e
-PYFILESCHANGED=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/R[0-9]*\t[^\t]*\\(.*\\)/R\\1/' | sed -e 's/.\t//' |grep '.py$')
-if [[ -n "$PYFILESCHANGED" ]] ; then
-    PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt
-else
-    echo 'no python files changed'
-fi
-
-res=$?
-set -e
-
-# switch to the tools venv for running the pylint uploader
-. ~/toolsvenv/bin/activate
-~/tools/pylint2gerrit.py
-
-# cleanup
-set +x
-pushd custom
-for d in *; do test -d $d && rm -f ../nicos/$d; done
-for d in *; do test -d $d && rm -f ../nicos_mlz/$d/devices; done
-for d in *; do test -d $d && rm -f $d/lib/devices; done
-popd
-set -x
-exit $res
-'''
+            refreshVenv()
+            sh './ciscripts/run_pylint.sh'
             verifyresult.put('pylint', 1)
         }
     }
@@ -141,13 +168,7 @@ exit $res
         verifyresult.put('pylint',-1)
     }
     echo "pylint: result=" + verifyresult['pylint']
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['pylint'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'pylint',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('pylint', verifyresult['pylint'])
 
     if (verifyresult['pylint'] < 0) {
         error('Failure in pylint')
@@ -159,19 +180,9 @@ def runSetupcheck() {
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP',
                                 variable: 'GERRITHTTP')]) {
+            refreshVenv()
             ansiColor('xterm') {
-                sh '''\
-#! /bin/bash
-. ~/pythonvenvs/nicos-w-sys-site-packs2/bin/activate
-
-tools/check_setups -o setupcheck.log -s custom/*/setups custom/*/guiconfig*.py || ((res++)) || /bin/true
-# */
-# switch to the tools venv for running the setupcheck uploader
-. ~/toolsvenv/bin/activate
-~/tools/sc2gerrit.py
-
-exit $((res))
-'''
+                sh './ciscripts/run_setupcheck.sh'
             }
             verifyresult.put('sc', 1)
         }
@@ -180,24 +191,18 @@ exit $((res))
         verifyresult.put('sc', -1)
     }
     echo "setupcheck: result=" + verifyresult['sc']
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['sc'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'setupcheck',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('setupcheck',verifyresult['sc'])
 
     if (verifyresult['sc'] < 0) {
          error('Failure in setupcheck')
     }
 }
 
-def runTests(venv, pyver, withcov) {
-
+def runTests(venv, pyver, withcov, checkpypiupdates=false) {
+    refreshVenv(venv, checkpypiupdates)
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
-addopts = --junit-xml=pytest.xml
+addopts = --junit-xml=pytest-${pyver}.xml
   --junit-prefix=$pyver""" + (withcov ? """
   --cov
   --cov-config=.coveragerc
@@ -205,23 +210,15 @@ addopts = --junit-xml=pytest.xml
   --cov-report=term
 """ : "")
 
+
     verifyresult.put(pyver, 0)
     try {
         portallocator([plainports:['NICOS_DAEMON_PORT',
                                    'NICOS_CACHE_PORT',
                                    'NICOS_CACHE_ALT_PORT']]) {
             timeout(10) {
-               withEnv(["VENV=$venv"]) {
-                  sh '''\
-#! /bin/bash
-echo $VENV
-set +x
-. ~/pythonvenvs/$VENV/bin/activate
-set -x
-
-pytest -v test'''
-verifyresult.put(pyver, 1)
-                } // withEnv
+              sh "./ciscripts/run_pytest.sh $venv"
+              verifyresult.put(pyver, 1)
             } // timeout
         } // wrap
     } catch(all) {
@@ -229,17 +226,11 @@ verifyresult.put(pyver, 1)
     }
 
     echo "Test $pyver: result=" + verifyresult[pyver]
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult[pyver],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'pytest-'+pyver,
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('pytest-'+pyver, verifyresult[pyver])
 
     junit([allowEmptyResults: true,
            keepLongStdio: true,
-           testResults: 'pytest.xml'])
+           testResults: "pytest-${pyver}.xml"])
     if (withcov) {
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: "cov-$pyver/*"])
@@ -259,23 +250,8 @@ verifyresult.put(pyver, 1)
 def runDocTest() {
     verifyresult.put('doc', 0)
     try {
-        sh '''\
-#!/bin/bash
-set +x
-. ~/pythonvenvs/nicos-w-sys-site-packs/bin/activate
-echo $PATH
-
-export doc_changed=`git diff --name-status \\`git merge-base HEAD HEAD^\\` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc`
-if [[ -n "$doc_changed" ]]; then
-
-    cd doc
-    make html
-    make latexpdf
-else
-    echo 'no changes in doc/'
-fi
-'''
-
+        refreshVenv()
+        sh './ciscripts/run_doctest.sh'
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'doc/build/latex/NICOS.*'])
         publishHTML([allowMissing: true,
@@ -290,14 +266,7 @@ fi
         verifyresult.put('doc',-1 )
     }
     echo "Docs: result=" + verifyresult['doc']
-
-    gerritverificationpublisher([
-        verifyStatusValue: verifyresult['doc'],
-        verifyStatusCategory: 'test ',
-        verifyStatusName: 'doc',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
+    publishGerrit('doc', verifyresult['doc'])
 
     if (verifyresult['doc'] < 0) {
         error('Failure in doc test')
@@ -309,105 +278,83 @@ fi
 // ************* Start main script ***/
 timestamps {
 
-stage(name: 'checkout code: ' + GERRIT_PROJECT) {
-    node('master') {
-        echo(GERRIT_PROJECT)
-        deleteDir()
-        checkout(
-            changelog: true, poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: "$GERRIT_BRANCH"]],
-                  doGenerateSubmoduleConfigurations: false, submoduleCfg: [],
-                  userRemoteConfigs: [
-                      [refspec: GERRIT_REFSPEC,
-                       // use local mirror via git
-                       url: 'file:///home/git/' + GERRIT_PROJECT
-                       // use gerrit directly
-                       //credentialsId: 'jenkinsforge',
-                       //url: 'ssh://forge.frm2.tum.de:29418/' + GERRIT_PROJECT,
-                      ]
-                  ],
-                  extensions: [
-                      [$class: 'CleanCheckout'],
-                      [$class: 'hudson.plugins.git.extensions.impl.BuildChooserSetting',
-                       buildChooser: [$class: "com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser"]],
-                  ]
-                 ])
-        sh '''git describe'''
-        stash(name: 'source', includes: '**, .git, .git/**', useDefaultExcludes: false)
+node('master') {
+    stage(name: 'checkout code: ' + GERRIT_PROJECT) {
+        checkoutSource()
     }
-}
 
-stage(name: 'prepare') {
-    def params = [
-        string(name: 'GERRIT_PROJECT', value: GERRIT_PROJECT),
-        string(name: 'GERRIT_BRANCH', value: GERRIT_BRANCH),
-        string(name: 'GERRIT_REFSPEC', value: GERRIT_REFSPEC),
-        string(name: 'GERRIT_EVENT_TYPE', value: GERRIT_EVENT_TYPE),
-        string(name: 'GERRIT_CHANGE_SUBJECT', value: GERRIT_CHANGE_SUBJECT),
-        string(name: 'GERRIT_CHANGE_URL', value: GERRIT_CHANGE_URL),
-    ]
-    if (GERRIT_EVENT == 'ref-updated') {  // only set for ref-updated
-        params << string(name: 'GERRIT_REFNAME', value: GERRIT_REFNAME)
+    stage(name: 'prepare') {
+        withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'), string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
+            docker.image('localhost:5000/nicos-jenkins:xenial').inside(){
+                sh  '''\
+#!/bin/bash
+export PYTHONIOENCODING=utf-8
+~/tools2/bin/mlzrmupdater
+'''
+            }
+        }
     }
-    if (GERRIT_EVENT != 'ref-updated') {  // these are not set for ref-updated
-        params << string(name: 'GERRIT_PATCHSET_NUMBER', value: GERRIT_PATCHSET_NUMBER)
-        params << string(name: 'GERRIT_PATCHSET_REVISION', value: GERRIT_PATCHSET_REVISION)
-    }
-    build ([job: 'NicosUpdateRedminePre',
-            parameters: params])
-}
 
-//
+u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
+u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
+
 parallel pylint: {
     stage(name: 'pylint') {
-        node('ubuntu12.04') {
-            prepareNode()
-            runPylint()
-            parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
+        u16.inside('-v /home/git:/home/git') {
+                runPylint()
+                parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
         }
     }
 }, setup_check: {
     stage(name: 'Nicos Setup check') {
-        node('ubuntu12.04') {
-            prepareNode()
-            timeout(5) {
-                runSetupcheck()
-            }
-            parseLogs([
-                [parserName: 'nicos-setup-check-syntax-errors', pattern: 'setupcheck.log'],
-                [parserName: 'nicos-setup-check-errors-file', pattern: 'setupcheck.log'],
-                [parserName: 'nicos-setup-check-warnings', pattern: 'setupcheck.log'],
-            ])
+        u16.inside('-v /home/git:/home/git') {
+                timeout(5) {
+                    runSetupcheck()
+                }
+                parseLogs([
+                    [parserName: 'nicos-setup-check-syntax-errors', pattern: 'setupcheck.log'],
+                    [parserName: 'nicos-setup-check-errors-file', pattern: 'setupcheck.log'],
+                    [parserName: 'nicos-setup-check-warnings', pattern: 'setupcheck.log'],
+                ])
         }
     }
 }, test_python2: {
     stage(name: 'Python2 tests')  {
-        node('ubuntu12.04') {
-            prepareNode()
-            runTests( 'nicos-w-sys-site-packs2', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
+        ws {
+            checkoutSource()
+            docker.image('localhost:5000/kafka').withRun() { kafka ->
+                sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
+                sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
+                sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
+                u14.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
+                    runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
+                }
+            }
         }
     }
 }, test_python2centos: {
     stage(name: 'Python2(centos) tests') {
         if (GERRIT_EVENT_TYPE == 'change-merged') {
-            node('CentOS && jenkins && !i386') {
-                prepareNode()
-                runTests('nicos-w-sys-site-packs2', 'python2-centos', false)
+            ws {
+                checkoutSource()
+                docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
+                    runTests('$NICOSVENV', 'python2-centos', false, true)
+                }
             }
         }
     }
 }, test_python3: {
     stage(name: 'Python3 tests') {
-        node('ubuntu14.04') {
-            prepareNode()
-            runTests('nicos-py3-new', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+        ws {
+            checkoutSource()
+            u16.inside('-v /home/git:/home/git') {
+                runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+            }
         }
     }
 }, test_docs: {
     stage(name: 'Test docs') {
-        node('ubuntu-12-2') {
-            prepareNode()
+        docker.image('localhost:5000/nicos-docs:latest').inside(){
             runDocTest()
         }
     }
@@ -416,4 +363,5 @@ failFast: false
 
 /*** set final vote **/
 setGerritReview()
+}
 }
