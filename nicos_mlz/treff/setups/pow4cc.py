@@ -11,9 +11,11 @@ devices = dict(
     pow4hf = device('nicos.devices.tango.PowerSupply',
         description = "Power supply 4 current control ch 1",
         tangodevice = tango_base + "toellner/pow4hf",
+        voltage = 32.0,  # pflipper down
     ),
     pow4grad = device('nicos.devices.tango.PowerSupply',
         description = "Power supply 4 current control ch 2",
         tangodevice = tango_base + "toellner/pow4grad",
+        voltage = 17.66,
     ),
 )
