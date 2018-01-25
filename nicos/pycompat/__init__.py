@@ -167,3 +167,11 @@ else:
     def to_ascii_string(s):
         return s.encode('unicode-escape').decode('ascii')
     from io import TextIOWrapper
+
+# numpy 1.14+ compat
+import numpy
+
+try:
+    numpy.set_printoptions(sign=' ')
+except Exception:
+    pass
