@@ -139,7 +139,7 @@ class PNGLiveFileSink(ImageSink):
         if PIL is None:
             self.log.error(_import_error)
             raise NicosError(self, 'Python Image Library (PIL) is not ' +
-                             'available. Please check wether it is installed ' +
+                             'available. Please check whether it is installed ' +
                              'and in your PYTHONPATH')
 
     def isActiveForArray(self, arraydesc):
