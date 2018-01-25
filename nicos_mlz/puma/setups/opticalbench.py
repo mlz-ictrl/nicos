@@ -1,6 +1,6 @@
 description = 'Optical bank devices for polarization analysis'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['motorbus6']
 

@@ -4,6 +4,8 @@ description = 'Sample table'
 
 includes = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4']
 
+group = 'lowlevel'
+
 devices = dict(
     st_phi = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus4',

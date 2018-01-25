@@ -4,9 +4,9 @@ description = 'Multidetector motors'
 
 includes = ['system', 'motorbus10']
 
-excludes = ['detectorM', 'detector']
+excludes = []
 
-group = 'optional'
+group = 'lowlevel'
 
 modules = ['nicos_mlz.puma.commands']
 
@@ -539,38 +539,5 @@ devices = dict(
                     'rg9', 'rg10', 'rg11'],
         refgap = 1.5,
         att = 'att',
-    ),
-    timer = device('nicos.devices.taco.FRMTimerChannel',
-        description = 'QMesyDAQ timer',
-        tacodevice = '//%s/puma/qmesydaq/timer' % nethost,
-        lowlevel = True,
-    ),
-    mon1 = device('nicos.devices.taco.FRMCounterChannel',
-        description = 'QMesyDAQ monitor 1',
-        tacodevice = '//%s/puma/qmesydaq/counter0' % nethost,
-        type = 'monitor',
-        lowlevel = True,
-        fmtstr = '%d',
-    ),
-    events = device('nicos.devices.vendor.qmesydaq.taco.Counter',
-        description = 'QMesyDAQ Events channel',
-        tacodevice = '//%s/puma/qmesydaq/events' % nethost,
-        type = 'counter',
-        lowlevel = True,
-        fmtstr = '%d',
-    ),
-    image = device('nicos.devices.vendor.qmesydaq.taco.Image',
-        description = 'QMesyDAQ Image',
-        tacodevice = '//%s/puma/qmesydaq/det' % nethost,
-        lowlevel = True,
-    ),
-    multidet = device('nicos.devices.generic.Detector',
-        description = 'Puma detector QMesydaq device (3 counters)',
-        timers = ['timer'],
-        monitors = ['mon1'],
-        images = ['image'],
-        counters = [],
-        maxage = 86400,
-        pollinterval = None,
     ),
 )

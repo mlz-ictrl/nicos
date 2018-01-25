@@ -1,6 +1,6 @@
 description = 'Combined multianalyzer axis setup'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['analyser']
 
