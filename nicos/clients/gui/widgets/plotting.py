@@ -1075,8 +1075,12 @@ class DataSetPlot(NicosGrPlot):
             norm = [max(curve.datay)] * len(curve.datay)
         else:
             norm = curve.datanorm[self.normalized] if self.normalized else None
-        x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
-                               norm)
+        try:
+            x, y, dy = prepareData(curve.datax[xname], curve.datay,
+                                   curve.datady, norm)
+        except ValueError:
+            # TODO: string column, should ignore it completely...
+            x, y, dy = np.array([0]), np.array([0]), np.array([0])
         y = numpy.ma.masked_equal(y, 0)
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
