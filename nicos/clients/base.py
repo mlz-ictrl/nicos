@@ -501,7 +501,7 @@ class NicosClient(object):
                 key, value = item
             except ValueError:
                 continue
-            param = key.split('/')[1]
+            param = key.rsplit('/', 1)[1]
             params[param] = value
         return params
 
