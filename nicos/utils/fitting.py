@@ -121,8 +121,8 @@ class Fit(object):
                  xmin=None, xmax=None):
         self.title = title
         self.model = model
-        self.parnames = parnames or []
-        self.parstart = parstart or []
+        self.parnames = parnames if parnames is not None else []
+        self.parstart = parstart if parstart is not None else []
         self.xmin = xmin
         self.xmax = xmax
         if (parstart is not None and len(self.parnames) != len(self.parstart)):
@@ -172,7 +172,7 @@ class Fit(object):
 
         xn, yn, dyn = array(xn), array(yn), array(dyn)
 
-        if not self.parstart:
+        if not len(self.parstart):  # pylint: disable=len-as-condition
             try:
                 self.parstart = self.guesspar(xn, yn)
             except Exception as e:
@@ -181,7 +181,10 @@ class Fit(object):
 
         try:
             # pylint: disable=unbalanced-tuple-unpacking
-            popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
+            popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn,
+                                   # default of 1000 can be too restrictive,
+                                   # especially with automatic initial guess
+                                   maxfev=5000)
             parerrors = sqrt(abs(diagonal(pcov)))
         except (RuntimeError, ValueError, TypeError) as e:
             return self.result(xn, yn, dyn, None, None, msg=str(e))
