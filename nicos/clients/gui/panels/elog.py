@@ -115,7 +115,12 @@ class ELogPanel(Panel):
             bar.addWidget(btn)
 
             def callback():
-                self.preview.findText(box.text(), QWebPage.FindWrapsAroundDocument)
+                if hasattr(QWebPage, 'FindWrapsAroundDocument'):  # WebKit
+                    self.preview.findText(box.text(),
+                                          QWebPage.FindWrapsAroundDocument)
+                else:
+                    # WebEngine wraps automatically
+                    self.preview.findText(box.text())
             box.returnPressed.connect(callback)
             btn.clicked.connect(callback)
             self.bar = bar
