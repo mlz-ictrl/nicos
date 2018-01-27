@@ -217,12 +217,13 @@ def centerpeak(*args, **kwargs):
                     maw(dev, center)
                     session.log.error('no Gaussian fit found in this scan')
                     return
-                fit_center = params[0]
+                fit_center, fit_ampl, _fit_fwhm, fit_bkgd = params
                 if math.isnan(fit_center) or \
-                   not minvalue <= fit_center <= maxvalue:
+                   not (minvalue <= fit_center <= maxvalue) or \
+                   fit_ampl < fit_bkgd:
                     maw(dev, center)
-                    session.log.error('Gaussian fit center outside '
-                                      'scanning area')
+                    session.log.error('Gaussian peak too small, or center '
+                                      'outside scanning area')
                     return
                 thisround[dev] = fit_center
             maw(dev, thisround[dev])
