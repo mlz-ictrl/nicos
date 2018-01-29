@@ -655,7 +655,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             for (info, val) in zip(point.envvalueinfo, point.envvaluelist):
                 if hasattr(info, 'name') and \
                    info.name != 'etime' and \
-                   not info.name.endwith(':elapsedtime'):
+                   not info.name.endswith(':elapsedtime'):
                     self._write_float(val)
         self._detvalues = None
 
