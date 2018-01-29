@@ -329,15 +329,21 @@ class DataManager(object):
             result[ds.countertype + 'number'] = ds.number
         return result
 
-    def expandNameTemplates(self, nametemplates):
-        """Expand the given *nametemplates* with the current counter values."""
+    def expandNameTemplates(self, nametemplates, additionalinfo=None):
+        """Expand the given *nametemplates* with the current counter values
+        and the proposal information for the current experiment.
+
+        A dictionary of supplementary template values can be provided using
+        the `additionalinfo` keyword argument.
+        """
         if isinstance(nametemplates, string_types):
             nametemplates = [nametemplates]
         exc = None  # stores first exception if any
         # translate entries
         filenames = []
         for nametmpl in nametemplates:
-            kwds = dict(session.experiment.propinfo)
+            kwds = dict(additionalinfo) if additionalinfo else dict()
+            kwds.update(session.experiment.propinfo)
             kwds.update(self.getCounters())
             try:
                 filename = nametmpl % DeviceValueDict(kwds)
@@ -372,11 +378,16 @@ class DataManager(object):
         Keyword argument `nomeasdata` can be set to true in order to not record
         this as a measurement data file in the dataset.  (Useful for either
         temporary files or auxiliary data files.)
+
+        A dictionary of supplementary template values can be provided using
+        the `additionalinfo` keyword argument.
         """
         if dataset.counter == 0:
             raise ProgrammingError('a counter number must be assigned to the '
                                    'dataset first')
-        filenames = self.expandNameTemplates(nametemplates)
+        addinfo = kwargs.pop('additionalinfo', {})
+        filenames = self.expandNameTemplates(nametemplates,
+                                             additionalinfo=addinfo)
         filename = filenames[0]
         filepaths = [session.experiment.getDataFilename(ln, *subdirs)
                      for ln in filenames]
