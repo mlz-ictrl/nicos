@@ -98,9 +98,10 @@ def setForegroundBrush(widget, color):
 
 class SetupTreeWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, setupname, display_order):
+    def __init__(self, setupname, display_order, representative):
         QTreeWidgetItem.__init__(self, [setupname, '', ''], SETUP_TYPE)
         self.sortkey = (display_order, setupname)
+        self.representative = representative
 
     def __lt__(self, other):
         return self.sortkey < other.sortkey
@@ -319,7 +320,9 @@ class DevicesPanel(Panel):
 
         if cat not in self._catitems:
             display_order = self._setupinfo[cat].get('display_order', 50)
-            catitem = SetupTreeWidgetItem(cat, display_order)
+            representative = self._setupinfo[cat].get(
+                'extended', {}).get('representative', '').lower()
+            catitem = SetupTreeWidgetItem(cat, display_order, representative)
             catitem.setToolTip(0, self._setupinfo[cat].get('description', ''))
             f = catitem.font(0)
             f.setBold(True)
@@ -424,6 +427,9 @@ class DevicesPanel(Panel):
                 self._control_dialogs[ldevname].valuelabel.setText(
                     fmted + ' ' + devinfo[3])
             devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
+            if not devitem.parent().isExpanded():
+                if ldevname == devitem.parent().representative:
+                    devitem.parent().setText(1, fmted + ' ' + devinfo[3])
         elif subkey == 'status':
             if time < devinfo[8]:
                 return
@@ -513,6 +519,8 @@ class DevicesPanel(Panel):
                 self._devparamitems[ldevname][subkey].setText(1, value)
 
     def on_tree_itemExpanded(self, item):
+        if item.type() == SETUP_TYPE:
+            item.setText(1, '')
         item.setBackground(0, backgroundBrush[OK])
 
     def _getHighestStatus(self, item):
@@ -526,6 +534,8 @@ class DevicesPanel(Panel):
     def on_tree_itemCollapsed(self, item):
         if item.type() == SETUP_TYPE:
             item.setBackground(0, backgroundBrush[self._getHighestStatus(item)])
+            if item.representative:
+                item.setText(1, self._devitems[item.representative].text(1))
 
     def on_tree_customContextMenuRequested(self, point):
         item = self.tree.itemAt(point)

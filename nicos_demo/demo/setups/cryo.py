@@ -28,6 +28,10 @@ alias_config = {
     'Ts': {'T_sample': 100},
 }
 
+extended = dict(
+    representative = 'T',
+)
+
 startupcode = """
 AddEnvironment(T, Ts)
 """
