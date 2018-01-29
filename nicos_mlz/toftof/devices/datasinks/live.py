@@ -46,10 +46,10 @@ class ToftofLiveViewSinkHandler(TofSinkHandler):
                                                                       order='C')
                     (resY, resX), resZ = treated.shape, 1
                     session.updateLiveData('Live', self.dataset.uid,
-                                           self.detector.name, '',
-                                           '<u4', resX, resY, resZ,
+                                           self.detector.name, [''],
+                                           '<u4', [resX], [resY], [resZ],
                                            currenttime() - self.dataset.started,
-                                           memory_buffer(treated))
+                                           [memory_buffer(treated)])
 
 
 class ToftofLiveViewSink(TofSink):
