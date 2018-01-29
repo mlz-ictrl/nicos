@@ -26,11 +26,11 @@ import numpy
 from gzip import GzipFile as StdGzipFile
 
 from nicos.core.data.sink import GzipFile
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink, \
+from nicos.devices.datasinks.image import MultipleFileSinkHandler, ImageSink, \
     ImageFileReader
 
 
-class NPGZImageSinkHandler(SingleFileSinkHandler):
+class NPGZImageSinkHandler(MultipleFileSinkHandler):
     """Numpy text format filesaver using `numpy.savetxt`"""
 
     filetype = "NPGZ"
