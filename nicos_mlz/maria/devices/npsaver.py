@@ -26,12 +26,35 @@ import numpy
 from gzip import GzipFile as StdGzipFile
 
 from nicos.core.data.sink import GzipFile
+from nicos.pycompat import File
 from nicos.devices.datasinks.image import MultipleFileSinkHandler, ImageSink, \
     ImageFileReader
 
 
-class NPGZImageSinkHandler(MultipleFileSinkHandler):
+class NPImageSinkHandler(MultipleFileSinkHandler):
     """Numpy text format filesaver using `numpy.savetxt`"""
+
+    filetype = "TXT"
+
+    def writeData(self, fp, image):
+        numpy.savetxt(fp, numpy.asarray(image), fmt="%u")
+
+
+class NPFileSink(ImageSink):
+    handlerclass = NPImageSinkHandler
+
+
+class NPImageFileReader(ImageFileReader):
+    filetypes = [("txt", "Numpy Text Format (*.txt)")]
+
+    @classmethod
+    def fromfile(cls, filename):
+        """Reads numpy array from .txt file."""
+        return numpy.loadtxt(File(filename, 'r'))
+
+
+class NPGZImageSinkHandler(NPImageSinkHandler):
+    """Compressed Numpy text format filesaver using `numpy.savetxt`"""
 
     filetype = "NPGZ"
     fileclass = GzipFile
