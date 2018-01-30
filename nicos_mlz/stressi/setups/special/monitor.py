@@ -100,7 +100,7 @@ _eulerian = Column(
     Block('Sample Temperature', [
           BlockRow(Field(dev='T')),
     ],
-    setups = 'stressihtf or htf* or ccr*',
+    setups = 'stressihtf* or htf* or ccr*',
     ),
 )
 
