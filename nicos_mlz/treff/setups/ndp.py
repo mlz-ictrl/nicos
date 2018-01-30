@@ -30,7 +30,7 @@ devices = dict(
     LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
         description = "Sends image data to LiveViewWidget",
     ),
-    NPGZFileSink = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
+    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [

@@ -82,5 +82,5 @@ tools = [
 ]
 
 options = {
-    'reader_classes': ['nicos_mlz.maria.devices.npsaver'],
+    'reader_classes': ['nicos.devices.datasinks.text'],
 }

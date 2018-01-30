@@ -24,7 +24,7 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
-    NPGZFileSink = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
+    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [
