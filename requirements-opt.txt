@@ -1,0 +1,13 @@
+--extra-index-url https://forge.frm2.tum.de/simple
+mysql-connector-python-rf>=2.2.2
+pyserial>=2.5
+astropy>=2.0
+pyepics>=3.2.4
+nicos-quickyaml>=1.1.0
+docutils>=0.12
+redbaron>=0.6.3
+keyring>=10.2
+keyrings.alt>=2.0
+PyCrypto>=2.6.1
+slackclient>=1.0.9
+sshtunnel>=0.1.2

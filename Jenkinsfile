@@ -134,16 +134,16 @@ def publishGerrit(name, value) {
 
 
 def refreshVenv(venv='$NICOSVENV', checkupdates=false) {
-    def res = sh([returnStdout:true, script: "./ciscripts/run_venvupdate.sh $venv"])
+    sh("./ciscripts/run_venvupdate.sh $venv")
 
-    echo res
+    archiveArtifacts([allowEmptyArchive: true, artifacts: "pip-*.log"])
     if (checkupdates) {
+        // currently only core requirements are checked
         def pconf = [
-            [parserName: 'pip-output-error', pattern: 'pip.out'],
-            [parserName: 'pip-output-error-compile', pattern: 'pip.out'],
-            [parserName: 'pip-output-updated', pattern: 'pip.out'],
+            [parserName: 'pip-output-error', pattern: 'pip-core*.log'],
+            [parserName: 'pip-output-error-compile', pattern: 'pip-core*.log'],
+            [parserName: 'pip-output-updated', pattern: 'pip-core*.log'],
         ]
-        writeFile ([file: 'pip.out', text: res])
         warnings([canComputeNew: false,
               canResolveRelativePaths: false,
               canRunOnFailed: true,
