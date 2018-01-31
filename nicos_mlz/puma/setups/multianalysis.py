@@ -3,7 +3,7 @@ description = 'Classical multianalysis setup'
 group = 'basic'
 
 includes = ['pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers',
-            'multidet', 'multiana', 'cad', 'opticalbench']
+            'multidet', 'multiana', 'cad', 'opticalbench', 'detector']
 
 excludes = ['tas', 'defcal', 'polarization']
 

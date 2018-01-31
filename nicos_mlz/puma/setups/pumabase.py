@@ -1,5 +1,4 @@
-description = 'basic PUMA triple-axis setup'
-
+description = 'basic PUMA setup'
 
 includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor',
             'shutter']

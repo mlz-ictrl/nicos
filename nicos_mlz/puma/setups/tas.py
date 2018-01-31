@@ -5,10 +5,6 @@ includes = ['pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers',
 
 group = 'basic'
 
-group = 'lowlevel'
-
-nethost = 'pumasrv.puma.frm2'
-
 devices = dict(
     det = device('nicos.devices.generic.Detector',
         # description = 'Puma detector device (5 counters)',
