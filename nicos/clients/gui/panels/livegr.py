@@ -301,21 +301,23 @@ class LiveDataPanel(Panel):
         self.actionsROI.setExclusive(False)
         for detname in detectors:
             self.log.debug('checking rois for detector \'%s\'', detname)
-            for roi, _ in self.client.eval(detname + '.postprocess', ''):
+            for tup in self.client.eval(detname + '.postprocess', ''):
+                roi = tup[0]
                 cachekey = roi + '/roi'
-                key = cachekey.replace('/', '.')
-                value = self.client.eval(key)
-                self.on_roiChange(cachekey, value)
-                self.log.debug('register roi: %s', roi)
-                # create roi menu
-                action = self.menuROI.addAction(roi)
-                action.setCheckable(True)
-                self.actionsROI.addAction(action)
-                action.triggered.connect(self.on_roi_triggered)
-                self.actionROI.setMenu(self.menuROI)
-                if self.actionROI not in self.toolbar.actions():
-                    self.toolbar.addAction(self.actionROI)
-                    self.log.debug('add ROI menu')
+                # check whether or not this is a roi (cachekey exists).
+                keyval = self.client.getCacheKey(cachekey)
+                if keyval:
+                    self.on_roiChange(cachekey, keyval[1])
+                    self.log.debug('register roi: %s', roi)
+                    # create roi menu
+                    action = self.menuROI.addAction(roi)
+                    action.setCheckable(True)
+                    self.actionsROI.addAction(action)
+                    action.triggered.connect(self.on_roi_triggered)
+                    self.actionROI.setMenu(self.menuROI)
+                    if self.actionROI not in self.toolbar.actions():
+                        self.toolbar.addAction(self.actionROI)
+                        self.log.debug('add ROI menu')
 
     def on_actionROI_triggered(self):
         w = self.toolbar.widgetForAction(self.actionROI)
