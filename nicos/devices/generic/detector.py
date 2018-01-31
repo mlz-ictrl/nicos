@@ -33,6 +33,7 @@ from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
     Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
     LIVE, INTERMEDIATE, anytype, tupleof, Moveable, SubscanMeasurable
+from nicos.core.constants import FINAL
 from nicos.core.errors import ConfigurationError
 from nicos.core.utils import multiWait
 from nicos.utils import uniq
@@ -172,6 +173,62 @@ class RectROIChannel(PostprocessPassiveChannel):
 
     def valueInfo(self):
         return Value(name=self.name, type='counter', fmtstr='%d'),
+
+
+class RateChannel(PostprocessPassiveChannel):
+    """Calculate total counts and rate on `arrays` assuming `results[0]` is a
+    timer."""
+
+    parameter_overrides = {
+        'unit':   Override(default=''),
+        'fmtstr': Override(default='%d cts (%.1f cps)'),
+    }
+
+    _cts_seconds = None
+
+    def getReadResult(self, arrays, results, quality):
+        if self._cts_seconds is None:
+            self._cts_seconds = (len(arrays) + 1) * [0]
+        # assuming results[0] is a timer
+        seconds = results[0][0]
+
+        result = []
+        if seconds > 1e-9:
+            if quality in (FINAL, INTERMEDIATE) or seconds <= \
+                    self._cts_seconds[-1]:
+                # rate for full detector / time
+                for i, arr in enumerate(arrays):
+                    cts = arr.sum()
+                    result.append(cts)
+                    result.append(cts / seconds)
+                    self._cts_seconds[i] = cts
+            else:  # live rate on detector (using deltas)
+                for i, arr in enumerate(arrays):
+                    cts = arr.sum()
+                    result.append(cts)
+                    result.append((cts - self._cts_seconds[i]) / (
+                                            seconds - self._cts_seconds[-1]))
+                    self._cts_seconds[i] = cts
+            self._cts_seconds[-1] = seconds
+            return result
+        return (2 * len(arrays)) * [0]
+
+    def valueInfo(self):
+        tup = (Value(name=self.name, type='counter', fmtstr='%d',
+                     errors='sqrt', unit='cts'),
+               Value(name="rate", type="monitor", fmtstr="%.1f", unit="cps"))
+        if self.readresult:
+            return (len(self.readresult) /  2) * tup
+        return tup
+
+
+class RateRectROIChannel(RateChannel, RectROIChannel):
+    """Calculate total counts and rate in a rectangular region of interest."""
+
+    def getReadResult(self, arrays, results, quality):
+        rs = RectROIChannel.getReadResult(self, arrays, results, quality)
+        return RateChannel.getReadResult(self, numpy.asarray([rs]), results,
+                                         quality)
 
 
 class TimerChannelMixin(DeviceMixinBase):
