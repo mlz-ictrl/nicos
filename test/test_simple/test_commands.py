@@ -137,7 +137,7 @@ class TestBasic(object):
         # (but log an error) depending on setting on the experiment
         wrapped_maw = usercommandWrapper(maw)
         dev = session.getDevice('motor')
-        assert dev.usermin == -100
+        assert dev.usermin == -50
 
         SetErrorAbort(False)
         try:
@@ -243,12 +243,12 @@ class TestDevice(object):
     def test_move(self, session, log):
         """Check move() command."""
         motor = session.getDevice('motor')
-        for pos in (min(motor.abslimits), 0, max(motor.abslimits)):
+        for pos in (min(motor.userlimits), 0, max(motor.userlimits)):
             move(motor, pos)
             motor.wait()
             assert motor.curvalue == pos
 
-        assert raises(LimitError, move, motor, max(motor.abslimits) + 1)
+        assert raises(LimitError, move, motor, max(motor.userlimits) + 1)
 
         assert raises(UsageError, move)
         assert raises(UsageError, move, motor, 1, motor)
@@ -256,7 +256,7 @@ class TestDevice(object):
     def test_maw(self, session, log):
         """Check maw() command."""
         motor = session.getDevice('motor')
-        for pos in (min(motor.abslimits), 0, max(motor.abslimits)):
+        for pos in (min(motor.userlimits), 0, max(motor.userlimits)):
             maw(motor, pos)
             assert motor.curvalue == pos
 

@@ -82,8 +82,6 @@ class LiveViewSinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
-        if len(self.detector.arrayInfo()) > 1:
-            self.log.warning('image sink only supports one array per detector')
 
     def processArrays(self, result):
         """Derived classes may override this in order to pre process data

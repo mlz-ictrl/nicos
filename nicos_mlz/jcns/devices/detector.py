@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2018 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2018 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -22,16 +22,38 @@
 #
 # *****************************************************************************
 
-from nicos.core.params import Value
+from nicos.core.constants import FINAL, INTERRUPTED
+from nicos.core.device import Measurable
+from nicos.core.params import Value, Attach
 from nicos.devices.tango import ImageChannel
 
 
-class JumiomImageChannel(ImageChannel):
+class RateImageChannel(ImageChannel):
+
+    attached_devices = {
+        'timer': Attach('The timer channel', Measurable),
+    }
+
+    _cts_seconds = [0, 0]
 
     def doReadArray(self, quality):
         narray = ImageChannel.doReadArray(self, quality)
-        self.readresult = [narray.sum()]
+        seconds = self._attached_timer.read(0)[0]
+        cts = narray.sum()
+        cts_per_second = 0
+
+        if seconds > 1e-8:
+            if quality in (FINAL, INTERRUPTED) or seconds <= \
+                    self._cts_seconds[1]:  # rate for full detector / time
+                cts_per_second = cts / seconds
+            else:  # live rate on detector (using deltas)
+                cts_per_second = (cts - self._cts_seconds[0]) / (
+                                            seconds - self._cts_seconds[1])
+        self._cts_seconds = [cts, seconds]
+
+        self.readresult = [cts, cts_per_second]
         return narray
 
     def valueInfo(self):
-        return Value(name="total", type="counter", fmtstr="%d"),
+        return (Value(name="total", type="counter", fmtstr="%d", unit="cts"),
+                Value(name="rate", type="monitor", fmtstr="%.1f", unit="cps"))

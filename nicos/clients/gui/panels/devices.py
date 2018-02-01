@@ -396,7 +396,7 @@ class DevicesPanel(Panel):
         (time, key, op, value) = data
         if '/' not in key:
             return
-        ldevname, subkey = key.split('/')
+        ldevname, subkey = key.rsplit('/', 1)
         if ldevname not in self._devinfo:
             return
         if ldevname in self._control_dialogs:

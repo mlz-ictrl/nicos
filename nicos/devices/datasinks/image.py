@@ -77,6 +77,9 @@ class SingleFileSinkHandler(DataSinkHandler):
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._file = None
+        self._processArrayInfo(self.detector.arrayInfo())
+
+    def _processArrayInfo(self, arrayinfo):
         # determine which index of the detector value is our data array
         # XXX support more than one array
         arrayinfo = self.detector.arrayInfo()
@@ -84,13 +87,15 @@ class SingleFileSinkHandler(DataSinkHandler):
             self.log.warning('image sink only supports one array per detector')
         self._arraydesc = arrayinfo[0]
 
-    def _createFile(self):
+    def _createFile(self, **kwargs):
         if self._file is None:
             session.data.assignCounter(self.dataset)
             self._file = session.data.createDataFile(self.dataset,
                                                      self.sink.filenametemplate,
                                                      self.sink.subdir,
-                                                     fileclass=self.fileclass)
+                                                     fileclass=self.fileclass,
+                                                     **kwargs)
+        return self._file
 
     def prepare(self):
         if not self.defer_file_creation:
@@ -108,6 +113,18 @@ class SingleFileSinkHandler(DataSinkHandler):
         """Write the image data part of the file (second part)."""
         pass
 
+    def _putResult(self, quality, result):
+        image = result[1][0]
+        if image is None:
+            return
+        if self.defer_file_creation:
+            self._createFile()
+            self.writeHeader(self._file, self.dataset.metainfo, image)
+        self.writeData(self._file, image)
+        syncFile(self._file)
+        session.notifyDataFile(self.filetype, self.dataset.uid,
+                               self.detector.name, self._file.filepath)
+
     def putResults(self, quality, results):
         if quality == LIVE:
             return
@@ -118,16 +135,7 @@ class SingleFileSinkHandler(DataSinkHandler):
             result = results[self.detector.name]
             if result is None:
                 return
-            image = result[1][0]
-            if image is None:
-                return
-            if self.defer_file_creation:
-                self._createFile()
-                self.writeHeader(self._file, self.dataset.metainfo, image)
-            self.writeData(self._file, image)
-            syncFile(self._file)
-            session.notifyDataFile(self.filetype, self.dataset.uid,
-                                   self.detector.name, self._file.filepath)
+            self._putResult(quality, result)
 
     def putMetainfo(self, metainfo):
         if not self.defer_file_creation:
@@ -137,6 +145,62 @@ class SingleFileSinkHandler(DataSinkHandler):
     def end(self):
         if self._file:
             self._file.close()
+
+
+class MultipleFileSinkHandler(SingleFileSinkHandler):
+    """Provide a convenient base class for writing multiple data files.
+
+    This class creates one data file for each array in ``putResults`` per
+    (point) dataset created by a single detector. Arrays are enumerated using
+    the **arraynumber** counter type. The **arraynumber** can be used in
+    nametemplates as usual.
+    """
+
+    def __init__(self, sink, dataset, detector):
+        SingleFileSinkHandler.__init__(self, sink, dataset, detector)
+        self._files = []
+
+    def _processArrayInfo(self, arrayinfo):
+        self._arrayinfo = self.detector.arrayInfo()
+
+    def _putResult(self, quality, result):
+        if result[1][0] is None:
+            return
+        if self.defer_file_creation:
+            self._createFile()
+        for i, image in enumerate(result[1]):
+            fp = self._files[i]
+            self.writeHeader(fp, self.dataset.metainfo, image)
+            self.writeData(fp, image)
+            syncFile(fp)
+        session.notifyDataFile(self.filetype, self.dataset.uid,
+                               self.detector.name,
+                               [fp.filepath for fp in self._files])
+
+    def _createFile(self, **kwargs):
+        if self._file is None:
+            kwds = dict(kwargs)
+            for i in range(len(self._arrayinfo)):
+                kwds['additionalinfo'] = {
+                    'arraynumber': i + 1
+                }
+                self._files.append(
+                    SingleFileSinkHandler._createFile(self, **kwds))
+                self._file = None
+        if self._files:
+            self._file = self._files[0]
+        return self._file
+
+    def putMetainfo(self, metainfo):
+        if not self.defer_file_creation:
+            for fp in self._files:
+                fp.seek(0)
+                self.writeHeader(fp, self.dataset.metainfo, None)
+
+    def end(self):
+        for fp in self._files:
+            fp.close()
+        self._files = []  # clear
 
 
 class ReaderMeta(type):

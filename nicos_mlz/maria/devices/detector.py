@@ -22,43 +22,10 @@
 #
 # *****************************************************************************
 
-import numpy as np
-
-from nicos.core import status, Value, ArrayDesc, Attach, Moveable, Param
+from nicos.core import Attach, Moveable, Param
 from nicos.core.errors import InvalidValueError
-from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    Detector
+from nicos.devices.generic.detector import PassiveChannel, Detector
 from nicos_mlz.jcns.devices.shutter import OPEN, CLOSED
-
-
-class DenexImage(PyTangoDevice, ImageChannelMixin, PassiveChannel):
-
-    def doInit(self, mode):
-        self.arraydesc = ArrayDesc("coincimg", (1024, 1024), np.uint32)
-
-    def valueInfo(self):
-        return Value(name="total", type="counter", fmtstr="%d"),
-
-    def doReadArray(self, _quality):
-        narray = self._dev.value
-        self.readresult = [narray.sum()]
-        return narray.reshape(self.arraydesc.shape)
-
-    def doPrepare(self):
-        self._dev.Clear()
-
-    def doStart(self):
-        self._dev.Start()
-
-    def doFinish(self):
-        self._dev.Stop()
-
-    def doStop(self):
-        self._dev.Stop()
-
-    def doStatus(self, maxage=0):
-        return status.OK, "idle"
 
 
 class MariaDetector(Detector):
@@ -111,7 +78,8 @@ class MariaDetector(Detector):
             dev.islive = False
 
         for name in preset:
-            if name in self._presetkeys and name.startswith("live"):
+            if name in self._presetkeys and self._presetkeys[name] and \
+                    name.startswith("live"):
                 dev = self._presetkeys[name]
                 dev.ismaster = True
                 dev.islive = True

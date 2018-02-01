@@ -41,7 +41,7 @@ def test_params(session):
 
     # min/max parameters got from motor device
     assert axis.abslimits == (-100, +100)
-    # usermin/usermax parameters in the config
+    # usermin/usermax got from motor device
     assert axis.userlimits == (-50, +50)
     # unit automatically from motor device
     assert axis.unit == 'mm'
@@ -59,19 +59,34 @@ def test_motor_limits(session):
     axis = session.getDevice('nolimit_axis')
     motor = session.getDevice('nolimit_motor')
 
+    assert axis.offset == 0
     assert axis.abslimits == motor.abslimits == (-100, 100)
     assert axis.userlimits == motor.userlimits == (-50, 50)
 
     # test userlimits propagation
-    ul = axis.userlimits
-    delta = int(.1 * abs(ul[1] - ul[0]))
-    newul = (ul[0] - delta, ul[1] + delta)
+    newul = (-60, 60)
     axis.userlimits = newul
     assert axis.userlimits == motor.userlimits == newul
 
-    # test offset propagation
-    axis.offset = delta
-    assert axis.userlimits == (newul[0] - axis.offset, newul[1] - axis.offset)
+    # test for correct offset handling
+    offset = 20
+    axis.offset = offset
+    # axis userlimits should be shifted by offset
+    assert axis.userlimits == (newul[0] - offset, newul[1] - offset)
+    # motor userlimits should be unaffected
+    assert motor.userlimits == newul
+
+    # same after setting new userlimits
+    newul = (-120, 70)
+    axis.userlimits = newul
+    # axis userlimits should be given limits
+    assert axis.userlimits == newul
+    # motor userlimits should differ by offset
+    assert motor.userlimits == (newul[0] + offset, newul[1] + offset)
+
+    # now we must be able to move to the limits
+    axis.maw(-120)
+    axis.maw(70)
 
 
 def test_movement(session):

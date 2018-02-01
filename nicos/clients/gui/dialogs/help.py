@@ -118,10 +118,18 @@ class HelpWindow(QMainWindow):
 
     @pyqtSlot()
     def on_searchBtn_clicked(self):
-        self.webView.findText(self.searchBox.text())
+        self._search()
 
     def on_searchBox_returnPressed(self):
-        self.webView.findText(self.searchBox.text())
+        self._search()
+
+    def _search(self):
+        if hasattr(QWebPage, 'FindWrapsAroundDocument'):  # WebKit
+            self.webView.findText(self.searchBox.text(),
+                                  QWebPage.FindWrapsAroundDocument)
+        else:
+            # WebEngine wraps automatically
+            self.webView.findText(self.searchBox.text())
 
     @pyqtSlot()
     def on_closeBtn_clicked(self):

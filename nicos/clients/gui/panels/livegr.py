@@ -339,7 +339,7 @@ class LiveDataPanel(Panel):
                     del self._livewidgets[key]
                     break
             if key:
-                roi = key.split('/')[0]
+                roi = key.rsplit('/', 1)[0]
                 for action in self.actionsROI.actions():
                     if action.text() == roi:
                         action.setChecked(False)

@@ -55,7 +55,7 @@ class SelectorLambda(Moveable):
             return self._attached_tiltdev.read(maxage)
         return 0
 
-    def _constant(self, tiltang):
+    def _constant(self, tiltang=0):
         """Calculate the inverse proportional constant between speed (in rpm)
         and wavelength (in A), depending on the tilt angle (in degrees).
 

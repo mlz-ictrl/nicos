@@ -289,6 +289,7 @@ devices = dict(
         slope = 20000,
         unit = 'mm',
         abslimits = (-20, 20),
+        userlimits = (-15, 15),
         zerosteps = 500000,
         speed = 50,
         accel = 24,
@@ -305,7 +306,6 @@ devices = dict(
         obs = [],
         precision = 0.1,
         fmtstr = '%.3f',
-        userlimits = (-15, 15),
     ),
 
     # eigth device is not used yet...

@@ -24,7 +24,7 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
-    NPGZFileSink = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
+    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [
@@ -42,14 +42,21 @@ devices = dict(
     LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
         description = "Sends image data to LiveViewWidget",
     ),
-    detimg = device("nicos_mlz.treff.devices.detector.JumiomImageChannel",
+    detimg = device("nicos_mlz.jcns.devices.detector.RateImageChannel",
         description = "Jumiom detector image",
         tangodevice = tango_base + "/jumiom/det",
+        timer = "timer",
         size = (256, 256),
+        fmtstr="%d cts (%.1f cps)",
+        unit = "",
     ),
     roi1 = device("nicos.devices.generic.RectROIChannel",
         description = "ROI 1",
-        roi = (123, 50, 14, 140),
+        roi = (122, 50, 12, 140),
+    ),
+    roi2 = device("nicos.devices.generic.RectROIChannel",
+        description = "ROI 2",
+        roi = (122, 119, 12, 18),
     ),
     det = device("nicos_mlz.maria.devices.detector.MariaDetector",
         description = "Jumiom detector",
@@ -58,9 +65,10 @@ devices = dict(
         lives = ["timer"],
         monitors = ["mon0", "mon1"],
         images = ["detimg"],
-        counters = ["roi1"],
+        counters = ["roi1", "roi2"],
         postprocess = [
             ("roi1", "detimg"),
+            ("roi2", "detimg"),
         ],
         liveinterval = 1.,
     ),

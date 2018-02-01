@@ -74,7 +74,7 @@ Detailed version requirements can always be found in the requirements.txt
 file in the root of the source tree.
 
 If not supplied by the distribution (see below), most dependencies (except
-PytQt, sip) can be installed from the Python package repository::
+GR, PyQt, sip) can be installed from the Python package repository::
 
   pip install -r requirements.txt
 
@@ -92,6 +92,9 @@ For Ubuntu::
 Packages to install for common distributions
 --------------------------------------------
 
+GR runtime packages are available at:
+https://software.opensuse.org/download.html?project=science:gr-framework&package=gr
+
 Ubuntu
 ^^^^^^
 
@@ -106,7 +109,7 @@ Ubuntu
 
 * GUI and status monitor::
 
-     apt-get install python-{qt4,qscintilla2}
+     apt-get install python-{qt4,qscintilla2,gr}
 
 * Development and documentation build::
 

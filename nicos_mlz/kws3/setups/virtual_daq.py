@@ -17,7 +17,7 @@ basename = (
 )
 
 devices = dict(
-    np_sink = device('nicos_mlz.kws3.devices.npsaver.NPFileSink',
+    np_sink = device('nicos.devices.datasinks.text.NPFileSink',
         description = 'Saves image data in text format',
         filenametemplate = [basename + '.det'],
         lowlevel = True,

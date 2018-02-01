@@ -168,10 +168,10 @@ else:
         return s.encode('unicode-escape').decode('ascii')
     from io import TextIOWrapper
 
-# numpy 1.14+ compat
-import numpy
 
 try:
+    # numpy 1.14+ compat
+    import numpy
     numpy.set_printoptions(sign=' ')
 except Exception:
     pass

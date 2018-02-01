@@ -16,7 +16,7 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
-    NPGZFileSink = device("nicos_mlz.maria.devices.npsaver.NPGZFileSink",
+    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [
@@ -34,10 +34,12 @@ devices = dict(
     LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
         description = "Sends image data to LiveViewWidget",
     ),
-    detimg = device("nicos_mlz.maria.devices.detector.DenexImage",
+    detimg = device("nicos_mlz.jcns.devices.detector.RateImageChannel",
         description = "Denex detector image",
         tangodevice = tango_base + "/fastcomtec/detector",
-        fmtstr = "%d",
+        timer="timer",
+        fmtstr="%d cts (%.1f cps)",
+        unit = "",
     ),
     roi1 = device("nicos.devices.generic.RectROIChannel",
         description = "ROI 1",

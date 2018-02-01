@@ -86,7 +86,7 @@ class SafetyPanel(Panel):
 
     def on_client_cache(self, data):
         (_time, key, _op, value) = data
-        ldevname, subkey = key.split('/')
+        ldevname, subkey = key.rsplit('/', 1)
         if ldevname == self.devname:
             if subkey == 'value':
                 if not value:
