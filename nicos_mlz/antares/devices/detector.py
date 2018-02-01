@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param, Attach, status, DeviceMixinBase
+from nicos.core.utils import waitForCompletion
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD
 
@@ -58,7 +59,8 @@ class UsesFastshutter(DeviceMixinBase):
                 self.log.warning('resetting fast shutter before opening: it is'
                                  ' in error state')
                 fastshutter.reset()
-            fastshutter.move('open')
+            waitForCompletion(fastshutter)
+            fastshutter.maw('open')
 
 
 class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
