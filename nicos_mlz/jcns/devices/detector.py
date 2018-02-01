@@ -25,10 +25,18 @@
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable
 from nicos.core.params import Value, Attach
-from nicos.devices.tango import ImageChannel
+from nicos.devices.tango import ImageChannel as BaseImageChannel
 
 
-class RateImageChannel(ImageChannel):
+class ImageChannel(BaseImageChannel):
+
+    def doReadArray(self, quality):
+        narray = BaseImageChannel.doReadArray(self, quality)
+        self.readresult = [narray.sum()]
+        return narray
+
+
+class RateImageChannel(BaseImageChannel):
 
     attached_devices = {
         'timer': Attach('The timer channel', Measurable),
@@ -37,7 +45,7 @@ class RateImageChannel(ImageChannel):
     _cts_seconds = [0, 0]
 
     def doReadArray(self, quality):
-        narray = ImageChannel.doReadArray(self, quality)
+        narray = BaseImageChannel.doReadArray(self, quality)
         seconds = self._attached_timer.read(0)[0]
         cts = narray.sum()
         cts_per_second = 0
