@@ -343,11 +343,13 @@ for cryo, name in cryodict.items():
     cryoplots.append(
         Block(cryo.title(), [
             BlockRow(
-                Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotwindow=3600, width=25, height=25,
-                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
-                      names=['Setpoint', 'Regulation'],
-                ),
+                Field(plot=cryo, plotwindow=3600, width=50, height=30, key='t_%s/setpoint' % cryo),
+                Field(plot=cryo, plotwindow=3600, width=50, height=30, dev='t_%s' % cryo),
+#                Field(widget='nicos.guisupport.plots.TrendPlot',
+#                      plotwindow=3600, width=25, height=25,
+#                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
+#                      names=['Setpoint', 'Regulation'],
+#                ),
             ),
             ],
             setups=cryo,
