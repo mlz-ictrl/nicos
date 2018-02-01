@@ -54,7 +54,8 @@ sysconfig = dict(
     datasinks=['NexusDataSink'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing',
+           'nicos_sinq.amor.commands']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
