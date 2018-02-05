@@ -47,7 +47,7 @@ else:
     roles._roles[''] = std_role
 
 from nicos import session
-from nicos.core import Device
+from nicos.core import Device, DeviceAlias
 from nicos.utils import formatDocstring
 from nicos.pycompat import StringIO, escape_html, iteritems, string_types, \
     getargspec
@@ -67,6 +67,9 @@ pre.literal-block, pre.doctest-block
         { background-color: #efe; padding: 3px;
           border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 .menu   { text-align: right; }
+.devalias
+        { font-weight: bold; padding: 3px 0; background-color: #fee;
+          border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 .usage, .devdesc
         { font-weight: bold; padding: 3px 0; background-color: #eef;
           border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
@@ -218,6 +221,15 @@ class HelpGenerator(object):
         ret.append(self.gen_heading('Help on the %s device' % dev))
         ret.append('<p class="devcls">%s is a device of class %s.</p>' %
                    (dev.name, dev.__class__.__name__))
+        if isinstance(dev, DeviceAlias):
+            points = dev.alias
+            if points:
+                ret.append('<p class="devalias">%s is a device alias, it '
+                           'points to <a href="dev:%s">%s</a>.' % (
+                               dev, points, points))
+            else:
+                ret.append('<p class="devalias">%s is a device alias, it '
+                           'points to nothing at the moment.')
         if dev.description:
             ret.append('<p class="devdesc">Device description: ' +
                        escape_html(dev.description) + '</p>')
