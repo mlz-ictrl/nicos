@@ -58,7 +58,7 @@ class Trigger(PyTangoDevice, Moveable):
         # which will only come after the above string was fully processed
         # note: this relies on the fact that the selected string above will NOT
         # provoke an answer, but just set parameters (base it on the *LRN? output)
-        self._dev.Communicate('SYST:ERR?')
+        self._dev.Communicate('SYST:ERROR?')
 
     def doStatus(self, maxage=0):
         return status.OK, 'indeterminate'

@@ -14,7 +14,7 @@ sysconfig = dict(
     notifiers = ['email', 'slacker'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_mlz.reseda.tuning_commands',  'nicos_mlz.reseda.commands']
 
 devices = dict(
     Sample = device('nicos.devices.sample.Sample',

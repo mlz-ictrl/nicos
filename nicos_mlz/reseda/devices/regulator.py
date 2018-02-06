@@ -47,7 +47,7 @@ class Regulator(Moveable):
         'stepfactor': Param('Factor of regulation steps', type=float,
                             settable=True, mandatory=False, default=0.5),
         'deadbandwidth': Param('Width of the dead band', type=float,
-                               settable=True, mandatory=False, default=1),
+                               settable=True, mandatory=False, default=0.05),
         'loopdelay': Param('Sleep time when waiting', type=float, unit='s',
                            default=1.0, settable=True),
         'maxstep': Param('Maximum step size', type=none_or(float),
@@ -105,7 +105,7 @@ class Regulator(Moveable):
                 self.log.debug('Difference to the target: %s', diff)
                 if diff > self.deadbandwidth / 2:
                     cur_write_val = self._attached_moveable.read(0)
-                    step = self.stepfactor * diff
+                    step = self.stepfactor * (diff - self.deadbandwidth/2)
                     maxstep = self.maxstep or step
                     sign = 1 if read_val < self.target else -1
 

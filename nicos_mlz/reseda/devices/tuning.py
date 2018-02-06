@@ -25,6 +25,7 @@
 from nicos import session
 from nicos.core import Readable, Moveable, Param, Attach, oneof, listof, \
     InvalidValueError, dictof, anytype
+from nicos.core.utils import multiWait
 from nicos.pycompat import iteritems
 
 
@@ -45,6 +46,9 @@ class EchoTime(Moveable):
     }
 
     parameters = {
+        'zerofirst': Param('mapping of Devices to preconfigured value to be set before applying the echo time',
+                           type=dictof(str, anytype),
+                           settable=True, userparam=False, default={}),
         'tables': Param('Tune wave tables',
                         type=dictof(oneof('nrse', 'mieze'), dictof(float,
                                     dictof(float, dictof(str, anytype)))),
@@ -78,16 +82,18 @@ class EchoTime(Moveable):
         # find correct echotime for current device setup in currently active
         # tunewave table
         for echotime, tunedevs in iteritems(self.currenttable):
-            self.log.debug('%s', echotime)
+            self.log.debug('checking if we are at echotime %s', echotime)
             success = True
             for tunedev, value in iteritems(tunedevs):
                 # fuzzy matching necessary due to maybe oscillating devices
                 prec = getattr(self._tunedevs[tunedev], 'precision', 0)
                 if not self._fuzzy_match(value, devs.get(tunedev, None), prec):
-                    self.log.debug('%s', tunedev)
+                    self.log.debug('-> no, because %s is at %s not %s (prec = %s)',
+                                   tunedev, devs.get(tunedev, None), value, prec)
                     success = False
                     break
             if success:
+                self.log.debug('-> YES!')
                 return echotime
 
         # return 0 as echotime and show additional info in status string
@@ -101,6 +107,14 @@ class EchoTime(Moveable):
                                     'tunewave table (%s/%s)'
                                     % (session.experiment.measurementmode,
                                        self._attached_wavelength.read()))
+
+        # move zerofirst devices to configured value
+        wait_on = set()
+        for devname, val in self.zerofirst.items():
+            dev = self._tunedevs[devname]
+            dev.move(val)
+            wait_on.add(dev)
+        multiWait(wait_on)
 
         # move all tuning devices at once without blocking
         for tunedev, val in iteritems(self.currenttable[value]):

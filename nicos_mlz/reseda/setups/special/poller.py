@@ -10,6 +10,6 @@ devices = dict(
         autosetup = True,
         alwayspoll = [],
         neverpoll = [],
-        blacklist = []
+        blacklist = ['psd_channel', 'psd', 'scandet']
     ),
 )

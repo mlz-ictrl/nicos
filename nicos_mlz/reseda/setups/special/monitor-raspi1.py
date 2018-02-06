@@ -6,12 +6,13 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=15,
                        istext=True, maxlen=15),
-                 Field(name='Sample',   key='sample/samplename', width=15,
+                 Field(name='Sample',   key='sample/samplename', width=20,
                        istext=True, maxlen=15),
                  #Field(name='Current status', key='exp/action', width=30,
                  #      istext=True),
                  Field(name='Last file', key='exp/lastscan'),
-                 Field(name='EchoTime', key='echotime', unit='ns')),
+                 Field(name='EchoTime', key='echotime', unit='ns'),
+                 Field(name='Wavelength', key='selector/selector_lambda', unit='A')),
         ],
     ),
 )
@@ -80,10 +81,14 @@ _column3 = Column(
         setups='det_cascade and det_base',
     ),
     Block('Cryostat', [
-        BlockRow(Field('CryoTemp', plot='T', plotwindow=7200)),
-        BlockRow(Field('SampleTemp', plot='Ts', plotwindow=7200)),
+        #BlockRow(
+        #    Field(widget='nicos.guisupport.plots.TrendPlot', devices='T', names='T',  plotwindow=7200)),
+        BlockRow(
+            Field(name='T' ,key='T', unit='K'),
+            Field(name='Ts', key='Ts', unit='K'),
+            Field(name='Pressure', key='P_ccr', unit='mbar')),
         ],
-        setups='alias-T'
+        setups='alias_T and ccr'
         ),
 )
 
@@ -96,7 +101,7 @@ devices = dict(
         font = 'Droid Sans',
         valuefont = 'Consolas',
         fontsize = '14',
-        padding = 5,
+        padding = 2,
         layout = [[_expcolumn], [_column1, _column2, _column3]]
     ),
 )

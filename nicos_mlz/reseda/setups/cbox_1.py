@@ -19,12 +19,12 @@ devices = {
             unit = 'V',
         ),
     '%s_fg_freq' % setupname:
-        device('nicos.devices.tango.RampActuator',
+        device('nicos.devices.tango.AnalogOutput',
             description = 'Frequency generator frequency',
             tangodevice = '%s/%s/fg_frequency' % (tango_base, setupname),
             pollinterval = 3,
             fmtstr = '%.3g',
-            precision = 0.5,
+            #precision = 0.5,
         ),
      '%s_reg_amp' % setupname:
         device('nicos_mlz.reseda.devices.regulator.Regulator',
@@ -33,11 +33,11 @@ devices = {
             moveable = '%s_fg_amp' % setupname,
         ),
     '%s_fg_amp' % setupname:
-        device('nicos.devices.tango.RampActuator',
+        device('nicos.devices.tango.AnalogOutput',
             description = 'Frequency generator amplitude',
             tangodevice = '%s/%s/fg_amplitude' % (tango_base, setupname),
             pollinterval = 3,
-            precision = 0.01,
+            #precision = 0.01,
         ),
     '%s_fwdp' % setupname:
         device('nicos.devices.tango.AnalogInput',
