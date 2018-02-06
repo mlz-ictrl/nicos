@@ -228,17 +228,6 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
                        errors='sqrt', fmtstr='%d'),
                  Value(self.name + '.total', unit='cts', type='counter',
                        errors='sqrt', fmtstr='%d'))
-        if self.mode == 'tof':
-            cvals = cvals + (Value(self.name + '.c_roi', unit='',
-                                   type='counter', errors='next',
-                                   fmtstr='%.4f'),
-                             Value(self.name + '.dc_roi', unit='',
-                                   type='error', fmtstr='%.4f'),
-                             Value(self.name + '.c_tot', unit='',
-                                   type='counter', errors='next',
-                                   fmtstr='%.4f'),
-                             Value(self.name + '.dc_tot', unit='',
-                                   type='error', fmtstr='%.4f'))
         return cvals
 
     @property
@@ -253,30 +242,16 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         if rawdata[:4] != self._dataprefix:
             self._raise_reply('error receiving data from server', rawdata)
         buf = buffer(rawdata, 4)
+        # make a numpy array and reshape it correctly
         data = np.frombuffer(buf, '<u4').reshape(self._datashape)
         # determine total and roi counts
         total = data.sum()
-        ctotal, dctotal = 0., 0.
-        # XXX implement for MIEZE
-        # if self.mode == 'tof':
-        #     ctotal =
-        #     dctotal =
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
             roi = data[x1:x2, y1:y2].sum()
-            croi, dcroi = 0., 0.
-            # XXX implement for MIEZE
-            # if self.mode == 'tof':
-            #     croi =
-            #     dcroi =
         else:
             roi = total
-            croi, dcroi = ctotal, dctotal
-        if self.mode == 'tof':
-            self.readresult = [roi, total, croi, dcroi, ctotal, dctotal]
-        else:
-            self.readresult = [roi, total]
-        # make a numpy array and reshape it correctly
+        self.readresult = [roi, total]
         return data
 
 
