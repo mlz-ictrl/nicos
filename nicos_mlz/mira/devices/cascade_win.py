@@ -81,6 +81,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         for i in range(max(1, self.comtries) - 1, -1, -1):
             try:
                 reply = str(self._client.communicate(msg))
+                sleep(0.05)
                 self.log.debug('cascade reply: %r; expected was: %r',
                                reply, expectedReply)
                 if expectedReply and reply != expectedReply:
@@ -114,6 +115,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         st = self._client.communicate('CMD_status_cdr')
         if not st:
             raise CommunicationError(self, 'no response from server')
+        sleep(0.05)
         # self.log.debug('got status %r', st)
         return dict(v.split('=') for v in str(st[4:]).split(' '))
 
@@ -155,6 +157,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         if not self.slave:
             value = 1000000  # master controls preset
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
+        sleep(0.1)
         if reply != 'OKAY':
             self._raise_reply('could not set measurement time', reply)
 
@@ -217,7 +220,6 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         config.SetImageHeight(self._yres)
         config.SetImageCount(self._tres)
         config.SetPseudoCompression(False)
-        sleep(0.005)
         self._checked_communicate('CMD_start',
                                   'OKAY',
                                   'could not start measurement')
@@ -228,6 +230,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         # finish countloop
         if not self.slave:
             self._checked_communicate('CMD_stop', 'OKAY', 'stop')
+        sleep(0.05)
         while self._getstatus().get('stop', '0') != '1':
             sleep(0.005)
 
@@ -236,7 +239,7 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         if not self.slave:
             self._checked_communicate('CMD_stop', 'OKAY', 'stop')
         while self._getstatus().get('stop', '0') != '1':
-            sleep(0.005)
+            sleep(0.05)
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',
