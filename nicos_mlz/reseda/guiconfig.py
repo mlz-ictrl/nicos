@@ -21,6 +21,10 @@ main_window = tabbed(
      panel('nicos_mlz.reseda.gui.tunewavetable.TunewaveTablePanel',
            tabledev='echotime')
     ),
+    ('Mieze display',
+     panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
+           setups='det_cascade')
+    ),
 )
 
 windows = [

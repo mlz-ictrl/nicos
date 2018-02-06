@@ -1,0 +1,154 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2018 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+
+from os import path
+import numpy as np
+
+import gr
+from gr.pygr import ErrorBar
+
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.widgets.plotting import NicosPlotCurve
+from nicos.guisupport.livewidget import LiveWidget1D, COLOR_BLUE
+from nicos.guisupport.qt import QSizePolicy, QWidget, QSize
+
+from nicos.protocols.cache import cache_load
+
+my_uipath = path.dirname(__file__)
+
+
+class MiniPlot(LiveWidget1D):
+
+    client = None
+
+    def __init__(self, parent=None, **kwds):
+        LiveWidget1D.__init__(self, parent)
+        self.plot.xlabel = 'time slots'
+        self.plot.ylabel = 'summed counts'
+        self.fitcurve = NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE)
+        self.curve.GR_MARKERSIZE = 10
+        self.curve.markertype = gr.MARKERTYPE_CIRCLE
+        self.fitcurve.markertype = gr.MARKERTYPE_DOT
+        self.axes.addCurves(self.fitcurve)
+        # Disable creating a mouse selection to zoom
+        self.gr.setMouseSelectionEnabled(False)
+
+    def sizeHint(self):
+        return QSize(120, 120)
+
+    def reset(self):
+        self.plot.reset()
+
+
+class FoilWidget(QWidget):
+
+    def __init__(self, name='unknown', parent=None, **kwds):
+        QWidget.__init__(self, parent)
+        loadUi(self, 'mieze_display_foil.ui', my_uipath)
+        # set name
+        self.name = name
+        self.groupBox.setTitle(name)
+
+        # insert plot widget + store reference
+        self.plotwidget = MiniPlot(self)
+        self.plotwidget.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                      QSizePolicy.MinimumExpanding)
+        self.verticalLayout.insertWidget(0, self.plotwidget)
+        self.do_update(24 * [0])
+
+    def do_update(self, data):
+        # data contains a list [avg, avgErr, contrast, contrastErr,
+        # freq, freErr, phase, phaseErr, 16 * counts]
+        self.avg_value.setText('%.0f' % abs(data[0]))
+        self.avg_error.setText('%.1f' % data[1])
+        self.contrast_value.setText('%.2f' % abs(data[2]))
+        self.contrast_error.setText('%.3f' % data[3])
+        self.freq_value.setText('%.2f' % data[4])
+        self.freq_error.setText('%.3f' % data[5])
+        self.phase_value.setText('%.2f' % data[6])
+        self.phase_error.setText('%.3f' % data[7])
+
+        # now update plot
+        fitcurve, datacurve = self.plotwidget.fitcurve, self.plotwidget.curve
+        avg, contrast, freq, phase = data[0], data[2], data[4], data[6]
+        fitcurve.x = np.arange(-0.5, 16.5, 0.1)
+        fitcurve.y = np.array([self.model_sine(x, avg, contrast, freq, phase)
+                               for x in fitcurve.x])
+        datacurve.x = np.arange(0, 16, 1)
+        datacurve.y = np.array(data[8:24])
+        e = map(np.sqrt, datacurve.y)
+        datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y, e,
+                                       markercolor=datacurve.markercolor)
+        datacurve.linetype = None
+        self.plotwidget.reset()
+
+    def model_sine(self, x, avg, contrast, freq, phase):
+        return avg * (1 + contrast * np.sin(freq * x + phase))
+
+
+class MiezePanel(Panel):
+    panelName = 'Cascade Mieze display'
+    bar = None
+    menu = None
+
+    _do_updates = True
+    _data = None
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        loadUi(self, 'mieze_display.ui', my_uipath)
+        self.mywidgets = []
+        for foil, x, y in zip([7, 6, 5, 0, 1, 2], 2 * range(3),
+                              3 * [0] + 3 * [1]):
+            foilwidget = FoilWidget(name='Foil %d' % foil, parent=self)
+            self.mywidgets.append(foilwidget)
+            self.gridLayout.addWidget(foilwidget, y, x)
+        client.cache.connect(self.on_client_cache)
+        client.connected.connect(self.on_client_connected)
+
+    def _init_data(self):
+        self._data = self.client.getCacheKey('psd_channel/_foildata')[1]
+        self.do_update()
+
+    def on_client_connected(self):
+        if self._data is None:
+            self._init_data()
+
+    def on_LiveCheckBox_toggled(self, toggle):
+        self._do_updates = toggle
+        if toggle:
+            self._init_data()
+
+    def do_update(self):
+        if self._do_updates and self._data:
+            for d, w in zip(self._data, self.mywidgets):
+                w.do_update(d)
+
+    def on_client_cache(self, data):
+        _time, key, _op, value = data
+        if key == 'psd_channel/_foildata':
+            self._data = cache_load(value)
+            self.do_update()
