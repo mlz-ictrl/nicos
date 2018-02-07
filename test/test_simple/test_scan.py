@@ -279,6 +279,7 @@ def test_manualscan(session):
 
     # normal
     with manualscan(mot):
+        assert mot in session._manualscan._envlist
         for i in range(3):
             mot.maw(i)
             count()
@@ -288,6 +289,7 @@ def test_manualscan(session):
     SetEnvironment('slow_motor')
     try:
         with manualscan(mot, c, det, 'manscan', manual=[0, 1], t=0.1):
+            assert c in session._manualscan._envlist
             for i in range(3):
                 mot.maw(i)
                 count()
