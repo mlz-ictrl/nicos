@@ -102,7 +102,12 @@ class EchoTime(Moveable):
 
     def doStart(self, value):
         # filter unsupported echotimes
-        if value not in self.currenttable:
+        # find best match from table
+        for entry in self.currenttable:
+            if abs(entry - value) < 1e-12:
+                value = entry
+                break
+        else:
             raise InvalidValueError('Given echo time not supported by current '
                                     'tunewave table (%s/%s)'
                                     % (session.experiment.measurementmode,
@@ -111,14 +116,20 @@ class EchoTime(Moveable):
         # move zerofirst devices to configured value
         wait_on = set()
         for devname, val in self.zerofirst.items():
-            dev = self._tunedevs[devname]
+            dev = self._tunedevs.get(devname, None)
+            if dev is None:
+                dev = session.getDevice(devname)
             dev.move(val)
             wait_on.add(dev)
         multiWait(wait_on)
 
         # move all tuning devices at once without blocking
         for tunedev, val in iteritems(self.currenttable[value]):
-            self._tunedevs[tunedev].move(val)
+            if tunedev in self._tunedevs:
+                self._tunedevs[tunedev].move(val)
+            else:
+                self.log.warning('tune device %r from table not in tunedevs! '\
+                                 'movement to %r ignored !' % (tunedev, val))
 
     def doReadTunedevs(self):
         return sorted(self._tunedevs)

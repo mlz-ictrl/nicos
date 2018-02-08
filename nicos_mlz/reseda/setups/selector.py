@@ -39,6 +39,7 @@ devices = dict(
         radius = 0.16,
         beamcenter = 0.115,
         maxspeed = 28500,
+        precesion = 0.01
     ),
     selector_rtemp = device('nicos.devices.tango.AnalogInput',
         description = 'Temperature of the selector rotor',

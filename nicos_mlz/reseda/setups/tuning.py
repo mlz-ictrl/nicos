@@ -6,7 +6,7 @@ includes = ['selector', 'coils', 'cboxes']
 packs = ['0a', '0b', '1']
 cbox_components = [
     'fg_freq', 'reg_amp','coil1_c1', 'coil1_c2', 'coil1_c1c2serial',
-    'coil1_c3', 'coil1_transformer', 'coil2_c1', 'coil2_c2', 'coil2_c1c2serial', 
+    'coil1_c3', 'coil1_transformer', 'coil2_c1', 'coil2_c2', 'coil2_c1c2serial',
     'coil2_c3', 'coil2_transformer', 'diplexer', 'power_divider'
 ]
 
