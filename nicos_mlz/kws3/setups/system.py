@@ -29,7 +29,7 @@ devices = dict(
         description = 'Sample object',
         apname = 'sam_ap',
     ),
-    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.kws3.devices.experiment.KWS3Experiment',
         description = 'experiment object',
         dataroot = '/data',
         sendmail = True,

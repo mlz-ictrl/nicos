@@ -39,7 +39,7 @@ main_window = tabbed(
         )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
-#    ('Protocol', panel('nicos_mlz.kws1.gui.protocol.ProtocolPanel')),
+    ('Protocol', panel('nicos_mlz.kws1.gui.protocol.ProtocolPanel')),
 )
 
 windows = []
