@@ -11,7 +11,8 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_mlz.poli.commands']
+modules = ['nicos.commands.standard', 'nicos_mlz.poli.commands',
+           'nicos_mlz.poli.he_cell_commands']
 
 includes = ['notifiers', 'table', 'mono', 'slits', 'reactor', 'shutter']
 
