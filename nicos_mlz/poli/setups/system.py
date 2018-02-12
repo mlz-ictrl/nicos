@@ -63,7 +63,7 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = '/home/jcns/data',
+        path = '/data',
         minfree = 5,
     ),
 )
