@@ -140,6 +140,13 @@ of the selected sample holder.</string>
         </property>
        </widget>
       </item>
+      <item row="10" column="0">
+       <widget class="QCheckBox" name="ax1RevBox">
+        <property name="text">
+         <string>Reverse X direction</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
