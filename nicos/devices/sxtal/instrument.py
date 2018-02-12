@@ -319,6 +319,6 @@ class SXTalIndex(AutoDevice, Moveable):
         return self._attached_sxtal.read(maxage)[self.index]
 
     def doStart(self, pos):
-        current = list(self._attached_tas.read(0.5))
+        current = list(self._attached_sxtal.read(0.5))
         current[self.index] = pos
-        self._attached_tas.start(current)
+        self._attached_sxtal.start(current)
