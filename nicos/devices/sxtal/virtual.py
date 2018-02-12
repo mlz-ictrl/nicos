@@ -104,7 +104,7 @@ class VirtualSXtalDetector(Measurable):
             time = 1
             moni = monrate
         bg = np.random.poisson(int(self.background * time))
-        counts = int(self._peak(time)) + bg
+        counts = self._peak(time) + bg
         self._counting_started = 0
         self._lastresult = [time, moni, counts]
 
@@ -116,7 +116,7 @@ class VirtualSXtalDetector(Measurable):
         intens = np.sqrt(hkli[0]**2 + hkli[1]**2 + hkl[2]**2)
         dhkl = (hkli - hkl)
         x = stats.multivariate_normal([0, 0, 0], width)
-        return int(self.background * time * 100 * intens) * x.pdf(dhkl)
+        return int(time * intens * x.pdf(dhkl))
 
     def doEstimateTime(self, elapsed):
         eta = set()
