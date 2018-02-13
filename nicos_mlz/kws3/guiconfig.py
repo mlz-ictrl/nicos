@@ -23,14 +23,15 @@ main_window = tabbed(
                   sample_panel=panel('nicos_mlz.kws1.gui.sampleconf.KWSSamplePanel',
                                      instrument = 'kws3',
                                      holder_info = [
-            ('Al 3-level',          (9,  3, 'sam_x', 27,    'sam_y', 75)),
-            ('Al 3-level Narrow',   (12, 3, 'sam_x', 20,    'sam_y', 75)),
-            ('Al Wide (T-contr.)',  (9,  2, 'sam_x', 26.6,  'sam_y', 105)),
-            ('Al Narrow (T-contr.)',(16, 2, 'sam_x', 15,    'sam_y', 105)),
-            ('Al Round (T-contr.)', (10, 2, 'sam_x', 24,    'sam_y', 105)),
+            ('Al 3-level',           (9,  3, 'sam_x', 27,   'sam_y', 75)),
+            ('Al 3-level Narrow',    (12, 3, 'sam_x', 20,   'sam_y', 75)),
+            ('Al Wide (T-contr.)',   (9,  2, 'sam_x', 26.6, 'sam_y', 105)),
+            ('Al Narrow (T-contr.)', (16, 2, 'sam_x', 15,   'sam_y', 105)),
+            ('Al Round (T-contr.)',  (10, 2, 'sam_x', 24,   'sam_y', 105)),
                                      ]))),
         ('NICOS devices',
-            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right')),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right',
+            param_display={'Exp': ['lastpoint']})),
     )),
     ('Script Editor',
         vsplit(
@@ -39,7 +40,7 @@ main_window = tabbed(
         )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
-#    ('Protocol', panel('nicos_mlz.kws1.gui.protocol.ProtocolPanel')),
+    ('Protocol', panel('nicos_mlz.kws1.gui.protocol.ProtocolPanel')),
 )
 
 windows = []

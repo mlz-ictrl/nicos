@@ -123,11 +123,14 @@ class MeasureTable(Cmdlet):
     def on_client_experiment(self, data):
         # reset everything
         self.rtBox.setChecked(False)
+        self._clearTable()
 
     def on_rtBox_toggled(self, state):
         self.rtConfBtn.setEnabled(state)
-        # clears current table!
-        self.measdef = self.meas_def_class(state, self.measdef.loops)
+        self._clearTable()
+
+    def _clearTable(self):
+        self.measdef = self.meas_def_class(self.rtBox.isChecked(), self.measdef.loops)
         self.updateTable()
 
     @pyqtSlot()

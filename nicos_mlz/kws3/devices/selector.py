@@ -40,6 +40,9 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
         'status':    Attach('Input for reading the status', Readable),
     }
 
+    def _getWaiters(self):
+        return [self._attached_speedset]
+
     def doRead(self, maxage=0):
         return self._attached_speedread.read(maxage)
 
@@ -62,7 +65,7 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
         if not stbits & 1:
             raise MoveError(self, 'selector is in local mode')
         # valid bit needs a rising edge
-        self._attached_valid.maw(0)
+        self._attached_valid.move(0)
         self._attached_speedset.maw(pos)
-        self._attached_valid.maw(1)
+        self._attached_valid.move(1)
         time.sleep(0.2)

@@ -36,6 +36,12 @@ from nicos.pycompat import to_utf8
 class KWSExperiment(Experiment):
     """Experiment object customization for KWS."""
 
+    DATA_SUFFIX = '.DAT'
+    PROTO_HEADERS = ['Run', 'Sel', 'Coll', 'Det', 'Sample',
+                     'TOF', 'Pol', 'Lens', 'Time', 'Cts', 'Rate']
+    RUNNO_INDEX = 1
+    IGNORE_SENV = ('T', 'Ts')
+
     def doFinish(self):
         """Automatic protocol generation before finishing a user experiment."""
         if self.proptype != 'user':
@@ -55,30 +61,29 @@ class KWSExperiment(Experiment):
         senv = set()
 
         for fname in os.listdir(self.datapath):
-            if not fname.endswith('.DAT'):
+            if not fname.endswith(self.DATA_SUFFIX):
                 continue
             parts = fname.split('_')
-            if not (len(parts) > 1 and parts[1].isdigit()):
+            if not (len(parts) > 1 and parts[self.RUNNO_INDEX].isdigit()):
                 continue
-            runno = int(parts[1])
+            runno = int(parts[self.RUNNO_INDEX])
             if first is not None and runno < first:
                 continue
             if last is not None and runno > last:
                 continue
             try:
-                data.append(read_dat_file(runno, senv,
-                                          path.join(self.datapath, fname)))
+                data.append(self._read_data_file(
+                    runno, senv, path.join(self.datapath, fname)))
             except Exception as err:
                 self.log.warning('could not read %s: %s', fname, err)
                 continue
         data.sort(key=lambda x: x['#'])
 
-        headers = ['Run', 'Sel', 'Coll', 'Det', 'Sample',
-                   'TOF', 'Pol', 'Lens', 'Time', 'Cts', 'Rate']
+        headers = self.PROTO_HEADERS[:]
         if with_ts:
             headers.insert(1, 'Started')
         for sename in sorted(senv):
-            if sename not in ('T', 'Ts'):
+            if sename not in self.IGNORE_SENV:
                 headers.append(sename)
         items = []
         day = ''
@@ -96,6 +101,9 @@ class KWSExperiment(Experiment):
                  '']
         printTable(headers, items, lines.append)
         return '\n'.join(lines) + '\n'
+
+    def _read_data_file(self, runno, senv, fname):
+        return read_dat_file(runno, senv, fname)
 
 
 def read_dat_file(runno, senv, fname):

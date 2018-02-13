@@ -33,3 +33,7 @@ devices = dict(
         precision = 0.01,
     ),
 )
+
+extended = dict(
+    representative = 'polarizer',
+)

@@ -4,6 +4,8 @@ group = 'basic'
 
 includes = ['nutator', 'cryopad_currents', 'hecells', 'table_lifting_virtual']
 
+modules = ['nicos_mlz.poli.cryopad_commands']
+
 devices = dict(
     Cryopad = device('nicos_mlz.poli.devices.cryopad.SXTalCryopad',
         description = 'Main cryopad device',

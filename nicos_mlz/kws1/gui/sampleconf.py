@@ -85,8 +85,9 @@ def configFromFrame(frame):
 
 class ConfigEditDialog(QDialog):
 
-    def __init__(self, parent, client, configs, config=None):
+    def __init__(self, parent, client, instrument, configs, config=None):
         QDialog.__init__(self, parent)
+        self.instrument = instrument
         self.configs = configs
         self.client = client
         self.setWindowTitle('Sample configuration')
@@ -157,7 +158,8 @@ class ConfigEditDialog(QDialog):
             'nicos.core.device.Moveable',
             special_clause='d.valuetype is float')
         devlist = [item for item in devlist
-                   if item.startswith(('sam_', 'hexapod_'))]
+                   if item.startswith(('sam_', 'hexapod_'))
+                   or '_sam_' in item]
         dlg = QDialog(self)
         loadUi(dlg, findResource('nicos_mlz/kws1/gui/sampleconf_adddev.ui'))
         dlg.widget = None
@@ -289,15 +291,22 @@ class KWSSamplePanel(Panel):
             if checked:
                 dlg._info = dlg.sender()._info
                 ax1, ax2 = dlg._info[2], dlg._info[4]
-                for ax, lbl, box in [(ax1, dlg.ax1Lbl, dlg.ax1Box),
-                                     (ax2, dlg.ax2Lbl, dlg.ax2Box)]:
+                for ax, lbl, box, revbox in [
+                        (ax1, dlg.ax1Lbl, dlg.ax1Box, dlg.ax1RevBox),
+                        (ax2, dlg.ax2Lbl, dlg.ax2Box, None)
+                ]:
                     if ax:
                         lbl.setText(ax)
                         lbl.show()
                         box.show()
+                        if revbox:
+                            revbox.show()
+                            revbox.setText('%s starts at far end' % ax)
                     else:
                         lbl.hide()
                         box.hide()
+                        if revbox:
+                            revbox.hide()
 
         dlg = QDialog(self)
         loadUi(dlg, findResource('nicos_mlz/kws1/gui/sampleconf_gen.ui'))
@@ -322,6 +331,8 @@ class KWSSamplePanel(Panel):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
         sax1 = float(dlg.ax1Box.text()) if ax1 else 0
         sax2 = float(dlg.ax2Box.text()) if ax2 else 0
+        if dlg.ax1RevBox.isChecked():
+            dax1 = -dax1
 
         n = 0
         for i in range(levels):
@@ -456,8 +467,8 @@ class KWSSamplePanel(Panel):
 
     @pyqtSlot()
     def on_newBtn_clicked(self):
-        dlg = ConfigEditDialog(self, self.client, self.configs)
-        dlg.instrument = self.instrument
+        dlg = ConfigEditDialog(self, self.client, self.instrument,
+                               self.configs)
         if not dlg.exec_():
             return
         self.dirty = True
@@ -473,7 +484,7 @@ class KWSSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        dlg = ConfigEditDialog(self, self.client,
+        dlg = ConfigEditDialog(self, self.client, self.instrument,
                                [config for (i, config) in
                                 enumerate(self.configs) if i != index],
                                self.configs[index])

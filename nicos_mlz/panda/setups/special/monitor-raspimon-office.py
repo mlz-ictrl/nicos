@@ -424,7 +424,7 @@ devices = dict(
         cache = 'phys.panda.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
-        fontsize = 15,
+        fontsize = 11,
         valuefont = 'Luxi Sans',
         layout = [Row(expcolumn),
                   Row(column1, column2, column3)],

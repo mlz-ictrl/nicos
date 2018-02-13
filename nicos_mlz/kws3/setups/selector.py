@@ -45,7 +45,7 @@ devices = dict(
         speedread = 'sel_speed_read',
         status = 'sel_speed_status',
         abslimits = (60, 300),
-        precision = 0.2,
+        precision = 0.5,
         unit = 'Hz',
     ),
 
@@ -64,4 +64,8 @@ devices = dict(
         unit = 'deg',
         precision = 0.01,
     ),
+)
+
+extended = dict(
+    representative = 'selector',
 )

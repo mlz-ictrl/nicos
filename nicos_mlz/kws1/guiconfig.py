@@ -35,7 +35,8 @@ main_window = tabbed(
             ('Magnet',              (5,  1, 'jem1_sam_trans', 23,  None, 0)),
                                      ]))),
         ('NICOS devices',
-            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right')),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right',
+                  param_display={'Exp': ['lastpoint']})),
     )),
     ('Script Editor',
         vsplit(

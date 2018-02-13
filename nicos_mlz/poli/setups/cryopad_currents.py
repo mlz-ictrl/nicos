@@ -105,6 +105,12 @@ devices = dict(
         maxage = 65,
     ),
 
+    pcflipper = device('nicos.devices.polarized.MezeiFlipper',
+        description = 'Mezei flipper using pc1 and pc2 supplies',
+        flip = 'pc1',
+        corr = 'pc2',
+    ),
+
     #    cryo_t1 = device('nicos.devices.taco.TemperatureSensor',
     #                     description = 'The cryopad temperature',
     #                     tacodevice = taco_base + 'ls211/sens1',

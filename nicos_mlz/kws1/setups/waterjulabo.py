@@ -16,6 +16,18 @@ devices = dict(
         precision = 0.1,
         timeout = 45 * 60.,
     ),
+    T_julabo_bath = device('nicos.devices.tango.Sensor',
+        description = 'The bath temperature',
+        tangodevice = tango_base + 'waterjulabo/bath',
+        lowlevel = True,
+        unit = 'degC',
+        fmtstr = '%.2f',
+    ),
+    julabo_sensor = device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Switch regulation sensor for Julabo',
+        tangodevice = tango_base + 'waterjulabo/external',
+        mapping = dict(extern=1, intern=0),
+    ),
 )
 
 alias_config = {

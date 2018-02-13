@@ -69,10 +69,12 @@ _lenses = make_blocks('Lenses', 'lenses', [
     ),
 ])
 
-_shutter = make_blocks('Shutter', 'shutter', [
+_shutter = make_blocks('Shutter / Outside', 'shutter', [
     BlockRow(Field(name='Shutter', dev='shutter', istext=True, width=9),
              Field(name='NL-3b', dev='nl3b_shutter', istext=True, width=9),
-             Field(name='Sixfold', dev='sixfold_shutter', istext=True, width=9)),
+             Field(name='Sixfold', dev='sixfold_shutter', istext=True, width=9),
+             Field(name='U-Bahn', dev='UBahn', istext=True, width=12),
+             Field(name='Temp', dev='OutsideTemp')),
 ])
 
 _sample = make_blocks('Sample', 'sample', [
@@ -153,6 +155,21 @@ _ccrplot = Block('', [
              Field(plot='CCR', key='Ts')),
 ], setups='ccr11')
 
+_ccm3a = Block('HTS Magnet (ccm3a)', [
+    BlockRow(Field(name='Field', dev='b_ccm3a')),
+    BlockRow(Field(name='T1', dev='ccm3a_t1'), Field(name='T2', dev='ccm3a_t2'),
+             Field(name='TA', dev='ccm3a_ta'), Field(name='TB', dev='ccm3a_tb')),
+    ],
+    setups='ccm3a',
+)
+
+_ccm3aplot = Block('', [
+    BlockRow(Field(plot='CCM3a', dev='ccm3a_t1', width=30, height=25, plotwindow=2*3600),
+             Field(plot='CCM3a', dev='ccm3a_t2'),
+             Field(plot='CCM3a', dev='ccm3a_ta'), Field(plot='CCM3a', dev='ccm3a_tb')),
+], setups='ccm3a')
+
+
 _magnet = Block('Electromagnet', [
     BlockRow(Field(name='Current', dev='I_jem1')),
 ], setups='jem1')
@@ -162,7 +179,7 @@ _layout = [
     Row(Column(*(_selector + _chopper + _polarizer + _lenses + _daq)),
         Column(*(_shutter + _collimation + _detector + _sample + _sample_withrot)),
         Column(_hexapod, _peltier, _peltierplot, _et, _etplot,
-               _julabo, _julaboplot, _ccr, _ccrplot, _magnet)),
+               _julabo, _julaboplot, _ccr, _ccrplot, _magnet, _ccm3a, _ccm3aplot)),
 ]
 
 

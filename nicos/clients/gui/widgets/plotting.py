@@ -844,6 +844,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     def setVisibility(self, item, on):
         item.visible = on
+        if item._parent:
+            item._parent.disabled = not on
 
     def _enterFitMode(self):
         self.window.statusBar.showMessage(self.statusMessage)
