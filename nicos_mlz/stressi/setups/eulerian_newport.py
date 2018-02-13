@@ -42,7 +42,7 @@ devices = dict(
         objname = '%s' % servername,
         # config = 'PHIN 114 11 0x00f1c000 2 50 200 20 2 24 50 1 0 '
         #          '1 5000 1 10 0 0 0',
-        config = 'PHIN 115 11 0x00f1f000 3 25 100 10 1 0 0 0 0 '
+        config = 'PHIN 115 11 0x00f1f000 3 506 500 50 1 0 0 0 0 '
                  '1 5000 1 10 0 0 0',
         lowlevel = True,
     ),
