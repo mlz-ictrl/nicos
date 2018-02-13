@@ -117,6 +117,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         slit['left_clearance'] = self._readdev('ap_sam_x0')
         slit['right_clearance'] = self._readdev('ap_sam_x1')
 
+        lenses = setup['lenses']
+        lens_state = self._readdev('lenses')
+        lenses['is_in_place'] = lens_state != 'out-out-out'
+        lenses['state'] = lens_state
+
         meas['monitors'] = self._flowlist([
             self._readdev('mon1', lambda x: x[0]),
             self._readdev('mon2', lambda x: x[0]),
