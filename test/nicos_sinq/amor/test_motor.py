@@ -34,8 +34,8 @@ hpos = sign*(val +zero)
 import pytest
 
 from nicos.core import status
-from nicos.core.errors import LimitError, PositionError
-from test.utils import raises
+from nicos.core.errors import LimitError
+from test.utils import raises, approx, ErrorLogged
 from .utils import unit_value, is_at_target
 
 session_setup = 'sinq_amor_movable'
@@ -85,17 +85,19 @@ class TestEpicsMotor(object):
         Test that after a device is moved to a certain position
         the new position read is the same as the one used with move
         """
-        assert self.device.read(0) == 0
+        precision = self.device.precision
+        assert self.device.read(0) == approx(0, precision)
 
         # Set the offset
         offset = unit_value(offset, self.device.unit)
         self.device.offset = offset
+        assert self.device.offset == approx(offset, precision)
 
         # Check the change in limits
         (usermin, usermax) = self.device.userlimits
         (absmin, absmax) = self.device.abslimits
-        assert usermin == absmin + offset
-        assert usermax == absmax + offset
+        assert usermin == approx(absmin + offset, precision)
+        assert usermax == approx(absmax + offset, precision)
 
         # Move to the new target
         target = unit_value(target, self.device.unit)
@@ -147,11 +149,10 @@ class TestEpicsMotor(object):
 
         # Assert that the initial position of the device does not
         # change even after the move
-        with pytest.raises(PositionError):
-            target = unit_value(1.0, self.device.unit)
-            self.device.maw(target)
-            assert self.device.read(0) != target
-            assert self.device.status()[0] == status.NOTREACHED
+        target = unit_value(1.0, self.device.unit)
+        assert raises(ErrorLogged, self.device.maw, target)
+        assert self.device.read(0) != target
+        assert self.device.status()[0] == status.NOTREACHED
 
         # Set the device to be recoverable
         serial_controller.execute('RC ' + str(slot))
