@@ -157,11 +157,12 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         'subdir':      Override(settable=True),
     }
 
+    _hwDev = None
+
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
         # Create hw specific device if given
-        self._hwDev = None
         if self.hwdevice:
             self._hwDev = HwDevice(self.name + '._hwDev',
                                    tangodevice=self.hwdevice, lowlevel=True)
@@ -196,7 +197,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                    self._getImageType())
 
     def doShutdown(self):
-        self._hwDev.shutdown()
+        if self._hwDev:
+            self._hwDev.shutdown()
 
     def doInfo(self):
         for p in ('imagewidth', 'imageheight', 'roi', 'bin', 'expotime',
