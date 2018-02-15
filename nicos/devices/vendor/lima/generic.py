@@ -180,7 +180,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
             # set some dummy roi to avoid strange lima rotation behaviour
             # (not at 0, 0 to avoid possible problems with strides)
-            self._writeRawRoi((5, 5, 5, 5))
+            self._writeRawRoi((8, 8, 8, 8))
             # ensure NO rotation
             self._dev.image_rotation = 'NONE'
             # set full detector size as roi
