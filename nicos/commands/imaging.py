@@ -26,8 +26,9 @@ from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.commands.utility import floatrange
 from nicos.commands.measure import count
-from nicos.commands.device import maw
 from nicos.commands.scan import manualscan
+
+from nicos.core.scan import SkipPoint
 
 
 __all__ = ['tomo']
@@ -35,6 +36,7 @@ __all__ = ['tomo']
 
 @usercommand
 @helparglist('nangles, moveables, imgsperangle=1, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     """Performs a tomography by scanning over 360 deg in nangles steps
     and capturing a desired amount of images (imgsperangle) per step.
@@ -63,12 +65,13 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
     session.log.info('Performing 360 deg scan.')
 
     angles = [180.0] + floatrange(0.0, 360.0, num=nangles)
-    with manualscan(*moveables):
+    with manualscan(*moveables) as scan:
         for angle in angles:
             # Move the given movable to the target angle
-            args = sum([[entry, angle] for entry in moveables], [])
-            maw(*args)
-
-            # Capture the desired amount of images
-            for _ in range(imgsperangle):
-                count(*detlist, **preset)
+            try:
+                scan.moveDevices(moveables, [angle] * len(moveables))
+                # Capture the desired amount of images
+                for _ in range(imgsperangle):
+                    count(*detlist, **preset)
+            except SkipPoint:
+                pass
