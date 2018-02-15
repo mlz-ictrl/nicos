@@ -27,6 +27,7 @@ This module contains some classes for NICOS - EPICS integration.
 """
 from __future__ import absolute_import
 import threading
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import CommunicationError, ConfigurationError, \
@@ -146,6 +147,9 @@ class EpicsDevice(DeviceMixinBase):
 
                 # Retrieve the actual PV-name from (potentially overridden) method
                 pvname = self._get_pv_name(pvparam)
+                if not pvname:
+                    raise ConfigurationError(self, 'PV for parameter %s was '
+                                                   'not found!' % pvparam)
                 pv = self._pvs[pvparam] = epics.pv.PV(
                     pvname, connection_timeout=self.epicstimeout)
                 pv.connect()
@@ -226,13 +230,13 @@ class EpicsDevice(DeviceMixinBase):
 
         return self._pvctrls[pvparam].get(ctrl, default)
 
-    def _put_pv(self, pvparam, value, wait=True):
+    def _put_pv(self, pvparam, value, wait=False):
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
 
         self._pvs[pvparam].put(value, wait=wait, timeout=self.epicstimeout)
 
-    def _put_pv_blocking(self, pvparam, value, update_rate=0.1):
+    def _put_pv_blocking(self, pvparam, value, update_rate=0.1, timeout=60):
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
 
@@ -240,7 +244,10 @@ class EpicsDevice(DeviceMixinBase):
 
         pv.put(value, use_complete=True)
 
+        start = currenttime()
         while not pv.put_complete:
+            if currenttime() - start > timeout:
+                raise CommunicationError('Timeout in setting %s' % pv.pvname)
             session.delay(update_rate)
 
 
