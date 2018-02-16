@@ -27,3 +27,9 @@ The following classes are specific to cameras produced by Andor (https://www.and
 
 .. autoclass:: Andor2TemperatureController()
 
+ZWO
+~~~
+The following classes are specific to cameras produced by ZWO ASI
+(https://astronomy-imaging-camera.com/).
+
+.. autoclass:: ZwoTC()
