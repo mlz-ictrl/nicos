@@ -427,6 +427,7 @@ twodscan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
 @usercommand
 @helparglist('dev, start, end[, speed, timedelta], ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, speed=Bare)
+# pylint: disable=keyword-arg-before-vararg
 def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 
@@ -486,6 +487,7 @@ class _ManualScan(object):
         session._manualscan = self.scan
         try:
             self.scan.manualBegin()
+            return self.scan
         except:  # yes, all exceptions
             session._manualscan = None
             raise
