@@ -79,6 +79,7 @@ devices = dict(
     d1b=create_epics_motor('c', 'd1b'),
     d2t=create_epics_motor('c', 'd2t'),
     d2b=create_epics_motor('c', 'd2b'),
+    dbs=create_epics_motor('b', 'dbs'),
     serial1=create_epics_asyn_controller('serial1'),
     serial2=create_epics_asyn_controller('serial2'),
     serial3=create_epics_asyn_controller('serial3'),
