@@ -46,30 +46,28 @@ class NexusTemplateConverter(object):
             raise NicosError('The template should be of type dict!')
 
         # Generate the basic neXus hierarchy
-        root_dict = self._populate('root:NXroot', template)
+        root_name, root_value = self._populate('root:NXroot', template)
 
-        # There can only be one element in the top level group dict
-        if not root_dict.keys():
+        if not isinstance(root_value, NXGroup):
             return {}
 
-        root_name = root_dict.keys()[0]
-        structure = root_dict[root_name].structure(root_name, metainfo)
+        structure = root_value.structure(root_name, metainfo)
 
         # Need only children and attributes in the top
         return {
-            "children": structure["children"],
-            "attributes": structure["attributes"]
+            "children": structure.get("children"),
+            "attributes": structure.get("attributes"),
         }
 
     def _populate(self, element, value):
         if isinstance(value, NXGroup):
-            return {element: value}
+            return element, value
 
         # Group keys are named as <name>:<nxclass>
         if ':' not in element:
             session.log.info('Can\'t write the group %s, no nxclass defined!',
                              element)
-            return {}
+            return element, None
 
         [nxname, nxclass] = element.rsplit(':', 1)
         group = NXGroup(nxclass)
@@ -79,7 +77,9 @@ class NexusTemplateConverter(object):
             for key, val in iteritems(value):
                 if isinstance(val, dict):
                     # This is another group
-                    group.children.update(self._populate(key, val))
+                    child_nxname, child_value = self._populate(key, val)
+                    if isinstance(child_value, NXGroup):
+                        group.children.update({child_nxname: child_value})
                 elif isinstance(val, NXGroup):
                     group.children[key] = val
                 elif isinstance(val, NXDataset):
@@ -99,4 +99,4 @@ class NexusTemplateConverter(object):
                 else:
                     group.attrs[key] = NXAttribute(val)
 
-        return {nxname: group}
+        return nxname, group
