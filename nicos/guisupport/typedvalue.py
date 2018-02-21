@@ -32,7 +32,7 @@ import numpy as np
 from nicos.guisupport.qt import pyqtSignal, Qt, QLineEdit, QIntValidator, \
     QIcon, QTableWidget, QCheckBox, QWidget, QLabel, QComboBox, QHBoxLayout, \
     QVBoxLayout, QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, \
-    QTableWidgetItem
+    QTableWidgetItem, QFormLayout
 
 from nicos.core import params, anytype
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCellType
@@ -211,6 +211,9 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif isinstance(typ, params.tupleof):
         return MultiWidget(parent, typ.types, curvalue, client,
                            allow_enter=allow_enter)
+    elif isinstance(typ, params.dictwith):
+        return DictWithWidget(parent, typ.keys, typ.convs.values(),
+                              curvalue, client, allow_enter=allow_enter)
     elif typ == params.limits:
         return LimitsWidget(parent, curvalue, client, allow_enter=allow_enter)
     elif isinstance(typ, params.floatrange):
@@ -316,6 +319,33 @@ class LimitsWidget(MultiWidget):
                              allow_enter=allow_enter)
         self._layout.insertWidget(0, QLabel('from', self))
         self._layout.insertWidget(2, QLabel('to', self))
+
+
+class DictWithWidget(QWidget):
+
+    dataChanged = pyqtSignal()
+    valueChosen = pyqtSignal(object)
+
+    def __init__(self, parent, keys, types, curvalue, client,
+                 allow_enter=False):
+        QWidget.__init__(self, parent)
+        layout = self._layout = QFormLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.keys = keys
+        self._widgets = []
+        for (key, typ, val) in zip(keys, types, curvalue.values()):
+            widget = create(self, typ, val, client=client,
+                            allow_enter=allow_enter)
+            self._widgets.append(widget)
+            widget.dataChanged.connect(self.dataChanged)
+            if allow_enter:
+                widget.valueChosen.connect(
+                    lambda val: self.valueChosen.emit(self.getValue()))
+            layout.addRow(key, widget)
+        self.setLayout(layout)
+
+    def getValue(self):
+        return {k: w.getValue() for k, w in zip(self.keys, self._widgets)}
 
 
 class ComboWidget(QComboBox):
