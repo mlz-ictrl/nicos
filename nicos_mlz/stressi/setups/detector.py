@@ -35,7 +35,7 @@ devices = dict(
     image = device('nicos.devices.vendor.qmesydaq.caress.Image',
         description = 'Image data device',
         fmtstr = '%d',
-        pollinterval = 86400,
+        pollinterval = None,
         nameserver = '%s' % nameservice,
         config = 'HISTOGRAM 500 qmesydaq.caress_object histogram 0 '
         '256 256',
