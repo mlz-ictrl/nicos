@@ -210,8 +210,11 @@ class HtmlWriter(object):
         if self.fd:
             self.endstate()
             self.fd.close()
+            self.fd = None
+        if self.fd_toc:
             self.fd_toc.write(b'</ul>' * self.toc_level)
             self.fd_toc.close()
+            self.fd_toc = None
         self.toc_level = 0
 
     def open(self, directory, instr, proposal):
@@ -285,6 +288,7 @@ class TextWriter(object):
     def close(self):
         if self.fd:
             self.fd.close()
+            self.fd = None
 
     def open(self, directory):
         self.close()
