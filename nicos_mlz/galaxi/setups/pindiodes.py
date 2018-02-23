@@ -20,8 +20,10 @@ devices = dict(
     pinstate = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Status of PIN diode counting',
         tangodevice = tango_digital + 'StatIntegralPin',
-        mapping = {'counting': 1,
-                   'ready': 0},
+        mapping = {
+            'counting': 1,
+            'ready': 0
+        },
         fmtstr = '%s',
         lowlevel = True,
     ),
@@ -69,8 +71,10 @@ devices = dict(
     pindiode1_move = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Moving of PIN diode in chamber 1',
         tangodevice = tango_digital + 'AbsorberPlate16',
-        mapping = {'in': 1,
-                   'out': 0},
+        mapping = {
+            'in': 1,
+            'out': 0
+        },
         fmtstr = '%s',
     ),
     pindiode1 = device('nicos.devices.tango.AnalogInput',
@@ -89,8 +93,10 @@ devices = dict(
     pindiodesample_move = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Moving of PIN diode behind sample place',
         tangodevice = tango_digital + 'PinDiode',
-        mapping = {'in': 1,
-                   'out': 2},
+        mapping = {
+            'in': 1,
+            'out': 2
+        },
         fmtstr = '%s',
     ),
     pindiodesample = device('nicos.devices.tango.AnalogInput',
