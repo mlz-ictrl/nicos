@@ -104,14 +104,14 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cleaner.join()
 
     def _read_one_storefile(self, filename):
-        fd = open(filename, 'r+U')
-        # read file format identification
-        firstline = fd.readline()
-        if firstline.startswith('# NICOS cache store file v2'):
-            return self._read_one_storefile_v2(filename, fd)
-        # v1 has no comment; go back to first line for reading
-        fd.seek(0, os.SEEK_SET)
-        return self._convert_storefile(filename, fd)
+        with open(filename, 'r+U') as fd:
+            # read file format identification
+            firstline = fd.readline()
+            if firstline.startswith('# NICOS cache store file v2'):
+                return self._read_one_storefile_v2(filename, fd)
+            # v1 has no comment; go back to first line for reading
+            fd.seek(0, os.SEEK_SET)
+            return self._convert_storefile(filename, fd)
 
     def _read_one_storefile_v2(self, filename, fd):
         db = {}
@@ -135,7 +135,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             except Exception:
                 self.log.warning('could not interpret line from '
                                  'cache file %s: %r', filename, line, exc=1)
-        return fd, db
+        return db
 
     def _convert_storefile(self, filename, fd):
         # read whole content and write back in new format
@@ -162,7 +162,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     fd.write('%s\t%s\t+\t%s\n' % (subkey, time, value))
         # we should have written more than was in the file before, but make sure
         fd.truncate()
-        return fd, db
+        return db
 
     def initDatabase(self):
         # read the last entry for each key from disk
@@ -188,9 +188,9 @@ class FlatfileCacheDatabase(CacheDatabase):
             for fn in os.listdir(curdir):
                 cat = fn.replace('-', '/')
                 try:
-                    fd, db = self._read_one_storefile(path.join(curdir, fn))
+                    db = self._read_one_storefile(path.join(curdir, fn))
                     lock = threading.Lock()
-                    self._cat[cat] = [fd, lock, db]
+                    self._cat[cat] = [None, lock, db]
                     nkeys += len(db)
                 except Exception:
                     self.log.warning('could not read cache file %s', fn, exc=1)
@@ -223,15 +223,19 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._nextmidnight = self._midnight + 86400
         # roll over all file descriptors
         for category, (fd, _, db) in iteritems(self._cat):
-            fd.close()
-            fd = self._cat[category][0] = self._create_fd(category)
+            if fd:
+                fd.close()
+                self._cat[category][0] = None
+            fd = self._create_fd(category)
             for subkey, entry in iteritems(db):
                 if entry.value:
                     fd.write('%s\t%s\t%s\t%s\n' % (
                         subkey, entry.time,
                         (entry.ttl or entry.expired) and '-' or '+',
                         entry.value))
-            fd.flush()
+            # don't keep fds open for *all* files with keys, rather reopen
+            # those that are necessary when new updates come in
+            fd.close()
         # set the 'lastday' symlink to the current day directory
         self._set_lastday()
         # old files could be compressed here, but it is probably not worth it
@@ -402,6 +406,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                                     client.update(cat + '/' + subkey,
                                                   OP_TELLOLD, entry.value,
                                                   time, None)
+                                if fd is None:
+                                    fd = self._create_fd(cat)
+                                    self._cat[cat][0] = fd
                                 fd.write('%s\t%s\t-\t-\n' % (subkey, time))
                                 fd.flush()
         while not self._stoprequest:
@@ -453,6 +460,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                 if update:
                     db[subkey] = CacheEntry(time, ttl, value)
                     if store_on_disk:
+                        if fd is None:
+                            fd = self._create_fd(newcat)
+                            self._cat[newcat][0] = fd
                         fd.write('%s\t%s\t%s\t%s\n' % (
                             subkey, time,
                             ttl and '-' or (value and '+' or '-'),
