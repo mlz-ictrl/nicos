@@ -25,6 +25,19 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
+    # The first 2 entries check the disk space for the data and the log file
+    # if there is any underflow in limits the user and/or instrument
+    # responsible will informed via the NICOS alarm channels
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for the log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
+    dict(condition = 'Space_status[0] == WARN',
+         message = 'Disk space for the data files becomes too low.',
+         type = 'critical',
+         gracetime = 10,
+    ),
     dict(
         condition = 't_value > 100',
         message = 'Temperature too high',

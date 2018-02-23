@@ -23,6 +23,16 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for the log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
+    dict(condition = 'Space_status[0] == WARN',
+         message = 'Disk space for the data files becomes too low.',
+         type = 'critical',
+         gracetime = 10,
+    ),
     dict(condition = 't_value > 300',
          message = 'Temperature too high (exceeds 300 K)',
          type = 'critical',
