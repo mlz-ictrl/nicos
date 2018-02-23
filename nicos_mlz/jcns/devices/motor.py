@@ -119,8 +119,17 @@ class MasterSlaveMotor(Moveable):
         self._attached_slave.move(self._slavePos(pos))
 
     def doIsAllowed(self, pos):
-        return self._attached_master.isAllowed(pos) and \
-               self._attached_slave.isAllowed(self._slavePos(pos))
+        faultmsgs = []
+        messages = []
+        for dev in [self._attached_master, self._attached_slave]:
+            allowed, msg = dev.isAllowed(pos)
+            msg = dev.name + ': ' + msg
+            messages += [msg]
+            if not allowed:
+                faultmsgs += [msg]
+        if faultmsgs:
+            return False, ', '.join(faultmsgs)
+        return True, ', '.join(messages)
 
     def doReadUnit(self):
         return self._attached_master.unit
