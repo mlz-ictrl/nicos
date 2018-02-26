@@ -95,8 +95,8 @@ class CenterPeak(Cmdlet):
             self.markValid(self.stepsize, isFloat(self.stepsize)),
             self.markValid(self.seconds, isFloat(self.seconds)),
         ] + [
-            self.markValid(e.steps, e.steps.text() or isInt(e.steps)) and
-            self.markValid(e.step, e.step.text() or isFloat(e.step))
+            self.markValid(e.steps, not e.steps.text() or isInt(e.steps)) and
+            self.markValid(e.step, not e.step.text() or isFloat(e.step))
             for e in self.multiList.entries()
         ]
         return all(valid)
