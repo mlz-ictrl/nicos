@@ -27,8 +27,8 @@ Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 """
 
 from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof, \
-    status, HasLimits
-from nicos.devices.generic.sequence import SeqDev, SeqSleep
+    status, HasLimits, SIMULATION
+from nicos.devices.generic.sequence import SeqDev, SeqSleep, SeqCall
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 
 
@@ -94,6 +94,8 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
             self._attached_onoffswitch.reset()
             self._attached_onoffswitch.move('on')
             # immediate action, no need to wait....
+        BipolarSwitchingMagnet.doReset(self)
+        self._attached_currentsource._dev.On()
 
     def _seq_set_field_polarity(self, polarity, sequence):
         if polarity == 0:
@@ -107,3 +109,13 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         sequence.append(SeqSleep(0.3, 'switching polarity'))
         sequence.append(SeqDev(onoff, 'on'))
         sequence.append(SeqSleep(0.3, 'enabling power'))
+        sequence.append(SeqCall(self._attached_currentsource._dev.On))
+        sequence.append(SeqSleep(0.3, 're-enabling power supply'))
+
+    def doStart(self, target):
+        if self._mode != SIMULATION:
+            self._attached_onoffswitch._dev.On()
+            self._attached_polswitch._dev.On()
+            self._attached_symmetry._dev.On()
+            self._attached_currentsource._dev.On()
+            BipolarSwitchingMagnet.doStart(self, target)
