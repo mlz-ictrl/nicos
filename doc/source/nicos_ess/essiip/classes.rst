@@ -1,11 +1,11 @@
 ESSIIP
 ======
 
-.. automodule:: nicos_ess.essiip.devices.epics_motor
+.. automodule:: nicos_ess.devices.epics.motor
 
 .. autoclass:: EpicsMotor()
 
-.. automodule:: nicos_ess.essiip.devices.epics_extensions
+.. automodule:: nicos_ess.devices.epics.extensions
 
 .. autoclass:: EpicsMappedMoveable()
 
@@ -21,6 +21,6 @@ ESSIIP
 Mixins
 ------
 
-.. automodule:: nicos_ess.essiip.devices.epics_extensions
+.. automodule:: nicos_ess.devices.epics.extensions
 
 .. autoclass:: HasSwitchPv
