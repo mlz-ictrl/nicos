@@ -4,7 +4,7 @@ group = 'basic'
 
 includes = [
     'system', 'mux', 'sampletable', 'detector', 'nguide', 'slits', 'filter',
-    'mono'
+    'mono', 'reactor'
 ]
 
 # caress@spodictrl:/opt/caress>./dump_u1 bls
