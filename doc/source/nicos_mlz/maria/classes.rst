@@ -3,8 +3,8 @@
 
 
 .. automodule:: nicos_mlz.maria.devices.detector
-.. autoclass:: DenexImage()
+.. autoclass:: MariaDetector()
 
-.. automodule:: nicos_mlz.maria.devices.npsaver
-.. autoclass:: NPGZImageSinkHandler()
-.. autoclass:: NPGZFileSink()
+.. automodule:: nicos_mlz.maria.devices.yamlformat
+.. autoclass:: YAMLFileSinkHandler()
+.. autoclass:: YAMLFileSink()
