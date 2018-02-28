@@ -1,7 +1,7 @@
 `AMOR <https://www.psi.ch/sinq/amor/>`_
 =======================================
 
-.. automodule:: nicos_sinq.amor.devices.epics_extensions
+.. automodule:: nicos_sinq.devices.epics.extensions
 
 .. autoclass:: EpicsAsynController()
 .. autoclass:: EpicsPassiveChannel()
@@ -12,7 +12,7 @@
 .. autoclass:: EpicsTimerActiveChannel()
 .. autoclass:: EpicsDetector()
 
-.. automodule:: nicos_sinq.amor.devices.epics_scaler_record
+.. automodule:: nicos_sinq.devices.epics.scaler_record
 
 .. autoclass:: EpicsScalerRecord()
 
@@ -20,7 +20,7 @@
 
 .. autoclass:: EpicsAmorMagnet()
 
-.. automodule:: nicos_sinq.amor.devices.epics_astrium_chopper
+.. automodule:: nicos_sinq.devices.epics.astrium_chopper
 
 .. autoclass:: EpicsChopperSpeed()
 .. this class leads to a crash of sphinx:
