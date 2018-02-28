@@ -104,7 +104,9 @@ language = 'en'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_pattern = []
+if not tags.has('customdoc'):
+    exclude_patterns = ['nicos_*/**.rst', 'customsetups.rst',
+                        'classes/custom.rst']
 
 
 # The reST default role (used for this markup: `text`) to use for all
