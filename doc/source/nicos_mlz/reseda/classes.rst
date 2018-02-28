@@ -24,9 +24,7 @@
 .. automodule:: nicos_mlz.reseda.devices.scatteringvector
 .. autoclass:: ScatteringVector()
 
-.. automodule:: nicos_mlz.reseda.devices.selector
-
-.. autoclass:: Selector()
+.. automodule:: nicos_mlz.reseda.devices.sel
 .. autoclass:: Wavelength()
 
 .. automodule:: nicos_mlz.reseda.devices.tau

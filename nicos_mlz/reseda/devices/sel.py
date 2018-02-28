@@ -25,7 +25,7 @@
 from nicos.core import Attach, Override, Readable, status
 
 
-class wavelength(Readable):
+class Wavelength(Readable):
 
     attached_devices = {
         'selspeed': Attach('Selector rotation speed in rpm', Readable),
