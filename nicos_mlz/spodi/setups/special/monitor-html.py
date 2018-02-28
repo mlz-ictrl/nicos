@@ -144,12 +144,18 @@ _tension = Column(
     ),
 )
 
-_newport = Column(
-    Block('Newport', [
-        BlockRow(Field(dev='sth_newport01')),
+_nps =[1,2,3,10,11,12]
+_npblocks = []
+
+for i in _nps:
+    _npblocks.append(    Block('Newport', [
+        BlockRow(Field(dev='sth_newport%02d' % i)),
     ],
+    setups='newport%02d' % i,
     ),
 )
+_newport = Column(*_npblocks)
+
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
