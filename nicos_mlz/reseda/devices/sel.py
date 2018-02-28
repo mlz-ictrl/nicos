@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Override, Attach, status
+from nicos.core import Attach, Override, Readable, status
+
 
 class wavelength(Readable):
 
@@ -31,21 +32,20 @@ class wavelength(Readable):
         'tilt': Attach('Selector cradle encoder angle in deg', Readable),
     }
 
-
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
+        'unit': Override(mandatory=False, default='A'),
     }
 
     def doRead(self, maxage=0):
 
-        speed= self._attached_selector_speed.read(maxage)
+        speed = self._attached_selector_speed.read(maxage)
         tilt = self._attached_selcradle.read(maxage)
 
         alpha = 48.27    # screw angle in deg
         L = 250.0          # selector length in mm
         R = 160.0          # selector radius in mm
 
-        lambda_ = 6.59e5 * (alpha * L/R * tilt) / (speed * L)
+        lambda_ = 6.59e5 * (alpha * L / R * tilt) / (speed * L)
 
         return lambda_
 
