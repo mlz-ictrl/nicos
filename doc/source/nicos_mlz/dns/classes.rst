@@ -8,5 +8,8 @@
 .. automodule:: nicos_mlz.dns.devices.dnsfileformat
 .. autoclass:: DNSFileSink()
 
+.. automodule:: nicos_mlz.dns.devices.yamlformat
+.. autoclass:: YAMLFileSink()
+
 .. automodule:: nicos_mlz.dns.devices.toellner
 .. autoclass:: Toellner()
