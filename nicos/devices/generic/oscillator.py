@@ -69,8 +69,6 @@ class Oscillator(Moveable):
     hardware_access = False
 
     def doInit(self, mode):
-        if mode == SIMULATION:
-            return
         if session.sessiontype != POLLER:  # dont run in the poller!
             self._osc_thread = None
             self._stop_request = False
