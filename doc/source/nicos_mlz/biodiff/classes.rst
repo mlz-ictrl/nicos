@@ -11,3 +11,4 @@
 .. automodule:: nicos_mlz.biodiff.devices.motor
 
 .. autoclass:: MicrostepMotor()
+.. autoclass:: S7InterlockMotor()
