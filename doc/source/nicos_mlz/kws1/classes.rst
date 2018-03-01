@@ -24,8 +24,14 @@
 .. autoclass:: oneof_detector()
 .. autoclass:: DetectorPosSwitcher()
 
+.. automodule:: nicos_mlz.kws1.devices.experiment
+.. autoclass:: KWSExperiment()
+
 .. automodule:: nicos_mlz.kws1.devices.flipper
 .. autoclass:: Flipper()
+
+.. automodule:: nicos_mlz.kws1.devices.julabo
+.. autoclass:: TemperatureController()
 
 .. automodule:: nicos_mlz.kws1.devices.kwsfileformat
 .. autoclass:: KWSFileSinkHandler()
