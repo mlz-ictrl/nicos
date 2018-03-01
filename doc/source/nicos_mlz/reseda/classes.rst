@@ -39,5 +39,4 @@ Data file formats
 
 .. automodule:: nicos_mlz.reseda.devices.hdf5
 .. autoclass:: ResedaHDF5DataFile()
-.. autoclass:: ResedaHDF5SinkHandler()
 .. autoclass:: ResedaHDF5Sink()
