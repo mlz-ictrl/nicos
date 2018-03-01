@@ -78,7 +78,7 @@ class Oscillator(Moveable):
     def doStart(self, target):
         if self._mode == SIMULATION:
             for p in self.range:
-                self.attached_moveable._sim_setValue(p)
+                self._attached_moveable._sim_setValue(p)
             return
         if target == 'on':
             self._stop()
