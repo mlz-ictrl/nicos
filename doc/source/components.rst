@@ -7,7 +7,7 @@ The NICOS components come in the form of executables located in the ``bin``
 subdirectory of the NICOS source:
 
 
-.. index:: nicos-aio, nicos-ipython, nicos-gui, nicos-client
+.. index:: nicos-aio, nicos-gui, nicos-client
 
 Shells
 ------
