@@ -293,7 +293,7 @@ class MainWindow(QMainWindow):
             self,
             'Save as...',
             getNicosDir(),
-            'Python script (*.py)')
+            'Python script (*.py)')[0]
 
         if filepath:
             if not str(filepath).endswith('.py'):

@@ -159,7 +159,7 @@ class SampleDialog(DlgUtils, QDialog):
         if not self._init_samplefile:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getOpenFileName(self, 'Open sample file',
-                                             initialdir, 'Sample files (*.py)')
+                                             initialdir, 'Sample files (*.py)')[0]
             if not fn:
                 self.currentSamplesBtn.setChecked(True)
                 return

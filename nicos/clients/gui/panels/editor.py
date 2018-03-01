@@ -640,7 +640,7 @@ class EditorPanel(Panel):
         else:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
-                                         'Script files (*.py *.txt)')
+                                         'Script files (*.py *.txt)')[0]
         if not fn:
             return
         self.openFile(fn.encode(sys.getfilesystemencoding()))
@@ -752,7 +752,7 @@ class EditorPanel(Panel):
         else:
             defaultext = '.py'
             flt = 'Script files (*.py *.txt)'
-        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
+        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)[0]
         if not fn:
             return False
         if not fn.endswith(('.py', '.txt')):

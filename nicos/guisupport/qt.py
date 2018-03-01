@@ -116,3 +116,19 @@ else:
             pass
 
     propertyMetaclass = pyqtWrapperType
+
+    # Compatibility fix: the QFileDialog methods in PyQt5 correspond
+    # to the ...AndFilter methods in PyQt4.
+
+    orig_QFileDialog = QFileDialog
+
+    # pylint: disable=function-redefined
+    class QFileDialog(orig_QFileDialog):
+
+        @staticmethod
+        def getOpenFileName(*args, **kwds):
+            return orig_QFileDialog.getOpenFileNameAndFilter(*args, **kwds)
+
+        @staticmethod
+        def getSaveFileName(*args, **kwds):
+            return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)

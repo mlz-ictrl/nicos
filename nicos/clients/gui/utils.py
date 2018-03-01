@@ -147,7 +147,7 @@ class DlgUtils(object):
             startdir = path.dirname(previous)
         else:
             startdir = '.'
-        fn = QFileDialog.getOpenFileName(self, text, startdir, 'All files (*)')
+        fn = QFileDialog.getOpenFileName(self, text, startdir, 'All files (*)')[0]
         if fn:
             ctl.setText(fn)
 
@@ -157,7 +157,7 @@ class DlgUtils(object):
             startdir = path.dirname(previous)
         else:
             startdir = '.'
-        fn = QFileDialog.getSaveFileName(self, text, startdir, 'All files (*)')
+        fn = QFileDialog.getSaveFileName(self, text, startdir, 'All files (*)')[0]
         if fn:
             ctl.setText(fn)
 

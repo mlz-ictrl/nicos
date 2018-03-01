@@ -388,7 +388,7 @@ class KWSSamplePanel(Panel):
     def on_openFileBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
         fn = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
-                                         'Sample files (*.py)')
+                                         'Sample files (*.py)')[0]
         if not fn:
             return
         try:
@@ -416,7 +416,7 @@ class KWSSamplePanel(Panel):
         if self.dirty:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                             initialdir, 'Sample files (*.py)')
+                                             initialdir, 'Sample files (*.py)')[0]
             if not fn:
                 return False
             if not fn.endswith('.py'):
