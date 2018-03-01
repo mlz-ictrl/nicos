@@ -18,7 +18,7 @@ amor_default = {
         },
         "sample:NXsample": {
             "name": DeviceDataset('Sample', 'samplename'),
-            "distance": NXDataset(0.0),
+            "distance": DeviceDataset('dsample'),
             "base_height": DeviceDataset('stz'),
             "chi": DeviceDataset('sch'),
             "omega_height": DeviceDataset('soz'),
@@ -37,14 +37,14 @@ amor_default = {
             "T0_chopper:NXdisk_chopper": {
                 "chopper_phase": DeviceDataset('ch1', 'phase', 'float64'),
                 "rotation_speed": DeviceDataset('ch1', 'speed', units='rpm'),
-                "distance": NXDataset(-4895.0)
+                "distance": DeviceDataset('dchopper')
             },
             "after_sample1:NXaperture": {
                 "bottom": NXDataset(SlitValuePlaceholder('slit4', 'bottom')),
                 "top": NXDataset(SlitValuePlaceholder('slit4', 'top')),
                 "left": NXDataset(SlitValuePlaceholder('slit4', 'left')),
                 "right": NXDataset(SlitValuePlaceholder('slit4', 'right')),
-                "distance": NXDataset(456.0),
+                "distance": DeviceDataset('dslit4'),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
                         "size": NXDataset(SlitGeometryPlaceholder(4))
@@ -52,7 +52,7 @@ amor_default = {
                 }
             },
             "analyzer:NXfilter": {
-                "distance": NXDataset(-2874.0),
+                "distance": DeviceDataset('danalyzer'),
                 "height": DeviceDataset('atz'),
                 "omega_height": DeviceDataset('aoz'),
                 "rotation": DeviceDataset('aom'),
@@ -60,11 +60,11 @@ amor_default = {
             },
             "area_detector:NXdetector": {
                 "chopper_detector_distance": NXDataset(8980.0),
-                "distance": NXDataset(4085.0),
+                "distance": DeviceDataset('ddetector'),
                 "height": DeviceDataset('coz'),
                 "rotation": DeviceDataset('com'),
                 "detector_rotation_offset": DeviceDataset('com', 'offset'),
-                "polar_angle": NXDataset(2.2),
+                "polar_angle": DeviceDataset('s2t'),
                 "x_position": DeviceDataset('cox'),
                 "x_detector": NXDataset(
                     [-86, -84.6562, -83.3125, -81.9688, -80.625, -79.2812,
@@ -153,12 +153,12 @@ amor_default = {
                 "width": NXDataset(SlitValuePlaceholder('slit5', 'vertical')),
             },
             "frame_overlap_mirror:NXmirror": {
-                "distance": NXDataset(-1278.0),
+                "distance": DeviceDataset('dfilter'),
                 "height": DeviceDataset('ftz'),
                 "omgea": DeviceDataset('fom')
             },
             "polarizer:NXpolariser": {
-                "distance": NXDataset(4811.0),
+                "distance": DeviceDataset('dpolarizer'),
                 "height": DeviceDataset('mtz'),
                 "magnet_current": DeviceDataset('pby'),
                 "omega_height": DeviceDataset('moz'),
@@ -171,7 +171,7 @@ amor_default = {
                 "top": NXDataset(SlitValuePlaceholder('slit1', 'top')),
                 "left": NXDataset(SlitValuePlaceholder('slit1', 'left')),
                 "right": NXDataset(SlitValuePlaceholder('slit1', 'right')),
-                "distance": NXDataset(-3980.0),
+                "distance": DeviceDataset('dslit1'),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
                         "size": NXDataset(SlitGeometryPlaceholder(1))
@@ -183,7 +183,7 @@ amor_default = {
                 "top": NXDataset(SlitValuePlaceholder('slit2', 'top')),
                 "left": NXDataset(SlitValuePlaceholder('slit2', 'left')),
                 "right": NXDataset(SlitValuePlaceholder('slit2', 'right')),
-                "distance": NXDataset(-1587.0),
+                "distance": DeviceDataset('dslit2'),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
                         "size": NXDataset(SlitGeometryPlaceholder(2))
@@ -195,7 +195,7 @@ amor_default = {
                 "top": NXDataset(SlitValuePlaceholder('slit3', 'top')),
                 "left": NXDataset(SlitValuePlaceholder('slit3', 'left')),
                 "right": NXDataset(SlitValuePlaceholder('slit3', 'right')),
-                "distance": NXDataset(-386.0),
+                "distance": DeviceDataset('dslit3'),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
                         "size": NXDataset(SlitGeometryPlaceholder(3))
@@ -205,7 +205,7 @@ amor_default = {
             "slave_chopper:NXchopper": {
                 "chopper_phase": DeviceDataset('ch2', 'phase'),
                 "rotation_speed": DeviceDataset('ch2', 'speed'),
-                "distance": NXDataset(-4620.0)
+                "distance": DeviceDataset('dchopper')
             }
         },
 
