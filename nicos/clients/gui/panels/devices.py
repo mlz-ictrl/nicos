@@ -283,6 +283,9 @@ class DevicesPanel(Panel):
         loaded_setups = set(setuplists[0])
         self._dev2setup = {}
         self._setupinfo = self.client.eval('session.getSetupInfo()', {})
+        if self._setupinfo is None:
+            self.log.warn('session.getSetupInfo() returned None instead of {}')
+            return
         for setupname, info in iteritems(self._setupinfo):
             if info is None:
                 continue
