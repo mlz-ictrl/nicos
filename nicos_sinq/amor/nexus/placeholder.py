@@ -34,17 +34,56 @@ class SlitGeometryPlaceholder(PlaceholderBase):
         if 0 < slit_number < 5:
             self.slit = slit_number
         else:
-            raise ConfigurationError('Slit number not in range.')
+            raise ConfigurationError('Slit %s is out of range.' % slit_number)
+
+    def __repr__(self):
+        return "(Slit: %s)" % self.slit
 
     def fetch_info(self, metainfo):
         """ Returns the slit geometry [top-bottom, left-right]
         """
         num = self.slit
-        top = DeviceValuePlaceholder('d%st' % num).fetch_info(metainfo)[0]
-        bottom = DeviceValuePlaceholder('d%sb' % num).fetch_info(metainfo)[0]
-        left = DeviceValuePlaceholder('d1l').fetch_info(metainfo)[0]
-        right = DeviceValuePlaceholder('d1r').fetch_info(metainfo)[0]
-        if None in [top, bottom, left, right]:
-            return None
-        val = [top-bottom, left-right]
-        return val, '%s' % val, 'mm', ''
+        values = DeviceValuePlaceholder('slit%s' % num).fetch_info(metainfo)[0]
+        if values is not None:
+            left, right, bottom, top = values
+            val = [top - bottom, left - right]
+            return val, '%s' % val, 'mm', ''
+
+        return None
+
+
+class SlitValuePlaceholder(DeviceValuePlaceholder):
+    """ Placeholder that determines the value of a specific motor in that
+    slit. The slit device is provided using *slitdevice* and the
+    *component* provides the name the of the component in the slit
+    """
+
+    component_to_ids = {
+        'left': 0,
+        'right': 1,
+        'bottom': 2,
+        'top': 3,
+        'horizontal': 0,
+        'vertical': 1
+    }
+
+    def __init__(self, slitdevice, component):
+        DeviceValuePlaceholder.__init__(self, slitdevice)
+        if component not in self.component_to_ids:
+            raise ConfigurationError('Component %s unidentified for '
+                                     '%s' % (component, slitdevice))
+        self.component = component
+
+    def __repr__(self):
+        return "(slit: %s and component: %s)" % (self.device, self.component)
+
+    def fetch_info(self, metainfo):
+        """ Returns the info of the component of the slit
+        """
+        values, _, unit, _ = DeviceValuePlaceholder.fetch_info(self, metainfo)
+
+        valueid = self.component_to_ids[self.component]
+        if valueid < len(values):
+            return values[valueid], '%s' % values[valueid], unit, ''
+
+        return None

@@ -1,6 +1,7 @@
 from nicos_ess.nexus import DeviceAttribute, NXDataset, DeviceDataset, \
     DeviceStream, EventStream
-from nicos_sinq.amor.nexus.placeholder import SlitGeometryPlaceholder
+from nicos_sinq.amor.nexus.placeholder import SlitGeometryPlaceholder, \
+    SlitValuePlaceholder
 
 # Default template for AMOR including most of the devices
 amor_default = {
@@ -39,10 +40,10 @@ amor_default = {
                 "distance": NXDataset(-4895.0)
             },
             "after_sample1:NXaperture": {
-                "bottom": DeviceDataset('d4b'),
-                "top": DeviceDataset('d4t'),
-                "left": DeviceDataset('d1l'),
-                "right": DeviceDataset('d1r'),
+                "bottom": NXDataset(SlitValuePlaceholder('slit4', 'bottom')),
+                "top": NXDataset(SlitValuePlaceholder('slit4', 'top')),
+                "left": NXDataset(SlitValuePlaceholder('slit4', 'left')),
+                "right": NXDataset(SlitValuePlaceholder('slit4', 'right')),
                 "distance": NXDataset(456.0),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
@@ -147,8 +148,9 @@ amor_default = {
                 "monitor2": DeviceStream('c2')
             },
             "detector_slit:NXaperture": {
-                "height": DeviceDataset('d5h'),
-                "width": DeviceDataset('d5v')
+                "height": NXDataset(SlitValuePlaceholder('slit5',
+                                                         'horizontal')),
+                "width": NXDataset(SlitValuePlaceholder('slit5', 'vertical')),
             },
             "frame_overlap_mirror:NXmirror": {
                 "distance": NXDataset(-1278.0),
@@ -165,10 +167,10 @@ amor_default = {
                 "y_translation": DeviceDataset('mty')
             },
             "pre_sample_slit1:NXaperture": {
-                "bottom": DeviceDataset('d1b'),
-                "top": DeviceDataset('d1t'),
-                "left": DeviceDataset('d1l'),
-                "right": DeviceDataset('d1r'),
+                "bottom": NXDataset(SlitValuePlaceholder('slit1', 'bottom')),
+                "top": NXDataset(SlitValuePlaceholder('slit1', 'top')),
+                "left": NXDataset(SlitValuePlaceholder('slit1', 'left')),
+                "right": NXDataset(SlitValuePlaceholder('slit1', 'right')),
                 "distance": NXDataset(-3980.0),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
@@ -177,10 +179,10 @@ amor_default = {
                 }
             },
             "pre_sample_slit2:NXaperture": {
-                "bottom": DeviceDataset('d2b'),
-                "top": DeviceDataset('d2t'),
-                "left": DeviceDataset('d1l'),
-                "right": DeviceDataset('d1r'),
+                "bottom": NXDataset(SlitValuePlaceholder('slit2', 'bottom')),
+                "top": NXDataset(SlitValuePlaceholder('slit2', 'top')),
+                "left": NXDataset(SlitValuePlaceholder('slit2', 'left')),
+                "right": NXDataset(SlitValuePlaceholder('slit2', 'right')),
                 "distance": NXDataset(-1587.0),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
@@ -189,10 +191,10 @@ amor_default = {
                 }
             },
             "pre_sample_slit3:NXaperture": {
-                "bottom": DeviceDataset('d3b'),
-                "top": DeviceDataset('d3t'),
-                "left": DeviceDataset('d1l'),
-                "right": DeviceDataset('d1r'),
+                "bottom": NXDataset(SlitValuePlaceholder('slit3', 'bottom')),
+                "top": NXDataset(SlitValuePlaceholder('slit3', 'top')),
+                "left": NXDataset(SlitValuePlaceholder('slit3', 'left')),
+                "right": NXDataset(SlitValuePlaceholder('slit3', 'right')),
                 "distance": NXDataset(-386.0),
                 "geometry:NXgeometry": {
                     "shape:NXshape": {
