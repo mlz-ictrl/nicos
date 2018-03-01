@@ -6,41 +6,39 @@ Absorber
 --------
 
 .. automodule:: nicos_mlz.galaxi.devices.absorber
-
 .. autoclass:: AbsorberDevice()
 
 Conditioner
 -----------
 
 .. automodule:: nicos_mlz.galaxi.devices.conditioner
-
 .. autoclass:: TubeConditioner()
 
 Detectors
 ---------
 
 .. automodule:: nicos_mlz.galaxi.devices.mythen
-
 .. autoclass:: MythenDetector()
+.. autoclass:: MythenTimer()
+.. autoclass:: MythenImage()
 
 .. automodule:: nicos_mlz.galaxi.devices.pilatus
-
 .. autoclass:: PilatusDetector()
 
 .. automodule:: nicos_mlz.galaxi.devices.pindiode
-
 .. autoclass:: SingleDetectors()
 
 Distances
 ---------
 
 .. automodule:: nicos_mlz.galaxi.devices.distance
-
 .. autoclass:: DetectorDistance()
 
 File formats
 ------------
 
 .. automodule:: nicos_mlz.galaxi.devices.mythendatasink
-
 .. autoclass:: MythenImageSink()
+
+.. automodule:: nicos_mlz.galaxi.devices.pilatus
+.. autoclass:: PilatusSink()
