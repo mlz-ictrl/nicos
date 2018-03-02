@@ -5,12 +5,11 @@ Detector
 --------
 
 .. automodule:: nicos_mlz.spodi.devices.detector
-
 .. autoclass:: Detector()
 
 Data formats
 ------------
 
 .. automodule:: nicos_mlz.spodi.devices.datasinks
-
 .. autoclass:: CaressHistogram()
+.. autoclass:: LiveViewSink()
