@@ -7,7 +7,7 @@ import math
 includes = ['multianalyzer']
 
 excludes = [
-    'detector', 'vtof', 'refsans', 'qmchannel', 'pgaa', 'vstressi'
+    'detector', 'vtof', 'refsans', 'qmchannel', 'pgaa'
 ]
 
 modules = ['nicos_mlz.puma.commands']
