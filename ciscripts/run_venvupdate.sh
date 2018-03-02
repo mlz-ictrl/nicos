@@ -1,6 +1,7 @@
 #! /bin/bash
-venv=$1
-. $venv/bin/activate
+venvfull=$1
+venv=${venvfull##*/}
+. $venvfull/bin/activate
 echo
 
 echo "==== Developer dependencies ======"
