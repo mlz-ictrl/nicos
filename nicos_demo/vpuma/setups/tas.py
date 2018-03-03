@@ -8,5 +8,5 @@ includes = ['pumabase',
             # 'ios',
             # 'hv',
             # 'notifiers',
-            # 'detector',
+            'detector',
             ]

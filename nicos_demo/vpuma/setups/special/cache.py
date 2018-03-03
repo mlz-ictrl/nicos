@@ -1,4 +1,5 @@
 description = 'setup for the cache server'
+
 group = 'special'
 
 devices = dict(

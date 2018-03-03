@@ -14,25 +14,34 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-
 devices = dict(
-    puma = device('nicos.devices.instrument.Instrument',
-        description = 'DAS PUMA',
-        instrument = 'PUMA',
+    puma = device('nicos.devices.tas.TAS',
+        description = 'Virtual DAS PUMA',
+        instrument = 'V-PUMA',
         responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
         website = 'http://www.mlz-garching.de/puma',
+        facility = 'NICOS demo instruments',
         operators = [
             u'Technische Universität München (TUM)',
             u'Institut für Physikalische Chemie, Georg-August-Universität '
             u'Göttingen',
         ],
+        energytransferunit = 'meV',
+        scatteringsense = (-1, 1, -1),
+        cell = 'Sample',
+        phi = 'phi',
+        psi = 'sth',
+        mono = 'mono',
+        ana = 'ana',
+        alpha = None,
+        axiscoupling = False,
+        collimation = '60 30 30 60',
     ),
-    Exp = device('nicos.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.panda.devices.experiment.PandaExperiment',
         description = 'Experiment of PUMA',
         sample = 'Sample',
         dataroot = 'data',
-        reporttemplate = '',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
