@@ -109,9 +109,8 @@ class FlatfileCacheDatabase(CacheDatabase):
             firstline = fd.readline()
             if firstline.startswith('# NICOS cache store file v2'):
                 return self._read_one_storefile_v2(filename, fd)
-            # v1 has no comment; go back to first line for reading
-            fd.seek(0, os.SEEK_SET)
-            return self._convert_storefile(filename, fd)
+        self.log.warning('ignoring store file %s with wrong format', filename)
+        return {}
 
     def _read_one_storefile_v2(self, filename, fd):
         db = {}
@@ -135,33 +134,6 @@ class FlatfileCacheDatabase(CacheDatabase):
             except Exception:
                 self.log.warning('could not interpret line from '
                                  'cache file %s: %r', filename, line, exc=1)
-        return db
-
-    def _convert_storefile(self, filename, fd):
-        # read whole content and write back in new format
-        self.log.info('converting store file %s to new format', filename)
-        content = fd.read()
-        fd.seek(0, os.SEEK_SET)
-        fd.write('# NICOS cache store file v2\n')
-        db = {}
-        for line in content.splitlines():
-            try:
-                subkey, time, value = line.rstrip().split(None, 2)
-                if value != '-':
-                    db[subkey] = CacheEntry(float(time), None, value)
-                elif subkey in db:  # implied: value == '-'
-                    db[subkey].expired = True
-            except Exception:
-                self.log.warning('could not interpret line from '
-                                 'cache file %s: %r', filename, line, exc=1)
-            else:
-                # mark all entries as not expiring, mirroring old behavior
-                if value == '-':
-                    fd.write('%s\t%s\t-\t-\n' % (subkey, time))
-                else:
-                    fd.write('%s\t%s\t+\t%s\n' % (subkey, time, value))
-        # we should have written more than was in the file before, but make sure
-        fd.truncate()
         return db
 
     def initDatabase(self):
