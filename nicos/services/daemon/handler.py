@@ -37,6 +37,7 @@ from nicos import session, nicos_version, get_custom_version, config
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.core.data import ScanData
 from nicos.utils import closeSocket
+from nicos.utils.queues import SizedQueue
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import ScriptRequest, ScriptError, \
@@ -99,29 +100,6 @@ def command(needcontrol=False, needscript=None, name=None):
 # unique objects
 stop_queue = (object(), '')
 no_msg = object()
-
-
-class SizedQueue(queue.Queue):
-    """A Queue that limits the total size of event messages"""
-    def _init(self, maxsize):
-        assert maxsize > 0
-        self.nbytes = 0
-        queue.Queue._init(self, maxsize)
-
-    def _qsize(self):
-        # limit to self.maxsize because of equality test
-        # for full queues in python 2.7
-        return min(self.maxsize, self.nbytes)
-
-    def _put(self, item):
-        # size of the queue item should never be zero, so add one
-        self.nbytes += len(item[1]) + 1
-        self.queue.append(item)
-
-    def _get(self):
-        item = self.queue.popleft()
-        self.nbytes -= len(item[1]) + 1
-        return item
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
