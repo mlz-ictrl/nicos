@@ -42,6 +42,8 @@ from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import listof, none_or, oneof
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
+from nicos.utils import createThread
+from nicos.utils.queues import queue, SizedQueue
 
 PREFIX_RE = re.compile(r'[a-zA-Z0-9_/]+\.\*$')
 
@@ -143,22 +145,44 @@ class WebhookForwarder(ForwarderBase, Device):
         if self._prefix:
             self._prefix += '/'
         self._initFilters()
+        self._queue= SizedQueue(1000000)
+        self._processor = createThread('webhookprocessor', self._processQueue)
 
     def _putChange(self, time, key, value):
         if not self._checkKey(key):
             return
         pdict = dict(time=time, key=self._prefix + key, value=value)
-        if self.paramencoding == 'json':
-            if self.http_mode == 'GET':
-                pdict = {self.jsonname: json.dumps(pdict)}
-                requests.get(self.hook_url, params=pdict)
-            elif self.http_mode == 'POST':
-                requests.post(self.hook_url, json=pdict)
-        else:
-            if self.http_mode == 'GET':
-                requests.get(self.hook_url, params=pdict)
-            elif self.http_mode == 'POST':
-                requests.post(self.hook_url, data=pdict)
+        retry = 2
+        while retry:
+            try:
+                self._queue.put(pdict, False)
+                break
+            except queue.Full:
+                self._queue.get()
+                self._queue.task_done()
+                retry -= 1
+
+    def _webHookTask(self, pdict):
+        try:
+            if self.paramencoding == 'json':
+                if self.http_mode == 'GET':
+                    pdict = {self.jsonname: json.dumps(pdict)}
+                    requests.get(self.hook_url, params=pdict, timeout=0.5)
+                elif self.http_mode == 'POST':
+                    requests.post(self.hook_url, json=pdict, timeout=0.5)
+            else:
+                if self.http_mode == 'GET':
+                    requests.get(self.hook_url, params=pdict, timeout=0.5)
+                elif self.http_mode == 'POST':
+                    requests.post(self.hook_url, data=pdict, timeout=0.5)
+        except Exception:
+            self.log.warning('Execption during webhook call', exc=True)
+
+    def _processQueue(self):
+        while not self._stoprequest:
+            item = self._queue.get()
+            self._webHookTask(item)
+            self._queue.task_done()
 
 
 class Collector(CacheKeyFilter, BaseCacheClient):
