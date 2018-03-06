@@ -19,8 +19,7 @@ devices = dict(
     Treff = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'TREFF',
-        # doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
-        responsible = 'Andreas Ofner<andreas.ofnert@frm2.tum.de>',
+        responsible = 'Egor Vehzlev <e.vehzlev@fz-juelich.de>',
         website = 'http://www.mlz-garching.de',
         operators = [
             u'Jülich Centre for Neutron Science (JCNS)',

@@ -7,9 +7,8 @@ devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         sender = 'treff@frm2.tum.de',
         copies = [
-            ('andreas.ofner@frm2.tum.de', 'all'),
             ('e.vezhlev@fz-juelich.de', 'all'),
-            ('peter.link@frm2.tum.de', 'important'),
+            ('peter.link@frm2.tum.de', 'all'),
             ('stefan.mattauch@fz-juelich.de', 'important'),
             ('c.felder@fz-juelich.de', 'important'),
             ('alerts.sw.zea2@fz-juelich.de', 'important'),
