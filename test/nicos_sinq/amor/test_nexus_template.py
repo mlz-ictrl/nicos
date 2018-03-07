@@ -24,7 +24,6 @@
 
 import pytest
 
-from nicos.pycompat import iteritems
 from nicos_ess.nexus.elements import NXGroup, NXDataset, NXAttribute, \
     DeviceDataset, DeviceAttribute, EventStream
 from nicos_ess.nexus.converter import NexusTemplateConverter
@@ -148,29 +147,90 @@ class TestNexusTemplate(object):
     """
 
     @staticmethod
-    def equals(dict1, dict2):
-        if not isinstance(dict1, dict) or not isinstance(dict2, dict):
-            return False
-        for key, value in iteritems(dict1):
-            if key not in dict2:
-                return False
-            if (isinstance(value, dict) and
-                    not TestNexusTemplate.equals(value, dict2[key])):
-                return False
-            if value != dict2[key]:
-                return False
+    def compare_lists(list1, list2):
+        """ Compare that all items in list1 exists in list 2
+        :param list1:
+        :param list2:
+        :return:
+        """
+        if not isinstance(list1, list):
+            return False, '%s is not a list' % list1
+        if not isinstance(list2, list):
+            return False, '%s is not a list' % list2
 
-        return True
+        if len(list1) != len(list2):
+            return False, 'The lengths of the list do not match'
+
+        # Sorting list with dicts is difficult!
+        # Brute force: Do nXn comparisons
+        for v1 in list1:
+            if isinstance(v1, dict):
+                found = False
+                for v2 in list2:
+                    if isinstance(v2, dict) and \
+                            TestNexusTemplate.compare_dicts(v1, v2)[0]:
+                        found = True
+                        break
+                if not found:
+                    return False, '%s\nNOT FOUND IN\n%s' % (v1, list2)
+            elif isinstance(v1, list):
+                found = False
+                for v2 in list2:
+                    if isinstance(v2, list) and \
+                            TestNexusTemplate.compare_lists(v1, v2)[0]:
+                        found = True
+                        break
+                if not found:
+                    return False, '%s\nNOT FOUND IN\n%s' % (v1, list2)
+            elif v1 not in list2:
+                return False, '%s NOT FOUND IN %s' % (v1, list2)
+
+        return True, ''
+
+    @staticmethod
+    def compare_dicts(dict1, dict2):
+        if not isinstance(dict1, dict):
+            return False, '%s is not a dict' % dict1
+
+        if not isinstance(dict2, dict):
+            return False, '%s is not a dict' % dict2
+
+        # Check for the keys
+        if not set(dict1.keys()) == set(dict2.keys()):
+            return False, 'Keys do not match in both dict: %s and %s' % \
+                   (set(dict1.keys()), set(dict2.keys()))
+
+        # Compare the values
+        for val1, val2 in [(dict1[k], dict2[k]) for k in set(dict1.keys())]:
+            if isinstance(val1, dict):
+                eq, msg = TestNexusTemplate.compare_dicts(val1, val2)
+                if not eq:
+                    return eq, msg
+            elif isinstance(val1, list):
+                eq, msg = TestNexusTemplate.compare_lists(val1, val2)
+                if not eq:
+                    return eq, msg
+                eq, msg = TestNexusTemplate.compare_lists(val2, val1)
+                if not eq:
+                    return eq, msg
+            elif val1 != val2:
+                return False, '%s != %s' % (val1, val2)
+
+        return True, ''
 
     @pytest.mark.parametrize("element", elements.keys())
     def test_element_provides_correct_json(self, element):
         """ Test that elements provide correct JSON structures
         """
         name, elem = element
-        assert self.equals(elem.structure(name, metainfo), elements[element])
+        eq, msg = self.compare_dicts(elem.structure(name, metainfo),
+                                     elements[element])
+        assert eq, msg
 
     def test_template_conversion_to_json(self, session):
         """ Test that template is correctly converted to JSON format
         """
         converter = NexusTemplateConverter()
-        assert self.equals(converter.convert(template, metainfo), converted)
+        eq, msg = self.compare_dicts(converter.convert(template, metainfo),
+                                     converted)
+        assert eq, msg
