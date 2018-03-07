@@ -35,6 +35,7 @@ from nicos.core import CommunicationError, ConfigurationError, \
     SIMULATION, anytype, floatrange, none_or, status, pvname
 from nicos.core.mixins import HasWindowTimeout
 from nicos.utils import HardwareStub
+from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 
 # ca.clear_cache() only works from the main thread
 if not isinstance(threading.currentThread(), threading._MainThread):
@@ -60,8 +61,8 @@ except epics.ca.ChannelAccessException as err:
     raise ImportError(msg)
 
 __all__ = [
-    'EpicsDevice', 'EpicsReadable', 'EpicsMoveable',
-    'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
+    'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
+    'EpicsMoveable', 'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
     'EpicsWindowTimeoutDevice',
 ]
 
@@ -90,18 +91,6 @@ FTYPE_TO_VALUETYPE = {
     32: bytes,
     33: int,
     34: float,
-}
-
-SEVERITY_TO_STATUS = {
-    0: status.OK,  # NO_ALARM
-    1: status.WARN,  # MINOR
-    2: status.ERROR,  # MAJOR
-}
-
-STAT_TO_STATUS = {
-    0: status.OK,  # OK
-    9: status.ERROR,  # Communication error
-    17: status.UNKNOWN,  # Invalid/unknown IOC state
 }
 
 

@@ -30,12 +30,15 @@ for handling EPICS communication is pvaPy.
 
 from __future__ import absolute_import
 
+from time import time as currenttime
+
 from nicos import session
 from nicos.core import CommunicationError, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, \
     SIMULATION, anytype, floatrange, none_or, status, pvname, POLLER
 from nicos.core.mixins import HasWindowTimeout
 from nicos.utils import HardwareStub
+from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 
 try:
     import pvaccess
@@ -51,8 +54,8 @@ except ImportError:
     FTYPE_TO_VALUETYPE = {}
 
 __all__ = [
-    'EpicsDevice', 'EpicsReadable', 'EpicsMoveable',
-    'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
+    'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
+    'EpicsMoveable','EpicsAnalogMoveable', 'EpicsDigitalMoveable',
     'EpicsWindowTimeoutDevice',
 ]
 
@@ -145,7 +148,7 @@ class EpicsDevice(DeviceMixinBase):
             for key in self._pvs:
                 self._pvs[key] = HardwareStub(self)
 
-    def _get_pv(self, pvparam, field='value'):
+    def _get_pv(self, pvparam, field='value', as_string=False):
         """
         Uses pvaccess to obtain a field from a PV. The default field is value,
         so that
@@ -163,18 +166,52 @@ class EpicsDevice(DeviceMixinBase):
 
         Returns: Value of the queried PV field.
         """
-        result = self._pvs[pvparam].get(field).toDict().get(field)
-        if result is None:  # timeout
+        # result = self._pvs[pvparam].get(field).toDict().get(field)
+        try:
+            result = self._pvs[pvparam].get(field).getPyObject()
+        except pvaccess.PvaException:
+            result = None
+
+        if result is None:  # timeout or channel not connected
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))
+
+        if as_string:
+            if (isinstance(result, dict) and
+                    set(['index', 'choices']).issubset(set(result))):
+                # convert (most probably) enum to string
+                return result.get('choices')[result.get('index')]
+            elif isinstance(result, list):
+                # convert char waveform to string
+                firstnull = result.index(0) if 0 in result else len(result)
+                try:
+                    cval = ''.join([chr(i) for i in result[:firstnull]]).rstrip()
+                except ValueError:
+                    cval = ''
+                return cval
+            else:
+                return str(result)
+
+        # For ENUMs do not return the dict but just the index
+        if isinstance(result, dict) and 'index' in result:
+            return result['index']
+
         return result
 
-    def _get_pvctrl(self, pvparam, ctrl, default=None):
+    def _get_pvctrl(self, pvparam, ctrl, default=None, update=False):
+        if update:
+            self._pvctrls[pvparam] = self._pvs[pvparam].get('display').toDict().get('display')
+            if self._pvctrls[pvparam] is None:
+                self._pvctrls[pvparam] = self._pvs[pvparam].get('control').toDict().get(
+                    'control', {})
         return self._pvctrls[pvparam].get(ctrl, default)
 
     def _get_pv_datatype(self, pvparam):
-        return FTYPE_TO_VALUETYPE.get(
-            self._pvs[pvparam].get().getStructureDict()['value'], anytype)
+        pv_data = self._pvs[pvparam].get().getStructureDict()['value']
+        if not isinstance(pv_data, list):
+            return FTYPE_TO_VALUETYPE.get(pv_data, anytype)
+        else:
+            return [FTYPE_TO_VALUETYPE.get(dt, anytype) for dt in pv_data]
 
     def _put_pv(self, pvparam, value, wait=True):
         self._pvs[pvparam].put(value)
@@ -215,19 +252,45 @@ class EpicsDevice(DeviceMixinBase):
             pv_field: Field of the PV to obtain, default is value.
 
         """
-        self.log.warning('Registering callback for %s (PV: %s)', pvparam,
-                         self._get_pv_name(pvparam))
+        self.log.info('Registering callback for %s (PV: %s)', pvparam,
+                      self._get_pv_name(pvparam))
 
-        def update_callback(pv_object, obj=self, key=cache_key, field=pv_field):
-            if obj._cache:
-                obj._cache.put(obj, key, pv_object[field], ttl=obj.maxage)
+        def update_callback(pv_object, obj=self, key=cache_key):
+            if isinstance(obj, Readable):
+                if key == 'value' or key == 'status':
+                    ret = obj.poll()
+                    ct = currenttime()
+                    obj._cache.put(self, 'status', ret[0], ct, self.maxage)
+                    obj._cache.put(self, 'value', ret[1], ct, self.maxage)
+                else:
+                    obj._pollParam(key)
 
         pv = self._pvs[pvparam]
         pv.setMonitorMaxQueueLength(10)
         pv.subscribe('_'.join((self.name, pvparam, cache_key, 'poller')), update_callback)
 
-        if not pv.isMonitorActive():
-            pv.startMonitor('')
+        #if not pv.isMonitorActive():
+        pv.startMonitor('')
+
+    def _get_mapped_epics_status(self):
+        # Checks the status and severity of all the associated PVs.
+        # Returns the worst status (error prone first) and
+        # a list of all associated pvs having that error
+        status_map = {}
+        for name in self._pvs:
+            epics_status = self._get_pvctrl(name, 'status', update=True)
+            epics_severity = self._get_pvctrl(name, 'severity')
+
+            mapped_status = STAT_TO_STATUS.get(epics_status, None)
+
+            if mapped_status is None:
+                mapped_status = SEVERITY_TO_STATUS.get(
+                    epics_severity, status.UNKNOWN)
+
+            status_map.setdefault(mapped_status, []).append(
+                self._get_pv_name(name))
+
+        return max(status_map.items())
 
 
 class EpicsReadable(EpicsDevice, Readable):
@@ -263,6 +326,17 @@ class EpicsReadable(EpicsDevice, Readable):
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
+
+
+class EpicsStringReadable(EpicsReadable):
+    """
+    This device handles string PVs, also when they are implemented as
+    character waveforms.
+    """
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
 
 
 class EpicsMoveable(EpicsDevice, Moveable):

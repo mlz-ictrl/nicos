@@ -1,15 +1,15 @@
 description = 'Lewis Motor setup.'
 
 devices = dict(
-    stat=device('nicos.devices.epics_ng.EpicsReadable',
+    stat=device('nicos.devices.epics.pvaccess.EpicsReadable',
                 description='Status PV of Lewis Motor1.',
                 lowlevel=True,
                 readpv='Motor1:Stat'),
-    spd=device('nicos.devices.epics_ng.EpicsAnalogMoveable',
+    spd=device('nicos.devices.epics.pvaccess.EpicsAnalogMoveable',
                description='Speed PV of Lewis Motor1.',
                lowlevel=True,
                readpv='Motor1:Spd', writepv='Motor1:Spd'),
-    stop=device('nicos.devices.epics_ng.EpicsDigitalMoveable',
+    stop=device('nicos.devices.epics.pvaccess.EpicsDigitalMoveable',
                 description='Stop PV of Lewis Motor1.',
                 lowlevel=True,
                 readpv='Motor1:Stop', writepv='Motor1:Stop'),

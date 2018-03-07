@@ -18,40 +18,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Michael Wedel <michael.wedel@esss.se>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.devices.epics.pvaccess import EpicsAnalogMoveable, \
-    EpicsDigitalMoveable, EpicsReadable
-from nicos.core import Attach
+from __future__ import absolute_import
+import os
+
 from nicos.core import status
-from nicos.devices.abstract import Motor
 
+SEVERITY_TO_STATUS = {
+    0: status.OK,  # NO_ALARM
+    1: status.WARN,  # MINOR
+    2: status.ERROR,  # MAJOR
+}
 
-class LewisEpicsMotor(EpicsAnalogMoveable, Motor):
-    attached_devices = {
-        'status_pv': Attach('Status PV', EpicsReadable),
-        'stop_pv': Attach('Stop PV', EpicsDigitalMoveable),
-        'speed_pv': Attach('Speed PV', EpicsAnalogMoveable),
-    }
+STAT_TO_STATUS = {
+    0: status.OK,  # OK
+    9: status.ERROR,  # Communication error
+    17: status.UNKNOWN,  # Invalid/unknown IOC state
+}
 
-    def doStatus(self, maxage=0):
-        epics_status = self._attached_status_pv.read(0)
-
-        if epics_status == 'moving':
-            return status.BUSY, 'Moving to target.'
-
-        return status.OK, ''
-
-    def doIsCompleted(self):
-        return self.read() == self.target
-
-    def doStop(self):
-        self._attached_stop_pv.start(1)
-
-    def doReadSpeed(self):
-        return self._attached_speed_pv.read()
-
-    def doWriteSpeed(self, new_speed):
-        self._attached_speed_pv.start(new_speed)
+# Use environment variable to determine which python EPICS
+# binding it to be used
+if os.environ.get('NICOS_EPICS') == 'pvaccess':
+    from nicos.devices.epics.pvaccess import EpicsDevice, EpicsReadable, \
+        EpicsStringReadable, EpicsMoveable, EpicsAnalogMoveable, \
+        EpicsDigitalMoveable, EpicsWindowTimeoutDevice
+else:
+    from nicos.devices.epics.pyepics import EpicsDevice, EpicsReadable, \
+        EpicsStringReadable, EpicsMoveable, EpicsAnalogMoveable, \
+        EpicsDigitalMoveable, EpicsWindowTimeoutDevice
