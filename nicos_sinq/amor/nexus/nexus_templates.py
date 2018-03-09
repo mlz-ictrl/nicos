@@ -200,11 +200,6 @@ amor_default = {
                     }
                 }
             },
-            "shielding_slit:NXaperture": {
-                "bottom": NXDataset(-20261.0),
-                "top": NXDataset(-20260.0),
-                "distance": NXDataset(5011.0)
-            },
             "slave_chopper:NXchopper": {
                 "chopper_phase": DeviceDataset('ch2', 'phase'),
                 "rotation_speed": DeviceDataset('ch2', 'speed'),

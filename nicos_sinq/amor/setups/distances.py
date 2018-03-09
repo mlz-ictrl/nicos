@@ -22,8 +22,6 @@ devices = dict(
     dslit4=device('nicos_sinq.amor.devices.component_handler.ComponentHandler',
                   description='Distance of slit4 from the laser',
                   mirrorheight=-34.0),
-    dslits=device('nicos_sinq.amor.devices.component_handler.ComponentHandler',
-                  description='Distance of slit s from the laser', ),
     dsample=device(
         'nicos_sinq.amor.devices.component_handler.ComponentHandler',
         description='Distance of sample from the laser', mirrorheight=-52.0),

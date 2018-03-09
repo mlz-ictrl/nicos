@@ -28,9 +28,6 @@ devices = dict(
         description = 'Distance of slit4 from the laser',
         mirrorheight = -34.0
     ),
-    dslits = device('nicos_sinq.amor.devices.component_handler.ComponentHandler',
-        description = 'Distance of slit s from the laser',
-    ),
     dsample = device('nicos_sinq.amor.devices.component_handler.ComponentHandler',
         description = 'Distance of sample from the laser',
         mirrorheight = -52.0
@@ -53,7 +50,6 @@ devices = dict(
         d2b = 'd2b',
         d3b = 'd3b',
         d4b = 'd4b',
-        dbs = 'dbs',
         aoz = 'aoz',
         aom = 'aom',
         d1t = 'd1t',
@@ -66,7 +62,6 @@ devices = dict(
         slit2 = 'dslit2',
         slit3 = 'dslit3',
         slit4 = 'dslit4',
-        slits = 'dslits',
         analyzer = 'danalyzer',
         detector = 'ddetector',
         lowlevel = True,

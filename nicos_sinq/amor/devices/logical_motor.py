@@ -29,7 +29,7 @@ rotations not only involve rotations but the height of
 components along the optical bench has to be changed
 as well. The motors that move with the move of these
 motors are:
-soz, com, cox, coz, d1b, d2b, d3b, d4b, dbs, aoz, aom.
+soz, com, cox, coz, d1b, d2b, d3b, d4b, aoz, aom.
 """
 
 import math
@@ -57,10 +57,6 @@ class AmorLogicalMotorHandler(Moveable):
     motor is to be moved.
     """
 
-    parameters = {
-        'dspar': Param('Control the position of dsb', type=float, default=0.0)
-    }
-
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
         'unit': Override(mandatory=False, default='degree'),
@@ -76,7 +72,6 @@ class AmorLogicalMotorHandler(Moveable):
         'd2b': Attach('d2b motor', EpicsMotor),
         'd3b': Attach('d3b motor', EpicsMotor),
         'd4b': Attach('d4b motor', EpicsMotor),
-        'dbs': Attach('dbs motor', EpicsMotor),
         'aoz': Attach('aoz motor', EpicsMotor),
         'aom': Attach('aom motor', EpicsMotor),
         'd1t': Attach('d1t motor (only to read)', EpicsMotor),
@@ -89,7 +84,6 @@ class AmorLogicalMotorHandler(Moveable):
         'slit2': Attach('Slit 2 position provider', ComponentHandler),
         'slit3': Attach('Slit 3 position provider', ComponentHandler),
         'slit4': Attach('Slit 4 position provider', ComponentHandler),
-        'slits': Attach('Slit s position provider', ComponentHandler),
         'analyzer': Attach('Analyzer position provider', ComponentHandler),
         'detector': Attach('Detector position provider', ComponentHandler),
     }
@@ -220,13 +214,6 @@ class AmorLogicalMotorHandler(Moveable):
                    self._attached_polarizer.read(0))
         soz = dist * math.tan(math.radians(-1 * targets[M2T]))
         positions.append((self._attached_soz, soz))
-
-        # dbs
-        if self._attached_slits.active:
-            dist = abs(self._attached_slits.read(0) -
-                       self._attached_polarizer.read(0))
-            val = dist * math.tan(math.radians(-1 * targets[M2T])) - self.dspar
-            positions.append((self._attached_dbs, val))
 
         # slit 1 is before the monochromator and does not need to be
         # driven when m2t changes. This is here to make sure that d1b

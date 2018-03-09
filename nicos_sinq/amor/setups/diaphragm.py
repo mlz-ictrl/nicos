@@ -87,12 +87,6 @@ devices = dict(
                errormsgpv=pvprefix + 'd2b-MsgTxt',
                lowlevel=True
                ),
-    dbs=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
-               description='Diaphragms s (lower edge) motor',
-               motorpv='SQ:AMOR:motb:dbs',
-               errormsgpv='SQ:AMOR:motb:dbs-MsgTxt',
-               ),
     slit1=device('nicos.devices.generic.slit.Slit',
                  description='Slit 1 with left, right, bottom and top motors',
                  opmode='4blades',
