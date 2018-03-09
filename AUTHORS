@@ -10,7 +10,6 @@ NICOS version 2 is written and maintained by:
 Contributors:
 
 * Nikolas Arend <n.arend@fz-juelich.de>
-* Fabian Beule <f.beule@fz-juelich.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Robert Georgii <robert.georgii@frm2.tum.de>
 * Michael Hart <michael.hart@stfc.ac.uk>
@@ -49,6 +48,7 @@ Instrument-specific code was contributed by:
 * Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>
 * Stefan Söllradl <stefan.soellradl@frm2.tum.de>
+* Alexander Steffens <a.steffens@fz-juelich.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 * Aleks Wischolit <aleks.wischolit@frm2.tum.de>
