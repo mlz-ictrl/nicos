@@ -39,7 +39,7 @@ from nicos.core import Attach, Override, Param
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase
-from nicos.core.params import listof, none_or, oneof
+from nicos.core.params import listof, oneof
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.utils import createThread
@@ -57,7 +57,7 @@ class CacheKeyFilter(DeviceMixinBase):
 
     parameters = {
         'keyfilters': Param('Filter keys to send (regexps); if empty, all '
-                            'keys are accepted', type=none_or(listof(str))),
+                            'keys are accepted', type=listof(str)),
     }
 
     def _initFilters(self):
@@ -66,7 +66,7 @@ class CacheKeyFilter(DeviceMixinBase):
         for regex in self.keyfilters:
             # special case: prefixes
             if PREFIX_RE.match(regex):
-                self._prefixfilters += (regex,)
+                self._prefixfilters += (regex[:-2],)
             else:
                 self._regexfilters.append(re.compile(regex))
 
@@ -206,9 +206,9 @@ class Collector(CacheKeyFilter, BaseCacheClient):
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if not key.startswith(self._prefix):
             return False
+        key = key[len(self._prefix):]
         if not self._checkKey(key):
             return
-        key = key[len(self._prefix):]
         if op == OP_TELL:
             value = value or None
         elif op == OP_TELLOLD:
