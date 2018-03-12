@@ -244,15 +244,15 @@ class Watchdog(BaseCacheClient):
             self._entries[i] = entry
             for node in ast.walk(cond_parse):
                 if isinstance(node, ast.Name):
-                    key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
-                    self._keymap.setdefault(self._prefix + key, set()).add(entry)
-                    self._interestingkeys.add(self._prefix + key)
+                    key = (self._prefix + node.id).replace('/', '_').lower()
+                    self._keymap.setdefault(key, set()).add(entry)
+                    self._interestingkeys.add(key)
             # same for precondition
             for node in ast.walk(precond_parse):
                 if isinstance(node, ast.Name):
-                    key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
-                    self._prekeymap.setdefault(self._prefix + key, set()).add(entry)
-                    self._interestingkeys.add(self._prefix + key)
+                    key = (self._prefix + node.id).replace('/', '_').lower()
+                    self._prekeymap.setdefault(key, set()).add(entry)
+                    self._interestingkeys.add(key)
 
     def _put_message(self, msgtype, message, timestamp=True):
         if timestamp:
@@ -281,12 +281,12 @@ class Watchdog(BaseCacheClient):
         if key == self._prefix + self.mailreceiverkey:
             self._update_mailreceivers(cache_load(value))
             return
+        key = key.replace('/', '_').lower()
         # do we care for this key?
         if key not in self._interestingkeys:
             return
         # put key in db
-        self._keydict[key[len(self._prefix):].replace('/', '_').lower()] = \
-            cache_load(value)
+        self._keydict[key[len(self._prefix):]] = cache_load(value)
         # handle warning conditions
         if key in self._keymap:
             self._update_conditions(self._keymap[key], time, key, op, value)
