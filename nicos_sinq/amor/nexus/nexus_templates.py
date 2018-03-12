@@ -139,7 +139,7 @@ amor_default = {
                 "data": EventStream(topic="AMOR.area.detector",
                                     source="AMOR.event.stream",
                                     broker="localhost:9092",
-                                    type="uint32")
+                                    dtype="uint32")
             },
             "control:NXmonitor": {
                 "mode": DeviceDataset('psd_tof', 'mode', 'string'),

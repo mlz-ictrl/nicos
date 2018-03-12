@@ -82,16 +82,15 @@ elements = {
              'type': 'string'}
          },
     ('event_stream', EventStream(topic='topic', source='source',
-                                 broker="localhost:9092", type="uint32")):
+                                 broker="localhost:9092", dtype="uint32")):
         {'attributes': {'NX_class': 'NXevent_data'},
          'type': 'group',
          'name': 'event_stream',
          'children':
              [{
-                 'attributes': {'type': 'uint32'},
                  'type': 'stream',
                  'stream': {'topic': 'topic', 'source': 'source',
-                            'type': 'uint64',
+                            'type': 'uint32',
                             'broker': 'localhost:9092',
                             'module': 'ev42'}}]
          },
