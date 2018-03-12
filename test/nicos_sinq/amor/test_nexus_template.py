@@ -92,7 +92,7 @@ elements = {
                  'stream': {'topic': 'topic', 'source': 'source',
                             'type': 'uint32',
                             'broker': 'localhost:9092',
-                            'module': 'ev42'}}]
+                            'writer_module': 'ev42'}}]
          },
     ('group_normal', NXGroup('NXgroup')):
         {'attributes': {'NX_class': 'NXgroup'},

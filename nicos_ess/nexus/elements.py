@@ -205,7 +205,8 @@ class KafkaStream(NXGroup):
     using these properties and fills up the data in the files using messages
     from Kafka.
     """
-    stream_keys = ['broker', 'topic', 'source', 'module', 'type', 'array_size']
+    stream_keys = ['broker', 'topic', 'source', 'writer_module', 'type',
+                   'array_size']
 
     def __init__(self, nxclass, **attr):
         NXGroup.__init__(self, nxclass=nxclass)
@@ -300,7 +301,7 @@ class DeviceStream(DeviceValuePlaceholder, KafkaStream):
         self.set('type', dbr_type)
         self.set('source', source)
         self.set('topic', topicandschema[0])
-        self.set('module', topicandschema[1])
+        self.set('writer_module', topicandschema[1])
 
         # Add the attributes
         self.stream_attrs["nicos_name"] = NXAttribute(self.device)
@@ -324,7 +325,7 @@ class EventStream(KafkaStream):
         self.set('topic', topic)
         self.set('source', source)
         self.set('broker', broker)
-        self.set('module', mod)
+        self.set('writer_module', mod)
         self.set('type', dtype)
 
 
