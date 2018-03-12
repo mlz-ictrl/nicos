@@ -176,7 +176,7 @@ class EpicsDetector(EpicsDeviceEss, Detector):
         return pvs
 
     def doStart(self):
-        self._put_pv('startpv', 1)
+        self._put_pv('startpv', 1, wait=True)
 
     def doPause(self):
         if self.pausepv:
