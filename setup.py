@@ -30,6 +30,7 @@ from setuptools.command.install import install as stinstall
 from distutils.dir_util import mkpath  # pylint: disable=E0611,F0401
 
 from nicos import nicos_version
+from nicos.pycompat import configparser
 
 root_packages = ['nicos'] + [d for d in glob.glob('nicos_*') if path.isdir(d)]
 
@@ -67,12 +68,16 @@ class nicosinstall(stinstall):
     user_options = stinstall.user_options + [
         ('install-pid=', None, 'Path for pid files'),
         ('install-log=', None, 'Path for log files'),
+        ('setup-package=', None, 'Path for the NICOS setups'),
+        ('instrument=', None, 'Name of the instrument'),
     ]
 
     def initialize_options(self):
         stinstall.initialize_options(self)
         self.install_pid = None
         self.install_log = None
+        self.setup_package = None
+        self.instrument = None
 
     def finalize_options(self):
         if self.prefix is None and 'VIRTUAL_ENV' not in os.environ:
@@ -90,6 +95,12 @@ class nicosinstall(stinstall):
             self.install_pid = path.join(self.install_base, self.install_pid)
         if not path.isabs(self.install_log):
             self.install_log = path.join(self.install_base, self.install_log)
+        if not self.instrument:
+            self.instrument = os.getenv('INSTRUMENT')
+        if self.instrument and self.instrument.count('.') > 0:
+            self.setup_package, self.instrument = self.instrument.split('.')
+        if not self.setup_package:
+            self.setup_package = os.getenv('SETUPPACKAGE')
         self._expand_attrs(['install_pid', 'install_log'])
         self.install_etc = path.join(self.install_base, 'etc')
         self.install_conf = path.join(self.install_base, 'nicos.conf')
@@ -118,27 +129,34 @@ class nicosinstall(stinstall):
             self.copy_tree(path.join('resources', 'icons', res),
                            path.join(self.install_icons, res))
 
+    def createInitialGlobalNicosConf(self):
+        cfg = configparser.SafeConfigParser()
+        cfg.read(self.install_conf)
+        if not cfg.has_section('nicos'):
+            cfg.add_section('nicos')
+        cfg.set('nicos', 'pid_path', '%s' % self.true_pid)
+        cfg.set('nicos', 'logging_path', '%s' % self.true_log)
+        cfg.set('nicos', 'installed_from', '%s' % path.abspath(os.curdir))
+        if self.instrument:
+            cfg.set('nicos', 'instrument',  '%s' % self.instrument)
+        else:
+            self.announce("INSTRUMENT not given, please check %s to set the"
+                          " correct instrument! "
+                          "(see Installation guide in docs)" % self.install_conf, 2)
+        if self.setup_package:
+            cfg.set('nicos', 'setup_package', '%s' % self.setup_package)
+        else:
+            self.announce("SETUPPACKAGE not given, please check %s to set the"
+                          " correct setup_package! "
+                          "(see Installation guide in docs)" % self.install_conf, 2)
+        with open(self.install_conf, 'wb') as configfile:
+            cfg.write(configfile)
+
     def run_install_etc(self):
         self.copy_tree('etc', self.install_etc)
         mkpath(self.install_pid)
         mkpath(self.install_log)
-        nicos_conf_tmpl = """\
-[nicos]
-pid_path = %s
-logging_path = %s
-installed_from = %s
-"""
-        with open(self.install_conf, 'w') as cf:
-            cf.write(nicos_conf_tmpl % (self.true_pid,
-                                        self.true_log,
-                                        path.abspath(os.curdir)))
-            instr = os.getenv('INSTRUMENT')
-            if instr:
-                cf.write('\ninstrument = %s\n' % instr)
-
-            setup_package = os.getenv('SETUPPACKAGE')
-            if setup_package:
-                cf.write('\nsetup_package = %s\n' % setup_package)
+        self.createInitialGlobalNicosConf()
 
 
 setup(
