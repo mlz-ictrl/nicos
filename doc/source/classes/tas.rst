@@ -14,6 +14,11 @@ are valid entries for the class name in a setup file.
 .. module:: nicos.devices.tas.spectro
 
 .. autoclass:: TAS()
+.. autoclass:: TASIndex()
+.. autoclass:: Wavevector()
+.. autoclass:: Energy()
+.. autoclass:: Wavelength()
+.. autoclass:: QModulus()
 
 .. module:: nicos.devices.tas.cell
 

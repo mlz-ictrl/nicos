@@ -25,10 +25,11 @@
 
 """NICOS triple-axis instrument devices."""
 
-from math import pi
+from math import pi, cos, sqrt, radians
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-    InvalidValueError, ComputationError, LimitError, oneof, multiStatus, Attach
+    InvalidValueError, ComputationError, LimitError, oneof, multiStatus, \
+    Attach, Readable, status
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
 from nicos.devices.tas import spurions
@@ -574,3 +575,35 @@ class Wavelength(TASConstant):
 
     def doReadUnit(self):
         return 'AA'
+
+
+class QModulus(Readable):
+    """
+    Device for reading the current absolute Q in inverse Angstrom.
+    """
+
+    parameter_overrides = {
+        'unit':     Override(volatile=True),
+    }
+
+    attached_devices = {
+        'tas':  Attach('The spectrometer', TAS),
+    }
+
+    hardware_access = False
+
+    def _getWaiters(self):
+        return []
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
+
+    def doRead(self, maxage=0):
+        tas = self._attached_tas
+        ki = to_k(tas._attached_mono.read(maxage), tas._attached_mono.unit)
+        kf = to_k(tas._attached_ana.read(maxage), tas._attached_ana.unit)
+        phi = tas._attached_phi.read(maxage)
+        return sqrt(ki**2 + kf**2 - 2*ki*kf*cos(radians(phi)))
+
+    def doReadUnit(self):
+        return 'A-1'
