@@ -160,7 +160,7 @@ class TestSinks(object):
         headerfile = path.join(session.experiment.datapath, 'p1234_1.header')
         assert path.isfile(headerfile)
         contents = readFile(headerfile)
-        assert contents[0] == '### NICOS Raw File Header V2.0'
+        assert contents[0] == '### NICOS Device snapshot V2.0'
         assert '### Sample and alignment' in contents
         assert any(line.strip() == 'Exp_proposal : p1234' for line in contents)
 

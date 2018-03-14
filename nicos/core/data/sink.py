@@ -33,8 +33,10 @@ from nicos.core.device import Device
 from nicos.core.params import Override, Param, listof, setof
 from nicos.core.errors import ProgrammingError
 from nicos.core.data.dataset import SETTYPES
+from nicos.core.status import statuses
 from nicos.pycompat import File
-
+from nicos.pycompat import iteritems, TextIOWrapper, listitems
+from nicos.core import INFO_CATEGORIES
 
 class DataFileBase(object):
     """Base class for Nicos data files."""
@@ -153,6 +155,77 @@ class DataSinkHandler(object):
 
     def end(self):
         """Finish up the dataset (close files etc)."""
+
+
+class NicosMetaWriterMixin(object):
+
+    update_headerinfo = False
+
+    def _collectMetaInformation(self, update_headerinfo=None):
+        bycategory = {}
+        metainfo = self.dataset.metainfo
+        for (device, key), (_, val, unit, category) in iteritems(metainfo):
+            if category:
+                bycategory.setdefault(category, []).append(
+                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
+        if update_headerinfo is None:
+            update_headerinfo = getattr(self.sink, 'update_headerinfo',
+                                        self.update_headerinfo)
+        if update_headerinfo:
+            # put count result in its own category: 'result'
+            # note: status may need to be update manually as it is not
+            #       collected in the values :(
+            # note2: as we may be called during counting, some devices
+            #        may be busy: this may irritate users :(
+            bycategory['result'] = results = []
+            for devname, val in listitems(self.dataset.values):
+                device = session.getDevice(devname)
+                if (devname, 'value') in metainfo:
+                    # re-use the category
+                    _, _, unit, category = metainfo[(devname, 'value')]
+                else:
+                    unit = device.unit
+                    category = 'result'
+                bycategory.setdefault(category,[]).append(
+                    ('%s_value' % devname, (str(val) + ' ' + unit).strip()))
+                # refresh status as well
+                stat = device.status()
+                # also map stat[0] to a string
+                if stat[1]:
+                    stat = ('%s_status' % devname, ('%s: %s' %
+                        (statuses[stat[0]].lower(), stat[1].strip())))
+                else:
+                    stat = ('%s_status' % devname, statuses[stat[0]].lower())
+                bycategory[category].append(stat)
+        # collect countresults (if already existing)
+        if self.dataset.results:
+            bycategory['result'] = results = []
+            for detname, detvalue in zip(self.dataset.detvalueinfo,
+                                         self.dataset.detvaluelist):
+                results.append((detname.name, str(detvalue)))
+        return bycategory
+
+    def writeMetaInformation(self, fp, title="Device snapshot",
+                             update_headerinfo=None):
+        """utility method for writing a standard nicos header
+
+        to be used by derived sinks"""
+        bycategory = self._collectMetaInformation(update_headerinfo)
+        wrapper = TextIOWrapper(fp)
+        wrapper.write('### NICOS %s V2.0\n' % title)
+        for category, catname in INFO_CATEGORIES:
+            if category not in bycategory:
+                continue
+            wrapper.write('### %s\n' % catname)
+            for key, value in sorted(bycategory[category]):
+                wrapper.write('%25s : %s\n' % (key, value))
+        # to ease interpreting the data...
+        # note: arraydesc exists only for ImageSinks
+        if hasattr(self, '_arraydesc'):
+            wrapper.write('\n%r' % self._arraydesc)
+        wrapper.write('\n')
+        wrapper.detach()
+
 
 
 class DataSink(Device):

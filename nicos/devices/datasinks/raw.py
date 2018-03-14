@@ -30,38 +30,24 @@ from os import path
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, INFO_CATEGORIES, DataSinkHandler, LIVE, \
+from nicos.core import Override, DataSinkHandler, LIVE, \
     ConfigurationError
-from nicos.pycompat import iteritems, TextIOWrapper
+from nicos.pycompat import TextIOWrapper
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler, \
     ImageFileReader
+from nicos.core.data.sink import NicosMetaWriterMixin
 
 
-class SingleRawImageSinkHandler(SingleFileSinkHandler):
+class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):
 
     defer_file_creation = True
+    update_headerinfo = True
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
         fp.write(np.asarray(image).tostring())
-        wrapper = TextIOWrapper(fp)
-        wrapper.write('\n### NICOS Raw File Header V2.0\n')
-        # XXX(dataapi): add a utility function to convert metainfo to old
-        # by-category format
-        bycategory = {}
-        for (device, key), (_, val, unit, category) in iteritems(metainfo):
-            if category:
-                bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
-        for category, catname in INFO_CATEGORIES:
-            if category not in bycategory:
-                continue
-            wrapper.write('### %s\n' % catname)
-            for key, value in sorted(bycategory[category]):
-                wrapper.write('%25s : %s\n' % (key, value))
-        # to ease interpreting the data...
-        wrapper.write('\n%r\n' % self._arraydesc)
-        wrapper.detach()
+        fp.write(b'\n')
+        self.writeMetaInformation(fp)
         fp.flush()
 
 
@@ -78,7 +64,9 @@ class SingleRawImageSink(ImageSink):
     handlerclass = SingleRawImageSinkHandler
 
 
-class RawImageSinkHandler(DataSinkHandler):
+class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
+
+    update_headerinfo = False
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
@@ -103,24 +91,9 @@ class RawImageSinkHandler(DataSinkHandler):
         self._logfile = session.data.createDataFile(
             self.dataset, self._logtemplate, self._subdir)
 
-    def _writeHeader(self, fp, header):
+    def _writeHeader(self, fp, metainfo):
         fp.seek(0)
-        wrapper = TextIOWrapper(fp)
-        wrapper.write('### NICOS Raw File Header V2.0\n')
-        bycategory = {}
-        for (device, key), (_, val, unit, category) in iteritems(header):
-            if category:
-                bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
-        for category, catname in INFO_CATEGORIES:
-            if category not in bycategory:
-                continue
-            wrapper.write('### %s\n' % catname)
-            for key, value in sorted(bycategory[category]):
-                wrapper.write('%25s : %s\n' % (key, value))
-        # to ease interpreting the data...
-        wrapper.write('\n%r\n' % self._arraydesc)
-        wrapper.detach()
+        self.writeMetaInformation(fp)
         fp.flush()
 
     def _writeLogs(self, fp, stats):
@@ -148,6 +121,7 @@ class RawImageSinkHandler(DataSinkHandler):
             data = result[1][0]
             if data is not None:
                 self._writeData(self._datafile, data)
+                self._writeHeader(self._headerfile, self.dataset.metainfo)
                 session.notifyDataFile('raw', self.dataset.uid,
                                        self.detector.name,
                                        self._datafile.filepath)
@@ -157,6 +131,8 @@ class RawImageSinkHandler(DataSinkHandler):
 
     def end(self):
         self._writeLogs(self._logfile, self.dataset.valuestats)
+        if self.update_headerinfo:
+            self._writeHeader(self._headerfile, self.dataset.metainfo)
         if self._datafile:
             self._datafile.close()
         if self._headerfile:
