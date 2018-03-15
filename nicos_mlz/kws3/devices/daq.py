@@ -26,7 +26,7 @@ import numpy
 from scipy.signal import convolve2d
 
 from nicos.core import DeviceAlias, Attach, Param, Override, Moveable, \
-    Value, Measurable, status, oneof, listof
+    Value, Measurable, status, oneof, listof, tupleof
 from nicos.devices.generic.detector import PostprocessPassiveChannel
 
 
@@ -91,3 +91,41 @@ class ConvolutionMax(PostprocessPassiveChannel):
 
     def valueInfo(self):
         return Value(name=self.name, type='counter', fmtstr='%d'),
+
+
+class ROIChannel(PostprocessPassiveChannel):
+    """Calculates counts for a rectangular or ellipsoid region of interest."""
+
+    parameters = {
+        'roi':   Param('Rectangular region of interest (x1, y1, x2, y2)',
+                       type=tupleof(int, int, int, int),
+                       settable=True, category='general'),
+        'shape': Param('Select the shape of the ROI',
+                       type=oneof('rectangle', 'ellipse'),
+                       settable=True, category='general'),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%d'),
+    }
+
+    def getReadResult(self, arrays, _results, _quality):
+        arr = arrays[0]
+        if any(self.roi):
+            x1, y1, x2, y2 = self.roi
+            if self.shape == 'rectangle':
+                inner = arr[y1:y2, x1:x2].sum()
+            else:
+                cx = (x1 + x2)/2.
+                cy = (y1 + y2)/2.
+                y, x = numpy.indices(arr.shape)
+                ix = ((y - cy)/(y2 - cy))**2 - ((x - cx)/(x2 - cx))**2 <= 1
+                inner = arr[ix].sum()
+            outer = arr.sum() - inner
+            return [inner, outer]
+        return [arr.sum(), 0]
+
+    def valueInfo(self):
+        return (Value(name=self.name + '.in', type='counter', fmtstr='%d'),
+                Value(name=self.name + '.out', type='counter', fmtstr='%d'))
