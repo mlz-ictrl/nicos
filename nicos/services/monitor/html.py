@@ -43,6 +43,7 @@ try:
     from nicos.guisupport.plots import NicosTimePlotAxes
 except ImportError:
     pygr = None
+import numpy
 
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
@@ -51,7 +52,7 @@ from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import from_utf8, string_types, escape_html
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex
-
+from nicos._vendor.lttb import lttb
 
 HEAD = '''\
 <html>
@@ -246,6 +247,13 @@ class Plot(object):
                 i += 1
             self.data[curve][:] = [ts[i:], yy[i:]]
 
+    def maybeDownsamplePlotdata(self, data):
+        if len(data[0]) > self.width:
+            temp = numpy.array(data).T
+            down = lttb.downsample(temp, n_out=self.width)
+            data = [list(down[:, 0]), list(down[:, 1])]
+        return data
+
     def __str__(self):
         if not self.enabled:
             return ''
@@ -257,7 +265,7 @@ class Plot(object):
                     now = currenttime()
                     if d[0][-1] < now - 10:
                         self.updatevalues(i, now, d[1][-1])
-                    c.x, c.y = d
+                    c.x, c.y = self.maybeDownsamplePlotdata(d)
                 except IndexError:
                     # no data (yet)
                     pass
