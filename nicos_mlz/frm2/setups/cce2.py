@@ -25,10 +25,12 @@ devices = {
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_range' % setupname: device('nicos.devices.tango.AnalogOutput',
+    'T_%s_range' % setupname: device('nicos.devices.tango.NamedDigitalOutput',
         description = 'The heater range',
         tangodevice = tango_base + 'ls/range',
         fmtstr = '%d',
+        mapping = {'off': 0, 'low': 1, 'medium': 2, 'high': 3},
+        unit = '',
     ),
 }
 
