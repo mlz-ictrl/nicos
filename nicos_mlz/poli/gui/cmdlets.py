@@ -69,7 +69,7 @@ class CenterPeak(Cmdlet):
         self.contBox.toggled.connect(self.changed)
 
     def on_entryAdded(self, entry):
-        entry.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        entry.device.addItems(self._getDeviceList())
         entry.device.currentIndexChanged['QString'].connect(self.changed)
         entry.step.textChanged.connect(self.changed)
         entry.steps.textChanged.connect(self.changed)

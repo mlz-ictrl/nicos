@@ -86,6 +86,18 @@ class Cmdlet(QWidget):
         """
         return {}
 
+    def _getDeviceList(self, special_clause=''):
+        """Helper for getting a list of devices for manipulation."""
+        clause = ('(dn in session.explicit_devices or '
+                  '"nicos.core.mixins.AutoDevice" in d.classes)')
+        if special_clause:
+            clause += ' and ' + special_clause
+        # special construction to get AutoDevices like slit.centerx which is
+        # useful to make scans over
+        return self.client.getDeviceList('nicos.core.device.Moveable',
+                                         only_explicit=False,
+                                         special_clause=clause)
+
     def _setDevice(self, values):
         """Helper for setValues for setting a device combo box."""
         if 'dev' in values:
@@ -143,7 +155,7 @@ class Move(Cmdlet):
         def on_device_change(text):
             entry.target.dev = text
             self.changed()
-        entry.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        entry.device.addItems(self._getDeviceList())
         on_device_change(entry.device.currentText())
         entry.device.currentIndexChanged['QString'].connect(on_device_change)
         entry.target.setClient(self.client)
@@ -211,7 +223,7 @@ class CommonScan(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, self.uiname)
-        self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
@@ -381,9 +393,7 @@ class ContScan(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, 'contscan.ui')
-        self.device.addItems(
-            self.client.getDeviceList('nicos.core.device.Moveable',
-                                      special_clause='hasattr(d, "speed")'))
+        self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
@@ -492,7 +502,7 @@ class Configure(Cmdlet):
         self.target.setClient(self.client)
         self.target.dataChanged.connect(self.changed)
         self.hlayout.insertWidget(5, self.target)
-        self.device.addItems(self.client.getDeviceList())
+        self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.parameter.currentIndexChanged[str].connect(

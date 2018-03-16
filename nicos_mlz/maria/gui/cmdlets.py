@@ -38,8 +38,7 @@ class SScan(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client,
                         findResource('nicos_mlz/maria/gui/sscan.ui'))
-        self.device.addItems(
-            self.client.getDeviceList("nicos.core.device.Moveable"))
+        self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
@@ -121,9 +120,7 @@ class KScan(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client,
                         findResource('nicos_mlz/maria/gui/kscan.ui'))
-        self.device.addItems(
-            self.client.getDeviceList('nicos.core.device.Moveable',
-                                      special_clause='hasattr(d, "speed")'))
+        self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
