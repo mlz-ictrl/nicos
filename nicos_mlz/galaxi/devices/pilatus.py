@@ -50,7 +50,6 @@ class PilatusDetector(PyTangoDevice, Measurable):
 
     attached_devices = {
         'detdistance': Attach('Pilatus detector distance', Readable),
-        # 'det2th': Attach('Pilatus detector distance', Readable), -> Einbau!
         'detz': Attach('Pilatus detector 2theta axis', Readable),
         'ionichamber2': Attach('Ionisation chamber 2', Readable),
         'absorber': Attach('Absorber attenuation', Readable),
@@ -96,6 +95,9 @@ class PilatusDetector(PyTangoDevice, Measurable):
                               image header', type=dictof(str, str),
                               volatile=True),
     }
+
+    def valueInfo(self):
+        return ()
 
     def doInit(self, mode):
         self.log.debug('Pilatus detector init')
