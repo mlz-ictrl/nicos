@@ -81,6 +81,26 @@ _detectorneocolumn = Column(
     ),
 )
 
+_detectorzwo01column = Column(
+    Block('Detector ZWO 01', [
+    BlockRow(
+        Field(name='Last Image', key='exp/lastpoint', width=60),
+        ),
+    BlockRow(
+        Field(name='Status', key='zwo01/status[1]', width=25),
+        Field(dev='temp_zwo01'),
+        ),
+    BlockRow(
+        Field(name='roi', key='zwo01.roi'),
+        Field(name='bin', key='zwo01.bin'),
+        Field(name='flip (H,V)', key='zwo01.flip'),
+        Field(name='rotation', key='zwo01.rotation'),
+        ),
+    ],
+    setups='detector_zwo01',
+    ),
+)
+
 _shutterblock = Block('Shutters & Collimators', [
     BlockRow(
         Field(name='Reactor', dev='ReactorPower', width=7),
@@ -402,6 +422,7 @@ devices = dict(
         fontsize = 15,
         padding = 5,
         layout = [[_expcolumn], [_detectorikonlcolumn], [_detectorneocolumn],
+                  [_detectorzwo01column],
                   [_leftcolumn, _rightcolumn]],
     ),
 )
