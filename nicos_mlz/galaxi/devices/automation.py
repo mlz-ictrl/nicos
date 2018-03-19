@@ -22,14 +22,15 @@
 #
 # *****************************************************************************
 
-"""GALAXI Pilatus detector distance"""
+"""GALAXI Automatic vacuum control and detector positioning"""
 
 from nicos.core.device import Readable
 from nicos.core.params import Param, Attach
+from nicos.devices.tango import NamedDigitalOutput
 
 
 class DetectorDistance(Readable):
-    """Calculate detector distance from detectortubes position"""
+    """Calculate detector distance based on the detector tubes position"""
 
     attached_devices = {
         'detectubes': Attach('Pilatus detector tubes', Readable, multiple=4)
@@ -53,3 +54,10 @@ class DetectorDistance(Readable):
                 break
             distance += tube[0] / 2
         return self.offset + distance * 450
+
+
+class VacuumOperation(NamedDigitalOutput):
+    """Provide different vacuum operation states"""
+
+    def doStop(self):
+        self._dev.Reset()

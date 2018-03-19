@@ -66,7 +66,7 @@ devices = dict(
         mapping = dict(up = 1, down = 2),
         fmtstr = '%d',
     ),
-    detdistance = device('nicos_mlz.galaxi.devices.distance.DetectorDistance',
+    detdistance = device('nicos_mlz.galaxi.devices.automation.DetectorDistance',
         description = 'Pilatus detector distance',
         detectubes = [
             'detectube01', 'detectube02', 'detectube03', 'detectube04'
@@ -139,7 +139,7 @@ devices = dict(
         warnlimits = ('ok', 'ok'),
         fmtstr = '%s',
     ),
-    vacuumoperation = device('nicos.devices.tango.NamedDigitalOutput',
+    vacuumoperation = device('nicos_mlz.galaxi.devices.automation.VacuumOperation',
         description = 'Different Vacuum operations',
         tangodevice = tango_digital + 'VacuumMode',
         mapping = {
