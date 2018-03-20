@@ -23,13 +23,13 @@
 #
 # *****************************************************************************
 
-"""GALAXI x-ray tube conditioner"""
+"""GALAXI Bruker AXS control"""
 
 from nicos import session
-from nicos.devices.tango import PyTangoDevice, AnalogInput
+from nicos.core import status
 from nicos.core.device import Moveable
 from nicos.core.params import Attach
-from nicos.core import status
+from nicos.devices.tango import PyTangoDevice, AnalogInput, PartialDigitalInput
 
 
 class TubeConditioner(PyTangoDevice, Moveable):
@@ -58,3 +58,22 @@ class TubeConditioner(PyTangoDevice, Moveable):
             self.log.debug('Start cond')
             self._dev.StartCond()
             session.delay(5.0)
+
+
+class WaterCooler(PartialDigitalInput):
+    """Device that shows possible water cooler errors of the x-ray source"""
+
+    def doStatus(self, maxage=0):
+        value = self.doRead()
+        # status is ok if doRead() returned a string mapped on a non-zero value
+        if self.mapping.get(value, value):
+            return PartialDigitalInput.doStatus()
+        # determine alarm reason(s)
+        value = self._dev.value
+        reason_dict = {0: 'pressure', 1: 'temperature', 2: 'flow rate',
+                       4: 'conductance', 5: 'water level'}
+        reason = ', '.join(reason_dict[bit] for bit in reason_dict
+                           if not (value >> bit) & 1)
+        if not reason:
+            return status.UNKNOWN, 'error indicating bit set by mistake?'
+        return status.WARN, 'reason(s): %s' % reason

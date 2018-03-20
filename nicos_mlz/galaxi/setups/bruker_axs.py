@@ -49,7 +49,7 @@ devices = dict(
         tangodevice = tango_base + 'XRayShutter/1',
         mapping = dict(open = 1, closed = 2),
     ),
-    tubecond = device('nicos_mlz.galaxi.devices.conditioner.TubeConditioner',
+    tubecond = device('nicos_mlz.galaxi.devices.bruker_axs.TubeConditioner',
         description = 'XRayTubeCondition',
         tangodevice = tango_base + 'XRayTubeCond/1',
         interval = 'interval',
