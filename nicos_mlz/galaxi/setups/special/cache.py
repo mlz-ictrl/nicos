@@ -10,7 +10,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = 'localhost',
+        server = '',
         loglevel = 'info',
     ),
 )

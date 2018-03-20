@@ -30,7 +30,7 @@ notifiers = {
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'localhost:14869',
+        cache = 'phys.galaxi.kfa-juelich.de:14869',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watchlist,
