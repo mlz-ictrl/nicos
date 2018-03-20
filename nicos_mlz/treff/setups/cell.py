@@ -3,7 +3,7 @@
 description = "IviumStat Electrochemical Interface"
 group = "optional"
 
-tango_base = "tango://phys.treff.frm2:10000/treff/"
+tango_base = "tango://phys.treff.frm2:10000/ndp/"
 
 devices = dict(
     cell = device("nicos_mlz.jcns.devices.iviumstat.StopNamedDigitalOutput",

@@ -84,7 +84,7 @@ class ProtocolPanel(Panel):
     def on_saveBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.proposalpath', '')
         fn = QFileDialog.getSaveFileName(self, 'Save protocol', initialdir,
-                                         'Text files (*.txt)')
+                                         'Text files (*.txt)')[0]
         if not fn:
             return
         try:

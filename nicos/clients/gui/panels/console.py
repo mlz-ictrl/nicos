@@ -211,7 +211,7 @@ class ConsolePanel(Panel):
 
     @pyqtSlot()
     def on_actionSave_triggered(self):
-        fn = QFileDialog.getSaveFileName(self, 'Save', '', 'All files (*.*)')
+        fn = QFileDialog.getSaveFileName(self, 'Save', '', 'All files (*.*)')[0]
         if not fn:
             return
         try:

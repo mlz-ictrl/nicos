@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
             self,
             'Open Python script',
             path.expanduser('.'),
-            'Python Files (*.py)')
+            'Python Files (*.py)')[0]
 
         if setupFile:
             self.readSetupFile(setupFile)
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
             self,
             'Save as...',
             path.expanduser('.'),
-            'Python script (*.py)')
+            'Python script (*.py)')[0]
         if str(filepath):
             self._save(filepath)
 

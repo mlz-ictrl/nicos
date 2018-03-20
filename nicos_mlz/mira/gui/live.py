@@ -229,7 +229,7 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionLoadTOF_triggered(self):
         filename = QFileDialog.getOpenFileName(self,
-            'Open TOF File', '', 'TOF File (*.tof *.TOF);;All files (*)')
+            'Open TOF File', '', 'TOF File (*.tof *.TOF);;All files (*)')[0]
         if filename:
             self.widget.LoadTofFile(filename)
             self.add_to_flist(filename, 'tof')
@@ -237,7 +237,7 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionLoadPAD_triggered(self):
         filename = QFileDialog.getOpenFileName(self,
-            'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')
+            'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')[0]
         if filename:
             self.widget.LoadPadFile(filename)
             self.updateRange()
@@ -258,7 +258,7 @@ class LiveDataPanel(Panel):
         if pad is None:
             return self.showError('No 2-d image is shown.')
         filename = str(QFileDialog.getSaveFileName(
-            self, 'Select file name', '', 'XML files (*.xml)'))
+            self, 'Select file name', '', 'XML files (*.xml)')[0])
         if not filename:
             return
         if not filename.endswith('.xml'):
