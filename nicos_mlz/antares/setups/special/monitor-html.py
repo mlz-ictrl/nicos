@@ -122,8 +122,6 @@ _basicblock = Block('Info', [
         Field(name='Flight Tube', dev='center3_sens2'),
         Field(name='He bottle',dev='He_pressure'),
         ),
-    BlockRow(Field(plot='Pressure', name='Ambient', dev='center3_sens1', width=60, height=40, plotwindow=24*3600),
-        Field(plot='Pressure', name='Flight Tube', dev='center3_sens2')),
     ],
     setups='basic',
 )
@@ -229,6 +227,18 @@ _temperatureblock = Block('Cryo Temperature', [
     ],
     setups='ccr7',
 )
+
+_batteryfurnaceblock = Block('Furnace Temperature', [
+    BlockRow(
+        Field(dev='T', name='Furnace'),
+        ),
+    BlockRow(
+        Field(plot='Temperature', name='Furnace', dev='T', width=50, height=30, plotwindow=3600),
+        ),
+    ],
+    setups='battery_furnace',
+)
+
 
 _tensileblock = Block('Tensile Rig', [
     BlockRow(
@@ -401,6 +411,7 @@ _rightcolumn = Column(
     _flipperblock,
     _lockinblock,
     _garfieldblock,
+    _batteryfurnaceblock,
     _sockets6block,
     _sockets7block,
     _ngiblock,
