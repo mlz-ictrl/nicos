@@ -31,7 +31,9 @@ class DataExportDialog(QFileDialog):
 
     def __init__(self, viewplot, curvenames, *args):
         QFileDialog.__init__(self, viewplot, *args)
-        self.setConfirmOverwrite(True)
+        self.setOption(self.DontConfirmOverwrite, False)
+        # allow adding some own widgets
+        self.setOption(self.DontUseNativeDialog, True)
         self.setAcceptMode(QFileDialog.AcceptSave)
         layout = self.layout()
         layout.addWidget(QLabel('Curve:', self), 4, 0)
