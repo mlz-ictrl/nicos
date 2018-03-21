@@ -46,6 +46,6 @@ tools = [
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
     tool('Esmeralda', 'nicos.clients.gui.tools.commands.AsyncCommandsTool',
-          commands=[('Run Esmeralda', '/home/laue/pedersen/esmeralda715/Esmeralda')]
+          commands=[('Run Esmeralda', '/home/laue/pedersen/esmeralda_current/Esmeralda')]
         ),
 ]
