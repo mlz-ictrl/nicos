@@ -225,9 +225,9 @@ _miramagnet_plot = Column(
                        dev='B_miramagnet', width=60, height=40, plotwindow=1800),
                  Field(plot='30 min miramagnet', name='Target',
                        key='B_miramagnet/target'),
-                 Field(plot='12 h miramagnet', name='12 h', dev='B_miramagnet',
-                       width=60,height=40, plotwindow=12*3600),
-                 Field(plot='12 h miramagnet', name='Target',
+                 Field(plot='6 h', name='6 h',
+                       dev='B_miramagnet', width=60, height=40, plotwindow=6*3600),
+                 Field(plot='6 h', name='Target',
                        key='B_miramagnet/target'),
         ),
         ],
@@ -363,6 +363,40 @@ _irf01_plot = Column(
     ),
 )
 
+_irf10 = Column(
+    Block('IRF10', [
+        BlockRow(
+            Field(name='Temperature', dev='T_irf10', format='%.2f'),
+            Field(name='Target', key='t_irf10/target', format='%.2f'),
+        ),
+        BlockRow(
+            Field(name='Setpoint', key='t_irf10/setpoint', format='%.1f'),
+            Field(name='Heater Output', key='t_irf10/heateroutput', format='%.1f'),
+        ),
+        ],
+        setups='irf10',
+    ),
+)
+
+_irf10_plot = Column(
+    Block('IRF10 plot', [
+        BlockRow(
+                 Field(plot='30 min irf10', name='30 min', dev='T_irf10',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min irf10', name='Setpoint',
+                       dev='T_irf10/setpoint'),
+                 Field(plot='30 min irf10', name='Target', dev='T_irf10/target'),
+                 Field(plot='12 h irf10', name='12 h', dev='T_irf10', width=60,
+                       height=40, plotwindow=12*3600),
+                 Field(plot='12 h irf10', name='Setpoint',
+                       dev='T_irf10/setpoint'),
+                 Field(plot='12 h irf10', name='Target', dev='T_irf10/target'),
+        ),
+        ],
+        setups='irf10',
+    ),
+)
+
 _htf01 = Column(
     Block('HTF01', [
         BlockRow(
@@ -372,6 +406,25 @@ _htf01 = Column(
         BlockRow(
             Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f'),
             Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f'),
+        ),
+        ],
+        setups='htf01',
+    ),
+)
+
+_htf01_plot = Column(
+    Block('HTF01 plot', [
+        BlockRow(
+                 Field(plot='30 min htf01', name='30 min', dev='T_htf01',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min htf01', name='Setpoint',
+                       dev='T_htf01/setpoint'),
+                 Field(plot='30 min htf01', name='Target', dev='T_htf01/target'),
+                 Field(plot='12 h htf01', name='12 h', dev='T_htf01', width=60,
+                       height=40, plotwindow=12*3600),
+                 Field(plot='12 h htf01', name='Setpoint',
+                       dev='T_htf01/setpoint'),
+                 Field(plot='12 h htf01', name='Target', dev='T_htf01/target'),
         ),
         ],
         setups='htf01',
@@ -616,50 +669,6 @@ _julabo_plot = Column(
     ),
 )
 
-_tisane_fg1 = Column(
-    Block('TISANE Frequency Generator 1 - Sample', [
-        BlockRow(
-                Field(name='Frequency', key='tisane_fg1/frequency',
-                      format='%.2e', unit='Hz', width=12),
-                ),
-        BlockRow(
-                Field(name='Amplitude', key='tisane_fg1/amplitude',
-                      format='%.2f', unit='V', width=12),
-                Field(name='Offset', key='tisane_fg1/offset', format='%.2f',
-                      unit='V', width=12),
-                ),
-        BlockRow(
-                Field(name='Shape', key='tisane_fg1/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg1/duty', format='%i',
-                      unit='%', width=12),
-                ),
-        ],
-        setups='tisane',
-    ),
-)
-
-_tisane_fg2 = Column(
-    Block('TISANE Frequency Generator 2 - Detector', [
-        BlockRow(
-                Field(name='Frequency', key='tisane_fg2/frequency',
-                      format='%.2e', unit='Hz', width=12),
-                ),
-        BlockRow(
-                Field(name='Amplitude', key='tisane_fg2/amplitude',
-                      format='%.2f', unit='V', width=12),
-                Field(name='Offset', key='tisane_fg2/offset', format='%.2f',
-                      unit='V', width=12),
-                ),
-        BlockRow(
-                Field(name='Shape', key='tisane_fg2/shape', width=12),
-                Field(name='Dutycycle', key='tisane_fg2/duty', format='%i',
-                      unit='%', width=12),
-                ),
-        ],
-        setups='tisane',
-    ),
-)
-
 _tisane_fc = Column(
     Block('TISANE Frequency Counter', [
         BlockRow(
@@ -745,11 +754,11 @@ devices = dict(
                 _ccm2a, _ccm2a_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
-                _htf03, _htf01, _irf01, _newports, _julabo,
-                _tisane_counts, _tisane_fc, _tisane_fg1,
-                _tisane_fg2, _helios01),
+                _htf03, _htf01, _irf01, _irf10, _newports, _julabo,
+                _tisane_counts, _tisane_fc, _helios01),
             Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
-                _htf03_plot, _irf01_plot, _julabo_plot),
+                _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
+                _miramagnet_plot),
             Row(_live),
         ],
     ),

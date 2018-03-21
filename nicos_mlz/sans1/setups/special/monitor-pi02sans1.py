@@ -121,6 +121,29 @@ _irf01 = Block('IRF01', [
     setups='irf01',
 )
 
+_irf10 = Block('IRF10', [
+    BlockRow(
+             Field(name='Temperature', dev='T_irf10', format='%.2f', unit='C',
+                   width=12),
+             Field(name='Target', key='t_irf10/target', format='%.2f',
+                   unit='C', width=12),
+             ),
+    BlockRow(
+             Field(name='Setpoint', key='t_irf10/setpoint', format='%.1f',
+                   unit='C', width=12),
+             Field(name='Heater Output', key='t_irf10/heateroutput',
+                   format='%.2f', unit='%', width=12),
+             # Field(name='Vacuum', key='htf03_p'),
+            ),
+    BlockRow(
+             Field(name='P', key='t_irf10/p', format='%i'),
+             Field(name='I', key='t_irf10/i', format='%i'),
+             Field(name='D', key='t_irf10/d', format='%i'),
+            ),
+    ],
+    setups='irf10',
+)
+
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
@@ -161,6 +184,27 @@ _irf01_plot = Block('IRF01 plot', [
     ),
     ],
     setups='irf01',
+)
+
+_irf10_plot = Block('IRF10 plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_irf10', 't_irf10/setpoint', 't_irf10/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_irf10', 't_irf10/setpoint', 't_irf10/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    ],
+    setups='irf10',
 )
 
 _htf01 = Block('HTF01', [
@@ -674,12 +718,12 @@ devices = dict(
                 Column(_sc1, _sc2, _sc_t, _st2, _st1),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
-                Column(_htf01, _htf03, _irf01, _ccm2a,
+                Column(_htf01, _htf03, _irf01, _irf10, _ccm2a,
                        _ccmsans, _miramagnet, _amagnet,
                        _sans1julabo, *newports),
                 Column(_ccmsans_temperature),
                 Column(_htf01_plot, _htf03_plot,
-                       _irf01_plot, _spinflipper,
+                       _irf01_plot, _irf10_plot, _spinflipper,
                        _julabo_plot),
                 Column(*ccrs) + Column(_birmag),
                 Column(*cryos),

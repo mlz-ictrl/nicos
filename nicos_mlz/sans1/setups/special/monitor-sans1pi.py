@@ -40,6 +40,16 @@ _selcolumn = Column(
     ),
 )
 
+_chop_phase = Column(
+    Block('Phase Positions', [
+        BlockRow(
+                 Field(name='1', dev='chopper_ch1_phase', unit='deg', format='%.2f'),
+                 Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
+                ),
+        ],
+    ),
+)
+
 _tisane = Column(
     Block('Tisane', [
         BlockRow(
@@ -245,7 +255,7 @@ devices = dict(
         layout = [
             Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
             Row(_sans1det),
-            Row(_pressurecolumn, _p_filter, _temp_garching),
+            Row(_chop_phase, _pressurecolumn, _p_filter, _temp_garching),
             Row(_expcolumn),
         ],
     ),

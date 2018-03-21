@@ -258,6 +258,16 @@ _col_slit = Column(
     ),
 )
 
+_chop_phase = Column(
+    Block('Phase Positions', [
+        BlockRow(
+                 Field(name='1', dev='chopper_ch1_phase', unit='deg', format='%.2f'),
+                 Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
+                ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         showwatchdog = False,
@@ -273,7 +283,7 @@ devices = dict(
             Row(_selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
             Row(_sans1det),
             # Row(_sans1general),
-            Row(_ubahncolumn, _pressurecolumn, _p_filter),
+            Row(_chop_phase, _ubahncolumn, _pressurecolumn, _p_filter),
             Row(_expcolumn),
         ],
     ),

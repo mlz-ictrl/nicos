@@ -202,6 +202,94 @@ _htf01_plot = Block('HTF01 plot', [
     setups='htf01',
 )
 
+_irf01 = Block('IRF01', [
+    BlockRow(
+             Field(name='Temperature', dev='T_irf01', format='%.2f', unit='C',
+                   width=12),
+             Field(name='Target', key='t_irf01/target', format='%.2f',
+                   unit='C', width=12),
+             ),
+    BlockRow(
+             Field(name='Setpoint', key='t_irf01/setpoint', format='%.1f',
+                   unit='C', width=12),
+             Field(name='Heater Power', key='t_irf01/heaterpower',
+                   format='%.1f', unit='%', width=12),
+             # Field(name='Vacuum', key='htf03_p'),
+            ),
+    BlockRow(
+             Field(name='P', key='t_irf01/p', format='%i'),
+             Field(name='I', key='t_irf01/i', format='%i'),
+             Field(name='D', key='t_irf01/d', format='%i'),
+            ),
+    ],
+    setups='irf01',
+)
+
+_irf10 = Block('IRF10', [
+    BlockRow(
+             Field(name='Temperature', dev='T_irf10', format='%.2f', unit='C',
+                   width=12),
+             Field(name='Target', key='t_irf10/target', format='%.2f',
+                   unit='C', width=12),
+             ),
+    BlockRow(
+             Field(name='Setpoint', key='t_irf10/setpoint', format='%.1f',
+                   unit='C', width=12),
+             Field(name='Heater Power', key='t_irf10/heaterpower',
+                   format='%.1f', unit='%', width=12),
+             # Field(name='Vacuum', key='htf03_p'),
+            ),
+    BlockRow(
+             Field(name='P', key='t_irf10/p', format='%i'),
+             Field(name='I', key='t_irf10/i', format='%i'),
+             Field(name='D', key='t_irf10/d', format='%i'),
+            ),
+    ],
+    setups='irf10',
+)
+
+_irf01_plot = Block('IRF01 plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_irf01', 't_irf01/setpoint', 't_irf01/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_irf01', 't_irf01/setpoint', 't_irf01/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    ],
+    setups='irf01',
+)
+
+_irf10_plot = Block('IRF10 plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_irf10', 't_irf10/setpoint', 't_irf010/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_irf10', 't_irf10/setpoint', 't_irf10/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              legend=True,
+              ),
+    ),
+    ],
+    setups='irf10',
+)
+
 _ccmsans = Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='B_ccmsans', width=12),
              ),
@@ -272,17 +360,17 @@ _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=60, height=15, plotwindow=1800,
-              devices=['B_mira', 'b_mira/target'],
+              devices=['B_miramagnet', 'B_miramagnet/target'],
               names=['30min', 'Target'],
               legend=True,
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=60, height=15, plotwindow=24*3600,
-              devices=['B_mira', 'b_mira/target'],
+              devices=['B_miramagnet', 'B_miramagnet/target'],
               names=['24h', 'Target'],
               legend=True,
               ),
-        ),
+    ),
     ],
     setups='miramagnet',
 )
@@ -627,11 +715,12 @@ devices = dict(
                 Column(_sc1, _sc2, _sc_t, _st2, _st1, *newports),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
-                Column(_htf01, _htf03, _ccm2a,
+                Column(_htf01, _htf03, _irf01, _irf10, _ccm2a,
                        _ccmsans, _ccmsans_temperature,
                        _miramagnet, _amagnet,
                        _sans1julabo),
                 Column(_htf01_plot, _htf03_plot,
+                       _irf01_plot, _irf10_plot,
                        _spinflipper, _julabo_plot),
                 Column(*ccrs) + Column(*cryos) + Column(_birmag),
             ),
