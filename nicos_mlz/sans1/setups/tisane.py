@@ -1,8 +1,9 @@
 description = 'tisane setup for SANS1'
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
-            'pressure', 'selector_tower', 'astrium', 'memograph',
-            'manual', 'guidehall', 'outerworld', 'pressure_filter']
+            'pressure', 'selector_tower', 'memograph',
+            'manual', 'guidehall', 'outerworld', 'pressure_filter', 
+            'slit']
 #            'frequency']
 
 excludes = ['sans1']
@@ -22,9 +23,12 @@ devices = dict(
         counters = [],
         monitors = ['det1_mon1', 'det1_mon2', 'tisane_det_pulses'],
         images = ['det1_image'],
-        gates = ['tisane_fg2_det', 'tisane_fg1_sample'],
-        enablevalues = ['On', 'On'],
-        disablevalues = ['Off', 'Off'],
+        #gates = ['tisane_fg2_det', 'tisane_fg1_sample'],
+        #enablevalues = ['On', 'On'],
+        #disablevalues = ['Off', 'Off'],
+        gates = ['tisane_fg_multi'],
+        #enablevalues = ['arm'],
+        #disablevalues = ['off'],
     ),
     tisane_det_pulses = device('nicos.devices.generic.DeviceAlias',
         description = 'tisane detector channel',
