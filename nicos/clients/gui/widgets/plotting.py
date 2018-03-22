@@ -788,7 +788,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         saveName = None
         dialog = QFileDialog(self, "Select file name", "", self._saveTypes)
         dialog.selectNameFilter(gr.PRINT_TYPE[gr.PRINT_PDF])
-        dialog.setNameFilterDetailsVisible(True)
+        dialog.setOption(dialog.HideNameFilterDetails, False)
         dialog.setAcceptMode(QFileDialog.AcceptSave)
         if dialog.exec_() == QDialog.Accepted:
             path = dialog.selectedFiles()[0]
