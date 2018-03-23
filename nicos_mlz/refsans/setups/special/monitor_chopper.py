@@ -1,10 +1,9 @@
+# coding: utf-8
+
 # created by Martin Haese, Tel FRM 10763
-# last modified 27.10.2017
+# last modified 01.02.2018
 # to call it
-# ssh refsans@refsansctrl02 oder 01
-# cd /refsanscontrol
-# ./bin/nicos-monitor -S monitor_chopper
-# or
+# ssh -X refsans@refsansctrl01 oder 02
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
@@ -17,12 +16,20 @@ group = 'special'
 _chconfigcol = Column(
     Block(' chopper configuration ', [
         BlockRow(
-            Field(name='reactor power', dev='reactor_power', width=14, unit='MW'),
-            Field(name='6-fold shutter', dev='sixfold_shutter', width=14),
+            # Field(name='ReactorPower', dev='ReactorPower', width=14, unit='MW'),
+            # Field(name='Sixfold shutter', dev='Sixfold', width=14),
+            # Field(name='NL2b', dev='NL2b', width=14),
             Field(name='lambda min', dev='chopper_lambda_min', width=14, unit='AA'),
             Field(name='lambda max', dev='chopper_lambda_max', width=14, unit='AA'),
             Field(name='resolution', dev='lambda_resolution', width=14),
             Field(name='flight path', dev='chopper_to_detector', width=14, unit='mm'),
+            ),
+        ],
+    ),
+    Block(' chopper configuration ', [
+        BlockRow(
+            Field(name='Modus', dev='chopper_mode', width=24),
+            Field(name='real', dev='chopper2_pos', width=24),
             ),
         ],
     ),
@@ -94,81 +101,81 @@ _tididiagcol = Column(
 
 _disk1col = Column(
     Block('disk 1', [
-        BlockRow(Field(name='angle',  dev='disk1_angle',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk1_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk1_status', width=6.5)),
+        BlockRow(Field(name='speed',  dev='chopper1',  width=6.5, unit='rpm')),
+        # BlockRow(Field(name='gear',   key='chopper1/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper1/mode', width=6.5)),
         ],
     ),
 )
 
 _disk2col = Column(
     Block('disk 2', [
-        BlockRow(Field(name='phase',  dev='disk2_phase',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk2_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk2_status', width=6.5)),
+        BlockRow(Field(name='phase',  dev='chopper2_phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear',   key='chopper2/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper2/mode', width=6.5)),
         ],
     ),
 )
 
 _disk3col = Column(
     Block('disk 3', [
-        BlockRow(Field(name='phase',  dev='disk3_phase',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk3_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk3_status', width=6.5)),
+        BlockRow(Field(name='phase',  key='chopper3/phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear',   key='chopper3/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper3/mode', width=6.5)),
         ],
     ),
 )
 
 _disk4col = Column(
     Block('disk 4', [
-        BlockRow(Field(name='phase',  dev='disk4_phase',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk4_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk4_status', width=6.5)),
+        BlockRow(Field(name='phase',  key='chopper4/phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear',   key='chopper4/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper4/mode', width=6.5)),
         ],
     ),
 )
 
 _disk5col = Column(
     Block('disk 5', [
-        BlockRow(Field(name='phase',  dev='disk5_phase',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk5_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk5_status', width=6.5)),
+        BlockRow(Field(name='phase',  key='chopper5/phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear',   key='chopper5/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper5/mode', width=6.5)),
         ],
     ),
 )
 
 _disk6col = Column(
     Block('disk 6', [
-        BlockRow(Field(name='phase',  dev='disk6_phase',  width=6.5)),
-        BlockRow(Field(name='gear',   dev='disk6_gear',   width=6.5)),
-        BlockRow(Field(name='status', dev='disk6_status', width=6.5)),
+        BlockRow(Field(name='phase',  key='chopper6/phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear',   key='chopper6/gear',   width=6.5)),
+        # BlockRow(Field(name='mode', key='chopper6/mode', width=6.5)),
         ],
     ),
 )
 
 _mccol = Column(
     Block('MC', [   # disk 1 and 2
-        BlockRow(Field(name='speed',      dev='disk1_speed',  width=6.5)),
-        BlockRow(Field(name='disk2 pos',  dev='disk2_pos',  width=6.5)),
-        BlockRow(Field(name='dist d2-d1', dev='distance_disk2_disk1', width=6.5)),
+        BlockRow(Field(name='speed',      dev='chopper1',  width=6.5)),
+        BlockRow(Field(name='disc2_pos',  dev='chopper2_pos',  width=6.5)),
+        # BlockRow(Field(name='dist d2-d1', key='distance_disk2_disk1', width=6.5)),
         ],
     ),
 )
 
 _sc1col = Column(
     Block('SC1', [   # disk 3 and 4
-        BlockRow(Field(name='speed',   dev='SC1_speed',  width=6.5)),
-        BlockRow(Field(name='phase',   dev='SC1_phase', width=6.5)),
-        BlockRow(Field(name='opening', dev='SC1_opening_angle', width=6.5)),
+        # BlockRow(Field(name='speed',   key='SC1_speed',  width=6.5)),
+        # BlockRow(Field(name='phase',   key='SC1/phase', width=6.5)),
+        # BlockRow(Field(name='opening', key='SC1_opening_angle', width=6.5)),
         ],
     ),
 )
 
 _sc2col = Column(
     Block('SC2', [   # disk 5 and 6
-        BlockRow(Field(name='speed',   dev='SC2_speed',  width=6.5)),
-        BlockRow(Field(name='phase',   dev='SC2_phase', width=6.5)),
-        BlockRow(Field(name='opening', dev='SC2_opening_angle', width=6.5)),
+        # BlockRow(Field(name='speed',   key='SC2_speed',  width=6.5)),
+        # BlockRow(Field(name='phase',   key='SC2/phase', width=6.5)),
+        # BlockRow(Field(name='opening', key='SC2_opening_angle', width=6.5)),
         ],
     ),
 )
@@ -187,7 +194,8 @@ devices = dict(
             Row(_chconfigcol),
             Row(_diskcol, _tididiagcol),
             Row(_disk1col, _disk2col, _disk3col, _disk4col,
-                _disk5col, _disk6col, _mccol, _sc1col, _sc2col),
+                _disk5col, _disk6col),
+                #, _mccol, _sc1col, _sc2col),
         ],
     ),
 )

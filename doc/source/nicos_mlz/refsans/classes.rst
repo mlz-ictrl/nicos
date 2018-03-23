@@ -50,6 +50,11 @@
 .. automodule:: nicos_mlz.refsans.devices.safedetectorsystem
 .. autoclass:: SDSRateMeter()
 
+.. automodule:: nicos_mlz.refsans.devices.chopper
+.. autoclass:: ChopperMaster()
+.. autoclass:: ChopperDisc()
+.. autoclass:: ChopperDisc2Pos()
+
 Data Sinks
 ----------
 
