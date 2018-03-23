@@ -47,6 +47,9 @@
 .. autoclass:: ComtecTimer()
 .. autoclass:: ComtecFilename()
 
+.. automodule:: nicos_mlz.refsans.devices.safedetectorsystem
+.. autoclass:: SDSRateMeter()
+
 Data Sinks
 ----------
 
