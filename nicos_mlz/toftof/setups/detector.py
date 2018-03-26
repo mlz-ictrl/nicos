@@ -15,6 +15,7 @@ devices = dict(
         description = 'The TOFTOF monitor',
         tacodevice = '//%s/toftof/tof/tofmoncntr' % nethost,
         type = 'monitor',
+        presetaliases = ['mon1'],
         fmtstr = '%d',
         unit = 'cts',
         lowlevel = True,

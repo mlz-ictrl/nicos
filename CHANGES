@@ -4,6 +4,19 @@ Changelog
 Unreleased changes
 ------------------
 
+* Core
+
+  - The handling of detector presets has been changed: preset names (other than
+    time) now primarily come from device names.  For example, "mon1=1000" can
+    only be used as a preset if there is a monitor channel called "mon1" in
+    the detector.  Exceptions are possible, but must be configured.
+
+  - Any detector channel can now be used as a preset.  For channels which don't
+    have the ability to stop the measurement at the hardware level, NICOS will
+    check that the preset is reached and stop in software.  This allows, for
+    example, measuring until a certain number of counts in a region of interest
+    is reached.
+
 * GUI
 
   - Qt 5 is now preferred if installed, and Qt 4 can be forced by setting

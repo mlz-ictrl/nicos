@@ -33,6 +33,7 @@ sysconfig = dict(
 devices = dict(
     monitor = device('nicos.devices.generic.VirtualCounter',
         type = 'monitor',
+        presetaliases = ['mon1'],
     ),
     timer = device('nicos.devices.generic.VirtualTimer',
         unit = 's',

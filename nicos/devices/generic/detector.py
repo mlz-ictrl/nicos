@@ -34,19 +34,21 @@ import numpy
 from nicos import session
 from nicos.core import INTERMEDIATE, LIVE, Attach, DeviceMixinBase, \
     Measurable, Moveable, Override, Param, Readable, SubscanMeasurable, \
-    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, status, \
-    tupleof
+    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, \
+    status, tupleof
 from nicos.core.constants import FINAL
 from nicos.core.errors import ConfigurationError
 from nicos.core.scan import Scan
 from nicos.core.utils import multiWait
+from nicos.pycompat import iteritems
 from nicos.utils import uniq
 
 
 class PassiveChannel(Measurable):
     """Abstract base class for one channel of a aggregate detector.
 
-    Passive channels cannot stop the measurement.
+    See the `Detector` documentation for an overview of channel types, and
+    the difference between passive and active channels.
 
     Derived classes have to implement `doRead` and `valueInfo` methods.
     They can return an empty list and tuple, respectively, if the channel
@@ -55,13 +57,59 @@ class PassiveChannel(Measurable):
     """
 
     parameters = {
-        'ismaster': Param('If this channel is a master', type=bool),
+        'ismaster':      Param('If this channel is an active master',
+                               type=bool, settable=True),
+        'presetaliases': Param('Aliases for setting a preset for the first '
+                               'scalar on this channel',
+                               type=listof(str)),
     }
 
-    # methods to be implemented in concrete subclasses
+    # preset handling is slightly different in the Detector
 
     def doSetPreset(self, **preset):
         raise UsageError(self, 'This channel cannot be used as a detector')
+
+    # methods that can be overridden
+
+    _presetmap = None
+
+    def presetInfo(self):
+        """Return the preset keys that this channel supports.
+
+        The default implementation returns all time/monitor/counter/other
+        value names from `self.valueInfo()`, with '.' replaced by '_' to
+        form valid identifiers.
+
+        It also adds entries from `self.presetaliases`.
+        """
+        if self._presetmap is not None:
+            return set(self._presetmap)
+        self._presetmap = {}
+        for (i, value) in enumerate(self.valueInfo()):
+            if value.type in ('counter', 'monitor', 'time', 'other'):
+                self._presetmap[value.name.replace('.', '_')] = i
+        if self._presetmap:
+            for alias in self.presetaliases:
+                self._presetmap[alias] = 0
+        return set(self._presetmap)
+
+    def setChannelPreset(self, name, value):
+        """Set a preset for this channel.
+
+        This can be ignored by passive channels since soft presets are checked
+        explicitly.
+        """
+        self.ismaster = True
+
+    def presetReached(self, name, value, maxage):
+        """Return true if the soft preset for *name* has reached the given
+        *value*.
+        """
+        if name in self._presetmap:
+            return self.read(maxage)[self._presetmap[name]] >= value
+        return False
+
+    # methods to be implemented in concrete subclasses
 
     def doStart(self):
         pass
@@ -101,7 +149,8 @@ class DummyDetector(PassiveChannel):
 
 class ActiveChannel(PassiveChannel):
     """Abstract base class for channels that can (but don't need to) end the
-    measurement.
+    measurement on their own.  See the documentation for `Detector` for an
+    overview of channel types.
     """
 
     parameters = {
@@ -109,12 +158,15 @@ class ActiveChannel(PassiveChannel):
                               settable=True),
     }
 
-    parameter_overrides = {
-        'ismaster': Override(settable=True),
-    }
-
     # set to True to get a simplified doEstimateTime
     is_timer = False
+
+    def setChannelPreset(self, name, value):
+        PassiveChannel.setChannelPreset(self, name, value)
+        self.preselection = value
+
+    def presetReached(self, name, value, maxage):
+        return self.status(maxage)[0] == status.OK
 
     def doEstimateTime(self, elapsed):
         if not self.ismaster or self.doStatus()[0] != status.BUSY:
@@ -355,7 +407,22 @@ class ImageChannelMixin(DeviceMixinBase):
 
 
 class Detector(Measurable):
-    """Detector using multiple (synchronized) channels."""
+    """Detector using multiple (synchronized) channels.
+
+    Each channel can have a "preset" set, which means that measurement stops if
+    the channel's value (or an element thereof, for channels with multiple
+    read values) has reached the preset value.
+
+    Passive channels can only stop the measurement via soft presets (presets
+    that are checked by NICOS) during the countloop and therefore may be
+    overshot by some nontrivial amount.  In contrast, the derived
+    `ActiveChannel` is able to stop by itself, usually implemented in hardware,
+    so that the preset is reached exactly, or overshot by very little.
+
+    In the detector, channels with a preset are called "masters", while
+    channels without are called "slaves".  Which channels are masters and
+    slaves can change with every count cycle.
+    """
 
     attached_devices = {
         'timers':   Attach('Timer channel', PassiveChannel,
@@ -398,8 +465,12 @@ class Detector(Measurable):
     _user_comment = ''
 
     def doInit(self, _mode):
+        self._masters = []
+        self._slaves = []
+        self._channel_presets = {}
         self._postprocess = []
         self._postpassives = []
+
         for tup in self.postprocess:
             if tup[0] not in session.configured_devices:
                 self.log.warning("device %r not found but configured in "
@@ -427,33 +498,31 @@ class Detector(Measurable):
 
     # allow overwriting in derived classes
     def _presetiter(self):
-        """yields name, device tuples for all 'preset-able' devices"""
+        """Yield (name, device, type) tuples for all 'preset-able' devices."""
         # a device may react to more than one presetkey....
         for i, dev in enumerate(self._attached_timers):
-            if isinstance(dev, ActiveChannel):
-                if i == 0:
-                    yield ('t', dev)
-                    yield ('time', dev)
-                yield ('timer%d' % (i + 1), dev)
-        for i, dev in enumerate(self._attached_monitors):
-            if isinstance(dev, ActiveChannel):
-                yield ('mon%d' % (i + 1), dev)
+            if i == 0:
+                yield ('t', dev, 'time')
+            for preset in dev.presetInfo():
+                yield (preset, dev, 'time')
+        for dev in self._attached_monitors:
+            for preset in dev.presetInfo():
+                yield (preset, dev, 'monitor')
         for i, dev in enumerate(self._attached_counters):
-            if isinstance(dev, ActiveChannel):
-                if i == 0:
-                    yield ('n', dev)
-                yield ('det%d' % (i + 1), dev)
-                yield ('ctr%d' % (i + 1), dev)
-        for i, dev in enumerate(self._attached_images):
-            if isinstance(dev, ActiveChannel):
-                yield ('img%d' % (i + 1), dev)
-        yield ('live', None)
+            if i == 0:
+                yield ('n', dev, 'counts')
+            for preset in dev.presetInfo():
+                yield (preset, dev, 'counts')
+        for dev in self._attached_images + self._attached_others:
+            for preset in dev.presetInfo():
+                yield (preset, dev, 'counts')
+        yield ('live', None, None)
 
     def doPreinit(self, mode):
         presetkeys = {}
-        for name, dev in self._presetiter():
+        for name, dev, typ in self._presetiter():
             # later mentioned presetnames dont overwrite earlier ones
-            presetkeys.setdefault(name, dev)
+            presetkeys.setdefault(name, (dev, typ))
         self._channels = uniq(self._attached_timers + self._attached_monitors +
                               self._attached_counters + self._attached_images +
                               self._attached_others)
@@ -488,21 +557,21 @@ class Detector(Measurable):
             return
         for master in self._masters:
             master.ismaster = False
-        should_be_masters = set()
-        for name in preset:
+        self._channel_presets = {}
+        for (name, value) in iteritems(preset):
             if name in self._presetkeys and name != 'live':
-                dev = self._presetkeys[name]
-                dev.ismaster = True
-                dev.preselection = preset[name]
-                should_be_masters.add(dev)
+                dev = self._presetkeys[name][0]
+                dev.setChannelPreset(name, value)
+                self._channel_presets.setdefault(dev, []).append((name, value))
         self._getMasters()
-        if set(self._masters) != should_be_masters:
+        if set(self._masters) != set(self._channel_presets):
             if not self._masters:
                 self.log.warning('no master configured, detector may not stop')
             else:
                 self.log.warning('master setting for devices %s ignored by '
-                                 'detector', ', '.join(should_be_masters -
-                                                       set(self._masters)))
+                                 'detector',
+                                 ', '.join(set(self._channel_presets) -
+                                           set(self._masters)))
         self.log.debug("   presets: %s", preset)
         self.log.debug("presetkeys: %s", self._presetkeys)
         self.log.debug("   masters: %s", self._masters)
@@ -530,7 +599,6 @@ class Detector(Measurable):
         return self.doEstimateTime(0) or 0
 
     def doPause(self):
-        # XXX: rework pause logic (use mixin?)
         success = True
         for slave in self._slaves:
             success &= slave.pause()
@@ -539,7 +607,6 @@ class Detector(Measurable):
         return success
 
     def doResume(self):
-        # XXX: rework pause logic (use mixin?)
         for slave in self._slaves:
             slave.resume()
         for master in self._masters:
@@ -595,15 +662,13 @@ class Detector(Measurable):
         return self.doRead()
 
     def doStatus(self, maxage=0):
-        self._getMasters()
         st, text = multiStatus(self._getWaiters(), maxage)
         if st == status.ERROR:
             return st, text
-        # XXX: shorter status strings?
         for master in self._masters:
-            masterstatus = master.status(maxage)
-            if masterstatus[0] == status.OK:
-                return status.OK, text
+            for (name, value) in self._channel_presets.get(master, ()):
+                if master.presetReached(name, value, maxage):
+                    return status.OK, text
         return st, text
 
     def doReset(self):
@@ -611,8 +676,6 @@ class Detector(Measurable):
             ch.reset()
 
     def valueInfo(self):
-        # XXX: the value names retrieved here contain the channel device names,
-        # but the presets are generic (monX, detX)
         ret = []
         for ch in self._channels:
             ret.extend(ch.valueInfo())
@@ -638,27 +701,23 @@ class Detector(Measurable):
 
     def doInfo(self):
         ret = []
-        for dev in self._masters:
-            for key in self._presetkeys:
-                if self._presetkeys[key] and self._presetkeys[key].name == dev.name:
-                    if key.startswith('mon'):
-                        ret.append(('mode', 'monitor', 'monitor', '',
-                                    'presets'))
-                        ret.append(('preset', dev.preselection,
-                                    '%s' % dev.preselection, 'cts', 'presets'))
-                    elif key.startswith('t'):
-                        ret.append(('mode', 'time', 'time', '', 'presets'))
-                        ret.append(('preset', dev.preselection,
-                                    '%s' % dev.preselection, dev.unit,
-                                    'presets'))
-                    else:  # n, det, ctr, img
-                        ret.append(('mode', 'counts', 'counts', '', 'presets'))
-                        ret.append(('preset', dev.preselection,
-                                    '%s' % dev.preselection, 'cts', 'presets'))
-                    break
         if self._user_comment:
             ret.append(('usercomment', self._user_comment, self._user_comment,
                         '', 'general'))
+        presets = []
+        for (_dev, devpresets) in iteritems(self._channel_presets):
+            for (key, value) in devpresets:
+                presets.append((self._presetkeys[key][1], value))
+        if len(presets) > 1:
+            mode = ' or '.join(p[0] for p in presets)
+            ret.append(('mode', mode, mode, '', 'presets'))
+            for (mode, value) in presets:
+                ret.append(('preset_%s' % mode,
+                            value, str(value), '', 'presets'))
+        elif presets:
+            mode, value = presets[0]
+            return ret + [('mode', mode, mode, '', 'presets'),
+                          ('preset', value, str(value), '', 'presets')]
         return ret
 
 
