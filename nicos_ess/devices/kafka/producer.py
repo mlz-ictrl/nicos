@@ -45,6 +45,11 @@ class ProducesKafkaMessages(DeviceMixinBase):
     def doShutdown(self):
         self._producer.close()
 
+    def _setProducerConfig(self, **configs):
+        self.doShutdown()
+        self._producer = kafka.KafkaProducer(bootstrap_servers=self.brokers,
+                                             **configs)
+
     def send(self, topic, message, key=None, timestamp=None, partition=None):
         """
         Produces and flushes the provided message
