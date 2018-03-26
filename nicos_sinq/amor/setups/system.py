@@ -51,7 +51,7 @@ sysconfig = dict(
     cache='localhost',
     instrument='Amor',
     experiment='Exp',
-    datasinks=['NexusDataSink'],
+    datasinks=['NexusDataSink', 'HistogramDataSink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing',
@@ -106,6 +106,17 @@ devices = dict(
         status_provider='NexusFileWriter',
         templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
         templatename='amor_default'
+    ),
+
+    HistogramDataSink=device(
+        'nicos_sinq.amor.devices.datasinks.ImageKafkaWithLiveViewDataSink',
+        brokers=["localhost:9092"],
+        channeltostream={
+            'area_detector_channel': ('AMOR.detector.area', 'area.tof'),
+            'single_det1_channel': ('AMOR.detector.single1', 'single.tof'),
+            'single_det2_channel': ('AMOR.detector.single2', 'single.tof'),
+            'single_det3_channel': ('AMOR.detector.single3', 'single.tof'),
+        },
     ),
 
     NexusFileWriter=device(

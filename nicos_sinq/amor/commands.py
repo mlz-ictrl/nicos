@@ -28,6 +28,7 @@ from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.core.errors import ConfigurationError
 from nicos_sinq.amor.devices.component_handler import ComponentHandler
+from nicos_sinq.amor.devices.hm_config import AmorTofArray
 
 
 @usercommand
@@ -108,3 +109,37 @@ def CalculateComponentDistances(components=None):
 
         except ConfigurationError:
             session.log.error('Was not able to find the component')
+
+
+@usercommand
+@helparglist('scheme, [value]')
+def UpdateTimeBinning(scheme, value=None):
+    """Changes the time binning for histogramming the data
+    Time binning schemes:
+        c/q/t <argument>
+        c means Delta q / q = constant = <argument>
+        q means Delta q = constant, <argument> is the number of bins/channels
+        qq assumes two spectra per pulse
+        t means Delta t = constant, <argument> is the number of bins/channels
+        tmax  full range
+
+    Example:
+
+    Following command uses the scheme c with resolution of 0.005
+    >>> UpdateTimeBinning('c', 0.005)
+
+    Following command uses the scheme q with 250 channels
+    >>> UpdateTimeBinning('q', 250)
+
+    Following command uses the scheme tmax with full range
+    >>> UpdateTimeBinning('tmax')
+    """
+    # Get the configurator device
+    try:
+        configurator = session.getDevice('hm_configurator')
+        for arr in configurator.arrays:
+            if isinstance(arr, AmorTofArray):
+                arr.applyBinScheme(scheme, value)
+        configurator.updateConfig()
+    except ConfigurationError:
+        session.log.error('The configurator device not found. Cannot proceed')

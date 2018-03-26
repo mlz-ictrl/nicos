@@ -1,5 +1,7 @@
 description = 'Neutron counter box and channels in the SINQ AMOR.'
 
+includes = ['hm_config']
+
 pvprefix = 'SQ:AMOR:counter'
 
 devices = dict(
@@ -90,6 +92,48 @@ devices = dict(
         lowlevel=True,
         readpv=pvprefix + '.S9',
     ),
+    hm_channel=device(
+        'nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
+        description="Histogram Memory Channel",
+        connector='hm_connector'
+    ),
+    area_detector_channel=device(
+        'nicos_sinq.devices.sinqhm.channel.HistogramImageChannel',
+        description="Image channel for area detector",
+        lowlevel=True,
+        bank='hm_bank0',
+        connector='hm_connector',
+        serverbyteorder='little',
+        databyteorder='little',
+        readbytes=True,
+    ),
+    single_det1_channel=device(
+        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
+        description="Image channel for single detector 1",
+        lowlevel=True,
+        bank='hm_bank1',
+        connector='hm_connector',
+        detectorid=0,
+        readbytes=True,
+    ),
+    single_det2_channel=device(
+        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
+        description="Image channel for single detector 2",
+        lowlevel=True,
+        bank='hm_bank1',
+        connector='hm_connector',
+        detectorid=1,
+        readbytes=True,
+    ),
+    single_det3_channel=device(
+        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
+        description="Image channel for single detector 3",
+        lowlevel=True,
+        bank='hm_bank1',
+        connector='hm_connector',
+        detectorid=2,
+        readbytes=True,
+    ),
     psd_tof=device(
         'nicos_sinq.devices.epics.scaler_record.EpicsScalerRecord',
         epicstimeout=3.0,
@@ -102,7 +146,12 @@ devices = dict(
         timers=['timepreset', 'elapsedtime'],
         counters=['countpreset', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7',
                   'c8'],
-    )
+        images=['area_detector_channel', 'single_det1_channel',
+                'single_det2_channel', 'single_det3_channel'],
+        others=['hm_channel'],
+        liveinterval=5,
+        saveintervals=[10]
+    ),
 )
 
 startupcode = '''

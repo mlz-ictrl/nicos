@@ -1,0 +1,37 @@
+
+file_identifier "hs00";
+
+table ArrayUInt   { value: [uint];    }
+table ArrayULong  { value: [ulong];   }
+table ArrayDouble { value: [double];  }
+
+// Union of allowed data types for the arrays
+union Array {
+    ArrayUInt,
+    ArrayULong,
+    ArrayDouble
+}
+
+// Meta information for one dimension
+table DimensionMetaData {
+    length: uint;           // Length of the full histogram along this dimension
+    unit: string;           // Unit
+    label: string;          // Label
+    bin_boundaries: Array;  // Boundary information (should be of length: DimensionMetaData.length+1)
+}
+
+// Represents a n-dimensional histogram
+// Subsets of histogram are also supported
+table EventHistogram {
+    source: string;              // Source name
+    timestamp: ulong;            // Timestamp (in ns, after unix epoch)
+    dim_metadata: [DimensionMetaData]; // Meta data for each dimension
+    last_metadata_timestamp: ulong; // Timestamp (ns, after unix epoch) when the last metadata information was written
+    current_shape: [uint] (required);  // Shape of the current data in each dimension
+    offset: [uint];              // Offset giving the starting index in each dimension
+    data: Array;                 // Data represented in RowMajor order (C Style), filled with 0 if missing
+    errors: Array;               // Errors in calculation of histogram data (same size as data)
+    info: string;                // Additional information (Integrated/Processed)
+}
+
+root_type EventHistogram;

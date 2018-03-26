@@ -61,6 +61,7 @@ main_window = tabbed(
      )),
     ('Device History', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Log files', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+    ('Live View', panel('nicos_sinq.amor.gui.panels.live.LiveDataPanel')),
 )
 
 windows = [
