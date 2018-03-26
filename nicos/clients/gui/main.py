@@ -65,9 +65,6 @@ def parseargs():
                         help='''A connection string with the following form:
 
                         [user_name[:password[@host[:port]]]]''')
-    # information "started from demo" to avoid opening instrument select dialog
-    parser.add_argument('-D', dest='fromdemo', action='store_true',
-                        help=argparse.SUPPRESS)
     return parser.parse_args()
 
 
@@ -103,8 +100,7 @@ def main(argv):
         # If "demo" is detected automatically, let the user choose their
         # instrument configuration.
         need_dialog = config.instrument is None or \
-            (not opts.fromdemo and
-             config.setup_package == 'nicos_demo' and
+            (config.setup_package == 'nicos_demo' and
              config.instrument == 'demo' and
              'INSTRUMENT' not in os.environ)
         if need_dialog:

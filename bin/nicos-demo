@@ -180,15 +180,18 @@ debug.add_argument('--profile', action='store', default=None,
 debug.add_argument('--clear-cache', action='store_true',
                    help='clear the cache')
 
+parser.add_argument('--other-instruments', '-O', action='store_true',
+                    help='allow selecting instruments other than demo (by '
+                    'nicos.conf or INSTRUMENT setting)')
 parser.add_argument('--version', action='store_true',
                     help='show NICOS version number and exit')
-
-parser.add_argument('-O', dest='oh', action='store_true',
-                    help=argparse.SUPPRESS)
 parser.add_argument('guiargs', nargs=argparse.REMAINDER,
                     help=argparse.SUPPRESS)
 
 opts = parser.parse_args()
+
+if not opts.other_instruments:
+    os.environ['INSTRUMENT'] = 'nicos_demo.demo'
 
 if opts.profile:
     spawnargs = {'profile': opts.profile}
@@ -259,7 +262,7 @@ elif not opts.nodaemon:
         else:
             echo('Services started, starting GUI.\n')
             guiargs = ['-c', opts.guiconfig] if opts.guiconfig else []
-            guiargs.extend(['-D', opts.guiuser] + opts.guiargs)
+            guiargs.extend([opts.guiuser] + opts.guiargs)
             spawn('nicos-gui', *guiargs, wait=True, **spawnargs)
     else:
         wait()
