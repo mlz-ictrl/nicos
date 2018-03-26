@@ -251,6 +251,14 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
             # session.data.linkFiles(self.linkpaths[0], self.linkpaths[1:])
 
 
+COMTEC_TEMPLATES = [
+    '_%(session.experiment.users)s_%(year)04d_%(month)02d/'
+    '%(session.experiment.users)s_%(year)04d_%(month)02d_%(scancounter)03d_',
+
+    '%(proposal)s_%(scancounter)s_%(pointcounter)s_%(pointnumber)s_',
+]
+
+
 class ComtecHeaderSink(ImageSink):
     """Base class for sinks that save arrays to "image" files."""
 
@@ -267,13 +275,7 @@ class ComtecHeaderSink(ImageSink):
         'settypes': Override(default=[POINT, SCAN]),
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
-                                     default=['_%(session.experiment.users)s_'
-                                              '%(year)04d_%(month)02d/'
-                                              '%(session.experiment.users)s_'
-                                              '%(year)04d_%(month)02d_'
-                                              '%(scancounter)03d_',
-                                              '%(proposal)s_%(scancounter)s_'
-                                              '%(pointcounter)s_%(pointnumber)s_']),
+                                     default=COMTEC_TEMPLATES),
         'subdir': Override(default='comtec'),
     }
 

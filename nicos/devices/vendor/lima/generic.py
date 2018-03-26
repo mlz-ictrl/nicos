@@ -27,7 +27,7 @@ import time
 import numpy
 
 from nicos.core import ArrayDesc, Param, Device, AutoDevice, status, tupleof, \
-    oneof, none_or, tangodev, Override, SIMULATION, HardwareError, NicosError
+    oneof, none_or, tangodev, SIMULATION, HardwareError, NicosError
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
     ActiveChannel, TimerChannelMixin
@@ -151,10 +151,6 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                       settable=False,
                                       userparam=False),
 
-    }
-
-    parameter_overrides = {
-        'subdir':      Override(settable=True),
     }
 
     _hwDev = None

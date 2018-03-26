@@ -415,8 +415,8 @@ class DataManager(object):
             self.log.warning('can\'t link datafiles, no os support!')
 
     def createDataFile(self, dataset, nametemplates, *subdirs, **kwargs):
-        """Creates and returns a file named according to the given nametemplate
-        in the given subdir of the datapath.
+        """Creates and returns a file named according to the given list of
+        nametemplates in the given subdir of the datapath.
 
         The nametemplate can be either a string or a list of strings.  In the
         second case, the first listentry is used to create the file and the

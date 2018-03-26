@@ -345,21 +345,22 @@ class Experiment(Device):
             ensureDirectory(dirname, **self.managerights)
         return dirname
 
-    def getDataFilename(self, filename, *subdirs):
-        """Returns the current path for given filename in subdir structure
-        subdirs.
+    def getDataFilename(self, filepath, *subdirs):
+        """Prepends the current data directory to given filepath in subdir
+        structure subdirs.
 
         If filename is an absolute path, ignore the subdirs and start at
         dataroot returned filename is usable 'as-is', i.e. the required
         directory structure is already created.
         """
-        if path.isabs(filename):
-            fullname = path.join(self.dataroot, filename[1:])
-            dirname = path.dirname(fullname)
-            if self._mode != SIMULATION:
-                ensureDirectory(dirname, **self.managerights)
+        if path.isabs(filepath):
+            fullname = path.join(self.dataroot, filepath[1:])
         else:
-            fullname = path.join(self.getDataDir(*subdirs), filename)
+            fullname = path.abspath(path.join(self.datapath,
+                                              *(subdirs + (filepath,))))
+        dirname = path.dirname(fullname)
+        if self._mode != SIMULATION:
+            ensureDirectory(dirname, **self.managerights)
         return fullname
 
     #

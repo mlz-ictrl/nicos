@@ -33,6 +33,7 @@ from nicos.devices.datasinks import FileSink
 from nicos.utils import syncFile, ReaderRegistry
 from nicos.pycompat import add_metaclass
 
+
 class ImageSink(FileSink):
     """Base class for sinks that save arrays to "image" files."""
 
