@@ -8,7 +8,7 @@ import hashlib
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
-    UserDB = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
+    UserDB = device('nicos_mlz.devices.proposaldb.Authenticator'),
 
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',

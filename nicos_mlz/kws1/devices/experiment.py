@@ -28,7 +28,7 @@ import os
 import time
 from os import path
 
-from nicos_mlz.frm2.devices.experiment import Experiment
+from nicos_mlz.devices.experiment import Experiment
 from nicos.utils import printTable
 from nicos.pycompat import to_utf8
 

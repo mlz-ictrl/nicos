@@ -5,7 +5,7 @@ includes = []
 group = 'optional'
 
 devices = dict(
-    t_in_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    t_in_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'T_in PANDA',
@@ -14,7 +14,7 @@ devices = dict(
         warnlimits = (-1, 17.5),  # -1 no lower value
         unit = 'degC',
     ),
-    t_out_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    t_out_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'T_out PANDA',
@@ -24,7 +24,7 @@ devices = dict(
         fmtstr = '%.2F',
         unit = 'degC',
     ),
-    p_in_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    p_in_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'P_in PANDA',
@@ -34,7 +34,7 @@ devices = dict(
         fmtstr = '%.2F',
         unit = 'bar',
     ),
-    p_out_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    p_out_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'P_out PANDA',
@@ -44,7 +44,7 @@ devices = dict(
         fmtstr = '%.2F',
         unit = 'bar',
     ),
-    flow_in_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    flow_in_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'FLOW_in PANDA',
@@ -55,7 +55,7 @@ devices = dict(
         warnlimits = (0.2, 100),  # 100 no upper value
         unit = 'l/min',
     ),
-    flow_out_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    flow_out_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'FLOW_out PANDA',
@@ -65,7 +65,7 @@ devices = dict(
         fmtstr = '%.2F',
         unit = 'l/min',
     ),
-    leak_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    leak_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'Leak PANDA',
@@ -76,7 +76,7 @@ devices = dict(
         warnlimits = (-1, 1),  # -1 no lower value
         unit = 'l/min',
     ),
-    cooling_panda = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    cooling_panda = device('nicos_mlz.devices.memograph.MemographValue',
         hostname = 'memograph-uja04.care.frm2',
         group = 3,
         valuename = 'Cooling PANDA',

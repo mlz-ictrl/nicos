@@ -5,7 +5,7 @@ includes = []
 group = 'optional'
 
 devices = dict(
-    t_in_resi      = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    t_in_resi      = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'T_in RESI',
@@ -14,7 +14,7 @@ devices = dict(
                             warnlimits = (-1, 17.5), #-1 no lower value
                             unit = 'degC',
                            ),
-    t_out_resi     = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    t_out_resi     = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'T_out RESI',
@@ -24,7 +24,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'degC',
                            ),
-    p_in_resi      = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    p_in_resi      = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'P_in RESI',
@@ -34,7 +34,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'bar',
                            ),
-    p_out_resi     = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    p_out_resi     = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'P_out RESI',
@@ -44,7 +44,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'bar',
                            ),
-    flow_in_resi   = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    flow_in_resi   = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'FLOW_in RESI',
@@ -55,7 +55,7 @@ devices = dict(
                             warnlimits = (0.2, 100), #100 no upper value
                             unit = 'l/min',
                            ),
-    flow_out_resi  = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    flow_out_resi  = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'FLOW_out RESI',
@@ -65,7 +65,7 @@ devices = dict(
                             fmtstr = '%.2F',
                             unit = 'l/min',
                            ),
-    leak_resi      = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    leak_resi      = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'Leak RESI',
@@ -76,7 +76,7 @@ devices = dict(
                             warnlimits = (-1, 1), #-1 no lower value
                             unit = 'l/min',
                            ),
-    cooling_resi   = device('nicos_mlz.frm2.devices.memograph.MemographValue',
+    cooling_resi   = device('nicos_mlz.devices.memograph.MemographValue',
                             hostname = 'memograph-uja01.care.frm2',
                             group = 1,
                             valuename = 'Cooling RESI',

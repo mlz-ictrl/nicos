@@ -7,7 +7,7 @@ includes = ['alias_T']
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    #T_ccr = device('nicos_mlz.frm2.devices.ccr.CCRControl',
+    #T_ccr = device('nicos_mlz.devices.ccr.CCRControl',
     #    description = 'The main temperature control device of the CCR',
     #    stick = 'T_ccr_stick',
     #    tube = 'T_ccr_tube',

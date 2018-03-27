@@ -23,7 +23,7 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
     ),
-    B_ccmsans = device('nicos_mlz.frm2.devices.ccmsans.AsymmetricMagnet',
+    B_ccmsans = device('nicos_mlz.devices.ccmsans.AsymmetricMagnet',
         description = 'The resulting magnetic field',
         tacodevice = '//%s/magnet/oxford/magnet' % (nethost,),
         abslimits = (-5, 5),

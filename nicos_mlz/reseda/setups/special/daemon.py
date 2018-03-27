@@ -11,7 +11,7 @@ devices = dict(
             'ictrl': 'admin',
         }
     ),
-    UserDBAuth = device('nicos_mlz.frm2.devices.proposaldb.Authenticator',
+    UserDBAuth = device('nicos_mlz.devices.proposaldb.Authenticator',
         description = 'FRM II user office authentication',
     ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',

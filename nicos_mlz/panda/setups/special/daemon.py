@@ -2,7 +2,7 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    UserDBAuth = device('nicos_mlz.frm2.devices.proposaldb.Authenticator'),
+    UserDBAuth = device('nicos_mlz.devices.proposaldb.Authenticator'),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         description = 'Authentication device',
         hashing = 'md5',

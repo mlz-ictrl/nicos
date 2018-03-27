@@ -49,7 +49,7 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    UBahn = device('nicos_mlz.frm2.devices.ubahn.UBahn',
+    UBahn = device('nicos_mlz.devices.ubahn.UBahn',
         description = 'Next subway departures',
     ),
 )

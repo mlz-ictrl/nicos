@@ -34,7 +34,7 @@ devices = dict(
     ),
 
     # Configure dataroot here (usually /data).
-    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',
         managerights = dict(

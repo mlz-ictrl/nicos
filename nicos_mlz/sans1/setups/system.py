@@ -29,7 +29,7 @@ devices = dict(
                     ],
         website = 'http://www.mlz-garching.de/sans-1',
     ),
-    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment',
         dataroot = '/data/nicos',
         propdb = '/sans1control/propdb',

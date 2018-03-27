@@ -85,7 +85,7 @@ devices = dict(
     ),
 
     # Configure dataroot here (usually /data).
-    Exp = device('nicos_mlz.frm2.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'The current running experiment',
         dataroot = '/data',
         sendmail = True,
@@ -121,7 +121,7 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    UBahn = device('nicos_mlz.frm2.devices.ubahn.UBahn',
+    UBahn = device('nicos_mlz.devices.ubahn.UBahn',
         description = 'Next subway departures',
     ),
     caresssink = device('nicos_mlz.stressi.devices.datasinks.CaressScanfileSink',

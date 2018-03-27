@@ -65,7 +65,7 @@ devices = dict(
         precision = 0.05,
     ),
     # by convention this needs to be B_%(setupname)s
-    B_amagnet = device('nicos_mlz.frm2.devices.amagnet.GarfieldMagnet',
+    B_amagnet = device('nicos_mlz.devices.amagnet.GarfieldMagnet',
         description = 'magnetic field device, handling polarity switching and stuff',
         currentsource = 'amagnet_current',
         onoffswitch = 'amagnet_onoff',

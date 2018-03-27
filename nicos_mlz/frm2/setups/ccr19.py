@@ -12,7 +12,7 @@ plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
 
 # This box is equipped with the pressure regulation!
 devices = {
-    'T_%s' % setupname : device('nicos_mlz.frm2.devices.ccr.CCRControl',
+    'T_%s' % setupname : device('nicos_mlz.devices.ccr.CCRControl',
         description = 'The main temperature control device of the CCR',
         stick = 'T_%s_stick' % setupname,
         tube = 'T_%s_tube' % setupname,
@@ -92,12 +92,12 @@ devices = {
         tangodevice = plc_tango_base + 'automatik',
         mapping = dict(off = 0, p1 = 1, p2 = 2),
     ),
-    '%s_p1_limits' % setupname : device('nicos_mlz.frm2.devices.ccr.PLCLimits',
+    '%s_p1_limits' % setupname : device('nicos_mlz.devices.ccr.PLCLimits',
         description = 'Limits for Pressure regulation on Channel 1',
         tangodevice = plc_tango_base + 'p1',
         unit = 'mbar',
     ),
-    '%s_p2_limits' % setupname : device('nicos_mlz.frm2.devices.ccr.PLCLimits',
+    '%s_p2_limits' % setupname : device('nicos_mlz.devices.ccr.PLCLimits',
         description = 'Limits for Pressure regulation on Channel 2',
         tangodevice = plc_tango_base + 'p2',
         unit = 'mbar',

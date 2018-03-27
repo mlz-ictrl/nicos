@@ -1,50 +1,50 @@
 `FRM II <http://www.frm2.tum.de>`_
 ==================================
 
-.. automodule:: nicos_mlz.frm2.devices.proposaldb
+.. automodule:: nicos_mlz.devices.proposaldb
 .. autoclass:: ProposalDB()
 .. autoclass:: Authenticator()
 
-.. automodule:: nicos_mlz.frm2.devices.experiment
+.. automodule:: nicos_mlz.devices.experiment
 .. autoclass:: Experiment()
 .. autoclass:: ImagingExperiment()
 
-.. automodule:: nicos_mlz.frm2.devices.ccr
+.. automodule:: nicos_mlz.devices.ccr
 .. autoclass:: CCRControl()
 .. autoclass:: CompressorSwitch()
 .. autoclass:: PLCLimits()
 
-.. automodule:: nicos_mlz.frm2.devices.amagnet
+.. automodule:: nicos_mlz.devices.amagnet
 .. autoclass:: GarfieldMagnet()
 
-.. automodule:: nicos_mlz.frm2.devices.ccmsans
+.. automodule:: nicos_mlz.devices.ccmsans
 .. autoclass:: AsymmetricMagnet()
 
-.. automodule:: nicos_mlz.frm2.devices.newport
+.. automodule:: nicos_mlz.devices.newport
 .. autoclass:: Motor()
 
-.. automodule:: nicos_mlz.frm2.devices.memograph
+.. automodule:: nicos_mlz.devices.memograph
 .. autoclass:: MemographValue()
 
-.. automodule:: nicos_mlz.frm2.devices.ubahn
+.. automodule:: nicos_mlz.devices.ubahn
 .. autoclass:: UBahn()
 
-.. automodule:: nicos_mlz.frm2.devices.camera
+.. automodule:: nicos_mlz.devices.camera
 .. autoclass:: CameraImage()
 
-.. automodule:: nicos_mlz.frm2.devices.ccmhts
+.. automodule:: nicos_mlz.devices.ccmhts
 .. autoclass:: WaterFlow()
 
-.. automodule:: nicos_mlz.frm2.devices.datasinks
+.. automodule:: nicos_mlz.devices.datasinks
 .. autoclass:: DiObSink()
 
-.. automodule:: nicos_mlz.frm2.devices.helios
+.. automodule:: nicos_mlz.devices.helios
 .. autoclass:: HePolarizer()
 
-.. automodule:: nicos_mlz.frm2.devices.qmesydaqsinks
+.. automodule:: nicos_mlz.devices.qmesydaqsinks
 .. autoclass:: QMesyDAQSink()
 .. autoclass:: HistogramSink()
 .. autoclass:: ListmodeSink()
 
-.. automodule:: nicos_mlz.frm2.devices.sample
+.. automodule:: nicos_mlz.devices.sample
 .. autoclass:: Sample()

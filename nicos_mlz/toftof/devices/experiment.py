@@ -26,7 +26,7 @@
 
 from nicos import session
 
-from nicos_mlz.frm2.devices.experiment import Experiment as BaseExperiment
+from nicos_mlz.devices.experiment import Experiment as BaseExperiment
 
 
 class Experiment(BaseExperiment):
