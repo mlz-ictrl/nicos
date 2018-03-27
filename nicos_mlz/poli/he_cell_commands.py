@@ -176,6 +176,7 @@ def AddHeCells(h_index, k_index, l_index, count_time,
     """Add new 3He cells to analyser and polariser."""
     gamma = session.getDevice('gamma')
     wavelength = session.getDevice('wavelength')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Add new 3He cells')
     printinfo(SMALL_SEP)
@@ -187,7 +188,7 @@ def AddHeCells(h_index, k_index, l_index, count_time,
     printinfo(SMALL_SEP)
     printinfo('Measurement without cells. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     wavelen = wavelength()
     AddHeaderToCellsFile(analyser_cell_name, analyser_cell_pressure,
                          polariser_cell_name, polariser_cell_pressure, wavelen)
@@ -200,7 +201,7 @@ def AddHeCells(h_index, k_index, l_index, count_time,
               .format(analyser_cell_name, analyser_cell_pressure,
                       format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(True, False, cells1)
     analyser_cell_transmission = analyser_trans(cells0, cells1)
     maw(gamma, gamma_cell)
@@ -216,7 +217,7 @@ def AddHeCells(h_index, k_index, l_index, count_time,
                       polariser_cell_name, polariser_cell_pressure,
                       format_datetime()))
     printinfo(SMALL_SEP)
-    cells2 = count(count_time)
+    cells2 = count(det, count_time)
     AddCountsToCellsFile(True, True, cells2)
     polariser_cell_transmission = polariser_trans(cells1, cells2)
     AddTransToCellsFile(analyser_cell_transmission, polariser_cell_transmission)
@@ -241,6 +242,7 @@ def AddHeCells(h_index, k_index, l_index, count_time,
 def RemoveHeCells(h_index, k_index, l_index, count_time):
     """Remove old 3He cells from polariser and analyser."""
     gamma = session.getDevice('gamma')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Remove old 3He cells')
     printinfo(SMALL_SEP)
@@ -253,7 +255,7 @@ def RemoveHeCells(h_index, k_index, l_index, count_time):
     printinfo('Measurement with 2 cells: in analyser/decpol and polariser. {}'
               .format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells2 = count(count_time)
+    cells2 = count(det, count_time)
     AddCountsToCellsFile(True, True, cells2)
     maw(gamma, gamma_cell)
     pause('Remove cell from polariser.')
@@ -262,7 +264,7 @@ def RemoveHeCells(h_index, k_index, l_index, count_time):
     printinfo('Measurement with 1 cell: in analyser/decpol. {}'
               .format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(True, False, cells1)
     polariser_cell_transmission = polariser_trans(cells1, cells2)
     maw(gamma, gamma_cell)
@@ -273,7 +275,7 @@ def RemoveHeCells(h_index, k_index, l_index, count_time):
     printinfo(SMALL_SEP)
     printinfo('Measurement without cells. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     AddCountsToCellsFile(False, False, cells0)
     analyser_cell_transmission = analyser_trans(cells0, cells1)
     AddTransToCellsFile(analyser_cell_transmission, polariser_cell_transmission)
@@ -297,6 +299,7 @@ def AddHeCellToPolariserHkl(h_index, k_index, l_index, count_time,
     """Add new 3He cell to polariser (only)."""
     gamma = session.getDevice('gamma')
     wavelength = session.getDevice('wavelength')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Add new 3He cell to polariser (only)')
     printinfo(SMALL_SEP)
@@ -308,7 +311,7 @@ def AddHeCellToPolariserHkl(h_index, k_index, l_index, count_time,
     printinfo(SMALL_SEP)
     printinfo('Measurement without cell. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     wavelen = wavelength()
     AddPolariserHeaderToCellsFile(polariser_cell_name, polariser_cell_pressure,
                                   wavelen)
@@ -322,7 +325,7 @@ def AddHeCellToPolariserHkl(h_index, k_index, l_index, count_time,
               .format(polariser_cell_name, polariser_cell_pressure,
                       format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(False, True, cells1)
     polariser_cell_transmission = polariser_trans(cells0, cells1)
     AddPolariserTransToCellsFile(polariser_cell_transmission)
@@ -343,6 +346,7 @@ def AddHeCellToPolariser(count_time, polariser_cell_name, polariser_cell_pressur
     """Add new 3He cell to polariser (only)."""
     gamma = session.getDevice('gamma')
     wavelength = session.getDevice('wavelength')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Add new 3He cell to polariser (only)')
     printinfo(SMALL_SEP)
@@ -350,7 +354,7 @@ def AddHeCellToPolariser(count_time, polariser_cell_name, polariser_cell_pressur
     printinfo(SMALL_SEP)
     printinfo('Measurement without cell. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     wavelen = wavelength()
     AddPolariserHeaderToCellsFile(polariser_cell_name, polariser_cell_pressure,
                                   wavelen)
@@ -363,7 +367,7 @@ def AddHeCellToPolariser(count_time, polariser_cell_name, polariser_cell_pressur
               .format(polariser_cell_name, polariser_cell_pressure,
                       format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(False, True, cells1)
     polariser_cell_transmission = polariser_trans(cells0, cells1)
     AddPolariserTransToCellsFile(polariser_cell_transmission)
@@ -383,6 +387,7 @@ def AddHeCellToPolariser(count_time, polariser_cell_name, polariser_cell_pressur
 def RemoveHeCellFromPolariserHkl(h_index, k_index, l_index, count_time):
     """Remove old 3He cell from polariser (only)."""
     gamma = session.getDevice('gamma')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Remove old 3He cell from polariser (only)')
     printinfo(SMALL_SEP)
@@ -395,7 +400,7 @@ def RemoveHeCellFromPolariserHkl(h_index, k_index, l_index, count_time):
     printinfo('Measurement with 1 cell: in polariser. {}'
               .format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(False, True, cells1)
     maw(gamma, gamma_cell)
     pause('Remove cell from polariser and press "Continue script" after that.')
@@ -403,7 +408,7 @@ def RemoveHeCellFromPolariserHkl(h_index, k_index, l_index, count_time):
     printinfo(SMALL_SEP)
     printinfo('Measurement without cells. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     AddCountsToCellsFile(False, False, cells0)
     polariser_cell_transmission = polariser_trans(cells0, cells1)
     AddPolariserTransToCellsFile(polariser_cell_transmission)
@@ -421,6 +426,7 @@ def RemoveHeCellFromPolariserHkl(h_index, k_index, l_index, count_time):
 def RemoveHeCellFromPolariser(count_time):
     """Remove old 3He cell from polariser (only)."""
     gamma = session.getDevice('gamma')
+    det = session.getDevice('det')
     printinfo(LARGE_SEP)
     printinfo('Remove old 3He cell from polariser (only)')
     printinfo(SMALL_SEP)
@@ -429,14 +435,14 @@ def RemoveHeCellFromPolariser(count_time):
     printinfo('Measurement with 1 cell: in polariser. {}'
               .format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells1 = count(count_time)
+    cells1 = count(det, count_time)
     AddCountsToCellsFile(False, True, cells1)
     maw(gamma, gamma_cell)
     pause('Remove cell from polariser and press "Continue script" after that.')
     printinfo(SMALL_SEP)
     printinfo('Measurement without cells. {}'.format(format_datetime()))
     printinfo(SMALL_SEP)
-    cells0 = count(count_time)
+    cells0 = count(det, count_time)
     AddCountsToCellsFile(False, False, cells0)
     polariser_cell_transmission = polariser_trans(cells0, cells1)
     AddPolariserTransToCellsFile(polariser_cell_transmission)
