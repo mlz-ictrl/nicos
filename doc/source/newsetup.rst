@@ -71,7 +71,8 @@ Adding setups and libraries
 
 * To test setups and modules with the checkout instead of the installed copy,
   you can set the environment variable ``INSTRUMENT`` to
-  ``nicos_<facility>.<instrument>``.
+  ``nicos_<facility>.<instrument>``.  If you use ``nicos-demo``, you have to
+  give the ``-O`` option to allow loading instruments other than "demo".
 
 * Modules like ``nicos_<facility>/<instrument>/devices/foo.py`` can be imported
   as ``nicos_<facility>.<instrument>.devices.foo``.
