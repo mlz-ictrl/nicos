@@ -176,9 +176,13 @@ class EpicsDetector(EpicsDeviceEss, Detector):
         return pvs
 
     def doStart(self):
+        # First start all the channels (if applicable) and then
+        # set the detector startpv
+        Detector.doStart(self)
         self._put_pv('startpv', 1, wait=True)
 
     def doPause(self):
+        Detector.doPause(self)
         if self.pausepv:
             paused = self._get_pv('pausepv')
             if paused != 1:
@@ -190,6 +194,7 @@ class EpicsDetector(EpicsDeviceEss, Detector):
                 'Cant pause, provide pausepv parameter for this to work')
 
     def doResume(self):
+        Detector.doResume(self)
         if self.pausepv:
             paused = self._get_pv('pausepv')
             if paused != 0:
@@ -201,10 +206,16 @@ class EpicsDetector(EpicsDeviceEss, Detector):
                 'Cant resume, provide pausepv parameter for this to work')
 
     def doFinish(self):
+        # After setting the startpv to 0
+        # finish all the channels
         self._put_pv('startpv', 0, wait=False)
+        Detector.doFinish(self)
 
     def doStop(self):
+        # After setting the startpv to 0
+        # stop all the channels
         self._put_pv('startpv', 0, wait=False)
+        Detector.doStop(self)
 
     def doStatus(self, maxage=0):
         return EpicsDeviceEss.doStatus(self, maxage)
