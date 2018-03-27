@@ -7,7 +7,7 @@ sysconfig = dict(
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'filesink', 'dmnsink', 'serialsink', 'livesink', 'tofsink'
+        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink'
     ],
 )
 
@@ -52,9 +52,6 @@ devices = dict(
         lowlevel = True,
     ),
     dmnsink = device('nicos.devices.datasinks.DaemonSink',
-        lowlevel = True,
-    ),
-    serialsink = device('nicos.devices.datasinks.SerializedSink',
         lowlevel = True,
     ),
     livesink = device('nicos_mlz.toftof.devices.datasinks.ToftofLiveViewSink',

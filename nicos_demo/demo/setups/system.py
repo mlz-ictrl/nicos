@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'serialsink', 'dmnsink'],
+    datasinks = ['conssink', 'dmnsink'],
     notifiers = [],
 )
 
@@ -39,9 +39,6 @@ devices = dict(
         lowlevel = True,
     ),
     dmnsink = device('nicos.devices.datasinks.DaemonSink',
-        lowlevel = True,
-    ),
-    serialsink = device('nicos.devices.datasinks.SerializedSink',
         lowlevel = True,
     ),
     Space = device('nicos.devices.generic.FreeSpace',

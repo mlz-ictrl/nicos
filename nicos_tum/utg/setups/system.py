@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'utg',
     experiment = 'Exp',
-    datasinks = ['conssink', 'serialsink', 'livesink', 'dmnsink'],
+    datasinks = ['conssink', 'livesink', 'dmnsink'],
     notifiers = [],
 )
 
@@ -39,9 +39,6 @@ devices = dict(
         lowlevel = True,
     ),
     dmnsink = device('nicos.devices.datasinks.DaemonSink',
-        lowlevel = True,
-    ),
-    serialsink = device('nicos.devices.datasinks.SerializedSink',
         lowlevel = True,
     ),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
