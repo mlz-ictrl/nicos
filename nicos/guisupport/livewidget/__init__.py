@@ -267,9 +267,10 @@ class LiveWidgetBase(QWidget):
             pWC = event.getWC(plot.viewport)
             if (self._array is not None and plot == self.plot and
                 len(self._array.shape) >= 2):
-                ny, nx = self._array.shape[:2]
+                ny, nx = self._array.shape[-2:]
                 x, y = int(pWC.x), int(pWC.y)
                 if 0 <= x < nx and 0 <= y < ny:
+                    # XXX: has this code ever been used?
                     return x, y, self._array[y, x]
             return pWC.x, pWC.y
 
@@ -305,10 +306,9 @@ class LiveWidgetBase(QWidget):
         if n == 1:
             nx = array.shape[0]
         elif n >= 2:
-            nx = array.shape[n - 1]
-            ny = array.shape[n - 2]
+            ny, nx = array.shape[-2:]
         if n == 3:
-            nz = array.shape[n - 3]
+            nz = array.shape[-3]
         if not self._fixedsize:
             self._axesratio = ny / float(nx)
 

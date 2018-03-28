@@ -185,9 +185,9 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     """Represents the client to a MAATEL Image Plate Detector."""
 
     MAP_SHAPE = {
-        125: (10000, 900),
-        250: (5000, 900),
-        500: (2500, 900),
+        125: (900, 10000),
+        250: (900, 5000),
+        500: (900, 2500),
     }
 
     attached_devices = {

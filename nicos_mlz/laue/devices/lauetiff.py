@@ -78,7 +78,9 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         # ensure numpy type, with float values for PIL
         npData = numpy.asarray(image, dtype='<u2')
         buf = numpy.getbuffer(npData)
-        ifile = Image.frombuffer('I;16', npData.shape, buf, "raw", 'I;16', 0, 1)
+        # TODO: check if this still works.
+        ifile = Image.frombuffer('I;16', npData.shape[::-1], buf, 'raw',
+                                 'I;16', 0, 1)
 
         ifile.save(fp, 'TIFF', tiffinfo=self._buildHeader(self.metainfo))
 

@@ -83,7 +83,7 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
                     self._writeData(data)
 
     def _writeData(self, data):
-        image = np.array(data)
+        image = np.asarray(data)
         max_pixel = image.max()
         if self.sink.log10:
             zeros = (image == 0)
@@ -103,8 +103,9 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
             rgb_arr[..., 0] = LUT_r[norm_arr]
             rgb_arr[..., 1] = LUT_g[norm_arr]
             rgb_arr[..., 2] = LUT_b[norm_arr]
-            Image.frombuffer('RGB', data.shape, rgb_arr, 'raw')\
-                .save(self.sink.filename)
+            # PIL expects (w, h) but shape is (ny, nx)
+            Image.frombuffer('RGB', image.shape[::-1], rgb_arr, 'raw',
+                             'RGB', 0, 1).save(self.sink.filename)
         except Exception:
             self.log.warning('could not save live PNG', exc=1)
         self._last_saved = currenttime()

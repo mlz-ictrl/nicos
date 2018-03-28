@@ -196,6 +196,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             n = (256 - image.shape[1]) // 2
             image = np.pad(image, ((0, 0), (n, n)), mode='constant')
 
+        # TODO: remove this once formats are cleared up
         if self.sink.transpose:
             image = image.T
         for (i, val) in enumerate(image.ravel()):
@@ -227,6 +228,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
                 slot = np.pad(slot, ((0, 0), (n, n)), mode='constant')
 
             w('(* timeslot %d *)\n' % i)
+            # TODO: remove this (see above)
             if self.sink.transpose:
                 slot = slot.T
             np.savetxt(fp, slot, fmt='%8d')

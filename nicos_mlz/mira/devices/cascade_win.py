@@ -324,7 +324,7 @@ class MiraXmlHandler(SingleFileSinkHandler):
                          timer.read()[0],
                          mon.read()[0]))
 
-        w, h = image.shape
+        h, w = image.shape
         if self.sink._format is None or self.sink._format[0] != image.shape:
             p = []
             for _x in range(w):

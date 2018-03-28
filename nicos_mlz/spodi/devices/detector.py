@@ -227,6 +227,7 @@ class Detector(MeasureSequencer):
         return [self.resosteps] + self._attached_detector.doSimulate(preset)
 
     def _set_resosteps(self, value):
+        # TODO: shape should be (y, x) not (x, y)
         shape = (value * self.numinputs, 256)
         self._step_size = self.range / value
         if not self._arraydesc:

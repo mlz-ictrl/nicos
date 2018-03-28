@@ -138,7 +138,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     _last = None
 
     def doReadArray(self, quality):
-        shape = self.arraydesc.shape[::-1]
+        shape = self.arraydesc.shape
         arr = self._dev.GetBlock([0, int(np.product(shape))])
         cur = arr.sum(), self._attached_timer.read(0)[0]
 

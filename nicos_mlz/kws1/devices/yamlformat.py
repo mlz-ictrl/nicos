@@ -130,7 +130,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         uses_tof = detimg.mode == 'tof'
         if uses_tof:
             tof = meas['setup']['time_of_flight']
-            tof['number_of_channels'] = image.shape[2]
+            tof['number_of_channels'] = image.shape[0]
             tof['channel_duration'] = self._flowlist(
                 [d / 1000000. for d in detimg.slices])
             det1['axes'] = self._flowlist(['x', 'y', 'tof'])

@@ -434,7 +434,8 @@ class ArrayDesc(object):
     An array type consists of these attributes:
 
     * name, a name for the array
-    * shape, a tuple of lengths in 1 to N dimensions
+    * shape, a tuple of lengths in 1 to N dimensions arranged as for C order
+      arrays, i.e. (..., t, y, x), which is also the numpy shape
     * dtype, the data type of a single value, in numpy format
     * dimnames, a list of names for each dimension
 
