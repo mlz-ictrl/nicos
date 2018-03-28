@@ -27,6 +27,8 @@
 from os import path
 from time import time as currenttime
 
+import numpy as np
+
 from nicos import session
 from nicos.core import DataSink, DataSinkHandler, Override
 from nicos.core.constants import POINT, SCAN, SUBSCAN
@@ -90,40 +92,46 @@ class LiveViewSinkHandler(DataSinkHandler):
         return result[1]
 
     def putResults(self, quality, results):
-        if self.detector.name in results:
-            result = results[self.detector.name]
-            if result is None:
-                return
-            buffers = []
-            filenames = []
-            nx, ny, nz = [], [], []
-            arrays = self.processArrays(result)
-            for i, data in enumerate(arrays):
-                if data is not None:
-                    if len(data.shape) == 1:
-                        resX, resY, resZ = data.shape, 1, 1
-                    elif len(data.shape) == 2:
-                        (resX, resY), resZ = data.shape, 1
-                    else:
-                        resX, resY, resZ = data.shape
-                    if self.dataset.filenames and \
-                            i < len(self.dataset.filenames) and \
-                            self.dataset.filenames[i]:
-                        filename = self.dataset.filenames[i]
-                    else:
-                        filename = self.sink.filenametemplate[
-                                       0] % self.dataset.counter
-                    nx += [resX]
-                    ny += [resY]
-                    nz += [resZ]
-                    filenames += [filename]
-                    buffers += [memory_buffer(data.astype('<u4'))]
-            if buffers:
-                session.updateLiveData('Live', self.dataset.uid,
-                                       self.detector.name, filenames,
-                                       '<u4', nx, ny, nz,
-                                       currenttime() - self.dataset.started,
-                                       buffers)
+        if self.detector.name not in results:
+            return
+        result = results[self.detector.name]
+        if result is None:
+            return
+        buffers = []
+        filenames = []
+        nx, ny, nz = [], [], []
+        arrays = self.processArrays(result)
+        for i, data in enumerate(arrays):
+            if data is None:
+                continue
+            if len(data.shape) == 1:
+                resZ, resY, resX = 1, 1, data.shape
+            elif len(data.shape) == 2:
+                resZ, (resY, resX) = 1, data.shape
+            elif len(data.shape) == 3:
+                resZ, resY, resX = data.shape
+            else:
+                continue
+
+            if self.dataset.filenames and \
+                    i < len(self.dataset.filenames) and \
+                    self.dataset.filenames[i]:
+                filename = self.dataset.filenames[i]
+            else:
+                filename = self.sink.filenametemplate[0] % self.dataset.counter
+
+            buf = memory_buffer(np.ascontiguousarray(data.astype('<u4')))
+            nx.append(resX)
+            ny.append(resY)
+            nz.append(resZ)
+            filenames.append(filename)
+            buffers.append(buf)
+        if buffers:
+            session.updateLiveData('Live', self.dataset.uid,
+                                   self.detector.name, filenames,
+                                   '<u4', nx, ny, nz,
+                                   currenttime() - self.dataset.started,
+                                   buffers)
 
 
 class LiveViewSink(ImageSink):
