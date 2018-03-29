@@ -62,11 +62,12 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     hardware_access = True
 
     parameters = {
-        # provided by parent class: speed, unit, fmtstr, warnlimits,
-        #                           abslimits, userlimits, precision, ...
         'address': Param('Starting offset (words) of Motor control Block',
                          type=motoraddress, mandatory=True,
                          settable=False, userparam=False),
+        'ruler': Param('z-position of encoder in beam',
+                       type=float, default=0.0, mandatory=False,
+                       settable=False, userparam=True),
         'slope': Param('Slope of the Motor in FULL steps per physical '
                        'unit', type=float, default=10000.,
                        unit='steps/main', userparam=False,
@@ -243,16 +244,15 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     #
     # math: transformation of position and speed:
     #       usteps(/s) <-> phys. unit(/s)
-    #
     def _steps2phys(self, steps):
-        value = steps / float(self.slope)
-        self.log.debug('_steps2phys: %r steps -> %s',
+        value = steps / float(self.slope) - self.ruler
+        self.log.debug('_steps2phys ruler: %r steps -> %s',
                        steps, self.format(value, unit=True))
         return value
 
     def _phys2steps(self, value):
-        steps = int(value * float(self.slope))
-        self.log.debug('_phys2steps: %s -> %r steps',
+        steps = int((value + self.ruler) * float(self.slope))
+        self.log.debug('_phys2steps ruler: %s -> %r steps',
                        self.format(value, unit=True), steps)
         return steps
 
