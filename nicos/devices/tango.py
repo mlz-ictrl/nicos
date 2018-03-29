@@ -831,6 +831,7 @@ class DetectorChannel(PyTangoDevice, ActiveChannel):
         self._dev.preselection = preselectionvalue
 
     def doPrepare(self):
+        self._dev.Clear()
         self._dev.Prepare()
 
     def doStart(self):
@@ -838,9 +839,6 @@ class DetectorChannel(PyTangoDevice, ActiveChannel):
 
     def doStop(self):
         self._dev.Stop()
-
-    def doClear(self):
-        self._dev.Clear()
 
     def doResume(self):
         self._dev.Resume()
