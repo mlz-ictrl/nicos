@@ -1,4 +1,4 @@
-description = "raise of detector"
+description = 'raise of detector'
 
 group = 'lowlevel'
 
@@ -12,7 +12,7 @@ devices = dict(
         abslimits = (-120, 1000),
         lowlevel = True,
     ),
-    tube = device('nicos.devices.generic.Axis',
+    det_yoke = device('nicos.devices.generic.Axis',
         description = 'tube height',
         motor = 'tube_m',
         obs = [],
