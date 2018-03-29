@@ -56,7 +56,8 @@ __all__ = [
     'NamedDigitalInput', 'PartialDigitalInput', 'DigitalOutput',
     'NamedDigitalOutput', 'PartialDigitalOutput', 'StringIO', 'DetectorChannel',
     'TimerChannel', 'CounterChannel', 'ImageChannel', 'TOFChannel',
-    'WindowTimeoutAO'
+    'WindowTimeoutAO', 'VectorInput', 'VectorInputElement', 'VectorOutput',
+    'OnOffSwitch',
 ]
 
 EXC_MAPPING = {
@@ -1015,3 +1016,48 @@ class OnOffSwitch(PyTangoDevice, Moveable):
             self._dev.On()
         else:
             self._dev.Off()
+
+
+class VectorInput(AnalogInput):
+    """Returns all components of a VectorInput as a list."""
+
+    valuetype = listof(float)
+
+    def doRead(self, maxage=0):
+        return list(self._dev.value)
+
+
+class VectorInputElement(AnalogInput):
+    """Returns a single component of a VectorInput."""
+
+    parameters = {
+        'index': Param('The index of the component to return', type=int,
+                       mandatory=True),
+    }
+
+    def doRead(self, maxage=0):
+        return self._dev.value[self.index]
+
+
+class VectorOutput(PyTangoDevice, Moveable):
+    """Returns and sets all components of a VectorOutput as a list."""
+    # NOTE: does not inherit from AnalogOutput because we don't want HasLimits
+
+    valuetype = listof(float)
+
+    def doRead(self, maxage=0):
+        return list(self._dev.value)
+
+    def doStart(self, value):
+        try:
+            self._dev.value = value
+        except NicosError:
+            if self.status(0)[0] == status.BUSY:
+                self.stop()
+                self._hw_wait()
+                self._dev.value = value
+            else:
+                raise
+
+    def doStop(self):
+        self._dev.Stop()

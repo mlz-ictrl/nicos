@@ -26,6 +26,8 @@ https://forge.frm2.tum.de/entangle/defs/entangle-master/
 
 .. autoclass:: Motor()
 
+.. autoclass:: RampActuator()
+
 .. autoclass:: TemperatureController()
 
 .. autoclass:: PowerSupply()
@@ -41,6 +43,14 @@ https://forge.frm2.tum.de/entangle/defs/entangle-master/
 .. autoclass:: NamedDigitalOutput()
 
 .. autoclass:: PartialDigitalOutput()
+
+.. autoclass:: VectorInput()
+
+.. autoclass:: VectorInputElement()
+
+.. autoclass:: VectorOutput()
+
+.. autoclass:: OnOffSwitch()
 
 .. autoclass:: StringIO()
 
