@@ -184,6 +184,9 @@ class PyTangoDevice(HasCommunication):
                              unit='s', type=floatrange(0.0, 1200), default=3,
                              settable=True, preinit=True),
     }
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+    }
 
     tango_status_mapping = {
         PyTango.DevState.ON:     status.OK,
@@ -245,6 +248,14 @@ class PyTangoDevice(HasCommunication):
             return props[props.index(name) + 1] if name in props else None
         # old (pre-Entangle) API
         return dev.GetProperties([name, 'device'])[2]
+
+    def doReadUnit(self):
+        """For devices with a unit attribute."""
+        attrInfo = self._dev.attribute_query('value')
+        # prefer configured unit if nothing is set on the Tango device
+        if attrInfo.unit == 'No unit' and 'unit' in self._config:
+            return self._config['unit']
+        return attrInfo.unit
 
     def _createPyTangoDevice(self, address):  # pylint: disable=E0202
         """
@@ -364,16 +375,6 @@ class AnalogInput(PyTangoDevice, Readable):
     """
 
     valuetype = float
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
-
-    def doReadUnit(self):
-        attrInfo = self._dev.attribute_query('value')
-        # prefer configured unit if nothing is set on the Tango device
-        if attrInfo.unit == 'No unit' and 'unit' in self._config:
-            return self._config['unit']
-        return attrInfo.unit
 
     def doRead(self, maxage=0):
         return self._dev.value
@@ -408,15 +409,7 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
     valuetype = float
     parameter_overrides = {
         'abslimits': Override(mandatory=False, volatile=True),
-        'unit':      Override(mandatory=False),
     }
-
-    def doReadUnit(self):
-        attrInfo = self._dev.attribute_query('value')
-        # prefer configured unit if nothing is set on the Tango device
-        if attrInfo.unit == 'No unit' and 'unit' in self._config:
-            return self._config['unit']
-        return attrInfo.unit
 
     def doReadAbslimits(self):
         absmin = float(self._getProperty('absmin'))
@@ -635,9 +628,6 @@ class DigitalInput(PyTangoDevice, Readable):
     """
 
     valuetype = int
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
 
     def doRead(self, maxage=0):
         return self._dev.value
@@ -689,9 +679,6 @@ class DigitalOutput(PyTangoDevice, Moveable):
     """
 
     valuetype = int
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
 
     def doRead(self, maxage=0):
         return self._dev.value
@@ -997,14 +984,14 @@ class OnOffSwitch(PyTangoDevice, Moveable):
     the desired Tango device on or off via the On()/Off commands."""
 
     valuetype = oneof('on', 'off')
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
 
     tango_status_mapping = PyTangoDevice.tango_status_mapping.copy()
     tango_status_mapping[PyTango.DevState.OFF] = status.OK
     tango_status_mapping[PyTango.DevState.ALARM] = status.OK
     tango_status_mapping[PyTango.DevState.MOVING] = status.OK
+
+    def doReadUnit(self):
+        return ''
 
     def doRead(self, maxage=0):
         if self._dev.State() == PyTango.DevState.OFF:
