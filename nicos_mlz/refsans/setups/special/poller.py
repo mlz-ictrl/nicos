@@ -6,7 +6,7 @@ sysconfig = dict(cache = 'refsansctrl01.refsans.frm2')
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
         alwayspoll = ['memograph'],
-        neverpoll = [],
+        neverpoll = ['qmesydaq'],
         blacklist = []
     ),
 )
