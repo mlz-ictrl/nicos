@@ -61,8 +61,8 @@ class ListmodeSinkHandler(DataSinkHandler):
         limage = self.sink._attached_liveimage
         if limage:
             limage._dev.filename = filepaths[0]
-            limage._dev.delay = self.sink._attached_tofchannel.delay * 100
-            limage._dev.timeInterval = self.sink._attached_tofchannel.divisor * 100
+            limage._dev.delay = self.sink._attached_tofchannel.delay
+            limage._dev.timeInterval = self.sink._attached_tofchannel.timeinterval
             limage._dev.timeChannels = self.sink._attached_tofchannel.timechannels
 
 
