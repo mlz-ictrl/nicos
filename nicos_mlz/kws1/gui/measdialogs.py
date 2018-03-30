@@ -40,7 +40,7 @@ from nicos_mlz.kws1.gui.sampleconf import parse_sampleconf
 
 
 SAMPLES = 'samples'
-DETSETS = 'detector/collimation'
+DETSETS = 'instrument configuration'
 DEVICES = 'other devices'
 
 LOOPS = [
