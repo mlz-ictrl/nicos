@@ -36,4 +36,13 @@ devices = dict(
         description = '3He spin flipper (currently virtual)',
         states = ['up', 'down'],
     ),
+    #flipper = device("nicos_mlz.maria.devices.pyro4.NamedDigitalOutput",
+    #    description = "Pyro4 Device",
+    #    pyro4device = "PYRO:he3.cell@3he.kws2.frm2:50555",
+    #    hmackey = "iamverysecret",
+    #    mapping = {
+    #        "down": 0,
+    #        "up": 1,
+    #    }
+    #),
 )

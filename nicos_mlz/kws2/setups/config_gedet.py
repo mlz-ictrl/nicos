@@ -63,7 +63,7 @@ MODE_FAKE = 0x23
 MODE_FAKEDIAG = 0x26
 
 PV_VALUES_COMMON = [
-    ('Mode', MODE_DIAG),
+    ('Mode', MODE),
     ('DecimationFactor', 1),
     ('DiscriminatorLevel', 1024),
     ('NegativeVeto', -16384),
