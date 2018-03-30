@@ -63,6 +63,7 @@ devices = dict(
         tangodevice = tango_base + 'fzjs7/sel_rot',
         unit = 'deg',
         precision = 0.01,
+        lowlevel = True,
     ),
 )
 

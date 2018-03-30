@@ -44,12 +44,14 @@ devices = dict(
         tangodevice = tango_base + 'jumiom/hr_det',
         timer = 'timer',
         fmtstr = '%d (%.1f cps)',
+        lowlevel = False,
     ),
     det_img_vhrd = device('nicos_mlz.kws1.devices.daq.KWSImageChannel',
         description = 'Image for the very high-resolution detector',
         tangodevice = tango_base + 'jumiom/vhr_det',
         timer = 'timer',
         fmtstr = '%d (%.1f cps)',
+        lowlevel = False,
     ),
     det_5x5max = device('nicos_mlz.kws3.devices.daq.ConvolutionMax',
         lowlevel = True,
@@ -71,7 +73,7 @@ devices = dict(
 
 extended = dict(
     poller_cache_reader = ['shutter'],
-    representative = 'det',
+    representative = 'det_img',
 )
 
 alias_config = {

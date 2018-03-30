@@ -31,6 +31,7 @@ devices = dict(
         fmtstr = '%.3f x %.3f',
         horizontal = 'sel_ap1_width',
         vertical = 'sel_ap1_height',
+        lowlevel = True,
     ),
     sel_ap1_width = device('nicos.devices.tango.Motor',
         description = 'aperture selector horizontal opening',

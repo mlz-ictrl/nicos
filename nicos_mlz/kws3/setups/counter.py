@@ -48,3 +48,7 @@ devices = dict(
         fmtstr = '%.1f',
     ),
 )
+
+extended = dict(
+    representative = 'timer',
+)

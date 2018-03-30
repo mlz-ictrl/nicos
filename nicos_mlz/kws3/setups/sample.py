@@ -156,6 +156,10 @@ devices = dict(
     ),
 )
 
+extended = dict(
+    representative = 'sample_pos',
+)
+
 alias_config = {
     'sam_ap': {'sam10_ap': 100, 'sam01_ap': 90},
     'sam_x':  {'sam10_x':  100, 'sam01_x':  90},

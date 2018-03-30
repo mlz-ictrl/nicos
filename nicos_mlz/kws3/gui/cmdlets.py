@@ -55,9 +55,10 @@ class Beamstop(ChoiceElement):
 
 
 class Polarizer(ChoiceElement):
-    CACHE_KEY = 'polarizer/mapping'
-    SORT_KEY = lambda self, x: num_sort(x)
+    # CACHE_KEY = 'polarizer/mapping'
+    # SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Polarizer'
+    VALUES = ['out', 'in']
 
 
 class MeasDef(KWS1MeasDef):
