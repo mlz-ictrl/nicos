@@ -29,8 +29,7 @@ from math import sqrt
 from nicos.core import Attach, Param, Value, Moveable, tupleof, anytype, \
     ConfigurationError
 from nicos.devices.generic.detector import Detector as GenericDetector
-from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev, \
-    SeqWait
+from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqWait
 
 
 class AsymDetector(MeasureSequencer):
@@ -107,6 +106,9 @@ class AsymDetector(MeasureSequencer):
         self._results[:3] = [0.0, 0.0, 0.0]
         MeasureSequencer.doStart(self)
 
+    def _getWaiters(self):
+        return [self._attached_detector]
+
     def doRead(self, maxage=0):
         return self._results
 
@@ -145,7 +147,7 @@ class AsymDetector(MeasureSequencer):
     def _generateSequence(self, *args, **kwds):
         seq = []
         for phase in (0, 1):
-            seq.append(SeqDev(self._attached_flipper, self.flipvalues[phase]))
+            seq.append(SeqCall(self._attached_flipper.start, self.flipvalues[phase]))
             seq.append(SeqCall(self._startDet, phase))
             seq.append(SeqWait(self._attached_detector))
             seq.append(SeqCall(self._readDet, phase))
