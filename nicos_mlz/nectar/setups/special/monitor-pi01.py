@@ -55,7 +55,7 @@ _detectorblock = Column(
             Field(name='pgain', key='ccd.pgain', width=4),
         ),
         ],
-        setups='detector',
+        setups='detector*',
     ),
 )
 
