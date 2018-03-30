@@ -55,7 +55,7 @@ devices = dict(
     ),
     HomeSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space in the home directory of user nectar',
-        path = '/home/nectar',
+        path = '/localhome/nectar',
         minfree = 1,
     ),
     DataSpace = device('nicos.devices.generic.FreeSpace',

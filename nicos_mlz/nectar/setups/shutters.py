@@ -3,6 +3,8 @@ description = 'ANTARES shutter devices'
 
 group = 'optional'
 
+excludes = ['fastshutter']
+
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
         states = [1, 2],
