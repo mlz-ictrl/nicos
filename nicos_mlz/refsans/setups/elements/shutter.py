@@ -1,6 +1,7 @@
 description = 'Instrument shutter device'
 
 group = 'lowlevel'
+# group = 'optional'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost
