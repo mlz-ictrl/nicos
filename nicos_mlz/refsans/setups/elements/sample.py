@@ -1,10 +1,11 @@
 description = "dimension of sample"
 
 group = 'lowlevel'
+# group = 'optional'
 
 devices = dict(
     width = device('nicos.devices.generic.ManualMove',
-        description = 'width of sample lateral',
+        description = 'with of sample lateral',
         abslimits = (0, 100),
         fmtstr = '%.1f',
         unit = 'mm',
