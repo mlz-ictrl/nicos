@@ -1,23 +1,32 @@
 description = "neutronguide, leadblock"
 
 group = 'lowlevel'
+#group = 'optional'
 
 includes = ['nok_ref', 'nokbus1']
 
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
+    shutter_gamma = device('nicos.devices.generic.Switcher',
+        description = 'leadblock on nok1',
+        moveable = 'nok1',
+        precision = 0.5,
+        mapping = {'closed': -55, 'open': 0},
+        fallback = 'offline',
+    ),
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
-        description = 'NOK1',
+        description = 'shutter_gamma NOK1',
         motor = 'nok1_motor',
         coder = 'nok1_motor',
-        obs = ['nok1_obs'],
+        # obs = ['nok1_obs'],
         nok_start = 198.0,
         nok_length = 90.0,
         nok_end = 288.0,
         nok_gap = 1.0,
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
+        lowlevel = True,
     ),
     nok1_srrel = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/nok1/srrel of Server ipcsmsserver nok1',
