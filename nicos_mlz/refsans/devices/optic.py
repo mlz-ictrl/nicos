@@ -25,9 +25,7 @@
 """REFSANS neutron guide system class."""
 
 from nicos.core import Moveable, Override, Param, floatrange, none_or, oneof, \
-    status  # Attach,
-
-# from nicos_mlz.refsans.devices.nok_support import DoubleMotorNOK
+    status
 
 from nicos.pycompat import number_types, string_types
 
@@ -38,13 +36,19 @@ class Optic(Moveable):
     parameters = {
         'lmode': Param('Lateral mode of the beam',
                        type=oneof('gisans', 'reflectometry'),
-                       default='reflectometry', settable=True, userparam=True),
+                       default='reflectometry',
+                       settable=True,
+                       userparam=True),
         'collimation': Param('Collimation',
                              type=none_or(oneof('slit', 'point', 'pinhole')),
-                             settable=True, userparam=True, default=None),
+                             settable=True,
+                             userparam=True,
+                             default=None),
         'polarisation': Param('Polarisation',
                               type=oneof('up', 'down', 'standby', 'off'),
-                              settable=True, userparam=True, default='off'),
+                              settable=True,
+                              userparam=True,
+                              default='off'),
     }
 
     parameter_overrides = {
@@ -59,6 +63,8 @@ class Optic(Moveable):
         pass
 
     def doRead(self, maxage=0):
+        self.log.debug('doRead')
+        self.log.debug('%s', self._attached_nok2.read(maxage))
         return self.target
 
     def doIsAllowed(self, target):
@@ -79,12 +85,13 @@ class Optic(Moveable):
     def doStart(self, target):
         # Calculate positions and move devices
         # self._attached_nok2.move((0, 0))
+        self.log.info('Start Change to: %s', str(target))
         self._pollParam('unit')
 
     def doWriteLmode(self, value):
         # Calculate the positions for the ...
-        self.log.info('Change to: %s', value)
-        self._attached_nok2.move((0, 0))
+        self.log.info('Lmode Change to: %s', value)
+        # self._attached_nok2.move((0, 0))
 
     # def doReadLmode(self):
     #     # Only needed if it could be calculated
@@ -99,15 +106,15 @@ class Optic(Moveable):
     def doWriteCollimation(self, value):
         # TODO: Implement the change of the positions of the NOK's and
         # apertures.
-        pass
+        self.log.info('doWriteCollimation info >%s<', value)
 
     # def doReadCollimation(self):
         # TODO: Implement the determination of the collimation depending of the
         # NOK and apertures positions
 
     def doWritePolarisation(self, value):
-        # TODO: Implement the move of the NOK5a, the spin flipper, and the guide
-        # field to the corresponding values
+        # TODO: Implement the move of the NOK5a, the spin flipper, and the
+        # guide field to the corresponding values
         pass
 
     # def doReadPolarisation(self):
