@@ -19,7 +19,9 @@ devices = dict(
         slope = 10000, # FULL steps per turn * turns per mm
         unit = 'mm',
         # acording to docu:
-        abslimits = (0.1, 130),
+        #abslimits = (0.1, 130),
+        abslimits = (-70.0,67.68),
+        ruler = 71.0889,
         lowlevel = True,
     ),
     nok5a_s = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
@@ -29,7 +31,9 @@ devices = dict(
         slope = 10000, # FULL steps per turn * turns per mm
         unit = 'mm',
         # acording to docu:
-        abslimits = (0.1, 130),
+        #abslimits = (0.1, 130),
+        abslimits = (-79.0,77.85),
+        ruler = 79.6439,
         lowlevel = True,
     ),
     # nok5ar_axis = device('nicos.devices.generic.Axis',
@@ -61,11 +65,11 @@ devices = dict(
         nok_end = 4137.70,
         nok_gap = 1.0,
         nok_motor = [3108.00, 3888.00],
-        offsets = (71.0889, 79.6439),  # reactor side, sample side
-        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+        offsets = (0.0, 0.0),  # reactor side, sample side
+        inclinationlimits = (-100, 100),   # MP 04.12.2017 12:56:46 by Beckhoff
         motor_r = 'nok5a_r',
         motor_s = 'nok5a_s',
         backlash = -2,   # is this configured somewhere?
-        precision = 0.002,
+        precision = 0.01,
     ),
 )

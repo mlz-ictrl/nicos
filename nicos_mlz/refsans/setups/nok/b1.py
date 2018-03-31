@@ -9,6 +9,24 @@ nethost = 'refsanssrv.refsans.frm2'
 # according to docu: '_2013-04-05 Anhang A V0.6.pdf'
 # according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 devices = dict(
+    b1 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlit',
+        description = 'b1 end of Chopperburg',
+        nok_start = 2374.0,
+        nok_length = 13.5,
+        nok_end = 2387.5,
+        nok_gap = 0,
+        inclinationlimits = (-1000, 1000),   # invented values, PLEASE CHECK!
+        masks = dict(
+            slit = [0.0, 0.0, -.16, 3.65],
+            pinhole = [0.0, 0.0, -.16, 3.65],
+            gisans = [0.0, 0.0, -.16, 3.65],
+        ),
+        motor_r = 'b1_r',
+        motor_s = 'b1_s',
+        nok_motor = [2380.0, 2387.5],
+        backlash = 0,   # is this configured somewhere?
+        precision = 10.1,
+    ),
     # according to 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
     # beckhoff is at 'optic.refsans.frm2' / 172.25.18.115
     # Blendenschild reactor side
@@ -22,15 +40,19 @@ devices = dict(
         # acording to docu:
         abslimits = (-133, 190),
         userlimits = (-70, 68), # XX: check values!
+        ruler = 60.0,
         lowlevel = True,
     ),
     b1_r = device('nicos.devices.generic.Axis',
         description = 'B1, reactorside',
         motor = 'b1_rm',
         coder = 'b1_rm',
-        obs = [],
-        offset = 60.0,
-        precision = 0.002,
+        # obs = [],
+        # offset = 60.0,
+        offset = 0.0,
+        # precision = 0.002,
+        precision = 100.1,
+        lowlevel = True,
     ),
 
     # Blendenschild sample side
@@ -44,14 +66,18 @@ devices = dict(
         # acording to docu:
         abslimits = (-152, 120),
         userlimits = (-70, 68), # XX: check values!
+        ruler = -50.0,
         lowlevel = True,
     ),
     b1_s = device('nicos.devices.generic.Axis',
         description = 'B1, sampleside',
         motor = 'b1_sm',
         coder = 'b1_sm',
-        obs = [],
-        offset = -50.0,
-        precision = 0.002,
+        # obs = [],
+        # offset = -50.0,
+        offset = 0.0,
+        # precision = 0.002,
+        precision = 100.1,
+        lowlevel = True,
     ),
 )

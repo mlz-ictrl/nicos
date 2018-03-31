@@ -10,7 +10,7 @@ devices = dict(
     # masks:
     # 12.01.2010 10:34:54 (k1)
     # 12.06.2009 16:22:34 centertest2 (slit)
-    zb3 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+    zb3 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlit',
         description = 'ZB3',
         nok_start = 8837.5,
         nok_length = 13.0,
@@ -18,9 +18,10 @@ devices = dict(
         nok_gap = 1.0,
         inclinationlimits = (-1000, 1000),   # invented values, PLEASE CHECK!
         masks = dict(
-        k1 = [-110.0, 0.0, -2.64, 0.0],
-        slit = [0.0, 0.0, -2.63, -0.57],
-    ),
+             slit    = [0, 0, -2.63, -0.57],
+             pinhole = [0, 0, -2.63, -0.57],
+             gisans  = [-110, 0, -2.64, 0.0],
+        ),
         motor_r = 'zb3r_axis',
         motor_s = 'zb3s_axis',
         nok_motor = [8843.5, 8850.5],
@@ -37,7 +38,7 @@ devices = dict(
         description = 'Axis of ZB3, reactor side',
         motor = 'zb3r_motor',
         coder = 'zb3r_motor',
-        obs = ['zb3r_obs'],
+        # obs = ['zb3r_obs'],
         backlash = 0,
         precision = 0.05,
         unit = 'mm',
@@ -122,7 +123,7 @@ devices = dict(
         description = 'Axis of ZB3, sample side',
         motor = 'zb3s_motor',
         coder = 'zb3s_motor',
-        obs = ['zb3s_obs'],
+        # obs = ['zb3s_obs'],
         backlash = 0,
         precision = 0.05,
         unit = 'mm',

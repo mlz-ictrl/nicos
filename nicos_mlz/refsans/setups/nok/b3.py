@@ -53,6 +53,7 @@ else:
             motor_s = 'b3_s',
             nok_motor = [-1, -1],
             backlash = 0,
+            precision = 0.03,
         ),
         b3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
             description = 'b3 mode',

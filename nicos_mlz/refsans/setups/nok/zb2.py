@@ -10,20 +10,22 @@ devices = dict(
     # masks:
     # Debug (slit)
     # Debug (k1)
-    zb2 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
-        description = 'ZB2',
+    zb2 = device('nicos_mlz.refsans.devices.nok_support.SingleSlit',
+        description = 'zb2 singel Slit at nok6 before nok7',
         motor = 'zb2_motor',
-        coder = 'zb2_motor',
-        obs = ['zb2_obs'],
+        # coder = 'zb2_motor',
+        # obs = ['zb2_obs'],
         nok_start = 7591.5,
         nok_length = 6.0,
         nok_end = 7597.5,
         nok_gap = 1.0,
-        masks = dict(
-        k1 = [-120.0, 0.0],
-        slit = [0.0, 0.0],
-    ),
+        offset = 0.0,
         nok_motor = 7597.5,
+        masks = dict(
+            slit = [-2, 0],
+            pinhole = [-2, 0],
+            gisans = [-122.0, 0.0],
+        ),
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
     ),

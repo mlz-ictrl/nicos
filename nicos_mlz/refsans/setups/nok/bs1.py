@@ -10,16 +10,17 @@ devices = dict(
     # masks:
     # 2010-06-15 10:42:09 (slit)
     # 12.01.2010 10:35:26 (k1)
-    bs1 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+    bs1 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlit',
         description = 'BS1 double between nok8 and nok9',
         nok_start = 9764.5,
         nok_length = 6.0,
         nok_end = 9770.5,
         nok_gap = 18.0,
-        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+        inclinationlimits = (-1000, 1000),   # MP 05.12.2017 15:27:27 no limit
         masks = dict(
-            k1   = [-40.0, 0.0, -1.83, 0.0],
-            slit = [0.0, 0.0, -0.67, -0.89],
+             slit   = [  0.0, 0.0, -0.67, -1.99],
+             point  = [  0.0, 0.0, -0.67, -1.99],
+             gisans = [-40.0, 0.0, -1.83,  0.0],
         ),
         motor_r = 'bs1r_axis',
         motor_s = 'bs1s_axis',
@@ -37,7 +38,7 @@ devices = dict(
         description = 'Axis of BS1, reactor side',
         motor = 'bs1r_motor',
         coder = 'bs1r_motor',
-        obs = ['bs1r_obs'],
+        # obs = ['bs1r_obs'],
         backlash = 0,
         precision = 0.05,
         unit = 'mm',
@@ -122,7 +123,7 @@ devices = dict(
         description = 'Axis of BS1, sample side',
         motor = 'bs1s_motor',
         coder = 'bs1s_motor',
-        obs = ['bs1s_obs'],
+        # obs = ['bs1s_obs'],
         backlash = 0,
         precision = 0.05,
         unit = 'mm',

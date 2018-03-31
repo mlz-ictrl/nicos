@@ -13,12 +13,12 @@ devices = dict(
         nok_length = 1190.0,
         nok_end = 8855.5,
         nok_gap = 1.0,
-        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+        inclinationlimits = (-100, 100),   # MP 04.12.2017 12:57:38 from ALT
         motor_r = 'nok7r_axis',
         motor_s = 'nok7s_axis',
         nok_motor = [7915.0, 8605.0],
         backlash = -2,   # is this configured somewhere?
-        precision = 0.05,
+        precision = 0.5,
     ),
 
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
@@ -26,9 +26,9 @@ devices = dict(
         description = 'Axis of NOK7, reactor side',
         motor = 'nok7r_motor',
         coder = 'nok7r_motor',
-        obs = ['nok7r_obs'],
+        # obs = ['nok7r_obs'],
         backlash = 0,
-        precision = 0.05,
+        precision = 0.5,
         unit = 'mm',
         lowlevel = True,
     ),
@@ -111,9 +111,9 @@ devices = dict(
         description = 'Axis of NOK7, sample side',
         motor = 'nok7s_motor',
         coder = 'nok7s_motor',
-        obs = ['nok7s_obs'],
+        # obs = ['nok7s_obs'],
         backlash = 0,
-        precision = 0.05,
+        precision = 0.5,
         unit = 'mm',
         lowlevel = True,
     ),
