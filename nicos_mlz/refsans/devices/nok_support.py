@@ -29,7 +29,7 @@ from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
     Readable, SIMULATION, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
-    limits, none_or, nonemptylistof, tupleof
+    limits, none_or,oneof, nonemptylistof, tupleof
 from nicos.core.utils import multiReset
 
 from nicos.devices.abstract import CanReference, Coder
@@ -257,6 +257,336 @@ class SingleMotorNOK(PseudoNOK, Axis):
     }
 
 
+class SingleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
+                 Moveable):
+    """Slit using one axis.
+
+    If backlash is negative, approach form the negative side (default),
+    else approach from the positive side.
+    If backlash is zero, don't mind and just go to the target.
+    """
+
+    attached_devices = {
+        'motor': Attach('NOK moving motor', Moveable),
+        # 'motor_s': Attach('NOK moving motor, sample side', Moveable),
+    }
+
+    parameters = {
+        'nok_motor': Param('Position of the motor for this Slit',
+                           type=float, settable=False,
+                           unit='mm'),
+        # 'inclinationlimits': Param('Allowed range for the positional '
+        #                            'difference',
+        #                            type=limits, mandatory=True),
+        'backlash': Param('Backlash correction in phys. units',
+                          type=float, default=0., unit='main'),
+        'offset': Param('Offsets of Slit-Motor',
+                        type=float, default=0.,
+                        settable=False, unit='main'),
+        'mode': Param('Modus of Beam',
+                      type=none_or(oneof('slit', 'point', 'gisans')),
+                      settable=True,
+                      userparam=True,
+                      default='slit'),
+    }
+
+    parameter_overrides = {
+        'precision': Override(type=floatrange(0, 100))
+    }
+
+    valuetype = float
+    _honor_stop = True
+
+    @lazy_property
+    def _devices(self):
+        return self._attached_motor
+
+    def doInit(self, mode):
+        # for dev in self._devices:
+        if hasattr(self._devices, 'backlash') and \
+           self._devices.backlash != 0:
+            raise ConfigurationError(self, 'Attached Device %s should not '
+                                     'have a non-zero backlash!' %
+                                     self._devices)
+
+    def rechnen_motor(self, arg, direction, info='nix'):
+        if isinstance(arg, (tuple, list)):
+            arg = arg[0]
+        if direction:
+            res = arg - self.masks[self.mode][0] - self.masks[self.mode][1]
+            # - self.offset
+        else:
+            res = arg + self.masks[self.mode][0] + self.masks[self.mode][1]
+            # + self.offset
+        self.log.debug('SingleSlit rechnen_motor dir:%s mode:%s arg %s '
+                       'info >%s< res %s', direction, self.mode, arg, info,
+                       res)
+        return (res,)
+
+    def doRead(self, maxage=0):
+        return self.rechnen_motor(self._devices.doRead(maxage), True,
+                                  'doRead')[0]
+
+    def doIsAllowed(self, targets):
+        self.log.debug('SingleSlit doIsAllowed %s', targets)
+        targets = self.rechnen_motor(targets, False, 'doIsAllowed')
+        self.log.debug('%s', targets)
+        res = self._attached_motor.isAllowed(targets)
+        self.log.debug('res %s', res)
+        if not res[0]:
+            return res
+        self.log.debug('res %s', res)
+        # no problems detected, so it should be safe to go there....
+        return True, ''
+
+    def doIsAtTarget(self, targets):
+        # check precision, only move if needed!
+        self.log.debug('SingleSlit doIsAtTarget %s', targets)
+        targets = self.rechnen_motor(targets, False, 'doIsAtTarget')[0]
+        self.log.debug('%s', targets)
+        return abs(targets - self._devices.doRead(0)) <= self.precision
+
+    def doStop(self):
+        SequencerMixin.doStop(self)
+        # for dev in self._devices:
+        self._devices.stop()
+        try:
+            self.wait()
+        finally:
+            self.reset()
+
+    def doStart(self, targets):
+        """Generate and start a sequence if none is running.
+
+        The sequence is optimised for negative backlash.
+        It will first move both motors to the lowest value of
+        (target + backlash, current_position) and then
+        to the final target.
+        So, inbetween, the NOK should be parallel to the beam.
+        """
+        if self._seq_is_running():
+            raise MoveError(self, 'Cannot start device, it is still moving!')
+
+        targets = self.rechnen_motor(targets, False, 'doStart')
+
+        # XXX: backlash correction and repositioning later
+
+        # build a moving sequence
+        sequence = []
+        # now go to target again
+        for i in range(2):
+            sequence.append(SeqDev(self._devices, targets[i], stoppable=True))
+
+        self.log.debug('Seq: %r', sequence)
+        self._startSequence(sequence)
+
+
+class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
+                 Moveable):
+    """NOK using two axes.
+
+    If backlash is negative, approach form the negative side (default),
+    else approach from the positive side.
+    If backlash is zero, don't mind and just go to the target.
+    """
+
+    attached_devices = {
+        'motor_r': Attach('NOK moving motor, reactor side', Moveable),
+        'motor_s': Attach('NOK moving motor, sample side', Moveable),
+    }
+
+    parameters = {
+        'nok_motor': Param('Position of the motor for this NOK',
+                           type=tupleof(float, float), settable=False,
+                           unit='mm'),
+        'inclinationlimits': Param('Allowed range for the positional '
+                                   'difference',
+                                   type=limits, mandatory=True),
+        'backlash': Param('Backlash correction in phys. units',
+                          type=float, default=0., unit='main'),
+        'offsets': Param('Offsets of NOK-Motors (reactor side, sample side)',
+                         type=tupleof(float, float), default=(0., 0.),
+                         settable=False, unit='main'),
+        'mode': Param('Modus of Beam',
+                      type=none_or(oneof('slit', 'point', 'gisans')),
+                      settable=True, userparam=True, default='slit'),
+    }
+
+    parameter_overrides = {
+        'precision': Override(type=floatrange(0, 100))
+    }
+
+    valuetype = tupleof(float, float)
+    _honor_stop = True
+
+    @lazy_property
+    def _devices(self):
+        return self._attached_motor_r, self._attached_motor_s
+
+    def doInit(self, mode):
+        for dev in self._devices:
+            if hasattr(dev, 'backlash') and dev.backlash != 0:
+                raise ConfigurationError(self, 'Attached Device %s should not '
+                                         'have a non-zero backlash!' % dev)
+
+    def rechnen_motor(self, arg, direction, info='nix'):
+        width = 12.0
+        if direction:
+            sample = arg[1] - self.masks[self.mode][1]
+            reactor = arg[0] - self.masks[self.mode][0]
+            opened = width - (sample - reactor) - self.masks[self.mode][2]
+            height = (sample + reactor) / 2.0 - self.masks[self.mode][3]
+            res = [opened, height]
+        else:
+            height = arg[1] + self.masks[self.mode][3]
+            opened = arg[0] + self.masks[self.mode][2]
+            reactor = height + self.masks[self.mode][0] - (width - opened) / 2.0
+            sample = height + self.masks[self.mode][1] + (width - opened) / 2.0
+            res = [reactor, sample]
+        # self.log.debug('DoubleSlit rechnen_motor dir:%s mode:%s arg %s '
+        #                'info >%s< res %s', direction, self.mode, arg, info,
+        #                res)
+        return res
+
+    def doRead(self, maxage=0):
+        return self.rechnen_motor([dev.doRead(maxage) - ofs
+                                   for dev, ofs in zip(self._devices,
+                                                       self.offsets)], True,
+                                  'doRead')
+
+    def doIsAllowed(self, targets):
+        self.log.debug('DoubleSlit doIsAllowed %s', targets)
+        targets = self.rechnen_motor(targets, False, 'doIsAlowed')
+        self.log.debug('%s', targets)
+        target_r, target_s = targets
+        incmin, incmax = self.inclinationlimits
+
+        inclination = target_s - target_r
+        if not incmin <= inclination <= incmax:
+            return False, 'Inclination %.2f out of limit (%.2f, %.2f)!' % (
+                inclination, incmin, incmax)
+
+        res = [dev.isAllowed(tar) for dev, tar in zip(self._devices, targets)]
+        self.log.debug('res %s', res)
+        res = [r[0] for r in res]
+        self.log.debug('res %s', res)
+        # no problems detected, so it should be safe to go there....
+        return True, ''
+
+    def doIsAtTarget(self, targets):
+        # check precision, only move if needed!
+        self.log.debug('DoubleSlit doIsAtTarget %s', targets)
+        targets = self.rechnen_motor(targets, False, 'doIsAtTarget')
+        self.log.debug('%s', targets)
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
+        return max(abs(v) for v in traveldists) <= self.precision
+
+    def doStop(self):
+        SequencerMixin.doStop(self)
+        for dev in self._devices:
+            dev.stop()
+        try:
+            self.wait()
+        finally:
+            self.reset()
+
+    def doStart(self, targets):
+        """Generate and start a sequence if none is running.
+
+        The sequence is optimised for negative backlash.
+        It will first move both motors to the lowest value of
+        (target + backlash, current_position) and then
+        to the final target.
+        So, inbetween, the NOK should be parallel to the beam.
+        """
+        if self._seq_is_running():
+            raise MoveError(self, 'Cannot start device, it is still moving!')
+
+        targets = self.rechnen_motor(targets, False, 'doStart')
+
+        # check precision, only move if needed!
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
+        if max(abs(v) for v in traveldists) <= self.precision:
+            return
+
+        devices = self._devices
+
+        # XXX: backlash correction and repositioning later
+
+        # build a moving sequence
+        sequence = []
+
+        # now go to target
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
+
+        # now go to target again
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
+
+        self.log.debug('Seq: %r', sequence)
+        self._startSequence(sequence)
+
+
+class DoubleSlitSequence(DoubleSlit):
+    """NOK using two axes.
+
+    If backlash is negative, approach form the negative side (default),
+    else approach from the positive side.
+    If backlash is zero, don't mind and just go to the target.
+    """
+
+    def doStart(self, targets):
+        """Generate and start a sequence if none is running.
+
+        be shure not to cross the blades
+        """
+        if self._seq_is_running():
+            raise MoveError(self, 'Cannot start device, it is still moving!')
+
+        self.log.debug('DoubleSlitSequenz Seq')
+        targets = self.rechnen_motor(targets, False, 'doStart')
+
+        # check precision, only move if needed!
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
+        if max(abs(v) for v in traveldists) <= self.precision:
+            return
+
+        devices = self._devices
+
+        self.log.debug('who moves first and how to?')
+        if (targets[1] - devices[1].doRead(0)) < 0:
+            indizes = [1, 0]
+        else:
+            indizes = [0, 1]
+        self.log.debug(indizes)
+
+        # build a moving sequence
+        sequence = []
+
+        for i in indizes:  # I am shure there are two
+            # now go to target
+            # sequence.append([SeqDev(d, t + ofs, stoppable=True)
+            #                  for d, t, ofs in zip(devices, targets,
+            #                                       self.offsets)])
+
+            # now go to target again
+            # sequence.append([SeqDev(d, t + ofs, stoppable=True)
+            #                  for d, t, ofs in zip(devices, targets,
+            #                                       self.offsets)])
+            sequence.append([SeqDev(devices[i], targets[i] + self.offsets[i],
+                                    stoppable=True)])
+
+        self.log.debug('Seq: %r', sequence)
+        self._startSequence(sequence)
+
+
 class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                      Moveable):
     """NOK using two axes.
@@ -272,17 +602,17 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     }
 
     parameters = {
-        'nok_motor':         Param('Position of the motor for this NOK',
-                                   type=tupleof(float, float), settable=False,
-                                   unit='mm'),
+        'nok_motor': Param('Position of the motor for this NOK',
+                           type=tupleof(float, float), settable=False,
+                           unit='mm'),
         'inclinationlimits': Param('Allowed range for the positional '
                                    'difference',
                                    type=limits, mandatory=True),
-        'backlash':          Param('Backlash correction in phys. units',
-                                   type=float, default=0., unit='main'),
-        'offsets':           Param('Offsets of NOK-Motors (reactor side, sample side)',
-                                   type=tupleof(float,float), default=(0.,0.),
-                                   settable=False, unit='main'),
+        'backlash': Param('Backlash correction in phys. units',
+                          type=float, default=0., unit='main'),
+        'offsets': Param('Offsets of NOK-Motors (reactor side, sample side)',
+                         type=tupleof(float, float), default=(0., 0.),
+                         settable=False, unit='main'),
     }
 
     parameter_overrides = {
@@ -303,7 +633,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                          'have a non-zero backlash!' % dev)
 
     def doRead(self, maxage=0):
-        return [dev.doRead(maxage) - ofs for dev,ofs in zip(self._devices, self.offsets)]
+        return [dev.doRead(maxage) - ofs for dev, ofs in zip(self._devices,
+                                                             self.offsets)]
 
     def doIsAllowed(self, targets):
         target_r, target_s = targets
@@ -328,7 +659,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def doIsAtTarget(self, targets):
         # check precision, only move if needed!
         traveldists = [target - dev.doRead(0) - ofs
-                       for target, dev, ofs in zip(targets, self._devices, self.offsets)]
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
         return max(abs(v) for v in traveldists) <= self.precision
 
     def doStop(self):
@@ -354,7 +686,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
         # check precision, only move if needed!
         traveldists = [target - dev.doRead(0) - ofs
-                       for target, dev, ofs in zip(targets, self._devices, self.offsets)]
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
             return
 
@@ -366,10 +699,12 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         sequence = []
 
         # now go to target
-        sequence.append([SeqDev(d, t + ofs, stoppable=True) for d, t, ofs in zip(devices, targets, self.offsets)])
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
 
         # now go to target again
-        sequence.append([SeqDev(d, t + ofs, stoppable=True) for d, t, ofs in zip(devices, targets, self.offsets)])
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
 
         self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
@@ -377,7 +712,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
 class DoubleMotorNOKIPC(DoubleMotorNOK):
     def doReference(self):
-        """Reference the NOK in a sophisticated way....
+        """Reference the NOK in a sophisticated way ...
 
         First we try to reach the lowest point ever needed for referencing,
         then we reference the lower refpoint first, and the higher later.
@@ -431,7 +766,7 @@ class DoubleMotorNOKIPC(DoubleMotorNOK):
 
 class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
     def doReference(self):
-        """Reference the NOK
+        """Reference the NOK.
 
         Just set the do_reference bit and wait for completion
         """
@@ -439,9 +774,48 @@ class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
             raise MoveError(self, 'Cannot reference device, it is still '
                             'moving!')
 
-        # according to docu it is sufficient to set the ref bit of one of the couled motors
+        # according to docu it is sufficient to set the ref bit of one of the
+        # coupled motors
         for dev in self._devices:
             dev._HW_reference()
 
         for dev in self._devices:
             dev.wait()
+
+    def doStart(self, targets):
+        """Generate and start a sequence if none is running.
+
+        The sequence is optimised for negative backlash.
+        It will first move both motors to the lowest value of
+        (target + backlash, current_position) and then
+        to the final target.
+        So, inbetween, the NOK should be parallel to the beam.
+        MP 12.12.2017 09:16:05
+        """
+        if self._seq_is_running():
+            raise MoveError(self, 'Cannot start device, it is still moving!')
+
+        # check precision, only move if needed!
+        traveldists = [target - dev.doRead(0) - ofs
+                       for target, dev, ofs in zip(targets, self._devices,
+                                                   self.offsets)]
+        if max(abs(v) for v in traveldists) <= self.precision:
+            return
+
+        devices = self._devices
+
+        # XXX: backlash correction and repositioning later
+
+        # build a moving sequence
+        sequence = []
+
+        # now go to target
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
+
+        # now go to target again
+        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+                         for d, t, ofs in zip(devices, targets, self.offsets)])
+
+        self.log.debug('Seq: %r', sequence)
+        self._startSequence(sequence)
