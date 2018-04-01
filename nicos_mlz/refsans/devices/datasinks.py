@@ -166,7 +166,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
             self._data['File Name'] = self._data.filename
             self._data['Start Time'] = time.strftime(TIMEFMT)
-            self._data['Measurement Comment'] = self._dict()
+            self._data['Measurement Comment'] = 'FIXME READ COMMENT FROM GUI!!!!!'
             self._data['Sample Name'] = self._dict()
             self._data['Detector Parameters'] = self._dict()
             # self._data['Chopper'] = self._dict()
@@ -189,6 +189,13 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     # def _integer(self, value):
     #     return int(eval(value))
+
+    def _write_meas_comment(self, metainfo):
+        self._data['Measurement Comment'] = metainfo[('Exp', 'remark')][0]
+        self._data['Sample Name'] = '%s' % metainfo[('Sample',
+                                                     'samplename')][0]
+        self._data['Proposal'] = '%s' % metainfo[('Exp', 'proposal')][0]
+
     def _write_meas_info(self, metainfo):
         # self._data[''] =
         pass
