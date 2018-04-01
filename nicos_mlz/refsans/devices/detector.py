@@ -25,7 +25,7 @@
 """Special device for Refsans Fast Detector (Comtec p7888)"""
 
 import os
-import shutil
+# import shutil
 
 import numpy as np
 
@@ -34,7 +34,7 @@ from Detector import Detector
 
 from nicos import session
 from nicos.core import Attach, Param, Value, Override, oneof, SIMULATION, \
-    INFO_CATEGORIES, LIVE
+    INFO_CATEGORIES, LIVE, listof
 from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
@@ -171,7 +171,7 @@ class ComtecFilename(TacoBaseChannel, PassiveChannel):
 
 
 class ComtecHeaderSinkHandler(DataSinkHandler):
-
+    _file = None
     def prepare(self):
         # obtain filenames /prefixes
         # the first entry is normally used as the datafile.
@@ -179,9 +179,13 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         # the other entries are normally 'just' the hardlinks to the datafile
         # we use the first for the filename and the others for the links.
         session.data.assignCounter(self.dataset)
+        self.log.warning('tmpl:' + repr(self.sink.filenametemplate))  # XXX: remove
+        self.log.warning('subdir:' + repr(self.sink.subdir))  # XXX: remove
         self.prefix, allfilepaths = session.data.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir)
+        self.log.warning('allpaths:' + repr(self.allfilepaths))  # XXX: remove
         self.linkpaths = allfilepaths[1:]
+        self.log.warning('linkpaths:' + repr(self.linkpaths))  # XXX: remove
         # set prefix on tacodevice
         self.sink._attached_detector.prefix = self.prefix
         self._arraydesc = self.detector.arrayInfo()[0]
@@ -196,6 +200,9 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
                 return
             image = result[1][0]
             self.log.debug("results: %r", results)
+            if not self.linkpaths:  # XXX: remove
+                self.log.warn('no linkpaths set, NOT saving header')
+                return
             self._file = session.data.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],
                 self.sink.subdir)
@@ -224,31 +231,33 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
     def end(self):
         if self._file:
             self._file.close()
+            self._file = None
             syncFile(self._file)
-            # datenfile aus dateisystem fieseln und kopieren. als self.linkpaths[0]
-            # pattern is:
-            # \home\pc\data2\A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst
-            # \home\pc\data3\B_username_JJJJ_MM\username_JJJJ_MM-xxx-B1-yyy.cfg
-            # \home\pc\data3\B_username_JJJJ_MM\username_JJJJ_MM-xxx-B1-yyy.lst
-            # where A1= A1...A8 and B1=B1..B8 xxx is local scancounter
-            # idea: treat  \home\pc\data as mount_point and _username_JJJJ_MM
-            #                                \username_JJJJ_MM-xxx- as prefix
-            # srcfiles = '/home/pc/data2/A_' + self.prefix + '-A%d-%03d.lst'
-
-            # strategy: scan mountpoint for files containing prefix in their name
-            for dirpath, _, filenames in os.walk(self.sink.fast_basepath):
+        # datenfile aus dateisystem fieseln und kopieren. als self.linkpaths[0]
+        # pattern is:
+        # \home\pc\data2\A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst
+        # \home\pc\data3\B_username_JJJJ_MM\username_JJJJ_MM-xxx-B1-yyy.cfg
+        # \home\pc\data3\B_username_JJJJ_MM\username_JJJJ_MM-xxx-B1-yyy.lst
+        # where A1= A1...A8 and B1=B1..B8 xxx is local scancounter
+        # idea: treat  \home\pc\data as mount_point and _username_JJJJ_MM
+        #                                \username_JJJJ_MM-xxx- as prefix
+        # srcfiles = '/home/pc/data2/A_' + self.prefix + '-A%d-%03d.lst'
+        # strategy: scan mountpoint for files containing prefix in their name
+        for basepath in self.sink.fast_basepaths:
+            for dirpath, _, filenames in os.walk(basepath):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
                     if self.prefix in filepath:
+                        self.log.info('found matching datafile: %r' % filepath)
                         # Gotcha!
-                        dstfilename = self.linkpaths[0]+filename
+                        # dstfilename = self.linkpaths[0] + filename
                         # copy file
-                        shutil.copyfile(filepath, dstfilename)
+                        # shutil.copyfile(filepath, dstfilename)
                         # XXX: break?
 
-            # link files
-            # self.linkpaths enthält den zieldateinamen und die linknamen als eine liste
-            # session.data.linkFiles(self.linkpaths[0], self.linkpaths[1:])
+        # link files
+        # self.linkpaths enthält den zieldateinamen und die linknamen als eine liste
+        # session.data.linkFiles(self.linkpaths[0], self.linkpaths[1:])
 
 
 COMTEC_TEMPLATES = [
@@ -267,8 +276,8 @@ class ComtecHeaderSink(ImageSink):
     }
 
     parameters = {
-        'fast_basepath': Param('Mount point of the fast data storage',
-                               type=str, default='/', settable=False),
+        'fast_basepaths': Param('Mount point(s) of the fast data storage',
+                               type=listof(str), default=['/'], settable=False),
     }
 
     parameter_overrides = {  # \A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst
@@ -282,6 +291,6 @@ class ComtecHeaderSink(ImageSink):
     handlerclass = ComtecHeaderSinkHandler
 
     def doInit(self, mode):
-        if self.mode != SIMULATION:
+        if mode != SIMULATION:
             # XXX: check existence of 'fast_basepath'
             pass

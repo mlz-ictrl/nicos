@@ -55,7 +55,7 @@ devices = dict(
         description = 'Copies image data and saves header',
         lowlevel = True,
         detector = 'comtec_timer',
-        fast_basepath = '/home/',
+        fast_basepaths = ['/home/'],
     ),
     comtec_timer = device('nicos_mlz.refsans.devices.detector.ComtecTimer',
         description = 'Comtec P7888 Fast System: Timer channel',
