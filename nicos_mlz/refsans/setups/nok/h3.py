@@ -1,4 +1,4 @@
-description = 'h3 aperture devices'
+description = 'h3 aperture devices MANUAL only'
 
 # group = 'lowlevel'
 group = 'optional'
@@ -33,6 +33,22 @@ if False:
             opmode = '4blades',
         ),
     )
+elif True:
+  devices = dict(
+      h3_width = device('nicos.devices.generic.ManualMove',
+          description = 'width of h3 MANUAL',
+          abslimits = (0, 100),
+          fmtstr = '%.1f',
+          unit = 'mm',
+      ),
+      h3_center = device('nicos.devices.generic.ManualMove',
+          description = 'center of h3 MANUAL',
+          abslimits = (-100, 100),
+          fmtstr = '%.1f',
+          unit = 'mm',
+      ),
+  )
+
 else:
     nethost = 'refsanssrv.refsans.frm2'
     devices = dict(
