@@ -27,7 +27,11 @@ devices = dict(
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
     ),
-
+    zb3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'zb3 mode',
+        device = 'zb3',
+        parameter = 'mode',
+    ),
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     zb3r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of ZB3, reactor side',

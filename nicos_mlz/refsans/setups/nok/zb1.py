@@ -29,4 +29,9 @@ devices = dict(
         offset = -37.9344,
         precision = 0.002,
     ),
+    zb1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'zb1 mode',
+        device = 'zb1',
+        parameter = 'mode',
+    ),
 )

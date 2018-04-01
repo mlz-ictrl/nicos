@@ -27,7 +27,11 @@ devices = dict(
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
     ),
-
+    zb2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'zb2 mode',
+        device = 'zb2',
+        parameter = 'mode',
+    ),
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     zb2_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',

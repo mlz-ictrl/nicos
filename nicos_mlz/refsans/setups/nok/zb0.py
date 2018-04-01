@@ -30,4 +30,9 @@ devices = dict(
         offset = -28.2111,
         precision = 0.002,  # precision after repositionings
     ),
+    zb0_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'zb0 mode',
+        device = 'zb0',
+        parameter = 'mode',
+    ),
 )
