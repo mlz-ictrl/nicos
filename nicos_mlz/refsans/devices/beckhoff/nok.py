@@ -31,8 +31,8 @@ from Modbus import Modbus
 from nicos import session
 from nicos.utils import bitDescription
 from nicos.core import Param, Override, status, UsageError, SIMULATION, \
-    CommunicationError, HasTimeout, usermethod, requires, DeviceMixinBase, \
-    MoveError, TimeoutError
+    CommunicationError, usermethod, requires, DeviceMixinBase,  MoveError, \
+    TimeoutError
 from nicos.devices.abstract import CanReference, Motor, Coder
 from nicos.devices.taco.core import TacoDevice
 
@@ -309,7 +309,8 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         pass
 
 
-class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
+#class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
+class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -317,9 +318,9 @@ class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
     Beckhoff PLC.
     """
 
-    parameter_overrides = {
-        'timeout':  Override(mandatory=False, default=300),
-    }
+#    parameter_overrides = {
+#        'timeout':  Override(mandatory=False, default=300),
+#    }
 
     # invert bit 13 (referenced) to NOT REFERENCED
     ### invert bit 8 (ready) to NOT READY
