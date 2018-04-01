@@ -237,4 +237,12 @@ devices = dict(
     pivot = device('nicos.devices.generic.ManualSwitch',
         states = list(range(1, 14)),
     ),
+    chopper = device('nicos.devices.generic.ManualMove',
+        abslimits = (0, 6000),
+        fmtstr = '%d',
+        unit = 'rpm',
+    ),
+    chopper_mode = device('nicos.devices.generic.ManualSwitch',
+        states = ['normal_mode', 'virtual_disc2_pos_6'],
+    ),
 )

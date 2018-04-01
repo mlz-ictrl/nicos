@@ -47,8 +47,9 @@ def prepare(session, dataroot):
     """Prepare a dataset for refsans"""
 
     session.experiment.setDetectors(['det'])
-    for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table',
-              'tube', 'h2_center', 'h2_width', 'pivot', 'top_phi']:
+    for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table', 'tube',
+              'h2_center', 'h2_width', 'pivot', 'top_phi', 'chopper',
+              'chopper_mode']:
         session.getDevice(d)
 
     # Perform different scans
