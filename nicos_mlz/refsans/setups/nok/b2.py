@@ -18,7 +18,8 @@ devices = dict(
         masks = dict(
             slit = [0, 0, -3.834, -2.15],
             pinhole = [0, 0, -3.834, -2.15],
-            gisans = [0, -85, -2.81 , -0.24] ,
+            # gisans = [0, -85, -2.81 , -1.24] ,
+            gisans = [0, -85, -1.21 , 0.76] ,
         ),
         motor_r = 'b2r',
         motor_s = 'b2s',

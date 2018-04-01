@@ -1,6 +1,6 @@
-description = 'Instrument modes'
+description = 'Instrument modes not yet working'
 
-group = 'lowlevel'
+group = 'optional'
 
 devices = dict(
     instrument_mode = device('nicos.devices.generic.ManualSwitch',

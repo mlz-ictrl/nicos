@@ -2,6 +2,8 @@ description = 'B3 aperture devices'
 
 # group = 'lowlevel'
 group = 'optional'
+lprecision = 0.01
+
 
 # b3 not in full function, therefore copy of b1
 if False:
@@ -44,16 +46,19 @@ else:
             nok_gap = -1,
             inclinationlimits = (-1000, 1000),
             masks = dict(
-                slit = [84.044,50.4169,0.00,4.06],
-                #MP hight scann 30.01.2018 13:24:04 open=todo
-                pinhole = [84.044,50.4169,0.00,4.06],
-                gisans = [84.044,50.4169,0.00,4.06],
+                slit = [84.044,50.4169,0.00,45.22],
+                # MP 22.02.2018 12:47:22 Schwanenhals
+                # MP height scan 22.02.2018 12:46:29
+                # slit = [84.044, 50.4169, 0.00, 4.06],
+                # MP height scan 30.01.2018 13:24:04 open=todo
+                pinhole = [84.044, 50.4169, 0.00, 45.22],
+                gisans = [84.044, 50.4169, 0.00, 45.22],
             ),
             motor_r = 'b3_r',
             motor_s = 'b3_s',
             nok_motor = [-1, -1],
             backlash = 0,
-            precision = 0.03,
+            precision = lprecision,
         ),
         b3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
             description = 'b3 mode',
@@ -76,7 +81,7 @@ else:
             motor = 'b3_rm',
             coder = 'b3_rm',
             offset = 0.0,
-            precision = 0.03,
+            precision = lprecision,
             lowlevel = True,
         ),
         b3_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
@@ -95,7 +100,7 @@ else:
             motor = 'b3_sm',
             coder = 'b3_sm',
             offset = 0.0,
-            precision = 0.03,
+            precision = lprecision,
             lowlevel = True,
         ),
     )

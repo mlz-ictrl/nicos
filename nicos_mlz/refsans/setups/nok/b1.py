@@ -1,7 +1,7 @@
 description = 'Slit B1 using Beckhoff controllers'
 
 group = 'lowlevel'
-
+lprecision = .01
 nethost = 'refsanssrv.refsans.frm2'
 
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
@@ -25,7 +25,7 @@ devices = dict(
         motor_s = 'b1_s',
         nok_motor = [2380.0, 2387.5],
         backlash = 0,   # is this configured somewhere?
-        precision = 10.1,
+        precision = lprecision,
     ),
     # according to 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
     # beckhoff is at 'optic.refsans.frm2' / 172.25.18.115
@@ -50,8 +50,7 @@ devices = dict(
         # obs = [],
         # offset = 60.0,
         offset = 0.0,
-        # precision = 0.002,
-        precision = 100.1,
+        precision = lprecision,
         lowlevel = True,
     ),
 
@@ -76,8 +75,7 @@ devices = dict(
         # obs = [],
         # offset = -50.0,
         offset = 0.0,
-        # precision = 0.002,
-        precision = 100.1,
+        precision = lprecision,
         lowlevel = True,
     ),
 )
