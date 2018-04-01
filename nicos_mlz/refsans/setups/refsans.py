@@ -14,7 +14,6 @@ includes = [
     # 'virtual_disc2_pos_6',
     'instrument_mode',
     'optic_elements',
-    # 'optic_x',
     'poti_ref',
     'nl2b',
     # 'pumpstand',

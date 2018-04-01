@@ -1,4 +1,4 @@
-description = 'Trioptic autocollimator'
+description = 'Trioptic autocollimator, water subtracted'
 
 # not included by others
 group = 'optional'
@@ -11,16 +11,16 @@ devices = dict(
     triangle = device('nicos_mlz.refsans.devices.triangle.TriangleMaster',
         description = description,
         tacodevice = '//%s/test/network/triangle' % nethost,
-        lowlevel = all_lowlevel,
+        lowlevel = True,  # all_lowlevel,
     ),
     triangle_theta = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
-        description = 'triangle_Y',
+        description = description + ', triangle Y on PC',
         lowlevel = all_lowlevel,
         index = 0,
         tacodevice = '//%s/test/network/triangle' % nethost,
     ),
     triangle_phi = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
-        description = 'triangle_X',
+        description = description + ', triangle X on PC',
         lowlevel = all_lowlevel,
         index = 1,
         tacodevice = '//%s/test/network/triangle' % nethost,
