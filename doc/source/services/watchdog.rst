@@ -125,6 +125,10 @@ specification can have these keys:
    If present, the name of a setup that must be loaded in the NICOS master for
    this condition to be active.  By default, the condition is always active.
 
+**enabled**
+   A boolean value; if false, the condition is prevented from triggering when
+   the watchdog starts.  Defaults to True.
+
 **gracetime**
    The time, in seconds, which the watchdog waits after a condition becomes true
    until a warning is emitted.  If the condition becomes false again during the
