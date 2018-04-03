@@ -5,24 +5,27 @@ group = 'optional'
 
 all_lowlevel = False  # or True
 
-nethost = 'refsanssrv.refsans.frm2'
+tango_host = 'tango://refsanshw.refsans.frm2:10000/test/triangle/io'
 
 devices = dict(
     triangle = device('nicos_mlz.refsans.devices.triangle.TriangleMaster',
         description = description,
-        tacodevice = '//%s/test/network/triangle' % nethost,
+        tangodevice = tango_host,
         lowlevel = True,  # all_lowlevel,
+        unit = '',
     ),
     triangle_theta = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
         description = description + ', triangle Y on PC',
         lowlevel = all_lowlevel,
         index = 0,
-        tacodevice = '//%s/test/network/triangle' % nethost,
+        tangodevice = tango_host,
+        unit = '',
     ),
     triangle_phi = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
         description = description + ', triangle X on PC',
         lowlevel = all_lowlevel,
         index = 1,
-        tacodevice = '//%s/test/network/triangle' % nethost,
+        tangodevice = tango_host,
+        unit = '',
     ),
 )

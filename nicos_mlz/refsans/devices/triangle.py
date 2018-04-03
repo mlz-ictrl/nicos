@@ -60,25 +60,17 @@ Unit    [ SEC | MINUTE | DEGREE | URAD | RAD | MM | PIXEL |
 Help                    show this help message
 """
 
-from IO import StringIO
-
-from nicos.core import Override, Param, Readable, floatrange, intrange, status
+from nicos.core import Param, Readable, floatrange, intrange, status
 from nicos.core.errors import CommunicationError
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import StringIO
 
 
-class TriangleBase(TacoDevice, Readable):
-
-    taco_class = StringIO
-
-    parameter_overrides = {
-        'comtries': Override(default=1),
-    }
+class TriangleBase(Readable, StringIO):
 
     def _read_controller(self, index):
         index = int(index)
         self.log.debug('_read_controller %s %d' % (type(index), index))
-        res = self._taco_guard(self._dev.communicate, 'P 1')
+        res = self.communicate('P 1')
         self.log.debug('_read_controller res for %s' % res)
         res = res.split(';')
         self.log.debug('_read_controller res %s' % res)
