@@ -22,7 +22,43 @@
 #   Matthias Pomm <matthias.pomm@hzg.de>
 #
 # *****************************************************************************
-"""Devices for the Trioptic autocollimator."""
+"""Devices for the Trioptic autocollimator.
+
+The 'Help' command on the serial line interface leads to the following output
+which has to be considered as doc for the communication:
+
+TRIOPTICS GmbH -- OptiAngle 5
+-----------------------------
+Please note. All commands are case sensitive.
+Measurement Commands:
+-----------------------------
+Zero    [1|2]           Zero
+Z       [1|2]           short format
+Measure [1|2]           Measure
+M       [1|2]           short format
+Poll    [1|2]           Measure
+P       [1|2]           short format
+Tolerance               Tolerance
+T                       short format
+Capture                 Tolerance
+Select Measure Programs:
+-----------------------------
+AutoCollimationAbsolute Select Measure Program AutoCollimation Absolute
+ACA                     short format
+AutoCollimation         Select Measure Program AutoCollimation
+AC                      short format
+Telescope               Select Measure Program Telescope
+TE                      short format
+WedgeAngle              Select Measure Program Wedge Angle
+WA                      short format
+WedgeRelative           Select Measure Program Wedge Relative
+WR                      short format
+Misc Commands:
+-----------------------------
+Unit    [ SEC | MINUTE | DEGREE | URAD | RAD | MM | PIXEL |
+         INCH | MIL    |STRICH  ]
+Help                    show this help message
+"""
 
 from IO import StringIO
 
