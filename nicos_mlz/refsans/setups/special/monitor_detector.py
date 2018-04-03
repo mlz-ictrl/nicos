@@ -1,10 +1,9 @@
+# coding: utf-8
+
 # created by Martin Haese, Tel FRM 10763
-# last modified 30.10.2017
+# last modified 01.02.2018
 # to call it
-# ssh refsans@refsansctrl02 oder 01
-# cd /refsanscontrol
-# ./bin/nicos-monitor -S monitor_detector
-# or
+# ssh -X refsans@refsansctrl01 oder 02
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_detector
 
@@ -15,9 +14,10 @@ _experimentcol = Column(
     Block(' experiment ', [
         BlockRow(
                  Field(name='proposal', key='exp/proposal', width=8),
-                 Field(name='proposer', key='exp/proposal', width=24),
+                 Field(name='proposer', key='exp/proposer', width=24),
                  Field(name='title',    key='exp/title',    width=24,
                        istext=True, maxlen=20),
+                 Field(name='Sample', dev='Sample', width=20),
                  Field(name='current status', key='exp/action', width=24,
                        istext=True, maxlen=40),
             )
@@ -31,11 +31,13 @@ _experimentcol = Column(
 _detconfigcol = Column(
     Block(' detector information ', [
         BlockRow(
-            Field(name='data acquisition system', dev='das_mesytec_fast_both', width=22),
-            Field(name='total counts', dev='detector_count_rate', width=16),
-            Field(name='count time',   dev='detector_count_time', width=16, unit='sec'),
-            Field(name='count rate',   dev='detector_count_rate', width=16, unit='cps'),
-            Field(name='last file', key='det/lastfilenumber'),
+            Field(name='data acquisition system', dev='das_mesytec_fast_both', width=20),
+            Field(name='total counts', dev='image', width=16),
+            Field(name='count time',   dev='timer', width=12, unit='sec'),
+            Field(name='count rate',   dev='detector_count_rate', width=12, unit='cps'),
+            Field(name='monitor 1', key='mon1', width=12),
+            Field(name='monitor 2', key='mon2', width=12),
+            Field(name='last file', key='det/lastfilenumber', width=12),
             ),
         ],
     ),

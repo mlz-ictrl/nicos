@@ -1,10 +1,9 @@
+# coding: utf-8
+
 # created by Martin Haese, Tel FRM 10763
-# last modified 27.10.2017
+# last modified 01.02.2018
 # to call it
-# ssh refsans@refsansctrl02 oder 01
-# cd /refsanscontrol
-# ./bin/nicos-monitor -S monitor_optic
-# or
+# ssh -X refsans@refsansctrl01 oder 02
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_optic
 
