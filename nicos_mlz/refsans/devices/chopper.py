@@ -276,6 +276,10 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
         'disc': Attach('Chopper disc device', ChopperDisc),
     }
 
+    parameter_overrides = {
+        'unit': Override(default='', mandatory=False),
+    }
+
     def _read_pos(self):
         what = 'm4078'
         self.log.debug('what: %s', what)
