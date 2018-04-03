@@ -24,8 +24,6 @@
 # *****************************************************************************
 """Chopper related devices."""
 
-from IO import StringIO
-
 from nicos import session
 
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
@@ -33,21 +31,15 @@ from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
 from nicos.core.errors import NicosError
 from nicos.core.params import Attach, oneof
 from nicos.devices.abstract import CanReference
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import StringIO
 
 
-class ChopperBase(TacoDevice, Moveable):
-
-    taco_class = StringIO
-
-    parameter_overrides = {
-        'comtries': Override(default=1),
-    }
+class ChopperBase(Moveable, StringIO):
 
     def _read_controller(self, mvalue):
         what = mvalue % self.chopper
         self.log.debug('_read_controller what: %s', what)
-        res = self._taco_guard(self._dev.communicate, what)
+        res = self.communicate(what)
         res = res.replace('\x06', '')
         self.log.debug('_read_controller res for %s: %s', what, res)
         return res
@@ -56,7 +48,7 @@ class ChopperBase(TacoDevice, Moveable):
         # TODO: fix formatting for single values and lists
         what = mvalue % ((self.chopper,) + values)
         self.log.debug('_read_controller what: %s', what)
-        self._taco_guard(self._dev.writeLine, what)
+        self.writeLine(what)
 
 
 class ChopperMaster(ChopperBase):
@@ -287,7 +279,7 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
     def _read_pos(self):
         what = 'm4078'
         self.log.debug('what: %s', what)
-        res = self._taco_guard(self._dev.communicate, what)
+        res = self.communicate(what)
         res = int(res.replace('\x06', ''))
         self.log.debug('pos: %d', res)
         return res
@@ -308,7 +300,7 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
         self.log.info('requested position %d', value)
         what = 'm4077=%d' % value
         self.log.debug('doWritePos what: %s', what)
-        res = self._taco_guard(self._dev.writeLine, what)
+        res = self.writeLine(what)
         self.log.debug('doWritePos res: %d', res)
 
     def doStatus(self, maxage=0):

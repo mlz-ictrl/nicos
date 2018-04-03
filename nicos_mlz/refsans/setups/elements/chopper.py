@@ -1,16 +1,15 @@
 description = 'Chopper devices'
 
 group = 'lowlevel'
-#group = 'optional'
-#uribase = 'tango://refsansctrl01.refsans.frm2:10000/refsans/chopper/'
-nethost = 'refsanssrv.refsans.frm2'
+
+tango_host = 'tango://refsanshw.refsans.frm2:10000/test/chopper/io'
 
 includes = ['shutter']
 
 devices = dict(
     chopper = device('nicos_mlz.refsans.devices.chopper.ChopperMaster',
         description = 'Interface',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%s',
         unit = 'foo',
         chopper1 = 'chopper1',
@@ -29,7 +28,7 @@ devices = dict(
     ),
     chopper1 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
         description = 'chopper1',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%d',
         unit = 'rpm',
         chopper = 1,
@@ -60,7 +59,7 @@ devices = dict(
     ),
     chopper2 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc2',
         description = 'disk2',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         translation = 'chopper2_pos',
         fmtstr = '%d',
         lowlevel = True,
@@ -80,8 +79,9 @@ devices = dict(
     ),
     chopper2_pos = device('nicos_mlz.refsans.devices.chopper.ChopperDisc2Pos',
         description = 'position of chopper disc 2',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         disc = 'chopper1',
+        unit = '',
     ),
     chopper2_phase = device('nicos.devices.generic.ParamDevice',
         description = 'phase of chopper disc 2',
@@ -98,7 +98,7 @@ devices = dict(
     ),
     chopper3 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
         description = 'chopper3',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%d',
         lowlevel = True,
         unit = 'rpm',
@@ -130,7 +130,7 @@ devices = dict(
     ),
     chopper4 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
         description = 'chopper4',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%d',
         lowlevel = True,
         unit = 'rpm',
@@ -162,7 +162,7 @@ devices = dict(
     ),
     chopper5 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
         description = 'chopper5',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%d',
         lowlevel = True,
         unit = 'rpm',
@@ -194,7 +194,7 @@ devices = dict(
     ),
     chopper6 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
         description = 'chopper6',
-        tacodevice = '//%s/test/network/chopper' % nethost,
+        tangodevice = tango_host,
         fmtstr = '%d',
         unit = 'rpm',
         lowlevel = True,
