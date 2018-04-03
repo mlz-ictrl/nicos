@@ -48,7 +48,6 @@ class KappaGon(IsController, Moveable):
         'dx': Attach('detector movement device', Moveable),
     }
 
-
     def doRead(self, maxage=0):
         return PositionFactory('k',
                                ttheta=self._adevs['ttheta'].read(maxage),
@@ -67,7 +66,6 @@ class KappaGon(IsController, Moveable):
         else:
             raise ValueError('incorrect arguments for start, needs to be a PositionBase object')
 
-
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev == self._adevs['phi']:
             return True, 'Position allowed'  # phi can move freely
@@ -79,7 +77,7 @@ class KappaGon(IsController, Moveable):
                     if -10 < adevtarget < 10:
                         return True, 'Position allowed'
                     else:
-                        return False, ' -10 < kappa < 10 for  this omega position'
+                        return False, ' -10 < kappa < 10 for this omega position'
 
         if adev == self._adevs['omega']:
             if (self._adevs['ttheta'].target - adevtarget < 45):
