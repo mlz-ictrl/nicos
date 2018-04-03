@@ -42,7 +42,7 @@ class TriangleBase(TacoDevice, Readable):
     def _read_controller(self, index):
         index = int(index)
         self.log.debug('_read_controller %s %d' % (type(index), index))
-        res = self._taco_guard(self._dev.communicate, 'P 1\r')
+        res = self._taco_guard(self._dev.communicate, 'P 1')
         self.log.debug('_read_controller res for %s' % res)
         res = res.split(';')
         self.log.debug('_read_controller res %s' % res)
