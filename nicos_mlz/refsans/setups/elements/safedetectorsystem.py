@@ -8,6 +8,6 @@ devices = dict(
     sds = device('nicos_mlz.refsans.devices.safedetectorsystem.SdsRatemeter',
         description = description,
         lowlevel = all_lowlevel,
-        unit = '',
+        unit = 'cps',
     ),
 )
