@@ -11,19 +11,19 @@ import traceback
 from os import path
 
 try:
+    from nicos import config
+except ImportError:
+    thisfile = path.abspath(__file__)
+    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
+    from nicos import config
+
+try:
     import nicos.guisupport.qt as qt
     from nicos.clients.gui.panels import Panel
 except ImportError:
     qt = None
     Panel = None
 
-try:
-    import nicos
-except ImportError:
-    thisfile = path.abspath(__file__)
-    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
-
-from nicos import config
 from nicos.core.errors import ConfigurationError
 from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
     fixup_stacked_devices
@@ -323,7 +323,7 @@ class SetupChecker(object):
                            extra=self.find_global('exclude'))
 
         if os.path.basename(self.filename) == 'startup.py':
-            if len(self.ns.get('includes', [])) > 0:
+            if self.ns.get('includes', []):
                 self.log_error("The 'includes' in 'startup.py' must be empty!",
                                extra=self.find_global('includes'))
 
@@ -350,8 +350,7 @@ class SetupChecker(object):
                 importString(module)
             except Exception as err:
                 self.log_error('module %r not importable: %s',
-                               module, err,
-                               extra=self.find_deventry(devname))
+                               module, err)
 
         # check for validity of alias_config
         aliascfg = self.ns.get('alias_config', {})
