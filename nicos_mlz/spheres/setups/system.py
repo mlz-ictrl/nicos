@@ -38,15 +38,12 @@ devices = dict(
                      ),
 
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-                      lowlevel = True,
                      ),
 
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
-                      lowlevel = True,
                      ),
 
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                        lowlevel = True,
                        ),
 
     Space    = device('nicos.devices.generic.FreeSpace',

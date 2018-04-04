@@ -33,12 +33,9 @@ devices = dict(
         description = 'The sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        lowlevel = True,
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
-        lowlevel = True,
     ),
     dmnsink = device('nicos.devices.datasinks.DaemonSink',
-        lowlevel = True,
     ),
 )

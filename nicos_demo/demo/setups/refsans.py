@@ -250,7 +250,6 @@ devices = dict(
         dragerror = 10.,
     ),
     configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink',
-        lowlevel = True,
     ),
     vacuum_CB = device('nicos.devices.generic.ManualMove',
         description = 'Vacuum sensor in chopper chamber',

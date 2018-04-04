@@ -146,7 +146,6 @@ devices = dict(
         prefix = 'L'
     ),
     sink = device('nicos_mlz.pgaa.devices.PGAASink',
-        lowlevel = True,
         det1 = 'det',
         det2 = 'detLEGe',
         vac = 'chamber_pressure',

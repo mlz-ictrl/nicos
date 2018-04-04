@@ -23,6 +23,5 @@ devices = dict(
         det1 = 'det',
         det2 = 'detLEGe',
         vac = 'chamber_pressure',
-        lowlevel = True,
     ),
 )

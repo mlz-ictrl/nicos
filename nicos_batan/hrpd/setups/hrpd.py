@@ -33,7 +33,6 @@ devices = dict(
     ),
     hrpdsink = device('nicos_batan.hrpd.devices.datasinks.HrpdSink',
         description = 'HRPD specific data file format',
-        lowlevel = True,
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt'],
         detectors = ['adet'],
     ),

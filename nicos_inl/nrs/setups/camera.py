@@ -28,7 +28,6 @@ devices = dict(
         detectors = ['camera'],
         subdir = 'camera',
         filenametemplate = ['%(pointsamplecounter)08d.fits'],
-        lowlevel = True,
     ),
     camtemp = device('nicos.devices.vendor.lima.ZwoTC',
         description = 'Temperature of the CCD sensor chip',

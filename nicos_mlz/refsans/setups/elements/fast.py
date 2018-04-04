@@ -53,7 +53,6 @@ devices = dict(
 #    ),
     comtec_sink = device('nicos_mlz.refsans.devices.detector.ComtecHeaderSink',
         description = 'Copies image data and saves header',
-        lowlevel = True,
         detector = 'comtec_timer',
         fast_basepaths = ['/home/refsans-mca','/home/refsans-mcb'],
     ),

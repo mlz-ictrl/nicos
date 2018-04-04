@@ -10,7 +10,6 @@ sysconfig = dict(
 
 devices = dict(
     contoursink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        lowlevel = True,
         filenametemplate = ['contour%(scancounter)08d.txt'],
     ),
 )

@@ -36,7 +36,6 @@ devices = dict(
             scanbasename + ".yaml",
             countbasename + ".yaml",
         ],
-        lowlevel = True,
     ),
     chn1 = device("nicos_mlz.jcns.devices.detector.RateImageChannel",
         description = "NDP detector 1",

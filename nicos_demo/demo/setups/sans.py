@@ -182,7 +182,6 @@ devices = dict(
         interval = 1,
     ),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
-        lowlevel=True,
     ),
     det1_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'demo timer',

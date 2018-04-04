@@ -48,14 +48,12 @@ devices = dict(
     pilatussink = device('nicos_mlz.galaxi.devices.pilatus.PilatusSink',
         detector = 'pilatus',
         detectors = ['pilatus'],
-        lowlevel = True,
     ),
     mythensink = device('nicos_mlz.galaxi.devices.mythendatasink.MythenImageSink',
         filenametemplate = [
             '%(Exp.users)s_%(session.experiment.sample.'
             'filename)s_%(scancounter)s.%(pointnumber)s.mydat'
         ],
-        lowlevel = True,
         detectors = ['mythen']
     ),
 )

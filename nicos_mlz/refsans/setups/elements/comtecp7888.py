@@ -19,7 +19,6 @@ devices = dict(
             '%(proposal)s_%(pointcounter)s.raw', '%(proposal)s_%(scancounter)s'
             '_%(pointcounter)s_%(pointnumber)s.raw'
         ],
-        lowlevel = True,
     ),
     fastctr_a = device('nicos.devices.taco.detector.FRMCounterChannel',
         description = "Channel A of Comtep P7888 Fast Counter",

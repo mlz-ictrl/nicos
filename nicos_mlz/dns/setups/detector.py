@@ -13,7 +13,6 @@ tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
     LiveView = device('nicos.devices.datasinks.LiveViewSink',
-        lowlevel = True,
     ),
     dettof = device('nicos_mlz.dns.devices.detector.TofChannel',
         description = 'TOF data channel',

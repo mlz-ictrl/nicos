@@ -15,12 +15,10 @@ tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
     kwsformat = device('nicos_mlz.kws2.devices.kwsfileformat.KWSFileSink',
-        lowlevel = True,
         transpose = True,
         detectors = ['det'],
     ),
     yamlformat = device('nicos_mlz.kws2.devices.yamlformat.YAMLFileSink',
-        lowlevel = True,
         detectors = ['det'],
     ),
     det_mode = device('nicos.devices.generic.ReadonlyParamDevice',

@@ -22,7 +22,6 @@ devices = dict(
     # ),
     LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sends image data to LiveViewWidget',
-        lowlevel = True,
     ),
     qm_ctr0 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
         description = 'QMesyDAQ Counter0',

@@ -45,7 +45,6 @@ devices = dict(
         description = 'The daemon Device, coordinating all the heavy lifting',
     ),
     configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink',
-        lowlevel = True,
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

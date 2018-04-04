@@ -30,7 +30,7 @@ from gzip import GzipFile as StdGzipFile
 from nicos import session
 from nicos.core.constants import POINT, SIMULATION
 from nicos.core.device import Device
-from nicos.core.params import Param, listof, setof
+from nicos.core.params import Override, Param, listof, setof
 from nicos.core.errors import ProgrammingError
 from nicos.core.data.dataset import SETTYPES
 from nicos.pycompat import File
@@ -190,6 +190,10 @@ class DataSink(Device):
         'settypes':  Param('List of dataset types to activate this sink '
                            '(default is for all settypes the sink supports)',
                            type=setof(*SETTYPES)),
+    }
+
+    parameter_overrides = {
+        'lowlevel': Override(default=True, mandatory=False),
     }
 
     # Set to true in subclasses that are safe for simulation.

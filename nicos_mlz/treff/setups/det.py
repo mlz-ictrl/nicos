@@ -37,7 +37,6 @@ devices = dict(
             scanbasename + ".yaml",
             countbasename + ".yaml",
         ],
-        lowlevel = True,
     ),
     LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
         description = "Sends image data to LiveViewWidget",
