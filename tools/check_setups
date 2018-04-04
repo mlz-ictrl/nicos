@@ -225,7 +225,7 @@ class SetupChecker(object):
             self.log.warning("%s: class %r has no 'parameters'",
                              devname, cls.__name__)
         else:
-            if not config.get('lowlevel', False) and \
+            if not config.get('lowlevel', cls.parameters['lowlevel'].default) and \
                cls.__name__ != 'DeviceAlias':
                 if not config.get('description') and not is_special:
                     self.log.warning('%s: device has no description', devname,
