@@ -8,7 +8,8 @@ sysconfig = dict(
     instrument = 'Stressi',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'daemonsink', 'livesink', 'LiveImgSink', 'LiveImgSinkLog'
+        'conssink', 'daemonsink', 'livesink', 'LiveImgSink', 'LiveImgSinkLog',
+        'dbgsink',
     ],
     # notifiers = ['email', 'smser'],
 )
@@ -51,6 +52,7 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
+    dbgsink = device('nicos.devices.debug.datasinks.DebugDataSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = 'data',

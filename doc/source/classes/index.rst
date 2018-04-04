@@ -17,6 +17,7 @@ distribution.
    tango
    epics
    vendor/index
+   debug
    nicos_mlz
    nicos_ess
    nicos_sinq
