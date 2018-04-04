@@ -49,7 +49,7 @@ class SdsBase(Readable):
 
     def _read_controller(self, key):
         try:
-            data = requests.get(self.url, self.timeout).json()
+            data = requests.get(self.url, timeout=self.timeout).json()
         except requests.Timeout as e:
             raise CommunicationError(self, 'HTTP request failed: %s' % e)
         except Exception as e:
