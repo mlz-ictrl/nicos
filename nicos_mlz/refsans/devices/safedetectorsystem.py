@@ -39,7 +39,7 @@ class SdsBase(Readable):
     spots.
     """
 
-    parameter = {
+    parameters = {
         'url': Param('URL reading the values',
                      type=str,
                      default='http://savedetector.refsans.frm2/json?1'),
@@ -68,7 +68,7 @@ class SdsBase(Readable):
 class SdsRatemeter(SdsBase):
     """Read the count rates for the different input channels of the SDS."""
 
-    parameter = {
+    parameters = {
         'channel': Param('Channel to be rated',
                          type=oneof('a', 'x', 'y'), default='a',
                          settable=False)
