@@ -324,7 +324,7 @@ class SingleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         return (res,)
 
     def doRead(self, maxage=0):
-        return self.rechnen_motor(self._devices.doRead(maxage), True,
+        return self.rechnen_motor(self._devices.read(maxage), True,
                                   'doRead')[0]
 
     def doIsAllowed(self, targets):
@@ -344,7 +344,7 @@ class SingleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         self.log.debug('SingleSlit doIsAtTarget %s', targets)
         targets = self.rechnen_motor(targets, False, 'doIsAtTarget')[0]
         self.log.debug('%s', targets)
-        return abs(targets - self._devices.doRead(0)) <= self.precision
+        return abs(targets - self._devices.read(0)) <= self.precision
 
     def doStop(self):
         SequencerMixin.doStop(self)
@@ -449,7 +449,7 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         return res
 
     def doRead(self, maxage=0):
-        return self.rechnen_motor([dev.doRead(maxage) - ofs
+        return self.rechnen_motor([dev.read(maxage) - ofs
                                    for dev, ofs in zip(self._devices,
                                                        self.offsets)], True,
                                   'doRead')
@@ -478,7 +478,7 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         self.log.debug('DoubleSlit doIsAtTarget %s', targets)
         targets = self.rechnen_motor(targets, False, 'doIsAtTarget')
         self.log.debug('%s', targets)
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         return max(abs(v) for v in traveldists) <= self.precision
@@ -507,7 +507,7 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         targets = self.rechnen_motor(targets, False, 'doStart')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
@@ -552,7 +552,7 @@ class DoubleSlitSequence(DoubleSlit):
         targets = self.rechnen_motor(targets, False, 'doStart')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
@@ -561,7 +561,7 @@ class DoubleSlitSequence(DoubleSlit):
         devices = self._devices
 
         self.log.debug('who moves first and how to?')
-        if (targets[1] - devices[1].doRead(0)) < 0:
+        if (targets[1] - devices[1].read(0)) < 0:
             indizes = [1, 0]
         else:
             indizes = [0, 1]
@@ -633,7 +633,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                          'have a non-zero backlash!' % dev)
 
     def doRead(self, maxage=0):
-        return [dev.doRead(maxage) - ofs for dev, ofs in zip(self._devices,
+        return [dev.read(maxage) - ofs for dev, ofs in zip(self._devices,
                                                              self.offsets)]
 
     def doIsAllowed(self, targets):
@@ -658,7 +658,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     def doIsAtTarget(self, targets):
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         return max(abs(v) for v in traveldists) <= self.precision
@@ -685,7 +685,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
