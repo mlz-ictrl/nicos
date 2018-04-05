@@ -149,7 +149,8 @@ class ChopperMaster(ChopperBase):
 
     def doStatus(self, maxage=0):
         # TODO implement other possible states
-        return status.OK, 'idle'
+        return self._attached_chopper1.status(maxage)
+        # return status.OK, 'idle'
 
 
 class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
@@ -204,9 +205,7 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
                              self.chopper, self.gear, self.edge)
 
     def doRead(self, maxage=0):
-        res = float(self._read_controller('m408%s'))
-        self.log.debug('speed: %f', res)
-        return res
+        return self._current_speed()
 
     def doReadCurrent(self):
         # res = int(self._read_controller('m%s68'))  # peak current
@@ -245,7 +244,14 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         session.delay(10)  # time needed to take over the phase!!!
 
     def doStatus(self, maxage=0):
-        return status.OK, 'idle'
+        if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:
+            return status.OK, ''
+        return status.BUSY, 'moving'
+
+    def _current_speed(self):
+        res = float(self._read_controller('m408%s'))
+        self.log.debug('speed: %f', res)
+        return res
 
 
 class ChopperDisc2Pos(CanReference, ChopperBase):
