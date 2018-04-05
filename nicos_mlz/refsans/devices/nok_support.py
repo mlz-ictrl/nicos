@@ -796,7 +796,7 @@ class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.doRead(0) - ofs
+        traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
         if max(abs(v) for v in traveldists) <= self.precision:
