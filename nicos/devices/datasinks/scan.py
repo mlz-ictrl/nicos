@@ -65,12 +65,12 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         self._rulerlen = max(100, sum(self._colwidths))
         if ds.settype != SUBSCAN:
             session.log.info('=' * self._rulerlen)
-            session.log.info('Starting scan:      ' + (ds.info or ''))
-            session.log.info('Started at:         ' +
+            session.log.info('Starting scan:      %s', ds.info or '')
+            session.log.info('Started at:         %s',
                              strftime(TIMEFMT, localtime(ds.started)))
-            session.log.info('Scan number:        ' + str(ds.counter))
+            session.log.info('Scan number:        %d', ds.counter)
             for filename in ds.filenames:
-                session.log.info('Filename:           ' + filename)
+                session.log.info('Filename:           %s', filename)
             session.log.info('-' * self._rulerlen)
         else:
             session.log.info()
@@ -85,9 +85,9 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             return
         ds = self.dataset
         if ds.npoints:
-            pointstr = '%s/%s' % (len(ds.subsets), ds.npoints)
+            pointstr = '%s/%s' % (point.number, ds.npoints)
         else:
-            pointstr = str(len(ds.subsets))
+            pointstr = str(point.number)
         cols = ([pointstr] +
                 [safe_format(info.fmtstr, val) for (info, val) in
                  zip(ds.devvalueinfo, point.devvaluelist)] +
@@ -101,7 +101,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
     def end(self):
         if self.dataset.settype != SUBSCAN:
             session.log.info('-' * self._rulerlen)
-            session.log.info('Finished at:        ' +
+            session.log.info('Finished at:        %s',
                              strftime(TIMEFMT, localtime(self.dataset.finished)))
             session.log.info('=' * self._rulerlen)
         else:
@@ -124,8 +124,6 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._wrote_header = False
-        self._wrote_columninfo = False
         self._file = None
         self._fname = None
         self._semicolon = sink.semicolon
@@ -187,25 +185,20 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         if point.settype != POINT:
             return
         ds = self.dataset
-        if not self._wrote_header:
+        if point.number == 1:
             self._write_header(ds, len(point.filenames))
-            self._wrote_header = True
-        if not self._wrote_columninfo:
             self._write_section('Scan data')
             self._write_comment('\t'.join(self._colnames))
             self._write_comment('\t'.join(self._colunits))
-            self._wrote_columninfo = True
-        xv = [safe_format(info.fmtstr, val) for (info, val) in
-              zip(self.dataset.devvalueinfo, point.devvaluelist)] + \
-             [safe_format(info.fmtstr, val) for (info, val) in
-              zip(self.dataset.envvalueinfo, point.envvaluelist)]
-        yv = [safe_format(info.fmtstr, val) for (info, val) in
-              zip(self.dataset.detvalueinfo, point.detvaluelist)]
-        fv = point.filenames
+        values = [safe_format(info.fmtstr, val) for (info, val) in
+                  zip(self.dataset.devvalueinfo, point.devvaluelist)] + \
+                 [safe_format(info.fmtstr, val) for (info, val) in
+                  zip(self.dataset.envvalueinfo, point.envvaluelist)]
         if self._semicolon:
-            values = xv + [';'] + yv + fv
-        else:
-            values = xv + yv + fv
+            values += [';']
+        values += [safe_format(info.fmtstr, val) for (info, val) in
+                   zip(self.dataset.detvalueinfo, point.detvaluelist)]
+        values += point.filenames
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
 
