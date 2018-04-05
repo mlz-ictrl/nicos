@@ -68,7 +68,6 @@ Timer = namedtuple('Timer', 'value')
 class CaressScanfileSinkHandler(DataSinkHandler):
     """CARESS compatible datafile writing class."""
 
-    _wrote_header = False
     _scan_file = False
     _detvalues = None
     _buffer = b''
@@ -260,12 +259,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         self._write_short(d['STEP'])
-        buf = pack('BB', FLOATTYPE, 2)
-        for i in d.keys():
-            if i != 'STEP':
-                for v in d[i]:
-                    buf += pack('<f', float(v))
-        self._file_write(buf)
+        d.pop('STEP')
+        for key in d.keys():
+            buf = pack('BB', FLOATTYPE, 2)
+            for v in d[key]:
+                buf += pack('<f', float(v))
+            self._file_write(buf)
 
     def _write_spec(self):
         data = 'SPEC'
@@ -352,8 +351,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d = OrderedDict()
         ds = self.dataset
         d['STEP'] = ds.npoints
-        if ds.devices:
-            d[ds.devices[0].name.upper()] = 0
+        if ds.devvalueinfo:
+            for dev in ds.devvalueinfo:
+                d[dev.name.upper()] = 0
         else:
             d['TIM'] = 0
         self._write_setv(d)
@@ -391,9 +391,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                         # print('%s.%s = %r' % (device, key, value))
                         d1[device.name] = 0.
         self._write_read(d1)
-        if ds.devices:
-            d[ds.devices[0].name.upper()] = (float(ds.startpositions[0][0]),
-                                             float(ds.startpositions[-1][0]))
+        if ds.devvalueinfo:
+            for i, dev in enumerate(ds.devvalueinfo):
+                d[dev.name.upper()] = (float(ds.startpositions[0][i]),
+                                       float(ds.startpositions[-1][i]))
         else:
             d['TIM'] = (0, 1000000)
         self._write_sgen(d)
@@ -403,10 +404,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _write_defdata(self, dev, master):
         if isinstance(dev, str):
-            devname = dev.upper()
+            devnames = [dev.upper()]
+        elif isinstance(dev, (list, tuple)):
+            devnames = [d.name.upper() for d in dev]
         else:
-            devname = dev.name.upper()
-        self._defdata('SETVALUES(%s)' % ' '.join(['STEP', devname]))
+            devnames = [dev.name.upper()]
+        self._defdata('SETVALUES(%s)' % ' '.join(['STEP'] + devnames))
         if self._scan_type == 'SGEN2':
             mastervalues = 'SL1(TTHS ADET '
             if ('chis', 'value') in self.dataset.metainfo:
@@ -414,7 +417,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 v, _, _, _ = self.dataset.metainfo[('chis', 'value')]
                 if v is not None:
                     mastervalues += 'CHIS '
-            mastervalues += '%s TIM1 MON)' % devname
+            mastervalues += '%s TIM1 MON)' % ' '.join(devnames)
         else:
             mastervalues = 'MM1(%s)SL1(TTHS ADET MON' % master
             for d in self.dataset.environment:
@@ -436,7 +439,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._file = None
         self._fname = None
         self._template = sink.filenametemplate
-        self._wrote_header = False
         self._scan_file = False
 
     def prepare(self):
@@ -483,8 +485,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         return
 
     def _write_header(self, point):
-        if self._wrote_header:
-            return
         self.log.debug('_write_header: %r', point.settype)
         bycategory = {}
         for (dev, key), (v, _, _, cat) in iteritems(point.metainfo):
@@ -563,24 +563,25 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_general(bycategory['general'])
         if 'experiment' in bycategory:
             self._write_comment(bycategory['experiment'])
-        if self.dataset.devices:
-            self._write_defdata(self.dataset.devices[0], master)
+        if point.devvalueinfo:
+            self._write_defdata(point.devvalueinfo, master)
         else:
             self._write_defdata('TIM', master)
         self._flush()
-        self._wrote_header = True
 
     def putValues(self, value):
         if self.dataset.settype == POINT:
             return
 
     def addSubset(self, point):
-        self.log.debug('add subset: %s', point.settype)
+        self.log.debug('add subset: %s, #%d', point.settype, point.number)
         if point.settype != POINT:
             return
 
-        self.log.debug('%r - %r', self.dataset.detvalueinfo,
-                       point.detvaluelist)
+        if point.number == 1:
+            self._write_header(point)
+
+        self.log.debug('%r - %r', point.detvalueinfo, point.detvaluelist)
 
         # the image data are hopefully always at this place
         try:
@@ -589,19 +590,18 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             else:
                 det = session.getDevice(self.sink.detectors[0])
             self._detvalues = point.results[det.name][1][0]
-        except IndexError:
+        except (IndexError, KeyError):
             # create empty data set
             self.log.error('Could not get the image data from %s', det.name)
             self._detvalues = np.zeros((256, 256))
 
         self.log.debug('storing results %r', self._detvalues)
 
-        self._write_header(point)
-
         self._string('SETVALUES')
         self._write_integer(point.number)
         if point.devvaluelist:
-            self._write_float(point.devvaluelist[0])
+            for v in point.devvaluelist:
+                self._write_float(v)
         else:
             self._write_float(0.)
         self._string('MASTER1VALUES')
@@ -643,7 +643,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self.log.debug('CHIS value is None, ignore it')
             else:
                 self._write_float(chis)
-            if point.devvaluelist:
+            if point.canonical_values:
                 self._write_float(point.devvaluelist[0])
             else:
                 self._write_float(0.0)
@@ -675,7 +675,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._flush()
         self._file.close()
         self._file = None
-        self._wrote_header = False
         self._scan_file = False
         self._detvalues = None
 
