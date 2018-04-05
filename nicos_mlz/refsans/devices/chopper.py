@@ -89,10 +89,12 @@ class ChopperMaster(ChopperBase):
         'shutter': Attach('Shutter device', Moveable),
     }
 
-    def _devices_phase(self):
-        return (None, self._attached_chopper2, self._attached_chopper3,
-                self._attached_chopper4, self._attached_chopper5,
-                self._attached_chopper6)
+    def doInit(self, mode):
+        self._devices_phase = (None, self._attached_chopper2,
+                               self._attached_chopper3,
+                               self._attached_chopper4,
+                               self._attached_chopper5,
+                               self._attached_chopper6)
 
     def doStart(self, target):
         if target['disk2_Pos'] == 6:
@@ -114,13 +116,13 @@ class ChopperMaster(ChopperBase):
                 self._attached_chopper2_pos.maw(target['disk2_Pos'])
                 self.log.info('Disc2_pos %d reached!', target['disk2_Pos'])
 
-        devices_phase = self._devices_phase()
         self.log.debug('angles %s', target['angles'])
         # TODO: Sequencer, because of needed wait time in doWritePhase
-        for i, dev in enumerate(devices_phase):
+        for i, (dev, t) in enumerate(zip(self._devices_phase,
+                                         target['angles'])):
             if dev:
-                self.log.info('%d angle %.2f %s', i, target['angles'][i], dev)
-                dev.phase = -target['angles'][i]  # sign by history
+                self.log.info('%d angle %.2f %s', i, t, dev)
+                dev.phase = -t  # sign by history
         # self._attached_choppers[1].move(target['rpm'])
         self._attached_chopper1.move(target['rpm'])
 
@@ -129,23 +131,23 @@ class ChopperMaster(ChopperBase):
 
     def doRead(self, maxage=0):
         try:
-            target = self.target.copy()
+            value = self.target.copy()
         except AttributeError:
-            target = {
+            value = {
                 'D': None,
                 'wl_min': None,
                 'wl_max': None
             }
-        target['disk2_Pos'] = self._attached_chopper2_pos.read(maxage)
-        target['rpm'] = self._attached_chopper1.read(maxage)
-        devices_phase = self._devices_phase()
-        target['angles'] = [0]
-        for i, dev in enumerate(devices_phase):
+        value['disk2_Pos'] = self._attached_chopper2_pos.read(maxage)
+        value['rpm'] = self._attached_chopper1.read(maxage)
+        value['angles'] = [0]
+        for i, dev in enumerate(self._devices_phase):
             if dev:
-                target['angles'].append(dev.read(maxage))
-                self.log.debug('%d angle %.2f %s', i, target['angles'][i], dev)
-        self.log.debug('target disc %s', target)
-        return target
+                angle = dev.read(maxage)
+                self.log.debug('%d angle %.2f %s', i, angle, dev)
+                value['angles'].append(angle)
+        self.log.debug('value chopper %s', value)
+        return value
 
     def doStatus(self, maxage=0):
         # TODO implement other possible states
