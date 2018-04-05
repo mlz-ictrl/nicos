@@ -21,6 +21,7 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
+
 """Classes to display Mieze data from Cascade detector."""
 
 from os import path
@@ -28,14 +29,14 @@ from os import path
 import gr
 from gr.pygr import ErrorBar
 
+import numpy as np
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.guisupport.livewidget import COLOR_BLUE, LiveWidget1D
 from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
-
-import numpy as np
 
 my_uipath = path.dirname(__file__)
 
@@ -77,30 +78,33 @@ class FoilWidget(QWidget):
         self.plotwidget.setSizePolicy(QSizePolicy.MinimumExpanding,
                                       QSizePolicy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update(24 * [0])
+        self.do_update([(0, 0, 0, 0), (0, 0, 0, 0), [0]*16] * 2)
 
-    def do_update(self, data):
+    def do_update(self, data, roi=False):
+        popt, perr, counts = data[int(roi)*3:int(roi)*3+3]
+        avg, contrast, freq, phase = popt
+        davg, dcontrast, dfreq, dphase = perr
+
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
-        self.avg_value.setText('%.0f' % abs(data[0]))
-        self.avg_error.setText('%.1f' % data[1])
-        self.contrast_value.setText('%.2f' % abs(data[2]))
-        self.contrast_error.setText('%.3f' % data[3])
-        self.freq_value.setText('%.2f' % data[4])
-        self.freq_error.setText('%.3f' % data[5])
-        self.phase_value.setText('%.2f' % data[6])
-        self.phase_error.setText('%.3f' % data[7])
+        self.avg_value.setText('%.0f' % abs(avg))
+        self.avg_error.setText('%.1f' % davg)
+        self.contrast_value.setText('%.2f' % abs(contrast))
+        self.contrast_error.setText('%.3f' % dcontrast)
+        self.freq_value.setText('%.2f' % freq)
+        self.freq_error.setText('%.3f' % dfreq)
+        self.phase_value.setText('%.2f' % phase)
+        self.phase_error.setText('%.3f' % dphase)
 
         # now update plot
         fitcurve, datacurve = self.plotwidget.fitcurve, self.plotwidget.curve
-        avg, contrast, freq, phase = data[0], data[2], data[4], data[6]
         fitcurve.x = np.arange(-0.5, 16.5, 0.1)
         fitcurve.y = np.array([self.model_sine(x, avg, contrast, freq, phase)
                                for x in fitcurve.x])
         datacurve.x = np.arange(0, 16, 1)
-        datacurve.y = np.array(data[8:24])
-        e = map(np.sqrt, datacurve.y)
-        datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y, e,
+        datacurve.y = np.array(counts)
+        dy = map(np.sqrt, datacurve.y)
+        datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y, dy,
                                        markercolor=datacurve.markercolor)
         datacurve.linetype = None
         self.plotwidget.reset()
@@ -165,7 +169,7 @@ class MiezePanel(Panel):
     def do_update(self):
         if self._do_updates and self._data:
             for d, w in zip(self._data, self.mywidgets):
-                w.do_update(d)
+                w.do_update(d, self.roiCheckBox.isChecked())
 
     def on_client_cache(self, data):
         _time, key, _op, value = data
