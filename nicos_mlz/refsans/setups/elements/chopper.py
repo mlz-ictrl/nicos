@@ -79,6 +79,7 @@ devices = dict(
     chopper2_pos = device('nicos_mlz.refsans.devices.chopper.ChopperDisc2Pos',
         description = 'position of chopper disc 2',
         tacodevice = '//%s/test/network/chopper' % nethost,
+        disc = 'chopper1',
     ),
     chopper2_phase = device('nicos.devices.generic.ParamDevice',
         description = 'phase of chopper disc 2',

@@ -261,6 +261,10 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
 
     valuetype = intrange(1, 5)
 
+    attached_devices = {
+        'disc': Attach('Chopper disc device', ChopperDisc),
+    }
+
     def _read_pos(self):
         what = 'm4078'
         self.log.debug('what: %s', what)
@@ -274,6 +278,11 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
             return self.valuetype(self._read_pos())
         except ValueError:
             return self.target
+
+    def doIsAllowed(self, target):
+        if self._attached_disc.isAtTarget(0):
+            return True, ''
+        return False, 'Disc speed is to high'
 
     def doStart(self, value):
         value = intrange(1, 5)(value)
@@ -300,4 +309,4 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
             return status.ERROR, '%s' % e
 
     def doReference(self, *args):
-        self.doStart(1)
+        self.move(1)
