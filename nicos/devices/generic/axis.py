@@ -496,7 +496,8 @@ class Axis(CanReference, AbstractAxis):
                     self.log.debug('motor stopped and precise positioning '
                                    'not requested')
                     moving = False
-                elif self._checkTargetPosition(target, pos):
+                elif self._checkTargetPosition(target, pos,
+                                               error=not self._errorstate):
                     self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
