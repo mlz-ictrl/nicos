@@ -256,6 +256,25 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         return res
 
 
+class ChopperDisc2(ChopperDisc):
+    """Chopper disc 2 device.
+
+    Since the chopper disc 2 can be translated, the chopper speed must be low
+    enough (around 0, defined by its precision), the change of speed must be
+    blocked during a translation.
+    """
+
+    attached_devices = {
+        'translation': Attach('Chopper translation device', Moveable),
+    }
+
+    def doIsAllowed(self, target):
+        state = self._attached_translation.status()
+        if state[0] == status.OK:
+            return True, ''
+        return False, 'translation state: %s' % state[1]
+
+
 class ChopperDisc2Pos(CanReference, ChopperBase):
     """Position of chopper disc 2 along the x axis"""
 
