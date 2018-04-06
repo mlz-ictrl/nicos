@@ -100,8 +100,8 @@ class TriangleMaster(TriangleBase):
         try:
             sig = self._read_controller(3)
             if sig <= .01:
-                return status.WARN, 'beta_W'
-            return status.OK, 'beta'
+                return status.WARN, 'no signal'
+            return status.OK, ''
         except CommunicationError:
             return status.ERROR, 'timeout check PC! SW running and COM-Port'
 
