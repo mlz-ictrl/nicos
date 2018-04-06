@@ -259,15 +259,21 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 class ChopperDisc2Pos(CanReference, ChopperBase):
     """Position of chopper disc 2 along the x axis"""
 
-    valuetype = oneof(0, 1, 2, 3, 4, 5, 99)
+    valuetype = intrange(1, 5)
 
-    def doRead(self, maxage=0):
+    def _read_pos(self):
         what = 'm4078'
         self.log.debug('what: %s', what)
         res = self._taco_guard(self._dev.communicate, what)
         res = int(res.replace('\x06', ''))
         self.log.debug('pos: %d', res)
         return res
+
+    def doRead(self, maxage=0):
+        try:
+            return self.valuetype(self._read_pos())
+        except ValueError:
+            return self.target
 
     def doStart(self, value):
         value = intrange(1, 5)(value)
@@ -279,17 +285,17 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
 
     def doStatus(self, maxage=0):
         try:
-            res = self.doRead(maxage)
+            res = self._read_pos()
             if res != 99:
                 self.log.info('doStatus: %d', res)
-            if res == 0:
-                return status.ALARM, 'device not referenced'
+                if res == 0:
+                    return status.ALARM, 'device not referenced'
+                elif 1 <= res <= 5:
+                    return status.OK, ''
+                return status.ERROR, 'Unknown status from read(): %d' % res
             elif res == 99:
                 self.log.debug('doStatus: %d', res)
                 return status.BUSY, 'moving'
-            elif 1 <= res <= 5:
-                return status.OK, ''
-            return status.ERROR, 'Unknown status from read(): %d' % res
         except NicosError as e:
             return status.ERROR, '%s' % e
 
