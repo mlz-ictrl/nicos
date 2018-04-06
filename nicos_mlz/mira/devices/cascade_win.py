@@ -55,11 +55,15 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
         'mode':     Param('Data acquisition mode (tof or image)',
-                          type=oneof('tof', 'image'), settable=True),
+                          type=oneof('tof', 'image'), settable=True,
+                          category='presets'),
         'fitfoil':  Param('Foil for contrast fitting', type=int, default=0,
                           settable=True),
         'preselection': Param('Current preselection (if not in slave mode)',
                               unit='s', settable=True, type=float),
+        'tofchannels':  Param('Number of TOF channels supported by the '
+                              'detector', type=int, default=128,
+                              settable=True),
     }
 
     parameter_overrides = {
@@ -121,16 +125,27 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         return self._getconfig()['mode']
 
     def doWriteMode(self, value):
-        reply = self._client.communicate('CMD_config_cdr mode=%s tres=%d' %
-                                         (value, 128 if value == 'tof' else 1)
-                                         )
+        reply = self._client.communicate(
+            'CMD_config_cdr mode=%s tres=%d' %
+            (value, self.tofchannels if value == 'tof' else 1))
         if reply != 'OKAY':
             self._raise_reply('could not set mode', reply)
 
+    def doWriteTofchannels(self, value):
+        if self.mode == 'tof':
+            reply = self._client.communicate(
+                'CMD_config_cdr mode=tof tres=%d' % value)
+            if reply != 'OKAY':
+                self._raise_reply('could not set mode', reply)
+
+    @property
+    def _datashape(self):
+        return (128, 128) if self.mode == 'image' else (self.tofchannels, 128, 128)
+
     def doUpdateMode(self, value):
-        self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and (128, 128) or (128, 128, 128)
-        self._tres = (value == 'image') and 1 or 128
+        self._dataprefix = 'IMAG' if value == 'image' else 'DATA'
+        # XXX: check position of TOF channels value
+        self._tres = 1 if value == 'image' else self.tofchannels
 
     def doReadPreselection(self):
         return float(self._getconfig()['time'])
@@ -248,7 +263,10 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         total = data.sum()
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
-            roi = data[x1:x2, y1:y2].sum()
+            if self.mode == 'image':
+                roi = data[y1:y2, x1:x2].sum()
+            else:
+                roi = data[:, y1:y2, x1:x2].sum()
         else:
             roi = total
         self.readresult = [roi, total]

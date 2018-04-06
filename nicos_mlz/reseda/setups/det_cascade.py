@@ -11,18 +11,22 @@ sysconfig = dict(
 
 devices = dict(
 #    scandet = device('nicos.devices.generic.ScanningDetector',
-    scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
-        description = 'Scanning detector for scans per echotime',
-        scandev = 'nse0',
-        detector = 'psd',
-        maxage = 2,
-        pollinterval = 0.5,
-    ),
+#    scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
+#        description = 'Scanning detector for scans per echotime',
+#        scandev = 'nse0',
+#        detector = 'psd',
+#        maxage = 2,
+#        pollinterval = 0.5,
+#    ),
     psd_padformat = device('nicos_mlz.mira.devices.cascade.CascadePadSink',
         subdir = 'cascade',
+        lowlevel = True,
+        detectors = ['psd', 'scandet', 'counter', 'timer', 'monitor1', 'monitor2'],
     ),
     psd_tofformat = device('nicos_mlz.mira.devices.cascade.CascadeTofSink',
         subdir = 'cascade',
+        lowlevel = True,
+        detectors = ['psd', 'scandet', 'counter', 'timer', 'monitor1', 'monitor2'],
     ),
     psd_liveview = device('nicos.devices.datasinks.LiveViewSink',
     ),
@@ -31,11 +35,12 @@ devices = dict(
         description = 'CASCADE detector channel',
         server = 'resedacascade02.reseda.frm2:1234',
         slave = False,
+        tofchannels = 128,
     ),
     psd = device('nicos.devices.generic.Detector',
         description = 'CASCADE detector',
         timers = ['timer'],
-        monitors = ['monitor1', 'monitor2'],
+        monitors = ['monitor1'],
         images = ['psd_channel'],
     ),
     psd_distance = device('nicos.devices.generic.virtual.VirtualMotor',
@@ -44,16 +49,16 @@ devices = dict(
         unit = 'm',
     ),
     psd_chop_freq = device('nicos.devices.tango.AnalogOutput',
-            description = 'Chopper Frequency generator',
-            tangodevice = '%s/cascade/chop_freq' % (tango_base), 
-            pollinterval = 3,
-            fmtstr = '%.3g'
-        ),
-   psd_timebin_freq = device('nicos.devices.tango.AnalogOutput',
-            description = 'Timebin Frequency generator',
-            tangodevice = '%s/cascade/timebin_freq' % (tango_base),
-            pollinterval = 3,
-        ),
+        description = 'Chopper Frequency generator',
+        tangodevice = '%s/cascade/chop_freq' % (tango_base), 
+        pollinterval = 3,
+        fmtstr = '%.3g'
+    ),
+    psd_timebin_freq = device('nicos.devices.tango.AnalogOutput',
+        description = 'Timebin Frequency generator',
+        tangodevice = '%s/cascade/timebin_freq' % (tango_base),
+        pollinterval = 3,
+    ),
 
     #psd_fg_onoff = device('nicos.devices.tango.OnOffSwitch',
     #    description = 'FG output on/off switch',
@@ -72,5 +77,6 @@ devices = dict(
     )
 
 startupcode = '''
-SetDetectors(scandet)
+SetDetectors(psd)
+psd_channel.mode='tof'
 '''

@@ -4,7 +4,7 @@ group = 'special'
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=15,
+                 Field(name='Title',    key='exp/title',    width=30,
                        istext=True, maxlen=15),
                  Field(name='Sample',   key='sample/samplename', width=20,
                        istext=True, maxlen=15),
@@ -12,8 +12,9 @@ _expcolumn = Column(
                  #      istext=True),
                  Field(name='Last file', key='exp/lastscan'),
                  Field(name='EchoTime', key='echotime', unit='ns'),
-                 Field(name='Wavelength', key='selector/selector_lambda', unit='A')),
+                 Field(name='Wavelength', dev='selector_lambda', unit='A')),
         ],
+        setups='selector',
     ),
 )
 
@@ -65,16 +66,21 @@ _column2 = Column(
         ],
         setups='sampletable',
     ),
+    Block('arms', [
+        BlockRow(Field(name='arm1', dev='arm1_rot', unit='deg'),
+                 Field(name='arm2', dev='arm2_rot', unit='deg')),
+        ],
+     ),
 )
 
 _column3 = Column(
     Block('Cascade detector', [
-        BlockRow(Field(name='ROI',   key='psd/lastcounts[0]', width=9),
-                 Field(name='Total', key='psd/lastcounts[1]', width=9),
-                 Field(name='MIEZE', key='psd/lastcontrast[0]', format='%.3f', width=6),
+        BlockRow(Field(name='ROI',   key='psd_channel[0]', format='%.0f', width=9),
+                 Field(name='Total', key='psd_channel[1]', format='%.0f', width=9),
+                 Field(name='MIEZE', key='psd_channel[2]', format='%.3f', width=6),
                  Field(name='Last image', key='exp/lastpoint')),
-        BlockRow('timer', 'monitor2', 'ctr1'),
-        BlockRow(Field(dev='mon_hv', width=5)),
+        BlockRow('timer', 'monitor1' ),
+        BlockRow(Field(dev='mon_hv', width=6)),
                  #Field(dev='PSDHV', width=5),
                  #Field(dev='dtx')),
         ],

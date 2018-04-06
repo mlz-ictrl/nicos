@@ -12,17 +12,18 @@ devices = dict(
 #    scandet = device('nicos.devices.generic.ScanningDetector',
     scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
         description = 'Scanning detector for scans per echotime',
-        scandev = 'subcoil_ps2',
+        scandev = 'nse1',
         detector = 'det',
         maxage = 2,
         pollinterval = 0.5,
     ),
+
     det = device('nicos.devices.generic.Detector',
         description = 'FRM II multichannel counter card',
         timers = ['timer'],
-        monitors = ['monitor1', 'monitor2'],
+        monitors = ['monitor1', ],
         counters = ['counter'],
-        fmtstr = 'timer %s, monitor1 %s, monitor2 %s, ctr %s',
+        fmtstr = 'timer %s, monitor1 %s, ctr %s',
         maxage = 2,
         pollinterval = 0.5,
     ),
@@ -36,12 +37,14 @@ devices = dict(
         tangodevice = '%s/3he_det/rot' % tango_base,
         fmtstr = '%.3f',
         lowlevel = True,
+        unit = 'deg',
     ),
     det_rot_enc = device('nicos.devices.taco.Coder',
         description = 'Detector rotation (encoder)',
         tacodevice = '%s/enc/det2_1' % taco_base,
         fmtstr = '%.3f',
         lowlevel = True,
+        unit = 'deg',
     ),
     det_rot = device('nicos.devices.generic.Axis',
         description = 'Detector rotation',
@@ -63,5 +66,5 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(scandet)
+SetDetectors(det)
 '''

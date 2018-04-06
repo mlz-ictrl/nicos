@@ -178,16 +178,17 @@ class LiveDataPanel(Panel):
         if data:
             self._last_data = data
         if not self._no_direct_display and data:
+            runtime = self._runtime or 1e-6
             if self._format == 'pad':
                 self.widget.LoadPadMem(data, 128*128*4)
                 cts = self.widget.GetPad().GetCounts()
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
-                                           (cts/self._runtime, cts))
+                                           (cts/runtime, cts))
             else:
                 self.widget.LoadTofMem(data, 128*128*128*4)
                 cts = self.widget.GetTof().GetCounts()
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
-                                           (cts/self._runtime, cts))
+                                           (cts/runtime, cts))
             self.updateRange()
         if self._filename and not self._filename.startswith('live@'):
             # and path.isfile(self._filename):

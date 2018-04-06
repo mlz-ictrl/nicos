@@ -85,6 +85,9 @@ class EchoTime(Moveable):
             self.log.debug('checking if we are at echotime %s', echotime)
             success = True
             for tunedev, value in iteritems(tunedevs):
+                # XXX: horrible hack
+                if tunedev.endswith('reg_amp'):
+                    continue
                 # fuzzy matching necessary due to maybe oscillating devices
                 prec = getattr(self._tunedevs[tunedev], 'precision', 0)
                 if not self._fuzzy_match(value, devs.get(tunedev, None), prec):

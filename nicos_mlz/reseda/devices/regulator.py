@@ -115,6 +115,12 @@ class Regulator(Moveable):
                     self.log.debug('Regulation necessary, move attached movable:'
                                    '%s -> %s', cur_write_val, new_target)
 
+                    if hasattr(self._attached_moveable, 'absmax'):
+                        if new_target > self._attached_moveable.absmax:
+                            new_target =  self._attached_moveable.absmax
+                    if hasattr(self._attached_moveable, 'usermax'):
+                        if new_target > self._attached_moveable.usermax:
+                            new_target =  self._attached_moveable.usermax
 
                     self._attached_moveable.start(new_target)
                     # TODO: wait?
