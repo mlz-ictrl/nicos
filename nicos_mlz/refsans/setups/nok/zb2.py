@@ -10,8 +10,9 @@ devices = dict(
     # masks:
     # Debug (slit)
     # Debug (k1)
-    zb2 = device('nicos_mlz.refsans.devices.nok_support.SingleSlit',
+    zb2 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         description = 'zb2 singel Slit at nok6 before nok7',
+        unit = 'mm',
         motor = 'zb2_motor',
         # coder = 'zb2_motor',
         # obs = ['zb2_obs'],
@@ -20,14 +21,14 @@ devices = dict(
         nok_end = 7597.5,
         nok_gap = 1.0,
         offset = 0.0,
-        nok_motor = 7597.5,
-        masks = dict(
-            slit = [-2, 0],
-            pinhole = [-2, 0],
-            gisans = [-122.0, 0.0],
-        ),
-        backlash = -2,   # is this configured somewhere?
-        precision = 0.05,
+        # nok_motor = 7597.5,
+        masks = {
+            'slit':     -2,
+            'point':   -2,
+            'gisans':    -122.0,
+        },
+        # backlash = -2,   # is this configured somewhere?
+        # precision = 0.05,
     ),
     zb2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'zb2 mode',

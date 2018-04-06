@@ -10,28 +10,55 @@ devices = dict(
     # masks:
     # 2010-06-15 10:42:09 (slit)
     # 12.01.2010 10:35:26 (k1)
-    bs1 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlit',
+    bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'BS1 double between nok8 and nok9',
-        nok_start = 9764.5,
-        nok_length = 6.0,
-        nok_end = 9770.5,
-        nok_gap = 18.0,
-        inclinationlimits = (-1000, 1000),   # MP 05.12.2017 15:27:27 no limit
-        masks = dict(
-             slit   = [  0.0, 0.0, -0.67, -1.99],
-             point  = [  0.0, 0.0, -0.67, -1.99],
-             gisans = [-40.0, 0.0, -1.83,  0.0],
-        ),
-        motor_r = 'bs1r_axis',
-        motor_s = 'bs1s_axis',
-        nok_motor = [9764.75, 9770.25],
-        backlash = -2,   # is this configured somewhere?
-        precision = 0.05,
+        fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
+        unit = '',
+        # inclinationlimits = (-1000, 1000),   # MP 05.12.2017 15:27:27 no limit
+        # masks = dict(
+        #     slit   = [  0.0, 0.0, -0.67, -1.99],
+        #     point  = [  0.0, 0.0, -0.67, -1.99],
+        #     gisans = [-40.0, 0.0, -1.83,  0.0],
+        # ),
+        slit_r = 'bs1r',
+        slit_s = 'bs1s',
+        # backlash = -2,   # is this configured somewhere?
+        # precision = 0.05,
     ),
     bs1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'bs1 mode',
         device = 'bs1',
         parameter = 'mode',
+    ),
+    bs1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'bs1 slit, reactor side',
+        motor = 'bs1r_axis',
+        nok_start = 9764.5,
+        nok_length = 6.0,
+        # nok_motor = [9764.75, 9770.25],
+        nok_end = 9770.5,
+        nok_gap = 18.0,
+        masks = {
+            'slit':   0,
+            'point':  0,
+            'gisans': -40,
+        },
+        unit = 'mm',
+    ),
+    bs1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'bs1 slit, sample side',
+        motor = 'bs1s_axis',
+        nok_start = 9764.5,
+        nok_length = 6.0,
+        # nok_motor = [9764.75, 9770.25],
+        nok_end = 9770.5,
+        nok_gap = 18.0,
+        masks = {
+            'slit':   0,
+            'point':  0,
+            'gisans': 0,
+        },
+        unit = 'mm',
     ),
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     bs1r_axis = device('nicos.devices.generic.Axis',
@@ -44,43 +71,36 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-
     bs1_srll = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srll of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srll' % nethost,
         lowlevel = True,
     ),
-
     bs1_srhl = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srhl of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srhl' % nethost,
         lowlevel = True,
     ),
-
     bs1_srref = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srref of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srref' % nethost,
         lowlevel = True,
     ),
-
     bs1_srrel = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srrel of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srrel' % nethost,
         lowlevel = True,
     ),
-
     bs1_srsll = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srsll of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srsll' % nethost,
         lowlevel = True,
     ),
-
     bs1_srshl = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/srshl of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/srshl' % nethost,
         lowlevel = True,
     ),
-
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, reactor side',
@@ -98,7 +118,6 @@ devices = dict(
         zerosteps = int(791.825 * 800),  # offset * slope
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
     bs1r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for BS1, reactor side',
@@ -109,7 +128,6 @@ devices = dict(
         length = 250.0,
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
     bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, reactor side',
@@ -117,7 +135,6 @@ devices = dict(
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
-
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     bs1s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of BS1, sample side',
@@ -129,43 +146,36 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-
     bs1_ssll = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/ssll of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/ssll' % nethost,
         lowlevel = True,
     ),
-
     bs1_sshl = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/sshl of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/sshl' % nethost,
         lowlevel = True,
     ),
-
     bs1_ssref = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/ssref of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/ssref' % nethost,
         lowlevel = True,
     ),
-
     bs1_ssrel = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/ssrel of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/ssrel' % nethost,
         lowlevel = True,
     ),
-
     bs1_sssll = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/sssll of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/sssll' % nethost,
         lowlevel = True,
     ),
-
     bs1_ssshl = device('nicos.devices.taco.DigitalInput',
         description = 'Device test/bs1/ssshl of Server ipcsmsserver bs1',
         tacodevice = '//%s/test/bs1/ssshl' % nethost,
         lowlevel = True,
     ),
-
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, sample side',
@@ -183,7 +193,6 @@ devices = dict(
         zerosteps = int(660.44 * 800),   # offset * slope
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
     bs1s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for BS1, sample side',
@@ -194,7 +203,6 @@ devices = dict(
         length = 500.0,
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
