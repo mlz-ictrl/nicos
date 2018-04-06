@@ -183,21 +183,21 @@ class ConsolePanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = url.toString()
-        if url.startswith('exec:'):
+        scheme = url.scheme()
+        if scheme == 'exec':
             # Direct execution is too dangerous. Just insert it in the editor.
             if self.inputFrame.isVisible():
-                self.commandInput.setText(url[5:])
+                self.commandInput.setText(url.path())
                 self.commandInput.setFocus()
-        elif url.startswith('edit:'):
+        elif scheme == 'edit':
             if not self.mainwindow.editor_wintype:
                 return
             win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
             panel = win.getPanel('User editor')
-            panel.openFile(url[5:])
+            panel.openFile(url.path())
             showPanel(panel)
-        elif url.startswith('trace:'):
-            TracebackDialog(self, self.outView, url[6:]).show()
+        elif scheme == 'trace':
+            TracebackDialog(self, self.outView, url.path()).show()
         else:
             self.log.warning('Strange anchor in outView: %s', url)
 

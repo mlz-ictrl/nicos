@@ -842,9 +842,8 @@ class EditorPanel(Panel):
             self.currentEditor.endUndoAction()
 
     def on_simOutView_anchorClicked(self, url):
-        url = url.toString()
-        if url.startswith('trace:'):
-            TracebackDialog(self, self.simOutView, url[6:]).show()
+        if url.scheme() == 'trace':
+            TracebackDialog(self, self.simOutView, url.path()).show()
 
     def on_simOutViewErrors_anchorClicked(self, url):
         self.on_simOutView_anchorClicked(url)

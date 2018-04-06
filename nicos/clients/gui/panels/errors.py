@@ -78,9 +78,8 @@ class ErrorPanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = url.toString()
-        if url.startswith('trace:'):
-            TracebackDialog(self, self.outView, url[6:]).show()
+        if url.scheme() == 'trace':
+            TracebackDialog(self, self.outView, url.path()).show()
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)

@@ -133,9 +133,9 @@ class CommandPanel(Panel):
 
     def on_consoleView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = url.toString()
-        if url.startswith('exec:'):
-            self.commandInput.setText(url[5:])
+        scheme = url.scheme()
+        if scheme == 'exec':
+            self.commandInput.setText(url.path())
             self.commandInput.setFocus()
 
     def clearCmdlet(self):

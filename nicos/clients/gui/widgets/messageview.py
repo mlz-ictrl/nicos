@@ -33,6 +33,7 @@ from nicos.guisupport.qt import Qt, QRect, QRegExp, QSize, QBrush, QColor, \
     QTextCursor, QTextEdit
 
 from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import urllib
 from nicos.utils.loggers import ACTION, INPUT
 
 
@@ -160,7 +161,8 @@ class MessageView(QTextBrowser):
             if message[3].startswith('  > '):
                 fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
-                fmt.setAnchorHref('exec:' + message[3][4:].strip())
+                fmt.setAnchorHref('exec:' +
+                                  urllib.parse.quote(message[3][4:].strip()))
                 return name + message[3], fmt
             text = name + message[3]
         elif levelno == INPUT:
@@ -168,7 +170,7 @@ class MessageView(QTextBrowser):
             if m:
                 fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
-                fmt.setAnchorHref('exec:' + m.group(2))
+                fmt.setAnchorHref('exec:' + urllib.parse.quote(m.group(2)))
                 if m.group(1) != self._currentuser:
                     fmt.setForeground(QBrush(QColor('#0000C0')))
                 return message[3], fmt
@@ -177,7 +179,7 @@ class MessageView(QTextBrowser):
                 fmt = QTextCharFormat(bold)
                 if m.group(2):
                     fmt.setAnchor(True)
-                    fmt.setAnchorHref('edit:' + m.group(2))
+                    fmt.setAnchorHref('edit:' + urllib.parse.quote(m.group(2)))
                 if m.group(1) != self._currentuser:
                     fmt.setForeground(QBrush(QColor('#0000C0')))
                 return message[3], fmt
@@ -186,7 +188,7 @@ class MessageView(QTextBrowser):
                 fmt = QTextCharFormat(bold)
                 if m.group(2):
                     fmt.setAnchor(True)
-                    fmt.setAnchorHref('edit:' + m.group(2))
+                    fmt.setAnchorHref('edit:' + urllib.parse.quote(m.group(2)))
                 if m.group(1) != self._currentuser:
                     fmt.setForeground(QBrush(QColor('#006090')))
                 else:
@@ -205,7 +207,7 @@ class MessageView(QTextBrowser):
             fmt = QTextCharFormat(fmt)
             # show traceback info on click
             fmt.setAnchor(True)
-            fmt.setAnchorHref('trace:' + message[4])
+            fmt.setAnchorHref('trace:' + urllib.parse.quote(message[4]))
         return text, fmt
 
     def addText(self, text, fmt=None):
