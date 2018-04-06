@@ -9,6 +9,7 @@ nethost = 'refsanssrv.refsans.frm2'
 devices = dict(
     nok6 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
         description = 'NOK6',
+        fmtstr = '%.2f, %.2f',
         nok_start = 5887.5,
         nok_length = 1720.0,
         nok_end = 7607.5,

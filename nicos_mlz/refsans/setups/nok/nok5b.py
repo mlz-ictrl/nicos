@@ -66,6 +66,7 @@ devices = dict(
     # ),
     nok5b = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOKBeckhoff',
         description = 'NOK5b',
+        fmtstr = '%.2f, %.2f',
         nok_start = 4153.50,
         nok_length = 1719.20,
         nok_end = 5872.70,

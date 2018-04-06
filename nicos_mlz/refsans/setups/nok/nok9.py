@@ -10,6 +10,7 @@ devices = dict(
     nok9 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
         description = 'NOK9',
         nok_start = 9773.5,
+        fmtstr = '%.2f, %.2f',
         nok_length = 840.0,
         nok_end = 10613.5,
         nok_gap = 1.0,
