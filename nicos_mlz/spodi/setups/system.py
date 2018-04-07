@@ -120,6 +120,12 @@ devices = dict(
         path = '/data',
         minfree = 5,
     ),
+    LogSpace = device('nicos.devices.generic.FreeSpace',
+        description = 'Space on log drive',
+        path = '/spodicontrol/log',
+        minfree = 0.5,
+        lowlevel = True,
+    ),
 )
 
 display_order = 70

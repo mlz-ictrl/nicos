@@ -13,6 +13,11 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
     dict(
         condition = 'mono_status[0] == 220',
         message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',

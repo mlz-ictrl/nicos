@@ -66,4 +66,10 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
         description = 'handles I/O inside daemon',
     ),
+    LogSpace = device('nicos.devices.generic.FreeSpace',
+        description = 'Free space on the log drive',
+        path = '/pumacontrol2/log',
+        lowlevel = True,
+        warnlimits = (0.5, None),
+    ),
 )
