@@ -200,12 +200,6 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         # self._data[''] =
         pass
 
-    def _write_meas_comment(self, metainfo):
-        self._data['Measurement Comment'] = metainfo[('Exp', 'remark')][0]
-        self._data['Sample Name'] = '%s' % metainfo[('Sample',
-                                                     'samplename')][0]
-        self._data['Proposal'] = '%s' % metainfo[('Exp', 'proposal')][0]
-
     def _write_noks(self, metainfo):
         for dev in NOKs:
             if (dev, 'value') in metainfo:
