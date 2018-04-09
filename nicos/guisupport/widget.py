@@ -65,8 +65,7 @@ class NicosListener(object):
              'isdevice': isdevice})
 
     def registerDevice(self, dev, unit='', fmtstr=''):
-        dev, valueindex, _scale, _offset = extractKeyAndIndex(dev)
-        dev = dev.split('/')[0]
+        dev, valueindex, _scale, _offset = extractKeyAndIndex(dev, False)
         self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
         self._devmap[self._source.register(self, dev + '/value')] = dev
         self._devmap[self._source.register(self, dev + '/status')] = dev
@@ -77,7 +76,7 @@ class NicosListener(object):
             self._devmap[self._source.register(self, dev + '/fmtstr')] = dev
 
     def registerKey(self, valuekey, statuskey='', unit='', fmtstr=''):
-        valuekey, valueindex, _scale, _offset = extractKeyAndIndex(valuekey)
+        valuekey, valueindex, _scale, _offset = extractKeyAndIndex(valuekey, False)
         self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr,
                                                   False)
         self._devmap[self._source.register(self, valuekey)] = valuekey

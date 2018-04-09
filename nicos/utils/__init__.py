@@ -1347,7 +1347,7 @@ keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
                         r'(?P<offset>[+-][0-9.]+(?:[eE][+-]?[0-9]+)?)?$')
 
 
-def extractKeyAndIndex(spec):
+def extractKeyAndIndex(spec, append_value=True):
     """Extract a key and possibly subindex from a cache key specification
     given by the user.  This takes into account the following changes:
 
@@ -1362,7 +1362,7 @@ def extractKeyAndIndex(spec):
         return spec.lower().replace('.', '/'), (), 1.0, 0
     groups = match.groupdict()
     key = groups['dev_or_key'].lower().replace('.', '/')
-    if '/' not in key:
+    if '/' not in key and append_value:
         key += '/value'
     indices = groups['indices']
     try:

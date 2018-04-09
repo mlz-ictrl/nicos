@@ -136,7 +136,7 @@ class Field(object):
         # if key contains a list definition extract the items and remove it
         # from the key
         if 'key' in desc:
-            _dev, valueindex, _scale, _offset = extractKeyAndIndex(desc['key'])
+            _dev, valueindex, _scale, _offset = extractKeyAndIndex(desc['key'], False)
             if valueindex:
                 self.item = valueindex
                 desc['key'] = _dev
