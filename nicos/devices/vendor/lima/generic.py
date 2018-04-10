@@ -182,10 +182,10 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             # set full detector size as roi
             self._writeRawRoi((0, 0, 0, 0))
             # cache full detector size
-            self._width_height = (self.imageheight, self.imagewidth)
+            self._width_height = (self.imagewidth, self.imageheight)
         else:
             # some dummy shape for simulation
-            self._width_height = (2048, 2048)
+            self._width_height = (2048, 1536)
 
     def doInit(self, mode):
         # Determine image type
