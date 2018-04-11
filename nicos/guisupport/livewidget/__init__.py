@@ -266,11 +266,11 @@ class LiveWidgetBase(QWidget):
             plot = plots[0]
             pWC = event.getWC(plot.viewport)
             if (self._array is not None and plot == self.plot and
-                len(self._array.shape) >= 2):
+                len(self._array.shape) == 2):
+                # TODO: adapt this for ``shape > 2`` once available.
                 ny, nx = self._array.shape[-2:]
                 x, y = int(pWC.x), int(pWC.y)
                 if 0 <= x < nx and 0 <= y < ny:
-                    # XXX: has this code ever been used?
                     return x, y, self._array[y, x]
             return pWC.x, pWC.y
 
