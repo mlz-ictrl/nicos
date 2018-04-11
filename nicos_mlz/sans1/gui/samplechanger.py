@@ -62,7 +62,7 @@ class TableWidget(QTableWidget):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Paint and obj == self._cornerButton:
             opt = QStyleOptionHeader()
-            opt.init(obj)
+            opt.initFrom(obj)
 
             opt.text = self._cornerText
             opt.rect = self._cornerButton.rect()
