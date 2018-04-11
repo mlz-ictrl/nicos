@@ -1,0 +1,38 @@
+description = 'detector moving devices'
+
+group = 'lowlevel'
+
+devices = dict(
+    det_pivot = device('nicos.devices.generic.ManualSwitch',
+        description = 'Pivot point at floor of samplechamber',
+        states = list(range(1, 15)),
+        fmtstr = 'Point %d',
+        unit = '',
+    ),
+    table_z_motor = device('nicos.devices.generic.VirtualMotor',
+        description = 'table inside tube',
+        unit = 'mm',
+        abslimits = (620, 11025),
+        lowlevel = True,
+        curvalue = 620,
+    ),
+    det_table = device('nicos.devices.generic.Axis',
+        description = 'detector table inside tube',
+        motor = 'table_z_motor',
+        precision = 1,
+        dragerror = 10.,
+    ),
+    tube_m = device('nicos.devices.generic.VirtualMotor',
+        description = 'tube Motor',
+        abslimits = (-120, 1000),
+        lowlevel = True,
+        unit = 'mm',
+    ),
+    det_yoke = device('nicos.devices.generic.Axis',
+        description = 'tube height',
+        motor = 'tube_m',
+        obs = [],
+        precision = 0.05,
+        dragerror = 10.,
+    ),
+)
