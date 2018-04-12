@@ -119,10 +119,10 @@
       <bool>true</bool>
      </property>
      <property name="rowCount">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="columnCount">
-      <number>1</number>
+      <number>0</number>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
@@ -136,8 +136,6 @@
      <attribute name="verticalHeaderStretchLastSection">
       <bool>false</bool>
      </attribute>
-     <row/>
-     <column/>
     </widget>
    </item>
   </layout>

@@ -280,7 +280,8 @@ class PreviewDialog(QDialog):
         self.tableWidget.setColumnCount(len(self._header_labels))
         self.tableWidget.setHorizontalHeaderLabels(self._header_labels)
 
-        self.fromDateTimeEdit.setDateTime(QDateTime.currentDateTime().addMonths(-1))
+        self.fromDateTimeEdit.setDateTime(
+                QDateTime.currentDateTime().addMonths(-1))
         self.toDateTimeEdit.setDateTime(QDateTime.currentDateTime())
 
         self.fromDateTimeEdit.dateTimeChanged.connect(self.update_timeline)
@@ -461,6 +462,8 @@ class TunewaveTablePanel(Panel):
             self._stop_edit)
 
         client.connected.connect(self.on_client_connected)
+        client.device.connect(self.on_client_device)
+        self._dev_available = False
 
     @property
     def measurement_mode(self):
@@ -491,8 +494,17 @@ class TunewaveTablePanel(Panel):
 
     def on_client_connected(self):
         """Refresh everything on a fresh connection."""
-        self._prepare_table()
         self._update_available_tables()
+
+    def on_client_device(self, data):
+        """Check for configured 'tabledev' device."""
+        (action, devlist) = data
+        if self._dev in devlist:
+            if action == 'create':
+                self._update_available_tables()
+            elif action == 'destroy':
+                self.tableWidget.clear()
+                self._dev_available = False
 
     @pyqtSlot()
     def on_restorePushButton_clicked(self):
@@ -670,10 +682,8 @@ class TunewaveTablePanel(Panel):
         if table is None:
             table = self._get_current_table_data()
 
-        self.client.eval('%s.setTable("%s", %s,\n %s)' % (self._dev,
-                                                          self.measurement_mode,
-                                                          self.wavelength,
-                                                          pformat(table)))
+        self.client.eval('%s.setTable("%s", %s,\n %s)' % (
+            self._dev, self.measurement_mode, self.wavelength, pformat(table)))
 
         # Update the internal table cache after the change to the server side
         # storage
@@ -683,10 +693,13 @@ class TunewaveTablePanel(Panel):
         """Queries tuning device names and sets them as table headers."""
 
         # Add echotime as first table header
-        self._header_labels = ['echotime'] + self.client.eval('%s.tunedevs'
-                                                              % self._dev)
+        try:
+            self._header_labels = ['echotime'] + self.client.eval(
+                    '%s.tunedevs' % self._dev)
+        except (NameError, TypeError):  # 'tabledev' is not available
+            return
 
-        # Add the particular device unit to the device name in the column header
+        # Add particular device unit to the device name in the column header
         labels = []
         for entry in self._header_labels:
             unit = self.client.getDeviceParam(entry, 'unit')
@@ -696,13 +709,14 @@ class TunewaveTablePanel(Panel):
 
         self.tableWidget.setColumnCount(len(labels))
         self.tableWidget.setHorizontalHeaderLabels(labels)
+        self._dev_available = True
 
     def _fill_table(self):
         """Request the currently selected table from the server side table
         storage and display it in the table widget."""
-        table = self.client.eval('%s.getTable("%s", %s)' % (self._dev,
-                                                            self.measurement_mode,
-                                                            self.wavelength))
+        table = self.client.eval(
+            '%s.getTable("%s", %s)' % (self._dev, self.measurement_mode,
+                                       self.wavelength))
 
         # Disable table sorting while filling to avoid jumping rows
         self.tableWidget.setSortingEnabled(False)
@@ -778,8 +792,12 @@ class TunewaveTablePanel(Panel):
 
     def _update_available_tables(self):
         """Update internal table cache."""
-        self._available_tables = self.client.eval('%s.availtables' % self._dev)
-        self._update_combo_boxes()
+        if not self._dev_available:
+            self._prepare_table()
+        if self._dev_available:
+            self._available_tables = self.client.eval(
+                '%s.availtables' % self._dev)
+            self._update_combo_boxes()
 
     def _adjust_table_sizes(self):
         """Adjusts column and row sizes of the table widget to avoid cuts/wraps
