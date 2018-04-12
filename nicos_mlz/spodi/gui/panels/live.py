@@ -38,6 +38,9 @@ class FullScreen1DWidget(LiveWidget1D):
         self.plot.viewport = [0.05, .98, 0.1, .98]
         self.plot.xlabel = 'tths (deg)'
         self.plot.ylabel = 'counts'
+        self.axes.xdual = False
+        self.axes.xtick = 1
+        self.axes.majorx = 5
 
     def setData(self, array):
         self._array = array
