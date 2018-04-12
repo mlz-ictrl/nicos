@@ -808,32 +808,32 @@ class ControlDialog(QDialog):
             self.moveBtns.clear()
             self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
 
-            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
-            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
+            def reset(checked):
+                self.device_panel.exec_command('reset(%s)' % self.devrepr)
+
+            def stop(checked):
+                self.device_panel.exec_command('stop(%s)' % self.devrepr,
+                                               immediate=True)
+            def move(checked):
+                try:
+                    target = self.target.getValue()
+                except ValueError:
+                    return
+                self.device_panel.exec_command(
+                    'move(%s, %s)' % (self.devrepr, srepr(target)))
+
+            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole).clicked.connect(reset)
+            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole).clicked.connect(stop)
             if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
+                self.moveBtn.clicked.connect(move)
             else:
                 self.moveBtn = None
 
             if params.get('fixed') and self.moveBtn:
                 self.moveBtn.setEnabled(False)
                 self.moveBtn.setText('(fixed)')
-
-            def callback(button):
-                if button.text() == 'Reset':
-                    self.device_panel.exec_command('reset(%s)' % self.devrepr)
-                elif button.text() == 'Stop':
-                    self.device_panel.exec_command('stop(%s)' % self.devrepr,
-                                                   immediate=True)
-                elif button.text() == 'Move':
-                    try:
-                        target = self.target.getValue()
-                    except ValueError:
-                        return
-                    self.device_panel.exec_command(
-                        'move(%s, %s)' % (self.devrepr, srepr(target)))
-            self.moveBtns.clicked.connect(callback)
 
     def on_paramList_customContextMenuRequested(self, pos):
         item = self.paramList.itemAt(pos)
