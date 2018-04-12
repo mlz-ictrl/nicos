@@ -463,6 +463,7 @@ class Actuator(AnalogOutput, NicosMotor):
 
     def doWriteSpeed(self, value):
         self._dev.speed = value
+        return self._dev.speed
 
     def doSetPosition(self, value):
         self._dev.Adjust(value)
@@ -492,12 +493,14 @@ class Motor(CanReference, Actuator):
 
     def doWriteAccel(self, value):
         self._dev.accel = value
+        return self._dev.accel
 
     def doReadDecel(self):
         return self._dev.decel
 
     def doWriteDecel(self, value):
         self._dev.decel = value
+        return self._dev.decel
 
     def doReference(self):
         self._setROParam('target', None)  # don't check target in wait() below
@@ -533,6 +536,7 @@ class RampActuator(HasPrecision, AnalogOutput):
 
     def doWriteRamp(self, value):
         self._dev.ramp = value
+        return self._dev.ramp
 
 
 class TemperatureController(HasWindowTimeout, RampActuator):
