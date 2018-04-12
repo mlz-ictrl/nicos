@@ -153,6 +153,8 @@ class Axes(PlotAxes):
         return res
 
     def drawGR(self):
+        lwidth = gr.inqlinewidth()
+        gr.setlinewidth(0.)
         PlotAxes.drawGR(self)
         if self.drawxylines:
             xmin, xmax, ymin, ymax = self.getWindow()
@@ -163,6 +165,7 @@ class Axes(PlotAxes):
             for ypos in self.ylines:
                 gr.polyline([xmin, xmax], [ypos, ypos])
             gr.setlinecolorind(linecolor)
+        gr.setlinewidth(lwidth)
 
 
 class AutoScaleAxes(Axes):
