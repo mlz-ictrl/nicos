@@ -315,6 +315,7 @@ class ExponentialFit(PredefinedFit):
     names = ['exp', 'exponential']
     fit_title = 'exp. fit'
     fit_params = ['b', 'x0']
+    fit_p_descr = fit_params
 
     def __init__(self, parstart=None, xmin=None, xmax=None, timeseries=False):
         PredefinedFit.__init__(self, parstart, xmin, xmax)
@@ -563,6 +564,7 @@ class SigmoidFit(PredefinedFit):
     names = ['sigmoid']
     fit_title = 'Sigmoid'
     fit_params = ['a', 'b', 'x0', 'c']
+    fit_p_descr = fit_params
     center_index = 2
 
     def fit_model(self, x, a, b, x0, c):
