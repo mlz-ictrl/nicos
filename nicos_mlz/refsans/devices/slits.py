@@ -24,8 +24,6 @@
 
 """Special devices for Refsans slits."""
 
-
-#~ from time import sleep
 from math import tan, radians
 
 from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \

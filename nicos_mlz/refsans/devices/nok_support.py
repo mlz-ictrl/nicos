@@ -23,7 +23,7 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
-import time
+from nicos import session
 
 from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
     Readable, SIMULATION, status
@@ -200,7 +200,7 @@ class NOKMotorIPC(CanReference, IPCMotor):
         bus.send(self.addr, 34)  # always go forward (positive)
         bus.send(self.addr, 47, self.speed, 3)  # reference with normal speed
         # may need to sleep a little here....
-        time.sleep(0.1)
+        session.delay(0.1)
         self.wait()
         self.doSetPosition(self.refpos)
 
