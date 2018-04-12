@@ -179,13 +179,7 @@ class Fit(object):
         """
         raise NotImplementedError
 
-    def run(self, x, y, dy):
-        if leastsq is None:
-            return self.result(x, y, dy, None, None,
-                               msg='scipy leastsq function not available')
-        if len(x) < 2:
-            return self.result(x, y, dy, None, None,
-                               msg='need at least two data points to fit')
+    def _prepare(self, x, y, dy):
         xn, yn, dyn = [], [], []
         for i, v in enumerate(x):
             if self.xmin is not None and v < self.xmin:
@@ -197,12 +191,21 @@ class Fit(object):
                 xn.append(v)
                 yn.append(y[i])
                 dyn.append(dyval)
-        if len(xn) < len(self.parnames):
+        return array(xn), array(yn), array(dyn)
+
+    def run(self, x, y, dy):
+        if leastsq is None:
             return self.result(x, y, dy, None, None,
+                               msg='scipy leastsq function not available')
+        if len(x) < 2:
+            return self.result(x, y, dy, None, None,
+                               msg='need at least two data points to fit')
+
+        xn, yn, dyn = self._prepare(x, y, dy)
+        if len(xn) < len(self.parnames):
+            return self.result(xn, yn, dyn, None, None,
                                msg='need at least as many valid data points '
                                'as there are parameters')
-
-        xn, yn, dyn = array(xn), array(yn), array(dyn)
 
         if not len(self.parstart):  # pylint: disable=len-as-condition
             try:
@@ -588,3 +591,33 @@ class SigmoidFit(PredefinedFit):
             ('x0', res.x0, res.dx0),
             ('c', res.c, res.dc)
         ]
+
+
+class CenterOfMass(Fit):
+    """'Fit' the center of mass."""
+
+    names = ['center_of_mass']
+    fit_title = 'Center of mass'
+    fit_params = ['x0']
+    fit_p_descr = ['Center of mass']
+    center_index = 0
+
+    def __init__(self, xmin=None, xmax=None):
+        def model(x, x0):
+            return 0 * x
+        Fit.__init__(self, 'Center of mass', model, xmin=xmin, xmax=xmax)
+
+    def guesspar(self, x, y):
+        # no need to guess anything here.
+        return 0
+
+    def run(self, x, y, dy):
+        # apply limits
+        xn, yn, dyn = self._prepare(x, y, dy)
+        cm = (xn * yn).sum() / yn.sum()
+        res = self.result(xn, yn, dyn, [cm], [0])
+        # plot the result by showing a more or less vertical line at the
+        # center-of-mass position
+        res.curve_x = array([cm-0.001, cm, cm+0.001])
+        res.curve_y = array([0, yn.max(), 0])
+        return res
