@@ -46,7 +46,7 @@ from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
 from nicos.guisupport.plots import NicosPlotAxes, NicosTimePlotAxes, \
     MaskedPlotCurve, DATEFMT, TIMEFMT
 from nicos.clients.gui.dialogs.data import DataExportDialog
-from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
+from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi, loadUi
 from nicos.utils import safeFilename
 from nicos.utils.fitting import Fit, FitResult, LinearFit, GaussFit, \
     PseudoVoigtFit, PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, \
@@ -285,50 +285,39 @@ class TcFitter(Fitter):
         return f.run_or_raise(*self.data)
 
 
-class ArbitraryFitter(Fitter):
-    title = 'fit'
+class ArbyFitDialog(QDialog):
 
-    arby_functions = {
-        'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
-                        'a b c x1 x2 s1 s2'),
-        'Gaussian x3 symm.':
-            ('a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
-             'c*exp(-(x-x0)**2/s0**2)', 'a b c x0 x1 s0 s1'),
-        'Parabola': ('a*x**2 + b*x + c', 'a b c'),
-    }
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'fit_arby.ui', 'panels')
+        self.presets = DlgPresets('fit_arby',
+                                  [(self.function, ''), (self.fitparams, ''),
+                                   (self.xfrom, ''), (self.xto, '')])
+        self.presets.load()
+        for name in sorted(ArbitraryFitter.arby_functions):
+            QListWidgetItem(name, self.oftenUsed)
 
-    def begin(self):
-        dlg = dialogFromUi(self.plot, 'fit_arby.ui', 'panels')
-        pr = DlgPresets('fit_arby',
-                        [(dlg.function, ''), (dlg.fitparams, ''),
-                         (dlg.xfrom, ''), (dlg.xto, '')])
-        pr.load()
-        for name in sorted(self.arby_functions):
-            QListWidgetItem(name, dlg.oftenUsed)
+    def on_oftenUsed_itemClicked(self, item):
+        params, func = ArbitraryFitter.arby_functions[item.text()]
+        self.function.setText(func)
+        self.fitparams.setPlainText('\n'.join(params))
 
-        def click_cb(item):
-            func, params = self.arby_functions[item.text()]
-            dlg.function.setText(func)
-            dlg.fitparams.setPlainText('\n'.join(
-                p + ' = ' for p in params.split()))
-        dlg.oftenUsed.itemClicked.connect(click_cb)
-        ret = dlg.exec_()
-        if ret != QDialog.Accepted:
-            return
-        pr.save()
-        fcnstr = dlg.function.text()
+    def getFunction(self):
+        self.presets.save()
+
+        fcnstr = self.function.text()
         try:
-            xmin = float(dlg.xfrom.text())
+            xmin = float(self.xfrom.text())
         except ValueError:
             xmin = None
         try:
-            xmax = float(dlg.xto.text())
+            xmax = float(self.xto.text())
         except ValueError:
             xmax = None
         if xmin is not None and xmax is not None and xmin > xmax:
             xmax, xmin = xmin, xmax
         params, values = [], []
-        for line in dlg.fitparams.toPlainText().splitlines():
+        for line in self.fitparams.toPlainText().splitlines():
             name_value = line.strip().split('=', 2)
             if len(name_value) < 2:
                 continue
@@ -336,7 +325,37 @@ class ArbitraryFitter(Fitter):
             try:
                 values.append(float(name_value[1]))
             except ValueError:
-                values.append(0)
+                values.append(1.0)
+
+        return fcnstr, params, values, xmin, xmax
+
+
+class ArbitraryFitter(Fitter):
+    title = 'fit'
+
+    arby_functions = {
+        'Gaussian x2': (
+            ['a =', 'b =', 'c =', 'x1 =', 'x2 =', 's1 =', 's2 ='],
+            'a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
+        ),
+        'Gaussian x3 symm.': (
+            ['a =', 'b =', 'c =', 'x0 =', 'x1 =', 's0 =', 's1 ='],
+            'a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
+            'c*exp(-(x-x0)**2/s0**2)',
+        ),
+        'Parabola': (
+            ['a =', 'b =', 'c ='],
+            'a*x**2 + b*x + c',
+        ),
+    }
+
+    def begin(self):
+        dlg = ArbyFitDialog(self.plot)
+        ret = dlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+
+        fcnstr, params, values, xmin, xmax = dlg.getFunction()
 
         ns = {}
         exec_('from numpy import *', ns)

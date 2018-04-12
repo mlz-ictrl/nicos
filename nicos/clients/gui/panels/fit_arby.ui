@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LogViewerUI</class>
- <widget class="QDialog" name="LogViewerUI">
+ <class>ArbyFunction</class>
+ <widget class="QDialog" name="ArbyFunction">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
-    <height>333</height>
+    <width>644</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <property name="bottomMargin">
-      <number>6</number>
-     </property>
      <item row="1" column="2" colspan="4">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -85,6 +82,16 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>More custom functions can be added as options of the scans panel in the GUI config file.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="1" column="1" rowspan="5">
@@ -108,78 +115,78 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="15" margin="15"/>
  <tabstops>
+  <tabstop>oftenUsed</tabstop>
+  <tabstop>function</tabstop>
   <tabstop>fitparams</tabstop>
   <tabstop>xfrom</tabstop>
   <tabstop>xto</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>LogViewerUI</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>116</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>241</x>
-     <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>LogViewerUI</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>116</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>241</x>
-     <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>function</sender>
    <signal>returnPressed()</signal>
-   <receiver>LogViewerUI</receiver>
+   <receiver>ArbyFunction</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>18</y>
+     <x>478</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
-     <x>241</x>
-     <y>67</y>
+     <x>285</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>xto</sender>
    <signal>returnPressed()</signal>
-   <receiver>LogViewerUI</receiver>
+   <receiver>ArbyFunction</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>50</y>
+     <x>564</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>241</x>
      <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ArbyFunction</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>492</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ArbyFunction</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>601</x>
+     <y>332</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>514</x>
+     <y>342</y>
     </hint>
    </hints>
   </connection>
