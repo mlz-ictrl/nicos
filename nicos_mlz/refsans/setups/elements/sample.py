@@ -17,7 +17,7 @@ devices = dict(
         unit = 'mm',
     ),
     d_last_slit_sample = device('nicos.devices.generic.ManualMove',
-        description = 'distant last slit to samplecenter',
+        description = 'distance last slit to samplecenter',
         abslimits = (0,1000),
         fmtstr = '%.1f',
         unit = 'mm',
