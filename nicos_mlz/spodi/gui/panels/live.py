@@ -41,6 +41,7 @@ class FullScreen1DWidget(LiveWidget1D):
         self.axes.xdual = False
         self.axes.xtick = 1
         self.axes.majorx = 5
+        self.axes.ticksize = 0.005
 
     def setData(self, array):
         self._array = array
