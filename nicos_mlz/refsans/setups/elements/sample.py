@@ -1,11 +1,10 @@
-description = "dimension of sample"
+description = 'Sample dimensions'
 
 group = 'lowlevel'
-# group = 'optional'
 
 devices = dict(
     width = device('nicos.devices.generic.ManualMove',
-        description = 'with of sample lateral',
+        description = 'width of sample lateral',
         abslimits = (0, 100),
         fmtstr = '%.1f',
         unit = 'mm',
@@ -18,12 +17,12 @@ devices = dict(
     ),
     d_last_slit_sample = device('nicos.devices.generic.ManualMove',
         description = 'distance last slit to samplecenter',
-        abslimits = (0,1000),
+        abslimits = (0, 1000),
         fmtstr = '%.1f',
         unit = 'mm',
     ),
     last_slit = device('nicos.devices.generic.ManualSwitch',
-        description = 'with is the last slit',
+        description = 'what is the last slit',
         states = ['b2', 'b3'],
         fmtstr = '%s',
     ),
