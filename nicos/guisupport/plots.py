@@ -109,6 +109,12 @@ class NicosPlotAxes(PlotAxes):
                 return original_win
         return PlotAxes.doAutoScale(self, curvechanged)
 
+    def drawGR(self):
+        lwidth = gr.inqlinewidth()
+        gr.setlinewidth(0.)
+        PlotAxes.drawGR(self)
+        gr.setlinewidth(lwidth)
+
 
 class NicosTimePlotAxes(NicosPlotAxes):
     """Plot axes with automatic sensible formatting of time X axis."""
