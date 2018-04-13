@@ -26,20 +26,23 @@
 Calculate Sample illumination for reflectometers
 """
 
-from numpy import sin, radians
+from numpy import sin, radians, nan
 
 from nicos.core import Readable, Param, Attach
 from nicos.devices.generic import Slit
 
+
 class SampleIllumination(Readable):
+
 
     parameters = {
         's1pos': Param('Slit 1 position relative to sample',
                        mandatory=True, type=float),
         's2pos': Param('Slit 2 position relative to sample',
                        mandatory=True, type=float),
+        'f0':    Param('Footprint for n * pi, 0 <= n <= N',
+                       type=float, default=nan)
     }
-
     attached_devices = {
         's1':    Attach('First slit', Slit),
         's2':    Attach('Second slit', Slit),
@@ -60,4 +63,4 @@ class SampleIllumination(Readable):
         denominator = abs(sin(radians(theta)))
         if denominator > 0:
             return (min(s1w, s2w) + l2 / l1 * (s1w + s2w)) / denominator
-        return 0
+        return self.f0
