@@ -68,7 +68,7 @@ devices = dict(
         fallback = 'unknown',
     ),
     flip_set = device('nicos.devices.tango.DigitalOutput',
-        tangodevice = tango_base + 'fzjdp_digital/flipper_write',
+        tangodevice = tango_base + 'sps/flipper_write',
         lowlevel = True,
     ),
     flip_ps = device('nicos.devices.tango.PowerSupply',
