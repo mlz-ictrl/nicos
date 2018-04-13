@@ -1,6 +1,60 @@
 Changelog
 =========
 
+Release 3.2.0
+-------------
+
+* Core
+
+  - The "center()" and "checkoffset()" commands can now use any defined
+    fitting function, or "center_of_mass", to determine the peak center.
+
+  - Fitting commands output the relative error as a column.
+
+  - The collector service can now forward cache values to multiple different
+    backends (NICOS cache/webhooks).
+
+* Devices
+
+  - Tango VectorInput/VectorOutput are now supported.
+
+  - Added a device to read out the absolute Q value for TAS instruments.
+
+  - The generic detector can now calculate post-processed values from
+    scalar-valued PassiveChannels.
+
+  - Added an image sink for writing multiple arrays from a single detector.
+
+* GUI
+
+  - Each setup can now name a "representative" device to show in the
+    device tree when the setup is collapsed.
+
+  - The history panel can now save multiple displayed curves in one data file.
+
+  - The selection of a fit function, and whether to pick initial fit points,
+    has been reworked in the scans and history panels.
+
+  - All available fit functions can be used in the scans and history panels.
+
+  - Fitting by default uses the currently viewed range to limit the fit range.
+
+  - Custom function presets can be added to the "Fit arbitrary function" dialog
+    in the GUI config.
+
+  - Instrument configurations can now include custom dialogs to show on
+    NewExperiment and FinishExperiment (if triggered through the proposal
+    window).
+
+  - Some minor visual enhancements in the plot displays.
+
+* Demo
+
+  - The "nicos-demo" command now always starts with the demo instrument.
+    To use an instrument selected by nicos.conf or the INSTRUMENT environment
+    variable, pass the "-O" option.
+
+
 Release 3.1.0
 -------------
 
