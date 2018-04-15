@@ -3,8 +3,8 @@
 description = 'RESEDA MIEZE setup'
 group = 'basic'
 includes = [
-    'reseda', 'det_cascade', 'arm_0a', 'arm_0b', 'arm_1',  'arm_2', 'slits',
-    'attenuators', 'slitsng', 'tuning'
+    'reseda', 'det_cascade', 'arm_0', 'armcontrol',  'slits', 'attenuators',
+    'slitsng', 'tuning'
 ]
 
 startupcode = '''

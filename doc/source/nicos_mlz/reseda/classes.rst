@@ -34,6 +34,10 @@
 .. automodule:: nicos_mlz.reseda.devices.tuning
 .. autoclass:: EchoTime
 
+.. automodule:: nicos_mlz.reseda.devices.armcontrol
+.. autoclass:: ArmController
+
+
 Data file formats
 -----------------
 
