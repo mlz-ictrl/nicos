@@ -9,7 +9,6 @@ includes = [
     'virtual_sample',
     'virtual_selector',
     'virtual_detector',
-    'virtual_shutter',
     'virtual_polarizer',
     'virtual_daq',
 ]
