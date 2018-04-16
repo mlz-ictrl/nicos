@@ -35,6 +35,8 @@ main_window = tabbed(
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     ('Live display', panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
                            instrument='dns')),
+    ('Live display (PSD)', panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+                           instrument='dnspsd')),
 )
 
 windows = []
