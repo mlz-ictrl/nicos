@@ -67,6 +67,7 @@ class Regulator(Moveable):
     def doInit(self, mode):
         self._regulation_thread = None
         self._stop_request = False
+        self.valuetype = self._attached_moveable.valuetype
 
     def doShutdown(self):
         self.doStop()
