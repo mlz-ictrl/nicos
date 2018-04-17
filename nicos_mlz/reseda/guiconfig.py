@@ -16,9 +16,11 @@ main_window = tabbed(
          panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)
         ),
         )
-     ),
-    ('Tunewave table', panel('nicos_mlz.reseda.gui.tunewavetable.TunewaveTablePanel',
-                             tabledev='echotime'))
+    ),
+    ('Tunewave table',
+     panel('nicos_mlz.reseda.gui.tunewavetable.TunewaveTablePanel',
+           tabledev='echotime')
+    ),
 )
 
 windows = [

@@ -31,7 +31,7 @@ from nicos.devices.tango import PyTangoDevice
 class Trigger(PyTangoDevice, Moveable):
     """sends a preconfigured string upon move to the configured StringIO
 
-    This should only be used with SCPY devices and the string to be send
+    This should only be used with SCPI devices and the string to be send
     should *not* provoke an answer.
     """
     parameters = {
