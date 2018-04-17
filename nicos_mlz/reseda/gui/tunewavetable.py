@@ -460,6 +460,7 @@ class TunewaveTablePanel(Panel):
             self._stop_edit)
         self.tableWidget.horizontalHeader().sectionPressed.connect(
             self._stop_edit)
+        self.tableWidget.setAlternatingRowColors(True)
 
         client.connected.connect(self.on_client_connected)
         client.device.connect(self.on_client_device)
