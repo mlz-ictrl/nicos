@@ -1,7 +1,8 @@
 description = 'setup for the 10% velocity selector'
 
 group = 'optional'
-excludes = ['selector020', 'astrium']
+
+excludes = ['selector020']
 
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 

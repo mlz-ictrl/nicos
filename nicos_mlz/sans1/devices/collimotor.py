@@ -25,6 +25,7 @@
 """Devices for the SANS-1 collimation system."""
 
 import struct
+import time
 
 from Modbus import Modbus
 
@@ -211,6 +212,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     parameter_overrides = {
         'timeout':  Override(mandatory=False, default=300),
     }
+    _busy_until = 0
 
     def doInit(self, mode):
         # make sure we are in the right address range
@@ -237,6 +239,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value):
+        self._busy_until = time.time() + 3
         self.log.debug('_writeControlBit %r, %r', bit, value)
         tmpval = self._taco_guard(self._dev.readHoldingRegisters,
                                   (0, self.address, 1))[0]
@@ -244,7 +247,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         tmpval |= (int(value) << int(bit))
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
-        session.delay(0.1)  # work around race conditions....
+        session.delay(0.5)  # work around race conditions....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r', value)
@@ -479,6 +482,11 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
 
         msg = ', '.join(msg)
         self.log.debug('_HW_Status returns %r', (code, msg))
+
+        if self._busy_until > time.time():
+            code = max(code, status.BUSY)
+            msg = 'timed busy, %s' % msg
+
         return code, msg
 
     #
