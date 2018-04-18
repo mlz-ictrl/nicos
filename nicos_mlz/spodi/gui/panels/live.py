@@ -40,7 +40,7 @@ class FullScreen1DWidget(LiveWidget1D):
         self.plot.ylabel = 'counts'
         self.axes.xdual = False
         self.axes.xtick = 1
-        self.axes.majorx = 5
+        self.axes.majorx = 10
         self.axes.ticksize = 0.005
 
     def setData(self, array):

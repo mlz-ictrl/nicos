@@ -62,16 +62,17 @@ devices = dict(
         timers = ['timer'],
         monitors = ['mon1', 'mon2'],
         images = ['det_img'],
-        counters = ['det_roi'],
+        counters = [], # ['det_roi'], # ['det_5x5max'],
         others = [],
-        postprocess = [('det_roi', 'det_img')],
-        shutter = 'shutter',
+        postprocess = [],
+#        postprocess = [('det_roi', 'det_img')],
+#        postprocess = [('det_5x5max', 'det_img')],
+        shutter = None,
         liveinterval = 2.0,
     ),
 )
 
 extended = dict(
-    poller_cache_reader = ['shutter'],
     representative = 'det_img',
 )
 

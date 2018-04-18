@@ -62,7 +62,7 @@ devices = dict(
     det_y_desync = device('nicos.devices.tango.DigitalOutput',
         description =
         'disables synchronized movement of det_y and det_y2 when set to 1',
-        tangodevice = tango_base + 'fzjdp_digital/det_y_desync',
+        tangodevice = tango_base + 'sps/det_y_desync',
         fmtstr = '%#x',
         lowlevel = True,
     ),

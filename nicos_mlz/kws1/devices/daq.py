@@ -198,7 +198,8 @@ class VirtualKWSImageChannel(VirtualImage):
 class KWSDetector(Detector):
 
     attached_devices = {
-        'shutter':     Attach('Shutter for opening and closing', Moveable),
+        'shutter':     Attach('Shutter for opening and closing', Moveable,
+                              optional=True),
     }
 
     parameters = {
@@ -261,7 +262,7 @@ class KWSDetector(Detector):
         Detector.doPrepare(self)
 
     def doStart(self):
-        if self.openshutter:
+        if self._attached_shutter and self.openshutter:
             self._attached_shutter.maw('open')
         self.kwscounting = True
         Detector.doStart(self)
@@ -269,11 +270,11 @@ class KWSDetector(Detector):
     def doFinish(self):
         Detector.doFinish(self)
         self.kwscounting = False
-        if self.openshutter:
+        if self._attached_shutter and self.openshutter:
             self._attached_shutter.maw('closed')
 
     def doStop(self):
         Detector.doStop(self)
         self.kwscounting = False
-        if self.openshutter:
+        if self._attached_shutter and self.openshutter:
             self._attached_shutter.maw('closed')
