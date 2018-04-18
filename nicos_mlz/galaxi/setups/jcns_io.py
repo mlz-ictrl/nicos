@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-description = 'GALAXI digital in- and outputs'
+description = 'GALAXI in- and outputs'
 
 group = 'optional'
 
@@ -8,20 +8,20 @@ includes = []
 
 tango_base = 'tango://localhost:10000/galaxi/'
 tango_digital = tango_base + 'fzjdp_digital/'
-tango_analog = tango_base + 'fzjdp_analog/'
+tango_analog = tango_base + 'plc_io/'
 
 devices = dict(
     vacuumtube1 = device('nicos.devices.tango.AnalogInput',
         description = 'Vacuum tube 1',
-        tangodevice = tango_analog + 'VacuumTube1',
+        tangodevice = tango_analog + 'vacuum_tube1',
     ),
     vacuumtube2 = device('nicos.devices.tango.AnalogInput',
         description = 'Vacuum tube 2',
-        tangodevice = tango_analog + 'VacuumTube2',
+        tangodevice = tango_analog + 'vacuum_tube2',
     ),
     vacuumtube3 = device('nicos.devices.tango.AnalogInput',
         description = 'Vacuum tube 3',
-        tangodevice = tango_analog + 'VacuumTube3',
+        tangodevice = tango_analog + 'vacuum_tube3',
     ),
     pump02 = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Pump 2',
