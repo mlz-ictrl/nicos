@@ -235,7 +235,7 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
                       self.gear)
         # TODO: Check the following lines
         self._write_controller('m4073=%d m4074=0 m4075=%d m4076=%d m4070=7',
-                               value, self.gear)
+                               set_to, self.gear)
         session.delay(10)  # time needed to take over the phase!!!
 
     def doStatus(self, maxage=0):
