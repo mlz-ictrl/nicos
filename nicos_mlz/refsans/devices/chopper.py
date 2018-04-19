@@ -215,10 +215,11 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 
     def doReadPhase(self):
         res = int(self._read_controller('m410%s'))
-        self.log.debug('phase: %d', res)
-        if res == 99999:
+        set_to = res - self.reference
+        self.log.debug('phase: %d %d', set_to,res)
+        if set_to == 99999:
             return 0
-        return res / 100.
+        return set_to / 100.
 
     def doWritePhase(self, value):
         # off = self.offsets[disk] - self.offsets[1]
