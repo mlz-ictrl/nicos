@@ -143,8 +143,8 @@ _sans1det = Column(
                  Field(name='det1_x', dev='det1_x', width=13),
                 ),
         BlockRow(
-                 Field(name='bs1_x', dev='bs1_x', width=13),
-                 Field(name='bs1_y', dev='bs1_y', width=13),
+                 Field(name='bs1', dev='bs1', width=13),
+                 Field(name='bs1_shape', dev='bs1_shape', width=13),
                 ),
         BlockRow(
                  Field(name='events', dev='det1_ev', width=13),
