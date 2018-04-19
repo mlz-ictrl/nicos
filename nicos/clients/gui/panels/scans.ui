@@ -254,7 +254,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit &amp;Tc</string>
+    <string>&amp;Tc fit</string>
    </property>
    <property name="iconText">
     <string>Fit Tc</string>
@@ -265,7 +265,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit Pseudo-Voigt Peak</string>
+    <string>Pseudo-Voigt</string>
    </property>
    <property name="iconText">
     <string>Peak fit (PV)</string>
@@ -284,7 +284,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit Pearson VII Peak</string>
+    <string>Pearson VII</string>
    </property>
    <property name="iconText">
     <string>Peak fit (PVII)</string>
@@ -359,7 +359,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit cosine</string>
+    <string>Cosine</string>
    </property>
    <property name="iconText">
     <string>Peak fit (PV)</string>
@@ -373,7 +373,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit &amp;Sigmoid</string>
+    <string>&amp;Sigmoid</string>
    </property>
    <property name="iconText">
     <string>Fit Sigmoid</string>
@@ -398,23 +398,12 @@
     <string>Y axis</string>
    </property>
   </action>
-  <action name="actionPickForFit">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Pick fit starting points</string>
-   </property>
-   <property name="toolTip">
-    <string>Pick selected points to guess fit params</string>
-   </property>
-  </action>
   <action name="actionFitPeakGaussian">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit &amp;Gaussian peak</string>
+    <string>&amp;Gaussian</string>
    </property>
    <property name="iconText">
     <string>Peak fit</string>
@@ -425,7 +414,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit exponential</string>
+    <string>Exponential</string>
    </property>
    <property name="toolTip">
     <string>Exponential fit: y = exp(b(x-x0))</string>
@@ -436,10 +425,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fit line</string>
+    <string>Line</string>
    </property>
    <property name="toolTip">
     <string>Linear fit: y = m*x + t</string>
+   </property>
+  </action>
+  <action name="actionPickInitial">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pick starting points for fit</string>
    </property>
   </action>
  </widget>

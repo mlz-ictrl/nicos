@@ -31,7 +31,7 @@ from math import sqrt
 from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QDialog, QMenu, \
     QToolBar, QStatusBar, QFont, QListWidgetItem, QSizePolicy, QPalette, \
     QKeySequence, QShortcut, QTableWidgetItem, QActionGroup, QComboBox, \
-    QWidgetAction
+    QWidgetAction, QCheckBox, QHBoxLayout, QFrame
 
 from nicos.utils import safeFilename
 from nicos.core.data import ScanData
@@ -256,6 +256,7 @@ class ScansPanel(Panel):
             ag.addAction(self.actionFitLinear)
             ag.addAction(self.actionFitExponential)
             menu2.addAction(self.actionFitPeak)
+            menu2.addAction(self.actionPickInitial)
             menu2.addAction(self.actionFitPeakGaussian)
             menu2.addAction(self.actionFitPeakPV)
             menu2.addAction(self.actionFitPeakPVII)
@@ -264,7 +265,6 @@ class ScansPanel(Panel):
             menu2.addAction(self.actionFitSigmoid)
             menu2.addAction(self.actionFitLinear)
             menu2.addAction(self.actionFitExponential)
-            menu2.addAction(self.actionPickForFit)
             menu2.addSeparator()
             menu2.addAction(self.actionFitArby)
 
@@ -297,6 +297,20 @@ class ScansPanel(Panel):
 
             fitbar = QToolBar('Scan fitting')
             fitbar.addAction(self.actionFitPeak)
+            wa = QWidgetAction(fitbar)
+            self.fitPickCheckbox = QCheckBox(fitbar)
+            self.fitPickCheckbox.setText('Pick')
+            self.fitPickCheckbox.setChecked(True)
+            self.actionPickInitial.setChecked(True)
+            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
+            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
+            layout = QHBoxLayout()
+            layout.setContentsMargins(10, 0, 10, 0)
+            layout.addWidget(self.fitPickCheckbox)
+            frame = QFrame(fitbar)
+            frame.setLayout(layout)
+            wa.setDefaultWidget(frame)
+            fitbar.addAction(wa)
             ag = QActionGroup(fitbar)
             ag.addAction(self.actionFitPeakGaussian)
             ag.addAction(self.actionFitPeakPV)
@@ -316,7 +330,6 @@ class ScansPanel(Panel):
                 self.on_fitComboBox_currentIndexChanged)
             wa.setDefaultWidget(self.fitComboBox)
             fitbar.addAction(wa)
-            fitbar.addAction(self.actionPickForFit)
             fitbar.addSeparator()
             fitbar.addAction(self.actionFitArby)
 
@@ -682,7 +695,7 @@ class ScansPanel(Panel):
     @pyqtSlot()
     def on_actionFitPeak_triggered(self):
         self.currentPlot.beginFit(self.fitclass, self.actionFitPeak,
-                                  pickmode=self.actionPickForFit.isChecked())
+                                  pickmode=self.fitPickCheckbox.isChecked())
 
     @pyqtSlot(int)
     def on_fitComboBox_currentIndexChanged(self, index):
@@ -740,7 +753,7 @@ class ScansPanel(Panel):
     def on_actionFitArby_triggered(self):
         # no second argument: the "arbitrary" action is not checkable
         self.currentPlot.beginFit(ArbitraryFitter, None,
-                                  pickmode=self.actionPickForFit.isChecked())
+                                  pickmode=self.fitPickCheckbox.isChecked())
 
     @pyqtSlot()
     def on_quickfit(self):

@@ -34,9 +34,9 @@ from collections import OrderedDict
 
 from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QObject, QTimer, \
     QDateTime, QByteArray, QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
-    QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, \
+    QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, QFrame, \
     QBrush, QColor, QCompleter, QStyledItemDelegate, QActionGroup, \
-    QComboBox, QWidgetAction, QApplication
+    QComboBox, QWidgetAction, QApplication, QCheckBox, QHBoxLayout
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename, extractKeyAndIndex
@@ -806,7 +806,7 @@ class BaseHistoryWindow(object):
 
     def on__actionFitPeak_triggered(self):
         self.currentPlot.beginFit(self.fitclass, self.actionFitPeak,
-                                  self.actionPickForFit.isChecked())
+                                  self.fitPickCheckbox.isChecked())
 
     def on__actionFitLinear_triggered(self):
         cbi = self.fitComboBox.findText(self.actionFitLinear.text().replace('&', ''))
@@ -851,7 +851,7 @@ class BaseHistoryWindow(object):
     def on__actionFitArby_triggered(self):
         # no second argument: the "arbitrary" action is not checkable
         self.currentPlot.beginFit(ArbitraryFitter, None,
-                                  self.actionPickForFit.isChecked())
+                                  self.fitPickCheckbox.isChecked())
 
 
 class HistoryPanel(BaseHistoryWindow, Panel):
@@ -918,6 +918,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         ag.addAction(self.actionFitLinear)
         ag.addAction(self.actionFitExponential)
         menu.addAction(self.actionFitPeak)
+        menu.addAction(self.actionPickInitial)
         menu.addAction(self.actionFitPeakGaussian)
         menu.addAction(self.actionFitPeakPV)
         menu.addAction(self.actionFitPeakPVII)
@@ -926,7 +927,6 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         menu.addAction(self.actionFitSigmoid)
         menu.addAction(self.actionFitLinear)
         menu.addAction(self.actionFitExponential)
-        menu.addAction(self.actionPickForFit)
         menu.addSeparator()
         menu.addAction(self.actionFitArby)
         menu.addSeparator()
@@ -985,6 +985,20 @@ class HistoryPanel(BaseHistoryWindow, Panel):
             bar.addAction(self.actionDeleteView)
             bar.addSeparator()
             bar.addAction(self.actionFitPeak)
+            wa = QWidgetAction(bar)
+            self.fitPickCheckbox = QCheckBox(bar)
+            self.fitPickCheckbox.setText('Pick')
+            self.fitPickCheckbox.setChecked(True)
+            self.actionPickInitial.setChecked(True)
+            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
+            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
+            layout = QHBoxLayout()
+            layout.setContentsMargins(10, 0, 10, 0)
+            layout.addWidget(self.fitPickCheckbox)
+            frame = QFrame(bar)
+            frame.setLayout(layout)
+            wa.setDefaultWidget(frame)
+            bar.addAction(wa)
             ag = QActionGroup(bar)
             ag.addAction(self.actionFitPeakGaussian)
             ag.addAction(self.actionFitPeakPV)
@@ -1004,7 +1018,6 @@ class HistoryPanel(BaseHistoryWindow, Panel):
                 self.on_fitComboBox_currentIndexChanged)
             wa.setDefaultWidget(self.fitComboBox)
             bar.addAction(wa)
-            bar.addAction(self.actionPickForFit)
             bar.addSeparator()
             bar.addAction(self.actionFitArby)
             self.bar = bar
@@ -1172,6 +1185,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
             ag.addAction(self.actionFitLinear)
             ag.addAction(self.actionFitExponential)
             menu.addAction(self.actionFitPeak)
+            menu.addAction(self.actionPickInitial)
             menu.addAction(self.actionFitPeakGaussian)
             menu.addAction(self.actionFitPeakPV)
             menu.addAction(self.actionFitPeakPVII)
@@ -1180,7 +1194,6 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
             menu.addAction(self.actionFitSigmoid)
             menu.addAction(self.actionFitLinear)
             menu.addAction(self.actionFitExponential)
-            menu.addAction(self.actionPickForFit)
             menu.addSeparator()
             menu.addAction(self.actionFitArby)
             menu.addSeparator()
@@ -1208,6 +1221,20 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
             bar.addAction(self.actionDeleteView)
             self.bar = bar
             bar.addAction(self.actionFitPeak)
+            wa = QWidgetAction(bar)
+            self.fitPickCheckbox = QCheckBox(bar)
+            self.fitPickCheckbox.setText('Pick')
+            self.fitPickCheckbox.setChecked(True)
+            self.actionPickInitial.setChecked(True)
+            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
+            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
+            layout = QHBoxLayout()
+            layout.setContentsMargins(10, 0, 10, 0)
+            layout.addWidget(self.fitPickCheckbox)
+            frame = QFrame(bar)
+            frame.setLayout(layout)
+            wa.setDefaultWidget(frame)
+            bar.addAction(wa)
             ag = QActionGroup(bar)
             ag.addAction(self.actionFitPeakGaussian)
             ag.addAction(self.actionFitPeakPV)
@@ -1226,7 +1253,6 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
                 self.on_fitComboBox_currentIndexChanged)
             wa.setDefaultWidget(self.fitComboBox)
             bar.addAction(wa)
-            bar.addAction(self.actionPickForFit)
             bar.addSeparator()
             bar.addAction(self.actionFitArby)
             self.bar = bar
