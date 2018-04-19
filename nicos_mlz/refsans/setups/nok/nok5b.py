@@ -81,4 +81,9 @@ devices = dict(
         backlash = -2,   # is this configured somewhere?
         precision = 0.002,
     ),
+    nok5b_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'nok5b mode',
+        device = 'nok5b',
+        parameter = 'mode',
+    ),
 )

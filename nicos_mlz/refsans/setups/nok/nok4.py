@@ -22,6 +22,12 @@ devices = dict(
         precision = 0.5,
     ),
 
+    nok4_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'nok4 mode',
+        device = 'nok4',
+        parameter = 'mode',
+    ),
+
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok4r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK4, reactor side',

@@ -21,6 +21,11 @@ devices = dict(
         backlash = -2,   # is this configured somewhere?
         precision = 0.5,
     ),
+    nok8_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'nok8 mode',
+        device = 'nok8',
+        parameter = 'mode',
+    ),
 
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok8r_axis = device('nicos.devices.generic.Axis',
