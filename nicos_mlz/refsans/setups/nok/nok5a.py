@@ -3,6 +3,7 @@ description = 'NOK5a using Beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
+global_values = configdata('global.GLOBAL_Values')
 
 excludes = ['nok5a_old']
 
@@ -77,5 +78,12 @@ devices = dict(
         motor_s = 'nok5a_s',
         backlash = -2,   # is this configured somewhere?
         precision = 0.01,
+        masks = {
+            'ng': global_values['ng'],
+            'rc': global_values['ng'],
+            'vc': global_values['vc'],
+            'fc': global_values['fc'],
+            #pola
+        },
     ),
 )

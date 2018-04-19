@@ -26,10 +26,10 @@
 from nicos import session
 
 from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
-    Readable, SIMULATION, status
+    Readable, SIMULATION, dictwith, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
-    limits, none_or,oneof, nonemptylistof, tupleof
+    limits, none_or, oneof, nonemptylistof, tupleof
 from nicos.core.utils import multiReset
 
 from nicos.devices.abstract import CanReference, Coder
@@ -42,6 +42,8 @@ from nicos.devices.vendor.ipc import Motor as IPCMotor
 from nicos.utils import clamp, lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
+
+MODES = ['ng', 'rc', 'vc', 'fc']
 
 
 class NOKMonitoredVoltage(AnalogInput):
@@ -478,6 +480,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     }
 
     parameters = {
+        'mode': Param('Beam mode',
+                      type=oneof(*MODES),
+                      settable=True, userparam=True, default='ng'),
         'nok_motor': Param('Position of the motor for this NOK',
                            type=tupleof(float, float), settable=False,
                            unit='mm'),
@@ -492,7 +497,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     }
 
     parameter_overrides = {
-        'precision': Override(type=floatrange(0, 100))
+        'precision': Override(type=floatrange(0, 100)),
+        'masks': Override(type=dictwith(**dict((name, float) for name in MODES)),
+                          unit='', mandatory=True),
     }
 
     valuetype = tupleof(float, float)
@@ -509,8 +516,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                                          'have a non-zero backlash!' % dev)
 
     def doRead(self, maxage=0):
-        return [dev.read(maxage) - ofs for dev, ofs in zip(self._devices,
-                                                             self.offsets)]
+        return [dev.read(maxage) - ofs - self.masks[self.mode]
+                for dev, ofs in zip(self._devices, self.offsets)]
 
     def doIsAllowed(self, targets):
         target_r, target_s = targets
@@ -537,6 +544,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         traveldists = [target - dev.read(0) - ofs
                        for target, dev, ofs in zip(targets, self._devices,
                                                    self.offsets)]
+        self.log.debug('doIsAtTarget', targets, 'traveldists', traveldists)
         return max(abs(v) for v in traveldists) <= self.precision
 
     def doStop(self):
@@ -705,7 +713,7 @@ class MotorEncoderDifference(Readable):
     }
 
     def doRead(self, maxage=0):
-        return abs(self._attached_analog.read(maxage)-
+        return abs(self._attached_analog.read(maxage) -
                    self._attached_motor.read(maxage))
 
     def doStatus(self, maxage=0):

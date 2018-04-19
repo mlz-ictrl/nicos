@@ -5,6 +5,7 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus2', 'nokbus3']
 
 nethost = 'refsanssrv.refsans.frm2'
+global_values = configdata('global.GLOBAL_Values')
 
 devices = dict(
     nok6 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
@@ -20,6 +21,12 @@ devices = dict(
         nok_motor = [6137.0, 7357.0],
         backlash = -2,   # is this configured somewhere?
         precision = 0.5,
+        masks = {
+            'ng': global_values['ng'],
+            'rc': global_values['ng'],
+            'vc': global_values['vc'],
+            'fc': global_values['fc'],
+        },
     ),
     nok6_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'nok6 mode',

@@ -3,6 +3,7 @@ description = "neutronguide, radialcollimator"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1', 'nokbus2']
+global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -20,6 +21,12 @@ devices = dict(
         nok_motor = [1477.0, 2177.0],
         backlash = -2,   # is this configured somewhere?
         precision = 0.5,
+        masks = {
+            'ng': global_values['ng'],
+            'rc': global_values['rc'],
+            'vc': global_values['ng'],
+            'fc': global_values['ng'],
+        },
     ),
 
     nok4_mode = device('nicos.devices.generic.ReadonlyParamDevice',
