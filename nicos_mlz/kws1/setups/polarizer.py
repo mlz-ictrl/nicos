@@ -83,3 +83,7 @@ devices = dict(
         supply = 'flip_ps',
     ),
 )
+
+extended = dict(
+    representative = 'polarizer',
+)

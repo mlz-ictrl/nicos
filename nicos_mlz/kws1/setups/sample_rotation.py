@@ -17,3 +17,7 @@ devices = dict(
         fmtstr = '%.2f',
     ),
 )
+
+extended = dict(
+    representative = 'sam_rot',
+)

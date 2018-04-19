@@ -50,4 +50,5 @@ devices = dict(
 
 extended = dict(
     poller_cache_reader = ['shutter'],
+    representative = 'det_img',
 )

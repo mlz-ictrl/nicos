@@ -19,3 +19,7 @@ devices = dict(
         states = ['off', 'on'],
     ),
 )
+
+extended = dict(
+    representative = 'polarizer',
+)

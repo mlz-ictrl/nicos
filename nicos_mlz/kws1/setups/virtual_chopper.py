@@ -42,4 +42,5 @@ devices = dict(
 
 extended = dict(
     poller_cache_reader = ['detector', 'selector', 'det'],
+    representative = 'chopper',
 )

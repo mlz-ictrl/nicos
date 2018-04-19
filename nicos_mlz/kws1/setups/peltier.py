@@ -22,3 +22,7 @@ alias_config = {
     'T':  {'T_peltier': 110},  # higher than Julabo alone
     'Ts': {'T_peltier': 110},
 }
+
+extended = dict(
+    representative = 'T_peltier',
+)

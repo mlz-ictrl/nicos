@@ -40,3 +40,7 @@ devices = dict(
         maxage = 120,
     ),
 )
+
+extended = dict(
+    representative = 'shutter',
+)
