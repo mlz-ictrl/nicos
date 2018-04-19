@@ -37,7 +37,11 @@ from nicos.devices.tango import StringIO
 class ChopperBase(Moveable, StringIO):
 
     def _read_controller(self, mvalue):
-        what = mvalue % self.chopper
+        # TODO  this has to be fix somehow
+        if hasattr(self, 'chopper'):
+            what = mvalue % self.chopper
+        else:
+            what = mvalue
         self.log.debug('_read_controller what: %s', what)
         res = self.communicate(what)
         res = res.replace('\x06', '')
@@ -46,7 +50,11 @@ class ChopperBase(Moveable, StringIO):
 
     def _write_controller(self, mvalue, *values):
         # TODO: fix formatting for single values and lists
-        what = mvalue % ((self.chopper,) + values)
+        # TODO: this has to be fix somehow
+        if hasattr(self, 'chopper'):
+            what = mvalue % ((self.chopper,) + values)
+        else:
+            what = mvalue % (values)
         self.log.debug('_read_controller what: %s', what)
         self.writeLine(what)
 
@@ -64,7 +72,11 @@ class ChopperMaster(ChopperBase):
     parameters = {
         'mode': Param('Chopper operation mode (normal, virtual6)',
                       type=oneof('normal_mode', 'virtual_disc2_pos_6'),
-                      settable=False, volatile=True)
+                      settable=False, volatile=True),
+        'delay': Param('delay for Startsignal in Degree',
+                       type=floatrange(-360, 360),
+                       settable=True,
+                       volatile=True, userparam=True),
     }
 
     _max_disks = 6
@@ -143,15 +155,26 @@ class ChopperMaster(ChopperBase):
 
     def doStatus(self, maxage=0):
         # TODO implement other possible states
+        _disc = int(self._read_controller("m4079"))
+        # TODO disc handling
+        # if _disc != 1:
+        #     pass  # nicht gut!
         return self._attached_chopper1.status(maxage)
         # return status.OK, 'idle'
+
+    def doWriteDelay(self, delay):
+        self._write_controller('m4079=%dm4080=%%d' % 1,
+                               int(round(delay * 100)))
+
+    def doReadDelay(self):
+        return int(self._read_controller("m4080")) / 100.0
 
 
 class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 
     parameters = {
         'phase': Param('Phase of chopper',
-                       type=floatrange(-180, 180),
+                       type=floatrange(-360, 360),
                        settable=True,
                        volatile=True, userparam=True),
         'current': Param('motor current',
@@ -215,15 +238,16 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 
     def doReadPhase(self):
         res = int(self._read_controller('m410%s'))
-        set_to = res - self.reference
-        self.log.debug('phase: %d %d', set_to,res)
-        if set_to == 99999:
+        if res == 99999:
             return 0
-        return set_to / 100.
+        res /= 100.
+        set_to = (res - self.reference) * self.gear
+        self.log.debug('read %.2f phase  %.2f gear %d', res, set_to, self.gear)
+        return set_to
 
     def doWritePhase(self, value):
         # off = self.offsets[disk] - self.offsets[1]
-        set_to = value + self.reference
+        set_to = value / self.gear + self.reference
         self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f',
                       self.chopper, value, set_to, self.gear, self.reference)
         set_to = int(round(set_to * 100))
@@ -314,7 +338,7 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
             if res != 99:
                 self.log.info('doStatus: %d', res)
                 if res == 0:
-                    return status.ALARM, 'device not referenced'
+                    return status.NOTREACHED, 'device not referenced'
                 elif 1 <= res <= 5:
                     return status.OK, ''
                 return status.ERROR, 'Unknown status from read(): %d' % res
