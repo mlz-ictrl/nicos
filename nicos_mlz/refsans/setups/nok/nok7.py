@@ -206,7 +206,7 @@ devices = dict(
         description = 'Position sensing for NOK7, sample side',
         reference = 'nok_refc1',
         measure = 'nok7s_poti',
-        poly = [24.5752, 1000.564 / 3.836],  # off, mul * 1000 / sensitivity, higher orders...
+        poly = [18.80, 1000.00 / 3.841],  # off, mul * 1000 / sensitivity, higher orders...
         serial = 7546,
         length = 250.0,
         lowlevel = global_values['hide_poti'],
@@ -215,7 +215,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok7s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK7, sample side',
-        tacodevice = '//%s/test/wb_c/1_1' % nethost,
+        tacodevice = '//%s/test/wb_c/1_5' % nethost,
         scale = -1,  # mounted from top
         lowlevel = True,
     ),
