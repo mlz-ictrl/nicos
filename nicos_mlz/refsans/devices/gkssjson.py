@@ -26,46 +26,85 @@
 
 import requests
 
-from nicos.core import Override, Param, Readable, oneof, status
+from nicos.core import Override, Param, Readable, intrange, oneof, status
+from nicos.core.mixins import HasOffset
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 
 
-class SdsBase(Readable):
-    """Base class to read information from the SDS.
+class JsonBase(Readable):
+    """Base class for webinterface
 
-    The SDS is an intelligent detector safety system, which protects the
-    detector against to high data rates in the area as well as for local
-    spots.
     """
 
     parameters = {
         'url': Param('URL reading the values',
                      type=str,
-                     default='http://savedetector.refsans.frm2/json?1'),
+                     ),
         'timeout': Param('timeout to get an answers from URL',
                          default=0.1),
+        'valuekey': Param('Key inside the json dict, only to proof comm',
+                          type=str,),
     }
 
-    def _read_controller(self, key):
+    def _read_controller(self, keys):
+        self.log.debug(keys)
         try:
             data = requests.get(self.url, timeout=self.timeout).json()
+            self.log.debug(data)
         except requests.Timeout as e:
             raise CommunicationError(self, 'HTTP request failed: %s' % e)
         except Exception as e:
             raise ConfigurationError(self, 'HTTP request failed: %s' % e)
-        return data[key]
+        res = {}
+        for key in keys:
+            res[key] = data[key]
+        return res
 
     def doStatus(self, maxage=0):
-        # TODO select the right entry to find out the state of the SDS
         try:
-            self._read_controller('time')
+            self._read_controller([self.valuekey])
             return status.OK, ''
         except NicosError:
             return status.ERROR, 'Could not talk to hardware.'
 
 
-class SdsRatemeter(SdsBase):
+class CPTMaster(JsonBase):
+
+    def _read_ctrl(self, channel):
+        data = self._read_controller([self.valuekey,'start_act'])
+        self.log.debug('res: %r', data)
+        if channel == 0:
+            #calc speed
+            res = 3e9 / data['start_act'] # speed
+        else:
+            #calc phace with respect to Disk 1
+            res = -360.0 * data[self.valuekey][channel] / data['start_act']
+        return res
+
+    def _kreis (self,phase,kreis=360.0):
+        line = 'phase %.2f' % phase
+        if phase > +kreis/2:
+            phase -=  kreis
+        if phase < -360.0/2:
+            phase += 360.0
+        self.log.debug(line + ' %.2f' % phase)
+        return phase
+
+
+class CPTReadout(HasOffset, CPTMaster):
+
+    parameters = {
+        'index': Param('Index of value',
+                       type=intrange(0, 99),),
+    }
+
+    def doRead(self, maxage=0):
+        res = self._kreis(self._read_ctrl(self.index) - self.offset)
+        return res
+
+
+class SdsRatemeter(JsonBase):
     """Read the count rates for the different input channels of the SDS."""
 
     parameters = {
@@ -80,5 +119,5 @@ class SdsRatemeter(SdsBase):
     }
 
     def doRead(self, maxage=0):
-        res = self._read_controller('mon_counts_cps_%s' % self.channel)
-        return int(res)
+        res = self._read_controller(['mon_counts_cps_%s' % self.channel])
+        return int(res.values()[0])
