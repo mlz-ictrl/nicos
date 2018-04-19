@@ -58,7 +58,7 @@ devices = dict(
     #     unit = 'mm',
     #     lowlevel = True,
     # ),
-    nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOKBeckhoff',
+    nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK', #Beckhoff
         description = 'NOK5a',
         fmtstr = '%.2f, %.2f',
         nok_start = 2418.50,
