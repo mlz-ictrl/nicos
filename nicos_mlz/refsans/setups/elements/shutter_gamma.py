@@ -100,4 +100,12 @@ devices = dict(
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
+
+    nok1_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok1_motor',
+         analog = 'nok1_obs',
+         lowlevel = True,
+         unit = 'mm'
+    ),
 )

@@ -90,7 +90,12 @@ devices = dict(
         microstep = 1,
         refpos = 103.086,    # from ipcsms_*.res
         zerosteps = int(647.034 * 800),  # offset * slope
-        lowlevel = True,
+    ),
+    nok9r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok9r_motor',
+         analog = 'nok9r_obs',
+         unit = 'mm'
     ),
 
     # generated from global/inf/poti_tracing.inf
@@ -176,6 +181,13 @@ devices = dict(
         refpos = 86.749,     # from ipcsms_*.res
         zerosteps = int(663.601 * 800),  # offset * slope
         lowlevel = True,
+    ),
+
+    nok9s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok9s_motor',
+         analog = 'nok9s_obs',
+         unit = 'mm'
     ),
 
     # generated from global/inf/poti_tracing.inf

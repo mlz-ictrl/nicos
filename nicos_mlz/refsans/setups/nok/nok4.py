@@ -94,6 +94,13 @@ devices = dict(
         lowlevel = True,
     ),
 
+    nok4r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok4r_motor',
+         analog = 'nok4r_obs',
+         unit = 'mm'
+    ),
+
     # generated from global/inf/poti_tracing.inf
     nok4r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK4, reactor side',
@@ -177,6 +184,13 @@ devices = dict(
         refpos = 9.143,  # from ipcsms_*.res
         zerosteps = int(240.803 * 2000),     # offset * slope
         lowlevel = True,
+    ),
+
+    nok4s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok4s_motor',
+         analog = 'nok4s_obs',
+         unit = 'mm'
     ),
 
     # generated from global/inf/poti_tracing.inf

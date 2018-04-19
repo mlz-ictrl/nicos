@@ -64,6 +64,13 @@ devices = dict(
         lowlevel = True,
     ),
 
+    zb2_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'zb2_motor',
+         analog = 'zb2_obs',
+         unit = 'mm'
+    ),
+
     # generated from global/inf/poti_tracing.inf
     zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',

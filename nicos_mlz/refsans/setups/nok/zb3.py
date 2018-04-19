@@ -82,6 +82,49 @@ if True:
             microstep = 1,
             refpos = 72.774,     # from ipcsms_*.res
             zerosteps = int(644.562 * 800),  # offset * slope
+        ),
+        zb3r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+             description = 'calc error Motor and poti',
+             motor = 'zb3r_m',
+             analog = 'zb3r_obs',
+             unit = 'mm'
+        ),
+        # generated from global/inf/poti_tracing.inf
+        zb3r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+            description = 'Position sensing for ZB3, reactor side',
+            reference = 'nok_refc1',
+            measure = 'zb3r_poti',
+            poly = [-140.539293, 1004.824 / 1.92],   # off, mul * 1000 / sensitivity, higher orders...
+            serial = 7778,
+            length = 500.0,
+        ),
+        # generated from global/inf/poti_tracing.inf
+        zb3r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+            description = 'Poti for ZB3, reactor side',
+            tacodevice = '//%s/test/wb_c/1_2' % nethost,
+            scale = -1,  # mounted from top
+            lowlevel = True,
+        ),
+        zb3s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+             description = 'calc error Motor and poti',
+             motor = 'zb3s_m',
+             analog = 'zb3s_obs',
+             unit = 'mm'
+        ),
+        # generated from global/inf/poti_tracing.inf
+        zb3s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+            description = 'Position sensing for ZB3, sample side',
+            reference = 'nok_refc1',
+            measure = 'zb3s_poti',
+            poly = [118.68, 1000. / 1.921],    # off, mul * 1000 / sensitivity, higher orders...
+            serial = 7781,
+            length = 500.0,
+        ),
+        # generated from global/inf/poti_tracing.inf
+        zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+            description = 'Poti for ZB3, sample side',
+            tacodevice = '//%s/test/wb_c/1_3' % nethost,
+            scale = 1,   # mounted from bottom
             lowlevel = True,
         ),
     )

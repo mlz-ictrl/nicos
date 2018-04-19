@@ -112,6 +112,13 @@ devices = dict(
         lowlevel = True,
     ),
 
+    nok2r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok2r_motor',
+         analog = 'nok2r_obs',
+         unit = 'mm'
+    ),
+
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok2s_axis = device('nicos.devices.generic.Axis',
          description = 'Axis of NOK2, sample side',
@@ -195,5 +202,12 @@ devices = dict(
          tacodevice = '//%s/test/wb_a/1_2' % nethost,
          scale = 1,   # mounted from bottom
          lowlevel = True,
+    ),
+
+    nok2s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'nok2s_motor',
+         analog = 'nok2s_obs',
+         unit = 'mm'
     ),
 )

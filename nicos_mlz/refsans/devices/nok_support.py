@@ -695,3 +695,18 @@ class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
 
         self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
+
+
+class MotorEncoderDifference(Readable):
+
+    attached_devices = {
+        'motor': Attach('moving motor', Moveable),
+        'analog': Attach('analog encoder maybe poti', Readable),
+    }
+
+    def doRead(self, maxage=0):
+        return abs(self._attached_analog.read(maxage)-
+                   self._attached_motor.read(maxage))
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''

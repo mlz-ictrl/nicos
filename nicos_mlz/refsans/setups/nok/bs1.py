@@ -118,6 +118,12 @@ devices = dict(
         zerosteps = int(791.825 * 800),  # offset * slope
         lowlevel = True,
     ),
+    bs1r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'bs1r_motor',
+         analog = 'bs1r_obs',
+         unit = 'mm'
+    ),
     # generated from global/inf/poti_tracing.inf
     bs1r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for BS1, reactor side',
@@ -192,6 +198,12 @@ devices = dict(
         refpos = 89.529,     # from ipcsms_*.res
         zerosteps = int(660.44 * 800),   # offset * slope
         lowlevel = True,
+    ),
+    bs1s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'bs1s_motor',
+         analog = 'bs1s_obs',
+         unit = 'mm'
     ),
     # generated from global/inf/poti_tracing.inf
     bs1s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
