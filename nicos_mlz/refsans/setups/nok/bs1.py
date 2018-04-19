@@ -3,6 +3,7 @@ description = "DoubleSlit [slit k1] between nok8 and nok9"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus4']
+global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -43,6 +44,7 @@ devices = dict(
             'point':  0,
             'gisans': -40,
         },
+        lowlevel = True,
         unit = 'mm',
     ),
     bs1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
@@ -58,6 +60,7 @@ devices = dict(
             'point':  0,
             'gisans': 0,
         },
+        lowlevel = True,
         unit = 'mm',
     ),
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
@@ -116,7 +119,7 @@ devices = dict(
         microstep = 1,
         refpos = -41.8,  # from ipcsms_*.res
         zerosteps = int(791.825 * 800),  # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
     bs1r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
@@ -132,7 +135,7 @@ devices = dict(
         poly = [-104.210515, 998.068 / 3.835],   # off, mul * 1000 / sensitivity, higher orders...
         serial = 7542,
         length = 250.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
     # generated from global/inf/poti_tracing.inf
     bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
@@ -197,12 +200,13 @@ devices = dict(
         microstep = 1,
         refpos = 89.529,     # from ipcsms_*.res
         zerosteps = int(660.44 * 800),   # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
     bs1s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'bs1s_motor',
          analog = 'bs1s_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
     # generated from global/inf/poti_tracing.inf
@@ -213,7 +217,7 @@ devices = dict(
         poly = [40.36065, 999.452 / 1.919],  # off, mul * 1000 / sensitivity, higher orders...
         serial = 7784,
         length = 500.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
     # generated from global/inf/poti_tracing.inf
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',

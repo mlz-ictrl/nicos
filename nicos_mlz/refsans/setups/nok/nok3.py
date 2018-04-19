@@ -100,13 +100,14 @@ devices = dict(
         microstep = 1,
         refpos = 20.6225,    # from ipcsms_*.res
         zerosteps = int(229.467 * 2000),     # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     nok3r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok3r_motor',
          analog = 'nok3r_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
 
@@ -118,7 +119,7 @@ devices = dict(
         poly = [21.830175, 997.962 / 3.846],     # off, mul * 1000 / sensitivity, higher orders...
         serial = 6507,
         length = 250.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     # generated from global/inf/poti_tracing.inf
@@ -192,13 +193,14 @@ devices = dict(
         microstep = 1,
         refpos = 9.444,  # from ipcsms_*.res
         zerosteps = int(240.694 * 2000),     # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     nok3s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok3s_motor',
          analog = 'nok3s_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
 
@@ -210,7 +212,7 @@ devices = dict(
         poly = [10.409698, 1003.196 / 3.854],    # off, mul * 1000 / sensitivity, higher orders...
         serial = 6506,
         length = 250.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     # generated from global/inf/poti_tracing.inf

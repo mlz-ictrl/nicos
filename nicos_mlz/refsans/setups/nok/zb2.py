@@ -3,6 +3,7 @@ description = "SingleSlit [slit k1] between nok6 and nok7"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus2']
+global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -50,7 +51,7 @@ devices = dict(
         microstep = 1,
         refpos = 68.0465,    # from ipcsms_*.res
         zerosteps = int(681.95 * 800),   # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     # generated from global/inf/poti_tracing.inf
@@ -61,13 +62,14 @@ devices = dict(
         poly = [-111.898256, 999.872 / 1.921],   # off, mul * 1000 / sensitivity, higher orders...
         serial = 7786,
         length = 500.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     zb2_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb2_motor',
          analog = 'zb2_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
 

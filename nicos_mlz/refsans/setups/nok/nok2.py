@@ -61,7 +61,7 @@ devices = dict(
         microstep = 1,
         refpos = -4.42,  # from ipcsms_*.res
         zerosteps = int(254.36 * 2000),  # offset * slope
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     nok2_sshl = device('nicos.devices.taco.DigitalInput',
@@ -108,7 +108,7 @@ devices = dict(
         poly = [9.169441, 996.418 / 3.858],  # off, mul * 1000 / sensitivity, higher orders...
         serial = 6510,
         length = 250.0,
-        lowlevel = True,
+        lowlevel = global_values['hide_poti'],
     ),
 
     # generated from global/inf/poti_tracing.inf
@@ -123,6 +123,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok2r_motor',
          analog = 'nok2r_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
 
@@ -153,7 +154,7 @@ devices = dict(
          microstep = 1,
          refpos = -18.19,     # from ipcsms_*.res
          zerosteps = int(268.11 * 2000),  # offset * slope
-         lowlevel = True,
+         lowlevel = global_values['hide_poti'],
     ),
 
     nok2_srll = device('nicos.devices.taco.DigitalInput',
@@ -200,7 +201,7 @@ devices = dict(
          poly = [-22.686241, 1003.096 / 3.846],   # off, mul * 1000 / sensitivity, higher orders...
          serial = 6512,
          length = 250.0,
-         lowlevel = True,
+         lowlevel = global_values['hide_poti'],
     ),
 
     # generated from global/inf/poti_tracing.inf
@@ -215,6 +216,8 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok2s_motor',
          analog = 'nok2s_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
+
 )

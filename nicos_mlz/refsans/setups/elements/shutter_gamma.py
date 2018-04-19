@@ -4,6 +4,7 @@ group = 'lowlevel'
 #group = 'optional'
 
 includes = ['nok_ref', 'nokbus1']
+hide_poti = False
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -105,7 +106,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok1_motor',
          analog = 'nok1_obs',
-         lowlevel = True,
+         lowlevel = hide_poti,
          unit = 'mm'
     ),
 )

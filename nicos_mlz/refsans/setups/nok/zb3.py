@@ -3,6 +3,7 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus3']
+global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -34,6 +35,7 @@ if True:
                 'gisans': -110,
             },
             unit = 'mm',
+            lowlevel = True,
         ),
         zb3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
             description = 'ZB3 slit, sample side',
@@ -48,6 +50,7 @@ if True:
                 'gisans': 0,
             },
             unit = 'mm',
+            lowlevel = True,
         ),
 
         # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
@@ -65,7 +68,7 @@ if True:
             microstep = 1,
             refpos = 105.837,    # from ipcsms_*.res
             zerosteps = int(677.125 * 800),  # offset * slope
-            lowlevel = True,
+            lowlevel = global_values['hide_poti'],
         ),
         # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
         zb3s_m = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
@@ -82,11 +85,13 @@ if True:
             microstep = 1,
             refpos = 72.774,     # from ipcsms_*.res
             zerosteps = int(644.562 * 800),  # offset * slope
+            lowlevel = global_values['hide_poti'],
         ),
         zb3r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
              description = 'calc error Motor and poti',
              motor = 'zb3r_m',
              analog = 'zb3r_obs',
+             lowlevel = global_values['hide_acc'],
              unit = 'mm'
         ),
         # generated from global/inf/poti_tracing.inf
@@ -97,6 +102,7 @@ if True:
             poly = [-140.539293, 1004.824 / 1.92],   # off, mul * 1000 / sensitivity, higher orders...
             serial = 7778,
             length = 500.0,
+            lowlevel = global_values['hide_poti'],
         ),
         # generated from global/inf/poti_tracing.inf
         zb3r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
@@ -109,6 +115,7 @@ if True:
              description = 'calc error Motor and poti',
              motor = 'zb3s_m',
              analog = 'zb3s_obs',
+             lowlevel = global_values['hide_acc'],
              unit = 'mm'
         ),
         # generated from global/inf/poti_tracing.inf
@@ -119,6 +126,7 @@ if True:
             poly = [118.68, 1000. / 1.921],    # off, mul * 1000 / sensitivity, higher orders...
             serial = 7781,
             length = 500.0,
+            lowlevel = global_values['hide_poti'],
         ),
         # generated from global/inf/poti_tracing.inf
         zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
@@ -193,7 +201,7 @@ else:
             microstep = 1,
             refpos = 105.837,    # from ipcsms_*.res
             zerosteps = int(677.125 * 800),  # offset * slope
-            lowlevel = True,
+            lowlevel = hide_poti,
         ),
         zb3_ssshl = device('nicos.devices.taco.DigitalInput',
             description = 'Device test/zb3/ssshl of Server ipcsmsserver zb3',
@@ -309,7 +317,7 @@ else:
             microstep = 1,
             refpos = 72.774,     # from ipcsms_*.res
             zerosteps = int(644.562 * 800),  # offset * slope
-            lowlevel = True,
+            lowlevel = hide_poti,
         ),
         # generated from global/inf/poti_tracing.inf
         zb3s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
@@ -319,7 +327,7 @@ else:
             poly = [118.68, 1000. / 1.921],    # off, mul * 1000 / sensitivity, higher orders...
             serial = 7781,
             length = 500.0,
-            lowlevel = True,
+            lowlevel = hide_poti,
         ),
         # generated from global/inf/poti_tracing.inf
         zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
