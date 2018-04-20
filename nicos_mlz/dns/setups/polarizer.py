@@ -33,3 +33,7 @@ devices = dict(
         tangodevice = tango_base + 'fzjs7/pol_rot',
     ),
 )
+
+extended = dict(
+    representative = 'pol_inbeam',
+)

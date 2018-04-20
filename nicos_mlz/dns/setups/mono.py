@@ -130,3 +130,7 @@ devices = dict(
         mapping = dict(start = 1, stop = 0),
     ),
 )
+
+extended = dict(
+    representative = 'mon_lambda',
+)

@@ -31,7 +31,8 @@ devices = dict(
 )
 
 extended = dict(
-    poller_cache_reader = ['flipper']
+    poller_cache_reader = ['flipper'],
+    representative = 'dettof',
 )
 
 startupcode = '''

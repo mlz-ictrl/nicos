@@ -78,3 +78,7 @@ devices = dict(
         tangodevice = tango_base + 'fzjs7/sel_lift',
     ),
 )
+
+extended = dict(
+    representative = 'selector_speed',
+)

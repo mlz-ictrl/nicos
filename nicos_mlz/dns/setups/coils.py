@@ -199,3 +199,7 @@ devices = dict(
         states = ['in', 'out'],
     ),
 )
+
+extended = dict(
+    representative = 'field',
+)
