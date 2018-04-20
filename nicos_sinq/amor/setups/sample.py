@@ -39,4 +39,8 @@ devices = dict(
                timeout=None,
                window=5.0,
                ),
+    hsy=device('nicos_sinq.amor.devices.magnet_field.MagneticFieldDevice',
+               description='Sample magnet read in magnetic field',
+               magnet='fma'
+               ),
 )
