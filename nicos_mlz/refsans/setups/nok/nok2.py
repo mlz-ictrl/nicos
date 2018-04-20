@@ -29,12 +29,6 @@ devices = dict(
             'fc': global_values['ng'],
         },
     ),
-    nok2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'nok2 mode',
-        device = 'nok2',
-        parameter = 'mode',
-    ),
-
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok2r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK2, reactor side',

@@ -32,6 +32,8 @@ from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 from nicos.utils import readonlylist
 
+from nicos_mlz.sans1.gui.monitorwidgets import CollimatorTable
+
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
 _red = QBrush(QColor('#FF3333'))
@@ -190,3 +192,17 @@ class VRefsans(NicosWidget, QWidget):
         # draw beam
         painter.setPen(beampen)
         painter.drawPolyline(beam)
+
+
+class BeamPosition(CollimatorTable):
+
+    designer_description = 'REFSANS NOK and slit table'
+
+    key = PropDef('key', str, '', 'Cache key to display')
+
+    def __init__(self, parent, designMode=False):
+        CollimatorTable.__init__(self, parent, designMode)
+
+    def registerKeys(self):
+        self.registerKey(self.props['key'])
+        CollimatorTable.registerKeys(self)

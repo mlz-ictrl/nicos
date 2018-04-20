@@ -86,9 +86,4 @@ devices = dict(
             'fc': global_values['fc'],
         },
     ),
-    nok5b_mode = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'nok5b mode',
-        device = 'nok5b',
-        parameter = 'mode',
-    ),
 )
