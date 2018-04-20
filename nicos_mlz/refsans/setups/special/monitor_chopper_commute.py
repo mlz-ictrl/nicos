@@ -26,7 +26,7 @@ _chconfigcol = Column(
     ),
     Block(' chopper configuration ', [
         BlockRow(
-            Field(name='Modus', dev='chopper_mode', width=24),
+            Field(name='Modus', key='chopper/mode', width=24),
             Field(name='real', dev='chopper2_pos', width=24),
             ),
         ],

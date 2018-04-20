@@ -28,7 +28,7 @@ _chconfigcol = Column(
     ),
     Block(' chopper configuration ', [
         BlockRow(
-            Field(name='Modus', dev='chopper_mode', width=24),
+            Field(name='Modus', key='chopper/mode', width=24),
             Field(name='real', dev='chopper2_pos', width=24),
             Field(name='START delay', dev='chopper_delay', unit='deg', width=24),
             ),
@@ -50,28 +50,28 @@ _diskcol = Column(
     Block('chopper disk setting',[
         BlockRow(
             Field(dev='ch_disk1', name='disk 1',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['run', 'stop'],
                   width=8, height=18),
             Field(dev='ch_disk2', name='disk 2',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['virt 6', 'gap 5', 'gap 4', 'gap 3',
                             'gap 2', 'gap 1', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk3', name='disk 3',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['gap 6', 'gap 5', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk4', name='disk 4',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['gap 6', 'gap 5', 'stop', 'out'],
                   width=8, height=18),
             Field(dev='ch_disk5', name='disk 5',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['run', 'stop'],
                   width=8, height=18),
             Field(dev='ch_disk6', name='disk 6',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['run', 'stop'],
                   width=8, height=18),
             ),
@@ -103,7 +103,7 @@ _tididiagcol = Column(
 _disk1col = Column(
     Block('disk 1', [
         BlockRow(Field(name='speed',  dev='chopper1',  width=6.5, unit='rpm')),
-        # BlockRow(Field(name='gear',   key='chopper1/gear',   width=6.5)),
+        # BlockRow(Field(name='gear', key='chopper1/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper1/mode', width=6.5)),
         ],
     ),
@@ -111,8 +111,8 @@ _disk1col = Column(
 
 _disk2col = Column(
     Block('disk 2', [
-        BlockRow(Field(name='phase',  dev='chopper2_phase',  width=6.5, unit='deg')),
-        # BlockRow(Field(name='gear',   key='chopper2/gear',   width=6.5)),
+        BlockRow(Field(name='phase',  key='chopper2/phase',  width=6.5, unit='deg')),
+        # BlockRow(Field(name='gear', key='chopper2/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper2/mode', width=6.5)),
         ],
     ),
@@ -121,7 +121,7 @@ _disk2col = Column(
 _disk3col = Column(
     Block('disk 3', [
         BlockRow(Field(name='phase',  key='chopper3/phase',  width=6.5, unit='deg')),
-        # BlockRow(Field(name='gear',   key='chopper3/gear',   width=6.5)),
+        # BlockRow(Field(name='gear', key='chopper3/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper3/mode', width=6.5)),
         ],
     ),
@@ -130,7 +130,7 @@ _disk3col = Column(
 _disk4col = Column(
     Block('disk 4', [
         BlockRow(Field(name='phase',  key='chopper4/phase',  width=6.5, unit='deg')),
-        # BlockRow(Field(name='gear',   key='chopper4/gear',   width=6.5)),
+        # BlockRow(Field(name='gear', key='chopper4/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper4/mode', width=6.5)),
         ],
     ),
@@ -139,7 +139,7 @@ _disk4col = Column(
 _disk5col = Column(
     Block('disk 5', [
         BlockRow(Field(name='phase',  key='chopper5/phase',  width=6.5, unit='deg')),
-        # BlockRow(Field(name='gear',   key='chopper5/gear',   width=6.5)),
+        # BlockRow(Field(name='gear', key='chopper5/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper5/mode', width=6.5)),
         ],
     ),
@@ -148,7 +148,7 @@ _disk5col = Column(
 _disk6col = Column(
     Block('disk 6', [
         BlockRow(Field(name='phase',  key='chopper6/phase',  width=6.5, unit='deg')),
-        # BlockRow(Field(name='gear',   key='chopper6/gear',   width=6.5)),
+        # BlockRow(Field(name='gear', key='chopper6/gear',   width=6.5)),
         # BlockRow(Field(name='mode', key='chopper6/mode', width=6.5)),
         ],
     ),
