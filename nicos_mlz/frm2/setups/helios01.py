@@ -8,3 +8,7 @@ devices = {
         tangodevice = 'tango://%s:10000/box/helios/flipper' % setupname
     ),
 }
+
+extended = dict(
+    representative = 'flipper_%s' % setupname,
+)

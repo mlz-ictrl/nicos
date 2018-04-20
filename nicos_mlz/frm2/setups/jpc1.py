@@ -12,3 +12,7 @@ devices = {
         unit = 'bar',
     ),
 }
+
+extended = dict(
+    representative = 'P_%s' % setupname,
+)

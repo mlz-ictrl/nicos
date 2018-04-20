@@ -40,3 +40,7 @@ alias_config = {
     # I is included for the rare case you would need to use the current directly
     'B': {'B_miramagnet': 100, 'I_miramagnet': 80},
 }
+
+extended = dict(
+    representative = 'B_miramagnet',
+)
