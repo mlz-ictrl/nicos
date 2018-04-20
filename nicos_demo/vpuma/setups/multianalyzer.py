@@ -1,6 +1,6 @@
 description = 'PUMA multianalyzer device'
 
-group = 'optional'
+group = 'lowlevel'
 
 level = False
 
