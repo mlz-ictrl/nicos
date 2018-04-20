@@ -18,3 +18,7 @@ devices = dict(
 alias_config = {
     'Ts': {'T_ls331_A': 80}
 }
+
+extended = dict(
+    representative = 'T_ls331_A',
+)

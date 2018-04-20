@@ -43,3 +43,7 @@ devices = dict(
         lowlevel = True,
     ),
 )
+
+extended = dict(
+    representative = 'lenses',
+)

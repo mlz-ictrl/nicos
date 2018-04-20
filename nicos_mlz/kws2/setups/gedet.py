@@ -98,3 +98,7 @@ for ti in range(1, 3):
         warnlimits = (2.8, 3.2),
         lowlevel = True,
     )
+
+extended = dict(
+    representative = 'gedet_HV',
+)
