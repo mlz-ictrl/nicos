@@ -8,6 +8,9 @@
 .. automodule:: nicos_mlz.puma.devices.comb_ax
 .. autoclass:: CombAxis()
 
+.. automodule:: nicos_mlz.puma.devices.stackedaxis
+.. autoclass:: StackedAxis()
+
 .. automodule:: nicos_mlz.puma.devices.filter
 .. autoclass:: PumaFilter()
 
