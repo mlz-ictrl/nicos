@@ -23,6 +23,17 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
+    # dict(
+    #     condition = 'o2_nguide_value > 0.4',
+    #     message = 'O2 pressure in neutron guide exceeds 0.4 %%',
+    #     type = 'neutronguide',
+    #     gracetime = 60,
+    # ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')

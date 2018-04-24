@@ -23,6 +23,36 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
+    dict(
+        condition = 'reactorpower_value < 10',
+        precondition = 'reactorpower_value > 19.1',
+        precondtime = 600,
+        message = 'Reactor power too low',
+        type = 'critical',
+        # action = 'stop()',
+        gracetime = 300,
+    ),
+    dict(
+        condition = 'hv1_value < 3000',
+        precondition = 'hv1_value > 3150',
+        precondtime = 600,
+        message = 'High voltage problem (anode voltage felt down)',
+        type = 'highvoltage',
+        gracetime = 5,
+    ),
+    dict(
+        condition = 'hv2_value > -2300',
+        precondition = 'hv1_value < -2450',
+        precondtime = 600,
+        message = 'High voltage problem (drift voltage felt down)',
+        type = 'highvoltage',
+        gracetime = 5,
+    ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')

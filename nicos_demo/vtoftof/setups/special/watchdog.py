@@ -23,6 +23,36 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(condition = 'LogSpace_status[0] == WARN',
+         message = 'Disk space for log files becomes too low.',
+         type = 'critical',
+         gracetime = 30,
+    ),
+    dict(
+        condition = '(sixfold_value == "closed" or nl2a_value == "closed") '
+        'and reactorpower_value > 19.1',
+        message = 'NL2a or sixfold shutter closed',
+        type = 'critical',
+    ),
+    dict(
+        condition = 'ch_value < 140',
+        message = 'Choppers are down! DO SOMETHING!',
+    ),
+    # dict(
+    #     condition = 'flow_in_ch_cooling < 10',
+    #     message = 'Cooling water flow is less than 10 l/min',
+    #     priority = 1,
+    # ),
+    # dict(
+    #     condition = 't_in_ch_cooling > 25',
+    #     message = 'Cooling water temperature greater than 25 C',
+    #     priority = 2,
+    # ),
+    # dict(
+    #     condition = 'leak_ch_cooling > 3',
+    #     message = 'There is a leak in the chopper cooling system',
+    #     priority = 2,
+    # ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')
