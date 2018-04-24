@@ -2,7 +2,8 @@ description = 'Polarization analysis'
 
 group = 'basic'
 
-includes = ['multianalyzer', 'multidetector', 'cad', 'analyzer', 'monochromator']
+includes = ['multianalyzer', 'multidetector', 'cad', 'analyzer',
+            'monochromator', 'aliases']
 
 devices = dict(
     polana = device('nicos.devices.tas.Monochromator',
@@ -35,3 +36,7 @@ devices = dict(
     #     iscomb = False,
     # ),
 )
+
+alias_config = {
+    'ana': {'polana': 200},
+}

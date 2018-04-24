@@ -2,6 +2,8 @@ description = 'Analyzer devices'
 
 group = 'lowlevel'
 
+includes = ['aliases']
+
 devices = dict(
     st_ath = device('nicos.devices.generic.VirtualMotor',
         description = 'ath motor device',
@@ -49,3 +51,7 @@ devices = dict(
         crystalside = -1,
     ),
 )
+
+alias_config = {
+    'ana': {'ana_pg002': 100},
+}
