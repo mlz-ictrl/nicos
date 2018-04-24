@@ -19,7 +19,7 @@ watchlist = [
          gracetime = 30,
     ),
     dict(
-        condition = 'mono_status[0] == 220',
+        condition = 'mono_status[0] == BUSY',
         message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',
         gracetime = 600,
         type = 'critical',
