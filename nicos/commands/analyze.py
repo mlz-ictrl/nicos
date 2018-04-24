@@ -383,8 +383,9 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
         session.log.info('center of fit at %s',
                          dev.format(newcenter, True))
         session.log.info('adjusting offset of %s by %s',
-                         dev, dev.format(diff, True))
-        dev.offset += diff
+                         dev, dev.format(abs(diff), True))
+        # what was formerly newcenter is now the real center
+        dev.doAdjust(newcenter, center)
 
 checkoffset.__doc__ += _scanFC.__doc__
 

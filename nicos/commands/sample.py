@@ -538,6 +538,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
     session.log.info('Check errors (dki, dstt0)!  RMS = %.3g', bestrms)
     session.log.info('')
     session.log.info('Adjust using:')
+    # TODO: fix suggestions using adjust()
     session.log.info('mtt.offset += %.4f', meanmtt0)
     session.log.info('mth.offset += %.4f', meanmtt0 / 2)
     session.log.info('stt.offset += %.4f', meanstt0)

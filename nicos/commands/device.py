@@ -656,10 +656,8 @@ def adjust(dev, value, newvalue=None):
     """
     dev = session.getDevice(dev, HasOffset)
     if newvalue is None:
-        diff = dev.read(0) - value
-    else:
-        diff = value - newvalue
-    dev.offset += diff
+        value, newvalue = dev.read(0), value
+    dev.doAdjust(value, newvalue)
     dev.log.info('adjusted to %s, new offset is %.3f',
                  dev.format(value, unit=True), dev.offset)
 

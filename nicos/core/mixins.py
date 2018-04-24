@@ -251,8 +251,7 @@ class HasLimits(DeviceMixinBase):
 
 
 class HasOffset(DeviceMixinBase):
-    """
-    Mixin class for Readable or Moveable devices that want to provide an
+    """Mixin class for Readable or Moveable devices that want to provide an
     'offset' parameter and that can be adjusted via adjust().
 
     This is *not* directly a feature of Moveable, because providing this
@@ -262,9 +261,15 @@ class HasOffset(DeviceMixinBase):
     purposes.
 
     Instead, each class that provides an offset **must** inherit this mixin,
-    and subtract ``self.offset`` in `doRead()`, while adding it in `doStart()`.
+    and handle ``self.offset`` in `doRead()` and `doStart()`.
 
-    The device position is ``hardware_position - offset``.
+    The usual convention for the sign of the offset is that the device position
+    is ``hardware_position - offset``, so ``self.offset`` has to be subtracted
+    in `doRead()` and added in `doStart()`.
+
+    If a different convention is used, `doAdjust()` must be overridden too.
+
+    TODO: handle limit/offset coupling
     """
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
@@ -288,6 +293,18 @@ class HasOffset(DeviceMixinBase):
             self._cache.put(self, 'value', self.read(0) - diff,
                             currenttime(), self.maxage)
         session.elogEvent('offset', (str(self), old_offset, value))
+
+    def doAdjust(self, oldvalue, newvalue):
+        """Adapt the device offset so that 'oldvalue' is now called 'newvalue'.
+
+        Used to implement the `adjust()` user command and related functions,
+        since the offset can have different sign conventions depending on
+        underlying systems.
+
+        The base implementation assumes that ``dev_pos = hw_pos - offset``.
+        """
+        diff = oldvalue - newvalue
+        self.offset += diff
 
 
 class HasPrecision(DeviceMixinBase):

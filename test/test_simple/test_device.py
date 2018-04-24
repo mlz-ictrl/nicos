@@ -122,6 +122,21 @@ class Dev2(HasLimits, HasOffset, Moveable):
         return True
 
 
+class Dev3(HasLimits, HasOffset, Moveable):
+    parameters = {
+        'offsetsign': Param('Offset sign', type=int, settable=True),
+    }
+
+    def doRead(self, maxage=0):
+        return self._val - self.offsetsign * self.offset
+
+    def doStart(self, pos):
+        self._val = pos + self.offsetsign * self.offset
+
+    def doAdjust(self, old, new):
+        self.offset += self.offsetsign * (old - new)
+
+
 class Bus(HasCommunication, Device):
 
     _replyontry = 5
@@ -382,3 +397,23 @@ def test_special_params():
                       type, "Dev", (Device,),
                       dict(__module__='dummy',
                            parameters={param: Param('...')}))
+
+
+def test_offset_sign(session):
+    dev = session.getDevice('dev3')
+
+    assert dev.offset == 0
+    dev.move(1)
+    assert dev._val == 1
+
+    dev.offsetsign = 1
+    dev.doAdjust(1, 0)
+    assert dev.offset == 1
+    assert dev.read(0) == 0
+
+    dev.offset = 0
+
+    dev.offsetsign = -1
+    dev.doAdjust(1, 0)
+    assert dev.offset == -1
+    assert dev.read(0) == 0
