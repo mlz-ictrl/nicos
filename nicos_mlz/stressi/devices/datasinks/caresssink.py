@@ -420,6 +420,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             mastervalues += '%s TIM1 MON)' % ' '.join(devnames)
         else:
             mastervalues = 'MM1(%s)SL1(TTHS ADET MON' % master
+            for d in self.dataset.detvalueinfo:
+                if d.name not in ['adet', 'tim1', 'mon'] and \
+                   not d.name.endswith('.sum'):
+                    mastervalues += ' %s' % d.name.upper()
             for d in self.dataset.environment:
                 if hasattr(d, 'name') and \
                    d.name != 'etime' and \
