@@ -24,7 +24,7 @@
 
 import numpy as np
 
-from nicos.core import Override, Value
+from nicos.core import Param, Override, Value, floatrange, oneof
 from nicos.utils.fitting import curve_fit
 from nicos.devices.generic import ScanningDetector as NicosScanDet
 
@@ -113,8 +113,20 @@ class CascadeDetector(MiraCascadeDetector):
 class ScanningDetector(NicosScanDet):
     """Reseda scanning detector."""
 
+    parameters = {
+        'echopoints': Param('Number of echo points',
+                            type=oneof(4, 19), default=4, settable=True,
+                            userparam=True),
+        'echostep': Param('Current difference between points',
+                          type=floatrange(0), default=0.1, settable=True,
+                          userparam=True),
+        'echostart': Param('starting current value for the phase coil',
+                           type=float, default=0, userparam=True,
+                           settable=True)
+    }
+
     parameter_overrides = {
-        'positions' : Override(settable=True),
+        'positions': Override(settable=False, volatile=True),
     }
 
     def _processDataset(self, dataset):
@@ -151,6 +163,13 @@ class ScanningDetector(NicosScanDet):
                 self.log.warning(msg)
             res.extend([abs(popt[1]), perr[1], popt[0], perr[0]])
         return res
+
+    def doReadPositions(self):
+        return self._calc_currents(self.echopoints, self.echostep,
+                                   self.echostart)
+
+    def _calc_currents(self, n, echostep=4, startval=0):
+        return startval + np.arange(-n / 2 + 1, n / 2 + 1, 1) * echostep
 
     def valueInfo(self):
         res = []
