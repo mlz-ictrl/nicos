@@ -4,22 +4,19 @@ description = 'Virtual polarizer motor setup'
 group = 'lowlevel'
 display_order = 25
 
-pol_presets = configdata('config_polarizer.POLARIZER_PRESETS')
-
 devices = dict(
-    polarizer = device('nicos.devices.generic.MultiSwitcher',
-        description = 'select polarizer presets',
-        blockingmove = False,
-        moveables = ['pol_y', 'pol_tilt'],
-        mapping = {k: [v['y'], v['tilt']]
-                   for (k, v) in pol_presets.items()},
-        fallback = 'unknown',
-        precision = [0.01, 0.01],
+    polarizer = device('nicos_mlz.kws1.devices.polarizer.Polarizer',
+        description = 'high-level polarizer switcher',
+        switcher = 'pol_switch',
+        switchervalues = ('out', 'in'),
+        flipper = 'flipper',
     ),
-    pol_y = device('nicos_mlz.kws1.devices.virtual.Standin',
-        description = 'polarizer y-table',
+    pol_switch = device('nicos.devices.generic.ManualSwitch',
+        description = 'switch polarizer or neutron guide',
+        states = ['out', 'in'],
     ),
-    pol_tilt = device('nicos_mlz.kws1.devices.virtual.Standin',
-        description = 'polarizer tilt',
+    flipper = device('nicos.devices.generic.ManualSwitch',
+        description = 'spin flipper after polarizer',
+        states = ['off', 'on'],
     ),
 )

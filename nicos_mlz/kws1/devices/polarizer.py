@@ -109,6 +109,8 @@ class Polarizer(Moveable):
     parameters = {
         'values':   Param('Possible values (for GUI)', userparam=False,
                           type=listof(str), default=POL_SETTINGS),
+        'switchervalues': Param('Possible values for the switcher (out, in)',
+                                type=tupleof(str, str), default=('ng', 'pol')),
     }
 
     parameter_overrides = {
@@ -121,7 +123,7 @@ class Polarizer(Moveable):
         flipper_pos = self._attached_flipper.read(maxage)
         if switcher_pos == 'unknown' or flipper_pos == 'unknown':
             return 'unknown'
-        if switcher_pos == 'ng':
+        if switcher_pos == self.switchervalues[0]:
             return 'out'
         # Polarizer is a transmission supermirror => without flipper we get
         # the "down" polarization.
@@ -132,12 +134,12 @@ class Polarizer(Moveable):
     def doStart(self, target):
         switch_pos = self._attached_switcher.read(0)
         if target == 'out':
-            if switch_pos != 'ng':
-                self._attached_switcher.start('ng')
+            if switch_pos != self.switchervalues[0]:
+                self._attached_switcher.start(self.switchervalues[0])
             self._attached_flipper.start('off')
         else:
-            if switch_pos != 'pol':
-                self._attached_switcher.start('pol')
+            if switch_pos != self.switchervalues[1]:
+                self._attached_switcher.start(self.switchervalues[1])
             if target == 'up':
                 self._attached_flipper.start('on')
             elif target == 'down':
