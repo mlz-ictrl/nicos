@@ -1,7 +1,7 @@
 description = 'basic PUMA setup'
 
 includes = ['sampletable', 'monochromator', 'analyser', 'lengths', 'reactor',
-            'shutter']
+            'shutter', 'ana_alias']
 
 modules = ['nicos.commands.tas']
 
@@ -127,11 +127,6 @@ devices = dict(
         scatteringsense = -1,
         crystalside = -1,
     ),
-    ana = device('nicos.devices.generic.DeviceAlias',
-        description = 'analyser alias device',
-        alias = 'ana_pg002',
-        devclass = 'nicos.devices.tas.Monochromator',
-    ),
     ana_pg002 = device('nicos.devices.tas.Monochromator',
         description = 'PG-002 analyzer',
         unit = 'A-1',
@@ -162,6 +157,10 @@ devices = dict(
         crystalside = -1,
     ),
 )
+
+alias_config = {
+    'ana':  {'ana_pg002': 100, 'ana_ge311': 90},
+}
 
 startupcode = '''
 psi.alias = psi_puma
