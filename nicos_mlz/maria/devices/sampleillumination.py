@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Bjoern Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -61,6 +62,6 @@ class SampleIllumination(Readable):
         theta = self._attached_theta.read(maxage)
 
         denominator = abs(sin(radians(theta)))
-        if denominator > 0:
-            return (min(s1w, s2w) + l2 / l1 * (s1w + s2w)) / denominator
-        return self.f0
+        if denominator < 1e-4:
+            return self.f0
+        return (min(s1w, s2w) + l2 / l1 * (s1w + s2w)) / denominator
