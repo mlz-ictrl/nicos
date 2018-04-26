@@ -3,6 +3,8 @@
 description = "Slits setup"
 group = "optional"
 
+includes = ["hexapod"]
+
 tango_base = "tango://phys.maria.frm2:10000/maria"
 tango_pi = tango_base + "/piaperture"
 tango_s7 = tango_base + "/FZJS7"
@@ -115,5 +117,14 @@ devices = dict(
         tangodevice = tango_s7 + "/ds_left",
         precision = 0.001,
         fmtstr = "%.3f",
-    )
+    ),
+    footprint = device("nicos_mlz.maria.devices.sampleillumination.SampleIllumination",
+        description = "Beam footprint",
+        s1pos = 4100,
+        s2pos = 400,
+        s1 = "s1",
+        s2 = "s1",
+        theta = "omega",
+        unit = "mm"
+    ),
 )
