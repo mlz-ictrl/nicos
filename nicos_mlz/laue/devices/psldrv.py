@@ -51,7 +51,7 @@ class PSLdrv(object):
                     break
 
             # default:  data is zlib compressed
-            data = ((nx, ny), zlib.decompress(data))
+            data = ((ny, nx), zlib.decompress(data))
         elif cmd == "Snap":
             # don't wait for a reply, it would block until the end
             # of the exposure before returning 'TRUE'

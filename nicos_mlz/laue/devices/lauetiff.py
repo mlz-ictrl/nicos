@@ -80,7 +80,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         buf = numpy.getbuffer(npData)
         # TODO: check if this still works.
         ifile = Image.frombuffer('I;16', npData.shape[::-1], buf, 'raw',
-                                 'I;16', 0, 1)
+                                 'I;16', 0, -1)
 
         ifile.save(fp, 'TIFF', tiffinfo=self._buildHeader(self.metainfo))
 

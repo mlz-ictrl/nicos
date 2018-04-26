@@ -87,8 +87,9 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self.arraydesc = ArrayDesc('data', shape, self._modemap[mode])
         na = np.frombuffer(data, self._modemap[mode])
 
-        na = na.reshape(shape)
-        return na
+        na = np.flipud(na.reshape(shape))
+        # as flipud creates a view, we need to copy first
+        return np.require(na, None, ['C', 'O'])
 
     def doFinish(self):
         pass
