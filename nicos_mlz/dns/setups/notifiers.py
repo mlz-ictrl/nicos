@@ -8,7 +8,7 @@ devices = dict(
         sender = 'dns@frm2.tum.de',
         copies = [
             ('y.su@fz-juelich.de', 'all'),
-            ('k.nemkovskiy@fz-juelich.de', 'all'),
+            ('t.mueller@fz-juelich.de', 'all'),
             ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
             ('alerts.sw.zea2@fz-juelich.de', 'important'),
         ],
