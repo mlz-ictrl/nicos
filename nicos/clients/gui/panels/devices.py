@@ -502,12 +502,14 @@ class DevicesPanel(Panel):
             if not value:
                 value = "[]"
             devinfo[6] = set(cache_load(value))
-        if subkey == 'alias':
+        elif subkey == 'alias':
             if not value:
                 return
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg._reinit()
+        elif subkey == 'description':
+            devitem.setToolTip(0, cache_load(value or "''"))
         if subkey in self.param_display.get(ldevname, ()):
             value = str(cache_load(value))
             if subkey not in self._devparamitems.setdefault(ldevname, {}):
