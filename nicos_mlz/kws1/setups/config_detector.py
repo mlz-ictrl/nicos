@@ -21,6 +21,7 @@ DETECTOR_PRESETS = {
         '4m Tr':   dict(z=4,   x=-25,   y=-50),
         '8m Tr':   dict(z=8,   x=-25,   y=-50),
         '20m Tr':  dict(z=20,  x=-25,   y=-50),
+        '4m GISANS': dict(z=4, x=-25, y=-35),
     },
     '6A': {
         '1.5m':    dict(z=1.5, x=-3.5,  y=8.0),

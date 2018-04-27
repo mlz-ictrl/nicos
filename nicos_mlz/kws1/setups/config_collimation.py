@@ -17,6 +17,8 @@ COLLIMATION_PRESETS = {
     '4m (2x48) GISANS':   dict(guides=4,  ap_x=2,  ap_y=48),
     '4m (40x5) GISANS':   dict(guides=4,  ap_x=40, ap_y=5),
     '4m (40x10) GISANS':  dict(guides=4,  ap_x=40, ap_y=10),
+    '8m (30x15) GISANS':  dict(guides=8,  ap_x=30, ap_y=15),
+    '8m (15x30) GISANS':  dict(guides=8,  ap_x=15, ap_y=30),
     '8m (10x15) GISANS':  dict(guides=8,  ap_x=10, ap_y=15),
     '8m (10x48) GISANS':  dict(guides=8,  ap_x=10, ap_y=48),
     '8m (5x48) GISANS':   dict(guides=8,  ap_x=5,  ap_y=48),
