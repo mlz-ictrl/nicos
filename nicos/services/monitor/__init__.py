@@ -73,6 +73,9 @@ class Monitor(BaseCacheClient):
                            'background)', type=oneof('dark', 'light')),
         'showwatchdog':  Param('Whether to show watchdog warnings', type=bool,
                                default=True),
+        'expectmaster':  Param('Whether a message should indicate that no '
+                               'NICOS master is active', type=bool,
+                               default=True),
     }
 
     parameter_overrides = {
@@ -201,7 +204,8 @@ class Monitor(BaseCacheClient):
         # update current time
         self.updateTitle('%s (%s)%s' %
                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
-                          '' if self._masteractive else ', no master active'))
+                          '' if self._masteractive or (not self.expectmaster)
+                          else ', no master active'))
 
     def register(self, widget, key):
         key = self._prefix + key.lower().replace('.', '/')
