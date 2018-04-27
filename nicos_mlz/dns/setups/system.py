@@ -63,3 +63,7 @@ devices = dict(
         minfree = 5,
     ),
 )
+
+extended = dict(
+    representative = 'Sample',
+)

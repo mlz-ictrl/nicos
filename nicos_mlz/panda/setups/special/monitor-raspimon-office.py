@@ -86,8 +86,6 @@ collimation = Block('Collimation and Lengths', [
     ],
 )
 
-column1 = Column(filters, primary, sample, analyzer)
-
 
 detector = Block('Detector', [
     BlockRow(
@@ -159,12 +157,11 @@ lakeshore = Block('LakeShore', [
 
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=25, height=25, plotwindow=300,
-              devices=['t_ls340/setpoint', 't_ls340_a', 't_ls340_b'],
-              names=['Setpoint', 'A', 'B'],
+        Field(dev='T', plot='T',
+            plotwindow=12*3600, width=30, height=20),
+        Field(dev='Ts', plot='T',
+            plotwindow=12*3600, width=30, height=20),
         ),
-    ),
     ],
     setups='lakeshore',
 )
@@ -215,7 +212,7 @@ for cryo, name in cryodict.items():
         Block(cryo.title(), [
             BlockRow(
                 Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotwindow=300, width=25, height=25,
+                      plotwindow=300, width=30, height=25,
                       devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
                       names=['Setpoint', 'Regulation'],
                 ),
@@ -333,6 +330,58 @@ magnet75supp = Block('Magnet', [
     setups='magnet75',
 )
 
+# for setup magnet jcns jvm1
+magnet5 = Block('5T Magnet', [
+    BlockRow(
+        Field(dev='I_vm5'),
+        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+    ),
+    ],
+    setups='jvm1',
+)
+magnet5supp = Block('Magnet', [
+    BlockRow(
+        Field(dev='T_vm5_sample', name='Ts'),
+        Field(dev='T_vm5_vti', name='T'),
+        Field(key='T_vm5_sample/setpoint',name='Setpoint',min=1,max=200),
+        Field(key='T_vm5_sample/heateroutput',name='Heater'),
+    ),
+    BlockRow(
+        Field(dev='vm5_lhe', name='He level'),
+        Field(dev='T_vm5_magnet', name='T (coils)'),
+        Field(dev='vm5_nv_manual', name='NV'),
+    ),
+    BlockRow(
+        Field(dev='vm5_piso', name='p(iso)'),
+        Field(dev='vm5_psample', name='p(sample)'),
+        Field(dev='vm5_pvti', name='p(vti)'),
+    ),
+    ],
+    setups='jvm1',
+)
+
+jvmplots = Block('JVM 5', [
+    BlockRow(
+        Field(dev='vm5_pvti', plot='p',
+            plotwindow=3600, width=30, height=20),
+        Field(dev='vm5_nv_manual', plot='p',
+            plotwindow=3600, width=30, height=20),
+        ),
+    BlockRow(
+        Field(dev='T_vm5_vti', plot='Tmag',
+            plotwindow=12*3600, width=30, height=20),
+        Field(dev='T_vm5_sample', plot='Tmag',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    BlockRow(
+        Field(dev='vm5_lhe', plot='lhe',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    ],
+    setups='jvm1',
+)
+
+
 vti = Block('VTI', [
 #    BlockRow(
 #        Field(dev='sTs'),
@@ -392,8 +441,7 @@ foki = Block('Foki', [
     BlockRow(
         Field(dev='mfh'),
         Field(dev='mfv'),
-    ),
-    BlockRow(Field(dev='afh')),
+        Field(dev='afh')),
     ],
 )
 
@@ -410,12 +458,17 @@ memograph = Block('Water Flow', [
     ],
 )
 
+column1 = Column(filters, primary, sample, analyzer) + \
+          Column(magnet75supp, magnet5supp, kelvinox)
 
-column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, magnet75, magnet14t5, vti)
+column2 = Column(detector, bambus) + Column(*cryos) + Column(*ccrs) + \
+          Column(lakeshore, miramagnet, magnet5, magnet75, magnet14t5, vti) + \
+          Column(foki, memograph)
 
-column3 = Column(magnet75supp, kelvinox, foki, memograph) + \
-          Column(*cryosupps) + Column(*ccrsupps)
+column3 = Column(*cryosupps) + Column(*ccrsupps) + \
+          Column(jvmplots) + \
+          Column(*cryoplots) + Column(*ccrplots) + \
+          Column(lakeshoreplot)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -424,7 +477,7 @@ devices = dict(
         cache = 'phys.panda.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
-        fontsize = 11,
+        fontsize = 13,
         valuefont = 'Luxi Sans',
         layout = [Row(expcolumn),
                   Row(column1, column2, column3)],

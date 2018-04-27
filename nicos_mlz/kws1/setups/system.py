@@ -67,3 +67,7 @@ devices = dict(
         tangodevice = 'tango://ictrlfs.ictrl.frm2:10000/frm2/meteo/temp',
     ),
 )
+
+extended = dict(
+    representative = 'Sample',
+)

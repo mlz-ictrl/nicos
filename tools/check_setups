@@ -350,7 +350,8 @@ class SetupChecker(object):
                 importString(module)
             except Exception as err:
                 self.log_error('module %r not importable: %s',
-                               module, err)
+                               module, err,
+                               extra=self.find_global('modules'))
 
         # check for validity of alias_config
         aliascfg = self.ns.get('alias_config', {})
@@ -383,6 +384,14 @@ class SetupChecker(object):
             self.log_error('display_order should be an integer between '
                            '0 and 100',
                            extra=self.find_global('display_order'))
+
+        # check for validity of extended representative
+        representative = self.ns.get('extended', {}).get('representative')
+        if representative is not None:
+            if representative not in self.ns.get('devices', {}):
+                self.log_error('extended["representative"] should be a device '
+                               'defined in the current setup',
+                               extra=self.find_global('extended'))
 
         # check for valid device classes (if importable) and parameters
         for devname, devconfig in self.ns.get('devices', {}).items():

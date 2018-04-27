@@ -21,3 +21,7 @@ alias_config = {
     'T':  {'T_%s' % setupname: 200},
     'Ts': {'T_%s' % setupname: 100},
 }
+
+extended = dict(
+    representative = 'T_%s' % setupname,
+)

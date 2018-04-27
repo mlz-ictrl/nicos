@@ -29,3 +29,7 @@ devices = {
 alias_config = {
     'sth': {'sth_%s' % setupname: 200},
 }
+
+extended = dict(
+    representative = 'sth_%s' % setupname,
+)

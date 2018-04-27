@@ -23,3 +23,7 @@ devices = dict(
         type = 'other',
     ),
 )
+
+extended = dict(
+    representative = 'timer',
+)

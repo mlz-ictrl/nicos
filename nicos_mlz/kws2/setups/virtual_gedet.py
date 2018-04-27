@@ -35,3 +35,7 @@ for (epname, _) in eps:
         description = epname + ' HV setting',
         lowlevel = True
     )
+
+extended = dict(
+    representative = 'gedet_HV',
+)

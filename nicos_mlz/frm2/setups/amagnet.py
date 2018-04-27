@@ -88,3 +88,7 @@ devices = dict(
 )
 
 alias_config = {'B': {'B_amagnet': 100},}
+
+extended = dict(
+    representative = 'B_amagnet',
+)

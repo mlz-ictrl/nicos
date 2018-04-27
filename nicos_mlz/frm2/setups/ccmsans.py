@@ -93,3 +93,7 @@ devices = dict(
 alias_config = {
     'B': {'B_ccmsans': 100},
 }
+
+extended = dict(
+    representative = 'B_ccmsans',
+)

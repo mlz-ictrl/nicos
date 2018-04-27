@@ -64,3 +64,7 @@ devices = dict(
         description = 'small detector translation Y',
     ),
 )
+
+extended = dict(
+    representative = 'detector',
+)

@@ -47,3 +47,7 @@ devices = dict(
 #        coordinates = 'opposite',
     ),
 )
+
+extended = dict(
+    representative = 'piezo_slit',
+)

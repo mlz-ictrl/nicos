@@ -15,3 +15,7 @@ devices = dict(
         unit = 'MW'
     ),
 )
+
+extended = dict(
+    representative = 'ReactorPower',
+)

@@ -86,3 +86,7 @@ alias_config = {
     'B': {'B_jvm2': 100},
     'sth': {'sth_jvm2': 200},
 }
+
+extended = dict(
+    representative = 'B_jvm2',
+)

@@ -18,3 +18,7 @@ devices = dict(
         states = ['open', 'closed'],
     ),
 )
+
+extended = dict(
+    representative = 'shutter',
+)

@@ -87,3 +87,7 @@ alias_config = {
     'T':  {'T_vm5_vti': 200, 'T_vm5_sample': 190},
     'Ts': {'T_vm5_sample': 200, 'T_vm5_vti': 190},
 }
+
+extended = dict(
+    representative = 'I_vm5',
+)

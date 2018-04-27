@@ -52,6 +52,10 @@ alias_config = {
     'Ts': {'T_%s' % setupname: 100},
 }
 
+extended = dict(
+    representative = 'T_%s' % setupname,
+)
+
 startupcode = '''
 if T_%s.ramp == 0:
     printwarning('!!! The ramp rate of temperature controller is 0 !!!')

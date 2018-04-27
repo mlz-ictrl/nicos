@@ -318,7 +318,7 @@ magnet5supp = Block('Magnet', [
         Field(dev='vm5_nv_manual', name='NV'),
     ),
     BlockRow(
-        Field(dev='vm5_ppump', name='p(pump)'),
+        Field(dev='vm5_piso', name='p(iso)'),
         Field(dev='vm5_psample', name='p(sample)'),
         Field(dev='vm5_pvti', name='p(vti)'),
     ),
