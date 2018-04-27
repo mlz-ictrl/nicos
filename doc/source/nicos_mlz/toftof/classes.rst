@@ -25,10 +25,6 @@ Pyrometer
 Temperature Controller
 ----------------------
 
-.. automodule:: nicos_mlz.toftof.devices.julabo
-
-.. autoclass:: Controller()
-
 .. automodule:: nicos_mlz.toftof.devices.lascon
 
 .. autoclass:: Lascon()
@@ -42,14 +38,6 @@ Neutron Guide/Collimation
 
 .. autoclass:: Switcher()
 .. autoclass:: Motor()
-
-Radial Collimator
------------------
-
-.. automodule:: nicos_mlz.toftof.devices.rc
-
-.. autoclass:: ModBusDriverHP()
-.. autoclass:: RadialCollimator()
 
 Safety System
 -------------
