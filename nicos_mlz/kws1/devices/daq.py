@@ -75,9 +75,9 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         if self._mode != SIMULATION:
             self._dev.measureMode = 0
         self.slices = []
-        dimensions = (self._resolution[0], self._resolution[1])
-        # (x, y)
-        self.arraydesc = ArrayDesc('data', dimensions, np.uint32)
+        shape = (self._resolution[1], self._resolution[0])
+        # (y, x)
+        self.arraydesc = ArrayDesc('data', shape, np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
         # set timing of TOF slices
@@ -86,9 +86,9 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         for i in range(channels):
             times.append(times[-1] + int(interval * q**i))
         self.slices = times
-        dimensions = (self._resolution[0], self._resolution[1], channels)
-        # (x, y, t)
-        self.arraydesc = ArrayDesc('data', dimensions, np.uint32)
+        shape = (channels, self._resolution[1], self._resolution[0])
+        # (t, y, x)
+        self.arraydesc = ArrayDesc('data', shape, np.uint32)
         if self._mode == SIMULATION:
             return
         if ext_trigger:
@@ -106,6 +106,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     def doPrepare(self):
         if self._attached_highvoltage:
             self._attached_highvoltage.maw('on')
+        self._dev.Clear()
         self._dev.Prepare()
 
     def doStart(self):
