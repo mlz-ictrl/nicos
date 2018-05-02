@@ -139,7 +139,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         """
         try:
             # check if requested positions already reached within precision
-            check = self._checkPositionReached(target[0:self._num_axes], 'raw')
+            check = self._checkPositionReached(target, 'raw')
             self._printPos()
             if check:
                 self.log.debug('device already at requested position, nothing '
@@ -324,9 +324,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
 
     def _read_corr(self):
         """Read the physical unit of axis."""
-        readraw0, _readraw1 = self._read_raw()
+        readraw0 = self._read_raw()
 
-        temp1 = temp0 = self._correctAnglesRead(readraw0)
+        temp1 = temp0 = self._correctAnglesRead(readraw0[:self._num_axes])
 
         self.log.debug('detector rotation corrected:       %r', temp0)
         self.log.debug('detector guide rotation corrected: %r', temp1)
@@ -339,7 +339,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         readraw1 = [d.read() for d in self._rotguide0]
         self.log.debug('detector rotation raw:  %r', readraw0)
         self.log.debug('detector guide rotation raw: %r', readraw1)
-        return [readraw0, readraw1]
+        return readraw0 + readraw1
 
     def _printPos(self):
         out = []
@@ -351,16 +351,17 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                                                             dev.unit))
         self.log.debug('%s', '\n'.join(out))
 
-    def _checkPositionReached(self, pos, mode):
+    def _checkPositionReached(self, target, mode):
         """Check whether requested position is reached within some limit."""
-        self.log.debug('length of list: %d', 0 if pos is None else len(pos))
-        if not pos:
+        self.log.debug('length of list: %d', 0 if target is None else
+                       len(target))
+        if not target:
             return False
 
         if mode == 'raw':
-            temp = self._read_raw()[0]
+            pos = self._read_raw()
         elif mode == 'cor':
-            temp = self._read_cor()[0]
+            pos = self._read_cor()
         else:
             self.log.warn('not a valid mode given; corrected values or raw '
                           'values?')
@@ -369,10 +370,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         check = 0
         reached = []
         nonreached = []
-
-        for i, p in enumerate(pos):
-            self.log.debug('%s %s', p, temp[i])
-            if abs(p - temp[i]) <= self._rotdetector0[i].precision:
+        precs = [d.precision for d in self._rotdetector0 + self._rotguide0]
+        for i, (t, p, prec) in enumerate(zip(target, pos, precs)):
+            self.log.debug('%s %s', t, p)
+            if abs(t - p) <= prec:
                 reached.append(i)
                 check += 1
             else:
@@ -380,7 +381,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         self.log.debug('not reached: %s', nonreached)
         self.log.debug('reached    : %s', reached)
         self.log.debug('check      : %s', check)
-        return check == len(pos)
+        return check == len(target)
 
     def _readAnaTranslation(self):
         """Read the translation value of the individual analyzer blades.
