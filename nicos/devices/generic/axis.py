@@ -488,7 +488,10 @@ class Axis(CanReference, AbstractAxis):
             mstatus, mstatusinfo = self._attached_motor.status(0)
             if mstatus != status.BUSY:
                 # motor stopped; check why
-                if self._stoprequest == 2:
+                if self._stoprequest == 1:
+                    self.log.debug('stop requested')
+                    # will stop on next loop
+                elif self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
