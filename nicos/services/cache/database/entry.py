@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
@@ -123,27 +124,16 @@ class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
 
         # Create the buffered strings for key and value
         # This has to be done before starting to build
-        try:
+        value_fb_str = 0
+        if entry.value is not None:
             value_fb_str = builder.CreateString(entry.value)
-        except TypeError:
-            value_fb_str = None
-
-        try:
-            key_fb_str = builder.CreateString(key)
-        except TypeError:
-            key_fb_str = None
+        key_fb_str = builder.CreateString(key)
 
         # Start building the buffer
         CacheEntryFB.CacheEntryStart(builder)
-
-        # Do not write the key if it is None
-        if key_fb_str:
-            CacheEntryFB.CacheEntryAddKey(builder, key_fb_str)
-
-        # Do not write the value if it is None
+        CacheEntryFB.CacheEntryAddKey(builder, key_fb_str)
         if value_fb_str:
             CacheEntryFB.CacheEntryAddValue(builder, value_fb_str)
-
         CacheEntryFB.CacheEntryAddExpired(builder, entry.expired)
         CacheEntryFB.CacheEntryAddTime(builder, entry.time)
 
@@ -171,10 +161,15 @@ class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
         # Convert the buffer to FB class
         fb_entry = CacheEntryFB.CacheEntry.GetRootAsCacheEntry(buf, 0)
 
-        # Capture the default values of key, ttl and value and set them to None
-        key = fb_entry.Key() if fb_entry.Key() != 0 else None
+        # Capture the default values of key, ttl and set them to None
+        key = fb_entry.Key() if fb_entry.Key() else None
         ttl = fb_entry.Ttl() if fb_entry.Ttl() != 0 else None
-        value = fb_entry.Value() if fb_entry.Value() else None
+
+        # Try to get the value if it was written
+        try:
+            value = fb_entry.Value()
+        except Exception:
+            value = None
 
         entry = CacheEntry(fb_entry.Time(), ttl, value)
         entry.expired = bool(fb_entry.Expired())
