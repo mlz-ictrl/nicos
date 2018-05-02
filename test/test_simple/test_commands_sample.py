@@ -29,12 +29,13 @@ import json
 import mock
 
 from nicos.core import UsageError
+from nicos.commands.scan import cscan
 from nicos.commands.sample import activation, powderfit
 from nicos.pycompat import StringIO
 
 from test.utils import raises, approx
 
-session_setup = 'empty'
+session_setup = 'tas'
 
 
 # pylint: disable=C0301
@@ -72,7 +73,26 @@ def test_activation_function():
         assert data['result']['activation'] is not None
 
 
-def test_powderfit():
+def test_powderfit_from_peaks():
     res = powderfit('YIG', ki=1.32, peaks=[55.22, 64.91, 91.04, 99.58])
     assert res[0] == approx(0.02, abs=1e-2)
     assert res[1] == approx(-1, abs=1e-2)
+
+
+def test_powderfit_from_data(session):
+    tasdev = session.getDevice('Tas')
+    tasdev.scanconstant = 2.0
+    sample = session.getDevice('Sample')
+    phidev = session.getDevice('t_phi')
+    tasdet = session.getDevice('vtasdet')
+    sample.lattice = [12.38, 12.38, 12.38]
+    sample.orient1 = [1, 0, 0]
+    sample.orient2 = [0, 1, 1]
+    peaks = [(4, 0, 0, 0), (2, 1, 1, 0), (0, 2, 2, 0)]
+    for peak in peaks:
+        tasdev.maw(peak)
+        cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
+    # since datasets are not numbered (no sink), number 0 will catch all
+    res = powderfit('YIG', scans=[0])
+    assert -0.1 <= res[0] <= 0.1
+    assert -0.1 <= res[1] <= 0.1
