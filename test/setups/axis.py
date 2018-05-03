@@ -84,6 +84,7 @@ devices = dict(
         coder = 'coder',
         obs = ['coder2'],
         backlash = 0.5,
+        offset = 40,
         precision = 0,
         loopdelay = 0.02,
     ),

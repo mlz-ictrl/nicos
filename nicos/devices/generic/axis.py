@@ -398,7 +398,7 @@ class Axis(CanReference, AbstractAxis):
             return False
         maxdiff = self.dragerror
         for obs in self._attached_obs:
-            diff = abs(target - obs.read())
+            diff = abs(target - (obs.read() - self.offset))
             if maxdiff > 0 and diff > maxdiff:
                 if error:
                     self._errorstate = PositionError(self, 'precision error '
