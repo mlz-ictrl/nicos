@@ -35,12 +35,10 @@ from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.analyze import CommandLineFitResult
 from nicos.utils import printTable
-from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import urllib, iteritems
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.utils.fitting import Fit, GaussFit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
-from nicos.core.data.dataset import ScanData
 
 __all__ = [
     'NewSample', 'SetSample', 'SelectSample', 'ClearSamples', 'ListSamples',
@@ -274,22 +272,26 @@ def activation(formula=None, instrument=None,
 
 
 def _extract_powder_data(num, dataset):
-    dataset = ScanData(dataset)
     values = dict(('%s_%s' % dev_key, val)
                   for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo))
-    if 'ki_value' not in values:
-        if 'mono_value' not in values:
-            session.log.warning('dataset %d has no ki or mono value', num)
-            return
-        ki = values['mono_value']
+    try:
+        ki_name = session.instrument._attached_mono.name
+        tt_name = session.instrument._attached_phi.name
+    except Exception:
+        ki_name = tt_name = None
+    for name in [ki_name, 'ki', 'mono']:
+        if name and name + '_value' in values:
+            ki = values[name + '_value']
+            break
     else:
-        ki = values['ki_value']
+        session.log.warning('dataset %d has no ki or mono value', num)
+        return
 
     # x column
-    for sttname in ['stt', 'phi']:
-        if sttname in dataset.xnames:
-            i = dataset.xnames.index(sttname)
-            xs = [line[i] for line in dataset.xresults]
+    possible_xnames = (tt_name, 'stt', 'phi')
+    for (i, info) in enumerate(dataset.devvalueinfo):
+        if info.name in possible_xnames:
+            xs = [subset.devvaluelist[i] for subset in dataset.subsets]
             break
     else:
         session.log.warning('dataset %d has no 2-theta X values', num)
@@ -298,36 +300,36 @@ def _extract_powder_data(num, dataset):
     # normalization column (monitor > timer)
     mcol = None
     try:
-        mcol = sorted([(dataset.yresults[0][j], j)
-                       for j in range(len(dataset.ynames))
-                       if dataset.yvalueinfo[j].type == 'monitor'],
+        mcol = sorted([(dataset.subsets[0].detvaluelist[j], j)
+                       for j in range(len(dataset.detvalueinfo))
+                       if dataset.detvalueinfo[j].type == 'monitor'],
                       key=lambda x: x[0])[-1][1]
     except IndexError:
         mcol = None
     # if highest monitor count is zero, prefer time
-    if mcol is None or (dataset.yresults[0][mcol] == 0):
+    if mcol is None or (dataset.subsets[0].detvaluelist[mcol] == 0):
         try:
-            mcol = [j for j in range(len(dataset.ynames))
-                    if dataset.yvalueinfo[j].type == 'time'][0]
+            mcol = [j for j in range(len(dataset.detvalueinfo))
+                    if dataset.detvalueinfo[j].type == 'time'][0]
         except IndexError:
             session.log.warning('dataset %d has no column of type "monitor" '
                                 'or "time"', num)
             return
-    ms = [float(line[mcol]) for line in dataset.yresults]
+    ms = [float(subset.detvaluelist[mcol]) for subset in dataset.subsets]
 
     # y column
     try:
-        ycol = [j for j in range(len(dataset.ynames))
-                if dataset.yvalueinfo[j].type == 'counter'][0]
+        ycol = [j for j in range(len(dataset.detvalueinfo))
+                if dataset.detvalueinfo[j].type == 'counter'][0]
     except IndexError:
         session.log.warning('dataset %d has no Y column of type "counter"', num)
     else:
-        ys = [line[ycol] for line in dataset.yresults]
+        ys = [subset.detvaluelist[ycol] for subset in dataset.subsets]
 
-        if dataset.yvalueinfo[ycol].errors == 'sqrt':
+        if dataset.detvalueinfo[ycol].errors == 'sqrt':
             dys = [sqrt(y) for y in ys]
-        elif dataset.yvalueinfo[ycol].errors == 'next':
-            dys = [line[ycol+1] for line in dataset.yresults]
+        elif dataset.detvalueinfo[ycol].errors == 'next':
+            dys = [subset.detvaluelist[ycol+1] for subset in dataset.subsets]
         else:
             dys = [1] * len(ys)
 
@@ -341,10 +343,7 @@ def _extract_powder_data(num, dataset):
     # now try to fit the peaks
     peaks = []  # collects infos for all peaks we will find...
 
-    fwhm, xpeak, ymax, ymin = estimateFWHM(xs, ys)
-    initpars = [xpeak, ymax - ymin, xpeak, fwhm, ymin]
-    fit = GaussFit(initpars)
-    res = fit.run(xs, ys, dys)
+    res = GaussFit().run(xs, ys, dys)
     if res._failed:
         session.log.warning('no Gauss fit found in dataset %d', num)
         return
@@ -456,7 +455,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             new_ki = ki1 + j*dki*ki1
             # iterate over ki specific list, start at last element
             for el in reversed(data[ki1]):
-                tdval = pi/new_ki/sin(radians(el[1]/2.))  # dvalue from scan
+                tdval = pi/new_ki/sin(abs(radians(el[1]/2.)))  # dvalue from scan
                 distances = [(abs(d-tdval), i) for (i, d) in enumerate(dvals)]
                 mindist = min(distances)
                 if mindist[0] > maxdd:
@@ -464,8 +463,10 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
                     data[ki1].remove(el)
                 else:
                     el[0] = dvals[mindist[1]]
+                    if el[1] < 0:
+                        el[0] *= -1
                     p('%speak at %7.3f could be %s at d = %-7.4f' %
-                      (el[3], el[1], dhkls[el[0]], el[0]))
+                      (el[3], el[1], dhkls[abs(el[0])], el[0]))
         p('')
 
         restxt = []
@@ -497,10 +498,10 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             mtt0s.append(mtt0)
             peaks_fit = [model(el[0], res.ki, res.stt0) for el in peaks]
             p('___fitted_peaks_for_ki=%.3f___' % ki1)
-            p('peak       dval     measured fitpos   delta')
+            p('peak          dval measured   fitpos    delta')
             for i, el in enumerate(peaks):
-                p('%-10s %-7.3f  %-7.3f  %-7.3f  %-7.3f%s' % (
-                    dhkls[el[0]], el[0], el[1], peaks_fit[i],
+                p('%-10s %7.3f  %7.3f  %7.3f  %7.3f%s' % (
+                    dhkls[abs(el[0])], el[0], el[1], peaks_fit[i],
                     peaks_fit[i] - el[1],
                     '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
             p('')
