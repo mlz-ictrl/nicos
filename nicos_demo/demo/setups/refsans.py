@@ -595,9 +595,9 @@ devices = dict(
         abslimits = (-10.5, 10.5),
         unit = 'deg',
     ),
-    optic = device('nicos_mlz.refsans.devices.optic.Optic',
-        description = 'Beam optic',
-    ),
+    # optic = device('nicos_mlz.refsans.devices.optic.Optic',
+    #     description = 'Beam optic',
+    # ),
 )
 
 startupcode = '''
