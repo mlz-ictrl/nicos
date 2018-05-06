@@ -102,6 +102,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok9r_motor',
          analog = 'nok9r_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
 

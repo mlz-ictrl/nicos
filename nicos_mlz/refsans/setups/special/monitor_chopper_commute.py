@@ -8,7 +8,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
-description = 'REFSANS chopper monitor'
+description = 'REFSANS chopper monitor commute'
 group = 'special'
 
 # Legende fuer _chconfigcol
@@ -36,6 +36,7 @@ _chconfigcol = Column(
 _disk1col = Column(
     Block('disk 1', [
         BlockRow(Field(name='speed',  dev='chopper1',  width=6.5, unit='rpm')),
+        BlockRow(Field(name='CPT',  dev='cpt1',  width=6.5, unit='rpm')),
         BlockRow(Field(name='gear',   key='chopper1/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper1/mode', width=6.5)),
         ],
@@ -45,6 +46,7 @@ _disk1col = Column(
 _disk2col = Column(
     Block('disk 2', [
         BlockRow(Field(name='phase',  dev='chopper2_phase',  width=6.5, unit='deg')),
+        BlockRow(Field(name='CPT',  dev='cpt2',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper2/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper2/mode', width=6.5)),
         ],
@@ -54,6 +56,7 @@ _disk2col = Column(
 _disk3col = Column(
     Block('disk 3', [
         BlockRow(Field(name='phase',  key='chopper3/phase',  width=6.5, unit='deg')),
+        BlockRow(Field(name='CPT',  dev='cpt3',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper3/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper3/mode', width=6.5)),
         ],
@@ -63,6 +66,7 @@ _disk3col = Column(
 _disk4col = Column(
     Block('disk 4', [
         BlockRow(Field(name='phase',  key='chopper4/phase',  width=6.5, unit='deg')),
+        BlockRow(Field(name='CPT',  dev='cpt4',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper4/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper4/mode', width=6.5)),
         ],
@@ -72,6 +76,7 @@ _disk4col = Column(
 _disk5col = Column(
     Block('disk 5', [
         BlockRow(Field(name='phase',  key='chopper5/phase',  width=6.5, unit='deg')),
+        BlockRow(Field(name='CPT',  dev='cpt5',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper5/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper5/mode', width=6.5)),
         ],
@@ -81,6 +86,7 @@ _disk5col = Column(
 _disk6col = Column(
     Block('disk 6', [
         BlockRow(Field(name='phase',  key='chopper6/phase',  width=6.5, unit='deg')),
+        BlockRow(Field(name='CPT',  dev='cpt6',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper6/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper6/mode', width=6.5)),
         ],

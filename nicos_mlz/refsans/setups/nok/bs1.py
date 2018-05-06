@@ -125,6 +125,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'bs1r_motor',
          analog = 'bs1r_obs',
+         lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
     # generated from global/inf/poti_tracing.inf
