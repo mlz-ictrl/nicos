@@ -72,22 +72,26 @@ class JsonBase(Readable):
 class CPTMaster(JsonBase):
 
     def _read_ctrl(self, channel):
-        data = self._read_controller([self.valuekey,'start_act'])
+        data = self._read_controller([self.valuekey, 'start_act'])
         self.log.debug('res: %r', data)
+        self.log.debug('channel %d', channel)
         if channel == 0:
-            #calc speed
-            res = 3e9 / data['start_act'] # speed
+            self.log.debug('calc speed')
+            res = 3e9 / data['start_act']  # speed
+            res -= self.offset  # should be Zero
         else:
-            #calc phace with respect to Disk 1
+            self.log.debug('calc phase in respect to Disk 1')
             res = -360.0 * data[self.valuekey][channel] / data['start_act']
+            res -= self.offset
+            res = self._kreis(res)
         return res
 
-    def _kreis (self,phase,kreis=360.0):
+    def _kreis(self, phase, kreis=360.0):
         line = 'phase %.2f' % phase
-        if phase > +kreis/2:
-            phase -=  kreis
-        if phase < -360.0/2:
-            phase += 360.0
+        if phase > kreis / 2:
+            phase -= kreis
+        if phase < -kreis / 2:
+            phase += kreis
         self.log.debug(line + ' %.2f' % phase)
         return phase
 
@@ -100,8 +104,9 @@ class CPTReadout(HasOffset, CPTMaster):
     }
 
     def doRead(self, maxage=0):
-        res = self._kreis(self._read_ctrl(self.index) - self.offset)
-        return res
+        return self._read_ctrl(self.index)
+        # res = self._kreis(self._read_ctrl(self.index) - self.offset)
+        # return res
 
 
 class SdsRatemeter(JsonBase):
