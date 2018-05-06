@@ -24,21 +24,18 @@
 """Support Code for REFSANS's NOK's."""
 
 from nicos import session
-
 from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
     Readable, SIMULATION, dictwith, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
-    limits, none_or, oneof, nonemptylistof, tupleof
+    limits, none_or, nonemptylistof, oneof, tupleof
 from nicos.core.utils import multiReset
-
 from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
     SequencerMixin
 from nicos.devices.taco import AnalogInput
 from nicos.devices.vendor.ipc import Motor as IPCMotor
-
 from nicos.utils import clamp, lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
@@ -57,8 +54,8 @@ class NOKMonitoredVoltage(AnalogInput):
                            'high',
                            type=none_or(tupleof(float, float, float)),
                            settable=False, default=None),
-        'scale':     Param('Scaling factor', type=float, settable=False,
-                           default=1.),
+        'scale': Param('Scaling factor', type=float, settable=False,
+                       default=1.),
     }
     parameter_overrides = {
         'unit': Override(default='V', mandatory=False),
@@ -107,14 +104,14 @@ class NOKPosition(Coder):
     """
 
     attached_devices = {
-        'measure':   Attach('Sensing Device (Poti)', Readable),
+        'measure': Attach('Sensing Device (Poti)', Readable),
         'reference': Attach('Reference Device', Readable),
     }
 
     parameters = {
-        'poly':   Param('Polynomial coefficients in ascending order',
-                        type=nonemptylistof(float), settable=True,
-                        mandatory=True, default=0.),
+        'poly': Param('Polynomial coefficients in ascending order',
+                      type=nonemptylistof(float), settable=True,
+                      mandatory=True, default=0.),
         'length': Param('Length... ????',
                         type=float, mandatory=False),
         # fun stuff, not really needed....
@@ -124,7 +121,7 @@ class NOKPosition(Coder):
 
     parameter_overrides = {
         'fmtstr': Override(default='%.3f'),
-        'unit':   Override(default='mm', mandatory=False),
+        'unit': Override(default='mm', mandatory=False),
     }
 
     def doReset(self):
@@ -168,13 +165,13 @@ class NOKMotorIPC(CanReference, IPCMotor):
 
     parameter_overrides = {
         'zerosteps': Override(default=500000, mandatory=False),
-        'unit':      Override(default='mm', mandatory=False),
-        'backlash':  Override(type=floatrange(0.0, 0.0)),  # only 0 is allowed!
-        'speed':     Override(default=10),
-        'accel':     Override(default=10),
-        'slope':     Override(default=2000),
-        'confbyte':  Override(default=48),
-        'divider':   Override(type=intrange(-1, 7)),
+        'unit': Override(default='mm', mandatory=False),
+        'backlash': Override(type=floatrange(0.0, 0.0)),  # only 0 is allowed!
+        'speed': Override(default=10),
+        'accel': Override(default=10),
+        'slope': Override(default=2000),
+        'confbyte': Override(default=48),
+        'divider': Override(type=intrange(-1, 7)),
     }
 
     def doInit(self, mode):
@@ -211,9 +208,12 @@ class NOKMotorIPC(CanReference, IPCMotor):
 # support stuff for the NOK
 #
 
-# fancy SequenceItem: if the given device is at a limit switch, move it a
-# little. else do nothing
 class SeqMoveOffLimitSwitch(SequenceItem):
+    """Fancy SequenceItem.
+
+    If the given device is at a limit switch, move it a little, else do nothing
+    """
+
     def __init__(self, dev, *args, **kwargs):
         SequenceItem.__init__(self, dev=dev, args=args, kwargs=kwargs)
 
@@ -233,8 +233,12 @@ class SeqMoveOffLimitSwitch(SequenceItem):
         return 'MoveAwayFromLimitSwitch'
 
 
-# fancy Sequenceitem: same as SeqDev, but do not go below usermin
 class SeqDevMin(SeqDev):
+    """Fancy Sequenceitem.
+
+    Same as SeqDev, but do not go below usermin.
+    """
+
     def __init__(self, dev, target):
         # limit the position to allowed values
         target = clamp(target, dev.usermin, dev.usermax)
@@ -244,7 +248,6 @@ class SeqDevMin(SeqDev):
 #
 # Nicos classes: for NOK's
 #
-
 
 # below code is based upon old nicm_nok.py
 class SingleMotorNOK(PseudoNOK, Axis):
@@ -269,8 +272,8 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     """
 
     attached_devices = {
-        'motor_r': Attach('NOK moving motor, reactor side', Moveable),
-        'motor_s': Attach('NOK moving motor, sample side', Moveable),
+        'slit_r': Attach('NOK moving motor, reactor side', Moveable),
+        'slit_s': Attach('NOK moving motor, sample side', Moveable),
     }
 
     parameters = {
@@ -291,7 +294,7 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     }
 
     parameter_overrides = {
-        'precision': Override(type=floatrange(0, 100))
+        'precision': Override(type=floatrange(0, 100)),
     }
 
     valuetype = tupleof(float, float)
@@ -299,7 +302,7 @@ class DoubleSlit(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     @lazy_property
     def _devices(self):
-        return self._attached_motor_r, self._attached_motor_s
+        return self._attached_slit_r, self._attached_slit_s
 
     def doInit(self, mode):
         for dev in self._devices:
@@ -540,9 +543,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         return True, ''
 
     def doIsAtTarget(self, targets):
-        # check precision, only move if needed!
-        traveldists = [target - dev.read(0) - ofs
-                       for target, dev, ofs in zip(targets, self._devices,
+        traveldists = [target - (akt + ofs)
+                       for target, akt, ofs in zip(targets, self.read(0),
                                                    self.offsets)]
         self.log.debug('doIsAtTarget', targets, 'traveldists', traveldists)
         return max(abs(v) for v in traveldists) <= self.precision
@@ -569,10 +571,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        traveldists = [target - dev.read(0) - ofs
-                       for target, dev, ofs in zip(targets, self._devices,
-                                                   self.offsets)]
-        if max(abs(v) for v in traveldists) <= self.precision:
+        if self.isAtTarget(targets):
             return
 
         devices = self._devices
@@ -583,11 +582,13 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         sequence = []
 
         # now go to target
-        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+        sequence.append([SeqDev(d, t + ofs + self.masks[self.mode],
+                                stoppable=True)
                          for d, t, ofs in zip(devices, targets, self.offsets)])
 
         # now go to target again
-        sequence.append([SeqDev(d, t + ofs, stoppable=True)
+        sequence.append([SeqDev(d, t + ofs + self.masks[self.mode],
+                                stoppable=True)
                          for d, t, ofs in zip(devices, targets, self.offsets)])
 
         self.log.debug('Seq: %r', sequence)
@@ -595,8 +596,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
 
 class DoubleMotorNOKIPC(DoubleMotorNOK):
+
     def doReference(self):
-        """Reference the NOK in a sophisticated way ...
+        """Reference the NOK in a sophisticated way.
 
         First we try to reach the lowest point ever needed for referencing,
         then we reference the lower refpoint first, and the higher later.
@@ -649,6 +651,7 @@ class DoubleMotorNOKIPC(DoubleMotorNOK):
 
 
 class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
+
     def doReference(self):
         """Reference the NOK.
 
