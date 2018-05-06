@@ -55,7 +55,7 @@ class PumpstandIO(TacoDevice, Readable):
 
     parameters = {
         'address':          Param('Starting offset (words) of IO area',
-                                  #type=intrange(0x3000, 0x47ff),
+                                  # type=intrange(0x3000, 0x47ff),
                                   type=oneof(16422),
                                   mandatory=True, settable=False,
                                   userparam=False, default=16422),
@@ -154,7 +154,7 @@ class PumpstandIO(TacoDevice, Readable):
         return 1e-6 * self._readU32(32)
 
     _HW_Alarms = (
-        #~ (0, 'Ventil 1 Ansteuerung oder Signalkabel defekt'),
+        # (0, 'Ventil 1 Ansteuerung oder Signalkabel defekt'),
         (1, 'Ventil 2 Ansteuerung oder Signalkabel defekt'),
         (2, 'Ventil 3 Ansteuerung oder Signalkabel defekt'),
         (3, 'Ventil 4 Ansteuerung oder Signalkabel defekt'),
@@ -162,11 +162,11 @@ class PumpstandIO(TacoDevice, Readable):
         (5, 'Motorschutzschalter Pumpe 1'),
         (6, 'Motorschutzschalter Pumpe 2'),
         (7, 'Motorschutzschalter Pumpe 3'),
-        #~ (8, 'Motorschutzschalter Pumpe 4'),
+        # (8, 'Motorschutzschalter Pumpe 4'),
         (9, 'Leistungsschütz Pumpe 1 schaltet nicht'),
         (10, 'Leistungsschütz Pumpe 2 schaltet nicht'),
         (11, 'Pumpe 3 meldet Fehlerstatus (Kashiyama)'),
-        #~ (12, 'Leistungsschütz Pumpe 4 schaltet nicht'),
+        # (12, 'Leistungsschütz Pumpe 4 schaltet nicht'),
         (20, 'Ventil 2a Ansteuerung oder Signalkabel defekt'),
         (21, 'Ventil 4a Ansteuerung oder Signalkabel defekt'),
     )
@@ -186,8 +186,8 @@ class PumpstandIO(TacoDevice, Readable):
         (0, 'Pumpe 1 aktiviert (Wäkolbenpumpe Ruvac)'),
         (1, 'Pumpe 3 aktiviert (derzeit nicht verbaut)'),
         (2, 'Pumpe 2 aktiviert (Kashiyama)'),
-        #~ (3, 'Pumpe 4 aktiviert (Wäkolbenpumpe Feinvakuum)'),
-        #~ (4, 'Ventil 1 aktiviert (Belüftung)'),
+        # (3, 'Pumpe 4 aktiviert (Wäkolbenpumpe Feinvakuum)'),
+        # (4, 'Ventil 1 aktiviert (Belüftung)'),
         (5, 'Ventil 2 aktiviert (CB--Pumpe)'),
         (6, 'Ventil 3 aktiviert (SR--Pumpe)'),
         (7, 'Ventil 4 aktiviert (CB--Belüftung)'),
@@ -215,15 +215,15 @@ class PumpstandIO(TacoDevice, Readable):
     )
 
     _HW_CMDS = dict(
-        pump_SR=6,      pump_CB=7,      pump_SFK=30,     # cmd: pump now
-        vent_SR=8,      vent_CB=9,      vent_SFK=31,     # cmd: vent now
-        stop_SR=10,     stop_CB=11,     stop_SFK=32,     # stop pump/vent
-        set_SR_low=12,  set_CB_low=17,  set_SFK_low=33,  # set lower limit
-        set_SR_high=13, set_CB_high=18, set_SFK_high=34, # set upper limit
-        setTme_SR=23,   setTme_CB=24,   setTme_SFK=26,   # set timeout
-        setPar=14,    # set parallel pumping pressure
-        ackErr=16,    # cmd: ack errors
-        resetAll=255, # reset to default values
+        pump_SR=6,      pump_CB=7,      pump_SFK=30,      # cmd: pump now
+        vent_SR=8,      vent_CB=9,      vent_SFK=31,      # cmd: vent now
+        stop_SR=10,     stop_CB=11,     stop_SFK=32,      # stop pump/vent
+        set_SR_low=12,  set_CB_low=17,  set_SFK_low=33,   # set lower limit
+        set_SR_high=13, set_CB_high=18, set_SFK_high=34,  # set upper limit
+        setTme_SR=23,   setTme_CB=24,   setTme_SFK=26,    # set timeout
+        setPar=14,     # set parallel pumping pressure
+        ackErr=16,     # cmd: ack errors
+        resetAll=255,  # reset to default values
     )
 
     def _HW_rawCommand(self, cmd, par=0):
@@ -258,7 +258,7 @@ class PumpstandIO(TacoDevice, Readable):
         return self._readU16(38)
 
     def _HW_readVersion(self):
-        return 'V%.1f' % (self._readU32(22) *0.1)
+        return 'V%.1f' % (self._readU32(22) * 0.1)
 
     def _HW_readAlarms(self):
         # according to docu this is 16 bits,
@@ -309,20 +309,20 @@ class PumpstandIO(TacoDevice, Readable):
 
 class PumpstandPressure(Readable):
     attached_devices = {
-        'iodev' : Attach('IO Device', PumpstandIO),
+        'iodev': Attach('IO Device', PumpstandIO),
     }
     parameters = {
-        'chamber':          Param('Chamber of pumpenstand',
-                                  type=oneof('SFK', 'CB', 'SR'),
-                                  mandatory=True, settable=False,
-                                  userparam=False, default='SR'),
-        'limits':           Param('Pump activation limits',
-                                  type=limits, settable=True, volatile=True,
-                                  chatty=True, unit='mbar'),
+        'chamber': Param('Chamber of pumpenstand',
+                         type=oneof('SFK', 'CB', 'SR'),
+                         mandatory=True, settable=False,
+                         userparam=False, default='SR'),
+        'limits': Param('Pump activation limits',
+                        type=limits, settable=True, volatile=True,
+                        chatty=True, unit='mbar'),
     }
 
     parameter_overrides = {
-        'unit':  Override(default='mbar',mandatory=False),
+        'unit': Override(default='mbar', mandatory=False),
         'fmtstr': Override(default='%.1g'),
     }
     #
@@ -333,21 +333,27 @@ class PumpstandPressure(Readable):
         self._attached_iodev._HW_rawCommand('ackErr')
 
     def doRead(self, maxage=0):
-        return getattr(self._attached_iodev, '_HW_%s_current_pressure' % self.chamber)()
+        return getattr(self._attached_iodev,
+                       '_HW_%s_current_pressure' % self.chamber)()
 
     def doReadLimits(self):
-        return (getattr(self._attached_iodev, '_HW_%s_turn_off_pressure' % self.chamber)(),
-                getattr(self._attached_iodev, '_HW_%s_turn_on_pressure' % self.chamber)())
+        return (getattr(self._attached_iodev,
+                        '_HW_%s_turn_off_pressure' % self.chamber)(),
+                getattr(self._attached_iodev,
+                        '_HW_%s_turn_on_pressure' % self.chamber)())
 
     def doWriteLimits(self, limits):
         lower, upper = limits
         upper = clamp(upper, 1e-3, self.parallel_pumping)
         lower = clamp(lower, 1e-3, upper)
-        self._attached_iodev._HW_rawCommand('set_%s_low' % self.chamber, int(lower * 1e6))
-        self._attached_iodev._HW_rawCommand('set_%s_high' % self.chamber, int(upper * 1e6))
+        self._attached_iodev._HW_rawCommand('set_%s_low' % self.chamber,
+                                            int(lower * 1e6))
+        self._attached_iodev._HW_rawCommand('set_%s_high' % self.chamber,
+                                            int(upper * 1e6))
         return (lower, upper)
 
     _HW_Alarmbit = dict(CB=13, SR=14, SFK=15)
+
     def doStatus(self, maxage=0):
         alarms = self._attached_iodev._HW_readAlarms()
         alarmbit = self._HW_Alarmbit[self.chamber]
@@ -363,21 +369,21 @@ class PumpstandPump(Moveable):
     There may be a mapper usefull to map these to strings
     """
     attached_devices = {
-        'iodev' : Attach('IO Device', PumpstandIO),
+        'iodev': Attach('IO Device', PumpstandIO),
     }
     valuetype = oneof(-1, 0, 1)
     parameters = {
-        'chamber':          Param('Chamber of pumpenstand',
-                                  type=oneof('SFK', 'CB', 'SR'),
-                                  mandatory=True, settable=False,
-                                  userparam=False, default='SR'),
-        'pumptime':         Param('Max pumping time', settable=True, unit='s',
-                                  type=floatrange(0, 4294967), default=10*3600,
-                                  volatile=True, chatty=True),
+        'chamber': Param('Chamber of pumpenstand',
+                         type=oneof('SFK', 'CB', 'SR'),
+                         mandatory=True, settable=False,
+                         userparam=False, default='SR'),
+        'pumptime': Param('Max pumping time', settable=True, unit='s',
+                          type=floatrange(0, 4294967), default=10*3600,
+                          volatile=True, chatty=True),
     }
 
     parameter_overrides = {
-        'unit':  Override(default='',mandatory=False),
+        'unit': Override(default='', mandatory=False),
         'fmtstr': Override(default='%d'),
     }
 
@@ -402,8 +408,8 @@ class PumpstandPump(Moveable):
             return False, 'pumping currently not possible'
         elif target == 0:
             mask = (1 << self._HW_pumping_bit[self.chamber]) | \
-                   (1 << self._HW_venting_bit[self.chamber]) #| \
-                   #(1 << self._HW_priming_pump[self.chamber]) # ??? stop while priming allowed?
+                   (1 << self._HW_venting_bit[self.chamber])  # | \
+            #      (1 << self._HW_priming_pump[self.chamber]) # ??? stop while priming allowed?
             if sb & mask:
                 return True, ''
             return False, 'stop currently not possible'
@@ -411,11 +417,11 @@ class PumpstandPump(Moveable):
     def doRead(self, maxage=0):
         sb = self._attached_iodev._HW_readStatusByte()
         if sb & (1 << self._HW_pumping_bit[self.chamber]):
-            return -1 # pumping
+            return -1  # pumping
         if sb & (1 << self._HW_priming_pump[self.chamber]):
-            return -1 # priming pump
+            return -1  # priming pump
         if sb & (1 << self._HW_venting_bit[self.chamber]):
-            return 1 # venting
+            return 1  # venting
         return 0
 
     @usermethod
@@ -440,13 +446,14 @@ class PumpstandPump(Moveable):
     def doStatus(self, maxage=0):
         alarms = self._attached_iodev._HW_readAlarms()
         almsg = bitDescription(alarms, *(self._attached_iodev._HW_Alarms +
-            getattr(self._attached_iodev, '_HW_Alarms_%s' % self.chamber)))
+                               getattr(self._attached_iodev,
+                                       '_HW_Alarms_%s' % self.chamber)))
 
         if almsg:
             return status.ERROR, almsg
 
         work = self.doRead(maxage)
-        if work in (1,-1):
-            # venting, priming or pumping
-            return status.BUSY, ['', 'venting', 'priming or pumping'][work]
+        if work in (1, 0):
+            # off or ventings; pumping is good!
+            return status.BUSY, ['off', 'venting', 'priming or pumping'][work]
         return status.OK, ''
