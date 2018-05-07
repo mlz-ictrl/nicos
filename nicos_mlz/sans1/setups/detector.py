@@ -238,6 +238,7 @@ devices = dict(
         description = 'beamstop 1 y coder',
         tangodevice = '%s/sans1/beamstop1/y_enc' % (tangohost, ),
         fmtstr = '%.1f',
+        # userlimits = (60, 590),
         lowlevel = True,
     ),
     bs1_xax = device('nicos_mlz.sans1.devices.beamstop.BeamStopAxis',
@@ -269,7 +270,7 @@ devices = dict(
                                 'd35'     : 197.0 - BS1_X_OFS,
                                 '70x70'   : 253.4 - BS1_X_OFS,
                                 '55x55'   : 317.4 - BS1_X_OFS,
-#                                'none'    : 348.0 - BS1_X_OFS,  # no shapeholder!
+                                'none'    : 348.0 - BS1_X_OFS,  # no shapeholder!
                                 '85x85'   : 390.4 - BS1_X_OFS,
                                },
                        # limits for free-move area (in encoder values!)
