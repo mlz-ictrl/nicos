@@ -28,7 +28,8 @@ from nicos.core import Override, Value
 from nicos.utils.fitting import curve_fit
 from nicos.devices.generic import ScanningDetector as NicosScanDet
 
-from nicos_mlz.mira.devices.cascade_win import CascadeDetector as MiraCascadeDetector
+#from nicos_mlz.mira.devices.cascade_win import CascadeDetector as MiraCascadeDetector
+from nicos_mlz.mira.devices.cascade import CascadeDetector as MiraCascadeDetector
 
 
 def fit_a_sin(x, y):
@@ -58,7 +59,7 @@ class CascadeDetector(MiraCascadeDetector):
     adds fitting a sin to the timechannels in tof mode"""
 
     def doReadArray(self, quality):
-        data = MiraCascadeDetector.doReadArray(self, quality)
+        data = super(CascadeDetector, self).doReadArray(quality)
         if self.mode != 'tof':
             return data
         # need to append our stuff to self.readresult
@@ -100,7 +101,7 @@ class CascadeDetector(MiraCascadeDetector):
         return data
 
     def valueInfo(self):
-        res = MiraCascadeDetector.valueInfo(self)
+        res = super(CascadeDetector, self).valueInfo()
         if self.mode == 'tof':
             res = res + (Value('fit.contrast', unit='', type='other', errors='next', fmtstr='%.3f'),
                          Value('fit.contrastErr', unit='', type='error', errors='none', fmtstr='%.3f'),
