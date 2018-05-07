@@ -3,7 +3,7 @@ group = 'lowlevel'
 includes = ['det_base']
 excludes = ['det_3he']
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/'
 
 sysconfig = dict(
     datasinks = ['psd_padformat', 'psd_tofformat', 'psd_liveview', 'HDF5FileSaver'],
@@ -28,12 +28,13 @@ devices = dict(
     ),
     psd_liveview = device('nicos.devices.datasinks.LiveViewSink',
     ),
-#    psd_channel = device('nicos_mlz.mira.devices.cascade_win.CascadeDetector',
+#    psd_channel = device('nicos_mlz.mira.devices.cascade.CascadeDetector',
     psd_channel = device('nicos_mlz.reseda.devices.scandet.CascadeDetector',
         description = 'CASCADE detector channel',
-        server = 'resedacascade02.reseda.frm2:1234',
-        slave = False,
-        tofchannels = 128,
+        #server = 'resedacascade02.reseda.frm2:1234',
+        #slave = False,
+        tangodevice = tango_base[:-7] + 'test/cascade/tofchannel',
+        #tofchannels = 128,
     ),
     psd = device('nicos.devices.generic.Detector',
         description = 'CASCADE detector',
@@ -48,13 +49,13 @@ devices = dict(
     ),
     psd_chop_freq = device('nicos.devices.tango.AnalogOutput',
         description = 'Chopper Frequency generator',
-        tangodevice = '%s/cascade/chop_freq' % (tango_base), 
+        tangodevice = tango_base + 'cascade/chop_freq',
         pollinterval = 3,
         fmtstr = '%.3g'
     ),
     psd_timebin_freq = device('nicos.devices.tango.AnalogOutput',
         description = 'Timebin Frequency generator',
-        tangodevice = '%s/cascade/timebin_freq' % (tango_base),
+        tangodevice = tango_base + 'cascade/timebin_freq',
         pollinterval = 3,
     ),
 
