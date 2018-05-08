@@ -57,14 +57,14 @@ def set_cascade():
     echotime = session.getDevice('echotime')
     psd_chop_freq = session.getDevice('psd_chop_freq')
     psd_timebin_freq = session.getDevice('psd_timebin_freq')
-    fg_test = session.getDevice('fg_test')
+    fg_burst = session.getDevice('fg_burst')
     tau = echotime.target
     f1 = echotime.currenttable[tau]['cbox_0a_fg_freq']
     f2 = echotime.currenttable[tau]['cbox_0b_fg_freq']
     move(psd_chop_freq, 2*(f2-f1))
     move(psd_timebin_freq, 32*(f2-f1))
-    move(fg_test, 'arm')
-    move(fg_test, 'trigger')
+    move(fg_burst, 'arm')
+    move(fg_burst, 'trigger')
 
 @usercommand
 def miezescan(echolist, counttime):
