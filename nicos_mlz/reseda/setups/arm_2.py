@@ -23,7 +23,7 @@ devices = dict(
     arm2_rot_air = device('nicos.devices.tango.DigitalOutput',
         description = 'Rotation arm 2 (air)',
         tangodevice = '%s/iobox/plc_air_a2' % tango_base,
-        fmtstr = '%.3f',
+        fmtstr = '%d',
         lowlevel=True,
     ),
     arm2_rot = device('nicos_mlz.mira.devices.axis.HoveringAxis',

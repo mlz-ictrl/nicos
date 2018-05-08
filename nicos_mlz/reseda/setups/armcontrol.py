@@ -9,5 +9,6 @@ devices = dict(
         description = 'Arm controller',
         arm1 = 'arm1_rot',
         arm2 = 'arm2_rot',
+        minangle = 50,
     ),
 )

@@ -10,7 +10,7 @@ devices = dict(
         autosetup = True,
         alwayspoll = [],
         neverpoll = [],
-        blacklist = ['psd_channel', 'psd', 'scandet',
+        blacklist = ['scandet',
 #                     'cbox_0a_reg_amp',
 #                     'cbox_0b_reg_amp'
 #                     'cbox_1_reg_amp',# 'cbox_1_coil_amp', 'cbox_1_fg_amp',

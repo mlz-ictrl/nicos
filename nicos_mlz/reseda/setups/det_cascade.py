@@ -102,30 +102,30 @@ devices = dict(
     psd_chop_freq = device('nicos.devices.tango.AnalogOutput',
         description = 'Chopper Frequency generator',
         tangodevice = tango_base + 'cascade/chop_freq',
-        pollinterval = 3,
-        fmtstr = '%.3g'
+        pollinterval = 30,
+        fmtstr = '%.3f'
     ),
     psd_timebin_freq = device('nicos.devices.tango.AnalogOutput',
         description = 'Timebin Frequency generator',
         tangodevice = tango_base + 'cascade/timebin_freq',
-        pollinterval = 3,
+        pollinterval = 30,
     ),
+    #det_hv = device('nicos_mlz.mira.device.iseg.CascadeIsegHV',
+    #        description = 'Cascade HV',
+    #        tangodevice = tango_base + 'cascade/hv',
+    #        abslimits = (-3100, 0),
+    #        warnlimits = (-3000, -2800),
+    #        pollinterval = 10,
+    #        maxage = 20,
+    #        fmtstr = '%d',
+    #),
+    det_hv = device('nicos.devices.tango.PowerSupply',
+        description = 'High voltage power supply of the 3he detector',
+        tangodevice = tango_base + 'cascade/hv',
+        abslimits = (-3000,0),
+    ),
+)
 
-    #psd_fg_onoff = device('nicos.devices.tango.OnOffSwitch',
-    #    description = 'FG output on/off switch',
-    #    tangodevice = '%s/cascade/timebin_freq' % (tango_base),
-    #    ),
-    #psd_chop_burst = device('nicos.devices.tango.NamedDigitalOutput',
-    #        description = 'Burst Chopper Signal',
-    #        tangodevice = '%s/cascade/chop_burst' % (tango_base),
-    #        mapping = {'On':1, 'Off':0},
-    #    ),
-    #psd_timebin_burst = device('nicos.devices.tango.NamedDigitalOutput',
-    #        description = 'Burst Timebin Signal',
-    #        tangodevice = '%s/cascade/timebin_burst' % (tango_base),
-    #        mapping = {'On':1, 'Off':0},
-    #    ),
-    )
 
 startupcode = '''
 SetDetectors(psd)

@@ -16,8 +16,8 @@ devices = {
         device('nicos.devices.tango.AnalogOutput',
             description = 'Frequency generator frequency',
             tangodevice = '%s/%s/fg_frequency' % (tango_base, setupname),
-            pollinterval = 3,
-            fmtstr = '%.3g'
+            pollinterval = 30,
+            fmtstr = '%.4g'
         ),
      '%s_reg_amp' % setupname:
         device('nicos_mlz.reseda.devices.regulator.Regulator',
@@ -32,19 +32,19 @@ devices = {
             description = 'Frequency generator amplitude',
             tangodevice = '%s/%s/fg_amplitude' % (tango_base, setupname),
             # abslimits have to be set in res file!
-            pollinterval = 3,
+            pollinterval = 5,
         ),
     '%s_fwdp' % setupname:
         device('nicos.devices.tango.AnalogInput',
             description = 'Power amplifier forward power',
             tangodevice = '%s/%s/pa_fwdp' % (tango_base, setupname),
-            pollinterval = 3,
+            pollinterval = 10,
         ),
     '%s_revp' % setupname:
         device('nicos.devices.tango.AnalogInput',
             description = 'Power amplifier reverse power',
             tangodevice = '%s/%s/pa_revp' % (tango_base, setupname),
-            pollinterval = 3,
+            pollinterval = 10,
         ),
 #    '%s_gain' % setupname:
 #        device('nicos.devices.tango.AnalogOutput',
@@ -54,7 +54,7 @@ devices = {
 #        ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
-            pollinterval = 3,
+            pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',
             power_divider = device('nicos.devices.tango.DigitalOutput',

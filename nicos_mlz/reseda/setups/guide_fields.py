@@ -10,9 +10,9 @@ devices = {
         description = 'Guide field %i' % i,
         tangodevice = '%s/coil/gf%i' % (tango_base, i),
         fmtstr = '%.3f',
-        tangotimeout = 5.0,
-        pollinterval = 5,
-        maxage = 15,
+        tangotimeout = 30.0,
+        pollinterval = 150.0,
+        maxage = 60,
     ) for i in ([0, 1, 2] + list(range(4, 11)))
 }
 devices.update({
@@ -21,7 +21,7 @@ devices.update({
         tangodevice = '%s/coil/gf4' % tango_base,
         fmtstr = '%.3f',
         tangotimeout = 5.0,
-        pollinterval = 5,
-        maxage = 15,
+        pollinterval = 30,
+        maxage = 150,
     )
 })
