@@ -33,7 +33,7 @@ class ArmController(IsController, Device):
     parameters = {
         'minangle': Param('Minimum angle between two arms',
                           type=floatrange(0, None), settable=False,
-                          userparam=False, default=55.),
+                          userparam=False, default=50.),
     }
 
     attached_devices = {
