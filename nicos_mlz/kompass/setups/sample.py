@@ -1,6 +1,7 @@
 description = 'Sample table devices'
 
 group = 'lowlevel'
+includes = ['sampleslit']
 
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
@@ -39,7 +40,22 @@ devices = dict(
         tangodevice = tango_base + 'aircontrol/plc_airpads_detector',
         lowlevel = True,
     ),
-    stt = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+
+    pbs = device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'primary beamstop at sample table',
+        tangodevice = tango_base + 'aircontrol/plc_primary_beamstop',
+        mapping = dict(up=1, down=0),
+    ),
+
+    stt = device('nicos_mlz.kompass.devices.pbs.SttWithPBS',
+        description = 'secondary spectrometer angle (A4) with pbs',
+        stt = 'stt_ax',
+        pbs = 'pbs',
+        limits = (-21, 21),
+        pbs_values = ('down', 'up'),
+    ),
+
+    stt_ax = device('nicos_mlz.mira.devices.axis.HoveringAxis',
         description = 'secondary spectrometer angle (A4)',
         motor = 'stt_m',
         coder = 'stt_c',
@@ -50,6 +66,8 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.001,
     ),
+
+    # sample translation
     sx_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'sample/sx_m',
         fmtstr = '%.2f',
@@ -84,6 +102,8 @@ devices = dict(
         fmtstr = '%.2f',
         precision = 0.05,
     ),
+
+    # sample gonios
     scx_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'sample/scx_m',
         fmtstr = '%.1f',
@@ -119,5 +139,31 @@ devices = dict(
         coder = 'scy_m',
         fmtstr = '%.1f',
         precision = 0.05,
+    ),
+
+    sz_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'sample/sz_m',
+        fmtstr = '%.1f',
+        lowlevel = True,
+    ),
+    sz = device('nicos.devices.generic.Axis',
+        description = 'sample table Z translation',
+        motor = 'sz_m',
+        coder = 'sz_m',
+        fmtstr = '%.1f',
+        precision = 0.01,
+    ),
+
+    sy2_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'sample/sy2_m',
+        fmtstr = '%.1f',
+        lowlevel = True,
+    ),
+    sy2 = device('nicos.devices.generic.Axis',
+        description = 'additional sample table Y translation',
+        motor = 'sy2_m',
+        coder = 'sy2_m',
+        fmtstr = '%.1f',
+        precision = 0.01,
     ),
 )

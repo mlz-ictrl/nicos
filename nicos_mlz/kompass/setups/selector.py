@@ -32,7 +32,7 @@ devices = dict(
                    'in': 405.377},
         fallback = '',
         fmtstr = '%s',
-        precision = 0.1,
+        precision = 1.0,
         blockingmove = False,
         lowlevel = False,
         unit = '',
