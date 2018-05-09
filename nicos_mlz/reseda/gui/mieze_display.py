@@ -24,6 +24,9 @@
 
 """Classes to display Mieze data from Cascade detector."""
 
+from math import pi
+from os import path
+
 import numpy as np
 from gr.pygr import ErrorBar
 
@@ -35,6 +38,10 @@ from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
 from nicos.utils import findResource
+
+from nicos_mlz.reseda.utils import MiezeFit
+
+my_uipath = path.dirname(__file__)
 
 COLOR_BLUE = GRCOLORS['blue']
 
@@ -70,6 +77,8 @@ class MiniPlot(LiveWidget1D):
 
 class FoilWidget(QWidget):
 
+    fitter = MiezeFit()
+
     def __init__(self, name='unknown', parent=None, **kwds):
         QWidget.__init__(self, parent)
         loadUi(self, findResource('nicos_mlz/reseda/gui/mieze_display_foil.ui'))
@@ -97,15 +106,14 @@ class FoilWidget(QWidget):
         self.contrast_error.setText('%.3f' % dcontrast)
         self.freq_value.setText('%.2f' % freq)
         self.freq_error.setText('%.3f' % dfreq)
-        self.phase_value.setText('%.2f' % (phase + np.pi if contrast < 0
+        self.phase_value.setText('%.2f' % (phase + pi if contrast < 0
                                            else phase))
         self.phase_error.setText('%.3f' % dphase)
 
         # now update plot
         datacurve, fitcurve = self.plotwidget._curves
         fitcurve.x = np.arange(-0.5, 16.5, 0.1)
-        fitcurve.y = np.array([self.model_sine(x, avg, contrast, freq, phase)
-                               for x in fitcurve.x])
+        fitcurve.y = self.fitter.fit_model(fitcurve.x, avg, contrast, phase)
         datacurve.x = np.arange(0, 16, 1)
         datacurve.y = np.array(counts)
         datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y,
@@ -113,9 +121,6 @@ class FoilWidget(QWidget):
                                        markercolor=datacurve.markercolor)
         self.plotwidget.reset()
         self.plotwidget.update()
-
-    def model_sine(self, x, avg, contrast, freq, phase):
-        return avg * (1 + contrast * np.sin(freq * x + phase))
 
 
 class MiezePanel(Panel):

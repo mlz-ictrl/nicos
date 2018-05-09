@@ -29,12 +29,14 @@ from nicos.core.params import ArrayDesc, Param, Value, intrange, listof, \
 from nicos.devices.generic import VirtualImage
 from nicos.protocols.cache import FLAG_NO_STORE
 
-from nicos.devices.vendor.cascade import fit_a_sin_fixed_freq
+from nicos_mlz.reseda.utils import MiezeFit
 
 
 class CascadeDetector(VirtualImage):
 
     _perfoil = 16
+
+    fitter = MiezeFit()
 
     parameters = {
         'mode': Param('Data acquisition mode (tof or image)',
@@ -144,10 +146,10 @@ class CascadeDetector(VirtualImage):
         for foil in self.foilsorder:
             foil_tot = shaped[foil].sum((1, 2))
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
-            tpopt, tperr, _ = fit_a_sin_fixed_freq(x, foil_tot)
-            rpopt, rperr, _ = fit_a_sin_fixed_freq(x, foil_roi)
-            payload.append([tpopt, tperr, foil_tot.tolist(),
-                            rpopt, rperr, foil_roi.tolist()])
+            tres = self.fitter.run(x, foil_tot, None)
+            rres = self.fitter.run(x, foil_roi, None)
+            payload.append([tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                            rres._pars[1], rres._pars[2], foil_roi.tolist()])
 
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data

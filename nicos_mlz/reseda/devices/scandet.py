@@ -27,7 +27,7 @@ import numpy as np
 from nicos.core import Override, Param, Value, floatrange, oneof
 from nicos.devices.generic import ScanningDetector as NicosScanDet
 
-from nicos.devices.vendor.cascade import fit_a_sin
+from nicos_mlz.reseda.utils import MiezeFit
 
 
 class ScanningDetector(NicosScanDet):
@@ -49,6 +49,8 @@ class ScanningDetector(NicosScanDet):
         'positions': Override(settable=False, volatile=True),
     }
 
+    fitter = MiezeFit()
+
     def _processDataset(self, dataset):
         for det in dataset.detectors:
             for imgdet in det._attached_images:
@@ -63,10 +65,11 @@ class ScanningDetector(NicosScanDet):
                                 break
                         scanvalues.append(subset.devvaluelist[0])
                     # ofs, ampl, freq, phase
-                    popt, perr, msg = fit_a_sin(scanvalues, roivalues)
-                    if msg:
-                        self.log.warning(msg)
-                    return [abs(popt[1]), perr[1], popt[0], perr[0]]
+                    res = self.fitter.run(scanvalues, roivalues, None)
+                    if res._failed:
+                        self.log.warning(res._message)
+                    return [res.contrast, res.dcontrast,
+                            res.avg, res.davg]
         res = []
         for ctr in self._attached_detector._attached_counters:
             x = []
@@ -78,10 +81,10 @@ class ScanningDetector(NicosScanDet):
                         x.append(subset.devvaluelist[0])
                         break
             # ofs, ampl, freq, phase
-            popt, perr, msg = fit_a_sin(x, y)
-            if msg:
-                self.log.warning(msg)
-            res.extend([abs(popt[1]), perr[1], popt[0], perr[0]])
+            res = self.fitter.run(x, y, None)
+            if res._failed:
+                self.log.warning(res._message)
+            res.extend([res.contrast, res.dcontrast, res.avg, res.davg])
         return res
 
     def doReadPositions(self):
