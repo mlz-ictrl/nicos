@@ -21,10 +21,9 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
-
+"""Classes to display Mieze data from Cascade detector."""
 
 from os import path
-import numpy as np
 
 import gr
 from gr.pygr import ErrorBar
@@ -32,10 +31,11 @@ from gr.pygr import ErrorBar
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
-from nicos.guisupport.livewidget import LiveWidget1D, COLOR_BLUE
-from nicos.guisupport.qt import QSizePolicy, QWidget, QSize
-
+from nicos.guisupport.livewidget import COLOR_BLUE, LiveWidget1D
+from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
+
+import numpy as np
 
 my_uipath = path.dirname(__file__)
 
@@ -110,6 +110,21 @@ class FoilWidget(QWidget):
 
 
 class MiezePanel(Panel):
+    """Panel to display mieze data from cascade detector.
+
+    options:
+        * foils - list of foils to be displayed, the order gives the position
+                  where it will be displayed. First foil in most left, most
+                  top position. Next in the same row. If the number of entries
+                  is greater than the number of the columns the next row will
+                  be used.
+                  default: [7, 6, 5, 0, 1, 2]
+        * columns - number of columns, where foil data can be displayed
+                    default: 3
+        * rows - number of rows, where foil data can be displayed
+                 default: 2
+    """
+
     panelName = 'Cascade Mieze display'
     bar = None
     menu = None
@@ -121,13 +136,20 @@ class MiezePanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'mieze_display.ui', my_uipath)
         self.mywidgets = []
-        for foil, x, y in zip([7, 6, 5, 0, 1, 2], 2 * range(3),
-                              3 * [0] + 3 * [1]):
+
+    def setOptions(self, options):
+        Panel.setOptions(self, options)
+        self.foils = options.get('foils', [7, 6, 5, 0, 1, 2])
+        self.columns = options.get('columns', 3)
+        self.rows = options.get('rows', 2)
+        for foil, x, y in zip(self.foils, self.rows * range(self.columns),
+                              sum([self.columns * [i] for i in
+                                   range(self.rows)], [])):
             foilwidget = FoilWidget(name='Foil %d' % foil, parent=self)
             self.mywidgets.append(foilwidget)
             self.gridLayout.addWidget(foilwidget, y, x)
-        client.cache.connect(self.on_client_cache)
-        client.connected.connect(self.on_client_connected)
+        self.client.cache.connect(self.on_client_cache)
+        self.client.connected.connect(self.on_client_connected)
 
     def _init_data(self):
         self._data = self.client.getCacheKey('psd_channel/_foildata')[1]
