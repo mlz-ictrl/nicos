@@ -2,4 +2,4 @@ description = 'TAS'
 
 group = 'basic'
 
-includes = ['monochromator', 'analyzer']
+includes = ['monochromator', 'analyzer', 'monochanger']
