@@ -53,3 +53,7 @@ tools = [
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=True),
 ]
+
+options = {
+    'reader_classes': ['nicos.devices.datasinks.text'],
+}
