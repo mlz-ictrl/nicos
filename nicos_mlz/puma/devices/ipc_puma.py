@@ -31,8 +31,11 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 
 import time
 
+import numpy as np
+
 from nicos import session
-from nicos.core import Override, Param, intrange, none_or, oneof, status
+from nicos.core import Override, Param, intrange, none_or, nonemptylistof, \
+    oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import NicosError, TimeoutError, UsageError
 from nicos.core.mixins import HasOffset
@@ -54,6 +57,14 @@ STATUS = 134
 class Coder(IPCCoder):
     """Same as vendor.ipc.Coder but don't write the config byte."""
 
+    parameters = {
+        'poly': Param('Polynomial coefficients in ascending order',
+                      type=nonemptylistof(float), settable=True,
+                      mandatory=True, default=[0., 1.]),
+    }
+
+    fit = np.polynomial.Polynomial([0., 1.])  # identity conversion
+
     parameter_overrides = {
         'confbyte': Override(settable=False),
     }
@@ -62,6 +73,15 @@ class Coder(IPCCoder):
         self.log.warning('Config byte can\'t be changed like this.')
         # self._attached_bus.send(self.addr, 154, byte, 3)
         return
+
+    def doUpdatePoly(self, poly):
+        self.fit = np.polynomial.Polynomial(poly)
+
+    def _fromsteps(self, value):
+        self.log.debug('uncorrected value: %f', value)
+        result = self.fit(value)
+        self.log.debug('final result: %f', result)
+        return result
 
 
 class Motor(IPCMotor):
