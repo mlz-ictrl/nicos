@@ -77,6 +77,8 @@ def prepareData(x, y, dy, norm):
     indices = np.isfinite(y)
     x = x[indices]
     y = y[indices]
+    if not y.size:
+        raise ValueError('y does not contain any value')
     if dy.size:
         dy = dy[indices]
         # remove error bars that aren't finite

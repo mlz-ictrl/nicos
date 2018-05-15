@@ -35,6 +35,10 @@ class ImageChannel(BaseImageChannel):
         self.readresult = [narray.sum()]
         return narray
 
+    def valueInfo(self):
+        return Value(name=self.name, type='counter', fmtstr='%d',
+                     errors='sqrt', unit='cts'),
+
 
 class RateImageChannel(BaseImageChannel):
 
@@ -63,5 +67,7 @@ class RateImageChannel(BaseImageChannel):
         return narray
 
     def valueInfo(self):
-        return (Value(name="total", type="counter", fmtstr="%d", unit="cts"),
-                Value(name="rate", type="monitor", fmtstr="%.1f", unit="cps"))
+        return (Value(name=self.name + ' (total)', type='counter', fmtstr='%d',
+                      errors='sqrt', unit='cts'),
+                Value(name=self.name + ' (rate)', type='monitor',
+                      fmtstr='%.1f', unit='cps'),)

@@ -26,12 +26,14 @@ main_window = tabbed(
             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
             panel('nicos.clients.gui.panels.editor.EditorPanel', tools=[]),
         )),
-    # ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
+    ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     # ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+]
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
@@ -51,3 +53,7 @@ tools = [
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=True),
 ]
+
+options = {
+    'reader_classes': ['nicos.devices.datasinks.text'],
+}
