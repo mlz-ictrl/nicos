@@ -147,7 +147,7 @@ class Mchanger(Moveable):
         #     dev.power = 'off'
 
     def _focusOut(self):
-        self.log.info('Focusing to the flat position is temporaly desaibled')
+        self.log.info('Focusing to the flat position is temporarily disabled')
         aliasdevice = self._attached_monochromator
         foch = session.getDevice(aliasdevice.alias)._attached_focush
         focv = session.getDevice(aliasdevice.alias)._attached_focusv
