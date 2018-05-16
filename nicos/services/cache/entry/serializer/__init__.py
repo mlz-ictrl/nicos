@@ -18,27 +18,29 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
-import os
-from test.utils import alt_cache_addr
+from nicos.core import Device
+from nicos.core.errors import ProgrammingError
 
-name = 'setup for cache stresstest with kafka db'
 
-devices = dict(
-    Server = device('nicos.services.cache.server.CacheServer',
-        server = alt_cache_addr,
-        db = 'DB4',
-        loglevel = 'debug',
-    ),
-    DB4 = device('nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
-        currenttopic = 'test-flatbuffers',
-        historytopic = 'test-flatbuffers-history',
-        brokers = [os.environ.get('KAFKA_URI', 'localhost:9092')],
-        loglevel = 'debug',
-        serializer = 'serializer'
-    ),
-    serializer = device('nicos.services.cache.entry.serializer.flatbuffers.FlatbuffersCacheEntrySerializer'),
-)
+class CacheEntrySerializer(Device):
+    """Base class to serialize and de-serialize the entries for cache
+
+    Following methods must be implemented in the derived classes:
+    * encode(key, entry, **params)
+    where `entry` represents the instance to be serialized and the `key`
+    is the NICOS key for which this entry is written.
+
+    * decode(encoded) : returns tuple of (key, entry)
+    The decode method should return a key and entry tuple decoded from
+    the message.
+    """
+
+    def encode(self, key, entry, **params):
+        raise ProgrammingError('Encoder not implemented')
+
+    def decode(self, encoded):
+        raise ProgrammingError('Decoder not implemented')

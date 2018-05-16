@@ -30,7 +30,7 @@ from nicos.core import Param, intrange
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
 from nicos.pycompat import iteritems
 from nicos.services.cache.database.base import CacheDatabase
-from nicos.services.cache.database.entry import CacheEntry
+from nicos.services.cache.entry import CacheEntry
 
 
 class MemoryCacheDatabase(CacheDatabase):

@@ -19,26 +19,24 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
-import os
-from test.utils import alt_cache_addr
 
-name = 'setup for cache stresstest with kafka db'
+class CacheEntry(object):
+    __slots__ = ('time', 'ttl', 'value', 'expired')
 
-devices = dict(
-    Server = device('nicos.services.cache.server.CacheServer',
-        server = alt_cache_addr,
-        db = 'DB4',
-        loglevel = 'debug',
-    ),
-    DB4 = device('nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
-        currenttopic = 'test-flatbuffers',
-        historytopic = 'test-flatbuffers-history',
-        brokers = [os.environ.get('KAFKA_URI', 'localhost:9092')],
-        loglevel = 'debug',
-        serializer = 'serializer'
-    ),
-    serializer = device('nicos.services.cache.entry.serializer.flatbuffers.FlatbuffersCacheEntrySerializer'),
-)
+    def __init__(self, time, ttl, value):
+        self.time = time
+        self.ttl = ttl
+        self.value = value
+        self.expired = False
+
+    def __repr__(self):
+        if self.expired:
+            return '(%s+%s@%s)' % (self.time, self.ttl, self.value)
+        return '%s+%s@%s' % (self.time, self.ttl, self.value)
+
+    def asDict(self):
+        return {x: getattr(self, x) for x in self.__slots__}

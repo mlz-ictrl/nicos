@@ -33,8 +33,8 @@ from nicos.core.errors import ConfigurationError
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
 from nicos.pycompat import iteritems
 from nicos.services.cache.database.memory import MemoryCacheDatabase
-from nicos.services.cache.database.entry import CacheEntry, \
-    CacheEntrySerializer
+from nicos.services.cache.entry import CacheEntry
+from nicos.services.cache.entry.serializer import CacheEntrySerializer
 from nicos.utils import createThread
 
 
@@ -171,7 +171,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         value = None
         if entry.value is not None:
             # Only when the key deletion is not required
-            value = self._attached_serializer.encode(entry, key)
+            value = self._attached_serializer.encode(key, entry)
 
         self._producer.send(
             topic=self.currenttopic,
@@ -306,6 +306,6 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         # Send the message to the history topic
         self._producer.send(
             topic=self.historytopic,
-            value=self._attached_serializer.encode(entry, key),
+            value=self._attached_serializer.encode(key, entry),
             timestamp_ms=entry.time * 1000)
         self._producer.flush()

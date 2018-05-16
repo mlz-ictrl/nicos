@@ -34,7 +34,7 @@ from nicos.core import Param
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
 from nicos.pycompat import iteritems, listitems
 from nicos.services.cache.database.base import CacheDatabase
-from nicos.services.cache.database.entry import CacheEntry
+from nicos.services.cache.entry import CacheEntry
 from nicos.utils import ensureDirectory, allDays, createThread
 
 try:  # Windows compatibility: it does not provide os.link

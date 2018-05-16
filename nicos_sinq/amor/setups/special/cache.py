@@ -5,7 +5,7 @@ group = 'special'
 
 devices = dict(
     serializer=device(
-        'nicos.services.cache.database.entry.FlatbuffersCacheEntrySerializer'),
+        'nicos.services.cache.entry.serializer.flatbuffers.FlatbuffersCacheEntrySerializer'),
 
     DB=device(
         'nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
