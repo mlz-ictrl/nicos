@@ -60,7 +60,7 @@ class Mchanger(Moveable):
                          settable=False),
     }
 
-#   hardware_access = False
+    # hardware_access = False
 
     def doInit(self, mode):
         # self._switchlist = self._attached_holdstat._iolist.keys()
@@ -75,31 +75,28 @@ class Mchanger(Moveable):
                                      self.init_positions.values()))
 
     def doStart(self, target):
+        curpos = self.doRead(0)
+        if curpos == target:
+            self.log.info('%s is already in the beam.', target)
+            return
         try:
-            carpos = self._startCheck()
-            if carpos == target:
-                self.log.info('%s is already in the beam.', target)
-                return
-
             self._move2start()
-
         except PositionError:
             self.log.info('Cannot start monochromator change')
             raise
 
-        if carpos != 'None':
-            self.log.info('Remove %s', carpos)
+        if curpos != 'None':
+            self.log.info('Remove %s', curpos)
             self._focusOut()
             self._change_alias('None')
-            self._moveUp(carpos)
+            self._moveUp(curpos)
 
-        # now carpos is 'none' ....
+        # now carpos is 'None' ....
         if target != 'None':
             self.log.info('Put down %s', target)
             self._moveDown(target)
             self._change_alias(target)
             self._focusOn()
-
         self._finalize()
 
     def doRead(self, maxage=0):
@@ -107,18 +104,14 @@ class Mchanger(Moveable):
         down = self._attached_mono_stat.read(maxage)
         if up != 'None':
             if up != down:
-                raise PositionError(self, 'unknown position of %s' %
-                                    self.name)
+                raise PositionError(self, 'unknown position of %s' % self.name)
         return self._attached_holdstat.read(maxage)
 
-    def _startCheck(self):
-        carpos = self.doRead(0)
-        lift_pos = self._attached_lift.doRead(0)
-        if lift_pos != 'ref':
-            raise PositionError(self, 'Lift is not at reference position.'
-                                'Please check if mono is fixed at the magazin '
-                                'or at the monotable')
-        return carpos
+    def doIsAllowed(self, pos):
+        if self._attached_lift.doRead(0) != 'ref':
+            return (False, 'Lift is not at reference position. Please check if'
+                    ' mono is fixed at the magazin or at the monotable')
+        return True, ''
 
     def _move2start(self):
         self.log.info('Move %s for monochromator change',
@@ -199,8 +192,6 @@ class Mchanger(Moveable):
                                     "'%s'" % (dev, pos))
 
     def _moveUp(self, pos):
-        # self._change_alias('None')
-
         self._step('magazin', pos)
         self._step('grip', 'open')
         self._step('lift', 'bottom')
@@ -229,8 +220,6 @@ class Mchanger(Moveable):
         self._step('grip', 'closed')
         self._step('mlock', 'closed')
 
-        # self._change_alias(pos)
-
     def _change_alias(self, pos):
         """Change the alias of the monochomator DeviceAlias."""
         aliastarget = self.mapping.get(pos, None)
@@ -249,10 +238,6 @@ class Mchanger(Moveable):
         moves the attached_device with the keyname to the value-position.
         Also checks success
         """
-        # if len(kwargs) != 1:
-        #     raise ProgrammingError('_step called with more than '
-        #                            'ONE keyworded argument!')
-        # devicename, pos = kwargs.items()[0]
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
