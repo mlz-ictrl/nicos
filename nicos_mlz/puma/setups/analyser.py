@@ -69,7 +69,7 @@ devices = dict(
     ),
 
     # Focusing horizontal for PG analyzer
-    st_afpg = device('nicos_mlz.puma.devices.ipc_puma.Motor1',
+    st_afpg = device('nicos_mlz.puma.devices.Motor1',
         bus = 'motorbus6',
         addr = 68,
         slope = 368.4,
@@ -85,7 +85,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    afpg = device('nicos_mlz.puma.devices.focus.FocusAxis',
+    afpg = device('nicos_mlz.puma.devices.FocusAxis',
         description = 'Horizontal focus of PG-analyser',
         motor = 'st_afpg',
         coder = 'co_afpg',
@@ -100,7 +100,7 @@ devices = dict(
     ),
 
     # Focusing horizontal for Ge311 Analysator
-    st_afge = device('nicos_mlz.puma.devices.ipc_puma.Motor1',
+    st_afge = device('nicos_mlz.puma.devices.Motor1',
         bus = 'motorbus6',
         addr = 68,
         slope = -372.9,
@@ -116,7 +116,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    afge = device('nicos_mlz.puma.devices.focus.FocusAxis',
+    afge = device('nicos_mlz.puma.devices.FocusAxis',
         description = 'Horizontal focus of Ge-analyser',
         motor = 'st_afge',
         coder = 'co_afge',

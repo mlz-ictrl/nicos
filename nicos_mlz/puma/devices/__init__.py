@@ -24,8 +24,25 @@
 
 from __future__ import absolute_import, division, print_function
 
+from .attenuator import Attenuator
 from .collimator import Collimator
+from .comb_ax import CombAxis
+from .coupledaxis import PumaCoupledAxis
+from .datasinks import PolarizationFileSink
 from .deflector import Deflector
+from .filter import PumaFilter
+from .focus import FocusAxis
+from .ipc_puma import Coder, Motor, Motor1, ReferenceMotor
+from .maglock import MagLock
+from .mchanger import Mchanger
+from .mtt import MttAxis
+from .multianalyzer import PumaMultiAnalyzer
+from .multidetector import PumaMultiDetectorLayout
+from .pgfilter import PGFilter
 from .seccoll import PumaSecCollBlockChanger, PumaSecCollLift, \
     PumaSecCollPair, PumaSecondaryCollimator
+from .senseswitch import SenseSwitch
+from .sh_cylinder import SH_Cylinder
+from .spectro import PUMA
+from .sr7 import SR7Shutter
 from .stackedaxis import StackedAxis

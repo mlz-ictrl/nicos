@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = ['analyzer']
 
 devices = dict(
-    cad = device('nicos_mlz.puma.devices.coupledaxis.PumaCoupledAxis',
+    cad = device('nicos_mlz.puma.devices.PumaCoupledAxis',
         description = 'cad - combined axis for multianalyzer',
         tt = 'att_cad',
         th = 'ath',

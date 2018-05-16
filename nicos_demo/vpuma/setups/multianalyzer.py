@@ -7,7 +7,7 @@ includes = ['aliases']
 level = False
 
 devices = dict(
-    man = device('nicos_mlz.puma.devices.multianalyzer.PumaMultiAnalyzer',
+    man = device('nicos_mlz.puma.devices.PumaMultiAnalyzer',
         description = 'PUMA multi analyzer',
         translations = ['ta1', 'ta2', 'ta3', 'ta4', 'ta5', 'ta6', 'ta7', 'ta8',
                         'ta9', 'ta10', 'ta11'],

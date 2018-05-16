@@ -5,7 +5,7 @@ group = 'optional'
 includes = ['motorbus6']
 
 devices = dict(
-    st_dslit = device('nicos_mlz.puma.devices.ipc_puma.Motor',
+    st_dslit = device('nicos_mlz.puma.devices.Motor',
         bus = 'motorbus6',
         addr = 67,
         slope = 4500,
