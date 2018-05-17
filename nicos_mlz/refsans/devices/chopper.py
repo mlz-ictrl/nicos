@@ -55,7 +55,7 @@ class ChopperBase(Moveable, StringIO):
             what = mvalue % ((self.chopper,) + values)
         else:
             what = mvalue % (values)
-        self.log.debug('_read_controller what: %s', what)
+        self.log.debug('_write_controller what: %s', what)
         self.writeLine(what)
 
 
