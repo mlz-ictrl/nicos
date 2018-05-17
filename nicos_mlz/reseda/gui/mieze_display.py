@@ -104,6 +104,7 @@ class FoilWidget(QWidget):
                                        markercolor=datacurve.markercolor)
         datacurve.linetype = None
         self.plotwidget.reset()
+        self.plotwidget.update()
 
     def model_sine(self, x, avg, contrast, freq, phase):
         return avg * (1 + contrast * np.sin(freq * x + phase))
