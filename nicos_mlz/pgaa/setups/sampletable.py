@@ -2,7 +2,7 @@ description = 'XYZ-Omega sample table'
 
 group = 'lowlevel'
 
-excludes = ['sample']
+excludes = ['samplechanger']
 
 nethost = 'pgaasrv.pgaa.frm2'
 

@@ -11,7 +11,7 @@ includes = [
     'reactor',
     'nl4b',
     'pressure',
-    'sample',
+    'samplechanger',
     'pilz',
     'detector',
     'collimation',
