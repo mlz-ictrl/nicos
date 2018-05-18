@@ -23,8 +23,7 @@
 # *****************************************************************************
 """Classes for the focussing guide."""
 
-import time
-
+from nicos import session
 from nicos.core import Attach, Moveable, Param, status
 from nicos.utils import createThread
 
@@ -93,5 +92,5 @@ class EllCol(Moveable):
             return None
 
     def _wait(self):
-        time.sleep(self.timeout)
+        session.delay(self.timeout)
         self._timer = True
