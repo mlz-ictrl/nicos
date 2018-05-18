@@ -73,10 +73,10 @@ class PGAASinkHandler(DataSinkHandler):
 
             # dir_ = os.path.dirname(__file__)
             filename = self.filename(prefix, vacval)
-            mcafilename = filename + '.mca'
-            chnfilename = filename + '.chn'
-            # mcafilename = "logfiles/" + filename + ".mca"
-            # chnfilename = "logfiles/" + filename + ".chn"
+            mcafilename = 'logfiles/' + filename + '.mca'
+            chnfilename = 'logfiles/' + filename + '.chn'
+            # mcafilename = filename + ".mca"
+            # chnfilename = filename + ".chn"
 
             # path = os.path.join(dir_, filename)
             try:
@@ -258,15 +258,21 @@ class PGAASink(DataSink):
     """Write spectrum to file in specific format."""
 
     attached_devices = {
-        'det1': Attach('', Measurable),
-        'det2': Attach('', Measurable),
-        'vac': Attach('', Readable)
+        'det1': Attach('Detector1', Measurable),
+        'det2': Attach('Detector2', Measurable),
+        'vac': Attach('Vacuum chamber pressure', Readable)
     }
 
     parameters = {
         'filecount': Param('filecount',
                            type=int, mandatory=False, settable=True,
                            prefercache=True, default=1),
+        'ecalslope': Param('Energy Calibration Slope',
+                           type=int, mandatory=False, settable=True,
+                           prefercache=True, default=1),
+        'ecalintercept': Param('Energy Calibration Slope',
+                               type=int, mandatory=False, settable=True,
+                               prefercache=True, default=1),
     }
 
     handlerclass = PGAASinkHandler
