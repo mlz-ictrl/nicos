@@ -2,37 +2,19 @@ description = 'PGAA detectors'
 
 group = 'lowlevel'
 
-includes = []
-
-sysconfig = dict(
-    datasinks = ['sink']
-)
-
-nethost = 'pgaasrv.pgaa.frm2'
+tango_host = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/'
 
 devices = dict(
-    det = device('nicos_mlz.pgaa.devices.dspec.DSPec',
+    _60p = device('nicos_mlz.pgaa.devices.DSPec',
         description = '60%',
-        tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/60',
+        tangodevice = tango_host + '60',
         prefix = 'P',
-        maxage = None
+        maxage = None,
     ),
-    detLEGe = device('nicos_mlz.pgaa.devices.dspec.DSPec',
+    LEGe = device('nicos_mlz.pgaa.devices.DSPec',
         description = 'low energy germanium detector',
-        tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/LEGe',
+        tangodevice = tango_host + 'LEGe',
         prefix = 'L',
-        maxage = None
+        maxage = None,
     ),
-    # _60p = device('nicos_mlz.pgaa.devices.dspec.DSPec',
-    #     description = '60%',
-    #     tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/60',
-    #     prefix = 'P',
-    #     maxage = None,
-    # ),
-    # LEGe = device('nicos_mlz.pgaa.devices.dspec.DSPec',
-    #     description = 'low energy germanium detector',
-    #     tangodevice = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/LEGe',
-    #     prefix = 'L',
-    #     maxage = None,
-    # ),
 )
