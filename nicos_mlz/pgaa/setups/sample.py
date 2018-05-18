@@ -1,6 +1,8 @@
 description = 'sample table devices'
 
-includes = []
+group = 'lowlevel'
+
+excludes = ['sampletable']
 
 nethost = 'pgaasrv.pgaa.frm2'
 
@@ -54,25 +56,4 @@ devices = dict(
         motor = 'samplemotor',
         push = 'push',
     ),
-    # e1 = device('nicos.devices.taco.Coder',
-    #     description = '',
-    #     tacodevice = '//%s/pgaa/phytronixe/e1' % (nethost,),
-    #     fmtstr = '%7.3f',
-    # ),
-    # ellip = device('nicos.devices.taco.DigitalInput',
-    #     description = '',
-    #     tacodevice = '//%s/pgaa/pgai/ellip' % (nethost,),
-    # ),
-    # ftube = device('nicos.devices.taco.DigitalInput',
-    #     description = '',
-    #     tacodevice = '//%s/pgaa/pgai/ftube' % (nethost,),
-    # ),
-    # press1 = device('nicos.devices.taco.DigitalInput',
-    #     description = '',
-    #     tacodevice = '//%s/pgaa/pgai/press1' % (nethost,),
-    # ),
-    # press2 = device('nicos.devices.taco.DigitalInput',
-    #     description = '',
-    #     tacodevice = '//%s/pgaa/pgai/press2' % (nethost,),
-    # ),
 )
