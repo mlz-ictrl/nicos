@@ -100,10 +100,9 @@ class SampleMotor(MCC2Motor):
         self.comm('XP27S1')
 
     def doIsAllowed(self, pos):
-        if pos == self.doRead():
-            return (True, 'ok')
-        if not self._attached_sensor.read(0):
-            return False, 'top sensor not active'
+        if pos != self.doRead(0):
+            if not self._attached_sensor.read(0):
+                return False, 'top sensor not active'
         return True, 'ok'
 
 
