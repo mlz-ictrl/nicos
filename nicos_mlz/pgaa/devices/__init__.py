@@ -26,3 +26,4 @@ from .attenuator import Attenuator
 from .beamfocus import BeamFocus
 from .datasinks import PGAASink
 from .samplechanger import SampleChanger, SampleMotor, SamplePusher
+from .dspec import DSPec
