@@ -266,9 +266,6 @@ def waitfor(dev, condition, timeout=86400):
        The condition parameter will be given as a simple comparision to
        the value of the device.
     """
-    if session.mode == SIMULATION:
-        return
-
     dev = session.getDevice(dev, Readable)
     full_condition = '_v %s' % condition
 
@@ -276,6 +273,9 @@ def waitfor(dev, condition, timeout=86400):
         ast.parse(full_condition)
     except Exception:
         raise UsageError('Could not parse condition %r' % condition)
+
+    if session.mode == SIMULATION:
+        return
 
     def check(tmr):
         session.breakpoint(2)  # allow break and continue here
