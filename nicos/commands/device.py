@@ -263,7 +263,7 @@ def waitfor(dev, condition, timeout=86400):
 
         >>> dev.read() < 10
 
-       The condition parameter will be given as a simple comparision to
+       The condition parameter will be given as a simple comparison to
        the value of the device.
     """
     dev = session.getDevice(dev, Readable)
