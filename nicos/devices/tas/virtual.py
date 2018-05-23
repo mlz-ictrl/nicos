@@ -45,6 +45,8 @@ class VirtualTasDetector(Measurable):
                             default=1000, settable=True),
     }
 
+    _user_comment = ''
+
     def doInit(self, mode):
         self._lastpreset = {'t': 1}
         self._lastresult = [0, 0, 0]
@@ -52,14 +54,22 @@ class VirtualTasDetector(Measurable):
         self._pause_time = 0
 
     def presetInfo(self):
-        return ['t', 'mon']
+        return set(['info', 't', 'mon'])
 
     def valueInfo(self):
         return Value('t', unit='s', type='time', fmtstr='%.3f'), \
             Value('mon', unit='cts', type='monitor', errors='sqrt', fmtstr='%d'), \
             Value('ctr', unit='cts', type='counter', errors='sqrt', fmtstr='%d')
 
+    def doInfo(self):
+        ret = []
+        if self._user_comment:
+            ret.append(('usercomment', self._user_comment, self._user_comment,
+                        '', 'general'))
+        return ret
+
     def doSetPreset(self, **preset):
+        self._user_comment = preset.pop('info', '')
         if not preset:
             return  # keep previous settings
         self._lastpreset = preset

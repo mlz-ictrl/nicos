@@ -101,21 +101,17 @@ class Detector(GenericDetector):
             return
         self._import_detinfo()
 
-    def presetInfo(self):
-        return set(['info']) | GenericDetector.presetInfo(self)
-
     def doInfo(self):
         for p in ('timechannels', 'timeinterval', 'delay', 'channelwidth',
                   'numinputs'):
             self._pollParam(p)
         ret = GenericDetector.doInfo(self)
-        ret.append(('usercomment', self._user_comment, self._user_comment, '',
-                    'general'))
         return ret
 
     def doSetPreset(self, **preset):
-        self._user_comment = preset.pop('info', 'No comment')
         GenericDetector.doSetPreset(self, **preset)
+        if not self._user_comment:  # Comment must be fulfilled for data sink
+            self._user_comment = 'No comment'
 
     def _update(self):
         self.log.debug('reading chopper parameters')

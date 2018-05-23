@@ -374,6 +374,7 @@ class Detector(Measurable):
     _last_save = 0
     _last_save_index = 0
     _last_preset = None
+    _user_comment = ''
 
     def doInit(self, _mode):
         self._postprocess = []
@@ -459,6 +460,7 @@ class Detector(Measurable):
         return preset
 
     def doSetPreset(self, **preset):
+        self._user_comment = preset.pop('info', '')
         preset = self._getPreset(preset)
         if not preset:
             # keep old settings
@@ -601,7 +603,7 @@ class Detector(Measurable):
                          for v in self.valueInfo())
 
     def presetInfo(self):
-        return set(self._presetkeys)
+        return set(['info']) | set(self._presetkeys)
 
     def doEstimateTime(self, elapsed):
         eta = set(master.estimateTime(elapsed) for master in self._masters)
@@ -631,6 +633,9 @@ class Detector(Measurable):
                         ret.append(('preset', dev.preselection,
                                     '%s' % dev.preselection, 'cts', 'presets'))
                     break
+        if self._user_comment:
+            ret.append(('usercomment', self._user_comment, self._user_comment,
+                        '', 'general'))
         return ret
 
 
