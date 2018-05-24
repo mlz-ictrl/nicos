@@ -1,16 +1,12 @@
-group = 'lowlevel'
-
-nethost = 'refsanssrv.refsans.frm2'
-
 description = 'IPC Motor bus device configuration'
 
-includes = []
+group = 'lowlevel'
+
+tango_base = 'tango://refsanshw.refsans.frm2:10000/test/'
 
 devices = dict(
-    nokbus4 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-        tacodevice = '//%s/test/network/ipcsms_4' % (nethost,),
-        loglevel = 'info',
-        lowlevel = True,
-        bustimeout = 0.5,
+    nokbus4 = device('nicos.devices.vendor.ipc.IPCModBusTango',
+       tangodevice = tango_base + 'ipcsms_d/bio',
+       lowlevel = True,
     ),
 )
