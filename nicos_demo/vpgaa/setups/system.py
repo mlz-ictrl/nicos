@@ -3,7 +3,7 @@ description = 'system setup'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'PGAA',
+    instrument = 'PGAA_',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -18,7 +18,7 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The sample',
     ),
-    PGAA = device('nicos.devices.instrument.Instrument',
+    PGAA_ = device('nicos.devices.instrument.Instrument',
         description = 'Prompt gamma and in-beam neutron activation analysis '
                       'facility',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-46',

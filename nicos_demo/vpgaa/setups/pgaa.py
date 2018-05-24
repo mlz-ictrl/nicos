@@ -19,6 +19,7 @@ includes = [
 
 devices = dict(
     sink = device('nicos_mlz.pgaa.devices.PGAASink',
+        settypes = set(['scan']),
         det1 = '_60p',
         det2 = 'LEGe',
         vac = 'chamber_pressure',
@@ -26,7 +27,7 @@ devices = dict(
 )
 
 startupcode = '''
-# SetDetectors(det)
+SetDetectors('_60p', 'LEGe')
 SetEnvironment()
 printinfo("============================================================")
 printinfo("Welcome to the NICOS PGAA demo setup.")
