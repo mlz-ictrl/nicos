@@ -2,21 +2,15 @@ description = 'Motor bus 6'
 
 group = 'lowlevel'
 
-nethost = 'pumasrv.puma.frm2'
+tango_base = 'tango://puma5.puma.frm2:10000/puma/'
 
 devices = dict(
-    motorbus6 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-        # tacodevice = '//%s/puma/rs485/moxa3_1' % nethost,
-        tacodevice = '//%s/puma/rs485/motorbus6' % nethost,
-        bustimeout = 0.1,
-        lowlevel = True,
+    motorbus6 = device('nicos.devices.vendor.ipc.IPCModBusTango',
+       tangodevice = tango_base + 'motorbus6/bio',
+       lowlevel = True,
     ),
-
-    # motorbus for slit1 (old motorbus6)
-    motorbus6a = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-        # tacodevice = '//%s/puma/rs485/moxa1_6' % nethost,
-        tacodevice = '//%s/puma/rs485/motorbus6a' % nethost,
-        bustimeout = 0.1,
-        lowlevel = True,
+    motorbus6a = device('nicos.devices.vendor.ipc.IPCModBusTango',
+       tangodevice = tango_base + 'motorbus6a/bio',
+       lowlevel = True,
     ),
 )

@@ -2,13 +2,11 @@ description = 'Motor bus 10'
 
 group = 'lowlevel'
 
-nethost = 'pumasrv.puma.frm2'
+tango_base = 'tango://puma5.puma.frm2:10000/puma/'
 
 devices = dict(
-    motorbus10 = device('nicos.devices.vendor.ipc.IPCModBusTaco',
-        # tacodevice = '//%s/puma/rs485/moxa2_5' % nethost,
-        tacodevice = '//%s/puma/rs485/motorbus10' % nethost,
-        bustimeout = 0.1,
-        lowlevel = True,
+    motorbus10 = device('nicos.devices.vendor.ipc.IPCModBusTango',
+       tangodevice = tango_base + 'motorbus10/bio',
+       lowlevel = True,
     ),
 )
