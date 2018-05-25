@@ -46,7 +46,7 @@ __version__ = "0.1.1"
 # ---------------------------------------------------------------------------------------------
 # TODO
 # ---------------------------------------------------------------------------------------------
-
+# pylint: disable=pointless-string-statement
 """
   - smoother mouse move event handler
   - support splits and joins
@@ -152,9 +152,9 @@ class Element(QGroupBox):
 
     def setTextColor(self, color):
         """set the text paint color"""
-        if type(color) == tuple and len(color) == 3:
+        if isinstance(color, tuple) and len(color) == 3:
             color = QColor(color[0], color[1], color[2])
-        elif type(color) == int:
+        elif isinstance(color, int):
             color = QColor(color, color, color)
         setattr(self, '__textColor', color)
 
@@ -170,9 +170,6 @@ class Element(QGroupBox):
 class Head(Element):
     """area before the handle"""
 
-    def __init__(self, parent, main):
-        super(Head, self).__init__(parent, main)
-
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
         qp.setFont(QFont('Arial', 10))
@@ -182,9 +179,6 @@ class Head(Element):
 class Tail(Element):
     """area after the handle"""
 
-    def __init__(self, parent, main):
-        super(Tail, self).__init__(parent, main)
-
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
         qp.setFont(QFont('Arial', 10))
@@ -193,9 +187,6 @@ class Tail(Element):
 
 class Handle(Element):
     """handle area"""
-
-    def __init__(self, parent, main):
-        super(Handle, self).__init__(parent, main)
 
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
@@ -364,13 +355,13 @@ class QRangeSlider(QWidget, Ui_Form):
 
     def setMin(self, value):
         """sets minimum value"""
-        assert type(value) is int
+        assert isinstance(value, int)
         setattr(self, '__min', value)
         self.minValueChanged.emit(value)
 
     def setMax(self, value):
         """sets maximum value"""
-        assert type(value) is int
+        assert isinstance(value, int)
         setattr(self, '__max', value)
         self.maxValueChanged.emit(value)
 
@@ -389,7 +380,7 @@ class QRangeSlider(QWidget, Ui_Form):
 
     def setStart(self, value):
         """sets the range slider start value"""
-        assert type(value) is int
+        assert isinstance(value, int)
         v = self._valueToPos(value)
         self._splitter.splitterMoved.disconnect()
         self._splitter.moveSplitter(v, self._SPLIT_START)
@@ -403,7 +394,7 @@ class QRangeSlider(QWidget, Ui_Form):
 
     def setEnd(self, value):
         """set the range slider end value"""
-        assert type(value) is int
+        assert isinstance(value, int)
         v = self._valueToPos(value)
         self._splitter.splitterMoved.disconnect()
         self._splitter.moveSplitter(v, self._SPLIT_END)
@@ -416,7 +407,7 @@ class QRangeSlider(QWidget, Ui_Form):
 
     def setDrawValues(self, draw):
         """sets draw values boolean to draw slider values"""
-        assert type(draw) is bool
+        assert isinstance(draw, bool)
         setattr(self, '__drawValues', draw)
 
     def getRange(self):
@@ -463,8 +454,6 @@ class QRangeSlider(QWidget, Ui_Form):
 
     def _handleMoveSplitter(self, xpos, index):
         """private method for handling moving splitter handles"""
-        hw = self._splitter.handleWidth()
-
         def _lockWidth(widget):
             width = widget.size().width()
             widget.setMinimumWidth(width)
@@ -480,18 +469,12 @@ class QRangeSlider(QWidget, Ui_Form):
             _lockWidth(self._tail)
             if v >= self.end():
                 return
-
-            offset = -20
-            w = xpos + offset
             self._setStart(v)
 
         elif index == self._SPLIT_END:
             _lockWidth(self._head)
             if v <= self.start():
                 return
-
-            offset = -40
-            w = self.width() - xpos + offset
             self._setEnd(v)
 
         _unlockWidth(self._tail)
