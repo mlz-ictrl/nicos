@@ -137,7 +137,7 @@ class LiveDataPanel(Panel):
             self.widget.setControls(ShowGrid | Logscale | Grayscale |
                                     Despeckle | CreateProfile | Histogram |
                                     MinimumMaximum | BrightnessContrast)
-        if self._instrument == 'dns':
+        if self._instrument in ('dns', 'dnspsd'):
             self.widget.setKeepAspect(False)
         else:
             self.widget.setKeepAspect(True)
@@ -207,8 +207,11 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
 
     def on_client_liveparams(self, params):
-        tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
-        # TODO: remove compatibility code
+        tag, _uid, det, fname, dtype, nx, ny, nz, runtime = params
+        if (self._instrument == 'dns' and det != 'det') or \
+           (self._instrument == 'dnspsd' and det != 'qmdet'):
+            self._last_tag = self._last_fname = ''
+            return
         if not isinstance(fname, string_types):
             fname, nx, ny, nz = fname[0], nx[0], ny[0], nz[0]
 
