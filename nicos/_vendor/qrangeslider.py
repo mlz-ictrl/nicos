@@ -381,7 +381,7 @@ class QRangeSlider(QWidget, Ui_Form):
     def setStart(self, value):
         """sets the range slider start value"""
         assert isinstance(value, int)
-        v = self._valueToPos(value)
+        v = self._valueToPos(value, self._SPLIT_START)
         self._splitter.splitterMoved.disconnect()
         self._splitter.moveSplitter(v, self._SPLIT_START)
         self._splitter.splitterMoved.connect(self._handleMoveSplitter)
@@ -395,7 +395,7 @@ class QRangeSlider(QWidget, Ui_Form):
     def setEnd(self, value):
         """set the range slider end value"""
         assert isinstance(value, int)
-        v = self._valueToPos(value)
+        v = self._valueToPos(value, self._SPLIT_END)
         self._splitter.splitterMoved.disconnect()
         self._splitter.moveSplitter(v, self._SPLIT_END)
         self._splitter.splitterMoved.connect(self._handleMoveSplitter)
@@ -444,13 +444,15 @@ class QRangeSlider(QWidget, Ui_Form):
         """sets range span handle style"""
         self._handle.setStyleSheet(style)
 
-    def _valueToPos(self, value):
+    def _valueToPos(self, value, index):
         """converts slider value to local pixel x coord"""
-        return scale(value, (self.min(), self.max()), (0, self.width()))
+        left, right = self._splitter.getRange(index)
+        return scale(value, (self.min(), self.max()), (left, right))
 
-    def _posToValue(self, xpos):
+    def _posToValue(self, xpos, index):
         """converts local pixel x coord to slider value"""
-        return scale(xpos, (0, self.width()), (self.min(), self.max()))
+        left, right = self._splitter.getRange(index)
+        return scale(xpos, (left, right), (self.min(), self.max()))
 
     def _handleMoveSplitter(self, xpos, index):
         """private method for handling moving splitter handles"""
@@ -463,7 +465,7 @@ class QRangeSlider(QWidget, Ui_Form):
             widget.setMinimumWidth(0)
             widget.setMaximumWidth(16777215)
 
-        v = self._posToValue(xpos)
+        v = self._posToValue(xpos, index)
 
         if index == self._SPLIT_START:
             _lockWidth(self._tail)
