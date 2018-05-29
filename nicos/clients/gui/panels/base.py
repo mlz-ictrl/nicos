@@ -142,9 +142,8 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
                 return
 
     def postInit(self):
-        """This method can be implemented to perform actions after all panels
-        has been instantiated. It will be automatically called after all panels
-        has been created. This can be useful e.g. for accessing other panels
+        """This method can be implemented to perform actions after **all** panels
+        have been created. This can be useful e.g. for accessing other panels
         using their unique ``panelName``.
 
         """
