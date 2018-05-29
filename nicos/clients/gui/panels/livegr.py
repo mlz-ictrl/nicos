@@ -99,6 +99,7 @@ class LiveDataPanel(Panel):
         self.toolbar.addAction(self.actionROI)
 
         self._actions2D = [self.actionROI, self.actionColormap]
+        self.setControlsEnabled(False)
         self.set2DControlsEnabled(False)
 
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
@@ -148,6 +149,11 @@ class LiveDataPanel(Panel):
         for action in self._actions2D:
             action.setVisible(flag)
 
+    def setControlsEnabled(self, flag):
+        for action in self.toolbar.actions():
+            action.setEnabled(flag)
+        self.actionOpen.setEnabled(True)  # File Open action always available
+
     def initLiveWidget(self, widgetcls):
         if isinstance(self.widget, widgetcls):
             return
@@ -157,6 +163,7 @@ class LiveDataPanel(Panel):
             self.widget.deleteLater()
         self.widget = widgetcls(self)
         # enable/disable controls and set defaults for new livewidget instances
+        self.setControlsEnabled(True)
         if isinstance(self.widget, LiveWidget1D):
             self.set2DControlsEnabled(False)
         else:
