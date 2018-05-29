@@ -96,6 +96,10 @@ class LiveDataPanel(Panel):
         self.toolbar.addAction(self.actionUnzoom)
         self.toolbar.addAction(self.actionColormap)
         self.toolbar.addAction(self.actionMarkCenter)
+        self.toolbar.addAction(self.actionROI)
+
+        self._actions2D = [self.actionROI, self.actionColormap]
+        self.set2DControlsEnabled(False)
 
         # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
         #                         Integrate | Histogram)
@@ -138,6 +142,12 @@ class LiveDataPanel(Panel):
         else:
             self.liveitems[0].setText('<Live #1>')
 
+    def set2DControlsEnabled(self, flag):
+        if flag != self.actionKeepRatio.isChecked():
+            self.actionKeepRatio.trigger()
+        for action in self._actions2D:
+            action.setVisible(flag)
+
     def initLiveWidget(self, widgetcls):
         if isinstance(self.widget, widgetcls):
             return
@@ -146,12 +156,11 @@ class LiveDataPanel(Panel):
             self.widgetLayout.removeWidget(self.widget)
             self.widget.deleteLater()
         self.widget = widgetcls(self)
-        # set keep ratio defaults for new livewidget instances
+        # enable/disable controls and set defaults for new livewidget instances
         if isinstance(self.widget, LiveWidget1D):
-            if self.actionKeepRatio.isChecked():
-                self.actionKeepRatio.trigger()
-        elif not self.actionKeepRatio.isChecked():
-            self.actionKeepRatio.trigger()
+            self.set2DControlsEnabled(False)
+        else:
+            self.set2DControlsEnabled(True)
         # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
@@ -223,6 +232,7 @@ class LiveDataPanel(Panel):
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionColormap)
         menu.addAction(self.actionMarkCenter)
+        menu.addAction(self.actionROI)
         return [menu]
 
     def getToolbars(self):
@@ -296,6 +306,7 @@ class LiveDataPanel(Panel):
 
     def _register_rois(self, detectors):
         self.rois.clear()
+        self.actionROI.setVisible(False)
         self.menuROI = QMenu(self)
         self.actionsROI = QActionGroup(self)
         self.actionsROI.setExclusive(False)
@@ -315,9 +326,7 @@ class LiveDataPanel(Panel):
                     self.actionsROI.addAction(action)
                     action.triggered.connect(self.on_roi_triggered)
                     self.actionROI.setMenu(self.menuROI)
-                    if self.actionROI not in self.toolbar.actions():
-                        self.toolbar.addAction(self.actionROI)
-                        self.log.debug('add ROI menu')
+                    self.actionROI.setVisible(True)
 
     def on_actionROI_triggered(self):
         w = self.toolbar.widgetForAction(self.actionROI)
