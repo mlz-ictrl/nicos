@@ -1005,9 +1005,12 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
             calc = dict(instr._extractPos(instr._calcPos(hkl)))
             om1 = calc['omega'] - width / 2.
             om2 = calc['omega'] + width / 2.
-            cur_om = instr._attached_omega.read()
-            if abs(cur_om - om1) > abs(cur_om - om2):
-                om1, om2 = om2, om1
+            # optimization to avoid unnecessary omega movement,
+            # currently disabled due to backlash concerns
+            #
+            # cur_om = instr._attached_omega.read()
+            # if abs(cur_om - om1) > abs(cur_om - om2):
+            #     om1, om2 = om2, om1
             umin, umax = instr._attached_omega.userlimits
             if om1 < umin:
                 om1 = umin
