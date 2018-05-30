@@ -26,12 +26,13 @@
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import move
+from nicos.commands.device import move, stop, wait
 from nicos.commands.scan import manualscan
 from nicos.commands.measure import count
 #from nicos.commands.device import maw
 
 __all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan']
+
 
 @usercommand
 def zero():
@@ -42,6 +43,23 @@ def zero():
     for powersupply in ps:
         powersupply = session.getDevice(powersupply)
         move(powersupply, 0.001)
+
+
+@usercommand
+def set_flipper_off():
+    """Shuts down flippers.
+
+    After shutting down the neutrons are guided through instrument for
+    image mode (MIEZE)
+    """
+    ps = ['sf_0a', 'sf_0b', 'cbox_0a_fg_amp', 'cbox_0b_fg_amp']
+    reg = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp']
+    for powersupply in ps:
+        powersupply = session.getDevice(powersupply)
+        move(powersupply, 0.01)
+    for regulator in reg:
+        regulator = session.getDevice(regulator)
+        stop(regulator)
 
 
 @usercommand
