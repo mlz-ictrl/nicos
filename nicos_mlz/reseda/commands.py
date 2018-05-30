@@ -50,6 +50,8 @@ def setecho(time):
     echotime = session.getDevice('echotime')
     move(echotime, time)
     set_cascade()
+    wait(echotime)
+
 
 @usercommand
 def set_cascade():
