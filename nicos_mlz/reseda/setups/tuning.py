@@ -1,5 +1,5 @@
-group = 'optional'
 description = 'Reseda tunewave table support'
+group = 'optional'
 display_order = 98
 includes = ['selector', 'coils', 'cboxes']
 
@@ -22,7 +22,11 @@ devices = dict(
         + ['cbox_%s_%s' % (pack, component)
             for pack in packs
             for component in cbox_components],
-        zerofirst = {'cbox_0a_fg_amp':0.001,'cbox_0b_fg_amp':0.001,},
+        zerofirst = {
+            'cbox_0a_fg_amp': 0.001,
+            'cbox_0b_fg_amp': 0.001,
+        },
+        stopfirst = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp', 'cbox_1_reg_amp'],
         unit = 'ns',
         fmtstr = '%g'
     ),

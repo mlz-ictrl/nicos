@@ -24,7 +24,7 @@
 
 from nicos import session
 from nicos.core import Readable, Moveable, Param, Attach, oneof, listof, \
-    InvalidValueError, dictof, anytype
+    InvalidValueError, dictof, anytype, Override
 from nicos.core.utils import multiWait
 from nicos.pycompat import iteritems
 
@@ -46,9 +46,14 @@ class EchoTime(Moveable):
     }
 
     parameters = {
-        'zerofirst': Param('mapping of Devices to preconfigured value to be set before applying the echo time',
+        'zerofirst': Param('mapping of Devices to preconfigured value to be '
+                           'set before applying the echo time',
                            type=dictof(str, anytype),
                            settable=True, userparam=False, default={}),
+        'stopfirst': Param('list of Devices to stop before setting a new '
+                           'echotime',
+                           type=listof(str),
+                           settable=True, userparam=False, default=[]),
         'tables': Param('Tune wave tables',
                         type=dictof(oneof('nrse', 'mieze'), dictof(float,
                                     dictof(float, dictof(str, anytype)))),
@@ -63,8 +68,11 @@ class EchoTime(Moveable):
                              type=dictof(str, listof(float)), settable=False,
                              userparam=False, volatile=True),
         'wavelengthtolerance': Param('Wavelength tolerance for table'
-                                     'determination', type=float, settable=True,
-                                     default=0.1),
+                                     'determination', type=float,
+                                     settable=True, default=0.1),
+    }
+    parameter_overrides = {
+        'target': Override(category='instrument'),
     }
 
     valuetype = float
@@ -91,8 +99,9 @@ class EchoTime(Moveable):
                 # fuzzy matching necessary due to maybe oscillating devices
                 prec = getattr(self._tunedevs[tunedev], 'precision', 0)
                 if not self._fuzzy_match(value, devs.get(tunedev, None), prec):
-                    self.log.debug('-> no, because %s is at %s not %s (prec = %s)',
-                                   tunedev, devs.get(tunedev, None), value, prec)
+                    self.log.debug('-> no, because %s is at %s not %s '
+                                   '(prec = %s)', tunedev,
+                                   devs.get(tunedev, None), value, prec)
                     success = False
                     break
             if success:
@@ -116,23 +125,53 @@ class EchoTime(Moveable):
                                     % (session.experiment.measurementmode,
                                        self._attached_wavelength.read()))
 
+        # stop stopfirst devices
+        for devname in self.stopfirst:
+            dev = session.getDevice(devname)
+            self.log.debug('stopping %s', str(dev))
+            dev.stop()
+
         # move zerofirst devices to configured value
+        self.log.debug('zeroing devices')
         wait_on = set()
         for devname, val in self.zerofirst.items():
-            dev = self._tunedevs.get(devname, None)
-            if dev is None:
-                dev = session.getDevice(devname)
-            dev.move(val)
+            dev = session.getDevice(devname)
+            self.log.debug('moving %s to zero', str(dev))
+            dev.start(val)
             wait_on.add(dev)
+        self.log.debug('waiting for devices to reach zero')
         multiWait(wait_on)
+        self.log.debug('devices now at zero')
 
         # move all tuning devices at once without blocking
-        for tunedev, val in iteritems(self.currenttable[value]):
+        wait_on = set()
+        for tunedev, val in sorted(iteritems(self.currenttable[value])):
+            if tunedev in self.stopfirst:
+                self.log.debug('skipping %s (will be set later)', tunedev)
+                continue
             if tunedev in self._tunedevs:
-                self._tunedevs[tunedev].move(val)
+                self.log.debug('setting %s to %s', tunedev, val)
+                dev = self._tunedevs[tunedev]
+                dev.start(val)
+                wait_on.add(dev)
             else:
-                self.log.warning('tune device %r from table not in tunedevs! '\
+                self.log.warning('tune device %r from table not in tunedevs! '
                                  'movement to %r ignored !' % (tunedev, val))
+        self.log.debug('waiting for devices...')
+        multiWait(wait_on)
+        self.log.debug('devices now at configured values')
+
+        # activate stopfirst devices
+        wait_on = set()
+        for devname in self.stopfirst:
+            dev = session.getDevice(devname)
+            val = self.currenttable[value][devname]
+            self.log.debug('moving %s to %s', devname, val)
+            dev.move(val)
+            wait_on.add(dev)
+        self.log.debug('devices now at configured values')
+        multiWait(wait_on)
+        self.log.debug('all done. good luck!')
 
     def doReadTunedevs(self):
         return sorted(self._tunedevs)
