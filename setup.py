@@ -131,6 +131,7 @@ class nicosinstall(stinstall):
 
     def createInitialGlobalNicosConf(self):
         cfg = configparser.SafeConfigParser()
+        cfg.optionxform = str
         cfg.read(self.install_conf)
         if not cfg.has_section('nicos'):
             cfg.add_section('nicos')
