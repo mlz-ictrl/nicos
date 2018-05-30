@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 devices = dict(
     T_lauda_intern = device('nicos.devices.tango.TemperatureController',

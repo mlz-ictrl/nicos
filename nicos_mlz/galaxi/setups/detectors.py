@@ -8,7 +8,7 @@ display_order = 10
 
 includes = ['absorber', 'jcns_mot', 'pindiodes', 'jcns_io']
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 sysconfig = dict(datasinks = ['mythensink', 'pilatussink'],)
 

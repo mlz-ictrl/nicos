@@ -4,7 +4,7 @@ description = 'GALAXI motors'
 
 group = 'optional'
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 devices = dict(
     b1h = device('nicos_mlz.jcns.devices.motor.Motor',

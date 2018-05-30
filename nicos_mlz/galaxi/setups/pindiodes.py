@@ -6,7 +6,7 @@ group = 'optional'
 
 display_order = 20
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 tango_digital = tango_base + 'fzjdp_digital/'
 tango_analog = tango_base + 'plc_io/'
 
@@ -19,7 +19,7 @@ devices = dict(
     ),
     pinstate = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Status of PIN diode counting',
-        tangodevice = tango_digital + 'pin_diode_status',
+        tangodevice = tango_digital + 'StatIntegralPin',
         mapping = {
             'counting': 1,
             'ready': 0
@@ -29,7 +29,7 @@ devices = dict(
     ),
     pincontrol = device('nicos.devices.tango.DigitalInput',
         description = 'Status control of PIN diode counting',
-        tangodevice = tango_digital + 'pin_diode_control',
+        tangodevice = tango_digital + 'StatIntegralPin2',
         lowlevel = True,
     ),
     singledetectors = device('nicos_mlz.galaxi.devices.pindiode.SingleDetectors',
@@ -79,16 +79,16 @@ devices = dict(
     ),
     pindiode1 = device('nicos.devices.tango.AnalogInput',
         description = 'PIN diode in chamber 1',
-        tangodevice = tango_analog + 'pin_diode1',
+        tangodevice = tango_analog + 'pin_diode_chamber1',
     ),
     pindiode1_int = device('nicos.devices.tango.AnalogInput',
         description = 'Integral of PIN diode in chamber 1',
-        tangodevice = tango_analog + 'pin_diode1_int',
+        tangodevice = tango_analog + 'pin_diode_chamber1_int',
         fmtstr = '%.10g',
     ),
     pindiode1_off = device('nicos.devices.tango.AnalogOutput',
         description = 'Offset of PIN diode in chamber 1',
-        tangodevice = tango_analog + 'pin_diode1_offset',
+        tangodevice = tango_analog + 'pin_diode_chamber1_offset',
     ),
     pindiodesample_move = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Moving of PIN diode behind sample place',

@@ -6,7 +6,7 @@ group = 'basic'
 
 display_order = 5
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 devices = dict(
     gen_voltage = device('nicos.devices.tango.AnalogOutput',

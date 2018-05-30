@@ -6,7 +6,7 @@ group = 'optional'
 
 display_order = 7
 
-tango_base = 'tango://localhost:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 devices = dict(
     roy = device('nicos_mlz.jcns.devices.motor.Motor',
