@@ -46,6 +46,8 @@ class Regulator(Moveable):
     parameters = {
         'stepfactor': Param('Factor of regulation steps', type=float,
                             settable=True, mandatory=False, default=0.5),
+        'minstep': Param('Minimum stepsize if adjusting', type=float,
+                         settable=True, mandatory=False, default=0.001),
         'deadbandwidth': Param('Width of the dead band', type=float,
                                settable=True, mandatory=False, default=0.05),
         'loopdelay': Param('Sleep time when waiting', type=float, unit='s',
@@ -74,9 +76,11 @@ class Regulator(Moveable):
 
     def doStart(self, target):
         self._stop_request = False
-
-        self._regulation_thread = createThread('regulation thread %s' % self,
-                                        self._regulate)
+        if self._regulation_thread is None and session.sessiontype != POLLER:
+            # no regulation thread (yet), but running in daemon -> start one
+            self._regulation_thread = createThread('regulation thread %s' % self,
+                                                   self._regulate)
+        self.curstatus = status.BUSY, 'regulating'
         self.poll()
 
     def doStop(self):
@@ -89,11 +93,12 @@ class Regulator(Moveable):
         return self._attached_sensor.read(maxage)
 
     def doStatus(self, maxage=0):
-        if session.sessiontype != POLLER:
+        if session.sessiontype != POLLER:  # XXX!
             if self._regulation_thread and self._regulation_thread.isAlive():
-                self.curstatus = status.BUSY, 'regulating'
+                # self.curstatus = status.BUSY, 'regulating'
+                pass
             else:
-                self.curstatus= status.OK, 'idle'
+                self.curstatus = status.OK, 'idle'
         return self.curstatus
 
     def _regulate(self):
@@ -104,9 +109,13 @@ class Regulator(Moveable):
 
                 diff = abs(self.target - read_val)
                 self.log.debug('Difference to the target: %s', diff)
+                if diff > self.deadbandwidth:
+                    self.curstatus = status.BUSY, 'regulating'
                 if diff > self.deadbandwidth / 2:
                     cur_write_val = self._attached_moveable.read(0)
                     step = self.stepfactor * (diff - self.deadbandwidth/2)
+                    if step < self.minstep:
+                        step = self.minstep
                     maxstep = self.maxstep or step
                     sign = 1 if read_val < self.target else -1
 
@@ -118,14 +127,19 @@ class Regulator(Moveable):
 
                     if hasattr(self._attached_moveable, 'absmax'):
                         if new_target > self._attached_moveable.absmax:
-                            new_target =  self._attached_moveable.absmax
+                            new_target = self._attached_moveable.absmax
                     if hasattr(self._attached_moveable, 'usermax'):
                         if new_target > self._attached_moveable.usermax:
-                            new_target =  self._attached_moveable.usermax
+                            new_target = self._attached_moveable.usermax
 
                     self._attached_moveable.start(new_target)
                     # TODO: wait?
+                else:
+                    self.curstatus = status.OK, 'stable'
+
             except NicosError as e:
                 self.log.warning('Skip regulation: %s', e)
 
             time.sleep(self.loopdelay)
+        self._regulation_thread = None
+        self._stop_request = False

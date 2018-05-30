@@ -31,6 +31,12 @@ devices = {
             description = 'Auto regulating amplitude',
             sensor = '%s_coil1_amp' % setupname,
             moveable = '%s_fg_amp' % setupname,
+            loopdelay = 1.0,
+            maxage = 10.0,
+            maxstep = 0.1,
+            minstep = 0.005,
+            pollinterval = 1.0,
+            stepfactor = 0.3,
         ),
     '%s_fg_amp' % setupname:
         device('nicos.devices.tango.AnalogOutput',
