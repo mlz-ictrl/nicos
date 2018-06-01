@@ -121,16 +121,21 @@ class DevicesPanel(Panel):
 
     panelName = 'Devices'
 
-    def _create_icons(self):
-        self.statusIcon = {}
-        self.statusIcon[OK] = QIcon(':/leds/status_green')
-        self.statusIcon[WARN] = QIcon(':/leds/status_warn')
-        self.statusIcon[BUSY] = QIcon(':/leds/status_yellow')
-        self.statusIcon[UNKNOWN] = QIcon(':/leds/status_white')
-        self.statusIcon[ERROR] = QIcon(':/leds/status_red')
-        self.statusIcon[NOTREACHED] = QIcon(':/leds/status_red')
+    @classmethod
+    def _createIcons(cls):
+        # hack to make non-Qt usage as in checksetups work
+        if not hasattr(cls, 'statusIcon'):
+            cls.statusIcon = {
+                OK: QIcon(':/leds/status_green'),
+                WARN: QIcon(':/leds/status_warn'),
+                BUSY: QIcon(':/leds/status_yellow'),
+                UNKNOWN: QIcon(':/leds/status_white'),
+                ERROR: QIcon(':/leds/status_red'),
+                NOTREACHED: QIcon(':/leds/status_red'),
+            }
 
     def __init__(self, parent, client, options):
+        DevicesPanel._createIcons()
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'devices.ui', 'panels')
         self.__setOptions(options)
@@ -172,8 +177,6 @@ class DevicesPanel(Panel):
         self._current_status = 'idle'
         self._exec_reqid = None
         self._error_window = None
-
-        self._create_icons()
 
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
