@@ -39,8 +39,8 @@ class ProtocolPanel(Panel):
 
     panelName = 'KWS protocol'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/kws1/gui/protocol.ui'))
 
         self.firstEdit.setShadowText('default: all')

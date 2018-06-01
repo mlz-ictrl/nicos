@@ -7,11 +7,11 @@ To write a new panel, derive from this base class:
 
 .. module:: nicos.clients.gui.panels
 
-.. class:: Panel(parent, client)
+.. class:: Panel(parent, client , options)
 
-   The Panel class constructor a Qt *parent* widget and a *client* object (see
-   :ref:`gui-client`).  ``Panel.__init__`` sets the following attributes on the
-   panel objects:
+   The Panel class constructor takes a Qt *parent* widget, a *client* object (see
+   :ref:`gui-client`) and an *options* dict.  ``Panel.__init__`` sets the
+   following attributes on the panel objects:
 
    * ``client`` - the client object
    * ``parentwindow`` - the Qt parent window
@@ -24,12 +24,6 @@ To write a new panel, derive from this base class:
       is used for saving settings.
 
    Methods that you can override:
-
-   .. method:: setOptions(options)
-
-      Called with the *options* dictionary given as keywords by the panel
-      configuration in the GUI config file.  Usually you should check if a given
-      option is in the dictionary, and assume a default value if not.
 
    .. method:: setExpertMode(expert)
 
@@ -81,3 +75,9 @@ To write a new panel, derive from this base class:
    .. method:: updateStatus(status, exception=False)
 
       Called when the current script status changes.
+
+   .. method:: on_client_connected()
+
+      Callback normally registered in the constructor to the client connection event.
+      This method is explicitly called by createPanel once the panel is fully created
+      if the client is already connected.

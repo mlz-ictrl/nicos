@@ -50,22 +50,20 @@ def iterChecked(listwidget):
 class ExpPanel(Panel):
     panelName = 'Experiment setup'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'setup_exp.ui', 'panels')
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
         self._new_exp_panel = None
         self._finish_exp_panel = None
 
-        if client.isconnected:
-            self.on_client_connected()
+        self.__setOptions(options)
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         # Additional dialog panels to pop up after NewExperiment() and before
         # FinishExperiment() respectively.
         self._new_exp_panel = options.get('new_exp_panel')
@@ -318,8 +316,8 @@ class AliasWidget(QFrame):
 class SetupsPanel(Panel):
     panelName = 'Setup selection'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'setup_setups.ui', 'panels')
 
         self.errorLabel.hide()
@@ -545,8 +543,8 @@ class SetupsPanel(Panel):
 class DetEnvPanel(Panel):
     panelName = 'Det/Env setup'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'setup_detenv.ui', 'panels')
 
         if client.isconnected:
@@ -628,8 +626,8 @@ class GenericSamplePanel(Panel):
     panelName = 'Sample setup'
     uiName = 'setup_sample.ui'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, self.uiName, 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
@@ -675,8 +673,8 @@ class SXTalSamplePanel(GenericSamplePanel):
     panelName = 'Single-crystal sample setup'
     uiName = 'setup_sxtalsample.ui'
 
-    def __init__(self, parent, client):
-        GenericSamplePanel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        GenericSamplePanel.__init__(self, parent, client, options)
         params = client.eval('Sample.cell.cellparams()', None)
         if params:
             lattice = params[:3]

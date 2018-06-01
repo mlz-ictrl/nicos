@@ -49,8 +49,8 @@ class CommandPanel(Panel):
 
     panelName = 'Command'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'cmdbuilder.ui', 'panels')
 
         self.window = parent
@@ -68,6 +68,7 @@ class CommandPanel(Panel):
         client.initstatus.connect(self.on_client_initstatus)
         client.mode.connect(self.on_client_mode)
         client.simresult.connect(self.on_client_simresult)
+        self.__setOptions(options)
 
     def postInit(self):
         self.console = self.window.getPanel('Console')
@@ -78,8 +79,7 @@ class CommandPanel(Panel):
     def setViewOnly(self, viewonly):
         self.inputFrame.setVisible(not viewonly)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         modules = options.get('modules', [])
         for module in modules:
             importString(module)  # should register cmdlets

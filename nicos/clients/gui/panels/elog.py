@@ -45,8 +45,8 @@ class ELogPanel(Panel):
 
     panelName = 'Electronic logbook'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'elog.ui', 'panels')
         self.preview = QWebView(self)
         self.frame.layout().addWidget(self.preview)

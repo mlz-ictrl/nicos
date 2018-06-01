@@ -30,6 +30,7 @@ from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.dialogs.error import ErrorDialog
+from nicos.core.errors import ConfigurationError
 from nicos.guisupport.widget import NicosWidget
 
 
@@ -45,13 +46,16 @@ class GenericPanel(Panel):
 
     panelName = 'Generic'  # XXX this is not unique
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         self._error_window = None
+        self.__setOptions(options)
         client.connected.connect(self.on_client_connected)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
+        if 'uifile' not in options:
+            raise ConfigurationError('GenericPanels require at least an'
+                                     ' `uifile` option.')
         loadUi(self, findResource(options['uifile']))
         if options.get('showmsg'):
             self.client.message.connect(self.on_client_message)

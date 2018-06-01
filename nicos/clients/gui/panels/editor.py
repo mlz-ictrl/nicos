@@ -94,8 +94,8 @@ class EditorPanel(Panel):
 
     panelName = 'User editor'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'editor.ui', 'panels')
 
         self.window = parent
@@ -127,6 +127,7 @@ class EditorPanel(Panel):
         self.tabber.currentChanged.connect(self.on_tabber_currentChanged)
         self.tabber.tabCloseRequested.connect(self.on_tabber_tabCloseRequested)
 
+        self.__setOptions(options)
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
         hlayout.addWidget(self.tabber)
@@ -187,8 +188,7 @@ class EditorPanel(Panel):
         # so destroy them explicitly
         self.watchers.clear()
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.toolconfig = options.get('tools', '')
 
     def setViewOnly(self, viewonly):

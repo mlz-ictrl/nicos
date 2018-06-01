@@ -39,8 +39,8 @@ class SafetyPanel(Panel):
     panelName = 'Safety'
     devname = 'saf'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/toftof/gui/safety.ui'))
 
         self.table.horizontalHeader().restoreState(self._headerstate)

@@ -79,15 +79,16 @@ class CustomButtonPanel(Panel):
     with a QDialogButtonBox at the lower right and some glue magic for
     fancy stuff...
     """
-    def __init__(self, parent, client,
-                 buttons=QDialogButtonBox.Close | QDialogButtonBox.Apply):
-        Panel.__init__(self, parent, client)
+    buttons = QDialogButtonBox.Close | QDialogButtonBox.Apply
+
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
 
         # make a vertical layout for 'ourself'
         self.vBoxLayout = QVBoxLayout(self)
 
         # make a buttonBox
-        self.buttonBox = QDialogButtonBox(buttons, parent=self)
+        self.buttonBox = QDialogButtonBox(self.buttons, parent=self)
         self.buttonBox.setObjectName('buttonBox')
 
         # put buttonBox below main content
@@ -139,14 +140,12 @@ class SamplechangerSetupPanel(CustomButtonPanel):
     """
     # this needs to be unique!
     panelName = 'Samplechanger setup'
+    buttons = (QDialogButtonBox.Close | QDialogButtonBox.Apply | QDialogButtonBox.Ok)
 
     _numSamples = 0
 
-    def __init__(self, parent, client):
-        CustomButtonPanel.__init__(self, parent, client,
-                                   buttons=QDialogButtonBox.Close |
-                                           QDialogButtonBox.Apply |
-                                           QDialogButtonBox.Ok)
+    def __init__(self, parent, client, options):
+        CustomButtonPanel.__init__(self, parent, client, options)
         # our content is a simple widget ...
         self._tableWidget = TableWidget(self)
 
@@ -159,16 +158,14 @@ class SamplechangerSetupPanel(CustomButtonPanel):
 
         self.vBoxLayout.insertWidget(0, self._tableWidget)
 
-        if client.isconnected:
-            self.on_client_connected()
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
+        self.__setOptions(options)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         # this should be called only once!
         if self._numSamples:
-            raise ProgrammingError('setOptions is supposed to be called ONCE!')
+            raise ProgrammingError('__setOptions is supposed to be called ONCE!')
 
         # self._changerDeviceName = options.get('samplechanger', 'SampleChanger')
 

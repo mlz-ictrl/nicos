@@ -45,8 +45,8 @@ class PGAAPanel(Panel):
 
     positions = [4, 74, 144, 214, 284, 354]
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'pgaaposition.ui', my_uipath)
 
         self.timer = QTimer()

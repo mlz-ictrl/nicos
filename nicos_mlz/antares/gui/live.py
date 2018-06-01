@@ -45,8 +45,8 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
 class LiveDataPanel(Panel):
     panelName = 'Live data view'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/antares/gui/live.ui'))
 
         self._format = None

@@ -88,10 +88,11 @@ class SetupDepPanelMixin(QObject):
     setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
-    def __init__(self, client):
+    def __init__(self, client, options):
+        self.__setOptions(options)
         client.register(self, 'session/mastersetup')
 
-    def setOptions(self, options):
+    def __setOptions(self, options):
         setups = options.get('setups', '')
         if not isinstance(setups, str):
             setups = list(setups)
@@ -113,10 +114,10 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
     setWidgetVisible = SetupDepPanelMixin.setWidgetVisible
 
-    def __init__(self, parent, client):
+    def __init__(self, parent, client, options):
         QWidget.__init__(self, parent)
         self.log = NicosLogger(self.panelName)
-        SetupDepPanelMixin.__init__(self, client)
+        SetupDepPanelMixin.__init__(self, client, options)
         DlgUtils.__init__(self, self.panelName)
         self.parentwindow = parent
         self.client = client

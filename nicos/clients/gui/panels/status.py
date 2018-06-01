@@ -114,8 +114,8 @@ class ScriptStatusPanel(Panel):
 
     panelName = 'Script status'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'status.ui', 'panels')
 
         self.stopcounting = False
@@ -134,6 +134,7 @@ class ScriptStatusPanel(Panel):
         empty = QPixmap(16, 16)
         empty.fill(Qt.transparent)
         self.otherlineicon = QIcon(empty)
+        self.__setOptions(options)
 
         client.request.connect(self.on_client_request)
         client.processing.connect(self.on_client_processing)
@@ -190,8 +191,7 @@ class ScriptStatusPanel(Panel):
         self.activeGroup.addAction(self.actionFinishEarly)
         self.activeGroup.addAction(self.actionFinishEarlyAndStop)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.stopcounting = bool(options.get('stopcounting', False))
         if self.stopcounting:
             tooltip = 'Aborts the current executed script'

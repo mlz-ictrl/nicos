@@ -859,10 +859,10 @@ class HistoryPanel(BaseHistoryWindow, Panel):
 
     panelName = 'History viewer'
 
-    def __init__(self, parent, client):
+    def __init__(self, parent, client, options):
         self.presetdict = {}
 
-        Panel.__init__(self, parent, client)
+        Panel.__init__(self, parent, client, options)
         BaseHistoryWindow.__init__(self)
         self.fitfuncmap = {}
 

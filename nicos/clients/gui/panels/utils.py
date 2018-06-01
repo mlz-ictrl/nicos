@@ -42,8 +42,8 @@ def createPanel(item, window, menuwindow, topwindow, log):
         log.exception('Could not import class %s to create panel',
                       item.clsname)
         return None
-    p = cls(menuwindow, window.client)
-    p.setOptions(item.options)
+    log.debug('creating panel: %s', item.clsname)
+    p = cls(menuwindow, window.client, item.options or {})
     window.panels.append(p)
     if p not in topwindow.panels:
         topwindow.panels.append(p)
@@ -64,6 +64,8 @@ def createPanel(item, window, menuwindow, topwindow, log):
             p.actions.update((menuwindow.menuBar().addMenu(menu),))
 
     p.setCustomStyle(window.user_font, window.user_color)
+    if window.client.isconnected and hasattr(p, 'on_client_connected'):
+        p.on_client_connected()
     return p
 
 

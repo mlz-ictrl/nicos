@@ -38,8 +38,8 @@ class LogViewerPanel(Panel):
 
     panelName = 'Log viewer'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
 
         self._logPath = 'log'
 
@@ -51,8 +51,6 @@ class LogViewerPanel(Panel):
             QDateTime.currentDateTime().addDays(-1))
         self.dateTimeEditTo.setDateTime(QDateTime.currentDateTime())
 
-        if self.client.isconnected:
-            self.on_client_connected()
 
     def on_client_connected(self):
         # determine log path via daemon

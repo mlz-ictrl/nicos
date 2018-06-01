@@ -54,8 +54,8 @@ class LiveDataPanel(BaseLiveDataPanel):
     """In addition to the base class, also sets the title of the plots
     """
 
-    def __init__(self, parent, client):
-        BaseLiveDataPanel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        BaseLiveDataPanel.__init__(self, parent, client, options)
         self._plot_titles = []
 
     def _initLiveWidget(self, array):

@@ -40,8 +40,7 @@ class Splitter(QSplitter, SetupDepPanelMixin):
         window.splitters.append(self)
         self.log = NicosLogger('Splitter')
         self.log.parent = topwindow.log
-        SetupDepPanelMixin.__init__(self, window.client)
-        self.setOptions(item.options)
+        SetupDepPanelMixin.__init__(self, window.client, item.options)
         for subitem in item.children:
             sub = createWindowItem(subitem, window, menuwindow, topwindow,
                                    self.log)

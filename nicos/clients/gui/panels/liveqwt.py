@@ -71,8 +71,8 @@ class LiveDataPanel(Panel):
     bar = None
     menu = None
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'live.ui', 'panels')
 
         self._allowed_tags = set()
@@ -105,6 +105,7 @@ class LiveDataPanel(Panel):
 
         self.splitter.restoreState(self.splitterstate)
 
+        self.__setOptions(options)
         client.livedata.connect(self.on_client_livedata)
         client.liveparams.connect(self.on_client_liveparams)
         client.connected.connect(self.on_client_connected)
@@ -117,8 +118,7 @@ class LiveDataPanel(Panel):
 
         self._toftof_profile = None
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
         self.widget.setInstrumentOption(self._instrument)

@@ -33,6 +33,7 @@ from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QEvent, QDateTime, \
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.core.errors import ConfigurationError
 from nicos.guisupport.typedvalue import DeviceValueEdit
 from nicos.pycompat import iteritems, xrange  # pylint: disable=W0622
 
@@ -424,12 +425,13 @@ class TunewaveTablePanel(Panel):
 
     panelName = 'Tunewave table'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/reseda/gui/tunewavetable.ui'))
 
         # access to the echotime device
         self._dev = None
+        self.__setOptions(options)
 
         self._header_labels = []
         self._available_tables = {}
@@ -474,13 +476,14 @@ class TunewaveTablePanel(Panel):
     def wavelength(self):
         return self.wavelengthComboBox.currentText()
 
-    def setOptions(self, options):
+    def __setOptions(self, options):
         """Supported panel options:
 
         tabledev: echotime device name
         """
-        Panel.setOptions(self, options)
-
+        if 'tabledev' not in options:
+            raise ConfigurationError('TuneWaveTable panel: At least `tabledev`'
+                                     ' is required.')
         self._dev = options['tabledev']
 
     def eventFilter(self, receiver, event):

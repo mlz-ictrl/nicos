@@ -238,8 +238,8 @@ class KWSSamplePanel(Panel):
     panelName = 'KWS sample setup'
     uiName = 'sampleconf.ui'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/kws1/gui/sampleconf.ui'))
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
@@ -257,13 +257,13 @@ class KWSSamplePanel(Panel):
         menu.addAction(self.actionEmpty)
         menu.addAction(self.actionGenerate)
         self.createBtn.setMenu(menu)
+        self.__setOptions(options)
 
         self.configs = []
         self.dirty = False
         self.filename = None
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'kws1')
 

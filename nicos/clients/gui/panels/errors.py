@@ -43,8 +43,8 @@ class ErrorPanel(Panel):
 
     panelName = 'Error window'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'errpanel.ui', 'panels')
         self.outView.setFullTimestamps(True)
 

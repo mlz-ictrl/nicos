@@ -82,8 +82,8 @@ class InstrumentViewPanel(Panel):
 
     panelName = 'Instrument View'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
 
         if not simpleapi or not mpy:
             raise RuntimeError('Mantid modules could not be imported. '

@@ -38,8 +38,8 @@ class TomographyPanel(Panel):
     panelName = 'Tomography'
     menu = None
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'tomography.ui', my_uipath)
 
         self.current_status = None

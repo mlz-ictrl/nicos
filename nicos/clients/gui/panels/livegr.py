@@ -61,8 +61,8 @@ FILEUID = Qt.UserRole + 3
 class LiveDataPanel(Panel):
     panelName = 'Live data view'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'live.ui', 'panels')
 
         self._allowed_tags = set()
@@ -120,6 +120,7 @@ class LiveDataPanel(Panel):
 
         self.rois = {}
         self.detectorskey = None
+        self.__setOptions(options)
 
     def setLiveItems(self, n):
         nitems = len(self.liveitems)
@@ -191,8 +192,7 @@ class LiveDataPanel(Panel):
         detectors = self.client.eval('session.experiment.detectors', [])
         self._register_rois(detectors)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
         # self.widget.setInstrumentOption(self._instrument)
@@ -218,9 +218,6 @@ class LiveDataPanel(Panel):
         if self._cachesize < 1:
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
-        # active connection
-        if self.client.isconnected:
-            self.on_client_connected()
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', b'', QByteArray)

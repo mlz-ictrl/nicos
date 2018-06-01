@@ -60,8 +60,8 @@ class ConsolePanel(Panel):
 
     panelName = 'Console'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'console.ui', 'panels')
 
         self.commandInput.scrollWidget = self.outView
@@ -93,12 +93,12 @@ class ConsolePanel(Panel):
         self.menu.addAction(self.actionAllowLineWrap)
         self.on_actionAllowLineWrap_triggered(
             self.mainwindow.allowoutputlinewrap)
+        self.__setOptions(options)
 
     def on_outView_customContextMenuRequested(self, point):
         self.menu.popup(self.outView.mapToGlobal(point))
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
         self.hasmenu = bool(options.get('hasmenu', True))

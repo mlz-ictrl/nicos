@@ -130,11 +130,10 @@ class DevicesPanel(Panel):
         self.statusIcon[ERROR] = QIcon(':/leds/status_red')
         self.statusIcon[NOTREACHED] = QIcon(':/leds/status_red')
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'devices.ui', 'panels')
-        self.param_display = {}
-        self.useicons = True
+        self.__setOptions(options)
 
         self.tree.header().restoreState(self._headerstate)
         self.clear()
@@ -176,8 +175,6 @@ class DevicesPanel(Panel):
 
         self._create_icons()
 
-        if client.isconnected:
-            self.on_client_connected()
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.cache.connect(self.on_client_cache)
@@ -188,8 +185,7 @@ class DevicesPanel(Panel):
     def updateStatus(self, status, exception=False):
         self._current_status = status
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.useicons = bool(options.get('icons', True))
         self.param_display = {}
         param_display = options.get('param_display', {})

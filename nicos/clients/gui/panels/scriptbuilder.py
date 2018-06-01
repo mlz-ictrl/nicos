@@ -46,16 +46,16 @@ class CommandsPanel(Panel):
     """
     panelName = 'Commands'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'scriptbuilder.ui', 'panels')
 
         self.window = parent
         self.runBtn.setVisible(False)
         self.mapping = {}
+        self.__setOptions(options)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
 
         modules = options.get('modules', [])
         for module in modules:

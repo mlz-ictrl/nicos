@@ -133,13 +133,13 @@ class MiezePanel(Panel):
     _do_updates = True
     _data = None
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'mieze_display.ui', my_uipath)
         self.mywidgets = []
+        self.__setOptions(options)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self.foils = options.get('foils', [7, 6, 5, 0, 1, 2])
         self.columns = options.get('columns', 3)
         self.rows = options.get('rows', 2)

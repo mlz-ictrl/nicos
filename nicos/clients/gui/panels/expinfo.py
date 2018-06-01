@@ -65,8 +65,8 @@ class ExpInfoPanel(Panel):
     panelName = 'Experiment Info'
     _viewonly = False
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
         loadUi(self, 'expinfo.ui', 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(client)
@@ -78,10 +78,9 @@ class ExpInfoPanel(Panel):
         self.envLabel.setFormatCallback(
             lambda value, strvalue: ', '.join(sorted(value)))
 
-        self._sample_panel = None
+        self.__setOptions(options)
 
-    def setOptions(self, options):
-        Panel.setOptions(self, options)
+    def __setOptions(self, options):
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
