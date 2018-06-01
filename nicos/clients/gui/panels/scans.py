@@ -154,6 +154,7 @@ class ScansPanel(Panel):
         settings.setValue('tablecolwidth1', self.metaTable.columnWidth(1))
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         ArbitraryFitter.arby_functions.update(options.get('fit_functions', {}))
 
     def setCustomStyle(self, font, back):
