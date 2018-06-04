@@ -1910,21 +1910,18 @@ class Measurable(Waitable):
     def resume(self):
         """Resume paused measurement.
 
-        Return True if resumed successfully.  This operation is forbidden in
-        slave mode.
+        This operation is forbidden in slave mode.
 
         .. method:: doResume()
 
-           If present, this is called to resume the measurement.  Otherwise,
-           ``False`` is returned to indicate that resuming is not possible.
+           If present, this is called to resume the measurement.
         """
         if self._mode == SLAVE:
             raise ModeError(self, 'resume not possible in slave mode')
         elif self._sim_active:
-            return True
+            return
         if hasattr(self, 'doResume'):
-            return self.doResume()
-        return False
+            self.doResume()
 
     @usermethod
     def finish(self):

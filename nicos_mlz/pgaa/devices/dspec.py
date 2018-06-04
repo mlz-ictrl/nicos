@@ -183,7 +183,6 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Init()
             self._dev.Stop()
             self._dev.Start()
-        return True
 
     def doPoll(self, maxage=0):
         return ((status.OK, ''), [0 for _i in range(16384)])

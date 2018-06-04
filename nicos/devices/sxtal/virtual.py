@@ -74,7 +74,6 @@ class VirtualSXtalDetector(Measurable):
     def doResume(self):
         if self._pause_time:
             self._counting_started += (currenttime() - self._pause_time)
-        return True
 
     def doFinish(self):
         self._simulate()
