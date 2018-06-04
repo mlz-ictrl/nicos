@@ -134,7 +134,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
                 message_count += 1
                 if msg.value is not None:
                     _, entry = self._attached_serializer.decode(msg.value)
-                    if entry is not None:
+                    if entry is not None and entry.value is not None:
                         # self.log.debug('%s (%s): %s -> %s', msg.offset,
                         #               msg.timestamp, msg.key, entry)
                         if entry.ttl and entry.time + entry.ttl < now:
@@ -297,7 +297,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
 
         # Return at least the last value, if none match the range
         if not found_some and key in self._db:
-            entry = self._db[key]
+            entry = self._db[key][-1]
             self.log.debug("Not found in provided range, fetching current.")
             yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
 
