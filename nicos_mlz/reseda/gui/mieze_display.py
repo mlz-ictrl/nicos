@@ -137,9 +137,6 @@ class MiezePanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'mieze_display.ui', my_uipath)
         self.mywidgets = []
-        self.__setOptions(options)
-
-    def __setOptions(self, options):
         self.foils = options.get('foils', [7, 6, 5, 0, 1, 2])
         self.columns = options.get('columns', 3)
         self.rows = options.get('rows', 2)

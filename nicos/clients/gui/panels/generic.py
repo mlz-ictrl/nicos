@@ -49,16 +49,13 @@ class GenericPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         self._error_window = None
-        self.__setOptions(options)
-        client.connected.connect(self.on_client_connected)
-
-    def __setOptions(self, options):
         if 'uifile' not in options:
             raise ConfigurationError('GenericPanels require at least an'
                                      ' `uifile` option.')
         loadUi(self, findResource(options['uifile']))
         if options.get('showmsg'):
             self.client.message.connect(self.on_client_message)
+        client.connected.connect(self.on_client_connected)
 
     def on_client_connected(self):
         for ch in self.findChildren(NicosWidget):

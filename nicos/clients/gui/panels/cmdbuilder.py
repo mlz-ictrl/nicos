@@ -68,18 +68,7 @@ class CommandPanel(Panel):
         client.initstatus.connect(self.on_client_initstatus)
         client.mode.connect(self.on_client_mode)
         client.simresult.connect(self.on_client_simresult)
-        self.__setOptions(options)
 
-    def postInit(self):
-        self.console = self.window.getPanel('Console')
-        if self.console:
-            self.console.outView.anchorClicked.connect(
-                self.on_consoleView_anchorClicked)
-
-    def setViewOnly(self, viewonly):
-        self.inputFrame.setVisible(not viewonly)
-
-    def __setOptions(self, options):
         modules = options.get('modules', [])
         for module in modules:
             importString(module)  # should register cmdlets
@@ -91,6 +80,15 @@ class CommandPanel(Panel):
                 self.selectCmdlet(cmdlet)
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
+
+    def postInit(self):
+        self.console = self.window.getPanel('Console')
+        if self.console:
+            self.console.outView.anchorClicked.connect(
+                self.on_consoleView_anchorClicked)
+
+    def setViewOnly(self, viewonly):
+        self.inputFrame.setVisible(not viewonly)
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []

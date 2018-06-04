@@ -53,9 +53,6 @@ class CommandsPanel(Panel):
         self.window = parent
         self.runBtn.setVisible(False)
         self.mapping = {}
-        self.__setOptions(options)
-
-    def __setOptions(self, options):
 
         modules = options.get('modules', [])
         for module in modules:

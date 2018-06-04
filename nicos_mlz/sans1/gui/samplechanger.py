@@ -31,7 +31,6 @@ from nicos.guisupport.qt import Qt, QSize, QEvent, QDialogButtonBox, QLabel, \
     QPixmap, QTableWidget, QAbstractButton, QStyle, QStylePainter, \
     QStyleOptionHeader, QLineEdit, QAbstractItemView, QVBoxLayout
 
-from nicos.core import ProgrammingError
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.utils import findResource
@@ -160,14 +159,6 @@ class SamplechangerSetupPanel(CustomButtonPanel):
 
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
-        self.__setOptions(options)
-
-    def __setOptions(self, options):
-        # this should be called only once!
-        if self._numSamples:
-            raise ProgrammingError('__setOptions is supposed to be called ONCE!')
-
-        # self._changerDeviceName = options.get('samplechanger', 'SampleChanger')
 
         image = options.get('image', None)
         # insert the optional image at top...

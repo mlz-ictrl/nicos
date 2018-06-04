@@ -421,7 +421,11 @@ class TunewaveTableItem(QTableWidgetItem):
 
 class TunewaveTablePanel(Panel):
     """Panel to access and edit the reseda tunewave tables.
-    It requires the ``echotime`` device to be loaded and working."""
+    It requires the ``echotime`` device to be loaded and working.
+    Supported panel options:
+
+        tabledev: echotime device name
+    """
 
     panelName = 'Tunewave table'
 
@@ -430,8 +434,10 @@ class TunewaveTablePanel(Panel):
         loadUi(self, findResource('nicos_mlz/reseda/gui/tunewavetable.ui'))
 
         # access to the echotime device
-        self._dev = None
-        self.__setOptions(options)
+        if 'tabledev' not in options:
+            raise ConfigurationError('TuneWaveTable panel: At least `tabledev`'
+                                     ' is required.')
+        self._dev = options['tabledev']
 
         self._header_labels = []
         self._available_tables = {}
@@ -475,16 +481,6 @@ class TunewaveTablePanel(Panel):
     @property
     def wavelength(self):
         return self.wavelengthComboBox.currentText()
-
-    def __setOptions(self, options):
-        """Supported panel options:
-
-        tabledev: echotime device name
-        """
-        if 'tabledev' not in options:
-            raise ConfigurationError('TuneWaveTable panel: At least `tabledev`'
-                                     ' is required.')
-        self._dev = options['tabledev']
 
     def eventFilter(self, receiver, event):
         """Event filter for the table widget to stop cell editing on enter

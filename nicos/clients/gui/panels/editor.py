@@ -127,7 +127,8 @@ class EditorPanel(Panel):
         self.tabber.currentChanged.connect(self.on_tabber_currentChanged)
         self.tabber.tabCloseRequested.connect(self.on_tabber_tabCloseRequested)
 
-        self.__setOptions(options)
+        self.toolconfig = options.get('tools', '')
+
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
         hlayout.addWidget(self.tabber)
@@ -187,9 +188,6 @@ class EditorPanel(Panel):
         # On some systems the  QFilesystemWatchers deadlock on application exit
         # so destroy them explicitly
         self.watchers.clear()
-
-    def __setOptions(self, options):
-        self.toolconfig = options.get('tools', '')
 
     def setViewOnly(self, viewonly):
         self.activeGroup.setEnabled(not viewonly)

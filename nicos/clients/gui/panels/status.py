@@ -134,7 +134,18 @@ class ScriptStatusPanel(Panel):
         empty = QPixmap(16, 16)
         empty.fill(Qt.transparent)
         self.otherlineicon = QIcon(empty)
-        self.__setOptions(options)
+
+        self.stopcounting = bool(options.get('stopcounting', False))
+        if self.stopcounting:
+            tooltip = 'Aborts the current executed script'
+            self.actionStop.setToolTip(tooltip)
+            self.actionStop.setText('Abort current script')
+            self.actionStop2.setToolTip(tooltip)
+
+        self.showETA = bool(options.get('eta', False))
+        self.etaWidget.hide()
+
+        self.dateformat = options.get('dateformat', '%Y/%m/%d %H:%M:%S')
 
         client.request.connect(self.on_client_request)
         client.processing.connect(self.on_client_processing)
@@ -190,19 +201,6 @@ class ScriptStatusPanel(Panel):
         self.activeGroup.addAction(self.actionFinish)
         self.activeGroup.addAction(self.actionFinishEarly)
         self.activeGroup.addAction(self.actionFinishEarlyAndStop)
-
-    def __setOptions(self, options):
-        self.stopcounting = bool(options.get('stopcounting', False))
-        if self.stopcounting:
-            tooltip = 'Aborts the current executed script'
-            self.actionStop.setToolTip(tooltip)
-            self.actionStop.setText('Abort current script')
-            self.actionStop2.setToolTip(tooltip)
-
-        self.showETA = bool(options.get('eta', False))
-        self.etaWidget.hide()
-
-        self.dateformat = options.get('dateformat', '%Y/%m/%d %H:%M:%S')
 
     def setViewOnly(self, viewonly):
         self.activeGroup.setEnabled(not viewonly)

@@ -257,13 +257,10 @@ class KWSSamplePanel(Panel):
         menu.addAction(self.actionEmpty)
         menu.addAction(self.actionGenerate)
         self.createBtn.setMenu(menu)
-        self.__setOptions(options)
 
         self.configs = []
         self.dirty = False
         self.filename = None
-
-    def __setOptions(self, options):
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'kws1')
 

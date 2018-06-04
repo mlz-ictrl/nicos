@@ -93,12 +93,7 @@ class ConsolePanel(Panel):
         self.menu.addAction(self.actionAllowLineWrap)
         self.on_actionAllowLineWrap_triggered(
             self.mainwindow.allowoutputlinewrap)
-        self.__setOptions(options)
 
-    def on_outView_customContextMenuRequested(self, point):
-        self.menu.popup(self.outView.mapToGlobal(point))
-
-    def __setOptions(self, options):
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
         self.hasmenu = bool(options.get('hasmenu', True))
@@ -109,6 +104,9 @@ class ConsolePanel(Panel):
             watermark = findResource(watermark)
             if path.isfile(watermark):
                 self.outView.setBackgroundImage(watermark)
+
+    def on_outView_customContextMenuRequested(self, point):
+        self.menu.popup(self.outView.mapToGlobal(point))
 
     def setExpertMode(self, expert):
         if not self.hasinput:

@@ -89,14 +89,11 @@ class SetupDepPanelMixin(QObject):
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
     def __init__(self, client, options):
-        self.__setOptions(options)
-        client.register(self, 'session/mastersetup')
-
-    def __setOptions(self, options):
         setups = options.get('setups', '')
         if not isinstance(setups, str):
             setups = list(setups)
         self.setSetups(setups)
+        client.register(self, 'session/mastersetup')
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec

@@ -120,7 +120,31 @@ class LiveDataPanel(Panel):
 
         self.rois = {}
         self.detectorskey = None
-        self.__setOptions(options)
+        # configure instrument specific behavior
+        self._instrument = options.get('instrument', '')
+        # self.widget.setInstrumentOption(self._instrument)
+        # if self._instrument == 'toftof':
+        #     self.widget.setAxisLabels('time channels', 'detectors')
+        # elif self._instrument == 'imaging':
+        #     self.widget.setControls(ShowGrid | Logscale | Grayscale |
+        #                             Normalize | Darkfield | Despeckle |
+        #                             CreateProfile | Histogram | MinimumMaximum)
+        #     self.widget.setStandardColorMap(True, False)
+        # configure allowed file types
+        supported_filetypes = ReaderRegistry.filetypes()
+        opt_filetypes = set(options.get('filetypes', supported_filetypes))
+        self._allowed_tags = opt_filetypes & set(supported_filetypes)
+
+        # configure allowed detector device names
+        detectors = options.get('detectors')
+        if detectors:
+            self._allowed_detectors = set(detectors)
+
+        # configure caching
+        self._cachesize = options.get('cachesize', self._cachesize)
+        if self._cachesize < 1:
+            self._cachesize = 1  # always cache the last live image
+        self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
     def setLiveItems(self, n):
         nitems = len(self.liveitems)
@@ -191,33 +215,6 @@ class LiveDataPanel(Panel):
         self.widgetLayout.addWidget(self.widget)
         detectors = self.client.eval('session.experiment.detectors', [])
         self._register_rois(detectors)
-
-    def __setOptions(self, options):
-        # configure instrument specific behavior
-        self._instrument = options.get('instrument', '')
-        # self.widget.setInstrumentOption(self._instrument)
-        # if self._instrument == 'toftof':
-        #     self.widget.setAxisLabels('time channels', 'detectors')
-        # elif self._instrument == 'imaging':
-        #     self.widget.setControls(ShowGrid | Logscale | Grayscale |
-        #                             Normalize | Darkfield | Despeckle |
-        #                             CreateProfile | Histogram | MinimumMaximum)
-        #     self.widget.setStandardColorMap(True, False)
-        # configure allowed file types
-        supported_filetypes = ReaderRegistry.filetypes()
-        opt_filetypes = set(options.get('filetypes', supported_filetypes))
-        self._allowed_tags = opt_filetypes & set(supported_filetypes)
-
-        # configure allowed detector device names
-        detectors = options.get('detectors')
-        if detectors:
-            self._allowed_detectors = set(detectors)
-
-        # configure caching
-        self._cachesize = options.get('cachesize', self._cachesize)
-        if self._cachesize < 1:
-            self._cachesize = 1  # always cache the last live image
-        self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', b'', QByteArray)

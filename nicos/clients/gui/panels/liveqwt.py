@@ -105,20 +105,6 @@ class LiveDataPanel(Panel):
 
         self.splitter.restoreState(self.splitterstate)
 
-        self.__setOptions(options)
-        client.livedata.connect(self.on_client_livedata)
-        client.liveparams.connect(self.on_client_liveparams)
-        client.connected.connect(self.on_client_connected)
-        client.setup.connect(self.on_client_connected)
-
-        self.actionLogScale.toggled.connect(self.widget.setLog10)
-        self.widget.profileUpdate.connect(self.on_widget_profileUpdate)
-        self.widget.customContextMenuRequested.connect(
-            self.on_widget_customContextMenuRequested)
-
-        self._toftof_profile = None
-
-    def __setOptions(self, options):
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
         self.widget.setInstrumentOption(self._instrument)
@@ -151,8 +137,18 @@ class LiveDataPanel(Panel):
         if self._cachesize < 1:
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
-        if self.client.isconnected:
-            self.on_client_connected()
+
+        client.livedata.connect(self.on_client_livedata)
+        client.liveparams.connect(self.on_client_liveparams)
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+
+        self.actionLogScale.toggled.connect(self.widget.setLog10)
+        self.widget.profileUpdate.connect(self.on_widget_profileUpdate)
+        self.widget.customContextMenuRequested.connect(
+            self.on_widget_customContextMenuRequested)
+
+        self._toftof_profile = None
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', '', QByteArray)

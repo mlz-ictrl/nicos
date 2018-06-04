@@ -58,16 +58,14 @@ class ExpPanel(Panel):
         self._new_exp_panel = None
         self._finish_exp_panel = None
 
-        self.__setOptions(options)
-        client.connected.connect(self.on_client_connected)
-        client.setup.connect(self.on_client_connected)
-        client.experiment.connect(self.on_client_experiment)
-
-    def __setOptions(self, options):
         # Additional dialog panels to pop up after NewExperiment() and before
         # FinishExperiment() respectively.
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
+
+        client.connected.connect(self.on_client_connected)
+        client.setup.connect(self.on_client_connected)
+        client.experiment.connect(self.on_client_experiment)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '

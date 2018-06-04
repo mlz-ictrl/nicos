@@ -78,9 +78,6 @@ class ExpInfoPanel(Panel):
         self.envLabel.setFormatCallback(
             lambda value, strvalue: ', '.join(sorted(value)))
 
-        self.__setOptions(options)
-
-    def __setOptions(self, options):
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')

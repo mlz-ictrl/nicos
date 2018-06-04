@@ -138,7 +138,12 @@ class DevicesPanel(Panel):
         DevicesPanel._createIcons()
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'devices.ui', 'panels')
-        self.__setOptions(options)
+        self.useicons = bool(options.get('icons', True))
+        self.param_display = {}
+        param_display = options.get('param_display', {})
+        for (key, value) in param_display.items():
+            value = [value] if isinstance(value, string_types) else list(value)
+            self.param_display[key.lower()] = value
 
         self.tree.header().restoreState(self._headerstate)
         self.clear()
@@ -187,14 +192,6 @@ class DevicesPanel(Panel):
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
-
-    def __setOptions(self, options):
-        self.useicons = bool(options.get('icons', True))
-        self.param_display = {}
-        param_display = options.get('param_display', {})
-        for (key, value) in param_display.items():
-            value = [value] if isinstance(value, string_types) else list(value)
-            self.param_display[key.lower()] = value
 
     def saveSettings(self, settings):
         settings.setValue('headers', self.tree.header().saveState())

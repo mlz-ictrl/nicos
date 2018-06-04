@@ -81,7 +81,7 @@ class ScansPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'scans.ui', 'panels')
-        self.__setOptions(options)
+        ArbitraryFitter.arby_functions.update(options.get('fit_functions', {}))
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -153,9 +153,6 @@ class ScansPanel(Panel):
         settings.setValue('splitter', self.splitter.saveState())
         settings.setValue('tablecolwidth0', self.metaTable.columnWidth(0))
         settings.setValue('tablecolwidth1', self.metaTable.columnWidth(1))
-
-    def __setOptions(self, options):
-        ArbitraryFitter.arby_functions.update(options.get('fit_functions', {}))
 
     def setCustomStyle(self, font, back):
         self.user_font = font
