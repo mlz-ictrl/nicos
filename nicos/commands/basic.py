@@ -305,6 +305,11 @@ def ListSetups(listall=False):
 @parallel_safe
 def _Restart():
     """Restart the NICOS process.  Use with caution."""
+    exp = session.experiment
+    if exp and exp.hasProposalFinishThreads():
+        raise NicosError('Cannot restart because there is at least one '
+                         'proposal which is currently finishing.')
+
     import atexit
     import signal
 

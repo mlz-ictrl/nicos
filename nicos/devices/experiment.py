@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
@@ -47,7 +48,7 @@ from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import string_types, from_maybe_utf8, iteritems
+from nicos.pycompat import string_types, from_maybe_utf8, listitems
 from nicos.devices.sample import Sample
 from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
 
@@ -453,6 +454,25 @@ class Experiment(Device):
                 return True
         return False
 
+    def _cleanupProposalFinishThreads(self):
+        """Cleanup already finished threads for proposals
+        ``FinishExperiment``.
+
+        """
+        for iproposal, thd in listitems(self._proposal_thds):
+            if not thd.isAlive():
+                del self._proposal_thds[iproposal]
+                self.log.debug('delete reference on closed thread for '
+                               'proposal %s', iproposal)
+
+    def hasProposalFinishThreads(self):
+        """Cleanup already finished threads for proposals ``FinishExperiment``
+        call and return True if any proposal threads exist.
+
+        """
+        self._cleanupProposalFinishThreads()
+        return bool(self._proposal_thds)
+
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
@@ -503,12 +523,7 @@ class Experiment(Device):
                              'currently closing.' % proposal)
 
         # clean up
-        for iproposal, thd in iteritems(dict(self._proposal_thds)):
-            if not thd.isAlive():
-                del self._proposal_thds[iproposal]
-                self.log.debug('delete reference on closed thread for '
-                               'proposal %s', iproposal)
-
+        self._cleanupProposalFinishThreads()
 
         # need to enable before checking templated files...
         # if next proposal is of type 'user'
