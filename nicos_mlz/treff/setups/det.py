@@ -4,6 +4,8 @@ description = "Jumiom detector setup"
 group = "basic"
 
 includes = [
+    "analyzer",
+    "beamstop",
     "counter",
     "shutter",
     "sampletable",
