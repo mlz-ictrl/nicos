@@ -433,11 +433,11 @@ class TunewaveTablePanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_mlz/reseda/gui/tunewavetable.ui'))
 
+        self._dev = options.get('tabledev')
         # access to the echotime device
-        if 'tabledev' not in options:
+        if not self._dev:
             raise ConfigurationError('TuneWaveTable panel: At least `tabledev`'
                                      ' is required.')
-        self._dev = options['tabledev']
 
         self._header_labels = []
         self._available_tables = {}
