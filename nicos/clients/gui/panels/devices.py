@@ -133,6 +133,7 @@ class DevicesPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         loadUi(self, 'devices.ui', 'panels')
+        self.param_display = {}
         self.useicons = True
 
         self.tree.header().restoreState(self._headerstate)

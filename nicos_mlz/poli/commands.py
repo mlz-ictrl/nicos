@@ -24,6 +24,8 @@
 
 """Module with specific commands for POLI."""
 
+from __future__ import division
+
 import csv
 import math
 import subprocess
@@ -945,14 +947,16 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
 
 
 @usercommand
-@helparglist('name, [speed], [timedelta]')
-def ScanDataset(name, speed=None, timedelta=None, start=1):
+@helparglist('name, [speed], [timedelta], [start], [cont]')
+def ScanDataset(name, speed=None, timedelta=None, start=1, cont=True):
     """Do an omega-scan over all HKL reflections in a given CSV dataset.
 
-    Takes a CSV file created by `GenDataset()` (maybe edited) and does a
-    continuous omega scan over all HKLs in the list.
+    Takes a CSV file created by `GenDataset()` (maybe edited) and does an
+    omega scan over all HKLs in the list.
 
     Use ``start=N`` to start at a different line than the first.
+
+    Use ``cont=False`` to select step scans instead of continuous scans.
 
     Examples::
 
@@ -962,6 +966,8 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
        >>> ScanDataset('low_t', 0.1, 1)
        # start at row 100
        >>> ScanDataset('low_t', start=100)
+       # with stepwise scans
+       >>> ScanDataset('low_t', 0.1, 1, cont=False)
     """
     instr = session.instrument
     root = session.experiment.samplepath
@@ -1005,9 +1011,12 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
             calc = dict(instr._extractPos(instr._calcPos(hkl)))
             om1 = calc['omega'] - width / 2.
             om2 = calc['omega'] + width / 2.
-            cur_om = instr._attached_omega.read()
-            if abs(cur_om - om1) > abs(cur_om - om2):
-                om1, om2 = om2, om1
+            # optimization to avoid unnecessary omega movement,
+            # currently disabled due to backlash concerns
+            #
+            # cur_om = instr._attached_omega.read()
+            # if abs(cur_om - om1) > abs(cur_om - om2):
+            #     om1, om2 = om2, om1
             umin, umax = instr._attached_omega.userlimits
             if om1 < umin:
                 om1 = umin
@@ -1023,8 +1032,15 @@ def ScanDataset(name, speed=None, timedelta=None, start=1):
                 continue
             except CONTINUE_EXCEPTIONS:
                 session.log.warning('Positioning problem, continuing', exc=1)
-            contscan(instr._attached_omega, om1, om2, speed, timedelta,
-                     '(%4.4g %4.4g %4.4g)' % info[2:])
+            if cont:
+                contscan(instr._attached_omega, om1, om2, speed, timedelta,
+                         '(%4.4g %4.4g %4.4g)' % info[2:])
+            else:
+                stepsize = speed * timedelta
+                # steps per side, not including the central point
+                nsteps = int(round(width / 2 / stepsize))
+                cscan(instr._attached_omega, calc['omega'],
+                      stepsize, nsteps, t=timedelta)
         finally:
             session.endActionScope()
 

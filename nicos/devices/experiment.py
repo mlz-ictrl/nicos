@@ -47,7 +47,7 @@ from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import string_types, from_maybe_utf8
+from nicos.pycompat import string_types, from_maybe_utf8, iteritems
 from nicos.devices.sample import Sample
 from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
 
@@ -164,6 +164,8 @@ class Experiment(Device):
     attached_devices = {
         'sample': Attach('The device object representing the sample', Sample),
     }
+
+    _proposal_thds = {}  # mapping of proposal => FinishExperiment thread
 
     #
     # hooks: may be overriden in derived classes to enhance functionality
@@ -483,6 +485,20 @@ class Experiment(Device):
             kwds['localcontact'] = localcontact
         kwds['proposal'] = proposal
 
+        # check whether or not this proposal is finished - a thread is alive
+        if proposal in self._proposal_thds:
+            if self._proposal_thds[proposal].isAlive():
+                raise NicosError('cannot switch to proposal %s as this is '
+                                 'currently closing.' % proposal)
+
+        # clean up
+        for iproposal, thd in iteritems(dict(self._proposal_thds)):
+            if not thd.isAlive():
+                del self._proposal_thds[iproposal]
+                self.log.debug('delete reference on closed thread for '
+                               'proposal %s', iproposal)
+
+
         # need to enable before checking templated files...
         # if next proposal is of type 'user'
         if self.managerights and proptype == 'user':
@@ -623,7 +639,17 @@ class Experiment(Device):
                 # start separate thread for zipping and disabling old proposal
                 self.log.debug('Start separate thread for zipping and '
                                'disabling proposal.')
-                thd = createThread('FinishExperiment',
+                if self.proposal in self._proposal_thds:
+                    if self._proposal_thds[self.proposal].isAlive():
+                        self.log.error(
+                            'Proposal %s is already finishing. Please report '
+                            'this incident as this should not happen.',
+                            self.proposal
+                        )
+                        # XXX: or raise ProgrammingError ?
+                        return self._proposal_thds[self.proposal]
+
+                thd = createThread('FinishExperiment ' + self.proposal,
                                    target=self._finish,
                                    args=(pzip, self.proposalpath,
                                          self.proposal, self.proptype, stats,
@@ -634,6 +660,7 @@ class Experiment(Device):
                 if thd.isAlive():
                     self.log.info('continuing finishing of proposal %s in '
                                   'background', self.proposal)
+                    self._proposal_thds[self.proposal] = thd
                 else:
                     thd = None
 

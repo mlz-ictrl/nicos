@@ -140,6 +140,9 @@ class PostprocessPassiveChannel(PassiveChannel):
     def doRead(self, maxage=0):
         return self.readresult
 
+    def doPause(self):
+        return True
+
     def getReadResult(self, arrays, results, quality):
         """This method should return the new `readresult` for corresponding
         `arrays` and `results` in respect to a given `quality`."""
