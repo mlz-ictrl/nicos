@@ -127,7 +127,7 @@ class EditorPanel(Panel):
         self.tabber.currentChanged.connect(self.on_tabber_currentChanged)
         self.tabber.tabCloseRequested.connect(self.on_tabber_tabCloseRequested)
 
-        self.toolconfig = options.get('tools', '')
+        self.toolconfig = options.get('tools')
 
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
