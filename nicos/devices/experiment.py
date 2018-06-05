@@ -441,6 +441,18 @@ class Experiment(Device):
         """
         return self.proptype == 'user'
 
+    def isProposalFinishThreadAlive(self, proposal=None):
+        """Return True if the **proposal** is currently finishing. If no
+        proposal is provided this method checks for the current proposal.
+
+        """
+        if not proposal:
+            proposal = self.proposal
+        if proposal in self._proposal_thds:
+            if self._proposal_thds[proposal].isAlive():
+                return True
+        return False
+
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
@@ -486,10 +498,9 @@ class Experiment(Device):
         kwds['proposal'] = proposal
 
         # check whether or not this proposal is finished - a thread is alive
-        if proposal in self._proposal_thds:
-            if self._proposal_thds[proposal].isAlive():
-                raise NicosError('cannot switch to proposal %s as this is '
-                                 'currently closing.' % proposal)
+        if self.isProposalFinishThreadAlive(proposal):
+            raise NicosError('cannot switch to proposal %s as this is '
+                             'currently closing.' % proposal)
 
         # clean up
         for iproposal, thd in iteritems(dict(self._proposal_thds)):
@@ -639,15 +650,14 @@ class Experiment(Device):
                 # start separate thread for zipping and disabling old proposal
                 self.log.debug('Start separate thread for zipping and '
                                'disabling proposal.')
-                if self.proposal in self._proposal_thds:
-                    if self._proposal_thds[self.proposal].isAlive():
-                        self.log.error(
-                            'Proposal %s is already finishing. Please report '
-                            'this incident as this should not happen.',
-                            self.proposal
-                        )
-                        # XXX: or raise ProgrammingError ?
-                        return self._proposal_thds[self.proposal]
+                if self.isProposalFinishThreadAlive(self.proposal):
+                    self.log.error(
+                        'Proposal %s is already finishing. Please report '
+                        'this incident as this should not happen.',
+                        self.proposal
+                    )
+                    # XXX: or raise ProgrammingError ?
+                    return self._proposal_thds[self.proposal]
 
                 thd = createThread('FinishExperiment ' + self.proposal,
                                    target=self._finish,
