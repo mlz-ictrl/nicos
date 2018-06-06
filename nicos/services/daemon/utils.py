@@ -183,10 +183,7 @@ class QueueOperator(object):
         self.queue = queue
 
     def get_item(self, key):
-        for item in self.queue.scripts:
-            if item.reqid == key:
-                return item
-        raise IndexError
+        return self.queue[key]
 
     def move_item(self, item_id, newindex):
         for i, item in enumerate(self.queue.scripts):
@@ -198,7 +195,7 @@ class QueueOperator(object):
 
     def update(self, reqid, newcode, user):
         self.queue[reqid].text = newcode
-        self.queue[reqid].user = user.name
+        self.queue[reqid].user = user
 
 
 class ScriptQueue(object):
@@ -228,13 +225,9 @@ class ScriptQueue(object):
     def delete_one(self, key):
         """Delete script with a given reqid from the queue."""
         with self._lock:
-            for item in self.scripts:
-                if item.reqid == key:
-                    self.scripts.remove(item)
-                    if not self.scripts:
-                        self._event.clear()
-                    return
-            raise IndexError
+            self.scripts.remove(self[key])
+            if not self.scripts:
+                self._event.clear()
 
     def delete_all(self):
         """Delete all scripts and returns their reqids in a list."""
@@ -255,3 +248,9 @@ class ScriptQueue(object):
 
     def __exit__(self, *exc):
         self._lock.release()
+
+    def __getitem__(self, key):
+        for item in self.scripts:
+            if item.reqid == key:
+                return item
+        raise IndexError
