@@ -37,7 +37,7 @@ from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
     comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort, \
-    checkSetupSpec, extractKeyAndIndex
+    checkSetupSpec, extractKeyAndIndex, squeeze
 from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
@@ -348,3 +348,15 @@ def test_extract_key_and_index():
     assert extractKeyAndIndex('dev.key[0] * 10+5') == ('dev/key', (0,), 10, 5)
     assert extractKeyAndIndex('dev*1.2e1 +5e-2') == ('dev/value', (), 12, 0.05)
     assert extractKeyAndIndex('dev*1e+1+5e1') == ('dev/value', (), 10, 50)
+
+
+def test_squeeze():
+    assert isinstance(squeeze([]), list)
+    assert isinstance(squeeze(tuple()), tuple)
+
+    assert squeeze((256, 256, 1)) == (256, 256)
+    assert squeeze((1, 10, 1)) == (10, )
+    assert squeeze((1, 1, 1), 2) == (1, 1)
+    assert squeeze((1, 10, 1), -1) == (1, 10)
+    assert squeeze((1, 10, 1), 1) == (1, 10)
+    assert squeeze((1, ), 2) == (1, )  # n > len(shape)

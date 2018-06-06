@@ -1444,3 +1444,15 @@ def fixupScript(script):
     # Replace bare except clauses by "except Exception" to prevent
     # catching the ControlStop exception if running under the daemon
     return _bare_except.sub(r'\1except Exception:', script)
+
+
+def squeeze(shape, n=0):
+    """Removes all 1-dimensional entries for all dimensions > ``n``.
+
+    For negative ``n`` the last ``|n|`` dimensions are sequeezed.
+    """
+    dims = list(shape[:n])
+    for dim in shape[n:]:
+        if dim > 1:
+            dims.append(dim)
+    return type(shape)(dims)
