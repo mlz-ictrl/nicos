@@ -30,6 +30,8 @@ masters, e.g. counting on time and count rate.
 
 """
 
+from time import time as currenttime
+
 from nicos.core import status, Param, Override, Value, intrange, UsageError, \
     Readable, MASTER
 from nicos.devices.tango import PyTangoDevice
@@ -48,8 +50,9 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
                          type=bool, default=False, settable=True),
         'extmask': Param('Bitmask of the inputs to use for external start',
                          type=int, default=0),
-        'extwait': Param('If true, we are waiting for external start',
-                         type=bool, default=False, settable=True,
+        'extwait': Param('If nonzero, we are waiting for external start '
+                         'since that timestamp',
+                         type=float, default=0, settable=True,
                          userparam=False),
     }
 
@@ -66,13 +69,13 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
             # because `DevFPGACountReset()` resets all values.
             self._setPreselection()
             if self.extmode:
-                self.extwait = True
+                self.extwait = currenttime()
                 self._dev.DevFPGACountArmForExternalStart(self.extmask)
             else:
                 self._dev.DevFPGACountStart()
 
     def doFinish(self):
-        self.extwait = False
+        self.extwait = 0
         self._dev.DevFPGACountStop()
 
     def doStop(self):
@@ -109,6 +112,8 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
     parameters = {
         'islive': Param('If this channel is a live channel', type=bool,
                         settable=True, userparam=False, default=False),
+        'exttimeout': Param('Timeout for waiting for external start',
+                            type=float, unit='s', default=600),
     }
 
     def _setPreselection(self):
@@ -126,13 +131,16 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
         if self._dev.DevFPGACountGateStatus():
             if self.extmode and self.extwait and self._mode == MASTER:
                 self.log.info('external signal arrived, counting...')
-                self.extwait = False
+                self.extwait = 0
             return (status.BUSY, 'counting')
-        elif self.extmode and self.extwait:
+        elif self.extmode and self.extwait > 0:
             # External mode: there is no status indication of "waiting",
             # so use the time as an indication of wait/done
             if self._dev.DevFPGACountReadTime() > 0:
                 return (status.OK, '')
+            elif currenttime() > self.extwait + self.exttimeout:
+                return (status.NOTREACHED,
+                        'timed out waiting for external start')
             return (status.BUSY, 'waiting for external start')
         else:
             return (status.OK, '')
