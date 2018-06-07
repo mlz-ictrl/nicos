@@ -89,7 +89,8 @@ class Cmdlet(QWidget):
     def _getDeviceList(self, special_clause=''):
         """Helper for getting a list of devices for manipulation."""
         clause = ('(dn in session.explicit_devices or '
-                  '"nicos.core.mixins.AutoDevice" in d.classes)')
+                  '("nicos.core.mixins.AutoDevice" in d.classes and '
+                  'dn.split(".")[0] in session.explicit_devices))')
         if special_clause:
             clause += ' and ' + special_clause
         # special construction to get AutoDevices like slit.centerx which is
