@@ -31,10 +31,10 @@ watchlist = [
          gracetime = 30,
     ),
     dict(
-        condition = 'o2_nguide_value > 0.4',
-        message = 'O2 pressure in neutron guide exceeds 0.4 %%',
+        condition = 'o2_nguide_status[0] == WARN',
+        message = 'O2 percentage in neutron guide exceeds warn limit!',
         type = 'neutronguide',
-        gracetime = 60,
+        gracetime = 600,
     ),
 ]
 
