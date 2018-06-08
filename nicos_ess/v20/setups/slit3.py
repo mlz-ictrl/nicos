@@ -1,0 +1,113 @@
+description = 'Slit 3'
+pvprefix = 'HZB-V20:MC-SLT-01:'
+
+devices = dict(
+    slit3hxn = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Horizontal Negative',
+                      lowlevel = True,
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-30, 30),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltH-xn',
+                      errormsgpv = pvprefix + 'SltH-xn-MsgTxt',
+                      errorbitpv = pvprefix + 'SltH-xn-Err',
+                      reseterrorpv = pvprefix + 'SltH-xn-ErrRst'
+               ),
+
+    slit3hxp = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Horizontal Positive',
+                      lowlevel = True,
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-30, 30),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltH-xp',
+                      errormsgpv = pvprefix + 'SltH-xp-MsgTxt',
+                      errorbitpv = pvprefix + 'SltH-xp-Err',
+                      reseterrorpv = pvprefix + 'SltH-xp-ErrRst'
+               ),
+
+    slit3h_center = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Horizontal Center',
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-30, 30),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltH-Center',
+                      errormsgpv = pvprefix + 'SltH-Center-MsgTxt',
+                      errorbitpv = pvprefix + 'SltH-Center-Err',
+                      reseterrorpv = pvprefix + 'SltH-Center-ErrRst'
+               ),
+
+    slit3h_gap = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Horizontal Gap',
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (0, 60),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltH-Gap',
+                      errormsgpv = pvprefix + 'SltH-Gap-MsgTxt',
+                      errorbitpv = pvprefix + 'SltH-Gap-Err',
+                      reseterrorpv = pvprefix + 'SltH-Gap-ErrRst'
+               ),
+
+    slit3vxn = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Vertical Negative',
+                      lowlevel = True,
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-60, 60),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltV-xn',
+                      errormsgpv = pvprefix + 'SltV-xn-MsgTxt',
+                      errorbitpv = pvprefix + 'SltV-xn-Err',
+                      reseterrorpv = pvprefix + 'SltV-xn-ErrRst'
+               ),
+
+    slit3vxp = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Vertical Positive',
+                      lowlevel = True,
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-60, 60),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltV-xp',
+                      errormsgpv = pvprefix + 'SltV-xp-MsgTxt',
+                      errorbitpv = pvprefix + 'SltV-xp-Err',
+                      reseterrorpv = pvprefix + 'SltV-xp-ErrRst'
+               ),
+
+    slit3v_center = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Vertical Center',
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (-60, 60),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltV-Center',
+                      errormsgpv = pvprefix + 'SltV-Center-MsgTxt',
+                      errorbitpv = pvprefix + 'SltV-Center-Err',
+                      reseterrorpv = pvprefix + 'SltV-Center-ErrRst'
+               ),
+
+    slit3v_gap = device('nicos_ess.devices.epics.motor.EpicsMotor',
+                      description = 'Slit 3 Vertical Gap',
+                      unit = 'mm',
+                      fmtstr = '%.2f',
+                      abslimits = (0, 120),
+                      epicstimeout = 3.0,
+                      precision = 0.1,
+                      motorpv = pvprefix + 'SltV-Gap',
+                      errormsgpv = pvprefix + 'SltV-Gap-MsgTxt',
+                      errorbitpv = pvprefix + 'SltV-Gap-Err',
+                      reseterrorpv = pvprefix + 'SltV-Gap-ErrRst'
+               ),
+)
+
