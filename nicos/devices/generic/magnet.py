@@ -118,7 +118,7 @@ class CalibratedMagnet(HasLimits, Moveable):
                 maxcurr = trycurr
                 maxfield = tryfield
             # if interval is so small, that any error within is acceptable:
-            if maxfield - minfield < 1e-4:
+            if maxfield - minfield < 1e-5:
                 ratio = (field - minfield) / (maxfield - minfield)
                 trycurr = (maxcurr - mincurr) * ratio + mincurr
                 self.log.debug('current for %g T is %g A', field, trycurr)
