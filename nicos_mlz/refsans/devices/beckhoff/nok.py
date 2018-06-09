@@ -154,7 +154,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         (9, 'Overtemperature'),
         (10, 'Target not reached: limit switch'),
         (11, 'Target not reached: stop'),
-        (12, 'Target ignored'),
+        (12, 'Travel command error'),
         (13, 'Encoder NOT referenced'),
         (14, 'parameter access denied'),
         (15, 'parameter access granted'),
