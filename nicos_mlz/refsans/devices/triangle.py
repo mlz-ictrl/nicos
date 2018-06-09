@@ -60,8 +60,9 @@ Unit    [ SEC | MINUTE | DEGREE | URAD | RAD | MM | PIXEL |
 Help                    show this help message
 """
 
-from nicos.core import Param, Readable, floatrange, intrange, status
+from nicos.core import Override, Param, Readable, floatrange, intrange, status
 from nicos.core.errors import CommunicationError
+from nicos.core.mixins import HasOffset
 from nicos.devices.tango import StringIO
 
 
@@ -98,24 +99,23 @@ class TriangleMaster(TriangleBase):
             return status.ERROR, 'timeout check PC! SW running and COM-Port'
 
 
-class TriangleAngle(TriangleMaster):
+class TriangleAngle(HasOffset, TriangleMaster):
 
     parameters = {
         'index': Param('index of return',
                        type=intrange(0, 1), settable=False,
                        volatile=False, userparam=False),
-        'water': Param('angle with water',
-                       type=floatrange(-.2, .2),
-                       settable=True,
-                       userparam=True,
-                       default=0),
+    }
+
+    parameter_overrides = {
+        'offset': Override(type=floatrange(-2, 2)),
     }
 
     def doRead(self, maxage=0):
         try:
             self.log.debug('index: %d' % self.index)
             res = self._read_controller(self.index)
-            res -= self.water
+            res -= - self.offset
             self.log.debug('pos: %f' % res)
         except IndexError:
             res = 0
