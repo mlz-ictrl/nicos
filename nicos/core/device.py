@@ -43,7 +43,8 @@ from nicos.core.params import Param, Override, Value, floatrange, oneof, \
 from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
     ProgrammingError, UsageError, LimitError, ModeError, PositionError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
-from nicos.utils import loggers, getVersions, parseDateString, deprecated
+from nicos.core.utils import deprecated
+from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
     string_types, integer_types, number_types
 from nicos.protocols.cache import FLAG_NO_STORE

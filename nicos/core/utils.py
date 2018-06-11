@@ -28,9 +28,10 @@
 
 import sys
 from time import localtime, time as currenttime
+from functools import wraps
 from collections import namedtuple
 
-from nicos import session
+from nicos import session, nicos_version
 from nicos.core import status, SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, \
@@ -57,6 +58,30 @@ User = namedtuple('User', 'name, level')
 
 system_user = User('system', ADMIN)
 watchdog_user = User('watchdog', ADMIN)
+
+
+def deprecated(since=nicos_version, comment=''):
+    """This is a decorator which can be used to mark functions as deprecated.
+
+    It will result in a warning being emitted when the function is used.
+
+    The parameter ``since`` should contain the NICOS version number on which
+    the deprecation starts.
+
+    The ``comment`` should contain a hint to the user, what should be used
+    instead.
+    """
+    def deco(f):
+        msg = '%r is deprecated since version %r.' % (f.__name__, since)
+
+        @wraps(f)
+        def new_func(*args, **options):
+            for l in [msg, comment]:
+                session.log.warning(l)
+            return f(*args, **options)
+        new_func.__doc__ += ' %s %s' % (msg, comment)
+        return new_func
+    return deco
 
 
 def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
