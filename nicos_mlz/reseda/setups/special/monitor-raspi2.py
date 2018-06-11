@@ -11,7 +11,6 @@ _guidefields = Column(
 
 _column1 = Column(
     Block('arm0a', [
-        BlockRow(Field(name='HRF0a', dev='hrf_0a')),
         BlockRow(Field(name='SF0a', dev='sf_0a'),
                  Field(name='HSF0a', dev='hsf_0a')),
         BlockRow(Field(name='RF0a', dev='cbox_0a_reg_amp'),
@@ -36,7 +35,6 @@ _column1 = Column(
 
 _column2 = Column(
     Block('arm0b', [
-        BlockRow(Field(name='HRF0b', dev='hrf_0b')),
         BlockRow(Field(name='SF0b', dev='sf_0b'),
                  Field(name='HSF0b', dev='hsf_0b')),
         BlockRow(Field(name='RF0b', dev='cbox_0b_reg_amp'),
@@ -59,7 +57,6 @@ _column2 = Column(
 
 _column3 = Column(
     Block('arm1', [
-        BlockRow(Field(name='HRF1', dev='hrf_1')),
         BlockRow(Field(name='SF1', dev='sf_1'),
                  Field(name='HSF1', dev='hsf_1')),
         BlockRow(Field(name='RF1', dev='cbox_1_reg_amp'),
