@@ -214,11 +214,11 @@ _column3 = Column(
         #BlockRow(
         #    Field(widget='nicos.guisupport.plots.TrendPlot', devices='T', names='T',  plotwindow=7200)),
         BlockRow(
-            Field(name='T' ,key='T', unit='K'),
-            Field(name='Ts', key='Ts', unit='K'),
+            Field(name='Tube' , key='T_ccr_d', unit='K'),
+            Field(name='Stick', key='T_ccr_b', unit='K'),
             Field(name='Pressure', key='P_ccr', unit='mbar')),
         ],
-        setups='alias_T and ccr'
+        setups='ccr'
         ),
 ) + Column(*magnets) + Column(*ccrs) + Column(*cryos)
 
