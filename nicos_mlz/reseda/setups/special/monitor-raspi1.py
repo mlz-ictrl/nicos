@@ -50,6 +50,13 @@ _column1 = Column(
         ],
         setups='reactor and guidehall',
     ),
+    Block('Pressures', [
+        BlockRow(Field(name='Guides and Tube', dev='P_ng_elements', unit='mbar'),
+                 Field(name='Polariser', dev='P_polarizer', units='mbar'),
+                 Field(name='Selector', dev='P_selector_vacuum', units='mbar')),
+        ],
+        setups='pressure'
+    ),
 )
 
 _column2 = Column(
