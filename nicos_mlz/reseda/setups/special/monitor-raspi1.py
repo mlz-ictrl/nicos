@@ -199,13 +199,13 @@ magnets = [_ccm2a, _ccmsans, _miramagnet, _amagnet]
 
 _column3 = Column(
     Block('Cascade detector', [
-        BlockRow(Field(name='ROI',   key='psd_channel[0]', format='%.0f', width=9),
-                 Field(name='Total', key='psd_channel[1]', format='%.0f', width=9),
-                 Field(name='MIEZE', key='psd_channel[2]', format='%.3f', width=6),
+        BlockRow(Field(name='ROI',   key='psd_channel.roi', format='%.0f', width=9),
+                 Field(name='Total', key='psd_channel.total', format='%.0f', width=9),
+                 Field(name='Contrast', key='psd_channel.contrast', format='%.3f', width=6),
                  Field(name='Last image', key='exp/lastpoint')),
         BlockRow('timer', 'monitor1' ),
-        BlockRow(Field(dev='mon_hv', width=6)),
-                 #Field(dev='PSDHV', width=5),
+        BlockRow(Field(dev='mon_hv', width=6),
+                 Field(dev='det_hv', format='%.0f', width=6)),
                  #Field(dev='dtx')),
         ],
         setups='det_cascade and det_base',
