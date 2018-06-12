@@ -110,9 +110,15 @@ devices = dict(
         path = '/verystrangepath',
     ),
     scandet = device('nicos.devices.generic.ScanningDetector',
-        description = 'Generic scanning detector',
         scandev = 'v1',
         positions = [1.0, 2.0, 3.0],
         detector = 'det'
+    ),
+    current = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (-100, 100),
+        unit = 'A',
+    ),
+    magnet = device('nicos.devices.generic.CalibratedMagnet',
+        currentsource = 'current',
     ),
 )

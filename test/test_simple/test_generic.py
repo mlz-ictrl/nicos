@@ -30,8 +30,9 @@ import mock
 
 from nicos.core import PositionError, NicosError, LimitError, \
     ConfigurationError, InvalidValueError, status
-from test.utils import raises
 from nicos.commands.measure import count
+
+from test.utils import raises, approx
 
 session_setup = 'generic'
 
@@ -205,3 +206,21 @@ def test_scanning_detector(session):
 
     # check scandev positions for scan points
     assert scandet.positions == [entry[0] for entry in dataset.devvaluelists]
+
+
+def test_magnet(session):
+    current = session.getDevice('current')
+    magnet = session.getDevice('magnet')
+
+    # the default formula is B(I) = c0*I + c1*erf(c2*I) + c3*atan(c4*I)
+    magnet.calibration = 1, 0, 0, 0, 0
+    assert magnet.abslimits == (-100, 100)
+    magnet.maw(1)
+    assert magnet.read() == 1
+    assert current.read() == 1
+
+    magnet.calibration = 1, 1, 1, 1, 1
+    assert magnet.abslimits[0] == approx(-102.56, abs=1e-2)
+    magnet.maw(1)
+    assert magnet.read() == 1
+    assert current.read() == approx(0.33, abs=1e-2)

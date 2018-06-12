@@ -28,11 +28,13 @@ Class for magnets powered by unipolar power supplies.
 
 import math
 
+from scipy.optimize import fsolve
+
 from nicos import session
 from nicos.utils import clamp
 from nicos.utils.fitting import Fit
-from nicos.core import Moveable, HasLimits, status, ConfigurationError, \
-    LimitError, usermethod, NicosError, Attach
+from nicos.core import Moveable, HasLimits, status, LimitError, usermethod, \
+    NicosError, Attach
 from nicos.core.params import Param, Override, tupleof
 from nicos.core.utils import multiStop
 from nicos.devices.generic.sequence import SeqDev, BaseSequencer
@@ -82,14 +84,11 @@ class CalibratedMagnet(HasLimits, Moveable):
         if len(v) != 5:
             self.log.warning('Wrong number of coefficients in calibration '
                              'data!  Need exactly 5 coefficients!')
-        return current * v[0] + v[1] * math.erf(v[2] * current) + \
-            v[3] * math.atan(v[4] * current)
+        return v[0]*current + v[1]*math.erf(v[2]*current) + \
+            v[3]*math.atan(v[4]*current)
 
     def _field2current(self, field):
         """Return required current in A for requested field in T.
-
-        Default implementation does a binary search using _current2field,
-        which must be monotonic for this to work!
 
         Note: This may be overridden in derived classes.
         """
@@ -97,34 +96,15 @@ class CalibratedMagnet(HasLimits, Moveable):
         maxcurr = self._attached_currentsource.abslimits[1]
         mincurr = -maxcurr
         maxfield = self._current2field(maxcurr)
-        minfield = -maxfield
+        minfield = self._current2field(mincurr)
         if not minfield <= field <= maxfield:
             raise LimitError(self,
                              'requested field %g %s out of range %g..%g %s' %
                              (field, self.unit, minfield, maxfield, self.unit))
-        while minfield <= field <= maxfield:
-            # binary search
-            trycurr = 0.5 * (mincurr + maxcurr)
-            tryfield = self._current2field(trycurr)
-            if field == tryfield:
-                self.log.debug('current for %g T is %g A', field, trycurr)
-                return trycurr  # Gotcha!
-            elif field > tryfield:
-                # retry upper interval
-                mincurr = trycurr
-                minfield = tryfield
-            else:
-                # retry lower interval
-                maxcurr = trycurr
-                maxfield = tryfield
-            # if interval is so small, that any error within is acceptable:
-            if maxfield - minfield < 1e-4:
-                ratio = (field - minfield) / (maxfield - minfield)
-                trycurr = (maxcurr - mincurr) * ratio + mincurr
-                self.log.debug('current for %g T is %g A', field, trycurr)
-                return trycurr
-        raise ConfigurationError(self,
-                                 '_current2field polynome not monotonic!')
+
+        res = fsolve(lambda cur: self._current2field(cur) - field, 0)[0]
+        self.log.debug('current for %g %s is %g', field, self.unit, res)
+        return res
 
     def doRead(self, maxage=0):
         return self._current2field(self._attached_currentsource.read(maxage))
