@@ -681,10 +681,16 @@ class MeasureSequencer(SequencerMixin, Measurable):
 
     """
 
-    def doStart(self):
-        """Generate and start a sequence if non is running.
+    def doPrepare(self):
+        """Prepare measurement sequence.
 
-        Just calls ``self._startSequence(self._generateSequence())``
+        This method will raise a `NicosError` when a sequence is already in
+        progress. Otherwise the internal sequence state is set to `status.OK`
+        which also helps starting a new sequence when a previous sequence ended
+        up in fault state.
+
+        Derived implementations should first call this method and might call
+        `doPrepare` on attached devices.
 
         """
         if self._seq_is_running():
@@ -693,4 +699,17 @@ class MeasureSequencer(SequencerMixin, Measurable):
                 self._seq_thread = None
             else:
                 raise NicosError(self, 'Cannot start device, it is still busy')
+
+        if self._seq_status[0] > status.OK and not self._seq_was_stopped:
+            self.log.warning("Acknowledge internal software state '%s': %s",
+                             status.statuses[self._seq_status[0]],
+                             self._seq_status[1])
+        self._set_seq_status(status.OK, 'preparing measurement')
+
+    def doStart(self):
+        """Generate and start a sequence if non is running.
+
+        Just calls ``self._startSequence(self._generateSequence())``
+
+        """
         self._startSequence(self._generateSequence())
