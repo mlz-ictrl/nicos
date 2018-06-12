@@ -509,11 +509,15 @@ class Motor(CanReference, Actuator):
 
     def doTime(self, start, end):
         s, v, a, d = abs(start - end), self.speed, self.accel, self.decel
-        if v <= 0 or a <= 0 or d <= 0:
+        if v <= 0:
             return 0
-        if s > v ** 2 / a:  # do we reach nominal speed?
-            return s / v + 0.5 * (v / a + v / d)
-        return 2 * (s / a) ** 0.5
+        if d <= 0:  # decel can be =0 to mean the same as accel
+            d = a
+        if a <= 0:
+            return s/v
+        if s > v**2/a:  # do we reach nominal speed?
+            return s/v + 0.5*(v/a + v/d)
+        return (a/d + 1) * (s/a)**0.5
 
 
 class RampActuator(HasPrecision, AnalogOutput):
