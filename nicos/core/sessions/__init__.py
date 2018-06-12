@@ -1322,13 +1322,6 @@ class Session(object):
         if not self.cache:
             raise NicosError('cannot start dry run, no cache is configured')
 
-        # read out last values of all devices
-        for dev in self.devices.values():
-            try:
-                dev.read()  # cached value is okay
-            except Exception:
-                pass
-
         # check sandboxing prerequisites
         if config.sandbox_simulation and not self._sandbox_helper:
             if not sys.platform.startswith('linux'):
