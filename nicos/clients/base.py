@@ -143,7 +143,8 @@ class NicosClient(object):
                     self.compat_proto = daemon_proto
                 else:
                     raise ProtocolError('daemon uses protocol %d, but this '
-                                        'client requires protocol %d'
+                                        'client requires protocol %d, do you '
+                                        'need to update NICOS?'
                                         % (daemon_proto, PROTO_VERSION))
         except Exception as err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
