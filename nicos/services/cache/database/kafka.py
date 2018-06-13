@@ -177,7 +177,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
             topic=self.currenttopic,
             value=value,
             key=bytes(key),
-            timestamp_ms=entry.time * 1000)
+            timestamp_ms=int(entry.time * 1000))
 
         # clear all local buffers and produce pending messages
         self._producer.flush()
@@ -307,5 +307,5 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         self._producer.send(
             topic=self.historytopic,
             value=self._attached_serializer.encode(key, entry),
-            timestamp_ms=entry.time * 1000)
+            timestamp_ms=int(entry.time * 1000))
         self._producer.flush()
