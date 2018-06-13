@@ -830,6 +830,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         if existing_curve and not replot:
             existing_curve.visible = plotcurve.visible
             existing_curve.legend = plotcurve.legend
+            existing_curve.setUpdateXCallback(None)
+            existing_curve.setUpdateYCallback(None)
             # update curve
             existing_curve.x, existing_curve.y = plotcurve.x, plotcurve.y
             if plotcurve.errorBar1 and existing_curve.errorBar1:
@@ -1023,8 +1025,10 @@ class ViewPlot(NicosGrPlot):
         self.window.statusBar.showMessage(msg)
 
     def addAllCurves(self):
+        curve = None
         for i, series in enumerate(self.view.series.values()):
-            self.addCurve(i, series)
+            curve = self.addCurve(i, series)
+        self._axes.curveDataChanged(curve)
 
     def addCurve(self, i, series, replot=False):
         n = series.n
@@ -1036,6 +1040,7 @@ class ViewPlot(NicosGrPlot):
             plotcurve._parent = series
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
+        return plotcurve
 
     def visibleCurves(self):
         return [(i, self._getCurveLegend(plotcurve))
@@ -1182,8 +1187,10 @@ class DataSetPlot(NicosGrPlot):
         return ''
 
     def addAllCurves(self):
+        plotcurve = None
         for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
+            plotcurve = self.addCurve(i, curve)
+        self._axes.curveDataChanged(plotcurve)
 
     def addCurve(self, i, curve, replot=False):
         if self.current_xname != 'Default' and \
@@ -1197,6 +1204,7 @@ class DataSetPlot(NicosGrPlot):
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
             plotcurve.markertype = gr.MARKERTYPE_DOT
+        return plotcurve
 
     def setCurveData(self, curve, plotcurve):
         xname = curve.default_xname \
