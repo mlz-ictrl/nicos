@@ -32,7 +32,8 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Attach, Device, DeviceMixinBase, LimitError, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
-    ProgrammingError, Readable, SIMULATION, anytype, none_or, status, tupleof
+    ProgrammingError, Readable, SIMULATION, anytype, none_or, status, \
+    tupleof, formatStatus
 
 from nicos.core.utils import devIter
 from nicos.pycompat import reraise
@@ -701,9 +702,8 @@ class MeasureSequencer(SequencerMixin, Measurable):
                 raise NicosError(self, 'Cannot start device, it is still busy')
 
         if self._seq_status[0] > status.OK and not self._seq_was_stopped:
-            self.log.warning("Acknowledge internal software state '%s': %s",
-                             status.statuses[self._seq_status[0]],
-                             self._seq_status[1])
+            self.log.warning('resetting internal state %s',
+                             formatStatus(self._seq_status))
         self._set_seq_status(status.OK, 'preparing measurement')
 
     def doStart(self):
