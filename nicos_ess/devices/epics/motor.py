@@ -159,6 +159,12 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
+    def doAdjust(self, oldvalue, newvalue):
+        diff = oldvalue - newvalue
+        # For EPICS the offset sign convention differs to that of the base
+        # implementation.
+        self.offset -= diff
+
     def _get_valid_speed(self, newValue):
         min_speed = self._get_pvctrl('speed', 'lower_ctrl_limit', 0.0)
         max_speed = self._get_pvctrl('speed', 'upper_ctrl_limit', 0.0)
