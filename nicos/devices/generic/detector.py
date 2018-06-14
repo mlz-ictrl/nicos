@@ -175,6 +175,14 @@ class RectROIChannel(PostprocessPassiveChannel):
         return [arr.sum() for arr in arrays]
 
     def valueInfo(self):
+        if self.readresult and len(self.readresult) > 1:
+            infos = []
+            for i in range(1, len(self.readresult) + 1):
+                infos.append(
+                    Value(name=self.name + '[%d]' % i, type='counter',
+                          fmtstr='%d'),
+                )
+            return tuple(infos)
         return Value(name=self.name, type='counter', fmtstr='%d'),
 
 
@@ -217,12 +225,23 @@ class RateChannel(PostprocessPassiveChannel):
         return (2 * len(arrays)) * [0]
 
     def valueInfo(self):
-        tup = (Value(name=self.name, type='counter', fmtstr='%d',
-                     errors='sqrt', unit='cts'),
-               Value(name="rate", type="monitor", fmtstr="%.1f", unit="cps"))
-        if self.readresult:
-            return (len(self.readresult) /  2) * tup
-        return tup
+        if self.readresult and len(self.readresult) > 2:
+            infos = []
+            for i in range(1, len(self.readresult) // 2  + 1):
+                name = self.name + '[%d]' % i
+                infos.extend([
+                    Value(name=name + ' (total)', type='counter', fmtstr='%d',
+                          errors='sqrt', unit='cts'),
+                    Value(name=name + ' (rate)', type='monitor', fmtstr='%.1f',
+                          unit='cps'),
+                ])
+            return tuple(infos)
+        return (
+            Value(name=self.name + ' (total)', type='counter', fmtstr='%d',
+                  errors='sqrt', unit='cts'),
+            Value(name=self.name + ' (rate)', type='monitor', fmtstr='%.1f',
+                  unit='cps'),
+        )
 
 
 class RateRectROIChannel(RateChannel, RectROIChannel):
