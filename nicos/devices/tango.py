@@ -43,7 +43,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
     HasTimeout, HasPrecision, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
-from nicos.utils import HardwareStub, tcpSocket, closeSocket
+from nicos.utils import HardwareStub, tcpSocket, closeSocket, squeeze
 from nicos.core import SIMULATION
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
@@ -509,11 +509,15 @@ class Motor(CanReference, Actuator):
 
     def doTime(self, start, end):
         s, v, a, d = abs(start - end), self.speed, self.accel, self.decel
-        if v <= 0 or a <= 0 or d <= 0:
+        if v <= 0:
             return 0
-        if s > v ** 2 / a:  # do we reach nominal speed?
-            return s / v + 0.5 * (v / a + v / d)
-        return 2 * (s / a) ** 0.5
+        if d <= 0:  # decel can be =0 to mean the same as accel
+            d = a
+        if a <= 0:
+            return s/v
+        if s > v**2/a:  # do we reach nominal speed?
+            return s/v + 0.5*(v/a + v/d)
+        return (a/d + 1) * (s/a)**0.5
 
 
 class RampActuator(HasPrecision, AnalogOutput):
@@ -891,10 +895,14 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
 
     def doInit(self, mode):
         if mode != SIMULATION:
-            shape = tuple(self._dev.roiSize)[::-1]
+            shape = self._shape
         else:
             shape = (256, 256)  # select some arbitrary shape
         self.arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
+
+    @property
+    def _shape(self):
+        return squeeze(tuple(self.roisize), 2)[::-1]
 
     def doReadSize(self):
         return self._dev.detectorSize.tolist()
@@ -922,7 +930,7 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
 
     def doReadArray(self, quality):
         self.arraydesc = ArrayDesc(
-            'data', shape=tuple(self._dev.roiSize)[::-1], dtype='<u4')
+            'data', shape=self._shape, dtype='<u4')
         return self._dev.value.reshape(self.arraydesc.shape)
 
 

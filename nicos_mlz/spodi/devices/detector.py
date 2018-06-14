@@ -107,6 +107,7 @@ class Detector(MeasureSequencer):
         return ret
 
     def doPrepare(self):
+        MeasureSequencer.doPrepare(self)
         self._attached_detector.doPrepare()
 
     def doStart(self):

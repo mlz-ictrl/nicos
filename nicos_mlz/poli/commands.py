@@ -31,6 +31,8 @@ import math
 import subprocess
 from os import path
 
+from numpy import array
+
 from nicos import session
 from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.basic import Remark
@@ -884,7 +886,7 @@ def AcceptIndexing():
 
 
 @usercommand
-def GenDataset(name, hmax, kmax, lmax, uniq=False):
+def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
     """Generate a dataset of HKL indices to measure, as a CSV file.
 
     This will generate a ``.csv`` file with the given *name* in the experiment
@@ -895,6 +897,9 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
 
     If *uniq* is true, does not include symmetry equivalent reflections.
 
+    If *kvector* is given, it is a propagation vector, or list of such vectors,
+    to add to and subtract from each integer HKL point.
+
     You can view/edit the CSV file afterwards, and finally do a scan over the
     HKL list using the `ScanDataset()` command.
 
@@ -902,6 +907,11 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
 
     >>> GenDataset('all', 10, 10, 10)
     >>> GenDataset('unique', 10, 10, 10, True)
+
+    Using propagation vectors:
+
+    >>> GenDataset('all', 5, 5, 5, kvector=(0.33, 0, 0))
+    >>> GenDataset('all', 5, 5, 5, kvector=[(0.33, 0, 0), (0, 0.33, 0)])
     """
     instr = session.instrument
     sample = session.experiment.sample
@@ -911,6 +921,29 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False):
                                ukmin=-kmax, ukmax=kmax,
                                ulmin=-lmax, ulmax=lmax,
                                uniq=uniq)
+
+    if kvector:
+        try:
+            kvectors = list(kvector)
+            try:
+                list(kvectors[0])
+            except TypeError:
+                kvectors = [kvectors]
+            for kvec in kvectors:
+                if len(kvec) != 3:
+                    raise ValueError
+            kvectors = [array(k) for k in kvectors]
+        except Exception:
+            raise UsageError('kvector needs to be a HKL vector or a list '
+                             'of HKL vectors')
+
+        new_hkls = []
+        for hkl in hkls:
+            for kvec in kvectors:
+                new_hkls.append(hkl + kvec)
+                new_hkls.append(hkl - kvec)
+        hkls = new_hkls
+
     all_pos = []
     for hkl in hkls:
         hkl = hkl.tolist()

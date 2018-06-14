@@ -589,7 +589,7 @@ class ScansPanel(Panel):
 
     @pyqtSlot()
     def on_actionXAxis_triggered(self):
-        self.bar.widgetForAction(self.actionXAxis).showMenu()
+        self.bars[0].widgetForAction(self.actionXAxis).showMenu()
 
     def on_y_menu_aboutToShow(self):
         self.y_menu.clear()
@@ -617,7 +617,7 @@ class ScansPanel(Panel):
 
     @pyqtSlot()
     def on_actionYAxis_triggered(self):
-        self.bar.widgetForAction(self.actionYAxis).showMenu()
+        self.bars[0].widgetForAction(self.actionYAxis).showMenu()
 
     @pyqtSlot()
     def on_actionNormalized_triggered(self):
