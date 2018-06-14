@@ -448,11 +448,12 @@ class ReferenceMotor(CanReference, Motor):
     def _move_away_from_reference(self, refswitch, refdirection):
         self.log.debug('%s limit switch active', refswitch)
         self.steps = self.refpos
-        d = abs(self.refstep / self.slope)
-        if refdirection == 'lower':
-            d = -d
-        self.log.debug('move away from reference switch %f', d)
-        self._start(self.read(0) - d)
+        if self.refstep != 0:
+            d = abs(self.refstep / self.slope)
+            if refdirection == 'lower':
+                d = -d
+            self.log.debug('move away from reference switch %f', d)
+            self._start(self.read(0) - d)
         if self._stoprequest:
             raise NicosError(self, 'reference stopped by user')
 
