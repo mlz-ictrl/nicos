@@ -249,8 +249,8 @@ class RateRectROIChannel(RateChannel, RectROIChannel):
 
     def getReadResult(self, arrays, results, quality):
         rs = RectROIChannel.getReadResult(self, arrays, results, quality)
-        return RateChannel.getReadResult(self, numpy.asarray([rs]), results,
-                                         quality)
+        return RateChannel.getReadResult(self, [numpy.asarray([res]) for res
+                                                in rs], results, quality)
 
 
 class TimerChannelMixin(DeviceMixinBase):
