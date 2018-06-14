@@ -443,7 +443,7 @@ class ReferenceMotor(CanReference, Motor):
             self._start(stop)
             self.log.debug('finished at %f', self.read(0))
             if self._stoprequest:
-                raise NicosError(self, 'reference stopped by user')
+                raise NicosError(self, 'drive to reference stopped by user')
 
     def _move_away_from_reference(self, refswitch, refdirection):
         self.log.debug('%s limit switch active', refswitch)
@@ -455,7 +455,7 @@ class ReferenceMotor(CanReference, Motor):
             self.log.debug('move away from reference switch %f', d)
             self._start(self.read(0) - d)
         if self._stoprequest:
-            raise NicosError(self, 'reference stopped by user')
+            raise NicosError(self, 'move away from reference stopped by user')
 
     def _move_until_referenced(self, starttime):
         # calculate the step size for each reference move
@@ -469,7 +469,7 @@ class ReferenceMotor(CanReference, Motor):
                            self.refswitch, p, t)
             self._start(t)
             if self._stoprequest:
-                raise NicosError(self, 'reference stopped by user')
+                raise NicosError(self, 'move until reference stopped by user')
             if time.time() - starttime > self.timeout:
                 raise TimeoutError(self, 'timeout occured during reference '
                                    'drive')
