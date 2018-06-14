@@ -306,6 +306,9 @@ class ReferenceMotor(CanReference, Motor):
             # limit switches is released again, this leads to unpredictable
             # results!
             Motor.doStop(self)
+            while Motor.doStatus(self, 0)[0] == status.BUSY:
+                session.delay(self._base_loop_delay)
+            self._stoprequest = 0
 
     def _reference(self, refswitch=None):
         """Drive motor to reference switch."""
