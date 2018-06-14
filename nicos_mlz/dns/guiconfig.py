@@ -57,6 +57,6 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=True),
+         runatstartup=False),
     cmdtool('Server control (Marche)', 'marche-gui'),
 ]
