@@ -6,12 +6,7 @@ group = "basic"
 includes = [
     "analyzer",
     "beamstop",
-    "counter",
-    "shutter",
-    "sampletable",
-    "guidehall",
-    "nl5",
-    "reactor",
+    "treff",
 ]
 
 sysconfig = dict(

@@ -3,6 +3,7 @@ description = 'Main Treff setup'
 group = 'basic'
 
 includes = [
+    'counter',
     'filter',
     'mc2',
     'polarizer',
