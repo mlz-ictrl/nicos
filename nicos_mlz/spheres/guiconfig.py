@@ -6,7 +6,8 @@ main_window = tabbed(
             hsplit(
                 vsplit(
                     panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
-                    panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+                    panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+                          eta=True),
                 ),
             ),
             tabbed(
@@ -18,7 +19,8 @@ main_window = tabbed(
             ),
         ),
         ('Experiment Info',
-         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel', dockpos='left')),
+         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+               dockpos='left')),
         ('NICOS devices',
          panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
                dockpos='right')),
@@ -27,11 +29,10 @@ main_window = tabbed(
         vsplit(
             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
             panel('nicos.clients.gui.panels.editor.EditorPanel',
-                tools = [
-                    tool('Scan Generator',
-                         'nicos.clients.gui.tools.scan.ScanTool')
-            ]),
-        )),
+                  tools = [tool('Scan Generator',
+                                'nicos.clients.gui.tools.scan.ScanTool')]
+            ),
+    )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
@@ -54,6 +55,6 @@ tools = [
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
-    tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=True),
+    # tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
+    #      runatstartup=True),
 ]
