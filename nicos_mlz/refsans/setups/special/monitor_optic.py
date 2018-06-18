@@ -10,22 +10,18 @@
 description = 'REFSANS optic monitor'
 group = 'special'
 
+layout_width = 10
+layout_doubleslit = 35
+layout_two = 15
+
 # Legende fuer _modecol
 # dev='...' stellt hier nur die moeglichen Werte dar, keine devices
 
 _modecol = Column(
     Block('Measurement configuration', [
         BlockRow(
-            #Field(name='mode', dev='gisans_reflectometry', width=14),
-            Field(name='collimation', dev='optic_mode', width=34),
-            Field(name='setting', dev='optic', width=34),
-            #Field(name='beam tilt', dev='zero_12_48mrad_free', width=14, unit='mrad'),
-            #Field(name='flipper', dev='flipper_currency', width=14, unit='A'),
-            #Field(name='guide field', dev='guidecoil_currency', width=14, unit='A'),
-            #Field(name='slit 1', dev='b1_zb3_Bs1', width=14, unit='mm'),
-            #Field(name='slit 2', dev='b2_b3', width=14, unit='mm'),
-            #Field(name='coll.length', dev='b1-b2_b1-b3_zb3-b2_zb3-b3', width=14, unit='mm'),
-            #Field(name='footprint', dev='footprint', width=14, unit='mm'),
+            Field(name='Collimation', dev='optic_mode', width=34),
+            Field(name='Angle', dev='optic', width=34),
             ),
         ],
     ),
@@ -135,206 +131,161 @@ _collimationcol = Column(
 # angle = Winkel in mrad des Neutronenleiters, kann positiv oder negativ sein
 # accuracy = Summe des Fehlerbetrages der einzelnen Antriebe
 
-_nok1col = Column(
-    Block('nok1', [
-        BlockRow(Field(name='position', dev='nok1_pos', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok1_accuracy', width=8)),
+_gammacol = Column(
+    Block('gamma', [
+        BlockRow(Field(name='position', dev='nok1_motor', width=layout_width)),
         ],
     ),
 )
 
 _nok2col = Column(
     Block('nok2', [
-        BlockRow(Field(name='begin',    dev='nok2_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok2_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok2_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok2_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok2r_axis', width=layout_width),
+                 Field(name='sample',   dev='nok2s_axis', width=layout_width)),
         ],
     ),
 )
 
 _nok3col = Column(
     Block('nok3', [
-        BlockRow(Field(name='begin',    dev='nok3_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok3_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok3_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok3_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok3r_axis', width=layout_width),
+                 Field(name='sample',   dev='nok3s_axis', width=layout_width)),
         ],
     ),
 )
 
 _nok4col = Column(
     Block('nok4', [
-        BlockRow(Field(name='begin',    dev='nok4_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok4_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok4_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok4_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok4r_axis', width=layout_width),
+                 Field(name='sample',   dev='nok4s_axis', width=layout_width)),
         ],
     ),
 )
 
 _sc1col = Column(
     Block('SC1', [  # slave chopper 1
-        BlockRow(Field(name='disk 3', dev='chopper_disk3_zposition', width=8)),
-        BlockRow(Field(name='disk 4', dev='chopper_disk4_zposition', width=8)),
+        BlockRow(Field(name='disk 3', dev='disc3', width=layout_width)),
+        BlockRow(Field(name='disk 4', dev='disc4', width=layout_width)),
         ],
     ),
 )
 
 _b1col = Column(
     Block('b1', [
-        BlockRow(Field(name='position', dev='b1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b1_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='b1_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='b1', width=layout_doubleslit)),
         ],
     ),
 )
 
 _nok5acol = Column(
     Block('nok5a', [
-        BlockRow(Field(name='begin',    dev='nok5a_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok5a_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok5a_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok5a_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='nok5a', width=layout_two)),
         ],
     ),
 )
 
 _zb0col = Column(
     Block('zb0', [
-        BlockRow(Field(name='position', dev='zb0_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb0_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='zb0_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='zb0', width=layout_width)),
         ],
     ),
 )
 
 _nok5bcol = Column(
     Block('nok5b', [
-        BlockRow(Field(name='begin',    dev='nok5b_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok5b_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok5b_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok5b_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='nok5b', width=layout_two)),
         ],
     ),
 )
 
 _zb1col = Column(
     Block('zb1', [
-        BlockRow(Field(name='position', dev='zb1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb1_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='zb1_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='zb1', width=layout_width)),
         ],
     ),
 )
 
 _nok6col = Column(
     Block('nok6', [
-        BlockRow(Field(name='begin',    dev='nok6_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok6_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok6_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok6_accuracy', width=8)),
+        BlockRow(Field(name='pos',  dev='nok6', width=layout_two)),
         ],
     ),
 )
 
 _zb2col = Column(
     Block('zb2', [
-        BlockRow(Field(name='position', dev='zb2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb2_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='zb2_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='zb2', width=layout_width)),
         ],
     ),
 )
 
 _nok7col = Column(
     Block('nok7', [
-        BlockRow(Field(name='begin',    dev='nok7_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok7_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok7_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok7_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok7', width=layout_two)),
         ],
     ),
 )
 
 _zb3col = Column(
     Block('zb3', [
-        BlockRow(Field(name='position', dev='zb3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb3_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='zb3_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='zb3', width=layout_doubleslit)),
         ],
     ),
 )
 
 _nok8col = Column(
     Block('nok8', [
-        BlockRow(Field(name='begin',    dev='nok8_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok8_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok8_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok8_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok8', width=layout_two)),
         ],
     ),
 )
 
 _bs1col = Column(
     Block('bs1', [
-        BlockRow(Field(name='position', dev='bs1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='bs1_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='bs1_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='bs1', width=layout_doubleslit)),
         ],
     ),
 )
 
 _nok9col = Column(
     Block('nok9', [
-        BlockRow(Field(name='begin',    dev='nok9_begin', width=8)),
-        BlockRow(Field(name='end',      dev='nok9_end', width=8)),
-        BlockRow(Field(name='angle',    dev='nok9_angle', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok9_accuracy', width=8)),
+        BlockRow(Field(name='reactor',  dev='nok9', width=layout_two)),
         ],
     ),
 )
 
 _sc2col = Column(
     Block('SC2', [  # slave chopper 2
-        BlockRow(Field(name='disk 5', dev='chopper_disk5_zposition', width=8)),
-        BlockRow(Field(name='disk 6', dev='chopper_disk6_zposition', width=8)),
+        BlockRow(Field(name='sc2', dev='sc2', width=layout_width)),
         ],
     ),
 )
 
 _b2col = Column(
     Block('b2', [
-        BlockRow(Field(name='position', dev='b2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b2_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='b2_accuracy', width=8)),
+        BlockRow(Field(name='pos',  dev='b2', width=layout_doubleslit)),
         ],
     ),
 )
 
 _h2col = Column(
     Block('h2', [
-        BlockRow(Field(name='position', dev='h2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='h2_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='h2_accuracy', width=8)),
+        BlockRow(Field(name='lateral', dev='h2_center', width=layout_width),
+                 Field(name='width',  dev='h2_width', width=layout_width)),
         ],
     ),
 )
 
 _h3col = Column(
     Block('h3', [
-        BlockRow(Field(name='position', dev='h3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='h3_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='h3_accuracy', width=8)),
+        BlockRow( Field(name='position', dev='h3', width=layout_doubleslit),),
         ],
     ),
 )
 
 _b3col = Column(
     Block('b3', [
-        BlockRow(Field(name='position', dev='b3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b3_opening', width=8)),
-        BlockRow(Field(name='accuracy', dev='b3_accuracy', width=8)),
+        BlockRow(Field(name='position', dev='b3', width=layout_doubleslit)),
         ],
     ),
 )
@@ -352,10 +303,12 @@ devices = dict(
         layout = [
             Row(_modecol),
             Row(_collimationcol),
-            # Row(_nok1col, _nok2col, _nok3col, _nok4col, _sc1col, _b1col,
-            #     _nok5acol, _zb0col, _nok5bcol, _zb1col, _nok6col),
-            # Row(_zb2col, _nok7col, _zb3col, _nok8col, _bs1col,
-            #     _nok9col, _sc2col, _b2col, _h2col, _h3col, _b3col),
+            Row(_gammacol, _nok2col, _nok3col, _nok4col, _sc1col, _b1col),
+            Row(_nok5acol, _zb0col, _nok5bcol, _zb1col, _nok6col, _zb2col,
+                _nok7col, ),
+            Row(_zb3col, _nok8col, _bs1col,
+                _nok9col, _sc2col),
+            Row(_b2col, _h2col, _h3col, _b3col),
         ],
     ),
 )
