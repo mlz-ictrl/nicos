@@ -40,9 +40,9 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   0,
-            'point':  0,
-            'gisans': -40,
+            'slit':   2.425, #-2.325,  # 0,
+            'point':  -2.325,  # 0,
+            'gisans': -40.915,  # -40,
         },
         lowlevel = True,
         unit = 'mm',
@@ -56,9 +56,9 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   0,
-            'point':  0,
-            'gisans': 0,
+            'slit':   -6.405, #-1.655,  # 0,
+            'point':  -1.655,  # 0,
+            'gisans': 0.915,  # 0,
         },
         lowlevel = True,
         unit = 'mm',
@@ -107,13 +107,12 @@ devices = dict(
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, reactor side',
-        abslimits = (-323.075, 458.17375),
-        userlimits = (-178.0, -0.7),
+        abslimits = (-178.0, 10.0),
         bus = 'nokbus4',     # from ipcsms_*.res
         addr = 0x67,     # from resources.inf
         slope = 800.0,   # FULL steps per physical unit
-        speed = 5,
-        accel = 5,
+        speed = 50,
+        accel = 50,
         confbyte = 32,
         ramptype = 2,
         microstep = 1,
@@ -189,13 +188,12 @@ devices = dict(
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, sample side',
-        abslimits = (-177.315, 142.685),
-        userlimits = (-177.002, 139.998),
+        abslimits = (-177.002, 139.998),
         bus = 'nokbus4',     # from ipcsms_*.res
         addr = 0x68,     # from resources.inf
         slope = 800.0,   # FULL steps per physical unit
-        speed = 5,
-        accel = 5,
+        speed = 50,
+        accel = 50,
         confbyte = 32,
         ramptype = 2,
         microstep = 1,
@@ -223,7 +221,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
-        tacodevice = '//%s/test/wb_c/2_2' % nethost,
+        tacodevice = '//%s/test/wb_c/2_5' % nethost,
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
