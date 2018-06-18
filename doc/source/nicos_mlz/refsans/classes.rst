@@ -47,8 +47,9 @@
 .. autoclass:: ComtecTimer()
 .. autoclass:: ComtecFilename()
 
-.. automodule:: nicos_mlz.refsans.devices.safedetectorsystem
+.. automodule:: nicos_mlz.refsans.devices.gkssjson
 .. autoclass:: SDSRateMeter()
+.. autoclass:: CPTReadout()
 
 .. automodule:: nicos_mlz.refsans.devices.chopper
 .. autoclass:: ChopperMaster()
