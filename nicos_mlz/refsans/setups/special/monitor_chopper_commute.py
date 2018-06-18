@@ -39,6 +39,7 @@ _disk1col = Column(
         BlockRow(Field(name='CPT',  dev='cpt1',  width=6.5, unit='rpm')),
         BlockRow(Field(name='gear',   key='chopper1/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper1/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper1/current', width=6.5, unit='A')),
         ],
     ),
 )
@@ -49,6 +50,7 @@ _disk2col = Column(
         BlockRow(Field(name='CPT',  dev='cpt2',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper2/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper2/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper2/current', width=6.5, unit='A')),
         ],
     ),
 )
@@ -59,6 +61,7 @@ _disk3col = Column(
         BlockRow(Field(name='CPT',  dev='cpt3',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper3/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper3/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper3/current', width=6.5, unit='A')),
         ],
     ),
 )
@@ -69,6 +72,7 @@ _disk4col = Column(
         BlockRow(Field(name='CPT',  dev='cpt4',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper4/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper4/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper4/current', width=6.5, unit='A')),
         ],
     ),
 )
@@ -79,6 +83,7 @@ _disk5col = Column(
         BlockRow(Field(name='CPT',  dev='cpt5',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper5/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper5/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper5/current', width=6.5, unit='A')),
         ],
     ),
 )
@@ -89,6 +94,7 @@ _disk6col = Column(
         BlockRow(Field(name='CPT',  dev='cpt6',  width=6.5, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper6/gear',   width=6.5)),
         BlockRow(Field(name='mode', key='chopper6/mode', width=6.5)),
+        BlockRow(Field(name='current', key='chopper6/current', width=6.5, unit='A')),
         ],
     ),
 )
