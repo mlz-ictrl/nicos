@@ -65,8 +65,10 @@ class JsonBase(Readable):
         try:
             self._read_controller([self.valuekey])
             return status.OK, ''
+        except CommunicationError:
+            return status.WARN, 'Timeout during talk to hardware.'
         except NicosError:
-            return status.WARN, 'Could not talk to hardware.'
+            return status.ERROR, 'Could not talk to hardware.'
 
 
 class CPTMaster(JsonBase):
