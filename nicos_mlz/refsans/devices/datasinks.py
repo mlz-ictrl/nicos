@@ -34,46 +34,48 @@ from nicos.utils import AutoDefaultODict
 
 # if these labels apear as part of a key, they are "known"
 element_part = [
-    'chopper',
-    'chopper2_phase',
-    'chopper_mode',
-    'chopper1',
-    'chopper2_pos',
-    'chopper3_phase',
-    'chopper4_phase',
-    'chopper5_phase',
-    'chopper6_phase',
     'cooling_memograph',
-    'wegbox_A_1ref',
-    'wegbox_A_2ref',
-    'wegbox_B_1ref',
-    'shutter',
     'FAK40_Cap',
     'FAK40_Press',
     'flow_memograph_in',
     'flow_memograph_out',
     'leak_memograph',
+    'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2'
+    'optic',
     'p_memograph_in',
     'p_memograph_out',
-    't_memograph_in',
+    'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
     'sds',
-    'optic',
+    # 'shutter',
+    # 'shutter_gamma',
+    't_memograph_in',
     't_memograph_out',
-    'shutter_gamma',
-    'wegbox_B_2ref',
-    'wegbox_C_1ref',
-    'wegbox_C_2ref',
-    'vacuum_CB',
-    'vacuum_SFK',
     'triangle',
     'triangle_phi',
     'triangle_theta',
-    'shutter',
-    'shutter_gamma',
+    'vacuum_CB',
+    'vacuum_SFK',
     'vacuum_SR',
-    'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
-    'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2'
+    'wegbox_A_1ref',
+    'wegbox_A_2ref',
+    'wegbox_B_1ref',
+    'wegbox_B_2ref',
+    'wegbox_C_1ref',
+    'wegbox_C_2ref',
 ]
+chopper = [
+    'chopper2_pos',
+    'chopper',
+    'chopper_mode',
+    'chopper_resolution',
+    'chopper1',
+    'chopper2_phase',
+    'chopper3_phase',
+    'chopper4_phase',
+    'chopper5_phase',
+    'chopper6_phase',
+]
+
 Gonio = [
     'gonio_omega',
     'gonio_phi',
@@ -84,6 +86,9 @@ Gonio = [
     'gonio_top_theta',
     'gonio_top_z',
     'd_last_slit_sample',
+    'height',
+    'autocollimator_phi',
+    'autocollimator_theta',
     'last_slit',
     'samplechanger',
     'length',
@@ -91,35 +96,142 @@ Gonio = [
 ]
 NOKs = [
     'nok1', 'nok2', 'nok3', 'nok4',
-    'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9'
-]
+    'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
+    ]
+NOKs_label = ['', '_mode']
+
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'h2', 'b3']
 Slits_label = ['', '_mode']
 simple_slit = ['sc2', 'disc3', 'disc4']
 
-lateral = ['h2', 'h3']
-lateral_label = ['_width', '_center']
+lateral = ['h2']
+lateral_label = ['', '_width', '_center']
+simple_lateral = ['h3']
+simple_lateral_label = ['', '_mode']
 
 det_pos = ['det_pivot', 'det_table', 'det_yoke']
+
+optic = ['optic']
+optic_label = ['', '_mode']
 
 monitor = ['prim_monitor']
 monitor_label = ['_typ', '_x', '_z']
 
-element_part += NOKs
-element_part += Slits
+Miscellaneous = [
+    'shutter',
+    'shutter_gamma',
+    'pressure_SR',
+    'pressure_SFK',
+    'pressure_CB',
+    ]
+
+VSD = [
+    'ChopperEnable2',
+    'ChopperEnable1',
+    'ControllerStatus',
+    'Air1Pressure',
+    'Air2Pressure',
+    'AkkuPower',
+    'Media_DigitalOutput1',
+    'Media_DigitalOutput2',
+    'Media_DigitalOutput3',
+    'Media_DigitalOutput4',
+    'Media1Current',
+    'Media1Voltage',
+    'Media2Current',
+    'Media2Voltage',
+    'Media3Current',
+    'Media3Voltage',
+    'Media4Current',
+    'Media4Voltage',
+    'Merker128',
+    'Merker129',
+    'Merker253',
+    'Merker254',
+    'PowerBreakdown',
+    'PowerSupplyNormal',
+    'PowerSupplyUSV',
+    'SolenoidValve',
+    'Temperature1',
+    'Temperature2',
+    'Temperature3',
+    'Temperature4',
+    'Temperature5',
+    'Temperature6',
+    'Temperature7',
+    'Temperature8',
+    'TempVibration',
+    'User1Current',
+    'User1Voltage',
+    'User2Current',
+    'User2Voltage',
+    'VSD_User1DigitalInput',
+    'VSD_User1DigitalOutput1',
+    'VSD_User1DigitalOutput2',
+    'VSD_User2DigitalInput',
+    'VSD_User2DigitalOutput1',
+    'VSD_User2DigitalOutput2',
+    'VSD_User3DigitalInput1',
+    'VSD_User3DigitalInput2',
+    'VSD_User3DigitalInput3',
+    'VSD_User3DigitalOutput1',
+    'VSD_User3DigitalOutput2',
+    'VSD_User3DigitalOutput3',
+    'VSD_User4DigitalInput1',
+    'VSD_User4DigitalInput2',
+    'VSD_User4DigitalInput3',
+    'VSD_User4DigitalOutput1',
+    'VSD_User4DigitalOutput2',
+    'VSD_User4DigitalOutput3',
+    'Water1Flow',
+    'Water1Pressure',
+    'Water1Temp',
+    'Water2Flow',
+    'Water2Pressure',
+    'Water2Temp',
+    'Water3Flow',
+    'Water3Temp',
+    'Water4Flow',
+    'Water4Temp',
+    'Water5Flow',
+    'Water5Temp',
+    ]
+
+cpt = ['cpt', 6]
+
+analog_encoder = '_acc'
+
+element_part += chopper
+# element_part += Slits
 element_part += simple_slit
 element_part += Gonio
+element_part += VSD
 element_part += det_pos
 element_part += monitor
+element_part += Miscellaneous
+
+for l in optic:
+    for label in optic_label:
+        element_part.append(l + label)
+for l in NOKs:
+    for label in NOKs_label:
+        element_part.append(l + label)
 for l in monitor:
     for label in monitor_label:
         element_part.append(l + label)
+
 for l in lateral:
     for label in lateral_label:
         element_part.append(l + label)
-for l in Slits:
-    for label in Slits_label[1:]:
+for l in simple_lateral:
+    for label in simple_lateral_label:
         element_part.append(l + label)
+
+for l in Slits:
+    for label in Slits_label:
+        element_part.append(l + label)
+for i in range(cpt[1]):
+    element_part.append(cpt[0] + '%d' % (i+1))
 
 try:
     import configobj
@@ -166,17 +278,20 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
             self._data['File Name'] = self._data.filename
             self._data['Start Time'] = time.strftime(TIMEFMT)
-            self._data['Measurement Comment'] = 'FIXME READ COMMENT FROM GUI!!!!!'
-            self._data['Sample Name'] = self._dict()
+            # TODO: Check the need of dictionaries
             self._data['Detector Parameters'] = self._dict()
-            # self._data['Chopper'] = self._dict()
+            self._data['Chopper'] = self._dict()
             self._data['NOKs'] = self._dict()
             self._data['Slits'] = self._dict()
             self._data['Lateral'] = self._dict()
             self._data['Sample'] = self._dict()
             self._data['Detector'] = self._dict()
             self._data['Monitor'] = self._dict()
-            self._data['Miscelaneous'] = self._dict()
+            self._data['Miscellaneous'] = self._dict()
+            self._data['vsd'] = self._dict()
+            self._data['optic'] = self._dict()
+            self._data['cpt'] = self._dict()
+            self._data['analog_encoder'] = self._dict()
 
     def begin(self):
         ds = self.dataset
@@ -184,35 +299,22 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         if self._data:
             self._data['Measurement Comment'] = scaninfo
 
-    # def _float(self, value):
-    #     return float(eval(value))
-
-    # def _integer(self, value):
-    #     return int(eval(value))
-
     def _write_meas_comment(self, metainfo):
+        # TODO: Check which of the 'Measurement Comment' is the right one
         self._data['Measurement Comment'] = metainfo[('Exp', 'remark')][0]
         self._data['Sample Name'] = '%s' % metainfo[('Sample',
                                                      'samplename')][0]
         self._data['Proposal'] = '%s' % metainfo[('Exp', 'proposal')][0]
 
     def _write_meas_info(self, metainfo):
-        # self._data[''] =
         pass
 
     def _write_noks(self, metainfo):
-        for dev in NOKs:
-            if (dev, 'value') in metainfo:
-                self._data['NOKs'][dev] = metainfo[(dev, 'value')][0]
+        self._write_label_ext(metainfo, 'NOKs', NOKs, NOKs_label)
 
     def _write_slits(self, metainfo):
         self._write_label_ext(metainfo, 'Slits', Slits, Slits_label)
-        self._write_label_ext(metainfo, 'Slits', simple_slit, [])
-        if ('h2', 'value') not in metainfo and \
-           ('h2_center', 'value') in metainfo and \
-           ('h2_width', 'value') in metainfo:
-            self._data['Slits']['h2'] = (metainfo['h2_width', 'value'][0],
-                                         metainfo['h2_center', 'value'][0])
+        self._write_label_ext(metainfo, 'Slits', simple_slit, [''])
 
     def _write_label_ext(self, metainfo, key, liste, ext):
         for ele in liste:
@@ -223,29 +325,43 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_lateral(self, metainfo):
         self._write_label_ext(metainfo, 'Lateral', lateral, lateral_label)
+        self._write_label_ext(metainfo, 'Lateral', simple_lateral,
+                              simple_lateral_label)
 
     def _write_misc(self, metainfo):
-        vacuum = []
-        for dev in ['vacuum_CB', 'vacuum_SFK', 'vacuum_SR']:
+        for dev in Miscellaneous:
             if (dev, 'value') in metainfo:
-                vacuum.append(metainfo[(dev, 'value')][0])
-        self._data['Miscelaneous']['vakuum'] = vacuum
-        for dev in ['shutter', 'shutter_gamma']:
+                self._data['Miscellaneous'][dev] = metainfo[(dev, 'value')][0]
+
+    def _write_vsd(self, metainfo):
+        for dev in VSD:
             if (dev, 'value') in metainfo:
-                self._data['Miscelaneous'][dev] = metainfo[(dev, 'value')][0]
+                self._data['vsd'][dev] = metainfo[(dev, 'value')][0]
+
+    def _write_optic(self, metainfo):
+        self._write_label_ext(metainfo, 'optic', optic, optic_label)
+
+    def _write_cpt(self, metainfo):
+        for i in range(cpt[1]):
+            dev = cpt[0] + '%d' % (i+1)
+            try:  # SB hack for setup cpt not loaded
+                self._data['cpt'][dev] = metainfo[(dev, 'value')][0]
+            except KeyError:
+                pass
+
+    def _write_analog_encoder(self, metainfo):
+        keys = list(metainfo.keys())
+        for tup in keys:
+            if tup[1] == 'value' and analog_encoder in tup[0]:
+                element_part.append(tup[0])
+                self._data['analog_encoder'][tup[0]] = metainfo[(tup[0],
+                                                                 'value')][0]
 
     def _write_detector_params(self, metainfo):
         detparams = self._data['Detector Parameters']
 
         det = self._dict()
         detparams['detector'] = det
-
-        # detparams['help'] = _help
-
-        # mdll = self._dict()
-        # mdll['card_type'] = 'MesyTec'
-        # mdll['monitor'] = 'D1'
-        # detparams['mdll'] = mdll
 
     def _write_detector(self, metainfo):
         for dev in det_pos:
@@ -256,9 +372,11 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
 
     def _write_chopper(self, metainfo):
-        # chopper = self._dict()
-        # chopper['chopper'] = metainfo[('chopper', 'value')][0]
-        self._data['chopper'] = metainfo[('chopper', 'value')][0]
+        for dev in chopper:
+            if (dev, 'value') in metainfo:
+                self._data['Chopper'][dev] = metainfo[(dev, 'value')][0]
+        self.log.debug('chopper_mode %s',
+                       metainfo[('chopper_mode', 'value')][0])
 
     def _write_sample(self, metainfo):
         sample = self._dict()
@@ -280,17 +398,6 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         tmp = keys[0]
         self.log.debug('tmp type %s, value %s', type(tmp), tmp)
 
-        elements = []
-        # labels = ['value', 'status']
-        for tup in keys:
-            if tup[0] not in elements and \
-               tup[0] not in element_part:
-                elements.append(tup[0])
-            # if tup[1] not in labels:
-            #    labels.append(tup[1])
-        if elements:
-            self.log.info('EXTRA %s', str(elements))
-        # self.log.info('labels %s', str(labels))
         if self._data:
             self._write_meas_info(metainfo)
             self._write_meas_comment(metainfo)
@@ -298,11 +405,26 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             # self._write_detector_params(metainfo)
             self._write_detector(metainfo)
             self._write_monitor(metainfo)
+            self._write_optic(metainfo)
             self._write_noks(metainfo)
             self._write_slits(metainfo)
             self._write_lateral(metainfo)
             self._write_sample(metainfo)
             self._write_misc(metainfo)
+            self._write_vsd(metainfo)
+            self._write_cpt(metainfo)
+            self._write_analog_encoder(metainfo)
+
+        elements = []
+        for tup in keys:
+            if tup[0] not in elements and \
+               tup[0] not in element_part:
+                elements.append(tup[0])
+        if elements:
+            self.log.debug('EXTRA %s', str(elements))
+
+        if self._data:
+            # shoult be empty
             self._write_extra(metainfo, elements)
         self._dump()
 
@@ -353,5 +475,5 @@ class ConfigObjDatafileSink(FileSink):
     parameter_overrides = {
         'settypes': Override(default=[POINT]),
         'semicolon': Override(default=''),
-        'commentchar': Override(default='#',)
+        'commentchar': Override(default='#'),
     }
