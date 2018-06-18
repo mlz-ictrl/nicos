@@ -71,6 +71,13 @@ class JsonBase(Readable):
 
 class CPTMaster(JsonBase):
 
+    parameters = {
+        'phasesign': Param('Phase sign',
+                           type=oneof('unsigned', 'signed'),
+                           settable=False,
+                           default='unsigned'),
+    }
+
     def _read_ctrl(self, channel):
         data = self._read_controller([self.valuekey, 'start_act'])
         self.log.debug('res: %r', data)
@@ -87,11 +94,18 @@ class CPTMaster(JsonBase):
         return res
 
     def _kreis(self, phase, kreis=360.0):
-        line = 'phase %.2f' % phase
-        if phase > kreis / 2:
-            phase -= kreis
-        if phase < -kreis / 2:
-            phase += kreis
+        line = 'kreis phase %.2f %s' % (phase, self.range)
+        if self.phasesign == 'signed':
+            while phase > kreis / 2:
+                phase -= kreis
+            while phase < -kreis / 2:
+                phase += kreis
+        else:
+            phase = - phase
+            while phase > kreis:
+                phase -= kreis
+            while phase < 0:
+                phase += kreis
         self.log.debug(line + ' %.2f' % phase)
         return phase
 
