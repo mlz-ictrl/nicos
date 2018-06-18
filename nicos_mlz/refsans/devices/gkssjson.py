@@ -86,8 +86,15 @@ class CPTMaster(JsonBase):
             self.log.debug('calc speed')
             res = 3e9 / data['start_act']  # speed
             res -= self.offset  # should be Zero
+        elif channel == -1:
+            self.log.debug('calc phase in respect to Disk 1 of Disc 1')
+            self.log.debug('offset %.2f', self.offset)
+            res = -360.0 * data[self.valuekey][0] / data['start_act']
+            res -= self.offset
+            res = self._kreis(res)
         else:
             self.log.debug('calc phase in respect to Disk 1')
+            self.log.debug('offset %.2f', self.offset)
             res = -360.0 * data[self.valuekey][channel] / data['start_act']
             res -= self.offset
             res = self._kreis(res)
@@ -113,12 +120,12 @@ class CPTMaster(JsonBase):
 class CPTReadout(HasOffset, CPTMaster):
 
     parameters = {
-        'index': Param('Index of value',
-                       type=intrange(0, 99),),
+        'channel': Param('Index of value',
+                         type=intrange(-1, 99),),
     }
 
     def doRead(self, maxage=0):
-        return self._read_ctrl(self.index)
+        return self._read_ctrl(self.channel)
         # res = self._kreis(self._read_ctrl(self.index) - self.offset)
         # return res
 
@@ -136,6 +143,18 @@ class SdsRatemeter(JsonBase):
         'fmtstr': Override(default='%d'),
         'unit': Override(default='cps'),
     }
+
+    def doStatus(self, maxage=0):
+        try:
+            res = self._read_controller([self.valuekey])
+            if int(res[self.valuekey]) == 0:
+                return status.OK, ''
+            else:
+                return status.ERROR, 'System tripped! please clear'
+        except CommunicationError:
+            return status.WARN, 'Timeout during talk to the hardware.'
+        except NicosError:
+            return status.ERROR, 'Could not talk to hardware.'
 
     def doRead(self, maxage=0):
         res = self._read_controller(['mon_counts_cps_%s' % self.channel])
