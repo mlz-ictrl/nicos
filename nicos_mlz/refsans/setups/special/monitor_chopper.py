@@ -30,6 +30,7 @@ _chconfigcol = Column(
         BlockRow(
             Field(name='Modus', dev='chopper_mode', width=24),
             Field(name='real', dev='chopper2_pos', width=24),
+            Field(name='START delay', dev='chopper_delay', unit='deg', width=24),
             ),
         ],
     ),
