@@ -15,6 +15,7 @@ devices = dict(
         tacodevice = '//%s/test/modbus/pumpenstand' % (nethost,),
         address = 0x4026,  # 16422
         parallel_pumping = 10,  # below 10mbar, parallel pumping is allowed
+        lowlevel = True,
     ),
     pressure_CB = device('nicos_mlz.refsans.devices.beckhoff.pumpstation.PumpstandPressure',
         description = 'Pressure in CB (provided by Pumpstand)',
@@ -42,6 +43,7 @@ devices = dict(
             chamber = 'CB',
         ),
         precision = 0.01,
+        lowlevel = True,
         mapping = dict(vent = 1, off = 0, pump = -1),
     ),
     pump_SR = device('nicos.devices.generic.Switcher',
@@ -52,6 +54,7 @@ devices = dict(
             chamber = 'SR',
         ),
         precision = 0.01,
+        lowlevel = True,
         mapping = dict(vent = 1, off = 0, pump = -1),
     ),
     pump_SFK = device('nicos.devices.generic.Switcher',
@@ -62,6 +65,7 @@ devices = dict(
             chamber = 'SFK',
         ),
         precision = 0.01,
+        lowlevel = True,
         mapping = dict(vent = 1, off = 0, pump = -1),
     ),
 )
