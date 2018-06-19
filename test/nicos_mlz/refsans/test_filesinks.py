@@ -27,7 +27,6 @@
 from os import path
 
 from nicos.commands.measure import count
-from nicos.utils.stubs import generate_stubs
 
 import pytest
 
@@ -35,8 +34,6 @@ try:
     import configobj
 except ImportError:
     configobj = None
-
-generate_stubs()
 
 session_setup = 'refsans'
 exp_dataroot = 'refsansdata'
