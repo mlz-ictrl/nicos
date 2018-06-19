@@ -186,10 +186,11 @@ Each panel is implemented by a class inheriting from
 Panels can provide menus and toolbars; these are all collected by the window
 they are displayed in.
 
-Delivered panels
-----------------
 
-Panels that come with NICOS are:
+Standard NICOS panels
+---------------------
+
+Nicos includes a comprehensive set of Panels for most general use cases:
 
 .. autoclass:: nicos.clients.gui.panels.console.ConsolePanel()
 
