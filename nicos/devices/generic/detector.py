@@ -175,14 +175,10 @@ class RectROIChannel(PostprocessPassiveChannel):
         return [arr.sum() for arr in arrays]
 
     def valueInfo(self):
-        if self.readresult and len(self.readresult) > 1:
-            infos = []
-            for i in range(1, len(self.readresult) + 1):
-                infos.append(
-                    Value(name=self.name + '[%d]' % i, type='counter',
-                          fmtstr='%d'),
-                )
-            return tuple(infos)
+        if len(self.readresult) > 1:
+            return tuple(Value(name=self.name + '[%d]' % i, type='counter',
+                               fmtstr='%d')
+                         for i in range(1, len(self.readresult) + 1))
         return Value(name=self.name, type='counter', fmtstr='%d'),
 
 
@@ -793,8 +789,7 @@ class ScanningDetector(SubscanMeasurable):
         if self.readresult:
             raise NotImplementedError('Result processing implemented, but '
                                       'valueInfo missing')
-        else:
-            return ()
+        return ()
 
     def doRead(self, maxage=0):
         return self.readresult
