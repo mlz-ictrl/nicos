@@ -5,3 +5,4 @@ HOWTOs
    :maxdepth: 1
 
    plugplay
+   restrictaccess
