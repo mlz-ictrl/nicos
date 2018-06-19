@@ -27,7 +27,7 @@ devices = dict(
         unit = 'mm',
         # according to docu:
         abslimits = (620, 11025),
-        precision = 1,
+        precision = 10,
         lowlevel = True,
     ),
     table_z_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffCoderDetector',
