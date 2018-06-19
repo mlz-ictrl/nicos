@@ -4,7 +4,7 @@ group = 'lowlevel'
 #group = 'optional'
 
 includes = ['nok_ref', 'nokbus1']
-hide_poti = False
+hide_poti = True
 
 nethost = 'refsanssrv.refsans.frm2'
 
@@ -13,8 +13,10 @@ devices = dict(
         description = 'leadblock on nok1',
         moveable = 'nok1',
         precision = 0.5,
-        mapping = {'closed': -55, 'open': 0},
+        mapping = {'closed': -55,
+                   'open': 0},
         fallback = 'offline',
+        unit = '',
     ),
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
         description = 'shutter_gamma NOK1',
