@@ -1,8 +1,9 @@
 description = 'Slit B1 using Beckhoff controllers'
 
 group = 'lowlevel'
-lprecision = .01
 nethost = 'refsanssrv.refsans.frm2'
+global_values = configdata('global.GLOBAL_Values')
+lprecision = 0.005 # global_values['precision']
 
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
 # according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
@@ -11,19 +12,9 @@ nethost = 'refsanssrv.refsans.frm2'
 devices = dict(
     b1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'b1 end of Chopperburg',
-        # fmtstr = '%.2f, %.2f',
         fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
-        # inclinationlimits = (-1000, 1000),   # invented values, PLEASE CHECK!
-        # masks = dict(
-        #     slit = [0.0, 0.0, -.16, 3.65],
-        #     pinhole = [0.0, 0.0, -.16, 3.65],
-        #     gisans = [0.0, 0.0, -.16, 3.65],
-        # ),
         slit_r = 'b1r',
-        # motor_s = 'b1s',
         slit_s = 'b1s',
-        # backlash = 0,   # is this configured somewhere?
-        # precision = lprecision,
         unit = '',
     ),
     b1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -35,9 +26,9 @@ devices = dict(
         description = 'b1 slit, reactor side',
         motor = 'b1_r',
         masks = {
-            'slit':   0,
-            'point':  0,
-            'gisans': 0,
+            'slit':   0.0, #3.5699,  # 0,
+            'point':  3.5699,  # 0,
+            'gisans': 3.5699,  # 0,
         },
         nok_start = 2374.0,
         nok_length = 13.5,
@@ -51,9 +42,9 @@ devices = dict(
         description = 'xxx slit, sample side',
         motor = 'b1_s',
         masks = {
-            'slit':   0,
-            'point':  0,
-            'gisans': 0,
+            'slit':   0.0, #3.73,  # 0,
+            'point':  3.73,  # 0,
+            'gisans': 3.73,  # 0,
         },
         nok_start = 2374.0,
         nok_length = 13.5,
@@ -66,27 +57,23 @@ devices = dict(
     b1_r = device('nicos.devices.generic.Axis',
         description = 'B1, reactorside',
         motor = 'b1_rm',
-        coder = 'b1_rm',
-        # obs = [],
         # offset = 60.0,
         offset = 0.0,
         precision = lprecision,
+        maxtries = 3,
         lowlevel = True,
     ),
     b1_s = device('nicos.devices.generic.Axis',
         description = 'B1, sampleside',
         motor = 'b1_sm',
-        coder = 'b1_sm',
-        # obs = [],
         # offset = -50.0,
         offset = 0.0,
         precision = lprecision,
+        maxtries = 3,
         lowlevel = True,
     ),
     # according to 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
     # beckhoff is at 'optic.refsans.frm2' / 172.25.18.115
-    # Blendenschild reactor side
-    # lt. docu bs0_r
     b1_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M01), reactorside',
         tacodevice = '//%s/test/modbus/optic'% (nethost,),
@@ -97,8 +84,6 @@ devices = dict(
         ruler = 60.0,
         lowlevel = True,
     ),
-    # Blendenschild sample side
-    # lt. docu bs0_s
     b1_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M02), sample side',
         tacodevice = '//%s/test/modbus/optic'% (nethost,),

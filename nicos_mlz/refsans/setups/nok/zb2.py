@@ -12,10 +12,9 @@ devices = dict(
     # Debug (slit)
     # Debug (k1)
     zb2 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
-        description = 'zb2 singel Slit at nok6 before nok7',
+        description = 'zb2 single Slit at nok6 before nok7',
         unit = 'mm',
-        motor = 'zb2_motor',
-        # coder = 'zb2_motor',
+        motor = 'zb2_motor', # <- zb2_axis
         # obs = ['zb2_obs'],
         nok_start = 7591.5,
         nok_length = 6.0,
@@ -36,7 +35,12 @@ devices = dict(
         device = 'zb2',
         parameter = 'mode',
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
+    # zb2_axis = device('nicos.device.generic.Axis',
+    #   description = '',
+    #   motor = 'zb2_motor',
+    #   backlash = -2,
+    #   precision = ...,
+    # ),
     zb2_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',
         abslimits = (-215.69, 93.0),
@@ -53,12 +57,11 @@ devices = dict(
         lowlevel = global_values['hide_poti'],
     ),
 
-    # generated from global/inf/poti_tracing.inf
     zb2_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for ZB2',
         reference = 'nok_refb2',
         measure = 'zb2_poti',
-        poly = [-111.898256, 999.872 / 1.921],   # off, mul * 1000 / sensitivity, higher orders...
+        poly = [-116.898256, 999.872 / 1.921],   # off, mul * 1000 / sensitivity, higher orders...
         serial = 7786,
         length = 500.0,
         lowlevel = global_values['hide_poti'],
@@ -72,7 +75,6 @@ devices = dict(
          unit = 'mm'
     ),
 
-    # generated from global/inf/poti_tracing.inf
     zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
         tacodevice = '//%s/test/wb_b/2_3' % nethost,

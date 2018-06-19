@@ -3,6 +3,7 @@ description = 'Slit ZB1 using beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
+global_values = configdata('global.GLOBAL_Values')
 
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
 # according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
@@ -16,8 +17,6 @@ devices = dict(
         # coder = 'zb1_m',
         # obs = [],
         offset = 0.0,
-        # ruler = -37.9344, # MP 12.12.2017 07:09:29
-        # precision = 0.05,
         nok_start = 5856.5,
         nok_length = 13,
         nok_end = 5862.5,
@@ -29,19 +28,24 @@ devices = dict(
             'gisans':  -110,
         },
     ),
+    zb1_a = device('nicos.devices.generic.Axis',
+        description = 'zb1 axis',
+        motor = 'zb1_m',
+        precision = global_values['precision'],
+        maxtries = 3,
+        lowlevel = True,
+    ),
     zb1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'zb1 mode',
         device = 'zb1',
         parameter = 'mode',
     ),
-    # zb1 is at exit of NOK5b (so on its sample side)
     zb1_m = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
         description = 'CAB1 controlled zb1 (M23), sample side',
         tacodevice = '//%s/test/modbus/optic'% (nethost,),
         address = 0x3020+7*10, # word adress
         slope = 10000,
         unit = 'mm',
-        precision = 0.05,  # precision for a single move
         # acording to docu:
         # abslimits = (-184, -0.1),
         # MP 12.12.2017 07:21:50 ruler

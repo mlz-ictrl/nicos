@@ -8,23 +8,12 @@ global_values = configdata('global.GLOBAL_Values')
 nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
-    # masks:
-    # 2010-06-15 10:42:09 (slit)
-    # 12.01.2010 10:35:26 (k1)
     bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'BS1 double between nok8 and nok9',
         fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
         unit = '',
-        # inclinationlimits = (-1000, 1000),   # MP 05.12.2017 15:27:27 no limit
-        # masks = dict(
-        #     slit   = [  0.0, 0.0, -0.67, -1.99],
-        #     point  = [  0.0, 0.0, -0.67, -1.99],
-        #     gisans = [-40.0, 0.0, -1.83,  0.0],
-        # ),
         slit_r = 'bs1r',
         slit_s = 'bs1s',
-        # backlash = -2,   # is this configured somewhere?
-        # precision = 0.05,
     ),
     bs1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'bs1 mode',
@@ -40,7 +29,7 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   2.425, #-2.325,  # 0,
+            'slit':   -1.725,  # -2.325, #2.425, #-2.325,  # 0,
             'point':  -2.325,  # 0,
             'gisans': -40.915,  # -40,
         },
@@ -56,18 +45,17 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   -6.405, #-1.655,  # 0,
+            'slit':   -2.255,  # -1.655, # -6.405, #-1.655,  # 0,
             'point':  -1.655,  # 0,
             'gisans': 0.915,  # 0,
         },
         lowlevel = True,
         unit = 'mm',
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     bs1r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of BS1, reactor side',
         motor = 'bs1r_motor',
-        coder = 'bs1r_motor',
+        # coder = 'bs1r_motor',
         # obs = ['bs1r_obs'],
         backlash = 0,
         precision = 0.05,
@@ -104,7 +92,6 @@ devices = dict(
         tacodevice = '//%s/test/bs1/srshl' % nethost,
         lowlevel = True,
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, reactor side',
         abslimits = (-178.0, 10.0),
@@ -127,28 +114,25 @@ devices = dict(
          lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
-    # generated from global/inf/poti_tracing.inf
     bs1r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for BS1, reactor side',
         reference = 'nok_refc2',
         measure = 'bs1r_poti',
-        poly = [-104.210515, 998.068 / 3.835],   # off, mul * 1000 / sensitivity, higher orders...
+        poly = [-103.9, 998.068 / 3.835],   # off, mul * 1000 / sensitivity, higher orders...
         serial = 7542,
         length = 250.0,
         lowlevel = global_values['hide_poti'],
     ),
-    # generated from global/inf/poti_tracing.inf
     bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, reactor side',
         tacodevice = '//%s/test/wb_c/2_1' % nethost,
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     bs1s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of BS1, sample side',
         motor = 'bs1s_motor',
-        coder = 'bs1s_motor',
+        # coder = 'bs1s_motor',
         # obs = ['bs1s_obs'],
         backlash = 0,
         precision = 0.05,
@@ -185,7 +169,6 @@ devices = dict(
         tacodevice = '//%s/test/bs1/ssshl' % nethost,
         lowlevel = True,
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     bs1s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, sample side',
         abslimits = (-177.002, 139.998),
@@ -208,17 +191,15 @@ devices = dict(
          lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
-    # generated from global/inf/poti_tracing.inf
     bs1s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for BS1, sample side',
         reference = 'nok_refc2',
         measure = 'bs1s_poti',
-        poly = [40.36065, 999.452 / 1.919],  # off, mul * 1000 / sensitivity, higher orders...
+        poly = [41.2, 999.452 / 1.919],  # off, mul * 1000 / sensitivity, higher orders...
         serial = 7784,
         length = 500.0,
         lowlevel = global_values['hide_poti'],
     ),
-    # generated from global/inf/poti_tracing.inf
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
         tacodevice = '//%s/test/wb_c/2_5' % nethost,

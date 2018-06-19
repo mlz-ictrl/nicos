@@ -14,8 +14,6 @@ devices = dict(
         unit = '',
         slit_r = 'b2r',
         slit_s = 'b2s',
-        # backlash = 0,   # is this configured somewhere?
-        # precision = 0.05,
     ),
     b2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'b2 mode',
@@ -31,7 +29,7 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit':   -218.9, #-217,
+            'slit':   -220.675, #MP 25.05.2018 09:29:59 by Ey
             'point':  -4.067,  # 0,
             'gisans': -218.645,  # 0,
         },
@@ -47,7 +45,7 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit':   292.15, #290.25,
+            'slit':   289.925, #MP 25.05.2018 09:30:28 by Ey 292.15, #290.25,
             'point':  -0.233,  # 0,
             'gisans': 206.4,  #-83.835,  # -85,
         },
@@ -59,7 +57,7 @@ devices = dict(
         motor = 'smccorvus_b2mr',
         coder = 'smccorvus_b2er',
         backlash = 0,
-        precision = 0.05,
+        precision = 0.02,
         unit = 'mm',
         lowlevel = True,
     ),
@@ -68,7 +66,7 @@ devices = dict(
         motor = 'smccorvus_b2ms',
         coder = 'smccorvus_b2es',
         backlash = 0,
-        precision = 0.05,
+        precision = 0.02,
         unit = 'mm',
         lowlevel = True,
     ),
