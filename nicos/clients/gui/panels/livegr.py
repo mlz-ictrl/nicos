@@ -59,6 +59,23 @@ FILEUID = Qt.UserRole + 3
 
 
 class LiveDataPanel(Panel):
+    """Provides a generic "detector live view".
+
+    For most instruments, a specific panel must be implemented that takes care
+    of the individual live display needs.
+
+    Options:
+
+    * ``instrument`` -- the instrument name that is passed on to the livewidget
+      module.
+    * ``filetypes`` default[] - List of filename extensions whose content should
+      be displayed.
+    * ``detectors`` (default [] - list of detector devices whose data should be
+      displayed.  If not set data from all configured detectors will be shown.
+    * ``cachesize`` (default 20) - Number of entries in the live data cache.
+      The live data cache allows to display of previous taken data.
+    """
+
     panelName = 'Live data view'
 
     def __init__(self, parent, client, options):

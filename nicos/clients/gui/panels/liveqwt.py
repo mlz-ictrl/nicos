@@ -65,6 +65,13 @@ class LiveDataPanel(Panel):
 
     * ``instrument`` -- the instrument name that is passed on to the livewidget
       module.
+    * ``filetypes`` default[] - List of filename extensions whose content should
+      be displayed.  This list extends the list of 'fits', 'raw', 'tiff', and
+      'TIFF'.
+    * ``cachesize`` (default 20) - Number of entries in the live data cache.
+      The live data cache allows to display of previous taken data.
+    * ``showcached`` (default False) - If True the taken live data will be
+      cached.
     """
 
     panelName = 'Live data view'
