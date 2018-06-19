@@ -6,7 +6,9 @@ GLOBAL_Values = {
     'rc':  22.5,
     'vc':  37.5,
     'fc':  52.5,
-    #showcase
+
+    'precision': 0.05,
+    # showcase
     'hide_poti': True,
     'hide_acc' : False,
 }
