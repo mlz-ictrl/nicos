@@ -48,6 +48,16 @@ def iterChecked(listwidget):
 
 
 class ExpPanel(Panel):
+    """Provides a panel with several input fields for the experiment settings.
+
+    Options:
+
+    * ``new_exp_panel`` -- class name of the panel which should be opened if
+      the ``proposal`` button is activated.
+    * ``finish_exp_panel`` -- class name of the panel which should be opened if
+      ``finish`` button is activated.
+    """
+
     panelName = 'Experiment setup'
 
     def __init__(self, parent, client, options):
@@ -312,6 +322,7 @@ class AliasWidget(QFrame):
 
 
 class SetupsPanel(Panel):
+    """Provides a dialog to select and load the basic and optional setups."""
     panelName = 'Setup selection'
 
     def __init__(self, parent, client, options):
@@ -539,6 +550,7 @@ class SetupsPanel(Panel):
 
 
 class DetEnvPanel(Panel):
+    """Provides a dialog to select the detector and environment devices."""
     panelName = 'Det/Env setup'
 
     def __init__(self, parent, client, options):
@@ -621,6 +633,8 @@ sample environment is placed.''')
 
 
 class GenericSamplePanel(Panel):
+    """Provides a panel to input the name of the current used sample."""
+
     panelName = 'Sample setup'
     uiName = 'setup_sample.ui'
 
@@ -658,6 +672,8 @@ class GenericSamplePanel(Panel):
 
 
 class TasSamplePanel(GenericSamplePanel):
+    """Provides a set of input parameters for a sample used in a TAS setup."""
+
     panelName = 'TAS sample setup'
     uiName = 'setup_tassample.ui'
 
@@ -668,6 +684,8 @@ class TasSamplePanel(GenericSamplePanel):
 
 
 class SXTalSamplePanel(GenericSamplePanel):
+    """Provides a set of input parameters for a single crystal sample."""
+
     panelName = 'Single-crystal sample setup'
     uiName = 'setup_sxtalsample.ui'
 

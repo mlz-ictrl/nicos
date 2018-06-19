@@ -242,6 +242,12 @@ Nicos includes a comprehensive set of Panels for most general use cases:
      :alt: experiment info panel
      :align: center
 
+.. autoclass:: nicos.clients.gui.panels.setup_panel.ExpPanel()
+
+.. figure:: exppanel.png
+     :alt: experiment panel
+     :align: center
+
 .. autoclass:: nicos.clients.gui.panels.history.HistoryPanel()
 
 .. figure:: historypanel.png
@@ -289,6 +295,36 @@ Nicos includes a comprehensive set of Panels for most general use cases:
 
 .. figure:: genericpanel.png
      :alt: generic panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.setup_panel.SetupsPanel()
+
+.. figure:: setupspanel.png
+     :alt: setups panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.setup_panel.DetEnvPanel()
+
+.. figure:: detenvpanel.png
+     :alt: detector and environment panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.setup_panel.GenericSamplePanel()
+
+.. figure:: genericsamplepanel.png
+     :alt: sample panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.setup_panel.TasSamplePanel()
+
+.. figure:: tassamplepanel.png
+     :alt: TAS sample panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.setup_panel.SXTalSamplePanel()
+
+.. figure:: sxtalsamplepanel.png
+     :alt: SXT sample panel
      :align: center
 
 
