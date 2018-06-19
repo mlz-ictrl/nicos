@@ -7,7 +7,8 @@ includes = ['alias_T']
 tango_base = 'tango://%s:10000/box/omega/' % setupname
 
 devices = {
-    'T_%s' % setupname : device('nicos.devices.tango.TemperatureController',
+    # 'T_%s' % setupname : device('nicos.devices.tango.TemperatureController',
+    'T_%s' % setupname : device('nicos.devices.tango.Actuator',
         description = 'Temperature of the stove',
         tangodevice = tango_base + 'temperature',
         abslimits = (0, 400),
