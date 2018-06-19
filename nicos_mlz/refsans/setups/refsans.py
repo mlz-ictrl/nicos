@@ -3,17 +3,18 @@ description = 'REFSANS basic setup'
 group = 'basic'
 
 includes = [
-    'vacuum',
+    # 'vacuum', readout (hardware) defect MP 02.05.2018 09:13:28
     'shutter',
     'shutter_gamma',
     'guidehall',
     'reactor',
     'fak40',
     'chopper',
-    'instrument_mode',
     'optic_elements',
+    'h2',
     'poti_ref',
     'nl2b',
+    'vsd',
     'pumpstand',
     'memograph',
     'sample',
