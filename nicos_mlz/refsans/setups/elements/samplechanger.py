@@ -9,8 +9,7 @@ devices = dict(
     samplechanger = device('nicos.devices.generic.Axis',
         description = 'Samplechanger axis',
         motor = 'samplechanger_m',
-        coder = 'samplechanger_m',
-        precision = 0.01,
+        precision = 0.1,  # better would be 0.05, but hardware does not work as expected
     ),
     samplechanger_m = device('nicos.devices.taco.Motor',
         description = 'Samplechanger axis motor',
