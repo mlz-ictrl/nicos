@@ -22,9 +22,6 @@ devices = dict(
         # acording to docu:
         # abslimits = (0.1, 130),
         abslimits = (-37.9997, 91.9003),
-        # userlimits = (10, 68), # XX: check values!
-        # userlimits = (-26, 86), # XX: check values!
-        userlimits = (-37.9997, 91.9003),
         ruler = 38.0997,
         lowlevel = True,
     ),
@@ -37,9 +34,6 @@ devices = dict(
         # acording to docu:
         # abslimits = (0.1, 130),
         abslimits = (-53.7985, 76.1015),
-        # userlimits = (10, 68), # XX: check values!
-        # userlimits = (-43, 98), # XX: check values!
-        userlimits = (-53.7985, 76.1015),
         ruler = 53.8985,
         lowlevel = True,
     ),

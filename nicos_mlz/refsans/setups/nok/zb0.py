@@ -3,6 +3,7 @@ description = 'Slit ZB0 using Beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
+global_values = configdata('global.GLOBAL_Values')
 
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
 # according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'

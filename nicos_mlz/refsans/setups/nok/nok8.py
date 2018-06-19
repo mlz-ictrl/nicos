@@ -34,7 +34,6 @@ devices = dict(
         parameter = 'mode',
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok8r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK8, reactor side',
         motor = 'nok8r_motor',
@@ -82,11 +81,9 @@ devices = dict(
         lowlevel = True,
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok8r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK8, reactor side',
         abslimits = (-102.835, 128.415),
-        userlimits = (-102.835, 128.41),
         bus = 'nokbus3',     # from ipcsms_*.res
         addr = 0x54,     # from resources.inf
         slope = 800.0,   # FULL steps per physical unit
@@ -108,7 +105,6 @@ devices = dict(
          unit = 'mm'
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok8r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK8, reactor side',
         reference = 'nok_refc1',
@@ -119,7 +115,6 @@ devices = dict(
         lowlevel = global_values['hide_poti'],
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok8r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK8, reactor side',
         tacodevice = '//%s/test/wb_c/1_4' % nethost,
@@ -127,7 +122,6 @@ devices = dict(
         lowlevel = True,
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok8s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK8, sample side',
         motor = 'nok8s_motor',
@@ -175,11 +169,9 @@ devices = dict(
         lowlevel = True,
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok8s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK8, sample side',
         abslimits = (-104.6, 131.65),
-        userlimits = (-104.6, 131.636),
         bus = 'nokbus3',     # from ipcsms_*.res
         addr = 0x55,     # from resources.inf
         slope = 800.0,   # FULL steps per physical unit
@@ -201,7 +193,6 @@ devices = dict(
          unit = 'mm'
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok8s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK8, sample side',
         reference = 'nok_refc2',
@@ -212,7 +203,6 @@ devices = dict(
         lowlevel = global_values['hide_poti'],
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok8s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK8, sample side',
         tacodevice = '//%s/test/wb_c/2_0' % nethost,

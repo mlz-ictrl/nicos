@@ -35,7 +35,6 @@ devices = dict(
         parameter = 'mode',
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok4r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK4, reactor side',
         motor = 'nok4r_motor',
@@ -87,7 +86,7 @@ devices = dict(
     nok4r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK4, reactor side',
         abslimits = (-20.477, 48.523),
-        userlimits = (-20.477, 48.523),
+        #userlimits = (-20.477, 48.523),
         bus = 'nokbus1',     # from ipcsms_*.res
         addr = 0x36,     # from resources.inf
         slope = 2000.0,  # FULL steps per physical unit
@@ -109,7 +108,6 @@ devices = dict(
          unit = 'mm'
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok4r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK4, reactor side',
         reference = 'nok_refa2',
@@ -120,7 +118,6 @@ devices = dict(
         lowlevel = global_values['hide_poti'],
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok4r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK4, reactor side',
         tacodevice = '//%s/test/wb_a/2_0' % nethost,
@@ -128,7 +125,6 @@ devices = dict(
         lowlevel = True,
     ),
 
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok4s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK4, sample side',
         motor = 'nok4s_motor',
@@ -180,7 +176,7 @@ devices = dict(
     nok4s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK4, sample side',
         abslimits = (-21.3025, 41.1975),
-        userlimits = (-21.3025, 41.197),
+        #userlimits = (-21.3025, 41.197),
         bus = 'nokbus2',     # from ipcsms_*.res
         addr = 0x41,     # from resources.inf
         slope = 2000.0,  # FULL steps per physical unit
@@ -202,7 +198,6 @@ devices = dict(
          unit = 'mm'
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok4s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK4, sample side',
         reference = 'nok_refa2',
@@ -213,7 +208,6 @@ devices = dict(
         lowlevel = global_values['hide_poti'],
     ),
 
-    # generated from global/inf/poti_tracing.inf
     nok4s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK4, sample side',
         tacodevice = '//%s/test/wb_a/2_1' % nethost,

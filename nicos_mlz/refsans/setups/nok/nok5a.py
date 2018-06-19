@@ -20,7 +20,7 @@ devices = dict(
         slope = 10000, # FULL steps per turn * turns per mm
         unit = 'mm',
         # acording to docu:
-        #abslimits = (0.1, 130),
+        # abslimits = (0.1, 130),
         abslimits = (-70.0,67.68),
         ruler = 71.0889,
         lowlevel = True,
@@ -37,7 +37,7 @@ devices = dict(
         slope = 10000, # FULL steps per turn * turns per mm
         unit = 'mm',
         # acording to docu:
-        #abslimits = (0.1, 130),
+        # abslimits = (0.1, 130),
         abslimits = (-79.0,77.85),
         ruler = 79.6439,
         lowlevel = True,

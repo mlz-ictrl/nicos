@@ -39,8 +39,7 @@ devices = dict(
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     zb2_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',
-        abslimits = (-681.9525, 568.04625),
-        userlimits = (-215.69, 93.0),
+        abslimits = (-215.69, 93.0),
         bus = 'nokbus2',     # from ipcsms_*.res
         addr = 0x47,     # from resources.inf
         slope = 800.0,   # FULL steps per physical unit

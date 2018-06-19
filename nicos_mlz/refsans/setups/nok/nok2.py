@@ -49,8 +49,7 @@ devices = dict(
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok2r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK2, reactor side',
-        abslimits = (-254.36, 56.14),
-        userlimits = (-22.36, 10.88),
+        abslimits = (-22.36, 10.88),
         bus = 'nokbus1',     # from ipcsms_*.res
         addr = 0x32,     # from resources.inf
         slope = 2000.0,  # FULL steps per physical unit
@@ -142,8 +141,7 @@ devices = dict(
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok2s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
          description = 'IPC controlled Motor of NOK2, sample side',
-         abslimits = (-268.11, 231.889),
-         userlimits = (-21.61, 6.885),
+         abslimits = (-21.61, 6.885),
          bus = 'nokbus1',     # from ipcsms_*.res
          addr = 0x33,     # from resources.inf
          slope = 2000.0,  # FULL steps per physical unit

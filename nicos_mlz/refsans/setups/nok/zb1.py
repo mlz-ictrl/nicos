@@ -44,12 +44,10 @@ devices = dict(
         precision = 0.05,  # precision for a single move
         # acording to docu:
         # abslimits = (-184, -0.1),
-        # userlimits = (-146.0656, -0.1),
         # MP 12.12.2017 07:21:50 ruler
         # ruler = -37.9344, #MP 12.12.2017 07:09:29
         ruler = -35.078,  #MP 12.12.2017 07:44:11 #05.05.2017 08:03:07 scan Schaden am Encoder jeden PowerUP neu machen!
         abslimits = (-146.06560000000002, 37.834399999999995),
-        userlimits = (-146.06560000000002, 37.834399999999995),
         lowlevel = True,
     ),
 )

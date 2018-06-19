@@ -93,9 +93,7 @@ devices = dict(
         address = 0x3020+0*10, # word adress
         slope = 10000,
         unit = 'mm',
-        # acording to docu:
-        abslimits = (-133, 190),
-        userlimits = (-70, 68), # XX: check values!
+        abslimits = (-133, 190), # XX: check values!
         ruler = 60.0,
         lowlevel = True,
     ),
@@ -107,9 +105,7 @@ devices = dict(
         address = 0x3020+1*10, # word adress
         slope = 10000,
         unit = 'mm',
-        # acording to docu:
-        abslimits = (-152, 120),
-        userlimits = (-70, 68), # XX: check values!
+        abslimits = (-152, 120), # XX: check values!
         ruler = -50.0,
         lowlevel = True,
     ),

@@ -117,8 +117,8 @@ if True:
             address = 0x3214+0*10, # dez12820
             slope = -10000,
             unit = 'mm',
-            abslimits = (-193.0, 130.0),
-            userlimits = (-193.0, 130.0),
+            # abslimits = (-193.0, 130.0),
+            abslimits = (-393.0, 330.0),
             ruler = -200.0,
             lowlevel = True,
         ),
@@ -129,7 +129,6 @@ if True:
             slope = 10000,
             unit = 'mm',
             abslimits = (-102.0, 170.0),
-            userlimits = (-102.0, 170.0),
             ruler = 0.0,
             lowlevel = True,
         ),
