@@ -19,10 +19,11 @@ devices = dict(
             nameserver = '%s' % nameservice,
             objname = '%s' % servername,
             config = 'TTHS 114 11 0x00f1c000 1 8192 16000'
-                     ' 200 2 25 50 1 1 1 3000 1 10 10 0 1000',
+                     ' 200 2 25 50 1 1 1 3000 1 10 10 0 0',
         ),
         precision = 0.005,
         maxtries = 10,
+        backlash = 0.2,
     ),
     omgs = device('nicos.devices.generic.Axis',
         description = 'HWB OMGS',
