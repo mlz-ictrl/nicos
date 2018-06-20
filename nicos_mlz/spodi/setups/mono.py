@@ -10,7 +10,7 @@ includes = []
 
 devices = dict(
     # ;Monochromator
-    omgm = device('nicos.devices.vendor.caress.EKFMotor',
+    omgm = device('nicos.devices.vendor.caress.Motor',
         description = 'HWB OMGM',
         fmtstr = '%.3f',
         unit = 'deg',
@@ -18,8 +18,11 @@ devices = dict(
         abslimits = (40, 80),
         nameserver = '%s' % nameservice,
         objname = '%s' % servername,
+        gear = -1,
         config = 'OMGM 115 11 0x00f1c000 3 6400 8000 200 1 0 0 '
                  '0 0 1 3000 1 10 0 0 0',
+        # config = 'OMGM 114 11 0x00f1c000 3 8192 8000 200 2 25 50 '
+        #          '1 0 1 3000 1 10 10 0 1000'
     ),
     tthm = device('nicos.devices.generic.ManualSwitch',
         description = 'HWB TTHM',
