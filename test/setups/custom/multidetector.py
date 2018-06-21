@@ -14,15 +14,16 @@ devices = dict(
             ),
             precision = 0.01,
         ),
+        refgap = 4.,
     ),
 )
 
 for i in range(11):
     devices['rd%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-39 + (11 - (i + 1)) * 2.5 , 11 - i * 2.5),
+            abslimits = (-39 + (11 - (i + 1)) * 2.5 , 12 - i * 2.5),
             unit = 'deg',
-            refpos = -13.5 - i * 2.5,
+            refpos = 11. - i * 2.5,
             fmtstr = '%.3f',
         ),
         precision = 0.01,

@@ -105,5 +105,5 @@ class TestMultiDetector(object):
     def test_reference(self, session):
         """Test different reference parameters."""
         med = session.getDevice('med')
-        assert med.reference() == [-3.5 * (x + 1) for x in range(11)] + \
-            [0] * 11
+        assert med.reference() == [4. - i * med.refgap
+                                   for i in range(11)] + [0] * 11

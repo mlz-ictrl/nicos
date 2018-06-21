@@ -75,6 +75,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                         'guides',
                         type=float, settable=False, userparam=False,
                         default=1.),
+        'gapoffset': Param('Minimum gap for the det 1 from reference position',
+                           type=float, settable=False, userparam=False,
+                           default=4.,),
     }
 
     parameter_overrides = {
@@ -218,6 +221,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         finally:
             self._setROParam('_status', False)
 
+    def doRead(self, maxage=0):
+        return [d.read(maxage) for d in self._rotdetector0 + self._rotguide0]
+
     def doReset(self):
         for dev in self._rotguide0 + self._rotdetector0:
             # one reset per card is sufficient, since the card will be reset
@@ -228,24 +234,17 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
     def doReference(self, *args):
         # self.doReset()
         self.stop()
-        for d, g in zip(self._rotdetector1, self._rotguide1):
+        for d, g in zip(self._rotdetector0, self._rotguide0):
             self.log.info('reference: %s, %s', d, g)
             self._reference_det_guide(d, g)
             session.delay(1.5)
-        for i, (d, g) in enumerate(zip(self._rotdetector0, self._rotguide0)):
+        for i, (d, g) in enumerate(zip(self._rotdetector1, self._rotguide1)):
             d.userlimits = d.abslimits
-            d.move(d.read(0) + (10 - i) * self.refgap)
+            d.move(self.gapoffset - (10 - i) * self.refgap)
             g.reference()
             self._hw_wait([d, g])
+            g.maw(0)
         self.log.info('referencing of guides is finished')
-        for d in self._rotguide1:
-            d.move(0)
-            session.delay(1)
-        self._hw_wait(self._rotguide1)
-        self.log.info('zeroing of guides finished')
-
-    def doRead(self, maxage=0):
-        return [d.read(maxage) for d in self._rotdetector0 + self._rotguide0]
 
     def _reference_det_guide(self, det, guide):
         """Drive 'det' and 'guide' devices to references.
@@ -258,37 +257,48 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         If the 'guide' hits the upper limit switch and the 'det' is not at it's
         reference position it will be moved away in steps of 1 deg.
         """
+        not_ref_switch = 'low' if guide.motor.refswitch == 'high' else 'low'
         try:
-            if not det.motor.isAtReference('high') and \
-               not det.motor.isAtReference('low'):
+            det.reference()
+            self._hw_wait([det])
+            while guide.motor.isAtReference():
+                if guide.motor.isAtReference(not_ref_switch):
+                    self._clear_guide_reference(guide)
+                while guide.motor.isAtReference():
+                    self._step(guide)
                 det.reference()
                 self._hw_wait([det])
-                while guide.motor.isAtReference('low'):
-                    while guide.motor.isAtReference('low'):
-                        p = guide.motor.read(0)
-                        if not guide.motor.isAllowed(p - 1)[0]:
-                            self.log.info('set new position: %f', (p + 1))
-                            guide.motor.setPosition(p + 1)
-                            self.log.info('new position is: %f',
-                                          guide.motor.read(0))
-                            session.delay(1)
-                            self.log.info('new position is: %f',
-                                          guide.motor.read(0))
-                        guide.motor.move(p - 1)
-                        self._hw_wait([guide])
-                    det.reference()
-                    self._hw_wait([det])
-                self.log.info('det: %f', det.read(0))
-            else:
-                det.motor._setrefcounter()
-            if not guide.motor.isAtReference('low'):
-                guide.motor.reference('low')
-            else:
-                det.motor._setrefcounter()
-            self.log.info('after guide ref start, det: %f', det.read(0))
-            self._hw_wait([guide])
+            while guide.motor.isAtReference():
+                self._step(guide)
+            while not guide.motor.isAtReference():
+                guide.reference()
+                self._hw_wait([guide])
         finally:
             pass
+
+    def _step(self, guide, size=1):
+        """Move device 'guide' a step 'size' away.
+
+        The sign of the size gives the direction the value the distance.
+        """
+        p = guide.motor.read(0)
+        if not guide.motor.isAllowed(p + size)[0]:
+            guide.motor.setPosition(p - size)
+            session.delay(1)
+        guide.motor.maw(p + size)
+
+    def _clear_guide_reference(self, guide):
+        """Move all guides right from the 'guide' to free the limit switch."""
+        for g in self._rotguide1:
+            for d in self._rotguide1:
+                if d == g:
+                    break
+                while d.motor.isAtReference():
+                    self._step(d)
+                self._step(d)
+            self._step(g)
+            if g == guide:
+                return
 
     def _hw_wait(self, devices):
         loops = 0

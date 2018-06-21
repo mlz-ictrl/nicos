@@ -25,7 +25,7 @@
 
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
-    status
+    oneof, status
 from nicos.core.errors import UsageError
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import VirtualMotor
@@ -41,6 +41,9 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
                         unit='main'),
         'addr': Param('Bus address of the motor', type=intrange(32, 255),
                       default=71),
+        'refswitch': Param('Type of the reference switch',
+                           type=oneof('high', 'low', 'ref'),
+                           default='high', settable=False),
     }
 
     def doReference(self, *args):
@@ -85,7 +88,7 @@ class DigitalInput(Moveable):
     parameters = {
         '_value': Param('Simulated value',
                         type=intrange(0, 0xFFFFFFFF), default=0,
-                        settable=False, userparam=False,),
+                        settable=False, userparam=False),
     }
 
     parameter_overrides = {
@@ -104,6 +107,7 @@ class DigitalInput(Moveable):
 
 class LogoFeedBack(DigitalInput):
     """Device to simulate the LOGO feed back."""
+
     attached_devices = {
         'input': Attach('Digital input device', DigitalInput),
     }
