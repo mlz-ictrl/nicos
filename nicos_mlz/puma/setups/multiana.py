@@ -2,7 +2,7 @@
 
 description = 'Multianalyzer motors'
 
-includes = ['system', 'motorbus13', 'ana_alias']
+includes = ['system', 'motorbus13']
 
 modules = ['nicos_mlz.puma.commands']
 
@@ -724,7 +724,3 @@ devices = dict(
                      'ra9', 'ra10', 'ra11'],
     ),
 )
-
-alias_config = {
-    'ana':  {'ra6': 200,},
-}
