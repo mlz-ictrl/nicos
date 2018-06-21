@@ -129,5 +129,9 @@ else:
             return orig_QFileDialog.getOpenFileNameAndFilter(*args, **kwds)
 
         @staticmethod
+        def getOpenFileNames(*args, **kwds):
+            return orig_QFileDialog.getOpenFileNamesAndFilter(*args, **kwds)
+
+        @staticmethod
         def getSaveFileName(*args, **kwds):
             return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)
