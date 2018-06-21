@@ -59,7 +59,8 @@ __all__ = [
     'NewExperiment', 'FinishExperiment', 'AddUser',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
-    'notify', 'SetMailReceivers', 'SetDataReceivers', '_trace', 'timer',
+    'notify', 'SetMailReceivers', 'SetDataReceivers', 'ListDataReceivers',
+    '_trace', 'timer',
     'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause',
 ]
 
@@ -821,7 +822,8 @@ def SetMailReceivers(*emails):
         if isinstance(notifier, Mailer):
             notifier.receivers = list(emails)
             if emails:
-                session.log.info('mails will now be sent to %s', ', '.join(emails))
+                session.log.info('mails will now be sent to %s',
+                                 ', '.join(emails))
             else:
                 session.log.info('no email notifications will be sent')
             return
@@ -854,6 +856,24 @@ def SetDataReceivers(*emails):
                              ', '.join(emails))
         else:
             session.log.info('no data retrieval emails will be sent')
+
+
+@usercommand
+@parallel_safe
+def ListDataReceivers():
+    """List email address to which the data will be sent.
+
+    Example:
+
+    >>> ListDataReceivers()
+    """
+
+    session.log.info('Email addresses the data will be sent to:')
+    propinfo = dict(session.experiment.propinfo)
+    items = set()
+    for addr in propinfo.get('user_email', ()):
+        items.add((addr,))
+    printTable(('email address', ), sorted(items), session.log.info)
 
 
 @usercommand

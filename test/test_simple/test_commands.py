@@ -47,7 +47,7 @@ from nicos.commands.basic import ListCommands, sleep, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
     NewExperiment, FinishExperiment, AddUser, \
     Remark, SetMode, ClearCache, UserInfo, run, \
-    notify, SetMailReceivers, SetDataReceivers
+    notify, SetMailReceivers, SetDataReceivers, ListDataReceivers
 from nicos.commands.sample import NewSample, SetSample, SelectSample, \
     ClearSamples, ListSamples
 from nicos.commands.output import printdebug, printinfo, printwarning, \
@@ -524,7 +524,7 @@ class TestDevice(object):
         assert raises(UsageError, waitfor, motor, '>')
 
 
-def test_notifiers(session):
+def test_notifiers(session, log):
     notifier = session.getDevice('testnotifier')
     exp = session.getDevice('Exp')
 
@@ -553,3 +553,6 @@ def test_notifiers(session):
     # restore previous state
     exp.mailserver, exp.mailsender = msrv, msend
     assert exp.propinfo['user_email'] == [receiver]
+    with log.assert_msg_matches([r'Email addresses',
+                                 r'receiver@example.com']):
+        ListDataReceivers()
