@@ -47,7 +47,8 @@ from nicos.commands.basic import ListCommands, sleep, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
     NewExperiment, FinishExperiment, AddUser, \
     Remark, SetMode, ClearCache, UserInfo, run, \
-    notify, SetMailReceivers, SetDataReceivers, ListDataReceivers
+    notify, SetMailReceivers, SetDataReceivers, ListMailReceivers, \
+    ListDataReceivers
 from nicos.commands.sample import NewSample, SetSample, SelectSample, \
     ClearSamples, ListSamples
 from nicos.commands.output import printdebug, printinfo, printwarning, \
@@ -553,6 +554,10 @@ def test_notifiers(session, log):
     # restore previous state
     exp.mailserver, exp.mailsender = msrv, msend
     assert exp.propinfo['user_email'] == [receiver]
+    with log.assert_msg_matches([r'Email addresses',
+                                 r'copy@example.com',
+                                 r'receiver@example.com']):
+        ListMailReceivers()
     with log.assert_msg_matches([r'Email addresses',
                                  r'receiver@example.com']):
         ListDataReceivers()

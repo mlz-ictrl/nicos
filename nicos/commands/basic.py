@@ -59,8 +59,8 @@ __all__ = [
     'NewExperiment', 'FinishExperiment', 'AddUser',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
-    'notify', 'SetMailReceivers', 'SetDataReceivers', 'ListDataReceivers',
-    '_trace', 'timer',
+    'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
+    'ListDataReceivers', '_trace', 'timer',
     'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause',
 ]
 
@@ -828,6 +828,26 @@ def SetMailReceivers(*emails):
                 session.log.info('no email notifications will be sent')
             return
     session.log.warning('email notification is not configured in this setup')
+
+
+@usercommand
+@parallel_safe
+def ListMailReceivers():
+    """List all mail addresses for notifications.
+
+    Example:
+
+    >>> ListMailReceivers()
+    """
+    session.log.info('Email addresses the notifications will be sent to:')
+    items = set()
+    for notifier in session.notifiers:
+        if isinstance(notifier, Mailer):
+            for addr in notifier.receivers:
+                items.add((addr,))
+            for (addr, _level) in notifier.copies:
+                items.add((addr,))
+    printTable(('email address', ), sorted(items), session.log.info)
 
 
 @usercommand

@@ -60,5 +60,6 @@ devices = dict(
     ),
     testnotifier = device('test.utils.TestNotifier',
         sender = 'sender@example.com',
+        copies = [('copy@example.com', 'all')],
     ),
 )
