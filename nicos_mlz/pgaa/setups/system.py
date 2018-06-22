@@ -42,4 +42,8 @@ devices = dict(
         description = 'The amount of free space for storing data',
         minfree = 5,
     ),
+    LogSpace = device('nicos.devices.generic.FreeSpace',
+        description = 'The amount of free space for storing log files',
+        minfree = 5,
+    ),
 )
