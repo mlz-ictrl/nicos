@@ -26,5 +26,3 @@ from .seccoll import PumaSecCollBlockChanger, PumaSecCollLift, \
     PumaSecCollPair, PumaSecondaryCollimator
 
 from .stackedaxis import StackedAxis
-
-from .ipc_puma import Coder

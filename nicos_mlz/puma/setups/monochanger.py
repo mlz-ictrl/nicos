@@ -25,7 +25,7 @@ devices = dict(
         lowlevel = True,
         confbyte = 52,
     ),
-    co_lift = device('nicos_mlz.puma.devices.Coder',
+    co_lift = device('nicos_mlz.puma.devices.ipc_puma.Coder',
         description = 'Potentiometer coder of the monochromator' \
         ' lift',
         bus = 'motorbus1',
