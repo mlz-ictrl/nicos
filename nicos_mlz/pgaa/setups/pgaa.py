@@ -3,7 +3,7 @@ description = 'PGAA setup with sample changer'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['sink']
+    datasinks = ['mcasink', 'chnsink', 'csvsink']
 )
 
 includes = [
@@ -18,10 +18,20 @@ includes = [
 ]
 
 devices = dict(
-    sink = device('nicos_mlz.pgaa.devices.PGAASink',
-        settypes = set(['scan']),
-        det1 = '_60p',
-        det2 = 'LEGe',
-        vac = 'chamber_pressure',
+    mcasink = device('nicos_mlz.pgaa.devices.MCASink',
+        settypes = set(['point']),
+        detectors = ['_60p', 'LEGe'],
+    ),
+    chnsink = device('nicos_mlz.pgaa.devices.CHNSink',
+        settypes = set(['point']),
+        detectors = ['_60p', 'LEGe'],
+    ),
+    csvsink = device('nicos_mlz.pgaa.devices.CSVDataSink',
+        settypes = set(['point']),
     ),
 )
+
+startupcode = """
+SetDetectors('_60p', 'LEGe')
+SetEnvironment(chamber_pressure)
+"""
