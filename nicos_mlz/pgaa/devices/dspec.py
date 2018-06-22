@@ -88,7 +88,7 @@ class DSPec(PyTangoDevice, Measurable):
         self._started = None
         self._lastread = 0
         self._comment = ''
-        self._name = ''
+        self._name_ = ''
         self._stop = None
         self._preset = {}
         self._dont_stop_flag = False
@@ -98,7 +98,7 @@ class DSPec(PyTangoDevice, Measurable):
         self._started = None
         self._lastread = 0
         self._comment = ''
-        self._name = ''
+        self._name_ = ''
         self._stop = None
         self._preset = {}
         self._dont_stop_flag = False
@@ -121,7 +121,7 @@ class DSPec(PyTangoDevice, Measurable):
         self._read_cache = None
         self._dont_stop_flag = False
         self._comment = ''
-        self._name = ''
+        self._name_ = ''
         self._stop = None
         self._preset = preset
 
@@ -152,7 +152,7 @@ class DSPec(PyTangoDevice, Measurable):
         elif preset['cond'] == 'ClockTime':
             self._stop = preset['value']
 
-        self._name = preset['Name']
+        self._name_ = preset['Name']
         self._comment = preset['Comment']
 
     def doStart(self):
@@ -243,7 +243,7 @@ class DSPec(PyTangoDevice, Measurable):
         self.doStop()
 
         # reset preset values
-        self._name = ''
+        self._name_ = ''
         self._comment = ''
 
         self._started = None
