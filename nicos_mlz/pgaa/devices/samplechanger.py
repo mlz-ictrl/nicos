@@ -21,89 +21,10 @@
 #   Johannes Schwarz <johannes.schwarz@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes for the sample changer."""
+"""Class for the sample changer."""
 
-from IO import StringIO
-
-from nicos.core import Attach, Device, Moveable, Override, Readable, status
+from nicos.core import Attach, Moveable, Override
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
-from nicos.devices.taco import NamedDigitalOutput, TacoDevice
-from nicos_mlz.panda.devices.mcc2 import MCC2Motor
-
-
-class TacoSerial(TacoDevice, Device):
-    taco_class = StringIO
-
-    def communicate(self, what):
-        return self._taco_guard(self._dev.communicate, what)
-
-
-class SamplePusher(NamedDigitalOutput):
-
-    attached_devices = {
-        'sensort': Attach('Sensor on top of the tube.', Readable),
-        'sensorl': Attach('Sensor on the downside', Readable),
-        'motor': Attach('Stage rotation', Moveable),
-    }
-
-    parameter_overrides = {
-        'unit': Override(default=''),
-        'fmtstr': Override(default='%s'),
-    }
-
-    def doInit(self, mode):
-        NamedDigitalOutput.doInit(self, mode)
-        self._target_sens = None
-
-    def doIsAllowed(self, pos):
-        if self._attached_motor.status(0)[0] == status.BUSY:
-            return False, 'motor moving'
-        if self._attached_motor.read(0) not in (1., 2., 3., 4., 5., 6., 7., 8.,
-                                                9., 10., 11., 12., 13., 14.,
-                                                15., 16.):
-            return False, 'invalid motor position'
-        return True, 'ok'
-
-    def doStart(self, val):
-        pos = self.mapping.get(val, val)
-        self._taco_guard(self._dev.write, pos)
-        if pos == 0:
-            self._target_sens = self._attached_sensort
-        elif pos == 1:
-            self._target_sens = self._attached_sensorl
-
-    def doStatus(self, maxage=0):
-        # it is a local object so poller gives wrong state here but maw works
-        if self._target_sens:
-            if self._target_sens.read(maxage) == 0:
-                return status.BUSY, 'moving'
-            elif self._target_sens.read(maxage) == 1:
-                self._target_sens = None
-        return status.OK, 'idle'
-
-    def doRead(self, maxage=0):
-        if self._attached_sensort.read(maxage):
-            return self._reverse.get(0, 0)
-        elif self._attached_sensorl.read(maxage):
-            return self._reverse.get(1, 1)
-
-
-class SampleMotor(MCC2Motor):
-
-    attached_devices = {
-        'sensor': Attach('Active sensor locks the motor', Readable)
-    }
-
-    def doInit(self, mode):
-        MCC2Motor.doInit(self, mode)
-        # unlock motor
-        self.comm('XP27S1')
-
-    def doIsAllowed(self, pos):
-        if pos != self.doRead(0):
-            if not self._attached_sensor.read(0):
-                return False, 'top sensor not active'
-        return True, 'ok'
 
 
 class SampleChanger(BaseSequencer):
@@ -111,8 +32,7 @@ class SampleChanger(BaseSequencer):
 
     attached_devices = {
         'motor': Attach('Stage rotation', Moveable),
-        'push': Attach('Moving sample to rotation stage',
-                       Moveable),  # SamplePusher),
+        'push': Attach('Moving sample to rotation stage', Moveable),
     }
 
     parameter_overrides = {
@@ -125,8 +45,7 @@ class SampleChanger(BaseSequencer):
         if target != self.doRead(0):
             seq.append(SeqDev(self._attached_push, 'up', stoppable=False))
             seq.append(SeqSleep(2))
-            seq.append(SeqDev(self._attached_motor, target,
-                              stoppable=False))
+            seq.append(SeqDev(self._attached_motor, target, stoppable=False))
             seq.append(SeqSleep(2))
             seq.append(SeqDev(self._attached_push, 'down', stoppable=False))
         return seq

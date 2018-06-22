@@ -35,6 +35,7 @@ devices = dict(
         precision = [0.1],
         blockingmove = False,
         fmtstr = '%d',
+        lowlevel = True,
     ),
     push = device('nicos.devices.generic.ManualSwitch',
         description = 'Push sample up and down',
