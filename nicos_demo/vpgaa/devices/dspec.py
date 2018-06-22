@@ -62,7 +62,8 @@ class DSPec(Detector):
 
     parameters = {
         'prefix': Param('prefix for filesaving',
-                        type=str, settable=False, mandatory=True),
+                        type=str, settable=False, mandatory=True,
+                        category='general'),
         # 'preselection': Param('presel', type=dict, settable=True,
         #                       userparam=False, mandatory=False),
     }

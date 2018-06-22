@@ -35,7 +35,8 @@ class DSPec(PyTangoDevice, Measurable):
 
     parameters = {
         'prefix': Param('prefix for filesaving',
-                        type=str, settable=False, mandatory=True),
+                        type=str, settable=False, mandatory=True,
+                        category='general'),
     }
 
     # XXX: issues with ortec API -> workarounds and only truetime and livetime
