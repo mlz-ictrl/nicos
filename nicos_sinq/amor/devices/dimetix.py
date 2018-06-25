@@ -35,3 +35,6 @@ class EpicsDimetix(HasSwitchPv, EpicsReadable):
             return status.WARN, 'Laser OFF'
 
         return EpicsReadable.doStatus(self, maxage)
+
+    def doRead(self, maxage=0):
+        return int(round(EpicsReadable.doRead(self, maxage)*0.1))
