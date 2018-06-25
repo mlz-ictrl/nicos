@@ -203,6 +203,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.log.error('read: connection broken (%s)', err)
             raise CloseConnection
 
+    def closeSockets(self):
+        closeSocket(self.event_sock)
+        closeSocket(self.sock)
+
     def check_host(self):
         """Match the connecting host against the daemon's list of
         trusted hosts.
@@ -348,9 +352,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s', event, repr(data)[:1000])
         self.log.info('closing connections from event sender')
-        closeSocket(sock)
-        # also close the main connection if not already done
-        closeSocket(self.sock)
+        self.closeSockets()
 
     # -- Script control commands ----------------------------------------------
 
