@@ -39,7 +39,8 @@ devices = dict(
         microstep = 128,
         speed = 0.2,
         accel = 0.2,
-        sensor = 'sensort'
+        sensor = 'sensort',
+        lowlevel = True,
     ),
     push = device('nicos_mlz.pgaa.devices.sampledevices.SamplePusher',
         description = 'Push sample up and down',
