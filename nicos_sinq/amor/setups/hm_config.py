@@ -6,7 +6,7 @@ devices = dict(
     hm_connector=device(
         'nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description="Connector for Histogram Memory Server",
-        baseurl='http://localhost:8080/admin',
+        baseurl='http://amorhm:80/admin',
         base64auth='c3B5OjAwNw==',
         lowlevel=True
     ),

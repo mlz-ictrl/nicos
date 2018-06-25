@@ -103,7 +103,7 @@ devices = dict(
         lowlevel=True,
         bank='hm_bank0',
         connector='hm_connector',
-        serverbyteorder='little',
+        serverbyteorder='big',
         databyteorder='little',
         readbytes=True,
     ),
@@ -114,6 +114,7 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=0,
+        serverbyteorder='big',
         readbytes=True,
     ),
     single_det2_channel=device(
@@ -123,6 +124,7 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=1,
+        serverbyteorder='big',
         readbytes=True,
     ),
     single_det3_channel=device(
@@ -132,6 +134,7 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=2,
+        serverbyteorder='big',
         readbytes=True,
     ),
     psd_tof=device(
