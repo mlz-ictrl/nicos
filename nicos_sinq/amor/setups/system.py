@@ -107,13 +107,13 @@ devices = dict(
         statustopic="forward-epics-status",
         instpvtopic="amor-pvs",
         instpvschema='f142',
-        brokers=["localhost:9092"],
+        brokers=["ess01:9092"],
     ),
 
     NexusDataSink=device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
         description="Sink for NeXus file writer (kafka-to-nexus)",
-        brokers=["localhost:9092"],
+        brokers=["ess01:9092"],
         cmdtopic="file-writer-cmds",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
@@ -122,7 +122,7 @@ devices = dict(
 
     HistogramDataSink=device(
         'nicos_sinq.amor.devices.datasinks.ImageKafkaWithLiveViewDataSink',
-        brokers=["localhost:9092"],
+        brokers=["ess01:9092"],
         channeltostream={
             'area_detector_channel': ('AMOR.detector.area', 'area.tof'),
             'single_det1_channel': ('AMOR.detector.single1', 'single.tof'),
@@ -134,7 +134,7 @@ devices = dict(
     NexusFileWriter=device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
         description="Status for nexus file writing",
-        brokers=["localhost:9092"],
+        brokers=["ess01:9092"],
         statustopic="file-writer-status",
     )
 )

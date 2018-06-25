@@ -11,7 +11,7 @@ devices = dict(
         'nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
         currenttopic='nicos-flatbuffers',
         historytopic='nicos-flatbuffers-history',
-        brokers=['localhost:9092'],
+        brokers=['ess01:9092'],
         loglevel='info',
         serializer='serializer'
     ),
