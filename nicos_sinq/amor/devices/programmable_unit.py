@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, pvname, usermethod
+from nicos.core import Param, pvname, usermethod, status, Override
+from nicos.core.errors import PositionError
 from nicos.devices.abstract import MappedReadable
 from nicos.devices.epics import EpicsReadable
 
@@ -38,25 +39,47 @@ class ProgrammableUnit(MappedReadable, EpicsReadable):
 
     parameters = {
         'byte': Param('Byte number representing the state of this unit',
-                      type=int, mandatory=True),
+                      type=int, mandatory=True, userparam=False,
+                      settable=False),
+        'bit': Param('Bit number from the byte representing the state',
+                     type=int, mandatory=True, userparam=False,
+                     settable=False),
         'commandpv': Param('PV to issue commands to the asyn controller',
-                           type=pvname, mandatory=True, settable=False),
+                           type=pvname, mandatory=True, settable=False,
+                           userparam=False),
         'commandstr': Param('Command to issue on commandpv for switching '
-                            'the state ', type=str, mandatory=True),
+                            'the state ', type=str, mandatory=True,
+                            settable=False, userparam=False),
+    }
+
+    parameter_overrides = {
+        'mapping': Override(userparam=False, settable=False),
+        'fallback': Override(userparam=False),
+        'unit': Override(userparam=False)
     }
 
     def _get_pv_parameters(self):
         return EpicsReadable._get_pv_parameters(self) | {'commandpv'}
 
     def doInit(self, mode):
-        EpicsReadable.doInit(self, mode)
         MappedReadable.doInit(self, mode)
+        EpicsReadable.doInit(self, mode)
+
+    def doStatus(self, maxage=0):
+        epics_status = EpicsReadable.doStatus(self, maxage)
+        if epics_status[0] == status.OK:
+            return status.OK, ''
+
+        return epics_status
 
     def _readRaw(self, maxage=0):
         raw = EpicsReadable.doRead(self, maxage)
-        if self.byte < len(raw):
-            return raw[self.byte]
-        return None
+
+        if self.byte > len(raw):
+            raise PositionError('Byte specified is out of bounds')
+
+        powered = 1 << self.bit
+        return int(raw[self.byte] & powered == powered)
 
     @usermethod
     def toggle(self):

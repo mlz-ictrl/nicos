@@ -88,6 +88,18 @@ devices = dict(
                  minfree=5,
                  ),
 
+    Shutter=device(
+        'nicos_sinq.amor.devices.programmable_unit.ProgrammableUnit',
+        description='Shutter controlled by SPS',
+        epicstimeout=3.0,
+        readpv='SQ:AMOR:SPS1:DigitalInput',
+        commandpv='SQ:AMOR:SPS1:Push',
+        commandstr="S0000",
+        byte=4,
+        bit=2,
+        mapping={'CLOSED': 0, 'OPEN': 1}
+    ),
+
     KafkaForwarder=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description="Configures commands to forward-epics-to-kafka",
