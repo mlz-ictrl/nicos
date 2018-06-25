@@ -26,21 +26,19 @@
 from collections import OrderedDict
 
 from nicos.core import Attach, ConfigurationError, Override, Param, Readable, \
-    UsageError, pvname, status, usermethod, HasPrecision
+    UsageError, pvname, status, requires, HasPrecision, ADMIN
 from nicos_ess.devices.epics.base import EpicsDeviceEss, \
     EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
 
 
 class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
-    """
-    Used to represent speed setter for the chopper
+    """Used to represent speed setter for the chopper
     """
     valuetype = int
 
 
 class EpicsChopperDisc(EpicsDeviceEss, Readable):
-    """
-    Class that represents one of the chopper disc in the
+    """Class that represents one of the chopper disc in the
     chopper system. The chopper disk can be either MASTER
     or a SLAVE. In case it is master, one should be able to
     set the speed and in case it is a slave, the ratio and
@@ -55,16 +53,17 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
         'basepv': Param('Base PV name of the chopper disc',
                         type=pvname, mandatory=True, settable=False),
         'speed': Param('Frequency of the chopper disc', type=int,
-                       settable=True, volatile=True),
+                       settable=True, volatile=True, userparam=False),
         'phase': Param('Phase of the chopper disc', type=int,
-                       settable=True, volatile=True),
+                       settable=True, volatile=True, userparam=False),
         'ratio': Param('Frequency ratio of the chopper disc to master',
-                       type=int, settable=True, volatile=True),
+                       type=int, settable=True, volatile=True,
+                       userparam=False),
     }
 
     parameter_overrides = {
-        'fmtstr': Override(volatile=True),
-        'unit': Override(mandatory=False),
+        'fmtstr': Override(volatile=True, userparam=False),
+        'unit': Override(mandatory=False, userparam=False),
     }
 
     attached_devices = {
@@ -111,6 +110,9 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     def _displayed_props(self):
         # Just display the speed and phase in read, rest are in info
+        if self.isMaster:
+            # Phase is not relevant for master
+            return ['speed']
         return ['speed', 'phase']
 
     def doRead(self, maxage=0):
@@ -136,11 +138,11 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
             return EpicsDeviceEss.doStatus(self, maxage)
 
         if (self._attached_speed
-            and self._attached_speed.status(maxage)[0] == status.BUSY):
+                and self._attached_speed.status(maxage)[0] == status.BUSY):
             return status.BUSY, 'Speed moving to target'
 
         if (self._attached_phase
-            and self._attached_phase.status(maxage)[0] == status.BUSY):
+                and self._attached_phase.status(maxage)[0] == status.BUSY):
             return status.BUSY, 'Phase moving to target'
 
         return status.OK, 'Master' if self.isMaster else 'Slave'
@@ -190,8 +192,7 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
 
 class EpicsAstriumChopper(HasPrecision, Readable):
-    """
-    Main class to control Astrium Chopper in SINQ instruments. A list
+    """Main class to control Astrium Chopper in SINQ instruments. A list
     of attached choppers provide the chopper discs in the system.
 
     Speed for the whole system can be change using master speed
@@ -205,7 +206,7 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False)
+        'unit': Override(mandatory=False, userparam=False)
     }
 
     _master = None
@@ -225,11 +226,7 @@ class EpicsAstriumChopper(HasPrecision, Readable):
                 'Did not find any master! Check the EPICS PV State.')
 
     def doRead(self, maxage=0):
-        # Read the actual speed and phase of the chopper disks
-        return [str((ch.speed, ch.phase)) for ch in self._attached_choppers]
-
-    def doReadFmtstr(self):
-        return ', '.join(ch.name + ': %s' for ch in self._attached_choppers)
+        return ''
 
     def doStatus(self, maxage=0):
         errors = []
@@ -253,7 +250,7 @@ class EpicsAstriumChopper(HasPrecision, Readable):
                     # is still moving to target
                     busy.append('Moving to target speed')
             elif (abs(ch.ratio * ch.speed - self._master.speed) >
-                      self.precision):
+                  self.precision):
                 # If a slave speed ratio does not match with the master,
                 # this would imply the speed of slave is being changed
                 busy.append('Setting the correct speed of %s' % ch.name)
@@ -267,19 +264,17 @@ class EpicsAstriumChopper(HasPrecision, Readable):
 
         return status.OK, 'Spinning' if self._master.speed > 0 else 'Idle'
 
-    @usermethod
-    def chspeed(self, speed):
-        """
-        Change the speed of the master chopper
+    @requires(level=ADMIN)
+    def master_speed(self, speed):
+        """Change the speed of the master chopper
         :param speed: new speed of the master. In case there are slaves, the
                       speed can be adjusted using the ratio variable
         """
         self._master.speed = speed
 
-    @usermethod
-    def chphase(self, ch_name, phase):
-        """
-        Change the phase of given slave disc
+    @requires(level=ADMIN)
+    def ch_phase(self, ch_name, phase):
+        """Change the phase of given slave disc
         :param ch_name: name of the slave chopper disc
         :param phase: new phase value
         """
@@ -292,10 +287,9 @@ class EpicsAstriumChopper(HasPrecision, Readable):
 
         ch[0].phase = phase
 
-    @usermethod
-    def chratio(self, ch_name, ratio):
-        """
-        Change the speed ratio to master of the give slave
+    @requires(level=ADMIN)
+    def ch_ratio(self, ch_name, ratio):
+        """Change the speed ratio to master of the given slave
         :param ch_name: name of the slave chopper disc
         :param ratio: new ratio value
         """
@@ -308,10 +302,8 @@ class EpicsAstriumChopper(HasPrecision, Readable):
 
         ch[0].ratio = ratio
 
-    @usermethod
-    def stop(self):
-        """
-        Stops changing the speed of the chopper disks
-        :return:
+    @requires(level=ADMIN)
+    def maintain_speed(self):
+        """Stops changing the speed of the chopper disks
         """
         self.chspeed(self._master.speed)
