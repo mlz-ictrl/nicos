@@ -41,7 +41,6 @@ class AmorTofArray(HistogramConfTofArray):
         q means Delta q = constant, <argument> is the number of bins/channels
         qq assumes two spectra per pulse
         t means Delta t = constant, <argument> is the number of bins/channels
-        tmax  full range
     """
     attached_devices = {
         'dchopper': Attach('Distance of chopper', ComponentHandler),
@@ -53,7 +52,6 @@ class AmorTofArray(HistogramConfTofArray):
         'c': float,
         'q': int,
         't': int,
-        'tmax': None,
         'qq': int,
     }
 
@@ -208,12 +206,6 @@ class AmorTofArray(HistogramConfTofArray):
             bins.append(int(tim + toffset))
             bn += 1
         return bins
-
-    def _timebin_scheme_tmax(self, tmin, tmax, toffset, tau, channels):
-        channels = 400
-        self.log.info('Using full range, %s channels', channels)
-        step = tau / channels
-        return range(0, step * channels, step)
 
 
 class AmorHMConfigurator(ConfiguratorBase):

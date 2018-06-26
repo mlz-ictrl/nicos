@@ -121,7 +121,6 @@ def UpdateTimeBinning(scheme, value=None):
         q means Delta q = constant, <argument> is the number of bins/channels
         qq assumes two spectra per pulse
         t means Delta t = constant, <argument> is the number of bins/channels
-        tmax  full range
 
     Example:
 
@@ -131,8 +130,6 @@ def UpdateTimeBinning(scheme, value=None):
     Following command uses the scheme q with 250 channels
     >>> UpdateTimeBinning('q', 250)
 
-    Following command uses the scheme tmax with full range
-    >>> UpdateTimeBinning('tmax')
     """
     # Get the configurator device
     try:
