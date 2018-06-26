@@ -54,10 +54,8 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'metadevice storing the scanfiles',
         filenametemplate = [
-            '%(proposal)s_'
-            '%(scancounter)08d.dat', '/%(year)d/cycle_%(cycle)s/'
-            '%(proposal)s_'
-            '%(scancounter)08d.dat'
+            '%(proposal)s_%(scancounter)08d.dat',
+            '/%(year)d/cycle_%(cycle)s/%(proposal)s_%(scancounter)08d.dat'
         ],
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
