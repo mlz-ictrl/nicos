@@ -27,8 +27,7 @@
 from nicos import session
 from nicos.core import FINAL, LIVE, INTERRUPTED, Override
 from nicos.core.constants import POINT
-from nicos.core.data import DataSink, DataSinkHandler
-from nicos.core.data.manager import DataFile
+from nicos.core.data import DataFile, DataSink, DataSinkHandler
 from nicos.devices.datasinks import FileSink
 from nicos.utils import syncFile, ReaderRegistry
 from nicos.pycompat import add_metaclass
