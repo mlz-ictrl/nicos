@@ -26,9 +26,11 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Measurable, Param, Value, status, usermethod
+from nicos.core import ArrayDesc, Measurable, Param, Value, status
 from nicos.core.errors import NicosError
 from nicos.devices.tango import PyTangoDevice
+
+import numpy as np
 
 
 class DSPec(PyTangoDevice, Measurable):
@@ -37,13 +39,29 @@ class DSPec(PyTangoDevice, Measurable):
         'prefix': Param('prefix for filesaving',
                         type=str, settable=False, mandatory=True,
                         category='general'),
+        'ecalslope': Param('Energy calibration slope',
+                           type=int, mandatory=False, settable=True,
+                           prefercache=True, default=0),
+        'ecalintercept': Param('Energy calibration interception',
+                               type=int, mandatory=False, settable=True,
+                               prefercache=True, default=0),
+        'poll': Param('Polling time of the TANGO device driver',
+                      type=float, settable=False, volatile=True),
+        'cacheinterval': Param('Interval to cache intermediate spectra',
+                               type=float, unit='s', settable=True,
+                               default=1800),
     }
 
     # XXX: issues with ortec API -> workarounds and only truetime and livetime
     # working.
 
-    @usermethod
-    def getvals(self):
+    def doReadEcalslope(self):
+        return self._dev.EnergyCalibration[1]
+
+    def doReadEcalintercept(self):
+        return self._dev.EnergyCalibration[2]
+
+    def doReadArrays(self, quality):
         spectrum = None
         try:
             spectrum = [int(i) for i in self._dev.Value.tolist()]
@@ -54,116 +72,97 @@ class DSPec(PyTangoDevice, Measurable):
                 spectrum = [int(i) for i in self._read_cache.tolist()]
             else:
                 self.log.warning('no spectrum cached')
-        return spectrum
+        return [spectrum]
 
-    @usermethod
-    def getEcal(self):
-        return str(self._dev.EnergyCalibration)
+    def doRead(self, maxage=0):
+        ret = [self._dev.TrueTime[0], self._dev.LiveTime[0],
+               sum(self._dev.Value.tolist())]
+        return ret
 
-    @usermethod
-    def getlive(self):
-        return self._dev.LiveTime[0]
-
-    @usermethod
-    def getpoll(self):
+    def doReadPoll(self):
         return self._dev.PollTime[0]
 
-    @usermethod
-    def gettrue(self):
-        return self._dev.TrueTime[0]
+    def _clear(self):
+        self._started = None
+        self._lastread = 0
+        self._comment = ''
+        self._name_ = ''
+        self._stop = None
+        self._preset = {}
+        self._dont_stop_flag = False
+        self._read_cache = None
 
-    @usermethod
-    def initdev(self):
+    def doReset(self):
+        self._clear()
         self._dev.Init()
 
-    @usermethod
-    def getstate(self):
-        return self._dev.Status()
-
-    @usermethod
-    def savefile(self):
-        self.doFinish()
-
-    @usermethod
-    def resetvals(self):
-        self._started = None
-        self._lastread = 0
-        self._comment = ''
-        self._name_ = ''
-        self._stop = None
-        self._preset = {}
-        self._dont_stop_flag = False
-        self._read_cache = None
-
     def doInit(self, mode):
-        self._started = None
-        self._lastread = 0
-        self._comment = ''
-        self._name_ = ''
-        self._stop = None
-        self._preset = {}
-        self._dont_stop_flag = False
-        self._read_cache = None
+        self._clear()
+        self.arraydesc = ArrayDesc('data', (1, 16384), np.uint32)
+
+    def doFinish(self):
+        self.doStop()
+        # reset preset values
+        self._clear()
 
     def doReadIsmaster(self):
         pass
 
-    def doRead(self, maxage=0):
-        return self._dev.Value.tolist()
-
     def presetInfo(self):
-        return set(['cond', 'value', 'Name', 'Comment', 'Filename',
-                    'Detectors', 'Comment', 'Pos', 'Beam', 'Attenuator',
-                    'ElCol', 'started'])
+        return set(['info', 'Filename',
+                    'TrueTime', 'LiveTime', 'ClockTime', 'counts'])
 
     def doSetPreset(self, **preset):
-        self._started = None
-        self._lastread = None
-        self._read_cache = None
-        self._dont_stop_flag = False
-        self._comment = ''
-        self._name_ = ''
-        self._stop = None
+        self._clear()
+
+        if 'TrueTime' in preset:
+            if self._sim_active:
+                return
+            try:
+                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncValue = preset['TrueTime'] * 1000
+            except NicosError:
+                try:
+                    self.doStop()
+                    self._dev.Init()
+                except NicosError:
+                    return
+                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncValue = preset['TrueTime'] * 1000
+        elif 'LiveTime' in preset:
+            if self._sim_active:
+                return
+            try:
+                self._dev.SyncMode = 'LiveTime'
+                self._dev.SyncValue = preset['LiveTime'] * 1000
+            except NicosError:
+                try:
+                    self.doStop()
+                    self._dev.Init()
+                except NicosError:
+                    return
+                self._dev.SyncMode = 'LiveTime'
+                self._dev.SyncValue = preset['LiveTime'] * 1000
+        elif 'ClockTime' in preset:
+            self._stop = preset['ClockTime']
+        elif 'counts' in preset:
+            pass
+
         self._preset = preset
 
-        if preset['cond'] == 'TrueTime':
-            try:
-                self._dev.SyncMode = 'RealTime'
-                self._dev.SyncValue = preset['value'] * 1000
-            except NicosError:
-                try:
-                    self.doStop()
-                    self._dev.Init()
-                except NicosError:
-                    return
-                self._dev.SyncMode = 'RealTime'
-                self._dev.SyncValue = preset['value'] * 1000
-        elif preset['cond'] == 'LiveTime':
-            try:
-                self._dev.SyncMode = 'LiveTime'
-                self._dev.SyncValue = preset['value'] * 1000
-            except NicosError:
-                try:
-                    self.doStop()
-                    self._dev.Init()
-                except NicosError:
-                    return
-                self._dev.SyncMode = 'LiveTime'
-                self._dev.SyncValue = preset['value'] * 1000
-        elif preset['cond'] == 'ClockTime':
-            self._stop = preset['value']
-
-        self._name_ = preset['Name']
-        self._comment = preset['Comment']
-
     def doTime(self, preset):
-        if preset['cond'] in ['TrueTime', 'RealTime']:
-            return preset['value'] if 'value' in preset else 0
-        elif preset['cond'] == 'ClockTime':
-            return abs(float(preset['value']) - currenttime()) \
-                if 'value' in preset else 0
-        else:
-            return 0
+        self.doSetPreset(**preset)  # okay in simmode
+        return self.doEstimateTime(0) or 0
+
+    def doEstimateTime(self, elapsed):
+        if self.doStatus()[0] == status.BUSY:
+            if 'TrueTime' in self._preset:
+                return self._preset['TrueTime'] - elapsed
+            elif 'LiveTime' in self._preset:
+                return self._preset['LiveTime'] - elapsed
+            elif 'ClockTime' in self._preset:
+                return abs(float(self._preset['ClockTime']) - currenttime())
+        return None
 
     def doStart(self):
         try:
@@ -178,7 +177,6 @@ class DSPec(PyTangoDevice, Measurable):
                 self._dev.Start()
             except NicosError:
                 pass
-
         self._started = currenttime()
         self._lastread = currenttime()
 
@@ -194,9 +192,6 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Stop()
             self._dev.Start()
 
-    def doPoll(self, maxage=0):
-        return ((status.OK, ''), [0 for _i in range(16384)])
-
     def doStop(self):
         if self._dont_stop_flag:
             self._dont_stop_flag = False
@@ -207,20 +202,26 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Init()
             self._dev.Stop()
 
+    def duringMeasurementHook(self, elapsed):
+        if (elapsed - self._lastread) > self.cacheinterval:
+            try:
+                self._read_cache = self.doRead()
+                self.log.info('spectrum cached')
+            except NicosError:
+                self.log.warning('caching spectrum failed')
+            finally:
+                self._lastread = elapsed
+        return None
+
+    def doSimulate(self, preset):
+        self.doSetPreset(**preset)  # okay in simmode
+        return self.doRead()
+
     def doIsCompleted(self):
         if self._started is None:
             return True
         if self._dont_stop_flag is True:
             return (currenttime() - self._started) >= self._preset['value']
-
-        if (currenttime() - self._lastread) > (60 * 30):
-            try:
-                self._read_cache = self.doRead()
-                self.log.warning('spectrum cached')
-            except NicosError:
-                self.log.warning('try to cache spectrum failed')
-            finally:
-                self._lastread = currenttime()
 
         if self._stop is not None:
             if currenttime() >= self._stop:
@@ -243,24 +244,13 @@ class DSPec(PyTangoDevice, Measurable):
                 #                  'detector(s)...')
                 return False
             return stop < 0
-
         return False
 
     def valueInfo(self):
-        return (Value('DSpecspectrum', type='counter'),)
+        return (Value(name='truetim', type='time', fmtstr='%.3f', unit='s'),
+                Value(name='livetim', type='time', fmtstr='%.3f', unit='s'),
+                Value('DSpec', type='counter', fmtstr='%d', unit='cts'),
+                )
 
-    def doFinish(self):
-        self.doStop()
-
-        # reset preset values
-        self._name_ = ''
-        self._comment = ''
-
-        self._started = None
-        self._stop = None
-
-        self._preset = {}
-
-        self._read_cache = None
-        self._lastread = None
-        self._dont_stop_flag = False
+    def arrayInfo(self):
+        return (self.arraydesc,)

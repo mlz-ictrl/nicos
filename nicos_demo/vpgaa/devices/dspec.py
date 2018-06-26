@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
-from nicos.core import FINAL, Override, Param, intrange, status, tupleof, \
+from nicos.core import Override, Param, intrange, status, tupleof, \
     usermethod
 from nicos.devices.generic.detector import Detector
 from nicos.devices.generic.virtual import VirtualImage
@@ -64,40 +64,27 @@ class DSPec(Detector):
         'prefix': Param('prefix for filesaving',
                         type=str, settable=False, mandatory=True,
                         category='general'),
-        # 'preselection': Param('presel', type=dict, settable=True,
-        #                       userparam=False, mandatory=False),
+        'ecalslope': Param('Energy Calibration Slope',
+                           type=int, mandatory=False, settable=True,
+                           prefercache=True, default=0, category='general'),
+        'ecalintercept': Param('Energy Calibration Slope',
+                               type=int, mandatory=False, settable=True,
+                               prefercache=True, default=0,
+                               category='general'),
     }
 
-    @usermethod
-    def getvals(self):
-        spectrum = [int(i) for i in self.readArrays(FINAL)[0].tolist()[0]]
-        return spectrum
-
-    @usermethod
-    def gettrue(self):
-        for d in self._attached_timers:
-            if d.name == 'truetim':
-                return d.read(0)[0]
-        return 0
-
-    @usermethod
-    def getlive(self):
-        for d in self._attached_timers:
-            if d.name == 'livetim':
-                return d.read(0)[0]
-        return 0
-
     def _presetiter(self):
-        # for dev in self._attached_timers:
-        #     yield(dev.name, dev)
-        # yield Detector._presetiter(self)
-        for k in ('Comment', 'Attenuator', 'Name', 'started', 'Detectors',
-                  'Pos', 'value', 'Filename', 'Beam', 'cond', 'ElCol',
-                  'Position'):
+        for k in ('info', 'Filename'):
             yield k, None
-
-    def getEcal(self):
-        return '0 0 0'
+        for dev in self._attached_timers:
+            if dev.name == 'truetim':
+                yield 'TrueTime', dev
+            elif dev.name == 'livetim':
+                yield 'LiveTime', dev
+            elif dev.name == 'clocktim':
+                yield 'ClockTime', dev
+        for dev in self._attached_images:
+            yield 'counts', dev
 
     def _clear(self):
         self._started = None
@@ -119,47 +106,36 @@ class DSPec(Detector):
 
     def doSetPreset(self, **preset):
         self._clear()
-        self._preset = preset
-        # self.preselection = preset
         for master in self._masters:
             master.ismaster = False
-        if 'cond' in preset:
-            self.log.warn('Preset value: %s', preset['value'])
-            if preset['cond'] == 'ClockTime':
-                self._stop = preset['value']
-            elif preset['cond'] == 'TrueTime':
-                for d in self._attached_timers:
-                    if d.name == 'truetim':
-                        d.ismaster = True
-                        d.preselection = preset['value'] * 1
-                        # should_be_masters.add(d)
-            elif preset['cond'] == 'LiveTime':
-                for d in self._attached_timers:
-                    if d.name == 'livetim':
-                        d.ismaster = True
-                        d.preselection = preset['value'] * 1
-                        # should_be_masters.add(d)
-            elif preset['cond'] == 'counts':
-                for d in self._attached_images:
+        if 'TrueTime' in preset:
+            for d in self._attached_timers:
+                if d.name == 'truetim':
                     d.ismaster = True
-                    d.preselection = preset['value']
-        self._name_ = preset.get('Name', '')
-        self._comment = preset.get('Comment', '')
-        self._preset['Position'] = preset.get('Pos', '')
-        for k in ('Comment', 'Attenuator', 'Name', 'started', 'Detectors',
-                  'Pos', 'value', 'Filename', 'Beam', 'cond', 'ElCol',
-                  'Position'):
-            preset.pop(k)
-            # self._presetkeys.pop(k)
-        self._getMasters()
-        self.log.warn('Preset keys: %r', self._presetkeys)
-        # Detector.doSetPreset(self, **preset)
+                    d.preselection = preset['TrueTime'] * 1
+        elif 'LiveTime' in preset:
+            for d in self._attached_timers:
+                if d.name == 'livetim':
+                    d.ismaster = True
+                    d.preselection = preset['LiveTime'] * 1
+        elif 'ClockTime' in preset:
+            self._stop = preset['ClockTime']
+        elif 'counts' in preset:
+            for d in self._attached_images:
+                d.ismaster = True
+                d.preselection = preset['counts']
+
+        self._preset = preset
+        for k in ('Filename',
+                  'LiveTime', 'TrueTime', 'ClockTime', 'counts'):
+            preset.pop(k, '')
+        self.log.debug('Preset keys: %r', self._presetkeys)
+        Detector.doSetPreset(self, **preset)
 
     @usermethod
     def resetvals(self):
         self._clear()
 
     def presetInfo(self):
-        return ('cond', 'value', 'Name', 'Name', 'Comment', 'Pos', 'Beam',
-                'Attenuator', 'ElCol', 'started', 'Subfolder', 'Detectors',
-                'Filename')
+        return set(['info', 'Filename',
+                    'TrueTime', 'LiveTime', 'ClockTime', 'counts'])
