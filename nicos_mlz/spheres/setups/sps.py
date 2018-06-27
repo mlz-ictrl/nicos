@@ -1,93 +1,112 @@
+# -*- coding: utf-8 -*-
+
 description = 'sps devices'
 
 group = 'optional'
 
-sps_base = 'tango://phys.spheres.frm2:10000/spheres/profibus/sps_'
+tangohost = 'phys.spheres.frm2'
+profibus_base = 'tango://%s:10000/spheres/profibus/sps_' % tangohost
+profinet_base = 'tango://%s:10000/spheres/profinet/back_' % tangohost
 
-analogs = [
-    {'name': 'rpower', 'desc': 'reactor power', 'unit': 'MW', 'low': False},
-    {'name': 'chop_vib1', 'desc': 'chopper primary bearing vibration', 'unit': 'mm/s', 'low': True},
-    {'name': 'chop_vib2', 'desc': 'chopper secondary bearing vibration', 'unit': 'mm/s', 'low': True},
-    {'name': 'chop_spm1', 'desc': 'chopper primary bearing volume', 'unit': 'dB', 'low': True},
-    {'name': 'chop_spm2', 'desc': 'chopper secondary bearing volume', 'unit': 'dB', 'low': True},
-    {'name': 'chop_tmpmot', 'desc': 'chopper motor temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'chop_curr', 'desc': 'chopper motor current', 'unit': 'A', 'low': True},
-    {'name': 'chop_freq', 'desc': 'chopper frequency', 'unit': 'Hz', 'low': True},
-    {'name': 'chop_tmp1', 'desc': 'chopper primary bearing temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'chop_tmp2', 'desc':'chopper secondary bearing temperature' , 'unit': 'deg C', 'low': True},
-    {'name': 'oxygen_floor1', 'desc': 'oxygen floor 1', 'unit': 'percent', 'low': True},
-    {'name': 'oxygen_ceil1', 'desc': 'oxygen ceiling 1', 'unit': 'percent', 'low': True},
-    {'name': 'oxygen_floor2', 'desc': 'oxygen floor 2', 'unit': 'percent', 'low': True},
-    {'name': 'oxygen_ceil2', 'desc': 'oxygen ceiling 2', 'unit': 'percent', 'low': True},
-    {'name': 'sel_tmp1', 'desc': 'selector rotor temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'sel_water_tmp_i', 'desc': 'selector water in temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'sel_water_tmp_f', 'desc': 'selector water out temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'sel_water_flow', 'desc': 'selector water out temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'sel_freq', 'desc': 'selector frequency', 'unit': 'Hz', 'low': True},
-    {'name': 'sel_vib1', 'desc': 'sleector vibration 1', 'unit': 'BCU', 'low': True},
-    {'name': 'sel_vib2', 'desc': 'selector vibration 2', 'unit': 'mm/s', 'low': True},
-    {'name': 'sel_vacuum', 'desc': 'selector vacuum', 'unit': 'prop to lg mbar', 'low': True},
-    {'name': 'dop_tmp_L_mot', 'desc': 'doppler left motor temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'dop_tmp_L_i', 'desc': 'doppler left motor water in temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'dop_tmp_L_f', 'desc': 'doppler left motor water out temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'dop_tmp_R_mot', 'desc': 'doppler right motor temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'dop_tmp_R_i', 'desc': 'doppler right motor water in temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'dop_tmp_R_f', 'desc': 'doppler right motor water out temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'argon_PDIC11', 'desc': 'housing pressure difference', 'unit': 'mabr', 'low': True},
-    {'name': 'argon_Pin_argon', 'desc': 'argon supply pressure', 'unit': 'bar', 'low': True},
-    {'name': 'argon_Pin_air', 'desc': 'air supply pressure', 'unit': 'bar', 'low': True},
-    {'name': 'argon_flow1', 'desc': 'RV1 flow', 'unit': 'm3/h', 'low': True},
-    {'name': 'argon_volume1', 'desc': 'RV1 input volume', 'unit': 'm3', 'low': True},
-    {'name': 'argon_flow2', 'desc': 'RV2 flow', 'unit': 'm3/h', 'low': True},
-    {'name': 'argon_volume2', 'desc': 'RV2 input volume', 'unit': 'm3', 'low': True},
-    {'name': 'argon_step', 'desc': 'argon controll status', 'unit': '', 'low': True},
-    {'name': 'housing_tmp', 'desc': 'housing temperature', 'unit': 'deg C', 'low': True},
-    {'name': 'hall_air_P', 'desc': 'hall air pressure', 'unit': 'mbar', 'low': True},
-    {'name': 'seal_hatch_P', 'desc': 'hatch seal pressure', 'unit': 'bar', 'low': True},
-    {'name': 'seal_door_P', 'desc': 'door seal pressure', 'unit': 'bar', 'low': True},
-]
+analogs = dict(
+    rpower = dict(desc='reactor power', unit='MW', low=False),
+    chop_vib1 = dict(desc='chopper primary bearing vibration', unit='mm/s', low=True),
+    chop_vib2 = dict(desc='chopper secondary bearing vibration', unit='mm/s', low=True),
+    chop_spm1 = dict(desc='chopper primary bearing volume', unit='dB', low=True),
+    chop_spm2 = dict(desc='chopper secondary bearing volume', unit='dB', low=True),
+    chop_tmpmot = dict(desc='chopper motor temperature', unit='deg C', low=True),
+    chop_curr = dict(desc='chopper motor current', unit='A', low=True),
+    chop_freq = dict(desc='chopper frequency', unit='Hz', low=True),
+    chop_tmp1 = dict(desc='chopper primary bearing temperature', unit='deg C', low=True),
+    chop_tmp2 = dict(desc='chopper secondary bearing temperature' , unit='deg C', low=True),
+    oxygen_floor1 = dict(desc='oxygen floor 1', unit='percent', low=True),
+    oxygen_ceil1 = dict(desc='oxygen ceiling 1', unit='percent', low=True),
+    oxygen_floor2 = dict(desc='oxygen floor 2', unit='percent', low=True),
+    oxygen_ceil2 = dict(desc='oxygen ceiling 2', unit='percent', low=True),
+    sel_tmp1 = dict(desc='selector rotor temperature', unit='deg C', low=True),
+    sel_water_tmp_i = dict(desc='selector water in temperature', unit='deg C', low=True),
+    sel_water_tmp_f = dict(desc='selector water out temperature', unit='deg C', low=True),
+    sel_water_flow = dict(desc='selector water out temperature', unit='deg C', low=True),
+    sel_freq = dict(desc='selector frequency', unit='Hz', low=True),
+    sel_vib1 = dict(desc='sleector vibration 1', unit='BCU', low=True),
+    sel_vib2 = dict(desc='selector vibration 2', unit='mm/s', low=True),
+    sel_vacuum = dict(desc='selector vacuum', unit='prop to lg mbar', low=True),
+    dop_tmp_L_mot = dict(desc='doppler left motor temperature', unit='deg C', low=True),
+    dop_tmp_L_i = dict(desc='doppler left motor water in temperature', unit='deg C', low=True),
+    dop_tmp_L_f = dict(desc='doppler left motor water out temperature', unit='deg C', low=True),
+    dop_tmp_R_mot = dict(desc='doppler right motor temperature', unit='deg C', low=True),
+    dop_tmp_R_i = dict(desc='doppler right motor water in temperature', unit='deg C', low=True),
+    dop_tmp_R_f = dict(desc='doppler right motor water out temperature', unit='deg C', low=True),
+    argon_PDIC11 = dict(desc='housing pressure difference', unit='mbar', low=True),
+    argon_Pin_argon = dict(desc='argon supply pressure', unit='bar', low=True),
+    argon_Pin_air = dict(desc='air supply pressure', unit='bar', low=True),
+    argon_flow1 = dict(desc='RV1 flow', unit='m3/h', low=True),
+    argon_volume1 = dict(desc='RV1 input volume', unit='m3', low=True),
+    argon_flow2 = dict(desc='RV2 flow', unit='m3/h', low=True),
+    argon_volume2 = dict(desc='RV2 input volume', unit='m3', low=True),
+    argon_step = dict(desc='argon controll status', unit='', low=True),
+    housing_tmp = dict(desc='housing temperature', unit='deg C', low=True),
+    hall_air_P = dict(desc='hall air pressure', unit='mbar', low=True),
+    seal_hatch_P = dict(desc='hatch seal pressure', unit='bar', low=True),
+    seal_door_P = dict(desc='door seal pressure', unit='bar', low=True),
+    chopper_vac = dict(desc='chopper vacuum', unit='mbar',low=True),
+    nguide_vac = dict(desc='neutronguide vacuum', unit='mbar', low=True),
+    nguide_he = dict(desc='neutronguide helium percentage', unit='percent', low=False),
+)
 
-digitals = [
-    {'name': 'upstream_connection', 'mapping': 4, 'desc': 'NLA-Leittechnik', 'low': True},
-    {'name': 'upstream_approval', 'mapping': 5, 'desc': 'NLA-Leittechnik Freigabe', 'low': True},
-    {'name': 'shut_remote', 'mapping': 0, 'desc': 'toggle switch remote', 'low': True},
-    {'name': 'shut_key', 'mapping': 4, 'desc': 'shutter relaease', 'low': True},
-    {'name': 'shut_indicator', 'mapping': 6, 'desc': 'off-limit area indicator', 'low': True},
-    {'name': 'door_closed_locked', 'mapping': 0, 'desc': 'door closed and locked', 'low': True},
-    {'name': 'housing_hatch_open', 'mapping': 0, 'desc': 'housing hatch open', 'low': True},
-    {'name': 'housing_clearance', 'mapping': 6, 'desc': 'housing clearance', 'low': True},
-    {'name': 'housing_tmp_alert', 'mapping': 6, 'desc': 'housing temperature alert', 'low': True},
-    {'name': 'housing_chain1_open', 'mapping': 0, 'desc': 'housing chain 1 open', 'low': True},
-    {'name': 'housing_chain2_open', 'mapping': 0, 'desc': 'housing chain 2 open', 'low': True},
-    {'name': 'housing_chain3_open', 'mapping': 0, 'desc': 'housing chain stairs open', 'low': True},
-    {'name': 'compressed_air', 'mapping': 4, 'desc': 'compressed air status', 'low': True},
-    {'name': 'emergency_stop_ok', 'mapping': 5, 'desc': 'emergency stop', 'low': True},
-    {'name': 'sps_fault', 'mapping': 6, 'desc': 'F-SPS fault', 'low': True},
-    {'name': 'sps_ack_req', 'mapping': 6, 'desc': 'F-SPS acknowledge required', 'low': True},
-    {'name': 'argon_indicator', 'mapping': 6, 'desc': 'argon indicator', 'low': True},
-    {'name': 'argon_horn', 'mapping': 6, 'desc': 'argon horn', 'low': True},
-    {'name': 'argon_Pin_argon_alert', 'mapping': 6, 'desc': 'PI2: argon supply underpressure', 'low': True},
-    {'name': 'argon_Pin_air_alert', 'mapping': 6, 'desc': 'PI3: air supply underpressure', 'low': True},
-    {'name': 'argon_PDIC11_alert', 'mapping': 7, 'desc': 'pressure difference 1', 'low': True},
-    {'name': 'argon_PDIC12_alert', 'mapping': 7, 'desc': 'pressure difference 2', 'low': True},
-    {'name': 'argon_emergency_stop', 'mapping': 6, 'desc': 'argon emergency stop', 'low': True},
-]
+digitals = dict(
+    upstream_connection = dict(mapping=4, desc='NLA-Leittechnik', low=True),
+    upstream_approval = dict(mapping=5, desc='NLA-Leittechnik Freigabe', low=True),
+    shut_remote = dict(mapping= 0, desc='toggle switch remote', low=True),
+    shut_key = dict(mapping= 4, desc='shutter release', low=True),
+    shut_indicator = dict(mapping= 6, desc='off-limit area indicator', low=True),
+    door_closed_locked = dict(mapping= 0, desc='door closed and locked', low=True),
+    housing_hatch_open = dict(mapping= 0, desc='housing hatch open', low=True),
+    housing_clearance = dict(mapping= 6, desc='housing clearance', low=True),
+    housing_tmp_alert = dict(mapping= 6, desc='housing temperature alert', low=True),
+    housing_chain1_open = dict(mapping= 0, desc='housing chain 1 open', low=True),
+    housing_chain2_open = dict(mapping= 0, desc='housing chain 2 open', low=True),
+    housing_chain3_open = dict(mapping= 0, desc='housing chain stairs open', low=True),
+    compressed_air = dict(mapping= 4, desc='compressed air status', low=True),
+    emergency_stop_ok = dict(mapping= 5, desc='emergency stop', low=True),
+    sps_fault = dict(mapping= 6, desc='F-SPS fault', low=True),
+    sps_ack_req = dict(mapping= 6, desc='F-SPS acknowledge required', low=True),
+    argon_indicator = dict(mapping= 6, desc='argon indicator', low=True),
+    argon_horn = dict(mapping= 6, desc='argon horn', low=True),
+    argon_Pin_argon_alert = dict(mapping= 6, desc='PI2: argon supply underpressure', low=True),
+    argon_Pin_air_alert = dict(mapping= 6, desc='PI3: air supply underpressure', low=True),
+    argon_PDIC11_alert = dict(mapping= 7, desc='pressure difference 1', low=True),
+    argon_PDIC12_alert = dict(mapping= 7, desc='pressure difference 2', low=True),
+    argon_emergency_stop = dict(mapping= 6, desc='argon emergency stop', low=True),
+)
 
-clusters = [
-    {'name': 'upstream_shut1', 'mapping': 0, 'desc': '6-fold shutter', 'low': True},
-    {'name': 'upstream_shut2', 'mapping': 0, 'desc': 'fastshutter NL6', 'low': True},
-    {'name': 'upstream_shut3', 'mapping': 0, 'desc': 'DNS shutter', 'low': True},
-    {'name': 'shut', 'mapping': 0, 'desc': 'experiment shutter', 'low': True},
-    {'name': 'argon_AV1', 'mapping': 1, 'desc': 'exhaust bottom ventilator', 'low': True},
-    {'name': 'argon_K1', 'mapping': 0, 'desc': 'exhaust bottom hatch', 'low': True},
-    {'name': 'argon_K2', 'mapping': 0, 'desc': 'exhaust top hatch', 'low': True},
-    {'name': 'argon_MV1', 'mapping': 0, 'desc': 'argon supply', 'low': True},
-    {'name': 'argon_MV2', 'mapping': 0, 'desc': 'argon inlet', 'low': True},
-    {'name': 'argon_MV3', 'mapping': 0, 'desc': 'compressed air inlet', 'low': True},
-    {'name': 'argon_MV4', 'mapping': 0, 'desc': 'compressed air supply', 'low': True},
-    {'name': 'argon_MV9', 'mapping': 0, 'desc': 'u pipe', 'low': True},
-    {'name': 'argon_MV10', 'mapping': 2, 'desc': 'flush air', 'low': True},
-]
+clusters = dict(
+    upstream_shut1 = dict(mapping=0, desc='6-fold shutter', low=True),
+    upstream_shut2 = dict(mapping=0, desc='fastshutter NL6', low=True),
+    upstream_shut3 = dict(mapping=0, desc='DNS shutter', low=True),
+    shut = dict(mapping=0, desc='experiment shutter', low=True),
+    argon_AV1 = dict(mapping=1, desc='exhaust bottom ventilator', low=True),
+    argon_K1 = dict(mapping=0, desc='exhaust bottom hatch', low=True),
+    argon_K2 = dict(mapping=0, desc='exhaust top hatch', low=True),
+    argon_MV1 = dict(mapping=0, desc='argon supply', low=True),
+    argon_MV2 = dict(mapping=0, desc='argon inlet', low=True),
+    argon_MV3 = dict(mapping=0, desc='compressed air inlet', low=True),
+    argon_MV4 = dict(mapping=0, desc='compressed air supply', low=True),
+    argon_MV9 = dict(mapping=0, desc='u pipe', low=True),
+    argon_MV10 = dict(mapping=2, desc='flush air', low=True),
+)
+
+background = dict(
+    current = dict(desc='backgroundchopper current', limits=None, low=True),
+    flow = dict(desc='backgroundchopper water flow', limits=None, low=True),
+    frequency = dict(desc='backgroundchopper frequency', limits=None, low=False),
+    mode = dict(desc='backgroundchopper mode (1:x)', limits=None, low=False),
+    offset = dict(desc='backgroundchopper offset to pst', limits=None, low=False),
+    spm1 = dict(desc='backgroundchopper primary bearing force', limits=None, low=True),
+    spm2 = dict(desc='backgroundchopper primary bearing force', limits=None, low=True),
+    temperature = dict(desc='backgroundchopper temperature', limits=None, low=True),
+    vib = dict(desc='backgroundchopper vibration', limits=None, low=True),
+)
 
 mappings = [
     {'closed': 0, 'open': 1},
@@ -97,31 +116,39 @@ mappings = [
     {'no': 0, 'yes': 1},
     {'not active': 0, 'active': 1},
     {'tbd-0': 0, 'tbd-1': 1},
-    {'normal': 0, 'high': 1}
+    {'normal': 0, 'high': 1},
 ]
 
 devices = dict()
 
-for analog in analogs:
-    devices[analog['name']] = device('nicos.devices.tango.AnalogInput',
-                                     description=analog['desc'],
-                                     tangodevice=sps_base + analog['name'],
-                                     unit=analog['unit'],
-                                     lowlevel=analog['low']
-                                    )
+for name, analog in analogs.items():
+    devices[name] = device('nicos.devices.tango.AnalogInput',
+        description=analog['desc'],
+        tangodevice=profibus_base + name,
+        unit=analog['unit'],
+        lowlevel=analog['low']
+    )
 
-for digital in digitals:
-    devices[digital['name']] = device('nicos.devices.tango.NamedDigitalInput',
-                                      description=digital['desc'],
-                                      tangodevice=sps_base + digital['name'],
-                                      mapping=mappings[digital['mapping']],
-                                      lowlevel=digital['low']
-                                     )
+for name, digital in digitals.items():
+    devices[name] = device('nicos.devices.tango.NamedDigitalInput',
+        description=digital['desc'],
+        tangodevice=profibus_base + name,
+        mapping=mappings[digital['mapping']],
+        lowlevel=digital['low']
+    )
 
-for cluster in clusters:
-    devices[cluster['name']] = device('nicos.devices.tango.NamedDigitalInput',
-                                      description=cluster['desc'],
-                                      tangodevice=sps_base + cluster['name'],
-                                      mapping=mappings[cluster['mapping']],
-                                      lowlevel=cluster['low']
-                                     )
+for name, cluster in clusters.items():
+    devices[name] = device('nicos.devices.tango.NamedDigitalInput',
+        description=cluster['desc'],
+        tangodevice=profibus_base + name,
+        mapping=mappings[cluster['mapping']],
+        lowlevel=cluster['low']
+    )
+
+for name, dev in background.items():
+    devices['back_' + name] = device('nicos.devices.tango.AnalogInput',
+        description=dev['desc'],
+        tangodevice=profinet_base + name,
+        lowlevel=dev['low'],
+        warnlimits=dev['limits']
+    )
