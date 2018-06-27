@@ -14,7 +14,7 @@ main_window = docked(
         ),
         ('Expert mode',
          vsplit(
-            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             # panel('nicos.clients.gui.panels.watch.WatchPanel'),
             panel('nicos.clients.gui.panels.console.ConsolePanel'),
          ),
