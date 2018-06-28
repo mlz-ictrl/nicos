@@ -55,6 +55,9 @@ windows = []
 
 tools = [
     cmdtool('Detector live view', 'KWSlive'),
+    tool('Reconfigure instrument', 'nicos_mlz.kws1.gui.instrconfig.InstrumentConfigTool',
+         parts=['shutter', 'selector', 'collimation', 'sample', 'polarizer',
+                'chopper', 'detector', 'lenses', 'daq']),
     cmdtool('Server control (Marche)', 'marche-gui'),
     tool('Hexapod manual control', 'nicos_mlz.kws1.gui.tools.hexapod.HexapodTool'),
     cmdtool('NICOS status', 'nicos-monitor'),

@@ -54,6 +54,9 @@ windows = []
 
 tools = [
     cmdtool('Detector live view', 'KWSlive'),
+    tool('Reconfigure instrument', 'nicos_mlz.kws1.gui.instrconfig.InstrumentConfigTool',
+         parts=['sample', 'selector', 'detector', 'shutter', 'chopper', 'collimation',
+                'lenses', 'polarizer', 'daq']),
     cmdtool('Server control (Marche)', 'marche-gui'),
     cmdtool('GE detector status', 'nicos-monitor -S monitor-gedet'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
