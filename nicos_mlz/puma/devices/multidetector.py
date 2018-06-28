@@ -24,7 +24,6 @@
 """PUMA multi detector class."""
 
 import math
-
 import sys
 
 from nicos import session
@@ -32,9 +31,7 @@ from nicos.core import Attach, Moveable, Override, Param, floatrange, listof, \
     status, tupleof
 from nicos.core.mixins import HasTimeout
 from nicos.core.utils import filterExceptions, multiStatus
-
 from nicos.devices.abstract import CanReference
-
 from nicos.pycompat import reraise
 
 
@@ -61,10 +58,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
 
     parameters = {
         'general_reset': Param('',
-                               type=bool, settable=False, default=False,),
+                               type=bool, settable=False, default=False),
         'raildistance': Param('',
                               type=float, settable=False, default=20.,
-                              unit='mm',),
+                              unit='mm'),
         'detectorradius': Param('',
                                 type=float, settable=False, default=761.9,
                                 unit='mm'),
@@ -152,36 +149,30 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             check = self._checkPositionReached(target, 'raw')
             self._printPos()
             if check:
-                self.log.debug('device already at requested position, nothing '
-                               'to do!')
+                self.log.debug('device already at requested position, '
+                               'nothing to do!')
                 return
 
             self.log.debug('try to start multidetector')
             self._setROParam('_status', True)
 
-            # Most left position of the guides
-            l = min(self._rotguide0[0].read(0), -5)
-            # spread the guides to the left with a distance of 0.5 deg to
-            # ensure all guides can be moved to zero position and will not
-            # touch another guide
-            for i, d in enumerate(self._rotguide0):
-                self.log.info('move %s to %f', d, l + 0.5 * i)
-                d.move(l + 0.5 * i)
-                session.delay(0.5)
-            self.log.debug('Wait for finishing')
-            self._hw_wait(self._rotguide0)
-            # remove all remaining move commands on cards due to touching any
-            # limit switch
-            self.stop()
+            # Move all guides to a position '0.' so the detectors can be
+            # moved without any restriction. Starting at the most left
+            # guide looking for the first guide where the position is >= 0
+            # so the devices left from it may be moved without any problem
+            # to position 0. Repeat as long all at position 0
+            while min(d.read(0) for d in self._rotguide0) < 0:
+                for d in self._rotguide0:
+                    if d.read(0) >= 0:
+                        for d1 in self._rotguide1[self._rotguide0.index(d):]:
+                            d1.maw(0)
+                self.log.info('%r', [d.read(0) for d in self._rotguide0])
+            for d in self._rotguide0:
+                if not d.isAtTarget(0):
+                    d.maw(0)
 
-            # move all guides to zero position starting with the most right
-            # guide so the guides and detectors are in well defined state.
-            for d in self._rotguide1:
-                d.move(0)
-                session.delay(0.5)
-            self._hw_wait(self._rotguide1)
-            # remove all remaining move commands on cards due to touching any
-            # limit switch
+            # remove all remaining move commands on cards due to touching
+            # any limit switch
             self.stop()
 
             # move detectors to device angle
@@ -208,22 +199,22 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                     if istart[i] == 0:
                         if sum(nstart[i][i + 1:self._num_axes]) == 0:
                             istart[i] = 1
-                            self.log.info('Move detector #%d', i + 1)
+                            self.log.debug('Move detector #%d', i + 1)
                             self._rotdetector0[i].move(target[i])
                             session.delay(2)
                             for j in range(self._num_axes):
                                 nstart[j][i] = 0
             self._hw_wait(self._rotdetector0)
-            # remove all remaining move commands on cards due to touching any
-            # limit switch
+            # remove all remaining move commands on cards due to touching
+            # any limit switch
             self.stop()
 
             for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
                 self._rotguide0[n].move(target[n + self._num_axes])
-                self.log.info('Move guide #%d', n + 1)
+                self.log.debug('Move guide #%d', n + 1)
             self._hw_wait(self._rotguide0)
-            # remove all remaining move commands on cards due to touching any
-            # limit switch
+            # remove all remaining move commands on cards due to touching
+            # any limit switch
             self.stop()
         finally:
             self._setROParam('_status', False)
@@ -240,12 +231,17 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
 
     def doReference(self, *args):
         # self.doReset()
+        # remove all remaining move commands on cards due to touching
+        # any limit switch
         self.stop()
+        self.log.info('Compacting all elements')
         for d, g in zip(self._rotdetector0, self._rotguide0):
-            self.log.info('reference: %s, %s', d, g)
+            self.log.debug('reference: %s, %s', d, g)
             self._reference_det_guide(d, g)
             session.delay(1.5)
-        for i, (d, g) in enumerate(zip(self._rotdetector1, self._rotguide1)):
+        self.log.info('Spread elements to reference guides.')
+        for i, (d, g) in enumerate(zip(self._rotdetector1,
+                                       self._rotguide1)):
             d.userlimits = d.abslimits
             pos = d.read(0)
             d.move(self.gapoffset - (10 - i) * self.refgap)
