@@ -43,7 +43,8 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     attached_devices = {
         'timer':       Attach('The timer channel', Measurable),
-        'highvoltage': Attach('The high voltage switch', Moveable, optional=True),
+        'highvoltage': Attach('The high voltage switch', Moveable,
+                              optional=True),
     }
 
     parameters = {
@@ -81,10 +82,15 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
 
     def _setup_tof(self, ext_trigger, tofsettings):
         # set timing of TOF slices
-        channels, interval, q = tofsettings
-        times = [0]
-        for i in range(channels):
-            times.append(times[-1] + int(interval * q**i))
+        channels, interval, q, custom = tofsettings
+        if custom:
+            if custom[0] != 0:
+                custom = [0] + custom
+            times = custom
+        else:
+            times = [0]
+            for i in range(channels):
+                times.append(times[-1] + int(interval * q**i))
         self.slices = times
         shape = (channels, self._resolution[1], self._resolution[0])
         # (t, y, x)
@@ -181,10 +187,15 @@ class VirtualKWSImageChannel(VirtualImage):
             self.arraydesc = ArrayDesc('data', self.sizes, np.uint32)
         else:
             # set timing of TOF slices
-            channels, interval, q = tofsettings
-            times = [0]
-            for i in range(channels):
-                times.append(times[-1] + int(interval * q**i))
+            channels, interval, q, custom = tofsettings
+            if custom:
+                if custom[0] != 0:
+                    custom = [0] + custom
+                times = custom
+            else:
+                times = [0]
+                for i in range(channels):
+                    times.append(times[-1] + int(interval * q**i))
             self.slices = times
             self.arraydesc = ArrayDesc('data', self.sizes + (channels,),
                                        np.uint32)
@@ -215,6 +226,8 @@ class KWSDetector(Detector):
                        Param('Progression q of TOF intervals (t_i = dt * q^i)',
                              type=float, default=1.0, settable=True,
                              category='general'),
+        'tofcustom':   Param('Custom selection of TOF slices',
+                             type=listof(int), settable=True),
         'kwscounting': Param('True when taking data with kwscount()',
                              type=bool, default=False, settable=True,
                              userparam=False),
@@ -241,7 +254,7 @@ class KWSDetector(Detector):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
         self._img._configure((self.tofchannels, self.tofinterval,
-                              self.tofprogression))
+                              self.tofprogression, self.tofcustom))
 
     def doReadMode(self):
         if self._img is None:

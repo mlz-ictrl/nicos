@@ -253,6 +253,7 @@ class Chopper(Moveable):
         self._attached_daq.tofchannels = self.channels
         self._attached_daq.tofinterval = interval
         self._attached_daq.tofprogression = 1.0  # linear channel widths
+        self._attached_daq.tofcustom = []  # no custom channels
 
     def doRead(self, maxage=0):
         if self.target == 'manual':
@@ -266,7 +267,8 @@ class Chopper(Moveable):
             if self._attached_daq.mode == 'tof' and \
                self._attached_daq.tofchannels == self.channels and \
                self._attached_daq.tofinterval == self.calcresult[2] and \
-               self._attached_daq.tofprogression == 1.0:
+               self._attached_daq.tofprogression == 1.0 and \
+               self._attached_daq.tofcustom == []:
                 return self.target
         return 'unknown'
 

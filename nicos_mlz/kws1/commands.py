@@ -44,6 +44,7 @@ def SetupRealtime(channels, interval, progression, trigger):
     detector.tofchannels = channels
     detector.tofinterval = interval
     detector.tofprogression = progression
+    detector.tofcustom = []
     # let the detector calculate the preset
     detector._configure()
     detector.setPreset(t=0)
