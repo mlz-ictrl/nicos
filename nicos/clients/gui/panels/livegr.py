@@ -491,7 +491,7 @@ class LiveDataPanel(Panel):
                                              uid,
                                              display=(i == self._livechannel))
                     except Exception as e:
-                        if self._last_uid in self._datacache:
+                        if uid in self._datacache:
                             # image is already cached
                             # suppress error message for cached image
                             self.log.debug(e)
