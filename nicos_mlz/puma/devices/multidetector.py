@@ -29,7 +29,8 @@ import sys
 
 from nicos import session
 
-from nicos.core import Attach, Moveable, Override, Param, status, tupleof
+from nicos.core import Attach, Moveable, Override, Param, floatrange, status, \
+    tupleof
 from nicos.core.mixins import HasTimeout
 from nicos.core.utils import filterExceptions, multiStatus
 
@@ -73,8 +74,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                          default=False),
         'refgap': Param('Gap between detectors during the reference of the '
                         'guides',
-                        type=float, settable=False, userparam=False,
-                        default=1.),
+                        type=floatrange(2.75, 4.1), settable=False,
+                        userparam=False, default=3.),
         'gapoffset': Param('Minimum gap for the det 1 from reference position',
                            type=float, settable=False, userparam=False,
                            default=4.,),
