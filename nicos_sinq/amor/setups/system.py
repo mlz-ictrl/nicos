@@ -103,9 +103,9 @@ devices = dict(
     KafkaForwarder=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description="Configures commands to forward-epics-to-kafka",
-        cmdtopic="forward-epics-cmds",
-        statustopic="forward-epics-status",
-        instpvtopic="amor-pvs",
+        cmdtopic="AMOR_forwarderCommands",
+        statustopic="AMOR_forwarderStatus",
+        instpvtopic="AMOR_metadata",
         instpvschema='f142',
         brokers=["ess01:9092"],
     ),
@@ -114,7 +114,7 @@ devices = dict(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
         description="Sink for NeXus file writer (kafka-to-nexus)",
         brokers=["ess01:9092"],
-        cmdtopic="file-writer-cmds",
+        cmdtopic="AMOR_filewriterCommands",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
         templatename='amor_default'
@@ -124,10 +124,10 @@ devices = dict(
         'nicos_sinq.amor.devices.datasinks.ImageKafkaWithLiveViewDataSink',
         brokers=["ess01:9092"],
         channeltostream={
-            'area_detector_channel': ('AMOR.detector.area', 'area.tof'),
-            'single_det1_channel': ('AMOR.detector.single1', 'single.tof'),
-            'single_det2_channel': ('AMOR.detector.single2', 'single.tof'),
-            'single_det3_channel': ('AMOR.detector.single3', 'single.tof'),
+            'area_detector_channel': ('AMOR_areaDetector', 'area.tof'),
+            'single_det1_channel': ('AMOR_singleDetector1', 'single.tof'),
+            'single_det2_channel': ('AMOR_singleDetector2', 'single.tof'),
+            'single_det3_channel': ('AMOR_singleDetector3', 'single.tof'),
         },
     ),
 
@@ -135,6 +135,6 @@ devices = dict(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
         description="Status for nexus file writing",
         brokers=["ess01:9092"],
-        statustopic="file-writer-status",
+        statustopic="AMOR_filewriterStatus",
     )
 )
