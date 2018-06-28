@@ -241,7 +241,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             session.delay(1.5)
         for i, (d, g) in enumerate(zip(self._rotdetector1, self._rotguide1)):
             d.userlimits = d.abslimits
+            pos = d.read(0)
             d.move(self.gapoffset - (10 - i) * self.refgap)
+            while abs(pos - d.read(0)) < (self.refgap - 0.2):
+                session.delay(1)
             g.reference()
             self._hw_wait([d, g])
             g.maw(0)
