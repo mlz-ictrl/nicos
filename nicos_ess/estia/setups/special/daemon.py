@@ -1,5 +1,3 @@
-# This setup file configures the nicos daemon service.
-
 description = 'setup for the execution daemon'
 group = 'special'
 

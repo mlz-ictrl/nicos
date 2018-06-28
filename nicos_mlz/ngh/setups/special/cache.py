@@ -1,5 +1,3 @@
-# This setup file configures the nicos cache service.
-
 description = 'setup for the cache server'
 group = 'special'
 

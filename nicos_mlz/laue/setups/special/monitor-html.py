@@ -1,5 +1,3 @@
-# This setup file configures the nicos status monitor.
-
 description = 'setup for the LAUE html status monitor'
 group = 'special'
 

@@ -1,4 +1,3 @@
-# This setup file configures the nicos elog.
 # If you want to use the electronic logbook, make sure the "system" setup has
 # also a cache configured.
 

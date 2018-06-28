@@ -1,5 +1,3 @@
-# This setup file configures the nicos poller service.
-
 description = 'setup for the poller'
 group = 'special'
 

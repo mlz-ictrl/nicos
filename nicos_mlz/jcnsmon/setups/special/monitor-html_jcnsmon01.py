@@ -1,5 +1,3 @@
-# This setup file configures the nicos status monitor.
-
 description = 'setup for the status monitor'
 group = 'special'
 
