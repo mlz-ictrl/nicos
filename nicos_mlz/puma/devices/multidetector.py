@@ -166,7 +166,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                     if d.read(0) >= 0:
                         for d1 in self._rotguide1[self._rotguide0.index(d):]:
                             d1.maw(0)
-                self.log.info('%r', [d.read(0) for d in self._rotguide0])
+                self.log.debug('%r', [d.read(0) for d in self._rotguide0])
             for d in self._rotguide0:
                 if not d.isAtTarget(0):
                     d.maw(0)
@@ -294,17 +294,40 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         guide.motor.maw(p + size)
 
     def _clear_guide_reference(self, guide):
-        """Move all guides right from the 'guide' to free the limit switch."""
-        for g in self._rotguide1:
-            for d in self._rotguide1:
-                if d == g:
+        """Move all guides right from the 'guide' to free the limit switch.
+
+        If there is a guide in between free, then free only left from this one
+        """
+        self.log.debug('clearing guide: %s', guide)
+        while True:
+            # find the first free guide from left side
+            freeguides = self._rotguide1
+            free = None
+            for g in self._rotguide0[self._rotguide0.index(guide) + 1:]:
+                not_ref_sw = 'low' if g.motor.refswitch == 'high' else 'low'
+                if not g.motor.isAtReference(not_ref_sw):
+                    free = g
+                    freeguides = self._rotguide1[self._rotguide1.index(g):]
+                    self.log.debug('found free guide: %s, %r', free, freeguides)
                     break
-                while d.motor.isAtReference():
+
+            # Try to free all left from found free guide if there was one
+            for g in freeguides:
+                for d in freeguides:
+                    if d == g:
+                        break
+                    while d.motor.isAtReference():
+                        self._step(d)
                     self._step(d)
-                self._step(d)
-            self._step(g)
-            if g == guide:
-                return
+                self._step(g)
+                # if the found free is not free any more try the next round
+                if free and free.motor.isAtReference():
+                    break
+                if g == guide:
+                    return
+            if free is None:
+                self.log.warn("Can't free the guide: %s. Please check manually"
+                              ' why!', guide)
 
     def _hw_wait(self, devices):
         loops = 0
