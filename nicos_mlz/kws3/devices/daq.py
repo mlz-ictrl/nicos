@@ -112,6 +112,8 @@ class ROIChannel(PostprocessPassiveChannel):
 
     def getReadResult(self, arrays, _results, _quality):
         arr = arrays[0]
+        if arr is None:
+            return [0, 0]
         if any(self.roi):
             x1, y1, x2, y2 = self.roi
             if self.shape == 'rectangle':

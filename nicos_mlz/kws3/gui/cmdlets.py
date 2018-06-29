@@ -58,7 +58,7 @@ class Polarizer(ChoiceElement):
     # CACHE_KEY = 'polarizer/mapping'
     # SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Polarizer'
-    VALUES = ['out', 'in']
+    VALUES = ['out', 'up', 'down']
 
 
 class MeasDef(KWS1MeasDef):

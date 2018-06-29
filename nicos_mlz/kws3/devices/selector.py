@@ -67,5 +67,6 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
         # valid bit needs a rising edge
         self._attached_valid.move(0)
         self._attached_speedset.maw(pos)
+        time.sleep(0.2)
         self._attached_valid.move(1)
         time.sleep(0.2)
