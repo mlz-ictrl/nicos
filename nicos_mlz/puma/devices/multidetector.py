@@ -28,9 +28,8 @@ import math
 import sys
 
 from nicos import session
-
-from nicos.core import Attach, Moveable, Override, Param, floatrange, status, \
-    tupleof
+from nicos.core import Attach, Moveable, Override, Param, floatrange, listof, \
+    status, tupleof
 from nicos.core.mixins import HasTimeout
 from nicos.core.utils import filterExceptions, multiStatus
 
@@ -78,7 +77,14 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
                         userparam=False, default=3.),
         'gapoffset': Param('Minimum gap for the det 1 from reference position',
                            type=float, settable=False, userparam=False,
-                           default=4.,),
+                           default=4.),
+        'parkpos': Param('Detector and guide positions to park the '
+                         'multidetector in a safe position',
+                         type=listof(float), settable=False, userparam=False,
+                         default=[-14.9, -17.5, -20., -22.5, -25., -27.5, -30.,
+                                  -32.5, -35., -37.5, -40.,
+                                  3.5, 2.75, 2.5, 2.25, 2.0, 1.75, 1.5, 1.25,
+                                  1.0, 0.75, 0.5]),
     }
 
     parameter_overrides = {
