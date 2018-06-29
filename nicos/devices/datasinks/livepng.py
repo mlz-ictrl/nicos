@@ -103,6 +103,8 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
             rgb_arr[..., 0] = LUT_r[norm_arr]
             rgb_arr[..., 1] = LUT_g[norm_arr]
             rgb_arr[..., 2] = LUT_b[norm_arr]
+            # Our origin is bottom left, but image origin is top left
+            rgb_arr = np.ascontiguousarray(np.flipud(rgb_arr))
             # PIL expects (w, h) but shape is (ny, nx)
             Image.frombuffer('RGB', image.shape[::-1], rgb_arr, 'raw',
                              'RGB', 0, 1).save(self.sink.filename)
