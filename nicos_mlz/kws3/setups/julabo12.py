@@ -3,12 +3,11 @@ description = 'Julabo temperature controller'
 group = 'optional'
 
 includes = ['alias_T']
-excludes = ['julabo21', 'julabo22']
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    T_julabo = device('nicos_mlz.kws1.devices.julabo.TemperatureController',
+    T_julabo_10m = device('nicos_mlz.kws1.devices.julabo.TemperatureController',
         description = 'The regulated temperature',
         tangodevice = tango_base + 'julabo12/control',
         unit = 'degC',
@@ -19,6 +18,6 @@ devices = dict(
 )
 
 alias_config = {
-    'T':  {'T_julabo': 100},
-    'Ts': {'T_julabo': 100},
+    'T':  {'T_julabo_10m': 100},
+    'Ts': {'T_julabo_10m': 100},
 }

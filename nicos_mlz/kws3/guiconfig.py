@@ -25,8 +25,8 @@ main_window = tabbed(
                                      holder_info = [
             ('RT-9.5m 2x9-pos.',                  (9,  2, 'sam_x', 27,   'sam_y', 78)),
             ('RT-1.3m 2x9-pos.',                  (9,  2, 'sam_x', 27,   'sam_y', 75)),
-            ('RT-9.5m 2x12-pos. Narrow',          (9,  2, 'sam_x', 20,   'sam_y', 78)),
-            ('RT-1.3m 2x12-pos. Narrow',          (9,  2, 'sam_x', 20,   'sam_y', 75)),
+            ('RT-9.5m 2x12-pos. Narrow',          (12,  2, 'sam_x', 20,   'sam_y', 78)),
+            ('RT-1.3m 2x12-pos. Narrow',          (12,  2, 'sam_x', 20,   'sam_y', 75)),
             ('Peltier-Old 1x6',                   (6,  1, 'sam_x', 36.6, 'sam_y', 10)),
             ('Cells-in-Vacuum (Julabo) 2x4-pos.', (4,  2, 'sam_x', 24,   'sam_y', 65)),
                                      ]))),

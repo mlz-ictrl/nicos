@@ -10,6 +10,7 @@ sel_presets = configdata('config_selector.SELECTOR_PRESETS')
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
+# TODO (later): add sel_rot to switcher devices
 devices = dict(
     selector = device('nicos.devices.generic.MultiSwitcher',
         description = 'select selector presets',

@@ -3,7 +3,7 @@ description = 'Julabo temperature controller'
 group = 'optional'
 
 includes = ['alias_T']
-excludes = ['julabo12', 'julabo21', 'julabo22']
+excludes = ['julabo21']
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
