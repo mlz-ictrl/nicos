@@ -42,12 +42,23 @@ devices = dict(
         timer = 'timer',
         fmtstr = '%d (%.1f cps)',
     ),
+    det_roi = device('nicos_mlz.kws2.devices.daq.ROIRateChannel',
+        description = 'Counts outside beamstop',
+        bs_x = 'beamstop_x',
+        bs_y = 'beamstop_y',
+        timer = 'timer',
+        xscale = (1, 0),
+        yscale = (1, 0),
+        size = (16, 16),
+    ),
     det = device('nicos_mlz.kws1.devices.daq.KWSDetector',
         description = 'KWS detector',
         timers = ['timer'],
         monitors = ['mon1', 'mon2', 'selctr'],
         images = ['det_img'],
+        counters = ['det_roi'],
         others = [],
+        postprocess = [('det_roi', 'det_img')],
         shutter = 'shutter',
         liveinterval = 2.0,
     ),
@@ -58,6 +69,6 @@ devices = dict(
 )
 
 extended = dict(
-    poller_cache_reader = ['shutter', 'gedet_HV'],
+    poller_cache_reader = ['shutter', 'gedet_HV', 'beamstop_x', 'beamstop_y'],
     representative = 'det_img',
 )
