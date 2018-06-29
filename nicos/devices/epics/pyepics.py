@@ -217,7 +217,10 @@ class EpicsDevice(DeviceMixinBase):
 
             self._pvctrls[pvparam] = self._pvs[pvparam].get_ctrlvars()
 
-        return self._pvctrls[pvparam].get(ctrl, default)
+        result = self._pvctrls[pvparam]
+        if result is None:
+            return default
+        return result.get(ctrl, default)
 
     def _put_pv(self, pvparam, value, wait=False):
         if epics.ca.current_context() is None:
