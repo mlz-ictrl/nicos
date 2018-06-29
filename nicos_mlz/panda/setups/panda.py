@@ -4,7 +4,7 @@ group = 'basic'
 
 includes = [
     'system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual',
-    'alias_sth', 'monofoci', 'reactor', 'water',
+    'alias_sth', 'monofoci', 'reactor',
 ]
 # monoturm is included by panda_s7
 

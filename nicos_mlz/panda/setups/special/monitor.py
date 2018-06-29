@@ -20,16 +20,16 @@ expcolumn = Column(
 
 filters = Block('Primary Beam/Filters', [
     BlockRow(
-        Field(dev='saph', name='Saphir'),
+        Field(dev='saph', name='Saphir', istext=True),
         Field(dev='reactorpower', name='Power'),
-        Field(dev='water', name='Water'),
+        Field(dev='water', name='Water', istext=True),
         Field(dev='ms1', name='ms1'),
     ),
     BlockRow(
-        Field(dev='befilter', name='Be'),
+        Field(dev='befilter', name='Be', istext=True),
         Field(dev='tbefilter', name='BeT'),
-        Field(dev='beofilter', name='BeO'),
-        Field(dev='pgfilter', name='PG'),
+        Field(dev='beofilter', name='BeO', istext=True),
+        Field(dev='pgfilter', name='PG', istext=True),
     ),
     ],
 )
@@ -37,7 +37,7 @@ filters = Block('Primary Beam/Filters', [
 primary = Block('Monochromator', [
     BlockRow(
         Field(dev='mono', name='Mono'),
-        Field(key='mono/focmode', name='Focus'),
+        Field(key='mono/focmode', name='Focus', istext=True),
         Field(dev='mth', name='mth (A1)'),
         Field(dev='mtt', name='mtt (A2)'),
     ),
@@ -63,7 +63,7 @@ sample = Block('Sample stage', [
 analyzer = Block('Analyzer', [
     BlockRow(
         Field(dev='ana', name='Ana'),
-        Field(key='ana/focmode', name='Focus'),
+        Field(key='ana/focmode', name='Focus', istext=True),
         Field(dev='ath', name='ath (A5)', unit=''),
         Field(dev='att', name='att (A6)', unit=''),
     ),
@@ -84,10 +84,10 @@ collimation = Block('Collimation and Lengths', [
         Field(dev='lad', width=5),
     ),
     BlockRow(
-        Field(dev='ss1', width=25),
+        Field(dev='ss1', width=25, istext=True),
     ),
     BlockRow(
-        Field(dev='ss2', width=25),
+        Field(dev='ss2', width=25, istext=True),
     ),
     ],
 )
@@ -487,9 +487,9 @@ devices = dict(
         loglevel = 'info',
         cache = 'phys.panda.frm2',
         prefix = 'nicos/',
-        font = 'Luxi Sans',
+        font = 'Droid Sans',
         fontsize = 16,
-        valuefont = 'Luxi Sans',
+        valuefont = 'Droid Sans Mono',
         layout = [Row(expcolumn),
                   Row(column1, column2, column3, column4)],
     )

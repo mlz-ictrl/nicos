@@ -12,7 +12,7 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         loglevel = 'info',
         autosetup = True,
-        alwayspoll = ['water'],
+        alwayspoll = [],
         neverpoll = ['blenden_old'],
         blacklist = [],
     ),
