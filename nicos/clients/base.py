@@ -207,14 +207,12 @@ class NicosClient(object):
         self.signal('connected')
 
     def event_handler(self):
-        recv = self.event_socket.recv
-        recvinto = self.event_socket.recv_into
         while 1:
             try:
                 # receive STX (1 byte) + eventcode (2) + length (4)
                 start = b''
                 while len(start) < 7:
-                    data = recv(7 - len(start))
+                    data = self.event_socket.recv(7 - len(start))
                     if not data:
                         if not self.disconnecting:
                             self.signal('broken', 'Server connection broken.')
@@ -232,7 +230,7 @@ class NicosClient(object):
                 buf = np.zeros(length, 'c')  # replace with bytearray+memoryview
                                              # on Py3 only.
                 while got < length:
-                    read = recvinto(buf[got:], length - got)
+                    read = self.event_socket.recv_into(buf[got:], length - got)
                     if not read:
                         if not self.disconnecting:
                             self.signal('broken', 'Server connection broken.')
@@ -273,10 +271,8 @@ class NicosClient(object):
         self._close()
 
     def _close(self):
-        try:
-            closeSocket(self.socket)
-        except Exception:
-            pass
+        closeSocket(self.socket)
+        closeSocket(self.event_socket)
         self.socket = None
         self.gzip = False
         if self.isconnected:
