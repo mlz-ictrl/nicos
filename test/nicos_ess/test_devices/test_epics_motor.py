@@ -44,7 +44,8 @@ class FakeEpicsMotor(EpicsMotor): # pylint: disable=too-many-ancestors
         'readpv': position,
         'writepv': position,
         'offset': 0,
-        'enable': 1
+        'enable': 1,
+        'direction': 0
     }
 
     def doPreinit(self, mode):

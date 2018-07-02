@@ -19,10 +19,11 @@
 #
 # Module authors:
 #   Michael Wedel <michael.wedel@esss.se>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.core import status, Param, Override, pvname
+from nicos.core import status, Param, Override, pvname, requires, ADMIN
 from nicos.devices.abstract import Motor, HasOffset, CanReference
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -52,6 +53,9 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
                             type=pvname, mandatory=False, settable=False),
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False),
+        'reversed': Param('Reverse the direction of movement',
+                          type=bool, mandatory=False, default=False,
+                          userparam=False, settable=True)
     }
 
     parameter_overrides = {
@@ -83,6 +87,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         'speed': 'VELO',
 
         'offset': 'OFF',
+
+        'direction': 'DIR',
 
         'highlimit': 'HLM',
         'lowlimit': 'LLM',
@@ -138,6 +144,25 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
                              'limits, using %s instead.', newValue, speed)
 
         self._put_pv('speed', speed)
+
+    def doReadReversed(self):
+        return bool(self._get_pv('direction'))
+
+    def doWriteReversed(self, direction):
+        # Changes the direction in the EPICS motor record.
+        # The motor record will adjust the offset to leave the current value
+        # unchanged.
+        self._put_pv('direction', int(direction))
+
+        # Read the offset again and update parameters dictionary
+        self.offset  # pylint: disable=pointless-statement
+
+    @requires(level=ADMIN)
+    def reverseSign(self):
+        """Reverses the sign of movement from +/- to -/+.
+        """
+        self.reversed = not self.reversed
+        self.log.info('Sign changed to: %s', '-' if self.reversed else '+')
 
     def doReadOffset(self):
         return self._get_pv('offset')
