@@ -1031,6 +1031,7 @@ class ViewPlot(NicosGrPlot):
         self._axes.curveDataChanged(curve)
 
     def addCurve(self, i, series, replot=False):
+        plotcurve = None
         n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
