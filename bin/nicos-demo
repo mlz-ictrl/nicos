@@ -41,6 +41,10 @@ bin_path = path.normpath(path.dirname(thisfile))
 dev_null = open(os.devnull, 'wb')
 background_processes = []
 
+try:
+    from configparser import NoOptionError, NoSectionError, SafeConfigParser
+except ImportError:
+    from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
 
 def echo(s):
     sys.stdout.write(s)
@@ -126,6 +130,10 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawTextHelpFormatter,
 )
 
+global_cfg = SafeConfigParser()
+nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
+global_cfg.read(path.join(nicos_root, 'nicos.conf'))
+
 services = parser.add_argument_group(
     'service selection',
     description='''without options, the following services are started:
@@ -165,11 +173,21 @@ client.add_argument('--textclient', '-T', action='store_true',
 client.add_argument('--aioclient', action='store_true',
                     help='disable daemon and start console shell')
 
+# try to get the default 'guiconfig' from nicos.conf
+try:
+    guiconfig = global_cfg.get('nicos-demo', 'guiconfig')
+except (NoOptionError, NoSectionError):
+    guiconfig = ''
 ui = parser.add_argument_group('graphical user interface options')
-ui.add_argument('--guiconfig', '-c', action='store', default='',
+ui.add_argument('--guiconfig', '-c', action='store', default=guiconfig,
                 help='use given GUI config file instead of the default one')
+# try to get default 'connect' string from nicos.conf
+try:
+    connect = global_cfg.get('nicos-demo', 'connect')
+except (NoOptionError, NoSectionError):
+    connect = 'guest:guest@localhost'
 ui.add_argument('-u', dest='guiuser', action='store',
-                default='guest:guest@localhost',
+                default=connect,
                 help='use given user:password@server for the daemon login')
 
 debug = parser.add_argument_group('debug options')
