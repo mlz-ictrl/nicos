@@ -27,11 +27,12 @@
 import subprocess
 from time import time as currenttime
 
+from nicos import session
 from nicos.core import Device, Param, Override, listof, mailaddress, oneof, \
-    tupleof, usermethod, floatrange
-from nicos.pycompat import text_type
+    tupleof, usermethod, floatrange, ADMIN, AccessError
 from nicos.utils import createThread, createSubprocess
 from nicos.utils.emails import sendMail
+from nicos.pycompat import text_type
 
 
 class Notifier(Device):
@@ -51,6 +52,8 @@ class Notifier(Device):
         'ratelimit':  Param('Minimum time between sending two notifications',
                             default=60, type=floatrange(30), unit='s',
                             settable=True),
+        'private':    Param('True if notifier receivers are private, '
+                            'not user-settable', type=bool, default=False),
         'receivers':  Param('Receiver addresses', type=listof(str),
                             settable=True),
         'copies':     Param('Addresses that get a copy of messages, a list of '
@@ -87,6 +90,18 @@ class Notifier(Device):
 
     def reset(self):
         """Reset experiment-specific configuration.  Does nothing by default."""
+
+    def doWriteReceivers(self, value):
+        if self.private and not session.checkAccess(ADMIN):
+            raise AccessError(self, 'Only admins can change the receiver list '
+                              'for this notifier')
+        return value
+
+    def doWriteCopies(self, value):
+        if self.private and not session.checkAccess(ADMIN):
+            raise AccessError(self, 'Only admins can change the receiver list '
+                              'for this notifier')
+        return value
 
     def _getAllRecipients(self, important):
         receivers = list(self.receivers)

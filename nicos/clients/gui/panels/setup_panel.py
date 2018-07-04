@@ -36,7 +36,7 @@ from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import loadUi
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.utils import decodeAny
-from nicos.pycompat import iteritems, listitems
+from nicos.pycompat import iteritems, listitems, itervalues
 
 
 def iterChecked(listwidget):
@@ -92,10 +92,12 @@ class ExpPanel(Panel):
             self.localContact.setText(decodeAny(values[3]))
             self.sampleName.setText(decodeAny(values[4]))
             self.errorAbortBox.setChecked(values[5] == 'abort')
-        emails = self.client.eval(
-            '[e.receivers for e in session.notifiers '
-            'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
-        self._orig_email = sum(emails, [])
+        receiverinfo = self.client.eval(
+            '_listReceivers("nicos.devices.notifiers.Mailer")', {})
+        emails = []
+        for data in itervalues(receiverinfo):
+            emails.extend(addr for (addr, what) in data if what == 'receiver')
+        self._orig_email = emails
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
         propinfo = self.client.eval('session.experiment.propinfo', {})
         self._orig_datamails = propinfo.get('user_email', '')

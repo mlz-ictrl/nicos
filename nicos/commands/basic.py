@@ -40,7 +40,7 @@ from nicos.core import requires, Device, Readable, ModeError, NicosError, \
 from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
     String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
-from nicos.utils import formatDuration, printTable, fixupScript
+from nicos.utils import formatDuration, printTable, fixupScript, resolveClasses
 from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist, \
@@ -819,16 +819,16 @@ def SetMailReceivers(*emails):
 
     >>> SetMailReceivers('user@example.com', 'responsible@frm2.tum.de')
     """
+    ok = False
     for notifier in session.notifiers:
-        if isinstance(notifier, Mailer):
+        if isinstance(notifier, Mailer) and not notifier.private:
+            ok = True
             notifier.receivers = list(emails)
-            if emails:
-                session.log.info('mails will now be sent to %s',
-                                 ', '.join(emails))
-            else:
-                session.log.info('no email notifications will be sent')
-            return
-    session.log.warning('email notification is not configured in this setup')
+    if not ok:
+        session.log.warning('general email notification is not configured '
+                            'in this setup')
+    else:
+        ListMailReceivers()
 
 
 @usercommand
@@ -849,15 +849,17 @@ def ListMailReceivers():
                session.log.info)
 
 
-def _listReceivers(classes):
+def _listReceivers(classes, includeprivate=False):
     """Return a dictionary containing ``{notifier_name: [(address, type)]}``.
 
     Only considers notifiers that are instances of the given *classes*.
     """
     result = defaultdict(list)
+    classes = resolveClasses(classes)
 
     for notifier in session.notifiers:
-        if isinstance(notifier, classes):
+        if isinstance(notifier, classes) and \
+           (includeprivate or not notifier.private):
             for addr in notifier.receivers:
                 result[notifier.name].append((addr, 'receiver'))
             for addr, level in notifier.copies:
