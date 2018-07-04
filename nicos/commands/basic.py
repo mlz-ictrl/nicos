@@ -861,13 +861,13 @@ def SetDataReceivers(*emails):
 @usercommand
 @parallel_safe
 def ListDataReceivers():
-    """List email address to which the data will be sent.
+    """List email addresses to which experimental data will be sent when a
+    proposal is finished.  See also `SetDataReceivers`.
 
     Example:
 
     >>> ListDataReceivers()
     """
-
     session.log.info('Email addresses the data will be sent to:')
     propinfo = dict(session.experiment.propinfo)
     items = set()
