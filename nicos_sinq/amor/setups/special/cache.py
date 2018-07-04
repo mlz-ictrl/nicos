@@ -9,7 +9,7 @@ devices = dict(
         'nicos.services.cache.database.kafka.KafkaCacheDatabaseWithHistory',
         currenttopic='AMOR_nicosCacheCompacted',
         historytopic='AMOR_nicosCacheHistory',
-        brokers=['ess01:9092'],
+        brokers=configdata('config.KAFKA_BROKERS'),
         loglevel='info',
         serializer='serializer'
     ),

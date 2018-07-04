@@ -103,7 +103,7 @@ devices = dict(
         lowlevel=True,
         bank='hm_bank0',
         connector='hm_connector',
-        serverbyteorder='big',
+        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
         databyteorder='little',
         readbytes=True,
     ),
@@ -114,7 +114,7 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=0,
-        serverbyteorder='big',
+        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
         readbytes=True,
     ),
     single_det2_channel=device(
@@ -124,7 +124,7 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=1,
-        serverbyteorder='big',
+        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
         readbytes=True,
     ),
     psd_tof=device(
