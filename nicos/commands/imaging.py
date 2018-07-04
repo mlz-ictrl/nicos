@@ -23,11 +23,12 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.commands import usercommand, helparglist
-from nicos.commands.utility import floatrange
+from nicos.commands import helparglist, usercommand
+from nicos.commands.device import reset
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
-
+from nicos.commands.utility import floatrange
+from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
 
 
@@ -72,6 +73,19 @@ def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
                 scan.moveDevices(moveables, [angle] * len(moveables))
                 # Capture the desired amount of images
                 for _ in range(imgsperangle):
-                    count(*detlist, **preset)
+                    for i in range(2, -1, -1):
+                        try:
+                            count(*detlist, **preset)
+                        except NicosError:
+                            if not i:
+                                raise
+                            session.log.warn('Count failed, try it again.'
+                                             '%d remaining tries', i)
+                            if detlist:
+                                reset(*detlist)
+                            else:
+                                reset(*session.experiment.detectors)
+                        else:
+                            break
             except SkipPoint:
                 pass
