@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, listof, ConfigurationError
+from nicos.core import Param, Override, ConfigurationError
 from nicos.devices.notifiers import Notifier
 from nicos.utils.credentials.keystore import nicoskeystore
 from nicos.pycompat import escape_html
@@ -41,10 +41,13 @@ class Slacker(Notifier):
     """
 
     parameters = {
-        'receivers': Param('Slack receiver channels (format: #channel)',
-                           type=listof(str), settable=True),
         'keystoretoken': Param('Id used in the keystore for the OAuth token',
                                type=str, default='slack'),
+    }
+
+    parameter_overrides = {
+        'receivers': Override(description='Slack receiver channels '
+                              '(format: #channel)'),
     }
 
     def doInit(self, mode):
@@ -59,7 +62,7 @@ class Slacker(Notifier):
     def send(self, subject, body, what=None, short=None, important=True):
         message = escape_html('*%s*\n\n```%s```' % (subject, body), False)
 
-        for entry in self.receivers:
+        for entry in self._getAllRecipients(important):
             self.log.debug('Send slack message to %s' % entry)
             try:
                 reply = self._slack.api_call('chat.postMessage', channel=entry,

@@ -32,6 +32,7 @@ import inspect
 import traceback
 import subprocess
 from os import path
+from collections import defaultdict
 
 from nicos import session
 from nicos.core import requires, Device, Readable, ModeError, NicosError, \
@@ -839,15 +840,29 @@ def ListMailReceivers():
 
     >>> ListMailReceivers()
     """
-    session.log.info('Email addresses the notifications will be sent to:')
-    items = set()
+    session.log.info('Email addresses for notifications:')
+    items = []
+    for notifier, recipients in iteritems(_listReceivers(Mailer)):
+        for rec in recipients:
+            items.append((notifier,) + rec)
+    printTable(('mailer', 'email address', 'info'), sorted(items),
+               session.log.info)
+
+
+def _listReceivers(classes):
+    """Return a dictionary containing ``{notifier_name: [(address, type)]}``.
+
+    Only considers notifiers that are instances of the given *classes*.
+    """
+    result = defaultdict(list)
+
     for notifier in session.notifiers:
-        if isinstance(notifier, Mailer):
+        if isinstance(notifier, classes):
             for addr in notifier.receivers:
-                items.add((addr,))
-            for (addr, _level) in notifier.copies:
-                items.add((addr,))
-    printTable(('email address', ), sorted(items), session.log.info)
+                result[notifier.name].append((addr, 'receiver'))
+            for addr, level in notifier.copies:
+                result[notifier.name].append((addr, 'copies (%s)' % level))
+    return result
 
 
 @usercommand

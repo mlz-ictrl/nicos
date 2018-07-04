@@ -27,8 +27,8 @@
 import subprocess
 from time import time as currenttime
 
-from nicos.core import Device, Param, listof, mailaddress, oneof, tupleof, \
-    usermethod, floatrange
+from nicos.core import Device, Param, Override, listof, mailaddress, oneof, \
+    tupleof, usermethod, floatrange
 from nicos.pycompat import text_type
 from nicos.utils import createThread, createSubprocess
 from nicos.utils.emails import sendMail
@@ -36,6 +36,10 @@ from nicos.utils.emails import sendMail
 
 class Notifier(Device):
     """Base class for all notification systems.
+
+    This class has a general notion of a "receiver" as an entity that
+    notifications can be sent to.  If this is an address, a channel name,
+    or something else, is determined by the specific subclass.
 
     Do not use directly.
     """
@@ -47,6 +51,15 @@ class Notifier(Device):
         'ratelimit':  Param('Minimum time between sending two notifications',
                             default=60, type=floatrange(30), unit='s',
                             settable=True),
+        'receivers':  Param('Receiver addresses', type=listof(str),
+                            settable=True),
+        'copies':     Param('Addresses that get a copy of messages, a list of '
+                            'tuples: (address, messagelevel: "all" or '
+                            '"important")',
+                            type=listof(tupleof(str,
+                                                oneof('all', 'important'))),
+                            settable=True),
+        'subject':    Param('Subject prefix', type=str, default='NICOS'),
     }
 
     _lastsent = 0
@@ -75,6 +88,12 @@ class Notifier(Device):
     def reset(self):
         """Reset experiment-specific configuration.  Does nothing by default."""
 
+    def _getAllRecipients(self, important):
+        receivers = list(self.receivers)
+        receivers.extend(addr for (addr, level) in self.copies
+                         if level == 'all' or important)
+        return receivers
+
 
 class Mailer(Notifier):
     """Sends notifications via e-mail.
@@ -89,15 +108,13 @@ class Mailer(Notifier):
                             settable=True),
         'sender':     Param('Mail sender address', type=mailaddress,
                             mandatory=True),
-        'receivers':  Param('Mail receiver addresses', type=listof(mailaddress),
-                            settable=True),
-        'copies':     Param('Addresses that get a copy of messages, a list of '
-                            'tuples: (mailaddress, messagelevel: "all" or '
-                            '"important")',
-                            type=listof(tupleof(mailaddress,
-                                                oneof('all', 'important'))),
-                            settable=True),
-        'subject':    Param('Subject prefix', type=str, default='NICOS'),
+    }
+
+    parameter_overrides = {
+        'receivers': Override(description='Mail receiver addresses',
+                              type=listof(mailaddress)),
+        'copies':    Override(type=listof(tupleof(mailaddress,
+                                                  oneof('all', 'important')))),
     }
 
     def reset(self):
@@ -106,9 +123,7 @@ class Mailer(Notifier):
 
     def send(self, subject, body, what=None, short=None, important=True):
         def send():
-            receivers = list(self.receivers)
-            receivers.extend(addr for (addr, level) in self.copies
-                             if level == 'all' or important)
+            receivers = self._getAllRecipients(important)
             if not receivers:
                 return
             ret = sendMail(self.mailserver, receivers, self.sender,
@@ -160,10 +175,11 @@ class SMSer(Notifier):
     """SMS notifications via smslink client program (sendsms)."""
 
     parameters = {
-        'receivers': Param('SMS receiver phone numbers', type=listof(str),
-                           settable=True),
         'server':    Param('Name of SMS server', type=str, mandatory=True),
-        'subject':   Param('Body prefix', type=str, default='NICOS'),
+    }
+
+    parameter_overrides = {
+        'receivers':  Override(description='SMS receiver phone numbers'),
     }
 
     def _transcode(self, string):
@@ -175,7 +191,7 @@ class SMSer(Notifier):
     def send(self, subject, body, what=None, short=None, important=True):
         if not important:
             return
-        receivers = self.receivers
+        receivers = self._getAllRecipients(important)
         if not receivers:
             return
         if not self._checkRateLimit():
