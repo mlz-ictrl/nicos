@@ -121,6 +121,8 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: removePidfile
 
+.. autofunction:: resolveClasses
+
 .. autofunction:: safeName
 
 .. autofunction:: setuser

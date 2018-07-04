@@ -526,6 +526,21 @@ def importString(import_name):
         return getattr(mod, obj)
 
 
+def resolveClasses(classes):
+    """Resolve class(es) from either class instances or strings.
+
+    If the input (list) contains strings, we use the `importString` function
+    to resolve this string to a class object.  Anything else is passed through
+    unchanged.
+
+    Returns a tuple of classes, usable e.g. in isinstance checks.
+    """
+    if not isinstance(classes, (list, tuple)):
+        classes = [classes]
+    return tuple(importString(cls) if isinstance(cls, string_types) else cls
+                 for cls in classes)
+
+
 # simple file operations
 #
 # first constants, then functions
