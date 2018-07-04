@@ -130,21 +130,20 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         # Assign the counter
         session.data.assignCounter(self.dataset)
 
-        # Generate the filenames
-        session.data.getFilenames(self.dataset, self.sink.filenametemplate,
-                                  self.sink.subdir)
+        # Generate the filenames, only if not set
+        if not self.dataset.filepaths:
+            session.data.getFilenames(self.dataset, self.sink.filenametemplate,
+                                      self.sink.subdir)
 
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
             session.data.updateMetainfo()
-        else:
-            self.rewriting = True
 
     def begin(self):
         # Get the start time
-        starttime = long(time.time() * 1000)
+        starttime = int(time.time() * 1000)
         if self.dataset.started:
-            starttime = long(self.dataset.started * 1000)
+            starttime = int(self.dataset.started * 1000)
 
         structure = self._converter.convert(self.sink.template,
                                             self.dataset.metainfo)
@@ -160,10 +159,11 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             }
         }
 
-        # Write the stoptime if rewriting, as is already known
-        if self.rewriting and self.dataset.finished:
-            stoptime = long(self.dataset.finished * 1000)
+        # Write the stoptime when already known
+        if self.dataset.finished:
+            stoptime = int(self.dataset.finished * 1000)
             command["stop_time"] = stoptime
+            self.rewriting = True
 
         self.log.debug('Started file writing at: %s', starttime)
         self.sink.send(self.sink.cmdtopic, json.dumps(command))
@@ -174,9 +174,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
     def end(self):
         # Execute only if not rewriting
         if not self.rewriting:
-            stoptime = long(time.time() * 1000)
+            stoptime = int(time.time() * 1000)
             if self.dataset.finished:
-                stoptime = long(self.dataset.finished * 1000)
+                stoptime = int(self.dataset.finished * 1000)
 
             command = {
                 "cmd": "FileWriter_stop",
