@@ -112,7 +112,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
 
         # Cleanup thread configuration
         self._stoprequest = False
-        self._cleaner = createThread('cleaner', self._clean)
+        self._cleaner = createThread('cleaner', self._clean, start=False)
 
     def doShutdown(self):
         self._consumer.close()
@@ -142,19 +142,22 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
 
                         self._db[msg.key] = [entry]
 
+        self._cleaner.start()
         self.log.info('Processed %i messages.', message_count)
 
     def _clean(self):
         def cleanonce():
-            for key, entries in iteritems(self._db):
-                entry = entries[-1]
-                if not entry.value or entry.expired:
-                    continue
-                time = currenttime()
-                if entry.ttl and (entry.time + entry.ttl < time):
-                    entry.expired = True
-                    for client in self._server._connected.values():
-                        client.update(key, OP_TELLOLD, entry.value, time, None)
+            with self._db_lock:
+                for key, entries in iteritems(self._db):
+                    entry = entries[-1]
+                    if not entry.value or entry.expired:
+                        continue
+                    time = currenttime()
+                    if entry.ttl and (entry.time + entry.ttl < time):
+                        entry.expired = True
+                        for client in self._server._connected.values():
+                            client.update(key, OP_TELLOLD, entry.value, time,
+                                          None)
 
         while not self._stoprequest:
             sleep(self._long_loop_delay)
