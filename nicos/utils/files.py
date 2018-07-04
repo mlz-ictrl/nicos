@@ -41,14 +41,16 @@ def iterSetups(paths):
             for filename in files:
                 if not filename.endswith('.py'):
                     continue
-                yield path.join(root, filename)
+                filepath = path.join(root, filename)
+                setupname = path.splitext(path.basename(filepath))[0]
+                yield (setupname, filepath)
 
 
 def findSetup(paths, setupname):
     """Return, if found, the full filename for a given setup name."""
-    for filename in iterSetups(paths):
-        if path.basename(filename)[:-3] == setupname:
-            return filename
+    for (fpsetupname, filepath) in iterSetups(paths):
+        if fpsetupname == setupname:
+            return filepath
 
 
 def findNicosFacilityDirs(where):

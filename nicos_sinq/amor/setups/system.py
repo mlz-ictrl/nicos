@@ -70,7 +70,7 @@ devices = dict(
         statustopic="AMOR_forwarderStatus",
         instpvtopic="AMOR_metadata",
         instpvschema='f142',
-        brokers=configdata('special/config.KAFKA_BROKERS'),
+        brokers=configdata('config.KAFKA_BROKERS'),
     ),
 
     conssink=device('nicos.devices.datasinks.ConsoleScanSink'),
@@ -80,7 +80,7 @@ devices = dict(
     NexusDataSink=device(
         'nicos_sinq.devices.datasinks.SinqNexusFileSink',
         description="Sink for NeXus file writer (kafka-to-nexus)",
-        brokers=configdata('special/config.KAFKA_BROKERS'),
+        brokers=configdata('config.KAFKA_BROKERS'),
         filenametemplate=['amor%(year)sn%(pointcounter)06d.hdf'],
         cmdtopic="AMOR_filewriterCommands",
         status_provider='NexusFileWriter',
@@ -91,7 +91,7 @@ devices = dict(
 
     HistogramDataSink=device(
         'nicos_sinq.amor.devices.datasinks.ImageKafkaWithLiveViewDataSink',
-        brokers=configdata('special/config.KAFKA_BROKERS'),
+        brokers=configdata('config.KAFKA_BROKERS'),
         channeltostream={
             'area_detector': ('AMOR_areaDetector', 'area.tof'),
             'single_det1': ('AMOR_singleDetector1', 'single.tof'),
@@ -102,7 +102,7 @@ devices = dict(
     NexusFileWriter=device(
         'nicos_sinq.amor.devices.nexus_updater.AmorNexusUpdater',
         description="Status for nexus file writing",
-        brokers=configdata('special/config.KAFKA_BROKERS'),
+        brokers=configdata('config.KAFKA_BROKERS'),
         statustopic="AMOR_filewriterStatus",
         timeout=30,
         fileupdates={

@@ -1321,7 +1321,7 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     return outer
 
 
-def make_load_config(filepath, cd_files):
+def make_load_config(filepath, all_setups, cd_files):
     """Create a load_config function for use in setups."""
     def load_config(name):
         from nicos.core.errors import ConfigurationError
@@ -1330,17 +1330,19 @@ def make_load_config(filepath, cd_files):
         except ValueError:
             raise ConfigurationError('configdata() argument must be in the '
                                      'form \'module.valuename\'')
-        fullname = path.join(path.dirname(filepath), setupname + '.py')
+        if setupname not in all_setups:
+            raise ConfigurationError('config setup "%s" not found' % setupname)
+        else:
+            fullname = all_setups[setupname]
         ns = {}
-        if path.isfile(fullname):
-            with open(fullname) as fp:
-                exec_(fp, ns)
-            cd_files.add(fullname)
+        with open(fullname) as fp:
+            exec_(fp, ns)
+        cd_files.add(fullname)
         try:
             return ns[element]
         except KeyError:
             raise ConfigurationError('value named %s not found in config '
-                                     'setup %s' % (element, setupname))
+                                     'setup "%s"' % (element, setupname))
     return load_config
 
 

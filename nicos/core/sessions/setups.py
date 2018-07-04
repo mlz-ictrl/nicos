@@ -43,8 +43,9 @@ SETUP_GROUPS = set([
 def readSetups(paths, logger):
     """Read all setups on the given paths."""
     infodict = {}
-    for filename in iterSetups(paths):
-        readSetup(infodict, filename, logger)
+    all_setups = dict(iterSetups(paths))
+    for (setupname, filename) in all_setups.items():
+        readSetup(infodict, setupname, filename, all_setups, logger)
     # check if all includes exist
     for name, info in iteritems(infodict):
         if info is None:
@@ -57,14 +58,14 @@ def readSetups(paths, logger):
     return infodict
 
 
-def prepareNamespace(setupname, filepath):
+def prepareNamespace(setupname, filepath, all_setups):
     """Return a namespace prepared for reading setup "setupname"."""
     # set of all files consulted via configdata()
     cd_files = set()
     # device() is a helper function to make configuration prettier
     ns = {
         'device': lambda cls, **params: Device((cls, params)),
-        'configdata': make_load_config(filepath, cd_files),
+        'configdata': make_load_config(filepath, all_setups, cd_files),
         'setupname': setupname,
         '_configdata_files': cd_files,
     }
@@ -120,8 +121,7 @@ def fixup_stacked_devices(logger, devdict):
     return devdict
 
 
-def readSetup(infodict, filepath, logger):
-    modname = path.splitext(path.basename(filepath))[0]
+def readSetup(infodict, modname, filepath, all_setups, logger):
     try:
         with open(filepath, 'rb') as modfile:
             code = modfile.read()
@@ -129,7 +129,7 @@ def readSetup(infodict, filepath, logger):
         logger.exception('Could not read setup '
                          'module %r: %s', filepath, err)
         return
-    ns = prepareNamespace(modname, filepath)
+    ns = prepareNamespace(modname, filepath, all_setups)
     try:
         exec_(code, ns)
     except Exception as err:

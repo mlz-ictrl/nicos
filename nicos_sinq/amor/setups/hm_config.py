@@ -8,8 +8,8 @@ devices = dict(
     hm_connector=device(
         'nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description="Connector for Histogram Memory Server",
-        byteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
-        baseurl=configdata('special/config.HISTOGRAM_MEMORY_URL'),
+        byteorder=configdata('config.HISTOGRAM_MEMORY_ENDIANESS'),
+        baseurl=configdata('config.HISTOGRAM_MEMORY_URL'),
         base64auth='c3B5OjAwNw==',
         lowlevel=True
     ),
