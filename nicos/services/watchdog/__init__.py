@@ -357,7 +357,7 @@ class Watchdog(BaseCacheClient):
     def _update_mailreceivers(self, emails):
         self.log.info('updating any Mailer receivers to %s', emails)
         for notifier in self._all_notifiers:
-            if isinstance(notifier, Mailer):
+            if isinstance(notifier, Mailer) and not notifier.private:
                 # we're in slave mode, so _setROParam is necessary to set params
                 notifier._setROParam('receivers', emails)
 
