@@ -129,13 +129,13 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     def _getBytes(self):
         """ Get the bytes from the server in the order requested
         """
-        raw = self._readFromServer()
+        raw = bytearray(self._readFromServer())
         if self.serverbyteorder != self.databyteorder:
             # Swap the endianness using 4 bytes
             self.log.debug('Swapping the endianness')
             raw[0::4], raw[1::4], raw[2::4], raw[3::4] = \
                 raw[3::4], raw[2::4], raw[1::4], raw[0::4]
-        return bytearray(raw)
+        return raw
 
     def _getData(self):
         """ Get the data formatted with uint32 numpy array
