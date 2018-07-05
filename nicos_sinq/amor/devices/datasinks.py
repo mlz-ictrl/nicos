@@ -24,12 +24,79 @@
 
 import numpy
 import struct
+from os import path
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import FINAL, LIVE
+from nicos.core import FINAL, LIVE, Override, SIMULATION
+from nicos.core.errors import ProgrammingError
+from nicos.utils import updateFileCounter, readFileCounter
+
+from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
+    NexusFileWriterSinkHandler
 from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSinkHandler, \
     ImageKafkaDataSink
+
+
+class AmorNexusFileSinkHandler(NexusFileWriterSinkHandler):
+    """Use the SICS counter so that counter is synchronized in all
+    user control software.
+    """
+
+    def _assignCounter(self):
+        # Adapted from DataManager.assignCounter function
+        if self.dataset.counter != 0:
+            return
+
+        exp = session.experiment
+        if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
+            session.log.warning('creating new empty file counter file at %s',
+                                path.join(exp.dataroot, exp.counterfile))
+
+        if session.mode == SIMULATION:
+            raise ProgrammingError('assignCounter should not be called in '
+                                   'simulation mode')
+
+        # Read the counter from SICS file
+        counter = exp.sicscounter + 1
+
+        # Keep track of which files we have already updated, since the proposal
+        # and the sample specific counter might be the same file.
+        seen = set()
+        for directory, attr in [(exp.dataroot, 'counter'),
+                                (exp.proposalpath, 'propcounter'),
+                                (exp.samplepath, 'samplecounter')]:
+            counterpath = path.normpath(path.join(directory, exp.counterfile))
+            readFileCounter(counterpath, self.dataset.countertype)
+            if counterpath not in seen:
+                updateFileCounter(counterpath, self.dataset.countertype,
+                                  counter)
+                seen.add(counterpath)
+
+            setattr(self.dataset, attr, counter)
+
+        # Update the counter in SICS file
+        exp.updateSicsCounterFile(counter)
+
+        session.experiment._setROParam('lastpoint', self.dataset.counter)
+
+    def prepare(self):
+        self._assignCounter()
+        NexusFileWriterSinkHandler.prepare(self)
+
+
+class AmorNexusFileSink(NexusFileWriterSink):
+    parameter_overrides = {
+        'subdir': Override(volatile=True),
+        'filenametemplate': Override(
+            default=['amor%(year)sn%(pointcounter)06d.hdf']),
+    }
+
+    handlerclass = AmorNexusFileSinkHandler
+
+    def doReadSubdir(self):
+        counter = session.experiment.sicscounter
+        return ('%3s' % int(counter / 1000)).replace(' ', '0')
 
 
 class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
@@ -39,7 +106,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
         arrays = []
         for desc in self.detector.arrayInfo():
             # Empty byte array representing 0 of type uint32
-            arrays.append(bytearray([0])*(numpy.prod(desc.shape)*4))
+            arrays.append(bytearray([0]) * (numpy.prod(desc.shape) * 4))
         self.putResults(LIVE, {self.detector.name: (None, arrays)})
 
     def putResults(self, quality, results):

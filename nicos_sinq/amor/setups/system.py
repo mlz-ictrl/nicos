@@ -74,9 +74,9 @@ devices = dict(
                   ),
 
     # Configure dataroot here (usually /data).
-    Exp=device('nicos.devices.experiment.Experiment',
+    Exp=device('nicos_sinq.amor.devices.experiment.AmorExperiment',
                description='experiment object',
-               dataroot='/opt/nicos-data',
+               dataroot='/home/amor/',
                sendmail=True,
                serviceexp='p0',
                sample='Sample',
@@ -111,7 +111,7 @@ devices = dict(
     ),
 
     NexusDataSink=device(
-        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
+        'nicos_sinq.amor.devices.datasinks..AmorNexusFileSink',
         description="Sink for NeXus file writer (kafka-to-nexus)",
         brokers=["ess01:9092"],
         cmdtopic="AMOR_filewriterCommands",
