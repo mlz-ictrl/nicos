@@ -29,8 +29,6 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
 
-import time
-
 from nicos import session
 from nicos.core import Override, Param, intrange, none_or, nonemptylistof, \
     oneof, status
@@ -323,7 +321,8 @@ class ReferenceMotor(CanReference, Motor1):
             if fullref:
                 if self.isAtReference():
                     self._move_away_from_reference(refswitch, refdirection)
-                self._move_until_referenced(time.time())
+                self.resetTimeout(0)
+                self._move_until_referenced()
                 if self.isAtReference():
                     if self.parkpos is not None:
                         self._start(self.parkpos)
@@ -444,7 +443,7 @@ class ReferenceMotor(CanReference, Motor1):
         if self._stoprequest:
             raise NicosError(self, 'move away from reference stopped by user')
 
-    def _move_until_referenced(self, starttime):
+    def _move_until_referenced(self):
         # calculate the step size for each reference move
         d = abs(self.refmove / self.slope)
         if self.refdirection == 'lower':
@@ -457,10 +456,12 @@ class ReferenceMotor(CanReference, Motor1):
             self._start(t)
             if self._stoprequest:
                 raise NicosError(self, 'move until reference stopped by user')
-            if time.time() - starttime > self.timeout:
+            if self.isTimedOut():
                 raise TimeoutError(self, 'timeout occured during reference '
                                    'drive')
         self._setrefcounter(False)
+        # avoid message 'target not reached' in status message
+        self._setROParam('target', self.doRead(0))
 
     @property
     def _hw_limits(self):
