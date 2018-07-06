@@ -325,7 +325,12 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         if length > 0:
             s += '%0*d' % (length, param)
         self.log.debug('sending %s to card %s', cmdname, addr)
-        return self._comm(s, retlen)
+        for i in range(self.comtries, 0, -1):
+            try:
+                return self._comm(s, retlen)
+            except (CommunicationError, ProgrammingError):
+                if i == 1:
+                    raise
 
     def get(self, addr, cmd, param=0, length=0):
         return self.send(addr, cmd, param, length)
