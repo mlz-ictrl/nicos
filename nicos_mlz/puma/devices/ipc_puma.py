@@ -85,7 +85,7 @@ class Coder(IPCCoder):
 
 
 class Motor(IPCMotor):
-    """Same as vendor.ipc.Motor but don't write the config byte."""
+    """Same as vendor.ipc.Motor but doesn't write the config byte."""
 
     parameter_overrides = {
         'confbyte': Override(settable=False),
@@ -107,22 +107,8 @@ class Motor(IPCMotor):
         return
 
 
-class Motor1(IPCMotor):
-    """Same as vendor.ipc.Motor but don't care about limit swtches."""
-
-    parameter_overrides = {
-        'confbyte': Override(settable=False),
-    }
-
-    def doWriteConfbyte(self, value):
-        self.log.warning('Config byte can\'t be changed like this.')
-        # if self._hwtype == 'single':
-        #     self._attached_bus.send(self.addr, WRITE_CONFIG_BYTE, value, 3)
-        # else:
-        #     raise InvalidValueError(self, 'confbyte not supported by card')
-        # self.log.info('parameter change not permanent, use _store() method '
-        #               'to write to EEPROM')
-        return
+class Motor1(Motor):
+    """Same as ipc_puma.Motor but doesn't care about limit swtches."""
 
     def doStatus(self, maxage=0):
         state = self._attached_bus.get(self.addr, STATUS)
@@ -182,7 +168,7 @@ class Motor1(IPCMotor):
         return st, msg[2:]
 
 
-class ReferenceMotor(CanReference, Motor):
+class ReferenceMotor(CanReference, Motor1):
     """IPC stepper card motor with reference capability."""
 
     parameters = {
@@ -216,7 +202,7 @@ class ReferenceMotor(CanReference, Motor):
     }
 
     def doInit(self, mode):
-        Motor.doInit(self, mode)
+        Motor1.doInit(self, mode)
         self._stoprequest = 0
         self._refcontrol = None
         if mode != SIMULATION:
@@ -242,7 +228,7 @@ class ReferenceMotor(CanReference, Motor):
 
     def doStop(self):
         self._stoprequest = 1
-        Motor.doStop(self)
+        Motor1.doStop(self)
         if self._refcontrol and self._refcontrol.isAlive():
             self._refcontrol.join()
         self._refcontrol = None
@@ -253,7 +239,7 @@ class ReferenceMotor(CanReference, Motor):
             return (status.OK, '')
         elif self._refcontrol and self._refcontrol.isAlive():
             return (status.BUSY, 'referencing')
-        return Motor.doStatus(self, maxage)
+        return Motor1.doStatus(self, maxage)
 
     def doReference(self, *args):
         refswitch = args[0] if args and isinstance(args[0], string_types) \
@@ -299,14 +285,14 @@ class ReferenceMotor(CanReference, Motor):
             session.delay(0.1)
             # hw_wait will not work here, since the status of the device is
             # always busy, but only the state of the motor is important
-            while Motor.doStatus(self, 0)[0] == status.BUSY and \
+            while Motor1.doStatus(self, 0)[0] == status.BUSY and \
                     not self._stoprequest:
                 session.delay(self._base_loop_delay)
             # motor must be stopped, the hardware will go again if any of the
             # limit switches is released again, this leads to unpredictable
             # results!
-            Motor.doStop(self)
-            while Motor.doStatus(self, 0)[0] == status.BUSY:
+            Motor1.doStop(self)
+            while Motor1.doStatus(self, 0)[0] == status.BUSY:
                 session.delay(self._base_loop_delay)
             self._stoprequest = 0
 
