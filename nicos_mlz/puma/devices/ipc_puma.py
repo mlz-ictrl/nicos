@@ -31,8 +31,6 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 
 import time
 
-import numpy as np
-
 from nicos import session
 from nicos.core import Override, Param, intrange, none_or, nonemptylistof, \
     oneof, status
@@ -43,6 +41,8 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
 from nicos.pycompat import string_types
 from nicos.utils import createThread
+
+import numpy as np
 
 DIR_POS = 34
 DIR_NEG = 35
@@ -406,11 +406,12 @@ class ReferenceMotor(CanReference, Motor):
         val = self._read_status()
         return bool(val & 0x80)
 
-    def _setrefcounter(self):
+    def _setrefcounter(self, raise_error=True):
         self.log.debug('in setrefcounter')
         if not self.isAtReference():
-            raise UsageError('cannot set reference counter, not at reference '
-                             'point')
+            if raise_error:
+                raise UsageError('cannot set reference counter, not at '
+                                 'reference point')
         self.steps = self.refpos
 
     def _resetlimits(self):
@@ -473,7 +474,7 @@ class ReferenceMotor(CanReference, Motor):
             if time.time() - starttime > self.timeout:
                 raise TimeoutError(self, 'timeout occured during reference '
                                    'drive')
-        self._setrefcounter()
+        self._setrefcounter(False)
 
     @property
     def _hw_limits(self):
