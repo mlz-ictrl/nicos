@@ -272,11 +272,13 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         elif response == NAK:
             if ping:
                 return 1
-            raise CommunicationError(self, 'CRC error')
+            raise CommunicationError(self, 'CRC error: %r' % convert(request))
         elif response == DC1:
-            raise InvalidCommandError(self, 'invalid command number')
+            raise InvalidCommandError(self, 'invalid command number: %r' %
+                                      convert(request))
         elif response == DC2:
-            raise ProgrammingError(self, 'invalid command parameter')
+            raise ProgrammingError(self, 'invalid command parameter: %r' %
+                                   convert(request))
         elif response == DC3:
             raise CommunicationError(self, 'command failed, e.g. hardware error')
         elif len(response) < 3:
