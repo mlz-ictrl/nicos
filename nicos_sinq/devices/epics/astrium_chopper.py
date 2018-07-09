@@ -306,4 +306,4 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     def maintain_speed(self):
         """Stops changing the speed of the chopper disks
         """
-        self.chspeed(self._master.speed)
+        self.master_speed(self._master.speed)
