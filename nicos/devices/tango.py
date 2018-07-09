@@ -43,7 +43,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, \
     ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
     HasTimeout, HasPrecision, ArrayDesc, Value, floatrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
-from nicos.utils import HardwareStub, tcpSocket, closeSocket, squeeze
+from nicos.utils import HardwareStub, tcpSocketContext, squeeze
 from nicos.core import SIMULATION
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
@@ -162,7 +162,8 @@ def check_tango_host_connection(address, timeout=3.0):
         tango_host = address.split('/')[2]
 
     try:
-        closeSocket(tcpSocket(tango_host, 10000, timeout=timeout))
+        with tcpSocketContext(tango_host, 10000, timeout=timeout):
+            pass
     except socket.error as e:
         raise CommunicationError(str(e))
 
