@@ -65,7 +65,7 @@ devices = dict(
     Amor=device('nicos.devices.instrument.Instrument',
                 description='instrument object',
                 instrument='SINQ AMOR',
-                responsible='Nikhil Biyani <nikhil.biyani@psi.ch>',
+                responsible='Jochen Stahn <jochen.stahn@psi.ch>',
                 operators=['Paul-Scherrer-Institut (PSI)'],
                 ),
 
