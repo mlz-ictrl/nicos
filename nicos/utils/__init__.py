@@ -39,6 +39,7 @@ import traceback
 import subprocess
 import unicodedata
 from os import path
+from contextlib import contextmanager
 from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
     S_IROTH, S_IXOTH
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
@@ -376,6 +377,22 @@ def closeSocket(sock, socket=socket):
         sock.close()
     except socket.error:
         pass
+
+
+@contextmanager
+def tcpSocketContext(host, defaultport, timeout=None):
+    """Context manager for `tcpSocket` (for arguments see there).
+
+    Usage::
+
+        with tcpSocketContext(host, port, timeout) as sock:
+            do socket operations on sock
+    """
+    try:
+        sock = tcpSocket(host, defaultport, timeout)
+        yield sock
+    finally:
+        closeSocket(sock)
 
 
 def getfqdn(name=''):

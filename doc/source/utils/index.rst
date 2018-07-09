@@ -135,6 +135,8 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: tcpSocket
 
+.. autofunction:: tcpSocketContext
+
 .. autofunction:: terminalSize
 
 .. autofunction:: timedRetryOnExcept
