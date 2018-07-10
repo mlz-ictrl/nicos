@@ -22,15 +22,15 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, pvname, usermethod, status, Override
+from nicos.core import Param, pvname, status, Override
 from nicos.core.errors import PositionError
-from nicos.devices.abstract import MappedReadable
-from nicos.devices.epics import EpicsReadable
+from nicos.devices.abstract import MappedMoveable
+from nicos_ess.devices.epics.base import EpicsDeviceEss
 
 
-class ProgrammableUnit(MappedReadable, EpicsReadable):
+class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
     """ AMOR has a Siemens programmable logic unit for controlling the shutter
-    and a switch for the alignment laser and the spin flipper. This is SPS-S5
+    and a switch for the alignment laser and the spin flipper. This is SPS
     which is connected to the world as such via a custom RS232 interface and a
     terminal server. *readpv* returns a waveform record with 16 bytes giving
     the state of the SPS digital inputs. *commandpv* sends the commands to
@@ -44,36 +44,33 @@ class ProgrammableUnit(MappedReadable, EpicsReadable):
         'bit': Param('Bit number from the byte representing the state',
                      type=int, mandatory=True, userparam=False,
                      settable=False),
-        'commandpv': Param('PV to issue commands to the asyn controller',
+        'readpv': Param('PV to read the digital input waveform', type=pvname,
+                        mandatory=True, settable=False, userparam=False),
+        'commandpv': Param('PV to send the command to toggle state',
                            type=pvname, mandatory=True, settable=False,
                            userparam=False),
-        'commandstr': Param('Command to issue on commandpv for switching '
-                            'the state ', type=str, mandatory=True,
-                            settable=False, userparam=False),
+        'commandstr': Param('Command string to issue on commandpv', type=str,
+                            mandatory=True, settable=False, userparam=False),
     }
 
     parameter_overrides = {
         'mapping': Override(userparam=False, settable=False),
         'fallback': Override(userparam=False),
-        'unit': Override(userparam=False)
+        'unit': Override(mandatory=False, userparam=False, settable=False)
     }
 
     def _get_pv_parameters(self):
-        return EpicsReadable._get_pv_parameters(self) | {'commandpv'}
-
-    def doInit(self, mode):
-        MappedReadable.doInit(self, mode)
-        EpicsReadable.doInit(self, mode)
+        return set(['readpv', 'commandpv'])
 
     def doStatus(self, maxage=0):
-        epics_status = EpicsReadable.doStatus(self, maxage)
+        epics_status = EpicsDeviceEss.doStatus(self, maxage)
         if epics_status[0] == status.OK:
             return status.OK, ''
 
         return epics_status
 
     def _readRaw(self, maxage=0):
-        raw = EpicsReadable.doRead(self, maxage)
+        raw = self._get_pv('readpv')
 
         if self.byte > len(raw):
             raise PositionError('Byte specified is out of bounds')
@@ -81,6 +78,7 @@ class ProgrammableUnit(MappedReadable, EpicsReadable):
         powered = 1 << self.bit
         return int(raw[self.byte] & powered == powered)
 
-    @usermethod
-    def toggle(self):
-        self._put_pv('commandpv', self.commandstr)
+    def _startRaw(self, target):
+        if self._readRaw() != target:
+            # Following command toggles the current state
+            self._put_pv('commandpv', self.commandstr)
