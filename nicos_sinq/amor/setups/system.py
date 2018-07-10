@@ -127,7 +127,6 @@ devices = dict(
             'area_detector_channel': ('AMOR_areaDetector', 'area.tof'),
             'single_det1_channel': ('AMOR_singleDetector1', 'single.tof'),
             'single_det2_channel': ('AMOR_singleDetector2', 'single.tof'),
-            'single_det3_channel': ('AMOR_singleDetector3', 'single.tof'),
         },
     ),
 

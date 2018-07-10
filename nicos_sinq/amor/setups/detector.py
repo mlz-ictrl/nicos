@@ -127,16 +127,6 @@ devices = dict(
         serverbyteorder='big',
         readbytes=True,
     ),
-    single_det3_channel=device(
-        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
-        description="Image channel for single detector 3",
-        lowlevel=True,
-        bank='hm_bank1',
-        connector='hm_connector',
-        detectorid=2,
-        serverbyteorder='big',
-        readbytes=True,
-    ),
     psd_tof=device(
         'nicos_sinq.devices.epics.scaler_record.EpicsScalerRecord',
         epicstimeout=3.0,
@@ -150,7 +140,7 @@ devices = dict(
         counters=['countpreset', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7',
                   'c8'],
         images=['area_detector_channel', 'single_det1_channel',
-                'single_det2_channel', 'single_det3_channel'],
+                'single_det2_channel'],
         others=['hm_channel'],
         liveinterval=5,
         saveintervals=[10]
