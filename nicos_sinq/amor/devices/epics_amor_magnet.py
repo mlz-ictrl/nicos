@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import status, Param, Override, pvname
+from nicos.core.errors import MoveError
 from nicos_ess.devices.epics.base import EpicsWindowTimeoutDeviceEss
 from nicos_ess.devices.epics.extensions import HasSwitchPv
 
@@ -119,6 +120,11 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
             return status.OK, 'Off'
 
         return EpicsWindowTimeoutDeviceEss.doStatus(self, maxage)
+
+    def doStart(self, value):
+        if not self.isSwitchedOn:
+            raise MoveError('Magnet switched OFF. Can\'t move!')
+        EpicsWindowTimeoutDeviceEss.doStart(self, value)
 
     def doReadAbslimits(self):
         absmin = self._get_pv('lowlimit')
