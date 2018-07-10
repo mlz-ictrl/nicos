@@ -2,20 +2,19 @@ description = 'Vacuum readout devices using Leybold Center 3'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test/center' % nethost
+tango_host = 'tango://refsanshw:10000/test/center/'
 
 devices = dict(
-    vacuum_CB = device('nicos.devices.taco.AnalogInput',
+    vacuum_CB = device('nicos.devices.tango.Sensor',
         description = 'Pressure in Chopper chamber',
-        tacodevice = '%s/center_0' % tacodev,
+        tangodevice = tango_host + 'center_0',
     ),
-    vacuum_SFK = device('nicos.devices.taco.AnalogInput',
+    vacuum_SFK = device('nicos.devices.tango.Sensor',
         description = 'Pressure in beam guide chamber',
-        tacodevice = '%s/center_1' % tacodev,
+        tangodevice = tango_host + 'center_1',
     ),
-    vacuum_SR = device('nicos.devices.taco.AnalogInput',
+    vacuum_SR = device('nicos.devices.tango.Sensor',
         description = 'Pressure in scattering tube',
-        tacodevice = '%s/center_2' % tacodev,
+        tangodevice = tango_host + 'center_2',
     ),
 )
