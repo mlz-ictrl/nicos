@@ -6,7 +6,7 @@ sysconfig = dict(
     instrument = None,
     datasinks = [],
     notifiers = [],
-    cache = 'mira1',
+    cache = 'miractrl',
 )
 
 devices = dict(

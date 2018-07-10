@@ -19,7 +19,7 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'mira1',
+        server = 'miractrl',
         loglevel = 'info',
         authenticators = ['LDAPAuth', 'Auth']
     ),

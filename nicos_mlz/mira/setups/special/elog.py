@@ -9,6 +9,6 @@ devices = dict(
     Logbook = device('nicos.services.elog.Logbook',
         plotformat = 'png',
         prefix = 'logbook/',
-        cache = 'mira1:14869'
+        cache = 'miractrl:14869'
     ),
 )
