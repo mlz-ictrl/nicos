@@ -24,11 +24,12 @@
 
 import requests
 
-from nicos.core import Device, Param
+from nicos.core import Readable, Param, tupleof, status, Override
+from nicos.core.mixins import HasCommunication
 from nicos.core.errors import CommunicationError
 
 
-class HttpConnector(Device):
+class HttpConnector(HasCommunication, Readable):
     """ Device to connect to the HTTP Server using HTTP Basic Authentication.
     *baseurl* provided in the parameters is prepended while connecting to the
     server using GET or POST. Parameter *base64auth* provides a way to
@@ -39,26 +40,52 @@ class HttpConnector(Device):
                          type=str, mandatory=True),
         'base64auth': Param('HTTP authentication encoded in base64',
                             type=str, mandatory=True),
+        'curstatus': Param('Current status of the connection (readonly)',
+                           type=tupleof(int, str), settable=True,
+                           userparam=False)
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, userparam=False, settable=False)
     }
 
     status_code_msg = {
         400: 'Bad request',
-        403: 'Authentication did not work. Check the parameter base64auth',
+        403: 'Authentication did not work..',
         404: 'Somehow, address was not found!',
         500: 'Internal server error',
     }
 
+    def doInit(self, mode):
+        # Check if the base url is available
+        self._com_retry(None, requests.get, self.baseurl,
+                        headers=self._get_auth())
+
     def _get_auth(self):
         return {"Authorization": "Basic %s" % self.base64auth}
 
-    def _check_response(self, req):
-        response = req.status_code
+    def _com_return(self, result, info):
+        # Check if the communication was successful
+        response = result.status_code
         if response in self.status_code_msg:
             raise CommunicationError(self.status_code_msg.get(response))
         elif response != 200:
             raise CommunicationError('Error while connecting to server!')
-        else:
-            return req
+        self._setROParam('curstatus', (status.OK, ''))
+        return result
+
+    def _com_raise(self, err, info):
+        self._setROParam('curstatus', (status.ERROR, 'Communication Error!'))
+        HasCommunication._com_raise(self, err, info)
+
+    def _com_warn(self, retries, name, err, info):
+        self._com_raise(err, info)
+
+    def doRead(self, maxage=0):
+        return ''
+
+    def doStatus(self, maxage=0):
+        return self.curstatus
 
     def get(self, name='', params=()):
         """Connect to *baseurl/name* using the GET protocol
@@ -66,10 +93,8 @@ class HttpConnector(Device):
         :param params: GET parameters to be passed
         :return: (requests.Response) response
         """
-        req = requests.get(self.baseurl + '/' + name, headers=self._get_auth(),
-                           params=params)
-        self.log.debug('Connected to: %s', req.url)
-        return self._check_response(req)
+        return self._com_retry(None, requests.get, self.baseurl + '/' + name,
+                               headers=self._get_auth(), params=params)
 
     def post(self, name='', data=()):
         """Connect to *baseurl/name* using the POST protocol
@@ -77,7 +102,5 @@ class HttpConnector(Device):
         :param data: POST parameters to be passed
         :return: (requests.Response) response
         """
-        req = requests.post(self.baseurl + '/' + name,
-                            headers=self._get_auth(), data=data)
-        self.log.debug('Connected to: %s', req.url)
-        return self._check_response(req)
+        return self._com_retry(None, requests.post, self.baseurl + '/' + name,
+                               headers=self._get_auth(), data=data)

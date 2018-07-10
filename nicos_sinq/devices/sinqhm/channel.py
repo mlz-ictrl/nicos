@@ -148,6 +148,9 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     def doReadArray(self, quality):
         return self._getBytes() if self.readbytes else self._getData()
 
+    def doStatus(self, maxage=0):
+        return self.connector.status(maxage)
+
 
 class HistogramMemoryChannel(PassiveChannel):
     """ Channel which configures the histogram memory start and stop.
@@ -208,11 +211,15 @@ class HistogramMemoryChannel(PassiveChannel):
         self.connector.get('stopdaq.egi')
 
     def doStatus(self, maxage=0):
+        conn_status = self._attached_connector.status(maxage)
+        if conn_status[0] != status.OK:
+            return conn_status
+
         text_info = self._text_info()
         if int(text_info['DAQ']) == 1:
             return status.BUSY, 'Acquiring..'
-        else:
-            return status.OK, 'Ok'
+
+        return status.OK, ''
 
     def doInfo(self):
         ret = []
