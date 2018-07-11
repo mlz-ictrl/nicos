@@ -537,7 +537,7 @@ devices = dict(
                        'rd9', 'rd10', 'rd11'],
         rotguide = ['rg1', 'rg2', 'rg3', 'rg4', 'rg5', 'rg6', 'rg7', 'rg8',
                     'rg9', 'rg10', 'rg11'],
-        refgap = 4.,
+        refgap = 3.0,
         att = 'att',
     ),
 )
