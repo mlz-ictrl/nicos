@@ -559,7 +559,8 @@ class TemperatureController(HasWindowTimeout, RampActuator):
                               settable=True, category='general', chatty=True,
                               volatile=True),
         'setpoint':     Param('Current setpoint', type=float,
-                              category='general', volatile=True),
+                              settable=True, category='general',
+                              volatile=True),
         'heateroutput': Param('Heater output', type=float, category='general',
                               volatile=True),
     }
@@ -590,6 +591,10 @@ class TemperatureController(HasWindowTimeout, RampActuator):
 
     def doReadSetpoint(self):
         return self._dev.setpoint
+
+    def doWriteSetpoint(self, value):
+        raise NicosError(self, 'To change the setpoint, use move(%s, %s)' %
+                         (self, value))
 
     def doReadHeateroutput(self):
         return self._dev.heaterOutput
