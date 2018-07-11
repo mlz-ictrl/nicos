@@ -424,12 +424,13 @@ class ReferenceMotor(CanReference, Motor1):
                     stop, start = self._hw_limits
             # if start > stop:
             #     start, stop = stop, start
-            self.setPosition(start)
-            self.log.debug('move to %f from %f', stop, start)
-            self._start(stop)
-            self.log.debug('finished at %f', self.read(0))
-            if self._stoprequest:
-                raise NicosError(self, 'drive to reference stopped by user')
+            while not self.isAtReference():
+                self.setPosition(start)
+                self.log.debug('move to %f from %f', stop, start)
+                self._start(stop)
+                self.log.debug('finished at %f', self.read(0))
+                if self._stoprequest:
+                    raise NicosError(self, 'drive to reference stopped by user')
 
     def _move_away_from_reference(self, refswitch, refdirection):
         self.log.debug('%s limit switch active', refswitch)
