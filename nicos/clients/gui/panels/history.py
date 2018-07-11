@@ -39,7 +39,7 @@ from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QObject, QTimer, \
     QComboBox, QWidgetAction, QApplication, QCheckBox, QHBoxLayout
 
 from nicos.core import Param, listof
-from nicos.utils import safeFilename, extractKeyAndIndex
+from nicos.utils import safeName, extractKeyAndIndex
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
     enumerateWithProgress, CompatSettings
@@ -1099,7 +1099,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
-            safeFilename('history_%s' % self.currentPlot.view.name + suffix))
+            safeName('history_%s' % self.currentPlot.view.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return

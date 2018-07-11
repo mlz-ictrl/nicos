@@ -47,7 +47,7 @@ from nicos.guisupport.plots import NicosPlotAxes, NicosTimePlotAxes, \
     MaskedPlotCurve, DATEFMT, TIMEFMT
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi, loadUi
-from nicos.utils import safeFilename
+from nicos.utils import safeName
 from nicos.utils.fitting import Fit, FitResult, LinearFit, GaussFit, \
     PseudoVoigtFit, PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, \
     ExponentialFit
@@ -1091,7 +1091,7 @@ class ViewPlot(NicosGrPlot):
                          for c in self.plotcurves]
             if len(curvedata) > 1:
                 filenames = [base + '_' +
-                             safeFilename(self._getCurveLegend(c)) + ext
+                             safeName(self._getCurveLegend(c)) + ext
                              for c in self.plotcurves]
             else:
                 filenames = [sel_filename]

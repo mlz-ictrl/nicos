@@ -533,11 +533,6 @@ def importString(import_name):
         return getattr(mod, obj)
 
 
-def safeFilename(fn):
-    """Make a filename "safe", i.e. remove everything except alphanumerics."""
-    return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
-
-
 # simple file operations
 #
 # first constants, then functions

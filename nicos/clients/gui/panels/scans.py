@@ -33,7 +33,7 @@ from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QDialog, QMenu, \
     QKeySequence, QShortcut, QTableWidgetItem, QActionGroup, QComboBox, \
     QWidgetAction, QCheckBox, QHBoxLayout, QFrame
 
-from nicos.utils import safeFilename
+from nicos.utils import safeName
 from nicos.core.data import ScanData
 from nicos.core.params import INFO_CATEGORIES
 from nicos.clients.gui.data import DataProxy
@@ -528,7 +528,7 @@ class ScansPanel(Panel):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
-            safeFilename('data_%s' % self.currentPlot.dataset.name + suffix))
+            safeName('data_%s' % self.currentPlot.dataset.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
