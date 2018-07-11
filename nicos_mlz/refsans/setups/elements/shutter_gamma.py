@@ -7,6 +7,7 @@ includes = ['nok_ref', 'nokbus1']
 hide_poti = True
 
 nethost = 'refsanssrv.refsans.frm2'
+tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     shutter_gamma = device('nicos.devices.generic.Switcher',
@@ -99,7 +100,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok1_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK1',
-        tacodevice = '//%s/test/wb_a/1_0' % nethost,
+        tangodevice = tango_host + 'wb_a/1_0',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),

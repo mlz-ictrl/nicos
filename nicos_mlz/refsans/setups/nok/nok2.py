@@ -6,6 +6,7 @@ includes = ['nok_ref', 'nokbus1']
 global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
+tango_host = 'tango://resfanshw:10000/test/'
 
 devices = dict(
     nok2 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
@@ -113,7 +114,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok2r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK2, reactor side',
-        tacodevice = '//%s/test/wb_a/1_1' % nethost,
+        tangodevice = tango_host + 'wb_a/1_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -205,7 +206,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok2s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
          description = 'Poti for NOK2, sample side',
-         tacodevice = '//%s/test/wb_a/1_2' % nethost,
+         tangodevice = tango_host + 'wb_a/1_2',
          scale = 1,   # mounted from bottom
          lowlevel = True,
     ),

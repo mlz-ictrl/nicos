@@ -6,6 +6,7 @@ includes = ['nok_ref', 'nokbus4']
 global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
+tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
@@ -125,7 +126,7 @@ devices = dict(
     ),
     bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, reactor side',
-        tacodevice = '//%s/test/wb_c/2_1' % nethost,
+        tangodevice = tango_host + 'wb_c/2_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -202,7 +203,7 @@ devices = dict(
     ),
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
-        tacodevice = '//%s/test/wb_c/2_5' % nethost,
+        tangodevice = tango_host + 'wb_c/2_5',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),

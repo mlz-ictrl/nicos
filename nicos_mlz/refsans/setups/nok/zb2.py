@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus2']
 global_values = configdata('global.GLOBAL_Values')
 
-nethost = 'refsanssrv.refsans.frm2'
+tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     # masks:
@@ -77,7 +77,7 @@ devices = dict(
 
     zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
-        tacodevice = '//%s/test/wb_b/2_3' % nethost,
+        tangodevice = tango_host + 'wb_b/2_3',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),

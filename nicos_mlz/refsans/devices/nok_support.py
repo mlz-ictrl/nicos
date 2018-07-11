@@ -34,7 +34,7 @@ from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
     SequencerMixin
-from nicos.devices.taco import AnalogInput
+from nicos.devices.tango import Sensor
 from nicos.devices.vendor.ipc import Motor as IPCMotor
 from nicos.utils import clamp, lazy_property
 
@@ -43,7 +43,7 @@ from nicos_mlz.refsans.devices.mixins import PseudoNOK
 MODES = ['ng', 'rc', 'vc', 'fc']
 
 
-class NOKMonitoredVoltage(AnalogInput):
+class NOKMonitoredVoltage(Sensor):
     """Return a scaled and monitored Analogue value.
 
     Also checks the value to be within certain limits, if not, complain.
@@ -69,7 +69,7 @@ class NOKMonitoredVoltage(AnalogInput):
                                          ' order!')
 
     def doRead(self, maxage=0):
-        value = self.scale * AnalogInput.doRead(self, maxage)
+        value = self.scale * Sensor.doRead(self, maxage)
         if self.reflimits is not None:
             if abs(value) > self.reflimits[2]:
                 raise HardwareError(self, 'Reference voltage (%.2f) above '
@@ -88,7 +88,7 @@ class NOKMonitoredVoltage(AnalogInput):
     def doStatus(self, maxage=0):
         try:
             self.doRead(maxage)
-            return AnalogInput.doStatus(self, maxage)
+            return Sensor.doStatus(self, maxage)
         except HardwareError as err:
             return status.ERROR, repr(err)
 
