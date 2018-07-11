@@ -59,7 +59,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             try:
                 state, status = dev.status()
             except NicosError:
-                dev.warning('could not get status for data file')
+                dev.log.warning('could not get status for data file')
                 devices.pop(info.name, None)
                 continue
             entry = self._dict()
@@ -79,7 +79,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
                 try:
                     state, status = dev.status()
                 except NicosError:
-                    dev.warning('could not get status for data file')
+                    dev.log.warning('could not get status for data file')
                     continue
                 entry["name"] = name
                 entry["unit"] = self._devpar(name, "unit")
