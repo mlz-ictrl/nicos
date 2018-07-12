@@ -409,13 +409,6 @@ def createThread(name, target, args=(), kwargs=None, daemon=True, start=True):
     return thread
 
 
-def runAsync(func):
-    """Decorator that runs the function in a thread when called."""
-    def inner(*args, **kwargs):
-        createThread('runAsync %s' % func, func, args=args)
-    return inner
-
-
 def createSubprocess(cmdline, **kwds):
     """Create a subprocess.Popen with the proper setting of close_fds."""
     if 'close_fds' not in kwds:
