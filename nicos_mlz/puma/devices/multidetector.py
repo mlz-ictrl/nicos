@@ -27,10 +27,11 @@ import math
 import sys
 
 from nicos import session
+from nicos.commands import hiddenusercommand
 from nicos.core import Attach, Moveable, Override, Param, floatrange, listof, \
     status, tupleof
 from nicos.core.mixins import HasTimeout
-from nicos.core.utils import filterExceptions, multiStatus
+from nicos.core.utils import filterExceptions, multiStatus, multiWait
 from nicos.devices.abstract import CanReference
 from nicos.pycompat import reraise
 
@@ -98,6 +99,14 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
     # [-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100]
     hortranslation = range(-100, 101, 20)
     anglis = [2.28, 2.45, 2.38, 2.35, 2.30, 2.43, 2.37, 2.43, 2.32, 2.36]
+
+    @hiddenusercommand
+    def park(self):
+        self.maw(self.parkpos[:11] + [0] * 11)
+        for d, p in zip(self._rotguide1, self.parkpos[11:][::-1]):
+            d.move(p)
+            session.delay(1)
+        multiWait(self._rotguide1)
 
     def doInit(self, mode):
         self._rotdetector0 = self._attached_rotdetector
