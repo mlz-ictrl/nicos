@@ -224,6 +224,15 @@ class ReferenceMotor(CanReference, Motor1):
                 self.log.warning("Could not write 'microstep' value")
         self._lasterror = None
 
+    def doStart(self, target):
+        try:
+            Motor1.doStart(self, target)
+        except Exception as e:
+            r = self._attached_bus.get(self.addr, STATUS)
+            if not (r & 0x20 or r & 0x40):
+                raise
+            self.log.info('Ignoring due to limit switch hitting: %r', e)
+
     def doStop(self):
         self._stoprequest = 1
         Motor1.doStop(self)
