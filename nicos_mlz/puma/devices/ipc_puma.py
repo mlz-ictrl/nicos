@@ -353,7 +353,8 @@ class ReferenceMotor(CanReference, Motor1):
                     temp = self.read(0)
                     self.log.info('new position of %s is now %.3f %s',
                                   self.name, temp, self.unit)
-                    if self.abslimits[0] <= temp <= self.abslimits[1]:
+                    if (self.abslimits[0] - self.precision) <= temp <= \
+                       (self.abslimits[1] + self.precision):
                         self._resetlimits()
                     else:
                         self.log.warn('in _referencing limits not restored '
