@@ -20,3 +20,4 @@ development environment and coding  guidelines.
    sessionapi
    coreapi/index
    protocols/index
+   utils/index
