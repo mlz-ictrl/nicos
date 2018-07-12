@@ -29,6 +29,7 @@ from __future__ import absolute_import, division, print_function
 import os
 
 from nicos import config
+from nicos.utils import safeWriteFile
 
 
 def _get_instr_config():
@@ -40,6 +41,4 @@ def _get_instr_config():
 def _apply_instr_config(code):
     currentfile = os.path.join(config.setup_package_path, config.instrument,
                                'setups', 'current_%s.py' % config.instrument)
-    tmpfile = currentfile + '.tmp'
-    open(tmpfile, 'w').write(code)
-    os.rename(tmpfile, currentfile)
+    safeWriteFile(currentfile, code, maxbackups=0)
