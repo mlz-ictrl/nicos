@@ -27,6 +27,7 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import time
 import socket
@@ -37,7 +38,7 @@ from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
     comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort, \
-    checkSetupSpec, extractKeyAndIndex, squeeze
+    checkSetupSpec, extractKeyAndIndex, squeeze, moveOutOfWay
 from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
@@ -360,3 +361,17 @@ def test_squeeze():
     assert squeeze((1, 10, 1), -1) == (1, 10)
     assert squeeze((1, 10, 1), 1) == (1, 10)
     assert squeeze((1, ), 2) == (1, )  # n > len(shape)
+
+
+@pytest.mark.parametrize('maxbackup', [2, None, 0])
+def test_moveOutOfWay(tmpdir, maxbackup):
+    i = 0
+    fn1 = str(tmpdir.join('test1'))
+    while i < 3:
+        open(fn1, 'w').write('Test %r %i' % (maxbackup, i))
+        moveOutOfWay(fn1, maxbackup)
+        i += 1
+
+    files = [f for f in os.listdir(str(tmpdir)) if f.startswith('test1')]
+    assert 'test1' not in files
+    assert len(files) == maxbackup if maxbackup is not None else 3

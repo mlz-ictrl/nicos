@@ -585,6 +585,51 @@ def writeFile(filename, lines):
         fp.writelines(lines)
 
 
+def moveOutOfWay(filepath, maxbackups=10):
+    """Move files out of the way , while keeping backups
+
+    if ``maxbackups`` is None, then the highest found number+1 will get appended
+    (backup n +1 is newer than backup n)
+    if ``maxbackups`` is a positive integer then old backups up to ``maxbackups``
+    will get a rolling update (backup n is newer than backup n+1)
+
+    The default is a rolling backup with max. 10 backups
+    If ``maxbackups`` == 0, then this will just unlink the file.
+    """
+    if not path.exists(filepath):
+        return None
+    if maxbackups == 0:
+        os.unlink(filepath)
+        return None
+    if maxbackups is not None:
+        for i in range(maxbackups, 1, -1):
+            old_bkup = filepath + '.~%d~' % (i - 1)
+            new_bkup = filepath + '.~%d~' % (i)
+            if path.exists(old_bkup):
+                os.rename(old_bkup, new_bkup)
+        os.rename(filepath, filepath + '.~%d~' % 1)
+        return old_bkup
+    else:
+        bu_re = re.compile(filepath + r'\.~([0-9]+)~')
+        basedir = path.dirname(filepath) or os.curdir
+        existing = os.listdir(basedir)
+        exist_matching = [int(bu_re.match(e).group(1)) for e in existing
+                          if bu_re.match(e)]
+        nxt = max(exist_matching) + 1 if exist_matching else 1
+        while True:
+            renamename = filepath + '.~%d~' % nxt
+            if not path.exists(renamename):
+                try:
+                    os.rename(filepath, renamename)
+                    return renamename
+                except os.error as ex:
+                    raise RuntimeError('Could not rename %s to backup '
+                                       'name %s: %s' %
+                                       (filepath, renamename, ex))
+            # retry if backup name was already used
+            nxt = nxt + 1
+
+
 def getPidfileName(appname):
     return os.path.join(config.nicos_root, config.pid_path, appname + '.pid')
 

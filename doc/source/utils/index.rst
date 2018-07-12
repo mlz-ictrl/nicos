@@ -101,7 +101,7 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: make_load_config
 
-.. autofunction:: moveoutofway
+.. autofunction:: moveOutOfWay
 
 .. autofunction:: nocolor
 
