@@ -60,7 +60,7 @@ from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.pycompat import iteritems, string_types, text_type, exec_
 
 
-class attrdict(dict):
+class AttrDict(dict):
     """Dictionary whose items can be set with attribute access."""
     def __getattr__(self, key):
         try:
@@ -78,7 +78,7 @@ class attrdict(dict):
             raise AttributeError(key)
 
 
-class lc_dict(dict):
+class LCDict(dict):
     """Dictionary with automatic lower-casing of keys."""
     def __getitem__(self, key):
         return dict.__getitem__(self, key.lower())

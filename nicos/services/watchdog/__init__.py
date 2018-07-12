@@ -37,7 +37,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.pycompat import iteritems, listitems
-from nicos.utils import lc_dict, createSubprocess
+from nicos.utils import LCDict, createSubprocess
 
 
 class Entry(object):
@@ -185,7 +185,7 @@ class Watchdog(BaseCacheClient):
         # current count loop pause reasons: mapping like self._warnings
         self._pausecount = OrderedDict()
         # dictionary of keys used to evaluate the conditions
-        self._keydict = lc_dict()
+        self._keydict = LCDict()
         # put status constants in key dict to simplify status conditions
         for stval, stname in status.statuses.items():
             self._keydict[stname.upper()] = stval

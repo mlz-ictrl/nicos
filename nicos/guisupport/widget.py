@@ -33,7 +33,7 @@ from copy import copy
 
 from nicos.guisupport.qt import pyqtProperty, QFont, QFontMetrics
 
-from nicos.utils import lazy_property, attrdict, extractKeyAndIndex
+from nicos.utils import lazy_property, AttrDict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
@@ -51,7 +51,7 @@ class NicosListener(object):
 
     def _newDevinfo(self, valueindex, unit, fmtstr, isdevice):
         valueindex = tuple(map(int, valueindex))
-        return attrdict(
+        return AttrDict(
             {'value': '-',
              'valueindex': valueindex,
              'strvalue': '-',
