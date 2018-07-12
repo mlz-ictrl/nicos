@@ -635,6 +635,26 @@ def moveOutOfWay(filepath, maxbackups=10):
             nxt = nxt + 1
 
 
+def safeWriteFile(filepath, content, mode='w', maxbackups=10):
+    """(almost) atomic writing of a file
+
+    The content is first written to a temporary file and then swapped in while
+    keeping a backup file.
+
+    It can take both a plain content blob or a list of lines.
+    """
+
+    tmpfile = filepath + '.tmp'
+    if isinstance(content, list):
+        writeFile(tmpfile, content)
+    else:
+        open(tmpfile, mode).write(content)
+    try:
+        moveOutOfWay(filepath, maxbackups)
+    finally:
+        os.rename(tmpfile, filepath)
+
+
 def getPidfileName(appname):
     return os.path.join(config.nicos_root, config.pid_path, appname + '.pid')
 

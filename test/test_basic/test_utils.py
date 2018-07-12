@@ -42,8 +42,8 @@ from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
     lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
-    parseDuration, readonlydict, readonlylist, squeeze, tcpSocket, \
-    timedRetryOnExcept
+    parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
+    tcpSocket, timedRetryOnExcept
 from nicos.utils.timer import Timer
 
 
@@ -131,7 +131,7 @@ def test_functions():
 
 
 def test_traceback():
-    a = 1  # pylint: disable=W0612
+    a = 1  # pylint: disable=unused-variable
     f = sys._getframe()
     fmt = formatExtendedFrame(f)
     assert any('a                    = 1' in line for line in fmt)
@@ -409,6 +409,7 @@ def test_moveOutOfWay(tmpdir, maxbackup):
 def test_parse_duration(inp, expected):
     assert parseDuration(inp) == expected
 
+
 @pytest.mark.parametrize('inp', [
     [1,2,3], {'days':5}, ])
 def test_parse_duration_type_errors(inp):
@@ -419,3 +420,20 @@ def test_parse_duration_type_errors(inp):
     '1m3d', '1d::3m', '1d:3m jad'])
 def test_parse_duration_parse_errors(inp):
     assert raises(ValueError, parseDuration, inp)
+
+
+@pytest.mark.parametrize('maxbackup', [2, None, 0])
+@pytest.mark.parametrize('content', ['XXXXX', ['XXXX\n', 'YYYYY\n']])
+def test_safeWriteFile(tmpdir, maxbackup, content):
+    i = 0
+    fn1 = str(tmpdir.join('test1'))
+    while i < 3:
+        safeWriteFile(fn1, content, maxbackups=maxbackup)
+        i += 1
+    files = [f for f in os.listdir(str(tmpdir)) if f.startswith('test1')]
+    assert 'test1' in files
+    assert len(files) == maxbackup + 1 if maxbackup is not None else 4
+    if isinstance(content, list):
+        assert len(open(fn1).readlines()) == len(content)
+    else:
+        assert len(open(fn1).read()) == len(content)

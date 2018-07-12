@@ -127,6 +127,8 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: safeName
 
+.. autofunction:: safeWriteFile
+
 .. autofunction:: setuser
 
 .. autofunction:: squeeze
