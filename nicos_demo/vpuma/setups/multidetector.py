@@ -26,6 +26,9 @@ devices = dict(
             ),
             precision = 0.01,
         ),
+        parkpos = [-15, -17.5, -20., -22.5, -25., -27.5, -30., -32.5, -35.,
+                   -37.5, -40.,
+                   3.5, 2.75, 2.5, 2.25, 2.0, 1.75, 1.5, 1.25, 1.0, 0.75, 0.5],
     ),
     monitor = device('nicos.devices.generic.VirtualCounter',
         description = 'Monitor',
@@ -63,7 +66,7 @@ for i in range(11):
     devices['rd%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation detector %d multidetector' % (i + 1),
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-39 + (11 - (i + 1)) * 2.5, 12 - i * 2.5),
+            abslimits = (-40 + (11 - (i + 1)) * 2.5, 12 - i * 2.5),
             unit = 'deg',
             refpos = -13.5 - i * 2.5,
             fmtstr = '%.3f',
@@ -90,15 +93,6 @@ for i in range(11):
         countrate = 1 + int(2000 * math.exp(-((i + 1) - 6) ** 2 / 2.)),
         fmtstr = '%d',
     )
-
-devices['rd6'] = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-    description = 'Rotation detector %d multidetector' % (i + 1),
-    abslimits = (-39 + (11 - (5 + 1)) * 2.5, 12 - 5 * 2.5),
-    unit = 'deg',
-    refpos = -13.5 - 5 * 2.5,
-    fmtstr = '%.3f',
-    speed = 3,
-)
 
 startupcode = '''
 SetDetectors(det)
