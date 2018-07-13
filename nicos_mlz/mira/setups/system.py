@@ -4,7 +4,7 @@ description = 'system setup only'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'miractrl',
+    cache = 'miractrl.mira.frm2',
     instrument = 'mira',
     experiment = 'Exp',
     notifiers = ['email', 'smser'],

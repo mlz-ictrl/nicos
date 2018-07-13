@@ -2,5 +2,5 @@ description = 'minimal NICOS startup setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'miractrl',
+    cache = 'miractrl.mira.frm2',
 )
