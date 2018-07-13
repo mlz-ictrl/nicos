@@ -28,15 +28,17 @@ import sys
 
 from nicos import session
 from nicos.commands import hiddenusercommand
-from nicos.core import Attach, Moveable, Override, Param, floatrange, listof, \
-    status, tupleof
+from nicos.core import Attach, Moveable, Override, Param, SIMULATION, \
+    floatrange, listof, status, tupleof
+from nicos.core.errors import MoveError
 from nicos.core.mixins import HasTimeout
-from nicos.core.utils import filterExceptions, multiStatus, multiWait
+from nicos.core.utils import filterExceptions
 from nicos.devices.abstract import CanReference
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 from nicos.pycompat import reraise
 
 
-class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
+class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
     """PUMA multidetector arrangement device.
 
     There are 11 detector/blades(collimator) combinations moving on a circle.
@@ -66,9 +68,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
         'detectorradius': Param('',
                                 type=float, settable=False, default=761.9,
                                 unit='mm'),
-        '_status': Param('read only status',
-                         type=bool, settable=False, userparam=False,
-                         default=False),
         'refgap': Param('Gap between detectors during the reference of the '
                         'guides',
                         type=floatrange(2.75, 4.1), settable=False,
@@ -92,7 +91,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
     }
 
     hardware_access = False
-    stoprequest = 0
     threadstate = None
     D2R = math.pi / 180
     R2D = 1. / D2R
@@ -102,24 +100,34 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
 
     @hiddenusercommand
     def park(self):
-        self.maw(self.parkpos[:11] + [0] * 11)
-        for d, p in zip(self._rotguide1, self.parkpos[11:][::-1]):
-            d.move(p)
-            session.delay(1)
-        multiWait(self._rotguide1)
+        """Move device to the ``park`` position.
+
+        The park position is given by the ``parkposition`` parameter.
+        It generate ands starts a sequence if non is running. The call is
+        blocking.
+        """
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot park device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
+        self._startSequence([
+                             SeqMethod(self, '_move_guides_to_zero_pos'),
+                             SeqMethod(self, '_move_detectors', self.parkpos),
+                             ] +
+                            [SeqDev(d, p) for d, p in zip(
+                                self._rotguide1, self.parkpos[11:][::-1])])
+        # block the move to be sure that the device has reached target before
+        # it can be dismounted or the position sensitive detectors can be used
+        self.wait()
 
     def doInit(self, mode):
         self._rotdetector0 = self._attached_rotdetector
         self._rotdetector1 = self._rotdetector0[::-1]
         self._rotguide0 = self._attached_rotguide
         self._rotguide1 = self._rotguide0[::-1]
-        self._setROParam('_status', False)
-
-    def doStatus(self, maxage=0):
-        if self._status:
-            return status.BUSY, 'moving'
-        return multiStatus(self._attached_rotdetector +
-                           self._attached_rotguide, maxage)
 
     def valueInfo(self):
         ret = []
@@ -148,85 +156,102 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             return False, '; '.join(why)
         return self._sequentialAngleLimit(target[:self._num_axes])
 
-    def doStart(self, target):
+    def _move_guides_to_zero_pos(self):
+        """Move all guides to a position '0.'.
+
+        Starting at the most left  guide looking for the first guide where the
+        position is >= 0 so the devices left from it may be moved without any
+        problem to position 0. Repeat as long all none of the positions is < 0.
+        The move all with positions > 0 to 0.
+        """
+        self.log.debug('move all guides to zero position')
+        while min(d.read(0) for d in self._rotguide0) < 0:
+            for d in self._rotguide0:
+                if d.read(0) >= 0:
+                    for d1 in self._rotguide1[self._rotguide0.index(d):]:
+                        d1.maw(0)
+            self.log.debug('%r', [d.read(0) for d in self._rotguide0])
+        for d in self._rotguide0:
+            if not d.isAtTarget(0):
+                d.maw(0)
+
+        # remove all remaining move commands on cards due to touching any limit
+        # switch
+        for d in self._rotguide0:
+            d.stop()
+
+    def _move_detectors(self, target):
+        """Move detectors to their positions.
+
+        The order of the movement is calculated to avoid clashes during the
+        movement.
+        """
+        self.log.debug('Collision sorting')
+        # Goetz collision sort
+        nstart = [[0] * self._num_axes] * self._num_axes
+        for i in range(self._num_axes):
+            for j in range(i + 1, self._num_axes):
+                if target[i] < self._rotdetector0[j].read(0) + 2.5:
+                    nstart[i][j] = 1
+        self.log.debug('Collision sorting done: %r', nstart)
+
+        istart = [0] * self._num_axes
+        for _k in range(self._num_axes):
+            if 0 not in istart:
+                break
+            # ready = 1
+            # for i in range(self._num_axes):
+            #     if istart[i] == 0:
+            #         ready = 0
+            # if ready != 0:
+            #     break
+            for i in range(self._num_axes):
+                if istart[i] == 0:
+                    if sum(nstart[i][i + 1:self._num_axes]) == 0:
+                        istart[i] = 1
+                        self.log.debug('Move detector #%d', i + 1)
+                        self._rotdetector0[i].move(target[i])
+                        session.delay(2)
+                        for j in range(self._num_axes):
+                            nstart[j][i] = 0
+        self._hw_wait(self._rotdetector0)
+        # remove all remaining move commands on cards due to touching any limit
+        # switch
+        for d in self._rotdetector0:
+            d.stop()
+
+    def _move_guides(self, target):
+        """Move all guides to their final position.
+
+        Starting with the most outer guides towards the inner ones all guides
+        may started one after the other, since should have target positions
+        increasing with their position numbers.
+        """
+        for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
+            self._rotguide0[n].move(target[n + self._num_axes])
+            self.log.debug('Move guide #%d', n + 1)
+        self._hw_wait(self._rotguide0)
+        # remove all remaining move commands on cards due to touching any limit
+        # switch
+        for d in self._rotguide0:
+            d.stop()
+
+    def _generateSequence(self, target):
         """Move multidetector to correct scattering angle of multi analyzer.
 
         It takes account into the different origins of the analyzer blades.
         """
-        try:
-            # check if requested positions already reached within precision
-            check = self._checkPositionReached(target, 'raw')
-            self._printPos()
-            if check:
-                self.log.debug('device already at requested position, '
-                               'nothing to do!')
-                return
+        # check if requested positions already reached within precision
+        if self.isAtTarget(target):
+            self.log.debug('device already at position, nothing to do!')
+            return []
 
-            self.log.debug('try to start multidetector')
-            self._setROParam('_status', True)
-
-            # Move all guides to a position '0.' so the detectors can be
-            # moved without any restriction. Starting at the most left
-            # guide looking for the first guide where the position is >= 0
-            # so the devices left from it may be moved without any problem
-            # to position 0. Repeat as long all at position 0
-            while min(d.read(0) for d in self._rotguide0) < 0:
-                for d in self._rotguide0:
-                    if d.read(0) >= 0:
-                        for d1 in self._rotguide1[self._rotguide0.index(d):]:
-                            d1.maw(0)
-                self.log.debug('%r', [d.read(0) for d in self._rotguide0])
-            for d in self._rotguide0:
-                if not d.isAtTarget(0):
-                    d.maw(0)
-
-            # remove all remaining move commands on cards due to touching
-            # any limit switch
-            self.stop()
-
-            # move detectors to device angle
-            self.log.debug('Collision sorting')
-            # Goetz collision sort
-            nstart = [[0] * self._num_axes] * self._num_axes
-            for i in range(self._num_axes):
-                for j in range(i + 1, self._num_axes):
-                    if target[i] < self._rotdetector0[j].read(0) + 2.5:
-                        nstart[i][j] = 1
-            self.log.debug('Collision sorting done: %r', nstart)
-
-            istart = [0] * self._num_axes
-            for _k in range(self._num_axes):
-                if 0 not in istart:
-                    break
-                # ready = 1
-                # for i in range(self._num_axes):
-                #     if istart[i] == 0:
-                #         ready = 0
-                # if ready != 0:
-                #     break
-                for i in range(self._num_axes):
-                    if istart[i] == 0:
-                        if sum(nstart[i][i + 1:self._num_axes]) == 0:
-                            istart[i] = 1
-                            self.log.debug('Move detector #%d', i + 1)
-                            self._rotdetector0[i].move(target[i])
-                            session.delay(2)
-                            for j in range(self._num_axes):
-                                nstart[j][i] = 0
-            self._hw_wait(self._rotdetector0)
-            # remove all remaining move commands on cards due to touching
-            # any limit switch
-            self.stop()
-
-            for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
-                self._rotguide0[n].move(target[n + self._num_axes])
-                self.log.debug('Move guide #%d', n + 1)
-            self._hw_wait(self._rotguide0)
-            # remove all remaining move commands on cards due to touching
-            # any limit switch
-            self.stop()
-        finally:
-            self._setROParam('_status', False)
+        return [
+            SeqMethod(self, '_move_guides_to_zero_pos'),
+            # The detectors can be  moved without any restriction.
+            SeqMethod(self, '_move_detectors', target),
+            SeqMethod(self, '_move_guides', target),
+        ]
 
     def doRead(self, maxage=0):
         return [d.read(maxage) for d in self._rotdetector0 + self._rotguide0]
@@ -398,6 +423,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, Moveable):
             out.append('guide rotation    %2d: %7.2f %s' % (i, dev.read(),
                                                             dev.unit))
         self.log.debug('%s', '\n'.join(out))
+
+    def doIsAtTarget(self, target):
+        self._printPos()
+        return self._checkPositionReached(target, 'raw')
 
     def _checkPositionReached(self, target, mode):
         """Check whether requested position is reached within some limit."""
