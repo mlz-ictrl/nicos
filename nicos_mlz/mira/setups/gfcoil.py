@@ -1,7 +1,7 @@
 description = 'Guide field Helmholtz coils around sample position'
 group = 'optional'
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     dct5 = device('nicos.devices.tango.PowerSupply',

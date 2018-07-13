@@ -1,7 +1,7 @@
 description = 'Huber sample slits'
 group = 'lowlevel'
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     ss1r = device('nicos.devices.tango.Motor',

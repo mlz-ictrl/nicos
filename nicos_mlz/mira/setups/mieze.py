@@ -4,7 +4,7 @@ group = 'basic'
 includes = ['cascade', 'relay', 'guidehall', 'nl6']
 modules = ['nicos_mlz.mira.mieze_commands']
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     mieze = device('nicos_mlz.mira.devices.mieze.MiezeMaster',

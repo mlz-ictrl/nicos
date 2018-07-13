@@ -4,7 +4,7 @@ group = 'lowlevel'
 includes = ['detector', 'gas']
 excludes = ['cascade_tango']
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 sysconfig = dict(
     datasinks = ['psd_padformat', 'psd_tofformat', 'psd_xmlformat',

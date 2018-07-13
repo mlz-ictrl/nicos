@@ -1,7 +1,7 @@
 description = 'Keithley 6221 current source, for susceptometer measurements'
 group = 'optional'
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     keithley_ampl = device('nicos.devices.tango.AnalogOutput',

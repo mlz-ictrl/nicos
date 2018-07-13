@@ -3,7 +3,7 @@ group = 'optional'
 
 includes = ['base']
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 sysconfig = dict(
     datasinks = ['tifformat'],

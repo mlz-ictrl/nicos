@@ -3,7 +3,7 @@ group = 'lowlevel'
 
 excludes = ['sample']
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     co_stt = device('nicos.devices.tango.Sensor',

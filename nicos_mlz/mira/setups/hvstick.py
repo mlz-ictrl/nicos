@@ -1,6 +1,6 @@
 description = 'high voltage stick'
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     HV = device('nicos.devices.tango.PowerSupply',

@@ -1,7 +1,7 @@
 description = 'Mezei spin flipper using TTI power supply'
 group = 'optional'
 
-tango_base = 'tango://mira1.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     dct3 = device('nicos.devices.tango.PowerSupply',
