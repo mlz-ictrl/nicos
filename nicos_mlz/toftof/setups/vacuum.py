@@ -4,35 +4,31 @@ group = 'lowlevel'
 
 includes = []
 
-nethost = 'toftofsrv.toftof.frm2'
+tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/vacuum/'
 
 devices = dict(
-    vac0 = device('nicos.devices.taco.io.AnalogInput',
+    vac0 = device('nicos.devices.tango.Sensor',
         description = 'Vacuum sensor in chopper vessel 1',
-        tacodevice = '//%s/toftof/vacuum/sens1' % nethost,
+        tangodevice = tango_host + 'sens1',
         pollinterval = 10,
         maxage = 12,
-        unit = 'mbar',
     ),
-    vac1 = device('nicos.devices.taco.io.AnalogInput',
+    vac1 = device('nicos.devices.tango.Sensor',
         description = 'Vacuum sensor in chopper vessel 2',
-        tacodevice = '//%s/toftof/vacuum/sens2' % nethost,
+        tangodevice = tango_host + 'sens2',
         pollinterval = 10,
         maxage = 12,
-        unit = 'mbar',
     ),
-    vac2 = device('nicos.devices.taco.io.AnalogInput',
+    vac2 = device('nicos.devices.tango.Sensor',
         description = 'Vacuum sensor in chopper vessel 3',
-        tacodevice = '//%s/toftof/vacuum/sens3' % nethost,
+        tangodevice = tango_host + 'sens3',
         pollinterval = 10,
         maxage = 12,
-        unit = 'mbar',
     ),
-    vac3 = device('nicos.devices.taco.io.AnalogInput',
+    vac3 = device('nicos.devices.tango.Sensor',
         description = 'Vacuum sensor in chopper vessel 4',
-        tacodevice = '//%s/toftof/vacuum/sens4' % nethost,
+        tangodevice = tango_host + 'sens4',
         pollinterval = 10,
         maxage = 12,
-        unit = 'mbar',
     ),
 )
