@@ -277,7 +277,7 @@ class Changer(BaseSequencer):
         seq.append(SeqMethod(self, 'CheckMagazinSlotUsed', magpos))
         seq.append(SeqCheckAttr(self, 'mono_in_lift', 'None'))
         # transfer mono to lift
-        seq.append(SeqCall(self.log.info, 'transfering mono from magazine to lift'))
+        seq.append(SeqCall(self.log.info, 'transferring mono from magazine to lift'))
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
         seq.append(SeqDev(self._attached_lift, '3'))  # almost top position
         seq.append(SeqMethod(self._attached_liftclamp, 'start', 'close'))
@@ -335,7 +335,7 @@ class Changer(BaseSequencer):
         # transfer mono to lift
         seq.append(SeqCall(self.log.info, 'moving lift to top position'))
         seq.append(SeqDev(self._attached_lift, '4'))  # top position
-        seq.append(SeqCall(self.log.info, 'closing the magazin grab anf rattling lift'))
+        seq.append(SeqCall(self.log.info, 'closing the magazin grab and rattling lift'))
         seq.append(SeqMethod(self._attached_magazineclamp, 'start', 'close'))
         # rattle a little
         seq.append(SeqDev(self._attached_lift, '3'))  # almost top position
@@ -384,7 +384,7 @@ class Changer(BaseSequencer):
         # transfer mono to table
         seq.append(SeqDev(self._attached_tableclamp, 'open'))
         seq.append(SeqDev(self._attached_lift, '1'))  # bottom position
-        seq.append(SeqCall(self.log.info, 'closing Table grab and releasing lift clamp'))
+        seq.append(SeqCall(self.log.info, 'closing table grab and releasing lift clamp'))
         seq.append(SeqDev(self._attached_tableclamp, 'close'))
         # move (without mono) to parking position
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
@@ -418,7 +418,7 @@ class Changer(BaseSequencer):
         seq.append(SeqCheckPosition(self._attached_liftclamp, 'close'))
         seq.append(SeqCheckPosition(self._attached_tableclamp, 'close'))
         # there shall be no mono in the lift, but one on the table
-        seq.append(SeqCall(self.log.info, 'check if there IS NOT a mono in Lift'))
+        seq.append(SeqCall(self.log.info, 'checking if there IS NOT a mono in Lift'))
         seq.append(SeqCheckAttr(self, 'mono_in_lift', 'None'))
         seq.append(SeqCheckAttr(self, 'mono_on_table',
                                 values=[m for m in self.monos if m != 'None']))
@@ -426,7 +426,7 @@ class Changer(BaseSequencer):
         seq.append(SeqCall(self.log.info, 'moving down the lift'))
         seq.append(SeqDev(self._attached_liftclamp, 'open'))
         seq.append(SeqDev(self._attached_lift, '1'))  # bottom position
-        seq.append(SeqCall(self.log.info, 'grabing the monochromator'))
+        seq.append(SeqCall(self.log.info, 'grabbing the monochromator'))
         seq.append(SeqDev(self._attached_liftclamp, 'close'))
         seq.append(SeqDev(self._attached_tableclamp, 'open'))
 
@@ -493,7 +493,8 @@ class Changer(BaseSequencer):
     def printstatusinfo(self):
         self.log.info('PLC is %s',
                       'enabled' if self._attached_enable.read() == 0xef16
-                      else 'disabled, you need to set enable_word to correct value')
+                      else 'disabled, you need to set enable_word to the '
+                      'correct value')
         self.log.info('Inhibit_relay is %s', self._attached_inhibitrelay.read())
         liftposnames = {'1': 'Monotable loading',
                         '2': 'Park position',
@@ -510,14 +511,14 @@ class Changer(BaseSequencer):
             self.log.info('%s is %s', n, self._adevs[n].read())
         occ = self._attached_magazineocc.read(0)
         for i in range(4):
-            self.log.info('magazineslot %r is %sempty and its readouts are %sbroken',
+            self.log.info('magazine slot %r is %sempty and its readouts are %sbroken',
                           self.positions[i],
                           '' if (occ >> (i*2)) & 1 else 'not ',
                           '' if (occ >> (i*2 + 1)) & 1 else 'not ')
         if self._attached_magazinestatus.read() == 'free':
-            self.log.info('Magazine is currently free to load monochromator')
+            self.log.info('magazine is currently free to load monochromator')
         else:
-            self.log.info('Magazine is currently occupied with monochromator '
+            self.log.info('magazine is currently occupied with monochromator '
                           'and cannot load another')
 
     def doRead(self, maxage=0):
