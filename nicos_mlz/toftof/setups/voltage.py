@@ -6,6 +6,8 @@ includes = []
 
 nethost = 'toftofsrv.toftof.frm2'
 
+tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/'
+
 devices = dict(
     lvbus = device('nicos.devices.vendor.toni.ModBus',
         tacodevice = '//%s/toftof/rs232/ifpowersupply' % nethost,
@@ -75,17 +77,17 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    hv0 = device('nicos_mlz.toftof.devices.iseg.VoltageSupply',
+    hv0 = device('nicos.devices.tango.PowerSupply',
         description = 'ISEG HV power supply 1',
         requires = {'level': 'admin'},
-        tacodevice = '//%s/toftof/iseg1/voltage' % nethost,
+        tangodevice = tango_host + 'iseg1/voltage',
         abslimits = (0, 1600),
         ramp = 120,
     ),
-    hv1 = device('nicos_mlz.toftof.devices.iseg.VoltageSupply',
+    hv1 = device('nicos.devices.tango.PowerSupply',
         description = 'ISEG HV power supply 2',
         requires = {'level': 'admin'},
-        tacodevice = '//%s/toftof/iseg2/voltage' % nethost,
+        tangodevice = tango_host + 'iseg2/voltage',
         abslimits = (0, 1600),
         ramp = 120,
     ),
