@@ -26,10 +26,12 @@
 """
 This module contains ESS specific EPICS developments.
 """
-from nicos.core import DeviceMixinBase, Param, dictwith, \
+from nicos.core import Device, DeviceMixinBase, Param, dictwith, \
     anytype, pvname, usermethod
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics import EpicsDigitalMoveable
+
+from nicos_ess.devices.epics.base import EpicsDeviceEss
 
 
 class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveable):
@@ -138,3 +140,48 @@ class HasSwitchPv(DeviceMixinBase):
             self._put_pv('switchpv:write', self.switchstates['off'])
         else:
             self.log.info('Device is already switched off')
+
+
+class EpicsCommandReply(EpicsDeviceEss, Device):
+    """
+    Device to directly control devices connected to
+    the asyn controller via EPICS.
+
+    This device can issue commands to the asyn controller
+    which in turn can operate the attached devices to the
+    controller. The commands issued should adhere to the
+    policies and syntax of the asyn controller.
+
+    To do this via EPICS, two pvs can be provided:
+
+    commandpv - PV that forwards the command to be executed
+                to the controller
+    replypv - PV that stores the reply generated from
+              the execution of the command
+    """
+
+    parameters = {
+        'commandpv': Param('PV to issue commands to the asyn controller',
+                           type=pvname, mandatory=True, settable=False),
+        'replypv': Param('PV that stores the reply generated from execution',
+                         type=pvname, mandatory=False, settable=False),
+    }
+
+    def _get_pv_parameters(self):
+        pvs = {'commandpv'}
+
+        if self.replypv:
+            pvs.add('replypv')
+
+        return pvs
+
+    def execute(self, command):
+        """
+        Issue and execute the provided command
+        Returns the reply if the replypv is set
+        """
+        # Send the command to the commandpv
+        self._put_pv_blocking('commandpv', command)
+
+        # If reply PV is set, return it's output
+        return self._get_pv('replypv') if self.replypv else ''

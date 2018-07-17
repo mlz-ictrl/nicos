@@ -6,7 +6,7 @@ pvprefix = 'SQ:AMOR:counter'
 
 devices = dict(
     timepreset=device(
-        'nicos_sinq.devices.epics.extensions.EpicsTimerActiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
         epicstimeout=3.0,
         description='Used to set and view time preset',
         unit='sec',
@@ -14,14 +14,14 @@ devices = dict(
         presetpv=pvprefix + '.TP',
     ),
     elapsedtime=device(
-        'nicos_sinq.devices.epics.extensions.EpicsTimerPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsTimerPassiveChannel',
         epicstimeout=3.0,
         description='Used to view elapsed time while counting',
         unit='sec',
         readpv=pvprefix + '.T',
     ),
     countpreset=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterActiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
         epicstimeout=3.0,
         description='Used to set and view count preset',
         type='counter',
@@ -29,7 +29,7 @@ devices = dict(
         presetpv=pvprefix + '.PR2',
     ),
     c1=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='First scalar counter channel',
         type='counter',
@@ -37,7 +37,7 @@ devices = dict(
         readpv=pvprefix + '.S2',
     ),
     c2=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Second scalar counter channel',
         type='counter',
@@ -45,7 +45,7 @@ devices = dict(
         readpv=pvprefix + '.S3',
     ),
     c3=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Third scalar counter channel',
         type='counter',
@@ -53,7 +53,7 @@ devices = dict(
         readpv=pvprefix + '.S4',
     ),
     c4=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Fourth scalar counter channel',
         type='counter',
@@ -61,7 +61,7 @@ devices = dict(
         readpv=pvprefix + '.S5',
     ),
     c5=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Fifth scalar counter channel',
         type='counter',
@@ -69,7 +69,7 @@ devices = dict(
         readpv=pvprefix + '.S6',
     ),
     c6=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Sixth scalar counter channel',
         type='counter',
@@ -77,7 +77,7 @@ devices = dict(
         readpv=pvprefix + '.S7',
     ),
     c7=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Seventh scalar counter channel',
         type='counter',
@@ -85,7 +85,7 @@ devices = dict(
         readpv=pvprefix + '.S8',
     ),
     c8=device(
-        'nicos_sinq.devices.epics.extensions.EpicsCounterPassiveChannel',
+        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Eighth scalar counter channel',
         type='counter',

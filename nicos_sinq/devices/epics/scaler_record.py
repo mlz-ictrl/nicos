@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param, pvname, status
-from nicos_sinq.devices.epics.extensions import EpicsDetector
+from nicos_ess.devices.epics.detector import EpicsDetector
 
 
 class EpicsScalerRecord(EpicsDetector):
