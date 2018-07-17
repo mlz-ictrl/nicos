@@ -138,7 +138,7 @@ class EpicsScalerRecord(EpicsDetector):
         ret.append(('preset', value, '%s' % value, unit, 'presets'))
 
         # Add rest of the channels to the info as well
-        for channel in self._attached_timers + self._attached_counters:
+        for channel in self._channels:
             value = channel.read(0)
             ret.append((channel.name, value, '%s' % value,
                         channel.unit, 'presets'))
