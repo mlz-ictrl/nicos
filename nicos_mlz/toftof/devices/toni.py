@@ -25,8 +25,8 @@
 
 """Toni-protocol device classes."""
 
-from nicos.core import Attach, CommunicationError, Moveable, Override, Param, \
-    intrange, status
+from nicos.core import ADMIN, Attach, CommunicationError, Moveable, Override, \
+    Param, intrange, oneofdict, requires, status
 from nicos.devices.tango import StringIO
 
 
@@ -108,3 +108,36 @@ class DelayBox(Moveable):
 
     def doStatus(self, maxage=0):
         return status.OK, ''
+
+
+class LVPower(Moveable):
+    """Toni TOFTOF-type low-voltage power supplies."""
+
+    attached_devices = {
+        'bus':  Attach('Toni communication bus', ToniBus),
+    }
+
+    parameters = {
+        'addr':  Param('Bus address of the supply controller',
+                       type=intrange(0xF0, 0xFF), mandatory=True),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default=''),
+    }
+
+    valuetype = oneofdict({1: 'on', 0: 'off'})
+
+    def doRead(self, maxage=0):
+        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
+        return 'on' if sval >> 7 else 'off'
+
+    def doStatus(self, maxage=0):
+        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
+        tval = self._attached_bus.communicate('T?', self.addr, expect_hex=2)
+        return status.OK, 'status=%d, temperature=%d' % (sval, tval)
+
+    @requires(level=ADMIN)
+    def doStart(self, target):
+        self._attached_bus.communicate('P%d' % (target == 'on'),
+                                       self.addr, expect_ok=True)

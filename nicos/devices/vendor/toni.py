@@ -29,19 +29,19 @@ from time import sleep, time as currenttime
 
 from IO import StringIO
 
-from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
-    Device, Readable, Moveable, Param, Attach, Override, oneof, \
-    CommunicationError, ConfigurationError
+from nicos.core import Attach, CommunicationError, ConfigurationError, \
+    Device, MASTER, Moveable, Override, Param, Readable, intrange, listof, \
+    oneof, status
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import MASTER
 
 
 class ModBus(TacoDevice, Device):
     """Communication device that implements the Toni protocol.
 
-    Toni devices communicate via an RS-485 bus, where each device has an address
-    assigned.
+    Toni devices communicate via an RS-485 bus, where each device has an
+    address assigned.
     """
+
     taco_class = StringIO
 
     parameters = {
@@ -64,8 +64,9 @@ class ModBus(TacoDevice, Device):
         ret = self._taco_guard(self._dev.communicate, msg)
         # check reply for validity
         crc = self._crc(ret[1:-2])
-        if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
-              or ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
+        if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or
+           ret[-2:] != crc or
+           ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
             raise CommunicationError(self, 'garbled reply: %r' % ret)
         resp = ret[6:-2]
         if expect_ok and resp != 'OK':
@@ -177,7 +178,8 @@ class Ratemeter(Readable):
                     return ret
                 t += 1
                 if t == 10:
-                    raise CommunicationError('timeout while waiting for response')
+                    raise CommunicationError('timeout while waiting for '
+                                             'response')
         finally:
             self._cachelock_release()
 
@@ -262,36 +264,3 @@ class Vacuum(Readable):
     def doWritePower(self, value):
         self._attached_bus.communicate(
             'P%1d=%d' % (self.channel + 1, value), self.addr, expect_ok=True)
-
-
-class LVPower(Moveable):
-    """Toni TOFTOF-type low-voltage power supplies."""
-
-    attached_devices = {
-        'bus':  Attach('Toni communication bus', ModBus),
-    }
-
-    parameters = {
-        'addr':  Param('Bus address of the supply controller',
-                       type=intrange(0xF0, 0xFF), mandatory=True),
-    }
-
-    parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
-    }
-
-    valuetype = oneofdict({1: 'on', 0: 'off'})
-
-    def doRead(self, maxage=0):
-        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
-        return 'on' if sval >> 7 else 'off'
-
-    def doStatus(self, maxage=0):
-        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
-        tval = self._attached_bus.communicate('T?', self.addr, expect_hex=2)
-        return status.OK, 'status=%d, temperature=%d' % (sval, tval)
-
-    @requires(level=ADMIN)
-    def doStart(self, target):
-        self._attached_bus.communicate('P%d' % (target == 'on'),
-                                       self.addr, expect_ok=True)

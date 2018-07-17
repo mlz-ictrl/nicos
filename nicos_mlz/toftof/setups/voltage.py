@@ -4,16 +4,14 @@ group = 'lowlevel'
 
 includes = []
 
-nethost = 'toftofsrv.toftof.frm2'
-
 tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/'
 
 devices = dict(
-    lvbus = device('nicos.devices.vendor.toni.ModBus',
-        tacodevice = '//%s/toftof/rs232/ifpowersupply' % nethost,
+    lvbus = device('nicos_mlz.toftof.devices.toni.ToniBus',
+        tangodevice = tango_host + 'rs232/ifpowersupply',
         lowlevel = True,
     ),
-    lv0 = device('nicos.devices.vendor.toni.LVPower',
+    lv0 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 1',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -21,7 +19,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv1 = device('nicos.devices.vendor.toni.LVPower',
+    lv1 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 2',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -29,7 +27,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv2 = device('nicos.devices.vendor.toni.LVPower',
+    lv2 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 3',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -37,7 +35,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv3 = device('nicos.devices.vendor.toni.LVPower',
+    lv3 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 4',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -45,7 +43,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv4 = device('nicos.devices.vendor.toni.LVPower',
+    lv4 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 5',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -53,7 +51,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv5 = device('nicos.devices.vendor.toni.LVPower',
+    lv5 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 6',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -61,7 +59,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv6 = device('nicos.devices.vendor.toni.LVPower',
+    lv6 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 7',
         requires = {'level': 'admin'},
         bus = 'lvbus',
@@ -69,7 +67,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 12,
     ),
-    lv7 = device('nicos.devices.vendor.toni.LVPower',
+    lv7 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 8',
         requires = {'level': 'admin'},
         bus = 'lvbus',
