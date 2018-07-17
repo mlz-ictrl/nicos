@@ -4,12 +4,15 @@ group = 'lowlevel'
 
 includes = ['choppermemograph']
 
+tango_host = 'tango://tofhw.toftof.frm2:10000/'
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     ch = device('nicos_mlz.toftof.devices.chopper.Controller',
         description = 'TOFTOF chopper control device',
-        tacodevice = '//%s/toftof/rs232/ifchoppercontrol' % nethost,
+        io = device('nicos.devices.tango.StringIO',
+            tangodevice = tango_host + 'toftof/rs232/ifchcontrol',
+        ),
         speed_accuracy = 10,
         phase_accuracy = 10,
         ch5_90deg_offset = 0,

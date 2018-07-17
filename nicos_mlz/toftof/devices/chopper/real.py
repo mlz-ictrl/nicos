@@ -27,12 +27,9 @@
 
 from time import time as currenttime
 
-import IO
-
 from nicos import session
-from nicos.core import ADMIN, NicosError, SIMULATION, requires, status
-
-from nicos.devices.taco import TacoDevice
+from nicos.core import ADMIN, Attach, NicosError, SIMULATION, requires, status
+from nicos.devices.tango import StringIO
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos_mlz.toftof.devices import calculations as calc
@@ -87,19 +84,20 @@ C_ACCEPT = 7
 C_NO_CMD = 9
 
 
-class Controller(TacoDevice, BaseChopperController):
+class Controller(BaseChopperController):
     """The main controller device of the chopper."""
 
-    taco_class = IO.StringIO
+    attached_devices = {
+        'io': Attach('Communication device', StringIO),
+    }
 
     # XXX: maybe HasWindowTimeout is better suited here....
 
     def _read(self, n):
-        return int(self._taco_guard(
-            self._dev.communicate, 'M%04d' % n).strip('\x06'))
+        return int(self._dev.communicate('M%04d' % n).strip('\x06'))
 
     def _write(self, n, v):
-        self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
+        self._dev.writeLine('M%04d=%d' % (n, v))
         # wait for controller to process current commands
         while self._read(DES_CMD) != C_READY:
             session.delay(0.04)
@@ -107,8 +105,12 @@ class Controller(TacoDevice, BaseChopperController):
     def doRead(self, maxage=0):
         return BaseChopperController.doRead(self, maxage)
 
+    def doPreInit(self):
+        self._dev = self._attached_io
+
     def doInit(self, mode):
         phases = [0, 0]
+        self._dev = self._attached_io
         try:
             if mode == SIMULATION:
                 raise NicosError('not possible in dry-run/simulation mode')
@@ -161,8 +163,7 @@ class Controller(TacoDevice, BaseChopperController):
             values.append((SET_PARAM, param,))
         values.append((DES_CMD, C_ACCEPT,))
 
-        tstr = ' '.join('M%04d=%d' % x for x in values)
-        self._taco_guard(self._dev.writeLine, tstr)
+        self._dev.writeLine(' '.join('M%04d=%d' % x for x in values))
         # wait for controller to process current commands
         while self._read(DES_CMD) != C_READY:
             session.delay(0.04)
@@ -230,7 +231,7 @@ class Controller(TacoDevice, BaseChopperController):
                              'reset the chopper system if one or more discs '
                              'are running!')
         if not self._is_cal():
-            self._taco_guard(self._dev.writeLine, '$$$')
+            self._dev.writeLine('$$$')
             session.delay(3)
             self._write(DES_CMD, C_CALIBRATE)
             self._setROParam('speed', 0)
