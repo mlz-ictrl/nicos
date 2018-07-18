@@ -27,13 +27,14 @@
 import os
 from time import asctime, localtime, strftime, time as currenttime
 
-import numpy as np
-
 from nicos import session
 from nicos.core.constants import LIVE
 from nicos.pycompat import from_maybe_utf8, to_utf8
+
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
+
+import numpy as np
 
 
 class TofImageSinkHandler(TofSinkHandler):
@@ -56,8 +57,13 @@ class TofImageSinkHandler(TofSinkHandler):
     def _writeHeader(self, fp, header):
         headlines = []
         headlines.append('File_Creation_Time: %s' % asctime())
-        headlines.append('Title: %s' %
-                         from_maybe_utf8(header['det', 'usercomment'][1]))
+        if ('det', 'usercomment') in header:
+            usercomment = header['det', 'usercomment'][1]
+        elif ('det', 'info') in header:
+            usercomment = header['det', 'info'][1]
+        else:
+            usercomment = ''
+        headlines.append('Title: %s' % from_maybe_utf8(usercomment))
         headlines.append('ExperimentTitle: %s' %
                          from_maybe_utf8(header['Sample', 'samplename'][1]))
         headlines.append('ProposalTitle: %s' %
