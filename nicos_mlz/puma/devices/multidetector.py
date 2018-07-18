@@ -99,12 +99,13 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
     anglis = [2.28, 2.45, 2.38, 2.35, 2.30, 2.43, 2.37, 2.43, 2.32, 2.36]
 
     @hiddenusercommand
-    def park(self):
+    def park(self, blocking=True):
         """Move device to the ``park`` position.
 
         The park position is given by the ``parkposition`` parameter.
-        It generate ands starts a sequence if non is running. The call is
-        blocking.
+        It generate ands starts a sequence if none is running.
+
+        The call blocks the daemon execution if ``blocking`` is set to True.
         """
         if self._seq_is_running():
             if self._mode == SIMULATION:
@@ -119,9 +120,11 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                              ] +
                             [SeqDev(d, p) for d, p in zip(
                                 self._rotguide1, self.parkpos[11:][::-1])])
-        # block the move to be sure that the device has reached target before
-        # it can be dismounted or the position sensitive detectors can be used
-        self.wait()
+        if blocking:
+            # block the move to be sure that the device has reached target
+            # before it can be dismounted or the position sensitive detectors
+            # can be used
+            self.wait()
 
     def doInit(self, mode):
         self._rotdetector0 = self._attached_rotdetector
