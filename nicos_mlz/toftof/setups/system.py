@@ -8,7 +8,7 @@ sysconfig = dict(
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink'
+        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink', 'nxsink'
     ],
     notifiers = ['emailer', 'smser'],
 )
@@ -60,6 +60,10 @@ devices = dict(
     ),
     tofsink = device('nicos_mlz.toftof.devices.datasinks.TofImageSink',
         filenametemplate = ['%(pointcounter)08d_0000.raw'],
+    ),
+    nxsink = device('nicos_mlz.toftof.devices.datasinks.TofNeXuS',
+        filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
+        lowlevel = True,
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

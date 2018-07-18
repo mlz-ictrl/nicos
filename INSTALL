@@ -59,6 +59,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - cfitsio (optional, required by nicos-livewidget, this not a Python package)
   - python-redmine (optional, for the bug reporting dialog)
   - sshtunnel (optional, for the ssh tunneling between GUI and server)
+  - python-nxs (optional, for writing NeXus files, readable by Mantid)
 
 * For development (running tests, generating documentation):
 
