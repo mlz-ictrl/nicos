@@ -106,7 +106,7 @@ class CascadeDetector(MiraCascadeDetector):
             y.append(_sum)
 
         perfoil = [[float(np.sum(shaped[foil][i])) for i in range(16)]
-                   for foil in [7, 6, 5, 0, 1, 2]]
+                   for foil in self.foilsorder]
 
         # ofs, ampl, freq, phase
         self.log.debug('fitting %r on %r' % (y, x))
