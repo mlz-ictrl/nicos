@@ -48,7 +48,7 @@ devices = dict(
     tube_m = device('nicos.devices.taco.Motor',
         description = 'tube Motor',
         tacodevice = '%s/servostar/tube0' % tacodev,
-        abslimits = (-120, 1000),
+        abslimits = (-200, 1000),
         lowlevel = True,
     ),
     det_yoke = device('nicos.devices.generic.Axis',
