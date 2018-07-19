@@ -6,7 +6,7 @@ includes = ['nok_ref', 'nokbus1']
 global_values = configdata('global.GLOBAL_Values')
 
 nethost = 'refsanssrv.refsans.frm2'
-tango_host = 'tango://resfanshw:10000/test/'
+tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     nok2 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
