@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Override, Param, Value, floatrange, oneof
+from nicos.core import Override, Param, Value, floatrange, intrange, listof, \
+    oneof, tupleof
 from nicos.devices.generic import ScanningDetector as NicosScanDet
 from nicos.utils.fitting import curve_fit
 
@@ -62,6 +63,21 @@ class CascadeDetector(MiraCascadeDetector):
     adds fitting a sin to the timechannels in tof mode
     """
 
+    parameters = {
+        'foils': Param('Maximum number of foils, got from detector',
+                       type=intrange(0, 10), settable=False, userparam=True,
+                       default=8),
+        'foilsorder': Param('Ordered foil numbers',
+                            type=listof(intrange(0, 10)), settable=False,
+                            userparam=True, default=[7, 6, 5, 0, 1, 2]),
+        'sizes': Param('Detector size in pixels (x, y)',
+                       type=tupleof(intrange(1, 1024), intrange(1, 1024)),
+                       settable=False, default=(128, 128)),
+        'timechannels': Param('Number of time channels per foil',
+                              type=intrange(1, 128), settable=False,
+                              default=16),
+    }
+
     def doReadArray(self, quality):
         data = super(CascadeDetector, self).doReadArray(quality)
         if self.mode != 'tof':
@@ -71,21 +87,21 @@ class CascadeDetector(MiraCascadeDetector):
         # XXX: needs rewrite/refactor of MiraCascadeDetector
 
         # demux timing into foil + timing
-
-        # XXX !!!!
-        shaped = data.reshape(8, 16, 128, 128)  # foil, time, x, y
+        # foil, time, x, y
+        shaped = data.reshape(self.foils, self.timechannels, self.sizes[0],
+                              self.sizes[1])
+        # note: we have to skip foils 3+4 (not installed (yet))
         # note: signals on foil 2,3,10,11,12,13
 
         x = []
         y = []
-        perfoil = 6*[[]]
-        # 'time' ranges from 0..15
-        for t in range(16):
+        perfoil = [[shaped[foil][i].sum() for i in range(self.timechannels)]
+                   for foil in self.foils]
+        for t in range(self.timechannels):
             _sum = 0
-            for foil in [7]:
+            for foil in [7]:  # FOILS
                 # XXX: roi evaluation?
-                tf = np.sum(shaped[foil][t])
-                _sum += tf
+                _sum += shaped[foil][t].sum()
             x.append(t)
             y.append(_sum)
 
@@ -122,8 +138,8 @@ class CascadeDetector(MiraCascadeDetector):
                                errors='next', fmtstr='%.3f'),
                          Value('fit.contrastErr', unit='', type='error',
                                errors='none', fmtstr='%.3f'),
-                         Value('fit.avg', unit='', type='other',
-                               errors='next', fmtstr='%.1f'),
+                         Value('fit.avg', unit='', type='other', errors='next',
+                               fmtstr='%.1f'),
                          Value('fit.avgErr', unit='', type='error',
                                errors='none', fmtstr='%.1f'))
         return res
