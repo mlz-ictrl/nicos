@@ -2,7 +2,7 @@ description = 'Setup for New Era Syringe pumps'
 
 group = 'optional'
 
-tango_base = 'tango://refsansctrl01.refsans.frm2:10000/refsans/'
+tango_base = 'tango://refsanshw.refsans.frm2:10000/refsans/'
 
 devices = dict(
     pump0 = device('nicos.devices.tango.NamedDigitalOutput',
