@@ -7,7 +7,7 @@ includes = [
 ]
 
 sysconfig = dict(
-    cache = 'resedahw2.reseda.frm2',
+    cache = 'resedactrl.reseda.frm2',
     instrument = 'reseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],

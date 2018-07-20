@@ -24,7 +24,7 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'resedahw2.reseda.frm2',
+        cache = 'resedarctrl.reseda.frm2',
         notifiers = {'default': ['email']},
         watch = watchlist,
         mailreceiverkey = 'email/receivers',

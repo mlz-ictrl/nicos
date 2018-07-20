@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'resedahw2.reseda.frm2',
+    cache = 'resedactrl.reseda.frm2',
 )
 
 devices = dict(
