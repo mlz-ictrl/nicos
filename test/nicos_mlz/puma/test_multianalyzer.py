@@ -91,7 +91,7 @@ class TestMultiAnalyzer(object):
         man.maw([0] * 22)
         assert man.read(0) == [0] * 22
         # already at position, so do nothing
-        man.move([0] * 22)
+        man.maw([0] * 22)
 
         man.maw([0] * 11 + [-i * 0.1 for i in range(11)])
         man.maw([0] * 22)

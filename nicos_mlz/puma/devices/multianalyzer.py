@@ -26,15 +26,15 @@
 import sys
 
 from nicos import session
-from nicos.core import Attach, HasTimeout, Moveable, Override, Param, status, \
-    tupleof
+from nicos.core import Attach, HasTimeout, Override, Param, status, tupleof
 from nicos.core.errors import PositionError
-from nicos.core.utils import filterExceptions, multiStatus, multiWait
+from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
+from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
 from nicos.pycompat import reraise
 
 
-class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
+class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
     """PUMA multianalyzer device.
 
     The device combines 11 devices consisting of a rotation and a translation.
@@ -74,9 +74,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
     def doPreinit(self, mode):
         self._rotation = self._attached_rotations
         self._translation = self._attached_translations
-
-    def doInit(self, mode):
-        self._setROParam('_status', False)
 
     def doIsAllowed(self, target):
         """Check if requested targets are within allowed range for devices."""
@@ -126,11 +123,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
                        trans + 1, trans, deltati, rmini, 0.5)
         return rmini, 0.5
 
-    def doStatus(self, maxage=0):
-        if self._status:
-            return status.BUSY, 'moving'
-        return multiStatus(self._adevs, maxage)
-
     def valueInfo(self):
         ret = []
         for dev in self._translation + self._rotation:
@@ -141,61 +133,58 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
         return ', '.join('%s = %s' % (v.name, v.fmtstr)
                          for v in self.valueInfo())
 
-    def doStart(self, target):
-        try:
-            self._setROParam('_status', True)
-            # check if requested positions already reached within precision
-            mvt, mvr = self._checkPositionReached(target)
-            if not mvt and not mvr:
-                self.log.debug('device already at requested position, nothing '
-                               'to do!')
-                self._printPos()
-                return
+    def _generateSequence(self, target):
+        """Move multidetector to correct scattering angle of multi analyzer.
 
-            # requested position not equal current position ==>> start checking
-            # for allowed movement
+        It takes account into the different origins of the analyzer blades.
+        """
+        # check if requested positions already reached within precision
+        if self.isAtTarget(target):
+            self.log.debug('device already at position, nothing to do!')
+            return []
 
-            # first check for translation
-            if mvt:
-                self.log.debug('The following translation axes start moving: '
-                               '%r', mvt)
-                # check if translation movement is allowed, i.e. if all
-                # rotation axis at reference switch
-                if not self._checkRefSwitchRotation(range(self._num_axes)):
-                    if not self._refrotation():
-                        raise PositionError(self, 'Could not reference '
-                                            'rotations')
+        return [
+            SeqMethod(self, '_move_translations', target),
+            SeqMethod(self, '_move_rotations', target),
+        ]
 
-                self.log.debug('all rotation at refswitch, start translation')
-                for i, dev in enumerate(self._translation):
-                    dev.move(target[i])
-                self._hw_wait(self._translation)
+    def _move_translations(self, target):
+        # first check for translation
+        mvt = self._checkPositionReachedTrans(target)
+        if mvt:
+            self.log.debug('The following translation axes start moving: %r',
+                           mvt)
+            # check if translation movement is allowed, i.e. if all
+            # rotation axis at reference switch
+            if not self._checkRefSwitchRotation(range(self._num_axes)):
+                if not self._refrotation():
+                    raise PositionError(self, 'Could not reference rotations')
 
-                if self._checkPositionReachedTrans(target):
-                    raise PositionError(self, 'Translation drive not '
-                                              'successful')
-                self.log.debug('translation movement done')
+            self.log.debug('all rotation at refswitch, start translation')
+            for i, dev in enumerate(self._translation):
+                dev.move(target[i])
+            self._hw_wait(self._translation)
 
-            # Rotation Movement
-            mvr = self._checkPositionReachedRot(target)
-            if mvr:
-                self.log.debug('The following rotation axes start moving: %r',
-                               mvr)
-                for i in mvr:
-                    if not self._checkTransNeighbour(i):
-                        self.log.warn('neighbour XX distance < %7.3f; cannot '
-                                      'move rotation!', self.distance)
-                        continue
-                    # TODO: check move or maw
-                    self._rotation[i].move(target[self._num_axes + i])
-                self._hw_wait([self._rotation[i] for i in mvr])
-                if self._checkPositionReachedRot(target):
-                    raise PositionError(self, 'Rotation drive not successful')
-                self.log.debug('rotation movement done')
-        finally:
-            self._setROParam('_status', False)
-            self._printPos()
-            self.log.debug('Analyser movement done')
+            if self._checkPositionReachedTrans(target):
+                raise PositionError(self, 'Translation drive not successful')
+            self.log.debug('translation movement done')
+
+    def _move_rotations(self, target):
+        # Rotation Movement
+        mvr = self._checkPositionReachedRot(target)
+        if mvr:
+            self.log.debug('The following rotation axes start moving: %r', mvr)
+            for i in mvr:
+                if not self._checkTransNeighbour(i):
+                    self.log.warn('neighbour XX distance < %7.3f; cannot move '
+                                  'rotation!', self.distance)
+                    continue
+                # TODO: check move or maw
+                self._rotation[i].move(target[self._num_axes + i])
+            self._hw_wait([self._rotation[i] for i in mvr])
+            if self._checkPositionReachedRot(target):
+                raise PositionError(self, 'Rotation drive not successful')
+            self.log.debug('rotation movement done')
 
     def doReset(self):
         for dev in self._rotation + self._translation:
@@ -344,7 +333,8 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
                 self.log.debug('xx%2d rotation: nothing to do', i + 1)
         return mv
 
-    def _checkPositionReached(self, position):
-        mvt = self._checkPositionReachedTrans(position)
-        mvr = self._checkPositionReachedRot(position)
-        return [mvt, mvr]
+    def doIsAtTarget(self, target):
+        self._printPos()
+        mvt = self._checkPositionReachedTrans(target)
+        mvr = self._checkPositionReachedRot(target)
+        return not mvt and not mvr
