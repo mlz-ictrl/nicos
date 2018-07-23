@@ -2,5 +2,5 @@ description = 'Tomography setup'
 
 group = 'basic'
 
-inlcudes = ['shutters', 'camera', 'sampletable']
+includes = ['shutters', 'camera', 'sampletable']
 
