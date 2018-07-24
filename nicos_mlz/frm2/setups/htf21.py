@@ -34,16 +34,31 @@ devices = {
         tangodevice = tango_base + 'plc/_heater',
         mapping = {'on': 1, 'off': 0}
     ),
-    '%s_pumpstate' % setupname: device('nicos.devices.tango.NamedDigitalInput',
-        description = 'On/Off-State of the turbo pump',
+    '%s_state' % setupname: device('nicos.devices.tango.NamedDigitalInput',
+        description = 'General state of the system',
         tangodevice = tango_base + 'plc/_state',
-        mapping = {'on': 1, 'off': 0}
+        mapping = {'unknown': 0}
     ),
     '%s_vacuum' % setupname: device('nicos.devices.tango.Sensor',
         description = 'Vacuum in the oven',
         tangodevice = tango_base + 'plc/_vacuum',
         fmtstr = '%.1f',
         unit = 'mbar',
+    ),
+    '%s_turbo' % setupname: device('nicos.devices.tango.NamedDigitalInput',
+        description = 'State of the turbo pump',
+        tangodevice = tango_base + 'plc/_turbo',
+        mapping = {'on?' : 1, 'off?': 0}
+    ),
+    '%s_exgas_mode' % setupname: device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Exgas_mode',
+        tangodevice = tango_base + 'plc/_exgas_mode',
+        mapping = {'mode 1?': 1, 'mode 0?': 0}
+    ),
+    '%s_vac_valve' % setupname: device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'vaccum valve?',
+        tangodevice = tango_base + 'plc/_vac_valve',
+        mapping = {'on?': 1, 'off?': 0}
     ),
 }
 
