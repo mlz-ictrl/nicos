@@ -124,7 +124,7 @@ devices = dict(
         notifiers = {
             'default': ['email1'],
             'critical': ['email1', 'smser'],
-            'onlypetr': ['email2', 'smspetr'],
+            'onlypetr': ['email2', 'smsastr'],
             'onlyastrid': ['email3']
         },
         watch = watchlist,
