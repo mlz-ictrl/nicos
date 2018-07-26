@@ -38,6 +38,7 @@ from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, ScriptExecQuestion
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
 from nicos.pycompat import iteritems, itervalues, srepr, string_types
+from nicos.utils import AttrDict
 
 
 foregroundBrush = {
@@ -96,15 +97,6 @@ def setForegroundBrush(widget, color):
     widget.setPalette(palette)
 
 
-def fmtValUnit(devinfo):
-    try:
-        fmted = devinfo[2] % devinfo[0]
-    except Exception:
-        fmted = str(devinfo[0])
-    val_unit = fmted + ' ' + devinfo[3]
-    return val_unit
-
-
 class SetupTreeWidgetItem(QTreeWidgetItem):
 
     def __init__(self, setupname, display_order, representative):
@@ -114,6 +106,32 @@ class SetupTreeWidgetItem(QTreeWidgetItem):
 
     def __lt__(self, other):
         return self.sortkey < other.sortkey
+
+
+class DevInfo(AttrDict):
+    """Collects device infos."""
+
+    def __init__(self, value='-', status=(OK, ''), fmtstr='%s', unit='',
+                 expired=False, fixed=False, classes=None,
+                 valtime=0, stattime=0):
+        AttrDict.__init__(self, {
+            'value': value,
+            'status': status,
+            'fmtstr': fmtstr,
+            'unit': unit,
+            'expired': expired,
+            'fixed': fixed,
+            'classes': classes or [],
+            'valtime': valtime,
+            'stattime': stattime,
+        })
+
+    def fmtValUnit(self):
+        try:
+            fmted = self.fmtstr % self.value
+        except Exception:
+            fmted = str(self.value)
+        return fmted + ' ' + self.unit
 
 
 class DevicesPanel(Panel):
@@ -237,9 +255,7 @@ class DevicesPanel(Panel):
         # map lowercased devname -> tree widget item
         self._devitems = {}
         self._devparamitems = {}
-        # map lowercased devname ->
-        # [value, status, fmtstr, unit, expired, fixed, classes,
-        #  valuetimestamp, statustimestamp]
+        # map lowercased devname -> DevInfo instance
         self._devinfo = {}
         self.tree.clear()
 
@@ -355,8 +371,7 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', False, False, [],
-                                   0, 0]
+        self._devinfo[ldevname] = DevInfo()
 
         # let the cache handler process all properties
         for key, value in iteritems(params):
@@ -416,7 +431,7 @@ class DevicesPanel(Panel):
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
         if subkey == 'value':
-            if time < devinfo[7]:
+            if time < devinfo.valtime:
                 return
             if not value:
                 fvalue = ''
@@ -424,26 +439,26 @@ class DevicesPanel(Panel):
                 fvalue = cache_load(value)
                 if isinstance(fvalue, list):
                     fvalue = tuple(fvalue)
-            devinfo[0] = fvalue
-            devinfo[4] = op != OP_TELL
-            devinfo[7] = time
-            fmted = fmtValUnit(devinfo)
+            devinfo.value = fvalue
+            devinfo.expired = op != OP_TELL
+            devinfo.valtime = time
+            fmted = devinfo.fmtValUnit()
             devitem.setText(1, fmted)
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(fmted)
-            devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
+            devitem.setForeground(1, valueBrush[devinfo.expired, devinfo.fixed])
             if not devitem.parent().isExpanded():
                 if ldevname == devitem.parent().representative:
                     devitem.parent().setText(1, fmted)
         elif subkey == 'status':
-            if time < devinfo[8]:
+            if time < devinfo.stattime:
                 return
             if not value:
                 status = (UNKNOWN, '?')
             else:
                 status = cache_load(value)
-            devinfo[1] = status
-            devinfo[8] = time
+            devinfo.status = status
+            devinfo.stattime = time
             devitem.setText(2, str(status[1]))
             if status[0] not in self.statusIcon:
                 # old or wrong status constant
@@ -470,23 +485,23 @@ class DevicesPanel(Panel):
         elif subkey == 'fmtstr':
             if not value:
                 return
-            devinfo[2] = cache_load(value)
-            devitem.setText(1, fmtValUnit(devinfo))
+            devinfo.fmtstr = cache_load(value)
+            devitem.setText(1, devinfo.fmtValUnit())
         elif subkey == 'unit':
             if not value:
                 value = "''"
-            devinfo[3] = cache_load(value)
-            devitem.setText(1, fmtValUnit(devinfo))
+            devinfo.unit = cache_load(value)
+            devitem.setText(1, devinfo.fmtValUnit())
         elif subkey == 'fixed':
             if not value:
                 value = "''"
-            devinfo[5] = bool(cache_load(value))
-            devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
+            devinfo.fixed = bool(cache_load(value))
+            devitem.setForeground(1, valueBrush[devinfo.expired, devinfo.fixed])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 if dlg.moveBtn:
-                    dlg.moveBtn.setEnabled(not devinfo[5])
-                    dlg.moveBtn.setText(devinfo[5] and '(fixed)' or 'Move')
+                    dlg.moveBtn.setEnabled(not devinfo.fixed)
+                    dlg.moveBtn.setText(devinfo.fixed and '(fixed)' or 'Move')
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -498,7 +513,7 @@ class DevicesPanel(Panel):
         elif subkey == 'classes':
             if not value:
                 value = "[]"
-            devinfo[6] = set(cache_load(value))
+            devinfo.classes = set(cache_load(value))
         elif subkey == 'alias':
             if not value:
                 return
@@ -525,7 +540,7 @@ class DevicesPanel(Panel):
     def _getHighestStatus(self, item):
         retval = OK
         for i in range(item.childCount()):
-            lstatus = self._devinfo[item.child(i).text(0).lower()][1][0]
+            lstatus = self._devinfo[item.child(i).text(0).lower()].status[0]
             if retval < lstatus:
                 retval = lstatus
         return retval
@@ -543,10 +558,10 @@ class DevicesPanel(Panel):
         if item.type() == DEVICE_TYPE:
             self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
-            if 'nicos.core.device.Moveable' in self._devinfo[ldevname][6] and \
+            if 'nicos.core.device.Moveable' in self._devinfo[ldevname].classes and \
                not self.client.viewonly:
                 self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
-            elif 'nicos.core.device.Readable' in self._devinfo[ldevname][6]:
+            elif 'nicos.core.device.Readable' in self._devinfo[ldevname].classes:
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
 
     def on_filter_textChanged(self, text):
@@ -691,7 +706,7 @@ class ControlDialog(QDialog):
         self._reinit()
 
     def _reinit(self):
-        classes = self.devinfo[6]
+        classes = self.devinfo.classes
 
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)
