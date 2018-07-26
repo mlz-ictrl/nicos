@@ -96,6 +96,15 @@ def setForegroundBrush(widget, color):
     widget.setPalette(palette)
 
 
+def fmtValUnit(devinfo):
+    try:
+        fmted = devinfo[2] % devinfo[0]
+    except Exception:
+        fmted = str(devinfo[0])
+    val_unit = fmted + ' ' + devinfo[3]
+    return val_unit
+
+
 class SetupTreeWidgetItem(QTreeWidgetItem):
 
     def __init__(self, setupname, display_order, representative):
@@ -418,18 +427,14 @@ class DevicesPanel(Panel):
             devinfo[0] = fvalue
             devinfo[4] = op != OP_TELL
             devinfo[7] = time
-            try:
-                fmted = devinfo[2] % fvalue
-            except Exception:
-                fmted = str(fvalue)
-            devitem.setText(1, fmted + ' ' + devinfo[3])
+            fmted = fmtValUnit(devinfo)
+            devitem.setText(1, fmted)
             if ldevname in self._control_dialogs:
-                self._control_dialogs[ldevname].valuelabel.setText(
-                    fmted + ' ' + devinfo[3])
+                self._control_dialogs[ldevname].valuelabel.setText(fmted)
             devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
             if not devitem.parent().isExpanded():
                 if ldevname == devitem.parent().representative:
-                    devitem.parent().setText(1, fmted + ' ' + devinfo[3])
+                    devitem.parent().setText(1, fmted)
         elif subkey == 'status':
             if time < devinfo[8]:
                 return
@@ -466,20 +471,12 @@ class DevicesPanel(Panel):
             if not value:
                 return
             devinfo[2] = cache_load(value)
-            try:
-                fmted = devinfo[2] % devinfo[0]
-            except Exception:
-                fmted = str(devinfo[0])
-            devitem.setText(1, fmted + ' ' + devinfo[3])
+            devitem.setText(1, fmtValUnit(devinfo))
         elif subkey == 'unit':
             if not value:
                 value = "''"
             devinfo[3] = cache_load(value)
-            try:
-                fmted = devinfo[2] % devinfo[0]
-            except Exception:
-                fmted = str(devinfo[0])
-            devitem.setText(1, fmted + ' ' + devinfo[3])
+            devitem.setText(1, fmtValUnit(devinfo))
         elif subkey == 'fixed':
             if not value:
                 value = "''"
