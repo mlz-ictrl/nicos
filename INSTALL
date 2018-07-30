@@ -49,7 +49,7 @@ If not mentioned otherwise, Python packages are available from PyPI
 * For the GUI and status monitor:
 
   - PyQt4 or PyQt5 (not installable with pip)
-  - gr (optional, for plots)
+  - gr (optional, for plots, see: http://gr-framework.org/c.html#linux-packages)
   - QScintilla-python (optional, for the script editor component)
     (not installable with pip)
   - scipy (optional, for fitting)
