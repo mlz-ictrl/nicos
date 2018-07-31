@@ -95,7 +95,7 @@ devices = dict(
         abslimits = (-55, 55),
         flatpos = 4.92,
         startpos = 4,
-        precision = 0.05,#it was 0.25
+        precision = 0.05,  # it was 0.25
         maxtries = 15,
     ),
 
@@ -136,7 +136,7 @@ devices = dict(
         addr = 64,
         slope = -2500,
         unit = 'mm',
-        abslimits = (-10.1, 7.6),
+        abslimits = (-50, 50),  # (-10.1, 7.6),
         zerosteps = 500000,
         lowlevel = True,
     ),
@@ -162,7 +162,7 @@ devices = dict(
         addr = 63,
         slope = -2500,
         unit = 'mm',
-        abslimits = (-7.1, 15),
+        abslimits = (-50, 50),  # (-7.1, 15),
         zerosteps = 500000,
         lowlevel = True,
     ),
