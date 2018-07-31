@@ -54,10 +54,12 @@ _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
              Field(name='mon1', dev='mon1'),
              Field(name='Preset', key='mon1/preselection'), #'mon1/value'/'mon1/preselection'*'det2/value' 'mon1/preselection'
+             Field(name='hvmonitor', dev='hvmonitor'),
             ),
     BlockRow(Field(name='det1', dev='det1'),
              Field(name='det2', dev='det2'),
              Field(name='det3', dev='det3'),
+             Field(name='hvdetector', dev='hv1detector')
             ),
     ],
 )
