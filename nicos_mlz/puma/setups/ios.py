@@ -102,6 +102,7 @@ devices = dict(
         addr = 104,
         first = 10,
         last = 11,
+        lowlevel = True,
     ),
     tube_press = device('nicos.devices.vendor.ipc.Input',
         description = 'pressure monitor drum shielding',
@@ -109,5 +110,6 @@ devices = dict(
         addr = 103,
         first = 12,
         last = 12,
+        lowlevel = True,
     ),
 )
