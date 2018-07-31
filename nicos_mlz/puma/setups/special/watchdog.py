@@ -19,9 +19,9 @@ watchlist = [
          gracetime = 30,
     ),
     dict(
-        condition = 'mono_status[0] == BUSY',
-        message = 'mtt is not moving. Maybe hardware blocked? Mobile block?',
-        gracetime = 600,
+        condition = 'mtt_status[0] == NOTREACHED',
+        message = "'mtt' axis move timed out. Positioning problem? Mobile block?",
+        # gracetime = 3,
         type = 'critical',
     ),
 ]
