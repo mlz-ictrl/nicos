@@ -17,9 +17,9 @@ _expcolumn = Column(
 )
 
 _axisblock = Block('Axes angles', [
-    BlockRow(Field(name='Monochromator', key='mono/alias'),'mono_stat'),
+    BlockRow(Field(name='Monochromator', key='mono/alias'), 'mono_stat'),
     BlockRow('mth', 'mtt'),
-    BlockRow(Field(name='Focus mono', key='mono/focmode'),'mfhcu','mfvcu'),
+    BlockRow(Field(name='Focus mono', key='mono/focmode'), 'mfhpg', 'mfvpg'),
     BlockRow('psi', 'phi'),
     BlockRow('ath', 'att'),
     BlockRow(Field(name='Analyzer', key='ana/alias'),
@@ -85,12 +85,11 @@ _tasblock = Block('Triple-axis', [
 
 
 _shutterblock = Block('Shutter / Filters', [
-    BlockRow(Field(name='alpha1', dev='alpha1'),
-             Field(name='sapphire filter',  dev='sapphire'),
-             Field(name='erbium filter',  dev='erbium'),),
+    BlockRow(Field(name='sapphire filter', dev='sapphire'),
+             Field(name='erbium filter', dev='erbium'),),
     BlockRow(Field(name='attenuator', dev='atn'),
-             Field(name='PG filter 1',  dev='fpg1'),
-             Field(name='PG filter 2',  dev='fpg2'),
+             Field(name='PG filter 1', dev='fpg1'),
+             Field(name='PG filter 2', dev='fpg2'),
             ),
     ],
 )
