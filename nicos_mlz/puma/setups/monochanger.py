@@ -30,7 +30,7 @@ devices = dict(
         ' lift',
         bus = 'motorbus1',
         addr = 162,
-        # slope = -7.256,
+        # slope = -7.466319,
         # zerosteps = 2935.18,
         poly = [409.105, -0.144828, 1.3677e-6, 7.105e-11],
         unit = 'mm',
