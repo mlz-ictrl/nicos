@@ -23,36 +23,31 @@
 # ****************************************************************************
 
 """Doppler device for SPHERES"""
+from time import sleep
 
+from nicos.core.params import Attach
 from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.devices.tango import NamedDigitalOutput
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'
 
 
 class Doppler(MultiSwitcher):
-    def doInit(self, mode):
-        MultiSwitcher.doInit(self, mode)
+    attached_devices = {
+        'switch': Attach('The on/off switch of the doppler',
+                         NamedDigitalOutput)
+    }
 
-    def _startRaw(self, target):
-        MultiSwitcher._startRaw(self, target)
+    def doRead(self, maxage=0):
+        if self._attached_switch.read() == 'off':
+            return 0
+        return self._mapReadValue(self._readRaw(maxage))
 
-        self._syncronizeImageMode()
-
-    def _syncronizeImageMode(self):
-        # when the doppler is not running the measuremode is elastic
-        # else inelastic
-        if self.read() == 0:
-            self._image.setMode(ELASTIC)
-        else:
-            self._image.setMode(INELASTIC)
-
-    def expectedMode(self):
-        if self.read() == 0:
-            return ELASTIC
-        else:
-            return INELASTIC
-
-    def attachImage(self, image):
-        self._image = image
-        self._syncronizeImageMode()
+    def doStart(self, target):
+        # to change the doppler speed it has to be stopped first
+        self._attached_switch.maw('off')
+        sleep(3)
+        if target != 0:
+            self._attached_switch.move('on')
+            MultiSwitcher.doStart(self, target)
