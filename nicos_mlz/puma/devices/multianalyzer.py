@@ -208,7 +208,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
             self.log.warn('reference of rotations not successful')
         check += self._reftranslation()
         if check != 2:
-            self.log.warn('reference of translations not succesful')
+            self.log.warn('reference of translations not successful')
         else:
             self.log.debug('reset of %s sucessful', self.name)
 

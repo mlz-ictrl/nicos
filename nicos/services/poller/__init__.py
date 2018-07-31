@@ -128,7 +128,7 @@ class Poller(Device):
             maxage = interval - POLL_MIN_VALID_TIME if interval else dev.maxage
 
             i = 0
-            lastpoll = 0  # last timestamp of succesfull poll
+            lastpoll = 0  # last timestamp of successful poll
 
             while not self._stoprequest:
                 # determine maximum waiting time with a default of 1h

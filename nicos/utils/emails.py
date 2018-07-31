@@ -44,7 +44,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     """Sends an email to a list of receivers with given topic and content via
     the given server.
 
-    Returns True if succesful and list of error-messages else
+    Returns True if successful and list of error-messages else
 
     mailserver is a working E-Mailserver accepting mail from us,
     receiverlist is a not empty list of valid E-Mail adresses or a string with
