@@ -98,9 +98,18 @@ _reactor = Block('Reactor power', [
     ],
 )
 
+_collimationblock = Block('Collimation', [
+    BlockRow(Field(name='alpha1', dev='alpha1'),
+             Field(name='alpha2', dev='alpha2'),
+             Field(name='alpha3', dev='alpha3'),
+             Field(name='alpha4', dev='alpha4'),
+            ),
+    ],
+)
+
 _leftcolumn = Column(_tasblock, _detectorblock, _reactor)
 _middlecolumn = Column(_axisblock, _sampletable, _slits)
-_rightcolumn = Column(_shutterblock,
+_rightcolumn = Column(_shutterblock,_collimationblock,
     Block('Temperature (LakeShore)', [
         BlockRow(Field(name='Control',dev='t_ls340'),
             Field(key='t_ls340/setpoint', name='Setpoint')),
