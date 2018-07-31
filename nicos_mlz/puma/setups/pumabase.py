@@ -65,10 +65,8 @@ devices = dict(
         theta = 'mth',
         twotheta = 'mtt',
         reltheta = True,
-        # focush = 'mfhpg',
-        focush = None,
-        # focusv = 'mfvpg',
-        focusv = None,
+        focush = 'mfhpg',
+        focusv = 'mfvpg',
         # focus value should equal mth (for arcane reasons...)
         hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
         vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
