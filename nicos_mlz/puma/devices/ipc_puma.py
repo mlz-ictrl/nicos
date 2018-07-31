@@ -229,7 +229,7 @@ class ReferenceMotor(CanReference, Motor1):
             Motor1.doStart(self, target)
         except Exception as e:
             r = self._attached_bus.get(self.addr, STATUS)
-            if not (r & 0x20 or r & 0x40):
+            if not (r & 0x20 or r & 0x40 or r & 100 or r & 200):
                 raise
             self.log.info('Ignoring due to limit switch hitting: %r', e)
 
@@ -286,9 +286,26 @@ class ReferenceMotor(CanReference, Motor1):
         self.log.debug('target is %d steps, pos is %d steps', target, pos)
         diff = target - pos
         if diff:
+            softlimit = self._tosteps(
+                self.absmin if self.refdirection == 'lower' else self.absmax)
+            self.log.debug('Diff: %d %d', softlimit, pos)
+            if abs(softlimit - pos) < abs(diff):
+                savediff = diff
+                diff = softlimit - pos
+                if not diff:
+                    return
+                self.log.info('Distance to softlimit too short: %d -> %d',
+                              savediff, diff)
             self._attached_bus.send(self.addr,
                                     DIR_NEG if diff < 0 else DIR_POS)
-            self._attached_bus.send(self.addr, MOVE_REL, abs(diff), 6)
+            try:
+                self._attached_bus.send(self.addr, MOVE_REL, abs(diff), 6)
+            except Exception as e:
+                r = self._attached_bus.get(self.addr, STATUS)
+                self.log.debug('status: 0x%04X', r)
+                if not (r & 0x20 or r & 0x40 or r & 100 or r & 200):
+                    raise
+                self.log.info('Ignoring due to limit switch hitting: %r', e)
             session.delay(0.1)
             # hw_wait will not work here, since the status of the device is
             # always busy, but only the state of the motor is important
