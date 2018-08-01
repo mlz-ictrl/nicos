@@ -11,9 +11,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard',
-           # 'nicos_mlz.spheres.scan'
-           ]
+modules = ['nicos.commands.standard', 'nicos_mlz.spheres.commands']
 
 includes = ['notifiers']
 
