@@ -174,7 +174,8 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
                 self._hw_wait(self._translation)
 
                 if self._checkPositionReachedTrans(target):
-                    raise PositionError(self, 'Axes: %r did not reach target')
+                    raise PositionError(self, 'Translation drive not '
+                                              'successful')
                 self.log.debug('translation movement done')
 
             # Rotation Movement
