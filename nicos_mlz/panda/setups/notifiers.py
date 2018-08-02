@@ -16,7 +16,7 @@ devices = dict(
         sender = 'panda@frm2.tum.de',
         receivers = [
             'andreas.frick@frm2.tum.de',
-            'i.radelztskyi@fz-juelich.de',
+            'i.radelytskyi@fz-juelich.de',
             'astrid.schneidewind@frm2.tum.de',
         ],
         subject = '[PANDA warning]',
