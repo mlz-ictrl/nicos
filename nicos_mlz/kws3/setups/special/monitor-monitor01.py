@@ -61,14 +61,14 @@ _daq = make_blocks('Data acquisition', 'daq', [
              Field(name='Mon2', dev='mon2rate')),
 ])
 
-_julabo = Block('Julabo', [
-    BlockRow('T_julabo')
-], setups='julabo*')
+_julabo = Block('Sample T', [
+    BlockRow('T')
+])
 
 _julaboplot = Block('', [
-    BlockRow(Field(plot='JT', dev='T_julabo', width=30, height=25, plotwindow=2*3600),
-             Field(plot='JT', key='T_julabo/setpoint')),
-], setups='julabo*')
+    BlockRow(Field(plot='T', dev='T', width=30, height=25, plotwindow=2*3600),
+             Field(plot='T', key='T/setpoint')),
+])
 
 _et = Block('Eurotherm', [
     BlockRow('T_et')
