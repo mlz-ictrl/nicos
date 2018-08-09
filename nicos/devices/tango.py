@@ -560,7 +560,7 @@ class TemperatureController(HasWindowTimeout, RampActuator):
                               settable=True, category='general', chatty=True,
                               volatile=True),
         'setpoint':     Param('Current setpoint', type=float,
-                              settable=True, category='general',
+                              settable=True, category='general', unit='main',
                               volatile=True),
         'heateroutput': Param('Heater output', type=float, category='general',
                               volatile=True),
