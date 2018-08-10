@@ -83,19 +83,21 @@ class HistogramFlatbuffersSerializer(object):
     def _encodeArray(self, builder, array, l_elements):
         # Serialize the data array
         ArrayUInt.ArrayUIntStartValueVector(builder, l_elements)
-        if type(array) == bytearray:
-            # Directly copy the bytes array
-            l_bytes = l_elements * self.uint32_bytes  # Number of bytes in hist
-            # Recalculate the head position of the buffer
-            head = flatbuffers.number_types.UOffsetTFlags.py_type(
-                builder.Head() - l_bytes)
-            builder.head = head
-            # Copy the bytes from histogram bytearray
-            builder.Bytes[head:head + l_bytes] = array[0:l_bytes]
-        else:
-            array = array[:l_elements]
-            for val in array[::-1]:
-                builder.PrependUint32(val)
+
+        if not isinstance(array, bytearray):
+            array = bytearray(array.flatten('C').astype('uint32'))
+
+        # Directly copy the bytes array
+        l_bytes = l_elements * self.uint32_bytes  # Number of bytes in hist
+
+        # Recalculate the head position of the buffer
+        head = flatbuffers.number_types.UOffsetTFlags.py_type(
+            builder.Head() - l_bytes)
+        builder.head = head
+
+        # Copy the bytes from histogram bytearray
+        builder.Bytes[head:head + l_bytes] = array[0:l_bytes]
+
         pos_val = builder.EndVector(l_elements)
         ArrayUInt.ArrayUIntStart(builder)
         ArrayUInt.ArrayUIntAddValue(builder, pos_val)
