@@ -51,7 +51,7 @@ sysconfig = dict(
     cache='localhost',
     instrument='Amor',
     experiment='Exp',
-    datasinks=['NexusDataSink', 'HistogramDataSink'],
+    datasinks=['conssink', 'dmnsink', 'NexusDataSink', 'HistogramDataSink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing',
@@ -109,6 +109,10 @@ devices = dict(
         instpvschema='f142',
         brokers=configdata('special/config.KAFKA_BROKERS'),
     ),
+
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink'),
+
+    dmnsink=device('nicos.devices.datasinks.DaemonSink'),
 
     NexusDataSink=device(
         'nicos_sinq.amor.devices.datasinks..AmorNexusFileSink',
