@@ -20,11 +20,11 @@ devices = dict(
         unit='sec',
         readpv=pvprefix + '.T',
     ),
-    countpreset=device(
+    monitorpreset=device(
         'nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
         epicstimeout=3.0,
-        description='Used to set and view count preset',
-        type='counter',
+        description='Used to set and view monitor preset',
+        type='monitor',
         readpv=pvprefix + '.PR2',
         presetpv=pvprefix + '.PR2',
     ),
@@ -32,7 +32,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='First scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S2',
     ),
@@ -40,7 +40,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Second scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S3',
     ),
@@ -48,7 +48,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Third scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S4',
     ),
@@ -56,7 +56,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Fourth scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S5',
     ),
@@ -64,7 +64,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Fifth scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S6',
     ),
@@ -72,7 +72,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Sixth scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S7',
     ),
@@ -80,7 +80,7 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Seventh scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S8',
     ),
@@ -88,23 +88,23 @@ devices = dict(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout=3.0,
         description='Eighth scalar counter channel',
-        type='counter',
+        type='monitor',
         lowlevel=True,
         readpv=pvprefix + '.S9',
     ),
-    hm_channel=device(
+    histogrammer=device(
         'nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description="Histogram Memory Channel",
         connector='hm_connector'
     ),
-    area_detector_channel=device(
+    area_detector=device(
         'nicos_sinq.devices.sinqhm.channel.HistogramImageChannel',
         description="Image channel for area detector",
         lowlevel=True,
         bank='hm_bank0',
         connector='hm_connector',
     ),
-    single_det1_channel=device(
+    single_det1=device(
         'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
         description="Image channel for single detector 1",
         lowlevel=True,
@@ -112,7 +112,7 @@ devices = dict(
         connector='hm_connector',
         detectorid=0,
     ),
-    single_det2_channel=device(
+    single_det2=device(
         'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
         description="Image channel for single detector 2",
         lowlevel=True,
@@ -121,7 +121,7 @@ devices = dict(
         detectorid=1,
     ),
     psd_tof=device(
-        'nicos_sinq.devices.epics.scaler_record.EpicsScalerRecord',
+        'nicos_sinq.amor.devices.detector.AmorDetector',
         epicstimeout=3.0,
         description='EL737 counter box that counts neutrons and '
                     'starts streaming events',
@@ -129,14 +129,14 @@ devices = dict(
         pausepv=pvprefix + ':Pause',
         statuspv=pvprefix + ':Status',
         errormsgpv=pvprefix + ':MsgTxt',
-        timers=['timepreset', 'elapsedtime'],
-        counters=['countpreset', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7',
-                  'c8'],
-        images=['area_detector_channel', 'single_det1_channel',
-                'single_det2_channel'],
-        others=['hm_channel'],
-        liveinterval=5,
-        saveintervals=[10]
+        monitorpreset='monitorpreset',
+        timepreset='timepreset',
+        timers=['elapsedtime'],
+        monitors=['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'],
+        images=['area_detector', 'single_det1', 'single_det2'],
+        others=['histogrammer'],
+        liveinterval=30,
+        saveintervals=[60]
     ),
 )
 

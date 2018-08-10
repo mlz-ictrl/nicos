@@ -128,9 +128,9 @@ devices = dict(
         'nicos_sinq.amor.devices.datasinks.ImageKafkaWithLiveViewDataSink',
         brokers=configdata('special/config.KAFKA_BROKERS'),
         channeltostream={
-            'area_detector_channel': ('AMOR_areaDetector', 'area.tof'),
-            'single_det1_channel': ('AMOR_singleDetector1', 'single.tof'),
-            'single_det2_channel': ('AMOR_singleDetector2', 'single.tof'),
+            'area_detector': ('AMOR_areaDetector', 'area.tof'),
+            'single_det1': ('AMOR_singleDetector1', 'single.tof'),
+            'single_det2': ('AMOR_singleDetector2', 'single.tof'),
         },
     ),
 

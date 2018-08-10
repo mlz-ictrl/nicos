@@ -65,39 +65,6 @@ class EpicsScalerRecord(EpicsDetector):
 
         return pvs
 
-    def doSetPreset(self, **preset):
-        # The counter box can set one time and count preset. If the time
-        # preset is set, auto set the count preset to 0 and vice-a-versa.
-        # Both presets cannot be set at a time.
-
-        # This represents the various possible count and time presets
-        countpreset = set(preset).intersection(['det1', 'ctr1', 'n'])
-        timepreset = set(preset).intersection(['timer1', 'time', 't'])
-
-        # Check if user set both time and count preset
-        if countpreset and timepreset:
-            self.log.debug('Both count and time preset cannot be set at '
-                           'the same time.')
-            self.log.debug('Using just the count preset.')
-            for name in timepreset:
-                preset.pop(name)
-            timepreset = set()
-
-        if timepreset:
-            preset['n'] = 0
-            self.log.debug('Setting time preset of %f',
-                           preset[timepreset.pop()])
-            self.log.debug('Also updating the count preset to 0')
-
-        if countpreset:
-            preset['t'] = 0
-            self.log.info('Setting count preset of %d',
-                          preset[countpreset.pop()])
-            self.log.info('Also updating the time preset to 0')
-
-        # Let the parent handle the rest
-        EpicsDetector.doSetPreset(self, **preset)
-
     def doStatus(self, maxage=0):
         if self.errormsgpv:
             message_text = self._get_pv('errormsgpv').strip()
@@ -121,23 +88,7 @@ class EpicsScalerRecord(EpicsDetector):
     def doInfo(self):
         ret = []
 
-        # Check for the mode and preset
-        mode = ''
-        value = 0
-        unit = ''
-        for d in self._masters:
-            for k in self._presetkeys:
-                if self._presetkeys[k] and self._presetkeys[k].name == d.name:
-                    preselection = d.preselection
-                    if preselection != 0:
-                        value = preselection
-                        unit = d.unit
-                        mode = 'timer' if k.startswith('t') else 'monitor'
-                        break
-        ret.append(('mode', mode, mode, '', 'presets'))
-        ret.append(('preset', value, '%s' % value, unit, 'presets'))
-
-        # Add rest of the channels to the info as well
+        # Add the channels to the info as well
         for channel in self._channels:
             value = channel.read(0)
             ret.append((channel.name, value, '%s' % value,
