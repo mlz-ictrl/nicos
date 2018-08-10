@@ -24,7 +24,7 @@
 
 import requests
 
-from nicos.core import Readable, Param, tupleof, status, Override
+from nicos.core import Readable, Param, tupleof, status, Override, oneof
 from nicos.core.mixins import HasCommunication
 from nicos.core.errors import CommunicationError
 
@@ -40,6 +40,9 @@ class HttpConnector(HasCommunication, Readable):
                          type=str, mandatory=True),
         'base64auth': Param('HTTP authentication encoded in base64',
                             type=str, mandatory=True),
+        'byteorder': Param('Endianness of the raw data on server(big/little)',
+                           type=oneof('big', 'little'),
+                           default='little'),
         'curstatus': Param('Current status of the connection (readonly)',
                            type=tupleof(int, str), settable=True,
                            userparam=False)

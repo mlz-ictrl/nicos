@@ -23,13 +23,13 @@
 # *****************************************************************************
 
 import numpy
-import struct
 from os import path
 from time import time as currenttime
 
 from nicos import session
 from nicos.core import FINAL, LIVE, Override, SIMULATION
 from nicos.core.errors import ProgrammingError
+from nicos.pycompat import memory_buffer
 from nicos.utils import updateFileCounter, readFileCounter
 
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
@@ -106,7 +106,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
         arrays = []
         for desc in self.detector.arrayInfo():
             # Empty byte array representing 0 of type uint32
-            arrays.append(bytearray([0]) * (numpy.prod(desc.shape) * 4))
+            arrays.append(numpy.zeros(numpy.prod(desc.shape), dtype='uint32'))
         self.putResults(LIVE, {self.detector.name: (None, arrays)})
 
     def putResults(self, quality, results):
@@ -127,43 +127,36 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
         for desc, array in zip(self.detector.arrayInfo(), arrays):
             if array is None:
                 continue
-
-            if not isinstance(array, bytearray):
-                array = array.flatten('C')
-                struct.pack("{}I".format(len(array)), *array)
-
             if len(desc.shape) == 1:
                 nx.append(desc.shape[0])
                 ny.append(1)
                 nz.append(1)
                 tags.append(desc.name)
-                data.append(array)
+                data.append(memory_buffer(array))
             elif len(desc.shape) == 2:
                 nx.append(desc.shape[1])
                 ny.append(desc.shape[0])
                 nz.append(1)
                 tags.append(desc.name)
-                data.append(array)
+                data.append(memory_buffer(array))
             elif len(desc.shape) == 3:
-                arrayInt = numpy.frombuffer(array, numpy.uint32)
-
                 # X-Axis summed up
-                arrayX = numpy.sum(arrayInt.reshape(
-                    desc.shape), axis=0)[::-1].flatten()
+                arrayX = numpy.sum(array.reshape(desc.shape),
+                                   axis=0, dtype='uint32')[::-1].flatten()
                 nx.append(desc.shape[2])
                 ny.append(desc.shape[1])
                 nz.append(1)
                 tags.append('X-Integrated - Area Detector')
-                data.append(struct.pack("{}I".format(len(arrayX)), *arrayX))
+                data.append(memory_buffer(arrayX))
 
                 # TOF summed up
-                arrayT = numpy.sum(arrayInt.reshape(
-                    desc.shape), axis=2).flatten()
+                arrayT = numpy.sum(array.reshape(desc.shape),
+                                   axis=2, dtype='uint32').flatten()
                 nx.append(desc.shape[1])
                 ny.append(desc.shape[0])
                 nz.append(1)
                 tags.append('TOF Integrated - Area Detector')
-                data.append(struct.pack("{}I".format(len(arrayT)), *arrayT))
+                data.append(memory_buffer(arrayT))
             else:
                 continue
 

@@ -23,9 +23,8 @@
 # *****************************************************************************
 
 import numpy
-import sys
 
-from nicos.core import Param, Attach, status, oneof
+from nicos.core import Attach, status, Value, Override
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.pycompat import iteritems
 from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
@@ -38,14 +37,7 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     """Generic image channel to obtain histogram data from histogram
     memory.
 
-    The data can either be returned as bytearray or it can be returned
-    as a numpy array containing uint32 type counts. This behaviour
-    can be changed using the parameter *readbytes*
-
-    If the data being returned is in bytes, the endianness can be
-    controlled using the parameter *databyteorder. The parameter
-    *serverbyteorder* provides the byte order of the data received
-    from the server.
+    The data is returned as a numpy array containing uint32 type counts.
 
     The bank in the server where the data is to be fetched from must
     be declared using the attached device *bank*. The attached device
@@ -55,15 +47,9 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     The data that comes out of the server is assumed to be of uint32
     type with 4 bytes.
     """
-    parameters = {
-        'serverbyteorder': Param('Endianness of the raw data (big/little)',
-                                 type=oneof('big', 'little'),
-                                 default='little'),
-        'databyteorder': Param('Endianness of the data returned (big/little)',
-                               type=oneof('big', 'little'),
-                               default=sys.byteorder),
-        'readbytes': Param('Read array in bytes (returns uint32 otherwise)',
-                           type=bool, default=True)
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d')
     }
 
     attached_devices = {
@@ -112,41 +98,26 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
 
     @property
     def arraydesc(self):
-        readtype = bytes if self.readbytes else int
-        return HistogramDesc(self.name, readtype, self._dimDesc())
+        return HistogramDesc(self.name, int, self._dimDesc())
 
     def valueInfo(self):
-        # no readresult -> no values
-        return ()
+        return [Value(self.name, type='counter', unit=self.unit)]
 
-    def _readFromServer(self):
+    def doReadArray(self, quality):
+        """ Get the data formatted with uint32 numpy array
+        """
+        order = '<' if self.connector.byteorder == 'little' else '>'
+        dt = numpy.dtype('uint32')
+        dt = dt.newbyteorder(order)
+
         # Read the raw bytes from the server
         params = (('bank', self.bank.bankid), ('start', self.startid),
                   ('end', self.endid))
         req = self.connector.get('readhmdata.egi', params)
-        return req.content
-
-    def _getBytes(self):
-        """ Get the bytes from the server in the order requested
-        """
-        raw = bytearray(self._readFromServer())
-        if self.serverbyteorder != self.databyteorder:
-            # Swap the endianness using 4 bytes
-            self.log.debug('Swapping the endianness')
-            raw[0::4], raw[1::4], raw[2::4], raw[3::4] = \
-                raw[3::4], raw[2::4], raw[1::4], raw[0::4]
-        return raw
-
-    def _getData(self):
-        """ Get the data formatted with uint32 numpy array
-        """
-        order = '<' if self.serverbyteorder == 'little' else '>'
-        dt = numpy.dtype('uint32')
-        dt = dt.newbyteorder(order)
-        return numpy.frombuffer(self._readFromServer(), dt)
-
-    def doReadArray(self, quality):
-        return self._getBytes() if self.readbytes else self._getData()
+        data = numpy.frombuffer(req.content, dt)
+        # Set the result and return data
+        self.readresult = [int(sum(data))]
+        return data
 
     def doStatus(self, maxage=0):
         return self.connector.status(maxage)

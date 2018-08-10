@@ -103,9 +103,6 @@ devices = dict(
         lowlevel=True,
         bank='hm_bank0',
         connector='hm_connector',
-        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
-        databyteorder='little',
-        readbytes=True,
     ),
     single_det1_channel=device(
         'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
@@ -114,8 +111,6 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=0,
-        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
-        readbytes=True,
     ),
     single_det2_channel=device(
         'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
@@ -124,8 +119,6 @@ devices = dict(
         bank='hm_bank1',
         connector='hm_connector',
         detectorid=1,
-        serverbyteorder=configdata('special/config.HISTOGRAM_MEMORY_ENDIANESS'),
-        readbytes=True,
     ),
     psd_tof=device(
         'nicos_sinq.devices.epics.scaler_record.EpicsScalerRecord',
