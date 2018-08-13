@@ -46,13 +46,17 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
     """
     parameters = {
         'motorpv': Param('Name of the motor record PV.',
-                         type=pvname, mandatory=True, settable=False),
+                         type=pvname, mandatory=True, settable=False,
+                         userparam=False),
         'errormsgpv': Param('Optional PV with error message.',
-                            type=pvname, mandatory=False, settable=False),
+                            type=pvname, mandatory=False, settable=False,
+                            userparam=False),
         'errorbitpv': Param('Optional PV with error bit.',
-                            type=pvname, mandatory=False, settable=False),
+                            type=pvname, mandatory=False, settable=False,
+                            userparam=False),
         'reseterrorpv': Param('Optional PV with error reset switch.',
-                              type=pvname, mandatory=False, settable=False),
+                              type=pvname, mandatory=False, settable=False,
+                              userparam=False),
         'reversed': Param('Reverse the direction of movement',
                           type=bool, mandatory=False, default=False,
                           userparam=False, settable=True)

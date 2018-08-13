@@ -27,7 +27,7 @@ This module contains ESS specific Base classes for EPICS.
 """
 
 from nicos import session
-from nicos.core import Param
+from nicos.core import Param, Override
 from nicos.core.errors import ConfigurationError
 from nicos.devices.epics import EpicsDevice, EpicsReadable, \
     EpicsStringReadable, EpicsMoveable, EpicsAnalogMoveable, \
@@ -42,12 +42,16 @@ class EpicsDeviceEss(EpicsDevice):
     parameters = {
         'devicepvtopic': Param(
             'Default topic for device where PVs are to be forwarded',
-            type=str),
+            type=str, userparam=False),
         'devicepvschema': Param('Default flatbuffers coding schema for device',
-                               type=str),
+                                type=str, userparam=False),
         'pvdetails': Param(
             'Dict of specific PV and tuple of (topic, schema) if is different',
-            type=dict),
+            type=dict, userparam=False),
+    }
+
+    parameter_overrides = {
+        'epicstimeout': Override(userparam=False)
     }
 
     def doPreinit(self, mode):
@@ -74,24 +78,70 @@ class EpicsDeviceEss(EpicsDevice):
 
 
 class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }
 
 
 class EpicsStringReadableEss(EpicsDeviceEss, EpicsStringReadable):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False)
+    }
 
 
 class EpicsMoveableEss(EpicsDeviceEss, EpicsMoveable):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False),
+        'writepv': Override(userparam=False),
+        'targetpv': Override(userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }
 
 
 class EpicsAnalogMoveableEss(EpicsDeviceEss, EpicsAnalogMoveable):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False),
+        'writepv': Override(userparam=False),
+        'targetpv': Override(userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }
 
 
 class EpicsDigitalMoveableEss(EpicsDeviceEss, EpicsDigitalMoveable):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False),
+        'writepv': Override(userparam=False),
+        'targetpv': Override(userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }
 
 
 class EpicsWindowTimeoutDeviceEss(EpicsDeviceEss, EpicsWindowTimeoutDevice):
-    pass
+
+    parameter_overrides = {
+        'readpv': Override(userparam=False),
+        'writepv': Override(userparam=False),
+        'targetpv': Override(userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }

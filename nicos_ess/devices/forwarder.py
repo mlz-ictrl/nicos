@@ -46,13 +46,15 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
 
     parameters = {
         'cmdtopic': Param('Kafka topic to write configurations commands',
-                          type=str, settable=False, mandatory=True),
+                          type=str, settable=False, mandatory=True,
+                          userparam=False),
         'instpvtopic': Param(
             'Default topic for the instrument where PVs are to be forwarded',
-            type=str, mandatory=True),
+            type=str, mandatory=True, userparam=False),
         'instpvschema': Param(
             'Default flatbuffers schema to be used for the instrument',
-            type=oneof('f142', 'f143'), settable=False, default='f142')
+            type=oneof('f142', 'f143'), settable=False, default='f142',
+            userparam=False)
     }
 
     def doPreinit(self, mode):

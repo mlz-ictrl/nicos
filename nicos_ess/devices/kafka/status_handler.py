@@ -41,17 +41,18 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
     parameters = {
         'statustopic': Param('Kafka topic where status messages are written',
                              type=str, settable=False, preinit=True,
-                             mandatory=True),
+                             mandatory=True, userparam=False),
         'statusinterval': Param('Expected time (secs) interval for the status '
                                 'message updates',
-                                type=int, default=20, settable=True),
+                                type=int, default=20, settable=True,
+                                userparam=False),
         'curstatus': Param('Store the current device status',
                            userparam=False, type=tupleof(int, str),
                            settable=True, ),
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False),
+        'unit': Override(mandatory=False, userparam=False),
     }
 
     def doPreinit(self, mode):

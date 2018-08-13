@@ -39,7 +39,7 @@ class KafkaSubscriber(DeviceMixinBase):
     parameters = {
         'brokers': Param('List of kafka hosts to be connected',
                          type=listof(host(defaultport=9092)),
-                         default=['localhost'], preinit=True)
+                         default=['localhost'], preinit=True, userparam=False)
     }
 
     def doPreinit(self, mode):

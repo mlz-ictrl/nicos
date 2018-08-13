@@ -29,23 +29,23 @@ This module contains ESS specific EPICS developments.
 from nicos.core import Device, DeviceMixinBase, Param, dictwith, \
     anytype, pvname, usermethod
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDigitalMoveable
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss
+from nicos_ess.devices.epics.base import EpicsDeviceEss, \
+    EpicsDigitalMoveableEss
 
 
-class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveable):
+class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
     """
     EPICS based implementation of MappedMoveable. Useful for PVs that contain
     enums or bools.
     """
 
     def doInit(self, mode):
-        EpicsDigitalMoveable.doInit(self, mode)
+        EpicsDigitalMoveableEss.doInit(self, mode)
         MappedMoveable.doInit(self, mode)
 
     def doReadTarget(self):
-        target_value = EpicsDigitalMoveable.doReadTarget(self)
+        target_value = EpicsDigitalMoveableEss.doReadTarget(self)
 
         # If this is from EPICS, it needs to be mapped, otherwise not
         if self.targetpv:
@@ -54,10 +54,10 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveable):
         return target_value
 
     def _readRaw(self, maxage=0):
-        return EpicsDigitalMoveable.doRead(self, maxage)
+        return EpicsDigitalMoveableEss.doRead(self, maxage)
 
     def _startRaw(self, target):
-        EpicsDigitalMoveable.doStart(self, target)
+        EpicsDigitalMoveableEss.doStart(self, target)
 
 
 class HasSwitchPv(DeviceMixinBase):
@@ -84,9 +84,11 @@ class HasSwitchPv(DeviceMixinBase):
 
     parameters = {
         'switchstates': Param('Map of boolean switch states to underlying type',
-                              type=dictwith(on=anytype, off=anytype)),
+                              type=dictwith(on=anytype, off=anytype),
+                              userparam=False),
         'switchpvs': Param('Read and write pv for switching device on and off.',
-                           type=dictwith(read=pvname, write=pvname))
+                           type=dictwith(read=pvname, write=pvname),
+                           userparam=False)
     }
 
     def _get_pv_parameters(self):
@@ -162,9 +164,11 @@ class EpicsCommandReply(EpicsDeviceEss, Device):
 
     parameters = {
         'commandpv': Param('PV to issue commands to the asyn controller',
-                           type=pvname, mandatory=True, settable=False),
+                           type=pvname, mandatory=True, settable=False,
+                           userparam=False),
         'replypv': Param('PV that stores the reply generated from execution',
-                         type=pvname, mandatory=False, settable=False),
+                         type=pvname, mandatory=False, settable=False,
+                         userparam=False),
     }
 
     def _get_pv_parameters(self):
