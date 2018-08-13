@@ -643,6 +643,10 @@ class DigitalInput(PyTangoDevice, Readable):
 
     valuetype = int
 
+    parameter_overrides = {
+        'unit': Override(default='', mandatory=False),
+    }
+
     def doRead(self, maxage=0):
         return self._dev.value
 
@@ -693,6 +697,10 @@ class DigitalOutput(PyTangoDevice, Moveable):
     """
 
     valuetype = int
+
+    parameter_overrides = {
+        'unit': Override(default='', mandatory=False),
+    }
 
     def doRead(self, maxage=0):
         return self._dev.value
