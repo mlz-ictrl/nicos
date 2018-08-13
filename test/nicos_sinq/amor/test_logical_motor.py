@@ -34,7 +34,6 @@ session_setup = 'sinq_amor_logical_motors'
 logical_motors = ['m2t', 's2t', 'ath']
 
 rawdistances = {
-    'chopper': 10151,
     'polariser': 7983,
     'slit1': 7550,
     'slit2': 7145,
@@ -118,6 +117,8 @@ class TestLogicalMotor(object):
     m2t = None
     s2t = None
     ath = None
+    controller = None
+    distances = None
 
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
@@ -126,10 +127,10 @@ class TestLogicalMotor(object):
         component distances
         """
         # Set the component distances
-        distances = session.getDevice('Distances')
-        distances.rawdistances = rawdistances
-        for comp in distances._components():
-            distances._update_component(comp)
+        self.distances = session.getDevice('Distances')
+        self.distances.rawdistances = rawdistances
+        for comp in self.distances._components():
+            self.distances._update_component(comp)
 
         # Set the initial position of devices
         for devname, position in initial_positions:
@@ -140,6 +141,7 @@ class TestLogicalMotor(object):
         self.m2t = session.getDevice('m2t')
         self.s2t = session.getDevice('s2t')
         self.ath = session.getDevice('ath')
+        self.controller = session.getDevice('controller')
 
     @pytest.mark.parametrize("motortype", logical_motors)
     def test_motor_move_status_is_busy(self, motortype):
@@ -187,28 +189,26 @@ class TestLogicalMotor(object):
         assert motor.target == approx(motor.read())
 
     @pytest.mark.parametrize("targets", test_targets.keys())
-    def test_motor_reaches_target(self, targets, session):
+    def test_motor_has_correct_targets(self, targets, session):
         # Move the motors to targets
-        self.m2t.maw(targets[0])
-        assert self.m2t.status()[0] != status.BUSY
-        assert self.m2t.read() == approx(targets[0], abs=1e-3)
+        ml = self.controller._get_move_list({
+            'm2t': targets[0],
+            's2t': targets[1],
+            'ath': targets[2]
+        })
 
-        self.s2t.maw(targets[1])
-        assert self.s2t.status()[0] != status.BUSY
-        assert self.s2t.read() == approx(targets[1], abs=1e-3)
-
-        self.ath.maw(targets[2])
-        assert self.ath.status()[0] != status.BUSY
-        assert self.ath.read() == approx(targets[2], abs=1e-3)
-
-        for slavename, target in test_targets[targets]:
-            slave = session.getDevice(slavename)
-            # assert slave.isAtTarget(target)
-            assert slave.read() == approx(target, abs=1e-2)
+        for dev, targ in ml:
+            dev = dev.name
+            found = False
+            for d, t in test_targets[targets]:
+                if d == dev:
+                    assert t == approx(targ, abs=1e-2), '%s target mismatch' % d
+                    found = True
+            assert found, 'unexpectedly moved %s' % dev
 
     def test_analyzer_off_behaviour(self, session):
         # Turn off the analyzer component
-        session.getDevice('danalyzer').active = False
+        self.distances.__dict__['analyser'] = 'NOT ACTIVE'
 
         # The slave positions at ath = 0.0 should be same as when ath = 0.1
         self.m2t.maw(0.1)

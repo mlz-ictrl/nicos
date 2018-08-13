@@ -5,20 +5,6 @@ includes = ['sinq_amor_movable']
 devices = dict(
     controller = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotorHandler',
         description = 'Logical Motors Controller',
-        soz = 'soz',
-        com = 'com',
-        cox = 'cox',
-        coz = 'coz',
-        d1b = 'd1b',
-        d2b = 'd2b',
-        d3b = 'd3b',
-        d4b = 'd4b',
-        aoz = 'aoz',
-        aom = 'aom',
-        d1t = 'd1t',
-        d2t = 'd2t',
-        d3t = 'd3t',
-        d4t = 'd4t',
         lowlevel = True,
         loglevel = 'debug'
     ),
@@ -44,14 +30,13 @@ devices = dict(
                    epicstimeout=3.0,),
 
     laser_switch=device(
-        'nicos_sinq.amor.devices.programmable_unit.ProgrammableUnit',
+        'nicos_sinq.amor.devices.sps_switch.SpsSwitch',
         description='Laser light controlled by SPS',
         epicstimeout=3.0,
         readpv='SQ:AMOR:SPS1:DigitalInput',
         commandpv='SQ:AMOR:SPS1:Push',
         commandstr="S0001",
-        byte=15,
-        bit=7,
+        bytelist=[(15, 7)],
         mapping={'OFF': 0, 'ON': 1}
     ),
 
@@ -91,11 +76,12 @@ devices = dict(
             'slit4': (306, 0),
             'sample': (-310, 0),
             'detector': (326, 0),
-            'selene': (-726, 0),
             'analyser': (310, 0),
             'filter': (-726, 0),
-            'chopper': (-245, 0),
             'slit1': (0, 0)
+        },
+        fixedcomponents={
+            'chopper': 9906,
         },
         switch='laser_switch',
         positioner='laser_positioner',

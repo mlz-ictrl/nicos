@@ -1,11 +1,12 @@
 description = 'Various virtual/logical motors in AMOR'
 
-includes = ['analyser', 'counter', 'sample',
-            'slit1', 'slit2', 'slit3', 'slit4', 'slit5']
+group='lowlevel'
 
 devices = dict(
-    controller_lm = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotorHandler',
+    controller_lm = device(
+        'nicos_sinq.amor.devices.logical_motor.AmorLogicalMotorHandler',
         description = 'Logical motors controller',
+        distances = 'Distances',
         soz = 'soz',
         com = 'com',
         cox = 'cox',

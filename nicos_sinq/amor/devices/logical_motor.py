@@ -41,7 +41,10 @@ from nicos.core.errors import PositionError
 from nicos.devices.abstract import Motor
 from nicos.core.utils import multiStatus
 from nicos.pycompat import iteritems, number_types
+
 from nicos_ess.devices.epics.motor import EpicsMotor
+
+from nicos_sinq.amor.devices.component_handler import DistancesHandler
 
 # Possible motor types
 M2T = 'm2t'  # m2t - monochromator two theta
@@ -51,8 +54,7 @@ motortypes = [M2T, S2T, ATH]
 
 
 class AmorLogicalMotorHandler(Moveable):
-    """ Controller for the logical motors. Adds the possible dependent
-    motors and distance devices via attached devices. This class has all the
+    """ Controller for the logical motors. This class has all the
     equations coded and can be used to read the positions of the logical
     motors or to calculate the positions of the real motors when the logical
     motor is to be moved.
@@ -63,25 +65,30 @@ class AmorLogicalMotorHandler(Moveable):
         'unit': Override(mandatory=False, default='degree'),
     }
 
-    # The real motors and distance devices required
+    # The real motors
     attached_devices = {
-        'soz': Attach('soz motor', EpicsMotor),
-        'com': Attach('com motor', EpicsMotor),
-        'cox': Attach('cox motor', EpicsMotor),
-        'coz': Attach('coz motor', EpicsMotor),
-        'd1b': Attach('d1b motor', EpicsMotor),
-        'd2b': Attach('d2b motor', EpicsMotor),
-        'd3b': Attach('d3b motor', EpicsMotor),
-        'd4b': Attach('d4b motor', EpicsMotor),
-        'aoz': Attach('aoz motor', EpicsMotor),
-        'aom': Attach('aom motor', EpicsMotor),
-        'd1t': Attach('d1t motor (only to read)', EpicsMotor),
-        'd2t': Attach('d2t motor (only to read)', EpicsMotor),
-        'd3t': Attach('d3t motor (only to read)', EpicsMotor),
-        'd4t': Attach('d4t motor (only to read)', EpicsMotor),
+        'soz': Attach('soz motor', EpicsMotor, missingok=True),
+        'com': Attach('com motor', EpicsMotor, missingok=True),
+        'cox': Attach('cox motor', EpicsMotor, missingok=True),
+        'coz': Attach('coz motor', EpicsMotor, missingok=True),
+        'd1b': Attach('d1b motor', EpicsMotor, missingok=True),
+        'd2b': Attach('d2b motor', EpicsMotor, missingok=True),
+        'd3b': Attach('d3b motor', EpicsMotor, missingok=True),
+        'd4b': Attach('d4b motor', EpicsMotor, missingok=True),
+        'aoz': Attach('aoz motor', EpicsMotor, missingok=True),
+        'aom': Attach('aom motor', EpicsMotor, missingok=True),
+        'd1t': Attach('d1t motor (only to read)', EpicsMotor, missingok=True),
+        'd2t': Attach('d2t motor (only to read)', EpicsMotor, missingok=True),
+        'd3t': Attach('d3t motor (only to read)', EpicsMotor, missingok=True),
+        'd4t': Attach('d4t motor (only to read)', EpicsMotor, missingok=True),
+        'distances': Attach('Device that stores the distances',
+                            DistancesHandler)
     }
 
     valuetype = dictwith(m2t=float, s2t=float, ath=float)
+
+    status_devs = ['soz', 'com', 'cox', 'coz', 'd1b', 'd2b', 'd3b', 'd4b',
+                   'aoz', 'aom']
 
     status_to_msg = {
         status.ERROR: 'Error in %s',
@@ -102,45 +109,58 @@ class AmorLogicalMotorHandler(Moveable):
     def doReadFmtstr(self):
         return ', '.join([mt + '=%(' + mt + ').3f' for mt in motortypes])
 
+    def _get_dev(self, dev):
+        return getattr(self, '_attached_%s' % dev, None)
+
+    def _read_dev(self, dev):
+        dev = self._get_dev(dev)
+        return dev.read(0) if dev else 0.0
+
+    def _is_active(self, component):
+        distances = self._attached_distances
+        return component in session.loaded_setups and \
+            isinstance(getattr(distances, component), number_types)
+
     def doRead(self, maxage=0):
-        distances = session.getDevice('Distances')
+        distances = self._attached_distances
 
         # Check if the sample and polariser distances are available
-        if not isinstance(distances.sample, number_types) or \
-                not isinstance(distances.polariser, number_types):
+        if not isinstance(distances.sample, number_types):
             raise PositionError('Distances for sample and polariser unknown')
 
-        soz = self._attached_soz.read(0)
-        dist = abs(distances.sample - distances.polariser)
-        tmp = soz / dist
-        if abs(tmp) > 1e-4:
-            actualm2t = math.degrees(-1 * math.atan(tmp))
-        else:
-            actualm2t = 0.0
+        soz = self._read_dev('soz')
 
-        if isinstance(distances.analyser, number_types):
-            aom = self._attached_aom.read(0)
-            aoz = self._attached_aoz.read(0)
-            sah = abs(distances.analyser - distances.sample)
-            actuals2t = math.degrees(math.atan((aoz - soz) / sah)) + actualm2t
-            actualath = -1 * (actuals2t - actualm2t - aom)
+        if not self._is_active('polariser'):
+            actm2t = 0.0
         else:
-            com = self._attached_com.read(0)
-            actuals2t = com + actualm2t
-            val = self._attached_aom.read(0)
-            actualath = val - com
+            dist = abs(distances.sample - distances.polariser)
+            tmp = soz / dist if dist else 0
+            actm2t = math.degrees(-1 * math.atan(tmp)) if abs(tmp) > 1e-4 else 0.0
+
+        if self._is_active('analyser'):
+            aom = self._read_dev('aom')
+            aoz = self._read_dev('aoz')
+            sah = abs(distances.analyser - distances.sample)
+            acts2t = math.degrees(math.atan((aoz - soz) / sah)) + actm2t
+            actath = -1 * (acts2t - actm2t - aom)
+        else:
+            com = self._read_dev('com')
+            acts2t = com + actm2t
+            aom = self._read_dev('aom')
+            actath = aom - com
 
         return {
-            M2T: actualm2t,
-            S2T: actuals2t,
-            ATH: actualath
+            M2T: round(actm2t, 3),
+            S2T: round(acts2t, 3),
+            ATH: round(actath, 3)
         }
 
     def doStatus(self, maxage=0):
         # Check for error and warning in the dependent devices
-        st_devs = multiStatus(self._adevs, maxage)
-        devs = [dname for dname, d in iteritems(self._adevs)
-                if d.status()[0] == st_devs[0]]
+        devs = {dev: self._get_dev(dev) for dev in self.status_devs
+                if self._get_dev(dev)}
+        st_devs = multiStatus(devs, 0)
+        devs = [n for n, d in iteritems(devs) if d.status()[0] == st_devs[0]]
 
         if st_devs[0] in self.status_to_msg:
             msg = self.status_to_msg[st_devs[0]]
@@ -149,6 +169,15 @@ class AmorLogicalMotorHandler(Moveable):
             return st_devs[0], msg
 
         return st_devs
+
+    def doIsCompleted(self):
+        # No attached devices, so have to manually check the doIsCompleted
+        for dev in self.status_devs:
+            dev = self._get_dev(dev)
+            if dev and not dev.isCompleted():
+                return False
+
+        return True
 
     def doIsAllowed(self, targets):
         # Calculate the possible motor positions using these targets
@@ -188,14 +217,16 @@ class AmorLogicalMotorHandler(Moveable):
                 # target from motor itself
                 motor = self._logical_motors.get(mt)
                 if not motor:
-                    self.log.error('Missing the logical motor %s! '
+                    self.log.debug('Missing the logical motor %s! '
                                    'Using target = %s (current position) ',
-                                   mt, motor.format(current[mt]))
+                                   mt, current[mt])
                     targets_dict[mt] = current[mt]
+                elif motor.target is not None:
+                    targets_dict[mt] = round(motor.target or current[mt], 3)
                 else:
-                    targets_dict[mt] = motor.target
+                    targets_dict[mt] = current[mt]
             else:
-                targets_dict[mt] = target
+                targets_dict[mt] = round(target, 3)
 
         # Return the dictionary of motortype mapped to their targets
         return targets_dict
@@ -207,82 +238,82 @@ class AmorLogicalMotorHandler(Moveable):
         self.log.debug('Recalculating with targets: %s', targets)
         positions = []
 
-        distances = session.getDevice('Distances')
+        distances = self._attached_distances
 
         # soz
         dist = abs(distances.sample - distances.polariser)
         soz = dist * math.tan(math.radians(-1 * targets[M2T]))
-        positions.append((self._attached_soz, soz))
+        positions.append((self._get_dev('soz'), soz))
 
         # slit 1 is before the monochromator and does not need to be
         # driven when m2t changes. This is here to make sure that d1b
         # is in a feasible position.
-        if isinstance(distances.slit1, number_types):
-            mot = self._attached_d1t.read(0)
+        if self._is_active('slit1'):
+            mot = self._read_dev('d1t')
             val = -.5 * mot
-            positions.append((self._attached_d1b, val))
+            positions.append((self._get_dev('d1b'), val))
 
         # slit 2
-        if isinstance(distances.slit2, number_types):
+        if self._is_active('slit2'):
             dist = abs(distances.slit2 - distances.polariser)
-            mot = self._attached_d2t.read(0)
+            mot = self._read_dev('d2t')
             val = dist * math.tan(
                 math.radians(-1 * targets[M2T])) - 0.5 * mot
-            positions.append((self._attached_d2b, val))
+            positions.append((self._get_dev('d2b'), val))
 
         # slit 3
-        if isinstance(distances.slit3, number_types):
+        if self._is_active('slit3'):
             dist = abs(distances.slit3 - distances.polariser)
-            mot = self._attached_d3t.read(0)
+            mot = self._read_dev('d3t')
             val = dist * math.tan(
                 math.radians(-1 * targets[M2T])) - 0.5 * mot
-            positions.append((self._attached_d3b, val))
+            positions.append((self._get_dev('d3b'), val))
 
         # Analyzer
-        if isinstance(distances.analyser, number_types):
+        if self._is_active('analyser'):
             com = targets[S2T] - targets[M2T] + 2 * targets[ATH]
             sah = abs(distances.analyser - distances.sample)
             aoz = soz + sah * math.tan(
                 math.radians(targets[S2T] - targets[M2T]))
             aom = targets[S2T] - targets[M2T] + targets[ATH]
-            positions.append((self._attached_aoz, aoz))
-            positions.append((self._attached_aom, aom))
+            positions.append((self._get_dev('aoz'), aoz))
+            positions.append((self._get_dev('aom'), aom))
 
             # Detector when analyzer present
-            if isinstance(distances.detector, number_types):
+            if self._is_active('detector'):
                 sdh = abs(distances.detector - distances.sample)
-                positions.append((self._attached_com, com))
+                positions.append((self._get_dev('com'), com))
                 tmp = soz - aoz
-                sqsum = sah * sah + tmp * tmp
-                val = sah - math.sqrt(sqsum) + (sdh - math.sqrt(sqsum)) * (
+                sqrtsqsum = math.sqrt(sah * sah + tmp * tmp)
+                val = sah - sqrtsqsum + (sdh - sqrtsqsum) * (
                         math.cos(math.radians(com)) - 1.0)
-                positions.append((self._attached_cox, -1 * val))
-                val = aoz + (sdh - math.sqrt(sqsum)) * math.sin(
-                    math.radians(com))
-                positions.append((self._attached_coz, val))
+                positions.append((self._get_dev('cox'), -1 * val))
+                val = aoz + (sdh - sqrtsqsum) * math.sin(math.radians(com))
+                positions.append((self._get_dev('coz'), val))
         else:
             # Detector when no analyzer present
             com = targets[S2T] - targets[M2T]
-            if isinstance(distances.detector, number_types):
-                positions.append((self._attached_com, com))
+            if self._is_active('detector'):
+                positions.append((self._get_dev('com'), com))
                 dist = abs(distances.detector - distances.sample)
                 val = -1 * dist * (math.cos(math.radians(com)) - 1.0)
-                positions.append((self._attached_cox, val))
+                positions.append((self._get_dev('cox'), val))
                 val = dist * math.sin(math.radians(com)) + soz
-                positions.append((self._attached_coz, val))
+                positions.append((self._get_dev('coz'), val))
 
         # slit 4
-        if isinstance(distances.slit4, number_types):
+        if self._is_active('slit4'):
             dist = abs(distances.slit4 - distances.sample)
-            mot = self._attached_d4t.read(0)
-            if isinstance(distances.analyser, number_types):
+            mot = self._read_dev('d4t')
+            if self._is_active('analyser'):
                 val = (soz + dist * math.tan(
                     math.radians(targets[S2T] - targets[M2T])) - 0.5 * mot)
             else:
                 val = soz + dist * math.tan(math.radians(com)) - 0.5 * mot
-            positions.append((self._attached_d4b, val))
+            positions.append((self._get_dev('d4b'), val))
 
-        return positions
+        # Return rounded targets and remove unwanted positions
+        return [(dev, round(targ, 3)) for dev, targ in positions if dev]
 
 
 class AmorLogicalMotor(Motor):
@@ -322,6 +353,9 @@ class AmorLogicalMotor(Motor):
 
     def doIsAllowed(self, pos):
         return self._attached_controller.doIsAllowed({self.motortype: pos})
+
+    def doIsCompleted(self):
+        return self._attached_controller.doIsCompleted()
 
     def doStart(self, pos):
         self._attached_controller.doStart({self.motortype: pos})
