@@ -52,6 +52,10 @@ class EpicsScalerRecord(EpicsDetector):
                           type=pvname),
         'errormsgpv': Param('Optional PV providing the error message',
                             type=pvname),
+        'thresholdpv': Param('Optional PV that sets the no beam threshold',
+                             type=pvname),
+        'threshold': Param('Threshold for no beam detection', type=float,
+                           userparam=False, settable=True)
     }
 
     def _get_pv_parameters(self):
@@ -63,7 +67,21 @@ class EpicsScalerRecord(EpicsDetector):
         if self.errormsgpv:
             pvs.add('errormsgpv')
 
+        if self.thresholdpv:
+            pvs.add('thresholdpv')
+
         return pvs
+
+    def doReadThreshold(self):
+        if not self.thresholdpv:
+            self.log.warn('Threshold PV not set, cannot read it!')
+            return 0.0
+        return self._get_pv('thresholdpv')
+
+    def doWriteThreshold(self, newValue):
+        if not self.thresholdpv:
+            self.log.warn('Threshold PV not set, cannot write it!')
+        self._put_pv('thresholdpv', newValue)
 
     def doStatus(self, maxage=0):
         if self.errormsgpv:

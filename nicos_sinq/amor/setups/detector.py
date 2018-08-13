@@ -129,6 +129,7 @@ devices = dict(
         pausepv=pvprefix + ':Pause',
         statuspv=pvprefix + ':Status',
         errormsgpv=pvprefix + ':MsgTxt',
+        thresholdpv=pvprefix + ':Threshold',
         monitorpreset='monitorpreset',
         timepreset='timepreset',
         timers=['elapsedtime'],
