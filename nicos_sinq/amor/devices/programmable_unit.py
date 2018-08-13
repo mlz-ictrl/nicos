@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from nicos import session
 from nicos.core import Param, pvname, status, Override
 from nicos.core.errors import PositionError
 from nicos.devices.abstract import MappedMoveable
@@ -79,6 +80,9 @@ class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
         return int(raw[self.byte] & powered == powered)
 
     def _startRaw(self, target):
-        if self._readRaw() != target:
+        attempts = 0
+        while self._readRaw() != target and attempts < len(self.mapping):
             # Following command toggles the current state
+            attempts += 1
             self._put_pv('commandpv', self.commandstr)
+            session.delay(5)
