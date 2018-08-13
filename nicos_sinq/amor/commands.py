@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.core.errors import ConfigurationError
+from nicos.utils import printTable
 from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 from nicos_sinq.amor.devices.hm_config import AmorTofArray
 
@@ -39,76 +40,102 @@ def CalculateComponentDistances(components=None):
     then measured. The distance read from the laser is changed for that
     component.
 
-    NOTE: The distance devices for each components start with *d*, such
-    as dsample, danalyzer and so on..
+    NOTE: The following components are allowed:
+    analyzer, detector, polarizer, filter, sample, slit1, slit2, slit3, slit4
 
     Example:
 
     Following command calculates distances for all the components
     >>> CalculateComponentDistances()
 
+    Following command calculates distances for one component
+    >>> CalculateComponentDistances('slit4')
+
     Following command calculates the distances for specified components
-    >>> CalculateComponentDistances(['danalyzer', 'dsample'])
+    >>> CalculateComponentDistances(['analyzer', 'sample'])
     """
 
     # Initialize the components list
     if not components:
-        components = ['ddetector', 'danalyzer', 'dslit4', 'dsample', 'dslit3',
-                      'dslit2', 'dpolarizer']
+        components = ['detector', 'analyzer', 'slit4', 'sample', 'slit3',
+                      'slit2', 'polarizer', 'slit1', 'filter', 'selene']
 
-    # Get the motor to move the laser
+    if not isinstance(components, list):
+        components = [components]
+
+    # cox motor should be at 0 during the calculations.
     try:
-        motor = session.getDevice('xlz')
+        cox = session.getDevice('cox')
+        coxval = cox.read(0)
+        cox.maw(0)
     except ConfigurationError:
-        session.log.error('The motor <xlz> that moves the laser pointer not '
-                          'found. Cannot proceed.')
-        return
+        cox = None
+        coxval = None
 
-    # Get the laser measurement device
-    try:
-        dimetix = session.getDevice('dimetix')
-        if not dimetix.isSwitchedOn:
-            session.log.info('Switching on the laser measurement device..')
-            dimetix.switchOn()
-    except ConfigurationError:
-        session.log.error('The laser measurement device not found. Cannot '
-                          'proceed')
-        return
+    # Check if the required devices are present
+    devs = {}
+    for d in ['laser_switch', 'laser_positioner', 'dimetix']:
+        try:
+            devs[d] = session.getDevice(d)
+        except ConfigurationError:
+            session.log.error('Device %s not found. Cannot proceed.', d)
+            return
 
+    # Switch ON the laser
+    devs['laser_switch'].maw('ON')
+
+    def logvalues(values, isheader=False):
+        if isheader:
+            values = ['{0: <11}'.format(val) for val in values]
+            printTable(values, [], session.log.info)
+        else:
+            values = ['{0: >11}'.format(val) for val in values]
+            printTable([], [values], session.log.info)
+
+    logvalues(['Component', 'Read Value', 'Final Value', 'Comments'], True)
     for component in components:
-        session.log.info('Calculating distance for component: %s..', component)
+        session.breakpoint(2)  # Allow break and continue here
+        comments = ''
         try:
             # Get the device
-            dev = session.getDevice(component)
+            dev = session.getDevice('d' + component)
             if not isinstance(dev, ComponentLaserDistance):
-                session.log.error('The provided component is not valid!')
+                logvalues([component, "", "",
+                           'Skipping! Provided component not valid..'])
                 continue
 
             # Check if the component has mirror height configured
-            if dev.mirrorheight > 999:
-                session.log.error('The mirror height for this component is not'
-                                  'configured.')
-                continue
-
-            # Move the laser motor to correct position
-            motor.maw(dev.mirrorheight)
-            if motor.read(0) - dev.mirrorheight > motor.precision:
-                session.log.error('Was not able to move the laser to target')
-                continue
-
-            # Read in and change the distance measured by laser
-            position = dimetix.read(0)
-            if position > 8000:
-                # A position > 8000 means the component is not attached
-                dev.active = False
-                session.log.info('Component not active')
+            if (component not in devs['laser_positioner'].mapping
+                    or devs['laser_positioner'].mapping[component] > 999):
+                comments = 'Using old value as height not configured..'
+                position = dev.readvalue
             else:
-                dev.active = True
-                dev.readvalue = position
-                session.log.info('Read value = %f', position)
+                devs['laser_positioner'].maw(component)
+                # Sleep for few seconds before reading the value
+                session.delay(5)
+                # Read in and change the distance measured by laser
+                position = devs['dimetix'].read(0)
 
+                if position > 8000:
+                    # A position > 8000 means the component is not attached
+                    dev.active = False
+                    comments = 'NOT ACTIVE'
+                else:
+                    dev.active = True
+                    dev.readvalue = position
+            logvalues([component, position, dev.read(0), comments])
         except ConfigurationError:
-            session.log.error('Was not able to find the component')
+            logvalues([component, "", "",
+                       'Skipping! Was not able to find the component..'])
+
+    # Finally, bring the devices back to their initial/park positions
+    if cox:
+        cox.maw(coxval)
+    if 'park' in devs['laser_positioner'].mapping:
+        devs['laser_positioner'].maw('park')
+    # Switch OFF the laser
+    devs['laser_switch'].maw('OFF')
+    session.log.info('Finished. Parked and turned off laser.')
 
 
 @usercommand

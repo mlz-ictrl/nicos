@@ -22,19 +22,12 @@
 #
 # *****************************************************************************
 
-from nicos.core import status
 from nicos.devices.epics import EpicsReadable
-from nicos_ess.devices.epics.extensions import HasSwitchPv
 
 
-class EpicsDimetix(HasSwitchPv, EpicsReadable):
+class EpicsDimetix(EpicsReadable):
     """ AMOR's laser distance measurement device called dimetix.
     """
-    def doStatus(self, maxage=0):
-        if not self.isSwitchedOn:
-            return status.WARN, 'Laser OFF'
-
-        return EpicsReadable.doStatus(self, maxage)
 
     def doRead(self, maxage=0):
         return int(round(EpicsReadable.doRead(self, maxage)*0.1))
