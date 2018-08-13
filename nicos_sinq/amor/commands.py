@@ -27,7 +27,7 @@
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.core.errors import ConfigurationError
-from nicos_sinq.amor.devices.component_handler import ComponentHandler
+from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 from nicos_sinq.amor.devices.hm_config import AmorTofArray
 
 
@@ -80,7 +80,7 @@ def CalculateComponentDistances(components=None):
         try:
             # Get the device
             dev = session.getDevice(component)
-            if not isinstance(dev, ComponentHandler):
+            if not isinstance(dev, ComponentLaserDistance):
                 session.log.error('The provided component is not valid!')
                 continue
 

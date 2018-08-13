@@ -2,6 +2,8 @@ description = 'Analyser devices in the SINQ AMOR.'
 
 pvprefix = 'SQ:AMOR:motb:'
 
+includes = ['distances']
+
 devices = dict(
     aom=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
@@ -33,4 +35,16 @@ devices = dict(
                timeout=None,
                window=5.0,
                ),
+    dist_chopper_analyzer=device(
+        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
+        description='Distance of analyzer to chopper',
+        distcomponent='danalyzer',
+        distreference='dchopper'
+    ),
+    dist_sample_analyzer=device(
+        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
+        description='Distance of analyzer to sample',
+        distcomponent='danalyzer',
+        distreference='dsample'
+    )
 )

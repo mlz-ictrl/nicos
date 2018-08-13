@@ -29,7 +29,7 @@ from nicos.core import Attach
 from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
 from nicos_sinq.devices.sinqhm.configurator import ConfiguratorBase, \
     HistogramConfTofArray
-from nicos_sinq.amor.devices.component_handler import ComponentHandler
+from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 
 
 class AmorTofArray(HistogramConfTofArray):
@@ -43,8 +43,8 @@ class AmorTofArray(HistogramConfTofArray):
         t means Delta t = constant, <argument> is the number of bins/channels
     """
     attached_devices = {
-        'dchopper': Attach('Distance of chopper', ComponentHandler),
-        'ddetector': Attach('Distance of detector', ComponentHandler),
+        'dchopper': Attach('Distance of chopper', ComponentLaserDistance),
+        'ddetector': Attach('Distance of detector', ComponentLaserDistance),
         'chopper': Attach('The chopper device', EpicsAstriumChopper)
     }
 

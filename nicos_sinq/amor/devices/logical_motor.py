@@ -40,7 +40,7 @@ from nicos.devices.abstract import Motor
 from nicos.core.utils import multiStatus
 from nicos.pycompat import iteritems
 from nicos_ess.devices.epics.motor import EpicsMotor
-from nicos_sinq.amor.devices.component_handler import ComponentHandler
+from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 
 # Possible motor types
 M2T = 'm2t'  # m2t - monochromator two theta
@@ -78,14 +78,14 @@ class AmorLogicalMotorHandler(Moveable):
         'd2t': Attach('d2t motor (only to read)', EpicsMotor),
         'd3t': Attach('d3t motor (only to read)', EpicsMotor),
         'd4t': Attach('d4t motor (only to read)', EpicsMotor),
-        'sample': Attach('Sample position provider', ComponentHandler),
-        'polarizer': Attach('Polarizer position provider', ComponentHandler),
-        'slit1': Attach('Slit 1 position provider', ComponentHandler),
-        'slit2': Attach('Slit 2 position provider', ComponentHandler),
-        'slit3': Attach('Slit 3 position provider', ComponentHandler),
-        'slit4': Attach('Slit 4 position provider', ComponentHandler),
-        'analyzer': Attach('Analyzer position provider', ComponentHandler),
-        'detector': Attach('Detector position provider', ComponentHandler),
+        'sample': Attach('Sample position provider', ComponentLaserDistance),
+        'polarizer': Attach('Polarizer position provider', ComponentLaserDistance),
+        'slit1': Attach('Slit 1 position provider', ComponentLaserDistance),
+        'slit2': Attach('Slit 2 position provider', ComponentLaserDistance),
+        'slit3': Attach('Slit 3 position provider', ComponentLaserDistance),
+        'slit4': Attach('Slit 4 position provider', ComponentLaserDistance),
+        'analyzer': Attach('Analyzer position provider', ComponentLaserDistance),
+        'detector': Attach('Detector position provider', ComponentLaserDistance),
     }
 
     valuetype = dictwith(m2t=float, s2t=float, ath=float)

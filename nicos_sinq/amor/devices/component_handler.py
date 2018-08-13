@@ -22,11 +22,11 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Override, status
+from nicos.core import Param, Override, status, Attach
 from nicos.core.device import Readable
 
 
-class ComponentHandler(Readable):
+class ComponentLaserDistance(Readable):
     """
     AMOR component handling module. These distances along the optical bench
     are measured with the dimetix laser distance measurement device.
@@ -66,8 +66,7 @@ class ComponentHandler(Readable):
     }
 
     parameter_overrides = {
-        'abslimits': Override(mandatory=False, default=(0, 11000)),
-        'unit': Override(mandatory=False, default='mm')
+        'unit': Override(mandatory=False, default='mm', settable=False)
     }
 
     def doRead(self, maxage=0):
@@ -75,6 +74,39 @@ class ComponentHandler(Readable):
 
     def doStatus(self, maxage=0):
         if not self.active:
-            return status.OK, 'not active'
+            return status.WARN, 'not active'
+
+        return status.OK, ''
+
+
+class ComponentReferenceDistance(Readable):
+    """Device to measure distance between two components.
+    """
+
+    attached_devices = {
+        'distcomponent': Attach(
+            'Device measuring distance of component from laser',
+            ComponentLaserDistance),
+        'distreference': Attach(
+            'Device measuring distance of reference from laser',
+            ComponentLaserDistance)
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='mm', settable=False)
+    }
+
+    def doRead(self, maxage=0):
+        return abs(self._attached_distcomponent.read(0) -
+                   self._attached_distreference.read(0))
+
+    def doStatus(self, maxage=0):
+        refstatus = self._attached_distreference.doStatus(maxage)
+        if refstatus[0] != status.OK:
+            return refstatus[0], 'Reference: %s' % refstatus[1]
+
+        compstatus = self._attached_distcomponent.doStatus(maxage)
+        if compstatus[0] != status.OK:
+            return compstatus
 
         return status.OK, ''

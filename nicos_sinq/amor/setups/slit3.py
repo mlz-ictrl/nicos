@@ -31,4 +31,16 @@ devices = dict(
                          description='Slit 3 opening controller',
                          slit='slit3'
                          ),
+    dist_chopper_slit3=device(
+        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
+        description='Distance of slit 3 to chopper',
+        distcomponent='dslit3',
+        distreference='dchopper'
+    ),
+    dist_sample_slit3=device(
+        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
+        description='Distance of slit 3 to sample',
+        distcomponent='dslit3',
+        distreference='dsample'
+    )
 )
