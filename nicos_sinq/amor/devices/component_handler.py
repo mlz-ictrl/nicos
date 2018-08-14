@@ -93,7 +93,11 @@ class ComponentReferenceDistance(Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='mm', settable=False)
+        'unit': Override(mandatory=False, default='mm', settable=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     def doRead(self, maxage=0):

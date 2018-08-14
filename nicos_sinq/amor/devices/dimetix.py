@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-from nicos.devices.epics import EpicsReadable
+from nicos_ess.devices.epics.base import EpicsReadableEss
 
 
-class EpicsDimetix(EpicsReadable):
+class EpicsDimetix(EpicsReadableEss):
     """ AMOR's laser distance measurement device called dimetix.
     """
 
     def doRead(self, maxage=0):
-        return int(round(EpicsReadable.doRead(self, maxage)*0.1))
+        return int(round(EpicsReadableEss.doRead(self, maxage)*0.1))

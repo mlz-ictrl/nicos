@@ -57,7 +57,8 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
     """
     parameters = {
         'basepv': Param('Base name of the PVs (without delimiter).',
-                        type=pvname, mandatory=True, settable=False),
+                        type=pvname, mandatory=True, settable=False,
+                        userparam=False),
         'pvdelim': Param(
             'Delimiter used for separating basepv with record fields.',
             type=str, mandatory=False, default=':', userparam=False,
@@ -68,6 +69,9 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
         # readpv and writepv are determined automatically from the base-PV
         'readpv': Override(mandatory=False, userparam=False, settable=False),
         'writepv': Override(mandatory=False, userparam=False, settable=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     # Record fields with which an interaction via Channel Access is required.

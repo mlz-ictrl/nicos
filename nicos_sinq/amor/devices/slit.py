@@ -43,7 +43,11 @@ class SlitOpening(SlitAxis):
     """
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='mm')
+        'unit': Override(mandatory=False, default='mm'),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     status_to_msg = {

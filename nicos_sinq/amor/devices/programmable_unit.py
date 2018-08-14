@@ -57,7 +57,11 @@ class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
     parameter_overrides = {
         'mapping': Override(userparam=False, settable=False),
         'fallback': Override(userparam=False),
-        'unit': Override(mandatory=False, userparam=False, settable=False)
+        'unit': Override(mandatory=False, userparam=False, settable=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     def _get_pv_parameters(self):

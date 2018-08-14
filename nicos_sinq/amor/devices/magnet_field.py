@@ -30,7 +30,11 @@ class MagneticFieldDevice(Moveable):
     """
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='T')
+        'unit': Override(mandatory=False, default='T'),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     attached_devices = {
