@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, pvname, status
+from nicos.core import Param, pvname, status, Override
 from nicos_ess.devices.epics.detector import EpicsDetector
 
 
@@ -49,13 +49,21 @@ class EpicsScalerRecord(EpicsDetector):
 
     parameters = {
         'statuspv': Param('Optional PV describing status of the counter',
-                          type=pvname),
+                          type=pvname, userparam=False),
         'errormsgpv': Param('Optional PV providing the error message',
-                            type=pvname),
+                            type=pvname, userparam=False),
         'thresholdpv': Param('Optional PV that sets the no beam threshold',
-                             type=pvname),
+                             type=pvname, userparam=False),
         'threshold': Param('Threshold for no beam detection', type=float,
                            userparam=False, settable=True)
+    }
+
+    parameter_overrides = {
+        'fmtstr': Override(userparam=False),
+        'unit': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     def _get_pv_parameters(self):

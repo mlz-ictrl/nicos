@@ -49,7 +49,7 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     """
 
     parameter_overrides = {
-        'fmtstr': Override(default='%d')
+        'fmtstr': Override(default='%d', userparam=False)
     }
 
     attached_devices = {
@@ -140,6 +140,14 @@ class HistogramMemoryChannel(PassiveChannel):
     attached_devices = {
         'connector': Attach('HTTP Connector for Histogram Memory Server',
                             HttpConnector),
+    }
+
+    parameter_overrides = {
+        'fmtstr': Override(default='', userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False),
+        'unit': Override(userparam=False)
     }
 
     @property

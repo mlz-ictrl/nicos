@@ -39,7 +39,7 @@ class HttpConnector(HasCommunication, Readable):
         'baseurl': Param('Base request URL to be used',
                          type=str, mandatory=True),
         'base64auth': Param('HTTP authentication encoded in base64',
-                            type=str, mandatory=True),
+                            type=str, mandatory=True, userparam=False),
         'byteorder': Param('Endianness of the raw data on server(big/little)',
                            type=oneof('big', 'little'),
                            default='little'),

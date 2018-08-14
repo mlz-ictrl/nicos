@@ -51,7 +51,8 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     parameters = {
         'basepv': Param('Base PV name of the chopper disc',
-                        type=pvname, mandatory=True, settable=False),
+                        type=pvname, mandatory=True, settable=False,
+                        userparam=False),
         'speed': Param('Frequency of the chopper disc', type=int,
                        settable=True, volatile=True, userparam=False),
         'phase': Param('Phase of the chopper disc', type=int,
@@ -64,6 +65,9 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
     parameter_overrides = {
         'fmtstr': Override(volatile=True, userparam=False),
         'unit': Override(mandatory=False, userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     attached_devices = {
@@ -206,7 +210,11 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, userparam=False)
+        'unit': Override(mandatory=False, userparam=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
     }
 
     _master = None
