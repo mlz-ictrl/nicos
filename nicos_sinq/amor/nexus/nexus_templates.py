@@ -11,7 +11,7 @@ amor_default = {
     "entry1:NXentry": {
         "comment": DeviceDataset('Exp', 'remark'),
         "title": DeviceDataset('Exp', 'title'),
-        "amor_mode": NXDataset('horizontal'),
+        "amor_mode": DeviceDataset('Exp', 'mode'),
         "user:NXuser": {
             "name": DeviceDataset('Exp', 'users'),
             "email": DeviceDataset('Exp', 'localcontact')

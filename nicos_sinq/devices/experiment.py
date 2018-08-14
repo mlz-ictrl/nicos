@@ -26,29 +26,44 @@ import time
 import os
 from os import path
 
+from nicos.core import Override
 from nicos.devices.experiment import Experiment
 from nicos.utils import readFile, writeFile
+from nicos.pycompat import string_types
 
 
 class SinqExperiment(Experiment):
     """Follow the current file structure used in SINQ"""
 
+    parameter_overrides = {
+        'propprefix': Override(default=''),
+        'reporttemplate': Override(default=''),
+        'serviceexp': Override(default='Service'),
+        'sendmail': Override(default=False),
+        'zipdata': Override(default=False),
+    }
+
     def proposalpath_of(self, proposal):
-        return path.join(self.dataroot, 'nicos', time.strftime('%Y'), proposal)
-
-    @property
-    def samplepath(self):
-        if self.sampledir:
-            return path.join(self.proposalpath, self.sampledir)
-        return self.proposalpath
-
-    @property
-    def scriptpath(self):
-        return path.join(self.dataroot, 'nicos', 'scripts')
+        if self.proposalpath:
+            return self.proposalpath
+        proposal = proposal.replace(' ', '')
+        return path.join(self.dataroot, 'proposals', time.strftime('%Y'),
+                         proposal)
 
     @property
     def datapath(self):
         return path.join(self.dataroot, 'data', time.strftime('%Y'))
+
+    def getProposalType(self, proposal):
+        proposalstr = proposal
+        if not isinstance(proposalstr, string_types):
+            proposalstr = str(proposal)
+
+        year = time.strftime('%Y')
+        if proposalstr.startswith(year):
+            return 'user'
+
+        return Experiment.getProposalType(self, proposal)
 
     #
     # Following configurations make SICS and NICOS have same counters.

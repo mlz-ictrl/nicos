@@ -67,6 +67,8 @@ devices = dict(
                 instrument='SINQ AMOR',
                 responsible='Jochen Stahn <jochen.stahn@psi.ch>',
                 operators=['Paul-Scherrer-Institut (PSI)'],
+                facility='SINQ, PSI',
+                website='https://www.psi.ch/sinq/amor/amor'
                 ),
 
     Sample=device('nicos.devices.sample.Sample',
@@ -74,12 +76,10 @@ devices = dict(
                   ),
 
     # Configure dataroot here (usually /data).
-    Exp=device('nicos_sinq.devices.experiment.SinqExperiment',
+    Exp=device('nicos_sinq.amor.devices.experiment.AmorExperiment',
                description='experiment object',
                dataroot='/home/amor/',
-               sendmail=True,
-               serviceexp='p0',
-               sample='Sample',
+               sample='Sample'
                ),
 
     Space=device('nicos.devices.generic.FreeSpace',
