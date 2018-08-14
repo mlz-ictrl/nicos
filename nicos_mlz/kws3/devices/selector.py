@@ -51,7 +51,7 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
         if not stbits & 1:
             return status.WARN, 'local mode'
         if not stbits & 2:
-            if self._attached_speedread.read(maxage) == 0:
+            if self._attached_speedread.read(maxage) < 0.1:
                 return status.WARN, 'off'
             return status.BUSY, 'moving'
         return status.OK, ''
