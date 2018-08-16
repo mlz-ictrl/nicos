@@ -17,7 +17,7 @@ The :mod:`nicos.utils` contains a collection of general use utility classes:
 
 .. autoclass:: HardwareStub
 
-.. autoclass:: LCDdict
+.. autoclass:: LCDict
 
 .. autoclass:: ReaderRegistry
 
