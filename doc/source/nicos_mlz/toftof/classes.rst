@@ -60,6 +60,12 @@ Detector
 
 .. autoclass:: Detector()
 
+.. automodule:: nicos_mlz.toftof.devices.toni
+
+.. autoclass:: LVPower()
+
+.. autoclass:: DelayBox()
+
 Data formats
 ------------
 

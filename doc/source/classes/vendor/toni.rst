@@ -15,7 +15,3 @@ electronics group using the so-called "Toni" protocol.
 .. autoclass:: Ratemeter()
 
 .. autoclass:: Vacuum()
-
-.. autoclass:: LVPower()
-
-.. autoclass:: DelayBox()
