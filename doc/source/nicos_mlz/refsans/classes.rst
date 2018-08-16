@@ -48,7 +48,7 @@
 .. autoclass:: ComtecFilename()
 
 .. automodule:: nicos_mlz.refsans.devices.gkssjson
-.. autoclass:: SDSRateMeter()
+.. autoclass:: SdsRatemeter()
 .. autoclass:: CPTReadout()
 
 .. automodule:: nicos_mlz.refsans.devices.chopper
