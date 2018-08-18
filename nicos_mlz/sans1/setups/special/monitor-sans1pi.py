@@ -78,7 +78,7 @@ _tisane = Column(
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Pump', dev='coll_pump', width=11, format = '%g'),
+                 # Field(name='Col Pump', dev='coll_pump', width=11, format = '%g'),
                  Field(name='Col Tube', dev='coll_tube', width=11, format = '%g'),
                  Field(name='Col Nose', dev='coll_nose', width=11, format = '%g'),
                  Field(name='Det Nose', dev='det_nose', width=11, format = '%g'),
@@ -204,8 +204,8 @@ _sans1det = Column(
                  Field(name='events', dev='det1_ev', width=9),
                  Field(name='mon 1', dev='det1_mon1', width=9),
                  Field(name='mon 2', dev='det1_mon2', width=9),
-                 Field(name='bs1_x', dev='bs1_x', width=9, format='%.1f'),
-                 Field(name='bs1_y', dev='bs1_y', width=9, format='%.1f'),
+                 Field(name='bs1', dev='bs1', width=9),
+                 Field(name='bs1_shape', dev='bs1_shape', width=9),#, format='%s'),
                 ),
         ],
     ),

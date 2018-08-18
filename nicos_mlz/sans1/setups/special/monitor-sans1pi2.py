@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-description = 'setup for the status monitor for SANS1'
+description = 'setup for the status monitor for SANS-1'
 
 group = 'special'
 

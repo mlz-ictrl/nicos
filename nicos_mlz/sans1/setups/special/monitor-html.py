@@ -52,7 +52,7 @@ _meteocolumn = Column(
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Pump', dev='coll_pump'),
+                 # Field(name='Col Pump', dev='coll_pump'),
                  Field(name='Col Tube', dev='coll_tube'),
                  Field(name='Col Nose', dev='coll_nose'),
                  Field(name='Det Nose', dev='det_nose'),
