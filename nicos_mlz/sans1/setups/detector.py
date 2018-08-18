@@ -241,7 +241,6 @@ devices = dict(
         description = 'beamstop 1 y coder',
         tangodevice = '%s/sans1/beamstop1/y_enc' % (tangohost, ),
         fmtstr = '%.1f',
-        # userlimits = (60, 590),
         lowlevel = True,
         limits = [-100, 600],
     ),
