@@ -2,7 +2,7 @@
 
 # conditioning and count with pilatus
 
-maw(tubecond,30)
+tubecond.calibrate(30)
 SetDetectors(pilatus)
 count(1000, t=5)
 

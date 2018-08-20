@@ -25,43 +25,45 @@
 
 """GALAXI Bruker AXS control"""
 
-from nicos import session
-from nicos.core import status
-from nicos.core.device import Moveable
-from nicos.core.params import Attach
-from nicos.devices.tango import PyTangoDevice, AnalogInput, PartialDigitalInput
+from nicos.core import Waitable, status
+from nicos.devices.tango import NamedDigitalInput, PartialDigitalInput
 
 
-class TubeConditioner(PyTangoDevice, Moveable):
-    """TANGO device to control tube conditioning"""
+class TubeConditioner(NamedDigitalInput, Waitable):
+    """Tube conditioning device of the GALAXI MetalJet X-ray source.
 
-    attached_devices = {
-        'interval': Attach('Time between two conditionings', AnalogInput),
-        'time':     Attach('Time since last conditioning', AnalogInput)
-    }
+    Provides an additional command in order to calibrate the source by starting
+    the tube conditioning."""
 
-    def doStatus(self, maxage=0):
-        stat = self._dev.value
-        if stat == 'RUNNING':
-            return status.BUSY, 'CONDITIONING'
+    def calibrate(self, time_span=None, wait=True):
+        """Calibrates the X-ray source by starting the MetalJet tube
+        conditioning and wait for its completion.
+
+        If ``time_span`` is ``None`` calibration will start in any case.
+        Otherwise the TANGO server will check if it is necessary within the
+        next ``time_span`` hours.
+
+        :param None or float time_span: the time_span to be checked
+        :param bool wait: whether to wait for completion
+        """
+        conditioning = False
+        if not time_span:
+            self._dev.Condition()
         else:
-            return status.OK, 'ON'
-
-    def doRead(self, maxage=0):
-        return self._dev.value
-
-    def doStart(self, value):
-        interval = self._attached_interval.read()
-        if value < 0 or value > interval:
-            self.log.warning('Value must be in [0; %.3f]', interval)
-        elif self._attached_time.read(0) + value > interval:
-            self.log.debug('Start cond')
-            self._dev.StartCond()
-            session.delay(5.0)
+            self._dev.MaybeCondition(time_span)
+        if self.status(0)[0] == status.BUSY:
+            self.log.info('tube conditioning started')
+            conditioning = True
+        if not conditioning:
+            self.log.info('tube conditioning not necessary')
+        elif wait:
+            self.log.info('waiting for its completion ...')
+            self.wait()
+            self.log.info('tube conditioning completed')
 
 
 class WaterCooler(PartialDigitalInput):
-    """Device that shows possible water cooler errors of the x-ray source"""
+    """Device that shows possible water cooler errors of the x-ray source."""
 
     def doStatus(self, maxage=0):
         value = self.doRead(maxage)
