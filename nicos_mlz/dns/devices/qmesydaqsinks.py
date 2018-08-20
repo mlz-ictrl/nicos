@@ -46,6 +46,7 @@ class HistogramSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
+        self.sink._attached_timer._taco_update_resource('writehistogram', 'on')
         self.sink._attached_timer._taco_update_resource('lasthistfile', qmname)
 
 
@@ -56,6 +57,7 @@ class ListmodeSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
+        self.sink._attached_timer._taco_update_resource('writelistmode', 'on')
         self.sink._attached_timer._taco_update_resource('lastlistfile', qmname)
         limage = self.sink._attached_liveimage
         limage._dev.filename = filepaths[0]
