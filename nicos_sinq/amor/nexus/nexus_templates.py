@@ -144,8 +144,8 @@ amor_default = {
             "control:NXmonitor": {
                 "mode": DeviceDataset('psd_tof', 'mode', 'string'),
                 "preset": DeviceDataset('psd_tof', 'preset'),
-                "monitor1": DeviceStream('c1'),
-                "monitor2": DeviceStream('c2')
+                "monitor1": DeviceStream('monitorval'),
+                "monitor2": DeviceStream('protoncurr')
             },
             "detector_slit:NXaperture": {
                 "height": NXDataset(SlitValuePlaceholder('slit5',
