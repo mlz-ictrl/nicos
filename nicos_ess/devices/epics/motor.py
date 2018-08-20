@@ -59,7 +59,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
                               userparam=False),
         'reversed': Param('Reverse the direction of movement',
                           type=bool, mandatory=False, default=False,
-                          userparam=False, settable=True)
+                          userparam=False, settable=True, volatile=True)
     }
 
     parameter_overrides = {
