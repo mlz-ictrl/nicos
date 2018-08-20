@@ -52,13 +52,19 @@ devices = dict(
         description = 'QMesyDAQ live image',
         tangodevice = 'tango://phys.dns.frm2:10000/dns/mesy/img',
     ),
-    qm_det = device('nicos.devices.generic.Detector',
+    qm_det = device('nicos_mlz.dns.devices.detector.DNSDetector',
         description = 'QMesyDAQ MultiChannel Detector',
+        flipper = 'flipper',
         timers = ['qtimer'],
         counters = ['qevents'],
         monitors = ['qmon1', 'qmon2'],
         images = ['qlive'],
     ),
+)
+
+extended = dict(
+    poller_cache_reader = ['flipper'],
+    representative = 'qm_det',
 )
 
 startupcode = '''
