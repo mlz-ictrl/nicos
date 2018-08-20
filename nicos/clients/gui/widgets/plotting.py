@@ -1035,7 +1035,7 @@ class ViewPlot(NicosGrPlot):
         n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
-            plotcurve = NicosPlotCurve(series.x[:n], series.y[:n],
+            plotcurve = NicosPlotCurve(series.x, series.y,
                                        legend=series.title,
                                        linecolor=color, markercolor=color)
             plotcurve._parent = series
@@ -1056,8 +1056,8 @@ class ViewPlot(NicosGrPlot):
 
     def pointsAdded(self, series):
         plotcurve = self.series2curve[series]
-        plotcurve.x = series.x[:series.n].copy()
-        plotcurve.y = series.y[:series.n].copy()
+        plotcurve.x = series.x
+        plotcurve.y = series.y
         plotcurve.legend = series.title
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)

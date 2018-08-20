@@ -251,7 +251,7 @@ class Plot(object):
         if len(data[0]) > self.width:
             temp = numpy.array(data).T
             down = lttb.downsample(temp, n_out=self.width)
-            data = [list(down[:, 0]), list(down[:, 1])]
+            data = down[:, 0], down[:, 1]
         return data
 
     def __str__(self):

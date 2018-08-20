@@ -34,7 +34,7 @@ from time import time as currenttime
 import numpy as np
 
 from nicos.pycompat import number_types, string_types, iteritems
-from nicos._vendor.lttb import lttb
+from nicos._vendor import lttb
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -110,7 +110,7 @@ class TimeSeries(object):
     Represents a plot curve that shows a time series for a value.
     """
     minsize = 500
-    maxsize = 5000
+    maxsize = 100000
 
     def __init__(self, name, interval, scale, offset, window, signal_obj,
                  info=None, mapping=None):
@@ -122,9 +122,16 @@ class TimeSeries(object):
         self.window = window
         self.scale = scale
         self.offset = offset
+
+        # [[x, y], [x, y]] array of data points
         self.data = None
+        # number of actual data points in the array (the array is larger to
+        # be able to add new data efficiently)
         self.n = 0
+        # number of real datapoints, not considering "synthesized" ones that
+        # extend the last value when no updates are coming
         self.real_n = 0
+        # the last value to use for synthesized points
         self.last_y = None
         self.string_mapping = mapping or {}
         self._last_update_time = currenttime()
@@ -135,13 +142,15 @@ class TimeSeries(object):
                 ('%+g' % self.offset if self.offset else '') +
                 (' (' + self.info + ')' if self.info else ''))
 
+    # convenience API to get columns of the valid data
+
     @property
     def x(self):
-        return np.hsplit(self.data, 2)[0].view()
+        return self.data[:self.n, 0]
 
     @property
     def y(self):
-        return np.hsplit(self.data, 2)[1].view()
+        return self.data[:self.n, 1]
 
     def init_empty(self):
         self.data = np.zeros((self.minsize, 2))
@@ -150,7 +159,7 @@ class TimeSeries(object):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
-        self.data = np.zeros((max(self.minsize, (3 * len(history) + 2)), 2))
+        data = np.zeros((max(self.minsize, len(history) * 2), 2))
         i = 0
         vtime = value = None  # stops pylint from complaining
         for vtime, value in history:
@@ -177,28 +186,26 @@ class TimeSeries(object):
             if delta > maxdelta and lvalue is not None:
                 # synthesize one or two points inbetween
                 if vtime - self.interval > ltime + self.interval:
-                    self.x[i] = ltime + self.interval
-                    self.y[i] = lvalue
+                    data[i] = ltime + self.interval, lvalue
                     i += 1
-                self.x[i] = vtime - self.interval
-                self.y[i] = lvalue
+                data[i] = vtime - self.interval, lvalue
                 i += 1
-            self.x[i] = ltime = max(vtime, starttime)
-            self.y[i] = lvalue = value
+            data[i] = ltime, lvalue = max(vtime, starttime), value
             i += 1
-        if i and self.y[i-1] != value:
+        if i and data[i-1, 1] != value:
             # In case the final value was discarded because it came too fast,
             # add it anyway, because it will potentially be the last one for
             # longer, and synthesized.
-            self.x[i] = vtime
-            self.y[i] = value
+            data[i] = vtime, value
             i += 1
-        elif i and self.x[i-1] < endtime - self.interval:
+        elif i and data[i-1, 0] < endtime - self.interval:
             # In case the final value is very old, synthesize a point
             # right away at the end of the interval.
-            self.x[i] = endtime
-            self.y[i] = value
+            data[i] = endtime, value
             i += 1
+        # resize in-place (possible since we have not given out references)
+        data.resize((max(self.minsize, i * 2), 2))
+        self.data = data
         self.n = self.real_n = i
         self.last_y = lvalue
         if self.string_mapping:
@@ -211,8 +218,8 @@ class TimeSeries(object):
             return
         delta = currenttime() - self._last_update_time
         if delta > self.interval:
-            self.add_value(self.x[self.n - 1] + delta, self.last_y, real=False,
-                           use_scale=False)
+            self.add_value(self.data[self.n - 1, 0] + delta, self.last_y,
+                           real=False, use_scale=False)
 
     def add_value(self, vtime, value, real=True, use_scale=True):
         if not isinstance(value, number_types):
@@ -225,36 +232,35 @@ class TimeSeries(object):
                 return
         elif use_scale:
             value = value * self.scale + self.offset
-        n = self.n
-        real_n = self.real_n
+        n, real_n = self.n, self.real_n
+        arrsize = self.data.shape[0]
         self.last_y = value
         # do not add value if it comes too fast
-        if real_n > 0 and self.x[real_n - 1] > vtime - self.interval:
+        if real_n > 0 and self.data[real_n - 1, 0] > vtime - self.interval:
             return
         self._last_update_time = currenttime()
-        xsize = self.data.shape[0]
         # double array size if array is full
-        if n >= xsize:
-
-            # we select a certain maximum # of points to avoid filling up memory
-            # and taking forever to update
-            if xsize > self.maxsize:
+        if n >= arrsize:
+            # keep array around the size of maxsize
+            if arrsize >= self.maxsize:
                 # don't add more points, make existing ones more sparse
-                self.data = lttb.downsample(self.data, n_out=xsize / 2)
-                n = self.n = self.real_n = self.data.shape[0]
-                self.data.resize((n * 2, 2))
+                new_data = lttb.downsample(self.data[:real_n],
+                                           n_out=arrsize // 2)
+                n = self.n = self.real_n = new_data.shape[0]
+                # can resize in place here
+                new_data.resize(self.data, (n * 2, 2))
+                self.data = new_data
             else:
-                self.data.resize((2 * xsize, 2))
+                # can't resize in place
+                self.data = np.resize(self.data, (2 * arrsize, 2))
         # fill next entry
         if not real and real_n < n - 1:
             # do not generate endless amounts of synthesized points,
             # two are enough (one at the beginning, one at the end of
             # the interval without real points)
-            self.x[n-1] = vtime
-            self.y[n-1] = value
+            self.data[n-1] = vtime, value
         else:
-            self.x[n] = vtime
-            self.y[n] = value
+            self.data[n] = vtime, value
             self.n += 1
             if real:
                 self.real_n = self.n
@@ -262,14 +268,13 @@ class TimeSeries(object):
         if self.window:
             i = -1
             threshold = vtime - self.window
-            while self.x[i+1] < threshold and i < n:
-                if self.x[i+2] > threshold:
-                    self.x[i+1] = threshold
+            while self.data[i+1, 0] < threshold and i < n:
+                if self.data[i+2, 0] > threshold:
+                    self.data[i+1, 0] = threshold
                     break
                 i += 1
             if i >= 0:
-                self.x[0:n - i] = self.x[i+1:n+1].copy()
-                self.y[0:n - i] = self.y[i+1:n+1].copy()
+                self.data[0:n - i] = self.data[i+1:n+1].copy()
                 self.n -= i+1
                 self.real_n -= i+1
         self.signal_obj.timeSeriesUpdate.emit(self)

@@ -258,8 +258,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
 
     def on_timeSeriesUpdate(self, series):
         curve = self.plotcurves[series]
-        curve.x = series.x[:series.n]
-        curve.y = series.y[:series.n]
+        curve.x = series.x
+        curve.y = series.y
         c = self.axes.getCurves()
         self.axes.setWindow(c.xmin, c.xmax, c.ymin, c.ymax)
         self.widget.update()
