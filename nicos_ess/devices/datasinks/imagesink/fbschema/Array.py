@@ -7,4 +7,5 @@ class Array(object):
     ArrayUInt = 1
     ArrayULong = 2
     ArrayDouble = 3
+    ArrayFloat = 4
 

@@ -98,10 +98,13 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
 
     @property
     def arraydesc(self):
-        return HistogramDesc(self.name, int, self._dimDesc())
+        return HistogramDesc(self.name, 'uint32', self._dimDesc())
 
     def valueInfo(self):
         return [Value(self.name, type='counter', unit=self.unit)]
+
+    def doStart(self):
+        self.readresult = [0]
 
     def doReadArray(self, quality):
         """ Get the data formatted with uint32 numpy array

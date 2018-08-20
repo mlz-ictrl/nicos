@@ -50,12 +50,18 @@ elements = {
         {'values': 1.0,
          'type': 'dataset',
          'name': 'dataset',
+         'dataset': {
+             'size': [1]
+         },
          'attributes': {'unit': 'unit'}
          },
     ('dataset_float', DeviceDataset('dev1')):
         {'values': 1.0,
          'type': 'dataset',
          'name': 'dataset_float',
+         'dataset': {
+             'size': [1]
+         },
          'attributes': {
              'nicos_name': 'dev1',
              'units': 'unit',
@@ -65,6 +71,9 @@ elements = {
         {'values': 1,
          'type': 'dataset',
          'name': 'dataset_int',
+         'dataset': {
+             'size': [1]
+         },
          'attributes': {
              'nicos_name': 'dev1',
              'units': 'int',
@@ -78,21 +87,17 @@ elements = {
          'type': 'dataset',
          'name': 'dataset_str',
          'dataset': {
+             'size': [1],
              'string_size': 7,
              'type': 'string'}
          },
     ('event_stream', EventStream(topic='topic', source='source',
                                  broker="localhost:9092", dtype="uint32")):
-        {'attributes': {'NX_class': 'NXevent_data'},
-         'type': 'group',
-         'name': 'event_stream',
-         'children':
-             [{
-                 'type': 'stream',
-                 'stream': {'topic': 'topic', 'source': 'source',
-                            'type': 'uint32',
-                            'broker': 'localhost:9092',
-                            'writer_module': 'ev42'}}]
+        {'type': 'stream',
+         'stream': {'topic': 'topic', 'source': 'source',
+                    'type': 'uint32',
+                    'broker': 'localhost:9092',
+                    'writer_module': 'ev42'}
          },
     ('group_normal', NXGroup('NXgroup')):
         {'attributes': {'NX_class': 'NXgroup'},
@@ -133,6 +138,9 @@ converted = {
                     "values": 1.0,
                     "type": "dataset",
                     "name": "child_dataset",
+                    "dataset": {
+                        'size': [1]
+                    },
                     "attributes": {"unit": "unit"}
                 }
             ]
@@ -222,7 +230,7 @@ class TestNexusTemplate(object):
         """ Test that elements provide correct JSON structures
         """
         name, elem = element
-        eq, msg = self.compare_dicts(elem.structure(name, metainfo),
+        eq, msg = self.compare_dicts(elem.structure(name, metainfo)[0],
                                      elements[element])
         assert eq, msg
 

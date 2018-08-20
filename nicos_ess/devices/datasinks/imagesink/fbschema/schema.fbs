@@ -4,12 +4,14 @@ file_identifier "hs00";
 table ArrayUInt   { value: [uint];    }
 table ArrayULong  { value: [ulong];   }
 table ArrayDouble { value: [double];  }
+table ArrayFloat  { value: [float];   }
 
 // Union of allowed data types for the arrays
 union Array {
     ArrayUInt,
     ArrayULong,
-    ArrayDouble
+    ArrayDouble,
+    ArrayFloat,
 }
 
 // Meta information for one dimension

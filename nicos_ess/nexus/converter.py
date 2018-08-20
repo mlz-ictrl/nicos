@@ -25,7 +25,8 @@
 from nicos import session
 from nicos.core.errors import NicosError
 from nicos.pycompat import iteritems
-from nicos_ess.nexus.elements import NXAttribute, NXDataset, NXGroup
+from nicos_ess.nexus.elements import NXAttribute, NXDataset, NXGroup, NXLink, \
+    KafkaStream
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder
 from nicos_ess.nexus import DeviceStream
 
@@ -51,7 +52,7 @@ class NexusTemplateConverter(object):
         if not isinstance(root_value, NXGroup):
             return {}
 
-        structure = root_value.structure(root_name, metainfo)
+        structure = root_value.structure(root_name, metainfo)[0]
 
         # Need only children and attributes in the top
         return {
@@ -80,7 +81,7 @@ class NexusTemplateConverter(object):
                     child_nxname, child_value = self._populate(key, val)
                     if isinstance(child_value, NXGroup):
                         group.children.update({child_nxname: child_value})
-                elif isinstance(val, NXGroup):
+                elif isinstance(val, (NXGroup, NXLink, KafkaStream)):
                     group.children[key] = val
                 elif isinstance(val, NXDataset):
                     # Check if the this dataset should rather be tracked

@@ -37,7 +37,7 @@ class NexusElementBase(object):
         """ Provides the JSON for current element in NeXus structure
         :param name: Name of the element
         :param metainfo: metainfo from *dataset*
-        :return: dict of the NeXus structure
+        :return: list of dict of the NeXus structure
         """
         raise NotImplementedError()
 
@@ -67,7 +67,7 @@ class NXAttribute(NexusElementBase):
         if self.value is None:
             return {}
 
-        return {name: self.value}
+        return [{name: self.value}]
 
 
 class NXDataset(NexusElementBase):
@@ -126,15 +126,19 @@ class NXDataset(NexusElementBase):
                 self.dtype = 'string'
 
         # Add the 'dtype' if specified
+        root_dict['dataset'] = {}
         if self.dtype:
-            root_dict['dataset'] = {"type": self.dtype}
+            root_dict['dataset']["type"] = self.dtype
 
             # If the type is string/list then the size is to be written
             if self.dtype == "string":
                 root_dict['dataset']['string_size'] = len(self.value) + 1
-            if isinstance(self.value, list):
-                # Only 1D array supported by NICOS
-                root_dict['dataset']['size'] = [len(self.value)]
+
+        if isinstance(self.value, list):
+            # Only 1D array supported by NICOS
+            root_dict['dataset']['size'] = [len(self.value)]
+        else:
+            root_dict['dataset']['size'] = [1]
 
         # Add the attributes if present
         if self.attrs:
@@ -143,13 +147,13 @@ class NXDataset(NexusElementBase):
                 # It is important to check if the type is of NXAttribute
                 # Subclasses can directly change the self.attrs dict
                 if isinstance(attr, NXAttribute):
-                    attr_structure = attr.structure(attr_name, metainfo)
-                    if attr_structure:
-                        attr_dict.update(attr_structure)
+                    for attr_structure in attr.structure(attr_name, metainfo):
+                        if attr_structure:
+                            attr_dict.update(attr_structure)
 
             root_dict["attributes"] = attr_dict
 
-        return root_dict
+        return [root_dict]
 
 
 class NXGroup(NexusElementBase):
@@ -177,9 +181,9 @@ class NXGroup(NexusElementBase):
         if self.children:
             for ename, entry in iteritems(self.children):
                 if isinstance(entry, NexusElementBase):
-                    child_dict = entry.structure(ename, metainfo)
-                    if child_dict:
-                        val["children"].append(child_dict)
+                    for child_dict in entry.structure(ename, metainfo):
+                        if child_dict:
+                            val["children"].append(child_dict)
                 else:
                     session.log.info("%s does not provide value!!", ename)
 
@@ -190,27 +194,42 @@ class NXGroup(NexusElementBase):
                 # It is important to check if the type is of NXAttribute
                 # Subclasses can directly change the self.attrs dict
                 if isinstance(attr, NXAttribute):
-                    attr_structure = attr.structure(attr_name, metainfo)
-                    if attr_structure:
-                        attr_dict.update(attr_structure)
+                    for attr_structure in attr.structure(attr_name, metainfo):
+                        if attr_structure:
+                            attr_dict.update(attr_structure)
 
             val["attributes"].update(attr_dict)
 
-        return val
+        return [val]
 
 
-class KafkaStream(NXGroup):
-    """ Class to represent Kafka streams. Kafka streams always appear as
-    groups. The defined properties of the stream can be set. The FileWriter
-    using these properties and fills up the data in the files using messages
+class NXLink(NexusElementBase):
+    """ Class to represent NeXus Group. Each group has a class type and
+    can additionally have children in the form of datasets and groups or
+    can also have attributes associated.
+    """
+
+    def __init__(self, target):
+        self.target = target
+
+    def structure(self, name, metainfo):
+        return [{
+            'type': 'link',
+            'name': name,
+            'target': self.target
+        }]
+
+
+class KafkaStream(NexusElementBase):
+    """ Class to represent Kafka streams.
+    The defined properties of the stream can be set. The FileWriter
+    using these properties fills up the data in the files using messages
     from Kafka.
     """
     stream_keys = ['broker', 'topic', 'source', 'writer_module', 'type',
-                   'array_size']
+                   'array_size', 'store_latest_into']
 
-    def __init__(self, nxclass, **attr):
-        NXGroup.__init__(self, nxclass=nxclass)
-
+    def __init__(self, **attr):
         self.stream = {}
         for key in self.stream_keys:
             self.stream[key] = None
@@ -221,6 +240,12 @@ class KafkaStream(NXGroup):
                 val = NXAttribute(val)
             self.stream_attrs[key] = val
 
+    def store_latest_into(self, dataset_name):
+        """Stores the final/latest value of the stream into the
+        dataset with name dataset_name
+        """
+        self.set('store_latest_into', dataset_name)
+
     def set(self, key, value):
         if key not in self.stream:
             session.log.error('Unidentified key %s set for kafka stream', key)
@@ -228,7 +253,6 @@ class KafkaStream(NXGroup):
         self.stream[key] = value
 
     def structure(self, name, metainfo):
-        root_dict = NXGroup.structure(self, name, metainfo)
         stream_dict = {
             "type": "stream",
             "stream": {k: v for k, v in iteritems(self.stream) if v}
@@ -239,14 +263,12 @@ class KafkaStream(NXGroup):
             attr_dict = {}
             for attr_name, attr in iteritems(self.stream_attrs):
                 if isinstance(attr, NXAttribute):
-                    attr_structure = attr.structure(attr_name, metainfo)
-                    if attr_structure:
-                        attr_dict.update(attr_structure)
+                    for attr_structure in attr.structure(attr_name, metainfo):
+                        if attr_structure:
+                            attr_dict.update(attr_structure)
 
             stream_dict["attributes"] = attr_dict
-
-        root_dict["children"].append(stream_dict)
-        return root_dict
+        return [stream_dict]
 
 
 class DeviceStream(DeviceValuePlaceholder, KafkaStream):
@@ -257,9 +279,10 @@ class DeviceStream(DeviceValuePlaceholder, KafkaStream):
     from the Forwarder Device.
     """
 
-    def __init__(self, device, parameter='value', **attr):
-        KafkaStream.__init__(self, 'NXlog', **attr)
+    def __init__(self, device, parameter='value', separate_log=True, **attr):
+        KafkaStream.__init__(self, **attr)
         DeviceValuePlaceholder.__init__(self, device, parameter)
+        self.separate_log = separate_log
 
     def structure(self, name, metainfo):
         device = session.getDevice(self.device)
@@ -302,6 +325,7 @@ class DeviceStream(DeviceValuePlaceholder, KafkaStream):
         self.set('source', source)
         self.set('topic', topicandschema[0])
         self.set('writer_module', topicandschema[1])
+        self.set('broker', forwarder.brokers[0])
 
         # Add the attributes
         self.stream_attrs["nicos_name"] = NXAttribute(self.device)
@@ -312,7 +336,23 @@ class DeviceStream(DeviceValuePlaceholder, KafkaStream):
         if info:
             self.stream_attrs["units"] = NXAttribute(info[2])
 
-        return KafkaStream.structure(self, name, metainfo)
+        if self.separate_log:
+            self.store_latest_into(name)
+            gname = name + '_log'
+        else:
+            gname = name
+
+        group_dict = NXGroup('NXlog').structure(gname, metainfo)[0]
+        stream_dicts = KafkaStream.structure(self, name, metainfo)
+        group_dict["children"] += stream_dicts
+
+        struct = [group_dict]
+
+        if self.separate_log:
+            link = NXLink(gname + '/' + name).structure(name, metainfo)
+            struct += link
+
+        return struct
 
 
 class EventStream(KafkaStream):
@@ -321,7 +361,7 @@ class EventStream(KafkaStream):
 
     def __init__(self, topic, source, broker, mod='ev42', dtype='uint64',
                  **attr):
-        KafkaStream.__init__(self, 'NXevent_data', **attr)
+        KafkaStream.__init__(self, **attr)
         self.set('topic', topic)
         self.set('source', source)
         self.set('broker', broker)

@@ -27,13 +27,13 @@ import numpy
 try:
     import flatbuffers
     from nicos_ess.devices.datasinks.imagesink.fbschema import \
-        EventHistogram, Array, ArrayUInt, ArrayDouble, DimensionMetaData
+        EventHistogram, Array, ArrayUInt, ArrayFloat, DimensionMetaData
 except ImportError:
     flatbuffers = None
     EventHistogram = None
     Array = None
     ArrayUInt = None
-    ArrayDouble = None
+    ArrayFloat = None
     DimensionMetaData = None
 
 
@@ -53,14 +53,14 @@ class HistogramFlatbuffersSerializer(object):
                 bins = desc.dimbins[d]
                 # Write only if the number of bins = length + 1
                 if len(bins) == desc.shape[d] + 1:
-                    ArrayDouble.ArrayDoubleStartValueVector(b, len(bins))
+                    ArrayFloat.ArrayFloatStartValueVector(b, len(bins))
                     # Prepend the bins
                     for bin in bins[::-1]:
                         b.PrependFloat64(bin)
                     pos_val = b.EndVector(len(bins))
-                    ArrayDouble.ArrayDoubleStart(b)
-                    ArrayDouble.ArrayDoubleAddValue(b, pos_val)
-                    pos_bin = ArrayDouble.ArrayDoubleEnd(b)
+                    ArrayFloat.ArrayFloatStart(b)
+                    ArrayFloat.ArrayFloatAddValue(b, pos_val)
+                    pos_bin = ArrayFloat.ArrayFloatEnd(b)
 
             pos_unit = 0
             if hasattr(desc, 'dimunits'):
@@ -75,7 +75,7 @@ class HistogramFlatbuffersSerializer(object):
                 DimensionMetaData.DimensionMetaDataAddUnit(b, pos_unit)
             if pos_bin:
                 DimensionMetaData.DimensionMetaDataAddBinBoundariesType(
-                    b, Array.Array.ArrayDouble)
+                    b, Array.Array.ArrayFloat)
                 DimensionMetaData.DimensionMetaDataAddBinBoundaries(b, pos_bin)
             dims.append(DimensionMetaData.DimensionMetaDataEnd(b))
         return dims

@@ -23,4 +23,4 @@
 # *****************************************************************************
 
 from nicos_ess.nexus.elements import NXAttribute, NXDataset, NXGroup, \
-    DeviceStream, EventStream, DeviceAttribute, DeviceDataset
+    DeviceStream, EventStream, DeviceAttribute, DeviceDataset, NXLink
