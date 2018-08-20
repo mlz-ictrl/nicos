@@ -24,7 +24,8 @@
 
 """NICOS GUI command input widgets."""
 
-from nicos.guisupport.qt import Qt, pyqtSignal, QColor, QWidget
+from nicos.guisupport.qt import Qt, pyqtSignal, QColor, QWidget, \
+    QAbstractSpinBox
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.typedvalue import DeviceParamEdit
@@ -121,6 +122,9 @@ class Cmdlet(QWidget):
             setBackgroundColor(ctl, Qt.white)
         else:
             setBackgroundColor(ctl, invalid)
+        if isinstance(ctl, QAbstractSpinBox):
+            # also mark the inner line-edit
+            return self.markValid(ctl.lineEdit(), condition)
         return condition
 
     def isValid(self):
