@@ -22,13 +22,25 @@
 #
 # *****************************************************************************
 
-from nicos.core import status, Param, Override, pvname
-from nicos.core.errors import MoveError
+from nicos.core import status, Param, Override, pvname, Attach
 from nicos_ess.devices.epics.base import EpicsWindowTimeoutDeviceEss
-from nicos_ess.devices.epics.extensions import HasSwitchPv
+from nicos_ess.devices.epics.extensions import EpicsMappedMoveable
 
 
-class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
+class EpicsAmorMagnetSwitch(EpicsMappedMoveable):
+    """Provides a separate interface to turn the magnet on/off.
+
+    The magnet's power can be turned on/off using the sub-records.
+    For setting this, the readpv and writepv can be used with correct
+    mapping.
+    """
+
+    @property
+    def isSwitchedOn(self):
+        return bool(self._readRaw())
+
+
+class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
     """
     Magnets in the AMOR instrument
 
@@ -49,11 +61,6 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
     Once the basepv and pvdelim is provided, the associated PVs are
     calculated using the following rule:
     <basepv><pvdelim><sub-record>
-
-    The magnet's power can be turned on/off using the sub-records.
-    For setting this, the switchOn, switchOff methods from the
-    parent HasSwitchPv can be employed.
-
     """
     parameters = {
         'basepv': Param('Base name of the PVs (without delimiter).',
@@ -63,6 +70,9 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
             'Delimiter used for separating basepv with record fields.',
             type=str, mandatory=False, default=':', userparam=False,
             settable=False),
+        'fieldfactor': Param(
+            'Factor to convert the magnet current (read value) to'
+            ' magnetic field', type=float, userparam=False, default=1.0),
     }
 
     parameter_overrides = {
@@ -71,7 +81,14 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
         'writepv': Override(mandatory=False, userparam=False, settable=False),
         'maxage': Override(userparam=False),
         'pollinterval': Override(userparam=False),
-        'warnlimits': Override(userparam=False)
+        'warnlimits': Override(userparam=False),
+        'abslimits': Override(volatile=True),
+        'unit': Override(volatile=True)
+    }
+
+    attached_devices = {
+        'switch': Attach('Switch to turn the magnet on/off',
+                         EpicsAmorMagnetSwitch)
     }
 
     # Record fields with which an interaction via Channel Access is required.
@@ -91,8 +108,7 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
         Implementation of inherited method to automatically account for
         sub-records and the PVs from parents and the switch pvs
         """
-        pvs_switch = HasSwitchPv._get_pv_parameters(self)
-        return pvs_switch.union(self.sub_records)
+        return set(self.sub_records.keys())
 
     def _get_pv_name(self, pvparam):
         """
@@ -105,14 +121,19 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
         if field is not None:
             return self.pvdelim.join((self.basepv, field))
 
-        # In case the PVs exist in the HasSwitchPv
-        if pvparam in HasSwitchPv._get_pv_parameters(self):
-            return HasSwitchPv._get_pv_name(self, pvparam)
-
         return getattr(self, pvparam)
 
+    def doRead(self, maxage=0):
+        return EpicsWindowTimeoutDeviceEss.doRead(self, maxage) / self.fieldfactor
+
+    def doReadUnit(self):
+        unit = self._params.get('unit')
+        if not unit:
+            unit = EpicsWindowTimeoutDeviceEss.doReadUnit(self)
+        return unit
+
     def doReadTarget(self):
-        return self._get_pv('writepv')
+        return self._get_pv('writepv') / self.fieldfactor
 
     def doStatus(self, maxage=0):
         code = self._get_pv('errorcode')
@@ -120,23 +141,26 @@ class EpicsAmorMagnet(HasSwitchPv, EpicsWindowTimeoutDeviceEss):
             msg = self._get_pv('errortext')
             return status.ERROR, '%d: %s' % (code, msg)
 
-        if not self.isSwitchedOn:
+        if not self._attached_switch.isSwitchedOn:
             return status.OK, 'Off'
 
         return EpicsWindowTimeoutDeviceEss.doStatus(self, maxage)
 
-    def doStart(self, value):
-        if not self.isSwitchedOn:
-            raise MoveError('Magnet switched OFF. Can\'t move!')
-        EpicsWindowTimeoutDeviceEss.doStart(self, value)
+    def doIsAllowed(self, position):
+        if not self._attached_switch.isSwitchedOn:
+            return False, 'Magnet switched OFF'
+        return True, ''
+
+    def doStart(self, val):
+        EpicsWindowTimeoutDeviceEss.doStart(self, val * self.fieldfactor)
 
     def doReadAbslimits(self):
-        absmin = self._get_pv('lowlimit')
-        absmax = self._get_pv('highlimit')
+        absmin = self._get_pv('lowlimit') / self.fieldfactor
+        absmax = self._get_pv('highlimit') / self.fieldfactor
 
         return absmin, absmax
 
     def doInfo(self):
         # Add the state in the information of this magnet
-        state = 'on' if self.isSwitchedOn else 'off'
+        state = 'on' if self._attached_switch.isSwitchedOn else 'off'
         return [('state', state, state, '', 'general')]

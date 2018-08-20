@@ -23,7 +23,7 @@ amor_default = {
             "chi": DeviceDataset('sch'),
             "omega_height": DeviceDataset('soz'),
             "rotation": DeviceDataset('som'),
-            "magnetic_field": DeviceDataset('fma')
+            "magnetic_field": DeviceDataset('hsy')
         },
         "AMOR:NXinstrument": {
             "name": DeviceDataset('Amor', 'instrument'),
@@ -235,7 +235,7 @@ sample_only = {
             "chi": DeviceDataset('sch'),
             "omega_height": DeviceDataset('soz'),
             "rotation": DeviceDataset('som'),
-            "magnetic_field": DeviceDataset('fma')
+            "magnetic_field": DeviceDataset('hsy')
         },
     },
 }
