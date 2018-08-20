@@ -110,4 +110,8 @@ class AmorDetector(EpicsScalerRecord):
         ret.append(('mode', mode, mode, '', 'presets'))
         ret.append(('preset', value, '%s' % value, unit, 'presets'))
 
+        # Add the array description
+        for desc in self.arrayInfo():
+            ret.append(('desc_' + desc.name, desc.__dict__, '', '', 'general'))
+
         return ret
