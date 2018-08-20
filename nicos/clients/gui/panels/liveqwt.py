@@ -205,7 +205,7 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, _uid, det, fname, dtype, nx, ny, nz, runtime = params
         if (self._instrument == 'dns' and det != 'det') or \
-           (self._instrument == 'dnspsd' and det != 'qmdet'):
+           (self._instrument == 'dnspsd' and det != 'qm_det'):
             self._last_tag = self._last_fname = ''
             return
         if not isinstance(fname, string_types):
