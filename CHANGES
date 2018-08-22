@@ -1,6 +1,40 @@
 Changelog
 =========
 
+Release 3.3.0
+-------------
+
+* Core
+
+  - Added commands "ListMailReceivers" and "ListDataReceivers".
+
+  - A longstanding bug with client connections not closing properly has
+    been fixed, it resulted in clients receiving events (like script
+    output) multiple times.
+
+  - A "doAdjust" method has been added to customize the action of
+    "adjust" and the "offset" parameter to different conventions.
+
+  - The "_Restart" command is now blocked if there are active background
+    threads.
+
+* Devices
+
+  - Notifier devices can now be marked as "private", which means that their
+    receivers are not overwritten with the users' addresses for each new
+    experiment.
+
+  - Unit handling of several Tango device classes has been improved.
+
+* GUI
+
+  - Rebinning of very large history datasets has been changed to use a
+    "triangular downsampling" algorithm that better preserves interesting
+    features of the data in question.
+
+  - Triangular downsampling also applies to status monitor plots.
+
+
 Release 3.2.0
 -------------
 
