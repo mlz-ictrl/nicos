@@ -20,6 +20,9 @@ Release 3.3.0
 
 * Devices
 
+  - Access restrictions with the "requires" parameter are now checked
+    when trying to set device parameters.
+
   - Notifier devices can now be marked as "private", which means that their
     receivers are not overwritten with the users' addresses for each new
     experiment.

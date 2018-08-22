@@ -208,6 +208,12 @@ class DeviceMeta(DeviceMixinMeta):
                 def setter(self, value, param=param, wmethod=wmethod,
                            umethod=umethod, chatty=info.chatty):
                     value = self._validateType(value, param)
+                    if getattr(self, 'requires', None):  # for Moveables
+                        try:
+                            session.checkAccess(self.requires)
+                        except AccessError as err:
+                            raise AccessError(self, 'cannot set parameter: %s'
+                                              % err)
                     if self._mode == SLAVE:
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)

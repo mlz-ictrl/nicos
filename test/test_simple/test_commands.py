@@ -29,7 +29,7 @@ import shutil
 import tempfile
 import timeit
 
-from nicos.core import GUEST, UsageError, LimitError, NicosError, \
+from nicos.core import GUEST, UsageError, LimitError, NicosError, AccessError, \
     TimeoutError, status as devstatus
 from nicos.utils import ensureDirectory
 
@@ -350,6 +350,15 @@ class TestDevice(object):
         wait(pdev)
         assert pdev.status(0)[0] == devstatus.OK
         pdev.speed = speed
+
+    def test_privileged_parameters(self, session, log):
+        # check "requires" restrictions for setting parameters
+        AddSetup('device')
+        pdev = session.getDevice('privdev')
+        level = session.getExecutingUser().level
+        session.setUserLevel(GUEST)
+        assert raises(AccessError, set, pdev, 'description', 'foo')
+        session.setUserLevel(level)
 
     def test_reset(self, session, log):
         """Check reset() command."""
