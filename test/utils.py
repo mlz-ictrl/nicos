@@ -366,8 +366,12 @@ class TestSession(Session):
             raise ValueError('invalid access level name: %r' % level)
         return level
 
-    def setUserLevel(self, level):
+    @contextlib.contextmanager
+    def withUserLevel(self, level):
+        old_level = self._user_level
         self._user_level = self._string_to_level(level)
+        yield
+        self._user_level = old_level
 
     def checkAccess(self, required):
         if 'level' in required:

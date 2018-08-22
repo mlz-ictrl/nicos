@@ -340,12 +340,10 @@ class TestDevice(object):
         speed = pdev.speed
         pdev.speed = 0.1
         move(pdev, 10)
-        level = session.getExecutingUser().level
-        session.setUserLevel(GUEST)
-        assert pdev.status(0)[0] == devstatus.BUSY
-        stop(pdev)
-        assert pdev.status(0)[0] == devstatus.BUSY
-        session.setUserLevel(level)
+        with session.withUserLevel(GUEST):
+            assert pdev.status(0)[0] == devstatus.BUSY
+            stop(pdev)
+            assert pdev.status(0)[0] == devstatus.BUSY
         stop(pdev)
         wait(pdev)
         assert pdev.status(0)[0] == devstatus.OK
@@ -355,10 +353,8 @@ class TestDevice(object):
         # check "requires" restrictions for setting parameters
         AddSetup('device')
         pdev = session.getDevice('privdev')
-        level = session.getExecutingUser().level
-        session.setUserLevel(GUEST)
-        assert raises(AccessError, set, pdev, 'description', 'foo')
-        session.setUserLevel(level)
+        with session.withUserLevel(GUEST):
+            assert raises(AccessError, set, pdev, 'description', 'foo')
 
     def test_reset(self, session, log):
         """Check reset() command."""
