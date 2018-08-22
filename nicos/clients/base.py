@@ -369,7 +369,7 @@ class NicosClient(object):
         return self.tell(command, *args)
 
     def ask(self, command, *args, **kwds):
-        """Excecute a command that generates a response, and return the response.
+        """Execute a command that generates a response, and return the response.
 
         The arguments are the command and its parameter(s), if necessary.
 
