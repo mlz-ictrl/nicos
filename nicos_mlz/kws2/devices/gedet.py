@@ -107,7 +107,7 @@ class MultiHV(BaseSequencer):
         while True:
             subseq = []
             for (i, dev) in enumerate(self._attached_ephvs):
-                if abs(target[i] - current[i]) <= 2:
+                if abs(target[i] - current[i]) <= 5:
                     continue
                 if target[i] > current[i]:
                     setval = min(current[i] + self.voltagestep, target[i])

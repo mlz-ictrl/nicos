@@ -19,3 +19,8 @@ devices = dict(
         autosimulate = True,
     ),
 )
+
+# Always import pyepics in the main thread first.
+startupcode = '''
+import nicos.devices.epics
+'''

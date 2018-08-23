@@ -48,9 +48,11 @@ _collimation = make_blocks('Collimation', 'collimation', [
 ])
 
 _detector = make_blocks('Detector', 'detector', [
-    BlockRow(Field(name='Preset', dev='detector', istext=True, width=17)),
+    BlockRow(Field(name='Preset', dev='detector', istext=True, width=17),
+             Field(name='GE HV', dev='gedet_HV', istext=True)),
     BlockRow(
-        Field(devices=['det_z', 'det_x', 'det_y'],
+        Field(devices=['det_z', 'beamstop_x', 'beamstop_y'],
+              beamstop=True,
               widget='nicos_mlz.kws1.gui.monitorwidgets.Tube', width=70, height=13)
     ),
 ])

@@ -16,3 +16,8 @@ devices = dict(
         # with concurrent access from processes)
     ),
 )
+
+# Always import pyepics in the main thread first.
+startupcode = '''
+import nicos.devices.epics
+'''
