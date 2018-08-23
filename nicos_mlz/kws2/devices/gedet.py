@@ -153,5 +153,5 @@ class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
         # HV writepv intermittently goes into unknown state, ignore it
         code, text = EpicsAnalogMoveable.doStatus(self, maxage)
         if code == status.UNKNOWN:
-            code = status.OK
+            code, text = status.OK, ''
         return code, text
