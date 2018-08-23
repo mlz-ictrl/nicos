@@ -1449,11 +1449,15 @@ class Moveable(Waitable):
             amin, amax = self.absmin - offset, self.absmax - offset
             umin, umax = self.userlimits
             if self._mode == MASTER:
-                # if user and abs limits are completely disjoint, reset
                 if umin > amax or umax < amin:
+                    # if user and abs limits are completely disjoint, reset
                     self.log.info('user limits were outside absolute limits; '
                                   'now reset to absolute limits')
                     restricted_limits = (amin, amax)
+                elif umin == umax == 0:
+                    # if userlimits are both zero, assume failure to read
+                    # and try again
+                    restricted_limits = self.doReadUserlimits()
                 else:
                     # otherwise restrict user to be within abs limits
                     restricted_limits = (min(max(umin, amin), amax),
