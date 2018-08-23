@@ -8,3 +8,4 @@ rsa>=3.1.2
 ldap3>=2.0.0
 psutil>=2.0
 python-redmine>=2.0.0
+html2text>=3.200.3

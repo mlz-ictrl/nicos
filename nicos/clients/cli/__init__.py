@@ -44,6 +44,8 @@ from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from collections import OrderedDict
 
+from html2text import HTML2Text
+
 from nicos.clients.base import NicosClient, ConnectionData
 from nicos.clients.cli.txtplot import txtplot
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
@@ -340,35 +342,13 @@ class NicosCmdClient(NicosClient):
     def showhelp(self, html):
         """Handles the "showhelp" signal.
 
-        As we already get HTML, we try to get hold of a text-mode browser
-        and let it dump the HTML as text.  Then we print that to the user.
+        Uses html2text to get nicely-formatted text from the html.
         """
-        # write HTML to a temporary file
-        fd, fn = tempfile.mkstemp('.html')
-        os.write(fd, html)
-        os.close(fd)
-        # check for a text browser to convert to text only
-        if self.browser is None:
-            if which('links'):
-                self.browser = 'links'
-            elif which('w3m'):
-                self.browser = 'w3m'
-            else:
-                self.put_error('No text browser available. '
-                               'Install links or w3m.')
-                return
-        # run HTML through text browser
-        width = str(self.tsize[0])
+
+        htmlconv = HTML2Text()
+        htmlconv.ignore_links = True
         self.out.write('\r\x1b[K\n')
-        if self.browser == 'links':
-            createSubprocess(['links', '-dump', '-width', width, fn]).wait()
-        else:
-            createSubprocess(['w3m', '-dump', '-cols', width, fn]).wait()
-        # remove tempfile
-        try:
-            os.unlink(fn)
-        except Exception:
-            pass
+        self.out.write(htmlconv.handle(html))
 
     def put_message(self, msg, sim=False):
         """Handles the "message" signal."""
