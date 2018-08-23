@@ -16,10 +16,4 @@ devices = dict(
         description = "Power supply 2 current control ch 2",
         tangodevice = tango_base + "toellner/pow2flip",
     ),
-    aflipper = device("nicos_mlz.treff.devices.flipper.Flipper",
-        description = "Analyzer flip",
-        flip = "pow2flip",
-        corr = "pow2comp",
-        currents = (1., 0.),
-    ),
 )
