@@ -25,66 +25,56 @@
 """NICOS GUI default configuration."""
 
 main_window = tabbed(
-    ('Instrument', docked(
+    ('Commands',
+     docked(
         vsplit(
             hsplit(
-                vsplit(
-                    panel(
-                        'nicos.clients.gui.panels.commandline.CommandLinePanel'),
-                    panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                ),
+                panel('nicos.clients.gui.panels.console.ConsolePanel',
+                      hasinput=False, hasmenu=False,
+                      watermark='nicos_sinq/watermark.png'),
             ),
-            tabbed(
-                ('All output',
-                 panel('nicos.clients.gui.panels.console.ConsolePanel',
-                       hasinput=False, hasmenu=False,
-                       watermark='nicos_sinq/watermark.png')),
-                ('Errors/Warnings',
-                 panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+            hsplit(
+                panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+            ),
+            hsplit(
+                panel('nicos.clients.gui.panels.commandline.CommandLinePanel'),
             ),
         ),
-        ('Experiment Setup',
-         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-               dockpos='left')),
-        ('Control devices',
-         panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-               dockpos='right')),
-    )),
-    ('Script Builder',
-     vsplit(
-         panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-         panel('nicos.clients.gui.panels.editor.EditorPanel',
-               tools=[
-                   tool('Scan Generator',
-                        'nicos.clients.gui.tools.scan.ScanTool')
-               ]),
-     )),
-    ('Device History', panel('nicos.clients.gui.panels.history.HistoryPanel')),
-    ('Log files', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
-    ('Live View', panel('nicos_sinq.amor.gui.panels.live.LiveDataPanel')),
+        ('Control Panel',
+         panel('nicos_sinq.amor.gui.panels.controlpanel.AmorControlPanel',
+               uifile='nicos_sinq/amor/gui/panels/controlpanel.ui',
+               dockpos='right',)),
+        ('AMOR',
+         panel('nicos_sinq.amor.gui.panels.expinfo.AmorExpPanel',
+               uifile='nicos_sinq/amor/gui/panels/expinfo.ui',
+               dockpos='left')))),
+    ('Errors/Warnings', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
 )
 
 windows = [
-    window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
-    window('Scans', 'plotter',
+    window('Script Builder', 'editor',
+        vsplit(
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.editor.EditorPanel',
+              tools = [
+                  tool('Scan Generator',
+                       'nicos.clients.gui.tools.scan.ScanTool')
+              ]))),
+    window('Device List', 'paused',
+           panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True)),
+    window('Device History', 'find',
+           panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    window('Live View', 'live',
+           panel('nicos_sinq.amor.gui.panels.live.LiveDataPanel')),
+    window('Scan View', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
 ]
 
 tools = [
-    tool('Emergency stop button',
-         'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=False),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
          'nicos.clients.gui.tools.website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-    tool('Neutron activation', 'nicos.clients.gui.tools.website.WebsiteTool',
-         url='https://webapps.frm2.tum.de/intranet/activation/'),
-    tool('Neutron calculations', 'nicos.clients.gui.tools.website.WebsiteTool',
-         url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
-    tool('Report NICOS bug or request enhancement',
-         'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
