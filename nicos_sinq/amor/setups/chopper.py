@@ -2,8 +2,6 @@ description = 'Astrium chopper device in SINQ AMOR'
 
 pvprefix = 'SQ:AMOR:chopper:'
 
-includes = ['distances']
-
 devices = dict(
     ch1_speed=device('nicos_sinq.devices.epics.astrium_chopper.EpicsChopperSpeed',
         description='Speed controller for the master chopper',
@@ -53,11 +51,4 @@ devices = dict(
         choppers=['ch1', 'ch2'],
         indexphase=-6.7
     ),
-    dist_sample_chopper=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of sample to chopper',
-        distcomponent='dchopper',
-        distreference='dsample'
-    )
-
 )

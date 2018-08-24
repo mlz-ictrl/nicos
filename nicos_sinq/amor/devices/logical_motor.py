@@ -34,13 +34,14 @@ soz, com, cox, coz, d1b, d2b, d3b, d4b, aoz, aom.
 
 import math
 
+from nicos import session
 from nicos.core import Attach, Param, Override, status, oneof, dictwith
 from nicos.core.device import Moveable
+from nicos.core.errors import PositionError
 from nicos.devices.abstract import Motor
 from nicos.core.utils import multiStatus
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 from nicos_ess.devices.epics.motor import EpicsMotor
-from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 
 # Possible motor types
 M2T = 'm2t'  # m2t - monochromator two theta
@@ -78,14 +79,6 @@ class AmorLogicalMotorHandler(Moveable):
         'd2t': Attach('d2t motor (only to read)', EpicsMotor),
         'd3t': Attach('d3t motor (only to read)', EpicsMotor),
         'd4t': Attach('d4t motor (only to read)', EpicsMotor),
-        'sample': Attach('Sample position provider', ComponentLaserDistance),
-        'polarizer': Attach('Polarizer position provider', ComponentLaserDistance),
-        'slit1': Attach('Slit 1 position provider', ComponentLaserDistance),
-        'slit2': Attach('Slit 2 position provider', ComponentLaserDistance),
-        'slit3': Attach('Slit 3 position provider', ComponentLaserDistance),
-        'slit4': Attach('Slit 4 position provider', ComponentLaserDistance),
-        'analyzer': Attach('Analyzer position provider', ComponentLaserDistance),
-        'detector': Attach('Detector position provider', ComponentLaserDistance),
     }
 
     valuetype = dictwith(m2t=float, s2t=float, ath=float)
@@ -110,20 +103,25 @@ class AmorLogicalMotorHandler(Moveable):
         return ', '.join([mt + '=%(' + mt + ').3f' for mt in motortypes])
 
     def doRead(self, maxage=0):
+        distances = session.getDevice('Distances')
+
+        # Check if the sample and polariser distances are available
+        if not isinstance(distances.sample, number_types) or \
+                not isinstance(distances.polariser, number_types):
+            raise PositionError('Distances for sample and polariser unknown')
+
         soz = self._attached_soz.read(0)
-        dist = abs(self._attached_sample.read(0) -
-                   self._attached_polarizer.read(0))
+        dist = abs(distances.sample - distances.polariser)
         tmp = soz / dist
         if abs(tmp) > 1e-4:
             actualm2t = math.degrees(-1 * math.atan(tmp))
         else:
             actualm2t = 0.0
 
-        if self._attached_analyzer.active:
+        if isinstance(distances.analyser, number_types):
             aom = self._attached_aom.read(0)
             aoz = self._attached_aoz.read(0)
-            sah = abs(self._attached_analyzer.read(0) -
-                      self._attached_sample.read(0))
+            sah = abs(distances.analyser - distances.sample)
             actuals2t = math.degrees(math.atan((aoz - soz) / sah)) + actualm2t
             actualath = -1 * (actuals2t - actualm2t - aom)
         else:
@@ -209,43 +207,41 @@ class AmorLogicalMotorHandler(Moveable):
         self.log.debug('Recalculating with targets: %s', targets)
         positions = []
 
+        distances = session.getDevice('Distances')
+
         # soz
-        dist = abs(self._attached_sample.read(0) -
-                   self._attached_polarizer.read(0))
+        dist = abs(distances.sample - distances.polariser)
         soz = dist * math.tan(math.radians(-1 * targets[M2T]))
         positions.append((self._attached_soz, soz))
 
         # slit 1 is before the monochromator and does not need to be
         # driven when m2t changes. This is here to make sure that d1b
         # is in a feasible position.
-        if self._attached_slit1.active:
+        if isinstance(distances.slit1, number_types):
             mot = self._attached_d1t.read(0)
             val = -.5 * mot
             positions.append((self._attached_d1b, val))
 
         # slit 2
-        if self._attached_slit2.active:
-            dist = abs(self._attached_slit2.read(0) -
-                       self._attached_polarizer.read(0))
+        if isinstance(distances.slit2, number_types):
+            dist = abs(distances.slit2 - distances.polariser)
             mot = self._attached_d2t.read(0)
             val = dist * math.tan(
                 math.radians(-1 * targets[M2T])) - 0.5 * mot
             positions.append((self._attached_d2b, val))
 
         # slit 3
-        if self._attached_slit3.active:
-            dist = abs(self._attached_slit3.read(0) -
-                       self._attached_polarizer.read(0))
+        if isinstance(distances.slit3, number_types):
+            dist = abs(distances.slit3 - distances.polariser)
             mot = self._attached_d3t.read(0)
             val = dist * math.tan(
                 math.radians(-1 * targets[M2T])) - 0.5 * mot
             positions.append((self._attached_d3b, val))
 
         # Analyzer
-        if self._attached_analyzer.active:
+        if isinstance(distances.analyser, number_types):
             com = targets[S2T] - targets[M2T] + 2 * targets[ATH]
-            sah = abs(self._attached_analyzer.read(0) -
-                      self._attached_sample.read(0))
+            sah = abs(distances.analyser - distances.sample)
             aoz = soz + sah * math.tan(
                 math.radians(targets[S2T] - targets[M2T]))
             aom = targets[S2T] - targets[M2T] + targets[ATH]
@@ -253,9 +249,8 @@ class AmorLogicalMotorHandler(Moveable):
             positions.append((self._attached_aom, aom))
 
             # Detector when analyzer present
-            if self._attached_detector.active:
-                sdh = abs(self._attached_detector.read(0) -
-                          self._attached_sample.read(0))
+            if isinstance(distances.detector, number_types):
+                sdh = abs(distances.detector - distances.sample)
                 positions.append((self._attached_com, com))
                 tmp = soz - aoz
                 sqsum = sah * sah + tmp * tmp
@@ -268,21 +263,19 @@ class AmorLogicalMotorHandler(Moveable):
         else:
             # Detector when no analyzer present
             com = targets[S2T] - targets[M2T]
-            if self._attached_detector.active:
+            if isinstance(distances.detector, number_types):
                 positions.append((self._attached_com, com))
-                dist = abs(self._attached_detector.read(0) -
-                           self._attached_sample.read(0))
+                dist = abs(distances.detector - distances.sample)
                 val = -1 * dist * (math.cos(math.radians(com)) - 1.0)
                 positions.append((self._attached_cox, val))
                 val = dist * math.sin(math.radians(com)) + soz
                 positions.append((self._attached_coz, val))
 
         # slit 4
-        if self._attached_slit4.active:
-            dist = abs(self._attached_slit4.read(0) -
-                       self._attached_sample.read(0))
+        if isinstance(distances.slit4, number_types):
+            dist = abs(distances.slit4 - distances.sample)
             mot = self._attached_d4t.read(0)
-            if self._attached_analyzer.active:
+            if isinstance(distances.analyser, number_types):
                 val = (soz + dist * math.tan(
                     math.radians(targets[S2T] - targets[M2T])) - 0.5 * mot)
             else:

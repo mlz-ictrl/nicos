@@ -3,43 +3,6 @@ description = 'Various devices for logical motors in AMOR'
 includes = ['sinq_amor_movable']
 
 devices = dict(
-    dchopper = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of chopper from the laser'
-    ),
-    dfilter = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of filter from the laser',
-    ),
-    dpolarizer = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of monochromator from the laser',
-        mirrorheight = -88.0
-    ),
-    dslit1 = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of slit 1 from the laser',
-    ),
-    dslit2 = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of slit2 from the laser',
-        mirrorheight = -73.0
-    ),
-    dslit3 = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of slit3 from the laser',
-        mirrorheight = -63.0
-    ),
-    dslit4 = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of slit4 from the laser',
-        mirrorheight = -34.0
-    ),
-    dsample = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of sample from the laser',
-        mirrorheight = -52.0
-    ),
-    danalyzer = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of analyzer from the laser',
-        mirrorheight = -24.0
-    ),
-    ddetector = device('nicos_sinq.amor.devices.component_handler.ComponentLaserDistance',
-        description = 'Distance of detector from the laser',
-        mirrorheight = 0.0
-    ),
     controller = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotorHandler',
         description = 'Logical Motors Controller',
         soz = 'soz',
@@ -56,14 +19,6 @@ devices = dict(
         d2t = 'd2t',
         d3t = 'd3t',
         d4t = 'd4t',
-        sample = 'dsample',
-        polarizer = 'dpolarizer',
-        slit1 = 'dslit1',
-        slit2 = 'dslit2',
-        slit3 = 'dslit3',
-        slit4 = 'dslit4',
-        analyzer = 'danalyzer',
-        detector = 'ddetector',
         lowlevel = True,
         loglevel = 'debug'
     ),
@@ -83,4 +38,67 @@ devices = dict(
         controller = 'controller',
         loglevel = 'debug'
     ),
+    dimetix=device('nicos_sinq.amor.devices.dimetix.EpicsDimetix',
+                   description='Laser distance measurement device',
+                   readpv='SQ:AMOR:DIMETIX:DIST',
+                   epicstimeout=3.0,),
+
+    laser_switch=device(
+        'nicos_sinq.amor.devices.programmable_unit.ProgrammableUnit',
+        description='Laser light controlled by SPS',
+        epicstimeout=3.0,
+        readpv='SQ:AMOR:SPS1:DigitalInput',
+        commandpv='SQ:AMOR:SPS1:Push',
+        commandstr="S0001",
+        byte=15,
+        bit=7,
+        mapping={'OFF': 0, 'ON': 1}
+    ),
+
+    xlz=device('nicos_ess.devices.epics.motor.EpicsMotor',
+               epicstimeout=3.0,
+               description='Counter z position distance laser motor',
+               motorpv='SQ:AMOR:mota:xlz',
+               errormsgpv='SQ:AMOR:mota:xlz-MsgTxt',
+               lowlevel=True
+               ),
+
+    laser_positioner=device(
+        'nicos.devices.generic.Switcher',
+        description='Position laser to read components',
+        moveable='xlz',
+        mapping={'park': -0.1,
+                 'analyser': -24.0,
+                 'detector': 0.0,
+                 'polariser': -88.0,
+                 'sample': -52.0,
+                 'slit2': -73.0,
+                 'slit3': -63.0,
+                 'slit4': -34.0,
+                 'selene': -116.0,
+                 },
+        fallback='<undefined>',
+        precision=0
+    ),
+
+    Distances = device(
+        'nicos_sinq.amor.devices.component_handler.DistancesHandler',
+        description='Device to handle distance calculation in AMOR',
+        components={
+            'polariser': (-232, 0),
+            'slit2': (302, 0),
+            'slit3': (-22, 0),
+            'slit4': (306, 0),
+            'sample': (-310, 0),
+            'detector': (326, 0),
+            'selene': (-726, 0),
+            'analyser': (310, 0),
+            'filter': (-726, 0),
+            'chopper': (-245, 0),
+            'slit1': (0, 0)
+        },
+        switch='laser_switch',
+        positioner='laser_positioner',
+        dimetix='dimetix'
+    )
 )

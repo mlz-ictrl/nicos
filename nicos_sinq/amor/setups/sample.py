@@ -2,8 +2,6 @@ description = 'Sample devices in the SINQ AMOR.'
 
 pvprefix = 'SQ:AMOR:mota:'
 
-includes = ['distances']
-
 devices = dict(
     som=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
@@ -48,10 +46,4 @@ devices = dict(
                unit='Oe',
                switch='hsy_switch'
                ),
-    dist_chopper_sample=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of sample to chopper',
-        distcomponent='dsample',
-        distreference='dchopper'
-    ),
 )

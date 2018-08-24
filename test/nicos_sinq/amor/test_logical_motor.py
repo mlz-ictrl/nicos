@@ -33,17 +33,18 @@ session_setup = 'sinq_amor_logical_motors'
 
 logical_motors = ['m2t', 's2t', 'ath']
 
-initial_distances = [('dchopper', -245, 10151),
-                     ('dpolarizer', -232, 7983),
-                     ('dslit1', 0, 7550),
-                     ('dslit2', 302, 7145),
-                     ('dslit3', -22, 6445),
-                     ('dsample', -310, 5310),
-                     ('dslit4', 306, 4210),
-                     ('dfilter', -726, 7727),
-                     ('danalyzer', 310, 2463),
-                     ('ddetector', 326, 572)
-                     ]
+rawdistances = {
+    'chopper': 10151,
+    'polariser': 7983,
+    'slit1': 7550,
+    'slit2': 7145,
+    'slit3': 6445,
+    'sample': 5310,
+    'slit4': 4210,
+    'filter': 7727,
+    'analyser': 2463,
+    'detector': 572
+}
 
 initial_positions = [('d1t', 10.000), ('d2t', 10.000), ('d3t', 10.000),
                      ('d4t', 10.000)]
@@ -125,12 +126,10 @@ class TestLogicalMotor(object):
         component distances
         """
         # Set the component distances
-        for devname, markoff, value in initial_distances:
-            dev = session.getDevice(devname)
-            dev.markoffset = markoff
-            dev.readvalue = value
-            dev.scaleoffset = 0.0
-            dev.active = True
+        distances = session.getDevice('Distances')
+        distances.rawdistances = rawdistances
+        for comp in distances._components():
+            distances._update_component(comp)
 
         # Set the initial position of devices
         for devname, position in initial_positions:

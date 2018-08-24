@@ -2,8 +2,6 @@ description = 'Slit 1 devices in the SINQ AMOR.'
 
 pvprefix = 'SQ:AMOR:motc:'
 
-includes = ['distances']
-
 devices = dict(
     d1l=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
@@ -51,17 +49,4 @@ devices = dict(
                        unit='mm',
                        lowlevel=True
                        ),
-    dist_chopper_slit1=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of slit 1 to chopper',
-        distcomponent='dslit1',
-        distreference='dchopper'
-    ),
-    dist_sample_slit1=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of slit 1 to sample',
-        distcomponent='dslit1',
-        distreference='dsample'
-    )
-
 )

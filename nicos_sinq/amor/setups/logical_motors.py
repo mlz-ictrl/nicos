@@ -1,6 +1,6 @@
 description = 'Various virtual/logical motors in AMOR'
 
-includes = ['analyser', 'counter', 'distances', 'sample',
+includes = ['analyser', 'counter', 'sample',
             'slit1', 'slit2', 'slit3', 'slit4', 'slit5']
 
 devices = dict(
@@ -20,14 +20,6 @@ devices = dict(
         d2t = 'd2t',
         d3t = 'd3t',
         d4t = 'd4t',
-        sample = 'dsample',
-        polarizer = 'dpolarizer',
-        slit1 = 'dslit1',
-        slit2 = 'dslit2',
-        slit3 = 'dslit3',
-        slit4 = 'dslit4',
-        analyzer = 'danalyzer',
-        detector = 'ddetector',
         lowlevel = True
     ),
     m2t = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',

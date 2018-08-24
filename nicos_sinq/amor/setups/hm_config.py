@@ -1,6 +1,6 @@
 description = 'Devices for configuring Histogram Memory'
 
-includes = ['chopper', 'distances']
+includes = ['chopper']
 
 devices = dict(
     hm_connector=device(
@@ -15,8 +15,6 @@ devices = dict(
         'nicos_sinq.amor.devices.hm_config.AmorTofArray',
         description='TOF Array for histogramming',
         lowlevel=True,
-        dchopper='dchopper',
-        ddetector='ddetector',
         chopper='chopper',
         tag='tof',
         formatter='%9d',

@@ -22,11 +22,18 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Override, status, Attach
-from nicos.core.device import Readable
+from nicos import session
+from nicos.core import Param, Attach, dictof, status, usermethod, listof
+from nicos.core.device import Readable, Moveable
+from nicos.core.errors import ConfigurationError
+from nicos.devices.generic.sequence import BaseSequencer, SeqSleep, SeqDev, \
+    SeqCall
+from nicos.utils import printTable
+from nicos.pycompat import number_types
+from nicos_sinq.amor.devices.sps_switch import SpsSwitch
 
 
-class ComponentLaserDistance(Readable):
+class DistancesHandler(BaseSequencer):
     """
     AMOR component handling module. These distances along the optical bench
     are measured with the dimetix laser distance measurement device.
@@ -45,72 +52,239 @@ class ComponentLaserDistance(Readable):
     S = d - S' -ls
     where d is scale offset, S' is the value read by laser and ls is the
     known offset.
-
-    The mirror height provides the vertical location of the mirror attached
-    to the component. If dimetix is at this height then the distance recorded
-    is the distance of this component.
     """
+
+    valuetype = list
 
     parameters = {
-        'markoffset': Param('Known offset to the true value', type=float,
-                            default=0.0, mandatory=False, settable=True),
-        'scaleoffset': Param('Zero point of the scale', type=float,
-                             default=0.0, mandatory=False, settable=True),
-        'readvalue': Param('Distance read from the laser', type=float,
-                           default=0.0, mandatory=False, settable=True),
-        'active': Param('Is this distance currently active', type=bool,
-                        default=True, mandatory=False, settable=True),
-        'mirrorheight': Param('Vertical height of the attached mirror',
-                              type=float, default=1000, mandatory=False,
-                              settable=True)
+        'components': Param('Components mapped to tuple of their offsets '
+                            '(mark_offset, scale_offset)',
+                            type=dictof(str, tuple), userparam=False),
+        'fixedcomponents': Param('Fixed components mapped to their distances',
+                                 type=dictof(str, float)),
+        'rawdistances': Param('Calculated distances of components',
+                              type=dictof(str, float), userparam=False,
+                              settable=True),
+        'order': Param('Order of componenets for display/mesaurment',
+                       type=listof(str), userparam=False)
     }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='mm', settable=False)
-    }
-
-    def doRead(self, maxage=0):
-        return abs(self.scaleoffset - self.readvalue - self.markoffset)
-
-    def doStatus(self, maxage=0):
-        if not self.active:
-            return status.WARN, 'not active'
-
-        return status.OK, ''
-
-
-class ComponentReferenceDistance(Readable):
-    """Device to measure distance between two components.
-    """
 
     attached_devices = {
-        'distcomponent': Attach(
-            'Device measuring distance of component from laser',
-            ComponentLaserDistance),
-        'distreference': Attach(
-            'Device measuring distance of reference from laser',
-            ComponentLaserDistance)
+        'switch': Attach('Switch to turn laser on/off', SpsSwitch),
+        'positioner': Attach('Positions laser to measure various components',
+                             Moveable),
+        'dimetix': Attach('Measures and returns the distance', Readable)
     }
 
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='mm', settable=False),
-        'fmtstr': Override(userparam=False),
-        'maxage': Override(userparam=False),
-        'pollinterval': Override(userparam=False),
-        'warnlimits': Override(userparam=False)
-    }
+    def __call__(self, components=None):
+        # Print the distances of specified components from
+        # Laser, Sample and Chopper
+        if not components:
+            components = self._components()
+        sample = getattr(self, 'sample', None)
+        chopper = getattr(self, 'chopper', None)
+        table = []
+        self.log.info('Horizontal distances of components:')
+        for component in components:
+            distance = getattr(self, component, None)
+            row = [component]
+            if isinstance(distance, number_types):
+                if isinstance(sample, number_types):
+                    row.append(str(sample - distance))
+                else:
+                    row.append('-')
+                if isinstance(chopper, number_types):
+                    row.append(str(chopper - distance))
+                else:
+                    row.append('-')
+                table.append(row)
+        printTable(['Component', 'From SAMPLE', 'From CHOPPER'],
+                   table, self.log.info, rjust=True)
+
+    def doInit(self, mode):
+        self._update()
+
+    def _update(self):
+        unknown = []
+        inactive_loaded = []
+        for component in self._components():
+            self._update_component(component)
+            val = getattr(self, component)
+            if val == 'UNKNOWN':
+                unknown.append(component)
+            elif val == 'NOT ACTIVE' and component in session.loaded_setups:
+                inactive_loaded.append(component)
+
+        if unknown:
+            self.log.warn('Distances for following components unknown:')
+            self.log.warn('** ' + ', '.join(unknown))
+            self.log.warn(' ')
+
+        if inactive_loaded:
+            self.log.warn('Following components are inactive but loaded in setups:')
+            self.log.warn('** ' + ', '.join(inactive_loaded))
+            self.log.warn('Do one of the following:')
+            self.log.warn('Unload these setups OR Run: %s.mesaure() to '
+                          'redo distances!' % self.name)
+
+    def doInfo(self):
+        ret = []
+        for component in self._components():
+            ret.append((component, getattr(self, component),
+                        str(getattr(self, component)), 'mm', 'general'))
+        return ret
 
     def doRead(self, maxage=0):
-        return abs(self._attached_distcomponent.read(0) -
-                   self._attached_distreference.read(0))
+        return ''
 
     def doStatus(self, maxage=0):
-        refstatus = self._attached_distreference.doStatus(maxage)
-        if refstatus[0] != status.OK:
-            return refstatus[0], 'Reference: %s' % refstatus[1]
-
-        compstatus = self._attached_distcomponent.doStatus(maxage)
-        if compstatus[0] != status.OK:
-            return compstatus
-
+        if self._seq_is_running():
+            return status.BUSY, 'Measuring'
         return status.OK, ''
+
+    def doIsAtTarget(self, pos):
+        return True
+
+    def _update_component(self, component, printValues=False):
+        if component in self.fixedcomponents:
+            self.__dict__[component] = self.fixedcomponents.get(component)
+            if printValues:
+                self._logvalues([component, "", getattr(self, component),
+                                 "FIXED"])
+            return
+
+        if component in self.components:
+            raw = self.rawdistances.get(component)
+            if raw is None:
+                self.__dict__[component] = 'UNKNOWN'
+                if printValues:
+                    self._logvalues([component, "", "", "UNKNOWN"])
+                return
+
+            if raw > 8000:
+                self.__dict__[component] = 'NOT ACTIVE'
+                if printValues:
+                    self._logvalues([component, raw, "", "NOT ACTIVE"])
+                return
+
+            offsets = self.components[component]
+            if not isinstance(offsets, tuple):
+                offsets = tuple(offsets)
+            scaleoffset = offsets[1] if len(offsets) > 1 else 0.0
+            markoffset = offsets[0]
+            self.__dict__[component] = abs(scaleoffset - raw - markoffset)
+            if printValues:
+                self._logvalues([component, raw, getattr(self, component), ""])
+
+    def _logvalues(self, values, isheader=False):
+        if isheader:
+            values = ['{0: <13}'.format(val) for val in values]
+            printTable(values, [], self.log.info)
+        else:
+            values = ['{0: >13}'.format(val) for val in values]
+            printTable([], [values], self.log.info)
+
+    def _components(self):
+        # Return the ordered list of components
+        components = self.components.keys() + self.fixedcomponents.keys()
+
+        # Add the missing components in the order dict
+        ordered = self.order
+        for comp in components:
+            if comp not in ordered:
+                ordered.append(comp)
+
+        return sorted(components, key=ordered.index)
+
+    def _update_raw_distance(self, component):
+        distances = {}
+        if self.rawdistances:
+            distances.update(self.rawdistances)
+
+        # Get the value from cox
+        try:
+            cox = session.getDevice('cox')
+        except ConfigurationError:
+            coxval = 0.0
+        else:
+            coxval = cox.read(0)
+
+        distances[component] = self._attached_dimetix.read(0) + coxval
+        self.rawdistances = distances
+
+    def _generateSequence(self, target):
+        if not target:
+            target = self._components()
+
+        # Add everything to be done in the seq list
+        seq = []
+
+        # If the laser is now on, turn it on
+        if self._attached_switch.read(0) != 'ON':
+            seq.append(SeqDev(self._attached_switch, 'ON'))
+            seq.append(SeqSleep(5))
+
+        seq.append(SeqCall(self._logvalues,
+                           ['Component', 'Read', 'Final', 'Comments'],
+                           True))
+
+        for component in target:
+            if component not in self._components():
+                comments = 'Skipping! Component not valid..'
+                seq.append(SeqCall(self._logvalues, [component, '', '',
+                                                     comments]))
+                continue
+
+            if component in self.fixedcomponents:
+                comments = 'Skipping! Component fixed..'
+                seq.append(SeqCall(self._logvalues, [component, '', '',
+                                                     comments]))
+                continue
+
+            if component not in self._attached_positioner.mapping:
+                comments = 'Skipping! Height not configured..'
+                seq.append(SeqCall(self._logvalues, [component, '', '',
+                                                     comments]))
+                continue
+
+            # Move the laser to the component height
+            seq.append(SeqDev(self._attached_positioner, component))
+
+            # Sleep for few seconds before reading the value
+            seq.append(SeqSleep(3))
+
+            # Read in and change the distance measured by laser
+            seq.append(SeqCall(self._update_raw_distance, component))
+            seq.append(SeqCall(self._update_component, component, True))
+
+        seq.append(SeqCall(self.log.info, 'Parking and turning off laser..'))
+        seq.append(SeqDev(self._attached_positioner, 'park'))
+        seq.append(SeqDev(self._attached_switch, 'OFF'))
+        seq.append(SeqCall(self.log.info, 'Done! Summary below:'))
+        seq.append(SeqCall(self.__call__, target))
+        seq.append(SeqCall(self._update))
+
+        return seq
+
+    # User Methods
+    @usermethod
+    def measure(self, components=None):
+        """Routine to calculate the distances of various components in AMOR.
+        The laser is moved to the height of a component and the distance is
+        then measured.
+
+        NOTE: The following components are allowed:
+        analyzer, detector, polarizer, filter, sample, slit1, slit2, slit3,
+        slit4, selene
+
+        Example:
+
+        Following command calculates distances for all the components
+        >>> CalculateComponentDistances()
+
+        Following command calculates the distances for specified components
+        >>> CalculateComponentDistances(['analyzer', 'sample'])
+        """
+        if components is None:
+            components = []
+        self.maw(components)

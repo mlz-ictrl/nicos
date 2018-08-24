@@ -2,8 +2,6 @@ description = 'Polarizer devices in the SINQ AMOR.'
 
 pvprefix = 'SQ:AMOR:motb:'
 
-includes = ['distances']
-
 devices = dict(
     mom=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
@@ -29,16 +27,4 @@ devices = dict(
                motorpv=pvprefix + 'mty',
                errormsgpv=pvprefix + 'mty-MsgTxt',
                ),
-    dist_chopper_polarizer=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of polarizer to chopper',
-        distcomponent='dpolarizer',
-        distreference='dchopper'
-    ),
-    dist_sample_polarizer=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of polarizer to sample',
-        distcomponent='dpolarizer',
-        distreference='dsample'
-    )
 )

@@ -1,6 +1,6 @@
 description = 'Neutron counter box and channels in the SINQ AMOR.'
 
-includes = ['hm_config', 'distances']
+includes = ['hm_config']
 
 pvprefix = 'SQ:AMOR:counter'
 
@@ -86,18 +86,6 @@ devices = dict(
         liveinterval=20,
         saveintervals=[60]
     ),
-    dist_chopper_detector=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of detector to chopper',
-        distcomponent='ddetector',
-        distreference='dchopper'
-    ),
-    dist_sample_detector=device(
-        'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
-        description='Distance of detector to sample',
-        distcomponent='ddetector',
-        distreference='dsample'
-    )
 )
 
 startupcode = '''

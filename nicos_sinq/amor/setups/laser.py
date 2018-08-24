@@ -1,10 +1,13 @@
 description = 'Laser distance measurement device in AMOR'
 
+group='lowlevel'
+
 devices = dict(
     dimetix=device('nicos_sinq.amor.devices.dimetix.EpicsDimetix',
                    description='Laser distance measurement device',
                    readpv='SQ:AMOR:DIMETIX:DIST',
-                   epicstimeout=3.0,),
+                   epicstimeout=3.0,
+                   lowlevel=True),
 
     laser_switch=device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
         description='Laser light controlled by SPS',
@@ -15,6 +18,7 @@ devices = dict(
         byte=15,
         bit=7,
         mapping={'OFF': False, 'ON': True},
+        lowlevel=True
     ),
 
     xlz=device('nicos_ess.devices.epics.motor.EpicsMotor',
@@ -30,18 +34,17 @@ devices = dict(
         description='Position laser to read components',
         moveable='xlz',
         mapping={'park': -0.1,
-                 'analyzer': -24.0,
+                 'analyser': -24.0,
                  'detector': 0.0,
-                 'polarizer': -88.0,
-                 'filter': 1000,
+                 'polariser': -88.0,
                  'sample': -52.0,
-                 'slit1': 1000,
                  'slit2': -73.0,
                  'slit3': -63.0,
                  'slit4': -34.0,
                  'selene': -116.0,
                  },
         fallback='<undefined>',
-        precision=0
-    )
+        precision=0,
+        lowlevel=True
+    ),
 )

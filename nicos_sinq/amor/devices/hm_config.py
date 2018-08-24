@@ -26,10 +26,11 @@ from math import log, floor
 
 from nicos import session
 from nicos.core import Attach
+from nicos.core.errors import NicosError
+from nicos.pycompat import number_types
 from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
 from nicos_sinq.devices.sinqhm.configurator import ConfiguratorBase, \
     HistogramConfTofArray
-from nicos_sinq.amor.devices.component_handler import ComponentLaserDistance
 
 
 class AmorTofArray(HistogramConfTofArray):
@@ -43,8 +44,6 @@ class AmorTofArray(HistogramConfTofArray):
         t means Delta t = constant, <argument> is the number of bins/channels
     """
     attached_devices = {
-        'dchopper': Attach('Distance of chopper', ComponentLaserDistance),
-        'ddetector': Attach('Distance of detector', ComponentLaserDistance),
         'chopper': Attach('The chopper device', EpicsAstriumChopper)
     }
 
@@ -103,8 +102,11 @@ class AmorTofArray(HistogramConfTofArray):
             return
 
         # Get the chopper-detector distance
-        dist = abs(self._attached_dchopper.read() -
-                   self._attached_ddetector.read())
+        distances = session.getDevice('Distances')
+        if not isinstance(distances.chopper, number_types) or \
+                not isinstance(distances.detector, number_types):
+            raise NicosError('Chopper and detector distance unknown')
+        dist = abs(distances.chopper - distances.detector)
 
         # Get Lambda range
         lmin, lmax = self._getLambdaRange()
