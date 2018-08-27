@@ -321,6 +321,7 @@ class TestDevice(object):
             status(tdev)
             tdev._status_exception = NicosError('expected failed status')
 
+    @pytest.mark.timeout(timeout=60, method='thread', func_only=True)
     def test_stop(self, session, log):
         """Check stop() command."""
         motor = session.getDevice('motor')
@@ -328,7 +329,8 @@ class TestDevice(object):
         tdev._stop_exception = NicosError('expected failed stop')
 
         stop()
-        stop(motor, tdev)
+        with log.assert_warns('expected failed stop'):
+            stop(motor, tdev)
         # check stop moving motor
         move(motor, 10)
         stop(motor)
