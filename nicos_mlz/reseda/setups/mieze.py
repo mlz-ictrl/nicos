@@ -3,7 +3,7 @@
 description = 'RESEDA MIEZE setup'
 group = 'basic'
 includes = [
-    'reseda', 'det_cascade', 'arm_0', 'armcontrol',  'slits', 'attenuators',
+    'reseda', 'det_cascade', 'arm_0', 'armcontrol', 'attenuators',
     'slitsng', 'tuning'
 ]
 
