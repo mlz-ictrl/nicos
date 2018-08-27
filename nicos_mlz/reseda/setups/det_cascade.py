@@ -53,7 +53,6 @@ ARMING_STRING = (':TRIG1:SOUR BUS;'
 TRG_STRING = ('*TRG')
 
 devices = dict(
-    # scandet = device('nicos.devices.generic.ScanningDetector',
     # scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
     #     description = 'Scanning detector for scans per echotime',
     #     scandev = 'nse0',
@@ -110,11 +109,11 @@ devices = dict(
     det_hv = device('nicos.devices.tango.PowerSupply',
         description = 'High voltage power supply of the 3he detector',
         tangodevice = tango_base + 'cascade/hv',
-        abslimits = (-3000,0),
-        # warnlimits = (-3000, -2800),
-        # pollinterval = 10,
-        # maxage = 20,
-        # fmtstr = '%.f',
+        abslimits = (-3000, 0),
+        warnlimits = (-3000, -2800),
+        pollinterval = 10,
+        maxage = 20,
+        fmtstr = '%.f',
     ),
 )
 

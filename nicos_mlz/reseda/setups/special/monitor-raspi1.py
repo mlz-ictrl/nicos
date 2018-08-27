@@ -26,13 +26,6 @@ _column1 = Column(
         ],
         setups='attenuators',
     ),
-    Block('Slits', [
-        BlockRow(Field(name='Pinhole 5', dev='pinhole5', unit='mm'),
-                 Field(name='Pinhole 10', dev='pinhole10', unit='mm'),
-                 Field(name='Slit 10x40', dev='slit', unit='mm')),
-        ],
-        setups='slits',
-    ),
     Block('Environment', [
         BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=6),
                  Field(name='6-fold', dev='Sixfold', min='open', width=6)),
@@ -61,7 +54,7 @@ _column1 = Column(
 
 _column2 = Column(
     Block('Sample slits', [
-        #BlockRow(Field(dev='slit1', name='Entrance slit', width=24, istext=True)),
+        BlockRow(Field(dev='slit1', name='Entrance slit', width=24, istext=True)),
         BlockRow(Field(dev='slit2', name='Sample slit', width=24, istext=True)),
         ],
         setups='slitsng',

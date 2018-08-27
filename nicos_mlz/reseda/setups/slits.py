@@ -1,4 +1,6 @@
 #  -*- coding: utf-8 -*-
+# Old slits are not used any more!
+
 
 description = 'Slits/Pinholes'
 group = 'optional'
