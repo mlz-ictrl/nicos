@@ -153,6 +153,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             "broker": ','.join(self.sink.brokers),
             "job_id": str(self.dataset.uid),
             "start_time": starttime,
+            "use_hdf_swmr": self.sink.useswmr,
             "nexus_structure": structure,
             "file_attributes": {
                 "file_name": self.dataset.filepaths[0]
@@ -241,7 +242,9 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         'lastsinked': Param(
             'Saves the counter, start and end time of sinks',
             type=tupleof(int, float, float, dictof(tuple, tuple)),
-            settable=True, userparam=False)
+            settable=True, userparam=False),
+        'useswmr': Param('Use SWMR feature when writing HDF files', type=bool,
+                         settable=False, userparam=False, default=True)
     }
 
     parameter_overrides = {
