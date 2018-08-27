@@ -33,8 +33,11 @@ devices = dict(
         switch = 'arm2_rot_air',
         startdelay = 2.0,
         stopdelay = 2.0,
-        fmtstr = '%.3f',
+        fmtstr = '%.2f',
         precision = 0.01,
         # abslimits = (-5.0, 60.0),
+        unit = '\xb0'
+        #pollinterval = 60,
+        #maxage = 119,
     ),
 )

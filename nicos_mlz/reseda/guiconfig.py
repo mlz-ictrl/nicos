@@ -31,7 +31,12 @@ windows = [
     window('Editor', 'editor',
            panel('nicos.clients.gui.panels.editor.EditorPanel')),
     window('Scans', 'plotter',
-           panel('nicos.clients.gui.panels.scans.ScansPanel')),
+           panel('nicos.clients.gui.panels.scans.ScansPanel',
+                 fit_functions={
+                     'Resonance': (['Vmax = 0.1', 'R = 0.6'], 'Vmax / sqrt(R**2 + (f*L-1/(f*C))**2)'),
+                 },
+                )
+          ),
     window('History', 'find',
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
     window('Logbook', 'table',

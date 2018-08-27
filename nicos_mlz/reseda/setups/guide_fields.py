@@ -11,8 +11,10 @@ devices = {
         tangodevice = '%s/coil/gf%i' % (tango_base, i),
         fmtstr = '%.3f',
         tangotimeout = 30.0,
-        pollinterval = 150.0,
-        maxage = 60,
+        pollinterval = 60,
+        maxage = 119, #maxage should not be a multiple of pollinterval!
+        unit = 'A',
+        precision = 0.005,
     ) for i in ([0, 1, 2] + list(range(4, 11)))
 }
 devices.update({
@@ -21,7 +23,9 @@ devices.update({
         tangodevice = '%s/coil/gf4' % tango_base,
         fmtstr = '%.3f',
         tangotimeout = 5.0,
-        pollinterval = 30,
-        maxage = 150,
+        pollinterval = 60,
+        maxage = 119,
+        unit = 'A',
+        precision = 0.005,
     )
 })
