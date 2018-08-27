@@ -190,7 +190,7 @@ class LiveDataPanel(Panel):
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
                                            (cts/runtime, cts))
             self.updateRange()
-        if self._filename and not self._filename.startswith('live@'):
+        if self._filename and not self._filename.startswith(('live@', '<Live>@')):
             # and path.isfile(self._filename):
             if 'mira_cas' not in self._filename:
                 self.add_to_flist(self._filename, self._format)
@@ -246,6 +246,9 @@ class LiveDataPanel(Panel):
 
     def add_to_flist(self, filename, fformat, scroll=True):
         shortname = path.basename(filename)
+        if self.fileList.count() > 2 and \
+           self.fileList.item(self.fileList.count()-2).text() == shortname:
+            return
         item = QListWidgetItem(shortname)
         item.setData(32, filename)
         item.setData(33, fformat)
