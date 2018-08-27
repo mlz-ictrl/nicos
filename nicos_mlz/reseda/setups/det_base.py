@@ -13,6 +13,7 @@ devices = dict(
         tangodevice = '%s/frmctr/timer' % tango_base,
         fmtstr = '%.2f',
         # lowlevel = True,
+        unit = 's',
     ),
     monitor1 = device('nicos.devices.tango.CounterChannel',
         description = 'Monitor channel 1',
@@ -20,6 +21,7 @@ devices = dict(
         type = 'monitor',
         fmtstr = '%d',
         # lowlevel = True,
+        unit = 'cts'
     ),
 #    monitor2 = device('nicos.devices.tango.CounterChannel',
 #        description = 'Monitor channel 2',
@@ -32,6 +34,7 @@ devices = dict(
         description = 'High voltage power supply of the monitor',
         tangodevice = '%s/mon/hv' % tango_base,
         abslimits = (0, 1050),
+        unit = 'V',
     ),
     counter = device('nicos.devices.tango.CounterChannel',
         description = 'Counter channel 1',
@@ -39,5 +42,6 @@ devices = dict(
         type = 'counter',
         fmtstr = '%d',
         # lowlevel = True,
+        unit = 'cts',
     ),
 )
