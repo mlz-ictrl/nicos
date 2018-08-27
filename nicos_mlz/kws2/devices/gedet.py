@@ -107,7 +107,7 @@ class MultiHV(BaseSequencer):
         while True:
             subseq = []
             for (i, dev) in enumerate(self._attached_ephvs):
-                if abs(target[i] - current[i]) <= 2:
+                if abs(target[i] - current[i]) <= 5:
                     continue
                 if target[i] > current[i]:
                     setval = min(current[i] + self.voltagestep, target[i])
@@ -153,5 +153,5 @@ class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
         # HV writepv intermittently goes into unknown state, ignore it
         code, text = EpicsAnalogMoveable.doStatus(self, maxage)
         if code == status.UNKNOWN:
-            code = status.OK
+            code, text = status.OK, ''
         return code, text

@@ -27,7 +27,7 @@
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     usermethod, Param, CommunicationError, HardwareError, MoveError, \
-    Device, Readable
+    Device, Readable, none_or
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.core import Attach, SIMULATION
 from nicos.pycompat import iteritems
@@ -125,6 +125,8 @@ class MCC2Monoframe(MCC2core, Readable):
         'driverenable': Param('Enable pin (Output 8)', type=bool,
                               mandatory=False, settable=True, default=False,
                               prefercache=False),
+        'override':     Param('Manual override of monocode', type=none_or(str),
+                              settable=True),
     }
 
     monocodes = {   # input triple : (led_num, name)
@@ -146,11 +148,19 @@ class MCC2Monoframe(MCC2core, Readable):
     def doRead(self, maxage=0):
         self.comm('A1R2R3R4R')  # all LEDs off
 
-        monoh = self.comm('ER1;2;3')
-        self.log.debug('mono_h code is %s', monoh)
+        if self.override is not None:
+            if self.override not in self.monocodes:
+                self.log.error('invalid override, must be one of %s',
+                               ', '.join(self.monocodes))
+                monoh = monov = '000'
+            else:
+                monoh = monov = self.override
+        else:
+            monoh = self.comm('ER1;2;3')
+            self.log.debug('mono_h code is %s', monoh)
 
-        monov = self.comm('ER5;6;7')
-        self.log.debug('mono_v code is %s', monov)
+            monov = self.comm('ER5;6;7')
+            self.log.debug('mono_v code is %s', monov)
 
         if monoh != monov:
             raise HardwareError(self, 'monocodes from MFV and MFH are '

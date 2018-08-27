@@ -565,6 +565,9 @@ class DetEnvPanel(Panel):
         client.setup.connect(self.on_client_connected)
 
     def on_client_connected(self):
+        self.detectors.clear()
+        self.sampleenv.clear()
+
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
             Qt.ItemIsEnabled
 

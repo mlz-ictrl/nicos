@@ -24,9 +24,11 @@
 
 """Detector switcher for KWS."""
 
-from nicos.core import Param, Override, oneof, dictof, dictwith, MASTER, \
-    ConfigurationError, DeviceMixinBase
-from nicos.devices.generic.switcher import MultiSwitcher
+from nicos.core import Param, Override, Attach, Moveable, DeviceMixinBase, \
+    status, oneof, dictof, dictwith, MASTER, SIMULATION, ConfigurationError, \
+    MoveError, multiStop, multiReset
+from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+from nicos.devices.abstract import MappedMoveable
 from nicos.utils import num_sort
 from nicos.pycompat import iteritems
 
@@ -52,22 +54,33 @@ class DetectorPosSwitcherMixin(DeviceMixinBase):
     }
 
 
-class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
-    """Switcher for the detector position.
+class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
+                          MappedMoveable):
 
-    This controls the X, Y and Z components of the detector position.  Presets
-    depend on the target wavelength given by the selector.
-    """
+    hardware_access = False
+
+    attached_devices = {
+        'det_z':      Attach('Large detector Z axis', Moveable),
+        'bs_x':       Attach('Large detector beamstop X axis', Moveable),
+        'bs_y':       Attach('Large detector beamstop Y axis', Moveable),
+    }
 
     parameters = {
-        'presets':  Param('Presets that determine the mappings',
-                          type=dictof(str, dictof(str, dictwith(
-                              x=float, y=float, z=float))),
-                          mandatory=True),
+        'presets':    Param('Presets that determine the mappings',
+                            type=dictof(str, dictof(str, dictwith(
+                                x=float, y=float, z=float))),
+                            mandatory=True),
+        'offsets':    Param('Offsets to correct TOF chopper-detector length '
+                            'for the errors in the det_z axis value',
+                            type=dictof(float, float),
+                            mandatory=True),
+        'mapkey':     Param('Last selector position for mapping',
+                            type=str, settable=True, userparam=False),
     }
 
     parameter_overrides = {
         'mapping':  Override(mandatory=False, settable=True, userparam=False),
+        'fallback':  Override(userparam=False, type=str, mandatory=True),
     }
 
     def doInit(self, mode):
@@ -78,18 +91,17 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
                     raise ConfigurationError(
                         self, 'no detector offset found in configuration '
                         'for detector distance of %.2f m' % preset['z'])
-        MultiSwitcher.doInit(self, mode)
+        MappedMoveable.doInit(self, mode)
         # apply mapping of last selector pos in case it changed
         if mode == MASTER:
             self._updateMapping(self.mapkey)
 
     def _updateMapping(self, selpos):
         self.log.debug('updating the detector mapping for selector '
-                       'setting %s', selpos)
+                       'setting %s' % selpos)
         try:
             pos = self.presets.get(selpos, {})
-            new_mapping = dict((k, [v['z'], v['x'], v['y']])
-                               for (k, v) in pos.items())
+            new_mapping = {k: [v['x'], v['y'], v['z']] for (k, v) in pos.items()}
             self.mapping = new_mapping
             self.mapkey = selpos
             self.valuetype = oneof_detector(*sorted(new_mapping, key=num_sort))
@@ -98,3 +110,48 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, MultiSwitcher):
                 self._cache.invalidate(self, 'status')
         except Exception:
             self.log.warning('could not update detector mapping', exc=1)
+
+    def _startRaw(self, pos):
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot start device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
+
+        seq = []
+        # XXX: use a SeqMultiDev
+        seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
+        seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
+        seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
+        # maybe reposition beamstop Y axis to counter jitter?
+        # seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
+
+        self._startSequence(seq)
+
+    def _readRaw(self, maxage=0):
+        return {n: (d.read(maxage), getattr(d, 'precision', 0))
+                for (n, d) in self._adevs.items()}
+
+    def _mapReadValue(self, pos):
+        def eq(posname, val):
+            return abs(pos[posname][0] - val) <= pos[posname][1]
+
+        for name, values in iteritems(self.mapping):
+            if eq('det_z', values[2]) and eq('bs_x', values[0]) and \
+               eq('bs_y', values[1]):
+                return name
+        return self.fallback
+
+    def doStatus(self, maxage=0):
+        seq_status = SequencerMixin.doStatus(self, maxage)
+        if seq_status[0] not in (status.OK, status.WARN):
+            return seq_status
+        return MappedMoveable.doStatus(self, maxage)
+
+    def doReset(self):
+        multiReset(self._adevs)
+
+    def doStop(self):
+        multiStop(self._adevs)

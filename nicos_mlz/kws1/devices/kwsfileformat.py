@@ -108,8 +108,8 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
 
     def getDetectorPos(self):
         """Return (x, y, z) for detector position."""
-        return (session.getDevice('det_x').read(),
-                session.getDevice('det_y').read(),
+        return (session.getDevice('beamstop_x').read(),
+                session.getDevice('beamstop_y').read(),
                 session.getDevice('det_z').read())
 
     def writeData(self, fp, image):

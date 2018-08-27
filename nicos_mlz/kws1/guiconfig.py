@@ -6,7 +6,7 @@ main_window = tabbed(
             hsplit(
                 vsplit(
                     panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                          modules=['nicos_mlz.kws1.gui.cmdlets']),
+                          modules=['nicos_mlz.kws2.gui.cmdlets']),
                     panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                           eta=True),
                 ),
