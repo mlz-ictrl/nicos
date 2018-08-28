@@ -150,11 +150,21 @@ devices = dict(
     ),
 
     NexusFileWriter=device(
-        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
+        'nicos_sinq.amor.devices.nexus_updater.AmorNexusUpdater',
         description="Status for nexus file writing",
         brokers=configdata('special/config.KAFKA_BROKERS'),
         statustopic="AMOR_filewriterStatus",
         timeout=30,
+        fileupdates={
+            '/entry1/AMOR/control/monitor1': ('monitorval', 'i32', 'cts'),
+            '/entry1/AMOR/control/monitor2': ('protoncurr', 'i32', 'cts'),
+            '/entry1/AMOR/control/time': ('elapsedtime', 'f32', 'sec')
+        },
+        binpaths=['/entry1/AMOR/area_detector/x_detector',
+                  '/entry1/AMOR/area_detector/y_detector',
+                  '/entry1/AMOR/area_detector/time_binning',
+                  '/entry1/AMOR/single_detector_1/time_binning',
+                  '/entry1/AMOR/single_detector_2/time_binning']
     ),
 
     Distances = device(
