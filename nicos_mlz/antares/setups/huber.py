@@ -45,4 +45,12 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
     ),
+#    sry_huber = device('nicos.devices.taco.Motor',
+#        description = 'Sample Rotation around Y',
+#        tacodevice = 'antares/copley/m10',
+#        precision = 0.01,
+#        abslimits = (-9999, 9999),
+#        pollinterval = 5,
+#        maxage = 12,
+#    ),
 )

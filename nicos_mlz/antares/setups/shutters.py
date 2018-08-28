@@ -36,6 +36,8 @@ devices = dict(
     fastshutter_io = device('nicos.devices.tango.DigitalOutput',
         description = 'Tango device for Fast shutter',
         tangodevice = tango_base + 'fzjdp_digital/FastShutter',
+        comdelay = 0.1,
+        comtries = 10,
         lowlevel = True,
     ),
     fastshutter = device('nicos.devices.generic.Switcher',
