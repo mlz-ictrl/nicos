@@ -24,6 +24,7 @@ devices = dict(
                  right='d1r',
                  top='d4t',
                  bottom='d4b',
+                 lowlevel=True
                  ),
     slit4_opening=device('nicos_sinq.amor.devices.slit.SlitOpening',
                          description='Slit 4 opening controller',

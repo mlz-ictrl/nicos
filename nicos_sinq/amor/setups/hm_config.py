@@ -1,5 +1,7 @@
 description = 'Devices for configuring Histogram Memory'
 
+group = 'lowlevel'
+
 includes = ['chopper']
 
 devices = dict(
@@ -147,7 +149,8 @@ devices = dict(
         filler='psd',
         increment=1,
         banks=['hm_bank0', 'hm_bank1'],
-        connector='hm_connector'
+        connector='hm_connector',
+        lowlevel=True
     ),
 
 )

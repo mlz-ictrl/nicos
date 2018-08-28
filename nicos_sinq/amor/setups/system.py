@@ -135,7 +135,8 @@ devices = dict(
         cmdtopic="AMOR_filewriterCommands",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
-        templatename='amor_default'
+        templatename='amor_default',
+        useswmr=False
     ),
 
     HistogramDataSink=device(

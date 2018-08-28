@@ -1,5 +1,7 @@
 description = 'Astrium chopper device in SINQ AMOR'
 
+group='lowlevel'
+
 pvprefix = 'SQ:AMOR:chopper:'
 
 devices = dict(

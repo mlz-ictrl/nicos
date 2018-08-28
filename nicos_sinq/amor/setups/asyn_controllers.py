@@ -1,5 +1,7 @@
 description = 'Asyn serial controllers in the SINQ AMOR.'
 
+group='lowlevel'
+
 pvprefix = 'SQ:AMOR:serial'
 
 devices = dict(

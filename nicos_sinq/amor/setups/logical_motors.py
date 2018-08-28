@@ -23,19 +23,4 @@ devices = dict(
         d4t = 'd4t',
         lowlevel = True
     ),
-    m2t = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
-        description = 'Logical motor monochromator two theta',
-        motortype = 'm2t',
-        controller = 'controller_lm'
-    ),
-    s2t = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
-        description = 'Logical motor sample two theta',
-        motortype = 's2t',
-        controller = 'controller_lm'
-    ),
-    ath = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
-        description = 'Logical Motor analyser theta',
-        motortype = 'ath',
-        controller = 'controller_lm'
-    ),
 )

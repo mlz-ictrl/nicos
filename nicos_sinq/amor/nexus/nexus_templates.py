@@ -57,7 +57,6 @@ amor_default = {
                 "height": DeviceDataset('atz'),
                 "omega_height": DeviceDataset('aoz'),
                 "rotation": DeviceDataset('aom'),
-                "spin_state": DeviceDataset('aby', 'state', 'string')
             },
             "area_detector:NXdetector": {
                 "chopper_detector_distance": NXDataset(8980.0),
@@ -109,10 +108,8 @@ amor_default = {
             "polarizer:NXpolariser": {
                 "distance": DeviceDataset('Distances', 'polariser'),
                 "height": DeviceDataset('mtz'),
-                "magnet_current": DeviceDataset('pby'),
                 "omega_height": DeviceDataset('moz'),
                 "rotation": DeviceDataset('mom'),
-                "spin_state": DeviceDataset('pby', 'state', 'string'),
                 "y_translation": DeviceDataset('mty')
             },
             "pre_sample_slit1:NXaperture": {

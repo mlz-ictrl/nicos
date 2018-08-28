@@ -1,5 +1,7 @@
 description = 'Counter devices in the SINQ AMOR.'
 
+group='lowlevel'
+
 pvprefix = 'SQ:AMOR:mota:'
 
 devices = dict(

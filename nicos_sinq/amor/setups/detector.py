@@ -1,5 +1,7 @@
 description = 'Neutron counter box and channels in the SINQ AMOR.'
 
+group='lowlevel'
+
 includes = ['hm_config']
 
 pvprefix = 'SQ:AMOR:counter'

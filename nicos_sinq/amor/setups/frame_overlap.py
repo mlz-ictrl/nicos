@@ -1,5 +1,7 @@
 description = 'Frame overlap devices in the SINQ AMOR.'
 
+group='lowlevel'
+
 pvprefix = 'SQ:AMOR:motb:'
 
 devices = dict(

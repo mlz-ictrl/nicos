@@ -18,7 +18,7 @@ devices = dict(
     Auth=device('nicos.services.daemon.auth.list.Authenticator',
                 # the hashing maybe 'md5' or 'sha1'
                 hashing='sha1',
-                passwd=[('guest', '15346b593c4d0cf05fb6e67a5669d852e6550481', 'guest'),
+                passwd=[('spy', '15346b593c4d0cf05fb6e67a5669d852e6550481', 'guest'),
                         ('user', '27762722c263f0244de1116edd70cd4703695d03', 'user'),
                         ('admin', '76702e9ada292df094a875e5f72e9f778099d477', 'admin'),
                         ],
@@ -32,7 +32,7 @@ devices = dict(
                   # If server is a hostname (official computer name) or an IP
                   # address the daemon service will be bound the the
                   # corresponding network interface.
-                  server='localhost',
+                  server='',
                   authenticators=['Auth', ],  # and/or 'UserDB'
                   loglevel='debug',
                   ),
